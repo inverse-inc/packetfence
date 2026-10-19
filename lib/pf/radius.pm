@@ -1370,14 +1370,15 @@ sub radius_filter {
 
     # The proxy sections of FreeRADIUS body the proxied copy / the home server's
     # reply unless rest.conf asks for the original request as well
-    # (body_lists = "request ..."): without NAS-IP-Address there is no switch
-    # and no endpoint to evaluate the filters against.
+    # (body_lists = "request ..."): without NAS-IP-Address nor switch MAC there
+    # is no switch and no endpoint to evaluate the filters against. A switch
+    # defined by its MAC (Called-Station-Id) is still looked up.
     # Warned once per process and scope, and no Reply-Message: in post-proxy it
     # would end up in the Access-Accept sent to the switch.
-    if (!defined($switch_ip) || $switch_ip eq '') {
+    if ((!defined($switch_ip) || $switch_ip eq '') && (!defined($switch_mac) || $switch_mac eq '')) {
         unless ($WARNED_NO_SWITCH_IP{$scope}++) {
             $logger->warn(
-                "No switch IP (NAS-IP-Address / Client-IP-Address) in the RADIUS request handed to the $scope filter: skipping the filters. "
+                "No switch IP (NAS-IP-Address / Client-IP-Address) nor switch MAC (Called-Station-Id) in the RADIUS request handed to the $scope filter: skipping the filters. "
                 ."In the pre-proxy/post-proxy sections make sure rest.conf sends the request list (body_lists). "
                 ."Logged once per process."
             );
@@ -1391,7 +1392,7 @@ sub radius_filter {
     # is switch object correct?
     if (!$switch) {
         $logger->warn(
-            "Can't instantiate switch ($switch_ip). This request will be failed. "
+            "Can't instantiate switch (" . ($switch_ip // $switch_mac) . "). This request will be failed. "
             ."Are you sure your switches.conf is correct?"
         );
         return [ $RADIUS::RLM_MODULE_NOOP, ('Reply-Message' => "Switch is not managed by PacketFence") ];

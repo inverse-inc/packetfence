@@ -31,12 +31,12 @@ my $attr = sub { my @v = @_; return { attr_num => 0, type => 'string', value => 
 # flat body (the default rlm_rest layout)
 my $flat = pf::radius::rest::format_request({
     'User-Name'          => $attr->('bob'),
-    'NAS-IP-Address'     => $attr->('192.168.40.22'),
+    'NAS-IP-Address'     => $attr->('192.0.2.22'),
     'Calling-Station-Id' => $attr->('02:44:45:4c:4c:01'),
     'Proxy-State'        => $attr->('a', 'b'),
     'Class'              => $attr->('base64:' . encode_base64("\x00\xffraw", '')),
 });
-is($flat->{'NAS-IP-Address'}, '192.168.40.22', 'flat body: attribute value');
+is($flat->{'NAS-IP-Address'}, '192.0.2.22', 'flat body: attribute value');
 is_deeply($flat->{'Proxy-State'}, ['a', 'b'], 'flat body: multi-valued attribute stays an array');
 is($flat->{Class}, "\x00\xffraw", 'flat body: base64 value decoded');
 
@@ -44,7 +44,7 @@ is($flat->{Class}, "\x00\xffraw", 'flat body: base64 value decoded');
 my $nested = pf::radius::rest::format_request({
     'request' => {
         'User-Name'          => $attr->('02:44:45:4C:4C:01'),
-        'NAS-IP-Address'     => $attr->('192.168.40.22'),
+        'NAS-IP-Address'     => $attr->('192.0.2.22'),
         'Calling-Station-Id' => $attr->('02:44:45:4c:4c:01'),
     },
     'proxy-reply' => {
@@ -52,7 +52,7 @@ my $nested = pf::radius::rest::format_request({
         'Cisco-AVPair'            => $attr->('ip:inacl#101=permit ip any any', 'ip:inacl#102=deny ip any any'),
     },
 });
-is($nested->{'NAS-IP-Address'}, '192.168.40.22', 'body_lists: request list flattened to the top level');
+is($nested->{'NAS-IP-Address'}, '192.0.2.22', 'body_lists: request list flattened to the top level');
 is($nested->{'Calling-Station-Id'}, '02:44:45:4c:4c:01', 'body_lists: request attributes kept');
 ok(!exists $nested->{request}, 'body_lists: no leftover "request" key');
 is($nested->{'proxy-reply'}{'Tunnel-Private-Group-Id'}, '40', 'body_lists: other lists kept under their name');
