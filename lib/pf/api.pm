@@ -1829,13 +1829,14 @@ sub chi_cache_clear : Public {
 
 =head2 clear_portal_session
 
-Remove the captive portal session of a device from the cache of this server (see pf::node::node_clear_portal_session)
+Remove the captive portal sessions of devices (one or more MAC addresses) from the cache of this server (see pf::node::node_clear_portal_session)
 
 =cut
 
 sub clear_portal_session : Public {
-    my ($class, $mac) = @_;
-    return pf::node::node_remove_portal_session($mac);
+    my ($class, @macs) = @_;
+    pf::node::node_remove_portal_session($_) for @macs;
+    return;
 }
 
 =head2 enableMABFloatingInQueue

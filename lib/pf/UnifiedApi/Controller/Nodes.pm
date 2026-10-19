@@ -1315,13 +1315,17 @@ sub bulk_delete {
 
     my ($indexes, $results) = bulk_init_results($items);
     my $nodes = $iter->all;
+    my @deleted;
     for my $node (@$nodes) {
         my $mac = $node->{mac};
         my $index = $indexes->{$mac};
-        my ($status, $msg) = $self->_do_remove($node);
+        my ($status, $msg) = $self->_do_remove($node, keep_portal_session => 1);
         $results->[$index]{status} = $status;
         $results->[$index]{message} = is_error($status) ? ($msg // "Unable to remove resource") : "Deleted $mac successfully";
+        push @deleted, $mac if is_success($status);
     }
+    # One removal of the portal sessions for all the nodes (one request per cluster member)
+    pf::node::node_clear_portal_session(@deleted) if @deleted;
 
     return $self->render(status => 200, json => { items => $results });
 }
@@ -1338,7 +1342,7 @@ _do_remove
 =cut
 
 sub _do_remove {
-    my ($self, $lookup) = @_;
+    my ($self, $lookup, %opts) = @_;
     my $mac = $lookup->{mac};
     my ($result, $msg) = pf::node::_can_delete($mac);
     if (!$result) {
@@ -1348,7 +1352,7 @@ sub _do_remove {
     }
 
     my ($status, @rest) = $self->dal->remove_by_id($lookup);
-    if (is_success($status)) {
+    if (is_success($status) && !$opts{keep_portal_session}) {
         pf::node::node_clear_portal_session($mac);
     }
     return ($status, @rest);
