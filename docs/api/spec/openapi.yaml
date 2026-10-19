@@ -25295,8 +25295,8 @@ components:
           description: For CoA request, if we have to send to another port
           type: integer
         controllerIp:
-          description: Use instead this IP address for de-authentication requests.
-            Normally used for Wi-Fi only
+          description: Use instead this IP address or FQDN for de-authentication
+            requests. Normally used for Wi-Fi only
           type: string
         deauthMethod:
           description: Deauthentication Method
@@ -25633,8 +25633,8 @@ components:
           description: For CoA request, if we have to send to another port
           type: integer
         controllerIp:
-          description: Use instead this IP address for de-authentication requests.
-            Normally used for Wi-Fi only
+          description: Use instead this IP address or FQDN for de-authentication
+            requests. Normally used for Wi-Fi only
           type: string
         deauthMethod:
           description: Deauthentication Method

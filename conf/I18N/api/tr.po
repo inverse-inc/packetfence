@@ -20087,8 +20087,8 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheForm.vue:306
 #: html/pfappserver/root/src/views/Configuration/switches/_components/TheForm.vue:311
 msgid ""
-"Use instead this IP address for de-authentication requests. Normally used "
-"for Wi-Fi only."
+"Use instead this IP address or FQDN for de-authentication requests. Normally "
+"used for Wi-Fi only."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/radius/ocsp/_components/TheForm.vue:30

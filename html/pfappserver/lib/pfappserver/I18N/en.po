@@ -5904,7 +5904,7 @@ msgid "Use a specific OU for the PacketFence account. The OU string read from to
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
-msgid "Use instead this IP address for de-authentication requests. Normally used for Wi-Fi only"
+msgid "Use instead this IP address or FQDN for de-authentication requests. Normally used for Wi-Fi only"
 msgstr ""
 
 # conf/documentation.conf (radius_configuration.normalize_radius_machine_auth_username)
