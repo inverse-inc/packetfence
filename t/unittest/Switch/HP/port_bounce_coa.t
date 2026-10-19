@@ -50,6 +50,8 @@ sub coa_for {
     # which imports locationlog_view_open_mac into its package
     local *{"${module}::locationlog_view_open_mac"} = sub { return { port => 12, dot1x_username => 'user' } };
     local *pf::Switch::HP::AOS_Switch_v16_X::locationlog_view_open_mac = sub { return { port => 12, dot1x_username => 'user' } };
+    # and the one of pf::Switch, used by locationlog_for_disconnect (#9490)
+    local *pf::Switch::locationlog_view_open_mac = sub { return { port => 12, dot1x_username => 'user' } };
     local *pf::roles::custom::getRoleForNode = sub { return 'guest' };
     local *pf::Switch::radius_deauth_connection_info = sub { return {} };
     local *pf::Switch::shouldUseCoA = sub { return $use_coa };
