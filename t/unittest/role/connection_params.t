@@ -33,7 +33,7 @@ my $switch = bless { _id => '192.0.2.10', _group => 'grp9002' }, 'pf::Switch';
 my %args = (
     switch    => $switch,
     mac       => '02:44:45:4c:4c:1a',
-    user_name => 'jbon',
+    user_name => 'testuser',
     node_info => { computername => 'LAPTOP-9002' },
 );
 
