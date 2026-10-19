@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 57;
+use Test::More tests => 64;
 use pf::Switch::Juniper::Junos_v18_x;
 use pf::Switch::Juniper::Junos;
 
@@ -365,6 +365,42 @@ is(
     $switch->acl_chewer("permit tcp any host 192.0.2.10 eq 443\npermit udp any any eq 53", 'testrole'),
     "blank and comment lines are ignored"
 );
+
+# A protocol without a number is not "any protocol": only ip() is
+is(
+    $switch->acl_chewer("permit nos any any\npermit udp any any eq 53", 'testrole'),
+    $switch->acl_chewer("permit udp any any eq 53", 'testrole'),
+    "a protocol without a number (nos) is skipped, not sent as a term matching every protocol"
+);
+is(
+    $switch->acl_chewer("permit object-group svc any any\npermit udp any any eq 53", 'testrole'),
+    $switch->acl_chewer("permit udp any any eq 53", 'testrole'),
+    "an object group protocol is skipped"
+);
+
+# A bypass or switch entry ACL written as a term is only sent when it follows the grammar of the translator
+is_deeply(
+    [$switch->_switchingFilterTerms("Match Destination-Ip 10.0.0.1 Action allow\nMatch Destination-ip 192.0.2.10 Action allow\n", 'testrole')],
+    ['Match Destination-ip 192.0.2.10 Action allow'],
+    "a term the switch would refuse is skipped"
+);
+is_deeply(
+    [$switch->_switchingFilterTerms("Match Ip-protocol 6, Destination-ip 192.0.2.0/24, Destination-port 443 Action allow\n", 'testrole')],
+    ['Match Ip-protocol 6, Destination-ip 192.0.2.0/24, Destination-port 443 Action allow'],
+    "a term with several conditions is kept"
+);
+{
+    my @chewed = grep { /^Match\s/ } split(/\n/, $switch->acl_chewer("permit tcp any host 192.0.2.10 eq 443\npermit udp any eq 68 any eq 67\npermit icmp any 192.0.2.0 0.0.0.255\ndeny ip any any", 'testrole'));
+    is_deeply([$switch->_switchingFilterTerms(join("\n", @chewed), 'testrole')], \@chewed, "every term of the translator passes the term grammar");
+}
+
+# The switch limit is in match conditions: 8 lines of 3 conditions need 24, over the 20 of the switch
+{
+    my @acls = ("permit tcp any host 192.0.2.10 eq 443") x 8;
+    my $error = $switch->checkRoleACLs('testrole', \@acls);
+    is($error && $error->{code}, $pf::error::switch::ACLsLimitErrCode, "a role over the match conditions limit is reported when it is saved");
+    is($switch->checkRoleACLs('testrole', [ @acls[0 .. 5] ]), undef, "18 match conditions are accepted");
+}
 
 =head1 AUTHOR
 

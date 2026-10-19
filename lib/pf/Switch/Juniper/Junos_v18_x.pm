@@ -227,6 +227,12 @@ use constant SWITCHING_FILTER_CONDITIONS_LIMIT => 20;
 # blocked: the filter stops there and denies everything else instead.
 use constant SWITCHING_FILTER_DENY_ALL => 'Match Destination-ip 0.0.0.0/0 Action deny';
 
+# A term as the translator writes it: a bypass or switch entry ACL already written
+# as a term is only sent when it follows the same grammar, since the switch refuses
+# the whole Access-Accept over one attribute it doesn't accept
+my $SWITCHING_FILTER_CONDITION = qr{(?:Ip-protocol\s+\d{1,3}|Destination-ip\s+\d{1,3}(?:\.\d{1,3}){3}(?:/\d{1,2})?|(?:Source|Destination)-port\s+\d{1,5})};
+my $SWITCHING_FILTER_TERM = qr{\AMatch\s+$SWITCHING_FILTER_CONDITION(?:\s*,\s*$SWITCHING_FILTER_CONDITION)*\s+Action\s+(?:allow|deny)\s*\z};
+
 # The Cisco port names Cisco::AccessList::Parser accepts, by IP protocol. The
 # filter only takes port numbers.
 our %CISCO_PORT_NAMES = (
@@ -347,6 +353,32 @@ sub _switchingFilterBudget {
     return @kept;
 }
 
+=head2 checkRoleACLs
+
+The switch limit is in match conditions (SWITCHING_FILTER_CONDITIONS_LIMIT) and
+characters, not in ACL lines: on top of the line count of pf::Switch, warn when
+the terms the role ACLs translate to need more than the switch accepts, since
+the ACLs after the limit are replaced by a deny all
+
+=cut
+
+sub checkRoleACLs {
+    my ($self, $name, $acls) = @_;
+    my $error = $self->SUPER::checkRoleACLs($name, $acls);
+    return $error if defined $error;
+    return undef if !@{$acls // []};
+    my @terms = grep { /^Match\s/ } split(/\n/, $self->acl_chewer(join("\n", @$acls), $name) // '');
+    my ($conditions, $length) = (0, 0);
+    foreach my $term (@terms) {
+        $conditions += $self->_switchingFilterConditionCount($term);
+        $length += length($term);
+    }
+    if ($conditions > SWITCHING_FILTER_CONDITIONS_LIMIT || $length > SWITCHING_FILTER_TOTAL_LIMIT) {
+        return $self->makeACLsError($name, $pf::error::switch::ACLsLimitErrCode);
+    }
+    return undef;
+}
+
 =head2 _switchingFilterConditionCount
 
 Number of match conditions in a term. The switch counts conditions, not terms,
@@ -391,6 +423,10 @@ sub _switchingFilterTerms {
         next if $line !~ /\S/;
 
         if ($line =~ /^Match\s/) {
+            if ($line !~ $SWITCHING_FILTER_TERM) {
+                $logger->warn("(".$self->{'_id'}.") Skipping ACL of role '$role': not a valid Juniper-Switching-Filter term: $line");
+                next;
+            }
             push @terms, $line;
             last if $line eq SWITCHING_FILTER_DENY_ALL;
             next;
@@ -536,8 +572,17 @@ sub _switchingFilterTerm {
 
     my @match;
 
-    my $protocol = $self->_aclProtocolNumber($entry->{'protocol'});
-    push @match, "Ip-protocol $protocol" if defined $protocol;
+    # ip() is any protocol and needs no condition. Any other protocol without a
+    # number (nos, an object group) would become a term matching every protocol
+    my $protocol;
+    if (!$self->_aclProtocolIsAny($entry->{'protocol'})) {
+        $protocol = $self->_aclProtocolNumber($entry->{'protocol'});
+        if (!defined $protocol) {
+            $logger->warn("(".$self->{'_id'}.") Skipping ACL of role '$role': the protocol has no number for an Ip-protocol match condition");
+            return;
+        }
+        push @match, "Ip-protocol $protocol";
+    }
 
     my $destination = $entry->{'destination'};
     if (!$self->_aclAddressIsAny($destination)) {
@@ -589,17 +634,28 @@ sub _aclAddressIsAny {
     return $address->{'ipv4_addr'} eq '0.0.0.0' && $address->{'wildcard'} eq '255.255.255.255';
 }
 
+=head2 _aclProtocolIsAny
+
+Whether the parsed protocol is "ip()", which matches any protocol
+
+=cut
+
+sub _aclProtocolIsAny {
+    my ($self, $protocol) = @_;
+    return defined($protocol) && !ref($protocol) && $protocol eq 'ip()';
+}
+
 =head2 _aclProtocolNumber
 
 Extract the IP protocol number from the parsed protocol, which looks like
-"tcp(6)" or "udp(17)". Returns undef for "ip()", which matches any protocol and
-therefore needs no match condition.
+"tcp(6)", "udp(17)" or "(47)". Returns undef when there is none: "ip()" (any
+protocol, see L</_aclProtocolIsAny>), "nos" or an object group.
 
 =cut
 
 sub _aclProtocolNumber {
     my ($self, $protocol) = @_;
-    return if !defined $protocol;
+    return if !defined $protocol || ref($protocol);
     return $1 if $protocol =~ /\((\d+)\)/;
     return;
 }
