@@ -20,9 +20,10 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 16;
+use Test::More tests => 20;
 use pf::factory::task;
 use pf::task::api;
+use pf::api::queue;
 
 #This test will running last
 use Test::NoWarnings;
@@ -34,18 +35,34 @@ ok(!pf::factory::task->isValidType('notatask'), "unknown task type is not valid"
 ok(!pf::factory::task->isValidType(undef), "undef is not a valid task type");
 ok(!pf::factory::task->isValidType(['api']), "reference is not a valid task type");
 
+ok(pf::api->isAllowedInQueue('send_email'), "Queue method is allowed");
+ok(pf::api->isAllowedInQueue('trigger_security_event'), "AllowedAsAction method is allowed");
+ok(pf::api->isAllowedInQueue('process_dhcpv4'), "queued dhcp method is allowed");
+ok(!pf::api->isAllowedInQueue('echo'), "Public method not tagged for the queue is refused");
+ok(pf::api->isAllowedInQueue('cache_user_ntlm'), "queued ntlm cache method is allowed");
+ok(!pf::api->isAllowedInQueue('rebless_switch'), "untagged method is refused");
+ok(!pf::api->isAllowedInQueue('distant_download_configfile'), "NoQueue method is refused");
+ok(!pf::api->isAllowedInQueue('copy_directory'), "NoQueue method is refused");
+ok(pf::api->isAllowedInQueue('fingerbank_process'), "method queued by the captive portal is allowed");
+
 my $task = pf::task::api->new;
-ok($task->isAllowedMethod('send_email'), "Queue method is allowed");
-ok($task->isAllowedMethod('trigger_security_event'), "AllowedAsAction method is allowed");
-ok($task->isAllowedMethod('process_dhcpv4'), "queued dhcp method is allowed");
-ok(!$task->isAllowedMethod('echo'), "Public method not tagged for the queue is refused");
-ok($task->isAllowedMethod('cache_user_ntlm'), "queued ntlm cache method is allowed");
-ok(!$task->isAllowedMethod('rebless_switch'), "untagged method is refused");
-ok(!$task->isAllowedMethod('distant_download_configfile'), "NoQueue method is refused");
-ok(!$task->isAllowedMethod('copy_directory'), "NoQueue method is refused");
 
 my ($err) = $task->doTask(['notify_configfile_changed', conf_file => '/tmp/x', server => '127.0.0.1']);
 is($err->{status}, 403, "doTask refuses a NoQueue method");
+
+{
+    package queue::client::test;
+    sub new { bless { submitted => [] }, shift }
+    sub submit { my ($self, @args) = @_; push @{$self->{submitted}}, \@args }
+    sub submit_delayed { my ($self, @args) = @_; push @{$self->{submitted}}, \@args }
+}
+
+my $queue_client = queue::client::test->new;
+my $queue = pf::api::queue->new(client => $queue_client);
+$queue->notify('fingerbank_process', '00:11:22:33:44:55');
+is(scalar @{$queue_client->{submitted}}, 1, "notify submits a Queue method");
+ok(!eval { $queue->notify('echo'); 1 }, "notify refuses a method not allowed in the queue");
+ok(!eval { $queue->notify_delayed(10, 'copy_directory'); 1 }, "notify_delayed refuses a NoQueue method");
 
 =head1 AUTHOR
 

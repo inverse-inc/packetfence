@@ -21,17 +21,6 @@ use pf::api;
 use pf::api::can_fork;
 my $logger = get_logger();
 
-=head2 isAllowedMethod
-
-Check if an api method can be run from the queue (see pf::api::attributes::isAllowedInQueue)
-
-=cut
-
-sub isAllowedMethod {
-    my ($self, $method) = @_;
-    return 0 if !defined($method) || ref($method);
-    return pf::api->isAllowedInQueue($method);
-}
 
 =head2 doTask
 
@@ -42,7 +31,7 @@ Calls the api call
 sub doTask {
     my ($self, $args) = @_;
     my $method = ref($args) eq 'ARRAY' ? $args->[0] : undef;
-    unless ($self->isAllowedMethod($method)) {
+    unless (pf::api->isAllowedInQueue($method)) {
         $logger->error("Refusing api task " . ($method // ''));
         return ({ message => "Api method not allowed", status => 403 }, undef);
     }

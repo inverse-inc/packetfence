@@ -1221,7 +1221,7 @@ sub fingerbank_lookup : Public :AllowedAsAction(mac, $mac) {
 
 =cut
 
-sub fingerbank_process : Public {
+sub fingerbank_process : Public :Queue {
     my ( $class, $mac, $overrides ) = @_;
     pf::fingerbank::process($mac, undef, $overrides);
 }
