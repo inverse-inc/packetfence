@@ -4396,6 +4396,13 @@ sub untranslatableAclQualifier {
     my ($self, $entry) = @_;
     return "the ACL is not a permit or a deny" if ($entry->{'action'} // '') !~ /^(?:permit|deny)$/;
     return "the '".lc($1)."' qualifier is not sent" if ($entry->{'acl_line'} // '') =~ /\s(dscp|precedence|tos|fragments|time-range|option)(?:\s|$)/i;
+    # The modules tell "any" by the address 0.0.0.0 alone: an address 0.0.0.0 with
+    # another mask (host 0.0.0.0) would be sent as any
+    foreach my $side ('source', 'destination') {
+        my $address = $entry->{$side};
+        next if ref($address) ne 'HASH' || !defined($address->{'ipv4_addr'}) || $address->{'ipv4_addr'} ne '0.0.0.0';
+        return "the $side address 0.0.0.0 is only sent as any" if !defined($address->{'wildcard'}) || $address->{'wildcard'} ne '255.255.255.255';
+    }
     return undef;
 }
 
@@ -4494,8 +4501,9 @@ sub _denyAllAclEntry {
 Why a parsed ACL entry cannot be sent as a C<NAS-Filter-Rule> in the
 "action in protocol from source to destination port" form built by the
 modules, or undef when it can. The rule has no source port, TCP flags or ICMP
-type, addresses are sent as a prefix, and the destination port is sent as a
-bare number, so only C<eq> keeps its meaning.
+type, addresses are sent as a prefix, the destination port is sent as a bare
+number, so only C<eq> keeps its meaning, and the protocol is sent as its
+number, so a protocol without one is refused.
 
 Options: C<ranges> when the module turns C<range> into a port range, C<source>
 when it sends the source address (the others always send "from any").
@@ -4504,6 +4512,10 @@ when it sends the source address (the others always send "from any").
 
 sub untranslatableFilterRule {
     my ($self, $entry, %options) = @_;
+    # The rule takes a protocol number: a protocol the parser returns without one
+    # (nos, an object group) would be sent as ip, any protocol
+    my $protocol = $entry->{'protocol'};
+    return "the protocol has no number" if !defined($protocol) || ref($protocol) || ($protocol ne 'ip()' && $protocol !~ m{\(\d+\)});
     if ($entry->{'source'}->{'ipv4_addr'} ne '0.0.0.0') {
         return "the rule has no source address match" if !$options{'source'};
         return "the source mask '".$entry->{'source'}->{'wildcard'}."' is not contiguous" if !$self->aclWildcardIsContiguous($entry->{'source'}->{'wildcard'});

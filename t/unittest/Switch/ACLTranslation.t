@@ -23,7 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 85;
+use Test::More tests => 96;
 use pf::Switch;
 use pf::Switch::Aruba::ArubaOS_CX_10_x;
 use pf::Switch::Arista::AristaSwitch;
@@ -267,6 +267,29 @@ foreach my $switch ($aruba, $arista, $aos, $cisco, $forti, $dell) {
 {
     my ($acl_ref, @direction) = $aruba->format_acl("permit ip any host 10.0.0.1\n\n!\npermit ip any host 10.0.0.2");
     is(scalar(@direction), scalar(@{ $acl_ref->{packetfence}{entries} // [] }), "format_acl returns one direction per parsed ACL");
+}
+
+# An address 0.0.0.0 with another mask than any (host 0.0.0.0) is not sent as any
+foreach my $switch ($aruba, $arista, $aos, $cisco, $forti, $dell) {
+    is(
+        chew($switch, "permit udp host 0.0.0.0 any eq 67\npermit udp any any eq 53"),
+        chew($switch, "permit udp any any eq 53"),
+        ref($switch).": host 0.0.0.0 as the source is skipped, not sent as any"
+    );
+}
+is(
+    chew($aruba, "permit ip any host 0.0.0.0\npermit udp any any eq 53"),
+    chew($aruba, "permit udp any any eq 53"),
+    "host 0.0.0.0 as the destination is skipped, not sent as any"
+);
+
+# A NAS-Filter-Rule takes a protocol number: a protocol without one is not sent as ip
+foreach my $switch ($aruba, $arista, $aos, $forti) {
+    is(
+        chew($switch, "permit nos any any\npermit udp any any eq 53"),
+        chew($switch, "permit udp any any eq 53"),
+        ref($switch).": a protocol without a number (nos) is skipped, not sent as any protocol"
+    );
 }
 
 =head1 AUTHOR

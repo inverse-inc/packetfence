@@ -124,6 +124,29 @@ using the `NAS-Filter-Rule` attribute. To use it:
   permit in udp from any to any 67
   deny in ip from any to any
 
+PacketFence translates role ACLs written in the Cisco syntax
+(`permit tcp any host 192.168.1.5 eq 443`) into `NAS-Filter-Rule` entries. A
+line that can't be expressed as a rule is not sent, and a warning is logged in
+[filename]`packetfence.log`:
+
+* a source address other than `any` (the rule is always sent from any),
+* a source port, a port operator other than `eq`, TCP flags (`established`, ...)
+  and ICMP types,
+* a protocol without a number (`nos`, an object group),
+* a non contiguous destination mask, and `host 0.0.0.0` (0.0.0.0 is only sent as
+  any),
+* the `dscp`, `precedence`, `tos`, `fragments`, `time-range` and `option` qualifiers,
+
+With _Push ACLs_ enabled on the switch, only source ports, ICMP types,
+`host 0.0.0.0` and the qualifiers above are skipped.
+
+Skipping a `permit` only narrows the role. Skipping a `deny` would let the lines
+after it allow what it blocks, so the ACL is cut at that `deny` and ends with a
+deny of all the traffic. A role whose lines were all skipped, or whose ACLs
+PacketFence cannot parse, gets that deny all too: sending no ACL would leave the
+endpoint unrestricted. Check [filename]`packetfence.log` for the warning naming
+the line.
+
 ===== PacketFence switch configuration
 
 In the PacketFence administration interface, add the switch under
