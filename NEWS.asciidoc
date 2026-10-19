@@ -29,6 +29,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Enhancements
 
+  - Cluster: the JSON-RPC calls between members have a connect timeout and a request timeout (`active_active.api_connect_timeout`, 5s, and `active_active.api_timeout`, 60s), and pfconfig's database calls time out (`connect_timeout`, `read_timeout`, `write_timeout` in the `[mysql]` section of `pfconfig.conf`, 5s/15s/15s). An unhealthy member no longer hangs the admin API of the others (#8204)
   - RADIUS dynamic clients (switches resolved from radius_nas) are now cached for 300 seconds. With the FreeRADIUS build shipped by PacketFence, `lifetime = 0` deleted the client after every request and re-ran the radius_nas lookups for every packet (fork commit b04cb25fe, reverted separately in inverse-inc/freeradius-server#3). A changed switch secret or type now applies to an already-known switch within five minutes
   - FreeRADIUS thread pool size (`max_servers`) is now configurable as `radius_configuration.radiusd_max_servers` (Configuration > RADIUS > General) and defaults to 128 instead of 64; it also bounds the rlm_rest connection pool to httpd.aaa
 
