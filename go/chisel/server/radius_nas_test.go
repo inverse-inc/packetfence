@@ -24,7 +24,7 @@ func TestRadiusNasKeys(t *testing.T) {
 		"192.168.1.30/32",
 		"10.10.0.0/16",
 		"172.16.0.0/12",
-		"172.20.1.1",
+		"172.30.1.1",
 		"00:11:22:33:44:55",
 	}
 
@@ -35,10 +35,10 @@ func TestRadiusNasKeys(t *testing.T) {
 	}{
 		{
 			name:     "connector networks",
-			networks: []*net.IPNet{mustCIDR(t, "192.168.1.0/24"), mustCIDR(t, "172.20.0.0/16")},
+			networks: []*net.IPNet{mustCIDR(t, "192.168.1.0/24"), mustCIDR(t, "172.30.0.0/16")},
 			want: []radiusNasKey{
 				{Key: "172.16.0.0/12", Nasname: "172.16.0.0/12"},
-				{Key: "172.20.1.1", Nasname: "172.20.1.1"},
+				{Key: "172.30.1.1", Nasname: "172.30.1.1"},
 				{Key: "192.168.1.0/26", Nasname: "192.168.1.0/26"},
 				{Key: "192.168.1.22", Nasname: "192.168.1.22"},
 				{Key: "192.168.1.30/32", Nasname: "192.168.1.30"},
@@ -51,7 +51,7 @@ func TestRadiusNasKeys(t *testing.T) {
 				{Key: "00:11:22:33:44:55", Nasname: "00:11:22:33:44:55"},
 				{Key: "10.10.0.0/16", Nasname: "10.10.0.0/16"},
 				{Key: "172.16.0.0/12", Nasname: "172.16.0.0/12"},
-				{Key: "172.20.1.1", Nasname: "172.20.1.1"},
+				{Key: "172.30.1.1", Nasname: "172.30.1.1"},
 				{Key: "192.168.1.0/26", Nasname: "192.168.1.0/26"},
 				{Key: "192.168.1.22", Nasname: "192.168.1.22"},
 				{Key: "192.168.1.30/32", Nasname: "192.168.1.30"},
