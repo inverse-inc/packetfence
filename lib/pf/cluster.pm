@@ -463,6 +463,7 @@ If this is not a cluster, it will dispatch the notification only to itself.
 sub notify_each_server {
     my (@args) = @_;
     if($cluster_enabled) {
+        require pf::api::jsonrpcclient;
         foreach my $server (config_enabled_servers()) {
             my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $server->{management_ip});
             $apiclient->notify(@args);
