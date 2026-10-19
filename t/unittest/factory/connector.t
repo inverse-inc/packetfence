@@ -32,19 +32,19 @@ my $dns_answer;
 my $mock = Test::MockModule->new('pf::factory::connector');
 $mock->mock('resolve_dns_with_custom_resolver', sub { @$dns_answer });
 
-is(pf::factory::connector->resolve('10.0.0.16'), '10.0.0.16', "A bare IP is used as is");
+is(pf::factory::connector->resolve('192.0.2.16'), '192.0.2.16', "A bare IP is used as is");
 
-$dns_answer = [['10.0.0.16'], undef];
-is(pf::factory::connector->resolve('ad.example.com'), '10.0.0.16', "A hostname outside of the connector networks resolves to its IP");
+$dns_answer = [['192.0.2.16'], undef];
+is(pf::factory::connector->resolve('ad.example.com'), '192.0.2.16', "A hostname outside of the connector networks resolves to its IP");
 
-$dns_answer = [['10.0.0.16', '12.36.24.5'], undef];
+$dns_answer = [['192.0.2.16', '12.36.24.5'], undef];
 is(pf::factory::connector->resolve('ad.example.com'), '12.36.24.5', "The IP part of a connector network is preferred");
 
 $dns_answer = [undef, "NXDOMAIN"];
 is(pf::factory::connector->resolve('ad.example.com'), undef, "An unresolvable hostname returns undef");
 
 is(pf::factory::connector->for_ip('12.36.24.5')->{id}, 'test_networks', "IP in a connector network uses that connector");
-is(pf::factory::connector->for_ip('10.0.0.16')->{id}, 'local_connector', "IP outside of the connector networks uses the local connector");
+is(pf::factory::connector->for_ip('192.0.2.16')->{id}, 'local_connector', "IP outside of the connector networks uses the local connector");
 
 =head1 AUTHOR
 
