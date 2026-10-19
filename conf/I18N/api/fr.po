@@ -19592,6 +19592,8 @@ msgid ""
 "The newline sequence. Leave blank to auto-detect. Must be one of \\r, \\n, "
 "or \\r\\n."
 msgstr ""
+"La séquence de nouvelle ligne. Laissez le champ vierge pour la détection "
+"automatique. Doit être l'un des \\r, \\n ou \\r\\n."
 
 #: html/pfappserver/root/src/components/new/BaseCsvImport.vue:246
 msgid ""
