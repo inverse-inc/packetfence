@@ -133,6 +133,7 @@ use pf::Switch::HP::Procurve_5400;
 use pf::Switch::Hostapd;
 use pf::Switch::Huawei;
 use pf::Switch::Huawei::S5710;
+use pf::Switch::Huawei::S5735;
 use pf::Switch::IBM;
 use pf::Switch::IBM::IBM_RackSwitch_G8052;
 use pf::Switch::Intel;
@@ -350,6 +351,9 @@ is(pf::Switch::Huawei->new->supportsWirelessMacAuth, 1, "pf::Switch::Huawei supp
 is(pf::Switch::Huawei->new->supportsWirelessDot1x, 1, "pf::Switch::Huawei supportsWirelessDot1x still works");
 is(pf::Switch::Huawei::S5710->new->supportsWiredDot1x, 1, "pf::Switch::Huawei::S5710 supportsWiredDot1x still works");
 is(pf::Switch::Huawei::S5710->new->supportsWiredMacAuth, 1, "pf::Switch::Huawei::S5710 supportsWiredMacAuth still works");
+is(pf::Switch::Huawei::S5735->new->supportsWiredDot1x, 1, "pf::Switch::Huawei::S5735 supportsWiredDot1x still works");
+is(pf::Switch::Huawei::S5735->new->supportsWiredMacAuth, 1, "pf::Switch::Huawei::S5735 supportsWiredMacAuth still works");
+is(pf::Switch::Huawei::S5735->new->supportsAccessListBasedEnforcement, 1, "pf::Switch::Huawei::S5735 supportsAccessListBasedEnforcement still works");
 is(pf::Switch::IBM::IBM_RackSwitch_G8052->new->supportsRadiusDynamicVlanAssignment, 1, "pf::Switch::IBM::IBM_RackSwitch_G8052 supportsRadiusDynamicVlanAssignment still works");
 is(pf::Switch::IBM::IBM_RackSwitch_G8052->new->supportsWiredDot1x, 1, "pf::Switch::IBM::IBM_RackSwitch_G8052 supportsWiredDot1x still works");
 is(pf::Switch::Juniper->new->supportsWiredMacAuth, 1, "pf::Switch::Juniper supportsWiredMacAuth still works");

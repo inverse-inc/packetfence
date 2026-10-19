@@ -22,9 +22,11 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 48;
+use Test::More tests => 56;
 use pf::Switch::Huawei::S5735;
 use pf::Switch::Huawei::S5710;
+use pf::config qw($WIRED_802_1X $WIRED_MAC_AUTH);
+use pf::Switch::constants;
 
 #This test will running last
 use Test::NoWarnings;
@@ -327,3 +329,49 @@ is(
     $switch->acl_chewer("permit tcp any host 192.0.2.10 eq 443\npermit udp any any eq 53", 'testrole'),
     "blank and comment lines are ignored"
 );
+
+# wiredeauthTechniques: 802.1X and MAB sessions are both disconnected over RADIUS,
+# the SNMP reauthentication of 802.1X ports needs an ifIndex the switch never sends
+
+for my $connection_type ($WIRED_802_1X, $WIRED_MAC_AUTH) {
+    is_deeply(
+        [$switch->wiredeauthTechniques(undef, $connection_type)],
+        [$SNMP::RADIUS, 'deauthenticateWiredMacRadius'],
+        "wired connection type $connection_type is deauthenticated with a Disconnect-Request"
+    );
+}
+
+is_deeply(
+    [$switch->wiredeauthTechniques($SNMP::SNMP, $WIRED_802_1X)],
+    [$SNMP::RADIUS, 'deauthenticateWiredMacRadius'],
+    "an SNMP deauthentication method falls back to RADIUS"
+);
+
+{
+    my @deauth;
+    no warnings qw(redefine once);
+    local *pf::Switch::Huawei::S5735::deauthenticateMacRadius = sub { my ($self, @args) = @_; @deauth = @args; return 1 };
+    ok($switch->deauthenticateWiredMacRadius(10001, '02:48:57:45:49:01'), "the wired entry point reports the deauthentication result");
+    is_deeply(\@deauth, ['02:48:57:45:49:01'], "the wired entry point disconnects the endpoint MAC, not the ifIndex");
+}
+
+# returnRadiusAccessAccept: the access list of the role reaches the reply as Huawei-Data-Filter
+
+{
+    my $acl_switch = pf::Switch::Huawei::S5735->new({ id => 'test', ip => '1.1.1.1', AccessListMap => 'Y', VlanMap => 'Y', SNMPUseConnector => "N", radiusDeauthUseConnector => "N" });
+    no warnings qw(redefine once);
+    local *pf::Switch::Huawei::S5735::handleRadiusDeny = sub { return undef };
+    local *pf::Switch::Huawei::S5735::getAccessListByName = sub {
+        my ($self, $role) = @_;
+        return $role eq 'testrole' ? "permit tcp any host 192.0.2.10 eq 443\npermit udp any any eq 53" : undef;
+    };
+    my ($status, %reply) = @{$acl_switch->returnRadiusAccessAccept({ user_role => 'testrole', mac => '02:48:57:45:49:01', vlan => 100, connection_type => $WIRED_802_1X })};
+    is($status, $RADIUS::RLM_MODULE_OK, "the Access-Accept is returned");
+    is_deeply(
+        $reply{'Huawei-Data-Filter'},
+        ['$1 permit tcp dst 192.0.2.10/32 443', '$2 permit udp dst any 53', '$3 deny'],
+        "the access list of the role is added as numbered Huawei-Data-Filter rules"
+    );
+    ($status, %reply) = @{$acl_switch->returnRadiusAccessAccept({ user_role => 'otherrole', mac => '02:48:57:45:49:01', vlan => 100, connection_type => $WIRED_802_1X })};
+    ok(!exists $reply{'Huawei-Data-Filter'}, "a role without access list gets no Huawei-Data-Filter");
+}
