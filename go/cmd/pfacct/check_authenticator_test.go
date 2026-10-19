@@ -69,14 +69,14 @@ func TestSwitchFromEndpointCache(t *testing.T) {
 
 	// Keyed by the normalized Calling-Station-Id
 	endpoint := "02:4a:55:4e:49:02"
-	h.EndpointSwitchCache.Set(endpoint, &SwitchInfo{Secret: "switch-secret", NasIP: "192.168.40.19"}, cache.DefaultExpiration)
+	h.EndpointSwitchCache.Set(endpoint, &SwitchInfo{Secret: "switch-secret", NasIP: "192.0.2.19"}, cache.DefaultExpiration)
 	info, ok := h.switchFromEndpointCache(attrs, raw, false)
-	if !ok || info.NasIP != "192.168.40.19" {
+	if !ok || info.NasIP != "192.0.2.19" {
 		t.Fatalf("the cached switch must be returned while the packet validates with its secret, got %v, %v", info, ok)
 	}
 
 	// The endpoint moved to a switch with another secret: forget the entry
-	h.EndpointSwitchCache.Set(endpoint, &SwitchInfo{Secret: "other-secret", NasIP: "192.168.40.19"}, cache.DefaultExpiration)
+	h.EndpointSwitchCache.Set(endpoint, &SwitchInfo{Secret: "other-secret", NasIP: "192.0.2.19"}, cache.DefaultExpiration)
 	if _, ok := h.switchFromEndpointCache(attrs, raw, false); ok {
 		t.Fatal("a cached switch whose secret does not validate must not be returned")
 	}
