@@ -20,12 +20,12 @@ func TestIsVpnAccounting(t *testing.T) {
 	}
 
 	for _, d := range []packetDef{
-		{name: "FortiGate SSL-VPN", userName: "jbon", connectInfo: "vpn-ssl", expected: true},
-		{name: "FortiGate IPsec", userName: "jbon", connectInfo: "VPN-IPsec", expected: true},
-		{name: "Virtual NAS-Port-Type", userName: "jbon", nasPortType: rfc2865.NASPortType_Value_Virtual, expected: true},
+		{name: "FortiGate SSL-VPN", userName: "testuser", connectInfo: "vpn-ssl", expected: true},
+		{name: "FortiGate IPsec", userName: "testuser", connectInfo: "VPN-IPsec", expected: true},
+		{name: "Virtual NAS-Port-Type", userName: "testuser", nasPortType: rfc2865.NASPortType_Value_Virtual, expected: true},
 		{name: "no user name", connectInfo: "vpn-ssl", expected: false},
-		{name: "wired session", userName: "jbon", nasPortType: rfc2865.NASPortType_Value_Ethernet, expected: false},
-		{name: "admin login", userName: "jbon", connectInfo: "admin-login", expected: false},
+		{name: "wired session", userName: "testuser", nasPortType: rfc2865.NASPortType_Value_Ethernet, expected: false},
+		{name: "admin login", userName: "testuser", connectInfo: "admin-login", expected: false},
 	} {
 		p := radius.New(radius.CodeAccountingRequest, []byte("secret"))
 		rfc2865.CallingStationID_SetString(p, "203.0.113.10")
