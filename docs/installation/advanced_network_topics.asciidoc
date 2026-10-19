@@ -448,7 +448,9 @@ When a device connects, PacketFence replaces the line with one ACL per network m
 
 A line naming several roles, for example `#permit tcp net Laptop net Printer eq 9100`, gets one ACL per combination of their networks.
 
-The line is dropped when one of the roles it names has no network, or when it is not a valid ACL once expanded. A comment that happens to contain `net <role_name>` is therefore never turned into an ACL. A warning is logged in `packetfence.log` in both cases.
+A direction goes after the `#`: `#in|permit tcp any net Printer eq 9100` or `#out|permit ip net Printer any` (`in|#permit ...` is not recognized).
+
+The line is dropped when one of the roles it names has no network, or when it is not a valid ACL once expanded. A comment that happens to contain `net <role_name>` is therefore never turned into an ACL. A warning is logged in `packetfence.log` in both cases. When the dropped lines leave a direction without any ACL, a `deny ip any any` is added for that direction: a permit to a role without network permits nothing, and sending no ACL at all would leave the device unrestricted.
 
 The ACL limits of a switch (_ACLs limit_, _Downloadable ACLs limit_) apply to the expanded lines: a `net` line counts as one ACL per network of the role. Saving a role or a switch warns when the expanded ACLs of a role exceed the limit of a switch. The check uses the role networks known before the save: networks added to a switch, including on the switch being saved, are only checked against the roles the next time a role or a switch is saved.
 

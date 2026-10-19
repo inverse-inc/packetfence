@@ -20,12 +20,13 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 26;
+use Test::More tests => 32;
 
 #This test will running last
 use Test::NoWarnings;
 
 use pf::role_networks;
+use pf::error::switch;
 
 my $cache = pf::role_networks::cache();
 $cache->clear();
@@ -136,8 +137,8 @@ is(
 
 is(
     pf::role_networks::expand_acls("#permit tcp net Server net Camera eq 9100"),
-    "",
-    "a line naming a role without network is dropped, even when its other role has networks"
+    "deny ip any any",
+    "a line naming a role without network is dropped, even when its other role has networks (and the role denies all, see below)"
 );
 
 is(
@@ -148,8 +149,26 @@ is(
 
 is(
     pf::role_networks::expand_acls("#permit tcp any net Server eq"),
-    "",
+    "deny ip any any",
     "an ACL that is malformed once expanded is dropped"
+);
+
+# A permit to a role without network permits nothing: a direction left without
+# any ACL denies everything, never sends no ACL (which leaves the device unrestricted)
+is(
+    pf::role_networks::expand_acls("#permit ip any net Camera"),
+    "deny ip any any",
+    "a role whose only ACL can't be expanded denies all the traffic"
+);
+is(
+    pf::role_networks::expand_acls("#out|permit ip net Camera any\npermit ip any any"),
+    "permit ip any any\nout|deny ip any any",
+    "the deny all has the direction of the dropped line"
+);
+is(
+    pf::role_networks::expand_acls("#permit ip any net Camera\npermit udp any any eq 53"),
+    "permit udp any any eq 53",
+    "no deny all when an ACL is left in that direction"
 );
 
 # pf::Switch::format_acl uncomments a line naming a host by its MAC: an
@@ -177,14 +196,23 @@ is(
 }
 
 ok(
-    !pf::role_networks::_is_valid_acl("printers on the 10.0.0.0 0.0.0.255 queue"),
+    !pf::role_networks::_are_valid_acls("printers on the 10.0.0.0 0.0.0.255 queue"),
     "free text is not a valid ACL"
+);
+ok(
+    pf::role_networks::_are_valid_acls("permit ip any 10.0.0.0 0.0.0.255", "permit ip any host 10.0.2.1"),
+    "the expanded lines are validated in one parse"
+);
+ok(
+    !pf::role_networks::_are_valid_acls("permit ip any 10.0.0.0 0.0.0.255", "permit tcp any host 10.0.2.1 eq"),
+    "one invalid line makes them invalid"
 );
 
 $cache->set('Other', ['1.1.1.0/24']);
 pf::role_networks::networks_for_role('Unknown');
 is_deeply($cache->get('Other'), ['1.1.1.0/24'], "a cache miss does not touch other roles");
 is_deeply($cache->get('Unknown'), [], "a cache miss for an unknown role is cached as empty");
+ok((grep { $_ eq 'Unknown' } @{ $cache->get($pf::role_networks::ROLES_INDEX_KEY) // [] }), "a role cached on a miss is indexed, so the next refresh rewrites or removes it");
 
 $cache->clear();
 

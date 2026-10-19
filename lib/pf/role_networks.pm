@@ -185,6 +185,11 @@ sub networks_for_role {
     get_logger->debug("Networks of role $role not in the cache, computing them from the switch configuration");
     $networks = compute_role_networks(\%SwitchConfig)->{$role} // [];
     $cache->set($role, $networks);
+    # Indexed so that the next refresh_cache rewrites or removes it
+    my $known = $cache->get($ROLES_INDEX_KEY) // [];
+    if (!grep { $_ eq $role } @$known) {
+        $cache->set($ROLES_INDEX_KEY, [ sort(@$known, $role) ]);
+    }
     return $networks;
 }
 
@@ -234,9 +239,12 @@ sub expand_acls {
     return $acls unless defined $acls && $acls =~ /\snet\s/;
     my $logger = get_logger();
     my @expanded;
+    # Per direction: whether a line was dropped, whether an ACL is left
+    my (%dropped, %kept);
     for my $line (split /\n/, $acls) {
         if ($line !~ $NET_ROLE_LINE_RE) {
             push @expanded, $line;
+            $kept{_direction_key($1)} = 1 if $line =~ /^\s*(in\||out\|)?\s*(?:permit|deny)\s/i;
             next;
         }
         my ($direction, $body) = ($1, $2);
@@ -244,15 +252,31 @@ sub expand_acls {
         my @bodies = _expand_net_roles($body);
         if (!@bodies) {
             $logger->warn("A role named in this ACL has no network, skipping it: $line");
+            $dropped{_direction_key($direction)} = $direction;
             next;
         }
-        if (my ($invalid) = grep { !_is_valid_acl($_) } @bodies) {
-            $logger->warn("Not a valid ACL once its roles are expanded ($invalid), skipping it: $line");
+        if (!_are_valid_acls(@bodies)) {
+            $logger->warn("Not a valid ACL once its roles are expanded, skipping it: $line");
+            $dropped{_direction_key($direction)} = $direction;
             next;
         }
         push @expanded, map { "$direction$_" } @bodies;
+        $kept{_direction_key($direction)} = 1;
+    }
+    # A permit to a role without network permits nothing: when the dropped lines
+    # leave a direction without any ACL, deny everything rather than send no ACL
+    # at all, which would leave the device unrestricted
+    for my $key (sort keys %dropped) {
+        next if $kept{$key};
+        $logger->warn("No ACL left for the " . $key . " direction once the roles are expanded, denying all the traffic");
+        push @expanded, $dropped{$key} . "deny ip any any";
     }
     return join("\n", @expanded);
+}
+
+sub _direction_key {
+    my ($direction) = @_;
+    return (defined $direction && $direction eq 'out|') ? 'out' : 'in';
 }
 
 =head2 _expand_net_roles
@@ -271,18 +295,20 @@ sub _expand_net_roles {
     return map { _expand_net_roles("$before $_$after") } @destinations;
 }
 
-=head2 _is_valid_acl
+=head2 _are_valid_acls
 
-Whether a line is a single valid ACL entry for L<Cisco::AccessList::Parser>,
+Whether each line is a single valid ACL entry for L<Cisco::AccessList::Parser>,
 which the switch modules use.
 
 =cut
 
-sub _is_valid_acl {
-    my ($line) = @_;
-    my ($acl_ref) = eval { Cisco::AccessList::Parser->new->parse(input => "ip access-list extended packetfence\n$line\n") };
+sub _are_valid_acls {
+    my (@lines) = @_;
+    # One parse for all the lines: the parser stops at the first one it can't read,
+    # so they are all valid when there is one entry per line
+    my ($acl_ref) = eval { Cisco::AccessList::Parser->new->parse(input => join("\n", "ip access-list extended packetfence", @lines) . "\n") };
     my $entries = ref($acl_ref) eq 'HASH' ? $acl_ref->{packetfence}{entries} : undef;
-    return ref($entries) eq 'ARRAY' && @$entries == 1;
+    return ref($entries) eq 'ARRAY' && @$entries == @lines;
 }
 
 =head1 AUTHOR
