@@ -23,7 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 78;
+use Test::More tests => 85;
 use pf::Switch;
 use pf::Switch::Aruba::ArubaOS_CX_10_x;
 use pf::Switch::Arista::AristaSwitch;
@@ -252,6 +252,21 @@ is(pf::Switch::untranslatableAclQualifier($aruba, { sequence_number => undef, ev
 
 foreach my $switch ($aruba, $arista, $aos, $cisco, $forti, $dell) {
     is(chew($switch, "permit tcp any host 10.0.0.1 eq 443\npermit ip any any ttl eq 5"), deny_all($switch), ref($switch).": ACLs that cannot be parsed deny everything instead of sending nothing");
+}
+
+# Blank lines, whitespace-only lines and comments ('!') are ignored by the
+# parser: they must not make the role a deny all, nor shift the direction of
+# the ACLs after them (a CRLF blank line is a lone carriage return)
+foreach my $switch ($aruba, $arista, $aos, $cisco, $forti, $dell) {
+    is(
+        chew($switch, "permit tcp any host 10.0.0.1 eq 443\n\n   \n!\n! comment\r\n\r\npermit ip any any"),
+        chew($switch, "permit tcp any host 10.0.0.1 eq 443\npermit ip any any"),
+        ref($switch).": blank and comment lines are ignored"
+    );
+}
+{
+    my ($acl_ref, @direction) = $aruba->format_acl("permit ip any host 10.0.0.1\n\n!\npermit ip any host 10.0.0.2");
+    is(scalar(@direction), scalar(@{ $acl_ref->{packetfence}{entries} // [] }), "format_acl returns one direction per parsed ACL");
 }
 
 =head1 AUTHOR
