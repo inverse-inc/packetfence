@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 56;
+use Test::More tests => 57;
 use pf::Switch::Juniper::Junos_v18_x;
 use pf::Switch::Juniper::Junos;
 
@@ -357,6 +357,13 @@ ok(
 ok(
     !pf::Switch::Juniper::Junos->supportsAccessListBasedEnforcement,
     "Junos does not claim access list support, the parent platforms are untested"
+);
+
+# Blank lines and comments ('!') are ignored, they don't turn the role into a deny all
+is(
+    $switch->acl_chewer("permit tcp any host 192.0.2.10 eq 443\n\n   \n!\n! comment\r\n\r\npermit udp any any eq 53", 'testrole'),
+    $switch->acl_chewer("permit tcp any host 192.0.2.10 eq 443\npermit udp any any eq 53", 'testrole'),
+    "blank and comment lines are ignored"
 );
 
 =head1 AUTHOR

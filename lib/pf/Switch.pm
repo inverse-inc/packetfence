@@ -4353,6 +4353,9 @@ sub format_acl {
     while($acl =~ /([^\n]+)\n?/g) {
         my $acl_line = $1;
         next if($acl_line =~ /^remark/i);
+        # The parser ignores blank lines (a lone \r in a CRLF list) and comments:
+        # skip them too, so each parsed ACL keeps its direction
+        next if($acl_line =~ /^\s*$/ || $acl_line =~ /^\s*!/);
         # Lookup for the current ip address of a node
         if ($acl_line =~ /^#.*\shost\s(([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})).*/i) {
             my $mac = $1;
