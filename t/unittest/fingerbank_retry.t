@@ -18,7 +18,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 20;
+use Test::More tests => 21;
 use Test::MockModule;
 use Test::NoWarnings;
 use DateTime;
@@ -54,7 +54,7 @@ $fingerbank->mock('_trigger_new_dhcp_security_event', sub { });
 
 my $cache = pf::fingerbank::cache();
 my $query_cache_key = "fingerbank::_query-" . pf::fingerbank::_query_cache_key({ dhcp_fingerprint => '1,3,6,15', mac => $mac });
-$cache->remove($_) for ("pf::fingerbank::process($mac)", pf::fingerbank::_retry_cache_key($mac), $query_cache_key);
+$cache->remove($_) for ("pf::fingerbank::process($mac)", pf::fingerbank::_retry_cache_key($mac), pf::fingerbank::_retry_pending_cache_key($mac), $query_cache_key);
 
 sub retry { pf::fingerbank::process($_[0], undef, $_[1], retry => 1) }
 my $retry_key = pf::fingerbank::_retry_cache_key($mac);
@@ -71,7 +71,7 @@ ok(pf::fingerbank::process($mac), 'a regular process right after the failure');
 is($queries, 0, 'is skipped without new data');
 pf::fingerbank::process($mac, 1);
 is($queries, 0, 'a forced process (portal, #9526) is served the cached failure');
-is(scalar @queued, 2, 'which schedules the next retry');
+is(scalar @queued, 1, 'which does not queue another retry while one is queued');
 
 # The queued retry runs without new data and doesn't use the cached failure
 $query_ok = 1;
@@ -80,7 +80,7 @@ ok(retry($mac, { hostname => 'host1' }), 'retry succeeds');
 is($queries, 1, 'retry queried Fingerbank again');
 is($recorded, 1, 'result recorded');
 ok(!defined($cache->get($retry_key)), 'retry counter cleared after success');
-is(scalar @queued, 2, 'no new retry after success');
+is(scalar @queued, 1, 'no new retry after success');
 
 # Without new data, the next process is skipped as before
 $queries = 0;
@@ -105,7 +105,9 @@ $cache->remove($retry_key);
 $fingerbank->mock('endpoint_attributes', sub { undef });
 pf::fingerbank::process($mac);
 is(scalar @queued, 1, 'collector failure schedules a retry');
-$cache->remove($_) for ("pf::fingerbank::process($mac)", $retry_key, $query_cache_key);
+pf::fingerbank::process($mac);
+is(scalar @queued, 1, 'a second failure while the retry is queued does not queue another one');
+$cache->remove($_) for ("pf::fingerbank::process($mac)", $retry_key, pf::fingerbank::_retry_pending_cache_key($mac), $query_cache_key);
 
 =head1 AUTHOR
 

@@ -107,7 +107,10 @@ sub process {
 
     $force //= $FALSE;
     # A retry scheduled after a failed lookup runs even without new data from the collector
-    $force = $TRUE if $options{retry};
+    if ($options{retry}) {
+        $force = $TRUE;
+        cache()->remove(_retry_pending_cache_key($mac));
+    }
     
     my $node_before = node_attributes($mac);
 
@@ -124,7 +127,7 @@ sub process {
 
     unless(defined($query_args)) {
         $logger->error("Unable to fetch query arguments for Fingerbank query. Aborting.");
-        _retry_later($mac, $overrides);
+        _retry_later($mac, $overrides, $options{retry});
         return $FALSE;
     }
 
@@ -182,7 +185,7 @@ sub process {
         unless(defined($query_result)) {
             $logger->warn("Unable to perform a Fingerbank lookup for device with MAC address '$mac'");
             $query_success = $FALSE;
-            _retry_later($mac, $overrides);
+            _retry_later($mac, $overrides, $options{retry});
         }
 
         if($query_success) {
@@ -198,6 +201,7 @@ sub process {
 
             record_result($mac, $query_args, $query_result);
             $cache->remove(_retry_cache_key($mac));
+            $cache->remove(_retry_pending_cache_key($mac));
         }
     
         my $node_after = node_attributes($mac);
@@ -219,6 +223,17 @@ sub _retry_cache_key {
     return "pf::fingerbank::retry($mac)";
 }
 
+=head2 _retry_pending_cache_key
+
+The cache key marking that a retry is queued for a device
+
+=cut
+
+sub _retry_pending_cache_key {
+    my ($mac) = @_;
+    return "pf::fingerbank::retry_pending($mac)";
+}
+
 =head2 _retry_later
 
 After a failed lookup, process the device again later instead of waiting for
@@ -226,14 +241,26 @@ new data from the collector (which may never come for a device that sent a
 single DHCP request)
 
 At most $MAX_RETRIES retries are scheduled for a device: the count is kept for
-an hour after giving up and is cleared by a successful lookup
+an hour after giving up and is cleared by a successful lookup. A device has at
+most one retry queued: the other failures in the meantime don't queue one, and
+a failed retry queues the next one
 
 =cut
 
 sub _retry_later {
-    my ($mac, $overrides) = @_;
+    my ($mac, $overrides, $from_retry) = @_;
     my $logger = pf::log::get_logger;
     my $cache = cache();
+
+    # The lookups that fail while a retry is queued (DHCP, RADIUS accounting and the
+    # portal within a few seconds, or calls served the cached failure) don't queue
+    # another one: the queued retry schedules the next one if it fails too, so the
+    # retries stay spread out
+    my $pending_key = _retry_pending_cache_key($mac);
+    if (!$from_retry && $cache->get($pending_key)) {
+        $logger->debug("A Fingerbank retry is already queued for $mac");
+        return;
+    }
 
     my $retry_key = _retry_cache_key($mac);
     my $retries = $cache->get($retry_key) // 0;
@@ -245,12 +272,15 @@ sub _retry_later {
         return;
     }
     $cache->set($retry_key, $retries + 1, {expires_in => $RETRY_PERIOD});
+    # Expires a minute after the retry is due, in case the queued task is lost
+    $cache->set($pending_key, 1, {expires_in => int($RETRY_DELAY / 1000) + 60});
     $logger->info("Will retry the Fingerbank lookup for $mac in " . ($RETRY_DELAY / 1000) . " seconds");
     eval {
         pf::api::queue->new(queue => 'general')->notify_delayed($RETRY_DELAY, 'fingerbank_process_retry', $mac, $overrides);
     };
     if ($@) {
         $logger->error("Error submitting the Fingerbank retry to the queue: $@");
+        $cache->remove($pending_key);
     }
 }
 
