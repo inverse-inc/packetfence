@@ -958,6 +958,30 @@ included by the authentication, load-balancer and CLI servers:
 /usr/local/pf/bin/pfcmd service radiusd restart
 ----
 
+=== Multi-zone clusters: interfaces must be defined for each server
+
+The `[interface X]` sections of [filename]`/usr/local/pf/conf/pf.conf` are the
+interfaces of the server where it was configured. Each server of a cluster
+gets its own addresses from its `[<host> interface X]` sections in
+[filename]`/usr/local/pf/conf/cluster.conf`. An interface without a section for
+a server used to be applied on that server with the address of another one; it
+is now ignored on that server.
+
+Single-zone clusters are not affected: `pfcmd checkup` already requires every
+interface for every server. In a multi-zone cluster, before upgrading, check
+that each `[interface X]` of [filename]`pf.conf` has a `[<host> interface X]`
+section in [filename]`cluster.conf` for every server that has this interface,
+including the interfaces without an IP address (for example a monitor or
+dhcp-listener interface): otherwise they stop being used on that server after
+the upgrade. Then run the following on each server after the upgrade, which
+warns about the interfaces ignored on a server while the other servers of its
+zone have them, and about the interfaces defined for no server:
+
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd checkup
+----
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]
