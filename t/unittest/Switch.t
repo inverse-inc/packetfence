@@ -21,7 +21,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 28;
+use Test::More tests => 30;
 use pf::Switch;
 use pf::Switch::Cisco::ASA;
 use pf::error::switch;
@@ -170,6 +170,18 @@ is($switch->resolve_deauth_host(undef), undef, "An undefined deauth host is retu
     $connector_answer = "198.51.100.7";
     is($switch->resolve_deauth_host("remote.invalid"), "remote.invalid", "The connector is not used when the deauth doesn't go through a connector");
     is_deeply(\@asked, ["remote.invalid", "remote.invalid"], "The connector is only asked when the local resolver fails");
+}
+
+# An unresolvable deauth host is resolved, and reported, once per deauthentication
+{
+    my $resolutions = 0;
+    my $resolve = \&pf::Switch::resolve_deauth_host;
+    no warnings qw(redefine once);
+    local *pf::Switch::resolve_deauth_host = sub { $resolutions++; $resolve->(@_) };
+    local *pf::Switch::shouldUseConnectorForRadiusDeauth = sub { 0 };
+    my $connection_info = $switch->radius_deauth_connection_info("unresolvable.invalid");
+    is($connection_info->{LocalAddr}, "0.0.0.0", "An unresolvable deauth host gets no source address lookup");
+    is($resolutions, 1, "An unresolvable deauth host is resolved once");
 }
 
 =head1 AUTHOR

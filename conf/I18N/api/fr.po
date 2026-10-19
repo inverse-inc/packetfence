@@ -21413,8 +21413,8 @@ msgid ""
 "Use instead this IP address or FQDN for de-authentication requests. Normally "
 "used for Wi-Fi only."
 msgstr ""
-"Utilisez plutôt cette adresse IP pour la requête de désassociation. "
-"Normalement seulement utilisé pour le Wi-Fi."
+"Utilisez plutôt cette adresse IP ou ce FQDN pour la requête de "
+"désassociation. Normalement seulement utilisé pour le Wi-Fi."
 
 #: html/pfappserver/root/src/views/Configuration/radius/ocsp/_components/TheForm.vue:30
 msgid "Use nonce"

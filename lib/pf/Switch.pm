@@ -4267,7 +4267,10 @@ sub radius_deauth_connection_info {
     # the connected-UDP kernel filter to drop the connector's reply. Let the
     # kernel pick the source IP for the connector route instead.
     unless ($using_connector) {
-        $connection_info->{LocalAddr} = $self->deauth_source_ip($send_disconnect_to, $using_connector);
+        # A host that couldn't be resolved was already reported above: don't resolve it again
+        $connection_info->{LocalAddr} = (Net::IP::ip_is_ipv4($send_disconnect_to) || Net::IP::ip_is_ipv6($send_disconnect_to))
+            ? $self->deauth_source_ip($send_disconnect_to, $using_connector)
+            : "0.0.0.0";
     }
 
     return $connection_info;
