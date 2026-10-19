@@ -20,6 +20,12 @@ endif::[]
 
 PacketFence supports the S5710/S5720/S5735 switch from Huawei.
 
+The configuration below applies to the models running V200, an S5735 running
+V200 (for example V200R019) included: they keep using the `Huawei::S5720`
+template or the `Huawei::S5710` switch type. The CloudEngine S5735 running
+YunShan OS (V600) is declared as `Huawei::S5735` instead, see
+<<_cloudengine_s5735_running_yunshan_os_v600>>.
+
 ==== Global configuration
 
 Global configuration for 802.1X, Mac authentication, accounting and CLI login:
@@ -137,6 +143,16 @@ inline in the Access-Accept with the `HW-Data-Filter` RADIUS attribute, so no
 ACL has to exist on the switch beforehand. Enable `Access list mapping` on the
 switch entry to turn it on.
 
+Dynamic ACLs are only available with this switch type: the *Role by Access
+List* tab is no longer shown on `Huawei::S5710` entries, `HW-Data-Filter` has
+not been verified on the V200 platforms that switch type targets.
+
+Access re-evaluation disconnects wired 802.1X and MAC authentication sessions
+alike with a RADIUS Disconnect-Request, whatever *Deauthentication Method* is
+set on the switch entry: the SNMP port reauthentication used by the other
+Huawei switch types cannot work, the ifIndex of the port is not known from the
+RADIUS request.
+
 Global configuration:
 
 ----
@@ -179,7 +195,8 @@ The Disconnect-Request identifies the endpoint by its MAC address
 (`Calling-Station-Id`) only. The switch silently ignores a request whose
 `Acct-Session-Id` does not match the current session, so none is sent.
 
-In PacketFence, set the *Deauthentication Method* of the switch to `RADIUS`.
+In PacketFence, the *Deauthentication Method* of the switch is `RADIUS`, the
+only method this switch type uses for wired sessions.
 When the switch is reached through a PacketFence connector, the requests leave
 from the connector: enable *Use Connector For Deauth* on the switch entry and
 declare the connector IP in `radius-server authorization` instead.

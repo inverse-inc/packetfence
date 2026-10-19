@@ -89,6 +89,10 @@ use pf::constants;
 use pf::util;
 use pf::radius::constants;
 use pf::access_filter::radius;
+use pf::config qw(
+    $WIRED_802_1X
+    $WIRED_MAC_AUTH
+);
 
 sub description { 'Huawei CloudEngine S5735' }
 
@@ -185,6 +189,43 @@ sub deauthenticateMacRadius {
 
     $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
     return $self->radiusDisconnect($mac, { 'Calling-Station-Id' => $calling_station_id });
+}
+
+=head2 wiredeauthTechniques
+
+Disconnect wired sessions over RADIUS, 802.1X included: the default SNMP
+reauthentication of 802.1X ports needs an ifIndex that cannot be derived from
+the RADIUS request (see L<pf::Switch::Huawei::S5710>).
+
+=cut
+
+sub wiredeauthTechniques {
+    my ($self, $method, $connection_type) = @_;
+    my $logger = $self->logger;
+    if ($connection_type == $WIRED_802_1X || $connection_type == $WIRED_MAC_AUTH) {
+        my $default = $SNMP::RADIUS;
+        my %tech = (
+            $SNMP::RADIUS => 'deauthenticateWiredMacRadius',
+        );
+
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+    $logger->error("This authentication mode is not supported");
+    return;
+}
+
+=head2 deauthenticateWiredMacRadius
+
+Wired deauthentication entry point, called with C<($ifIndex, $mac)>.
+
+=cut
+
+sub deauthenticateWiredMacRadius {
+    my ($self, $ifIndex, $mac) = @_;
+    return $self->deauthenticateMacRadius($mac);
 }
 
 =head2 _dataFilterRules
