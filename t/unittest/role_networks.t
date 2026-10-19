@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 22;
+use Test::More tests => 26;
 
 #This test will running last
 use Test::NoWarnings;
@@ -109,11 +109,10 @@ is(
         'permit ip any 10.0.2.0 0.0.0.255',
         'permit tcp any 10.0.0.0 0.0.0.255 eq 9100',
         'in|permit udp any host 10.5.5.5 eq 161',
-        '#permit ip any net Camera',
         '#permit ip any host aa:bb:cc:dd:ee:ff',
         'deny ip any any',
     ),
-    "net <Role> destinations are expanded, unresolved ones stay commented out"
+    "net <Role> destinations are expanded, unresolved ones are dropped"
 );
 
 is(pf::role_networks::expand_acls("permit ip any any"), "permit ip any any", "ACL without net destination is untouched");
@@ -122,8 +121,8 @@ is(pf::role_networks::expand_acls("permit ip any any"), "permit ip any any", "AC
 # them on a single invalid line, so an expansion must never produce one.
 is(
     pf::role_networks::expand_acls("# printers on the net Printer queue are blocked\ndeny ip any any"),
-    "# printers on the net Printer queue are blocked\ndeny ip any any",
-    "a comment that mentions net <Role> is not a valid ACL once expanded, it stays commented out"
+    "deny ip any any",
+    "a comment that mentions net <Role> is not a valid ACL once expanded, it is dropped"
 );
 
 is(
@@ -137,8 +136,8 @@ is(
 
 is(
     pf::role_networks::expand_acls("#permit tcp net Server net Camera eq 9100"),
-    "#permit tcp net Server net Camera eq 9100",
-    "a line naming a role without network stays commented out, even when its other role has networks"
+    "",
+    "a line naming a role without network is dropped, even when its other role has networks"
 );
 
 is(
@@ -149,9 +148,33 @@ is(
 
 is(
     pf::role_networks::expand_acls("#permit tcp any net Server eq"),
-    "#permit tcp any net Server eq",
-    "an ACL that is malformed once expanded stays commented out"
+    "",
+    "an ACL that is malformed once expanded is dropped"
 );
+
+# pf::Switch::format_acl uncomments a line naming a host by its MAC: an
+# unexpanded "net <Role>" must not reach it
+is(
+    pf::role_networks::expand_acls("#permit ip host 00:11:22:33:44:55 net Camera\npermit ip any any"),
+    "permit ip any any",
+    "a line with a host MAC and a role without network is dropped"
+);
+
+is(
+    pf::role_networks::expand_acls("#permit ip host 00:11:22:33:44:55 net Server\npermit ip any any"),
+    "permit ip any any",
+    "a line with a host MAC is not a valid ACL once expanded, it is dropped"
+);
+
+# The ACL limits of the switches apply to the expanded lines
+{
+    require pf::Switch::Cisco::Cisco_IOS_15_5;
+    $cache->set('Large', ['10.10.0.0/24', '10.10.2.0/24', '10.10.4.0/24']);
+    my $switch = pf::Switch::Cisco::Cisco_IOS_15_5->new({ id => '10.0.0.9', ACLsLimit => 2 });
+    my $error = $switch->checkRoleACLs('testrole', ['#permit ip any net Large']);
+    is(ref($error) eq 'HASH' ? $error->{code} : undef, $pf::error::switch::ACLsLimitErrCode, "a net <Role> line counts as one ACL per network against the switch limit");
+    is($switch->checkRoleACLs('testrole', ['#permit ip any net Server', 'deny ip any any']), undef, "expanded ACLs within the limit pass");
+}
 
 ok(
     !pf::role_networks::_is_valid_acl("printers on the 10.0.0.0 0.0.0.255 queue"),

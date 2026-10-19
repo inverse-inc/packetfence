@@ -217,11 +217,13 @@ Replace every commented out ACL line naming a role with C<net E<lt>RoleE<gt>>
 the role. A line naming several roles gets one line per combination of their
 networks.
 
-The line is left untouched (still commented out, so the switch module skips
-it) when one of its roles has no network, or when a line it expands to is not
-a valid ACL: a comment that happens to contain "net <Role>" must not be
-uncommented, since the switch modules parse all the ACLs of a role at once and
-a single invalid line makes them drop every ACL of the role.
+The line is dropped, with a warning, when one of its roles has no network, or
+when a line it expands to is not a valid ACL: a comment that happens to contain
+"net <Role>" must not be uncommented, since the switch modules parse all the
+ACLs of a role at once and a single invalid line makes them drop every ACL of
+the role. Leaving it commented out is not enough: L<pf::Switch/format_acl>
+uncomments a line that names a C<host E<lt>MACE<gt>>, which would bring the
+unexpanded C<net E<lt>RoleE<gt>> back.
 
 Takes and returns the ACL text (lines separated by newlines).
 
@@ -242,12 +244,10 @@ sub expand_acls {
         my @bodies = _expand_net_roles($body);
         if (!@bodies) {
             $logger->warn("A role named in this ACL has no network, skipping it: $line");
-            push @expanded, $line;
             next;
         }
         if (my ($invalid) = grep { !_is_valid_acl($_) } @bodies) {
             $logger->warn("Not a valid ACL once its roles are expanded ($invalid), skipping it: $line");
-            push @expanded, $line;
             next;
         }
         push @expanded, map { "$direction$_" } @bodies;

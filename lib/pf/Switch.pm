@@ -4247,8 +4247,9 @@ sub checkRoleACLs {
         return undef;
     }
 
+    # "net <Role>" lines are sent as one line per network of the role
     my @acls;
-    foreach (@{$acls}) {
+    foreach (split /\n/, pf::role_networks::expand_acls(join("\n", @{$acls}))) {
         my $acl_line = $_;
         if ($acl_line =~ /^(in\||out\|)?(.*)/) {
             if ($self->supportsOutAcl) {
