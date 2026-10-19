@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-constants
+captive_portal_resources
 
 =head1 DESCRIPTION
 
