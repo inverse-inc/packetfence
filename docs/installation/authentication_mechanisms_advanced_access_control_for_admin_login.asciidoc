@@ -42,7 +42,11 @@ interface URL the login started from, only if it's an HTTPS URL under `/admin`
 whose host is:
 
  * the 'Hostname' and 'Domain' of 'General Configuration', or the system host name,
- * an IP address (IPv4, VIP or IPv6) of one of the PacketFence interfaces,
+ * an IP address of the management interface (IPv4 or VIP), or of an internal
+   interface (registration, isolation, inline or DNS enforcement: IPv4, VIP or
+   IPv6). The addresses of the other interface types (portal, other) are not
+   included: add them to 'SSO Allowed Admin Hosts' if administrators use them.
+   An IPv6 address must be written as in the interface configuration,
  * in a cluster, the IP addresses and host names of the members,
  * the host of 'SSO Base URL',
  * one of the hosts of 'SSO Allowed Admin Hosts' (comma-separated).
