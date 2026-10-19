@@ -325,6 +325,10 @@ Split a list the way it is read when the iptables rules are generated:
  - commas: a text field split on commas, spaces around them are ignored
  - strict: a text field split on commas only, an item with spaces is invalid
 
+An empty item between two separators (8080,,3128, or a blank line) is
+returned as '': the iptables rules would get an empty port or interface. A
+trailing separator is ignored, as when the rules are generated.
+
 =cut
 
 sub _list_items {
@@ -333,9 +337,23 @@ sub _list_items {
     if ($mode eq 'strict') {
         return grep { $_ ne '' } split(/,/, $value);
     }
+    # The lines of a list field are saved joined with commas
+    $value = join(',', split(/\v+/, $value)) if $mode eq 'lines';
     $value =~ s/^\s+|\s+$//g;
-    my $separator = $mode eq 'lines' ? qr/\s*[,\r\n]+\s*/ : qr/\s*,\s*/;
-    return grep { $_ ne '' } split($separator, $value);
+    return split(/\s*,\s*/, $value);
+}
+
+=head2 _empty_item_error
+
+Report an empty item of a list, once per field
+
+=cut
+
+sub _empty_item_error {
+    my ($field, @items) = @_;
+    return 0 unless grep { $_ eq '' } @items;
+    $field->add_error("The list has an empty item (two separators in a row)");
+    return 1;
 }
 
 sub _is_port {
@@ -351,7 +369,9 @@ Validate a list of ports (ex: 8080,3128)
 
 sub validate_port_list {
     my (undef, $field, $mode) = @_;
-    for my $item (_list_items($field->value, $mode)) {
+    my @items = _list_items($field->value, $mode);
+    _empty_item_error($field, @items);
+    for my $item (grep { $_ ne '' } @items) {
         next if _is_port($item);
         $field->add_error("'$item' is not a valid port (1-65535)");
     }
@@ -365,7 +385,9 @@ Validate a list of port/protocol (ex: 80/tcp,443/tcp)
 
 sub validate_port_protocol_list {
     my (undef, $field, $mode) = @_;
-    for my $item (_list_items($field->value, $mode)) {
+    my @items = _list_items($field->value, $mode);
+    _empty_item_error($field, @items);
+    for my $item (grep { $_ ne '' } @items) {
         my ($port, $protocol, @rest) = split('/', $item);
         next if !@rest && _is_port($port) && defined $protocol && $protocol =~ /^(tcp|udp)$/i;
         $field->add_error("'$item' is not a valid port/protocol (ex: 80/tcp)");
@@ -380,7 +402,9 @@ Validate a list of network interface names, a trailing + is the iptables wildcar
 
 sub validate_interface_list {
     my (undef, $field, $mode) = @_;
-    for my $item (_list_items($field->value, $mode)) {
+    my @items = _list_items($field->value, $mode);
+    _empty_item_error($field, @items);
+    for my $item (grep { $_ ne '' } @items) {
         next if $item =~ /^(?=.{1,15}$)[a-zA-Z0-9][a-zA-Z0-9_.@-]*\+?$/;
         $field->add_error("'$item' is not a valid interface name");
     }
