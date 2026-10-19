@@ -166,6 +166,34 @@ sub normalize_namespace_query {
     return $ns;
 }
 
+=head2 connect_tcp
+
+Connect to pfconfig over TCP.
+
+When pfconfig isn't listening, the kernel can pick its port as the local port
+and connect the socket to itself: that socket would then hold the port and
+pfconfig couldn't bind it anymore. Such a socket is closed.
+
+Returns the socket, or undef and the error.
+
+=cut
+
+sub connect_tcp {
+    my (%args) = @_;
+    my $socket = IO::Socket::INET->new(
+        PeerHost => $args{host},
+        PeerPort => $args{port},
+        Proto => "tcp",
+        (defined($args{timeout}) ? (Timeout => $args{timeout}) : ()),
+    );
+    return (undef, "$!") unless $socket;
+    if ($socket->sockhost eq $socket->peerhost && $socket->sockport == $socket->peerport) {
+        $socket->close();
+        return (undef, "the connection is connected to itself");
+    }
+    return ($socket);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -198,32 +226,3 @@ USA.
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
-=head2 connect_tcp
-
-Connect to pfconfig over TCP.
-
-When pfconfig isn't listening, the kernel can pick its port as the local port
-and connect the socket to itself: that socket would then hold the port and
-pfconfig couldn't bind it anymore. Such a socket is closed.
-
-Returns the socket, or undef and the error.
-
-=cut
-
-sub connect_tcp {
-    my (%args) = @_;
-    my $socket = IO::Socket::INET->new(
-        PeerHost => $args{host},
-        PeerPort => $args{port},
-        Proto => "tcp",
-        (defined($args{timeout}) ? (Timeout => $args{timeout}) : ()),
-    );
-    return (undef, "$!") unless $socket;
-    if ($socket->sockhost eq $socket->peerhost && $socket->sockport == $socket->peerport) {
-        $socket->close();
-        return (undef, "the connection is connected to itself");
-    }
-    return ($socket);
-}
-
-
