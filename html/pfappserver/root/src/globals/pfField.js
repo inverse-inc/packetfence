@@ -351,11 +351,23 @@ export const pfFieldTypeValues = {
     store.dispatch('config/getSwitchGroups').then(() => store.getters['config/switchGroupsList']),
 
   [pfFieldType.TIME_BALANCE]: () =>
-    store.dispatch('config/getBaseGuestsAdminRegistration').then(() =>
+    store.dispatch('config/getBaseGuestsAdminRegistration').then(() => {
       // a time balance is an absolute amount of time: leave out the
       // durations that are relative to a period (F/R base)
-      store.getters['config/accessDurationsList'].filter(option => option && !option.base)
-    ),
+      const choices = store.getters['config/accessDurationsList'].filter(option => option && !option.base)
+      if (choices.length > 0)
+        return choices
+      // the choices can't be read without the configuration_main read right
+      return [
+        { text: i18n.t('1 hour'), value: '1h' },
+        { text: i18n.t('3 hours'), value: '3h' },
+        { text: i18n.t('12 hours'), value: '12h' },
+        { text: i18n.t('1 day'), value: '1D' },
+        { text: i18n.t('2 days'), value: '2D' },
+        { text: i18n.t('3 days'), value: '3D' },
+        { text: i18n.t('5 days'), value: '5D' }
+      ]
+    }),
 
   [pfFieldType.YESNO]: () =>
     [
