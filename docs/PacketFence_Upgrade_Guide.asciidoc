@@ -969,9 +969,10 @@ If the SSO login of the admin interface is enabled
   access. Every SSO login now authenticates the user and evaluates the rules
   again.
 * The token is only sent back to an HTTPS admin URL on this server: its host
-  name, the addresses of its interfaces (and of the cluster members) or the
-  host of 'SSO Base URL'. If administrators reach the admin interface with
-  another name, such as a DNS alias or a reverse proxy, add it to the new
+  name, the addresses of its management and internal interfaces (and of the
+  cluster members) or the host of 'SSO Base URL'. If administrators reach the
+  admin interface with another name or address, such as a DNS alias, a reverse
+  proxy or the address of a portal or other interface, add it to the new
   'SSO Allowed Admin Hosts' setting. Otherwise the SSO login completes without
   logging the administrator in, and [filename]`packetfence.log` shows
   `Ignoring admin SSO callback`.

@@ -118,7 +118,8 @@ sub execute_child {
 
 The hosts the admin SSO token can be sent to: the addresses of this server
 (those of pf::config::util::portal_hosts: the fqdn and the IPs, VIPs and IPv6
-addresses of the interfaces, with those of the cluster members), the management
+addresses of the management and internal interfaces, with those of the cluster
+members), the management
 IPv6 address, the host names, the cluster VIP and members names, the SSO base
 URL host and admin_login.sso_allowed_callback_hosts
 
