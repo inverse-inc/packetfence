@@ -30,3 +30,17 @@ testcases:
     script: 'systemctl restart packetfence-mariadb'
     assertions:
       - result.code ShouldEqual 0
+
+# SST brings pf1's root password; only pf1 ran the configurator (~/.my.cnf).
+- name: generate_my_cnf
+  steps:
+  - type: exec
+    script: |
+      umask 077
+      cat > ~/.my.cnf << EOF
+      [client]
+      user = {{.configurator.db.users.root.id}}
+      password = {{.configurator.db.users.root.password}}
+      EOF
+    assertions:
+      - result.code ShouldEqual 0
