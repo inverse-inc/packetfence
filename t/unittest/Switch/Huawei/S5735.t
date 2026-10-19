@@ -34,8 +34,8 @@ my $switch = pf::Switch::Huawei::S5735->new({ id => 'test', ip => '1.1.1.1', SNM
 # acl_chewer: ACLs that translate to an HW-Data-Filter rule
 
 is(
-    $switch->acl_chewer("permit tcp any host 192.168.40.10 eq 443", 'testrole'),
-    "permit tcp dst 192.168.40.10/32 443\n",
+    $switch->acl_chewer("permit tcp any host 192.0.2.10 eq 443", 'testrole'),
+    "permit tcp dst 192.0.2.10/32 443\n",
     "protocol, host destination and port become one rule"
 );
 
