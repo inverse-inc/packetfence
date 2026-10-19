@@ -450,7 +450,7 @@ A line naming several roles, for example `#permit tcp net Laptop net Printer eq 
 
 The line is dropped when one of the roles it names has no network, or when it is not a valid ACL once expanded. A comment that happens to contain `net <role_name>` is therefore never turned into an ACL. A warning is logged in `packetfence.log` in both cases.
 
-The ACL limits of a switch (_ACLs limit_, _Downloadable ACLs limit_) apply to the expanded lines: a `net` line counts as one ACL per network of the role. Saving a role or a switch warns when the expanded ACLs of a role exceed the limit of a switch. Networks added to the switches later are not checked against the roles until the role or the switch is saved again.
+The ACL limits of a switch (_ACLs limit_, _Downloadable ACLs limit_) apply to the expanded lines: a `net` line counts as one ACL per network of the role. Saving a role or a switch warns when the expanded ACLs of a role exceed the limit of a switch. The check uses the role networks known before the save: networks added to a switch, including on the switch being saved, are only checked against the roles the next time a role or a switch is saved.
 
 This only applies to the ACLs defined on the roles (including the Fingerbank dynamic ACLs). The ACLs defined on a switch entry and the bypass ACLs of a node are sent as they are, so a `net` line there is skipped.
 
