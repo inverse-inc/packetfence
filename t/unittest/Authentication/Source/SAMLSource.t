@@ -59,16 +59,16 @@ my $source = pf::Authentication::Source::SAMLSource->new({
     username_attribute => 'uid',
 });
 
-is($source->_attribute_value(attribute('uid', 'jbon')), 'jbon', "value of an attribute");
+is($source->_attribute_value(attribute('uid', 'testuser')), 'testuser', "value of an attribute");
 is($source->_attribute_value(attribute('mail', '')), undef, "empty AttributeValue");
 is($source->_attribute_value(attribute('mail')), undef, "no AttributeValue");
 
 is(
-    $source->_username_from_attributes(attribute('mail', ''), attribute('department'), attribute('uid', 'jbon')),
-    'jbon',
+    $source->_username_from_attributes(attribute('mail', ''), attribute('department'), attribute('uid', 'testuser')),
+    'testuser',
     "empty attributes do not prevent finding the username"
 );
-is($source->_username_from_attributes(attribute('mail', 'jbon@inverse.ca')), undef, "no username attribute");
+is($source->_username_from_attributes(attribute('mail', 'testuser@example.com')), undef, "no username attribute");
 is($source->_username_from_attributes(attribute('uid', '')), undef, "empty username attribute");
 
 =head1 AUTHOR
