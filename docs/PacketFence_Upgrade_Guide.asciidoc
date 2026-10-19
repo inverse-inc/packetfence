@@ -977,8 +977,19 @@ systemctl restart packetfence-ntlm-auth-api
 
 In a cluster, restart `packetfence-ntlm-auth-api` on every server.
 
-NOTE: The script doesn't depend on this release: on 15.1 or 15.2, it can be
-run the same way to fix the domain status check before upgrading.
+[NOTE]
+====
+The script doesn't depend on this release, but packages before X.Y.Z don't
+include it. On 15.1 or 15.2, to fix the domain status check before upgrading,
+download it from the PacketFence repository and run it, then reload the
+configuration and restart `packetfence-ntlm-auth-api` as above:
+
+[source,bash]
+----
+curl -fsSL -o /tmp/to-16.0-ntlm-auth-host.pl https://raw.githubusercontent.com/inverse-inc/packetfence/devel/addons/upgrade/to-16.0-ntlm-auth-host.pl
+perl /tmp/to-16.0-ntlm-auth-host.pl
+----
+====
 
 == Troubleshooting Upgrades
 
