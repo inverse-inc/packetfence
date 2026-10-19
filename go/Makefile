@@ -17,7 +17,7 @@ check_cmd = CGO_ENABLED=1 GOOS= GOARCH= $(GO)
 .PHONY: all
 all: $(PF_BINARIES) $(PF_GO_CMDS)
 
-# vet gates the build. The other three are advisory: they report a known backlog
+# vet gates check-build. The other three are advisory: they report a known backlog
 # (see docs) that must be triaged before their leading `-` can be dropped.
 .PHONY: check
 check:
@@ -25,6 +25,10 @@ check:
 	-$(check_cmd) run honnef.co/go/tools/cmd/staticcheck@$(STATICCHECK_VERSION) -tests -show-ignored ./...
 	-$(check_cmd) run golang.org/x/vuln/cmd/govulncheck@$(GOVULNCHECK_VERSION) ./...
 	-$(check_cmd) run github.com/securego/gosec/v2/cmd/gosec@$(GOSEC_VERSION) ./...
+
+.PHONY: check-build
+check-build: check
+	$(MAKE) all
 
 .PHONY: go-env
 go-env:
@@ -42,12 +46,12 @@ ALL_BINARIES = $(patsubst cmd/%, %, $(CMDS))
 
 pfconnector: CGO_ENABLED=0
 
-$(ALL_BINARIES): check
+$(ALL_BINARIES):
 	$(build_cmd) -C cmd/$@ -o ../../$@
 
 ALL_BINARIES_RACE = $(patsubst cmd/%, %-race, $(CMDS))
 .PHONY: $(ALL_BINARIES_RACE)
-$(ALL_BINARIES_RACE): check
+$(ALL_BINARIES_RACE):
 	$(build_cmd) -C cmd/$(@:-race=) -o ../../$@ -race
 
 .PHONY: copy

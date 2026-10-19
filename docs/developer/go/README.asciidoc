@@ -105,20 +105,24 @@ make copy
 
 ==== Checks before building
 
-Every binary target in [filename]`go/Makefile`, including race builds, depends on
-[command]`make check`. The checks run once per make invocation, before any binary
-is built, including when using [command]`make -j`. A failed gating check stops
-the build, so there is no separate build step to run.
-The PacketFence service Dockerfiles and Debian/RPM package builds already invoke
-this Makefile, so they use the same gate.
+Go analysis is opt-in. Normal binary builds, including race builds, service
+container builds and Debian/RPM packaging, do not run the checks by default.
+To run checks followed by a full build locally, from the repository root:
 
-Those package builds only run on `devel`, maintenance branches, tags and
-manually triggered pipelines, so CI runs the gate itself on every push: the
-`pre_ci_go_check_debian_bookworm` and `pre_ci_go_check_centos_8` jobs in the
-`check` stage run [command]`make -C go check all` on each build image. Both are
-needed because the gate uses the build host's OS.
-Artifact jobs explicitly depend on both Go check jobs, so their `needs` lists
-cannot bypass the Go gate when image builds are disabled.
+[source,bash]
+----
+make -C go check-build
+----
+
+Checks finish before compilation starts, including with `make -j`. A failed
+blocking check stops the build.
+
+In CI, `GO_CHECK` defaults to `"no"`. Set `GO_CHECK=yes` in GitLab CI/CD variables
+or when starting a pipeline to enable `pre_ci_go_check_debian_bookworm` and
+`pre_ci_go_check_centos_8`, including on feature branches. Both jobs run
+[command]`make -C go check-build` using their respective build images.
+Artifact jobs wait for these checks when enabled and are blocked if they fail.
+When disabled, the jobs are omitted and artifact builds proceed without them.
 
 To run the checks without building a binary, from the repository root:
 
@@ -126,6 +130,26 @@ To run the checks without building a binary, from the repository root:
 ----
 make -C go check
 ----
+
+Go service Dockerfiles accept `GO_CHECK`, defaulting to `no`. Enable analysis
+inside the builder stage with a Docker build argument:
+
+[source,bash]
+----
+docker build --build-arg GO_CHECK=yes \
+  --build-arg KNK_REGISTRY_URL=ghcr.io/inverse-inc/packetfence \
+  --build-arg IMAGE_TAG=latest -f containers/pfcron/Dockerfile .
+----
+
+Each enabled image build runs [command]`make check` before compiling its service
+binaries. A blocking check failure stops that image build. CI forwards
+`GO_CHECK` to Kaniko, so `GO_CHECK=yes` also enables analysis in Go service
+images selected for building by the pipeline's existing rules. Local container
+Makefile builds accept [command]`make -C containers pfcron GO_CHECK=yes`;
+`containers/systemd-service` also forwards the `GO_CHECK` environment variable.
+Checks run only in the builder stage. Docker/Kaniko may reuse cached check
+results; use `docker build --no-cache` or `KNK_CACHE=false` with Kaniko to
+refresh findings when the sources have not changed.
 
 The gate runs, in order:
 
@@ -159,12 +183,6 @@ explain why the finding is safe. No blanket exclusions are provided, including
 for the vendored `chisel/` fork. `gopls check` is not needed in this gate: vet
 and Staticcheck provide the batch analysis, while gopls remains useful in the
 editor.
-
-Docker can reuse a cached successful build layer, including its check results.
-To refresh vulnerability results when sources have not changed, rebuild with
-`docker build --no-cache` (or disable the Kaniko cache in CI). Tools run in the
-builder stage and are not copied into the PacketFence runtime images. Builds of
-external applications such as Semaphore and xcaddy do not use this Makefile.
 
 ==== Creating a service
 
