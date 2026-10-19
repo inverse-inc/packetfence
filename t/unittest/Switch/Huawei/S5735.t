@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 47;
+use Test::More tests => 48;
 use pf::Switch::Huawei::S5735;
 use pf::Switch::Huawei::S5710;
 
@@ -320,3 +320,10 @@ ok(
         "the session is identified by Calling-Station-Id only, never by a possibly stale Acct-Session-Id"
     );
 }
+
+# Blank lines and comments ('!') are ignored, they don't turn the role into a deny all
+is(
+    $switch->acl_chewer("permit tcp any host 192.0.2.10 eq 443\n\n   \n!\n! comment\r\n\r\npermit udp any any eq 53", 'testrole'),
+    $switch->acl_chewer("permit tcp any host 192.0.2.10 eq 443\npermit udp any any eq 53", 'testrole'),
+    "blank and comment lines are ignored"
+);
