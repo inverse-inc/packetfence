@@ -698,8 +698,8 @@ func TestFlushRadiusAuditLogUserName(t *testing.T) {
 	}
 
 	// EAP-TLS with an anonymous outer identity: PacketFence used the identity of the certificate (#6115)
-	if userName := j.argsFromEntry(entryWith("jbon-tls"))[3]; userName != "jbon-tls" {
-		t.Errorf("user_name is %v, expected the PacketFence user name jbon-tls", userName)
+	if userName := j.argsFromEntry(entryWith("testuser-tls"))[3]; userName != "testuser-tls" {
+		t.Errorf("user_name is %v, expected the PacketFence user name testuser-tls", userName)
 	}
 
 	// No PacketFence user name (reject, no response): the User-Name of the request
