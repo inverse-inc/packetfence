@@ -63,6 +63,9 @@ our $DEFAULT_HTTP_PORT = 80;
 our $DEFAULT_HTTPS_PORT = 443;
 # UniFi OS Server (the software controller) listens on 11443 by default
 our $UOS_SERVER_PORT = 11443;
+# Timeout of the 11443 probe, so a controller without UniFi OS Server doesn't
+# wait the full request timeout there before trying its old port
+our $UOS_SERVER_PROBE_TIMEOUT = 3;
 our $ALT_DEFAULT_PORT = 8443;
 
 # Where each controller was found, so the port probe runs once per process and
@@ -247,7 +250,13 @@ sub _connect {
                   : ($transport eq 'http' ? ($DEFAULT_HTTP_PORT) : ($DEFAULT_HTTPS_PORT, $UOS_SERVER_PORT));
     foreach my $port (@uos_ports) {
         $url = "${base_url}:${port}";
-        $response = $ua->get($url."/proxy/network/status");
+        if (!$controllerPort && $port == $UOS_SERVER_PORT) {
+            my $timeout = $ua->timeout($UOS_SERVER_PROBE_TIMEOUT);
+            $response = $ua->get($url."/proxy/network/status");
+            $ua->timeout($timeout);
+        } else {
+            $response = $ua->get($url."/proxy/network/status");
+        }
         if ($response->code == 401 || $response->is_success) {
             $unifi_os = $TRUE;
             # UniFi OS redirects http to https: keep talking to where the probe ended up

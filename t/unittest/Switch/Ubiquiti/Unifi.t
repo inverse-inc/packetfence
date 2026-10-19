@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 25;
+use Test::More tests => 27;
 
 #This test will running last
 use Test::NoWarnings;
@@ -182,6 +182,29 @@ ok($mock->post("$mock_url/mock/csrf-headers/on")->is_success, "Mock: CSRF header
     local $switch->{_wsPwd} = 'wrong';
     my $died = !eval { $switch->_connect(); 1 };
     ok($died, "A refused login makes _connect die instead of returning a broken session");
+}
+
+# 6. Probe timeouts: only the 11443 candidate gets the short timeout, so a
+# controller without UniFi OS Server is found on its old port without waiting
+# the full request timeout there
+{
+    my @probes;
+    my $lwp = Test::MockModule->new('LWP::UserAgent');
+    $lwp->mock(get => sub {
+        my ($ua, $url) = @_;
+        my ($port) = $url =~ m{^\w+://[^/:]+:(\d+)};
+        push @probes, [ $port, $ua->timeout ];
+        return HTTP::Response->new(500, "unreachable");
+    });
+    local $switch->{_controllerIp} = '127.0.0.4';
+    local $switch->{_wsTransport} = 'https';
+    $switch->_connect();
+    is_deeply(\@probes, [ [ 443, 10 ], [ 11443, 3 ], [ 8443, 10 ] ], "The 11443 probe uses a 3s timeout, the other requests keep 10s");
+
+    @probes = ();
+    local $switch->{_controllerPort} = 11443;
+    $switch->_connect();
+    is_deeply(\@probes, [ [ 11443, 10 ], [ 11443, 10 ] ], "A configured controller port keeps the full timeout");
 }
 
 =head1 AUTHOR
