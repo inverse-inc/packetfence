@@ -358,7 +358,7 @@ sub _empty_item_error {
 
 sub _is_port {
     my ($port) = @_;
-    return defined $port && $port =~ /^\d{1,5}$/ && $port >= 1 && $port <= 65535;
+    return defined $port && $port =~ /\A\d{1,5}\z/ && $port >= 1 && $port <= 65535;
 }
 
 =head2 validate_port_list
@@ -389,7 +389,7 @@ sub validate_port_protocol_list {
     _empty_item_error($field, @items);
     for my $item (grep { $_ ne '' } @items) {
         my ($port, $protocol, @rest) = split('/', $item);
-        next if !@rest && _is_port($port) && defined $protocol && $protocol =~ /^(tcp|udp)$/i;
+        next if !@rest && _is_port($port) && defined $protocol && $protocol =~ /\A(?:tcp|udp)\z/i;
         $field->add_error("'$item' is not a valid port/protocol (ex: 80/tcp)");
     }
 }
@@ -405,7 +405,7 @@ sub validate_interface_list {
     my @items = _list_items($field->value, $mode);
     _empty_item_error($field, @items);
     for my $item (grep { $_ ne '' } @items) {
-        next if $item =~ /^(?=.{1,15}$)[a-zA-Z0-9][a-zA-Z0-9_.@-]*\+?$/;
+        next if $item =~ /\A(?=.{1,15}\z)[a-zA-Z0-9][a-zA-Z0-9_.@-]*\+?\z/;
         $field->add_error("'$item' is not a valid interface name");
     }
 }
