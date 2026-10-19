@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 29;                      # last test to print
+use Test::More tests => 31;                      # last test to print
 
 use Test::NoWarnings;
 
@@ -66,13 +66,17 @@ ok(!eval { pf::condition::date_before->new(value => 'garbage') }, "invalid contr
 
 like($@, qr/Invalid date 'garbage'/, "with the reason");
 
-ok(!eval { pf::condition::date_before->new(value => '2030-01-01 12:00') }, "control date with a partial time fails the construction");
+my $without_seconds = pf::condition::date_before->new(value => '2030-01-01 12:00');
+ok($without_seconds->match('2030-01-01 11:59:59'), "control date without seconds is read as HH:MM:00");
+ok(!$without_seconds->match('2030-01-01 12:00:00'), "at the minute");
+
+ok(!eval { pf::condition::date_before->new(value => '2030-01-01 12:00:00Z') }, "control date with characters after the time fails the construction");
 
 ok(!eval { pf::condition::date_before->new(value => '2030-01-01T12:00:00') }, "control date in another format fails the construction");
 
 $filter = pf::condition::date_before->new(value => 'now');
 
-ok(!$filter->match('2015-11-27 12:00'), "given date with a partial time doesn't match");
+ok($filter->match('2015-11-27 12:00'), "given date without seconds");
 
 # the negated operator, built like a filter rule
 sub rule {

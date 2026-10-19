@@ -10,7 +10,7 @@ pf::condition::date_compare
 
 Base class to compare a given date with the actual (or supplied) date
 
-Date format is YYYY-MM-DD HH:MM:SS or YYYY-MM-DD.
+Date format is YYYY-MM-DD HH:MM:SS, YYYY-MM-DD HH:MM or YYYY-MM-DD.
 An empty value or 'now' means the date at the moment of the evaluation.
 Any other value that isn't a valid date makes the construction fail.
 A compared date that can't be parsed (e.g. an unset 0000-00-00 00:00:00 date)
@@ -53,8 +53,9 @@ has _control_date => (
 our $DATE_FORMAT = "%Y-%m-%d %H:%M:%S";
 
 our @FORMATS = (
-    [qr/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/, $DATE_FORMAT],
-    [qr/^\d{4}-\d{2}-\d{2}$/, "%Y-%m-%d"],
+    [qr/\A\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\z/, $DATE_FORMAT],
+    [qr/\A\d{4}-\d{2}-\d{2} \d{2}:\d{2}\z/, "%Y-%m-%d %H:%M"],
+    [qr/\A\d{4}-\d{2}-\d{2}\z/, "%Y-%m-%d"],
 );
 
 =head2 BUILD
@@ -67,7 +68,7 @@ sub BUILD {
     my ($self) = @_;
     return if $self->is_now;
     my $date = parse_date($self->value);
-    die "Invalid date '" . $self->value . "', the format is YYYY-MM-DD HH:MM:SS, YYYY-MM-DD or now\n" if !defined $date;
+    die "Invalid date '" . $self->value . "', the format is YYYY-MM-DD HH:MM:SS, YYYY-MM-DD HH:MM, YYYY-MM-DD or now\n" if !defined $date;
     $self->_control_date($date);
 }
 
@@ -119,7 +120,7 @@ sub control_date {
 
 =head2 parse_date
 
-Parse a YYYY-MM-DD HH:MM:SS or YYYY-MM-DD date, returns undef if it can't
+Parse a YYYY-MM-DD HH:MM:SS, YYYY-MM-DD HH:MM or YYYY-MM-DD date, returns undef if it can't
 
 =cut
 

@@ -200,7 +200,7 @@ const setup = (props, context) => {
 
   const valuePlaceholder = computed(() => {
     if (['date_is_before', 'not_date_is_before', 'date_is_after', 'not_date_is_after'].includes(inputValueOperator.value))
-      return i18n.t('YYYY-MM-DD [HH:MM:SS] or now')
+      return i18n.t('YYYY-MM-DD [HH:MM[:SS]] or now')
     return undefined
   })
 
