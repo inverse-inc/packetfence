@@ -31,6 +31,8 @@ Replaces: packetfence-captive-portal-javascript, packetfence-doc, packetfence-pf
 Depends: ${misc:Depends}, vlan,
  packetfence-ntlm-wrapper (>= ${source:Version}), packetfence-golang-daemon (>= ${source:Version}),
  openssl,
+# ssh binary for the SSH transport of the switch CLI (Net::CLI::Interact)
+ openssh-client,
  packetfence-archive-keyring (>= ${source:Version}),
  gpg,
  jq,
