@@ -496,6 +496,14 @@ sub writeNetworkConfigs {
     }
     my $content = merge_interfaces_config($generated, $existing, [ keys %{$interfaces_ref // {}} ], $options{removed});
 
+    # A file included by /etc/network/interfaces (ex: 50-cloud-init) may also define
+    # an interface PacketFence configures: ifupdown then sees both definitions
+    my $sourced = interfaces_in_sourced_files($existing, $_network_conf_dir);
+    for my $item (grep { $_->{type} eq 'iface' && $_->{name} ne 'lo' } @{parse_interfaces_config($generated)}) {
+        next unless my $file = $sourced->{$item->{name}};
+        $logger->warn("Interface $item->{name} is configured by PacketFence in $_network_conf_dir$_network_conf_file and also defined in $file, which it includes. Remove it from $file; on a cloud image, disable the network configuration of cloud-init.");
+    }
+
     if (open(my $fh, '>', "$var_dir$_network_conf_file")) {
         print $fh $content;
         close($fh);
@@ -526,7 +534,12 @@ our %MANAGED_OPTIONS = map { $_ => 1 } qw(address netmask gateway broadcast netw
 
 Parse an /etc/network/interfaces content (ifupdown) into a list of items:
 iface/mapping stanzas with their option lines, auto/allow-* lines, source lines
-and anything else
+and anything else.
+
+A block of comment lines is kept in the C<comments> of the item that follows
+it; an indented comment inside a stanza is kept as one of its option lines.
+A block followed by an empty line (ex: the header of the file), and the
+comments at the end of the content, form a C<comment> item of their own.
 
 =cut
 
@@ -534,30 +547,48 @@ sub parse_interfaces_config {
     my ($content) = @_;
     my @items;
     my $stanza;
+    my @comments;
     $content //= '';
     $content =~ s/\\\n\s*/ /g;
     for my $line (split /\n/, $content) {
-        next if $line =~ /^\s*(#|$)/;
+        if ($line =~ /^\s*$/) {
+            push @items, { type => 'comment', comments => [ splice(@comments) ] } if @comments;
+            next;
+        }
+        if ($line =~ /^(\s*)#/) {
+            my $indented = length $1;
+            $line =~ s/^\s+|\s+$//g;
+            if ($stanza && $indented && !@comments) {
+                push @{$stanza->{options}}, $line;
+            } else {
+                push @comments, $line;
+            }
+            next;
+        }
         $line =~ s/^\s+|\s+$//g;
         my ($keyword, @args) = split /\s+/, $line;
+        my $item;
         if ($keyword eq 'iface') {
-            $stanza = { type => 'iface', name => $args[0], family => $args[1] // '', method => $args[2] // '', header => $line, options => [] };
-            push @items, $stanza;
+            $item = $stanza = { type => 'iface', name => $args[0], family => $args[1] // '', method => $args[2] // '', header => $line, options => [] };
         } elsif ($keyword eq 'mapping') {
-            $stanza = { type => 'mapping', name => $args[0], header => $line, options => [] };
-            push @items, $stanza;
+            $item = $stanza = { type => 'mapping', name => $args[0], header => $line, options => [] };
         } elsif ($keyword eq 'auto' || $keyword =~ /^allow-/) {
             undef $stanza;
-            push @items, { type => 'auto', keyword => $keyword, names => \@args };
+            $item = { type => 'auto', keyword => $keyword, names => \@args };
         } elsif ($keyword eq 'source' || $keyword eq 'source-directory') {
             undef $stanza;
-            push @items, { type => 'source', line => $line };
+            $item = { type => 'source', line => $line };
         } elsif ($stanza) {
-            push @{$stanza->{options}}, $line;
+            # A comment between the options of a stanza stays in the stanza
+            push @{$stanza->{options}}, splice(@comments), $line;
+            next;
         } else {
-            push @items, { type => 'other', line => $line };
+            $item = { type => 'other', line => $line };
         }
+        $item->{comments} = [ splice(@comments) ];
+        push @items, $item;
     }
+    push @items, { type => 'comment', comments => [ @comments ] } if @comments;
     return \@items;
 }
 
@@ -575,6 +606,11 @@ manage is not lost:
  - source and source-directory lines are kept
  - the stanzas and auto lines of the removed interfaces (just deleted in
    PacketFence) are dropped
+ - a managed interface for which PacketFence only generates C<inet manual>
+   (no address) keeps an existing non static header, ex: C<inet dhcp>
+ - comments are kept with the item they precede; the comments of an auto or
+   allow-* line go with the stanza of its first interface, since the auto
+   lines are grouped at the top
 
 =cut
 
@@ -591,46 +627,104 @@ sub merge_interfaces_config {
     }
     my %old_iface = map { ("$_->{name} $_->{family}" => $_) } grep { $_->{type} eq 'iface' } @$old;
 
+    my $keep_old = sub {
+        my ($item) = @_;
+        return $item->{type} eq 'mapping' || $item->{type} eq 'other' if $item->{type} ne 'iface';
+        return 0 if $new_iface{"$item->{name} $item->{family}"} || $removed{$item->{name}};
+        return 0 if $managed{$item->{name}} && ($item->{method} eq 'static' || $item->{name} eq 'lo');
+        return 1;
+    };
+    # Interfaces that get a stanza: the comments of their auto lines go with it
+    my %has_stanza = map { ($_->{name} => 1) } (values %new_iface, grep { $_->{type} eq 'iface' && $keep_old->($_) } @$old);
+    my %stanza_comments;
+
+    # The comments at the top of the file (its header) stay at the top
+    my $leading = 0;
+    $leading++ while $leading < @$old && $old->[$leading]{type} eq 'comment';
+    for my $item (@$old[0 .. $leading - 1]) {
+        push @out, @{$item->{comments}}, '';
+    }
     for my $item (grep { $_->{type} eq 'source' } @$old) {
-        push @out, $item->{line};
+        push @out, @{$item->{comments} // []}, $item->{line};
     }
     for my $item (grep { $_->{type} eq 'auto' } @$new, @$old) {
         # The auto lines of managed interfaces come from the generated configuration only
         my @names = grep { !$seen_auto{"$item->{keyword} $_"}++ } @{$item->{names}};
+        my @comments = @{$item->{comments} // []};
+        if (@comments && $has_stanza{$item->{names}[0]}) {
+            push @{$stanza_comments{$item->{names}[0]}}, @comments;
+            @comments = ();
+        }
         if (!grep { $_ eq $item } @$new) {
             @names = grep { !$managed{$_} && !$removed{$_} } @names;
         }
-        push @out, join(' ', $item->{keyword}, @names) if @names;
+        push @out, @comments, join(' ', $item->{keyword}, @names) if @names;
     }
 
     for my $item (@$new) {
         next unless $item->{type} eq 'iface';
         my @options = @{$item->{options}};
         my %set = map { ((split /\s+/, $_)[0] => 1) } @options;
+        my $header = $item->{header};
+        my @comments = @{delete $stanza_comments{$item->{name}} // []};
         if (my $previous = $old_iface{"$item->{name} $item->{family}"}) {
+            # No address from PacketFence: keep how the interface was configured (ex: dhcp)
+            $header = $previous->{header} if $item->{method} eq 'manual' && $previous->{method} ne 'static';
+            push @comments, @{$previous->{comments} // []};
             for my $option (@{$previous->{options}}) {
                 my ($key) = split /\s+/, $option;
                 next if $MANAGED_OPTIONS{$key} || $set{$key};
                 push @options, $option;
             }
         }
-        push @out, '', $item->{header}, map { "    $_" } @options;
+        push @out, '', @comments, $header, map { "    $_" } @options;
     }
 
-    for my $item (@$old) {
-        if ($item->{type} eq 'iface') {
-            next if $new_iface{"$item->{name} $item->{family}"} || $removed{$item->{name}};
-            next if $managed{$item->{name}} && ($item->{method} eq 'static' || $item->{name} eq 'lo');
-        } elsif ($item->{type} ne 'mapping' && $item->{type} ne 'other') {
+    for my $item (@$old[$leading .. $#$old]) {
+        if ($item->{type} eq 'comment') {
+            push @out, '', @{$item->{comments}}, '';
             next;
         }
+        next unless $keep_old->($item);
+        my @comments = (@{delete $stanza_comments{$item->{name} // ''} // []}, @{$item->{comments} // []});
         if ($item->{type} eq 'other') {
-            push @out, $item->{line};
+            push @out, @comments, $item->{line};
             next;
         }
-        push @out, '', $item->{header}, map { "    $_" } @{$item->{options}};
+        push @out, '', @comments, $item->{header}, map { "    $_" } @{$item->{options}};
     }
     return join("\n", @out) . "\n";
+}
+
+=head2 interfaces_in_sourced_files
+
+The interfaces defined by the files that an /etc/network/interfaces content
+includes (source and source-directory), as name => file. Relative paths are
+relative to $base_dir, as for ifupdown.
+
+=cut
+
+sub interfaces_in_sourced_files {
+    my ($content, $base_dir) = @_;
+    my %found;
+    for my $item (grep { $_->{type} eq 'source' } @{parse_interfaces_config($content)}) {
+        my ($keyword, $path) = split /\s+/, $item->{line}, 2;
+        next unless defined $path && length $path;
+        $path = "$base_dir$path" if $path !~ m{^/};
+        my @files = $keyword eq 'source'
+            ? grep { -f } glob($path)
+            : grep { -f && m{/[a-zA-Z0-9_-]+$} } glob("$path/*");
+        for my $file (@files) {
+            open(my $fh, '<', $file) or next;
+            local $/;
+            my $sourced = <$fh> // '';
+            close($fh);
+            for my $iface (grep { $_->{type} eq 'iface' } @{parse_interfaces_config($sourced)}) {
+                $found{$iface->{name}} //= $file;
+            }
+        }
+    }
+    return \%found;
 }
 
 =head1 AUTHOR

@@ -130,6 +130,10 @@ sub delete {
         return ($status, $status_msg);
     }
 
+    # Remove the deleted interface from the persistent OS configuration; it is
+    # named for the writers that keep what they don't know about
+    $models->{'system'}->write_network_persistent($self->get('all'), $models->{'system'}->getDefaultGateway(), removed => [$interface]);
+
     # Remove associated network entries
     @results = $self->_listInterfaces('all');
     if ($models->{network}->cleanupNetworks(\@results)) {
