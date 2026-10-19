@@ -539,7 +539,8 @@ reboot
 
 After each reboot, ensure the database sync is fine by performing the checks
 outlined in
-<<_checking_the_mariadb_sync>> section.
+<<_checking_the_mariadb_sync>> section. With an external database, there is
+no MariaDB sync to check.
 
 === Additional steps
 
