@@ -998,8 +998,8 @@ Then restart all RADIUS instances:
 ----
 
 Until then, [filename]`packetfence.log` reports `No switch IP (NAS-IP-Address /
-Client-IP-Address) in the RADIUS request handed to the ... filter` and the
-filters of these scopes are skipped.
+Client-IP-Address) nor switch MAC (Called-Station-Id) in the RADIUS request
+handed to the ... filter` and the filters of these scopes are skipped.
 
 == Troubleshooting Upgrades
 
