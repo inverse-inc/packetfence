@@ -975,14 +975,33 @@ using a connector are not changed.
 systemctl restart packetfence-ntlm-auth-api
 ----
 
-In a cluster, restart `packetfence-ntlm-auth-api` on every server.
+In a cluster, run the script on one server only and send the configuration to
+the other members before reloading it, as for any
+<<PacketFence_Clustering_Guide.asciidoc#_resynchronizing_the_configuration_manually,manual change of the configuration>>.
+Otherwise, the other members sync their previous [filename]`domain.conf` back.
+
+.On one server
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-16.0-ntlm-auth-host.pl
+/usr/local/pf/bin/cluster/sync --as-master
+/usr/local/pf/bin/pfcmd configreload hard
+----
+
+.On every server
+[source,bash]
+----
+systemctl restart packetfence-ntlm-auth-api
+----
 
 [NOTE]
 ====
 The script doesn't depend on this release, but packages before X.Y.Z don't
 include it. On 15.1 or 15.2, to fix the domain status check before upgrading,
-download it from the PacketFence repository and run it, then reload the
-configuration and restart `packetfence-ntlm-auth-api` as above:
+download it from the PacketFence repository and run it in place of
+`/usr/local/pf/addons/upgrade/to-16.0-ntlm-auth-host.pl` above, then follow the
+same steps (on a cluster: on one server only, then `cluster/sync --as-master`
+and the reload, then the restart on every server):
 
 [source,bash]
 ----
