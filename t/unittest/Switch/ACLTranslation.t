@@ -23,7 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 77;
+use Test::More tests => 78;
 use pf::Switch;
 use pf::Switch::Aruba::ArubaOS_CX_10_x;
 use pf::Switch::Arista::AristaSwitch;
@@ -209,6 +209,22 @@ is_deeply(
     [map { "$direction[$_] $entries->[$_]{action} $entries->[$_]{protocol}" } 0 .. $#$entries],
     ['in permit ip()'],
     "a direction that keeps an ACL gets no extra deny, the switch denies the rest"
+);
+
+($entries, @direction) = pf::Switch::filterUntranslatableAcls(
+    $aruba,
+    { packetfence => { entries => [
+        { sequence_number => undef, evaluate => 'evaluate' },
+        { action => 'permit', protocol => 'ip()', source => $any, destination => $any },
+    ] } },
+    ['in', 'in'],
+    'testrole',
+    sub { undef },
+);
+is_deeply(
+    [map { "$direction[$_] $entries->[$_]{action} $entries->[$_]{protocol}" } 0 .. $#$entries],
+    ['in permit ip()'],
+    "an entry without action (evaluate) is skipped without warning, the ACLs after it are kept"
 );
 
 ($entries, @direction) = pf::Switch::filterUntranslatableAcls($aruba, { packetfence => { entries => [] } }, [], 'testrole', sub { undef });

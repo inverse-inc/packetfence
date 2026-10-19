@@ -4455,7 +4455,7 @@ sub filterUntranslatableAcls {
             $kept{$dir_key} = 1;
             next;
         }
-        if ($entry->{'action'} ne 'deny') {
+        if (($entry->{'action'} // '') ne 'deny') {
             $logger->warn("(".$self->{'_id'}.") Skipping ACL of role '$role': $reason");
             $skipped{$dir_key} //= $dir;
             next;
