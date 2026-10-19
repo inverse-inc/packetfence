@@ -22,7 +22,7 @@ BEGIN {
 
 use pf::SwitchFactory;
 use pf::access_filter::switch;
-use Test::More tests => 8;
+use Test::More tests => 10;
 
 #This test will running last
 use Test::NoWarnings;
@@ -67,6 +67,18 @@ is(
     $switch_filter->filter('instantiate_module', { test_7023 => 'no' }),
     undef,
     "no rule, no switch module",
+);
+
+# An external portal rule (conf/switch_filters.conf.example) also gets its switch module
+is(
+    $switch_filter->filter('external_portal', { test_7023_portal => 'yes' }),
+    'Fortinet::FortiGate',
+    "external_portal returns the switch module of the rule",
+);
+is_deeply(
+    $switch_filter->filter('reevaluate', { test_7023_portal => 'yes' }),
+    { _useCoA => 'N' },
+    "the same rule gives its parameters on reevaluate",
 );
 
 =head1 AUTHOR

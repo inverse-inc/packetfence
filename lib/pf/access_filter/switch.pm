@@ -31,9 +31,10 @@ sub filterRule {
     my $logger = $self->logger;
     my $switch_params = {};
     if(defined $rule) {
-        # The switch module of a rule only applies when the switch is instantiated,
-        # the other scopes change the switch parameters
-        if (!defined($scope) || $scope eq 'instantiate_module') {
+        # The switch module of a rule only applies when the switch is instantiated
+        # or an external portal request is identified, the other scopes change the
+        # switch parameters
+        if (!defined($scope) || $scope eq 'instantiate_module' || $scope eq 'external_portal') {
             return $rule->{'switch'} if defined($rule->{'switch'}) && $rule->{'switch'} ne '';
             return undef if defined($scope);
         }
