@@ -301,7 +301,7 @@ carried by the C<HW-Data-Filter> RADIUS VSA (Huawei VSA 82).
 
 Each returned line is one rule without its number, for example:
 
-    permit tcp dst 192.168.40.10/32 443
+    permit tcp dst 192.0.2.10/32 443
 
 The grammar is C<< <permit|deny> [protocol] [src <address> [port]] [dst
 <address> [port]] >>, where the protocol is one of tcp, udp, icmp or igmp, an
