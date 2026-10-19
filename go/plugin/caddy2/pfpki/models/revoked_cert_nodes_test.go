@@ -32,17 +32,17 @@ func TestSerialsMatch(t *testing.T) {
 }
 
 func TestIssuerHasCN(t *testing.T) {
-	escaped := `\\/C=CA\\/ST=QC\\/L=Montreal\\/O=STG\\/OU=Inverse\\/CN=CaKamai`
-	if !issuerHasCN(escaped, "CaKamai") {
+	escaped := `\\/C=CA\\/ST=QC\\/L=Montreal\\/O=Example\\/OU=Example\\/CN=ExampleCA`
+	if !issuerHasCN(escaped, "ExampleCA") {
 		t.Error("escaped node_tls issuer should match its CN")
 	}
-	if !issuerHasCN("/C=CA/O=STG/CN=CaKamai", "CaKamai") {
+	if !issuerHasCN("/C=CA/O=Example/CN=ExampleCA", "ExampleCA") {
 		t.Error("plain issuer should match its CN")
 	}
-	if !issuerHasCN("C=CA, O=STG, CN=CaKamai", "CaKamai") {
+	if !issuerHasCN("C=CA, O=Example, CN=ExampleCA", "ExampleCA") {
 		t.Error("comma separated issuer should match its CN")
 	}
-	if issuerHasCN(escaped, "CaKamai352") || issuerHasCN(`\\/CN=CaKamai352`, "CaKamai") {
+	if issuerHasCN(escaped, "ExampleCA352") || issuerHasCN(`\\/CN=ExampleCA352`, "ExampleCA") {
 		t.Error("a CA whose name only starts the same must not match")
 	}
 	if issuerHasCN(escaped, "") {
@@ -52,12 +52,12 @@ func TestIssuerHasCN(t *testing.T) {
 
 func TestMacsOfCert(t *testing.T) {
 	rows := []nodeTLS{
-		{Mac: "02:44:45:4c:80:17", TLSClientCertSerial: "03", TLSClientCertIssuer: `\\/O=STG\\/CN=CaKamai`},
+		{Mac: "02:44:45:4c:80:17", TLSClientCertSerial: "03", TLSClientCertIssuer: `\\/O=Example\\/CN=ExampleCA`},
 		{Mac: "02:a1:57:a0:00:11", TLSClientCertSerial: "03", TLSClientCertIssuer: `\\/O=Akamai\\/CN=AkaCA`},
-		{Mac: "02:44:45:4c:80:18", TLSClientCertSerial: "04", TLSClientCertIssuer: `\\/O=STG\\/CN=CaKamai`},
-		{Mac: "02:44:45:4c:80:19", TLSClientCertSerial: "0x3", TLSClientCertIssuer: `/O=STG/CN=CaKamai`},
+		{Mac: "02:44:45:4c:80:18", TLSClientCertSerial: "04", TLSClientCertIssuer: `\\/O=Example\\/CN=ExampleCA`},
+		{Mac: "02:44:45:4c:80:19", TLSClientCertSerial: "0x3", TLSClientCertIssuer: `/O=Example/CN=ExampleCA`},
 	}
-	cert := Cert{Cn: "jbon", SerialNumber: "3", CaName: "CaKamai"}
+	cert := Cert{Cn: "testuser", SerialNumber: "3", CaName: "ExampleCA"}
 	got := macsOfCert(rows, cert)
 	want := []string{"02:44:45:4c:80:17", "02:44:45:4c:80:19"}
 	if !reflect.DeepEqual(got, want) {
