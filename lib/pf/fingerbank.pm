@@ -464,12 +464,12 @@ sub sync_configuration {
 }
 
 sub sync_local_db {
-    pf::cluster::sync_files([$fingerbank::FilePath::LOCAL_DB_FILE]);
+    pf::cluster::sync_files([$fingerbank::FilePath::LOCAL_DB_FILE], no_total_timeout => $TRUE);
     clear_cache();
 }
 
 sub sync_upstream_db {
-    pf::cluster::sync_files([$fingerbank::FilePath::UPSTREAM_DB_FILE], async => $TRUE);
+    pf::cluster::sync_files([$fingerbank::FilePath::UPSTREAM_DB_FILE], async => $TRUE, no_total_timeout => $TRUE);
     clear_cache();
 }
 

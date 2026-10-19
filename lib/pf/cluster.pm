@@ -382,8 +382,10 @@ sub sync_files {
     foreach my $file (@$files){
         pf::log::get_logger->info("Synching file $file to cluster members");
         my %data = ( conf_file => $file, from => pf::cluster::current_server()->{management_ip} );
-        # Each member downloads the file from this server (bounded there by the lack of progress): no total timeout
-        push @failed, @{_api_call_each_server({timeout_ms => 0}, $options{async}, 'distant_download_configfile', %data)};
+        # A large file (the Fingerbank databases) can take longer than api_timeout to download: with
+        # no_total_timeout, only the member's download bounds it, by its lack of progress
+        my $client_options = $options{no_total_timeout} ? {timeout_ms => 0} : {};
+        push @failed, @{_api_call_each_server($client_options, $options{async}, 'distant_download_configfile', %data)};
     }
     return \@failed;
 }
