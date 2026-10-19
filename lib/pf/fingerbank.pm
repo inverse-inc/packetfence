@@ -631,14 +631,15 @@ sub sync_local_db {
             get_logger->error("Error syncing $fingerbank::FilePath::LOCAL_DB_FILE to git storage: $msg");
             return (0, $msg);
         }
-        eval {
+        my $deployed = eval {
             # The deploy is only needed for its git pull side (placing the DB file on the
             # pfconfig pods); no pfconfig namespace depends on the local Fingerbank DB, so
             # expire a single cheap namespace instead of __all__
             pfconfig::git_storage->deploy(namespace => "config::FingerbankSettings", light => 1);
         };
-        if ($@) {
-            get_logger->error("Error deploying git storage after local Fingerbank DB update: $@");
+        # Outside of k8s the deploy doesn't die when pfconfig refuses the pull, it returns false
+        if ($@ || !$deployed) {
+            get_logger->error("Error deploying git storage after local Fingerbank DB update: " . ($@ || "pfconfig did not accept the pull"));
             return (0, "Local Fingerbank database was saved to git storage but deploying it failed. Please retry the change.");
         }
     }

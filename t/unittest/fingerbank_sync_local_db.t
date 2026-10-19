@@ -21,18 +21,18 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 9;
+use Test::More tests => 10;
 use pf::fingerbank;
 
 #This test will running last
 use Test::NoWarnings;
 
-my ($enabled, @commits, @deploys, @commit_result, $deploy_dies);
+my ($enabled, @commits, @deploys, @commit_result, $deploy_dies, $deploy_refused);
 {
     no warnings qw(redefine once);
     *pfconfig::git_storage::is_enabled = sub { $enabled };
     *pfconfig::git_storage::commit_file = sub { shift; push @commits, [@_]; return @commit_result };
-    *pfconfig::git_storage::deploy = sub { shift; push @deploys, {@_}; die "deploy failed\n" if $deploy_dies; return 1 };
+    *pfconfig::git_storage::deploy = sub { shift; push @deploys, {@_}; die "deploy failed\n" if $deploy_dies; return $deploy_refused ? 0 : 1 };
 }
 
 $enabled = 0;
@@ -54,6 +54,11 @@ is(scalar @deploys, 0, "No deploy after a failed commit");
 $deploy_dies = 1;
 my ($res, $msg) = pf::fingerbank::sync_local_db();
 ok(!$res && $msg =~ /deploying it failed/, "A failed deploy is reported");
+
+$deploy_dies = 0;
+$deploy_refused = 1;
+($res, $msg) = pf::fingerbank::sync_local_db();
+ok(!$res && $msg =~ /deploying it failed/, "A deploy that pfconfig refuses is reported");
 
 =head1 AUTHOR
 
