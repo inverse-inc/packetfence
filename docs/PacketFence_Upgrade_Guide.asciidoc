@@ -938,6 +938,24 @@ Internet Explorer 11 on Windows 7 when an RSA certificate is in use.
 
 == Upgrading from a version prior to X.Y.Z
 
+=== Local accounts with a zero password expiration are cleaned up
+
+A local account whose password expiration is the zero date (`0000-00-00
+00:00:00`) can't log in: PacketFence has refused it as expired since 2021. The
+person cleanup task kept these accounts as "set not to expire". It now deletes
+them, with their password, like the other expired local accounts that own no
+device. PacketFence doesn't create such an expiration itself (the admin requires
+a date), but an import or the API can.
+
+To find them before upgrading:
+
+[source,bash]
+----
+mysql pf -e "SELECT pid FROM password WHERE expiration = '0000-00-00 00:00:00'"
+----
+
+Set an expiration date on the accounts that must stay.
+
 === RADIUS dynamic clients are now cached for 300 seconds
 
 [filename]`/usr/local/pf/raddb/sites-available/dynamic-clients` now sets
