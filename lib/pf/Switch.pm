@@ -3674,6 +3674,12 @@ Takes into account the active/active clustering and centralized deauth
 sub deauth_source_ip {
     my ($self,$dst_ip,$using_connector) = @_;
     my $logger = $self->logger();
+    $dst_ip = $self->resolve_deauth_host($dst_ip, $using_connector);
+    unless (defined($dst_ip) && (Net::IP::ip_is_ipv4($dst_ip) || Net::IP::ip_is_ipv6($dst_ip))) {
+        # (no defined-or operator here: the Switch source filter used below doesn't parse it)
+        $logger->warn("No route can be looked up for the deauthentication destination " . (defined($dst_ip) ? $dst_ip : 'undef') . ", using 0.0.0.0");
+        return "0.0.0.0";
+    }
     my $chi = pf::CHI->new(namespace => 'route_int');
     my $int = $chi->compute($dst_ip, sub {
                                          my @interface_src = split(" ", safe_pf_run(qw(sudo ip route get), $dst_ip));
@@ -4448,11 +4454,50 @@ sub locationlog_for_disconnect {
     return undef;
 }
 
+=head2 resolve_deauth_host
+
+Returns the IPv4 address to use to reach the given deauthentication host.
+IP addresses are returned unchanged.
+A hostname (e.g. a controllerIp configured as a FQDN) is resolved to its first IPv4 address
+by the local resolver. When the local resolver can't resolve it and the deauthentication can
+go through a pfconnector, it is resolved through pfdns-connector (a controller behind a remote
+connector may only be known at the remote site).
+If the hostname cannot be resolved, it is returned unchanged.
+
+=cut
+
+sub resolve_deauth_host {
+    my ($self, $host, $use_connector) = @_;
+    return $host if !defined($host) || $host eq '' || Net::IP::ip_is_ipv4($host) || Net::IP::ip_is_ipv6($host);
+    my (undef, undef, undef, undef, @addresses) = gethostbyname($host);
+    if (@addresses) {
+        my $ip = Socket::inet_ntoa($addresses[0]);
+        $self->logger->debug("Resolved $host to $ip for the deauthentication");
+        return $ip;
+    }
+    if ($use_connector) {
+        require pf::factory::connector;
+        my $ip = pf::factory::connector->resolve($host);
+        if (defined($ip)) {
+            $self->logger->debug("Resolved $host to $ip through pfdns-connector for the deauthentication");
+            return $ip;
+        }
+    }
+    $self->logger->error("Unable to resolve $host to an IP address for the deauthentication");
+    return $host;
+}
+
 sub radius_deauth_connection_info {
     my ($self, $send_disconnect_to) = @_;
 
+    $send_disconnect_to = $self->resolve_deauth_host($send_disconnect_to, $self->shouldUseConnectorForRadiusDeauth());
+
     my $using_connector = $FALSE;
-    if($self->shouldUseConnectorForRadiusDeauth()) {
+    if($self->shouldUseConnectorForRadiusDeauth() && !(Net::IP::ip_is_ipv4($send_disconnect_to) || Net::IP::ip_is_ipv6($send_disconnect_to))) {
+        # An unresolved hostname can't be matched against the connector networks
+        get_logger->warn("Not using a connector to perform the deauth: $send_disconnect_to is not an IP address");
+    }
+    elsif($self->shouldUseConnectorForRadiusDeauth()) {
         my $connector = pf::factory::connector->for_ip($send_disconnect_to);
         # Skip using the local connector to do deauth if we're in a cluster since pfconnector will not use the VIP
         if($cluster_enabled && $connector->id eq pf::factory::connector->local_connector->id) {
@@ -4477,7 +4522,10 @@ sub radius_deauth_connection_info {
     # the connected-UDP kernel filter to drop the connector's reply. Let the
     # kernel pick the source IP for the connector route instead.
     unless ($using_connector) {
-        $connection_info->{LocalAddr} = $self->deauth_source_ip($send_disconnect_to, $using_connector);
+        # A host that couldn't be resolved was already reported above: don't resolve it again
+        $connection_info->{LocalAddr} = (Net::IP::ip_is_ipv4($send_disconnect_to) || Net::IP::ip_is_ipv6($send_disconnect_to))
+            ? $self->deauth_source_ip($send_disconnect_to, $using_connector)
+            : "0.0.0.0";
     }
 
     return $connection_info;

@@ -69,7 +69,8 @@ my @whitelist = (
     'cachedSNMPTableKey', 'refreshCachedSNMPTable', 'ifIndexCacheTables', 'hasCachedIfIndexTables', 'refreshIfIndexCache',
     '_setDynauthPort',
     'getHostMode', 'isMultiAuthPort', 'hasRadiusSecret', 'wiredReevaluationDeauthTechnique',
-    'locationlog_for_disconnect'
+    'locationlog_for_disconnect',
+    'resolve_deauth_host'
 );
 
 my @missing_subs;
