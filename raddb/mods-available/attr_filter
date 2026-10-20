@@ -59,6 +59,15 @@ attr_filter attr_filter.packetfence_post_auth {
 	filename = ${modconfdir}/${.:name}/packetfence-post-auth
 }
 
+# Degraded mode of a proxied realm: when the answer cached for the device
+# was given to another authentication, keep only the attributes of the local
+# EAP authentication, the cached ones are not replayed
+#
+attr_filter attr_filter.packetfence_degraded_mismatch {
+	key = "%{User-Name}"
+	filename = ${modconfdir}/attr_filter/packetfence-degraded-mismatch
+}
+
 # Delete all PacketFence specific attributes from the reply
 #
 attr_filter attr_filter.packetfence_pre_proxy {

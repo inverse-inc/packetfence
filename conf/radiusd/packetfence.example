@@ -499,10 +499,19 @@ server packetfence {
 		# realm, never the ones of the degraded mode itself
 		if ( ( [% degraded_cache %] ) && !&proxy-reply:PacketFence-Degraded && !&control:PacketFence-Degraded ) {
 			if ( &proxy-reply:Packet-Type == Access-Accept ) {
+				# The authentication this answer was given to (EAP method or
+				# no-EAP for a MAB, and the identity), it is only replayed to the
+				# same one
+				update proxy-reply {
+					&PacketFence-Degraded-Auth := "%{%{EAP-Type}:-no-EAP}:%{md5:%{tolower:%{User-Name}}}"
+				}
 				rest-radcache {
 					fail = 1
 					notfound = 1
 					invalid = 1
+				}
+				update proxy-reply {
+					&PacketFence-Degraded-Auth !* ANY
 				}
 			}
 			# The remote server now rejects the device: forget its last accepted answer
@@ -860,8 +869,9 @@ server packetfence-degraded {
 	}
 
 	accounting {
-		# Nothing to forward to, accounting is still replicated to pfacct
-		# by the packetfence server
+		# Not used: only the authentication pools fall back to this server,
+		# accounting is left unanswered while the remote servers are dead so
+		# that the switches keep it for them
 		ok
 		attr_filter.accounting_response
 	}
@@ -876,14 +886,20 @@ server packetfence-degraded {
 			notfound = 1
 			invalid = 1
 		}
-		if (ok || updated) {
+		# Only replayed to the authentication it was given to: an answer cached
+		# for an EAP authentication is not given to a MAB request with the same
+		# MAC address, nor to another EAP method or identity
+		if ((ok || updated) && &reply:PacketFence-Degraded-Auth && (&reply:PacketFence-Degraded-Auth == "%{%{EAP-Type}:-no-EAP}:%{md5:%{tolower:%{User-Name}}}")) {
 			update reply {
 				# Echoed by the remote server to the packetfence server when it was cached
 				&Proxy-State !* ANY
+				&PacketFence-Degraded-Auth !* ANY
 				&PacketFence-Degraded := "Cache-Hit"
 			}
 		}
 		else {
+			# Remove what may have been read from the cache for another authentication
+			attr_filter.packetfence_degraded_mismatch
 			update reply {
 				&PacketFence-Degraded := "Cache-Miss"
 			}

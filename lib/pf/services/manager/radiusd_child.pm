@@ -1002,7 +1002,6 @@ EOT
 home_server = $radius
 EOT
             }
-            $tags{'config'} .= "fallback = packetfence-degraded\n" if is_degraded_realm($realm);
             $tags{'config'} .= <<"EOT";
 }
 EOT

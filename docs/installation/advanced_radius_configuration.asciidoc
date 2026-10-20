@@ -340,6 +340,13 @@ the switches or they will declare PacketFence dead first.
   with a RADIUS filter set it in the answer (see below).
 * In a cluster each server keeps its own cache: a device is only known by the
   servers which proxied an answer for it.
+* A cached answer is only replayed to the authentication it was given to: the
+  same EAP method (or a MAB) and the same `User-Name`. Per example the answer
+  of an EAP-TLS authentication is not given to a MAB request with the MAC
+  address of the device, it is then handled as a device not in the cache.
+* Only the authentication falls back to the degraded mode. While the remote
+  servers are dead the accounting of the realm is not answered, the switches
+  keep it until they are back.
 * An answer is kept until the remote servers reject the device (its entry is
   then deleted), or until it was not refreshed for 30 days
   (`radius_attribute_ttl` in

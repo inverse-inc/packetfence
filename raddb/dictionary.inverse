@@ -55,6 +55,7 @@ ATTRIBUTE       PacketFence-ConnectorID               40       string
 ATTRIBUTE       PacketFence-NTLM-Auth-Host            41       string
 ATTRIBUTE       PacketFence-NTLM-Auth-Port            42       string
 ATTRIBUTE       PacketFence-Degraded                  43       string
+ATTRIBUTE       PacketFence-Degraded-Auth             44       string
 
 END-VENDOR      Inverse
 

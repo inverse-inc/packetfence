@@ -1,0 +1,14 @@
+#
+#	Configuration file for the degraded mode of the proxied realms
+#
+#	The answer cached for the device was given by the remote server to
+#	another authentication (an EAP one for a MAB request, another EAP
+#	method or another identity): only the attributes of the local EAP
+#	authentication are kept, all the cached ones are removed.
+#
+DEFAULT
+	EAP-Message =* ANY,
+	Message-Authenticator =* ANY,
+	MS-MPPE-Recv-Key =* ANY,
+	MS-MPPE-Send-Key =* ANY,
+	EAP-Key-Name =* ANY
