@@ -86,8 +86,8 @@ sub code : Path : Args(2) {
         # option was enabled) and goes through the regular flow below.
         if ( !$unregdate && $source && $source->can('waitForActivation') && $source->waitForActivation ) {
             get_logger->info("Activation code verified, the device is waiting on the portal to complete its registration");
+            # The auth log entry is completed by the portal, once the device is registered
             pf::activation::set_status_verified($GUEST_ACTIVATION, $code);
-            pf::auth_log::record_completed_guest($activation_record->{source_id}, $source->type, $node_mac, $pf::auth_log::COMPLETED);
             $c->stash(
                 title => "Access granted",
                 template => "activation/email.html",
@@ -100,7 +100,9 @@ sub code : Path : Args(2) {
             get_logger->info("Extending duration to $unregdate");
             node_modify($node_mac, unregdate => $unregdate);
             pf::activation::set_status_verified($GUEST_ACTIVATION, $code);
-            pf::auth_log::record_completed_guest($activation_record->{source_id}, $source ? $source->type : '', $node_mac, $pf::auth_log::COMPLETED);
+            # The connection profile the code was issued from: completing the entry
+            # without it would erase the profile recorded at attempt time
+            pf::auth_log::record_completed_guest($activation_record->{source_id}, $source ? $source->type : '', $node_mac, $pf::auth_log::COMPLETED, $activation_record->{portal});
             $c->stash(
                 title => "Access granted",
                 template => "activation/email.html",

@@ -77,6 +77,7 @@ sub execute_child {
         # form back instead of looping on done() with an already verified code
         delete $self->session->{email_activated};
         delete $self->session->{activation_code};
+        local $self->{_completing_activation} = $TRUE;
         $self->done();
     }
     else{
@@ -307,8 +308,7 @@ sub rules_allow_registration {
     my %saved_node_info = %{$self->new_node_info};
 
     $self->captiveportal::DynamicRouting::Module::execute_actions();
-    my $allowed = ($self->app->isRootSSO && defined($self->new_node_info->{access_level}))
-        || $self->new_node_info_allows_registration();
+    my $allowed = $self->actions_allow_registration();
 
     %{$self->new_node_info} = %saved_node_info;
     foreach my $key (@session_keys) {
@@ -347,6 +347,23 @@ after 'execute_actions' => sub {
         $self->new_node_info->{unregdate} = $unregdate;
     }
     return $TRUE;
+};
+
+=head2 execute_actions (completion of a waiting registration)
+
+When the device waited on the portal for the activation link, the
+registration is completed once the actions run by done() succeed: the auth
+log entry is marked completed then, with the profile it was attempted on.
+
+=cut
+
+around 'execute_actions' => sub {
+    my ($orig, $self, @args) = @_;
+    my $result = $self->$orig(@args);
+    if ($result && $self->{_completing_activation}) {
+        pf::auth_log::record_completed_guest($self->source->id, $self->source->type, $self->current_mac, $pf::auth_log::COMPLETED, $self->app->profile->name);
+    }
+    return $result;
 };
 
 =head2 auth_source_params_child
