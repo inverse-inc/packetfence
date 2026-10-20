@@ -116,3 +116,38 @@ func TestTerminalTOTPLockout(t *testing.T) {
 		t.Fatalf("after lockout: %v", err)
 	}
 }
+
+func TestTerminalTOTPStateSurvivesRestart(t *testing.T) {
+	tt := newTestTOTP(t)
+
+	for i := 0; i < totpFailureLimit; i++ {
+		tt.validate("000000")
+	}
+	// A restart of the connector loads the same seed and the lockout
+	tt2, err := newTerminalTOTP(context.Background(), "test-connector")
+	if err != nil {
+		t.Fatalf("reloading: %v", err)
+	}
+	if err := tt2.validate(currentCode(t, tt2)); !errors.Is(err, errTOTPLocked) {
+		t.Fatalf("after restart: got %v, want errTOTPLocked", err)
+	}
+
+	// The last accepted code can't be replayed after a restart either
+	tt2.mu.Lock()
+	tt2.lockedUntil = time.Time{}
+	tt2.mu.Unlock()
+	code := currentCode(t, tt2)
+	if err := tt2.validate(code); err != nil {
+		t.Fatalf("valid code: %v", err)
+	}
+	tt3, err := newTerminalTOTP(context.Background(), "test-connector")
+	if err != nil {
+		t.Fatalf("reloading: %v", err)
+	}
+	if err := tt3.validate(code); !errors.Is(err, errTOTPReplay) {
+		t.Fatalf("replay after restart: got %v, want errTOTPReplay", err)
+	}
+	if info, err := os.Stat(terminalTOTPFile() + ".state"); err != nil || info.Mode().Perm() != 0600 {
+		t.Fatalf("state file: %v %v", err, info)
+	}
+}
