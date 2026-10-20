@@ -957,6 +957,18 @@ upgrading, review the rules of the sources used for 802.1X and MAB that use
 these conditions: a rule that never matched can start assigning its role, and a
 negative condition such as `switch_group is not X` now matches every switch
 outside group X.
+
+=== CoA-Request of Aruba CX and AeroHIVE switches sent to the CoA port
+
+The Aruba CX (`Aruba::ArubaOS_CX_10_x`) and AeroHIVE switch types sent their
+CoA-Request to the _Disconnect Port_ (`disconnectPort`) of the switch. They now
+send it to the _CoA Port_ (`coaPort`), like the other switch types, and the
+Disconnect-Request to the _Disconnect Port_.
+
+A switch or switch group of these types that sets the _Disconnect Port_ but not
+the _CoA Port_ now gets its CoA-Requests on the default port 3799, and a switch
+listening elsewhere doesn't answer them (a timeout in [filename]`packetfence.log`).
+Set its _CoA Port_ to the port it listens on for CoA.
 === RADIUS dynamic clients are now cached for 300 seconds
 
 [filename]`/usr/local/pf/raddb/sites-available/dynamic-clients` now sets
