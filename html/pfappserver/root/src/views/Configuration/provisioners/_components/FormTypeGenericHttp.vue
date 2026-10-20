@@ -61,17 +61,17 @@
     />
 
     <form-group-url :column-label="$i18n.t('URL')"
-                    :text="$i18n.t('The URL of the request. This is a template: $mac is the MAC address of the device and $node.attribute (ex: $node.pid, $node.category) are the attributes of the node.')"
+                    :text="$i18n.t('The URL of the request. This is a template: $mac is the MAC address of the device and $node.attribute (ex: $node.pid, $node.category) are the attributes of the node. Use the url_quote() template function for values that may contain URL-significant characters (for example, url_quote($node.pid)).')"
                     namespace="url"
     />
 
     <form-group-headers :column-label="$i18n.t('Headers')"
-                        :text="$i18n.t('The headers of the request, one \'Name: value\' per line. Names and values are templates like the URL.')"
+                        :text="$i18n.t('The headers of the request, one \'Name: value\' per line. Names and values are templates like the URL. Header names and values cannot contain line breaks.')"
                         namespace="headers"
     />
 
     <form-group-body :column-label="$i18n.t('Body')"
-                     :text="$i18n.t('The body of the request, sent for POST, PUT and PATCH requests. This is a template like the URL.')"
+                     :text="$i18n.t('The body of the request, sent for POST, PUT and PATCH requests. This is a template like the URL. Use the json_quote() template function to insert a JSON string; it adds the quotes and escapes the value.')"
                      namespace="body"
     />
 

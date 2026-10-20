@@ -51,7 +51,33 @@ for API tokens, which often contain one:
 
 written with a single `$`, the `$def` would be read as an (empty) variable and
 the token would be sent truncated. The provisioner refuses to save a URL,
-header or body that references a variable other than `$mac` and `$node.*`.
+header or body that references a variable other than `$mac` and `$node.*`, or
+a template function it does not support.
+
+===== Escaping values
+
+Node attributes are inserted as is. Two template functions are provided to
+escape them where the surrounding syntax requires it. Function calls use the
+`${function(...)}` syntax.
+
+In a JSON *body*, use `json_quote()` instead of writing the surrounding quotes
+yourself. The function returns a complete JSON string, quotes included, with
+the value escaped. Given a `pid` containing a quote or a backslash:
+
+  {"user": ${json_quote($node.pid)}}
+
+In a *URL*, use `url_quote()` to percent-encode a value used as a path segment
+or a query parameter:
+
+  https://mdm.example.com/api/v1/devices/$mac?user=${url_quote($node.pid)}
+
+Everything outside the RFC 3986 unreserved characters is encoded, so a value
+containing `&`, `=` or `#` cannot add or change a query parameter.
+
+Do not put untrusted values in a header name, and do not use `url_quote()` on
+a header value: header values are not URL-encoded. Header names and values are
+instead validated so that a value containing a line break cannot inject a
+header.
 
 The *headers* are defined one per line using the `Name: value` syntax. Both
 the name and the value are templates. For example:

@@ -20,12 +20,13 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 79;
+use Test::More tests => 86;
 use Test::NoWarnings;
 use Test::MockModule;
 use HTTP::Response;
 use URI;
 use File::Temp qw(tempdir);
+use JSON::MaybeXS qw(decode_json);
 # used to show what an unrestricted jq program can do, next to what the
 # provisioner's own compile stops it doing
 use JQ::XS;
@@ -91,6 +92,35 @@ my $provisioner = new_ok(
     );
     ($req, $err) = $p2->make_request($TEST_MAC, $TEST_NODE_INFO);
     is($req->header('Authorization'), 'Bearer abc123', "an explicit Authorization header wins over basic auth");
+}
+
+{
+    # node attributes are untrusted input: url_quote() keeps them from adding
+    # query parameters, json_quote() keeps them from breaking out of a JSON
+    # string in the body
+    my $pid = qq{bob" & admin=1};
+    my $p = make_provisioner(
+        method => 'POST',
+        url    => 'https://mdm.example.com/devices?user=${url_quote($node.pid)}',
+        body   => '{"user": ${json_quote($node.pid)}}',
+    );
+    my ($req, $err) = $p->make_request($TEST_MAC, { pid => $pid });
+    is($err, undef, "no error when escaping node attributes");
+    is($req->uri, 'https://mdm.example.com/devices?user=bob%22%20%26%20admin%3D1', "url_quote percent-encodes the value");
+    is_deeply(decode_json($req->content), { user => $pid }, "json_quote produces a JSON string holding the value");
+}
+
+{
+    # a value coming from a node must not be able to inject a header
+    my $p = make_provisioner(headers => 'X-Owner: $node.pid');
+    my ($req, $err) = $p->make_request($TEST_MAC, { pid => "bob\r\nX-Injected: yes" });
+    is($req, undef, "a header value with a line break is refused");
+    like($err // '', qr/invalid value for header/, "the header value is named in the error");
+
+    my $p2 = make_provisioner(headers => '$node.hname: value');
+    ($req, $err) = $p2->make_request($TEST_MAC, { hname => "X-A\r\nX-Injected" });
+    is($req, undef, "a header name with a line break is refused");
+    like($err // '', qr/invalid header name/, "the header name is reported as invalid");
 }
 
 {

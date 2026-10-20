@@ -14,10 +14,16 @@ use strict;
 use warnings;
 use Scalar::Util qw(reftype);
 use List::MoreUtils qw(uniq);
+use JSON::MaybeXS ();
+use URI::Escape qw(uri_escape uri_escape_utf8);
 use pf::util qw(random_from_range extract);
 use pf::log;
 use Data::Dumper;
 
+# Returns characters rather than UTF-8 bytes, and keeps the result ASCII by
+# escaping non-ASCII characters, so it can be embedded in a template body
+# without mixing encodings.
+my $JSON_STRING = JSON::MaybeXS->new->utf8(0)->ascii(1)->allow_nonref(1);
 
 our %FUNCS = (
     uc => sub { return uc($_[0]) },
@@ -30,7 +36,9 @@ our %FUNCS = (
     log => sub { get_logger()->info("mini_template:" . Dumper(\@_)  ); ''},
     replace => \&replaceStr,
     BuildFromMatch => \&extract,
-    if => sub { $_[0] ? $_[1] : $_[2] }
+    if => sub { $_[0] ? $_[1] : $_[2] },
+    json_quote => \&json_quote,
+    url_quote  => \&url_quote,
 );
 
 sub replaceStr {
@@ -38,6 +46,59 @@ sub replaceStr {
     $str =~ s/\Q$old\E/$new/g;
     return $str;
 };
+
+=head2 json_quote
+
+Quote a value as a JSON string, escapes included, for use where a JSON string
+is expected. C<undef> becomes C<null>. The surrounding quotes are part of the
+result, so a template writes C<${json_quote($node.pid)}> without quotes of its
+own:
+
+  {"user": ${json_quote($node.pid)}}
+
+The result is kept ASCII: non-ASCII characters are escaped, so it can be
+embedded in a template body without mixing character and byte strings.
+
+=cut
+
+sub json_quote {
+    my ($value) = @_;
+    return 'null' if !defined $value;
+    $value = "$value";
+    # A value read from the database or the configuration can be a UTF-8 byte
+    # string; decode it so encode() sees characters rather than a Latin-1
+    # string built from each byte.
+    if (!utf8::is_utf8($value)) {
+        my $decoded = $value;
+        $value = $decoded if utf8::decode($decoded);
+    }
+
+    return $JSON_STRING->encode($value);
+}
+
+=head2 url_quote
+
+Percent-encode a value for use as a URL path segment or query parameter.
+Everything outside the RFC 3986 unreserved set is encoded; C<undef> becomes
+the empty string.
+
+=cut
+
+sub url_quote {
+    my ($value) = @_;
+    return '' if !defined $value;
+    $value = "$value";
+    my $unreserved = '^A-Za-z0-9._~-';
+    if (!utf8::is_utf8($value)) {
+        my $decoded = $value;
+        # Not valid UTF-8: escape the bytes as they are rather than encoding
+        # each of them a second time.
+        return uri_escape($value, $unreserved) if !utf8::decode($decoded);
+        $value = $decoded;
+    }
+
+    return uri_escape_utf8($value, $unreserved);
+}
 
 BEGIN {
     use Exporter ();
