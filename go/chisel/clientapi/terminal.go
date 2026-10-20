@@ -113,7 +113,8 @@ func (api *API) terminal() (bool, error) {
 		Port:            "8022",
 		EnableReconnect: true,
 		ReconnectTime:   10,
-		MaxConnection:   0,
+		// One terminal per authorized session
+		MaxConnection:   1,
 		EnableBasicAuth: false,
 		Credential:      "",
 		EnableTLS:       false,
@@ -122,7 +123,9 @@ func (api *API) terminal() (bool, error) {
 		PermitArguments: false,
 		Width:           0,
 		Height:          0,
-		WSOrigin:        ".*", // Regular expression to accept all origins
+		// Only through the terminal proxy of the local API, which sets
+		// this origin on the websocket
+		WSOrigin: `^http://localhost:8022$`,
 	}
 
 	// Create the custom factory
@@ -159,6 +162,8 @@ func (api *API) terminal() (bool, error) {
 					go func() {
 						defer func() {
 							atomic.StoreInt32(&api.serverRunning, 0)
+							// The session ends with the server
+							api.terminalSecret.clear()
 							log.Println("GoTTY server stopped")
 						}()
 
