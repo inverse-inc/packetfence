@@ -407,6 +407,12 @@ sub db_data {
     return (@array);
 }
 
+# Whether a value is a prepared statement handle and not the SQL of a statement
+sub _is_statement_handle {
+    my ($statement) = @_;
+    return blessed($statement) && $statement->isa('DBI::st') ? 1 : 0;
+}
+
 =item * db_query_execute - execute a given database statement (making sure it succeed) and retuns the statement handle
 
 =over 6
@@ -429,12 +435,6 @@ sub db_data {
 # the module itself and call is_db_prepared() and db_prepare_sub().
 # this would remove most magic and unneeded string magic
 # afterwards: remove export of $<module>_db_prepared and <module>_db_prepare()
-# Whether a value is a prepared statement handle and not the SQL of a statement
-sub _is_statement_handle {
-    my ($statement) = @_;
-    return blessed($statement) && $statement->isa('DBI::st') ? 1 : 0;
-}
-
 sub db_query_execute {
     my ($from_module, $module_statements_ref, $query, @params) = @_;
     my $timer = pf::StatsD::Timer->new({ 'stat' => called() . ".$query",  level => 9});
