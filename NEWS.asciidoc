@@ -51,6 +51,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - The CoA and Disconnect ports of a switch (`coaPort`, `disconnectPort`) are now used by every switch module instead of the 3799 default (#4749). A port set on a switch group now applies to all its members. Aruba CX and AeroHIVE sent their CoA-Request to `disconnectPort`: they now use `coaPort`, so a switch entry that relied on `disconnectPort` for the CoA must set `coaPort` too
 
   - Git storage (cloud deployments): the local Fingerbank entries (devices, combinations, DHCP fingerprints, ...) created through the admin API are now saved to the git storage and restored on the pfconfig pods (`PFCONFIG_GIT_STORAGE_FINGERBANK_DB_DIRECTORY`). They were kept in the pod that handled the request and lost on its restart
+
+  - PFConnector: switches defined with a subnet (CIDR) are now propagated to the remote connectors, which only received single-IP switches and so didn't accept the RADIUS requests of the others (#9406)
   - LOG_LEVEL was ignored by the mod_perl services (httpd.aaa, httpd.webservices, httpd.portal): the variable reached the container but Apache never exposed it to Perl, so log4perl stayed at INFO. The httpd templates now PerlPassEnv it
   - Dell N1500 and Cisco ASA: role ACLs were never sent in the Access-Accept, because a stale `returnAccessListAttribute` override returned a single value. Both modules now use the base implementation, and the N1500 (firmware 6.8 or later) installs the ACL as a dynamic ACL
   - `radius_configuration.pfacct_rate_limit` had no effect: the toggle was decoded but never applied, so accounting was forwarded to httpd.aaa unconditionally
