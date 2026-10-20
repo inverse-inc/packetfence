@@ -34,7 +34,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Bug Fixes
 
-  - PacketFence PKI: revoking a certificate, for any reason except `superseded`, now deregisters the devices whose last EAP-TLS authentication used it and re-evaluates their access, so a device that falls back to MAC authentication isn't accepted with its previous role. FreeRADIUS still only rejects the certificate itself when OCSP is enabled in the OCSP profile (#8017)
+  - PacketFence PKI: revoking a certificate, for any reason except `superseded`, now deregisters the devices whose last EAP-TLS authentication used it and re-evaluates their access, so a device that falls back to MAC authentication isn't accepted with its previous role. With _Revoke on unregistration_ enabled on the PKI provider, unregistering a device therefore also unregisters the other devices that last authenticated with its certificate. FreeRADIUS still only rejects the certificate itself when OCSP is enabled in the OCSP profile (#8017)
   - LOG_LEVEL was ignored by the mod_perl services (httpd.aaa, httpd.webservices, httpd.portal): the variable reached the container but Apache never exposed it to Perl, so log4perl stayed at INFO. The httpd templates now PerlPassEnv it
   - `radius_configuration.pfacct_rate_limit` had no effect: the toggle was decoded but never applied, so accounting was forwarded to httpd.aaa unconditionally
   - The pfacct accounting rate limiter no longer suppresses Accounting-Stop packets, which locationlog close, unreg_on_acct_stop and floating-device handling rely on
