@@ -967,7 +967,10 @@ scopes (`packetfence.*` and `eduroam.*`) then had no switch and no MAC address
 to evaluate. [filename]`/usr/local/pf/conf/radiusd/rest.conf` now
 asks for both lists (`body_lists`), so these filters get the original request
 again. The proxy lists are available as `radius_request.proxy-request.*` and
-`radius_request.proxy-reply.*`.
+`radius_request.proxy-reply.*`. This needs the `rest` module of FreeRADIUS 3.2.10
+or later: the `packetfence` package now requires it, and the 16.0 repository
+provides it. An older FreeRADIUS ignores `body_lists`, and these filters stay
+skipped.
 
 The file is a package configuration file: it is updated automatically unless
 you modified it (see the general procedure above). If you kept a customized
