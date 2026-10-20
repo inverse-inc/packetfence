@@ -301,8 +301,11 @@ start_existing_vm() {
     if [ "${machine_state}" = "shut off" ]; then
         echo "Starting ${vm} using libvirt"
         virsh -c qemu:///system start --domain "${machine_uuid}" || return 1
-    else
+    elif [ "${machine_state}" = "running" ]; then
         echo "Machine already started"
+    else
+        echo "${vm} is ${machine_state}, not usable"
+        return 1
     fi
 }
 
