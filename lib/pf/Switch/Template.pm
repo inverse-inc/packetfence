@@ -259,11 +259,8 @@ handleDisconnect
 sub handleDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
     my $send_disconnect_to = $self->disconnectAddress($add_attributes_ref);
+    # handleRadiusDisconnect sends it to the disconnectPort of the switch
     my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
-
-    if (defined($self->{'_disconnectPort'}) && $self->{'_disconnectPort'} ne '') {
-        $connection_info->{'nas_port'} = $self->{'_disconnectPort'};
-    }
 
     my $radiusDisconnect = $self->{_template}{disconnect};
     my %args = (
@@ -310,11 +307,8 @@ handleCoa
 sub handleCoa {
     my ($self, $mac, $add_attributes_ref, $role) = @_;
     my $send_disconnect_to = $self->disconnectAddress($add_attributes_ref);
+    # handleRadiusCoa sends it to the coaPort of the switch
     my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
-
-    if (defined($self->{'_coaPort'}) && $self->{'_coaPort'} ne '') {
-        $connection_info->{'nas_port'} = $self->{'_coaPort'};
-    }
 
     my $radiusDisconnect = $self->{_template}{coa};
     my %args = (
