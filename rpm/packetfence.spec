@@ -47,6 +47,8 @@ Conflicts: packetfence-export
 
 Requires: firewalld
 Requires: chkconfig, coreutils, grep, openssl, sed, tar, wget, gettext, conntrack-tools, patch, git
+# ssh binary for the SSH transport of the switch CLI (Net::CLI::Interact)
+Requires: openssh-clients
 # for process management
 Requires: rsyslog
 Requires: procps
