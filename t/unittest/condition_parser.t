@@ -511,19 +511,31 @@ BEGIN {
         ],
     );
 
-    $TEST_COUNT = 1 + (scalar @VALID_STRING_TESTS) + (true { @$_ == 3  } @VALID_STRING_TESTS ) + (scalar @INVALID_STRINGS) + (scalar @VALID_IDS) + (scalar @OBJECT_TO_STR_TESTS);
+    $TEST_COUNT = 1 + (scalar @VALID_STRING_TESTS) + (true { @$_ == 3  } @VALID_STRING_TESTS ) + (scalar @INVALID_STRINGS) + (scalar @VALID_IDS) + (scalar @OBJECT_TO_STR_TESTS) + 5;
 }
 
 use Test::More tests => $TEST_COUNT;
 use Test::Exception;
 
-use pf::condition_parser qw(parse_condition_string ast_to_object);
+use pf::condition_parser qw(parse_condition_string ast_to_object top_level_condition);
 
 #This test will running last
 use Test::NoWarnings;
 
 for my $test (@VALID_STRING_TESTS) {
     test_valid_string(@$test);
+}
+
+# top_level_condition: the shape the condition editor of the admin needs
+{
+    my $leaf = ast_to_object((parse_condition_string('a == "b"'))[0]);
+    is_deeply(top_level_condition($leaf), { op => 'and', values => [$leaf] }, "A single test is wrapped in an and");
+    for my $string ('a == "b" || c == "d"', 'a == "b" && c == "d"', '!(a == "b" && c == "d")') {
+        my $object = ast_to_object((parse_condition_string($string))[0]);
+        is_deeply(top_level_condition($object), $object, "'$string' is already at the top level ($object->{op})");
+    }
+    my $not = ast_to_object((parse_condition_string('!(a == "b")'))[0]);
+    is_deeply(top_level_condition($not), { op => 'and', values => [{ op => 'not_equals', field => 'a', value => 'b' }] }, "A NOT of a single test is its inverse, wrapped in an and");
 }
 
 for my $test (@INVALID_STRINGS) {

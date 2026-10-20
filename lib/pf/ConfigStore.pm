@@ -28,19 +28,13 @@ use pf::config::cluster;
 use pf::constants;
 use pf::CHI;
 use pf::generate_filter qw(filter_with_offset_limit);
-use pf::condition_parser qw(parse_condition_string ast_to_object);
+use pf::condition_parser qw(parse_condition_string ast_to_object top_level_condition);
 use pf::file_paths qw($run_dir);
 use Fcntl qw(:flock);
 use File::Spec::Functions qw(catfile);
 use Time::HiRes qw();
 
 our $LOCK_TIMEOUT = 30;
-our %TOP_OPS = (
-    not_and => undef,
-    not_or => undef,
-    and => undef,
-    or => undef,
-);
 
 =head1 FIELDS
 
@@ -971,12 +965,8 @@ sub expandCondition {
         } else {
             $condition = { op => $top_op, values => [$condition]};
         }
-    } elsif (!exists $TOP_OPS{$op}) {
-        if ($op eq 'not') {
-            $condition = { op => 'not_and', values => $condition->{values}};
-        } else {
-            $condition = { op => 'and', values => [$condition]};
-        }
+    } else {
+        $condition = top_level_condition($condition);
     }
 
     $item->{$key} = $condition;
