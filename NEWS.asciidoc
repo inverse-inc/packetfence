@@ -78,6 +78,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
   - RADIUS: assigning a certificate profile of its own to an EAP TLS profile that used the default certificate overwrote the default RADIUS certificate (raddb/certs/server.crt, server.key and ca.pem) through the symlinks of the previous configuration, and going back to the default certificate didn't restore the symlinks. Installations that already hit this ("Failed to parse server certificate", "Certificate/Key don't match") must upload their default RADIUS certificate again (#7594)
 
+  - Captive portal: the SMS PIN validation page is titled "Enter the PIN sent to your phone" instead of "Confirm Mobile Phone Number". Sites that translated the old string in their own catalogs need to translate the new one (#3391)
+
 === Security Fixes
 
 == Version 15.2.0 released on 2026-08-24
