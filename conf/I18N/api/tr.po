@@ -6681,9 +6681,9 @@ msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/maintenanceTasks/_components/TheForm.vue:89
 msgid ""
-"Enable or disable ${logName} rotation (moving ${logName}_history records to "
-"${logName}_archive)\nIf disabled, this task will delete from the "
-"${logName}_history table rather than the ${logName}_archive."
+"Enable or disable {logName} rotation (moving {logName}_history records to "
+"{logName}_archive)\nIf disabled, this task will delete from the "
+"{logName}_history table rather than the {logName}_archive."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/captivePortal/_components/TheForm.vue:93
