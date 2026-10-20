@@ -16,6 +16,7 @@ import (
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/statsd"
+	"github.com/inverse-inc/packetfence/go/api-frontend/unifiedapierrors"
 	"github.com/inverse-inc/packetfence/go/connector"
 	"github.com/inverse-inc/packetfence/go/firewallsso"
 	"github.com/inverse-inc/packetfence/go/panichandler"
@@ -292,6 +293,15 @@ func (h *PfssoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next ca
 		handle(w, r, params)
 
 		// TODO change me and wrap actions into something that handles server errors
+		return nil
+	}
+
+	if strings.HasPrefix(r.URL.Path, "/api/v1/firewall_sso/") {
+		if unifiedapierrors.OtherMethodMatches(r, func(method string) bool { handle, _, _ := h.router.Lookup(method, r.URL.Path); return handle != nil }) {
+			unifiedapierrors.MethodNotAllowed(w, r)
+		} else {
+			unifiedapierrors.UnknownPath(w, r)
+		}
 		return nil
 	}
 

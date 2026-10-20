@@ -20,6 +20,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
+	"github.com/inverse-inc/packetfence/go/api-frontend/unifiedapierrors"
 	chshare "github.com/inverse-inc/packetfence/go/chisel/share"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cnet"
 	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
@@ -152,8 +153,7 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//missing :O
-	w.WriteHeader(404)
-	w.Write([]byte("Not found"))
+	unifiedapierrors.UnknownPath(w, r)
 }
 
 // dhcpEvent mirrors the fingerbank-collector's dhcp_forwarder.DhcpEvent JSON.

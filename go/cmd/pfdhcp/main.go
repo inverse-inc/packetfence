@@ -30,6 +30,7 @@ import (
 	dhcp "github.com/inverse-inc/dhcp4"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
+	"github.com/inverse-inc/packetfence/go/api-frontend/unifiedapierrors"
 	"github.com/inverse-inc/packetfence/go/jsonrpc2"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	statsd "gopkg.in/alexcesaro/statsd.v2"
@@ -1044,6 +1045,8 @@ func startNetworkListeners(ctx context.Context, jobs chan job) {
 func setupAPIRoutes(ctx context.Context, db *sql.DB) *mux.Router {
 	api := &API{DB: db, Ctx: ctx}
 	router := mux.NewRouter()
+	router.NotFoundHandler = http.HandlerFunc(unifiedapierrors.UnknownPath)
+	router.MethodNotAllowedHandler = http.HandlerFunc(unifiedapierrors.MethodNotAllowed)
 
 	// API endpoints
 	router.HandleFunc("/api/v1/dhcp/mac/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", api.handleMac2Ip).Methods("GET")
