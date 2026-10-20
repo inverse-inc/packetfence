@@ -61,6 +61,12 @@ export default {
       return response.data
     })
   },
+  // polled: errors are reported in the UI, not as notifications
+  remoteStatusQuiet: id => {
+    return apiCall.getQuiet(['pfconnector-remotes', id, 'status']).then(response => {
+      return response.data
+    })
+  },
   remoteRestart: id => {
     return apiCall.post(['pfconnector-remotes', id, 'restart']).then(response => {
       return response.data
