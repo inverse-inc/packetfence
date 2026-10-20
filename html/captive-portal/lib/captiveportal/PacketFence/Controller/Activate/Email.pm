@@ -100,9 +100,7 @@ sub code : Path : Args(2) {
             get_logger->info("Extending duration to $unregdate");
             node_modify($node_mac, unregdate => $unregdate);
             pf::activation::set_status_verified($GUEST_ACTIVATION, $code);
-            # The connection profile the code was issued from: completing the entry
-            # without it would erase the profile recorded at attempt time
-            pf::auth_log::record_completed_guest($activation_record->{source_id}, $source ? $source->type : '', $node_mac, $pf::auth_log::COMPLETED, $activation_record->{portal});
+            pf::auth_log::record_completed_guest($activation_record->{source_id}, $source ? $source->type : '', $node_mac, $pf::auth_log::COMPLETED);
             $c->stash(
                 title => "Access granted",
                 template => "activation/email.html",
