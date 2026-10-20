@@ -178,7 +178,9 @@ export const useRemoteStatus = (props, context) => {
     const { log_files: files } = system.value || {}
     return Array.isArray(files) ? files : []
   })
-  const isTerminalEnabled = computed(() => !!(system.value && system.value.terminal_enabled !== false))
+  // Only when the remote says so: a remote that doesn't report it can't
+  // enforce the terminal session
+  const isTerminalEnabled = computed(() => !!(system.value && system.value.terminal_enabled === true))
   const unboundStaticConnections = computed(() => {
     if (!isConnected.value)
       return []
@@ -235,7 +237,7 @@ export const useRemoteStatus = (props, context) => {
     api.terminalSession(props.id).then(session => {
       return api.terminalAuthorize(props.id, session.uuid, code).then(() => {
         showTerminalModal.value = false
-        terminalWindow.location.href = `/api/v1/terminal/${props.id}/`
+        terminalWindow.location.href = `/api/v1/terminal/${encodeURIComponent(props.id)}/`
       })
     }).catch(error => {
       terminalWindow.close()

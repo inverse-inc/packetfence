@@ -124,7 +124,7 @@
         <template v-slot:cell(dynamic_count)="{ item }">{{ remote(item.id) ? dynamicCount(item.id) : '-' }}</template>
         <template v-slot:cell(terminal)="{ item }">
           <template v-if="system(item.id)">
-            {{ system(item.id).terminal_enabled === false ? $t('disabled') : (system(item.id).terminal_totp === false ? $t('enabled, no TOTP') : $t('enabled, TOTP')) }}
+            {{ system(item.id).terminal_enabled !== true ? $t('disabled') : (system(item.id).terminal_totp === false ? $t('enabled, no TOTP') : $t('enabled, TOTP')) }}
           </template>
           <span v-else class="text-muted">-</span>
         </template>
