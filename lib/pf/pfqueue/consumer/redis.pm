@@ -19,6 +19,7 @@ use Time::HiRes qw(usleep);
 use pf::dal;
 use pf::log;
 use pf::Sereal qw(sereal_decode_safe);
+use pf::factory::task;
 use Moo;
 use pf::util::pfqueue qw(task_counter_id);
 use pf::constants::pfqueue qw(
@@ -121,9 +122,15 @@ sub process_next_job {
         local $@;
         eval {
             local $@;
-            my $item = sereal_decode_safe($data);
-            if (ref($item) ne 'ARRAY') {
-                die "Invalid object stored in queue";
+            my $item = eval { sereal_decode_safe($data) };
+            unless (ref($item) eq 'ARRAY' && pf::factory::task->isValidType($item->[0])) {
+                my $error = "Invalid task stored in queue" . ($@ ? ": $@" : "");
+                $redis->del($task_id);
+                if ($task_data{status_update}) {
+                    $self->get_status_updater($task_id)->failed({message => $error, status => 500});
+                }
+
+                die $error;
             }
 
             my $type = $item->[0];
