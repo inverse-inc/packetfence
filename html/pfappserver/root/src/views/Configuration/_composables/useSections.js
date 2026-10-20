@@ -141,7 +141,7 @@ export const useSections = () => {
         { name: i18n.t('Cluster'), path: '/configuration/active_active', class: 'no-saas' },
         { name: i18n.t('Connectors'),
           items: [
-            { name: i18n.t('Connectors'), path: '/configuration/connectors/connectors', saveSearchNamespace: 'connectorsConnectors' },
+            { name: i18n.t('Cloud Connectors'), path: '/configuration/connectors/connectors', saveSearchNamespace: 'connectorsConnectors' },
             { name: i18n.t('Domains'), path: '/configuration/connectors/domains', saveSearchNamespace: 'connectorsDomains' },
             { name: i18n.t('DNS'), path: '/configuration/connectors/dns', saveSearchNamespace: 'connectorsDns' }
           ]
