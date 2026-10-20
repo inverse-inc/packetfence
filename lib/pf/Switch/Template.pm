@@ -358,7 +358,7 @@ Why a CoA-Request cannot be sent although useCoA is enabled
 sub _coaFallbackReason {
     my ($self, $role) = @_;
     if (!defined($role)) {
-        return "the node has no role on this switch (it is unregistered, isolated or its role has no mapping in the switch roles)";
+        return "the node has no role on this switch (it is unregistered or pending, isolated, has no category or no node entry, or its role is not mapped on the switch)";
     }
     return "role mapping is disabled on this switch (RoleMap, UrlMap and VpnMap)";
 }
