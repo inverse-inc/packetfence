@@ -1240,6 +1240,58 @@ The Kickbox authentication source now calls `https://api.kickbox.com` (the host
 documented by Kickbox) instead of `https://api.kickbox.io`. If outbound traffic
 from PacketFence is filtered, allow HTTPS to `api.kickbox.com`.
 
+=== NTLM auth API host of domains joined before 15.1
+
+Domains joined before 15.1 are saved with `ntlm_auth_host=127.0.0.1` in
+[filename]`/usr/local/pf/conf/domain.conf`. The domain status check of the
+admin interface runs in a container, where 127.0.0.1 is the container itself,
+so it fails with `connection refused` (RADIUS authentication is not affected).
+The following script replaces a loopback `ntlm_auth_host` with
+`containers-gateway.internal`, as for the domains joined since 15.1. Domains
+using a connector are not changed.
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-16.0-ntlm-auth-host.pl
+/usr/local/pf/bin/pfcmd configreload hard
+systemctl restart packetfence-ntlm-auth-api
+----
+
+In a cluster, run the script on one server only and send the configuration to
+the other members before reloading it, as for any
+<<PacketFence_Clustering_Guide.asciidoc#_resynchronizing_the_configuration_manually,manual change of the configuration>>.
+Otherwise, the other members sync their previous [filename]`domain.conf` back.
+
+.On one server
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-16.0-ntlm-auth-host.pl
+/usr/local/pf/bin/cluster/sync --as-master
+/usr/local/pf/bin/pfcmd configreload hard
+----
+
+.On every server
+[source,bash]
+----
+systemctl restart packetfence-ntlm-auth-api
+----
+
+[NOTE]
+====
+The script doesn't depend on this release, but packages before X.Y.Z don't
+include it. On 15.1 or 15.2, to fix the domain status check before upgrading,
+download it from the PacketFence repository and run it in place of
+`/usr/local/pf/addons/upgrade/to-16.0-ntlm-auth-host.pl` above, then follow the
+same steps (on a cluster: on one server only, then `cluster/sync --as-master`
+and the reload, then the restart on every server):
+
+[source,bash]
+----
+curl -fsSL -o /tmp/to-16.0-ntlm-auth-host.pl https://raw.githubusercontent.com/inverse-inc/packetfence/devel/addons/upgrade/to-16.0-ntlm-auth-host.pl
+perl /tmp/to-16.0-ntlm-auth-host.pl
+----
+====
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]
