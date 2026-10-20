@@ -155,6 +155,30 @@ owned_by_person() {
     return 1
 }
 
+# The Vagrantfile names domains vagrant-<CI_COMMIT_REF_SLUG>-* in CI and
+# vagrant-<user>-* elsewhere, so only on a CI runner is a slug-named domain ours.
+is_ours() {
+    owned_by_person "$1" && return 1
+    [ -z "${CI:-}" ] || return 0
+    case "$1" in "vagrant-$(id -un)-"*) return 0 ;; esac
+    return 1
+}
+
+# Volume names the domains' disks use, plus the box images backing them.
+# Non-zero when any query fails, so callers can fail closed.
+domain_volume_names() {
+    local dom src xml blk
+    for dom in "$@"; do
+        blk=$(virsh_or_warn domblklist --domain "${dom}") || return 1
+        for src in $(echo "${blk}" | awk 'NR>2 && $2 ~ /^\// {print $2}'); do
+            basename "${src}"
+            xml=$(virsh_or_warn vol-dumpxml --vol "${src}") || return 1
+            echo "${xml}" | sed -n '/<backingStore>/,/<\/backingStore>/s|.*<path>\(.*\)</path>.*|\1|p' \
+                | xargs -r -n1 basename
+        done
+    done
+}
+
 clean_user_home() {
     local user=$1 home=$2 entry
     local VAGRANT_BOXES="${home}/.vagrant.d/boxes"
@@ -209,25 +233,45 @@ done
 
 # A running domain is a live job: its overlay and the box image under it both
 # have to survive, so skip the whole pool instead of picking volumes apart.
-live=$(virsh_or_warn list --state-running --name | grep '^vagrant-' || true)
-if [ -n "${live}" ]; then
-    hdr "Vagrant domains and pool volumes"
-    echo "  SKIPPED — live vagrant domain(s), another job is using them:"
-    echo "${live}" | sed 's/^/    /'
-else
-    # 5) Vagrant domains and their disks. DOMAIN_PREFIX comes from
-    #    addons/vagrant/Vagrantfile; any project sharing it goes too.
+# A failed libvirt query is not an empty host, so it skips too.
+reclaim_domains_and_volumes() {
+    local running all live dom pool vol ours= kept= skipped=0 found=no
+    if ! running=$(virsh_or_warn list --state-running --name); then
+        hdr "Vagrant domains and pool volumes"
+        echo "  SKIPPED — libvirt query failed, host state unknown"
+        return 0
+    fi
+    live=$(echo "${running}" | grep -c '^vagrant-' || true)
+    if [ "${live}" -gt 0 ]; then
+        hdr "Vagrant domains and pool volumes"
+        echo "  SKIPPED — ${live} live vagrant domain(s), another job is using them"
+        return 0
+    fi
+    if ! all=$(virsh_or_warn list --all --name); then
+        hdr "Vagrant domains and pool volumes"
+        echo "  SKIPPED — libvirt query failed, host state unknown"
+        return 0
+    fi
+
+    # 5) Vagrant domains and their disks
     hdr "Vagrant domains"
-    skipped=0
-    ours=
-    for dom in $(virsh_or_warn list --all --name | grep '^vagrant-' || true); do
-        if owned_by_person "${dom}"; then
-            skipped=$((skipped + 1))
-        else
+    for dom in $(echo "${all}" | grep '^vagrant-' || true); do
+        if is_ours "${dom}"; then
             ours="${ours} ${dom}"
+        else
+            kept="${kept} ${dom}"
+            skipped=$((skipped + 1))
         fi
     done
-    [ "${skipped}" -eq 0 ] || echo "  (left ${skipped} domain(s) belonging to a local account)"
+    [ "${skipped}" -eq 0 ] || echo "  (left ${skipped} domain(s) not attributable to this runner)"
+
+    # Their disks, and the box images those sit on, must outlive the sweep below.
+    local spared
+    if ! spared=$(domain_volume_names ${kept}); then
+        echo "  SKIPPED — cannot resolve volumes of preserved domains"
+        return 0
+    fi
+
     if [ -z "${ours}" ]; then
         echo "  (none)"
     else
@@ -239,16 +283,20 @@ else
 
     # 6) libvirt-pool box backing files, across every pool
     hdr "libvirt-pool box backing volumes"
-    found=no
     for pool in $(pools); do
-        for vol in $(pool_vol_names "${pool}" | grep -F '_vagrant_box_image_'); do
+        for vol in $(pool_vol_names "${pool}" | grep -F '_vagrant_box_image_' || true); do
+            if echo "${spared}" | grep -qxF "${vol}"; then
+                continue
+            fi
             found=yes
             echo "  ${pool}/${vol}"
             run virsh_sys vol-delete --pool "${pool}" "${vol}"
         done
     done
     [ "${found}" = yes ] || echo "  (none)"
-fi
+}
+
+reclaim_domains_and_volumes
 
 hdr "Disk usage after"
 show_disk
