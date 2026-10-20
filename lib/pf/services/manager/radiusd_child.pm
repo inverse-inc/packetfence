@@ -1538,7 +1538,9 @@ sub generate_degraded_realms {
         if ($cache_miss eq 'reject') {
             push @reject, realm_condition($realm);
         }
-        # The realms authorized from PacketFence already call it after every proxied answer
+        # The realms authorized from PacketFence already call it after every
+        # proxied answer, degraded ones included (cache hits too: PacketFence's
+        # answer then replaces the cached one, as for any proxied answer)
         elsif ($cache_miss eq 'compute_in_pf' && !isenabled($config->{'radius_auth_compute_in_pf'})) {
             push @compute, realm_condition($realm);
         }
@@ -1551,10 +1553,12 @@ sub generate_degraded_realms {
 			}
 EOT
     }
+    # Only the tunnelled EAP requests: the other ones are sent to PacketFence
+    # after any proxied answer (packetfence-post-auth-rest)
     if (@compute) {
         my $condition = join(' || ', @compute);
         $tags->{'degraded_cache_miss_compute'} = <<"EOT";
-		if ( "%{control:PacketFence-Degraded}" == "Cache-Miss" && ( $condition ) ) {
+		if ( "%{control:PacketFence-Degraded}" == "Cache-Miss" && ( EAP-Type == TTLS || EAP-Type == PEAP ) && ( $condition ) ) {
 			rest
 		}
 EOT

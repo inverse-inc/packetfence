@@ -110,9 +110,12 @@ packetfence-audit-log-reject {
 }
 
 #
-#  Degraded mode of a proxied realm: accept a MAC authentication (the
-#  User-Name is the device MAC address) since there is no remote server
-#  to validate it. Any other non EAP request is left to pap and rejected.
+#  Degraded mode of a proxied realm: accept a MAC authentication since
+#  there is no remote server to validate it. It must be one: the User-Name
+#  is the device MAC address (Calling-Station-Id), and the NAS sends either
+#  Service-Type = Call-Check or the MAC address as the password. Any other
+#  non EAP request (such as PAP with a MAC address as the User-Name and
+#  another password) is left to pap and rejected.
 #
 packetfence-degraded-mab {
     if (!EAP-Message && &User-Name && (&User-Name =~ /^${policy.mac-addr-regexp}$/i)) {
@@ -124,10 +127,23 @@ packetfence-degraded-mab {
                 &request:Tmp-String-1 := "%{tolower:%{1}%{2}%{3}%{4}%{5}%{6}}"
             }
             if (&Tmp-String-1 == &Tmp-String-2) {
-                update control {
-                    &Auth-Type := Accept
+                if (&Service-Type == Call-Check) {
+                    update control {
+                        &Auth-Type := Accept
+                    }
+                    updated
                 }
-                updated
+                elsif (&User-Password && (&User-Password =~ /^${policy.mac-addr-regexp}$/i)) {
+                    update {
+                        &request:Tmp-String-3 := "%{tolower:%{1}%{2}%{3}%{4}%{5}%{6}}"
+                    }
+                    if (&Tmp-String-3 == &Tmp-String-2) {
+                        update control {
+                            &Auth-Type := Accept
+                        }
+                        updated
+                    }
+                }
             }
         }
     }

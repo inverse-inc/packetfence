@@ -332,6 +332,10 @@ the switches or they will declare PacketFence dead first.
   the client certificates must also be trusted by this EAP profile.
 * PEAP-MSCHAPv2 requires PacketFence to be able to validate the credentials
   (domain joined, or NT hashes cached).
+* A MAC authentication (MAB) is only accepted in degraded mode when it is one:
+  the `User-Name` is the MAC address of the device (`Calling-Station-Id`) and
+  the switch sends `Service-Type = Call-Check` or the MAC address as the
+  password. Any other request without EAP is rejected.
 * The realm is matched on the `Realm` attribute of the request, if you proxy
   with a RADIUS filter set it in the answer (see below).
 * In a cluster each server keeps its own cache: a device is only known by the

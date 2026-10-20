@@ -390,9 +390,9 @@ server packetfence {
 			}
 		}
 
-		# If the request has not been proxied nor handled inside the inner-tunnel
+		# If the request has not been handled inside the inner-tunnel
 		# send it to packetfence
-		elsif (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
+		if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
 			# rest + failure policy (see raddb/policy.d/packetfence)
 			packetfence-post-auth-rest
 			if ("%{%{control:PacketFence-Authorization-Status}:-Allow}" == "deny") {

@@ -72,7 +72,7 @@ is(
 );
 like($tags{degraded_cache_miss_reject}, qr/if \( Realm == "acme\.com" \) \{\s+reject/, "Cache miss rejected");
 unlike($tags{degraded_cache_miss_reject}, qr/beta|gamma/, "Only the realms rejecting the cache miss");
-like($tags{degraded_cache_miss_compute}, qr/Cache-Miss" && \( Realm =~ \/\.\*beta\\\.com\$\/ \)/, "Cache miss authorized from PacketFence");
+like($tags{degraded_cache_miss_compute}, qr/Cache-Miss" && \( EAP-Type == TTLS \|\| EAP-Type == PEAP \) && \( Realm =~ \/\.\*beta\\\.com\$\/ \)/, "Cache miss authorized from PacketFence");
 unlike($tags{degraded_cache_miss_compute}, qr/acme|gamma/, "Not for the realms already authorized from PacketFence or accepting the cache miss");
 
 my ($choice, $auth_type) = ('', '');
