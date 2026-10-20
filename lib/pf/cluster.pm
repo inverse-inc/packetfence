@@ -303,6 +303,30 @@ sub members_ips {
     return \%data;
 }
 
+=head2 api_client
+
+A JSON-RPC client to the webservices of a cluster member.
+The connection and the request are bounded (active_active.api_connect_timeout and
+active_active.api_timeout, in seconds) so an unreachable or hung member can't block
+the caller (and its worker) indefinitely.
+Options of pf::api::jsonrpcclient override them, e.g. timeout_ms => 0 for a long operation.
+
+=cut
+
+sub api_client {
+    my ($host, %options) = @_;
+    require pf::api::jsonrpcclient;
+    no warnings 'once';
+    my $config = $pf::config::Config{active_active} // {};
+    return pf::api::jsonrpcclient->new(
+        proto              => 'https',
+        host               => $host,
+        connect_timeout_ms => 1000 * ($config->{api_connect_timeout} || 5),
+        timeout_ms         => 1000 * ($config->{api_timeout} || 60),
+        %options,
+    );
+}
+
 =head2 api_call_each_server
 
 Call an API method on each member of the cluster
@@ -311,13 +335,24 @@ Call an API method on each member of the cluster
 
 sub api_call_each_server {
     my ($asynchronous, $api_method, @api_args) = @_;
+    return _api_call_each_server({}, $asynchronous, $api_method, @api_args);
+}
+
+=head2 _api_call_each_server
+
+api_call_each_server with options for the API client of each member
+
+=cut
+
+sub _api_call_each_server {
+    my ($client_options, $asynchronous, $api_method, @api_args) = @_;
 
     require pf::api::jsonrpcclient;
     my @failed;
     my $method = $asynchronous ? "notify" : "call";
     foreach my $server (config_enabled_servers()){
         next if($server->{host} eq $host_id);
-        my $apiclient = pf::api::jsonrpcclient->new(host => $server->{management_ip}, proto => 'https');
+        my $apiclient = api_client($server->{management_ip}, %$client_options);
         eval {
             pf::log::get_logger->info("Calling $api_method on $server->{host}");
             my ($result) = $apiclient->$method($api_method, @api_args);
@@ -347,7 +382,10 @@ sub sync_files {
     foreach my $file (@$files){
         pf::log::get_logger->info("Synching file $file to cluster members");
         my %data = ( conf_file => $file, from => pf::cluster::current_server()->{management_ip} );
-        push @failed, @{api_call_each_server($options{async}, 'distant_download_configfile', %data)};
+        # A large file (the Fingerbank databases) can take longer than api_timeout to download: with
+        # no_total_timeout, only the member's download bounds it, by its lack of progress
+        my $client_options = $options{no_total_timeout} ? {timeout_ms => 0} : {};
+        push @failed, @{_api_call_each_server($client_options, $options{async}, 'distant_download_configfile', %data)};
     }
     return \@failed;
 }
@@ -633,7 +671,7 @@ sub notify_each_server {
     if($cluster_enabled) {
         require pf::api::jsonrpcclient;
         foreach my $server (config_enabled_servers()) {
-            my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $server->{management_ip});
+            my $apiclient = api_client($server->{management_ip});
             $apiclient->notify(@args);
         }
     }
@@ -653,8 +691,20 @@ sub call_server {
     my ($cluster_id, @args) = @_;
     require pf::api::jsonrpcclient;
     my $server = firstval { $_->{host} eq $cluster_id } @config_cluster_servers;
-    my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $server->{management_ip});
+    my $apiclient = api_client($server->{management_ip});
     return $apiclient->call(@args);
+}
+
+=head2 call_server_without_timeout
+
+Call an API method on a cluster member for a long operation (e.g. sync_config_as_master): only the connection is bounded
+
+=cut
+
+sub call_server_without_timeout {
+    my ($cluster_id, @args) = @_;
+    my $server = firstval { $_->{host} eq $cluster_id } @config_cluster_servers;
+    return api_client($server->{management_ip}, timeout_ms => 0)->call(@args);
 }
 
 =head2 queue_stats
@@ -667,7 +717,7 @@ sub queue_stats {
     require pf::api::jsonrpcclient;
     my @stats;
     foreach my $server (enabled_servers()) {
-        my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $server->{management_ip});
+        my $apiclient = api_client($server->{management_ip});
         my %s = (
             %$server,
             stats  => $apiclient->call('queue_stats')
@@ -782,7 +832,7 @@ sub handle_config_conflict {
         # pick the first server of the ones that are at that version and remotely call the sync on it
         my $server = $versions_map->{$latest}->[0];
         get_logger->info("Using $server from the servers holding running the latest version to sync as the master.");
-        call_server($server, 'sync_config_as_master');
+        call_server_without_timeout($server, 'sync_config_as_master');
     }
 
     return;
@@ -796,7 +846,7 @@ sub handle_config_conflict {
     else {
         my $server = $versions_map->{$quorum_version}->[0];
         get_logger->info("Using $server from the servers holding quorum to sync as the master.");
-        call_server($server, 'sync_config_as_master');
+        call_server_without_timeout($server, 'sync_config_as_master');
     }
 
     return;

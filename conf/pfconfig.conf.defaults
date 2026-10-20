@@ -23,3 +23,7 @@ db=[% ENV.env_or_default("PFCONFIG_MYSQL_DB", "pf") %]
 port=[% ENV.env_or_default("PFCONFIG_MYSQL_PORT", "3306") %]
 table=[% ENV.env_or_default("PFCONFIG_MYSQL_TABLE", "keyed") %]
 unix_socket=[% ENV.env_or_default("PFCONFIG_MYSQL_UNIX_SOCKET", "/var/lib/mysql/mysql.sock") %]
+# Timeouts of the database calls, in seconds. libmysqlclient retries a read or a write, so a stalled one fails after about twice its timeout
+connect_timeout=[% ENV.env_or_default("PFCONFIG_MYSQL_CONNECT_TIMEOUT", "5") %]
+read_timeout=[% ENV.env_or_default("PFCONFIG_MYSQL_READ_TIMEOUT", "15") %]
+write_timeout=[% ENV.env_or_default("PFCONFIG_MYSQL_WRITE_TIMEOUT", "15") %]

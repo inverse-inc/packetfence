@@ -711,7 +711,7 @@ sub sync_configuration {
 }
 
 sub sync_local_db {
-    pf::cluster::sync_files([$fingerbank::FilePath::LOCAL_DB_FILE]);
+    pf::cluster::sync_files([$fingerbank::FilePath::LOCAL_DB_FILE], no_total_timeout => $TRUE);
     clear_cache();
 
     if (pfconfig::git_storage->is_enabled) {
@@ -777,7 +777,7 @@ sub restore_local_db_from_storage {
 }
 
 sub sync_upstream_db {
-    pf::cluster::sync_files([$fingerbank::FilePath::UPSTREAM_DB_FILE], async => $TRUE);
+    pf::cluster::sync_files([$fingerbank::FilePath::UPSTREAM_DB_FILE], async => $TRUE, no_total_timeout => $TRUE);
     clear_cache();
 }
 
