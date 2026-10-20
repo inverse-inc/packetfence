@@ -26,16 +26,19 @@ extends 'pf::services::manager';
 
 has '+name'     => ( default => sub { 'connector-cache' } );
 
+our $BINARY = '/usr/sbin/connector-cache';
+
 =head2 isManaged
 
-Only managed when a realm proxying the authentication has the degraded mode enabled
+Only managed when packetfence-connector-cache is installed and a realm proxying
+the authentication has the degraded mode enabled
 
 =cut
 
 sub isManaged {
     my ($self) = @_;
     require pf::config;
-    return $self->SUPER::isManaged() && any {
+    return $self->SUPER::isManaged() && -x $BINARY && any {
         my $realm = $pf::config::ConfigRealm{$_};
         $realm->{radius_auth} && isenabled($realm->{radius_degraded})
     } keys %pf::config::ConfigRealm;

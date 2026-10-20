@@ -893,6 +893,9 @@ server packetfence-degraded {
 			update reply {
 				# Echoed by the remote server to the packetfence server when it was cached
 				&Proxy-State !* ANY
+				# Attributes of the cached session, not of this one
+				&Class !* ANY
+				&State !* ANY
 				&PacketFence-Degraded-Auth !* ANY
 				&PacketFence-Degraded := "Cache-Hit"
 			}
