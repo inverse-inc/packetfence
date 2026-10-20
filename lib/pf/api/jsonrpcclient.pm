@@ -166,7 +166,12 @@ sub call {
                 die $response->{error}{message};
             }
         } else {
-            $response = decode_json($response_body);
+            # The body isn't a JSON-RPC error when the request is rejected before reaching the API (e.g. 401 on wrong credentials)
+            $response = eval { decode_json($response_body) };
+            if (ref($response) ne 'HASH' || !defined $response->{error}{message}) {
+                my $hint = $response_code == 401 ? " (check the webservices username and password)" : "";
+                die "HTTP $response_code received from " . $self->host . ":" . $self->port . "$hint\n";
+            }
             die $response->{error}{message};
         }
     } else {
