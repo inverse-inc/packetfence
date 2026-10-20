@@ -11,13 +11,13 @@ import {
   BaseFormGroupInputPassword,
   BaseFormGroupTextarea,
   BaseFormGroupSwitch,
-  BaseInput
+  BaseInput,
+  BaseInputToggleDisabledEnabled
 } from '@/components/new/'
 import BaseFormGroupInlineTrigger from './BaseFormGroupInlineTrigger'
 import BaseFormGroupToggleStaticDynamicDefault from './BaseFormGroupToggleStaticDynamicDefault'
 import BaseFormGroupType from './BaseFormGroupType'
 import BaseInputToggleNetworkFrom from './BaseInputToggleNetworkFrom'
-import BaseInputToggleEnableDisable from './BaseInputToggleEnableDisable'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -102,7 +102,7 @@ export {
 
   BaseInput                               as InputRoleMapNetwork,
   BaseInputToggleNetworkFrom              as InputToggleNetworkFrom,
-  BaseInputToggleEnableDisable            as InputToggleEnableDisable,
+  BaseInputToggleDisabledEnabled          as InputToggleEnableDisable,
 
   BaseViewCollectionItem                  as BaseView,
   TheForm,
