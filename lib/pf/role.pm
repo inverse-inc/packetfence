@@ -672,7 +672,7 @@ sub getNodeInfoForAutoReg {
         my $provisioner = pf::factory::provisioner->new($id);
         if(isenabled($provisioner->apply_role)) {
             get_logger->debug("Provisioner $id is setup to apply a role on matching devices. Checking state of node");
-            my $role = $provisioner->authorize_apply_role($args->{mac});
+            my $role = $provisioner->authorize_apply_role($args->{mac}, { user_name => $args->{user_name}, radius_request => $args->{radius_request} });
             if(defined($role)) {
                 get_logger->info("Applying role $role based on provisioner $id");
                 $node_info{category} = $role;
@@ -738,7 +738,7 @@ sub shouldAutoRegister {
         my $provisioner = pf::factory::provisioner->new($id);
         if(isenabled($provisioner->autoregister)) {
             get_logger->debug("Provisioner $id is setup to autoreg on matching devices. Checking state of node for autoregistration");
-            my $role = $provisioner->authorize_apply_role($args->{mac});
+            my $role = $provisioner->authorize_apply_role($args->{mac}, { user_name => $args->{user_name}, radius_request => $args->{radius_request} });
             if(defined($role)) {
                 $args->{node_info}->{notes} = "AUTO-REGISTERED via provisioner $id";
                 get_logger->info("Device is authorized in provisioner, autoregistering the device.");
