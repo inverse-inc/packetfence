@@ -18,7 +18,7 @@ use warnings;
 use pf::log;
 
 use pf::constants;
-use Scalar::Util qw(blessed);
+use Scalar::Util qw(blessed reftype);
 use pf::constants::trigger qw($TRIGGER_ID_PROVISIONER $TRIGGER_TYPE_PROVISIONER);
 use pf::config qw(
     %ConfigFloatingDevices
@@ -917,8 +917,9 @@ sub _connection_params {
         $params{'switch_group'} = $switch->{'_group'} if defined $switch->{'_group'};
     }
     $params{'mac'} = $args->{'mac'} if defined $args->{'mac'};
+    # On the RADIUS path node_info is a pf::dal::node object, not a plain hash
     my $node_info = $args->{'node_info'};
-    if (ref($node_info) eq 'HASH' && defined $node_info->{'computername'}) {
+    if ((reftype($node_info) // '') eq 'HASH' && defined $node_info->{'computername'}) {
         $params{'computer_name'} = $node_info->{'computername'};
     }
     return \%params;

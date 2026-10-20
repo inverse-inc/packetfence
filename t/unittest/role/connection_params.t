@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 12;
+use Test::More tests => 15;
 use Test::NoWarnings;
 use pf::role;
 use pf::constants::authentication;
@@ -28,6 +28,8 @@ use pf::Authentication::Rule;
 use pf::Authentication::Condition;
 use pf::Authentication::Action;
 use pf::Authentication::Source::NullSource;
+use pf::dal::node;
+use pf::config qw($WIRED_MAC_AUTH);
 
 my $switch = bless { _id => '192.0.2.10', _group => 'grp9002' }, 'pf::Switch';
 my %args = (
@@ -98,6 +100,40 @@ ok($condition->matches('computer_name', $params->{computer_name}, $params), 'a c
 
 my $mac_condition = pf::Authentication::Condition->new({ attribute => 'mac', operator => $Conditions::EQUALS, value => '02:44:45:4c:4c:1a' });
 ok($mac_condition->matches('mac', $params->{mac}, $params), 'a mac condition sees the endpoint MAC');
+
+# On the RADIUS path node_info is the pf::dal::node object of the endpoint
+my $node = pf::dal::node->new({ mac => '02:44:45:4c:4c:1b', computername => 'LAPTOP-DAL' });
+is(
+    pf::role::_connection_params({ %args, node_info => $node })->{computer_name},
+    'LAPTOP-DAL',
+    'the computer name of a pf::dal::node is passed to the rules',
+);
+
+# Through the MAB autoregistration, as pf::radius::authorize calls it
+{
+    package StubProfile9002;
+    sub new { bless {}, shift }
+    sub getFilteredAuthenticationSources { return ({ id => 'authz9002', type => 'Authorization' }) }
+    sub getProvisioners { return [] }
+    our $AUTOLOAD;
+    sub AUTOLOAD { return 0 }
+    sub DESTROY { }
+}
+{
+    my %seen;
+    no warnings qw(redefine once);
+    local *pf::role::filterVlan = sub { return undef };
+    local *pf::authentication::match2 = sub { my ($sources, $p) = @_; %seen = %$p; return undef };
+    pf::role->new->getNodeInfoForAutoReg({
+        %args,
+        node_info       => $node,
+        connection_type => $WIRED_MAC_AUTH,
+        user_name       => '02444c4c1b',
+        profile         => StubProfile9002->new,
+    });
+    is($seen{computer_name}, 'LAPTOP-DAL', 'MAB autoregistration passes the computer name of the pf::dal::node to the rules');
+    is($seen{switch_group}, 'grp9002', 'MAB autoregistration passes the switch group to the rules');
+}
 
 =head1 AUTHOR
 
