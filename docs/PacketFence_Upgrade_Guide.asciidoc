@@ -1111,6 +1111,14 @@ and restart the RADIUS authentication servers:
 /usr/local/pf/bin/pfcmd service radiusd restart
 ----
 
+=== Intermediate certificates must be part of the chain
+
+The admin interface reports a chain as invalid when one of the intermediate
+certificates isn't part of the certificate's signing chain, including the
+server certificate itself pasted among its intermediates. Remove those
+certificates from the intermediates (_Configuration -> System Configuration ->
+SSL Certificates_).
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]
