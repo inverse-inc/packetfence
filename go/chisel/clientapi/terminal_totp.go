@@ -2,9 +2,11 @@ package clientapi
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -48,12 +50,72 @@ var (
 
 type terminalTOTP struct {
 	key *otp.Key
+	// statePath persists the lockout and the last accepted code next to
+	// the seed, so that restarting the connector (which the admin role
+	// allowed to open the terminal can do) resets neither. Empty: not
+	// persisted.
+	statePath string
 
 	mu           sync.Mutex
 	failures     int
 	lockedUntil  time.Time
 	lastCode     string
 	lastCodeTime time.Time
+}
+
+// terminalTOTPState is what is persisted in statePath.
+type terminalTOTPState struct {
+	Failures     int       `json:"failures"`
+	LockedUntil  time.Time `json:"locked_until"`
+	LastCode     string    `json:"last_code"`
+	LastCodeTime time.Time `json:"last_code_time"`
+}
+
+// loadState restores the persisted lockout and last code, if any.
+func (t *terminalTOTP) loadState() {
+	if t.statePath == "" {
+		return
+	}
+	raw, err := os.ReadFile(t.statePath)
+	if err != nil {
+		return
+	}
+	var state terminalTOTPState
+	if json.Unmarshal(raw, &state) != nil {
+		return
+	}
+	t.failures = state.Failures
+	t.lockedUntil = state.LockedUntil
+	t.lastCode = state.LastCode
+	t.lastCodeTime = state.LastCodeTime
+}
+
+// saveState persists the lockout and last code. Called with t.mu held.
+func (t *terminalTOTP) saveState() {
+	if t.statePath == "" {
+		return
+	}
+	raw, err := json.Marshal(terminalTOTPState{
+		Failures:     t.failures,
+		LockedUntil:  t.lockedUntil,
+		LastCode:     t.lastCode,
+		LastCodeTime: t.lastCodeTime,
+	})
+	if err != nil {
+		return
+	}
+	tmp, err := os.CreateTemp(filepath.Dir(t.statePath), ".terminal_totp_state")
+	if err != nil {
+		return
+	}
+	if _, err := tmp.Write(raw); err != nil || tmp.Chmod(0600) != nil || tmp.Close() != nil {
+		tmp.Close()
+		os.Remove(tmp.Name())
+		return
+	}
+	if os.Rename(tmp.Name(), t.statePath) != nil {
+		os.Remove(tmp.Name())
+	}
 }
 
 func terminalTOTPFile() string {
@@ -84,7 +146,9 @@ func newTerminalTOTP(ctx context.Context, connectorID string) (*terminalTOTP, er
 		if err != nil {
 			return nil, fmt.Errorf("invalid TOTP seed in %s: %w", path, err)
 		}
-		return &terminalTOTP{key: key}, nil
+		t := &terminalTOTP{key: key, statePath: path + ".state"}
+		t.loadState()
+		return t, nil
 	}
 
 	key, err := totp.Generate(totp.GenerateOpts{
@@ -98,7 +162,9 @@ func newTerminalTOTP(ctx context.Context, connectorID string) (*terminalTOTP, er
 		return nil, fmt.Errorf("persisting TOTP seed to %s: %w", path, err)
 	}
 	log.LoggerWContext(ctx).Info(fmt.Sprintf("Generated the TOTP seed gating remote terminal access in %s. Enroll its otpauth URL in an authenticator app (local access to the box is required to read it).", path))
-	return &terminalTOTP{key: key}, nil
+	// A new seed starts with a clean state
+	os.Remove(path + ".state")
+	return &terminalTOTP{key: key, statePath: path + ".state"}, nil
 }
 
 // validate checks a 6-digit code against the local seed, enforcing the
@@ -124,10 +190,12 @@ func (t *terminalTOTP) validate(code string) error {
 			t.failures = 0
 			t.lockedUntil = time.Now().Add(totpLockoutDuration)
 		}
+		t.saveState()
 		return errTOTPInvalid
 	}
 	t.failures = 0
 	t.lastCode = code
 	t.lastCodeTime = time.Now()
+	t.saveState()
 	return nil
 }
