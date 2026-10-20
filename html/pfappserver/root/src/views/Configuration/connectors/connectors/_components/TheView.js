@@ -36,7 +36,7 @@ const setup = (props, context) => {
   const remote = useRemoteStatus(props, context)
   provide('connectorRemote', remote)
 
-  const tabs = useTabs(props, context, remote)
+  const tabs = useTabs(props, context)
   provide('connectorTabs', tabs)
 
   // the form buttons only apply to the Settings tab

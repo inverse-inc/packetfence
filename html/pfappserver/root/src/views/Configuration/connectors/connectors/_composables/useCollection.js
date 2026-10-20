@@ -39,10 +39,17 @@ export const useSearch = makeSearch('connectorsConnectors', {
       locked: true
     },
     {
+      key: 'connected',
+      label: 'Connected', // i18n defer
+      thClass: 'text-center', tdClass: 'text-center',
+      thStyle: 'width: 90px;',
+      visible: true
+    },
+    {
       key: 'status',
       label: 'Tunnel', // i18n defer
       thStyle: 'width: 110px;',
-      visible: true
+      visible: false
     },
     {
       key: 'id',
@@ -76,6 +83,7 @@ export const useSearch = makeSearch('connectorsConnectors', {
       key: 'networks',
       label: 'Networks', // i18n defer
       required: true,
+      searchable: true,
       visible: false
     },
     {
@@ -178,6 +186,17 @@ export const useSearch = makeSearch('connectorsConnectors', {
     {
       value: 'description',
       text: i18n.t('Description'),
+      types: [conditionType.SUBSTRING]
+    },
+    // lists are matched as stored, comma-joined: use "contains" for one entry
+    {
+      value: 'networks',
+      text: i18n.t('Networks'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'fingerbank_environment',
+      text: i18n.t('Fingerbank Environment'),
       types: [conditionType.SUBSTRING]
     }
   ]

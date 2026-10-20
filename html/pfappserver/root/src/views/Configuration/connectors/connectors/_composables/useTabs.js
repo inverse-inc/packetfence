@@ -4,12 +4,11 @@ const LIVE_TABS = ['overview', 'networking', 'devices', 'troubleshooting']
 
 // The selected tab of the connector view, kept in ?tab= (not a route prop:
 // a prop change would re-init the form and drop unsaved changes).
-export const useTabs = (props, context, remote) => {
+export const useTabs = (props, context) => {
   const { root } = context
-  const { canRead } = remote
 
   const tabs = computed(() => {
-    if (props.isNew || props.isClone || !canRead.value)
+    if (props.isNew || props.isClone)
       return ['settings']
     return [...LIVE_TABS, 'settings']
   })

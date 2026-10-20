@@ -47,7 +47,6 @@ export const formatUptime = seconds => {
 export const useRemoteStatus = (props, context) => {
   const { root: { $store } = {} } = context
 
-  const canRead = computed(() => acl.$can('read', 'connectors'))
   const canUpdate = computed(() => acl.$can('update', 'connectors'))
 
   const status = ref(null)
@@ -70,7 +69,7 @@ export const useRemoteStatus = (props, context) => {
   const terminalCode = ref('')
   const upgradeFollowUntil = ref(null) // Date while following an upgrade
 
-  const isLive = computed(() => !!props.id && !props.isNew && !props.isClone && canRead.value)
+  const isLive = computed(() => !!props.id && !props.isNew && !props.isClone)
 
   let timer = null
   let seq = 0 // drops responses for a previous connector
@@ -163,7 +162,7 @@ export const useRemoteStatus = (props, context) => {
       refresh()
   }
 
-  watch(() => [props.id, props.isNew, props.isClone, canRead.value], restart, { immediate: true })
+  watch(() => [props.id, props.isNew, props.isClone], restart, { immediate: true })
 
   onBeforeUnmount(() => {
     seq++
@@ -268,7 +267,6 @@ export const useRemoteStatus = (props, context) => {
   }
 
   return {
-    canRead,
     canUpdate,
     status,
     errors,
