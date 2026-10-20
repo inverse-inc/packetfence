@@ -337,7 +337,24 @@ sub handleCoaOrDisconnect {
         return $self->handleCoa($mac, $add_attributes_ref, $role);
     }
 
+    if (isenabled($self->{_useCoA})) {
+        $self->logger->info("Sending a Disconnect-Request instead of a CoA-Request to $self->{_id} for $mac: " . $self->_coaFallbackReason($role));
+    }
     return $self->handleDisconnect($mac, $add_attributes_ref);
+}
+
+=head2 _coaFallbackReason
+
+Why a CoA-Request cannot be sent although useCoA is enabled
+
+=cut
+
+sub _coaFallbackReason {
+    my ($self, $role) = @_;
+    if (!defined($role)) {
+        return "the node has no role on this switch (it is unregistered or pending, isolated, has no category or no node entry, or its role is not mapped on the switch)";
+    }
+    return "role mapping is disabled on this switch (RoleMap, UrlMap and VpnMap)";
 }
 
 =item deauthTechniques
