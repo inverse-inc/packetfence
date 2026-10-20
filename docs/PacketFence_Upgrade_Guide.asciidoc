@@ -1122,6 +1122,18 @@ server certificate itself pasted among its intermediates. Remove those
 certificates from the intermediates (_Configuration -> System Configuration ->
 SSL Certificates_).
 
+=== Security event templates customized in a connection profile
+
+A security event template customized in a connection profile (for example
+`security_events/generic.html`) is now used for every browser language. It
+used to be replaced by a translation shipped with the default templates (such
+as `generic.fr.html` or `generic.es_ES.html`) when the browser preferred that
+language.
+
+If you customized a security event template in a connection profile and rely
+on the shipped translations for other languages, customize the language
+variants (`<template_name>.<locale_name>.html`) in the connection profile too.
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]

@@ -72,6 +72,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - Access re-evaluation no longer fails on a port shared by several authenticated endpoints. A second endpoint authenticating on the port used to close the other endpoints' locationlog entries, after which `pf::enforcement::reevaluate_access` logged "Can't re-evaluate access because no open locationlog entry was found" and never sent their CoA. Set `host_mode=multi-auth` on the switch to keep per-endpoint entries
   - Removed the `advanced.multihost` configuration parameter, which had no effect since the admin UI rewrite: its only consumer was the old Catalyst node view, along with the unused `pf::node::check_multihost` helper. It is replaced by the per-switch `host_mode`
 
+  - Captive portal: a security event template customized in a connection profile is no longer replaced by a translation shipped with the default templates (such as `generic.fr.html`) for browsers preferring that language. Customize the language variants in the profile to keep a page per language (#7625)
+
 === Security Fixes
 
 == Version 15.2.0 released on 2026-08-24
