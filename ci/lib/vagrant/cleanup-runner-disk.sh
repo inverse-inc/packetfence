@@ -51,7 +51,9 @@ virsh_sys() { virsh -c "${VIRSH_URI}" "$@"; }
 discover_users() {
     local d name pw home
     if [ -n "${USER_HOMES:-}" ]; then
-        printf '%s\n' ${USER_HOMES}
+        local -a homes
+        read -ra homes <<< "${USER_HOMES}"
+        printf '%s\n' "${homes[@]}"
         return
     fi
     for d in "${VAR_LOCAL}"/*/; do
