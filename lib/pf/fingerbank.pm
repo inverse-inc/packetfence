@@ -47,6 +47,10 @@ use pf::config qw(%Config);
 use pf::util qw(isdisabled isenabled valid_mac);
 use pf::locationlog qw(locationlog_view_open_mac);
 use pf::factory::connector;
+use pfconfig::git_storage;
+use File::Basename qw(basename dirname);
+use File::Compare qw(compare);
+use File::Copy qw(copy);
 
 # Do not remove, even if its not explicitely used. When taking collector requests out of the cache, this must be imported.
 use URI::http;
@@ -623,6 +627,67 @@ sub sync_configuration {
 sub sync_local_db {
     pf::cluster::sync_files([$fingerbank::FilePath::LOCAL_DB_FILE]);
     clear_cache();
+
+    if (pfconfig::git_storage->is_enabled) {
+        my ($res, $msg) = pfconfig::git_storage->commit_file($fingerbank::FilePath::LOCAL_DB_FILE, "fingerbank/db/fingerbank_Local.db");
+        if (!$res) {
+            get_logger->error("Error syncing $fingerbank::FilePath::LOCAL_DB_FILE to git storage: $msg");
+            return (0, $msg);
+        }
+        my $deployed = eval {
+            # The deploy is only needed for its git pull side (placing the DB file on the
+            # pfconfig pods); no pfconfig namespace depends on the local Fingerbank DB, so
+            # expire a single cheap namespace instead of __all__
+            pfconfig::git_storage->deploy(namespace => "config::FingerbankSettings", light => 1);
+        };
+        # Outside of k8s the deploy doesn't die when pfconfig refuses the pull, it returns false
+        if ($@ || !$deployed) {
+            get_logger->error("Error deploying git storage after local Fingerbank DB update: " . ($@ || "pfconfig did not accept the pull"));
+            return (0, "Local Fingerbank database was saved to git storage but deploying it failed. Please retry the change.");
+        }
+    }
+    return (1, undef);
+}
+
+=head2 restore_local_db_from_storage
+
+With git storage, replace the local Fingerbank database with the copy in the
+git repository when they differ, before an edit is applied to it. The repository
+holds the copy every pod shares: a pod that came up with an empty or stale local
+database would otherwise push it over the shared copy with its next edit, and
+the deploy would spread it to every pod. A pod whose last edit was committed has
+the same copy, so nothing is replaced then.
+
+Returns (1) when the local database can be edited, (0, $message) when the
+repository could not be read.
+
+=cut
+
+sub restore_local_db_from_storage {
+    return (1) unless pfconfig::git_storage->is_enabled;
+
+    my ($pulled, $pull_msg) = pfconfig::git_storage->pull();
+    return (0, $pull_msg // "Unable to pull the git storage repository") unless $pulled;
+
+    my $repo_db = pfconfig::git_storage->git_directory . "/fingerbank/db/" . basename($fingerbank::FilePath::LOCAL_DB_FILE);
+    return (1) unless -f $repo_db;
+
+    my $local_db = $fingerbank::FilePath::LOCAL_DB_FILE;
+    return (1) if -f $local_db && compare($repo_db, $local_db) == 0;
+
+    # Copied next to the database and renamed in place, so a reader never sees a
+    # partially written file. The copy gets a new mtime, which the Fingerbank
+    # client uses to notice the change.
+    my $tmp = dirname($local_db) . "/." . basename($local_db) . ".git_storage.$$";
+    if (!copy($repo_db, $tmp) || !rename($tmp, $local_db)) {
+        my $error = "$!";
+        unlink($tmp);
+        get_logger->error("Unable to restore $local_db from the git storage repository: $error");
+        return (0, "Unable to restore the local Fingerbank database from git storage: $error");
+    }
+    clear_cache();
+    get_logger->info("The local Fingerbank database differed from the git storage copy: restored it from git storage before the edit");
+    return (1);
 }
 
 sub sync_upstream_db {
