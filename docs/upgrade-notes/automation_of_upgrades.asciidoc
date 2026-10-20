@@ -45,3 +45,10 @@ The whole output of the upgrade is also written to
 script prints the path when it starts). Attach this file to any support
 request about a failed upgrade.
 
+When the package manager ships a new version of a configuration file you
+modified (`.rpmnew` on RHEL, `.dpkg-dist` on Debian), the upgrade applies your
+changes to the new version. Your previous file is kept as
+[filename]`<file>.upgrade-backup`. If your changes can't be applied, your file
+is kept as it is and the new version is saved as [filename]`<file>.upgrade-new`
+for you to review after the upgrade.
+

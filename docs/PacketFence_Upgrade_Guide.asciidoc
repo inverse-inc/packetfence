@@ -920,6 +920,9 @@ end of the upgrade.
 
 If you customized those files, the package manager keeps your version and ships
 the new defaults alongside (`.rpmnew` on RHEL, dpkg conffile prompt on Debian).
+After an automated upgrade, the new defaults were merged into your file when
+possible; when they couldn't be merged, they are kept in
+[filename]`haproxy-portal.conf.upgrade-new` / [filename]`haproxy-admin.conf.upgrade-new`.
 Merge the new `ssl-default-bind-ciphers`, `ssl-default-bind-ciphersuites`,
 `ssl-default-server-ciphers`, `ssl-default-server-ciphersuites` and
 `ssl-default-*-options` lines into your files, then restart:
