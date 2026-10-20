@@ -59,6 +59,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - The certificate chain validation of the admin interface now rejects intermediate certificates that are not part of the certificate's signing chain, instead of reporting the chain as valid and sending them to the clients (#6630)
 
   - pfpki OCSP responder answered with a 500 error instead of "unknown" for a serial number that is in neither the certificates nor the revoked certificates
+
+  - Portal: a user who chose an OAuth, OpenID or SAML method and comes back without completing it is shown that method's page (with the other methods of the Choice) instead of being sent straight back to the provider (#7447)
   - LOG_LEVEL was ignored by the mod_perl services (httpd.aaa, httpd.webservices, httpd.portal): the variable reached the container but Apache never exposed it to Perl, so log4perl stayed at INFO. The httpd templates now PerlPassEnv it
   - Dell N1500 and Cisco ASA: role ACLs were never sent in the Access-Accept, because a stale `returnAccessListAttribute` override returned a single value. Both modules now use the base implementation, and the N1500 (firmware 6.8 or later) installs the ACL as a dynamic ACL
   - `radius_configuration.pfacct_rate_limit` had no effect: the toggle was decoded but never applied, so accounting was forwarded to httpd.aaa unconditionally

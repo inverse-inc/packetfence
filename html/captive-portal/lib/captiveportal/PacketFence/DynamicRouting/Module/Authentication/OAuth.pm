@@ -103,6 +103,12 @@ sub execute_child {
         if($self->with_aup) {
             $self->landing();
         }
+        # The user was already sent to the provider and came back to the portal without completing the authentication.
+        # Show the landing page so that they can retry or choose another way to register instead of sending them back to the provider.
+        elsif($self->session->{provider_visited}) {
+            get_logger->debug("Provider already visited, showing the landing page");
+            $self->landing();
+        }
         else {
             get_logger->debug("No AUP, proceeding directly to provider");
             $self->redirect_to_provider();
@@ -118,6 +124,7 @@ Redirects to the OAuth provider and registers the attempt in the authlog
 
 sub redirect_to_provider {
     my ($self) = @_;
+    $self->session->{provider_visited} = 1;
     pf::auth_log::record_oauth_attempt($self->source->id, $self->source->type, $self->current_mac, $self->app->profile->name);
     $self->app->redirect($self->get_client->authorize);
 }
