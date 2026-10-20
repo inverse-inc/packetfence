@@ -212,7 +212,7 @@ export const setup = (props, context) => {
     isConnecting.value = true
     const lines = Math.min(Math.max(backfill.value || 0, 0), 1000)
     const proto = window.location.protocol === 'https:' ? 'wss://' : 'ws://'
-    const url = `${proto}${window.location.host}/api/v1/pfconnector-remotes/${props.id}/logs/${selectedFile.value}?lines=${lines}`
+    const url = `${proto}${window.location.host}/api/v1/pfconnector-remotes/${encodeURIComponent(props.id)}/logs/${encodeURIComponent(selectedFile.value)}?lines=${lines}`
     try {
       ws = new WebSocket(url)
     } catch (e) {

@@ -107,6 +107,8 @@ var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: configApiPrefix + "/checkup", role: ALLOW_ANY},
 	adminRoleMapping{prefix: configApiPrefix + "/cluster_status", role: "SERVICES"},
 	adminRoleMapping{prefix: configApiPrefix + "/connection_profile/", role: "CONNECTION_PROFILES"},
+	adminRoleMapping{prefix: configApiPrefix + "/connector/", role: "CONNECTORS"},
+	adminRoleMapping{prefix: configApiPrefix + "/connectors", role: "CONNECTORS"},
 	adminRoleMapping{prefix: configApiPrefix + "/connection_profiles", role: "CONNECTION_PROFILES"},
 	adminRoleMapping{prefix: configApiPrefix + "/event_logger/", role: "EVENT_LOGGERS"},
 	adminRoleMapping{prefix: configApiPrefix + "/event_loggers", role: "EVENT_LOGGERS"},
