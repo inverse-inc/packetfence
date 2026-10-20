@@ -19,6 +19,7 @@ use pfconfig::config;
 use pf::util qw(isenabled safe_pf_run);
 use pf::log;
 use File::Basename;
+use File::Compare qw(compare);
 use List::MoreUtils qw(firstval);
 use pf::k8s;
 use pfconfig::util;
@@ -302,6 +303,8 @@ sub update {
             my $copy_error;
             foreach my $fb_db_file (glob($proto->git_directory . "/fingerbank/db/*")) {
                 my $dst = $fb_db_directory . "/" . basename($fb_db_file);
+                # update runs on every deploy: leave a database that didn't change alone
+                next if -f $dst && compare($fb_db_file, $dst) == 0;
                 my $tmp = $fb_db_directory . "/." . basename($fb_db_file) . ".git_storage.$$";
                 safe_pf_run("cp", "-a", $fb_db_file, $tmp, { status_ref => \$status });
                 if(!defined($status) || $status != 0 || !rename($tmp, $dst)) {
