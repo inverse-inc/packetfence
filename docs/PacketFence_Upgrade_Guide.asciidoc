@@ -1110,6 +1110,7 @@ and restart the RADIUS authentication servers:
 ----
 /usr/local/pf/bin/pfcmd service radiusd restart
 ----
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]
