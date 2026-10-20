@@ -19,7 +19,7 @@ export const useRouter = $router => {
   return {
     goToCollection: () => $router.push({ name: 'connectorsConnectors' }),
     goToItem: params => $router
-      .push({ name: 'connectorsConnector', params })
+      .push({ name: 'connectorsConnector', params, query: $router.currentRoute.query }) // keep ?tab=
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
     goToClone: params => $router.push({ name: 'cloneConnectorsConnector', params }),
     goToNew: params => $router.push({ name: 'newConnectorsConnector', params })
