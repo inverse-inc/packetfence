@@ -69,9 +69,10 @@ include::firewall/paloalto.asciidoc[]
 A VPN session has no MAC address: the VPN puts the address of the remote
 client in the Calling-Station-Id of its accounting (FortiGate SSL-VPN for
 instance). PacketFence recognizes the accounting of a VPN session by its
-User-Name and its Connect-Info starting with `vpn` (FortiGate `vpn-ssl`,
-`vpn-ipsec`) or its `Virtual` NAS-Port-Type, and sends the firewall SSO of the
-user with the address of its tunnel (Framed-IP-Address) when:
+User-Name, the address of its tunnel (Framed-IP-Address) and its Connect-Info
+starting with `vpn` (FortiGate `vpn-ssl`, `vpn-ipsec`) or its `Virtual`
+NAS-Port-Type, and sends the firewall SSO of the user with the address of its
+tunnel when:
 
 [options="compact"]
 * the VPN authorizes its users through PacketFence: the role given to the user
@@ -80,6 +81,10 @@ user with the address of its tunnel (Framed-IP-Address) when:
   PacketFence logs it and sends nothing.
 * the firewall has *SSO on accounting* enabled. The roles and networks of the
   firewall filter the VPN users like the other devices.
+
+The firewall SSO of a VPN user carries its user name where the MAC address of
+a device usually is (the `mac` field of the firewall templates, for the
+firewall types that send it), since the session has no MAC address.
 
 The SSO is sent with a timeout of one hour. Configure the VPN to send interim
 updates (for instance `set acct-interim-interval` on the RADIUS server of a

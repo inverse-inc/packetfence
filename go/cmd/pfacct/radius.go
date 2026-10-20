@@ -417,11 +417,18 @@ func (h *PfAcct) sendRadiusAccountingCall(r *radius.Request, m mac.Mac, native n
 }
 
 // isVpnAccounting tells whether an accounting packet that has no MAC address in
-// its Calling-Station-Id is the accounting of a VPN session: a user name, and
-// a Connect-Info starting with "vpn" (FortiGate: vpn-ssl, vpn-ipsec, ...) or the
-// Virtual NAS-Port-Type.
+// its Calling-Station-Id is the accounting of a VPN session: a user name, the
+// address of its tunnel (Framed-IP-Address), and a Connect-Info starting with
+// "vpn" (FortiGate: vpn-ssl, vpn-ipsec, ...) or the Virtual NAS-Port-Type. The
+// tunnel address leaves out the exec and command accounting of switch
+// management logins, which are Virtual too but have none (and vpn_accounting
+// needs it anyway).
 func isVpnAccounting(p *radius.Packet) bool {
 	if rfc2865.UserName_GetString(p) == "" {
+		return false
+	}
+
+	if ip := rfc2865.FramedIPAddress_Get(p); ip == nil || ip.IsUnspecified() {
 		return false
 	}
 
@@ -439,7 +446,7 @@ func isVpnAccounting(p *radius.Packet) bool {
 func (h *PfAcct) sendVpnAccounting(ctx context.Context, r *radius.Request) {
 	attr := packetToMap(ctx, r.Packet)
 	if val, ok := attr["NAS-IP-Address"]; !ok || val == "0.0.0.0" {
-		attr["NAS-IP-Address"] = strings.Split(r.RemoteAddr.String(), ":")[0]
+		attr["NAS-IP-Address"] = vpnAccountingNasIp(ctx, r.RemoteAddr)
 	}
 
 	key := rfc2866.AcctSessionID_GetString(r.Packet) + "|" + rfc2865.UserName_GetString(r.Packet)
@@ -449,6 +456,22 @@ func (h *PfAcct) sendVpnAccounting(ctx context.Context, r *radius.Request) {
 	default:
 		h.aaaNotifyDropped.Add(1)
 	}
+}
+
+// vpnAccountingNasIp is the NAS of a VPN accounting packet without
+// NAS-IP-Address. The role of the user was cached at authorization under the
+// NAS-IP-Address of the Access-Request or the address of the switch entry:
+// use the switch entry identified when the secret was looked up when it is a
+// single address, since behind the docker proxy of the pfacct container the
+// source of the packet is the bridge gateway, and the source otherwise.
+func vpnAccountingNasIp(ctx context.Context, remote net.Addr) string {
+	if info, ok := ctx.Value(switchInfoKey).(*SwitchInfo); ok && info != nil {
+		if ip := net.ParseIP(info.Nasname); ip != nil && !ip.IsUnspecified() {
+			return ip.String()
+		}
+	}
+
+	return strings.Split(remote.String(), ":")[0]
 }
 
 // enqueueAAANotify hands a radius_accounting notification to the MAC-sharded
