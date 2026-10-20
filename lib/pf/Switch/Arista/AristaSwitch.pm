@@ -233,6 +233,17 @@ sub getIfIndexByNasPortId {
     }
 }
 
+=item ifIndexCacheTables
+
+The ifDescr table getIfIndexByNasPortId looks NAS-Port-Id up in, refreshed by
+the switch_cache_ifindex pfcron task.
+
+=cut
+
+sub ifIndexCacheTables {
+    return ([-baseoid => '1.3.6.1.2.1.2.2.1.2']);
+}
+
 =head2 returnRadiusAccessAccept
 
 Prepares the RADIUS Access-Accept response for the network device.
