@@ -73,6 +73,10 @@ https://NODE_BALANCER_IP:1443/api/v1/pfconnector/tunnel
 
 If you configured a HTTP certificate signed by a public CA on PacketFence webadmin, you can answer `Yes` to the next question.
 
+WARNING: Answering `No` sets `TLS_SKIP_VERIFY=true`: the connector then doesn't check the identity of the server it connects to. The connector trusts its server: the server can read its status and logs, restart and upgrade it, and authorize terminal sessions. With `TLS_SKIP_VERIFY=true`, anyone able to intercept the connection between the connector and PacketFence can pose as the server and do the same; only the TOTP code still protects the terminal (if `PFCONNECTOR_TERMINAL_TOTP` is not disabled). Use a webadmin certificate the connector can validate whenever possible.
+
+The configuration also asks whether to allow opening a root terminal on the connector from the admin interface (see <<_remote_terminal_access,Remote Terminal Access>>).
+
 A configuration file will be created in [filename]`/usr/local/pfconnector-remote/conf/pfconnector-client.env`
 
 Finally, restart the packetfence-pfconnector-remote service:
@@ -84,7 +88,7 @@ systemctl restart packetfence-pfconnector-remote
    
 ===== Remote Terminal Access
 
-The admin interface can open a shell on a pfconnector-remote host (_Open Terminal_ on the connector's status panel). The feature is controlled by `PFCONNECTOR_TERMINAL` in [filename]`/usr/local/pfconnector-remote/conf/pfconnector-client.env` (enabled by default on new installs; restart the packetfence-pfconnector-remote service after changing it).
+The admin interface can open a shell on a pfconnector-remote host (_Open Terminal_ on the connector's status panel). The feature is controlled by `PFCONNECTOR_TERMINAL` in [filename]`/usr/local/pfconnector-remote/conf/pfconnector-client.env`: it is asked when the connector is configured, and stays disabled on connectors upgraded from a version without it until it is set to `true` (restart the packetfence-pfconnector-remote service after changing it). Opening a terminal requires the `CONNECTORS_UPDATE` admin action.
 
 Opening a terminal requires a time-based one-time password (TOTP) in addition to admin access, controlled by `PFCONNECTOR_TERMINAL_TOTP` in the same file (default `true`, including when the variable is absent). Setting it to `false` allows opening the terminal with admin access alone, which is not recommended outside a lab.
 
@@ -97,7 +101,9 @@ The seed is generated on the pfconnector-remote host when the packetfence-pfconn
 
 The otpauth URL it prints (kept in [filename]`/usr/local/pfconnector-remote/conf/terminal_totp`) can also be entered manually in the authenticator. To rotate the seed (for example when someone who knew it leaves), delete the file, restart the service and re-enroll.
 
-Five consecutive invalid codes lock terminal activation for 5 minutes, each code is only usable once, and terminal sessions close after 10 minutes without any input, even if a command is still printing output.
+Five consecutive invalid codes lock terminal activation for 5 minutes, each code is only usable once (both survive a restart of the connector), and terminal sessions close after 10 minutes without any input, even if a command is still printing output.
+
+The terminal page is served by PacketFence itself; only the terminal's websocket goes to the connector, which accepts it only with the secret it generated when the session was authorized. The admin's credentials are never sent to the connector, and one terminal at a time can be opened.
 
 ===== Upgrading a Remote Connector
 

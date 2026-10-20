@@ -1332,6 +1332,26 @@ Before upgrading, check the `sticky_dc` value of each domain in
 [filename]`/usr/local/pf/conf/domain.conf`, and set it back to `*` if you don't
 want to pin a domain controller.
 
+=== Connectors: CONNECTORS admin actions and the remote terminal
+
+The configuration of the connectors (_Configuration -> System Configuration ->
+Connectors_) and the new connector-remote features (status, logs, DNS test,
+restart, upgrade, terminal) require the `CONNECTORS_*` admin actions instead
+of `SYSTEM_*`. The `ALL` role includes them; grant custom admin roles
+`CONNECTORS_READ` (view the connectors, their status and logs, DNS test),
+`CONNECTORS_CREATE` and `CONNECTORS_DELETE` (manage the connectors) and
+`CONNECTORS_UPDATE` (modify them, restart, upgrade, terminal).
+
+Upgrading `packetfence-pfconnector-remote` on a connector adds
+`PFCONNECTOR_TERMINAL=false` and `PFCONNECTOR_TERMINAL_TOTP=true` to
+[filename]`/usr/local/pfconnector-remote/conf/pfconnector-client.env` when they
+are absent (values already set are kept): the remote terminal stays off. To
+allow it, set `PFCONNECTOR_TERMINAL=true`, enroll the TOTP seed displayed by
+`/usr/local/pfconnector-remote/bin/pfconnector-totp-qrcode` and restart the
+packetfence-pfconnector-remote service. Connectors must be upgraded to this
+version for the terminal to work: the terminal session is now enforced on the
+connector itself.
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]
