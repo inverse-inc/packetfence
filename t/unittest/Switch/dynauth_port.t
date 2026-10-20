@@ -21,7 +21,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 9;
+use Test::More tests => 11;
 use pf::Switch;
 
 #This test will running last
@@ -73,6 +73,20 @@ $use_coa = 1;
 is(aerohive_sent(), 'coa:1701', "AeroHIVE sends its CoA-Request to coaPort");
 $use_coa = 0;
 is(aerohive_sent(), 'disconnect:1700', "AeroHIVE sends its Disconnect-Request to disconnectPort");
+
+# The modules that build their own Disconnect-Request rely on the wrapper for the port
+{
+    my $base = pf::Switch->new({ id => '10.0.0.5', ip => '10.0.0.5', radiusSecret => 'secret', mode => 'production', disconnectPort => 1700, coaPort => 1701 });
+    @sent = ();
+    $base->radiusDisconnect('02:47:49:00:00:02');
+    is(join(' ', map { "$_->[0]:" . ($_->[1]{nas_port} // 'default') } @sent), 'disconnect:1700', "the base radiusDisconnect sends to disconnectPort");
+
+    require pf::Switch::Ruckus::SmartZone;
+    my $smartzone = pf::Switch::Ruckus::SmartZone->new({ id => '10.0.0.6', ip => '10.0.0.6', radiusSecret => 'secret', mode => 'production', disconnectPort => 1700, coaPort => 1701 });
+    @sent = ();
+    $smartzone->radiusDisconnect('02:47:49:00:00:03');
+    is(join(' ', map { "$_->[0]:" . ($_->[1]{nas_port} // 'default') } @sent), 'disconnect:1700', "SmartZone's radiusDisconnect sends to disconnectPort");
+}
 
 =head1 AUTHOR
 
