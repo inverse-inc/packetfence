@@ -79,8 +79,11 @@ authenticates again: its `Online from` time changes in
 
 Read access is used by PacketFence to translate the RADIUS `NAS-Port-Id` into an
 interface index on IRF stacks and to gather interface information. On a
-standalone switch the ifIndex matches the port number, so PacketFence still
-works when SNMP is unreachable.
+standalone switch the ifIndex matches the port number, so SNMP is optional
+there: when it is not configured, set *Use SNMP* to `No` on the switch in
+PacketFence. Leaving it enabled against a switch that does not answer makes
+every RADIUS request wait for the SNMP timeout before PacketFence falls back to
+the port number.
 
   snmp-agent
   snmp-agent community read public
@@ -260,6 +263,22 @@ is not mapped to such a number, or shares it with another role, is not pushed
 and a warning is logged in `packetfence.log`. PushACLs replaces the rules of
 the mapped ACLs: do not map a role to an ACL defined by hand on the switch.
 
+Each ACL is built first as the named ACL `pfstage-<number>`, then swapped in
+with `acl copy`, so the endpoints using it keep the previous rules while it is
+built. The switch applies the new rules to the endpoints already connected. For
+the short time between removing the previous ACL and copying the new one (a
+single CLI command), those endpoints are not filtered.
+
+Unlike Cisco, the switch permits the traffic an authorization ACL does not
+match. PacketFence therefore ends every pushed ACL with `rule deny ip`, unless
+its last line already permits or denies all the traffic. An ACL defined by hand
+must end with `rule deny ip` too, otherwise it only blocks what it denies
+explicitly.
+
+Deleting the switch from PacketFence does not remove the pushed ACLs from it:
+remove them on the switch with `undo acl advanced <number>` if they are no
+longer needed.
+
 Map each child role to its own number as well. A child role without a mapping
 gets the number of its parent role in `Filter-Id`, but only the parent's ACL is
 pushed to that number: the child's own ACL is not.
@@ -278,9 +297,10 @@ ip`. A role whose lines were all skipped gets `rule deny ip` as well.
 
 [NOTE]
 ====
-Old firmware offers only an `ssh-rsa` host key, which modern SSH rejects. The
-generated inventory already passes `HostKeyAlgorithms=+ssh-rsa` (and uses the
-paramiko connection) to get past this.
+Old firmware offers only an `ssh-rsa` host key, which the default OpenSSH
+client rejects. The generated inventory uses the paramiko connection (with
+`look_for_keys` disabled), which accepts it, so nothing has to change on the
+switch.
 
 PacketFence ships its own `packetfence.comware` Ansible collection (a corrected
 Comware terminal + cliconf plugin) for this, because the public `h3c_open.comware`

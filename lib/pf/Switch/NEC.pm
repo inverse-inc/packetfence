@@ -180,6 +180,28 @@ sub pushAclsName {
     return $number;
 }
 
+=item checkRoleACLs
+
+=item checkRolesACLs
+
+The ACLs of a role are enforced through PushACLs rather than sent in the RADIUS
+reply, so they are not reported as unsupported when PushACLs is enabled. Without
+PushACLs they are not enforced and the warning stays.
+
+=cut
+
+sub checkRoleACLs {
+    my ($self, $name, $acls) = @_;
+    return undef if $self->usePushACLs;
+    return $self->SUPER::checkRoleACLs($name, $acls);
+}
+
+sub checkRolesACLs {
+    my ($self, $roles) = @_;
+    return undef if $self->usePushACLs;
+    return $self->SUPER::checkRolesACLs($roles);
+}
+
 =item getVoipVsa
 
 Returns the RADIUS attribute that classifies the session as a voice user.
@@ -332,6 +354,10 @@ silently, since dropping a condition widens a permit:
 
 =item * a role whose lines were all skipped gets C<rule deny ip> rather than nothing
 
+=item * the ACL always ends with C<rule deny ip>: the switch permits the traffic
+an authorization ACL does not match, while PacketFence ACLs, written in Cisco
+syntax, deny it
+
 =back
 
 Not expressed: TCP flags, ICMP types, non contiguous masks, and the C<dscp>,
@@ -403,8 +429,11 @@ sub acl_chewer {
 
     if ($had && !@rules) {
         $logger->warn("(".$self->{'_id'}.") Denying all the traffic of role '$role': none of its ACLs can be translated");
-        push @rules, COMWARE_DENY_ALL;
     }
+    # Comware permits the traffic an authorization ACL does not match: restore
+    # the implicit deny of the Cisco syntax. A final permit or deny of all the
+    # traffic already decides everything, and the switch refuses a duplicate rule.
+    push @rules, COMWARE_DENY_ALL if $had && !(@rules && $rules[-1] =~ /^rule (?:permit|deny) ip$/);
     return join('', map { "$_\n" } @rules);
 }
 
