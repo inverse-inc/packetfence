@@ -13,7 +13,7 @@
         </b-col>
       </b-row>
 
-      <b-form inline @submit.prevent="lookup">
+      <b-form inline @submit.prevent.stop="lookup">
         <b-form-input v-model="name" class="mr-2 flex-grow-1"
           :placeholder="$i18n.t('Hostname to resolve, e.g. dc1.') + (firstDomain || 'example.com')"
         />

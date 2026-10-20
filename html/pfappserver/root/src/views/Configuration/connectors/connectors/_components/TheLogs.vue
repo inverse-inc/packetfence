@@ -31,7 +31,7 @@
       <div class="d-flex align-items-center flex-nowrap mb-2 flex-shrink-0">
         <b-input-group class="mr-1 log-search flex-grow-1" size="sm">
           <b-form-input v-model="filterInput" :placeholder="$t('Filter...')"
-            :class="{ 'is-invalid': filterError }" />
+            :class="{ 'border-danger text-danger': filterError }" />
           <b-input-group-append>
             <b-button :variant="filterIsRegex ? 'secondary' : 'outline-secondary'" @click="filterIsRegex = !filterIsRegex"
               :title="$i18n.t('Regular Expression')" v-b-tooltip.hover.top.d300>.*</b-button>
@@ -43,7 +43,7 @@
         <small v-if="filterQuery && !filterError" class="mx-1 text-nowrap text-muted">{{ events.length }} / {{ bufferLines }}</small>
         <b-input-group class="mr-1 log-search flex-grow-1" size="sm">
           <b-form-input v-model="searchInput" :placeholder="$t('Find...')"
-            :class="{ 'is-invalid': searchError }"
+            :class="{ 'border-danger text-danger': searchError }"
             @keydown.enter.exact.prevent="onSearchNext"
             @keydown.enter.shift.prevent="onSearchPrev" />
           <b-input-group-append>
