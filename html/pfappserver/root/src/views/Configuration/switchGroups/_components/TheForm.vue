@@ -469,6 +469,10 @@
         <form-group-web-services-pwd namespace="wsPwd"
                                      :column-label="$i18n.t('Password')"
         />
+        <form-group-web-services-verify-certificate namespace="wsVerifyCertificate"
+                                                    :column-label="$i18n.t('Verify Certificate')"
+                                                    :text="$i18n.t('Verify the certificate of the controller when the transport is HTTPS. The certificate must be issued by a trusted certificate authority for the controller address. When disabled, the certificate is not checked, which allows self-signed certificates.')"
+        />
 
       </base-form-tab>
       <base-form-tab :title="$i18n.t('ACLs')" v-if="supports(['PushACLs', 'DownloadableListBasedEnforcement'])">
@@ -660,6 +664,7 @@ import {
   FormGroupWebServicesPwd,
   FormGroupWebServicesTransport,
   FormGroupWebServicesUser,
+  FormGroupWebServicesVerifyCertificate,
 
   InputRoleMapNetwork,
   InputToggleNetworkFrom,
@@ -748,6 +753,7 @@ const components = {
   FormGroupWebServicesPwd,
   FormGroupWebServicesTransport,
   FormGroupWebServicesUser,
+  FormGroupWebServicesVerifyCertificate,
 
   InputRoleMapNetwork,
   InputToggleNetworkFrom,
