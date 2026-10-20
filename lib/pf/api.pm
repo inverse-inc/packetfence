@@ -1168,7 +1168,10 @@ sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $userna
         stripped_user_name => $stripped_user,
         realm => $node_info->{'realm'},
         context => $pf::constants::realm::RADIUS_CONTEXT,
+        mac => $postdata{'mac'},
     };
+    # Like the 802.1X/MAB role computation (pf::role::_connection_params)
+    $params->{'computer_name'} = $node_info->{'computername'} if defined $node_info->{'computername'};
 
     my $matched = pf::authentication::match2([@sources], $params);
     unless ($matched) {
