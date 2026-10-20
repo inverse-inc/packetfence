@@ -30,6 +30,9 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - CoA and Disconnect requests can use attributes from a local RADIUS dictionary, `conf/radiusd/dictionary.local` (FreeRADIUS format), for vendor attributes PacketFence doesn't ship (e.g. `Extreme-Dynamic-Config`) (#8627)
 
   - New `switch_cache_ifindex` maintenance task (enabled, every 12h) that keeps the cached `ifDescr` table of the Cisco IOS, Arista, Aruba and 3Com switches warm, so a wired RADIUS request no longer waits for the SNMP walk that translates its NAS-Port-Id into an ifIndex. Only the switches that already translated one are walked: the first request to a switch whose table is not cached yet, such as a new switch, still waits for the walk (#7380)
+
+  - Per-switch port host mode — new `host_mode` parameter on switches and switch groups (`single-host`, `multi-host`, `multi-auth`, `multi-domain`). In `multi-auth`, several endpoints authenticate independently on the same port: PacketFence keeps one locationlog entry per MAC and deauthenticates each endpoint with a per-session CoA/Disconnect instead of bouncing the port
+
 === Enhancements
 
   - LDAP sources: the username lookup used to evaluate the "matches regexp" and "is member of" conditions now runs once per authentication instead of once per rule (#9273)
@@ -55,6 +58,9 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - RADIUS: for MAB and PAP requests, when the post-auth REST call to httpd.aaa fails (unreachable, timeout, 5xx) radiusd no longer answers with an Access-Reject but leaves the request unanswered, logging a "NoResponse" row in the RADIUS audit log. An Access-Reject tore down sessions the switch had already authorized on every httpd.aaa restart. EAP requests keep the Reject (the EAP conversation cannot be resumed on retransmit). Note: a NAS counts unanswered requests towards its dead-server criteria, so a stalled PacketFence now triggers the switch's fail-over behaviour (e.g. Cisco critical-auth) instead of de-authorizing ports
   - RADIUS: /radius/rest/authorize now answers 503 instead of 401 when the request could not be evaluated (database unavailable, handler exception), so radiusd treats it as a failure rather than a deny; a database outage no longer turns every reauthentication into an Access-Reject
   - Inline: pfipset no longer fails to start (`FATAL: ipset restore failed`) on layer 2 inline networks with registered or isolated nodes. The inline sets are now pre-populated in the format of their set type, entries for missing sets are skipped, and a failed pre-population is logged instead of stopping the service (#9339)
+
+  - Access re-evaluation no longer fails on a port shared by several authenticated endpoints. A second endpoint authenticating on the port used to close the other endpoints' locationlog entries, after which `pf::enforcement::reevaluate_access` logged "Can't re-evaluate access because no open locationlog entry was found" and never sent their CoA. Set `host_mode=multi-auth` on the switch to keep per-endpoint entries
+  - Removed the `advanced.multihost` configuration parameter, which had no effect since the admin UI rewrite: its only consumer was the old Catalyst node view, along with the unused `pf::node::check_multihost` helper. It is replaced by the per-switch `host_mode`
 
 === Security Fixes
 

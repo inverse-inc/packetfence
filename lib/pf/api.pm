@@ -330,9 +330,9 @@ sub unreg_node_for_pid : Public:AllowedAsAction(pid, $pid) {
 }
 
 sub synchronize_locationlog : Public {
-    my ( $class, $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc, $switch_id) = @_;
+    my ( $class, $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc, $switch_id, $multi_auth) = @_;
 
-    return (pf::locationlog::locationlog_synchronize($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc, $switch_id));
+    return (pf::locationlog::locationlog_synchronize($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc, $switch_id, $multi_auth));
 }
 
 sub open_iplog : Public {
@@ -390,9 +390,15 @@ sub ReAssignVlan : Public : Fork {
         _reassignSNMPConnections($switch, $postdata->{'mac'}, $postdata->{'ifIndex'}, $postdata->{'connection_type'} );
     }
     elsif ( $postdata->{'connection_type'} & $pf::config::WIRED) {
-        my ( $switchdeauthMethod, $deauthTechniques )
-            = $switch->wiredeauthTechniques( $switch->{_deauthMethod}, $postdata->{'connection_type'} );
-        $switch->$deauthTechniques( $postdata->{'ifIndex'}, $postdata->{'mac'} );
+        # Honours the switch host mode: a multi-auth port gets a per-session RADIUS
+        # CoA/Disconnect instead of a port bounce that would drop its other endpoints.
+        my $deauthTechnique = $switch->wiredReevaluationDeauthTechnique( $postdata->{'connection_type'} );
+        unless (defined $deauthTechnique) {
+            $logger->error("Could not reassign VLAN of $postdata->{'mac'} on ifIndex $postdata->{'ifIndex'} of switch ".$switch->{'_id'}.": no deauthentication technique");
+            return;
+        }
+        $logger->debug("reassigning VLAN of $postdata->{'mac'} on ifIndex $postdata->{'ifIndex'} of switch ".$switch->{'_id'}." with $deauthTechnique");
+        $switch->$deauthTechnique( $postdata->{'ifIndex'}, $postdata->{'mac'} );
     }
     else {
         $logger->error("Connection type is not wired. Could not reassign VLAN.");
