@@ -1234,6 +1234,12 @@ zone have them, and about the interfaces defined for no server:
 /usr/local/pf/bin/pfcmd checkup
 ----
 
+=== Kickbox source calls api.kickbox.com
+
+The Kickbox authentication source now calls `https://api.kickbox.com` (the host
+documented by Kickbox) instead of `https://api.kickbox.io`. If outbound traffic
+from PacketFence is filtered, allow HTTPS to `api.kickbox.com`.
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]

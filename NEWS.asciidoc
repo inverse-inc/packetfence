@@ -116,9 +116,13 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
   - Filters: the `date is before`/`date is after` operators accept `now` (or an empty value) for the time of the evaluation and `YYYY-MM-DD` dates, as well as `YYYY-MM-DD HH:MM:SS` and `YYYY-MM-DD HH:MM`. An unset date (for example the `node_info.unregdate` of a node without an expiration) no longer makes the evaluation fail and never matches, also with the `is not before`/`is not after` operators. A rule with a date in another format now fails to build (logged when the filters are loaded, and listed by `pfcmd checkup`), see the upgrade notes
 
+  - Kickbox source: calls the documented `https://api.kickbox.com` instead of `https://api.kickbox.io`. An IP allow-list set up on the Kickbox side only works with the documented host. Outbound filters must allow `api.kickbox.com`
+
 === Security Fixes
 
   - Email: when STARTTLS is selected and fails (refused by the server, handshake or certificate error), sending now fails with the error instead of continuing in cleartext, which also sent the SMTP username and password unencrypted. Setups that select STARTTLS against a server that doesn't support it will now get "SMTP STARTTLS failed on <server>: <error>"; select the encryption the server supports
+
+  - Kickbox source: the API key was written to packetfence.log at INFO level (as part of the request URL). The log line now shows only the host and the e-mail address
 
 == Version 15.2.0 released on 2026-08-24
 
