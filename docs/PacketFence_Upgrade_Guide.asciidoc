@@ -979,6 +979,11 @@ if (!PacketFence-Domain) {
 packetfence-mschap-authenticate
 ----
 
+Leave it out if `advanced.disable_pf_domain_auth` is enabled. The packaged
+file now honors this setting for its three calls of `packetfence-multi-domain`
+(this one, the MS-CHAP lookup in `authorize` and the degraded tunnel), like
+`packetfence-tunnel` already did.
+
 and restart the RADIUS authentication servers:
 
 [source,bash]
