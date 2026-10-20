@@ -26,7 +26,7 @@ use pf::ConfigStore::Provisioning;
 use Utils;
 my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Provisioning");
 
-use Test::More tests => 105;
+use Test::More tests => 117;
 use Test::Mojo;
 
 #This test will running last
@@ -176,6 +176,42 @@ $t->post_ok($collection_base_url => json => {
     url      => 'https://mdm.example.com/api/v1/devices?token=abc$def',
     jq_query => '.status == "enrolled"',
 })->status_is(422);
+
+# an unknown template function is rejected at save time
+$t->post_ok($collection_base_url => json => {
+    type     => 'generic_http',
+    id       => "id_generic_http_badfunc_$$",
+    url      => 'https://mdm.example.com/api/v1/devices',
+    body     => '{"owner": ${nope($node.pid)}}',
+    jq_query => '.status == "enrolled"',
+})->status_is(422);
+
+# a static header name that is not an HTTP token is rejected at save time
+$t->post_ok($collection_base_url => json => {
+    type     => 'generic_http',
+    id       => "id_generic_http_badheader_$$",
+    url      => 'https://mdm.example.com/api/v1/devices',
+    headers  => 'Bad Header: value',
+    jq_query => '.status == "enrolled"',
+})->status_is(422);
+
+# json_quote() and url_quote() escape the values they are given
+my $escape_id = "id_generic_http_escape_$$";
+$t->post_ok($collection_base_url => json => {
+    type     => 'generic_http',
+    id       => $escape_id,
+    url      => 'https://mdm.example.com/api/v1/devices?user=${url_quote($node.pid)}',
+    body     => '{"user": ${json_quote($node.pid)}}',
+    jq_query => '.status == "enrolled"',
+})->status_is(201);
+
+$t->get_ok("$base_url/$escape_id")
+  ->status_is(200)
+  ->json_is('/item/url', 'https://mdm.example.com/api/v1/devices?user=${url_quote($node.pid)}')
+  ->json_is('/item/body', '{"user": ${json_quote($node.pid)}}');
+
+$t->delete_ok("$base_url/$escape_id")
+  ->status_is(200);
 
 # a jq query that does not compile is rejected on update
 $t->patch_ok("$base_url/$bracket_id" => json => {

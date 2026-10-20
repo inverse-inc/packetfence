@@ -77,7 +77,8 @@ has method => (is => 'rw', default => 'GET');
 
 =head2 url
 
-The URL of the request (a pf::mini_template template)
+The URL of the request (a pf::mini_template template). The C<url_quote>
+template function percent-encodes a value inserted into it.
 
 =cut
 
@@ -86,7 +87,10 @@ has url => (is => 'rw', required => $TRUE);
 =head2 headers
 
 The headers of the request, one "Name: value" per line.
-Both the name and the value are pf::mini_template templates.
+Both the name and the value are pf::mini_template templates. The rendered name
+must be an HTTP token and the rendered value cannot contain a control
+character other than tab, so a value coming from a node cannot inject a
+header.
 
 =cut
 
@@ -95,7 +99,8 @@ has headers => (is => 'rw', default => '');
 =head2 body
 
 The body of the request (a pf::mini_template template).
-Only sent for POST, PUT and PATCH requests.
+Only sent for POST, PUT and PATCH requests. The C<json_quote> template
+function escapes a value inserted into a JSON body.
 
 =cut
 
@@ -351,6 +356,31 @@ sub make_vars {
     return $vars;
 }
 
+=head2 valid_header_name
+
+Whether a rendered header name is an HTTP token, as RFC 7230 defines it. The
+name is a template, so a value coming from a node attribute ends up here.
+
+=cut
+
+sub valid_header_name {
+    my ($name) = @_;
+    return defined $name && $name =~ /\A[!#\$%&'*+\-.^_`|~0-9A-Za-z]+\z/;
+}
+
+=head2 valid_header_value
+
+Whether a rendered header value can be sent as is. A value cannot contain a
+control character, apart from the horizontal tab RFC 7230 allows; anything
+else would fold into the next header or split the request.
+
+=cut
+
+sub valid_header_value {
+    my ($value) = @_;
+    return !defined $value || $value !~ /[\x00-\x08\x0A-\x1F\x7F]/;
+}
+
 =head2 make_request
 
 Build the HTTP::Request from the configured templates.
@@ -373,8 +403,19 @@ sub make_request {
         # any repeat of that same name is appended rather than overwriting it.
         my %seen;
         for my $h (@{ $self->header_tmpls }) {
-            my $name  = $h->[0]->process($vars);
-            my $value = $h->[1]->process($vars);
+            my $name  = $h->[0]->process($vars) // '';
+            my $value = $h->[1]->process($vars) // '';
+            # The name and value can come from a node attribute, so a value
+            # with a line break would otherwise inject a header or fold into
+            # the next one.
+            if (!valid_header_name($name)) {
+                die "invalid header name\n";
+            }
+
+            if (!valid_header_value($value)) {
+                die "invalid value for header '$name'\n";
+            }
+
             if ($seen{lc $name}++) {
                 $r->push_header($name, $value);
             } else {
