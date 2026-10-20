@@ -15,6 +15,7 @@ pf::UnifiedApi::Controller::RestRoute
 use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller';
+use pf::ConfigStore;
 
 sub list {
     my ($self) = @_;
@@ -54,6 +55,35 @@ sub replace {
 sub search {
     my ($self) = @_;
     return $self->render_error(404, "Unimplemented");
+}
+
+my %WRITE_METHODS = (POST => 1, PUT => 1, PATCH => 1, DELETE => 1);
+
+# Actions sent with a write method that only read the config
+my %READ_ONLY_ACTIONS = (search => 1);
+
+=head2 lock_config_store
+
+Lock the config file of the store for the lifetime of the store during a write request,
+so concurrent writers do not overwrite each other's changes.
+Dies with a pf::ConfigStore::LockTimeout (rendered as a 503) when another writer
+keeps the file locked.
+Read-only actions sent with a write method (search is a POST) don't lock.
+
+The lock is a flock on the server (or container) handling the request: it
+serializes the API writes made on that server.
+
+=cut
+
+sub lock_config_store {
+    my ($self, $cs) = @_;
+    return unless $WRITE_METHODS{$self->req->method};
+    return if $READ_ONLY_ACTIONS{$self->stash->{action} // ''};
+    my $locked = $cs->lock_config;
+    if (defined $locked && !$locked) {
+        die pf::ConfigStore::LockTimeout->new(file => $cs->configFile);
+    }
+    return $locked;
 }
 
 =head1 AUTHOR
