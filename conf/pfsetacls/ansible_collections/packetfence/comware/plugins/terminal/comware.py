@@ -28,6 +28,8 @@ class TerminalModule(TerminalBase):
         re.compile(to_bytes(r"% ?Ambiguous command")),
         re.compile(to_bytes(r"% ?Too many parameters")),
         re.compile(to_bytes(r"% ?Unavailable command")),
+        # acl copy refuses an existing target: the ACL would keep its old rules
+        re.compile(to_bytes(r"The target ACL already exists")),
     ]
 
     terminal_config_prompt = re.compile(r"^\[.+\]$")

@@ -22,11 +22,12 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 35;
+use Test::More tests => 41;
 use pf::constants;
 use pf::config qw($WIRED_802_1X $WIRED_MAC_AUTH);
 use pf::Switch::constants;
 use pf::Switch::NEC::QX_S;
+use pf::error::switch;
 
 #This test will running last
 use Test::NoWarnings;
@@ -56,13 +57,13 @@ ok($switch->can('deauthenticateMacRadius'), "the deauthentication method is impl
 
 sub chew { my ($acl) = @_; return $switch->acl_chewer($acl, 'testrole') }
 
-is(chew("permit tcp any host 10.0.0.1 eq 443"), "rule permit tcp destination 10.0.0.1 0 destination-port eq 443\n", "host destination and eq port");
-is(chew("permit ip 10.1.0.0 0.0.255.255 10.2.0.0 0.0.0.255"), "rule permit ip source 10.1.0.0 0.0.255.255 destination 10.2.0.0 0.0.0.255\n", "source and destination wildcards");
-is(chew("permit tcp any any range 100 200"), "rule permit tcp destination-port range 100 200\n", "a port range");
-is(chew("permit udp any eq bootpc any eq bootps"), "rule permit udp source-port eq 68 destination-port eq 67\n", "Cisco port names become port numbers");
-is(chew("permit 47 any any"), "rule permit 47\n", "a protocol number is kept");
+is(chew("permit tcp any host 10.0.0.1 eq 443"), "rule permit tcp destination 10.0.0.1 0 destination-port eq 443\nrule deny ip\n", "host destination and eq port");
+is(chew("permit ip 10.1.0.0 0.0.255.255 10.2.0.0 0.0.0.255"), "rule permit ip source 10.1.0.0 0.0.255.255 destination 10.2.0.0 0.0.0.255\nrule deny ip\n", "source and destination wildcards");
+is(chew("permit tcp any any range 100 200"), "rule permit tcp destination-port range 100 200\nrule deny ip\n", "a port range");
+is(chew("permit udp any eq bootpc any eq bootps"), "rule permit udp source-port eq 68 destination-port eq 67\nrule deny ip\n", "Cisco port names become port numbers");
+is(chew("permit 47 any any"), "rule permit 47\nrule deny ip\n", "a protocol number is kept");
 is(chew("deny ip any any"), "rule deny ip\n", "deny any any");
-is(chew("in|permit ip any host 8.8.8.8\nout|permit ip host 8.8.8.8 any"), "rule permit ip destination 8.8.8.8 0\n", "the in prefix is removed and the outbound ACLs, never enforced by the switch, are dropped");
+is(chew("in|permit ip any host 8.8.8.8\nout|permit ip host 8.8.8.8 any"), "rule permit ip destination 8.8.8.8 0\nrule deny ip\n", "the in prefix is removed and the outbound ACLs, never enforced by the switch, are dropped");
 is(chew("out|deny ip any host 8.8.8.8"), "", "a role with only outbound ACLs gets no ACL");
 
 # a qualifier the rule does not carry would widen a permit: the line is skipped
@@ -77,7 +78,7 @@ foreach my $acl (
     "permit tcp any any eq 22 option 7",
     "permit ip any 10.0.0.0 0.255.0.255",
 ) {
-    is(chew("$acl\npermit ip any host 8.8.8.8"), "rule permit ip destination 8.8.8.8 0\n", "skipped, never widened: $acl");
+    is(chew("$acl\npermit ip any host 8.8.8.8"), "rule permit ip destination 8.8.8.8 0\nrule deny ip\n", "skipped, never widened: $acl");
 }
 
 # a deny that cannot be translated ends the ACLs of its direction with a deny all
@@ -92,6 +93,12 @@ is(
 
 is(chew("permit tcp any any established"), "rule deny ip\n", "a role whose ACLs are all skipped is denied everything");
 is(chew("#permit ip any any\nremark nothing"), "", "a role without any ACL line still gets no ACL");
+
+# the switch permits what an authorization ACL does not match: the ACL always
+# ends with a deny all, unless it already ends with a rule matching everything
+
+is(chew("permit udp any any eq 53\npermit ip any any"), "rule permit udp destination-port eq 53\nrule permit ip\n", "no deny all after a permit all");
+is(chew("permit udp any any eq 53\ndeny ip any any"), "rule permit udp destination-port eq 53\nrule deny ip\n", "a final deny all is not duplicated");
 
 # PushACLs: the ACLs of a role are pushed as the advanced ACL the role is
 # mapped to, and Filter-Id carries its number. Comware reads a name as a user
@@ -114,6 +121,21 @@ is_deeply([$push->returnRoleAttributes('guest')], ['Filter-Id', '3101'], "PushAC
 is_deeply([$push->returnRoleAttributes('default')], ['Filter-Id', 'profile1'], "PushACLs: any other mapping is sent as is");
 is_deeply([$push->returnRoleAttributes('3101')], ['Filter-Id', '3101'], "PushACLs: a value that is already the mapping is kept");
 is_deeply([$switch->returnRoleAttributes('guest')], ['Filter-Id', 'guest'], "without PushACLs the role is sent unchanged");
+
+# checkRoleACLs / checkRolesACLs: ACLs pushed by PushACLs are not reported as unsupported
+
+{
+    my $push = pf::Switch::NEC::QX_S->new({ id => 'test', ip => '1.1.1.1', UsePushACLs => 'Y', SNMPUseConnector => "N", radiusDeauthUseConnector => "N" });
+    my $roles = { guest => { acls => ['permit ip any any'] } };
+    is($push->checkRoleACLs('guest', ['permit ip any any']), undef, "with PushACLs a role with ACLs gets no warning");
+    is($push->checkRolesACLs($roles), undef, "with PushACLs the roles with ACLs get no warning");
+    is(
+        $switch->checkRoleACLs('guest', ['permit ip any any'])->{code},
+        $pf::error::switch::ACLsNotSupportedErrCode,
+        "without PushACLs the ACLs are reported as not supported"
+    );
+    is(scalar(@{$switch->checkRolesACLs($roles)}), 1, "without PushACLs the roles with ACLs are reported");
+}
 
 =head1 AUTHOR
 
