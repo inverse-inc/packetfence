@@ -21,6 +21,7 @@ BEGIN {
 }
 
 use Test::More tests => 10;
+use File::Basename qw(basename);
 use pf::file_paths qw(
     $tls_config_file
     $ocsp_config_file
@@ -36,13 +37,15 @@ use pf::file_paths qw(
 #This test will running last
 use Test::NoWarnings;
 
-# The export and the import of the configuration use stored_config_files (#9003)
-my %stored = map { $_ => 1 } @pf::file_paths::stored_config_files;
+# The export and the import of the configuration use stored_config_files (#9003).
+# Compared by file name: in the tests some of these paths point to t/data,
+# set after stored_config_files was built with the conf/ ones.
+my %stored = map { basename($_) => 1 } @pf::file_paths::stored_config_files;
 # The other configuration files edited from the admin, which an import used to lose too
 for my $file ($tls_config_file, $ocsp_config_file, $eap_config_file, $fast_config_file,
     $dns_connectors_config_file, $domains_connectors_config_file, $billing_tiers_config_file,
     $event_loggers_config_file, $provisioning_filters_config_file) {
-    ok($stored{$file}, "$file is exported and imported");
+    ok($stored{basename($file)}, basename($file) . " is exported and imported");
 }
 
 =head1 AUTHOR
