@@ -174,7 +174,7 @@ const NODE_TLS_COLUMN_COUNT = 19
 		radius_reply, request_time, radius_ip
    )\
      VALUES \
-     ( '%{request:Calling-Station-Id}', '%{request:Framed-IP-Address}', '%{%{control:PacketFence-Computer-Name}:-N/A}', '%{request:User-Name}',\
+     ( '%{request:Calling-Station-Id}', '%{request:Framed-IP-Address}', '%{%{control:PacketFence-Computer-Name}:-N/A}', '%{%{control:PacketFence-UserName}:-%{request:User-Name}}',\
        '%{request:Stripped-User-Name}', '%{request:Realm}', 'Radius-Access-Request',\
        '%{%{control:PacketFence-Switch-Id}:-N/A}', '%{%{control:PacketFence-Switch-Mac}:-N/A}', '%{%{control:PacketFence-Switch-Ip-Address}:-N/A}',\
        '%{Packet-Src-IP-Address}', '%{request:Called-Station-Id}', '%{request:Calling-Station-Id}',\
