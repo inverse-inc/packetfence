@@ -13,12 +13,16 @@ import (
 // An Accounting-Request signed with the switch secret, like a Junos switch
 // sends it: no NAS-IP-Address (#9208).
 func junosAccountingRequest(t *testing.T, secret string) []byte {
+	return junosAccountingRequestWithStatus(t, secret, rfc2866.AcctStatusType_Value_Start)
+}
+
+func junosAccountingRequestWithStatus(t *testing.T, secret string, status rfc2866.AcctStatusType) []byte {
 	t.Helper()
 	p := radius.New(radius.CodeAccountingRequest, []byte(secret))
 	rfc2865.UserName_SetString(p, "024a554e4902")
 	rfc2865.CallingStationID_SetString(p, "02-4a-55-4e-49-02")
 	rfc2865.CalledStationID_SetString(p, "d0-81-c5-2d-fd-00")
-	rfc2866.AcctStatusType_Set(p, rfc2866.AcctStatusType_Value_Start)
+	rfc2866.AcctStatusType_Set(p, status)
 	rfc2866.AcctSessionID_SetString(p, "8O2.1x8198000400085a8b")
 	raw, err := p.Encode()
 	if err != nil {
@@ -57,7 +61,7 @@ func TestCheckAuthenticator(t *testing.T) {
 
 func TestSwitchFromEndpointCache(t *testing.T) {
 	h := &PfAcct{EndpointSwitchCache: cache.New(5*time.Minute, 10*time.Minute)}
-	raw := junosAccountingRequest(t, "switch-secret")
+	raw := junosAccountingRequestWithStatus(t, "switch-secret", rfc2866.AcctStatusType_Value_InterimUpdate)
 	attrs, err := radius.ParseAttributes(raw[20:])
 	if err != nil {
 		t.Fatalf("parse attributes: %s", err)
@@ -82,5 +86,37 @@ func TestSwitchFromEndpointCache(t *testing.T) {
 	}
 	if _, found := h.EndpointSwitchCache.Get(endpoint); found {
 		t.Fatal("a cached switch whose secret does not validate must be evicted")
+	}
+
+	// An Accounting-Start follows a new authentication, maybe on another switch
+	// sharing the secret: the cache is not used, the switch is resolved again
+	h.EndpointSwitchCache.Set(endpoint, &SwitchInfo{Secret: "switch-secret", NasIP: "192.0.2.19"}, cache.DefaultExpiration)
+	start := junosAccountingRequest(t, "switch-secret")
+	startAttrs, err := radius.ParseAttributes(start[20:])
+	if err != nil {
+		t.Fatalf("parse attributes: %s", err)
+	}
+	if _, ok := h.switchFromEndpointCache(startAttrs, start, false); ok {
+		t.Fatal("an Accounting-Start must not be identified from the cache")
+	}
+	if _, ok := h.switchFromEndpointCache(attrs, raw, false); !ok {
+		t.Fatal("the entry is kept for the next packets until the location replaces it")
+	}
+}
+
+func TestIsAccountingStart(t *testing.T) {
+	for status, want := range map[rfc2866.AcctStatusType]bool{
+		rfc2866.AcctStatusType_Value_Start:         true,
+		rfc2866.AcctStatusType_Value_InterimUpdate: false,
+		rfc2866.AcctStatusType_Value_Stop:          false,
+	} {
+		raw := junosAccountingRequestWithStatus(t, "switch-secret", status)
+		attrs, err := radius.ParseAttributes(raw[20:])
+		if err != nil {
+			t.Fatalf("parse attributes: %s", err)
+		}
+		if got := isAccountingStart(attrs); got != want {
+			t.Fatalf("status %d: got %v, want %v", status, got, want)
+		}
 	}
 }

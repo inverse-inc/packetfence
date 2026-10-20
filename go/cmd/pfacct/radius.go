@@ -1172,6 +1172,16 @@ func (h *PfAcct) checkAuthenticator(raw []byte, info *SwitchInfo, viaConnector b
 var errNoSwitch = errors.New("no switch found for the request")
 
 // callingStationMac returns the endpoint MAC of the request (Calling-Station-Id).
+// isAccountingStart reports whether the request is an Accounting-Start
+func isAccountingStart(attrs radius.Attributes) bool {
+	attr, ok := attrs.Lookup(rfc2866.AcctStatusType_Type)
+	if !ok {
+		return false
+	}
+	status, err := radius.Integer(attr)
+	return err == nil && rfc2866.AcctStatusType(status) == rfc2866.AcctStatusType_Value_Start
+}
+
 func callingStationMac(attrs radius.Attributes) (string, bool) {
 	attr, ok := attrs.Lookup(rfc2865.CallingStationID_Type)
 	if !ok {
@@ -1192,6 +1202,14 @@ func callingStationMac(attrs radius.Attributes) (string, bool) {
 // and looked up again.
 func (h *PfAcct) switchFromEndpointCache(attrs radius.Attributes, raw []byte, viaConnector bool) (*SwitchInfo, bool) {
 	if h.EndpointSwitchCache == nil {
+		return nil, false
+	}
+
+	// An Accounting-Start follows a new authentication, possibly on another
+	// switch: resolve it again from the location instead. The authenticator
+	// check below does not catch a move between switches sharing a secret, or
+	// connector traffic, which is always signed with the unified secret.
+	if isAccountingStart(attrs) {
 		return nil, false
 	}
 
@@ -1217,8 +1235,10 @@ func (h *PfAcct) switchFromEndpointCache(attrs radius.Attributes, raw []byte, vi
 // switchFromEndpointLocation identifies the NAS of an accounting request that
 // carries no NAS-IP-Address from the switch where its Calling-Station-Id was
 // last authenticated (locationlog.switch_ip). The candidate is only returned if
-// the packet authenticator validates with its secret, so a wrong guess is
-// rejected exactly like an unknown source.
+// the packet authenticator validates with its secret. That rejects a wrong
+// guess only when the switches have distinct secrets: with a secret shared by
+// several switches, or for connector traffic (signed with the unified secret),
+// any candidate validates and the location alone decides.
 func (h *PfAcct) switchFromEndpointLocation(attrs radius.Attributes, raw []byte, viaConnector bool) (*SwitchInfo, bool) {
 	endpoint, ok := callingStationMac(attrs)
 	if !ok {
