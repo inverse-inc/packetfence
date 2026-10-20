@@ -88,6 +88,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
   - The node field `last_arp`, never set by PacketFence, is removed from the admin UI, the filter field lists, the default reports Node::Active, Node::Inactive, Node::Registered::{Active,All} and Node::Unregistered::{Active,All}, and `pfcmd node view`. Exports of these reports lose that column. The database column is kept (#5756)
 
+  - Apple provisioning with EAP-PEAP: the RADIUS server certificate is no longer installed as a trusted root. The profile installs the provisioner's "RADIUS server CA path" certificate as a trusted root instead, and the network trusts both, limited to the RADIUS server name, so a renewed server certificate keeps working (#3432)
+
 === Security Fixes
 
 == Version 15.2.0 released on 2026-08-24
