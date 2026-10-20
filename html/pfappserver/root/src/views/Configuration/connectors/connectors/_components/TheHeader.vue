@@ -72,12 +72,11 @@ export const setup = props => {
   const remote = inject('connectorRemote')
   const { goToTab, goToDns } = inject('connectorTabs')
   const {
-    canRead,
     status,
     isConnected
   } = remote
 
-  const isLive = computed(() => !!props.id && !props.isNew && !props.isClone && canRead.value)
+  const isLive = computed(() => !!props.id && !props.isNew && !props.isClone)
 
   const tunnelLabel = computed(() => {
     if (!status.value)

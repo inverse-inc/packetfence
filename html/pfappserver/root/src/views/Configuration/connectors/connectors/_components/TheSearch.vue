@@ -1,23 +1,22 @@
 <template>
   <b-card no-body>
-    <b-card-header>
-      <h4 class="d-flex align-items-center mb-0">
-        {{ $t('Cloud Connectors') }}
-        <small v-if="lastRefresh" class="ml-auto text-muted connector-fleet-updated">
-          {{ $t('Updated') }} <timeago :datetime="lastRefresh" :auto-update="60" :locale="$i18n.locale" />
-          <b-button size="sm" variant="outline-secondary" class="ml-2" :disabled="isRemoteLoading" @click="onRefresh"
-            v-b-tooltip.hover.left.d300 :title="$t('Refresh status and versions (status refreshes every 10 seconds)')">
-            <icon name="sync" :spin="isRemoteLoading" />
-          </b-button>
-        </small>
-      </h4>
+    <b-card-header class="d-flex align-items-center">
+      <h4 class="mb-0">{{ $t('Cloud Connectors') }}</h4>
+      <small v-if="lastRefresh" class="ml-auto text-muted">
+        {{ $t('Updated') }} <timeago :datetime="lastRefresh" :auto-update="60" :locale="$i18n.locale" />
+      </small>
+      <b-button size="sm" variant="outline-secondary" class="ml-2" :class="{ 'ml-auto': !lastRefresh }" :disabled="isRemoteLoading" @click="onRefresh"
+        v-b-tooltip.hover.left.d300 :title="$t('Refresh status and versions (status refreshes every 10 seconds)')">
+        <icon name="sync" :spin="isRemoteLoading" />
+      </b-button>
     </b-card-header>
     <div class="card-body">
       <b-row class="mb-3">
         <b-col md="4">
           <b-card class="h-100">
             <small class="text-muted">{{ $t('Cloud connectors') }}</small>
-            <h4 class="mb-0">{{ items.length }} <small class="text-muted">{{ $t('{count} connected', { count: summary.up }) }}</small></h4>
+            <h4 class="mb-0">{{ items.length }}</h4>
+            <small class="text-muted">{{ $t('configured') }}</small>
           </b-card>
         </b-col>
         <b-col md="4">
@@ -32,14 +31,12 @@
         </b-col>
         <b-col md="4">
           <b-card class="h-100">
-            <small class="text-muted">{{ $t('Updates') }}</small>
-            <h4 class="mb-0">
-              {{ summary.behind }}
-              <small class="text-muted">
-                <template v-if="summary.central">{{ $t('of {count} reporting connectors behind {version}', { count: summary.reporting, version: summary.central }) }}</template>
-                <template v-else>{{ $t('of {count} reporting connectors', { count: summary.reporting }) }}</template>
-              </small>
-            </h4>
+            <small class="text-muted">{{ $t('Updates available') }}</small>
+            <h4 class="mb-0">{{ summary.behind }}</h4>
+            <small class="text-muted">
+              <template v-if="summary.central">{{ $t('behind PacketFence {version}, out of {count} connector(s) reporting a version', { count: summary.reporting, version: summary.central }) }}</template>
+              <template v-else>{{ $t('out of {count} connector(s) reporting a version', { count: summary.reporting }) }}</template>
+            </small>
           </b-card>
         </b-col>
       </b-row>
@@ -80,6 +77,10 @@
         </template>
         <template v-slot:cell(fingerbank_environment)="{ item }">
           <span class="text-monospace small">{{ (item.fingerbank_environment || []).join(', ') }}</span>
+        </template>
+        <template v-slot:cell(connected)="{ item }">
+          <icon name="circle" :class="`text-${statusVariant(item.status)}`"
+            v-b-tooltip.hover.top.d300 :title="`${statusLabel(item.status)}: ${statusTooltip(item.status)}`" />
         </template>
         <template v-slot:cell(status)="data">
           <b-badge :variant="statusVariant(data.item.status)"
