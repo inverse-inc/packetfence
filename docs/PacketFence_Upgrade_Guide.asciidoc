@@ -1154,6 +1154,16 @@ rules yourself. When it is enabled again, the `packetfence-iptables` and
 `packetfence-ip6tables` services apply the rules within about 30 seconds,
 without a restart.
 
+=== Scan engines limited to roles and nodes without a role
+
+A node without a role, such as an unregistered device scanned before
+registration, is now considered to have the `default` role when choosing the
+scan engine. Before, it matched every scan engine, including the ones limited
+to other roles.
+
+If a scan engine has *Roles* set and *Scan before registration* enabled, add
+the `default` role to it to keep scanning the devices before registration.
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]

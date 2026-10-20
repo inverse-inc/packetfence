@@ -90,6 +90,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
   - Apple provisioning with EAP-PEAP: the RADIUS server certificate is no longer installed as a trusted root. The profile installs the provisioner's "RADIUS server CA path" certificate as a trusted root instead, and the network trusts both, limited to the RADIUS server name, so a renewed server certificate keeps working (#3432)
 
+  - Scan engines limited to roles no longer scan nodes without a role (ex: before registration): such a node is considered to have the `default` role. Add the `default` role to the engine to keep scanning devices before registration (#5575)
+
 === Security Fixes
 
 == Version 15.2.0 released on 2026-08-24
