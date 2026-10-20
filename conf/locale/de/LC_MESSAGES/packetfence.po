@@ -2107,7 +2107,9 @@ msgstr ""
 msgid ""
 "You're not connected to the network, but have a timebank of <strong "
 "id='timeleft'>%s</strong>"
-msgstr "Sie sind nicht mit dem Netzwerk verbunden, aber sie haben ein Zeitguthaben von "
+msgstr ""
+"Sie sind nicht mit dem Netzwerk verbunden, aber Sie haben ein Zeitguthaben von "
+"<strong id='timeleft'>%s</strong>"
 
 # html/captive-portal/templates/status.html
 msgid "Your WPA Wi-Fi key: "
