@@ -408,25 +408,13 @@ sub returnRadiusAccessAccept {
 
 =head2 returnInAccessListAttribute
 
-Returns the attribute to use when pushing an input ACL using RADIUS. The
-direction handling (in|/out| prefixes) is done by pf::Switch::returnAccessListAttribute.
+Returns the attribute to use when pushing an input ACL using RADIUS
 
 =cut
 
 sub returnInAccessListAttribute {
     my ($self) = @_;
     return "ip:inacl#";
-}
-
-=head2 returnOutAccessListAttribute
-
-Returns the attribute to use when pushing an output ACL using RADIUS
-
-=cut
-
-sub returnOutAccessListAttribute {
-    my ($self) = @_;
-    return "ip:outacl#";
 }
 
 =head2 returnRoleAttribute

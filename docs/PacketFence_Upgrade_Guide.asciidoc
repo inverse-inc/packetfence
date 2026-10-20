@@ -938,6 +938,16 @@ Internet Explorer 11 on Windows 7 when an RSA certificate is in use.
 
 == Upgrading from a version prior to X.Y.Z
 
+=== Role ACLs are now sent to Dell N1500 and Cisco ASA
+
+On Dell N1500 and Cisco ASA entries with *Role by access list* enabled, the
+role ACLs were never added to the RADIUS reply, so they were ignored. They are
+now sent, and enforced by the device. Before upgrading, review the ACLs of the
+roles these devices use, since endpoints can lose access they had until now.
+On the Dell N1500, a role ACL is translated: only its protocol, destination
+host and destination port are sent. Check the ACLs sent to the switch in
+`packetfence.log` after the upgrade.
+
 === RADIUS dynamic clients are now cached for 300 seconds
 
 [filename]`/usr/local/pf/raddb/sites-available/dynamic-clients` now sets
