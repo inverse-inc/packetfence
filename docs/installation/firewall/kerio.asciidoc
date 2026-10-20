@@ -1,0 +1,62 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Installation_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+
+==== Kerio Control
+
+The Kerio Control module performs Single-Sign-On against a Kerio Control
+firewall using its JSON-RPC Administration API. PacketFence binds the
+authenticated username to the device's entry in Kerio's *Active Hosts* table,
+which lets Kerio apply per-user policies and logging.
+
+[options="compact"]
+* *Protocol*: JSON-RPC 2.0 over HTTPS at `/admin/api/jsonrpc/`
+* *Authentication*: A Kerio Control administrator account (`Session.login`)
+* *Operations*: `ActiveHosts.login` (start) and `ActiveHosts.logout` (stop),
+  resolved to the host via `ActiveHosts.get`
+
+[IMPORTANT]
+====
+Kerio can only bind a user to a device that already appears in *Active Hosts*.
+Kerio must therefore be the gateway (in the traffic path) for the user networks.
+If the device is not listed in Kerio's Active Hosts, the SSO has nothing to
+attach to.
+====
+
+When Kerio is mapped to multiple directories, it identifies users as
+`user@domain`. Use the *Username format* / *Default realm* options so PacketFence
+sends the username in the form Kerio expects.
+
+==== SSO Configuration in PacketFence
+
+Go to *'Configuration' -> 'Integration' -> 'Firewall SSO' -> 'Add Firewall' ->
+'Kerio'*.
+
+[options="compact"]
+* *Hostname or IP Address*: IP of your Kerio Control firewall
+* *Username* and *Password*: a Kerio Control administrator account
+* *Port of the service*: 4081 (Kerio Administration API)
+* *Roles*: Add the roles that you want to do SSO with
+
+[NOTE]
+====
+PacketFence learns the device IP from RADIUS accounting. Ensure accounting is
+sent to PacketFence and that *'Configuration' -> 'System Configuration' ->
+'Advanced' -> 'Update the iplog using the accounting'* is enabled so the correct
+IP is sent to Kerio.
+====
