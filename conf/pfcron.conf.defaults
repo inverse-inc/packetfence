@@ -733,6 +733,48 @@ schedule=@every 12h
 # Local task
 local=0
 
+[pki_revoked_certs_cleanup]
+#
+# type
+#
+# Task type
+type=pki_revoked_certs_cleanup
+#
+# status
+#
+# If the task is enabled
+status=disabled
+#
+# description
+#
+# The description of task
+description=Cleanup revoked PKI certificates. A revoked certificate is removed once it was revoked more than the window ago and it is expired.
+#
+# schedule
+#
+# The schedule of task
+schedule=@every 1h
+#
+# batch
+#
+# How many pki_revoked_certs entries to clean up in one run
+batch=100
+#
+# timeout
+#
+# How long a pki_revoked_certs_cleanup job can run
+timeout=10s
+#
+# window
+#
+# How long to keep a revoked certificate after its revocation date before deleting it
+window=1Y
+#
+# local
+#
+# Local task
+local=0
+
 [password_of_the_day]
 #
 # type
