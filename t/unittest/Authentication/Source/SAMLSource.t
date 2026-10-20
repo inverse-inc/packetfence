@@ -6,7 +6,8 @@ SAMLSource
 
 =head1 DESCRIPTION
 
-unit test for the attributes of a SAML assertion in SAMLSource (#9371)
+unit test for SAMLSource: the attributes of a SAML assertion (#9371), the key,
+certificate and metadata files
 
 =cut
 
@@ -20,7 +21,8 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;
+use Test::More tests => 13;
+use File::Temp qw(tempfile);
 use pf::Authentication::Source::SAMLSource;
 
 #This test will running last
@@ -70,6 +72,44 @@ is(
 );
 is($source->_username_from_attributes(attribute('mail', 'testuser@example.com')), undef, "no username attribute");
 is($source->_username_from_attributes(attribute('uid', '')), undef, "empty username attribute");
+
+my (undef, $readable) = tempfile(UNLINK => 1);
+
+sub source {
+    pf::Authentication::Source::SAMLSource->new({
+        id => 'test',
+        sp_entity_id => 'sp',
+        idp_entity_id => 'idp',
+        sp_key_path => $readable,
+        sp_cert_path => $readable,
+        idp_metadata_path => $readable,
+        idp_cert_path => $readable,
+        idp_ca_cert_path => '',
+        username_attribute => 'urn:oid:0.9.2342.19200300.100.1.1',
+        authorization_source_id => 'local',
+        @_,
+    });
+}
+
+ok(eval { source()->check_files_readable(); 1 }, "readable files and empty optional CA pass");
+
+eval { source(sp_key_path => '/nonexistent/sp.key')->check_files_readable() };
+like($@, qr{SAML source test: the Service Provider key file /nonexistent/sp\.key doesn't exist}, "missing SP key is reported");
+
+eval { source(idp_metadata_path => '/nonexistent/idp.xml')->check_files_readable() };
+like($@, qr{Identity Provider metadata file /nonexistent/idp\.xml}, "missing IdP metadata is reported");
+
+eval { source(idp_cert_path => '/tmp')->check_files_readable() };
+like($@, qr{Identity Provider certificate file /tmp }, "directory instead of a file is reported");
+
+# Lasso::Server->new returns undef when the key can't be loaded
+my $cert = '/usr/local/pf/t/data/server.crt';
+my $key = '/usr/local/pf/t/data/server.key';
+eval { source(sp_key_path => $cert, sp_cert_path => $cert)->lasso_server() };
+like($@, qr{SAML source test: unable to load the Service Provider key \(\Q$cert\E\) and certificate}, "a certificate used as the SP key is reported");
+
+eval { source(sp_key_path => $key, sp_cert_path => $cert)->lasso_server() };
+like($@, qr{SAML source test: unable to load the Identity Provider metadata \(\Q$readable\E\)}, "invalid IdP metadata is reported");
 
 =head1 AUTHOR
 
