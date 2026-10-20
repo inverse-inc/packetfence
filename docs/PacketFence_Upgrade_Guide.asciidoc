@@ -1141,6 +1141,19 @@ Wrap the AUP part of a customized [filename]`oauth2/landing.html` or
 (`c-card--hidden`) when `with_aup` is set, as in the shipped templates.
 Otherwise a module without an AUP shows a hidden button to returning users.
 
+=== services.iptables and services.ip6tables are now honored
+
+When `services.iptables` or `services.ip6tables` is disabled (_System
+Configuration -> Services_), PacketFence no longer applies nor flushes the
+iptables or ip6tables rules. Before, the setting had no lasting effect: starting
+any PacketFence service applied the PacketFence rules again.
+
+If one of them is disabled on your installation, PacketFence will start without
+its firewall rules after the upgrade. Either enable it again, or manage all the
+rules yourself. When it is enabled again, the `packetfence-iptables` and
+`packetfence-ip6tables` services apply the rules within about 30 seconds,
+without a restart.
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]

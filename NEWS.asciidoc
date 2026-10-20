@@ -82,6 +82,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
   - Captive portal: the SMS PIN validation page is titled "Enter the PIN sent to your phone" instead of "Confirm Mobile Phone Number". Sites that translated the old string in their own catalogs need to translate the new one (#3391)
 
+  - `services.iptables` / `services.ip6tables` set to disabled (System Configuration > Services) had no lasting effect: any PacketFence service start re-applied and flushed the rules. When disabled, PacketFence no longer applies nor flushes the rules. Installations that have it disabled start without PacketFence firewall rules after the upgrade (#5022)
+
 === Security Fixes
 
 == Version 15.2.0 released on 2026-08-24
