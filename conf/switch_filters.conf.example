@@ -2,30 +2,67 @@
 # SWITCH FILTERS configuration
 # ============================
 #
+# A switch filter changes the switch module or the switch configuration that
+# PacketFence uses, when its condition matches.
+#
 # Scopes
 # ------
-# It is possible to trigger rules / actions within the following specific connection flow scopes
-# - radius_authorize: Used when PacketFence receive a radius request
-# - external_portal: Used when an endpoint hit the captive portal for web authentication
-# - instantiate_module: Used when PacketFence instanciate a switch module
-# - reevaluate: Used when PacketFence reevaluate the access of the device
+# A rule applies in one or more of these scopes (scopes, comma separated):
+# - radius_authorize: when PacketFence receives a RADIUS request
+# - external_portal: when an endpoint hits the captive portal for web authentication
+# - instantiate_module: when PacketFence instantiates a switch module
+# - reevaluate: when PacketFence re-evaluates the access of a device
 #
+# Rule
+# ----
+# [NAME_OF_THE_RULE]
+# status = enabled
+# description = What the rule does
+# scopes = SCOPE1,SCOPE2
+# condition = CONDITION
+# switch = SWITCH_MODULE
+# param.0 = SWITCH_PARAMETER=VALUE
+# param.1 = SWITCH_PARAMETER=VALUE
 #
-# A "SWITCH Filter" configuration is mainly constituted of two (2) parts; rules(s)/condition(s) and action(s)
-# Some working examples covering useful use cases can be found at the bottom of this file
+# The rules are evaluated in the order of the file, the first one whose
+# condition matches applies.
 #
+# switch: the switch module to use, for example Fortinet::FortiGate. It is only
+#   used in the instantiate_module and external_portal scopes.
 #
+# param.N: a switch configuration parameter to override, as NAME=VALUE (for
+#   example ExternalPortalEnforcement=N). The parameters only apply in the
+#   radius_authorize and reevaluate scopes. A parameter holding several values,
+#   like the VLAN of each role, takes KEY => VALUE pairs separated by ";":
+#   vlans=gaming => 40;registration => 10
+#   The value can use the attributes of the request, as $mac or ${node_info.category}.
 #
-# Rule(s)/Condition(s)
-# --------------------
-# Structure example of a rule/condition
-# [NAMEOFRULE]
-# filter = FILTER
-# operator = OPERATOR
-# value = VALUE
+# A rule can list several scopes and have both a switch module and parameters:
+# the module is used when the switch is instantiated or an external portal
+# request is identified, the parameters when a RADIUS request is authorized or
+# the access of a device is re-evaluated.
+#
+# Condition
+# ---------
+# A condition compares attributes with values, and can be combined with
+# && (and), || (or), ! (not) and parentheses:
+#   ssid == "Test" && node_info.status != "reg"
+#
+# Comparison operators: == != =~ (regex) !~ (regex does not match) < <= > >=
+# Functions:
+#   defined(ATTRIBUTE), not_defined(ATTRIBUTE)
+#   contains(ATTRIBUTE, "value"), not_contains(ATTRIBUTE, "value")
+#   starts_with(ATTRIBUTE, "value"), ends_with(ATTRIBUTE, "value")
+#   includes(ATTRIBUTE, "value") (one of the values of a list)
+#   date_is_before(ATTRIBUTE, "date"), date_is_after(ATTRIBUTE, "date")
+#     (the date is "YYYY-MM-DD HH:MM:SS", "YYYY-MM-DD HH:MM", "YYYY-MM-DD" or
+#      "now" for the time of the evaluation)
+#   fingerbank_device_is_a(ATTRIBUTE, "device")
+#   time_period("period")
+#   true()
 #
 ###############################
-# For the radius_authorize scope, the filter can be:
+# For the radius_authorize scope, the condition can use:
 #     node_info.autoreg
 #     node_info.status
 #     node_info.bypass_vlan
@@ -111,36 +148,21 @@
 #     radius_request
 #     params
 #
-# Operator can be:
-#     is
-#     is_not
-#     match
-#     match_not
-#     defined
-#     not_defined
-#     regex
-#     date_is_before
-#     date_is_after
-#       (the value of date_is_before and date_is_after is a date "YYYY-MM-DD HH:MM:SS",
-#        "YYYY-MM-DD HH:MM", "YYYY-MM-DD" or "now" for the time of the evaluation)
-#
-# Attribute can be:
-# - for connection_type
+# Values:
+# - connection_type
 #     Wireless-802.11-EAP
 #     Wireless-802.11-NoEAP
 #     Ethernet-EAP
 #     Ethernet-NoEAP
 #     SNMP-Traps
 #     Inline
-#     Ethernet-NoEAP
-# - for the radius_request
-#     All the attributes you can have in the RADIUS request (run FreeRADIUS in debug mode to see these attributes)
-#
-# - for the params
-#     It correspond of the attributes in the uri when the device hit the portal
+# - radius_request.ATTRIBUTE
+#     All the attributes of the RADIUS request (run FreeRADIUS in debug mode to see them)
+# - params.ATTRIBUTE
+#     The parameters in the URI when the device hits the portal (external_portal scope)
 #
 ###############################
-# For the instantiate_module scope, the filter can be:
+# For the instantiate_module scope, the condition can use:
 #     radius_request (when used in the context of a RADIUS request)
 #     locationlog (when used outside of the context of a RADIUS request)
 #
@@ -168,104 +190,42 @@
 #     ifDesc
 #
 ###############################
-# Actions
-# -------
-# Structure example of an action
-# [NAMEOFTHEACTION:RULE1&RULE2&RULE3]
-# scope = SCOPE
-# param1 = SWITCH_PARAMETER => VALUE
-# param2 = SWITCH_PARAMETER => VALUE
-# paramx = SWITCH_PARAMETER => VALUE
-# switch = SWITCH_MODULE
-#
-# Scope can be:
-# - see beginning of this file for possible scope. They are usually extensions points of endpoint connection flow
-#
-#
-# Param(x) can be:
-# - any switch configuration parameter to override (only applied in the radius_authorize and reevaluate scopes)
-#
-# Switch can be:
-# - any switch module (only used in the instantiate_module and external_portal scopes)
-#
-# A rule can list several scopes and have both a switch module and parameters:
-# the module is used when the switch is instantiated or an external portal
-# request is identified, the parameters when a RADIUS request is authorized or
-# the access of a device is re-evaluated.
-#
-# -------------------------
-#
-#
 # EXAMPLES
 # --------
-# - If the ssid is test then override ExternalPortalEnforcement and VlanMap value
+# - If the SSID is Test, override ExternalPortalEnforcement, VlanMap and the VLAN of two roles
 #
-#[SSID]
-#filter = ssid
-#operator = is
-#value = Test
+#[ssid_test]
+#status=enabled
+#description=Different settings for the Test SSID
+#scopes=radius_authorize
+#condition=ssid == "Test"
+#param.0=ExternalPortalEnforcement=N
+#param.1=VlanMap=Y
+#param.2=vlans=gaming => 40;registration => 10
 #
-#[1:SSID]
-#scope = radius_authorize
-#param.0 = ExternalPortalEnforcement => N
-#param.1 = VlanMap => Y
-#param.2 = vlans => gaming => 40;registration => 10
+# - If the device is registered and not on the Test SSID, disable the external portal enforcement
 #
-#[status]
-#filter = node_info.status
-#operator = is
-#value = reg
+#[registered_not_test]
+#status=enabled
+#description=No external portal for registered devices
+#scopes=radius_authorize
+#condition=ssid != "Test" && node_info.status == "reg"
+#param.0=ExternalPortalEnforcement=N
 #
-#[2:!SSID&status]
-#scope = radius_authorize
-#param.0 = ExternalPortalEnforcement => N
+# - If the device hits the portal with these parameters in the URI, use the Fortinet::FortiGate switch module
 #
-# - If the device hit the portal with theses parameters in the uri then use the Fortinet::FortiGate switch module
+#[fortigate_portal]
+#status=enabled
+#description=FortiGate external portal
+#scopes=external_portal
+#condition=defined(params.login) && defined(params.post) && defined(params.magic) && defined(params.usermac) && defined(params.apmac) && defined(params.apip) && defined(params.userip)
+#switch=Fortinet::FortiGate
 #
-#[login]
-#filter = params.login
-#operator = defined
+# - If the device authenticates on a wireless connection, use the Cisco::Cisco_WLC_AireOS module
 #
-#[post]
-#filter = params.post
-#operator = defined
-#
-#[magic]
-#filter = params.magic
-#operator = defined
-#
-#[usermac]
-#filter = params.usermac
-#operator = defined
-#
-#[apmac]
-#filter = params.apmac
-#operator = defined
-#
-#[apip]
-#filter = params.apip
-#operator = defined
-#
-#[userip]
-#filter = params.userip
-#operator = defined
-#
-#[1:login&post&magic&usermac&apmac&apip&userip]
-#scope = external_portal
-#switch = Fortinet::FortiGate
-#
-# - If the device is authenticating on a wireless connection, then use the Cisco::Cisco_WLC_AireOS module
-#
-#[wireless_radius]
-#filter = radius_request.NAS-Port-Type
-#operator = is
-#value = 19
-#
-#[wireless_locationlog]
-#filter = locationlog.connection_type
-#operator = regex
-#value = ^Wireless
-#
-#[msmodule4wired:wireless_locationlog|wireless_radius]
-#scope=instantiate_module
-#switch = Cisco::Cisco_WLC_AireOS
+#[wireless_module]
+#status=enabled
+#description=Wireless module for the wireless connections
+#scopes=instantiate_module
+#condition=radius_request.NAS-Port-Type =~ "^Wireless" || locationlog.connection_type =~ "^Wireless"
+#switch=Cisco::Cisco_WLC_AireOS
