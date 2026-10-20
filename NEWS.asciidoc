@@ -94,6 +94,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
   - 802.1X autoregistration with "Dot1x recompute role from portal" and "Dot1x unset on unmatch": a device matching no rule is now kept unregistered and gets the registration role, instead of being registered without a role. A role applied by a provisioner still registers it (#6126)
 
+  - Filters: the `date is before`/`date is after` operators accept `now` (or an empty value) for the time of the evaluation and `YYYY-MM-DD` dates, as well as `YYYY-MM-DD HH:MM:SS` and `YYYY-MM-DD HH:MM`. An unset date (for example the `node_info.unregdate` of a node without an expiration) no longer makes the evaluation fail and never matches, also with the `is not before`/`is not after` operators. A rule with a date in another format now fails to build (logged when the filters are loaded, and listed by `pfcmd checkup`), see the upgrade notes
+
 === Security Fixes
 
 == Version 15.2.0 released on 2026-08-24

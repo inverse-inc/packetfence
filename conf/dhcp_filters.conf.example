@@ -70,6 +70,8 @@
 #     regex
 #     date_is_before
 #     date_is_after
+#       (the value of date_is_before and date_is_after is a date "YYYY-MM-DD HH:MM:SS",
+#        "YYYY-MM-DD HH:MM", "YYYY-MM-DD" or "now" for the time of the evaluation)
 #     time
 #
 # Example of Value can be :
