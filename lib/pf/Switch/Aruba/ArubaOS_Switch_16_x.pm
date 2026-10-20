@@ -223,6 +223,9 @@ sub radiusDisconnect {
 
         }
         else {
+            # The port bounce CoA identifies the port with NAS-Port, a NAS-Port-Id is rejected with a CoA-NAK
+            my $port = delete $attributes_ref->{'NAS-Port-Id'};
+            $attributes_ref->{'NAS-Port'} //= $port;
             $vsa = [{ 'vendor' => 'HP', 'attribute' => 'HP-Port-Bounce-Host', 'value' => '12' }];
             $response = $self->handleRadiusCoa($connection_info, $attributes_ref,$vsa);
         }
