@@ -12,6 +12,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/inverse-inc/packetfence/go/radiusdictionary"
+
 	"github.com/OneOfOne/xxhash"
 	"github.com/VividCortex/mysqlerr"
 	cache "github.com/fdurand/go-cache"
@@ -1178,13 +1180,8 @@ func (h *PfAcct) InsertBandwidthAccounting(status rfc2866.AcctStatusType, node_i
 }
 
 func init() {
-	parser := &dictionary.Parser{
-		Opener: &dictionary.FileSystemOpener{
-			Root: "/usr/share/freeradius",
-		},
-		IgnoreIdenticalAttributes:  true,
-		IgnoreUnknownAttributeType: true,
-	}
+	// Handles the optional include of conf/radiusd/dictionary.local
+	parser := radiusdictionary.NewParser()
 
 	var err error
 	if radiusDictionary, err = parser.ParseFile("/usr/local/pf/raddb/dictionary.pfacct"); err != nil {
