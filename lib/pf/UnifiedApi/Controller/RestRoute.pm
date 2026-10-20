@@ -77,7 +77,10 @@ serializes the API writes made on that server.
 
 sub lock_config_store {
     my ($self, $cs) = @_;
-    return unless $WRITE_METHODS{$self->req->method};
+    # Outside of a request (OpenAPI generator, scripts) there is no write to
+    # serialize, and req would die with "Transaction already destroyed"
+    my $tx = $self->tx or return;
+    return unless $WRITE_METHODS{$tx->req->method};
     return if $READ_ONLY_ACTIONS{$self->stash->{action} // ''};
     my $locked = $cs->lock_config;
     if (defined $locked && !$locked) {
