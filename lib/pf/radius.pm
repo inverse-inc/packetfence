@@ -69,6 +69,7 @@ use pf::api::queue;
 use pf::access_filter::radius;
 use pf::registration;
 use pf::access_filter::switch;
+use pf::firewallsso();
 use pf::role::pool;
 use pf::dal;
 use pf::security_event;
@@ -1090,6 +1091,7 @@ sub returnRadiusVpn{
         my $values = $matched->{values};
         $args->{'user_role'} = $values->{$Actions::SET_ROLE};
     }
+    pf::firewallsso::cache_vpn_role($args->{'radius_request'}{'NAS-IP-Address'} // $args->{'switch'}{'_ip'}, $args->{'user_name'}, $args->{'user_role'});
     return $args->{'switch'}->returnAuthorizeVPN($args);
 }
 

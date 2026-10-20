@@ -1744,6 +1744,66 @@ sub firewallsso_accounting : Public {
     }
 }
 
+=head2 vpn_accounting
+
+The accounting of a VPN session, which has no MAC address (FortiGate SSL-VPN for
+instance): pfacct sends it here instead of radius_accounting. It sends the
+firewall SSO of the user with the address of its tunnel (Framed-IP-Address) and
+the role it was given when it was authorized. The Stop of a session sends the
+role the session started with (by Acct-Session-Id).
+
+=cut
+
+sub vpn_accounting : Public {
+    my ($class, $RAD_REQUEST) = @_;
+    my $logger = pf::log::get_logger();
+    return if !(any { pf::util::isenabled($_->{'sso_on_accounting'}) } values %pf::config::ConfigFirewallSSO);
+
+    my $username = $RAD_REQUEST->{'User-Name'};
+    my $ip = $RAD_REQUEST->{'Framed-IP-Address'};
+    if (!$username || !$ip) {
+        $logger->debug("VPN accounting without user name or Framed-IP-Address, no firewall SSO");
+        return;
+    }
+
+    my $is_stop = ($RAD_REQUEST->{'Acct-Status-Type'} == $ACCOUNTING::STOP);
+    my $role = pf::firewallsso::vpn_role($RAD_REQUEST->{'NAS-IP-Address'}, $username);
+
+    # As for the MAC sessions (firewallsso_accounting): the role at the start of the
+    # session is kept for its Stop, so a re-authorization with another role during
+    # the session doesn't make the Stop remove the wrong role
+    my $session_id = $RAD_REQUEST->{'Acct-Session-Id'};
+    if ($session_id) {
+        my $cache = pf::CHI->new(namespace => 'accounting');
+        my $cache_key = "sso_vpn_role:" . ($RAD_REQUEST->{'NAS-IP-Address'} // '') . ":" . lc($username) . ":$session_id";
+        if ($is_stop) {
+            my $cached_role = $cache->get($cache_key);
+            $role = $cached_role if $cached_role;
+            $cache->remove($cache_key);
+        } elsif ($role && !$cache->get($cache_key)) {
+            $cache->set($cache_key, $role, "24 hours");
+        }
+    }
+
+    if (!$role) {
+        $logger->info("No role known for VPN user '$username' (NAS $RAD_REQUEST->{'NAS-IP-Address'}), no firewall SSO: the VPN must authorize its users through PacketFence");
+        return;
+    }
+
+    my $client = pf::client::getClient();
+    $client->notify( 'firewallsso', (
+        method   => $is_stop ? "Stop" : "Update",
+        mac      => '',
+        endpoint => $username,
+        ip       => $ip,
+        timeout  => '3600',
+        username => $username,
+        role     => $role,
+        status   => $pf::node::STATUS_REGISTERED,
+        source   => $ACCOUNTING,
+    ) );
+}
+
 =head2 firewall_sso_call
 
 Trigger a firewall SSO
