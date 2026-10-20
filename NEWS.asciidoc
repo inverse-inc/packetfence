@@ -92,6 +92,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
   - Scan engines limited to roles no longer scan nodes without a role (ex: before registration): such a node is considered to have the `default` role. Add the `default` role to the engine to keep scanning devices before registration (#5575)
 
+  - 802.1X autoregistration with "Dot1x recompute role from portal" and "Dot1x unset on unmatch": a device matching no rule is now kept unregistered and gets the registration role, instead of being registered without a role. A role applied by a provisioner still registers it (#6126)
+
 === Security Fixes
 
 == Version 15.2.0 released on 2026-08-24
