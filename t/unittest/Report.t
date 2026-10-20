@@ -628,7 +628,7 @@ BEGIN {
                                 is_role   => $false,
                                 is_cursor   => ($_ eq 'mac' ? $true : $false),
                             }
-                        } qw(mac ip start_time pid detect_date regdate status user_agent computername notes last_arp last_dhcp os)
+                        } qw(mac ip start_time pid detect_date regdate status user_agent computername notes last_dhcp os)
                     )
                 ],
                 default_start_date => undef,
