@@ -36,6 +36,10 @@ my @classes = qw(
     pf::Switch::Aruba::ArubaOS_Switch_16_x
     pf::Switch::Aruba::ArubaOS_CX_10_x
     pf::Switch::Aruba::5400
+    pf::Switch::Aruba
+    pf::Switch::Aruba::Controller_200
+    pf::Switch::Aruba::Instant
+    pf::Switch::Aruba::Instant_Access
     pf::Switch::Hostapd
     pf::Switch::OpenWiFi
     pf::Switch::Ruckus::SmartZone
@@ -93,7 +97,8 @@ sub filter_calls {
             ssid => 'test',
         });
     };
-    diag($@) if $@;
+    # A module dying after its first evaluation must not pass as filtered once
+    return "died: $@" if $@;
     return $calls;
 }
 
