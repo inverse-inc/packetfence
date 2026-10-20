@@ -69,14 +69,13 @@ sub type_lookup {
 
 =head2 fields_to_mask
 
-fields_to_mask
-
-headers and body are templates that commonly carry an API token
-(Authorization: Bearer ...), so they are masked in the audit record.
+The fields masked in the audit record. headers and body are included because
+they are templates that commonly carry an API token, such as an
+C<Authorization: Bearer> header.
 
 =cut
 
-sub fields_to_mask { qw(access_token refresh_token password passcode private_key applicationSecret access_token headers body) }
+sub fields_to_mask { qw(access_token refresh_token password passcode private_key applicationSecret headers body) }
 
 =head2 test_jq
 
@@ -110,6 +109,10 @@ sub test_jq {
     if (defined $vars_err) {
         return $self->render_error(422, $vars_err);
     }
+
+    # the payload came in as characters inside the request JSON, and
+    # evaluate_jq takes the UTF-8 bytes a server would have sent
+    utf8::encode($json);
 
     # the query is arbitrary here, so bound how long it may run
     my ($pass, $results, $err) = pf::provisioner::generic_http->evaluate_jq_guarded($json, $query, undef, $vars);

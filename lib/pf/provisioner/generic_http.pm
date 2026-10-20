@@ -11,8 +11,9 @@ pf::provisioner::generic_http
 Generic HTTP provisioner. The HTTP request (URL, headers, body) is defined in
 the configuration as pf::mini_template templates. The response body is
 evaluated with a jq query (JQ::XS, with jq compiled into it); the device is
-authorized when the query returns a truthy value (jq semantics: only C<null>
-and C<false> are falsy). The query is given the device as the jq named
+authorized when the query returns a truthy value: it passes unless every
+result is C<null> or C<false> (jq semantics), and a query producing no result
+at all fails. The query is given the device as the jq named
 arguments C<$mac> and C<$node>, the same two the request templates get.
 
 The query comes from the configuration rather than from the code, so it is
@@ -434,6 +435,8 @@ sub get_lwp_client {
 
 Evaluate a jq query (JQ::XS) against a JSON string.
 Callable as a class method so the admin API tester can reuse it.
+$json_text is the payload as UTF-8 encoded bytes, which is also what
+$MAX_RESPONSE_SIZE is measured against.
 Returns ($pass, \@results, undef, undef) on success and
 (undef, undef, $error, $kind) on failure, where $kind is one of $ERR_JSON,
 $ERR_QUERY or $ERR_JQ so the caller can tell a configuration error from a bad
@@ -624,7 +627,9 @@ sub authorize {
     }
 
     my ($pass, $results, $jq_err, $err_kind) = $self->evaluate_jq(
-        $res->decoded_content, $self->jq_query, $self->jq_vars($mac, $node_info),
+        # undo any Content-Encoding but keep the bytes: evaluate_jq wants UTF-8
+        # bytes, which a text/* response decoded to characters is not
+        scalar $res->decoded_content(charset => 'none'), $self->jq_query, $self->jq_vars($mac, $node_info),
     );
     if (defined $jq_err) {
         # Only a query that does not compile is a configuration error. An
