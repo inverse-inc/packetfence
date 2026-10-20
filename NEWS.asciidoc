@@ -61,6 +61,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - pfpki OCSP responder answered with a 500 error instead of "unknown" for a serial number that is in neither the certificates nor the revoked certificates
 
   - Portal: a user who chose an OAuth, OpenID or SAML method and comes back without completing it is shown that method's page (with the other methods of the Choice) instead of being sent straight back to the provider (#7447)
+
+  - `inline.ports_redirect`, `inline.interfaceSNAT`, `fencing.interception_proxy_port` and `network.interfaceSNAT` are now validated (ports, port/protocol pairs such as `80/tcp`, interface names), instead of accepting text that broke the generated iptables rules. A value saved before in another format has to be corrected before its form can be saved again
   - LOG_LEVEL was ignored by the mod_perl services (httpd.aaa, httpd.webservices, httpd.portal): the variable reached the container but Apache never exposed it to Perl, so log4perl stayed at INFO. The httpd templates now PerlPassEnv it
   - Dell N1500 and Cisco ASA: role ACLs were never sent in the Access-Accept, because a stale `returnAccessListAttribute` override returned a single value. Both modules now use the base implementation, and the N1500 (firmware 6.8 or later) installs the ACL as a dynamic ACL
   - `radius_configuration.pfacct_rate_limit` had no effect: the toggle was decoded but never applied, so accounting was forwarded to httpd.aaa unconditionally
