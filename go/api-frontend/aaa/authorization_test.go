@@ -385,3 +385,28 @@ func TestPfconnectorRemotesAdminRoleMapping(t *testing.T) {
 		}
 	}
 }
+
+// The configuration of the connectors is managed with the CONNECTORS role,
+// like the connector-remote actions, so that role is usable on its own.
+func TestConfigConnectorsAdminRoleMapping(t *testing.T) {
+	ctx := log.LoggerNewContext(context.Background())
+	m := NewTokenAuthorizationMiddleware(NewMemTokenBackend(1*time.Second, 1*time.Second, []string{}))
+
+	tests := []struct {
+		method, path, role string
+	}{
+		{"GET", "/api/v1/config/connectors", "CONNECTORS_READ"},
+		{"GET", "/api/v1/config/connector/connector1", "CONNECTORS_READ"},
+		{"POST", "/api/v1/config/connectors", "CONNECTORS_CREATE"},
+		{"PATCH", "/api/v1/config/connector/connector1", "CONNECTORS_UPDATE"},
+		{"DELETE", "/api/v1/config/connector/connector1", "CONNECTORS_DELETE"},
+	}
+	for _, test := range tests {
+		if res, err := m.isAuthorizedAdminActions(ctx, test.method, test.path, map[string]bool{test.role: true}); !res {
+			t.Errorf("%s %s was not authorized with %s, error: %v", test.method, test.path, test.role, err)
+		}
+		if res, _ := m.isAuthorizedAdminActions(ctx, test.method, test.path, map[string]bool{"SYSTEM_READ": true, "SYSTEM_CREATE": true, "SYSTEM_UPDATE": true, "SYSTEM_DELETE": true}); res {
+			t.Errorf("%s %s is still authorized with the SYSTEM role", test.method, test.path)
+		}
+	}
+}

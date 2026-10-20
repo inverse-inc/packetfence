@@ -16,8 +16,8 @@
             <icon name="sync" :spin="isLoading" class="mr-1" />{{ $i18n.t('Refresh') }}
           </b-button>
           <b-button size="sm" variant="outline-primary" class="mr-1"
-            :disabled="!status || !status.connected || isTerminalLoading || (status.system && status.system.terminal_enabled === false)"
-            :title="(status && status.system && status.system.terminal_enabled === false) ? $i18n.t('The terminal is disabled on this connector (PFCONNECTOR_TERMINAL).') : ''"
+            :disabled="!status || !status.connected || isTerminalLoading || !(status.system && status.system.terminal_enabled === true)"
+            :title="(status && status.system && status.system.terminal_enabled !== true) ? $i18n.t('The terminal is disabled on this connector (PFCONNECTOR_TERMINAL).') : ''"
             @click="openTerminal">
             <icon name="terminal" class="mr-1" />{{ $i18n.t('Open Terminal') }}
           </b-button>
@@ -292,7 +292,7 @@ export const setup = (props, context) => {
     api.terminalSession(props.id).then(session => {
       return api.terminalAuthorize(props.id, session.uuid, code).then(() => {
         showTerminalModal.value = false
-        terminalWindow.location.href = `/api/v1/terminal/${props.id}/`
+        terminalWindow.location.href = `/api/v1/terminal/${encodeURIComponent(props.id)}/`
       })
     }).catch(error => {
       terminalWindow.close()
