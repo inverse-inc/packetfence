@@ -247,21 +247,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 	// DNS Filter code
 	var Type string
 	for k, v := range pf.NetworkType {
-		switch v.Type {
-		case "inlinel2":
-			Type = "inline"
-
-		case "inlinel3":
-			Type = "inline"
-
-		case "vlan-isolation":
-			Type = "isolation"
-
-		case "vlan-registration":
-			Type = "registration"
-		case "dns-enforcement":
-			Type = "dnsenforcement"
-		}
+		Type = dnsFilterScope(v.Type)
 
 		if k.Contains(bIP) {
 			// Register and inline or dns enforcement then resolv
@@ -799,4 +785,21 @@ func (pf *pfdns) logreply(ctx context.Context, config *pfdnsRefreshableConfig, i
 		})
 		pf.redisCache.RPush(ctx, "DNS_AUDIT_LOG", data)
 	}
+}
+
+// dnsFilterScope returns the DNS filter scope of a network type, or "" for a
+// type without one. A type can list additional daemons after a comma (ex:
+// dns-enforcement,radius): only its first part is the network type.
+func dnsFilterScope(networkType string) string {
+	switch strings.SplitN(networkType, ",", 2)[0] {
+	case "inlinel2", "inlinel3":
+		return "inline"
+	case "vlan-isolation":
+		return "isolation"
+	case "vlan-registration":
+		return "registration"
+	case "dns-enforcement":
+		return "dnsenforcement"
+	}
+	return ""
 }
