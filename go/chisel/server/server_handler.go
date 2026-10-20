@@ -1220,12 +1220,6 @@ func (s *Server) handleRemoteRadiusNas(w http.ResponseWriter, req *http.Request)
 		return
 	}
 
-	type NasEntry struct {
-		Nasname string `json:"nasname"`
-		Secret  string `json:"secret"`
-		Type    string `json:"type"`
-	}
-
 	var withSecret []radiusNasKey
 	secrets := map[string]string{}
 	for _, nasKey := range radiusNasKeys(switches.PfconfigKeys.Keys, connectorNetworks) {
@@ -1248,17 +1242,31 @@ func (s *Server) handleRemoteRadiusNas(w http.ResponseWriter, req *http.Request)
 		log.LoggerWContext(ctx).Warn(fmt.Sprintf("remote-radius-nas: switch %s is the same network as switch %s, skipping it: the connector's RADIUS server cannot load two clients for one network", d.Key, d.KeptKey))
 	}
 
-	var entries []NasEntry
-	for _, nasKey := range unique {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	json.NewEncoder(w).Encode(radiusNasEntries(unique, secrets))
+}
+
+// NasEntry is a RADIUS client sent to a remote connector
+type NasEntry struct {
+	Nasname string `json:"nasname"`
+	Secret  string `json:"secret"`
+	Type    string `json:"type"`
+}
+
+// radiusNasEntries builds the RADIUS clients of a remote connector. The list is
+// never nil: without any switch it is sent as [] rather than null, which
+// sync-radius-nas.sh can't iterate over (jq '.[]'), and the oneshot would then
+// fail and keep radiusd-auth from starting.
+func radiusNasEntries(keys []radiusNasKey, secrets map[string]string) []NasEntry {
+	entries := []NasEntry{}
+	for _, nasKey := range keys {
 		entries = append(entries, NasEntry{
 			Nasname: nasKey.Nasname,
 			Secret:  secrets[nasKey.Key],
 			Type:    "other",
 		})
 	}
-
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	json.NewEncoder(w).Encode(entries)
+	return entries
 }
 
 // radiusNasKey is a switch key to send to a remote connector as a RADIUS client, with

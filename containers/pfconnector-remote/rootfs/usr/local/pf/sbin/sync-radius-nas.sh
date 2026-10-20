@@ -26,7 +26,9 @@ fi
 
 # Validate the JSON up-front so a malformed payload aborts the unit (a bare
 # pipe into `while` would hide jq's failure under set -e).
-if ! ENTRIES=$(echo "$NAS_JSON" | jq -c '.[]'); then
+# A server older than the connector answers null when no switch qualifies:
+# read it as an empty list.
+if ! ENTRIES=$(echo "$NAS_JSON" | jq -c '(. // [])[]'); then
     echo "Error: malformed NAS JSON received from pfconnector API"
     exit 1
 fi

@@ -1,6 +1,7 @@
 package chserver
 
 import (
+	"encoding/json"
 	"net"
 	"reflect"
 	"testing"
@@ -143,5 +144,26 @@ func TestUniqueRadiusNasKeys(t *testing.T) {
 				t.Errorf("duplicates =\n%v\nwant\n%v", dups, tt.wantDups)
 			}
 		})
+	}
+}
+
+// Without any switch for the connector the reply is [] and not null: the
+// connector's sync-radius-nas.sh iterates over it with jq '.[]'
+func TestRadiusNasEntries(t *testing.T) {
+	encoded, err := json.Marshal(radiusNasEntries(nil, nil))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(encoded) != "[]" {
+		t.Errorf("no switch: got %s, expected []", encoded)
+	}
+
+	entries := radiusNasEntries(
+		[]radiusNasKey{{Key: "10.0.0.7/24", Nasname: "10.0.0.0/24"}},
+		map[string]string{"10.0.0.7/24": "secret"},
+	)
+	expected := []NasEntry{{Nasname: "10.0.0.0/24", Secret: "secret", Type: "other"}}
+	if !reflect.DeepEqual(entries, expected) {
+		t.Errorf("got %v, expected %v", entries, expected)
 	}
 }
