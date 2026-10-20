@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 20;
+use Test::More tests => 31;
 use Test::NoWarnings;
 
 use pf::config qw($IPTABLES_MARK_REG $IPTABLES_MARK_ISOLATION $IPTABLES_MARK_UNREG);
@@ -98,6 +98,46 @@ is_deeply(\@restored, ["add set_a 10.9.9.1\n"], 'failed listing: no filtering, t
 ($list_out, $list_status, $restore_out, $restore_status) = (['set_a'], 0, "ipset v7.17: Error in line 1: Syntax error: Elem separator in 10.9.9.7,aa:bb:cc:dd:ee:ff, but settype bitmap:ip supports none\n", 256);
 ok(!run_restore('add set_a 10.9.9.7,aa:bb:cc:dd:ee:ff'), 'ipset restore failure: returns false instead of dying');
 like($log{error}[0], qr/ipset restore failed \(exit 1\) while pre-populating 1 inline entries: ipset v7\.17: Error in line 1: Syntax error/, "failure logged with ipset's own message");
+
+# A restore killed by a signal has the exit code 0: say it was killed
+($list_out, $list_status, $restore_out, $restore_status) = (['set_a'], 0, '', 9);
+ok(!run_restore('add set_a 10.9.9.1'), 'ipset restore killed: returns false');
+like($log{error}[0], qr/ipset restore failed \(killed by signal 9\)/, 'the signal is reported, not exit 0');
+
+is(pf::iptables::_exit_description(256), 'exit 1', 'exit code');
+is(pf::iptables::_exit_description(15), 'killed by signal 15', 'signal');
+is(pf::iptables::_exit_description(-1), 'could not be run', 'command not run');
+is(pf::iptables::_exit_description(undef), 'exit unknown', 'no status');
+
+# inline_mangle_rules: what is pre-populated for the registered nodes
+{
+    my @ops;
+    require pf::security_event;
+    require pf::ip4log;
+    no warnings qw(redefine once);
+    local *pf::iptables::is_inline_enforcement_enabled = sub { 1 };
+    local *pf::config::is_network_type_inline = sub { 1 };
+    local *pf::iptables::get_inline_snat_interface = sub { '' };
+    local *pf::iptables::get_logger = sub { FakeLogger->new };
+    local *pf::iptables::ConfigNetworks = { '10.1.0.0' => { type => 'inlinel3', netmask => '255.255.255.0' } };
+    local *pf::iptables::NetworkConfig = { '10.1.0.0' => { interface => { int => 'eth1' } } };
+    local *pf::ip4log::list_open = sub {
+        return ({ mac => '00:11:22:33:44:01', ip => '10.1.0.11' }, { mac => '00:11:22:33:44:02', ip => '10.1.0.12' });
+    };
+    # the same node twice, and a node registered without a role
+    local *pf::iptables::nodes_registered_not_violators = sub {
+        return ({ mac => '00:11:22:33:44:01', category_id => 5 }, { mac => '00:11:22:33:44:01', category_id => 5 }, { mac => '00:11:22:33:44:02', category_id => undef });
+    };
+    local *pf::security_event::security_event_view_open_uniq = sub { () };
+    local *pf::iptables::_ipset_restore = sub { @ops = @_; return 1 };
+    pf::iptables::inline_mangle_rules('test', {});
+    is(scalar(grep { /^add pfsession_\S+_10\.1\.0\.0 10\.1\.0\.11$/ } @ops), 1, 'a node listed twice is added once');
+    is(scalar(grep { $_ eq 'add PF-iL3_ID5_10.1.0.0 10.1.0.11' } @ops), 1, 'its role set entry is added once');
+    is(scalar(grep { /^add pfsession_\S+_10\.1\.0\.0 10\.1\.0\.12$/ } @ops), 1, 'a node without a role gets its session entry');
+    is(scalar(grep { /^add PF-iL\S*_10\.1\.0\.0 10\.1\.0\.12$/ } @ops), 0, 'but no entry in a role set that does not exist');
+    my %seen;
+    is(scalar(grep { $seen{$_}++ } @ops), 0, 'no duplicate line reaches ipset restore');
+}
 
 =head1 AUTHOR
 

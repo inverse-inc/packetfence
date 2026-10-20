@@ -1997,12 +1997,26 @@ sub _ipset_restore {
         $output //= '';
         $output =~ s/^\s+|\s+$//g;
         $output =~ s/\s*\n\s*/ | /g;
-        my $exit = (defined($status) && $status > 0) ? ($status >> 8) : ($status // 'unknown');
-        $logger->error("ipset restore failed (exit $exit) while pre-populating " . scalar(@lines) . " inline entries: $output");
+        $logger->error("ipset restore failed (" . _exit_description($status) . ") while pre-populating " . scalar(@lines) . " inline entries: $output");
         return 0;
     }
     $logger->info("ipset restore pre-populated " . scalar(@lines) . " inline entries");
     return 1;
+}
+
+=head2 _exit_description
+
+How a command ended, from its wait status: its exit code, or the signal that
+killed it (the exit code is then 0).
+
+=cut
+
+sub _exit_description {
+    my ($status) = @_;
+    return 'exit unknown' if !defined($status);
+    return 'could not be run' if $status == -1;
+    return 'killed by signal ' . ($status & 127) if $status & 127;
+    return 'exit ' . ($status >> 8);
 }
 
 sub inline_nat_redirect_rules {
