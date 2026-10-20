@@ -7,13 +7,15 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"io"
+	"io/fs"
 	"net"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 	"strings"
 	"sync"
+	texttemplate "text/template"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -21,6 +23,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/connector"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/redis/go-redis/v9"
+	"github.com/sorenisanerd/gotty/bindata"
 )
 
 // terminalSessionTTL bounds how long a terminal session uuid created by
@@ -38,6 +41,20 @@ const terminalAccessCookie = "PF-TERMINAL"
 func terminalAccessKey(connectorID string) string {
 	return "terminal-access:" + connectorID
 }
+
+// terminalSecretKey holds the secret the connector-remote generated when the
+// current terminal session was authorized. The remote only accepts the
+// terminal websocket with it, so the session is enforced on the remote too,
+// not only by this API. It never leaves the server side.
+func terminalSecretKey(connectorID string) string {
+	return "terminal-secret:" + connectorID
+}
+
+// terminalSecretHeader carries the session secret to the connector-remote.
+const terminalSecretHeader = "X-PacketFence-Terminal-Secret"
+
+// terminalTitle is the title of the terminal page.
+const terminalTitle = "pfconnector-remote"
 
 func terminalPath(connectorID string) string {
 	return "/api/v1/terminal/" + url.PathEscape(connectorID) + "/"
@@ -120,6 +137,7 @@ func validTerminalAccess(r *http.Request, connectorID string) bool {
 		return false
 	}
 	redisClient.Expire(r.Context(), terminalAccessKey(connectorID), terminalAccessTTL)
+	redisClient.Expire(r.Context(), terminalSecretKey(connectorID), terminalAccessTTL)
 	return true
 }
 
@@ -148,10 +166,36 @@ func grantTerminalAccess(w http.ResponseWriter, r *http.Request, connectorID str
 	return nil
 }
 
-// proxyTerminal reverse proxies /api/v1/terminal/{connectorID}/* to the
-// connector-remote's local API (:8081) through an on-demand dynreverse
-// tunnel, which in turn proxies to the remote's gotty terminal.
+// gottyAssets are the static files of the gotty web terminal, embedded in this
+// binary: the terminal page is served by this API, never by the remote.
+var gottyAssets = func() fs.FS {
+	assets, err := fs.Sub(bindata.Fs, "static")
+	if err != nil {
+		panic(err)
+	}
+	return assets
+}()
+
+var gottyIndexTemplate = template.Must(template.ParseFS(bindata.Fs, "static/index.html"))
+var gottyManifestTemplate = texttemplate.Must(texttemplate.ParseFS(bindata.Fs, "static/manifest.json"))
+
+// terminalPageHeaders are the headers of the terminal page and its assets:
+// scripts, styles and the websocket of this origin only.
+func terminalPageHeaders(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.Header().Set("Content-Security-Policy", "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; manifest-src 'self'; connect-src 'self' wss://"+r.Host+"; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
+	w.Header().Set("Cache-Control", "no-store")
+}
+
+// proxyTerminal serves the terminal of a connector-remote under
+// /api/v1/terminal/{connectorID}/. The page, its scripts and styles are the
+// gotty assets embedded in this binary, so nothing the remote answers is
+// rendered in the admin origin. Only the websocket (.../ws) goes to the
+// remote: through an on-demand dynreverse tunnel to its local API (:8081),
+// without the admin's credentials, and with the secret of the terminal
+// session that the remote checks before reaching its gotty server.
 func (h APIHandler) proxyTerminal() http.HandlerFunc {
+	staticFiles := http.FileServer(http.FS(gottyAssets))
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		connectorID := chi.URLParam(r, "connectorID")
 		if connectorID == "" {
@@ -159,49 +203,97 @@ func (h APIHandler) proxyTerminal() http.HandlerFunc {
 			return
 		}
 
-		// gotty has no authentication of its own: without this check, any
-		// request reaching this route would attach to a terminal opened by
-		// someone else.
+		// Only the browser that authorized the session (PF-TERMINAL cookie)
 		if !validTerminalAccess(r, connectorID) {
 			http.Error(w, "No authorized terminal session for this PFconnector", http.StatusForbidden)
 			return
 		}
 
-		r.URL.Path = strings.TrimPrefix(r.URL.Path, "/api/v1/terminal/"+connectorID)
-		r.Host = "127.0.0.1:8081"
-		r.URL.Path = "/api/v1/terminal" + r.URL.Path
-		r.Header.Set("X-Forwarded-For", "127.0.0.1")
-		// Never forward the admin's credentials (API token cookie or header,
-		// terminal access token) to the connector-remote: gotty needs none
-		// of them.
-		r.Header.Del("Cookie")
-		r.Header.Del("Authorization")
-
-		conn := h.pfconnector(h.ctx, connectorID)
-		if conn == nil {
-			http.Error(w, "Unknown PFconnector ID", http.StatusNotFound)
-			return
-		}
-		remoteCon, err := conn.DynReverse(h.ctx, fmt.Sprintf("%s:%s", "127.0.0.1", "8081"))
-		if err != nil {
-			http.Error(w, "Failed to connect to PFconnector", http.StatusInternalServerError)
-			return
-		}
-
-		terminalURL, err := url.Parse("http://" + remoteCon.Host + ":" + string(remoteCon.Port))
-		if err != nil {
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
+		// The plugin's default JSON content type doesn't apply here
 		w.Header().Del("Content-Type")
-		proxy := httputil.NewSingleHostReverseProxy(terminalURL)
-		proxy.ServeHTTP(w, r)
+		path := strings.TrimPrefix(r.URL.Path, "/api/v1/terminal/"+connectorID)
+		switch {
+		case path == "/ws":
+			h.proxyTerminalWebsocket(w, r, connectorID)
+		case path == "" || path == "/":
+			if path == "" {
+				http.Redirect(w, r, terminalPath(connectorID), http.StatusMovedPermanently)
+				return
+			}
+			terminalPageHeaders(w, r)
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			gottyIndexTemplate.Execute(w, map[string]interface{}{"title": terminalTitle})
+		case path == "/manifest.json":
+			terminalPageHeaders(w, r)
+			w.Header().Set("Content-Type", "application/manifest+json")
+			gottyManifestTemplate.Execute(w, map[string]interface{}{"title": terminalTitle})
+		case path == "/auth_token.js":
+			// The session is enforced by the access cookie here and by the
+			// session secret on the remote: gotty's own token is not used.
+			terminalPageHeaders(w, r)
+			w.Header().Set("Content-Type", "application/javascript")
+			w.Write([]byte("var gotty_auth_token = '';"))
+		case path == "/config.js":
+			terminalPageHeaders(w, r)
+			w.Header().Set("Content-Type", "application/javascript")
+			w.Write([]byte("var gotty_term = 'xterm';"))
+		case strings.HasPrefix(path, "/js/") || strings.HasPrefix(path, "/css/") ||
+			path == "/favicon.ico" || path == "/icon.svg" || path == "/icon_192.png":
+			terminalPageHeaders(w, r)
+			r2 := r.Clone(r.Context())
+			r2.URL.Path = path
+			r2.URL.RawPath = ""
+			staticFiles.ServeHTTP(w, r2)
+		default:
+			http.NotFound(w, r)
+		}
 	})
 }
 
+// proxyTerminalWebsocket proxies the terminal websocket to the
+// connector-remote with the secret of the current session.
+func (h APIHandler) proxyTerminalWebsocket(w http.ResponseWriter, r *http.Request, connectorID string) {
+	if !isWebsocketUpgrade(r) {
+		http.Error(w, "Only websocket requests are accepted", http.StatusBadRequest)
+		return
+	}
+	if !sameOriginWebsocket(r) {
+		http.Error(w, "Cross-origin request refused", http.StatusForbidden)
+		return
+	}
+	secret, err := pfconnectorRedis(r.Context()).Get(r.Context(), terminalSecretKey(connectorID)).Result()
+	if err != nil || secret == "" {
+		http.Error(w, "No authorized terminal session for this PFconnector", http.StatusForbidden)
+		return
+	}
+
+	conn := h.pfconnector(h.ctx, connectorID)
+	if conn == nil {
+		http.Error(w, "Unknown PFconnector ID", http.StatusNotFound)
+		return
+	}
+	remoteCon, err := conn.DynReverse(h.ctx, fmt.Sprintf("%s:%s", "127.0.0.1", "8081"))
+	if err != nil {
+		http.Error(w, "Failed to connect to PFconnector", http.StatusInternalServerError)
+		return
+	}
+	terminalURL, err := url.Parse("http://" + remoteCon.Host + ":" + string(remoteCon.Port))
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+	newRemoteWebsocketProxy(terminalURL, "/api/v1/terminal/ws", http.Header{terminalSecretHeader: {secret}}).ServeHTTP(w, r)
+}
+
+// terminalAuthorizeClient calls the authorize endpoint of the remotes. The
+// remote validates the session with the pfconnector server first, hence a
+// longer timeout than the other calls.
+var terminalAuthorizeClient = &http.Client{Timeout: 30 * time.Second}
+
 // proxyTerminalAuthorize activates a terminal session on the
 // connector-remote through a dynreverse tunnel, so the admin's browser never
-// needs direct network access to the remote.
+// needs direct network access to the remote. The remote answers with the
+// secret of the session, kept server side next to the access token.
 func (h APIHandler) proxyTerminalAuthorize() http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		connectorID := chi.URLParam(r, "connectorID")
@@ -228,21 +320,46 @@ func (h APIHandler) proxyTerminalAuthorize() http.HandlerFunc {
 		if code := r.URL.Query().Get("code"); code != "" {
 			authorizeURL += "?code=" + url.QueryEscape(code)
 		}
-		res, err := http.Get(authorizeURL)
+		res, err := terminalAuthorizeClient.Get(authorizeURL)
 		if err != nil {
 			http.Error(w, "Failed to activate terminal on the connector-remote", http.StatusBadGateway)
 			return
 		}
 		defer res.Body.Close()
-		if res.StatusCode == http.StatusOK {
-			if err := grantTerminalAccess(w, r, connectorID); err != nil {
-				http.Error(w, "Failed to grant access to the terminal", http.StatusInternalServerError)
-				return
+		body, _ := io.ReadAll(io.LimitReader(res.Body, 4096))
+
+		if res.StatusCode != http.StatusOK {
+			// The reason given by the remote (wrong code, locked, ...), as
+			// plain text only
+			msg := strings.TrimSpace(string(body))
+			if len(msg) > 512 {
+				msg = msg[:512]
 			}
+			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+			w.Header().Set("X-Content-Type-Options", "nosniff")
+			w.WriteHeader(res.StatusCode)
+			w.Write([]byte(msg))
+			return
+		}
+
+		var activation struct {
+			Secret string `json:"secret"`
+		}
+		if err := json.Unmarshal(body, &activation); err != nil || len(activation.Secret) < 32 {
+			http.Error(w, "The connector-remote didn't return a terminal session secret, upgrade it", http.StatusBadGateway)
+			return
+		}
+		if err := pfconnectorRedis(r.Context()).Set(r.Context(), terminalSecretKey(connectorID), activation.Secret, terminalAccessTTL).Err(); err != nil {
+			http.Error(w, "Failed to store the terminal session", http.StatusInternalServerError)
+			return
+		}
+		if err := grantTerminalAccess(w, r, connectorID); err != nil {
+			http.Error(w, "Failed to grant access to the terminal", http.StatusInternalServerError)
+			return
 		}
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(res.StatusCode)
-		io.Copy(w, res.Body)
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"message":"Terminal is enabled"}`))
 	})
 }
 
