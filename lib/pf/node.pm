@@ -171,7 +171,7 @@ sub _can_delete {
 #
 sub node_delete {
     my $timer = pf::StatsD::Timer->new({level => 6});
-    my ($mac) = @_;
+    my ($mac, %opts) = @_;
     my $logger = get_logger();
 
     $mac = clean_mac($mac);
@@ -198,8 +198,69 @@ sub node_delete {
         return ($FALSE, "Unable to delete '$mac' internal error");
     }
 
+    node_clear_portal_session($mac) unless $opts{keep_portal_session};
     $logger->info("node $mac deleted");
     return ($TRUE, '');
+}
+
+=item node_clear_portal_session
+
+Remove the captive portal sessions of devices (keyed by their MAC address) so the portal starts over on their next visit.
+The portal sessions are in the local cache of the server the device reached: in a cluster, the removal is sent to every
+member, in one request per member for all the MAC addresses. The requests are bounded so that a member that is down or
+doesn't answer can't hold the caller (an API worker deleting nodes, the node cleanup), and a failure with one member
+doesn't keep the others from being notified.
+
+=cut
+
+our $PORTAL_SESSION_CONNECT_TIMEOUT_MS = 3_000;
+our $PORTAL_SESSION_TIMEOUT_MS = 10_000;
+
+sub node_clear_portal_session {
+    my @macs = grep { valid_mac($_) } map { clean_mac($_) } grep { defined($_) } @_;
+    return unless @macs;
+    require pf::cluster;
+    if ($pf::cluster::cluster_enabled) {
+        require pf::api::jsonrpcclient;
+        foreach my $server (pf::cluster::config_enabled_servers()) {
+            eval {
+                pf::api::jsonrpcclient->new(
+                    proto              => 'https',
+                    host               => $server->{management_ip},
+                    connect_timeout_ms => $PORTAL_SESSION_CONNECT_TIMEOUT_MS,
+                    timeout_ms         => $PORTAL_SESSION_TIMEOUT_MS,
+                )->notify('clear_portal_session', @macs);
+            };
+            if (my $err = $@) {
+                get_logger->warn("Unable to send the removal of the portal sessions of " . join(', ', @macs) . " to $server->{host}: $err");
+            }
+        }
+        return;
+    }
+    node_remove_portal_session($_) for @macs;
+    return;
+}
+
+=item node_remove_portal_session
+
+Remove the captive portal session of a device from the cache of this server
+
+=cut
+
+sub node_remove_portal_session {
+    my ($mac) = @_;
+    $mac = clean_mac($mac);
+    return unless valid_mac($mac);
+    (my $session_id = $mac) =~ s/://g;
+    eval {
+        require pf::CHI;
+        my $cache = pf::CHI->new(namespace => 'httpd.portal');
+        $cache->remove("$_:$session_id") for qw(session expires flash);
+    };
+    if ($@) {
+        get_logger->warn("Unable to remove the portal session of $mac: $@");
+    }
+    return;
 }
 
 our %DEFAULT_NODE_VALUES = (
@@ -894,6 +955,7 @@ sub node_cleanup {
                 last;
             }
 
+            my @deleted;
             foreach my $row (@nodes) {
                 my $mac = $row->{'mac'};
                 my $voip = $row->{'voip'};
@@ -904,8 +966,12 @@ sub node_cleanup {
                 $logger->info("mac $mac not seen for $delete_time seconds, deleting");
                 require pf::locationlog;
                 pf::locationlog::locationlog_update_end_mac($mac);
-                node_delete($mac);
+                # The portal sessions expire after 6h by default (httpd.portal in chi.conf): a node not seen for a
+                # day has none. Otherwise they are removed once for the whole batch (one request per cluster member)
+                my ($deleted) = node_delete($mac, keep_portal_session => 1);
+                push @deleted, $mac if $deleted && $delete_time < 86400;
             }
+            node_clear_portal_session(@deleted) if @deleted;
 
             my $end_time = time;
             last if (( $end_time - $start_time) > $time_limit );
