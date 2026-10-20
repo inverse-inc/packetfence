@@ -13871,7 +13871,7 @@ msgid "Refresh [Alt + R]"
 msgstr ""
 
 #: conf/pfcron.conf.defaults:[switch_cache_ifindex]/description
-msgid "Refresh the cached SNMP tables used to translate a RADIUS NAS-Port-Id into an ifIndex on the switches that already translated one, so RADIUS requests never wait for the SNMP walk"
+msgid "Refresh the cached SNMP tables used to translate a RADIUS NAS-Port-Id into an ifIndex on the switches that already translated one, so RADIUS requests never wait for the SNMP walk. Switches declared by a MAC or IPv6 address are not refreshed"
 msgstr ""
 
 #: conf/portal_modules.conf.defaults:[default_blackhole_policy]/description

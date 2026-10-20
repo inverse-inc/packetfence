@@ -21,6 +21,12 @@ once, the task then keeps the entry warm. A switch that never translates one
 The cache entries live 48h (chi.conf, namespace switch_distributed), the task
 runs every 12h by default.
 
+Only the switches declared by an IPv4 address or range are refreshed, like the
+switch_cache_lldpLocalPort_description task. A switch declared by its MAC address
+is cached under its MAC, and its address is only known from a RADIUS request,
+so the task has nothing to query: its cache is walked again by the first
+request after it expires. Switches declared by an IPv6 address are skipped too.
+
 =cut
 
 use strict;
