@@ -86,6 +86,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
   - Captive portal: a change to the URI filter of a connection profile is applied without restarting httpd.portal. A URI filter that isn't a valid regex is refused when the profile is saved. Local code using `$WEB::ALLOWED_RESOURCES_PROFILE_FILTER` must call `WEB::allowed_resources_profile_filter()` instead (#1351)
 
+  - The node field `last_arp`, never set by PacketFence, is removed from the admin UI, the filter field lists, the default reports Node::Active, Node::Inactive, Node::Registered::{Active,All} and Node::Unregistered::{Active,All}, and `pfcmd node view`. Exports of these reports lose that column. The database column is kept (#5756)
+
 === Security Fixes
 
 == Version 15.2.0 released on 2026-08-24
