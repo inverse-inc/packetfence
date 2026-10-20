@@ -26,7 +26,7 @@ use pf::ConfigStore::Provisioning;
 use Utils;
 my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Provisioning");
 
-use Test::More tests => 101;
+use Test::More tests => 105;
 use Test::Mojo;
 
 #This test will running last
@@ -203,6 +203,14 @@ $t->post_ok("$collection_base_url/test_jq" => json => {
     jq_query => '.status',
     json     => 'not json',
 })->status_is(422);
+
+# a payload pasted with non-ASCII characters is evaluated as is
+$t->post_ok("$collection_base_url/test_jq" => json => {
+    jq_query => '.owner',
+    json     => "{\"owner\":\"Ren\x{e9} \x{20ac}\"}",
+})->status_is(200)
+  ->json_is('/passes' => Mojo::JSON->true)
+  ->json_is('/results/0' => "Ren\x{e9} \x{20ac}");
 
 # the tester compiles the query the way the provisioner does: no modules from
 # disk, and no reading the environment of the process answering the request

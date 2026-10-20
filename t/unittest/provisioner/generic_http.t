@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 76;
+use Test::More tests => 79;
 use Test::NoWarnings;
 use Test::MockModule;
 use HTTP::Response;
@@ -225,6 +225,25 @@ my $provisioner = new_ok(
     local $pf::provisioner::generic_http::MAX_RESPONSE_SIZE = 10;
     (undef, undef, $err, $kind) = pf::provisioner::generic_http->evaluate_jq('{"a":"0123456789"}', '.a');
     is($kind, $pf::provisioner::generic_http::ERR_JSON, "a payload over MAX_RESPONSE_SIZE is refused");
+
+    # 9 characters but 11 bytes: the limit is on the bytes
+    (undef, undef, $err, $kind) = pf::provisioner::generic_http->evaluate_jq("{\"a\":\"\xe2\x82\xac\"}", '.a');
+    is($kind, $pf::provisioner::generic_http::ERR_JSON, "MAX_RESPONSE_SIZE counts bytes, not characters");
+}
+
+{
+    # a text/* response is decoded to characters by HTTP::Message; the payload
+    # must still reach jq as the UTF-8 it was sent as
+    my $mock = Test::MockModule->new('LWP::UserAgent');
+    my $response;
+    $mock->mock(request => sub { return $response });
+    my $p = make_provisioner(jq_query => '.owner == "Ren\u00e9 \u20ac"');
+    my $body = "{\"owner\":\"Ren\xc3\xa9 \xe2\x82\xac\"}";
+    $response = HTTP::Response->new(200, 'OK', ['Content-Type' => 'text/plain; charset=utf-8'], $body);
+    is($p->authorize($TEST_MAC, $TEST_NODE_INFO), $TRUE, "a non-ASCII text/* response is evaluated as UTF-8");
+
+    $response = HTTP::Response->new(200, 'OK', ['Content-Type' => 'application/json'], $body);
+    is($p->authorize($TEST_MAC, $TEST_NODE_INFO), $TRUE, "a non-ASCII application/json response is evaluated as UTF-8");
 }
 
 {
