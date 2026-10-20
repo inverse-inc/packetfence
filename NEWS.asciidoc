@@ -84,6 +84,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
   - `services.iptables` / `services.ip6tables` set to disabled (System Configuration > Services) had no lasting effect: any PacketFence service start re-applied and flushed the rules. When disabled, PacketFence no longer applies nor flushes the rules. Installations that have it disabled start without PacketFence firewall rules after the upgrade (#5022)
 
+  - Captive portal: a change to the URI filter of a connection profile is applied without restarting httpd.portal. A URI filter that isn't a valid regex is refused when the profile is saved. Local code using `$WEB::ALLOWED_RESOURCES_PROFILE_FILTER` must call `WEB::allowed_resources_profile_filter()` instead (#1351)
+
 === Security Fixes
 
 == Version 15.2.0 released on 2026-08-24

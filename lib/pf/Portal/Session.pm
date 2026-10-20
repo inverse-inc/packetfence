@@ -141,7 +141,8 @@ sub _initialize {
         }
     );
 
-    if ( defined $WEB::ALLOWED_RESOURCES_PROFILE_FILTER && defined ($cgi->url(-absolute=>1)) && $cgi->url(-absolute=>1) =~ /$WEB::ALLOWED_RESOURCES_PROFILE_FILTER/o) {
+    my $profile_filter = WEB::allowed_resources_profile_filter();
+    if ( defined $profile_filter && defined ($cgi->url(-absolute=>1)) && $cgi->url(-absolute=>1) =~ $profile_filter) {
         my $option = {
             'last_uri' => $cgi->url(-absolute=>1),
         };
