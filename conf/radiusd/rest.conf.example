@@ -351,6 +351,19 @@ rest rest-radcache {
 		raw_value ='true'
 		chunk = '8192'
 	}
+	#  Delete the cached answer of the device (Calling-Station-Id) when the
+	#  remote RADIUS server rejects it: called from post-proxy as
+	#  rest-radcache.authorize
+	authorize {
+		uri = "${..connect_uri}/api/v1/radcache/delete"
+		method = 'post'
+		body = 'json'
+		tls = ${..tls}
+		timeout = 1.000000
+		attr_num = 'true'
+		raw_value ='true'
+		chunk = '8192'
+	}
 	#  Store the answer of the remote RADIUS server
 	post-proxy {
 		uri = "${..connect_uri}/api/v1/radcache/set"

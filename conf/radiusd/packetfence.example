@@ -495,12 +495,23 @@ server packetfence {
 			PacketFence-Proxied-From := "True"
 		}
 [% IF degraded_realms %]
-		# Cache the answer for the degraded mode of the realm
-		if ( &proxy-reply:Packet-Type == Access-Accept && ( [% degraded_cache %] ) ) {
-			rest-radcache {
-				fail = 1
-				notfound = 1
-				invalid = 1
+		# Cache the answers of the remote servers for the degraded mode of the
+		# realm, never the ones of the degraded mode itself
+		if ( ( [% degraded_cache %] ) && !&proxy-reply:PacketFence-Degraded && !&control:PacketFence-Degraded ) {
+			if ( &proxy-reply:Packet-Type == Access-Accept ) {
+				rest-radcache {
+					fail = 1
+					notfound = 1
+					invalid = 1
+				}
+			}
+			# The remote server now rejects the device: forget its last accepted answer
+			elsif ( &proxy-reply:Packet-Type == Access-Reject ) {
+				rest-radcache.authorize {
+					fail = 1
+					notfound = 1
+					invalid = 1
+				}
 			}
 		}
 [% END %]

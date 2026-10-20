@@ -340,6 +340,10 @@ the switches or they will declare PacketFence dead first.
   with a RADIUS filter set it in the answer (see below).
 * In a cluster each server keeps its own cache: a device is only known by the
   servers which proxied an answer for it.
+* An answer is kept until the remote servers reject the device (its entry is
+  then deleted), or until it was not refreshed for 30 days
+  (`radius_attribute_ttl` in
+  [filename]`/etc/packetfence-connector-cache/pfcc.conf.yaml`).
 
 ==== RADIUS Proxy Advanced
 
