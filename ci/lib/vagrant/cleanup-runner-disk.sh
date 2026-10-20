@@ -77,7 +77,7 @@ discover_users() {
 as_user() {
     local user=$1 home=$2; shift 2
     if [ "$(id -un)" = "${user}" ]; then
-        VAGRANT_HOME="${home}/.vagrant.d" "$@"
+        VAGRANT_HOME="${VAGRANT_HOME:-${home}/.vagrant.d}" "$@"
     else
         sudo -u "${user}" -H VAGRANT_HOME="${home}/.vagrant.d" "$@"
     fi
@@ -183,9 +183,14 @@ domain_volume_names() {
 
 clean_user_home() {
     local user=$1 home=$2 entry
-    local VAGRANT_BOXES="${home}/.vagrant.d/boxes"
-    local VAGRANT_TMP="${home}/.vagrant.d/tmp"
-    local PREFETCH_CACHE="${home}/vagrant_img_cache"
+    local vagrant_home="${home}/.vagrant.d" PREFETCH_CACHE="${home}/vagrant_img_cache"
+    # The overrides test-wrapper.sh measures apply to our own account only.
+    if [ "${user}" = "$(id -un)" ]; then
+        vagrant_home="${VAGRANT_HOME:-${vagrant_home}}"
+        PREFETCH_CACHE="${VAGRANT_IMG_CACHE:-${PREFETCH_CACHE}}"
+    fi
+    local VAGRANT_BOXES="${vagrant_home}/boxes"
+    local VAGRANT_TMP="${vagrant_home}/tmp"
 
     # 1) Vagrant boxes, ours and public alike
     hdr "User ${user} — ALL local vagrant boxes"
