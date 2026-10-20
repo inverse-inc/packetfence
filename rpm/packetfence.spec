@@ -1219,6 +1219,7 @@ fi
                         /usr/local/pf/conf/radiusd/clients.eduroam.conf.inc.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/cert
                         /usr/local/pf/conf/radiusd/cert.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/dictionary.local
                         /usr/local/pf/conf/radiusd/dictionary.local.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/mschap.conf
                         /usr/local/pf/conf/radiusd/mschap.conf.example
