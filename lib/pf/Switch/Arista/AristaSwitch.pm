@@ -427,7 +427,7 @@ sub acl_chewer {
     my ($self, $acl, $role) = @_;
     my $logger = $self->logger;
     my ($acl_ref , @direction) = $self->format_acl($acl);
-    my $push = $self->usePushACLs && (whowasi() eq "pf::Switch::getRoleAccessListByName");
+    my $push = $self->aclsForPush;
 
     my $entries;
     ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, $push

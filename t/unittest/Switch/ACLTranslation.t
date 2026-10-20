@@ -23,7 +23,8 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 96;
+use Test::More tests => 100;
+use Test::MockModule;
 use pf::Switch;
 use pf::Switch::Aruba::ArubaOS_CX_10_x;
 use pf::Switch::Arista::AristaSwitch;
@@ -290,6 +291,25 @@ foreach my $switch ($aruba, $arista, $aos, $forti) {
         chew($switch, "permit udp any any eq 53"),
         ref($switch).": a protocol without a number (nos) is skipped, not sent as any protocol"
     );
+}
+
+# Push ACLs: the role ACLs read by getRoleAccessListByName (the Ansible push) are
+# in the switch configuration format, the same role in a RADIUS reply is not.
+# acl_chewer used to tell them apart by its caller and never saw the push one.
+
+{
+    my $dal = Test::MockModule->new('pf::dal::switch_observability_acls');
+    $dal->mock(remove_items => sub { 1 });
+    $dal->mock(upsert => sub { 1 });
+    my %push_args = (%args, UsePushACLs => 'enabled');
+    foreach my $switch (
+        [pf::Switch::Aruba::ArubaOS_CX_10_x->new({%push_args}), 'Aruba CX', qr/^in\|1 permit tcp any any/m],
+        [pf::Switch::Arista::AristaSwitch->new({%push_args}), 'Arista', qr/^10 permit tcp any any/m],
+    ) {
+        my ($s, $name, $push_format) = @$switch;
+        like($s->getRoleAccessListByName('r4') // '', $push_format, "$name: getRoleAccessListByName gives the push format");
+        like($s->acl_chewer("permit tcp any any", 'r4') // '', qr/permit in/, "$name: outside of the push, the RADIUS format");
+    }
 }
 
 =head1 AUTHOR

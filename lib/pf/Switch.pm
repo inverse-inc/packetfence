@@ -816,6 +816,9 @@ sub _getAccessListByName {
 
 sub getRoleAccessListByName {
     my ($self, $access_list_name) = @_;
+    # Only the Push ACLs path (generateAnsibleConfiguration) reads the role ACLs
+    # here: tell acl_chewer to format them for the switch configuration.
+    local $self->{_aclsForPush} = 1;
     my $acls = $self->_getRoleAccessListByName($access_list_name);
     if (defined $acls) {
         my $status = pf::dal::switch_observability_acls->remove_items(
@@ -838,6 +841,18 @@ sub getRoleAccessListByName {
     }
 
     return $acls;
+}
+
+=item aclsForPush
+
+True when acl_chewer formats the role ACLs for the switch configuration
+(Push ACLs, through getRoleAccessListByName) rather than for a RADIUS reply.
+
+=cut
+
+sub aclsForPush {
+    my ($self) = @_;
+    return ($self->usePushACLs && $self->{_aclsForPush}) ? 1 : 0;
 }
 
 sub _getRoleAccessListByName {
