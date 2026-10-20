@@ -20,12 +20,17 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 5;
+use Test::More tests => 10;
 use pf::file_paths qw(
     $tls_config_file
     $ocsp_config_file
     $eap_config_file
     $fast_config_file
+    $dns_connectors_config_file
+    $domains_connectors_config_file
+    $billing_tiers_config_file
+    $event_loggers_config_file
+    $provisioning_filters_config_file
 );
 
 #This test will running last
@@ -33,7 +38,10 @@ use Test::NoWarnings;
 
 # The export and the import of the configuration use stored_config_files (#9003)
 my %stored = map { $_ => 1 } @pf::file_paths::stored_config_files;
-for my $file ($tls_config_file, $ocsp_config_file, $eap_config_file, $fast_config_file) {
+# The other configuration files edited from the admin, which an import used to lose too
+for my $file ($tls_config_file, $ocsp_config_file, $eap_config_file, $fast_config_file,
+    $dns_connectors_config_file, $domains_connectors_config_file, $billing_tiers_config_file,
+    $event_loggers_config_file, $provisioning_filters_config_file) {
     ok($stored{$file}, "$file is exported and imported");
 }
 

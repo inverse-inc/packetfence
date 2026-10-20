@@ -447,6 +447,11 @@ $connectors_config_file = catdir($conf_dir,"connectors.conf");
     $mfa_config_file,
     $kafka_config_file,
     $connectors_config_file,
+    $dns_connectors_config_file,
+    $domains_connectors_config_file,
+    $billing_tiers_config_file,
+    $event_loggers_config_file,
+    $provisioning_filters_config_file,
     $cluster_config_file,
 );
 
