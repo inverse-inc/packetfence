@@ -1235,6 +1235,17 @@ sub fingerbank_process : Public {
     pf::fingerbank::process($mac, undef, $overrides);
 }
 
+=head2 fingerbank_process_retry
+
+Process a device again after a failed Fingerbank lookup, scheduled by pf::fingerbank::process
+
+=cut
+
+sub fingerbank_process_retry : Public {
+    my ( $class, $mac, $overrides ) = @_;
+    pf::fingerbank::process($mac, undef, $overrides, retry => 1);
+}
+
 =head2 fingerbank_update_component
 
 =cut
