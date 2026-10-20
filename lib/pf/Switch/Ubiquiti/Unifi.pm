@@ -208,10 +208,15 @@ sub _connect {
 
     my $ua = LWP::UserAgent->new();
     $ua->cookie_jar({ file => "$var_dir/run/.ubiquiti.cookies.txt", autosave => 1, ignore_discard => 1});
-    # Controllers use a self-signed certificate. Recent IO::Socket::SSL no longer
-    # infers SSL_verify_mode from verify_hostname, so both must be given or the
-    # https probe fails with "certificate verify failed".
-    $ua->ssl_opts(verify_hostname => 0, SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_NONE());
+    # Controllers usually have a self-signed certificate, so it is only checked
+    # when wsVerifyCertificate is enabled: then it must be issued by a trusted CA
+    # for the controller address. Recent IO::Socket::SSL no longer infers
+    # SSL_verify_mode from verify_hostname, so both are given.
+    if (isenabled($self->{_wsVerifyCertificate})) {
+        $ua->ssl_opts(verify_hostname => 1, SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_PEER());
+    } else {
+        $ua->ssl_opts(verify_hostname => 0, SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_NONE());
+    }
     $ua->timeout(10);
     $ua->default_header('Content-Type' => "application/json");
 
@@ -258,16 +263,23 @@ sub _connect {
             $response = $ua->get($url."/proxy/network/status");
         }
         if ($response->code == 401 || $response->is_success) {
-            $unifi_os = $TRUE;
-            # UniFi OS redirects http to https: keep talking to where the probe ended up
+            # UniFi OS redirects http to https: keep talking to where the probe
+            # ended up, as long as it is the same host over https, since the
+            # login with the controller password is posted there
             my $final = $response->request->uri;
-            if ($final->scheme ne $transport || $final->port != $port) {
+            if ($final->scheme ne $transport || $final->port != $port || lc($final->host) ne lc($controllerIp)) {
+                if (lc($final->host) ne lc($controllerIp) || ($final->scheme ne $transport && $final->scheme ne 'https')) {
+                    $logger->warn("Unifi controller $url redirected to " . $final->scheme . "://" . $final->host_port . ", which is not the same host over https: ignoring it");
+                    next;
+                }
                 $url = $final->scheme . "://" . $final->host_port;
                 $logger->info("Unifi controller redirected $base_url:$port to $url, using it");
             }
+            $unifi_os = $TRUE;
             $DETECTED_CONTROLLERS{$detected_key} = { url => $url, unifi_os => $TRUE } if defined $detected_key;
             last;
         }
+        $self->_warn_certificate_failure($response, $url);
         $logger->debug("No UniFi OS controller on $url (" . $response->status_line . ")");
     }
 
@@ -288,6 +300,7 @@ sub _connect {
         $url = "${base_url}:" . ($controllerPort || $ALT_DEFAULT_PORT);
         # Check if cookie is still valid for old controller
         $response = $ua->get($url."/api/self");
+        $self->_warn_certificate_failure($response, $url);
         $cookie_invalid = ($response->code == 401) ? $TRUE : $FALSE;
         if (defined $detected_key) {
             if ($cookie_invalid || $response->is_success) {
@@ -311,6 +324,19 @@ sub _connect {
         $self->_set_unifi_os_csrf_token($ua, $response) if $unifi_os;
     }
     return ($ua, $url.$api_prefix);
+}
+
+=head2 _warn_certificate_failure
+
+Log why the controller cannot be reached when its certificate is refused, which
+only happens with wsVerifyCertificate enabled.
+
+=cut
+
+sub _warn_certificate_failure {
+    my ($self, $response, $url) = @_;
+    return unless $response->code == 500 && $response->status_line =~ /certificate verify failed/i;
+    $self->logger->warn("The certificate of the Unifi controller on $url is not valid for this address or not issued by a trusted authority (" . $response->status_line . "). Disable 'Verify Certificate' (wsVerifyCertificate) for a controller with a self-signed certificate");
 }
 
 =head2 _set_unifi_os_csrf_token

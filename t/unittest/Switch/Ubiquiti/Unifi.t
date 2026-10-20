@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 27;
+use Test::More tests => 35;
 
 #This test will running last
 use Test::NoWarnings;
@@ -205,6 +205,71 @@ ok($mock->post("$mock_url/mock/csrf-headers/on")->is_success, "Mock: CSRF header
     local $switch->{_controllerPort} = 11443;
     $switch->_connect();
     is_deeply(\@probes, [ [ 11443, 10 ], [ 11443, 10 ] ], "A configured controller port keeps the full timeout");
+}
+
+# 7. Certificate checking: off by default (self-signed controllers), full
+# verification (chain and host) when wsVerifyCertificate is enabled
+{
+    my @ssl;
+    my $lwp = Test::MockModule->new('LWP::UserAgent');
+    $lwp->mock(get => sub {
+        my ($ua) = @_;
+        push @ssl, [ $ua->ssl_opts('verify_hostname'), $ua->ssl_opts('SSL_verify_mode') ];
+        return HTTP::Response->new(500, "unreachable");
+    });
+    local $switch->{_controllerIp} = '127.0.0.4';
+    local $switch->{_wsTransport} = 'https';
+    local $switch->{_controllerPort} = 11443;
+    $switch->_connect();
+    is_deeply($ssl[0], [ 0, IO::Socket::SSL::SSL_VERIFY_NONE() ], "The certificate is not checked by default");
+    @ssl = ();
+    local $switch->{_wsVerifyCertificate} = 'Y';
+    $switch->_connect();
+    is_deeply($ssl[0], [ 1, IO::Socket::SSL::SSL_VERIFY_PEER() ], "wsVerifyCertificate checks the certificate and its host");
+}
+
+# 8. Redirects of the probe: only to the same host, keeping or upgrading to https,
+# since the login with the controller password is then posted there
+{
+    my %answers;
+    my @gets;
+    my @posts;
+    my $lwp = Test::MockModule->new('LWP::UserAgent');
+    # The login is refused: a login posted anywhere makes _connect die
+    $lwp->mock(post => sub { my ($ua, $url) = @_; push @posts, $url; return HTTP::Response->new(403, "refused") });
+    $lwp->mock(get => sub {
+        my ($ua, $url) = @_;
+        push @gets, $url;
+        my ($port) = $url =~ m{^\w+://[^/:]+:(\d+)};
+        my $answer = $answers{$port} or return HTTP::Response->new(500, "unreachable");
+        my $response = HTTP::Response->new($answer->[0], "answer");
+        $response->request(HTTP::Request->new(GET => $answer->[1]));
+        $response->header('x-csrf-token' => 'redirected-token');
+        return $response;
+    });
+    local $switch->{_controllerIp} = '127.0.0.4';
+    local $switch->{_controllerPort};
+
+    local $switch->{_wsTransport} = 'http';
+    %answers = ($UOS_PORT => [ 401, "https://other.example.com/proxy/network/status" ]);
+    my ($ua, $base_url) = eval { $switch->_connect() };
+    is($base_url, "http://127.0.0.4:8443", "A redirect to another host is ignored: the controller is looked for on its own address");
+    ok(!grep({ /other\.example\.com/ } @gets, @posts), "The login is not posted to the other host");
+    ok(!grep({ ($_->{url} // '') =~ /other\.example\.com/ } values %pf::Switch::Ubiquiti::Unifi::DETECTED_CONTROLLERS), "The other host is not remembered as the controller");
+
+    %answers = ($UOS_PORT => [ 200, "https://127.0.0.4:443/proxy/network/status" ]);
+    ($ua, $base_url) = $switch->_connect();
+    is($base_url, "https://127.0.0.4:443/proxy/network", "A redirect from http to https on the same host is followed");
+    is($ua->default_header('X-CSRF-Token'), 'redirected-token', "The session found at the redirected location is used");
+    delete $pf::Switch::Ubiquiti::Unifi::DETECTED_CONTROLLERS{"http://127.0.0.4"};
+
+    local $switch->{_wsTransport} = 'https';
+    local $pf::Switch::Ubiquiti::Unifi::DEFAULT_HTTPS_PORT = $UOS_PORT;
+    %answers = ($UOS_PORT => [ 401, "http://127.0.0.4:80/proxy/network/status" ]);
+    @posts = ();
+    ($ua, $base_url) = eval { $switch->_connect() };
+    is($base_url, "https://127.0.0.4:8443", "A redirect from https to http is ignored: the login is not posted over http");
+    delete $pf::Switch::Ubiquiti::Unifi::DETECTED_CONTROLLERS{"https://127.0.0.4"};
 }
 
 =head1 AUTHOR

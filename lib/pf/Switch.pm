@@ -171,6 +171,7 @@ sub new {
         '_wsPwd'                        => undef,
         '_wsUser'                       => undef,
         '_wsTransport'                  => undef,
+        '_wsVerifyCertificate'          => 'disabled',
         '_radiusSecret'                 => undef,
         '_controllerIp'                 => undef,
         '_controllerPort'               => undef,
