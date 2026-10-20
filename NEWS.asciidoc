@@ -118,6 +118,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
   - Kickbox source: calls the documented `https://api.kickbox.com` instead of `https://api.kickbox.io`. An IP allow-list set up on the Kickbox side only works with the documented host. Outbound filters must allow `api.kickbox.com`
 
+  - `POST /api/v1/radius_audit_logs/search` without a `query` in the body (for example `{"limit":5}`) answered 500 instead of the first page (#9564)
+
 === Security Fixes
 
   - Email: when STARTTLS is selected and fails (refused by the server, handshake or certificate error), sending now fails with the error instead of continuing in cleartext, which also sent the SMTP username and password unencrypted. Setups that select STARTTLS against a server that doesn't support it will now get "SMTP STARTTLS failed on <server>: <error>"; select the encryption the server supports
