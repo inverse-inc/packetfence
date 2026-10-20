@@ -40,3 +40,8 @@ Run following script to perform a full upgrade:
 /usr/local/pf/addons/upgrade/do-upgrade.sh
 ----
 
+The whole output of the upgrade is also written to
+[filename]`/usr/local/pf/logs/upgrade/pf-upgrade-<date>_<time>.log` (the
+script prints the path when it starts). Attach this file to any support
+request about a failed upgrade.
+
