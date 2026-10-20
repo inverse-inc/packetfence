@@ -23,7 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 47;
+use Test::More tests => 49;
 use Test::NoWarnings;
 
 use pf::SwitchFactory;
@@ -223,6 +223,22 @@ use Utils;
     @open = pf::locationlog::locationlog_view_open_switchport_no_VoIP('172.16.8.42', $ifIndex);
     is_deeply([map { $_->{mac} } @open], [$mac5],
         'only the last endpoint keeps an open locationlog entry on the multi-host port');
+}
+
+# AOS v16 has its own radiusDisconnect: an empty shared secret skips it like on
+# the other modules, instead of sending a CoA with an empty secret
+{
+    require pf::Switch::HP::AOS_Switch_v16_X;
+    my $prepared = 0;
+    no warnings qw(redefine once);
+    local *pf::Switch::HP::AOS_Switch_v16_X::radius_deauth_connection_info = sub { $prepared++; die "stop here\n" };
+    local *pf::Switch::HP::AOS_Switch_v16_X::locationlog_view_open_mac = sub { return {} };
+    my $aos = pf::Switch::HP::AOS_Switch_v16_X->new({ id => '192.0.2.40', ip => '192.0.2.40', radiusSecret => '', SNMPUseConnector => 'N', radiusDeauthUseConnector => 'N' });
+    $aos->radiusDisconnect('02:00:00:00:94:00');
+    is($prepared, 0, 'AOS v16 sends no CoA without a RADIUS shared secret');
+    $aos->{_radiusSecret} = 'secret';
+    eval { $aos->radiusDisconnect('02:00:00:00:94:00') };
+    is($prepared, 1, 'AOS v16 prepares the CoA when the shared secret is set');
 }
 
 =head1 AUTHOR

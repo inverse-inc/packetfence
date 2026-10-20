@@ -1415,13 +1415,8 @@ sub wiredReevaluationDeauthTechnique {
     my $deauthMethod = $use_radius ? $SNMP::RADIUS : $self->{_deauthMethod};
     my ($method, $technique) = $self->wiredeauthTechniques($deauthMethod, $connection_type);
 
-    if ( !defined $technique ) {
-        $logger->error(
-            "switch (".$self->{'_id'}.") has no wired deauthentication technique for connection type "
-            . ($connection_type // 'undef')
-        );
-        return;
-    }
+    # the caller reports it, with the endpoint and the port
+    return if !defined $technique;
 
     if ( $use_radius && $method ne $SNMP::RADIUS ) {
         $logger->warn(

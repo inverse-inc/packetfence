@@ -456,6 +456,10 @@ with its own RADIUS session:
   on the switch, and a switch module with a RADIUS deauthentication technique
   for the connection type. Otherwise PacketFence falls back on the
   deauthentication method of the switch and logs a warning.
+* The locationlog entry of an endpoint is closed by the Accounting-Stop of its
+  session, or when the endpoint shows up on another port. Configure the switch
+  to send RADIUS accounting to PacketFence: without it, the entries of the
+  endpoints that left the port stay open.
 
 Most switches apply a single data VLAN to a port. Endpoints of the same
 `multi-auth` port therefore can't be placed in different VLANs: give their
