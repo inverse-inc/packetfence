@@ -85,6 +85,7 @@ sub _read {
     }
     my $vendor;        # set between BEGIN-VENDOR and END-VENDOR
     my $bad_vendor;    # set between BEGIN-VENDOR and END-VENDOR of a vendor that can't be used
+    my @tlv;           # the TLVs being defined, between BEGIN-TLV and END-TLV
     while (my $line = <$fh>) {
         $line =~ s/#.*//;
         my @f = split ' ', $line;
@@ -129,6 +130,18 @@ sub _read {
         }
         elsif ($keyword eq 'END-VENDOR') {
             $vendor = $bad_vendor = undef;
+        }
+        elsif ($keyword eq 'BEGIN-TLV') {
+            # Net::Radius has no TLV: the sub-attributes are numbered from 1 and
+            # would replace the standard or vendor attributes with those numbers
+            push @$warnings, "$where: TLV " . ($f[1] // '') . " is not supported, its attributes are ignored";
+            push @tlv, $f[1] // '';
+        }
+        elsif ($keyword eq 'END-TLV') {
+            pop @tlv;
+        }
+        elsif (@tlv && ($keyword eq 'ATTRIBUTE' || $keyword eq 'VALUE')) {
+            push @$warnings, "$where: inside TLV $tlv[-1], ignored";
         }
         elsif (defined $bad_vendor && ($keyword eq 'ATTRIBUTE' || $keyword eq 'VALUE')) {
             # Read as standard attributes, they would replace the shipped ones

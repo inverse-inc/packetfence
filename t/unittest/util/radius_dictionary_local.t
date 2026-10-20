@@ -19,7 +19,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 31;
+use Test::More tests => 36;
 use Test::NoWarnings;
 use File::Temp qw(tempdir);
 use Storable qw(dclone);
@@ -111,6 +111,32 @@ is($bad->{avendors}{'Lab-Lowercase-Vendor-Attr'}, 'Extreme', 'a vendor block nam
 is($bad->{avendors}{'Lab-Lowercase-Old-Style-Attr'}, 'Extreme', 'an old style vendor name is matched without regard to case');
 
 # a CoA-Request carrying the custom attribute is encoded and decoded back
+# BEGIN-TLV / END-TLV: the sub-attributes are numbered from 1, they must not
+# replace User-Name or the vendor's attribute 1
+write_file("$dir/dictionary.tlv", <<'EOT');
+ATTRIBUTE       Lab-Tlv             3996    tlv
+BEGIN-TLV       Lab-Tlv
+ATTRIBUTE       Lab-Tlv-Sub         1       string
+VALUE           Lab-Tlv-Sub         One     1
+BEGIN-TLV       Lab-Tlv-Nested
+ATTRIBUTE       Lab-Tlv-Nested-Sub  2       integer
+END-TLV         Lab-Tlv-Nested
+END-TLV         Lab-Tlv
+BEGIN-VENDOR    Extreme
+BEGIN-TLV       Lab-Vendor-Tlv
+ATTRIBUTE       Lab-Vendor-Tlv-Sub  1       string
+END-TLV         Lab-Vendor-Tlv
+ATTRIBUTE       Lab-After-Tlv-Attr  250     string
+END-VENDOR      Extreme
+EOT
+my $tlv = dclone($RADIUS_DICTIONARY);
+my @tlv_warnings = pf::util::radius_dictionary_local::merge($tlv, "$dir/dictionary.tlv");
+is_deeply($tlv->{rattr}{1}, $RADIUS_DICTIONARY->{rattr}{1}, 'a TLV sub-attribute does not replace User-Name');
+is_deeply($tlv->{rvsattr}{1916}{1}, $RADIUS_DICTIONARY->{rvsattr}{1916}{1}, "a TLV sub-attribute in a vendor block does not replace the vendor's attribute");
+ok(!exists $tlv->{attr}{'Lab-Tlv-Sub'} && !exists $tlv->{avendors}{'Lab-Vendor-Tlv-Sub'} && !exists $tlv->{attr}{'Lab-Tlv-Nested-Sub'}, 'the TLV sub-attributes are not added');
+is($tlv->{avendors}{'Lab-After-Tlv-Attr'}, 'Extreme', 'the attributes after END-TLV are read again');
+is(scalar(grep { /inside TLV/ } @tlv_warnings), 4, 'the ATTRIBUTE and VALUE lines inside a TLV are reported');
+
 my $packet = Net::Radius::Packet->new($dict);
 $packet->set_code('CoA-Request');
 $packet->set_identifier(1);
