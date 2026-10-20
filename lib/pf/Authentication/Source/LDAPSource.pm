@@ -281,6 +281,11 @@ sub _connect {
             my $dest_ip = pf::factory::connector->resolve($LDAPServer);
             if (!defined $dest_ip) {
                 $logger->warn("[$self->{'id'}] Unable to resolve $LDAPServer, switching to next server");
+                # Like a server that can't be reached: don't ask the resolver
+                # again on every bind for dead_duration
+                if($honor_dead && $self->dead_duration) {
+                    $self->cache->set($dead_cache_key, $TRUE, $self->dead_duration);
+                }
                 next TRYSERVER;
             }
             my $connector_conn = pf::factory::connector->for_ip($dest_ip)->dynreverse("$dest_ip:$LDAPServerPort");
