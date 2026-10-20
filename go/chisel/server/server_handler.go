@@ -619,15 +619,24 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// Listen only on the address the dynreverse is advertised on (the
+	// management IP, see PFCONNECTOR_SERVER_DYN_REVERSE_HOST), not on all the
+	// interfaces of the server. The consumers (the other containers, the
+	// other cluster members) connect to that address.
+	bindHost := ""
+	if ip := net.ParseIP(host); ip != nil && ip.To4() != nil && !ip.IsUnspecified() {
+		bindHost = ip.String() + ":"
+	}
+
 	connectorId := payload.ConnectorID
 	if o, ok := activeTunnels.Load(connectorId); ok {
 		for i := 0; i < DYNREVERSE_BIND_ATTEMPTS; i++ {
 			tun := o.(*tunnel.Tunnel)
 			to := payload.To
 			if payload.LocalPort != "" {
-				to = fmt.Sprintf("%s:%s", payload.LocalPort, to)
+				to = fmt.Sprintf("%s%s:%s", bindHost, payload.LocalPort, to)
 			} else {
-				to = fmt.Sprintf("0:%s", to)
+				to = fmt.Sprintf("%s0:%s", bindHost, to)
 			}
 			remoteStr := fmt.Sprintf("R:%s", to)
 			remote, err := settings.DecodeRemote(remoteStr)
