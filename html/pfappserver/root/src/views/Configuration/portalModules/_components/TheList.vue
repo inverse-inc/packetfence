@@ -370,5 +370,16 @@ export default {
     // TODO: switch to icon-only when viewport is too small
     flex-wrap: nowrap;
   }
+  // keep the tabs visible and scroll the modules of the active tab when they don't fit
+  > .tabs {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    > .tab-content {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+    }
+  }
 }
 </style>
