@@ -99,12 +99,14 @@ sub getPhonesCDPAtIfIndex {
 
 Whether the switch answers SNMP. A switch that does not answer is not queried
 again for SNMP_UNREACHABLE_MEMORY: the lookup runs during the RADIUS request,
-and without this every request would wait for the SNMP timeout.
+and without this every request would wait for the SNMP timeout. A switch whose
+"Use SNMP" is disabled is not queried, without a warning.
 
 =cut
 
 sub _cdpLookupAvailable {
     my ($self) = @_;
+    return $FALSE if isdisabled($self->{_useSNMP});
     return $FALSE if $self->cache_distributed->get($self->{_id} . "-CDP-snmp-unreachable");
     return $TRUE if $self->connectRead();
     $self->_snmpUnreachable($self->{_error});

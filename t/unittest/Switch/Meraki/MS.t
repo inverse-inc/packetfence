@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 29;
+use Test::More tests => 42;
 use pf::Switch::Meraki::MS;
 use pf::Switch::Meraki::MS_v15;
 
@@ -144,6 +144,67 @@ my $calls = $timeout_session->{calls};
 ok(!$stale->isPhoneAtIfIndex($laptop, 14), "the next lookup is not a phone");
 is($timeout_session->{calls}, $calls, "the switch is not queried again");
 ok(!$stale->_cdpRecheck({ mac => $laptop, ifIndex => 14, isPhone => 0 }), "no re-authentication after a timeout");
+
+# "Use SNMP" disabled on the switch: no probe, no warning, nothing remembered
+my $snmp_off_probes = 0;
+{
+    no warnings qw(redefine once);
+    *t::MS_snmp_off::connectRead = sub { $snmp_off_probes++; return pf::Switch::connectRead(@_) };
+    @t::MS_snmp_off::ISA = ('pf::Switch::Meraki::MS_v15');
+}
+my $snmp_off = t::MS_snmp_off->new({ id => '10.0.0.4', ip => '10.0.0.4', VoIPEnabled => 'Y', VoIPDHCPDetect => 'N', useSNMP => 'N' });
+$cache->remove("10.0.0.4-CDP-snmp-unreachable");
+{
+    my @warnings;
+    no warnings qw(redefine once);
+    local *pf::Switch::Meraki::MS::_snmpUnreachable = sub { push @warnings, $_[1] };
+    is_deeply([$snmp_off->getPhonesCDPAtIfIndex(13)], [], "no phone when Use SNMP is disabled");
+    ok(!$snmp_off->_cdpRecheck({ mac => $laptop, ifIndex => 14, isPhone => 0 }), "no re-authentication when Use SNMP is disabled");
+    is($snmp_off_probes, 0, "the switch is not probed when Use SNMP is disabled");
+    is(scalar(@warnings), 0, "no 'does not answer SNMP' warning when Use SNMP is disabled");
+}
+
+# returnRadiusAccessAccept: the recheck attributes, and the RADIUS filter
+# evaluated once over the complete reply
+{
+    use pf::radius::constants;
+    my $filter_calls = 0;
+    my $parent_reply;
+    no warnings qw(redefine once);
+    local *pf::access_filter::radius::test = sub { $filter_calls++; return undef };
+    local *pf::Switch::returnRadiusAccessAccept = sub {
+        my ($self, $args) = @_;
+        $filter_calls++ unless $args->{'unfiltered'};
+        return [ $RADIUS::RLM_MODULE_OK, %{ $parent_reply // {} } ];
+    };
+    $switch->{_VoIPEnabled} = 'Y';
+    my %args = (mac => $laptop, ifIndex => 14, isPhone => 0, user_role => 'default', vlan => 1);
+
+    $cache->remove("10.0.0.1-CDP-recheck-$laptop");
+    $filter_calls = 0;
+    my ($status, %reply) = @{ $switch->returnRadiusAccessAccept({ %args }) };
+    is($reply{'Session-Timeout'}, pf::Switch::Meraki::MS::CDP_RECHECK_TIMEOUT(), "a device that is not a phone yet is authenticated again later");
+    is($reply{'Termination-Action'}, 1, "without the port going down (Termination-Action RADIUS-Request)");
+    is($filter_calls, 1, "the RADIUS filter is evaluated once");
+
+    $filter_calls = 0;
+    ($status, %reply) = @{ $switch->returnRadiusAccessAccept({ %args, mac => 'e8:ed:f3:aa:88:46', ifIndex => 13, isPhone => 1 }) };
+    ok(!exists $reply{'Session-Timeout'} && !exists $reply{'Termination-Action'}, "a phone gets the regular answer");
+    is($filter_calls, 1, "the RADIUS filter is evaluated once for a phone");
+
+    $cache->remove("10.0.0.1-CDP-recheck-$laptop");
+    $parent_reply = { 'Session-Timeout' => 600 };
+    ($status, %reply) = @{ $switch->returnRadiusAccessAccept({ %args }) };
+    is($reply{'Session-Timeout'}, 600, "a Session-Timeout already in the reply is kept");
+    ok(!exists $reply{'Termination-Action'}, "and no Termination-Action is added to it");
+    $parent_reply = undef;
+
+    $cache->remove("10.0.0.1-CDP-recheck-$laptop");
+    $filter_calls = 0;
+    ($status, %reply) = @{ $switch->returnRadiusAccessAccept({ %args, unfiltered => 1 }) };
+    is($filter_calls, 0, "a caller that filters itself gets an unfiltered reply");
+    ok(exists $reply{'Session-Timeout'}, "with the recheck attributes");
+}
 
 =head1 AUTHOR
 

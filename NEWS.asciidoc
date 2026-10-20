@@ -30,6 +30,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 === Enhancements
 
   - RADIUS dynamic clients (switches resolved from radius_nas) are now cached for 300 seconds. With the FreeRADIUS build shipped by PacketFence, `lifetime = 0` deleted the client after every request and re-ran the radius_nas lookups for every packet (fork commit b04cb25fe, reverted separately in inverse-inc/freeradius-server#3). A changed switch secret or type now applies to an already-known switch within five minutes
+  - Meraki MS switches detect Cisco IP phones through CDP (#7236), like Cisco switches: with VoIP enabled and "VoIP CDP Detect" (enabled by default), PacketFence reads the cdpCacheTable of the switch over SNMP during the RADIUS request. *After the upgrade*, enable SNMP for the network in the Meraki dashboard and set the SNMP read parameters of the switch, or disable "VoIP CDP Detect" on it: otherwise a request arriving while the switch is probed waits for the SNMP timeout (about 4 seconds) once every 10 minutes, with a warning in `packetfence.log`. A switch whose "Use SNMP" is disabled is not queried
   - FreeRADIUS thread pool size (`max_servers`) is now configurable as `radius_configuration.radiusd_max_servers` (Configuration > RADIUS > General) and defaults to 128 instead of 64; it also bounds the rlm_rest connection pool to httpd.aaa
 
 === Bug Fixes
