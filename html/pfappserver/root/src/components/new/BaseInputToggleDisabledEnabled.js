@@ -1,4 +1,4 @@
-import BaseInputToggle, { props as BaseInputToggleProps } from '@/components/new/BaseInputToggle'
+import BaseInputToggle, { props as BaseInputToggleProps } from './BaseInputToggle'
 import i18n from '@/utils/locale'
 
 export const props = {
@@ -19,7 +19,7 @@ export const props = {
 }
 
 export default {
-  name: 'base-input-toggle-enable-disable',
+  name: 'base-input-toggle-disabled-enabled',
   extends: BaseInputToggle,
   props
 }
