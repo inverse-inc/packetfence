@@ -74,9 +74,9 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 	router := chi.NewRouter()
 	m.router = router
 
+	// No RealIP/Logger: Caddy already writes the access log, and the request
+	// URLs carry terminal session uuids and TOTP codes.
 	m.router.Use(middleware.RequestID)
-	m.router.Use(middleware.RealIP)
-	m.router.Use(middleware.Logger)
 	m.router.Use(middleware.Recoverer)
 
 	m.router.Use(func(next http.Handler) http.Handler {
