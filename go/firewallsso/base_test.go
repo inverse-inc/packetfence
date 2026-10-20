@@ -3,6 +3,7 @@ package firewallsso
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/util"
@@ -301,5 +302,24 @@ func TestFormatUsername(t *testing.T) {
 
 	if username != "bobby@example.com" {
 		t.Errorf("Unexpected username out of the formatting %s", username)
+	}
+}
+
+// The warning about a firewall without any role is logged once per interval
+// and per firewall, not for every SSO event
+func TestNoRoleWarningLimiter(t *testing.T) {
+	l := &warningLimiter{last: map[string]time.Time{}}
+	start := time.Now()
+	if !l.shouldWarn("fw1", start) {
+		t.Error("the first warning of a firewall must be logged")
+	}
+	if l.shouldWarn("fw1", start.Add(time.Minute)) {
+		t.Error("a warning within the interval must not be logged again")
+	}
+	if !l.shouldWarn("fw2", start.Add(time.Minute)) {
+		t.Error("another firewall gets its own warning")
+	}
+	if !l.shouldWarn("fw1", start.Add(noRoleWarningInterval)) {
+		t.Error("the warning is logged again once the interval is over")
 	}
 }

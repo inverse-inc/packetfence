@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	log15 "github.com/inconshreveable/log15"
@@ -301,6 +302,30 @@ func (fw *FirewallSSO) getDst(ctx context.Context, proto string, toIP string, to
 	}
 }
 
+// noRoleWarningInterval is how often the warning about a firewall without any
+// role is logged: roles are optional in the form, and the check runs for every
+// SSO event (every DHCP update on a busy server).
+const noRoleWarningInterval = 5 * time.Minute
+
+// warningLimiter remembers when a warning was last logged for each firewall
+type warningLimiter struct {
+	mu   sync.Mutex
+	last map[string]time.Time
+}
+
+var noRoleWarnings = &warningLimiter{last: map[string]time.Time{}}
+
+// shouldWarn tells whether the warning of a firewall is due, and records it
+func (l *warningLimiter) shouldWarn(id string, now time.Time) bool {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	if last, ok := l.last[id]; ok && now.Sub(last) < noRoleWarningInterval {
+		return false
+	}
+	l.last[id] = now
+	return true
+}
+
 // Execute an SSO Start request on the specified firewall
 // Makes sure to call FirewallSSO.Start and to validate the network and role if necessary
 func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string, timeout int) (bool, error) {
@@ -331,7 +356,12 @@ func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string
 
 	if !fw.MatchesRole(ctx, info) {
 		if roles := fw.GetRoles(ctx); len(roles) == 0 {
-			log.LoggerWContext(ctx).Warn("Not sending SSO Start since no role is selected for this firewall: it applies to the devices of the selected roles only")
+			msg := "Not sending SSO Start since no role is selected for this firewall: it applies to the devices of the selected roles only"
+			if noRoleWarnings.shouldWarn(fw.GetFirewallSSO(ctx).PfconfigHashNS, time.Now()) {
+				log.LoggerWContext(ctx).Warn(fmt.Sprintf("%s (logged once every %s for this firewall)", msg, noRoleWarningInterval))
+			} else {
+				log.LoggerWContext(ctx).Debug(msg)
+			}
 		} else {
 			log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO Start since the role '%s' is not one of the roles of this firewall (%s)", info["role"], strings.Join(roles, ", ")))
 		}
