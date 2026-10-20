@@ -68,7 +68,8 @@ my @whitelist = (
     '_getRoleAccessListByName', 'handleRadiusRsso', '_handleRadiusResponse', 'lldpRemPortIdToMac',
     'cachedSNMPTableKey', 'refreshCachedSNMPTable', 'ifIndexCacheTables', 'hasCachedIfIndexTables', 'refreshIfIndexCache',
     '_setDynauthPort',
-    'getHostMode', 'isMultiAuthPort', 'hasRadiusSecret', 'wiredReevaluationDeauthTechnique'
+    'getHostMode', 'isMultiAuthPort', 'hasRadiusSecret', 'wiredReevaluationDeauthTechnique',
+    'locationlog_for_disconnect'
 );
 
 my @missing_subs;

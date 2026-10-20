@@ -189,7 +189,7 @@ sub radiusDisconnect {
     my $response;
     try {
         my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
-        my $locationlog = locationlog_view_open_mac($mac);
+        my $locationlog = $self->locationlog_for_disconnect($mac);
         $logger->debug("network device supports roles. Evaluating role to be returned");
         my $roleResolver = pf::roles::custom->instance();
         my $role = $roleResolver->getRoleForNode($mac, $self);
