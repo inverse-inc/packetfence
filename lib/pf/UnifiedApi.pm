@@ -2016,6 +2016,8 @@ sub setup_api_v1_cluster_routes {
     my $resource_route = $root->any("/cluster")->to(controller => "Cluster")->name("api.v1.Cluster");;
     $resource_route->any(['GET'] => "/servers")->to(action => "servers")->name("api.v1.Cluster.servers");
     $resource_route->any(['GET'] => "/config")->to(action => "config")->name("api.v1.Cluster.config");
+    $resource_route->any(['GET'] => "/vips")->to(action => "vips")->name("api.v1.Cluster.vips");
+    $resource_route->any(['GET'] => "/vips/local")->to(action => "vips_local")->name("api.v1.Cluster.vips_local");
     return (undef, $resource_route);
 }
 
