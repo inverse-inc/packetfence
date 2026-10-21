@@ -122,6 +122,44 @@ Ctrl-D
 Change the `interface-range` statement to reflect the ports you want to secure
 with PacketFence.
 
+==== Dynamic authorization (CoA / Disconnect)
+
+The switch listens for Disconnect and CoA requests on UDP 3799 by default and
+uses the secret of the `radius-server`, so nothing more has to be configured.
+On the EX4400, the `set access radius-disconnect-port` and
+`set access radius-disconnect` statements are ignored ("statement ignored:
+unsupported platform"). To check the listener:
+
+  show system connections | match 3799
+
+In PacketFence, set the *Deauthentication Method* of the switch to `RADIUS`.
+
+==== Flow export (sFlow)
+
+The switch can export sampled traffic to the Fingerbank collector of
+PacketFence (UDP 6343). Enable sFlow on every access port and on the uplink:
+
+  set protocols sflow sample-rate ingress 500
+  set protocols sflow sample-rate egress 500
+  set protocols sflow polling-interval 10
+  set protocols sflow source-ip 192.168.1.2
+  set protocols sflow agent-id 192.168.1.2
+  set protocols sflow collector 192.168.1.5 udp-port 6343
+  set protocols sflow interfaces ge-0/0/1.0
+  set protocols sflow interfaces ge-0/0/47.0
+  commit
+
+Here 192.168.1.2 is the switch management IP. The collector sample counter
+increases in `show sflow collector`, and `show sflow interface` lists the
+interfaces as Enabled.
+
+Use sFlow rather than IPFIX on the EX series. Inline IPFIX (inline-jflow)
+only samples through a `family inet` firewall filter with `then sample`:
+`family ethernet-switching` filters have no sample action and there is no
+Layer 2 template, so traffic that the switch only bridges is never exported.
+IPFIX would only see traffic routed by an irb interface of the switch (tested
+on EX4400, Junos 23.4R2).
+
 ==== VoIP configuration
 
 ----

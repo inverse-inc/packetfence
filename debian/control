@@ -44,9 +44,10 @@ Depends: ${misc:Depends}, vlan,
  libapache2-mod-apreq2, libapache2-mod-perl2,
  libapache2-request-perl, libtie-dxhash-perl, libapache-session-perl,
  libapache-ssllookup-perl, libapache2-mod-systemd,
-# freeradius
- freeradius (>= 3.2.7), freeradius-ldap,
- freeradius-mysql, freeradius-utils, freeradius-rest, freeradius-redis,
+# freeradius: rlm_rest >= 3.2.10 for body_lists (RADIUS filters of the proxy
+# sections). The PacketFence builds carry epoch 4, which the floor must include.
+ freeradius (>= 4:3.2.10), freeradius-ldap,
+ freeradius-mysql, freeradius-utils, freeradius-rest (>= 4:3.2.10), freeradius-redis,
  eapoltest,
 # systemd sd_notify support
  liblinux-systemd-daemon-perl,

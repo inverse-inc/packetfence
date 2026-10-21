@@ -460,6 +460,14 @@ has_field 'wsPwd' =>
    type => 'ObfuscatedText',
    label => 'Password',
   );
+has_field 'wsVerifyCertificate' =>
+  (
+   type => 'Toggle',
+   label => 'Verify Certificate',
+   default => undef,
+   tags => { after_element => \&help,
+             help => 'Verify the certificate of the controller when the transport is HTTPS. The certificate must be issued by a trusted certificate authority for the controller address. When disabled, the certificate is not checked, which allows self-signed certificates.' },
+  );
 
 has_field controllerIp =>
   (
