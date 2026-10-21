@@ -334,7 +334,7 @@ sub radiusDisconnect {
 
     my $response;
     try {
-        my $locationlog = locationlog_view_open_mac($mac);
+        my $locationlog = $self->locationlog_for_disconnect($mac);
         my $connection_info =
           $self->radius_deauth_connection_info($send_disconnect_to);
 

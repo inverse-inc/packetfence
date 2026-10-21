@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 35;
+use Test::More tests => 40;
 
 #This test will running last
 use Test::NoWarnings;
@@ -39,6 +39,9 @@ use JSON::MaybeXS;
 use HTTP::Cookies;
 use MIME::Base64 ();
 use Test::MockModule;
+use pf::dal::locationlog;
+use pf::dal::node;
+use pf::dal::locationlog_history;
 use pf::constants qw($ZERO_DATE);
 use pf::config qw(%connection_type_to_str $WEBAUTH_WIRELESS);
 
@@ -270,6 +273,54 @@ ok($mock->post("$mock_url/mock/csrf-headers/on")->is_success, "Mock: CSRF header
     ($ua, $base_url) = eval { $switch->_connect() };
     is($base_url, "https://127.0.0.4:8443", "A redirect from https to http is ignored: the login is not posted over http");
     delete $pf::Switch::Ubiquiti::Unifi::DETECTED_CONTROLLERS{"https://127.0.0.4"};
+}
+
+# radiusDisconnect without an open locationlog: the NAS-Identifier comes from the
+# last known AP, never an empty one (#8065)
+{
+    my $mac = '00:65:80:65:00:01';
+    my $ap  = 'aa:bb:cc:dd:ee:01';
+    pf::dal::node->remove_items(-where => { mac => $mac });
+    pf::dal::locationlog->remove_items(-where => { mac => $mac });
+    pf::dal::locationlog_history->remove_items(-where => { mac => $mac });
+    pf::dal::node->new({ mac => $mac })->insert;
+
+    my @sent;
+    my $mock = Test::MockModule->new('pf::Switch');
+    $mock->mock('handleRadiusDisconnect', sub { push @sent, $_[2]; return { Code => 'Disconnect-ACK' } });
+    $mock->mock('radius_deauth_connection_info', sub { {} });
+
+    my $switch = pf::Switch::Ubiquiti::Unifi->new({ id => '10.0.0.1', ip => '10.0.0.1', radiusSecret => 'x' });
+
+    # 1. no locationlog at all
+    @sent = ();
+    $switch->radiusDisconnect($mac);
+    ok(!exists $sent[0]{'NAS-Identifier'}, 'no locationlog: no empty NAS-Identifier');
+
+    # 2. closed locationlog (node deleted / disconnected)
+    pf::dal::locationlog->new({ mac => $mac, switch => '10.0.0.1', switch_ip => '10.0.0.1', switch_mac => $ap,
+        port => 0, vlan => 1, connection_type => 'Wireless-802.11-NoEAP', start_time => '2026-10-11 10:00:00',
+        end_time => '2026-10-11 10:05:00' })->insert;
+    @sent = ();
+    $switch->radiusDisconnect($mac);
+    is($sent[0]{'NAS-Identifier'}, 'aabbccddee01', 'closed locationlog: last AP used');
+    is($sent[0]{'Calling-Station-Id'}, '00-65-80-65-00-01', 'Calling-Station-Id format');
+
+    # 3. open locationlog on another AP wins
+    pf::dal::locationlog->update_items(-set => { switch_mac => 'aa:bb:cc:dd:ee:02', end_time => '0000-00-00 00:00:00' }, -where => { mac => $mac });
+    @sent = ();
+    $switch->radiusDisconnect($mac);
+    is($sent[0]{'NAS-Identifier'}, 'aabbccddee02', 'open locationlog: current AP used');
+
+    # 4. caller attributes still merged
+    @sent = ();
+    $switch->radiusDisconnect($mac, { 'NAS-IP-Address' => '10.0.0.9' });
+    is($sent[0]{'NAS-IP-Address'}, '10.0.0.9', 'additional attributes merged');
+
+
+    pf::dal::locationlog->remove_items(-where => { mac => $mac });
+    pf::dal::locationlog_history->remove_items(-where => { mac => $mac });
+    pf::dal::node->remove_items(-where => { mac => $mac });
 }
 
 =head1 AUTHOR
