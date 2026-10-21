@@ -24,6 +24,11 @@ KVM_GID="$(stat -c '%g' /dev/kvm)"
 
 mkdir -p "${PACKER_ISO_CACHE_DIR}"
 
+# Keep downloads outside the checkout and across disposable containers.
+GALAXY_CACHE="${ANSIBLE_GALAXY_CACHE_DIR:-${XDG_CACHE_HOME:-${HOME}/.cache}/packetfence/ansible-galaxy}/vagrant-builder"
+mkdir -p "${GALAXY_CACHE}"
+GALAXY_CACHE="$(realpath "${GALAXY_CACHE}")"
+
 echo "===> vagrant box build in ${VAGRANT_BUILD_IMAGE} (kvm gid=${KVM_GID}, target=${TARGET})"
 
 # The repo is mounted at its host path so CURDIR/RESULT_DIR values computed on
@@ -40,6 +45,10 @@ docker run --rm \
   -e BUILD_NAME \
   -e RESULT_DIR \
   -e ANSIBLE_FORCE_COLOR \
+  -e ANSIBLE_GALAXY_CACHE_DIR=/ansible-galaxy-cache \
+  -e ANSIBLE_GALAXY_SEED_DIR \
+  -e GALAXY_FORCE \
+  -e PF_ANSIBLE_GALAXY_REFRESH_ID \
   -e UPLOAD_BOX \
   -e PSONO_CI_SERVER_URL \
   -e PSONO_CI_API_KEY_ID \
@@ -51,6 +60,7 @@ docker run --rm \
   -v "${PACKER_ISO_CACHE_DIR}":/tmp/packer-iso \
   -v /var/tmp:/var/tmp \
   -v pf-apt-cacher-ng:/var/cache/apt-cacher-ng \
+  -v "${GALAXY_CACHE}":/ansible-galaxy-cache \
   -w "${SCRIPT_DIR}" \
   "${VAGRANT_BUILD_IMAGE}" \
   "${SCRIPT_DIR}/build-in-container.sh" "${TARGET}"

@@ -4,6 +4,7 @@ include ../config.mk
 # Specific variables
 #==============================================================================
 SHELL=/bin/bash
+GO_CHECK ?= no
 
 #==============================================================================
 # Tests CI or localdev
@@ -38,6 +39,7 @@ $(CONTAINER_IMAGES):
 			--rm --name "$@_build" \
 			-e "CI_PROJECT_DIR=/workspace" \
 			-e "IMAGE_NAME=$@" \
+			-e "GO_CHECK=$(GO_CHECK)" \
 			-e "IMAGE_TAGS=$(DEV_ENV)-$(KNK_REGISTRY_USER)" \
 			-e "KNK_REGISTRY=$(KNK_REGISTRY)" \
 			-e "KNK_REGISTRY_URL=$(KNK_REGISTRY_URL)" \
