@@ -119,7 +119,14 @@ sub buildCondition {
             }
 
             my ($key, $val) = @$params;
-            my $sub_condition = $FUNC_OPS{$func}->new(value => $val);
+            my $sub_condition;
+            if ($wrap_in_not && $FUNC_OPS{$func}->isa('pf::condition::date_compare')) {
+                # Negated inside the comparison: an unset or invalid date, or a missing key, must not match
+                $sub_condition = $FUNC_OPS{$func}->new(value => $val, negate => 1);
+                $wrap_in_not = 0;
+            } else {
+                $sub_condition = $FUNC_OPS{$func}->new(value => $val);
+            }
             my $condition;
             if (exists $NO_KEY{$func}) {
                 $condition = $sub_condition;

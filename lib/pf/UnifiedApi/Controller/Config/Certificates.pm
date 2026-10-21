@@ -137,7 +137,7 @@ sub resource_info {
     my $data = {
         certificate => pf::ssl::x509_info($x509_cert),
         intermediate_cas => [ map {pf::ssl::x509_info($_)} @$x509_intermediate_cas ],
-        chain_is_valid => $self->tuple_return_to_hash(pf::ssl::verify_chain($x509_cert, $x509_cas)),
+        chain_is_valid => $self->tuple_return_to_hash(pf::ssl::verify_chain($x509_cert, $x509_cas, $x509_intermediate_cas)),
         cert_key_match => $self->tuple_return_to_hash(pf::ssl::validate_cert_key_match($x509_cert, $rsa_key)),
         lets_encrypt => isenabled(pf::ssl::lets_encrypt::resource_state($self->stash->{certificate_id})) ? $self->json_true : $self->json_false,
     };
@@ -296,10 +296,13 @@ sub replace {
     }
 
     if(!defined($params->{check_chain}) || isenabled($params->{check_chain})) {
-        my ($chain_res, $chain_msg) = pf::ssl::verify_chain($cert, $cas);
+        my ($chain_res, $chain_msg) = pf::ssl::verify_chain($cert, $cas, $intermediate_cas);
         unless($chain_res) {
             my $msg = "Failed verifying chain: $chain_msg.";
-            if(exists($data->{intermediate_cas}) || $chain_in_certificate) {
+            if($chain_msg =~ /^Intermediate certificate\(s\) not part of the signing chain/) {
+                $msg .= " Remove them from the intermediate certificates, they would be sent to the clients along with the certificate.";
+            }
+            elsif(exists($data->{intermediate_cas}) || $chain_in_certificate) {
                 $msg .= " Ensure the intermediates certificate file you provided contains all the intermediate certificate authorities in x509 (Apache) format.";
             }
             else {

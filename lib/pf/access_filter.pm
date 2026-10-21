@@ -72,7 +72,7 @@ sub filter {
     my ($self, $scope, $args) = @_;
     $args = $self->adjustCommonParams($args);
     my $rule = $self->test($scope, $args);
-    return $self->filterRule($rule, $args);
+    return $self->filterRule($rule, $args, $scope);
 }
 
 
