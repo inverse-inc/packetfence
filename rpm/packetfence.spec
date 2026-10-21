@@ -1372,6 +1372,7 @@ fi
                         /usr/local/pf/conf/pfsetacls/switch_acls.yml
 %dir                    /usr/local/pf/conf/pfsetacls/collections
                         /usr/local/pf/conf/pfsetacls/collections/requirements.yml
+                        /usr/local/pf/conf/pfsetacls/ansible_collections
 %doc                    /usr/local/pf/COPYING
 %dir                    /usr/local/pf/db
                         /usr/local/pf/db/*
