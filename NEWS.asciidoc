@@ -48,6 +48,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Bug Fixes
 
+  - Cluster: an interface of pf.conf that cluster.conf doesn't define for a server is now ignored on that server, instead of being used there with the IP address of the server where pf.conf was configured (in a multi-zone cluster, keepalived refused to start on the members of a zone without that interface). In a multi-zone cluster, `pfcmd checkup` warns about an interface ignored on a server while the other servers of its zone have it, and about an interface defined for no server, including the ones without an IP address (e.g. monitor or dhcp-listener), which now need their sections in cluster.conf
+
   - The isolation passthroughs (`fencing.isolation_passthroughs`) resolved by pfdns were added to the registration passthrough ipset (`pfsession_passthrough`), so the isolation network never let them through and the registration network did. They are now added to `pfsession_isol_passthrough`, used by the isolation network rules. A setup relying on an isolation passthrough being reachable from the registration network must add it to the passthroughs too
 
   - Cluster: `/usr/local/pf/bin/cluster/sync --from` checks the webservices of the server to sync from first and stops with what to verify when they can't be used, instead of logging the same error for each file. It now exits with 1 when a file can't be synced, including an entry of `cluster-files.txt` that doesn't exist on that server or can't be written locally (it exited with 0)
