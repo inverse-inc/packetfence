@@ -144,6 +144,9 @@ Overrides the default implementation to add the dynamic acls
 sub returnRadiusAccessAccept {
     my ($self, $args) = @_;
     my $logger = $self->logger;
+    # A subclass that runs the RADIUS filter itself calls us with 'unfiltered'
+    # set; filtering here too would add every answer of the rule twice (#9135).
+    my $caller_filters = isenabled($args->{'unfiltered'});
     $args->{'unfiltered'} = $TRUE;
     $self->compute_action(\$args);
     my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
@@ -178,9 +181,12 @@ sub returnRadiusAccessAccept {
         }
     }
 
-    my $filter = pf::access_filter::radius->new;
-    my $rule = $filter->test('returnRadiusAccessAccept', $args);
-    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    # A subclass that applies the RADIUS filter itself called us unfiltered
+    unless ($caller_filters) {
+        my $filter = pf::access_filter::radius->new;
+        my $rule = $filter->test('returnRadiusAccessAccept', $args);
+        ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    }
     return [$status, %$radius_reply_ref];
 }
 
@@ -309,7 +315,7 @@ sub radiusDisconnect {
     # initialize
     $add_attributes_ref = {} if ( !defined($add_attributes_ref) );
 
-    if ( !defined( $self->{'_radiusSecret'} ) ) {
+    if ( !$self->hasRadiusSecret() ) {
         $logger->warn(
 "[$self->{'_ip'}] Unable to perform RADIUS CoA-Request: RADIUS Shared Secret not configured"
         );
@@ -364,6 +370,9 @@ sub radiusDisconnect {
             $response = $self->handleRadiusCoa( $connection_info, $attributes_ref, $vsa );
 
         } else {
+            # The port bounce CoA identifies the port with NAS-Port, a NAS-Port-Id is rejected with a CoA-NAK
+            my $port = delete $attributes_ref->{'NAS-Port-Id'};
+            $attributes_ref->{'NAS-Port'} //= $port;
             $vsa = [
                 {
                     'vendor'    => 'HP',
@@ -457,20 +466,27 @@ sub acl_chewer {
     my ($self, $acl, $role) = @_;
     my $logger = $self->logger;
     my ($acl_ref , @direction) = $self->format_acl($acl);
+    my $push = $self->aclsForPush;
+
+    my $entries;
+    ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, $push
+        ? sub { $self->untranslatablePushAcl($_[0]) }
+        : sub { $self->untranslatableFilterRule($_[0]) });
 
     my $i = 0;
     my $acl_chewed;
-    foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
-        #Bypass acl that contain tcp_flag, it doesnt apply correctly on the switch
-        next if (defined($acl->{'tcp_flags'}));
+    foreach my $acl (@$entries) {
         $acl->{'protocol'} =~ s/\(\d*\)//;
         my $dest;
         my $dest_port;
-        if ($dest_port =~ /range\s+(.*)/) {
-            $dest_port = $1;
-            $dest_port =~ s/\s/-/;
-        } else {
-            $dest_port =~ s/\w+\s+//;
+        if (defined($acl->{'destination'}->{'port'})) {
+            $dest_port = $acl->{'destination'}->{'port'};
+            if ($dest_port =~ /range\s+(.*)/) {
+                $dest_port = $1;
+                $dest_port =~ s/\s/-/;
+            } else {
+                $dest_port =~ s/\w+\s+//;
+            }
         }
         if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
             $dest = "any";
@@ -496,7 +512,7 @@ sub acl_chewer {
             }
         }
         my $j = $i + 1;
-        if ($self->usePushACLs && (whowasi() eq "pf::Switch::getRoleAccessListByName")) {
+        if ($push) {
             $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$j." ".$acl->{'action'}." ".$acl->{'protocol'}." ".(($self->usePushACLs) ? $src : "any")." $dest " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' )."\n";
         } else {
             $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$acl->{'action'}." ".((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] : "in")." ".$acl->{'protocol'}." from any to ".$dest." ".( defined($dest_port) ? $dest_port : '' )."\n";
@@ -504,6 +520,26 @@ sub acl_chewer {
         $i++;
     }
     return $acl_chewed;
+}
+
+=head2 untranslatablePushAcl
+
+Why a parsed ACL entry cannot be pushed in the "action protocol source
+destination port" form built by L</acl_chewer>, or undef when it can.
+
+=cut
+
+sub untranslatablePushAcl {
+    my ($self, $entry) = @_;
+    # addresses are turned into a prefix
+    foreach my $side ('source', 'destination') {
+        return "the $side mask '".$entry->{$side}->{'wildcard'}."' is not contiguous" if !$self->aclWildcardIsContiguous($entry->{$side}->{'wildcard'});
+    }
+    # TCP flags do not apply correctly on the switch
+    return "TCP flags are not supported ('".$entry->{'tcp_flags'}."')" if defined $entry->{'tcp_flags'};
+    return "the source port is not sent" if defined $entry->{'source'}->{'port'};
+    return "the ICMP type is not sent ('".$entry->{'icmp_qualifier'}."')" if defined $entry->{'icmp_qualifier'};
+    return undef;
 }
 
 =head1 AUTHOR
