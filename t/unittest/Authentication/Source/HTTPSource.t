@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 4;
+use Test::More tests => 8;
 use pf::Authentication::Source::HTTPSource;
 
 #This test will running last
@@ -31,13 +31,22 @@ is_deeply([$source->handleResults('"{}"', "source")], [0, "Invalid response"]);
 is_deeply([$source->handleResults("{}", "source")], [0, "Authentication failed"]);
 is_deeply([$source->handleResults('{"result":1, "message": "Success"}', "source")], [1, "Success"]);
 
+sub url_for_host {
+    my ($host) = @_;
+    return pf::Authentication::Source::HTTPSource->new({id => 'test', protocol => 'http', host => $host, port => 10000})->base_url('authentication');
+}
+is(url_for_host('192.0.2.10'), 'http://192.0.2.10:10000/authentication', "IPv4 host");
+is(url_for_host('2001:db8::1'), 'http://[2001:db8::1]:10000/authentication', "IPv6 host enclosed in brackets");
+is(url_for_host('[2001:db8::1]'), 'http://[2001:db8::1]:10000/authentication', "IPv6 host already in brackets");
+is(url_for_host('auth.example.com'), 'http://auth.example.com:10000/authentication', "host name");
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

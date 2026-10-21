@@ -1,0 +1,7 @@
+name: Configreload after deleting Inheritance3 so parent roles are no longer in use
+testcases:
+
+- name: run_configreload_hard
+  steps:
+  - type: pf_configreload_hard
+    time_to_sleep: 10

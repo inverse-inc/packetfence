@@ -41,6 +41,7 @@ export const setup = (props) => {
     switch(unref(type)) {
       case 'dhcp':
       case 'fortianalyser':
+      case 'fortigate_dhcp':
       case 'nexpose':
       case 'security_onion':
       case 'snort':

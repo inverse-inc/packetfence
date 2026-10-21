@@ -1,0 +1,36 @@
+name: Create accounting
+testcases:
+- name: get_current_date
+  steps:
+  - type: exec
+    script: date +'%b %d %Y %H:%M:%S %Z'
+    vars:
+      current_date:
+        from: result.systemout
+
+- name: prepare_file_for_radclient
+  steps:
+  - type: exec
+    script: |
+      sudo tee /etc/wpa_supplicant/eap_tls_manual/radclient_conf.txt << EOF
+      User-Name = "000300111101"
+      #Acct-Status-Type = Interim-Update # Stop
+      Acct-Status-Type = Start
+      Acct-Session-Id = "4DD66FF4-1CC0E1408AA1-0000914612"
+      Calling-Station-Id = "00:03:00:11:11:01"
+      Called-Station-Id = "44:38:39:00:00:12:UConnect"
+      NAS-Port = 4
+      NAS-Port-Type = Ethernet
+      Framed-IP-Address = 10.120.57.18
+      NAS-Identifier = "zayme-ap"
+      #NAS-Port-Id = "radio1" pas obligatoire
+      Event-Timestamp = "{{.get_current_date.current_date}}"
+      NAS-IP-Address = 172.18.120.201
+      EOF
+
+- name: create_accounting
+  steps:
+  - type: exec
+    script: |
+      cat /etc/wpa_supplicant/eap_tls_manual/radclient_conf.txt | radclient -x {{.pfserver_mgmt_ip}}:1813 acct testing123
+

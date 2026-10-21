@@ -1,0 +1,57 @@
+=== Network Connectivity Issues
+
+For network-related problems:
+
+**Basic Network Diagnostics:**
+
+1. Verify interface configuration and IP addresses:
++
+[source,bash]
+----
+ip addr show
+----
+
+2. Check network service status:
++
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service pf status | grep -E "(dhcpd|pfdhcp|keepalived)"
+----
+
+3. Test connectivity to network devices (switches, wireless controllers):
++
+[source,bash]
+----
+ping switch-ip-address
+----
+
+4. Verify SNMP connectivity to network devices:
++
+[source,bash]
+----
+snmpwalk -v2c -c community switch-ip-address system
+----
+
+5. For VLAN enforcement issues, check switch configuration and trunk port
+   settings
+
+6. Verify firewall rules allow required traffic between PacketFence and
+   network devices
+
+==== Advanced Network Issues
+
+1. **Large Registration Network Issues**: In large environments, check for ARP
+   table overflow symptoms:
+   - DHCP not assigning IPs properly
+   - Failed pings in registration/quarantine VLANs
+   - Check system logs: `dmesg | grep "Neighbour table overflow"`
+
+2. **VLAN Segmentation**: Ensure VLAN reaches from client to DHCP
+   infrastructure to PacketFence server
+
+3. **Keepalived Issues**: If virtual IP addresses aren't working properly:
++
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service keepalived restart
+----

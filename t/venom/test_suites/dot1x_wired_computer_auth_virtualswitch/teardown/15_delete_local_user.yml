@@ -1,0 +1,17 @@
+name: Delete local test user
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: delete_local_user
+  steps:
+  - type: http
+    method: DELETE
+    url: '{{.pfserver_webadmin_url}}/api/v1/user/{{.virtualswitch.dot1x.computer.username}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200

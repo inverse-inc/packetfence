@@ -18,10 +18,11 @@ use warnings;
 use pf::log;
 
 use pf::constants;
-use Scalar::Util qw(blessed);
+use Scalar::Util qw(blessed reftype);
 use pf::constants::trigger qw($TRIGGER_ID_PROVISIONER $TRIGGER_TYPE_PROVISIONER);
 use pf::config qw(
     %ConfigFloatingDevices
+    %ConfigFirewallSSO
     $WIRELESS_MAC_AUTH
     %Config
     $WIRED_MAC_AUTH
@@ -49,6 +50,11 @@ use pf::util::statsd qw(called);
 use pf::StatsD::Timer;
 use pf::constants::realm;
 use pf::factory::provisioner;
+use pf::client;
+use pf::ip4log;
+use pf::constants::firewallsso qw($ROLE_CHANGE);
+use pf::constants::dhcp qw($DEFAULT_LEASE_LENGTH);
+use List::MoreUtils qw(any);
 
 our $VERSION = 1.04;
 
@@ -429,6 +435,7 @@ sub getRegisteredRole {
                 radius_request => $args->{radius_request},
                 realm => $args->{realm},
                 context => $pf::constants::realm::RADIUS_CONTEXT,
+                %{ _connection_params($args) },
             };
             my %info;
             my $matched = pf::authentication::match2([@sources], $params, undef, \$attributes);
@@ -602,6 +609,7 @@ sub getNodeInfoForAutoReg {
                 radius_request => $args->{radius_request},
                 realm => $args->{realm},
                 context => $pf::constants::realm::RADIUS_CONTEXT,
+                %{ _connection_params($args) },
             };
             my $matched = pf::authentication::match2([@sources], $params, undef, \$attributes);
             my $source = $matched->{source_id};
@@ -664,11 +672,31 @@ sub getNodeInfoForAutoReg {
         my $provisioner = pf::factory::provisioner->new($id);
         if(isenabled($provisioner->apply_role)) {
             get_logger->debug("Provisioner $id is setup to apply a role on matching devices. Checking state of node");
-            my $role = $provisioner->authorize_apply_role($args->{mac});
+            my $role = $provisioner->authorize_apply_role($args->{mac}, { user_name => $args->{user_name}, radius_request => $args->{radius_request} });
             if(defined($role)) {
                 get_logger->info("Applying role $role based on provisioner $id");
                 $node_info{category} = $role;
                 last;
+            }
+        }
+    }
+
+    # Trigger SSO on role change if enabled
+    my $old_role = $args->{node_info}->{category} // '';
+    my $new_role = $node_info{'category'} // '';
+    if ($old_role ne $new_role && $new_role ne '') {
+        if (any { pf::util::isenabled($_->{'sso_on_role_change'}) } values %ConfigFirewallSSO) {
+            my $mac = $args->{mac};
+            my $ip = pf::ip4log::mac2ip($mac);
+            if ($ip) {
+                my $client = pf::client::getClient();
+                $client->notify('firewallsso',
+                    method => 'Start',
+                    mac => $mac,
+                    ip => $ip,
+                    timeout => $DEFAULT_LEASE_LENGTH,
+                    source => $ROLE_CHANGE
+                );
             }
         }
     }
@@ -710,7 +738,7 @@ sub shouldAutoRegister {
         my $provisioner = pf::factory::provisioner->new($id);
         if(isenabled($provisioner->autoregister)) {
             get_logger->debug("Provisioner $id is setup to autoreg on matching devices. Checking state of node for autoregistration");
-            my $role = $provisioner->authorize_apply_role($args->{mac});
+            my $role = $provisioner->authorize_apply_role($args->{mac}, { user_name => $args->{user_name}, radius_request => $args->{radius_request} });
             if(defined($role)) {
                 $args->{node_info}->{notes} = "AUTO-REGISTERED via provisioner $id";
                 get_logger->info("Device is authorized in provisioner, autoregistering the device.");
@@ -865,9 +893,36 @@ sub makeParams {
         radius_request => $args->{radius_request},
         realm => $args->{realm},
         context => $pf::constants::realm::RADIUS_CONTEXT,
+        %{ _connection_params($args) },
     };
     $params->{'stripped_user_name'} = $args->{'stripped_user_name'} if(defined($args->{'stripped_user_name'}));
     return $params;
+}
+
+=head2 _connection_params
+
+The endpoint and network device attributes of the authentication rule
+conditions (mac, switch_id, switch_group, computer_name). The portal and the
+RADIUS CLI/VPN paths already pass them; without them a rule condition on the
+switch group never matches an 802.1X or MAB request.
+
+=cut
+
+sub _connection_params {
+    my ( $args ) = @_;
+    my %params;
+    my $switch = $args->{'switch'};
+    if (ref($switch)) {
+        $params{'switch_id'} = $switch->{'_id'} if defined $switch->{'_id'};
+        $params{'switch_group'} = $switch->{'_group'} if defined $switch->{'_group'};
+    }
+    $params{'mac'} = $args->{'mac'} if defined $args->{'mac'};
+    # On the RADIUS path node_info is a pf::dal::node object, not a plain hash
+    my $node_info = $args->{'node_info'};
+    if ((reftype($node_info) // '') eq 'HASH' && defined $node_info->{'computername'}) {
+        $params{'computer_name'} = $node_info->{'computername'};
+    }
+    return \%params;
 }
 
 =head1 AUTHOR
@@ -876,7 +931,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

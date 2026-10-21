@@ -72,6 +72,10 @@ sub account_info {
 
 sub resource {
     my ($self) = @_;
+    # An edit (update, remove) reads the item: get the shared local database first
+    if ($self->req->method ne 'GET') {
+        return undef unless $self->_restore_local_db_before_edit;
+    }
     my $id = $self->stash($self->url_param_name);
     my $model = $self->fingerbank_model;
     my ($status, $item ) = $model->read_hashref($id);
@@ -81,6 +85,22 @@ sub resource {
 
     push @{$self->stash->{item}}, $item;
     return 1;
+}
+
+=head2 _restore_local_db_before_edit
+
+Make sure the local database is the shared one before an edit, see
+L<pf::fingerbank/restore_local_db_from_storage>. Renders an error and returns
+false when it can't.
+
+=cut
+
+sub _restore_local_db_before_edit {
+    my ($self) = @_;
+    my ($res, $msg) = pf::fingerbank::restore_local_db_from_storage();
+    return 1 if $res;
+    $self->render_error(500, "Unable to get the current local Fingerbank database before the change: $msg");
+    return 0;
 }
 
 =head2 list
@@ -122,6 +142,8 @@ sub create {
         return $self->render(json => $json, status => $status);
     }
 
+    return unless $self->_restore_local_db_before_edit;
+
     my $model = $self->fingerbank_model;
     my $db = fingerbank::DB_Factory->instantiate(schema => 'Local');
     my $source =  $db->handle->source($model->_parseClassName);
@@ -136,8 +158,12 @@ sub create {
         return $self->render_error($status, $return);
     }
 
-    pf::fingerbank::sync_local_db();
     my $id = $return->{id};
+    my ($sync_res, $sync_msg) = pf::fingerbank::sync_local_db();
+    if (!$sync_res) {
+        return $self->render_error(500, "'$id' was created but syncing the local Fingerbank database failed: $sync_msg");
+    }
+
     my $parent_route = $self->match->endpoint->parent->name;
     my $url = $self->url_for("$parent_route.resource.get", {$self->url_param_name => $id});
     $self->res->headers->location($url);
@@ -158,7 +184,11 @@ sub remove {
         return $self->render_error($status, $msg);
     }
 
-    pf::fingerbank::sync_local_db();
+    my ($sync_res, $sync_msg) = pf::fingerbank::sync_local_db();
+    if (!$sync_res) {
+        return $self->render_error(500, "'$id' was deleted but syncing the local Fingerbank database failed: $sync_msg");
+    }
+
     return $self->render(json => {message => "Deleted $id successfully"});
 }
 
@@ -316,10 +346,14 @@ sub update {
     my $id = $self->id;
     my ($status, $message) = $model->update($id, \%data);
     if (is_error($status)) {
-        $self->render_error($status, $message);
+        return $self->render_error($status, $message);
     }
 
-    pf::fingerbank::sync_local_db();
+    my ($sync_res, $sync_msg) = pf::fingerbank::sync_local_db();
+    if (!$sync_res) {
+        return $self->render_error(500, "'$id' was updated but syncing the local Fingerbank database failed: $sync_msg");
+    }
+
     $self->render(status => 200, json => { message => "$id updated"});
 }
 
@@ -353,7 +387,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

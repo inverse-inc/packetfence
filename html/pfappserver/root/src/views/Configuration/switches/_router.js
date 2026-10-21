@@ -3,9 +3,9 @@ import RolesStoreModule from '../roles/_store'
 import SwitchesStoreModule from './_store'
 import SwitchGroupsStoreModule from '../switchGroups/_store'
 
-const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/TheTabsNetworkDevices')
+const TheTabs = () => import(/* webpackChunkName: "ConfigurationPoliciesAccessControl" */ '../_components/TheTabsNetworkDevices')
 const TheCsvImport = () => import(/* webpackChunkName: "Import" */ './_components/TheCsvImport')
-const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
+const TheView = () => import(/* webpackChunkName: "ConfigurationPoliciesAccessControl" */ './_components/TheView')
 
 export const useRouter = $router => {
   return {
@@ -46,7 +46,14 @@ export default [
     path: 'switches/new/:switchGroup',
     name: 'newSwitch',
     component: TheView,
-    props: (route) => ({ isNew: true, switchGroup: route.params.switchGroup }),
+    props: (route) => ({
+      isNew: true,
+      switchGroup: route.params.switchGroup,
+      id: route.query.id,
+      network: route.query.network,
+      SNMPVersion: route.query.SNMPVersion,
+      type: route.query.type
+    }),
     beforeEnter
   },
   {

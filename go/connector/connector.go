@@ -30,6 +30,10 @@ type DynReverseConnectionInfo struct {
 	Port    json.Number `json:"port"`
 }
 
+type FingerbankCollectorEndpointInfo struct {
+	Endpoint string `json:"endpoint"`
+}
+
 func (c *Connector) init() error {
 	for _, network := range c.Networks {
 		_, ipnet, err := net.ParseCIDR(network)
@@ -42,6 +46,7 @@ func (c *Connector) init() error {
 }
 
 func (c *Connector) connectorServerApiClient(ctx context.Context) (*unifiedapiclient.Client, error) {
+	ctx = context.Background()
 	res := redisClient.Get(ctx, fmt.Sprintf("%s%s", redisTunnelsNamespace, c.PfconfigHashNS))
 	client := unifiedapiclient.NewFromConfig(ctx)
 	if s, err := res.Result(); err != nil && err != redis.Nil {
@@ -64,6 +69,23 @@ func (c *Connector) connectorServerApiClient(ctx context.Context) (*unifiedapicl
 	}
 }
 
+// FingerbankCollectorEndpoint returns the URL of the fingerbank collector co-located
+// with this connector's pfconnector, so callers can query only that collector instead
+// of fanning out across all collectors. Returns an error if the connector tunnel is not
+// currently active.
+func (c *Connector) FingerbankCollectorEndpoint(ctx context.Context) (string, error) {
+	client, err := c.connectorServerApiClient(ctx)
+	if err != nil {
+		return "", err
+	}
+	resp := FingerbankCollectorEndpointInfo{}
+	apiErr := client.Call(ctx, "GET", "/api/v1/pfconnector/fingerbank-collector-endpoint?connector-id="+c.PfconfigHashNS, &resp)
+	if apiErr != nil {
+		return "", apiErr
+	}
+	return resp.Endpoint, nil
+}
+
 func (c *Connector) DynReverse(ctx context.Context, to string) (DynReverseConnectionInfo, error) {
 	client, err := c.connectorServerApiClient(ctx)
 	if err != nil {
@@ -72,6 +94,24 @@ func (c *Connector) DynReverse(ctx context.Context, to string) (DynReverseConnec
 	resp := DynReverseConnectionInfo{}
 	err = client.CallWithBody(ctx, "GET", "/api/v1/pfconnector/dynreverse",
 		gin.H{"to": to, "connector_id": c.PfconfigHashNS},
+		&resp,
+	)
+	if err != nil {
+		return DynReverseConnectionInfo{}, err
+	}
+
+	log.LoggerWContext(ctx).Info(resp.Message)
+	return resp, err
+}
+
+func (c *Connector) DynReverseWithPort(ctx context.Context, to string, localPort string) (DynReverseConnectionInfo, error) {
+	client, err := c.connectorServerApiClient(ctx)
+	if err != nil {
+		return DynReverseConnectionInfo{}, err
+	}
+	resp := DynReverseConnectionInfo{}
+	err = client.CallWithBody(ctx, "GET", "/api/v1/pfconnector/dynreverse",
+		gin.H{"to": to, "connector_id": c.PfconfigHashNS, "local_port": localPort},
 		&resp,
 	)
 	if err != nil {

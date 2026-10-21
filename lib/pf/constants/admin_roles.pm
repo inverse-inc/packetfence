@@ -89,6 +89,8 @@ our @ADMIN_ACTIONS = qw(
 
     REPORTS_READ
 
+    PFTEST_CREATE
+
     SERVICES_READ
     SERVICES_CREATE
     SERVICES_UPDATE
@@ -238,7 +240,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

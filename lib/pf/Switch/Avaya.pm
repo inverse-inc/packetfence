@@ -45,7 +45,6 @@ use pf::Switch::constants;
 use pf::util;
 use pf::accounting qw(node_accounting_current_sessionid);
 use pf::node qw(node_attributes);
-use pf::util::radius qw(perform_disconnect);
 use pf::log;
 
 sub description { 'Avaya Switch Module' }
@@ -66,6 +65,7 @@ use pf::SwitchSupports qw(
     WiredMacAuth
     WiredDot1x
     RadiusVoip
+    Flow
 );
 
 =head2 identifyConnectionType
@@ -87,37 +87,6 @@ sub _identifyConnectionType {
     return $self->SUPER::_identifyConnectionType($nas_port_type, $eap_type, $mac, $user_name);
 
 }
-
-=head2 parseRequest
-
-Takes FreeRADIUS' RAD_REQUEST hash and process it to return
-NAS Port type (Ethernet, Wireless, etc.)
-Network Device IP
-EAP
-MAC
-NAS-Port (port)
-User-Name
-
-=cut
-
-
-sub parseRequest {
-    my ($self, $radius_request) = @_;
-    my $client_mac = clean_mac($radius_request->{'Calling-Station-Id'}) || clean_mac($radius_request->{'User-Name'});
-    my $user_name       = $self->parseRequestUsername($radius_request);
-    my $nas_port_type = $radius_request->{'NAS-Port-Type'};
-    my $port = $radius_request->{'NAS-Port'};
-    my $eap_type = 0;
-    if (exists($radius_request->{'EAP-Type'})) {
-        $eap_type = $radius_request->{'EAP-Type'};
-    }
-    my $nas_port_id;
-    if (defined($radius_request->{'NAS-Port-Id'})) {
-        $nas_port_id = $radius_request->{'NAS-Port-Id'};
-    }
-    return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, undef, $nas_port_id);
-}
-
 
 =head2 getVoipVSA
 
@@ -565,7 +534,7 @@ sub radiusDisconnect {
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
 
-    if (!defined($self->{'_radiusSecret'})) {
+    if (!$self->hasRadiusSecret()) {
         $logger->warn(
             "Unable to perform RADIUS CoA-Request on $self->{'_ip'}: RADIUS Shared Secret not configured"
         );
@@ -616,11 +585,11 @@ sub radiusDisconnect {
                 'Filter-Id' => $role,
             };
             $logger->info("Returning ACCEPT with Role: $role");
-            $response = perform_coa($connection_info, $attributes_ref);
+            $response = $self->handleRadiusCoa($connection_info, $attributes_ref);
 
         }
         else {
-            $response = perform_disconnect($connection_info, $attributes_ref);
+            $response = $self->handleRadiusDisconnect($connection_info, $attributes_ref);
         }
     } catch {
         chomp;
@@ -688,7 +657,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

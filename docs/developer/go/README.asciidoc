@@ -22,7 +22,7 @@ endif::[]
 
 This is a guide on how to setup/use the PacketFence Golang libraries.
 
-In order to bootstrap your environment:
+To bootstrap the environment:
 
 [source,bash]
 ----
@@ -30,7 +30,7 @@ cd /usr/local/pf/go
 make go-env
 ----
 
-If you work directly on sources, you can run:
+To work directly on sources, run:
 
 [source,bash]
 ----
@@ -41,14 +41,14 @@ GO_REPO=${PWD} make go-env
 This will install Golang version use to build PacketFence Golang binaries and
 check if all modules defined in [filename]`go.mod` are available.
 
-You should then source your .bashrc to get the new environment variables:
+Source the .bashrc to get the new environment variables:
 
 [source,bash]
 ----
 source ~/.bashrc
 ----
 
-You can get a complete overview of your Golang environment with [command]`go env` command.
+Get a complete overview of the Golang environment with [command]`go env` command.
 
 ==== Pulling the dependencies
 
@@ -71,8 +71,7 @@ apt install libipset-dev pkg-config
 
 ==== Update dependencies
 
-After you add or remove Golang dependencies, you should run following command
-in [filename]`go` directory to update `go.mod` and `go.sum` files:
+After adding or removing Golang dependencies, run following command in [filename]`go` directory to update `go.mod` and `go.sum` files:
 
 [source,bash]
 ----
@@ -104,9 +103,90 @@ make all
 make copy
 ----
 
+==== Checks before building
+
+Go analysis is opt-in. Normal binary builds, including race builds, service
+container builds and Debian/RPM packaging, do not run the checks by default.
+To run checks followed by a full build locally, from the repository root:
+
+[source,bash]
+----
+make -C go check-build
+----
+
+Checks finish before compilation starts, including with `make -j`. A failed
+blocking check stops the build.
+
+In CI, `GO_CHECK` defaults to `"no"`. Set `GO_CHECK=yes` in GitLab CI/CD variables
+or when starting a pipeline to enable `pre_ci_go_check_debian_bookworm` and
+`pre_ci_go_check_centos_8`, including on feature branches. Both jobs run
+[command]`make -C go check-build` using their respective build images.
+Artifact jobs wait for these checks when enabled and are blocked if they fail.
+When disabled, the jobs are omitted and artifact builds proceed without them.
+
+To run the checks without building a binary, from the repository root:
+
+[source,bash]
+----
+make -C go check
+----
+
+Go service Dockerfiles accept `GO_CHECK`, defaulting to `no`. Enable analysis
+inside the builder stage with a Docker build argument:
+
+[source,bash]
+----
+docker build --build-arg GO_CHECK=yes \
+  --build-arg KNK_REGISTRY_URL=ghcr.io/inverse-inc/packetfence \
+  --build-arg IMAGE_TAG=latest -f containers/pfcron/Dockerfile .
+----
+
+Each enabled image build runs [command]`make check` before compiling its service
+binaries. A blocking check failure stops that image build. CI forwards
+`GO_CHECK` to Kaniko, so `GO_CHECK=yes` also enables analysis in Go service
+images selected for building by the pipeline's existing rules. Local container
+Makefile builds accept [command]`make -C containers pfcron GO_CHECK=yes`;
+`containers/systemd-service` also forwards the `GO_CHECK` environment variable.
+Checks run only in the builder stage. Docker/Kaniko may reuse cached check
+results; use `docker build --no-cache` or `KNK_CACHE=false` with Kaniko to
+refresh findings when the sources have not changed.
+
+The gate runs, in order:
+
+* `go vet ./...` for suspicious code and common mistakes. *Stops the build.*
+* `staticcheck -tests -show-ignored ./...` for static analysis, including tests.
+* `govulncheck ./...` for known vulnerabilities reachable from the code.
+* `gosec ./...` for security issues in the source.
+
+Only `go vet` stops the build today. The last three report their findings and
+let the build continue, because the module currently carries a backlog they all
+flag. Once a tool's findings are triaged, drop its leading `-` in
+[filename]`go/Makefile` to make it gate as well.
+
+Analyzer versions are pinned in [filename]`go/Makefile` and executed using
+`go run package@version`. Go caches their downloads and compilation without
+adding them to the application's [filename]`go.mod`. The first run needs network
+access to fetch the tools; govulncheck also needs access to the vulnerability
+database. While those three stay advisory, a tool that fails to download or run
+is reported but does not fail the build.
+
+Checks cover the entire module using the build host's OS and architecture with
+cgo enabled. Install the native dependencies described above even when building
+the static `pfconnector` binary. This is a host validation pass; it does not
+validate code selected only by another OS, architecture, race tag, or custom
+build flags passed through `ARGS`. Use `GOFLAGS` for build tags shared by checks
+and compilation. The integration tests remain available through
+[command]`make test`; they require a running test pfconfig process.
+
+Review and fix reported findings; any analyzer suppression should be narrow and
+explain why the finding is safe. No blanket exclusions are provided, including
+for the vendored `chisel/` fork. `gopls check` is not needed in this gate: vet
+and Staticcheck provide the batch analysis, while gopls remains useful in the
+editor.
+
 ==== Creating a service
 
-Once you've built `pfhttpd`, you can use a [filename]`Caddyfile` to load your middleware and bind it on a specific port:
+Once `pfhttpd` is built, use a [filename]`Caddyfile` to load middleware and bind it on a specific port:
 
 ----
 localhost:1234 {
@@ -124,31 +204,33 @@ localhost:1234 {
 
 This file should be put in [filename]`/usr/local/pf/conf/caddy-services/pfexample.conf`
 
-Note how you can control the logger configuration from the [filename]`Caddyfile`. If your middleware (in this example `pfsso`) uses or calls the logger, you *must* declare it in your [filename]`Caddyfile`.
+Note how the logger configuration can be controlled from the [filename]`Caddyfile`. If the middleware (in this example `pfsso`) uses or calls the logger, it *must* be declared in the [filename]`Caddyfile`.
 
-If your middleware uses `statsd`, you don't have to configure `statsd` in your [filename]`Caddyfile` which will result in the packets just not being sent (a dummy `statsd` client will be created).
+If the middleware uses `statsd`, `statsd` does not have to be configured in the [filename]`Caddyfile` which will result in the packets just not being sent (a dummy `statsd` client will be created).
 
-You can start `pfhttpd` with your [filename]`Caddyfile` using the following command:
+Start `pfhttpd` with the [filename]`Caddyfile` using the following command:
 
 [source,bash]
 ----
-/usr/local/pf/sbin/pfhttpd -conf /usr/local/pf/conf/caddy-services/pfexample.conf
+/usr/local/pf/sbin/pfhttpd -conf
+/usr/local/pf/conf/caddy-services/pfexample.conf
 ----
 
-Once you have ascertained that the service is working correctly, you need to
-create an instance of `pf::services::manager` for it. You will also need to
-create a unitfile for it in [filename]`conf/systemd` like the following:
+Once it is ascertained that the service is working correctly, create an instance of `pf::services::manager` for it. Also create a unitfile for it in [filename]`conf/systemd` like the following:
 
 ----
 [Unit]
 Description=PacketFence Example Service
-Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
-After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+Wants=packetfence-base.target packetfence-config.service
+packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service
+packetfence-iptables.service
 Before=packetfence-pfexample.service
 
 [Service]
 PIDFile=/usr/local/pf/var/run/pfexample.pid
-ExecStart=/usr/local/pf/sbin/pfhttpd -conf /usr/local/pf/conf/caddy-services/pfexample.conf
+ExecStart=/usr/local/pf/sbin/pfhttpd -conf
+/usr/local/pf/conf/caddy-services/pfexample.conf
 Restart=on-failure
 Slice=packetfence.slice
 
@@ -180,7 +262,7 @@ cd /usr/local/pf/go/firewallsso/lib
 go test
 ----
 
-In order to run all the tests easily you can also do:
+To run all the tests easily, use:
 
 [source,bash]
 ----

@@ -20,7 +20,6 @@ use Try::Tiny;
 use pf::constants;
 use pf::util;
 use pf::node;
-use pf::util::radius qw(perform_coa perform_disconnect);
 
 use base ('pf::Switch::Cisco::Cisco_WLC_AireOS');
 
@@ -74,7 +73,7 @@ sub radiusDisconnect {
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
 
-    if (!defined($self->{'_radiusSecret'})) {
+    if (!$self->hasRadiusSecret()) {
         $logger->warn(
             "Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): RADIUS Shared Secret not configured"
         );
@@ -140,13 +139,13 @@ sub radiusDisconnect {
                 value => "subscriber:reauthenticate-type=last",
                 }
             ];
-            $response = perform_coa($connection_info, $attributes_ref, $vsa);
+            $response = $self->handleRadiusCoa($connection_info, $attributes_ref, $vsa);
 
         }
         else {
             my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
             $connection_info->{nas_port} = $nas_port;
-            $response = perform_disconnect($connection_info, $attributes_ref);
+            $response = $self->handleRadiusDisconnect($connection_info, $attributes_ref);
         }
     } catch {
         chomp;
@@ -188,7 +187,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

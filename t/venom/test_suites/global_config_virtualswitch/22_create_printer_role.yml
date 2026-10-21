@@ -1,0 +1,15 @@
+name: Create printer role with dedicated VLAN
+testcases:
+
+- name: create_printer_role
+  steps:
+  - type: pf_api_action
+    method: POST
+    url: 'config/roles'
+    status_code: 201
+    body: >-
+      {
+        "id": "{{.wired_mac_auth_virtualswitch.roles.printer.id}}",
+        "max_nodes_per_pid": 0,
+        "notes": "{{.wired_mac_auth_virtualswitch.roles.printer.notes}}"
+      }

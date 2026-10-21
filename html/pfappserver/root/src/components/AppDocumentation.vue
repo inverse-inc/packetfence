@@ -35,7 +35,7 @@
             <hr />
             <slot />
             <div class="m-3">
-              <b-button href="https://packetfence.org/support.html#/commercial" target="_blank" size="sm" block>
+              <b-button href="https://www.packetfence.com/docs/" target="_blank" size="sm" block>
                 {{ $t('Support Inquiry') }}<icon class="ml-1" name="external-link-alt" />
               </b-button>
             </div>
@@ -359,6 +359,9 @@ export default {
     .documentation,
     .documentation .documentation-frame {
       height: calc(100vh - #{map-get($spacers, 6)} - #{map-get($spacers, 5)}); // 100% view height - navbar height - card header height
+    }
+    .documentation .section-sidebar {
+      max-height: calc(100vh - #{map-get($spacers, 6)} - #{map-get($spacers, 5)}); // match fullscreen height
     }
   }
 

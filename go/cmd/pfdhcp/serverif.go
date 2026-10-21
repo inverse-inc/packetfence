@@ -7,8 +7,38 @@ import (
 	"os"
 	"syscall"
 
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"golang.org/x/net/ipv4"
 )
+
+// dhcpRcvBufBytes returns the SO_RCVBUF size to apply to every DHCP socket.
+// Default is 8 MiB. Override with PFDHCP_RCVBUF (bytes). Set to 0 to keep
+// the kernel default. Effective size is also clamped by net.core.rmem_max
+// unless SO_RCVBUFFORCE succeeds (requires CAP_NET_ADMIN).
+func dhcpRcvBufBytes() int {
+	return sharedutils.EnvOrDefaultInt("PFDHCP_RCVBUF", 8*1024*1024)
+}
+
+// tuneReceiveBuffer attempts to enlarge the UDP receive buffer. It tries
+// SO_RCVBUFFORCE first (bypasses rmem_max with CAP_NET_ADMIN), then falls
+// back to SO_RCVBUF. Failures are logged but never fatal — the socket can
+// still serve traffic at the kernel default size.
+func tuneReceiveBuffer(s int, label string) {
+	size := dhcpRcvBufBytes()
+	if size <= 0 {
+		return
+	}
+	if err := syscall.SetsockoptInt(s, syscall.SOL_SOCKET, syscall.SO_RCVBUFFORCE, size); err != nil {
+		if err2 := syscall.SetsockoptInt(s, syscall.SOL_SOCKET, syscall.SO_RCVBUF, size); err2 != nil {
+			log.Printf("pfdhcp: %s: failed to set SO_RCVBUF=%d: %s (force: %s)", label, size, err2, err)
+			return
+		}
+	}
+	actual, gerr := syscall.GetsockoptInt(s, syscall.SOL_SOCKET, syscall.SO_RCVBUF)
+	if gerr == nil && actual < size {
+		log.Printf("pfdhcp: %s: SO_RCVBUF requested %d but kernel set %d (raise net.core.rmem_max)", label, size, actual)
+	}
+}
 
 type serveIfConn struct {
 	ifIndex int
@@ -84,6 +114,7 @@ func broadcastOpen(bindAddr net.IP, port int, ifname string) (*ipv4.PacketConn, 
 	if err = syscall.SetsockoptString(s, syscall.SOL_SOCKET, syscall.SO_BINDTODEVICE, ifname); err != nil {
 		log.Fatal(err)
 	}
+	tuneReceiveBuffer(s, "broadcast "+ifname)
 
 	lsa := syscall.SockaddrInet4{Port: port}
 	copy(lsa.Addr[:], bindAddr.To4())
@@ -135,6 +166,7 @@ func UnicastOpen(interfaceNet *Interface) (*ipv4.PacketConn, error) {
 			log.Fatal(err)
 		}
 	}
+	tuneReceiveBuffer(s, "unicast "+interfaceNet.Name)
 	lsa := syscall.SockaddrInet4{Port: interfaceNet.listenPort}
 	copy(lsa.Addr[:], interfaceNet.Ipv4.To4())
 

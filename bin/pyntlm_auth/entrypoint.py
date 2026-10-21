@@ -1,10 +1,9 @@
-import logging
 import os
 import time
 from threading import Thread
 
 import pymysql
-from flask import Flask, g, request
+from flask import Flask, g
 from flaskext.mysql import MySQL
 
 import config_loader
@@ -13,6 +12,7 @@ import handlers
 
 import t_health_checker
 import t_async_job
+import log
 
 app = Flask(__name__)
 
@@ -28,11 +28,11 @@ while True:
         global_vars.s_bind_account = m
         break
 
-    global_vars.s_worker.log.warning(f"failed to bind machine account: no available accounts, retrying.")
+    log.warning(f"failed to bind machine account: no available accounts, retrying.")
     time.sleep(1)
 
 config_loader.reload_worker_config()
-global_vars.s_worker.log.info(f"successfully registered with machine account '{m}', ready to handle requests.")
+log.info(f"successfully registered with machine account '{m}', ready to handle requests.")
 
 flask_jobs = (
     Thread(target=t_async_job.async_auth, daemon=False, args=(global_vars.s_worker,)),
@@ -42,17 +42,6 @@ flask_jobs = (
 
 for job in flask_jobs:
     job.start()
-
-werkzeug_logger = logging.getLogger('werkzeug')
-
-
-@app.before_request
-def register_logger():
-    if request.path.startswith("/ping"):
-        werkzeug_logger.setLevel(logging.CRITICAL)
-    else:
-        werkzeug_logger.setLevel(logging.INFO)
-
 
 for i in range(1):
     if not global_vars.c_nt_key_cache_enabled:
@@ -82,7 +71,7 @@ for i in range(1):
         except Exception as e:
             e_code = e.args[0]
             e_msg = str(e)
-            print(f"  error while init database: {e_code}, {e_msg}. Started without NT Key cache capability.")
+            log.warning(f"error while init database: {e_code}, {e_msg}. Started without NT Key cache capability.")
 
 
     @app.teardown_request

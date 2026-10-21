@@ -38,7 +38,6 @@ use pf::config qw (
     $WIRED_802_1X
     $WIRED_MAC_AUTH
 );
-use pf::util::radius qw(perform_disconnect);
 use pf::log;
 use pf::util::wpa;
 use Crypt::PBKDF2;
@@ -138,7 +137,7 @@ sub radiusDisconnect {
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
 
-    if (!defined($self->{'_radiusSecret'})) {
+    if (!$self->hasRadiusSecret()) {
         $logger->warn(
             "Unable to perform RADIUS Disconnect-Request on $self->{'_id'}: RADIUS Shared Secret not configured"
         );
@@ -159,11 +158,8 @@ sub radiusDisconnect {
 
     my $response;
     try {
+        # handleRadiusDisconnect sends it to the disconnectPort of the switch
         my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
-
-        if (defined($self->{'_disconnectPort'}) && $self->{'_disconnectPort'} ne '') {
-            $connection_info->{'nas_port'} = $self->{'_disconnectPort'};
-        }
 
         # transforming MAC to the expected format 00-11-22-33-CA-FE
         $mac = uc($mac);
@@ -179,7 +175,7 @@ sub radiusDisconnect {
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
-        $response = perform_disconnect($connection_info, $attributes_ref);
+        $response = $self->handleRadiusDisconnect($connection_info, $attributes_ref);
     } catch {
         chomp;
         $logger->warn("Unable to perform RADIUS Disconnect-Request: $_");
@@ -286,14 +282,18 @@ sub returnRadiusAccessAccept {
     my ($self, $args) = @_;
     my $logger = $self->logger;
 
+    # A subclass that runs the RADIUS filter itself calls us with 'unfiltered'
+    # set; filtering here too would add every answer of the rule twice (#9135).
+    my $caller_filters = isenabled($args->{'unfiltered'});
     $args->{'unfiltered'} = $TRUE;
+    $self->compute_action(\$args);
     my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
     my $status = shift @super_reply;
     my %radius_reply = @super_reply;
     my $radius_reply_ref = \%radius_reply;
     return [$status, %$radius_reply_ref] if($status == $RADIUS::RLM_MODULE_USERLOCK);
 
-    if ($args->{profile}->dpskEnabled()) {
+    if ($args->{profile}->dpskEnabled() && $args->{'compute_dpsk'}) {
         if (defined($args->{owner}->{psk})) {
             $radius_reply_ref->{"Ruckus-DPSK"} = $self->generate_dpsk_attribute_value($args->{ssid}, $args->{owner}->{psk});
         } else {
@@ -301,9 +301,12 @@ sub returnRadiusAccessAccept {
         }
     }
     
-    my $filter = pf::access_filter::radius->new;
-    my $rule = $filter->test('returnRadiusAccessAccept', $args);
-    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    # A subclass that applies the RADIUS filter itself called us unfiltered
+    unless ($caller_filters) {
+        my $filter = pf::access_filter::radius->new;
+        my $rule = $filter->test('returnRadiusAccessAccept', $args);
+        ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    }
     return [$status, %$radius_reply_ref];
 }
 
@@ -325,7 +328,6 @@ sub generate_dpsk_attribute_value {
     return "0x00".$hash;
 }
 
-
 sub find_user_by_psk {
     my ($self, $radius_request, $args) = @_;
     my $pid;
@@ -333,61 +335,18 @@ sub find_user_by_psk {
         get_logger->error("Ruckus-DPSK-Cipher isn't for WPA2 that uses AES and HMAC-SHA1. This isn't supported by this module.");
         return $pid;
     }
-
+    my $cache_key = "Ruckus::SmartZone::check_if_radius_request_psk_matches::PMK::";
     my $ssid = $radius_request->{'Ruckus-Wlan-Name'};
     my $bssid = pack("H*", pf::util::wpa::strip_hex_prefix($radius_request->{"Ruckus-BSSID"}));
     my $username = pack("H*", $radius_request->{'User-Name'});
     my $anonce = pack('H*', pf::util::wpa::strip_hex_prefix($radius_request->{'Ruckus-DPSK-Anonce'}));
-    my $snonce = pf::util::wpa::snonce_from_eapol_key_frame(pack("H*", pf::util::wpa::strip_hex_prefix($radius_request->{"Ruckus-DPSK-EAPOL-Key-Frame"})));
+    my $snonce = pf::util::wpa::snonce_from_eapol_key_frame(pack("H*",pf::util::wpa::strip_hex_prefix($radius_request->{"Ruckus-DPSK-EAPOL-Key-Frame"})));
     my $eapol_key_frame = pack("H*", pf::util::wpa::strip_hex_prefix($radius_request->{"Ruckus-DPSK-EAPOL-Key-Frame"}));
-    my $cache = $self->cache;
-    # Try first the pid of the mac address
-    if (exists $args->{'owner'} && $args->{'owner'}->{'pid'} ne "" && exists $args->{'owner'}->{'psk'} && defined $args->{'owner'}->{'psk'} && $args->{'owner'}->{'psk'} ne "") {
-        if (check_if_radius_request_psk_matches($cache, $radius_request, $args->{'owner'}->{'psk'}, $ssid, $bssid, $username, $anonce, $snonce, $eapol_key_frame)) {
-            get_logger->info("PSK matches the pid associated with the mac ".$args->{'owner'}->{'pid'});
-            return $args->{'owner'}->{'pid'};
-        }
-    }
 
-    my ($status, $iter) = pf::dal::person->search(
-        -where => {
-            psk => {'!=' => [-and => '', undef]},
-        },
-        -columns => [qw(pid psk)],
-        -no_default_join => 1,
-    );
 
-    while (my $person = $iter->next) {
-        get_logger->debug("User ".$person->{pid}." has a PSK. Checking if it matches the one in the packet");
-        if (check_if_radius_request_psk_matches($cache, $radius_request, $person->{psk}, $ssid, $bssid, $username, $anonce, $snonce, $eapol_key_frame)) {
-            get_logger->info("PSK matches the one of ".$person->{pid});
-            $pid = $person->{pid};
-            last;
-        }
-    }
-    return $pid;
+    return $self->iterate_user_by_psk($args, $radius_request, $ssid, $bssid, $username, $anonce, $snonce, $eapol_key_frame, $cache_key);
 }
 
-sub check_if_radius_request_psk_matches {
-    my ($cache, $radius_request, $psk, $ssid, $bssid, $username, $anonce, $snonce, $eapol_key_frame) = @_;
-
-    my $pmk = $cache->compute(
-        "Ruckus::SmartZone::check_if_radius_request_psk_matches::PMK::$ssid+$psk", 
-        {expires_in => '1 month', expires_variance => '.20'},
-        sub { pf::util::wpa::calculate_pmk($ssid, $psk) },
-    );
-
-    return pf::util::wpa::match_mic(
-      pf::util::wpa::calculate_ptk(
-        $pmk,
-        $bssid,
-        $username,
-        $anonce,
-        $snonce,
-      ),      
-      $eapol_key_frame,
-    );
-}
 
 =head2 wiredeauthTechniques
 
@@ -460,7 +419,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

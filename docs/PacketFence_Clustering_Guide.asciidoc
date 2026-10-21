@@ -1,35 +1,24 @@
-= Clustering Quick Installation Guide
-////
-
-    This file is part of the PacketFence project.
-
-    See includes/global-attributes.asciidoc
-    for authors, copyright and license information.
-
-////
+= PacketFence Clustering Guide
+include::includes/file-header.asciidoc[]
 include::includes/global-attributes.asciidoc[]
 
 == About this Guide
 
-This guide gives a quick start to install active/active clustering in PacketFence 7+. This guide does not include advanced troubleshooting of the active/active clustering. Refer to the documentation of HAProxy and Keepalived for advanced features.
+This guide provides installation and configuration steps for active/active
+clustering in PacketFence 7+. It covers HAProxy load balancing, Keepalived for
+high availability, Galera database clustering, and layer-3 cluster
+configurations. The guide includes essential troubleshooting procedures for
+cluster synchronization issues and performance optimization. For advanced
+HAProxy and Keepalived features beyond PacketFence integration, consult their
+respective documentation.
 
-The latest version of this guide is available at https://packetfence.org/documentation/
+include::includes/latest-version-url.asciidoc[]
 
-=== Other sources of information
-
-<<PacketFence_Developers_Guide.asciidoc#,Developer's Guide>>::
-  Covers API, captive portal customization, application code customizations and instructions for supporting new equipment.
-<<PacketFence_Installation_Guide.asciidoc#,Installation Guide>>::
-  Covers installation and configuration of PacketFence.
-<<PacketFence_Network_Devices_Configuration_Guide.asciidoc#,Network Devices Configuration Guide>>::
-  Covers switches, WiFi controllers and access point configuration.
-<<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>::
-  Covers compatibility changes, manual instructions and general upgrade notes.
-https://packetfence.org/news.html[PacketFence News]::
-  Covers noteworthy features, improvements and bug fixes by release.
+:current_guide_clustering:
+include::includes/other-sources-information.asciidoc[]
 
 
-These files are included in the package and release tarballs.
+include::includes/package-tarballs-note.asciidoc[]
 
 == Assumptions
 
@@ -59,14 +48,31 @@ include::cluster/layer_3_clusters.asciidoc[]
 
 include::cluster/advanced_configuration.asciidoc[]
 
+== Troubleshooting Clusters
+
+include::troubleshooting/mariadb_galera_sync.asciidoc[]
+
+include::troubleshooting/cluster_recovery.asciidoc[]
+
+include::troubleshooting/service_failures.asciidoc[]
+
+include::troubleshooting/database_connectivity.asciidoc[]
+
+include::troubleshooting/network_connectivity.asciidoc[]
+
+include::troubleshooting/authentication_failures.asciidoc[]
+
+include::troubleshooting/radius_debugging.asciidoc[]
+
+include::troubleshooting/log_files.asciidoc[]
+
+include::troubleshooting/performance_issues.asciidoc[]
 
 // INCLUDES
-
-include::includes/additional-info.asciidoc[]
-
 include::includes/commercial-support.asciidoc[]
 
 include::includes/license.asciidoc[]
+
 
 == Appendix
 

@@ -1,0 +1,24 @@
+name: Create routed network for VLAN 99 (default management VLAN needs DHCP for Fingerbank)
+testcases:
+
+- name: create_vlan99_network
+  steps:
+  - type: pf_api_action
+    method: POST
+    url: 'config/routed_networks'
+    status_code: 201
+    body: >-
+      {
+        "id": "{{.security_event_detect_fingerbank_virtualswitch.networks.vlan99.id}}",
+        "type": "vlan-registration",
+        "netmask": "{{.security_event_detect_fingerbank_virtualswitch.networks.vlan99.netmask}}",
+        "gateway": "{{.security_event_detect_fingerbank_virtualswitch.networks.vlan99.gateway}}",
+        "next_hop": "{{.virtualswitch.namespace.ip}}",
+        "dhcp_start": "{{.security_event_detect_fingerbank_virtualswitch.networks.vlan99.dhcp_start}}",
+        "dhcp_end": "{{.security_event_detect_fingerbank_virtualswitch.networks.vlan99.dhcp_end}}",
+        "dhcp_default_lease_time": "{{.security_event_detect_fingerbank_virtualswitch.networks.vlan99.dhcp_default_lease_time}}",
+        "dhcp_max_lease_time": "{{.security_event_detect_fingerbank_virtualswitch.networks.vlan99.dhcp_max_lease_time}}",
+        "dns": "8.8.8.8,{{.pfserver_mgmt_ip}}",
+        "pool_backend": "memory",
+        "coa": "enabled"
+      }

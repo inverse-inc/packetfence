@@ -15,6 +15,7 @@ pf::UnifiedApi::Controller
 use strict;
 use warnings;
 use Mojo::Base 'Mojolicious::Controller';
+use pf::db;
 use pf::error qw(is_error is_success);
 use JSON::MaybeXS qw();
 use pf::admin_roles;
@@ -138,7 +139,7 @@ sub audit_request {
 
 sub is_auditable {
     my ($self) = @_;
-    return is_success($self->res->code) && $self->stash->{auditable};
+    return is_success($self->res->code) && $self->stash->{auditable} && !db_check_readonly();
 }
 
 =head2 make_audit_record
@@ -231,7 +232,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

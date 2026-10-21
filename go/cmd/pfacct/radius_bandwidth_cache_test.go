@@ -5,7 +5,7 @@ import (
 )
 
 func TestBandwidthCache(t *testing.T) {
-	pfAcct := NewPfAcct()
+	pfAcct := NewPfAcct("INFO")
 	pfAcct.SetAcctSession(1, 2, &AcctSession{in_bytes: 1, out_bytes: 2})
 	s := pfAcct.GetAcctSession(1, 2)
 	if s == nil {

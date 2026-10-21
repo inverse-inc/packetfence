@@ -87,7 +87,8 @@ our %MYSQL_ERROR_TO_STATUS_CODES = (
     1169 => $STATUS::CONFLICT, #ER_DUP_UNIQUE
     1586 => $STATUS::CONFLICT, #ER_DUP_ENTRY_WITH_KEY_NAME
     1021 => $STATUS::INSUFFICIENT_STORAGE, #ER_DISK_FULL
-    1969 => $STATUS::REQUEST_TIMEOUT, #ER_STATEMENT_TIMEOUT
+    1969 => $STATUS::REQUEST_TIMEOUT, #ER_STATEMENT_TIMEOUT (MariaDB)
+    3024 => $STATUS::REQUEST_TIMEOUT, #ER_QUERY_TIMEOUT (MySQL)
     1451 => $STATUS::EXPECTATION_FAILED,
 );
 
@@ -117,7 +118,7 @@ sub db_execute {
             my $errstr = $dbh->errstr;
             pf::db::db_handle_error($err);
             $status = mysql_error_to_status_code($err);
-            if ($err < 2000) {
+            if ($err < 2000 || $err == $PROXY_SQL_TIME_ERROR) {
                 if ($err == $MYSQL_READONLY_ERROR) {
                     $logger->warn("Attempting to update a readonly database");
                 } else {
@@ -376,12 +377,18 @@ sub insert {
         $self->logger->error("Trying to insert duplicate row into $table");
         return $STATUS::FORBIDDEN;
     }
+
+    my $status = $self->pre_save;
+    if (is_error($status)) {
+        return $status;
+    }
+
     my $insert_data = $self->_insert_data;
     return $STATUS::BAD_REQUEST unless defined $insert_data;
     if (keys %$insert_data == 0 ) {
        return $STATUS::BAD_REQUEST;
     }
-    my ($status, $sth) = $self->do_insert(
+    ($status, my $sth) = $self->do_insert(
         -into => $self->table,
         -values   => $insert_data,
         @args,
@@ -810,13 +817,18 @@ sub find_or_create {
         -from => $proto->find_from_tables,
         -where => $obj->primary_keys_where_clause,
     );
-    if (is_success($status)) {
-        my $row = $sth->fetchrow_hashref;
-        $sth->finish;
-        if ($row) {
-            my $obj = $proto->new_from_row($row);
-            return $STATUS::OK, $obj;
-        }
+    # Only treat the row as absent when the SELECT actually succeeded. On a
+    # read error (e.g. the DB is down) we cannot tell "not found" from "query
+    # failed"; falling through to save() here would overwrite an existing row
+    # with a fresh default record (for a node: status=unreg, pid=default).
+    if (is_error($status)) {
+        return $status, undef;
+    }
+    my $row = $sth->fetchrow_hashref;
+    $sth->finish;
+    if ($row) {
+        my $obj = $proto->new_from_row($row);
+        return $STATUS::OK, $obj;
     }
     $status =  $obj->save;
     if (is_error($status)) {
@@ -1292,7 +1304,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

@@ -26,8 +26,8 @@
 
     <form-group-test-mode namespace="test_mode"
                           :column-label="$i18n.t('Test mode')"
-                          :enabled-value="1"
-                          :disabled-value="0"
+                          enabled-value="1"
+                          disabled-value="0"
     />
 
     <form-group-identity-token namespace="identity_token"

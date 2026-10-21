@@ -10,7 +10,9 @@ import (
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
+	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	caddylog "github.com/inverse-inc/packetfence/go/plugin/caddy2/logger"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
 )
 
@@ -46,8 +48,11 @@ func (c *ConfigStore) Validate() error {
 func (c *ConfigStore) Provision(ctx caddy.Context) error {
 	refreshOnceRunner.Do(func() {
 		go func() {
+			// Create a context with log level from the logger module configuration
+			bgCtx := log.LoggerNewContext(context.Background())
+			bgCtx = log.LoggerSetLevel(bgCtx, caddylog.GlobalLogLevel)
 			for {
-				pfconfigdriver.PfConfigStorePool.Refresh(context.Background())
+				pfconfigdriver.PfConfigStorePool.Refresh(bgCtx)
 				time.Sleep(time.Second * 1)
 			}
 		}()

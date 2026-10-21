@@ -19,7 +19,8 @@ endif::[]
 
 //=== Edge core
 
-PacketFence supports Edge-corE switches without VoIP using linkUp/linkDown traps.
+PacketFence supports Edge-corE switches without VoIP using linkUp/linkDown
+traps.
 
 PacketFence also supports MAC authentication on the Edge-corE 4510
 

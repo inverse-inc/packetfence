@@ -25,6 +25,12 @@ const inflateActions = (data) => {
   if (data.access_level) {
     data.actions.push({ type: pfActions.set_access_level.value, value: data.access_level.split(',') })
   }
+  if (data.trigger_radius_mfa) {
+    data.actions.push({ type: pfActions.trigger_radius_mfa.value, value: data.trigger_radius_mfa })
+  }
+  if (data.trigger_portal_mfa) {
+    data.actions.push({ type: pfActions.trigger_portal_mfa.value, value: data.trigger_portal_mfa })
+  }
   if (data.can_sponsor && parseInt(data.can_sponsor)) {
     data.actions.push({ type: pfActions.mark_as_sponsor.value, value: data.can_sponsor })
   }
@@ -45,6 +51,8 @@ const deflateActions = (data) => {
     data.can_sponsor = null
     data.category = null
     data.unregdate = null
+    data.trigger_radius_mfa = null
+    data.trigger_portal_mfa = null
 
     actions.forEach(action => {
       switch (action.type) {
@@ -53,6 +61,12 @@ const deflateActions = (data) => {
           break
         case pfActions.set_access_level.value:
           data.access_level = action.value.join(',')
+          break
+        case pfActions.trigger_radius_mfa.value:
+          data.trigger_radius_mfa = action.value
+          break
+        case pfActions.trigger_portal_mfa.value:
+          data.trigger_portal_mfa = action.value
           break
         case pfActions.mark_as_sponsor.value:
           data.sponsor = 1
@@ -148,6 +162,7 @@ const actions = {
     }
     commit('USER_REQUEST')
     return api.user({ quiet: true, ...body }).then(data => {
+
       inflateActions(data)
       commit('USER_REPLACED', data)
       return state.users[pid]
@@ -246,7 +261,8 @@ const actions = {
     const data = {
       args: {
         pid: user.pid,
-        password: user.password
+        password: user.password,
+        with_aup: !!user.withAup
       },
       template: 'guest_local_account_creation'
     }
@@ -263,7 +279,8 @@ const actions = {
       template: 'guest_local_account_creation',
       args: {
         pid: data.pid,
-        password: data.password
+        password: data.password,
+        with_aup: !!data.withAup
       },
       to: data.email,
       subject: data.subject
@@ -281,6 +298,18 @@ const actions = {
     return new Promise((resolve, reject) => {
       api.unassignUserNodes(pid).then(response => {
         commit('USER_UPDATED', { pid: pid, prop: 'nodes', data: [] })
+        resolve(response)
+      }).catch(err => {
+        commit('USER_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  passwordReset: ({ commit }, pid) => {
+    commit('USER_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.passwordReset(pid).then(response => {
+        commit('USER_SUCCESS')
         resolve(response)
       }).catch(err => {
         commit('USER_ERROR', err.response)
@@ -385,6 +414,15 @@ const actions = {
   bulkImport: ({ commit }, data) => {
     commit('USER_REQUEST')
     return api.bulkImport(data).then(response => {
+      commit('USER_BULK_SUCCESS', response)
+      return response
+    }).catch(err => {
+      commit('USER_ERROR', err.response)
+    })
+  },
+  bulkPasswordReset: ({ commit }, data) => {
+    commit('USER_REQUEST')
+    return api.bulkPasswordReset(data).then(response => {
       commit('USER_BULK_SUCCESS', response)
       return response
     }).catch(err => {

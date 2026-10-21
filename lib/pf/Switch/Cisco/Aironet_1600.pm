@@ -25,7 +25,6 @@ use pf::config qw(
 );
 use pf::Switch::constants;
 use pf::util qw(format_mac_as_cisco);
-use pf::util::radius qw(perform_coa);
 
 use base ('pf::Switch::Cisco::Aironet');
 
@@ -79,7 +78,7 @@ sub radiusDisconnect {
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
 
-    if (!defined($self->{'_radiusSecret'})) {
+    if (!$self->hasRadiusSecret()) {
         $logger->warn(
             "Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): RADIUS Shared Secret not configured"
         );
@@ -113,7 +112,7 @@ sub radiusDisconnect {
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
-        $response = perform_coa($connection_info, $attributes_ref, [{ 'vendor' => 'Cisco', 'attribute' => 'Cisco-AVPair', 'value' => 'subscriber:command=reauthenticate' }]);
+        $response = $self->handleRadiusCoa($connection_info, $attributes_ref, [{ 'vendor' => 'Cisco', 'attribute' => 'Cisco-AVPair', 'value' => 'subscriber:command=reauthenticate' }]);
 
     } catch {
         chomp;
@@ -138,7 +137,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

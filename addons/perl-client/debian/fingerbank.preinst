@@ -5,19 +5,45 @@
 
 set -e
 
-# summary of how this script can be called:
-#        * <new-preinst> `install'
-#        * <new-preinst> `install' <old-version>
-#        * <new-preinst> `upgrade' <old-version>
-#        * <old-preinst> `abort-upgrade' <new-version>
-# for details, see http://www.debian.org/doc/debian-policy/ or
-# the debian-policy package
+stop_user_processes() {
+    local username="$1"
+    local running_processes=$(pgrep -u "$username" 2>/dev/null)
 
-stop_service_if_exists() {
-    SERVICE=$1
-    if [ $(set +e;invoke-rc.d --quiet --query packetfence stop; echo $?) = 104  ];then
-        invoke-rc.d packetfence stop
+    if [ -z "$running_processes" ]; then
+        echo "No processes found running as user '$username'"
+    else
+        echo "Stopping processes gracefully..."
+        pkill -TERM -u "$username" 2>/dev/null
+        sleep 10
+        remaining_processes=$(pgrep -u "$username" 2>/dev/null)
+        if [ -n "$remaining_processes" ]; then
+            echo "Force stopping remaining processes..."
+            pkill -KILL -u "$username" 2>/dev/null
+            sleep 5
+        fi
+        if pgrep -u "$username" &>/dev/null; then
+            echo "Error: Could not stop all processes for user '$username'"
+        fi
+        echo "All processes for user '$username' have been stopped"
     fi
+    return 0
+}
+
+set_uid_gid() {
+    local username="$1"
+    local pgid="$2"
+
+    local user_uid=$(id -u "$username")
+    local user_gid=$(id -g "$username")
+
+    if [ "$user_uid" -eq $pgid ] && [ "$user_gid" -eq $pgid ]; then
+        echo "User '$username' has both UID and GID equal to $pgid"
+    else
+        stop_user_processes "$username"
+        usermod  -u $pgid $username
+        groupmod -g $pgid $username
+    fi
+    return 0
 }
 
 case "$1" in
@@ -28,6 +54,7 @@ case "$1" in
         else
                 echo "fingerbank user already exist"
         fi
+        set_uid_gid "fingerbank" 2026
         exit 0
     ;;
     

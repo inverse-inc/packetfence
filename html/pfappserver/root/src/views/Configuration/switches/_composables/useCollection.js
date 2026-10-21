@@ -7,15 +7,35 @@ export const useItemProps = {
   },
   switchGroup: {
     type: String
+  },
+  network: {
+    type: String
+  },
+  SNMPVersion: {
+    type: String
+  },
+  type: {
+    type: String
   }
 }
 
 import { useDefaultsFromMeta } from '@/composables/useMeta'
 export const useItemDefaults = (meta, props) => {
   const {
-    switchGroup
+    id,
+    switchGroup,
+    network,
+    SNMPVersion,
+    type
   } = toRefs(props)
-  return { ...useDefaultsFromMeta(meta), group: switchGroup.value }
+  return {
+    ...useDefaultsFromMeta(meta),
+    group: switchGroup.value,
+    ...(id?.value && { id: id.value }),
+    ...(network?.value && { network: network.value }),
+    ...(SNMPVersion?.value && { SNMPVersion: SNMPVersion.value }),
+    ...(type?.value && { type: type.value })
+  }
 }
 
 export const useItemTitle = (props) => {

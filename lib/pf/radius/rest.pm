@@ -17,9 +17,10 @@ use warnings;
 
 use pf::log;
 use Apache2::Const -compile =>
-  qw(DONE OK DECLINED HTTP_UNAUTHORIZED HTTP_FORBIDDEN HTTP_NOT_IMPLEMENTED HTTP_UNSUPPORTED_MEDIA_TYPE HTTP_PRECONDITION_FAILED HTTP_NO_CONTENT HTTP_NOT_FOUND SERVER_ERROR HTTP_OK HTTP_INTERNAL_SERVER_ERROR);
+  qw(DONE OK DECLINED HTTP_UNAUTHORIZED HTTP_FORBIDDEN HTTP_NOT_IMPLEMENTED HTTP_UNSUPPORTED_MEDIA_TYPE HTTP_PRECONDITION_FAILED HTTP_NO_CONTENT HTTP_NOT_FOUND SERVER_ERROR HTTP_OK HTTP_INTERNAL_SERVER_ERROR HTTP_SERVICE_UNAVAILABLE);
 use pf::api::error;
 use pf::radius::constants;
+use MIME::Base64 qw(decode_base64);
 
 =head2 format_response
 
@@ -30,9 +31,21 @@ Format a PacketFence RADIUS response to the format expected by the FreeRADIUS RE
 sub format_response {
     my ($response) = @_;
 
+    # No result at all: the handler died (caught in pf::api) or returned
+    # nothing. That is an infrastructure failure, not a policy decision, so
+    # answer 5xx: rlm_rest maps it to "fail", which the radiusd post-auth
+    # policy treats differently from a 401 "reject".
+    unless (ref($response) eq 'ARRAY' && @$response && defined $response->[0]) {
+        get_logger->error("RADIUS REST handler returned no result, answering 503");
+        die pf::api::error->new(status => Apache2::Const::HTTP_SERVICE_UNAVAILABLE, response => { 'control:PacketFence-Authorization-Status' => 'allow' });
+    }
+
     my $radius_return = shift @$response;
     my %mapped_object = @$response;
     my $radius_audit = delete $mapped_object{"RADIUS_AUDIT"} // {};
+    # Set by pf::radius when the request could not be evaluated for reasons
+    # unrelated to the device (e.g. database unavailable).
+    my $failure = delete $mapped_object{"RADIUS_FAILURE"};
     my %audit;
     while (my ($key, $value) = each %$radius_audit) {
         $audit{"control:$key"} = $value;
@@ -50,6 +63,14 @@ sub format_response {
         $radius_return = $RADIUS::RLM_MODULE_OK
     }
 
+    if ($radius_return == $RADIUS::RLM_MODULE_FAIL && $failure) {
+        # Infrastructure failure: 503 -> rlm_rest "fail". A 401 would be a
+        # "reject" and turn e.g. a database outage into Access-Rejects that
+        # tear down every session being reauthenticated.
+        get_logger->error("RADIUS request could not be evaluated ($failure failure), answering 503");
+        die pf::api::error->new(status => Apache2::Const::HTTP_SERVICE_UNAVAILABLE, response => $response);
+    }
+
     unless ($radius_return == $RADIUS::RLM_MODULE_OK || $radius_return == $RADIUS::RLM_MODULE_NOOP || $radius_return == $RADIUS::RLM_MODULE_UPDATED || $radius_return == $RADIUS::RLM_MODULE_HANDLED) {
         die pf::api::error->new(status => Apache2::Const::HTTP_UNAUTHORIZED, response => $response);
     }
@@ -59,17 +80,71 @@ sub format_response {
 
 =head2 format_request
 
-Format a FreeRADIUS REST RADIUS request to the format PacketFence expects it
+Format a FreeRADIUS REST RADIUS request to the format PacketFence expects it.
+Two body layouts are accepted:
+
+The flat layout, one attribute per key:
+
+    { "User-Name" => { attr_num => 1, type => "string", value => ["bob"] }, ... }
+
+The rlm_rest C<body_lists> layout, one attribute list per key:
+
+    { "request" => { "User-Name" => {...}, ... }, "proxy-reply" => { "Tunnel-Type" => {...}, ... } }
+
+The C<request> list is flattened to the top level so the callers see the same
+hash as with the flat layout; every other list is kept under its own key
+(C<proxy-request>, C<proxy-reply>, C<control>, ...) so the RADIUS filters can
+match on them, e.g. C<radius_request.proxy-reply.Tunnel-Private-Group-Id>.
 
 =cut
 
 sub format_request {
     my ($request) = @_;
-    # transform the request according to what radius_authorize expects
-    my %remapped_radius_request = map {
-        (@{$request->{$_}->{value}} > 1) ? ($_ => $request->{$_}->{value}) : ($_ => $request->{$_}->{value}[0]);
-    } keys %{$request};
-    return \%remapped_radius_request;
+    if (_is_body_lists($request)) {
+        my %lists = %$request;
+        my $flat = _format_list(delete $lists{request});
+        while (my ($list, $attrs) = each %lists) {
+            next unless ref($attrs) eq 'HASH';
+            $flat->{$list} = _format_list($attrs);
+        }
+        return $flat;
+    }
+
+    return _format_list($request);
+}
+
+=head2 _is_body_lists
+
+Whether the body uses the rlm_rest body_lists layout: a "request" key whose
+value is a hash of attributes rather than an attribute itself (an attribute
+always carries a "value" key).
+
+=cut
+
+sub _is_body_lists {
+    my ($request) = @_;
+    return
+         ref($request) eq 'HASH'
+      && ref($request->{request}) eq 'HASH'
+      && !exists $request->{request}{value};
+}
+
+=head2 _format_list
+
+Transform one attribute list according to what radius_authorize expects
+
+=cut
+
+sub _format_list {
+    my ($list) = @_;
+    $list //= {};
+    keys(my %remapped) = scalar keys %$list;
+    while (my ($k, $v) = each %$list) {
+        my @values = map { rindex($_, "base64:", 0) == 0 ? decode_base64(substr($_, 7)) : $_ } @{$v->{value}};
+        $remapped{$k} = (@values > 1) ? \@values : $values[0];
+    }
+
+    return \%remapped;
 }
 
 =head1 AUTHOR
@@ -78,7 +153,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

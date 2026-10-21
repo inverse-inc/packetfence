@@ -26,8 +26,7 @@ export default () => {
     cn: yup.string()
       .nullable()
       .required(i18n.t('Common name required.'))
-      .max(64, i18n.t('Maximum 64 characters.'))
-      .isCommonNameOrFQDNOrMAC(i18n.t('Invalid Common name.')),
+      .max(64, i18n.t('Maximum 64 characters.')),
 
     mail: yup.string()
       .nullable()

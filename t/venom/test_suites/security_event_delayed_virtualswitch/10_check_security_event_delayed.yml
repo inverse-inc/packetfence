@@ -1,0 +1,64 @@
+name: Verify security event was created with delayed status
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: check_security_event_delayed
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/security_events/search'
+    ignore_verify_ssl: true
+    retry: 5
+    delay: 3
+    body: >-
+      {
+        "cursor": 0,
+        "fields": ["id", "security_event_id", "status", "mac", "release_date"],
+        "sort": ["start_date DESC"],
+        "limit": 10,
+        "query": {
+          "op": "and",
+          "values": [
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "mac",
+                  "op": "equals",
+                  "value": "{{.security_event_delayed_virtualswitch.device.mac_address}}"
+                }
+              ]
+            },
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "security_event_id",
+                  "op": "equals",
+                  "value": "{{.security_event_delayed_virtualswitch.event.id}}"
+                }
+              ]
+            },
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "status",
+                  "op": "equals",
+                  "value": "delayed"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.items.items0 ShouldContainKey security_event_id
+      - result.bodyjson.items.items0.security_event_id ShouldEqual "{{.security_event_delayed_virtualswitch.event.id}}"
+      - result.bodyjson.items.items0.status ShouldEqual delayed

@@ -1,0 +1,9 @@
+executor: pfcron_acct_maintenance
+input:
+  sudo: ""
+steps:
+- type: pfcron_command_line
+  unit_command: "acct_maintenance"
+  sudo: "{{.input.sudo}}"
+output:
+  pfcron_acct_maintenance_systemout: "{{.result.pfcron_command_line_systemout}}"

@@ -2,10 +2,12 @@ import { BaseViewCollectionItem } from '../../_components/new/'
 import {
   BaseFormButtonBar,
   BaseFormGroupChosenOne,
+  BaseFormGroupFileUpload,
   BaseFormGroupInput,
+  BaseFormGroupInputPassword,
   BaseFormGroupInputTest,
   BaseFormGroupSwitch,
-  BaseFormGroupInputPassword,
+  BaseFormGroupToggleDisabledEnabled,
 } from '@/components/new/'
 import TheForm from './TheForm'
 import TheView from './TheView'
@@ -29,6 +31,7 @@ export {
   BaseFormGroupInput                  as FormGroupBindDn,
   BaseFormGroupInputPassword          as FormGroupBindPass,
   BaseFormGroupSwitch                 as FormGroupNtlmv2Only,
+  BaseFormGroupSwitch                 as FormGroupUseConnector,
   BaseFormGroupSwitch                 as FormGroupRegistration,
 
   BaseFormGroupSwitch                 as FormGroupNtlmCache,
@@ -42,6 +45,14 @@ export {
   BaseFormGroupInput                  as FormGroupAdResetAccountLockoutCounterAfter,
   BaseFormGroupInput                  as FormGroupAdOldPasswordAllowedPeriod,
   BaseFormGroupInput                  as FormGroupMaxAllowedPasswordAttemptsPerDevice,
+
+  BaseFormGroupToggleDisabledEnabled  as FormGroupChannelBinding,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupForceLdap,
+  BaseFormGroupChosenOne              as FormGroupEncryption,
+  BaseFormGroupFileUpload             as FormGroupClientCertFile,
+  BaseFormGroupFileUpload             as FormGroupClientKeyFile,
+  BaseFormGroupFileUpload             as FormGroupCaFile,
+
 
   TheForm,
   TheView

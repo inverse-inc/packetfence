@@ -1,12 +1,13 @@
 package main
 
 import (
-	"github.com/inverse-inc/go-utils/mac"
 	"testing"
+
+	"github.com/inverse-inc/go-utils/mac"
 )
 
 func TestMacSesssion(t *testing.T) {
-	pfAcct := NewPfAcct()
+	pfAcct := NewPfAcct("INFO")
 	if pfAcct == nil {
 		t.Fatalf("New pfAcct")
 	}
@@ -14,15 +15,15 @@ func TestMacSesssion(t *testing.T) {
 
 	mac, err := mac.NewFromString("99:77:55:44:33:22")
 	if err != nil {
-		t.Fatalf(err.Error())
+		t.Fatalf("%s", err.Error())
 	}
 
 	if _, err := pfAcct.Db.Exec("DELETE FROM node WHERE mac = ?", mac.String()); err != nil {
-		t.Fatalf(err.Error())
+		t.Fatalf("%s", err.Error())
 	}
 
 	if _, err := pfAcct.Db.Exec("INSERT INTO node (mac, time_balance, bandwidth_balance) VALUES (?, ?, ?)", mac.String(), 100, 100); err != nil {
-		t.Fatalf(err.Error())
+		t.Fatalf("%s", err.Error())
 	}
 
 	pfAcct.setNodeSessionCache(sessionId, &nodeSession{timeBalance: 100, bandwidthBalance: 100})
@@ -45,7 +46,7 @@ func TestMacSesssion(t *testing.T) {
 	}
 
 	if updated, err := pfAcct.SoftNodeTimeBalanceUpdate(mac, 100); err != nil {
-		t.Fatalf(err.Error())
+		t.Fatalf("%s", err.Error())
 	} else if !updated {
 		t.Fatalf("SoftNodeTimeBalanceUpdate failed for '%s'", mac)
 	}

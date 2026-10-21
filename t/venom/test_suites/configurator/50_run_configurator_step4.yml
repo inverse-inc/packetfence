@@ -4,7 +4,7 @@ testcases:
   steps:
   - type: pf_api_system_service_restart_async
     service: 'packetfence-config'
-    time_to_sleep: 5
+    time_to_sleep: 10
 
 - name: restart_pfqueue_service
   steps:
@@ -16,12 +16,17 @@ testcases:
     service: "pfqueue-go"
     time_to_sleep: 5
 
+# idempotent — retry the transient 502 while the admin API backend recovers.
 - name: update_systemd
   steps:
   - type: http
     method: POST
     url: '{{.pfserver_webadmin_url}}/api/v1/configurator/service/pf/update_systemd'
     ignore_verify_ssl: true
+    retry: 12
+    delay: 10
+    retry_if:
+      - result.statuscode ShouldNotEqual 200
     headers:
       "Content-Type": "application/json"
     assertions:
@@ -40,6 +45,27 @@ testcases:
   - type: systemctl_service_restart
     service: 'packetfence-pfperl-api'
     time_to_sleep: 10
+
+- name: wait_for_api_ready
+  steps:
+  - type: http
+    method: GET
+    url: '{{.pfserver_webadmin_url}}/api/v1/system/summary'
+    ignore_verify_ssl: true
+    retry: 60
+    retry_if:
+      - result.statuscode ShouldNotBeIn 200 401 403
+    delay: 10
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+    assertions:
+      - result.statuscode ShouldBeIn 200 401 403
+
+- name: check_if_admin_is_available
+  steps:
+  - type: get_login_token
+    iretry: 10
+    idelay: 5
 
 - name: start_pf_services
   steps:

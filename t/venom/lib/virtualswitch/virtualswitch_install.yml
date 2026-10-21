@@ -1,0 +1,108 @@
+executor: virtualswitch_install
+input:
+  package_name: "virtualswitch"
+  deb_version: ""
+  rpm_version: ""
+steps:
+- type: exec
+  script: |
+    # Get authentication credentials from GitLab CI environment variables
+    VIRTUALSWITCH_USER="${CI_VIRTUALSWITCH_USER}"
+    VIRTUALSWITCH_PASSWORD="${CI_VIRTUALSWITCH_PASSWORD}"
+    BASE_URL="${CI_VIRTUALSWITCH_BASE_URL:-https://support.inverse.ca/~jgoimard/virtualswitch}"
+    DEB_VERSION="{{.input.deb_version}}"
+    RPM_VERSION="{{.input.rpm_version}}"
+
+    if [ -z "$VIRTUALSWITCH_USER" ] || [ -z "$VIRTUALSWITCH_PASSWORD" ]; then
+      echo "ERROR: CI_VIRTUALSWITCH_USER and CI_VIRTUALSWITCH_PASSWORD environment variables must be set"
+      exit 1
+    fi
+
+    # Detect OS family from /etc/os-release
+    if [ -f /etc/os-release ]; then
+      . /etc/os-release
+      OS_FAMILY="${ID_LIKE:-$ID}"
+    else
+      echo "ERROR: Cannot detect OS (missing /etc/os-release)"
+      exit 1
+    fi
+
+    # Install based on OS family
+    case "$OS_FAMILY" in
+      *rhel*|*fedora*|*centos*|rocky|alma)
+        # Red Hat family - install RPM
+        PACKAGE_URL="${BASE_URL}/virtualswitch-${RPM_VERSION}.x86_64.rpm"
+        PACKAGE_FILE="/tmp/virtualswitch.rpm"
+        echo "Detected Red Hat-based system ($ID), using: $PACKAGE_URL"
+
+        # Install wpasupplicant dependency
+        echo "Installing wpa_supplicant..."
+        if command -v dnf &> /dev/null; then
+          dnf install -y wpa_supplicant
+        elif command -v yum &> /dev/null; then
+          yum install -y wpa_supplicant
+        fi
+
+        # Download package with authentication
+        curl -u "${VIRTUALSWITCH_USER}:${VIRTUALSWITCH_PASSWORD}" -L -o "$PACKAGE_FILE" "$PACKAGE_URL"
+        if [ $? -ne 0 ]; then
+          echo "ERROR: Failed to download virtualswitch package from $PACKAGE_URL"
+          exit 1
+        fi
+
+        # Install the package (prefer dnf, fallback to yum)
+        if command -v dnf &> /dev/null; then
+          dnf install -y "$PACKAGE_FILE"
+        elif command -v yum &> /dev/null; then
+          yum install -y "$PACKAGE_FILE"
+        else
+          echo "ERROR: Neither dnf nor yum found"
+          exit 1
+        fi
+        INSTALL_RESULT=$?
+
+        # Clean up
+        rm -f "$PACKAGE_FILE"
+        exit $INSTALL_RESULT
+        ;;
+
+      *debian*|*ubuntu*)
+        # Debian family - install DEB
+        PACKAGE_URL="${BASE_URL}/virtualswitch_${DEB_VERSION}_amd64.deb"
+        PACKAGE_FILE="/tmp/virtualswitch.deb"
+        echo "Detected Debian-based system ($ID), using: $PACKAGE_URL"
+
+        # Install wpasupplicant dependency
+        echo "Installing wpasupplicant..."
+        apt-get update && apt-get install -y wpasupplicant
+
+        # Download package with authentication
+        curl -u "${VIRTUALSWITCH_USER}:${VIRTUALSWITCH_PASSWORD}" -L -o "$PACKAGE_FILE" "$PACKAGE_URL"
+        if [ $? -ne 0 ]; then
+          echo "ERROR: Failed to download virtualswitch package from $PACKAGE_URL"
+          exit 1
+        fi
+
+        # Install the package (dpkg -i for local .deb files)
+        dpkg -i "$PACKAGE_FILE"
+        INSTALL_RESULT=$?
+
+        # Fix any dependency issues
+        if [ $INSTALL_RESULT -ne 0 ]; then
+          echo "Fixing dependencies..."
+          apt-get install -f -y
+          INSTALL_RESULT=$?
+        fi
+
+        # Clean up
+        rm -f "$PACKAGE_FILE"
+        exit $INSTALL_RESULT
+        ;;
+
+      *)
+        echo "ERROR: Unsupported OS family: $OS_FAMILY"
+        exit 1
+        ;;
+    esac
+  assertions:
+    - result.code ShouldEqual 0

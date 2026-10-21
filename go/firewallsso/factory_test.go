@@ -27,6 +27,25 @@ func TestInstantiate(t *testing.T) {
 	}
 }
 
+func TestInstantiatePfCrypt(t *testing.T) {
+	factory := NewFactory(ctx)
+	firewall, err := factory.Instantiate(ctx, "paloalto.com")
+	util.CheckTestError(t, err)
+
+	if err == nil {
+		paloalto := firewall.(*PaloAlto)
+
+		if paloalto.Password != "ptothetotheltotheotothealto" {
+			t.Error("Password of FirewallSSO doesn't have the right value")
+			spew.Dump(paloalto)
+		}
+		if paloalto.Type != "PaloAlto" {
+			t.Error("Type of FirewallSSO doesn't have the right value")
+			spew.Dump(paloalto)
+		}
+	}
+}
+
 func TestFirewallSSOFetchDecodeSocket(t *testing.T) {
 
 	firewall := FirewallSSO{}

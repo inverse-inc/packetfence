@@ -119,7 +119,6 @@
             :isLoading="isLoading"
           >
             <form-group-lets-encrypt namespace="lets_encrypt"
-                                     class="no-saas"
                                      :column-label="$i18n.t(`Use Let's Encrypt`)"
                                      :enabled-value="true"
                                      :disabled-value="false"
@@ -146,6 +145,7 @@
             <template v-else>
               <form-group-certificate namespace="certificate"
                                       :column-label="$i18n.t('{name} Server Certificate', { name })"
+                                      :text="$i18n.t('The full chain can be pasted: the server certificate first, then its intermediate CA(s), which are then used instead of the automatic lookup.')"
                                       rows="6" auto-fit
               />
 

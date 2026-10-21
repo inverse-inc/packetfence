@@ -20,18 +20,25 @@ endif::[]
 
 === Using web admin
 
-You can directly create or edit switch templates in `_Configuration -> Integration -> Switch Templates_` menu.
+You can directly create or edit switch templates in `_Configuration ->
+Integration -> Switch Templates_` menu.
 
 === Using CLI
 
-To create a new Switch Template you must create a template file in the [filename]`/usr/local/pf/lib/pf/Switch` directory.
-The file must have the following pattern [filename]`/usr/local/pf/lib/pf/Switch/_<Vendor>_/_<SwitchName>_.def`.
+To create a new Switch Template you must create a template file in the
+[filename]`/usr/local/pf/lib/pf/Switch` directory.
+The file must have the following pattern
+[filename]`/usr/local/pf/lib/pf/Switch/_<Vendor>_/_<SwitchName>_.def`.
 
-For example to create a template for the vendor `Cyberdyne` and switch `Switchinator 800`.
-The file name is [filename]`/usr/local/pf/lib/pf/Switch/Cyberdyne/Switchinator800.def`
-The file name must must only consist of alphanumeric characters and under scores and must begin with a letter.
+For example to create a template for the vendor `Cyberdyne` and switch
+`Switchinator 800`.
+The file name is
+[filename]`/usr/local/pf/lib/pf/Switch/Cyberdyne/Switchinator800.def`
+The file name must must only consist of alphanumeric characters and under scores
+and must begin with a letter.
 
-Once you have completed your switch template, you will need to perform the following commands so it can be used:
+Once you have completed your switch template, you will need to perform the
+following commands so it can be used:
 
 [source,bash]
 ----
@@ -50,11 +57,13 @@ You can find a full working example
 
 === Required Parameters
 
+[options="compact"]
 * description      - The description of the switch.
 * radiusDisconnect - The RADIUS disconnect methods to use. Must be one of the following values coa|disconnect|coaOrDisconnect .
 
 === RADIUS scope Parameters
 
+[options="compact"]
 * acceptVlan - Attributes for accept vlan scope
 * acceptRole - Attributes for accept role scope.
 * reject     - Attributes for rejection scope.
@@ -65,6 +74,7 @@ You can find a full working example
 
 === Additional parameters
 
+[options="compact"]
 * snmpDisconnect - If SNMP protocol should be use to disconnect (values: `enabled` or `disabled`)
 
 === Comments
@@ -84,17 +94,31 @@ Attribute-Name2 = value2
 EOT
 ....
 
+==== Attributes missing from the RADIUS dictionary
+
+The attribute names must exist in the RADIUS dictionaries shipped with PacketFence. To use an attribute that is not there, for example `Extreme-Dynamic-Config` (vendor 1916, attribute 252), which Extreme Fabric Engine switches accept with the value `PORTBOUNCE` in a CoA to bounce the port, define it in [filename]`/usr/local/pf/conf/radiusd/dictionary.local` (see [filename]`dictionary.local.example` in the same directory), using the FreeRADIUS dictionary format:
+
+....
+BEGIN-VENDOR    Extreme
+ATTRIBUTE       Extreme-Dynamic-Config          252     string
+END-VENDOR      Extreme
+....
+
+The authentication and eduroam RADIUS services read the file through [filename]`/usr/local/pf/raddb/dictionary`, so the attribute can be returned in an Access-Accept. The accounting, CLI and load-balancer RADIUS services, which run in containers, don't read it: they pass the attribute through without decoding it. PacketFence loads the same definitions to send it in the RADIUS CoA and Disconnect requests of the `coa`, `disconnect` and `bounce` scopes. Without it, those requests are sent without the attribute and the logs show `Unknown RADIUS tuple`. Restart the RADIUS services, pfconfig, pfqueue, httpd.aaa and pfperl-api after a change. A syntax error in the file prevents FreeRADIUS from starting (only a missing file is ignored), so restart a single RADIUS service first and check that it starts before restarting the others. PacketFence ignores, with a warning in its logs, the lines it can't use: an attribute of an unknown vendor, or of a vendor whose `format=` is not `1,1`. The file is not synchronized between the members of a cluster: copy it to each of them.
+
 === Dynamic RADIUS Attribute Value Syntax
 
 Some values depends on the context of the current request.
 So here is mini templating language to format values.
 
+[options="compact"]
 * Text replacement: `$name`
 * Embedded text replacement:  `start-${name}-end`
 * Functions: `${f1("",$var, f2())}`
 
 ==== Available variables for RADIUS scope
 
+[options="compact"]
 * acceptRole - (Same as acceptVlan)
 
 * reject - (Same as acceptVlan)
@@ -152,7 +176,6 @@ So here is mini templating language to format values.
 ** node_info.machine_account
 ** node_info.category
 ** node_info.mac
-** node_info.last_arp
 ** node_info.last_dhcp
 ** node_info.user_agent
 ** node_info.computername
@@ -252,6 +275,7 @@ So here is mini templating language to format values.
 ** vlan
 ** wasInline
 
+[options="compact"]
 * coa
 ** last_accounting.acctsessionid
 ** last_accounting.username
@@ -278,6 +302,7 @@ So here is mini templating language to format values.
 ** role
 ** time
 
+[options="compact"]
 * disconnect
 ** disconnectIp
 ** last_accounting.acctsessionid
@@ -304,6 +329,7 @@ So here is mini templating language to format values.
 ** mac
 ** time
 
+[options="compact"]
 * voip
 ** switch._ExternalPortalEnforcement
 ** switch._RoleMap
@@ -359,6 +385,7 @@ So here is mini templating language to format values.
 ** time
 ** vlan
 
+[options="compact"]
 * bounce
 ** disconnectIp
 ** ifIndex
@@ -439,6 +466,7 @@ So here is mini templating language to format values.
 
 ==== Available functions
 
+[options="compact"]
 * `macToEUI48($mac)`            - format a mac to AA-BB-CC-DD-FF-EE format
 * `uc($string)`                 - uppercases a string
 * `lc($string)`                 - lowercases a string

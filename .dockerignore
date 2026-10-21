@@ -5,3 +5,4 @@ logs/
 var/
 .git/
 html/pfappserver/.cache/
+**/target

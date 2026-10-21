@@ -25,11 +25,16 @@ endif::[]
 
 PacketFence supports Cisco ASA VPN with AnyConnect.
 
-You can force VPN users to authenticate first on the captive portal and based on the role of the device allow it and/or set dynamic ACL.
+You can force VPN users to authenticate first on the captive portal and based on
+the role of the device allow it and/or set dynamic ACL.
 
-In this example we assume that the Cisco ASA have 2 interfaces, one Management (192.168.2.1) where the VPN is activated and another one Registration (192.168.1.6) that is facing the PacketFence server (192.168.1.5).
+In this example we assume that the Cisco ASA have 2 interfaces, one Management
+(192.168.2.1) where the VPN is activated and another one Registration
+(192.168.1.6) that is facing the PacketFence server (192.168.1.5).
 
-Before trying to configure PacketFence with the Cisco ASA first be sure that when you connect with AnyConnect and when the VPN is up that your device is able to reach Internet.
+Before trying to configure PacketFence with the Cisco ASA first be sure that
+when you connect with AnyConnect and when the VPN is up that your device is able
+to reach Internet.
 
  ip local pool VPN_POOL 192.168.255.10-192.168.255.254 mask 255.255.255.0
  !
@@ -108,7 +113,8 @@ PacketFence support OpenVPN with PAP authentication.
 
 ==== OpenVPN server configuration
 
-In this section we will cover the OpenVPN installation on a Debian 11 machine and how to configure it.
+In this section we will cover the OpenVPN installation on a Debian 11 machine
+and how to configure it.
 
  apt install libgcrypt20-dev openvpn easy-rsa
 
@@ -174,7 +180,8 @@ Then apply this patch:
  +                                                         this->clientcertnotrequired=true;
  +                                                 }
  +                                         }
-                                           if (param == "username-as-common-name")
+                                           if (param ==
+                                           "username-as-common-name")
                                            {
                                                    this->deletechars(&line);
 
@@ -212,6 +219,9 @@ Then edit the radiusplugin.cnf file:
 
 ==== PacketFence configuration
 
-On the PacketFence side the only thing you need to do is to create a new switch as type OpenVPN with the ip address 192.168.0.6 and with the shared secret 'secret'.
-And enable "CLI Access Enabled" in the switch too to enable the radius-cli to start.
+On the PacketFence side the only thing you need to do is to create a new switch
+as type OpenVPN with the ip address 192.168.0.6 and with the shared secret
+'secret'.
+And enable "CLI Access Enabled" in the switch too to enable the radius-cli to
+start.
 

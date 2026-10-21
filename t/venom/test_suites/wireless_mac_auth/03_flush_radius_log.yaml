@@ -1,0 +1,10 @@
+name: flush radius log
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: move_from_redis_to_db
+  steps:
+  - type: pfcron_flush_radius_audit_log
+

@@ -6,7 +6,7 @@ info:
   version: 1.2.0
   contact:
     name: PacketFence
-    url: https://packetfence.org
+    url: https://www.packetfence.com
   license:
     name: GNU General Public License v2.0
 
@@ -76,5 +76,7 @@ tags:
     description: System summary.
   - name: Users
     description: Manage PacketFence users/persons.
+  - name: SnmpScan
+    description: Scan the network to discover switches and routers.
 
 

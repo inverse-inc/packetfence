@@ -7,6 +7,8 @@
 PREFIX = /usr/local
 PF_PREFIX = $(PREFIX)/pf
 PFCONNECTOR_PREFIX = $(PREFIX)/pfconnector-remote
+NTLM_AUTH_API_PREFIX = $(PREFIX)/ntlm-auth-api
+NTLM_AUTH_JOIN_PREFIX = $(NTLM_AUTH_API_PREFIX)
 
 # PF
 BINDIR = $(PF_PREFIX)/bin
@@ -20,6 +22,24 @@ PFCONNECTOR_BINDIR = $(PFCONNECTOR_PREFIX)/bin
 PFCONNECTOR_CONFDIR = $(PFCONNECTOR_PREFIX)/conf
 PFCONNECTOR_LOGDIR = $(PFCONNECTOR_PREFIX)/logs
 PFCONNECTOR_UPGRADEDIR = $(PFCONNECTOR_PREFIX)/upgrade
+PFCONNECTOR_CONTAINERSDIR = $(PFCONNECTOR_PREFIX)/containers
+
+# NTLM_AUTH_API
+NTLM_AUTH_API_BINDIR = $(NTLM_AUTH_API_PREFIX)/bin
+NTLM_AUTH_API_SBINDIR = $(NTLM_AUTH_API_PREFIX)/sbin
+NTLM_AUTH_API_CONFDIR = $(NTLM_AUTH_API_PREFIX)/conf
+NTLM_AUTH_API_LOGDIR = $(NTLM_AUTH_API_PREFIX)/logs
+NTLM_AUTH_API_UPGRADEDIR = $(NTLM_AUTH_API_PREFIX)/upgrade
+NTLM_AUTH_API_VARDIR = $(NTLM_AUTH_API_PREFIX)/var
+NTLM_AUTH_API_CONTAINERSDIR = $(NTLM_AUTH_API_PREFIX)/containers
+
+# NTLM_AUTH_JOIN
+NTLM_AUTH_JOIN_BINDIR = $(NTLM_AUTH_JOIN_PREFIX)/bin
+NTLM_AUTH_JOIN_SBINDIR = $(NTLM_AUTH_JOIN_PREFIX)/sbin
+NTLM_AUTH_JOIN_CONFDIR = $(NTLM_AUTH_JOIN_PREFIX)/conf
+NTLM_AUTH_JOIN_LOGDIR = $(NTLM_AUTH_JOIN_PREFIX)/logs
+NTLM_AUTH_JOIN_VARDIR = $(NTLM_AUTH_JOIN_PREFIX)/var
+NTLM_AUTH_JOIN_CONTAINERSDIR = $(NTLM_AUTH_JOIN_PREFIX)/containers
 
 # source dirs
 # hack to get directory of config.mk from any Makefile in source tree
@@ -40,7 +60,9 @@ SRC_FULL_IMPORTDIR = $(SRC_ADDONSDIR)/full-import
 SRC_FULL_UPGRADEDIR = $(SRC_ADDONSDIR)/full-upgrade
 SRC_FUNCTIONSDIR = $(SRC_ADDONSDIR)/functions
 SRC_PFCONNECTORDIR = $(SRC_ADDONSDIR)/pfconnector
-SRC_DOCKERDIR = $(SRC_ROOTDIR)/docker
+SRC_DOCKERDIR = $(SRC_ROOT_DIR)/docker
+SRC_NTLM_AUTH_APIDIR = $(SRC_ROOT_DIR)/bin/pyntlm_auth
+SRC_NTLM_AUTH_API_ADDONSDIR = $(SRC_ADDONSDIR)/ntlm-auth-api
 
 # specific directory to build website artifacts
 SRC_WEBSITE_DIR = $(SRC_ROOT_DIR)/website
@@ -52,8 +74,8 @@ LOCAL_REGISTRY = packetfence
 #
 # Golang
 #
-GOVERSION = go1.23.4
-PF_BINARIES = pfhttpd pfqueue-go pfdhcp pfdns pfstats pfdetect galera-autofix pfacct pfcron mysql-probe pfconnector sdnotify-proxy
+GOVERSION = go1.26.4
+PF_BINARIES = pfhttpd pfqueue-go pfdhcp pfdns pfstats pfdetect galera-autofix pfacct pfcron mysql-probe pfconnector sdnotify-proxy pfudpproxy
 PF_GO_CMDS = pfcrypt pfkafka
 
 #
@@ -65,6 +87,26 @@ PF_RELEASE_PATH=$(shell readlink -e $(SRC_ROOT_DIR)/conf/pf-release)
 PF_MINOR_RELEASE=$(shell perl -ne 'print $$1 if (m/.*?(\d+\.\d+)./)' $(PF_RELEASE_PATH))
 # X.Y.Z
 PF_PATCH_RELEASE=$(shell perl -ne 'print $$1 if (m/.*?(\d+\.\d+\.\d+)/)' $(PF_RELEASE_PATH))
+
+# CI package version suffix — mirrors ci-build-pkg PKG_BUILD_SUFFIX_MODE=long.
+# GitLab CI exports CI_COMMIT_REF_NAME, CI_PIPELINE_ID, CI_COMMIT_TIMESTAMP;
+# fall back to git/os values for manual builds.
+CI_COMMIT_REF_NAME  ?= $(shell git rev-parse --abbrev-ref HEAD 2>/dev/null || echo local)
+CI_PIPELINE_ID      ?= 0
+CI_COMMIT_TIMESTAMP ?= $(shell git show -s --format=%cI HEAD 2>/dev/null)
+CI_COMMIT_DATE      := $(shell date -u -d "$(CI_COMMIT_TIMESTAMP)" +%Y%m%d%H%M%S 2>/dev/null || date -u +%Y%m%d%H%M%S)
+CI_COMMIT_REF_SLUG  ?= $(shell printf '%s' "$(CI_COMMIT_REF_NAME)" | tr 'A-Z' 'a-z' | tr -c 'a-z0-9\n' '-' | sed 's/-\+/-/g; s/^-//; s/-$$//')
+CI_COMMIT_REF_TILDE := $(shell printf '%s' "$(CI_COMMIT_REF_SLUG)" | tr '_/-' '~')
+
+OS_RELEASE_ID   := $(shell . /etc/os-release 2>/dev/null && printf '%s' "$$ID" || echo unknown)
+OS_RELEASE_NAME := $(shell . /etc/os-release 2>/dev/null && printf '%s' "$${VERSION_CODENAME:-$${VERSION_ID%%.*}}" || echo unknown)
+OS_RELEASE_NUM  := $(shell . /etc/os-release 2>/dev/null && printf '%04d' "$${VERSION_ID%%.*}" 2>/dev/null || printf '0000')
+
+DEB_PKG_SUFFIX  := +$(CI_COMMIT_DATE)+$(CI_PIPELINE_ID)+$(OS_RELEASE_NUM)+$(CI_COMMIT_REF_TILDE)+$(OS_RELEASE_NAME)
+RPM_PKG_SUFFIX  := $(CI_COMMIT_DATE).$(CI_PIPELINE_ID).$(OS_RELEASE_NUM).$(CI_COMMIT_REF_TILDE)
+
+PKG_RESULT_DIR  ?= $(SRC_ROOT_DIR)/result
+PKG_RELEASE_DIR  = $(PKG_RESULT_DIR)/$(OS_RELEASE_ID)/$(OS_RELEASE_NAME)
 
 # SRC HTML dirs
 SRC_HTMLDIR = $(SRC_ROOT_DIR)/html
@@ -139,6 +181,7 @@ pf_test_files_to_include = $(shell find $(SRC_TESTDIR) \
 # reflect source tree layout
 pf_export_files_to_include = $(shell find $(SRC_FULL_IMPORTDIR)/ \
 	$(SRC_FUNCTIONSDIR)/ \
+	$(SRC_ADDONSDIR)/exportable-backup.sh \
 	-maxdepth 0)
 
 # all directories and files to include in packetfence-upgrade package

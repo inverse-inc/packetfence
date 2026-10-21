@@ -37,6 +37,7 @@ my %values = (
     switch_ip           => '0.0.0.2',
     switch_ip_int       => 2,
     switch_mac          => '06:07:08:09:0a:0b',
+    switch_id           => '06:07:08:09:0a:0b',
     port                => '1234',
     vlan                => '99',
     role                => 'test role',
@@ -347,7 +348,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

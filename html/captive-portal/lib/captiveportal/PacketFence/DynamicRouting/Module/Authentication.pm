@@ -172,6 +172,13 @@ sub execute_actions {
 
     $self->app->session->{source} = $self->source;
     if(isenabled($self->source->{create_local_account})){
+        # The credentials of the local account are sent by e-mail, ex: a Facebook account registered with a phone number has none
+        if(!$self->local_account_email()) {
+            get_logger->error("Can't create the local account of " . ($self->app->session->{username} // '') . ": the source " . $self->source->id . " didn't provide an e-mail address");
+            $self->app->flash->{error} = "Your account didn't provide an e-mail address, which is needed to create your local account. Please use another login method.";
+            $self->session->{source_id} = undef;
+            return $FALSE;
+        }
         if(!$self->create_local_account()) {
             $self->app->flash->{error} = "Unable to create the local account with this username. Please try registering using a different email or phone number.";
             # Make sure the current source is not remembered since it failed...
@@ -260,6 +267,7 @@ sub auth_source_params {
     my ($self) = @_;
     my $locationlog_entry = locationlog_view_open_mac($self->current_mac);
     my $node_info = node_view($self->current_mac);
+    my ($strip_username, undef) = strip_username($self->username());
     my $switch = pf::SwitchFactory->instantiate({ switch_mac => $locationlog_entry->{'switch_mac'}, switch_ip => $locationlog_entry->{'switch_ip'}});
     return {
         username => $self->username(),
@@ -267,7 +275,7 @@ sub auth_source_params {
         connection_type => $locationlog_entry->{'connection_type'},
         SSID => $locationlog_entry->{'ssid'},
         realm => $locationlog_entry->{'realm'},
-        stripped_user_name => strip_username($self->username()),
+        stripped_user_name => $strip_username,
         switch_group => ( $switch eq "0" ? '' : $switch->{_group}),
         computer_name => $node_info->{'computername'},
         switch_id => $locationlog_entry->{'switch'},
@@ -284,6 +292,17 @@ Meant for child modules to define their params
 
 sub auth_source_params_child { {} }
 
+=head2 local_account_email
+
+The e-mail address the local account credentials are sent to
+
+=cut
+
+sub local_account_email {
+    my ($self) = @_;
+    return $self->session->{fields}->{email} // $self->session->{email} // $self->app->session->{email};
+}
+
 =head2 create_local_account
 
 Create a local account using the email in the session
@@ -298,7 +317,7 @@ sub create_local_account {
 
     my $auth_params = $self->auth_source_params();
 
-    my $email = $self->session->{fields}->{email} // $self->session->{email} // $self->app->session->{email};
+    my $email = $self->local_account_email();
     unless($email){
         get_logger->error("Can't create account since there is no user e-mail in the session.");
         return $FALSE;
@@ -417,7 +436,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

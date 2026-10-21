@@ -6,29 +6,33 @@ import (
 	"github.com/inverse-inc/go-utils/sharedutils"
 )
 
-var fortiAnalyserRegexPattern1 = regexp.MustCompile(`\s+`)
-var fortiAnalyserRegexPattern2 = regexp.MustCompile(`\=`)
+var fortiAnalyserRegexPattern1 = regexp.MustCompile(`(\w+)="([^"]*)"|(\w+)=([^\s]+)`)
 
 type FortiAnalyserParser struct {
-	Pattern1, Pattern2 *regexp.Regexp
+	Pattern1 *regexp.Regexp
 	parser
 }
 
 func (s *FortiAnalyserParser) Parse(line string) ([]ApiCall, error) {
-	matches := s.Pattern1.Split(line, -1)
+	matches := s.Pattern1.FindAllStringSubmatch(line, -1)
 	var srcip, logid string
 	var err error
-	for _, str := range matches {
-		args := s.Pattern2.Split(str, 2)
-		if len(args) <= 1 {
-			continue
-		}
 
-		if args[0] == "srcip" {
-			srcip = args[1]
-		} else if args[0] == "logid" {
-			logid = args[1]
+	attributes := make(map[string]string)
+
+	for _, match := range matches {
+		if match[1] != "" {
+			attributes[match[1]] = match[2]
+		} else {
+			attributes[match[3]] = match[4]
 		}
+	}
+
+	if value, ok := attributes["srcip"]; ok {
+		srcip = value
+	}
+	if value, ok := attributes["logid"]; ok {
+		logid = value
 	}
 
 	if srcip == "" || logid == "" {
@@ -58,8 +62,7 @@ func (s *FortiAnalyserParser) Parse(line string) ([]ApiCall, error) {
 
 func NewFortiAnalyserParser(config *PfdetectConfig) (Parser, error) {
 	return &FortiAnalyserParser{
-		Pattern1: fortiAnalyserRegexPattern1.Copy(),
-		Pattern2: fortiAnalyserRegexPattern2.Copy(),
+		Pattern1: fortiAnalyserRegexPattern1,
 		parser:   setupParser(config),
 	}, nil
 }

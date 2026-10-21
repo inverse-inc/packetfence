@@ -74,7 +74,6 @@ use pf::util;
 sub description { 'Aruba Networks' }
 use pf::roles::custom;
 use pf::accounting qw(node_accounting_current_sessionid);
-use pf::util::radius qw(perform_coa perform_disconnect);
 
 =head1 SUBROUTINES
 
@@ -93,6 +92,7 @@ use pf::SwitchSupports qw(
     ExternalPortal
     WiredMacAuth
     WiredDot1x
+    Flow
 );
 
 # inline capabilities
@@ -498,7 +498,7 @@ sub radiusDisconnect {
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
 
-    if (!defined($self->{'_radiusSecret'})) {
+    if (!$self->hasRadiusSecret()) {
         $logger->warn(
             "Unable to perform RADIUS CoA-Request on $self->{'_ip'}: RADIUS Shared Secret not configured"
         );
@@ -553,11 +553,11 @@ sub radiusDisconnect {
                 'Filter-Id' => $role,
             };
             $logger->info("[$self->{'_ip'}] Returning ACCEPT with role: $role");
-            $response = perform_coa($connection_info, $attributes_ref);
+            $response = $self->handleRadiusCoa($connection_info, $attributes_ref);
 
         }
         else {
-            $response = perform_disconnect($connection_info, $attributes_ref);
+            $response = $self->handleRadiusDisconnect($connection_info, $attributes_ref);
         }
     } catch {
         chomp;
@@ -671,6 +671,9 @@ sub returnRadiusAccessAccept {
     my ($self, $args) = @_;
     my $logger = $self->logger();
 
+    # A subclass that runs the RADIUS filter itself calls us with 'unfiltered'
+    # set; filtering here too would add every answer of the rule twice (#9135).
+    my $caller_filters = isenabled($args->{'unfiltered'});
     $args->{'unfiltered'} = $TRUE;
     $self->compute_action(\$args);
     my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
@@ -722,7 +725,8 @@ sub returnRadiusAccessAccept {
         }
     }
 
-    if (!isenabled($args->{'unfiltered'})) {
+    # A subclass that applies the RADIUS filter itself called us unfiltered
+    unless ($caller_filters) {
         my $filter = pf::access_filter::radius->new;
         my $rule = $filter->test('returnRadiusAccessAccept', $args);
         ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
@@ -743,7 +747,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

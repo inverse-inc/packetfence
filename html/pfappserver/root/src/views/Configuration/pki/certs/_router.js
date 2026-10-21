@@ -1,8 +1,8 @@
 import store from '@/store'
 import StoreModule from '../_store'
 
-const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../../_components/TheTabsPkis')
-const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
+const TheTabs = () => import(/* webpackChunkName: "ConfigurationIntegration" */ '../../_components/TheTabsPkis')
+const TheView = () => import(/* webpackChunkName: "ConfigurationIntegration" */ './_components/TheView')
 
 const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_pkis)

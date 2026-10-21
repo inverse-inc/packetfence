@@ -39,10 +39,10 @@ Iterable:
   properties:
     prevCursor:
       description: The cursor to access paginated data for the previous page.
-      type: string
+      type: integer
     nextCursor:
       description: The cursor to access paginated data for the next page.
-      type: string
+      type: integer
     total_count:
       type: integer
       description: The total count of paginated items.

@@ -1,0 +1,28 @@
+name: First server — galera up (force-new-cluster, size 1)
+testcases:
+# Goal of this phase: galera is enabled and the first node has formed a
+# Primary component on its own (size 1). The full size-3 assertions live in
+# cluster_verify_all once the joiners are integrated.
+- name: wsrep_enabled
+  steps:
+  - type: exec
+    script: 'mysql -uroot -N -e "SHOW VARIABLES LIKE ''wsrep_on''" | awk "{print \$2}"'
+    assertions:
+      - result.systemout ShouldEqual ON
+      - result.code ShouldEqual 0
+
+- name: wsrep_cluster_status_primary
+  steps:
+  - type: exec
+    script: 'mysql -uroot -N -e "SHOW STATUS LIKE ''wsrep_cluster_status''" | awk "{print \$2}"'
+    assertions:
+      - result.systemout ShouldEqual Primary
+      - result.code ShouldEqual 0
+
+- name: wsrep_cluster_size_one
+  steps:
+  - type: exec
+    script: 'mysql -uroot -N -e "SHOW STATUS LIKE ''wsrep_cluster_size''" | awk "{print \$2}"'
+    assertions:
+      - result.systemout ShouldEqual 1
+      - result.code ShouldEqual 0

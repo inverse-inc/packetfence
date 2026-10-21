@@ -6,7 +6,7 @@ testcases:
 
 - name: delete_radius_source
   steps:
-  - type: delete_source
+  - type: pf_api_source_delete
     id: "{{.cli_login_radius.sources.id}}"
     token: "{{.get_login_token.json.result.token}}"
 
@@ -28,6 +28,6 @@ testcases:
 
 - name: delete_radius_realm
   steps:
-  - type: delete_realm
+  - type: pf_api_realm_delete
     id: "{{.cli_login_radius.realm.id}}"
     token: "{{.get_login_token.json.result.token}}"

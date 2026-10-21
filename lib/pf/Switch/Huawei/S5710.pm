@@ -37,6 +37,7 @@ use pf::SwitchSupports qw(
     WiredMacAuth
     WiredDot1x
     ~AccessListBasedEnforcement
+    Flow
 );
 
 =head2 getIfType
@@ -66,7 +67,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

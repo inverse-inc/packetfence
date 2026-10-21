@@ -17,9 +17,9 @@
             <!-- Named groups are rendered inside a card -->
             <component :is="group.name ? 'b-card' : 'div'" class="mt-3" :key="`${group.name}-${groupIndex}`" :title="$i18n.t(group.name)">
               <b-row align-h="center">
-                <b-col class="mt-3 chart" v-for="chart in group.items" :key="chart.metric" :md="cols(chart.cols, group.items.length)">
+                <b-col class="mt-3 chart" v-for="(chart, chartIndex) in group.items" :key="`${chartIndex}-${chart.metric}`" :md="cols(chart.cols, group.items.length)">
                   <small class="text-muted cursor-pointer pb-3">
-                    {{ chart.title }}
+                    {{ $i18n.t(chart.title) }}
                   </small>
                   <div class="mt-2">
                     <chart :definition="chart" host="/netdata/127.0.0.1" :data-colors="palette(0)"></chart>
@@ -47,6 +47,7 @@ const components = {
 }
 
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from '@vue/composition-api'
+import { notifyHostAlarms } from '../../_composables/useAlarmNotifications'
 import acl from '@/utils/acl'
 import i18n from '@/utils/locale'
 import allSections from '../_config'
@@ -54,6 +55,8 @@ import allSections from '../_config'
 const setup = (props, context) => {
 
   const { root: { $store } = {} } = context
+
+  const isSaas = computed(() => $store.getters['system/isSaas'])
 
   const tabIndex = ref(0)
   const pingNetdataTimer = ref(false)
@@ -125,37 +128,15 @@ const setup = (props, context) => {
       })
     }
   }
-  pingNetdataTimer.value = setTimeout(pingNetdata, pingNetdataInterval.value)
+  if (!isSaas.value) {
+    pingNetdataTimer.value = setTimeout(pingNetdata, pingNetdataInterval.value)
+  }
 
   const getAlarms = () => {
     if ($store.state['$_status'].allCharts) {
       Object.values(cluster.value).forEach(({ management_ip: ip }) => {
         $store.dispatch(`$_status/alarms`, ip).then(({ hostname, alarms = {} } = {}) => {
-          Object.keys(alarms).forEach(url => {
-            const alarm = alarms[url]
-            const label = alarm.chart.split('.')[0].replace(/_/g, ' ') + ' - ' + alarm.family
-            const value = alarm.value_string
-            let status = alarm.status.toLowerCase()
-            switch (status) {
-              case 'warning':
-                break
-              case 'critical':
-                status = 'danger'
-                break
-              default:
-                status = 'info'
-            }
-            const previousNotification = $store.state.notification.all.find(notification => {
-              return notification.url === url && notification.value === value
-            })
-            if (!previousNotification) {
-              $store.dispatch(`notification/${status}`, {
-                message: `<span class="font-weight-normal">${hostname}</span> ${label}`,
-                url,
-                value
-              })
-            }
-          })
+          notifyHostAlarms($store, hostname, alarms)
           getAlarmsTimer.value = setTimeout(getAlarms, alarmsInterval.value)
         })
       })
@@ -173,7 +154,7 @@ const setup = (props, context) => {
   }
 
   onMounted(() => {
-    if ($store.state['$_status'].allCharts) {
+    if (!isSaas.value && $store.state['$_status'].allCharts) {
       initNetdata()
       getAlarms()
     }

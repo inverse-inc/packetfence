@@ -79,7 +79,7 @@ import {computed, inject, ref, unref} from '@vue/composition-api'
 import MultiselectFacade
   from '@/views/Configuration/sources/_components/ldapCondition/MultiselectFacade'
 import {valueToSelectValue} from '@/utils/convert'
-import _ from 'lodash'
+import debounce from 'lodash/debounce'
 import ProvidedKeys from '@/views/Configuration/sources/_components/ldapCondition/ProvidedKeys';
 import BaseFormGroup from '@/components/new/BaseFormGroup';
 
@@ -126,7 +126,7 @@ function setup(props, context) { // eslint-disable-line
   const searchSuccess = ref(true)
   const manualInputChosen = ref(false)
 
-  const debouncedSearch = _.debounce(performSearch, searchAfter)
+  const debouncedSearch = debounce(performSearch, searchAfter)
 
   const ldapFilterAttribute = computed(() => {
     let ldapEntryNamespace = props.namespace.split('.')

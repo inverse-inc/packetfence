@@ -3,11 +3,13 @@ package radius_proxy
 import (
 	"crypto/hmac"
 	"crypto/md5"
+	"encoding/binary"
 	"errors"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cio"
+	"github.com/inverse-inc/packetfence/go/pfradius"
 	"layeh.com/radius"
 	"layeh.com/radius/rfc2865"
 	"layeh.com/radius/rfc2869"
@@ -17,12 +19,14 @@ type Proxy struct {
 	attributes_keys []string
 	secret          []byte
 	sessionTimeout  time.Duration
-	backends        *Backends
+	authBackends    *Backends
+	acctBackends    *Backends
 	*cio.Logger
 }
 
 type ProxyConfig struct {
-	Addrs          []string
+	AuthAddrs      []string
+	AcctAddrs      []string
 	Secret         []byte
 	SessionTimeout time.Duration
 	Logger         *cio.Logger
@@ -31,7 +35,8 @@ type ProxyConfig struct {
 func NewProxy(config *ProxyConfig) *Proxy {
 	radiusProxy := &Proxy{
 		sessionTimeout: config.SessionTimeout,
-		backends:       NewBackends(config.SessionTimeout, config.Addrs...),
+		authBackends:   NewBackends(config.SessionTimeout, config.AuthAddrs...),
+		acctBackends:   NewBackends(config.SessionTimeout, config.AcctAddrs...),
 		secret:         []byte(config.Secret),
 		Logger:         config.Logger,
 	}
@@ -39,8 +44,23 @@ func NewProxy(config *ProxyConfig) *Proxy {
 	return radiusProxy
 }
 
+// backendsForPacket selects the backend pool based on the RADIUS packet code.
+// Accounting-Request packets are routed to the accounting pool (pfacct); every
+// other packet (Access-Request, Status-Server, ...) goes to the authentication
+// pool (radiusd-auth). Without this split an accounting packet could be hashed
+// onto a radiusd-auth backend, which listens on the auth port and silently
+// discards accounting.
+func (rp *Proxy) backendsForPacket(p *radius.Packet) *Backends {
+	if p.Code == radius.CodeAccountingRequest {
+		return rp.acctBackends
+	}
+
+	return rp.authBackends
+}
+
 func (rp *Proxy) Cleanup(stop chan struct{}) {
-	rp.backends.sessions.Cleanup(5*time.Second, stop)
+	go rp.authBackends.sessions.Cleanup(5*time.Second, stop)
+	go rp.acctBackends.sessions.Cleanup(5*time.Second, stop)
 }
 
 func (rp *Proxy) addProxyState(p *radius.Packet) bool {
@@ -49,20 +69,29 @@ func (rp *Proxy) addProxyState(p *radius.Packet) bool {
 		return false
 	}
 
+	backends := rp.backendsForPacket(p)
 	id, _ := uuid.NewUUID()
 	value := id.String()
 	rfc2865.ProxyState_SetString(p, value)
-	be := rp.backends.pickBackend(p)
-	rp.backends.sessions.Add(value, rp.sessionTimeout, be)
+	be := backends.pickBackend(p)
+	backends.sessions.Add(value, rp.sessionTimeout, be)
 	return true
 }
 
-func (rp *Proxy) AddBackend(addr string) {
-	rp.backends.Add(addr)
+func (rp *Proxy) AddAuthBackend(addr string) {
+	rp.authBackends.Add(addr)
 }
 
-func (rp *Proxy) DeleteBackend(addr string) {
-	rp.backends.Delete(addr)
+func (rp *Proxy) DeleteAuthBackend(addr string) {
+	rp.authBackends.Delete(addr)
+}
+
+func (rp *Proxy) AddAcctBackend(addr string) {
+	rp.acctBackends.Add(addr)
+}
+
+func (rp *Proxy) DeleteAcctBackend(addr string) {
+	rp.acctBackends.Delete(addr)
 }
 
 func (rp *Proxy) ProxyPacket(payload []byte, connectorID string) ([]byte, string, error) {
@@ -77,25 +106,47 @@ func (rp *Proxy) ProxyPacket(payload []byte, connectorID string) ([]byte, string
 		LogPacket(l, packet)
 	})
 
-	added := rp.addProxyState(packet)
-	_ = added
-	connectorAttr, err := radius.NewString(connectorID)
-	if err != nil {
-		return nil, "", err
+	mutated := rp.addProxyState(packet)
+
+	if !hasPacketFenceConnectorID(packet) {
+		connectorAttr, err := radius.NewString(connectorID)
+		if err != nil {
+			return nil, "", err
+		}
+
+		vendorConnectorAttr := make(radius.Attribute, 2+len(connectorAttr))
+		vendorConnectorAttr[0] = pfradius.ConnectorIDAttrType
+		vendorConnectorAttr[1] = byte(len(vendorConnectorAttr))
+		copy(vendorConnectorAttr[2:], connectorAttr)
+
+		vsa, err := radius.NewVendorSpecific(pfradius.VendorID, vendorConnectorAttr)
+		if err != nil {
+			return nil, "", err
+		}
+
+		packet.Attributes.Add(26, vsa)
+		mutated = true
 	}
 
-	vendorConnectorAttr := make(radius.Attribute, 2+len(connectorAttr))
-	vendorConnectorAttr[0] = 40
-	vendorConnectorAttr[1] = byte(len(vendorConnectorAttr))
-	copy(vendorConnectorAttr[2:], connectorAttr)
-
-	vsa, err := radius.NewVendorSpecific(29464, vendorConnectorAttr)
-	if err != nil {
-		return nil, "", err
+	be := rp.backendsForPacket(packet).getBackend(packet)
+	if be == nil {
+		return nil, "", errors.New("No backend available")
 	}
 
-	packet.Attributes.Add(26, vsa)
-	err = addMessageAuthenticator(packet, []byte(rp.secret))
+	// When the remote FreeRADIUS already proxied the packet it arrives signed with
+	// the unified secret and tagged with Proxy-State + PacketFence-ConnectorID, so we
+	// add nothing above. Forward the original bytes verbatim: this preserves the
+	// original authenticator — essential for Accounting-Request, whose Request
+	// Authenticator is keyed by the secret — and avoids a pointless re-sign that would
+	// also inject a bogus Message-Authenticator. We only re-sign when we actually
+	// mutated the packet (e.g. bare Status-Server liveness checks, which arrive
+	// untagged and get a freshly added Proxy-State/ConnectorID here).
+	if !mutated {
+		rp.Debugf("Proxy %s to %s for connector %s (verbatim)", packet.Code, be.addr, connectorID)
+		return payload, be.addr, nil
+	}
+
+	err = addMessageAuthenticator(packet, rp.secret)
 	if err != nil {
 		return nil, "", err
 	}
@@ -105,17 +156,27 @@ func (rp *Proxy) ProxyPacket(payload []byte, connectorID string) ([]byte, string
 		return nil, "", err
 	}
 
-	be := rp.backends.getBackend(packet)
-	if be == nil {
-		return nil, "", errors.New("No backend available")
-	}
-
-	rp.Debugf("Proxy to %s for connector %s", be.addr, connectorID)
+	rp.Debugf("Proxy %s to %s for connector %s", packet.Code, be.addr, connectorID)
 	rp.IfDebugHandle(func(l *cio.Logger) {
 		l.Printf("Payload Proxied")
 		LogPacket(l, packet)
 	})
 	return b2, be.addr, nil
+}
+
+func hasPacketFenceConnectorID(packet *radius.Packet) bool {
+	for _, avp := range packet.Attributes {
+		if avp.Type != 26 {
+			continue
+		}
+		attr := avp.Attribute
+		if len(attr) >= 5 &&
+			binary.BigEndian.Uint32(attr[:4]) == pfradius.VendorID &&
+			attr[4] == pfradius.ConnectorIDAttrType {
+			return true
+		}
+	}
+	return false
 }
 
 func addMessageAuthenticator(p *radius.Packet, secret []byte) error {

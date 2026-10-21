@@ -27,6 +27,8 @@ my @PASSWORD_FIELDS = qw(
     access_level
     unregdate
     login_remaining
+    trigger_radius_mfa
+    trigger_portal_mfa
 );
 
 our @COLUMN_NAMES = (
@@ -66,13 +68,22 @@ sub to_hash_fields {
     return [@pf::dal::_person::FIELD_NAMES, @PASSWORD_FIELDS, qw(can_sponsor nodes category category_id)];
 }
 
+sub pre_save {
+    my ($self) = @_;
+    if (exists $self->{psk}) {
+        my $psk = $self->{psk};
+        $self->{psk} = undef if defined $psk && $psk eq "";
+    }
+    return $STATUS::OK;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

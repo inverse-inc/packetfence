@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"encoding/binary"
 	"math"
@@ -69,7 +70,7 @@ func newDHCPConfig() *Interfaces {
 	return &p
 }
 
-func (d *Interfaces) readConfig(MyDB *sql.DB) {
+func (d *Interfaces) readConfig(ctx context.Context, MyDB *sql.DB) {
 	interfaces := pfconfigdriver.GetType[pfconfigdriver.ListenInts](ctx)
 	DHCPinterfaces := pfconfigdriver.GetType[pfconfigdriver.DHCPInts](ctx)
 	portal := pfconfigdriver.GetType[pfconfigdriver.PfConfCaptivePortal](ctx)
@@ -143,13 +144,19 @@ func (d *Interfaces) readConfig(MyDB *sql.DB) {
 				}
 
 				if (NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) || NetIP.Contains(net.ParseIP(ConfNet.NextHop)) {
-					if int(binary.BigEndian.Uint32(net.ParseIP(ConfNet.DhcpStart).To4())) > int(binary.BigEndian.Uint32(net.ParseIP(ConfNet.DhcpEnd).To4())) {
+					dhcpStart := net.ParseIP(ConfNet.DhcpStart).To4()
+					dhcpEnd := net.ParseIP(ConfNet.DhcpEnd).To4()
+					if dhcpStart == nil || dhcpEnd == nil {
+						log.LoggerWContext(ctx).Error("Invalid DHCP start or end IP address for network " + key)
+						continue
+					}
+					if int(binary.BigEndian.Uint32(dhcpStart)) > int(binary.BigEndian.Uint32(dhcpEnd)) {
 						log.LoggerWContext(ctx).Error("Wrong configuration, check your network " + key)
 						continue
 					}
 
 					// IP per role
-					if ConfNet.SplitNetwork == "enabled" {
+					if sharedutils.IsEnabled(ConfNet.SplitNetwork) {
 						var keyConfRoles pfconfigdriver.PfconfigKeys
 						keyConfRoles.PfconfigNS = "config::Roles"
 
@@ -256,8 +263,20 @@ func (d *Interfaces) readConfig(MyDB *sql.DB) {
 
 							hwcache.OnEvicted(func(nic string, pool interface{}) {
 								go func() {
+									idx := uint64(pool.(int))
+									_, currentMac, err := DHCPScope.available.GetMACIndex(idx)
+									if err != nil {
+										return
+									}
+									// Only release the slot if the pool still has it
+									// bound to the evicted MAC. Skip when it has been
+									// reassigned (e.g. FakeMac cool-down, static
+									// binding, or another MAC took over).
+									if currentMac != nic {
+										return
+									}
 									log.LoggerWContext(ctx).Info(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Added back in the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
-									DHCPScope.available.FreeIPIndex(uint64(pool.(int)))
+									DHCPScope.available.FreeIPIndex(idx)
 								}()
 							})
 
@@ -268,7 +287,7 @@ func (d *Interfaces) readConfig(MyDB *sql.DB) {
 							DHCPScope.xid = xid
 							wg.Add(1)
 							go func() {
-								initiaLease(DHCPScope, ConfNet, MyDB)
+								initiaLease(ctx, DHCPScope, ConfNet, MyDB)
 								wg.Done()
 							}()
 							var options = make(map[dhcp.OptionCode][]byte)
@@ -277,7 +296,7 @@ func (d *Interfaces) readConfig(MyDB *sql.DB) {
 							options[dhcp.OptionDomainNameServer] = []byte(DHCPScope.ip.To4())
 							options[dhcp.OptionRouter] = []byte(DHCPScope.ip.To4())
 							options[dhcp.OptionDomainName] = []byte(ConfNet.DomainName)
-							if portal.SecureRedirect == "enabled" {
+							if sharedutils.IsEnabled(portal.SecureRedirect) {
 								options[dhcp.OptionCaptivePortal] = []byte(detectPortalURL(ConfNet, general))
 							}
 							DHCPScope.options = options
@@ -336,8 +355,20 @@ func (d *Interfaces) readConfig(MyDB *sql.DB) {
 
 						hwcache.OnEvicted(func(nic string, pool interface{}) {
 							go func() {
+								idx := uint64(pool.(int))
+								_, currentMac, err := DHCPScope.available.GetMACIndex(idx)
+								if err != nil {
+									return
+								}
+								// Only release the slot if the pool still has it
+								// bound to the evicted MAC. Skip when it has been
+								// reassigned (e.g. FakeMac cool-down, static
+								// binding, or another MAC took over).
+								if currentMac != nic {
+									return
+								}
 								log.LoggerWContext(ctx).Info(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Added back in the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
-								DHCPScope.available.FreeIPIndex(uint64(pool.(int)))
+								DHCPScope.available.FreeIPIndex(idx)
 							}()
 						})
 
@@ -348,17 +379,17 @@ func (d *Interfaces) readConfig(MyDB *sql.DB) {
 						DHCPScope.xid = xid
 						wg.Add(1)
 						go func() {
-							initiaLease(DHCPScope, ConfNet, MyDB)
+							initiaLease(ctx, DHCPScope, ConfNet, MyDB)
 							wg.Done()
 						}()
 
 						var options = make(map[dhcp.OptionCode][]byte)
 
 						options[dhcp.OptionSubnetMask] = []byte(net.ParseIP(ConfNet.Netmask).To4())
-						options[dhcp.OptionDomainNameServer] = ShuffleDNS(ConfNet)
-						options[dhcp.OptionRouter] = ShuffleGateway(ConfNet)
+						options[dhcp.OptionDomainNameServer] = ShuffleDNS(ctx, ConfNet)
+						options[dhcp.OptionRouter] = ShuffleGateway(ctx, ConfNet)
 						options[dhcp.OptionDomainName] = []byte(ConfNet.DomainName)
-						if portal.SecureRedirect == "enabled" {
+						if sharedutils.IsEnabled(portal.SecureRedirect) {
 							options[dhcp.OptionCaptivePortal] = []byte(detectPortalURL(ConfNet, general))
 						}
 						DHCPScope.options = options

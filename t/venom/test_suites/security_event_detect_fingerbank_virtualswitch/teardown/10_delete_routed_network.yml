@@ -1,0 +1,9 @@
+name: Delete VLAN 99 routed network
+testcases:
+
+- name: delete_vlan99_network
+  steps:
+  - type: pf_api_action
+    method: DELETE
+    url: 'config/routed_network/{{.security_event_detect_fingerbank_virtualswitch.networks.vlan99.id}}'
+    status_code: 200

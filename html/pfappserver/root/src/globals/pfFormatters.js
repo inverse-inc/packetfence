@@ -10,6 +10,22 @@ const locales = {
   fr: require('date-fns/locale/fr')
 }
 
+// Resolves a node category_id to its role name for display in table cells.
+// Reads the two reactive caches (the full `roles` list if some other view has
+// bulk-loaded it, and the lazy per-id `cachedRoles`) so the cell re-renders once
+// the name arrives. On a miss it triggers a coalesced, batched fetch rather than
+// one request per row, and shows the raw id in the meantime.
+const resolveRoleName = (categoryId) => {
+  if (!acl.$can('read', 'nodes')) return categoryId
+  const id = categoryId.toString()
+  const { roles, cachedRoles } = store.state.config
+  const match = (roles && roles.find(role => role.category_id.toString() === id)) ||
+    cachedRoles.find(role => role.category_id.toString() === id)
+  if (match) return match.name
+  store.dispatch('config/getRoleByCategoryId', categoryId)
+  return categoryId
+}
+
 export const pfFormatters = {
   noAdminRolePermission: (value) => {
     if (!value) return null
@@ -20,14 +36,7 @@ export const pfFormatters = {
   },
   categoryId: (value, key, item) => {
     if (!value) return null
-    if (acl.$can('read', 'nodes')) {
-      store.dispatch('config/getRoles')
-      if (store.state.config.roles) {
-        return store.state.config.roles.filter(role => role.category_id.toString() === item.category_id.toString()).map(role => role.name)[0]
-      }
-    } else {
-      return item.category_id
-    }
+    return resolveRoleName(item.category_id)
   },
   categoryIdFromIntOrString: (value) => {
     if (!value) return null
@@ -44,14 +53,7 @@ export const pfFormatters = {
   },
   bypassRoleId: (value, key, item) => {
     if (!value) return null
-    if (acl.$can('read', 'nodes')) {
-      store.dispatch('config/getRoles')
-      if (store.state.config.roles) {
-        return store.state.config.roles.filter(role => role.category_id.toString() === item.bypass_role_id.toString()).map(role => role.name)[0]
-      }
-    } else {
-      return item.bypass_role_id
-    }
+    return resolveRoleName(item.bypass_role_id)
   },
   yesNoFromString: (value) => {
     if (value === null || value === '') return null

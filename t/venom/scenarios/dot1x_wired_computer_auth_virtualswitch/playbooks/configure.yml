@@ -1,0 +1,15 @@
+---
+# Pre-configuration for 802.1X Wired Computer-Auth scenario
+# This playbook runs before the venom tests
+#
+# Note: AD source configuration and domain join should be done
+# separately or as part of the test suite setup
+
+- hosts: pfservers
+  name: Configure 802.1X Wired Computer-Auth virtualswitch environment
+  become: True
+
+  tasks:
+    - name: Ensure virtualswitch package is available
+      debug:
+        msg: "VirtualSwitch will be installed by the global_config_virtualswitch test suite"

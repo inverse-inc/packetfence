@@ -1,0 +1,9 @@
+name: Delete iOS test node
+testcases:
+
+- name: delete_ios_node
+  steps:
+  - type: pf_api_node_action
+    method: DELETE
+    id: '{{.virtualswitch.ios.mac_address}}'
+    status_code: 200

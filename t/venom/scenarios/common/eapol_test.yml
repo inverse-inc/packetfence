@@ -1,0 +1,8 @@
+---
+# tasks
+- name: ensure eapol_test installed on Deb systems
+  apt:
+    name: eapoltest
+    state: present
+    update_cache: no
+  when: ansible_facts['os_family'] == 'Debian'

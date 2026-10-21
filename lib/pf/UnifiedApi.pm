@@ -15,6 +15,7 @@ pf::UnifiedApi
 use strict;
 use warnings;
 use JSON::MaybeXS qw();
+use Scalar::Util qw();
 {
    package JSON::PP::Boolean;
    sub clone {
@@ -28,7 +29,8 @@ use pf::pfqueue::status_updater::redis;
 use pf::util::pfqueue qw(consumer_redis_client);
 
 use Mojo::Base 'Mojolicious';
-use pf::util qw(add_jitter);
+use pf::util qw(add_jitter rss_kb);
+use pf::config qw(%Config);
 use pf::file_paths qw($log_conf_dir $pfperl_api_restart_task);
 use pf::SwitchFactory;
 pf::SwitchFactory->preloadAllModules();
@@ -78,6 +80,7 @@ sub startup {
     $self->hook(before_dispatch => \&before_dispatch_cb);
     $self->hook(after_dispatch => \&after_dispatch_cb);
     $self->hook(before_render => \&before_render_cb);
+    $self->hook(around_action => \&around_action_cb);
     $self->plugin('pf::UnifiedApi::Plugin::RestCrud');
 #   $self->plugin('NYTProf' => {
 #       nytprof => {
@@ -174,22 +177,63 @@ after_dispatch_cb
 
 sub after_dispatch_cb {
     my ($c) = @_;
-    eval {
-        $c->audit_request if $c->can("audit_request");
-    };
+    $c->tx->on(finish => sub {
+        my $app = $c->app;
 
-    if($@) {
-        $c->log->error("Failed to audit request: $@");
-    }
+        eval {
+            $c->audit_request if $c->can("audit_request");
+        };
 
-    my $app = $c->app;
-    my $max = $app->{max_requests_handled} //= add_jitter( $MAX_REQUEST_HANDLED, $REQUEST_HANDLED_JITTER );
-    if (++$app->{requests_handled} >= $max) {
-        kill 'QUIT', $$;
-    }
+        if($@) {
+            $c->log->error("Failed to audit request: $@");
+        }
+
+        my $max = $app->{max_requests_handled} //= add_jitter( $MAX_REQUEST_HANDLED, $REQUEST_HANDLED_JITTER );
+        my $max_rss_kb = ($Config{advanced}{pfperl_api_max_rss} // 1024) * 1024;
+        if (++$app->{requests_handled} >= $max || ($max_rss_kb > 0 && rss_kb() > $max_rss_kb)) {
+            kill 'QUIT', $$;
+        }
+    });
 
     $c->after_dispatch;
     return;
+}
+
+=head2 around_action_cb
+
+Stamp the matched route as the work unit (MDC C<pf_unit>) for the duration of the
+action, so C<pf::db> decorates this request's queries with
+C</* pf:pfperl-api:E<lt>routeE<gt> */> for ProxySQL routing. The route pattern
+(e.g. C</api/v1/nodes/:node_id>) is bounded -- placeholders, not concrete ids --
+unlike the raw request path. The previous value is restored afterwards so nested
+actions (C<under> chains) and connection reuse never leak a unit.
+
+=cut
+
+sub around_action_cb {
+    my ($next, $c, $action, $last) = @_;
+    my $prev  = Log::Log4perl::MDC->get('pf_unit');
+    my $route = eval { $c->match->endpoint->to_string };
+    Log::Log4perl::MDC->put('pf_unit', $route) if defined $route && length $route;
+    my $result = eval { $next->() };
+    my $err = $@;
+    if (Scalar::Util::blessed($err) && $err->isa('pf::ConfigStore::LockTimeout')) {
+        # Another request kept the config file locked: fail instead of writing
+        # without the lock and losing one of the changes
+        $c->res->headers->header('Retry-After' => 5);
+        $c->render(json => { message => $err->message, status => 503 }, status => 503);
+        $err = undef;
+        $result = undef;
+    }
+    if (defined $prev) {
+        Log::Log4perl::MDC->put('pf_unit', $prev);
+    } else {
+        # NOT MDC->remove('pf_unit'): remove() ignores its argument and empties
+        # the whole context, which would also drop proc/tid/ip/mac.
+        delete Log::Log4perl::MDC->get_context->{pf_unit};
+    }
+    die $err if $err;
+    return $result;
 }
 
 =head2 before_dispatch_cb
@@ -229,7 +273,6 @@ sub setup_api_v1_routes {
     $self->setup_api_v1_config_routes($api_v1_route->any("/config")->name("api.v1.Config"));
     $self->setup_api_v1_configurator_routes($api_v1_route->under("/configurator")->to(controller => "Configurator", action => "allowed")->name("api.v1.Configurator"));
     $self->setup_api_v1_fingerbank_routes($api_v1_route);
-    $self->setup_api_v1_reports_routes($api_v1_route->any("/reports")->name("api.v1.Reports"));
     $self->setup_api_v1_dynamic_reports_routes($api_v1_route);
     $self->setup_api_v1_current_user_routes($api_v1_route);
     $self->setup_api_v1_services_routes($api_v1_route);
@@ -242,6 +285,7 @@ sub setup_api_v1_routes {
     $self->setup_api_v1_system_services_routes($api_v1_route);
     $self->setup_api_v1_system_summary_route($api_v1_route);
     $self->setup_api_v1_emails_route($api_v1_route);
+    $self->setup_api_v1_pftest_routes($api_v1_route);
 }
 
 sub setup_api_v1_1_routes {
@@ -386,6 +430,8 @@ sub setup_api_v1_config_routes {
     $self->setup_api_v1_config_system_routes($root);
     $self->setup_api_v1_config_mfas_routes($root);
     $self->setup_api_v1_config_connectors_routes($root);
+    $self->setup_api_v1_config_domains_connectors_routes($root);
+    $self->setup_api_v1_config_dns_connectors_routes($root);
     return;
 }
 
@@ -422,7 +468,7 @@ sub setup_api_v1_current_user_routes {
         {
             actions => [
                 qw(
-                  allowed_user_unreg_date allowed_user_roles allowed_node_roles
+                  allowed_user_unreg_date allowed_user_roles allowed_node_roles allowed_node_bypass_roles allowed_node_bypass_vlans
                   allowed_user_access_levels allowed_user_actions allowed_user_access_durations
                 )
             ],
@@ -618,7 +664,7 @@ sub setup_api_v1_users_routes {
     );
 
     $resource_route->register_sub_action({ method => 'GET', action => 'security_events' });
-    $resource_route->register_sub_actions({ method => 'POST', actions => [qw(unassign_nodes close_security_events)], auditable => 1 });
+    $resource_route->register_sub_actions({ method => 'POST', actions => [qw(unassign_nodes close_security_events password_reset)], auditable => 1 });
     $collection_route->register_sub_actions(
         {
             method  => 'POST',
@@ -627,7 +673,7 @@ sub setup_api_v1_users_routes {
                   bulk_register bulk_deregister bulk_close_security_events
                   bulk_reevaluate_access bulk_apply_security_event
                   bulk_apply_role bulk_apply_bypass_role bulk_fingerbank_refresh
-                  bulk_delete bulk_import
+                  bulk_delete bulk_import bulk_password_reset
                   )
             ],
             auditable => 1,
@@ -1970,6 +2016,8 @@ sub setup_api_v1_cluster_routes {
     my $resource_route = $root->any("/cluster")->to(controller => "Cluster")->name("api.v1.Cluster");;
     $resource_route->any(['GET'] => "/servers")->to(action => "servers")->name("api.v1.Cluster.servers");
     $resource_route->any(['GET'] => "/config")->to(action => "config")->name("api.v1.Cluster.config");
+    $resource_route->any(['GET'] => "/vips")->to(action => "vips")->name("api.v1.Cluster.vips");
+    $resource_route->any(['GET'] => "/vips/local")->to(action => "vips_local")->name("api.v1.Cluster.vips_local");
     return (undef, $resource_route);
 }
 
@@ -2041,6 +2089,24 @@ sub setup_api_v1_authentication_routes {
     $route->register_sub_action({action => 'adminAuthentication', path => '/admin_authentication', method => 'POST', auditable => 1});
     $route->register_sub_action({action => 'roleAuthentication', path => '/role_authentication', method => 'POST', auditable => 1});
     return ;
+}
+
+=head2 setup_api_v1_pftest_routes
+
+setup_api_v1_pftest_routes
+
+=cut
+
+sub setup_api_v1_pftest_routes {
+    my ($self, $root) = @_;
+    my $route = $root->any("/pftest")->to(controller => "Pftest")->name("api.v1.Pftest");
+    $route->register_sub_action({action => 'authentication', method => 'POST', auditable => 1});
+    $route->register_sub_action({action => 'profile_filter', method => 'POST', auditable => 1});
+
+    my $cluster = $root->any("/pftest/cluster")->to(controller => "Pftest::Cluster")->name("api.v1.Pftest.Cluster");
+    $cluster->register_sub_action({action => 'authentication', method => 'POST', auditable => 1});
+    $cluster->register_sub_action({action => 'profile_filter', method => 'POST', auditable => 1});
+    return;
 }
 
 =head2 setup_api_v1_queues_routes
@@ -2186,6 +2252,48 @@ sub setup_api_v1_config_connectors_routes {
         "/connectors",
         "/connector/#connector_id",
         "api.v1.Config.Connectors"
+    );
+
+    $collection_route->register_sub_action({ action => 'status', method => 'GET' });
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_dns_connectors_routes
+
+setup_api_v1_config_dns_connectors_routes
+
+=cut
+
+sub setup_api_v1_config_dns_connectors_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::Connectors::DnsConnectors",
+        "/dns_connectors",
+        "/dns_connector/#dns_connectors_id",
+        "api.v1.Config.DnsConnectors"
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_domains_connectors_routes
+
+setup_api_v1_config_domains_connectors_routes
+
+=cut
+
+sub setup_api_v1_config_domains_connectors_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::Connectors::DomainsConnectors",
+        "/domains_connectors",
+        "/domains_connector/#domains_connectors_id",
+        "api.v1.Config.DomainsConnectors"
     );
 
     return ($collection_route, $resource_route);
@@ -2382,7 +2490,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

@@ -105,6 +105,7 @@ use warnings;
 
 use Net::SNMP;
 use Try::Tiny;
+use Socket qw(inet_pton AF_INET6);
 use Switch;
 
 use base ('pf::Switch::Cisco');
@@ -118,7 +119,6 @@ use pf::config qw(
 use pf::web::util;
 use pf::util;
 use pf::node;
-use pf::util::radius qw(perform_coa perform_disconnect);
 use pf::security_event qw(security_event_count_reevaluate_access);
 use pf::radius::constants;
 use pf::locationlog qw(locationlog_get_session);
@@ -144,9 +144,35 @@ use pf::SwitchSupports qw(
     -Cdp
     -Lldp
     PushACLs
+    Flow
 );
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
+
+=item extractSSIDFromCalledStationId
+
+The WLC can be configured to send another identifier of the AP than its MAC
+address before the SSID in the Called-Station-Id, for example its name
+("AP-Name:SSID" with the ap-name-ssid format).
+
+Only an identifier made of letters, digits, "_", "." and "-" is taken as the
+AP identifier, so that other formats containing a colon (a location with
+spaces, an IPv6 address with the ipaddr format) don't give a wrong SSID.
+
+=cut
+
+sub extractSSIDFromCalledStationId {
+    my ($self, $radius_request) = @_;
+    my $called_station_id = $radius_request->{'Called-Station-Id'};
+    if (defined($called_station_id)
+        && $called_station_id !~ /^[a-f0-9]{2}(?:[-:]?[a-f0-9]{2}){5}(?::|$)/i
+        && !defined(inet_pton(AF_INET6, $called_station_id))
+        && $called_station_id =~ /^[\w.-]+:(.+)$/) {
+        return $1;
+    }
+
+    return $self->SUPER::extractSSIDFromCalledStationId($radius_request);
+}
 
 =item deauthenticateMacDefault
 
@@ -405,6 +431,9 @@ sub returnRadiusAccessAccept {
     my ($self, $args) = @_;
     my $logger = $self->logger;
 
+    # A subclass that runs the RADIUS filter itself calls us with 'unfiltered'
+    # set; filtering here too would add every answer of the rule twice (#9135).
+    my $caller_filters = isenabled($args->{'unfiltered'});
     $args->{'unfiltered'} = $TRUE;
     my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
     my $status = shift @super_reply;
@@ -441,9 +470,12 @@ sub returnRadiusAccessAccept {
     $self->addDPSK($args, $radius_reply_ref, \@av_pairs);
     $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
 
-    my $filter = pf::access_filter::radius->new;
-    my $rule = $filter->test('returnRadiusAccessAccept', $args);
-    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    # A subclass that applies the RADIUS filter itself called us unfiltered
+    unless ($caller_filters) {
+        my $filter = pf::access_filter::radius->new;
+        my $rule = $filter->test('returnRadiusAccessAccept', $args);
+        ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    }
     return [$status, %$radius_reply_ref];
 }
 
@@ -479,7 +511,7 @@ sub radiusDisconnect {
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
 
-    if (!defined($self->{'_radiusSecret'})) {
+    if (!$self->hasRadiusSecret()) {
         $logger->warn(
             "Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): RADIUS Shared Secret not configured"
         );
@@ -550,13 +582,13 @@ sub radiusDisconnect {
                 value => "subscriber:reauthenticate-type=last",
                 }
             ];
-            $response = perform_coa($connection_info, $attributes_ref, $vsa);
+            $response = $self->handleRadiusCoa($connection_info, $attributes_ref, $vsa);
 
         }
         else {
             my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
             $connection_info->{nas_port} = $nas_port;
-            $response = perform_disconnect($connection_info, $attributes_ref);
+            $response = $self->handleRadiusDisconnect($connection_info, $attributes_ref);
         }
     } catch {
         chomp;
@@ -660,6 +692,9 @@ Format ACL to match with the expected switch format.
 sub acl_chewer {
     my ($self, $acl, $role) = @_;
     my $logger = $self->logger;
+
+    return $self->SUPER::acl_chewer($acl, $role) unless $self->usePushACLs;
+
     my ($acl_ref , @direction) = $self->format_acl($acl);
 
     my $i = 0;
@@ -732,7 +767,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

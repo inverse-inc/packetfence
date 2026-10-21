@@ -70,3 +70,74 @@ venom_local_vars:
 
   - name: 'fingerbank_api_key.email'
     value: "{{ users_vars[dict_name]['vars']['fingerbank_api_key']['email'] }}"
+
+  # cluster VIPs — derived from inventory clusters key matching the host's
+  # OS/flavor suffix (e.g. pf1deb12localdev → cluster_deb12localdev)
+  - name: 'cluster_ip_mgmt'
+    value: "{{ users_vars[dict_name]['clusters'][('cluster_' ~ (inventory_hostname | regex_replace('^pf[123]', '')))]['ip_mgmt'] }}"
+
+  - name: 'cluster_ip_reg'
+    value: "{{ users_vars[dict_name]['clusters'][('cluster_' ~ (inventory_hostname | regex_replace('^pf[123]', '')))]['ip_reg'] }}"
+
+  - name: 'cluster_ip_iso'
+    value: "{{ users_vars[dict_name]['clusters'][('cluster_' ~ (inventory_hostname | regex_replace('^pf[123]', '')))]['ip_iso'] }}"
+
+  # per-node mgmt IPs (resolved by stripping pf[123] from this host's name
+  # and prepending pf1/pf2/pf3) — joiners use pf1_mgmt_ip for cluster/sync
+  - name: 'pf1_mgmt_ip'
+    value: "{{ users_vars[dict_name]['vms'][('pf1' ~ (inventory_hostname | regex_replace('^pf[123]', '')))]['ip'] }}"
+
+  - name: 'pf2_mgmt_ip'
+    value: "{{ users_vars[dict_name]['vms'][('pf2' ~ (inventory_hostname | regex_replace('^pf[123]', '')))]['ip'] }}"
+
+  - name: 'pf3_mgmt_ip'
+    value: "{{ users_vars[dict_name]['vms'][('pf3' ~ (inventory_hostname | regex_replace('^pf[123]', '')))]['ip'] }}"
+
+  # per-node reg/iso IPs — needed to build the 3-node cluster.conf on pf1
+  - name: 'pf1_reg_ip'
+    value: "{{ users_vars[dict_name]['vms'][('pf1' ~ (inventory_hostname | regex_replace('^pf[123]', '')))]['ip_reg'] }}"
+
+  - name: 'pf1_iso_ip'
+    value: "{{ users_vars[dict_name]['vms'][('pf1' ~ (inventory_hostname | regex_replace('^pf[123]', '')))]['ip_iso'] }}"
+
+  - name: 'pf2_reg_ip'
+    value: "{{ users_vars[dict_name]['vms'][('pf2' ~ (inventory_hostname | regex_replace('^pf[123]', '')))]['ip_reg'] }}"
+
+  - name: 'pf2_iso_ip'
+    value: "{{ users_vars[dict_name]['vms'][('pf2' ~ (inventory_hostname | regex_replace('^pf[123]', '')))]['ip_iso'] }}"
+
+  - name: 'pf3_reg_ip'
+    value: "{{ users_vars[dict_name]['vms'][('pf3' ~ (inventory_hostname | regex_replace('^pf[123]', '')))]['ip_reg'] }}"
+
+  - name: 'pf3_iso_ip'
+    value: "{{ users_vars[dict_name]['vms'][('pf3' ~ (inventory_hostname | regex_replace('^pf[123]', '')))]['ip_iso'] }}"
+
+  # cluster credentials — venom drives the doc procedure, so these are the
+  # values written to pf.conf [active_active] / [webservices]
+  - name: 'cluster_webservices_user'
+    value: 'packet'
+
+  - name: 'cluster_webservices_password'
+    value: 'aMuchMoreSecurePassword'
+
+  - name: 'cluster_galera_user'
+    value: 'pfcluster'
+
+  - name: 'cluster_galera_password'
+    value: 'aMuchMoreSecurePassword'
+
+  # service ports (constants from docs/cluster/{advanced_configuration,appendix}.asciidoc)
+  - name: 'haproxy_portal_port'
+    value: '1025'
+
+  - name: 'haproxy_db_port'
+    value: '1026'
+
+  - name: 'haproxy_admin_port'
+    value: '1027'
+
+  - name: 'proxysql_port'
+    value: '6033'
+
+  - name: 'proxysql_bind_ip'
+    value: '100.64.0.1'

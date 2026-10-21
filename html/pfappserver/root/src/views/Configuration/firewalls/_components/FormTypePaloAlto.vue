@@ -75,6 +75,13 @@
                                            enabled-value="1"
     />
 
+    <form-group-sso-on-role-change namespace="sso_on_role_change"
+                                   :column-label="$i18n.t('SSO on role change')"
+                                   :text="$i18n.t('Trigger Single-Sign-On (Firewall SSO) when a device role changes. Note: This only triggers during autoregistration. Warning: If the VLAN changes when the role changes, an incorrect SSO update may occur until PacketFence receives a DHCP packet that updates the IP of the device and triggers a new SSO request.')"
+                                   disabled-value="0"
+                                   enabled-value="1"
+    />
+
     <form-group-sso-on-accounting namespace="sso_on_accounting"
                                   :column-label="$i18n.t('SSO on accounting')"
                                   :text="$i18n.t('Trigger Single-Sign-On (Firewall SSO) on accounting start/interim/stop.')"
@@ -114,6 +121,7 @@ import {
   FormGroupUsernameFormat,
   FormGroupVsys,
   FormGroupSsoOnAccessReevaluation,
+  FormGroupSsoOnRoleChange,
   FormGroupSsoOnAccounting,
   FormGroupSsoOnDhcp,
 } from './'
@@ -136,6 +144,7 @@ const components = {
   FormGroupUsernameFormat,
   FormGroupVsys,
   FormGroupSsoOnAccessReevaluation,
+  FormGroupSsoOnRoleChange,
   FormGroupSsoOnAccounting,
   FormGroupSsoOnDhcp,
 }

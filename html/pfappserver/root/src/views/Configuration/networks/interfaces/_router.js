@@ -1,6 +1,6 @@
 import store from '@/store'
-const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../../_components/TheTabsNetworks')
-const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
+const TheTabs = () => import(/* webpackChunkName: "ConfigurationNetwork" */ '../../_components/TheTabsNetworks')
+const TheView = () => import(/* webpackChunkName: "ConfigurationNetwork" */ './_components/TheView')
 
 export const useRouter = $router => {
   return {

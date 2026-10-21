@@ -1,0 +1,20 @@
+# Managed by PacketFence - UDP receive buffer tuning
+#
+# High-volume RADIUS accounting (pfacct) on a busy switch (thousands of devices)
+# can burst far more UDP datagrams than the stock 208KB socket buffer holds; the
+# kernel then drops the excess ("receive buffer errors" in `netstat -su`), which
+# leaves nodes stuck showing offline until pfacct is restarted. These settings
+# raise the ceiling and defaults for pfacct and the other UDP listeners (pfdns,
+# pfdhcp). pfacct additionally requests its own buffer via SO_RCVBUF
+# (radius_configuration.pfacct_socket_recv_buffer), capped by rmem_max below.
+#
+# Apply immediately with: sysctl --system
+
+# Maximum SO_RCVBUF a socket may request (pfacct requests up to this value).
+net.core.rmem_max = 33554432
+
+# Default receive buffer for sockets that do not set their own.
+net.core.rmem_default = 1048576
+
+# Backlog of packets queued between the NIC and the socket layer.
+net.core.netdev_max_backlog = 250000

@@ -330,11 +330,7 @@ func (p *Proxy) Configure(ctx context.Context) {
 
 	parking := pfconfigdriver.GetType[pfconfigdriver.PfConfParking](ctx)
 
-	if parking.ShowParkingPortal == "enabled" {
-		p.ShowParkingPortal = true
-	} else {
-		p.ShowParkingPortal = false
-	}
+	p.ShowParkingPortal = sharedutils.IsEnabled(parking.ShowParkingPortal)
 
 	go func() {
 		for {
@@ -371,24 +367,19 @@ func (p *passthrough) readConfig(ctx context.Context) {
 		p.addOtherDomainsToList(ctx, v)
 	}
 
-	p.DetectionMecanismBypass = portal.DetectionMecanismBypass == "enabled"
+	p.DetectionMecanismBypass = sharedutils.IsEnabled(portal.DetectionMecanismBypass)
 
 	rgx, _ := regexp.Compile("CaptiveNetworkSupport")
 	p.URIException = rgx
 
-	if portal.SecureRedirect == "enabled" {
-		p.SecureRedirect = true
+	p.SecureRedirect = sharedutils.IsEnabled(portal.SecureRedirect)
+	if p.SecureRedirect {
 		scheme = "https"
 	} else {
-		p.SecureRedirect = false
 		scheme = "http"
 	}
 
-	if portal.WisprRedirection == "enabled" {
-		p.Wispr = true
-	} else {
-		p.Wispr = false
-	}
+	p.Wispr = sharedutils.IsEnabled(portal.WisprRedirection)
 
 	index := 0
 

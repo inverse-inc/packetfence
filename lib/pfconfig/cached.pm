@@ -35,11 +35,12 @@ use JSON::MaybeXS;
 use pf::log;
 use pfconfig::util qw($undef_element normalize_namespace_query);
 use pfconfig::constants;
-use Sereal::Decoder qw(sereal_decode_with_object);
 use Time::HiRes qw(stat time);
-use pf::Sereal qw($DECODER);
+use pf::Sereal qw(sereal_decode_safe);
 use pfconfig::config;
 use pf::config::crypt::object;
+use pf::config::crypt::string;
+use Scalar::Util qw(reftype);
 use bytes;
 
 our $LAST_TOUCH_CACHE = 0;
@@ -72,13 +73,10 @@ sub get_socket {
     my $socket;
     my $socket_path = $pfconfig::constants::SOCKET_PATH;
     if($self->{proto} eq "tcp") {
-        $socket = IO::Socket::INET->new(
-            PeerHost => $self->{tcp_host},
-            PeerPort => $self->{tcp_port},
-            Proto => "tcp",
-        );
+        my $error;
+        ($socket, $error) = pfconfig::util::connect_tcp(host => $self->{tcp_host}, port => $self->{tcp_port});
         if(!$socket) {
-            print STDERR "Can't connect to pfconfig on $self->{tcp_host}:$self->{tcp_port} : $!\n";
+            print STDERR "Can't connect to pfconfig on $self->{tcp_host}:$self->{tcp_port} : $error\n";
         }
     }
     else {
@@ -229,7 +227,7 @@ sub _get_from_socket {
     # it returns it as a sereal hash
     my $result;
     if ( $response ne "undef\n" ) {
-        eval { $result = sereal_decode_with_object($DECODER, $response); };
+        eval { $result = sereal_decode_safe($response); };
         if ($@) {
             print STDERR $@;
             print STDERR "$what $response";
@@ -242,7 +240,28 @@ sub _get_from_socket {
         $result = undef;
     }
 
-    return $result;
+    return process_results($result);
+}
+
+sub process_results {
+    my ($data) = @_;
+    my $ref_type = ref($data);
+    return $data if !$ref_type;
+    return "$data" if ($ref_type eq 'pf::config::crypt::string');
+    $ref_type = reftype($data);
+    if ($ref_type eq 'HASH') {
+        while (my ($k,$v) = each %$data) {
+            $data->{$k} = process_results($v);
+        }
+        return $data;
+    }
+
+    if ($ref_type eq 'HASH') {
+        local $_;
+        return [map {process_results($_)} @$data ];
+    }
+
+    return $data;
 }
 
 =head2 is_valid
@@ -302,7 +321,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

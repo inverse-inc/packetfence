@@ -16,6 +16,7 @@ import (
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/statsd"
+	"github.com/inverse-inc/packetfence/go/api-frontend/unifiedapierrors"
 	"github.com/inverse-inc/packetfence/go/connector"
 	"github.com/inverse-inc/packetfence/go/firewallsso"
 	"github.com/inverse-inc/packetfence/go/panichandler"
@@ -132,18 +133,19 @@ func (h PfssoHandler) spawnSso(ctx context.Context, firewall firewallsso.Firewal
 		infoCopy[k] = v
 	}
 
+	ctxLog := log.TranferLogContext(ctx, context.Background())
 	go func() {
-		defer panichandler.Standard(ctx)
-		ctx = connector.WithConnectorsContainer(ctx, h.connectors)
-		sent, err := f(ctx, infoCopy)
+		defer panichandler.Standard(ctxLog)
+		goCtx := connector.WithConnectorsContainer(ctxLog, h.connectors)
+		sent, err := f(goCtx, infoCopy)
 		if err != nil {
-			log.LoggerWContext(ctx).Error(fmt.Sprintf("Error while sending SSO to %s: %s"+firewall.GetFirewallSSO(ctx).PfconfigHashNS, err))
+			log.LoggerWContext(goCtx).Error(fmt.Sprintf("Error while sending SSO to %s: %s", firewall.GetFirewallSSO(goCtx).PfconfigHashNS, err))
 		}
 
 		if sent {
-			log.LoggerWContext(ctx).Debug("Sent SSO to " + firewall.GetFirewallSSO(ctx).PfconfigHashNS)
+			log.LoggerWContext(goCtx).Debug("Sent SSO to " + firewall.GetFirewallSSO(goCtx).PfconfigHashNS)
 		} else {
-			log.LoggerWContext(ctx).Debug("Didn't send SSO to " + firewall.GetFirewallSSO(ctx).PfconfigHashNS)
+			log.LoggerWContext(goCtx).Debug("Didn't send SSO to " + firewall.GetFirewallSSO(goCtx).PfconfigHashNS)
 		}
 	}()
 }
@@ -169,8 +171,8 @@ func (h PfssoHandler) handleUpdate(w http.ResponseWriter, r *http.Request, p htt
 	ctx = h.addInfoToContext(ctx, info)
 	firewalls := pfconfigdriver.GetRefresh(ctx, "firewallsso.FirewallsContainer").(*firewallsso.FirewallsContainer)
 
-	var shouldStart bool
 	for _, firewall := range firewalls.All(ctx) {
+		shouldStart := false
 		cacheKey := firewall.GetFirewallSSO(ctx).PfconfigHashNS + "|mac|" + info["mac"] + "|ip|" + info["ip"] + "|username|" + info["username"] + "|role|" + info["role"]
 		// Check whether or not this firewall has cache updates
 		// Then check if an entry in the cache exists
@@ -181,7 +183,7 @@ func (h PfssoHandler) handleUpdate(w http.ResponseWriter, r *http.Request, p htt
 			// Delete any entries for this MAC that aren't matching this cache key
 			for k, _ := range h.updateCache.Items() {
 				// If its not our current cache key but its made for the same MAC, then we'll remove it since its not relevant anymore
-				if k != cacheKey && strings.Contains(k, "|mac|"+info["mac"]) {
+				if k != cacheKey && strings.Contains(k, "|mac|"+info["mac"]+"|ip|") {
 					log.LoggerWContext(ctx).Debug("Deleting irrelevant cache key " + k)
 					h.updateCache.Delete(k)
 				}
@@ -291,6 +293,15 @@ func (h *PfssoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next ca
 		handle(w, r, params)
 
 		// TODO change me and wrap actions into something that handles server errors
+		return nil
+	}
+
+	if strings.HasPrefix(r.URL.Path, "/api/v1/firewall_sso/") {
+		if unifiedapierrors.OtherMethodMatches(r, func(method string) bool { handle, _, _ := h.router.Lookup(method, r.URL.Path); return handle != nil }) {
+			unifiedapierrors.MethodNotAllowed(w, r)
+		} else {
+			unifiedapierrors.UnknownPath(w, r)
+		}
 		return nil
 	}
 

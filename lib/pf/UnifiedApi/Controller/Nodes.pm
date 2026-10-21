@@ -468,7 +468,33 @@ bulk_apply_role
 
 sub bulk_apply_role {
     my ($self) = @_;
-    return $self->do_bulk_update_field('category_id');
+    return $self->do_bulk_update_field('category_id', \&validate_bulk_category_id);
+}
+
+=head2 validate_bulk_category_id
+
+validate_bulk_category_id
+
+=cut
+
+sub validate_bulk_category_id {
+    my ($self, $cat_id) = @_;
+    if (!defined $cat_id) {
+        return (200, undef);
+    }
+
+    my $nc = nodecategory_view($cat_id);   # resolve ID → name
+    if (!$nc) {
+        return (422, "category_id $cat_id does not exist");
+    }
+
+    my $value = $nc->{name};
+    my $roles = $self->stash->{admin_roles};
+    if (check_disallowed_options($roles, 'disallowed_node_roles', $value) || !check_allowed_options($roles, 'allowed_node_roles', $value)) {
+        return (422, "role $value not allowed");
+    }
+
+    return (200, undef);
 }
 
 =head2 bulk_apply_bypass_role
@@ -479,8 +505,39 @@ bulk_apply_bypass_role
 
 sub bulk_apply_bypass_role {
     my ($self) = @_;
-    return $self->do_bulk_update_field('bypass_role_id');
+    return $self->do_bulk_update_field('bypass_role_id', \&validate_bulk_bypass_role_id);
 }
+
+=head2 validate_bulk_bypass_role_id
+
+validate_bulk_bypass_role_id
+
+=cut
+
+sub validate_bulk_bypass_role_id {
+    my ($self, $cat_id) = @_;
+    if (!defined $cat_id) {
+        return (200, undef);
+    }
+
+    my $nc = nodecategory_view($cat_id);   # resolve ID → name
+    if (!$nc) {
+        return (422, "category_id $cat_id does not exist");
+    }
+
+    my $value = $nc->{name};
+    my $roles = $self->stash->{admin_roles};
+    if (check_disallowed_options($roles, 'disallowed_node_bypass_roles', $value) || check_disallowed_options($roles, 'disallowed_node_roles', $value)) {
+        return (422, "role $value not allowed");
+    }
+
+    if (!check_allowed_options($roles, 'allowed_node_roles', $value) && !check_allowed_options($roles, 'allowed_node_bypass_roles', $value)) {
+        return (422, "role $value not allowed");
+    }
+
+    return (200, undef);
+}
+
 
 sub validate_bulk_bypass_acls {
     my ($self, $value) = @_;
@@ -493,6 +550,25 @@ sub validate_bulk_bypass_acls {
     my ($a, $b, $e) = $parser->parse( 'input' => $acl);
     if (@{$e // []}) {
         return (422, "Invalid bypass_acls");
+    }
+
+    return (200, undef);
+}
+
+sub validate_bypass_vlan {
+    my ($self, $value) = @_;
+    my $roles = $self->stash->{admin_roles};
+
+    if (admin_isdisabled_option($roles, 'disable_bypass_vlan')) {
+        return (422,  "bypass_vlan is not allowed to be set" );
+    }
+
+    if (!defined $value || $value eq '') {
+        return (200, undef);
+    }
+
+    if (!check_allowed_options($roles, 'allowed_node_bypass_vlans', $value)) {
+        return (422,  "bypass_vlan $value not allowed" );
     }
 
     return (200, undef);
@@ -517,7 +593,7 @@ bulk update bypass_vlan
 
 sub bulk_apply_bypass_vlan {
     my ($self) = @_;
-    return $self->do_bulk_update_field('bypass_vlan');
+    return $self->do_bulk_update_field('bypass_vlan', \&validate_bypass_vlan);
 }
 
 =head2 do_bulk_update_field
@@ -1086,6 +1162,14 @@ sub import_item_check_for_errors {
     return @errors;
 }
 
+sub _get_role_name {
+    my ($cat_id) = @_;
+    return undef if !defined $cat_id;
+    my $nc = nodecategory_view($cat_id);
+    return undef if !defined $nc;
+    return $nc->{name};
+}
+
 =head2 validate
 
 validate
@@ -1098,15 +1182,25 @@ sub validate {
     my ($status, $err) = (200, undef);
     my @errors;
 
-    for my $f (qw(category_id bypass_role_id)) {
-        next if !exists $json->{$f};
-        my $cat_id = $json->{$f};
-        next if !defined $cat_id;
-        my $nc = nodecategory_view($cat_id);
-        next if !$nc;
-        my $name = $nc->{name};
-        if (!check_allowed_options($roles, 'allowed_node_roles', $name)) {
-            push @errors, { field => 'category_id', message => "$name is not allowed" };
+    if (exists $json->{category_id}) {
+        my $name = _get_role_name($json->{category_id});
+        if (defined $name) {
+            if (check_disallowed_options($roles, 'disallowed_node_roles', $name) || !check_allowed_options($roles, 'allowed_node_roles', $name)) {
+                push @errors, { field => 'category_id', message => "$name is not allowed" };
+            }
+        }
+    }
+
+    if (exists $json->{bypass_role_id}) {
+        my $name = _get_role_name($json->{bypass_role_id});
+        if (defined $name) {
+            if (check_disallowed_options($roles, 'disallowed_node_bypass_roles', $name) || check_disallowed_options($roles, 'disallowed_node_roles', $name)) {
+                push @errors, { field => 'bypass_role_id', message => "$name is not allowed as bypass role" };
+            }
+
+            if (!check_allowed_options($roles, 'allowed_node_roles', $name) && !check_allowed_options($roles, 'allowed_node_bypass_roles', $name)) {
+                push @errors, { field => 'bypass_role_id', message => "$name is not allowed as bypass role" };
+            }
         }
     }
 
@@ -1121,6 +1215,17 @@ sub validate {
 
     if (exists $json->{bypass_acls}) {
         push @errors, $self->validate_bypass_acls($json->{bypass_acls});
+    }
+
+    if (exists $json->{bypass_vlan} && defined $json->{bypass_vlan} && length($json->{bypass_vlan})) {
+        my $bypass_vlan = $json->{bypass_vlan};
+        if (admin_isdisabled_option($roles,'disable_bypass_vlan')) {
+            push @errors, { field => 'bypass_vlan', message => "$bypass_vlan is not allowed to be set" };
+        }
+
+        if (!check_allowed_options($roles, 'allowed_node_bypass_vlans', $bypass_vlan)) {
+            push @errors, { field => 'bypass_vlan', message => "$bypass_vlan is not allowed" };
+        }
     }
 
     if (@errors) {
@@ -1166,8 +1271,8 @@ sub do_get {
     } else {
         $item->_load_locationlog;
         $item = $item->to_hash();
-        my $end_time = $item->{last_end_time};
-        $item->{not_deletable} = defined $end_time && $end_time eq '0000-00-00 00:00:00' ? $self->json_true : $self->json_false;
+        # A node with an open locationlog can be deleted, _do_remove deregisters
+        # it, reevaluates its access and closes the locationlog first
     }
 
     return ($status, $item);
@@ -1210,13 +1315,17 @@ sub bulk_delete {
 
     my ($indexes, $results) = bulk_init_results($items);
     my $nodes = $iter->all;
+    my @deleted;
     for my $node (@$nodes) {
         my $mac = $node->{mac};
         my $index = $indexes->{$mac};
-        my ($status, $msg) = $self->_do_remove($node);
+        my ($status, $msg) = $self->_do_remove($node, keep_portal_session => 1);
         $results->[$index]{status} = $status;
         $results->[$index]{message} = is_error($status) ? ($msg // "Unable to remove resource") : "Deleted $mac successfully";
+        push @deleted, $mac if is_success($status);
     }
+    # One removal of the portal sessions for all the nodes (one request per cluster member)
+    pf::node::node_clear_portal_session(@deleted) if @deleted;
 
     return $self->render(status => 200, json => { items => $results });
 }
@@ -1233,7 +1342,7 @@ _do_remove
 =cut
 
 sub _do_remove {
-    my ($self, $lookup) = @_;
+    my ($self, $lookup, %opts) = @_;
     my $mac = $lookup->{mac};
     my ($result, $msg) = pf::node::_can_delete($mac);
     if (!$result) {
@@ -1242,7 +1351,11 @@ sub _do_remove {
         pf::locationlog::locationlog_update_end_mac($mac);
     }
 
-    return $self->dal->remove_by_id($lookup);
+    my ($status, @rest) = $self->dal->remove_by_id($lookup);
+    if (is_success($status) && !$opts{keep_portal_session}) {
+        pf::node::node_clear_portal_session($mac);
+    }
+    return ($status, @rest);
 }
 
 =head2 create_data_update
@@ -1283,8 +1396,30 @@ sub update_data {
         $data->{unregdate} = '0000-00-00 00:00:00';
     }
 
+    $self->update_regdate($data);
     $self->ensure_person_exists($data);
     return $data;
+}
+
+=head2 update_regdate
+
+The update is a plain SQL UPDATE, so the DAL cannot see a node becoming
+registered. Set regdate when the node moves to reg without a registration
+date, and keep the stored one when the node already has it.
+
+=cut
+
+sub update_regdate {
+    my ($self, $data) = @_;
+    return if !pf::dal::node::missing_regdate($data->{status}, $data->{regdate});
+    my ($status, $node) = pf::dal::node->find($self->build_item_lookup);
+    if (is_success($status) && $node->status eq 'reg') {
+        delete $data->{regdate} if exists $data->{regdate};
+        return;
+    }
+
+    $data->{regdate} = \'NOW()';
+    return;
 }
 
 sub per_device_class {
@@ -1300,7 +1435,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

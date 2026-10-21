@@ -37,7 +37,6 @@ use pf::file_paths qw(
     $html_dir
     $lib_dir
     $config_version_file
-    $iptable_config_file
 );
 use pf::log;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
@@ -45,7 +44,9 @@ use pf::constants qw($DIR_MODE $PFCMD_MODE);
 use pf::constants::user;
 use pf::util;
 use File::Find;
+use Cwd qw(abs_path);
 
+use fingerbank::FilePath;
 use fingerbank::Util;
 
 use File::Spec::Functions qw(catfile);
@@ -74,7 +75,6 @@ sub action_all {
         $pfconfig_cache_dir,
         @extra_var_dirs,
         $config_version_file,
-        $iptable_config_file,
     );
     _changePathToOwnerRecursive('pf', $html_dir);
     _changeFilesToOwner(
@@ -82,7 +82,7 @@ sub action_all {
         $pfcmd,
     );
     chmod($PFCMD_MODE, $pfcmd);
-    chmod(0664, @stored_config_files, $iptable_config_file, $config_version_file);
+    chmod(0664, @stored_config_files, $config_version_file);
     chmod($DIR_MODE, $conf_dir, $var_dir, "$var_dir/redis_cache", "$var_dir/redis_queue");
     _fingerbank();
     print "Fixed permissions.\n";
@@ -136,7 +136,11 @@ sub action_file {
             return $EXIT_FAILURE;
         }
         _changeFilesToOwner($user,$file);
-        chmod 0664, $file;
+        # fingerbank.conf contains the Fingerbank API key: no world-readable bit.
+        # Compare the canonical paths so another spelling of it is caught too.
+        my $is_fingerbank_conf = (abs_path($file) // '') eq (abs_path($fingerbank::FilePath::CONF_FILE) // $fingerbank::FilePath::CONF_FILE);
+        my $mode = $is_fingerbank_conf ? 0660 : 0664;
+        chmod $mode, $file;
         print "Fixed permissions on file $file \n";
     }
 
@@ -196,7 +200,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

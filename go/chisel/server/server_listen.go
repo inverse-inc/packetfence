@@ -5,7 +5,6 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net"
 	"os"
 	"os/user"
@@ -15,7 +14,7 @@ import (
 	"golang.org/x/crypto/acme/autocert"
 )
 
-//TLSConfig enables configures TLS
+// TLSConfig enables configures TLS
 type TLSConfig struct {
 	Key     string
 	Cert    string
@@ -44,12 +43,12 @@ func (s *Server) listener(host, port string) (net.Listener, error) {
 			extra = " (WARNING: LetsEncrypt will attempt to connect to your domain on port 443)"
 		}
 	}
-	//tcp listen
+	// tcp listen
 	l, err := net.Listen("tcp", host+":"+port)
 	if err != nil {
 		return nil, err
 	}
-	//optionally wrap in tls
+	// optionally wrap in tls
 	proto := "http"
 	if tlsConf != nil {
 		proto += "s"
@@ -64,7 +63,7 @@ func (s *Server) listener(host, port string) (net.Listener, error) {
 }
 
 func (s *Server) tlsLetsEncrypt(domains []string) *tls.Config {
-	//prepare cert manager
+	// prepare cert manager
 	m := &autocert.Manager{
 		Prompt: func(tosURL string) bool {
 			s.Infof("Accepting LetsEncrypt TOS and fetching certificate...")
@@ -73,7 +72,7 @@ func (s *Server) tlsLetsEncrypt(domains []string) *tls.Config {
 		Email:      settings.Env("LE_EMAIL"),
 		HostPolicy: autocert.HostWhitelist(domains...),
 	}
-	//configure file cache
+	// configure file cache
 	c := settings.Env("LE_CACHE")
 	if c == "" {
 		h := os.Getenv("HOME")
@@ -88,7 +87,7 @@ func (s *Server) tlsLetsEncrypt(domains []string) *tls.Config {
 		s.Infof("LetsEncrypt cache directory %s", c)
 		m.Cache = autocert.DirCache(c)
 	}
-	//return lets-encrypt tls config
+	// return lets-encrypt tls config
 	return m.TLSConfig()
 }
 
@@ -97,11 +96,11 @@ func (s *Server) tlsKeyCert(key, cert string, ca string) (*tls.Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	//file based tls config using tls defaults
+	// file based tls config using tls defaults
 	c := &tls.Config{
 		Certificates: []tls.Certificate{keypair},
 	}
-	//mTLS requires server's CA
+	// mTLS requires server's CA
 	if ca != "" {
 		if err := addCA(ca, c); err != nil {
 			return nil, err
@@ -118,12 +117,12 @@ func addCA(ca string, c *tls.Config) error {
 	}
 	clientCAPool := x509.NewCertPool()
 	if fileInfo.IsDir() {
-		//this is a directory holding CA bundle files
-		files, err := ioutil.ReadDir(ca)
+		// this is a directory holding CA bundle files
+		files, err := os.ReadDir(ca)
 		if err != nil {
 			return err
 		}
-		//add all cert files from path
+		// add all cert files from path
 		for _, file := range files {
 			f := file.Name()
 			if err := addPEMFile(filepath.Join(ca, f), clientCAPool); err != nil {
@@ -131,24 +130,24 @@ func addCA(ca string, c *tls.Config) error {
 			}
 		}
 	} else {
-		//this is a CA bundle file
+		// this is a CA bundle file
 		if err := addPEMFile(ca, clientCAPool); err != nil {
 			return err
 		}
 	}
-	//set client CAs and enable cert verification
+	// set client CAs and enable cert verification
 	c.ClientCAs = clientCAPool
 	c.ClientAuth = tls.RequireAndVerifyClientCert
 	return nil
 }
 
 func addPEMFile(path string, pool *x509.CertPool) error {
-	content, err := ioutil.ReadFile(path)
+	content, err := os.ReadFile(path)
 	if err != nil {
 		return err
 	}
 	if !pool.AppendCertsFromPEM(content) {
-		return errors.New("Fail to load certificates from : " + path)
+		return fmt.Errorf("fail to load certificates from : %s", path)
 	}
 	return nil
 }

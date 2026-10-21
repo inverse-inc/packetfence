@@ -1,0 +1,44 @@
+name: Delete routed networks for virtualswitch VLANs
+testcases:
+
+- name: delete_guest_network_vlan1
+  steps:
+  - type: pf_api_action
+    method: DELETE
+    url: 'config/routed_network/{{.virtualswitch.networks.guest.id}}'
+    status_code: 200
+
+- name: delete_registration_network_vlan2
+  steps:
+  - type: pf_api_action
+    method: DELETE
+    url: 'config/routed_network/{{.virtualswitch.networks.registration.id}}'
+    status_code: 200
+
+- name: delete_windows_network_vlan3
+  steps:
+  - type: pf_api_action
+    method: DELETE
+    url: 'config/routed_network/{{.virtualswitch.networks.windows.id}}'
+    status_code: 200
+
+- name: delete_user_network_vlan4
+  steps:
+  - type: pf_api_action
+    method: DELETE
+    url: 'config/routed_network/{{.virtualswitch.networks.user.id}}'
+    status_code: 200
+
+- name: delete_android_network_vlan5
+  steps:
+  - type: pf_api_action
+    method: DELETE
+    url: 'config/routed_network/{{.virtualswitch.networks.android.id}}'
+    status_code: 200
+
+- name: delete_isolation_network_vlan6
+  steps:
+  - type: pf_api_action
+    method: DELETE
+    url: 'config/routed_network/{{.virtualswitch.networks.isolation.id}}'
+    status_code: 200

@@ -44,19 +44,43 @@ use Symbol 'gensym';
 use IPC::Open3;
 use pf::defer;
 use pf::SwitchFactory;
+use POSIX qw(WNOHANG);
+$SIG{PIPE} = "IGNORE";
+$pf::Switch::Ubiquiti::Unifi::DEFAULT_HTTP_PORT = 8444;
 
 my $child_err = gensym;
-my $pid = open3(my $chld_out, my $chld_in, $child_err, "/usr/local/pf/t/mock_servers/ubiquiti_ap_mac_to_ip.pl", "daemon", "-l", "http://127.0.0.1:8443");
-sleep(1);
-my $defer = pf::defer::defer(
-    sub {
-        kill( 'INT', $pid );
+local $@;
+my $pid = eval {
+    open3(my $chld_out, my $chld_in, $child_err, "/usr/local/pf/t/mock_servers/ubiquiti_ap_mac_to_ip.pl", "daemon", "-l", "http://127.0.0.3:8443", "-l", "http://127.0.0.3:8444")
+};
+
+END {
+    if ($pid) {
+        local $?;
+        kill( 'KILL', $pid );
         waitpid( $pid, 0 );
     }
-);
+}
 
+if ($@) {
+    exit 1;
+}
+
+sleep(1);
+
+my $check_pid = waitpid( $pid, WNOHANG);
+if ($check_pid) {
+    local $/;
+    my $err = <$child_err>;
+    print STDERR $err;
+    my $info = `lsof -V -i :8443 +c0`;
+    print STDERR "lsof -V -i :8443 +c0\n  $info\n";
+    exit 1;
+}
 
 my $switch = pf::SwitchFactory->instantiate('172.16.8.32');
+my $cache = $switch->cache_distributed;
+$cache->clear;
 ok($switch, 'Switch created');
 for my $m (keys %macIp) {
     is( $switch->getAccessPointMACIP($m), 0, "Mac $m is not defined");
@@ -87,7 +111,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

@@ -126,7 +126,6 @@ use pf::config qw(
 );
 use pf::Switch::constants;
 use pf::util;
-use pf::util::radius qw(perform_coa);
 use pf::web::util;
 use pf::radius::constants;
 use pf::locationlog qw(locationlog_get_session);
@@ -146,6 +145,7 @@ use pf::SwitchSupports qw(
     -DownloadableListBasedEnforcement
     RoleBasedEnforcement
     ExternalPortal
+    Flow
 );
 
 =head1 SUBROUTINES
@@ -393,7 +393,7 @@ sub radiusDisconnect {
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
 
-    if (!defined($self->{'_radiusSecret'})) {
+    if (!$self->hasRadiusSecret()) {
         $logger->warn(
             "Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): RADIUS Shared Secret not configured"
         );
@@ -425,7 +425,7 @@ sub radiusDisconnect {
 
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
-        $response = perform_coa($connection_info, $attributes_ref, [{ 'vendor' => 'Cisco', 'attribute' => 'Cisco-AVPair', 'value' => 'subscriber:command=reauthenticate' },{ 'vendor' => 'Cisco', 'attribute' => 'Cisco-AVPair', 'value' => 'subscriber:reauthenticate-type=last' }]);
+        $response = $self->handleRadiusCoa($connection_info, $attributes_ref, [{ 'vendor' => 'Cisco', 'attribute' => 'Cisco-AVPair', 'value' => 'subscriber:command=reauthenticate' },{ 'vendor' => 'Cisco', 'attribute' => 'Cisco-AVPair', 'value' => 'subscriber:reauthenticate-type=last' }]);
     } catch {
         chomp;
         $logger->warn("Unable to perform RADIUS CoA-Request on (".$self->{'_id'}.") : $_");
@@ -616,7 +616,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

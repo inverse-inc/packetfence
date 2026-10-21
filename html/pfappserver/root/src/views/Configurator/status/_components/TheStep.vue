@@ -40,20 +40,35 @@ const setup = (props, context) => {
 
   const advancedPromise = $store.dispatch('$_bases/getAdvanced') // prefetch advanced configuration
 
+  const catchWithError = message => {
+    return () => {
+      isLoading.value = false
+      invalidFeedback.value = message
+      progressFeedback.value = null
+    }
+  }
+
   const onComplete = () => {
     isLoading.value = true
+    invalidFeedback.value = null
     progressFeedback.value = i18n.t('Applying configuration')
-    $store.dispatch('cluster/restartSystemService', { id: 'packetfence-config' }).then(() => {
+    $store.dispatch('cluster/restartSystemService', { id: 'packetfence-config' }).catch(catchWithError(i18n.t('Failed to restart packetfence-config'))).then(() => {
+      invalidFeedback.value = null
       progressFeedback.value = i18n.t('Enabling PacketFence')
-      return $store.dispatch('cluster/updateSystemd', { id: 'pf' }).then(() => {
+      return $store.dispatch('cluster/updateSystemd', { id: 'pf' }).catch(catchWithError(i18n.t('Failed to update systemd'))).then(() => {
+        invalidFeedback.value = null
         progressFeedback.value = i18n.t('Starting PacketFence')
-        return $store.dispatch('cluster/restartService', { id: 'pfperl-api' }).then(() => {
-          return $store.dispatch('cluster/restartService', { id: 'haproxy-admin' }).then(() => {
-            return $store.dispatch('cluster/startService', { id: 'pf' }).then(() => {
+        return $store.dispatch('cluster/restartService', { id: 'pfperl-api' }).catch(catchWithError(i18n.t('Failed to restart pfperl-api'))).then(() => {
+          invalidFeedback.value = null
+          return $store.dispatch('cluster/restartService', { id: 'haproxy-admin' }).catch(catchWithError(i18n.t('Failed to restart haproxy-admin'))).then(() => {
+            invalidFeedback.value = null
+            return $store.dispatch('cluster/startService', { id: 'pf' }).catch(catchWithError(i18n.t('Failed to start packetfence services'))).then(() => {
+              invalidFeedback.value = null
               progressFeedback.value = i18n.t('Disabling Configurator')
               return advancedPromise.then(data => {
                 data.configurator = 'disabled'
-                return $store.dispatch('$_bases/updateAdvanced', data).then(() => {
+                return $store.dispatch('$_bases/updateAdvanced', data).catch(catchWithError(i18n.t('Failed to update advanced'))).then(() => {
+                  invalidFeedback.value = null
                   progressFeedback.value = i18n.t('Redirecting to login page')
                   setTimeout(() => {
                     window.location.href = '/'
@@ -63,9 +78,6 @@ const setup = (props, context) => {
             })
           })
         })
-      })
-      .catch(() => {
-        progressFeedback.value = null
       })
       .finally(() => {
         isLoading.value = false

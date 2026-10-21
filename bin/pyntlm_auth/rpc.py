@@ -1,9 +1,12 @@
+import time
+
 import global_vars
 from samba import param, NTSTATUSError, ntstatus
 from samba.credentials import Credentials, DONT_USE_KERBEROS
 from samba.dcerpc.misc import SEC_CHAN_WKSTA
 from samba.dcerpc import netlogon, nbt
 import utils
+import log
 import datetime
 from samba.dcerpc.netlogon import (netr_Authenticator, MSV1_0_ALLOW_WORKSTATION_TRUST_ACCOUNT, MSV1_0_ALLOW_MSVCHAPV2)
 import binascii
@@ -15,6 +18,7 @@ def find_dc(lp):
     error_message = "unknown error"
 
     if global_vars.c_dns_servers.strip() != "":
+        log.debug(f"find_dc using dns servers: {global_vars.c_dns_servers}")
         try:
             net = Net(Credentials(), lp)
             dc = net.finddc(domain=lp.get('realm'), flags=nbt.NBT_SERVER_LDAP | nbt.NBT_SERVER_DS)
@@ -30,9 +34,10 @@ def find_dc(lp):
             error_message = str(e)
 
     if global_vars.c_server_name.strip() != "" and global_vars.c_ad_server.strip() != "":
+        log.debug(f"find_dc using AD FQDN: {global_vars.c_server_name} (ad_server: {global_vars.c_ad_server})")
         try:
             net = Net(Credentials(), lp)
-            dc = net.finddc(address=global_vars.c_ad_server, flags=nbt.NBT_SERVER_LDAP | nbt.NBT_SERVER_DS)
+            dc = net.finddc(address=global_vars.c_server_name, flags=nbt.NBT_SERVER_LDAP | nbt.NBT_SERVER_DS)
             return 0, "", dc.pdc_dns_name
         except NTSTATUSError as e:
             error_code = e.args[0]
@@ -65,7 +70,16 @@ def init_secure_connection():
     lp.set('server string', server_string)
     lp.set('workgroup', workgroup)
 
+    log.debug(f"lp: netbios = {netbios_name}, realm = {realm}, server_str = {server_string}, workgroup = {workgroup}")
+
+    find_dc_start = time.time()
     error_code, error_message, pdc_dns_name = find_dc(lp)
+    time_elapsed = time.time() - find_dc_start
+    log.debug(f"find dc: pdc_dns_name = {pdc_dns_name}, e = {error_code}, m = {error_message}")
+
+    if time_elapsed > 5:
+        log.warning(f"find_dc tooks {time_elapsed} sec. There might be one or more unreachable domain controllers")
+
     if error_code != 0:
         return global_vars.s_secure_channel_connection, global_vars.s_machine_cred, error_code, error_message
     else:
@@ -88,28 +102,43 @@ def init_secure_connection():
 
     error_code = 0
     error_message = ""
+
+    context = f"ncacn_np:{server_name}[schannel,seal]"
+    log.debug(f"establish secure channel, context = {context}")
+
     try:
-        global_vars.s_secure_channel_connection = netlogon.netlogon(f"ncacn_np:{server_name}[schannel,seal]", lp,
-                                                                    global_vars.s_machine_cred)
+        global_vars.s_secure_channel_connection = netlogon.netlogon(context, lp, global_vars.s_machine_cred)
+        log.debug(f"secure connection established successfully.")
     except NTSTATUSError as e:
         error_code = e.args[0]
         error_message = e.args[1]
-        print(f"Error in init secure connection: NT_Error, error_code={error_code}, error_message={error_message}.")
-        print("Parameter used in establish secure channel are:")
-        print(f"  lp.netbios_name: {netbios_name}")
-        print(f"  lp.realm: {realm}")
-        print(f"  lp.server_string: {server_string}")
-        print(f"  lp.workgroup: {workgroup}")
-        print(f"  workstation: {workstation}")
-        print(f"  username: {username}")
-        print(f"  password: {utils.mask_password(password)}")
-        print(f"  set_NT_hash_flag: True")
-        print(f"  domain: {domain}")
-        print(f"  server_name(ad_fqdn): {server_name}")
+
+        log.error(f"NT Error {hex(error_code)}: {error_message}, when establishing secure connection.")
+
+        if error_code == 0xc0000001:
+            log.error("Did you give the wrong 'workstation' parameter in domain configuration ?")
+        if error_code == 0xc0000022:
+            log.error("Are you using a wrong password for a machine account?")
+            log.error("If you are in a cluster, did you re-used the machine account and reset with another password?")
+        if error_code == 0xc0000122:
+            log.error(f"This is usually due to a incorrect AD FQDN. The current AD FQDN you are using is: {server_name}")
+
+        log.debug("Parameter used in establish secure channel are:")
+        log.debug(f"lp.netbios_name: {netbios_name}")
+        log.debug(f"lp.realm: {realm}")
+        log.debug(f"lp.server_string: {server_string}")
+        log.debug(f"lp.workgroup: {workgroup}")
+        log.debug(f"workstation: {workstation}")
+        log.debug(f"username: {username}")
+        log.debug(f"password: {utils.mask_password(password)}")
+        log.debug(f"set_NT_hash_flag: True")
+        log.debug(f"domain: {domain}")
+        log.debug(f"server_name(ad_fqdn): {server_name}")
     except Exception as e:
         error_code = e.args[0]
         error_message = e.args[1]
-        print(f"Error in init secure connection: General, error_code={error_code}, error_message={error_message}.")
+        log.warning(f"error occurred when establishing secure connection: e = {error_code}, m = {error_message}.")
+
     return global_vars.s_secure_channel_connection, global_vars.s_machine_cred, error_code, error_message
 
 
@@ -180,18 +209,25 @@ def transitive_login(account_username, challenge, nt_response, domain=None):
 
             nt_key = [x if isinstance(x, str) else hex(x)[2:].zfill(2) for x in info.base.key.key]
             nt_key_str = ''.join(nt_key)
-            print(f"  Successfully authenticated '{account_username}', NT_KEY is: '{utils.mask_password(nt_key_str)}'.")
+            log.info(f"Auth OK '{account_username}@{domain}', NT_KEY = '{utils.mask_password(nt_key_str)}' using {global_vars.c_server_name}\\{global_vars.c_username}")
             return nt_key_str.encode('utf-8').strip().decode('utf-8'), 0, info
         except NTSTATUSError as e:
             nt_error_code = e.args[0]
             nt_error_message = f"NT Error: code: {nt_error_code}, message: {str(e)}"
-            print(f"  Failed while authenticating user: '{account_username}' with NT Error: {e}.")
+            log.warning(f"auth failed: user = '{account_username}@{domain}', e = {nt_error_code}, m = {nt_error_message} using {global_vars.c_server_name}\\{global_vars.c_username}")
+
+            if nt_error_code == 0xc0000022:
+                log.warning("Is this machine account is shared by another ntlm_auth process (or another cluster node)?")
+            if nt_error_code == 0xC000006a:
+                log.warning("Are you using the correct password or there's a password change recently?")
+
             global_vars.s_reconnect_id = global_vars.s_connection_id
             return nt_error_message, nt_error_code, None
         except Exception as e:
             global_vars.s_reconnect_id = global_vars.s_connection_id
-            print(f"  Failed while authenticating user: '{account_username}' with General Error: {e}.")
             if isinstance(e.args, tuple) and len(e.args) > 0:
+                log.warning(f"auth failed: user = '{account_username}@{domain}', e = {e.args[0]} m = {str(e)} using {global_vars.c_server_name}\\{global_vars.c_username}")
                 return f"General Error: code {e.args[0]}, {str(e)}", e.args[0], None
             else:
+                log.warning(f"auth failed: user = '{account_username}@{domain}', m = {str(e)} using {global_vars.c_server_name}\\{global_vars.c_username}")
                 return f"General Error: {str(e)}", -1, None

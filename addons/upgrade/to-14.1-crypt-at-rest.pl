@@ -22,7 +22,7 @@ use Module::Pluggable
   'require'     => 1,
   'inner'       => 0,
   ;
-
+$pf::db::NO_DIE_ON_DBH_ERROR = 1;
 for my $name (__PACKAGE__->_all_config) {
     if ($name eq "pf::UnifiedApi::Controller::Config::Subtype" || !$name->isa("pf::UnifiedApi::Controller::Config")) {
         next;
@@ -50,6 +50,7 @@ sub update_config_controller {
             $fields2Encrypt{$fieldName} = undef;
         }
     }
+    return if keys (%fields2Encrypt) == 0;
 
     my $cs = $c->config_store;
     my $ini = $cs->cachedConfig;
@@ -57,14 +58,17 @@ sub update_config_controller {
     for my $section ($ini->Sections()) {
         for my $param ($ini->Parameters($section)) {
             next if (!exists $fields2Encrypt{$param});
-            print "Changing $section.$param\n";
             my $val = $ini->val($section, $param);
+            next if length($val) == 0;
+            print "Changing $section.$param\n";
             $val = pf::config::crypt::pf_encrypt($val);
             $ini->setval($section, $param, $val);
             $changed |= 1;
         }
     }
+
     if ($changed) {
+        $ini->removeDefaultValues();
         $ini->RewriteConfig();
     }
 }
@@ -89,16 +93,20 @@ sub update_config_controller_with_subtype {
                 $fields2Encrypt{$fieldName} = undef;
             }
         }
+        next if keys (%fields2Encrypt) == 0;
         for my $param ($ini->Parameters($section)) {
             next if (!exists $fields2Encrypt{$param});
             my $val = $ini->val($section, $param);
+            next if length($val) == 0;
             print "Changing $section.$param\n";
             $val = pf::config::crypt::pf_encrypt($val);
             $ini->setval($section, $param, $val);
             $changed |= 1;
         }
     }
+
     if ($changed) {
+        $ini->removeDefaultValues();
         $ini->RewriteConfig();
     }
 }
@@ -110,7 +118,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

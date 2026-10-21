@@ -43,7 +43,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 
@@ -229,7 +229,24 @@ sub _build_clientMac {
             if ($net_addr->contains($ip)) {
                 my $fake_mac = '00:00:' . join(':', map { sprintf("%02x", $_) } split /\./, $ip->addr());
                 my $gateway = $network_config->{'gateway'};
-                locationlog_synchronize($gateway, $gateway, undef, $NO_PORT, $NO_VLAN, $fake_mac, $NO_VOIP, $INLINE);
+                locationlog_synchronize(
+                    $gateway,
+                    $gateway,
+                    undef,
+                    $NO_PORT,
+                    $NO_VLAN,
+                    $fake_mac,
+                    $NO_VOIP,
+                    $INLINE,
+                    undef,
+                    undef,
+                    undef,
+                    undef,
+                    undef,
+                    undef,
+                    undef,
+                    $gateway,
+                );
                 if ( $clientIP->type eq $pf::IPv6::TYPE ) {
                     pf::ip6log::open($clientIP->normalizedIP, $fake_mac);
                 } else {
@@ -250,7 +267,8 @@ sub _build_clientMac {
         }
     }
 
-    Log::Log4perl::MDC->put('mac', $mac) if defined $mac;
+    # Keep 'unknown' in the logging context when no MAC address was found (ip2mac returns 0)
+    Log::Log4perl::MDC->put('mac', $mac) if $mac;
     return $mac;
 }
 

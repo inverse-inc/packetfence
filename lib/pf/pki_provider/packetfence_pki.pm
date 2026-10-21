@@ -83,16 +83,20 @@ sub get_bundle {
     }
     my $certpwd = $args->{'certificate_pwd'};
 
-    my $value = eval {
-        my $return = pf::api::unifiedapiclient->default_client->call("POST", "/api/v1/pki/certs", $payload);
+    my $created = eval {
+        pf::api::unifiedapiclient->default_client->call("POST", "/api/v1/pki/certs", $payload);
     };
     if ($@) {
         $logger->warn("Certificate creation failed");
         return;
     }
+    # Download the certificate just created by its id: several certificates
+    # can share the CN (e.g. a user enrolling two devices at the same time)
+    my $id = (ref($created) eq 'HASH' && ref($created->{items}) eq 'ARRAY' && ref($created->{items}[0]) eq 'HASH') ? $created->{items}[0]{ID} : undef;
+    my $cert = (defined($id) && $id =~ /^\d+$/) ? $id : $cn;
     my $return;
-    $value = eval {
-        $return = pf::api::unifiedapiclient->default_client->call("GET", "/api/v1/pki/cert/$profile/$cn/download/$certpwd");
+    my $value = eval {
+        $return = pf::api::unifiedapiclient->default_client->call("GET", "/api/v1/pki/cert/$profile/$cert/download/$certpwd");
     };
     if ($@) {
         $logger->warn("Download certificate failed");
@@ -125,7 +129,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

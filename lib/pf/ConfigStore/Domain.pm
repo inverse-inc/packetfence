@@ -24,11 +24,12 @@ with 'pf::ConfigStore::Role::ReverseLookup';
 
 sub configFile { $domain_config_file };
 
-# seems not used anywhere
 sub canDelete {
     my ($self, $id) = @_;
-    my $host_id = hostname();
-    $id =~ s/$host_id //i;
+    # Strip whatever namespace prefix the section carries ('<hostname> <id>' for
+    # classic domains, 'connector <id>' for connector-backed ones) to get the bare
+    # id the realm references.
+    $id =~ s/^\S+\s+//;
     if ($self->isInRealm('domain', $id)) {
         return "Used in a realm", $FALSE;
     }
@@ -46,7 +47,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

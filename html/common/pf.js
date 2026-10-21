@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function () {
     );
   }
   document.addEventListener('keyup', function (e) {
-    if (e.target.className == 'tabbable' && [13, 32].includes(e.which)) {
+    if (e.target.classList.contains('tabbable') && (e.key === 'Enter' || e.key === ' ')) {
       e.target.click();
     }
   })

@@ -143,6 +143,7 @@ our (
     %ConfigConnector,
 #domain.conf
     %ConfigDomain,
+    %ConfigDomains,
 #scan.conf
     %ConfigScan,
 
@@ -234,6 +235,7 @@ BEGIN {
         %ConfigProvisioning
         %ConfigConnector
         %ConfigDomain
+        %ConfigDomains
         $default_pid
         %ConfigScan
         %ConfigPKI_Provider
@@ -280,6 +282,7 @@ tie @routed_isolation_nets, 'pfconfig::cached_array', "interfaces::routed_isolat
 tie @routed_registration_nets, 'pfconfig::cached_array', "interfaces::routed_registration_nets($host_id)";
 tie @inline_nets, 'pfconfig::cached_array', "interfaces::inline_nets($host_id)";
 tie %ConfigDomain, 'pfconfig::cached_hash', "config::Domain($host_id)";
+tie %ConfigDomains, 'pfconfig::cached_hash', "resource::domains";
 tie %ConfigNetworks, 'pfconfig::cached_hash', "config::Network($host_id)";
 
 tie %Default_Config, 'pfconfig::cached_hash', 'config::PfDefault';
@@ -900,14 +903,24 @@ sub load_configdata_into_db {
 }
 
 sub netflow_enabled {
+    # pfacct does not process NetFlow traffic: no need for the ipt_NETFLOW module
+    # nor for the iptables rule exporting flows to it. Unset counts as enabled,
+    # like in pfacct.
+    my $netflow_processor = $Config{services}{netflow_processor};
+    if (defined($netflow_processor) && length($netflow_processor) && isdisabled($netflow_processor)) {
+        return $FALSE;
+    }
+
     if (isenabled($Config{advanced}{netflow_on_all_networks})) {
         return $TRUE;
     }
 
-    while( my ($network, $data) = each %ConfigNetworks ) {
+    # keys rather than each: returning from an each loop would leave the hash
+    # iterator half way for the next call
+    foreach my $network (keys %ConfigNetworks) {
         # We skip non-inline networks/interfaces
         next if ( !pf::config::is_network_type_inline($network) );
-        return $TRUE if isenabled($data->{netflow_accounting_enabled} || 'disabled');
+        return $TRUE if isenabled($ConfigNetworks{$network}{netflow_accounting_enabled} || 'disabled');
     }
 
     return $FALSE;
@@ -923,7 +936,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

@@ -41,6 +41,11 @@
                                        disabled-value="N"
         />
 
+        <form-group-host-mode namespace="host_mode"
+                              :column-label="$i18n.t('Port host mode')"
+                              :text="$i18n.t('Host mode configured on the switch ports. In multi-auth, each endpoint authenticates independently: PacketFence keeps a separate locationlog entry per MAC and deauthenticates each endpoint with a per-session CoA/Disconnect instead of bouncing the port. Note that most switches apply a single data VLAN per port, so returning two different VLANs for two endpoints on the same port will not work; use role-based ACLs (push or downloadable) to differentiate them.')"
+        />
+
         <form-group-external-portal-enforcement namespace="ExternalPortalEnforcement"
                                                 v-show="supports(['ExternalPortal'])"
                                                 :column-label="$i18n.t('External Portal Enforcement')"
@@ -66,6 +71,11 @@
         <form-group-voip-dhcp-detect namespace="VoIPDHCPDetect"
                                      :column-label="$i18n.t('VoIP DHCP Detect')"
                                      :text="$i18n.t('Detect VoIP with the DHCP Fingerprint.')"
+        />
+
+        <form-group-voip-full-authorization namespace="VoIPFullAuthorization"
+                              :column-label="$i18n.t('Full RADIUS authorization for VoIP')"
+                              :text="$i18n.t('When enabled, the RADIUS reply for a VoIP device contains the Voice VSA AND the full Access-Accept response computed as if the device were a regular endpoint — VLAN tunnel attributes, role attributes, downloadable/push ACLs, and any access-filter rules. The data VLAN returned alongside the Voice VSA may conflict with the device\'s voice VLAN; make sure your switch is configured to accept both (e.g. Cisco device-traffic-class=voice with a separate access VLAN).')"
         />
 
         <form-group-uplink-dynamic namespace="uplink_dynamic"
@@ -98,6 +108,16 @@
 
         <b-tabs lazy v-else>
 
+          <template v-slot:tabs-end>
+            <b-input-group class="ml-auto mr-3 my-auto" style="max-width: 300px;">
+              <b-form-input v-model="roleFilter"
+                :placeholder="$i18n.t('Filter roles...')"
+                size="sm"
+                type="search"
+              />
+            </b-input-group>
+          </template>
+
           <base-form-tab v-if="supports(['RadiusDynamicVlanAssignment'])"
                          :title="$i18n.t('VLAN ID')" active>
             <b-card class="mb-3 pb-0" no-body>
@@ -110,10 +130,12 @@
                 />
 
                 <template v-if="isVlanMap">
-                  <form-group-role-map-vlan v-for="role in roles" :key="`${role}Vlan`"
-                                            :namespace="`${role}Vlan`"
-                                            :column-label="role"
-                  />
+                  <base-role-map-list :roles="filteredRoles" v-slot="{ role }">
+                    <form-group-role-map-vlan :key="`${role}Vlan`"
+                                              :namespace="`${role}Vlan`"
+                                              :column-label="role"
+                    />
+                  </base-role-map-list>
                 </template>
               </div>
             </b-card>
@@ -131,9 +153,11 @@
                 />
 
                 <template v-if="isRoleMap">
-                  <form-group-role-map-role v-for="role in roles" :key="`${role}Role`" :namespace="`${role}Role`"
-                    :column-label="role"
-                  />
+                  <base-role-map-list :roles="filteredRoles" v-slot="{ role }">
+                    <form-group-role-map-role :key="`${role}Role`" :namespace="`${role}Role`"
+                      :column-label="role"
+                    />
+                  </base-role-map-list>
                 </template>
               </div>
             </b-card>
@@ -151,9 +175,11 @@
                 />
 
                 <template v-if="isVpnMap">
-                  <form-group-role-map-vpn v-for="role in roles" :key="`${role}Vpn`" :namespace="`${role}Vpn`"
-                    :column-label="role"
-                  />
+                  <base-role-map-list :roles="filteredRoles" v-slot="{ role }">
+                    <form-group-role-map-vpn :key="`${role}Vpn`" :namespace="`${role}Vpn`"
+                      :column-label="role"
+                    />
+                  </base-role-map-list>
                 </template>
               </div>
             </b-card>
@@ -172,9 +198,11 @@
                 />
 
                 <template v-if="isAccessListMap">
-                  <form-group-role-map-access-list v-for="role in roles" :key="`${role}AccessList`" :namespace="`${role}AccessList`"
-                    :column-label="role"
-                  />
+                  <base-role-map-list :roles="filteredRoles" v-slot="{ role }">
+                    <form-group-role-map-access-list :key="`${role}AccessList`" :namespace="`${role}AccessList`"
+                      :column-label="role"
+                    />
+                  </base-role-map-list>
                 </template>
               </div>
               <b-card-header>
@@ -182,10 +210,12 @@
               </b-card-header>
               <div class="card-body pb-0">
                 <template v-if="isInterfaceMap">
-                  <form-group-role-map-interface v-for="role in roles" :key="`${role}Interface`"
-                                                   :namespace="`${role}Interface`"
-                                                   :column-label="role"
-                  />
+                  <base-role-map-list :roles="filteredRoles" v-slot="{ role }">
+                    <form-group-role-map-interface :key="`${role}Interface`"
+                                                     :namespace="`${role}Interface`"
+                                                     :column-label="role"
+                    />
+                  </base-role-map-list>
                 </template>
               </div>
             </b-card>
@@ -203,9 +233,11 @@
                 />
 
                 <template v-if="isUrlMap">
-                  <form-group-role-map-url v-for="role in roles" :key="`${role}Url`" :namespace="`${role}Url`"
-                    :column-label="role"
-                  />
+                  <base-role-map-list :roles="filteredRoles" v-slot="{ role }">
+                    <form-group-role-map-url :key="`${role}Url`" :namespace="`${role}Url`"
+                      :column-label="role"
+                    />
+                  </base-role-map-list>
                 </template>
               </div>
             </b-card>
@@ -223,22 +255,24 @@
                 />
 
                 <template v-if="isNetworkMap">
-                  <b-form-group v-for="role in roles" :key="`${role}Network`"
-                    :label="role" label-cols="3"
-                    class="base-form-group"
-                  >
-                    <b-input-group>
-                      <b-row class="w-100 mx-0 mb-1 px-0" align-v="center" no-gutters>
-                        <b-col sm="6" align-self="center">
-                          <input-role-map-network :namespace="`${role}Network`"
-                            :disabled="form[`${role}NetworkFrom`] !== 'static'" />
-                        </b-col>
-                        <b-col sm="6" align-self="center" class="pl-1">
-                          <input-toggle-network-from :namespace="`${role}NetworkFrom`" />
-                        </b-col>
-                      </b-row>
-                    </b-input-group>
-                  </b-form-group>
+                  <base-role-map-list :roles="filteredRoles" :item-height="57" v-slot="{ role }">
+                    <b-form-group :key="`${role}Network`"
+                      :label="role" label-cols="3"
+                      class="base-form-group"
+                    >
+                      <b-input-group>
+                        <b-row class="w-100 mx-0 mb-1 px-0" align-v="center" no-gutters>
+                          <b-col sm="6" align-self="center">
+                            <input-role-map-network :namespace="`${role}Network`"
+                              :disabled="form[`${role}NetworkFrom`] !== 'static'" />
+                          </b-col>
+                          <b-col sm="6" align-self="center" class="pl-1">
+                            <input-toggle-network-from :namespace="`${role}NetworkFrom`" />
+                          </b-col>
+                        </b-row>
+                      </b-input-group>
+                    </b-form-group>
+                  </base-role-map-list>
                 </template>
               </div>
             </b-card>
@@ -274,7 +308,13 @@
         <form-group-controller-ip namespace="controllerIp"
                                   v-show="supports(['WirelessMacAuth', 'WirelessDot1x'])"
                                   :column-label="$i18n.t('Controller IP Address')"
-                                  :text="$i18n.t('Use instead this IP address for de-authentication requests. Normally used for Wi-Fi only.')"
+                                  :text="$i18n.t('Use instead this IP address or FQDN for de-authentication requests. Normally used for Wi-Fi only.')"
+        />
+
+        <form-group-controller-port namespace="controllerPort"
+                                    v-show="supports(['WirelessMacAuth', 'WirelessDot1x'])"
+                                    :column-label="$i18n.t('Controller Port')"
+                                    :text="$i18n.t('Port to reach the controller API. If empty, the default ports of the module will be used.')"
         />
 
         <form-group-disconnect-port namespace="disconnectPort"
@@ -301,6 +341,11 @@
 
       </base-form-tab>
       <base-form-tab :title="$i18n.t('SNMP')">
+
+        <form-group-use-snmp namespace="useSNMP"
+          :column-label="$i18n.t('Enable/Disable SNMP')"
+          :text="$i18n.t('Enable/Disable use of SNMP.')"
+        />
 
         <form-group-snmp-use-connector namespace="SNMPUseConnector"
                                        :column-label="$i18n.t('Use Connector')"
@@ -429,6 +474,10 @@
         <form-group-web-services-pwd namespace="wsPwd"
                                      :column-label="$i18n.t('Password')"
         />
+        <form-group-web-services-verify-certificate namespace="wsVerifyCertificate"
+                                                    :column-label="$i18n.t('Verify Certificate')"
+                                                    :text="$i18n.t('Verify the certificate of the controller when the transport is HTTPS. The certificate must be issued by a trusted certificate authority for the controller address. When disabled, the certificate is not checked, which allows self-signed certificates.')"
+        />
 
       </base-form-tab>
       <base-form-tab :title="$i18n.t('ACLs')" v-if="supports(['PushACLs', 'DownloadableListBasedEnforcement'])">
@@ -553,6 +602,7 @@ import {
   FormGroupCliUser,
   FormGroupCoaPort,
   FormGroupControllerIp,
+  FormGroupControllerPort,
   FormGroupDeauthenticationMethod,
   FormGroupDescription,
   FormGroupDisconnectPort,
@@ -593,6 +643,7 @@ import {
   FormGroupSnmpUserNameRead,
   FormGroupSnmpVersion,
   FormGroupSnmpVersionTrap,
+  FormGroupUseSnmp,
   FormGroupToggleAccessListMap,
   FormGroupToggleRoleMap,
   FormGroupToggleVpnMap,
@@ -609,18 +660,22 @@ import {
   FormGroupDownloadableAclsLimit,
   FormGroupAclsLimit,
   FormGroupDeauthOnPrevious,
+  FormGroupHostMode,
   FormGroupVoipEnabled,
   FormGroupVoipLldpDetect,
   FormGroupVoipCdpDetect,
   FormGroupVoipDhcpDetect,
+  FormGroupVoipFullAuthorization,
   FormGroupPostMfaValidation,
   FormGroupWebServicesPwd,
   FormGroupWebServicesTransport,
   FormGroupWebServicesUser,
+  FormGroupWebServicesVerifyCertificate,
 
   InputRoleMapNetwork,
   InputToggleNetworkFrom,
 } from './'
+import BaseRoleMapList from '../../switches/_components/BaseRoleMapList.vue'
 
 const components = {
   BaseButtonConfirm,
@@ -628,6 +683,7 @@ const components = {
   BaseFormTab,
   BaseInputChosenOne,
   BaseInputToggleAdvancedMode,
+  BaseRoleMapList,
 
   FormGroupCliAccess,
   FormGroupCliEnablePwd,
@@ -636,6 +692,7 @@ const components = {
   FormGroupCliUser,
   FormGroupCoaPort,
   FormGroupControllerIp,
+  FormGroupControllerPort,
   FormGroupDeauthenticationMethod,
   FormGroupDescription,
   FormGroupDisconnectPort,
@@ -676,6 +733,7 @@ const components = {
   FormGroupSnmpUserNameRead,
   FormGroupSnmpVersion,
   FormGroupSnmpVersionTrap,
+  FormGroupUseSnmp,
   FormGroupToggleAccessListMap,
   FormGroupToggleRoleMap,
   FormGroupToggleVpnMap,
@@ -692,14 +750,17 @@ const components = {
   FormGroupDownloadableAclsLimit,
   FormGroupAclsLimit,
   FormGroupDeauthOnPrevious,
+  FormGroupHostMode,
   FormGroupVoipEnabled,
   FormGroupVoipLldpDetect,
   FormGroupVoipCdpDetect,
   FormGroupVoipDhcpDetect,
+  FormGroupVoipFullAuthorization,
   FormGroupPostMfaValidation,
   FormGroupWebServicesPwd,
   FormGroupWebServicesTransport,
   FormGroupWebServicesUser,
+  FormGroupWebServicesVerifyCertificate,
 
   InputRoleMapNetwork,
   InputToggleNetworkFrom,

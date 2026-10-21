@@ -72,7 +72,7 @@ sub filter {
     my ($self, $scope, $args) = @_;
     $args = $self->adjustCommonParams($args);
     my $rule = $self->test($scope, $args);
-    return $self->filterRule($rule, $args);
+    return $self->filterRule($rule, $args, $scope);
 }
 
 
@@ -191,7 +191,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

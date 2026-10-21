@@ -10,6 +10,7 @@ import t_async_job
 import t_health_checker
 import t_sdnotify
 import t_worker_register
+import log
 
 import logging
 from gunicorn import glogging
@@ -34,10 +35,10 @@ try:
     LISTEN = os.getenv("LISTEN")
     bind_port = int(LISTEN)
 except ValueError:
-    print(f"invalid value for environment variable 'LISTEN', {NAME} terminated.")
+    log.critical(f"invalid value for environment variable 'LISTEN', {NAME} terminated.")
     sys.exit(1)
 except Exception as e:
-    print(f"failed to extract parameter 'LISTEN' from environment variable: {str(e)}. {NAME} terminated.")
+    log.critical(f"failed to extract parameter 'LISTEN' from environment variable: {str(e)}. {NAME} terminated.")
     sys.exit(1)
 
 config_loader.config_load()
@@ -54,7 +55,7 @@ graceful_timeout = 10
 
 accesslog = '-'
 errorlog = '-'
-loglevel = 'info'
+loglevel = 'debug'
 logger_class = CustomGunicornLogger
 capture_output = False
 access_log_format = '%(h)s %(l)s %(u)s %(p)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"'
@@ -77,8 +78,14 @@ def on_starting(server):
     if not redis_client.init_connection():
         server.log.error("unable to initialize redis connection, terminated.")
         server.stop()
+
+    server.log.info("cleaning up machine account binding.")
     config_loader.cleanup_machine_account_binding(True)
     server.log.info("machine account binding clean up done.")
+
+    if "gunicorn.error" in logging.Logger.manager.loggerDict:
+        log.default_logger = logging.getLogger("gunicorn.error")
+        log.info("default logger set to 'gunicorn.error'.")
 
 
 def on_exit(server):

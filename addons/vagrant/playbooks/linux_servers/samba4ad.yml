@@ -9,6 +9,9 @@
       gather_subset:
         - "!all"
 
+  # Packer invokes this playbook directly, without linux_servers/apt_update.yml.
+  - import_tasks: ../tasks/apt_accept_eol_release.yml
+
   tasks:
   - name: Check if samba4ad configuration is there
     ansible.builtin.lineinfile:
@@ -32,13 +35,17 @@
       register: disable_ipv6
 
     - name: Install prerequisites for Samba packages
-      ansible.builtin.package:
-        name: '{{ item }}'
+      ansible.builtin.apt:
+        name:
+          - gnupg
+          - lsb-release
+          - python3-pexpect
         state: 'present'
-      loop:
-      - gnupg
-      - lsb-release
-      - python3-pexpect
+        update_cache: yes
+      register: samba_prerequisites
+      retries: 3
+      delay: 10
+      until: samba_prerequisites is succeeded
 
     - name: Reboot
       include_tasks: ./tasks/samba4ad_reboot_tasks.yml
@@ -46,7 +53,7 @@
   
     - name: Download file with check (sha256)
       ansible.builtin.get_url:
-        url: http://samba.tranquil.it/tissamba-pubkey.gpg
+        url: http://samba.tranquil.it/tissamba-pubkey-2017.gpg
         dest: /root/tissamba-pubkey.gpg
         checksum: sha256:bd0f7140edd098031fcb36106b24a6837b067f1c847f72cf262fa012f14ce2dd
   
@@ -64,6 +71,10 @@
       ansible.builtin.apt:
         upgrade: yes
         update_cache: yes
+      register: apt_result
+      retries: 3
+      delay: 10
+      until: apt_result is success
   
     - name: Install Samba packages
       ansible.builtin.package:

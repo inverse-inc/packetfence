@@ -321,16 +321,20 @@ sub authorize_enforce {
 
 Check if a role should be applied to the device based on the provisioner
 
+The optional context carries what the current RADIUS request knows about the
+device (C<user_name>, C<radius_request>); the node's last 802.1X username is
+the previous session's until the locationlog is updated.
+
 =cut
 
 sub authorize_apply_role {
-    my ($self, $mac) = @_;
+    my ($self, $mac, $context) = @_;
     my $type = $self->type;
     my $started = time;
-    my $result = $self->cache->compute_with_undef("$type-authorize_apply_role($mac)",
+    my $result = $self->cache->compute_with_undef("$type-authorize_apply_role($mac)" . $self->authorize_cache_key_suffix($mac, $context),
         sub {
             if(isenabled($self->apply_role)) {
-                my $auth = $self->authorize($mac);
+                my $auth = $self->authorize($mac, $context);
                 if($auth eq $pf::provisioner::COMMUNICATION_FAILED) {
                     get_logger->error("Will not be able to apply the role to this device since the communication with the provisioner has failed");
                     return undef;
@@ -356,6 +360,18 @@ sub authorize_apply_role {
     return $result;
 }
 
+=head2 authorize_cache_key_suffix
+
+What the result of authorize depends on besides the MAC address, added to the
+cache key of authorize_apply_role. Nothing by default.
+
+=cut
+
+sub authorize_cache_key_suffix {
+    my ($self, $mac, $context) = @_;
+    return '';
+}
+
 sub getAnswerForScope {
     my ($self, $scope, $data) = @_;
     return $self->access_filter->filterRules($scope, $data, $self->rules);
@@ -367,7 +383,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

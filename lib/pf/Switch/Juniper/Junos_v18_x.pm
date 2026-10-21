@@ -32,11 +32,11 @@ use base ('pf::Switch::Juniper::Junos_v15_x');
 
 use pf::constants;
 sub description { 'Junos v18.x' }
+sub switchDriverId { 'juniper_junos' }
 
 # importing switch constants
 use pf::Switch::constants;
 use pf::node qw(node_attributes);
-use pf::util::radius qw(perform_disconnect perform_coa);
 use Try::Tiny;
 use pf::util;
 
@@ -72,7 +72,7 @@ sub radiusDisconnect {
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
 
-    if (!defined($self->{'_radiusSecret'})) {
+    if (!$self->hasRadiusSecret()) {
         $logger->warn(
             "Unable to perform RADIUS Disconnect-Request on $self->{'_ip'}: RADIUS Shared Secret not configured"
         );
@@ -101,7 +101,7 @@ sub radiusDisconnect {
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
-        $response = perform_disconnect($connection_info, $attributes_ref, []);
+        $response = $self->handleRadiusDisconnect($connection_info, $attributes_ref, []);
 
     } catch {
         chomp;
@@ -148,7 +148,7 @@ sub setAdminStatus {
         return $TRUE;
     }
 
-    if (!defined($self->{'_radiusSecret'})) {
+    if (!$self->hasRadiusSecret()) {
         $logger->warn(
             "Unable to perform RADIUS CoA-Request on $self->{'_id'}: RADIUS Shared Secret not configured"
         );
@@ -166,7 +166,7 @@ sub setAdminStatus {
     try {
         my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
 
-        $response = perform_coa( $connection_info,
+        $response = $self->handleRadiusCoa( $connection_info,
             {
                 'Acct-Terminate-Cause' => 'Admin-Reset',
                 'NAS-IP-Address' => $self->{'_switchIp'},
@@ -212,7 +212,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

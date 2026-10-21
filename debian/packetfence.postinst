@@ -23,8 +23,18 @@ export LC_CTYPE
 
 DIST=$(lsb_release -c -s)
 
+setup_system_init_key() {
+    if [ ! -f /usr/local/pf/conf/system_init_key ]; then
+        if [ ! -d /usr/local/pf/conf ]; then
+            mkdir -p /usr/local/pf/conf
+        fi
+        hexdump -e '/1 "%x"' < /dev/urandom | head -c 32 > /usr/local/pf/conf/system_init_key
+    fi
+}
+
 case "$1" in
     configure)
+        setup_system_init_key
         export PACKETFENCE=/usr/local/pf
         export PERL5LIB=/usr/local/pf/lib
         find $PACKETFENCE/conf -type f -exec chmod 664 '{}' \;
@@ -62,6 +72,10 @@ case "$1" in
 
         #Make configurable logo in default profile templates
         make html/captive-portal/profile-templates/default/logo.png
+        #Make default theme.css in default profile templates
+        make html/captive-portal/profile-templates/default/theme.css
+        #Make default background in default profile templates
+        make html/captive-portal/profile-templates/default/background.png
 
         # Stop packetfence-config during upgrade process to ensure
         # it is started with latest code
@@ -78,12 +92,12 @@ case "$1" in
 
         # Create server local RADIUS secret
         if [ ! -f /usr/local/pf/conf/local_secret ]; then
-            date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret
+            head -c 512 /dev/urandom | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret
         fi
 
         # Create server API system user password
         if [ ! -f /usr/local/pf/conf/unified_api_system_pass ]; then
-            date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/unified_api_system_pass
+            head -c 512 /dev/urandom | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/unified_api_system_pass
         fi
 
         if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
@@ -134,12 +148,19 @@ case "$1" in
         echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.d/99-ip_forward.conf
         sysctl -p /etc/sysctl.d/99-ip_forward.conf
 
+        # Reserve the pfconfig port (99-packetfence-reserved-ports.conf, #8576). Merge it with the current
+        # reservations so the ones applied by other files aren't dropped until the next boot
+        current=$(sysctl -n net.ipv4.ip_local_reserved_ports 2>/dev/null)
+        sysctl -w net.ipv4.ip_local_reserved_ports="${current:+$current,}44444" > /dev/null || true
+
         if ! grep 'containers-gateway.internal' /etc/hosts > /dev/null; then
           echo "" >> /etc/hosts
           echo "100.64.0.1 containers-gateway.internal" >> /etc/hosts
         fi
 
         perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
+
+        /usr/local/pf/addons/upgrade/to-15.0-replace-kafka-values.sh
 
         #Starting PacketFence.
         #removing old cache
@@ -199,7 +220,8 @@ case "$1" in
             echo "MariaDB config will be generated at next boot"
         fi
 
-        # only packetfence-config is running after this command
+        # only packetfence-config, packetfence-redis-cache and packetfence-mariadb
+        # services are running after the following command:
         systemctl isolate packetfence-base.target
 
         # Override the MySQL socket location to match our standard
@@ -239,6 +261,11 @@ case "$1" in
         if [ ${DIST} = "bookworm" ] && [ "$DEBIAN_ISO_INSTALLER" = "no" ]; then
             set +e
             /usr/bin/mysql -uroot -e "set password for 'root'@'localhost' = password('')"
+            if /usr/bin/mysql -uroot -ss -e "SHOW GRANTS FOR 'PUBLIC';" > /dev/null 2>&1; then
+                /usr/bin/mysql -uroot -ss -e "REVOKE ALL PRIVILEGES ON \`test\`.* FROM 'PUBLIC';" > /dev/null 2>&1 || true
+                /usr/bin/mysql -uroot -ss -e "REVOKE ALL PRIVILEGES ON \`test_%\`.* FROM 'PUBLIC';" > /dev/null 2>&1 || true
+                /usr/bin/mysql -uroot -e "FLUSH PRIVILEGES;"
+            fi
             set -e
         fi
         # Install the monitoring scripts signing key

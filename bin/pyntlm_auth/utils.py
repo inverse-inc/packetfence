@@ -7,6 +7,7 @@ import psutil
 import pytz
 
 import constants
+import log
 
 
 # simplified IPv4 validator.
@@ -86,13 +87,13 @@ def find_ldap_servers(domain, dns_server):
         return ldap_servers
 
     except dns.resolver.NoAnswer:
-        print(f'No SRV records found for {query_name}')
+        log.warning(f'No SRV records found for {query_name}')
         return []
     except dns.resolver.NXDOMAIN:
-        print(f'Domain {domain} does not exist')
+        log.warning(f'Domain {domain} does not exist')
         return []
     except Exception as e:
-        print(f'An error occurred: {e}')
+        log.warning(f'An error occurred: {e}')
         return []
 
 

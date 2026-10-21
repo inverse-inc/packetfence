@@ -14,7 +14,11 @@ files.
 
 =cut
 
+# The repository's lib, after the installed one, for pf::I18N::extract
+use FindBin;
+use lib "$FindBin::Bin/../lib";
 use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
+use pf::I18N::extract qw(js_unescape js_translated_strings po_escape add_source);
 use Config::IniFiles;
 use File::Find;
 
@@ -35,17 +39,12 @@ Add a localizable sring to the list.
 =cut
 
 sub add_string {
-    my ($string, $source) = @_;
+    my ($string, $source, %options) = @_;
 
-    $string =~ s/\\'/'/g; # unescape single-quotes
-    $string =~ s/(?<!\\)\\/\\\\/g; # escape backslashes
-    $string =~ s/(?<!\\)\"/\\\"/g; # escape double-quotes
-    unless ($strings{$string}) {
-        $strings{$string} = [];
-    }
-    unless (grep(/\Q$source\E/, @{$strings{$string}})) {
-        push(@{$strings{$string}}, $source);
-    }
+    # A string from the JavaScript source is a literal, already decoded by
+    # js_translated_strings or js_unescape: it is the string looked up at
+    # runtime (e.g. 'domain\\username' is domain\username)
+    add_source(\%strings, po_escape($string, newlines => 1), $source);
 }
 
 =head2 add_translation
@@ -119,31 +118,11 @@ sub parse_js {
         open(JS, $file);
         while (defined($line = <JS>)) {
             chomp $line;
-            # $t() inside <template>
-            while ($line =~ m/\$t\(['`](.+?(?<!\\))['`](,.*)?\)/g) {
-                my $string = $1;
-                add_string($string, "$file:$nb");
-            }
-            # v-t inside <template>
-            while ($line =~ m/v-t="['`](.+?(?<!\\))['`]"/g) {
-                my $string = $1;
-                add_string($string, "$file:$nb");
-            }
-            # i18n.t() inside <script>
-            while ($line =~ m/
-                i18n.t
-                \(
-                    (?<s>['`])    #Match quote name it s
-                    (?<i>.+?)      #Match any character
-                    (?<!\\)\k{s}  #Match quote named s that does not has a \ in front
-                [\),]/xg) {
-                my $string = $+{i};
-                add_string($string, "$file:$nb");
-            }
+            # $t() and v-t inside <template>, i18n.t() inside <script>
+            add_string($_, "$file:$nb") for js_translated_strings($line);
             # i18n defer inside <script>
             if ($line =~ m/['`](.+?(?<!\/\/))['`],?\s+\/\/ i18n defer$/g) {
-                my $string = $1;
-                add_string($string, "$file:$nb");
+                add_string(js_unescape($1), "$file:$nb");
             }
             # Report untranslatable strings
             while ($line =~ m/(\$t\(|v-t="|i18n\.t\()([^'`].+?)[\)"]/g) {
@@ -223,14 +202,8 @@ EOT
         foreach my $file (sort @{$strings{$string}}) {
             print "#: $file\n";
         }
-        my @lines = split("\n", $string);
-        if (@lines > 1) {
-            print "msgid \"\"\n";
-            print join("\n", map { "  \"$_\"" } @lines), "\n";
-        }
-        else {
-            print "msgid \"$string\"\n";
-        }
+        # add_string escapes the line breaks: a msgid is always on one line
+        print "msgid \"$string\"\n";
         print "msgstr \"" . ($translations{$string} || '') . "\"\n\n";
     }
 }
@@ -272,7 +245,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

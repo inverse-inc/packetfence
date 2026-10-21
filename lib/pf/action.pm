@@ -319,7 +319,7 @@ sub action_email_user {
             }
         }
         pf::config::util::send_email(
-            'security_event-triggered',
+            $pf::security_event_config::SecurityEvent_Config{$security_event_id}{user_template_email} || 'security_event-triggered',
             $to,
             "$description detection on $mac",
             $vars,
@@ -449,7 +449,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

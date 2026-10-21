@@ -30,8 +30,8 @@ timezone=
 #
 # network.dhcpdetector
 #
-# If enabled, PacketFence will monitor DHCP-specific items such as rogue DHCP services, DHCP-based OS fingerprinting, computername/hostname 
-# resolution, and (optionnally) option-82 location-based information.  The monitored DHCP packets are DHCPDISCOVERs and DHCPREQUESTs - both are broadcasts, 
+# If enabled, PacketFence will monitor DHCP-specific items such as rogue DHCP services, DHCP-based OS fingerprinting, computername/hostname
+# resolution, and (optionnally) option-82 location-based information.  The monitored DHCP packets are DHCPDISCOVERs and DHCPREQUESTs - both are broadcasts,
 # meaning a span port is not necessary.  This feature is highly recommended if the internal network is DHCP-based.
 dhcpdetector=enabled
 #
@@ -51,7 +51,7 @@ rogue_dhcp_detection=enabled
 #
 # network.rogueinterval
 #
-# When rogue DHCP server detection is enabled, this parameter defines how often to email administrators.  With its default 
+# When rogue DHCP server detection is enabled, this parameter defines how often to email administrators.  With its default
 # setting of 10, it will email administrators the details of the previous 10 DHCP offers.
 rogueinterval=10
 #
@@ -108,24 +108,24 @@ interfaceSNAT=
 staticroutes=
 
 [fencing]
-# 
+#
 # fencing.wait_for_redirect
 #
 # How many seconds should the WebAPI sleep before actually triggering the VLAN change.
-# This is meant to give the device enough time to fetch the redirection page before 
+# This is meant to give the device enough time to fetch the redirection page before
 # switching VLAN.
 wait_for_redirect = 1
 #
 # fencing.whitelist
 #
-# Comma-delimited list of MAC addresses that are immune to isolation. In 
-# inline level 2 enforcement, the firewall is opened for them as if they were 
+# Comma-delimited list of MAC addresses that are immune to isolation. In
+# inline level 2 enforcement, the firewall is opened for them as if they were
 # registered. This "feature" will probably be reworked in the future.
 whitelist=
 #
 # fencing.range
 #
-# Comma-delimited list of address ranges/CIDR blocks that Snort/Suricata will monitor/detect/trap on.  Gateway, network, and 
+# Comma-delimited list of address ranges/CIDR blocks that Snort/Suricata will monitor/detect/trap on.  Gateway, network, and
 # broadcast addresses are ignored.
 range=
 #
@@ -172,13 +172,13 @@ interception_proxy_port=8080,3128
 #
 # guests_admin_registration.access_duration_choices
 #
-# These are all the choices offered in the guest management interface as 
+# These are all the choices offered in the guest management interface as
 # possible access duration values for a given registration.
 access_duration_choices=1h,3h,12h,1D,2D,3D,5D
 #
 # guests_admin_registration.default_access_duration
 #
-# This is the default access duration value selected in the dropdown on the 
+# This is the default access duration value selected in the dropdown on the
 # guest management interface.
 default_access_duration=12h
 
@@ -195,9 +195,15 @@ emailaddr=pf@localhost
 # Source email address for email notifications. Empty means root@<server-domain-name>.
 fromaddr=
 #
+# alerting.smtp_name
+#
+# A descriptive name for the SMTP server connection. This can be used to identify
+# the SMTP server in logs and notifications.
+smtp_name=
+#
 # alerting.smtpserver
 #
-# Server through which to send messages to the above emailaddr.  The default is localhost - be sure you're running an SMTP 
+# Server through which to send messages to the above emailaddr.  The default is localhost - be sure you're running an SMTP
 # host locally if you don't change it!
 smtpserver=localhost
 #
@@ -320,14 +326,18 @@ status=[% ENV.env_or_default("PF_DATABASE_PROXYSQL_STATUS", "disabled") %]
 #
 cacert=[% ENV.env_or_default("PF_DATABASE_PROXYSQL_CACERT", "") %]
 #
-# database_proxysql.backend
+# database_proxysql.backends
 #
 #
-backend=[% ENV.env_or_default("PF_DATABASE_PROXYSQL_BACKEND", "") %]
+backends=[% ENV.env_or_default("PF_DATABASE_PROXYSQL_BACKENDS", "") %]
 #
 # database_proxysql.scheduler
 #
 scheduler=[% ENV.env_or_default("PF_DATABASE_PROXYSQL_BACKEND", "default") %]
+#
+# database_proxysql.port
+#
+port=[% ENV.env_or_default("PF_DATABASE_PROXYSQL_BACKEND_PORT", "3306") %]
 
 [database_advanced]
 #
@@ -475,9 +485,9 @@ pfldapexplorer=enabled
 #
 # Should radiusd be managed by PacketFence?
 radiusd=enabled
-# 
+#
 # services.radiusd_binary
-# 
+#
 # Location of the named binary. Only necessary to change if you are not running the RPMed version.
 radiusd_binary=/usr/sbin/radiusd
 #
@@ -495,9 +505,9 @@ radiusd_auth=enabled
 #
 # Should iptables be managed by PacketFence?
 iptables=enabled
-# 
+#
 # services.iptables_binary
-# 
+#
 # location of the iptables binary. only necessary to change if you are not running the rpmed version.
 iptables_binary=/sbin/iptables
 #
@@ -505,9 +515,9 @@ iptables_binary=/sbin/iptables
 #
 # Should ip6tables be managed by PacketFence?
 ip6tables=enabled
-# 
+#
 # services.ip6tables_binary
-# 
+#
 # location of the ip6tables binary. only necessary to change if you are not running the official packaged version.
 ip6tables_binary=/usr/sbin/ip6tables
 #
@@ -585,17 +595,37 @@ pfdetect=enabled
 #
 # Should redis be managed by PacketFence?
 redis_cache=enabled
+#
+# services.redis_cache_host
+redis_cache_host=[% ENV.env_or_default("REDIS_CACHE_HOST", "containers-gateway.internal") %]
+#
+# services.redis_cache_port
+redis_cache_port=[% ENV.env_or_default("REDIS_CACHE_PORT", "6379") %]
+#
 # services.redis_queue
 #
 # Should redis be managed by PacketFence?
 redis_queue=enabled
+#
+# services.redis_queue_host
+redis_queue_host=[% ENV.env_or_default("REDIS_QUEUE_HOST", "containers-gateway.internal") %]
+#
+# services.redis_queue_port
+redis_queue_port=[% ENV.env_or_default("REDIS_QUEUE_PORT", "6380") %]
+#
 # services.redis_ntlm_cache
 #
 # Should redis be managed by PacketFence?
 redis_ntlm_cache=disabled
-# 
+#
+# services.redis_ntlm_cache_host
+redis_ntlm_cache_host=[% ENV.env_or_default("REDIS_NTLM_CACHE_HOST", "containers-gateway.internal") %]
+#
+# services.redis_ntlm_cache_port
+redis_ntlm_cache_port=[% ENV.env_or_default("REDIS_NTLM_CACHE_PORT", "6383") %]
+#
 # services.redis_binary
-# 
+#
 # Location of the redis binary. Only necessary to change if you are not running the pre-packaged version.
 redis_binary=/usr/bin/redis-server
 #
@@ -624,9 +654,9 @@ keepalived_binary=/usr/sbin/keepalived
 #
 # Should radsniff be started?
 radsniff=enabled
-# 
+#
 # services.radsniff_binary
-# 
+#
 # Location of the radsniff binary. Only necessary to change if you are not running the pre-packaged version.
 radsniff_binary=/usr/bin/radsniff
 #
@@ -634,9 +664,9 @@ radsniff_binary=/usr/bin/radsniff
 #
 # Should the fingerbank-collector be started?
 fingerbank-collector=enabled
-# 
+#
 # services.fingerbank-collector_binary
-# 
+#
 # Location of the fingerbank-collector binary. Only necessary to change if you are not running the pre-packaged version.
 fingerbank-collector_binary=/usr/local/fingerbank/collector/fingerbank-collector
 #
@@ -644,9 +674,9 @@ fingerbank-collector_binary=/usr/local/fingerbank/collector/fingerbank-collector
 #
 # Location of the openssl binary. Only necessary to change if you are not running the RPMed version.
 openssl_binary=/usr/bin/openssl
-# 
+#
 # services.arp_binary
-# 
+#
 # location of the arp binary. only necessary to change if you are not running the rpmed version.
 arp_binary=/sbin/arp
 #
@@ -669,6 +699,16 @@ pfdns=enabled
 #
 # Location of the pfdns binary.
 pfdns_binary=/usr/local/pf/sbin/pfdns
+#
+# services.pfdns-connector
+#
+# Should pfdns-connector be managed by PacketFence?
+pfdns-connector=enabled
+#
+# services.pfdns-connector_binary
+#
+# Location of the pfdns-connector binary.
+pfdns-connector_binary=/usr/local/pf/sbin/pfdns
 
 # services.pfacct
 #
@@ -696,6 +736,16 @@ pfstats=enabled
 # Location of the pfstats binary.
 pfstats_binary=/usr/local/pf/sbin/pfstats
 
+# services.pfudpproxy
+#
+# Should pfudpproxy be managed by PacketFence?
+pfudpproxy=enabled
+#
+# services.pfudpproxy_binary
+#
+# Location of the pfudpproxy binary.
+pfudpproxy_binary=/usr/local/pf/sbin/pfudpproxy
+
 # services.tracking-config
 #
 # Should tracking-config be managed by PacketFence?
@@ -711,6 +761,12 @@ tracking-config_binary=/dev/null
 #
 # NetFlow Address
 netflow_address=0.0.0.0
+
+#
+# services.netflow_processor
+#
+# Should pfacct process NetFlow traffic?
+netflow_processor=enabled
 
 #
 # services.netflow_target_host_port
@@ -770,9 +826,9 @@ bounce_duration = 4s
 # snmp_traps.trap_limit
 #
 # Controls whether or not the trap_limit feature is enabled. Trap limiting is
-# a way to limit the damage done by malicious users or misbehaving switch 
+# a way to limit the damage done by malicious users or misbehaving switch
 # that sends too many traps to PacketFence causing it to be overloaded. Trap
-# limiting is controlled by the trap_limit_threshold and trap_limit_action 
+# limiting is controlled by the trap_limit_threshold and trap_limit_action
 # parameters. Default is enabled.
 trap_limit = enabled
 #
@@ -788,13 +844,13 @@ trap_limit_threshold = 100
 # Defaults to none. email will send an email every hour if the limit's still reached.
 # shut will shut the port on the switch and will also send an email even if email is not
 # specified.
-trap_limit_action = 
+trap_limit_action =
 
 [inline]
 # inline.ports_redirect
 #
 # Ports to intercept and redirect for trapped and unregistered systems.  Defaults to 80/tcp (HTTP), 443/tcp (HTTPS).
-# Redirecting 443/tcp (SSL) will work, although users might get certificate errors if you didn't install a valid 
+# Redirecting 443/tcp (SSL) will work, although users might get certificate errors if you didn't install a valid
 # certificate or if you don't use DNS (although IP-based certificates supposedly exist)
 # Redirecting 53/udp (DNS) seems to have issues and is also not recommended.
 # We also have experimental IMAP and POP3 listeners which give fake emails telling users to open their browsers.
@@ -826,7 +882,7 @@ network_detection=enabled
 # captive_portal.network_detection_ip
 #
 # This IP is used as the webserver who hosts the common/network-access-detection.gif which is used to detect if network
-# access was enabled. 
+# access was enabled.
 # It cannot be a domain name since it is used in registration or quarantine where DNS is blackholed.
 # It is recommended that you allow your users to reach your packetfence server and put your LAN's PacketFence IP.
 # By default we will make this reach PacketFence's website as an easy solution.
@@ -835,7 +891,7 @@ network_detection_ip = netdetect.packetfence.org
 #
 # captive_portal.network_detection_initial_delay
 #
-# This is the amount of time before network connectivity detection is started. 
+# This is the amount of time before network connectivity detection is started.
 network_detection_initial_delay = 5s
 #
 # captive_portal.network_detection_retry_delay
@@ -845,7 +901,7 @@ network_detection_retry_delay = 2s
 #
 # captive_portal.network_redirect_delay
 #
-# How long to display the progress bar during trap release. Default value is 
+# How long to display the progress bar during trap release. Default value is
 # based on VLAN enforcement techniques. Inline enforcement only users could
 # lower the value.
 network_redirect_delay = 90s
@@ -863,17 +919,17 @@ request_timeout = 15
 #
 # captive_portal.loadbalancers_ip
 #
-# If the captive portal is put behind load-balancer(s) that act at Layer 7 
-# (HTTP level) effectively doing reverse proxying then the captive portal no 
+# If the captive portal is put behind load-balancer(s) that act at Layer 7
+# (HTTP level) effectively doing reverse proxying then the captive portal no
 # longer sees the IP of the node trying to access the portal. In that case,
 # the load-balancers must do SSL offloading and add a X-Forwarded-By header
 # in the HTTP traffic they forward to PacketFence. Most do by default. Then
 # in this parameter you must specify the IP of the various load balancers.
-# This will instruct the captive portal to look for client IPs in the 
+# This will instruct the captive portal to look for client IPs in the
 # X-Forwarded-For instead of the actual TCP session when it matches an IP
 # in the list. Format is a comma separated list of IPs. Note: Apache access
 # log format is not changed to automatically log the X-Forwarded-By header.
-# Modify conf/httpd.conf.d/captive-portal-common.conf to use 
+# Modify conf/httpd.conf.d/captive-portal-common.conf to use
 # loadbalanced_combined instead of combined in CustomLog statement.
 loadbalancers_ip=
 #
@@ -896,9 +952,9 @@ detection_mecanism_bypass = disabled
 #
 # captive_portal.detection_mecanism_urls
 #
-# Comma-delimited list of URLs known to be used by devices to detect the presence 
+# Comma-delimited list of URLs known to be used by devices to detect the presence
 # of a captive portal and trigger their captive portal mechanism.
-detection_mecanism_urls = http://www.gstatic.com/generate_204,http://clients3.google.com/generate_204,http://www.apple.com/library/test/success,http://connectivitycheck.android.com/generate_204,http://connectivitycheck.gstatic.com/generate_204,http://www.msftncsi.com/ncsi.txt,http://www.appleiphonecell.com,http://captive.apple.com,http://captive.roku.com/ok,http://detectportal.firefox.com/success.txt,http://www.msftconnecttest.com/connecttest.txt,http://fireoscaptiveportal.com/generate_204,http://connectivitycheck.cbg-app.huawei.com/generate_204,http://connect.rom.miui.com/generate_204,http://freetimecaptiveportal.com/generate_204,http://gateway.zscalerthree.net/generate_204,http://gateway.zscloud.net/generate_204,http://g.cn/generate_204,http://play.googleapis.com/generate_204,http://speedtest-global.spatialbuzz.net/generate_204,http://tabletcaptiveportal.com/generate204,http://www.google.cn/generate_204,http://edge.microsoft.com/captiveportal/generate_204
+detection_mecanism_urls = http://clients3.google.com/generate_204,http://www.apple.com/library/test/success,http://connectivitycheck.android.com/generate_204,http://connectivitycheck.gstatic.com/generate_204,http://www.msftncsi.com/ncsi.txt,http://www.appleiphonecell.com,http://captive.apple.com,http://captive.roku.com/ok,http://detectportal.firefox.com/success.txt,http://firefox-portal-detection.com/generate_204,http://www.msftconnecttest.com/connecttest.txt,http://fireoscaptiveportal.com/generate_204,http://connectivitycheck.cbg-app.huawei.com/generate_204,http://connect.rom.miui.com/generate_204,http://freetimecaptiveportal.com/generate_204,http://gateway.zscalerthree.net/generate_204,http://gateway.zscloud.net/generate_204,http://g.cn/generate_204,http://play.googleapis.com/generate_204,http://speedtest-global.spatialbuzz.net/generate_204,http://tabletcaptiveportal.com/generate204,http://www.google.cn/generate_204,http://edge.microsoft.com/captiveportal/generate_204
 #
 # captive_portal.wispr_redirection
 #
@@ -994,8 +1050,15 @@ pfperl_api_processes=8
 #
 # advanced.update_iplog_with_accounting
 #
-# Use the information included in the accounting to update the iplog
+# Use the information included in the accounting to update the iplog.
+# Note: pfacct performs this update itself and reads this option once at
+# startup, so restart pfacct for a change to this option to take effect.
 update_iplog_with_accounting=disabled
+#
+# advanced.update_iplog_with_authentication
+#
+# Use the information included in the authentication to update the iplog
+update_iplog_with_authentication=disabled
 #
 # advanced.update_iplog_with_external_portal_requests
 #
@@ -1018,11 +1081,6 @@ timing_stats_level=5
 # The source to use to send an SMS when creating a user
 source_to_send_sms_when_creating_users=
 #
-# advanced.multihost
-#
-# Ability to manage all active devices from a same switch port
-multihost=disabled
-#
 # active_directory_os_join_check_bypass
 #
 # Enable to bypass the operating system domain join verification.
@@ -1031,12 +1089,33 @@ active_directory_os_join_check_bypass=disabled
 #
 # The port where statsd listen
 statsd_listen_port = [% ENV.env_or_default("STATSD_LISTEN_PORT", "8125") %]
-statsd_listen_host = [% ENV.env_or_default("STATSD_LISTEN_HOST", "127.0.0.1") %]
+statsd_listen_host = [% ENV.env_or_default("STATSD_LISTEN_HOST", "containers-gateway.internal") %]
 
 # advanced.pfperl_api_timeout
 #
 # Execution timeout for pfperl-api
 pfperl_api_timeout = 600
+
+# advanced.pfperl_api_max_rss
+#
+# Maximum RSS in MB before a pfperl-api worker recycles itself.
+# Set to 0 to disable the RSS check.
+# Requires to restart the pfperl-api service to be fully effective.
+pfperl_api_max_rss = 1024
+
+# advanced.pffilter_max_rss
+#
+# Maximum RSS in MB before a pffilter worker recycles itself.
+# Set to 0 to disable the RSS check.
+# Requires to restart the pffilter service to be fully effective.
+pffilter_max_rss = 1024
+
+# advanced.pfqueue_max_rss
+#
+# Maximum RSS in MB before a pfqueue worker recycles itself.
+# Set to 0 to disable the RSS check.
+# Requires to restart the pfqueue service to be fully effective.
+pfqueue_max_rss = 1024
 
 # advanced.configurator
 #
@@ -1058,20 +1137,15 @@ accounting_timebucket_size = 5m
 # List of known OpenID Attributes
 openid_attributes=email
 
-# advanced.zero_trust_network_starting_ip
-#
-# The starting IP address of the Zero Trust network. Only change if you know what you are doing. Changing this value requires to restart all the PacketFence services and requires all the clients of the Zero Trust network to be restarted
-zero_trust_network_starting_ip=100.64.0.1
-
-# advanced.zero_trust_network_netmask
-#
-# The netmask (in numerical bits value) of the Zero Trust network. Only change if you know what you are doing. Changing this value requires to restart all the PacketFence services and requires all the clients of the Zero Trust network to be restarted
-zero_trust_network_netmask=10
-
 # advanced.pfupdate_custom_script_path
 #
 # Path to a custom script called by pfupdate
 pfupdate_custom_script_path=/usr/local/bin/pfupdate-packetfence.sh
+
+# advanced.default_role_parent_id
+#
+# The default parent role id to use when creating a new role
+default_role_parent_id=
 
 [provisioning]
 #
@@ -1096,7 +1170,7 @@ category = any
 # provisioning.certificate
 #
 # Certificate to send to the node
-certificate = 
+certificate =
 
 [node_import]
 #
@@ -1261,6 +1335,17 @@ radius_proxy_with_vip=enabled
 # Process Firewall SSO only on the managemenr server (the current load balancer).
 # Disabling it will allow each members of the cluster to send Firewall SSO request to firewalls
 firewall_sso_on_management=disabled
+#
+# active_active.api_connect_timeout
+#
+# Timeout in seconds to connect to the webservices of another cluster member
+api_connect_timeout=5
+#
+# active_active.api_timeout
+#
+# Timeout in seconds of a call to the webservices of another cluster member.
+# The long operations (syncing the configuration, transferring files) aren't capped by it.
+api_timeout=60
 
 [parking]
 #
@@ -1285,28 +1370,6 @@ place_in_dhcp_parking_group=enabled
 #
 # Show the parking portal to the device instead of the usual portal
 show_parking_portal=enabled
-
-[mse_tab]
-#
-# mse_tab.enabled
-#
-# Enabled MSE tab
-enabled=disabled
-#
-# mse_tab.url
-#
-# URL of MSE server
-url=
-#
-# mse_tab.user
-#
-# Username of MSE server
-user=
-#
-# mse_tab.pass
-#
-# Password of MSE server
-pass=
 
 [radius_configuration]
 #
@@ -1378,7 +1441,7 @@ filter_in_eduroam_preacct=disabled
 #
 # radius_configuration.ntlm_redis_cache
 #
-# Enables a Redis driven cache for NTLM authentication. 
+# Enables a Redis driven cache for NTLM authentication.
 # In order for this to work, you need to setup proper NT hash syncronization between your PacketFence server and your AD.
 # Refer to the Administration guide for more details.
 # Applying this requires a restart of radiusd.
@@ -1418,6 +1481,44 @@ pfacct_workers = 0
 #
 # The size of the queue for each worker.
 pfacct_work_queue_size = 1000
+# radius_configuration.pfacct_rate_limit
+#
+# Enable the rate limiting on pfacct to prevent hammering httpd.aaa
+pfacct_rate_limit=disabled
+# radius_configuration.pfacct_rate_limit_cache_ttl
+#
+# Time to Live in minutes of the pfacct accounting caches. When
+# radius_configuration.pfacct_rate_limit is enabled it is how long pfacct
+# suppresses forwarding a repeated accounting packet to httpd.aaa. Independently
+# of that option, it is also how often pfacct refreshes node.last_seen and the
+# ip4log entry of a given device. Must be at least 1: zero or a negative value
+# falls back to the default of 5 minutes and pfacct logs a warning.
+pfacct_rate_limit_cache_ttl=5
+# radius_configuration.pfacct_socket_recv_buffer
+#
+# Size in bytes of the UDP receive buffer (SO_RCVBUF) requested by pfacct on its
+# accounting socket. Larger values absorb bursts from busy switches and avoid
+# kernel packet drops ("receive buffer errors" in netstat -su). The kernel caps
+# the effective value at net.core.rmem_max. Zero leaves the OS default in place.
+pfacct_socket_recv_buffer=16777216
+# radius_configuration.pfacct_aaa_notify_workers
+#
+# The number of workers forwarding accounting notifications to httpd.aaa.
+# If zero it will be twice the number of CPUs.
+pfacct_aaa_notify_workers=0
+# radius_configuration.pfacct_aaa_notify_queue_size
+#
+# The size of the queue for each AAA notification worker.
+pfacct_aaa_notify_queue_size=1000
+# radius_configuration.radiusd_max_servers
+#
+# Maximum number of worker threads in the radiusd-auth and radiusd-load_balancer
+# thread pools (FreeRADIUS "max_servers"). It also caps the number of concurrent
+# REST connections radiusd keeps open to httpd.aaa, so it bounds how many
+# authorizations can be in flight at once. When httpd.aaa latency spikes, a pool
+# that is too small makes requests wait for a free connection until
+# max_request_time and get rejected. Requires a restart of radiusd to be effective.
+radiusd_max_servers=128
 
 [dns_configuration]
 #
@@ -1449,7 +1550,7 @@ connect_timeout_ms=200
 timeout_ms=200
 
 [fingerbank_device_change]
-# 
+#
 # fingerbank_device_change.enable
 #
 # Whether or not the Fingerbank device change feature is enabled
@@ -1463,7 +1564,7 @@ trigger_on_device_class_change=enabled
 
 #
 # fingerbank_device_change.device_class_whitelist
-# 
+#
 # Which device class changes are allowed in conjunction with trigger_on_device_class_change
 # Comma delimited transitions using the following format: $PREVIOUS_DEVICE_CLASS_ID->$NEW_DEVICE_CLASS_ID where $PREVIOUS_DEVICE_CLASS_ID and $NEW_DEVICE_CLASS_ID are the IDs in the Fingerbank database.
 device_class_whitelist=
@@ -1510,6 +1611,7 @@ sender=monit@$HOST
 httpd_portal=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_PORTAL", "http://containers-gateway.internal:8080") %]
 httpd_dispatcher=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_DISPATCHER", "http://containers-gateway.internal:8888") %]
 httpd_dispatcher_static=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_DISPATCHER_STATIC", "http://containers-gateway.internal:8889") %]
+httpd_admin_dispatcher=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_ADMIN_DISPATCHER", "http://containers-gateway.internal:8890") %]
 httpd_admin_dispatcher_static=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_ADMIN_DISPATCHER_STATIC", "http://containers-gateway.internal:8891") %]
 pfpki=[% ENV.env_or_default("PF_SERVICES_URL_PFPKI", "http://containers-gateway.internal:22225") %]
 pfipset=[% ENV.env_or_default("PF_SERVICES_URL_PFIPSET", "http://containers-gateway.internal:22223") %]
@@ -1521,6 +1623,33 @@ pfldapexplorer=[% ENV.env_or_default("PF_SERVICES_URL_PFLDAPEXPLORER", "http://c
 pfconnector-server=[% ENV.env_or_default("PF_SERVICES_URL_PFCONNECTOR_SERVER", "http://containers-gateway.internal:22226") %]
 api-frontend=[% ENV.env_or_default("PF_SERVICES_URL_API_FRONTEND", "https://containers-gateway.internal:9999") %]
 netdata=[% ENV.env_or_default("PF_SERVICES_URL_NETDATA", "http://containers-gateway.internal:19999") %]
+fingerbank-collector=[% ENV.env_or_default("PF_SERVICES_URL_FINGERBANK_COLLECTOR", "https://containers-gateway.internal:4723") %]
+
+[services_host]
+api_frontend_service_host=[% ENV.env_or_default("API_FRONTEND_SERVICE_HOST", "containers-gateway.internal") %]
+fingerbank_collector_service_host=[% ENV.env_or_default("FINGERBANK_COLLECTOR_SERVICE_HOST", "containers-gateway.internal") %]
+guardicore_service_host=[% ENV.env_or_default("GUARDICORE_SERVICE_HOST", "containers-gateway.internal") %]
+haproxy_admin_service_host=[% ENV.env_or_default("HAPROXY_ADMIN_SERVICE_HOST", "containers-gateway.internal") %]
+haproxy_portal_service_host=[% ENV.env_or_default("HAPROXY_PORTAL_SERVICE_HOST", "containers-gateway.internal") %]
+httpd_aaa_service_host=[% ENV.env_or_default("HTTPD_AAA_SERVICE_HOST", "containers-gateway.internal") %]
+httpd_admin_dispatcher_service_host=[% ENV.env_or_default("HTTPD_ADMIN_DISPATCHER_SERVICE_HOST", "containers-gateway.internal") %]
+httpd_dispatcher_service_host=[% ENV.env_or_default("HTTPD_DISPATCHER_SERVICE_HOST", "containers-gateway.internal") %]
+httpd_portal_service_host=[% ENV.env_or_default("HTTPD_PORTAL_SERVICE_HOST", "containers-gateway.internal") %]
+httpd_webservices_service_host=[% ENV.env_or_default("HTTPD_WEBSERVICES_SERVICE_HOST", "containers-gateway.internal") %]
+kafka_service_host=[% ENV.env_or_default("KAFKA_SERVICE_HOST", "containers-gateway.internal") %]
+kubernetes_service_host=[% ENV.env_or_default("KUBERNETES_SERVICE_HOST", "containers-gateway.internal") %]
+pfacct_service_host=[% ENV.env_or_default("PFACCT_SERVICE_HOST", "containers-gateway.internal") %]
+pfconfig_service_host=[% ENV.env_or_default("PFCONFIG_SERVICE_HOST", "containers-gateway.internal") %]
+pfconnector_service_host=[% ENV.env_or_default("PFCONNECTOR_SERVICE_HOST", "containers-gateway.internal") %]
+pfdns_connector_service_host=[% ENV.env_or_default("PFDNS_CONNECTOR_SERVICE_HOST", "100.64.0.1") %]
+pfldapexplorer_service_host=[% ENV.env_or_default("PFLDAPEXPLORER_SERVICE_HOST", "containers-gateway.internal") %]
+pfperl_api_service_host=[% ENV.env_or_default("PFPERL_API_SERVICE_HOST", "containers-gateway.internal") %]
+pfpki_service_host=[% ENV.env_or_default("PFPKI_SERVICE_HOST", "containers-gateway.internal") %]
+pfsso_service_host=[% ENV.env_or_default("PFSSO_SERVICE_HOST", "containers-gateway.internal") %]
+proxysql_service_host=[% ENV.env_or_default("PROXYSQL_SERVICE_HOST", "containers-gateway.internal") %]
+radiusd_auth_service_host=[% ENV.env_or_default("RADIUSD_AUTH_SERVICE_HOST", "containers-gateway.internal") %]
+redis_cache_service_host=[% ENV.env_or_default("REDIS_CACHE_SERVICE_HOST", "containers-gateway.internal") %]
+redis_queue_service_host=[% ENV.env_or_default("REDIS_QUEUE_SERVICE_HOST", "containers-gateway.internal") %]
 
 [admin_login]
 sso_status=disabled
@@ -1528,6 +1657,7 @@ sso_base_url=
 sso_login_path=/admin-sso
 sso_authorize_path=/portaltoken
 sso_login_text=Single Sign On
+sso_allowed_callback_hosts=
 allow_username_password=enabled
 
 [fleetdm]
@@ -1535,3 +1665,7 @@ host=
 email=
 password=
 token=
+
+[pfdns_connector]
+pfdns_connector_server=[% ENV.env_or_default("PFDNS_CONNECTOR_HOST_PORT", "%mgmtip%:5353") %]
+

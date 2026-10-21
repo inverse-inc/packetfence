@@ -29,7 +29,7 @@ install() {
     [ -z "$GOVERSION" ] && die "not set: GOVERSION"
 
     log_subsection "Downloading Golang from upstream"
-    curl -s https://storage.googleapis.com/golang/$GOVERSION.linux-amd64.tar.gz -o /tmp/$GOVERSION.linux-amd64.tar.gz
+    curl -sL https://go.dev/dl/$GOVERSION.linux-amd64.tar.gz -o /tmp/$GOVERSION.linux-amd64.tar.gz
     log_subsection "Install Golang"
     tar -C /usr/local -xzf /tmp/$GOVERSION.linux-amd64.tar.gz
     # symlink to find go binaries when environment ignore .bashrc

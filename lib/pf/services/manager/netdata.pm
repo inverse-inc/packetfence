@@ -24,6 +24,7 @@ use pf::util;
 use pf::cluster;
 use pf::constants;
 use NetAddr::IP;
+use pf::util::dns;
 
 use pf::config qw(
     $management_network
@@ -54,7 +55,7 @@ sub postStartCleanup {
     my $logger = get_logger();
     sleep 40;
     unless ($self->pid) {
-        $logger->error("$self->name died or has failed to start");
+        $logger->error($self->name . " died or has failed to start");
         return $FALSE;
     }
     return $TRUE;
@@ -70,10 +71,12 @@ sub generateConfig {
         my $int = $management_network->tag('int');
         $tags{'hosts_cluster_members'} = join(",", grep( {$_ ne $management_network->tag('ip')} values %{pf::cluster::members_ips($int)}));
     }
-    $tags{'hosts_dns'} = join(",", %{pf::UnifiedApi::Controller::Config::System::_get_dns_servers});
 
+    # ProxySQL only runs on a cluster: polling it elsewhere only logs connection errors
+    $tags{'proxysql_enabled'} = ($cluster_enabled && isenabled($Config{'services'}{'proxysql'})) ? 'yes' : 'no';
+
+    $tags{'hosts_dns'} = join(",", @{pf::util::dns::get_resolv_dns_servers()});
     $tags{'hosts_domains'} = ('127.0.0.1');
-
     $tags{'hosts_sources'} = '';
     foreach my $source  (@authentication_sources_monitored) {
         my $host = $source->{'host'};
@@ -214,6 +217,7 @@ EOT
     parse_template( \%tags, "$conf_dir/monitoring/go.d/haproxy.conf", "$generated_conf_dir/monitoring/go.d/haproxy.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/go.d/mysql.conf", "$generated_conf_dir/monitoring/go.d/mysql.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/go.d/ping.conf", "$generated_conf_dir/monitoring/go.d/ping.conf" );
+    parse_template( \%tags, "$conf_dir/monitoring/go.d/proxysql.conf", "$generated_conf_dir/monitoring/go.d/proxysql.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/go.d/redis.conf", "$generated_conf_dir/monitoring/go.d/redis.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/go.d/web_log.conf", "$generated_conf_dir/monitoring/go.d/web_log.conf" );
     return 1;
@@ -226,7 +230,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

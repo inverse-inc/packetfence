@@ -58,20 +58,25 @@ func (a *RadiusAuditLog) Search(w http.ResponseWriter, r *http.Request, p httpro
 	var err error
 	body.Status = http.StatusOK
 
-	var vars sql.Vars
-	err = vars.DecodeBodyJson(r)
+	vars, err := sql.VarsFromHttpRequest(r)
 	if err != nil {
 		setError(&body, err, http.StatusBadRequest)
 		outputResult(w, body)
 		return
 	}
 
-	body.DBRes, err = model.Search(vars)
+	body.DBRes, err = model.Search2(vars)
 	if err != nil {
-		setError(&body, err, http.StatusNotFound)
+		// Nothing found isn't an error (empty page): what remains is an invalid query or a failure
+		status := http.StatusInternalServerError
+		if errors.Is(err, models.ErrInvalidSearch) {
+			status = http.StatusUnprocessableEntity
+		}
+		setError(&body, err, status)
 		outputResult(w, body)
 		return
 	}
+
 	outputResult(w, body)
 }
 

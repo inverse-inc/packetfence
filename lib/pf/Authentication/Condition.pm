@@ -123,6 +123,11 @@ sub matches {
                 $logger->error("Invalid time period spec $value");
             }
         }
+        elsif ($operator eq $Conditions::NOT_CONTAINS) {
+            if (index($v, $value) == -1) {
+                return 1;
+            }
+        }
         else {
             my $logger = get_logger();
             $logger->error("Support for operator " . $self->{operator} . " is not implemented.");
@@ -153,7 +158,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

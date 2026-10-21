@@ -25,7 +25,7 @@ use File::Basename;
 use POSIX::2008;
 use Net::MAC::Vendor;
 use File::Path qw(make_path remove_tree);
-use POSIX qw(setuid setgid);
+use POSIX qw(setuid setgid sysconf _SC_PAGESIZE);
 use File::Spec::Functions;
 use Sort::Naturally qw(nsort);
 use File::Slurp qw(read_dir);
@@ -125,6 +125,8 @@ BEGIN {
         norm_net_mask
         safe_pf_run
         starts_with
+        splitr2
+        rss_kb
     );
 }
 
@@ -491,7 +493,10 @@ sub getlocalmac {
     return (-1) if ( !$dev );
     my $chi = pf::CHI->new(namespace => 'local_mac');
     my $mac = $chi->compute($dev, sub {
-        foreach (`LC_ALL=C /sbin/ifconfig -a $dev`) {
+        # Force a neutral locale; LC_ALL overrides LANG (which safe_pf_run sets).
+        local $ENV{LC_ALL} = 'C';
+        # Merge stderr to avoid separate pipe that could fill if ifconfig writes warnings
+        foreach (safe_pf_run("/sbin/ifconfig", "-a", $dev, { redirect_stderr_to_stdout => 1 })) {
             if (/ether\s+(\w\w:\w\w:\w\w:\w\w:\w\w:\w\w)/i) {
                 # cache the value
                 return clean_mac($1);
@@ -523,14 +528,16 @@ sub sort_ip {
         map { [$_,ip2int($_)] } @_;
 }
 
-=item safe_file_update($file, $content)
+=item safe_file_update($file, $content, $binmode, $mode)
 
-This safely modifies the contents of a file using a rename
+This safely modifies the contents of a file using a rename.
+Optional $binmode sets the layer used to write the content. Optional $mode is
+applied with chmod once the file is in place; a chmod failure is logged.
 
 =cut
 
 sub safe_file_update {
-    my ($file, $contents, $binmode) = @_;
+    my ($file, $contents, $binmode, $mode) = @_;
     my ($volume, $dir, $filename) = File::Spec->splitpath($file);
     $dir = '.' if $dir eq '';
     # Creates a new file in the same directory to ensure it is on the same filesystem
@@ -549,6 +556,11 @@ sub safe_file_update {
     }
     $temp->unlink_on_destroy(0);
     fix_file_permissions($file);
+    # fix_file_permissions resets the mode; restore the provided mode last and log if chmod fails
+    if (defined $mode) {
+        chmod($mode, $file)
+          or pf::log::get_logger()->warn("cannot set mode on $file: $!");
+    }
 }
 
 =item empty_dir
@@ -955,20 +967,54 @@ sub pf_run {
     return;
 }
 
-=item safe_pf_run ( BINARY, @ARGS ,\%OPTIONS )
+=item safe_pf_run ( BINARY, @ARGS, \%OPTIONS )
 
-Execute a system command but check the return status and log anything not normal.
+Execute a system command safely using open3 (no shell interpolation) and check
+the return status, logging anything abnormal.
 
-Returns output in list or string based on context (like backticks does ``)
-but returns undef on a failure. Non-zero exit codes are considered failures.
+safe_pf_run takes the binary and arguments as a list, avoiding shell expansion 
+and injection risks.
 
-Does not enforce any security. Callers should take care of string sanitization.
+Return value depends on calling context:
 
-Takes an optional hash that offers additional options. For now,
-accepted_exit_status => arrayref allows the command to succeed and a proper
-value being returned if the exit status is mentionned in the arrayref. For
-example: accepted_exit_status => [ 1, 2, 3] will allow the process to exit
-with code 1, 2 or 3 without reporting it as an error.
+  scalar context: returns the command's stdout as a single string, or undef on failure
+  list context:   returns stdout split into lines (preserving newlines), or empty list on failure
+  void context:   returns nothing (useful when output is redirected to a file via the stdout option)
+
+Non-zero exit codes are considered failures unless listed in accepted_exit_status.
+On failure, a warning is logged and undef/empty is returned.
+
+Sets LANG=C in the environment for the duration of the command to ensure
+consistent, locale-independent output.
+
+Takes an optional hashref as the last argument with the following options:
+
+* accepted_exit_status => arrayref of exit codes that should be treated as
+  success. For example: accepted_exit_status => [1, 2, 3] will allow the
+  process to exit with code 1, 2 or 3 without reporting it as an error.
+
+* stdin => path to a file whose contents will be fed to the command's stdin.
+
+* stdout => path to a file where the command's stdout will be written. When
+  set, the return value in scalar/list context is undef/empty (output goes to
+  the file, not the caller).
+
+* stdout_append => when true and stdout is set, append to the file instead of
+  overwriting it.
+
+* redirect_stderr_to_stdout => when true, merge stderr into stdout. If stdout
+  is redirected to a file, stderr goes there too; otherwise both are captured
+  together in the return value.
+
+* working_directory => temporarily chdir to this directory before running the
+  command, then chdir back afterward.
+
+* status_ref => reference to a scalar that will be set to the raw waitpid
+  status ($?) of the child process. Set to -1 if open3 fails to launch.
+
+* log_strip => a string or pattern to redact from both log messages and error
+  output (replaced with *obfuscated-information*). Useful for commands that
+  include passwords or secrets in their arguments.
 
 =cut
 
@@ -1014,8 +1060,25 @@ sub safe_pf_run {
     local $?;
     local $!;
     local $ENV{LANG} = 'C';
+    my $status_ref = $options->{status_ref};
+
+    # Block SIGCHLD across the fork/wait. pfconfig/pfqueue/pfqueue-backend/pffilter/
+    # pfdhcplistener install a $SIG{CHLD} reaper (waitpid(-1, WNOHANG); local $?).
+    # We drain the child's pipes to EOF before waiting, so the child has already
+    # exited by then -- without this block, that reaper collects it first and our
+    # waitpid returns -1 (a false failure). Other child deaths during the window
+    # are simply queued and delivered to the daemon's handler when we restore.
+    my $sigchld_set     = POSIX::SigSet->new(POSIX::SIGCHLD());
+    my $old_sigset      = POSIX::SigSet->new();
+    my $sigchld_blocked = POSIX::sigprocmask(POSIX::SIG_BLOCK(), $sigchld_set, $old_sigset);
+
     my $pid = eval {open3($chld_in, $chld_out, $chld_err, $bin, @args)};
     if ($@) {
+        POSIX::sigprocmask(POSIX::SIG_SETMASK(), $old_sigset) if $sigchld_blocked;
+        if (defined $status_ref) {
+            $$status_ref = -1;
+        }
+
         chdir $switch_back_wd if defined($switch_back_wd);
         if (defined($options->{log_strip})) {
             $@ =~ s/$options->{log_strip}/*obfuscated-information*/g;
@@ -1028,8 +1091,9 @@ sub safe_pf_run {
         return undef; # scalar context
     }
 
-    waitpid($pid, 0);
-    my $status = $?;
+    # CRITICAL: Drain stdout and stderr BEFORE waitpid to prevent deadlock.
+    # If the child writes enough data to fill the pipe buffer (~64KB), it will
+    # block waiting for us to read. If we waitpid first, we deadlock.
     my $out;
     if (!$stdout) {
         $out = do {
@@ -1037,6 +1101,24 @@ sub safe_pf_run {
             my $o = <$chld_out>;
             $o
         };
+    }
+
+    # Drain stderr as well (previously undrained, causing potential deadlock).
+    # Only read if stderr wasn't redirected to stdout or a file.
+    my $err;
+    if (!$redirect_stderr_to_stdout && !$stdout && $chld_err != \*STDERR) {
+        $err = do {
+            local $/ = undef;
+            my $e = <$chld_err>;
+            $e
+        };
+    }
+
+    waitpid($pid, 0);
+    my $status = $?;
+    POSIX::sigprocmask(POSIX::SIG_SETMASK(), $old_sigset) if $sigchld_blocked;
+    if (defined $status_ref) {
+        $$status_ref = $status;
     }
 
     chdir $switch_back_wd if defined($switch_back_wd);
@@ -1056,8 +1138,16 @@ sub safe_pf_run {
         $loggable_command =~ s/$options->{log_strip}/*obfuscated-information*/g;
     }
 
+    # Prepare stderr for logging if available
+    my $stderr_msg = '';
+    if (defined($err) && length($err) > 0) {
+        # Truncate very long stderr to avoid log spam
+        my $stderr_display = length($err) > 500 ? substr($err, 0, 500) . '...[truncated]' : $err;
+        $stderr_msg = " stderr: $stderr_display";
+    }
+
     if ($status == -1) {
-        $logger->warn("Problem trying to run command: $loggable_command called from $caller. OS Error: $exception");
+        $logger->warn("Problem trying to run command: $loggable_command called from $caller. OS Error: $exception$stderr_msg");
         return;
     }
 
@@ -1066,9 +1156,9 @@ sub safe_pf_run {
         my $with_core = ($status & 128) ? 'with' : 'without';
         $logger->warn(
             "Problem trying to run command: $loggable_command called from $caller. "
-            . "Child died with signal $signal $with_core coredump."
+            . "Child died with signal $signal $with_core coredump.$stderr_msg"
         );
-        return 
+        return
     }
     my $exit_status = $status >> 8;
     # user specified that this error code is ok
@@ -1082,7 +1172,7 @@ sub safe_pf_run {
 
     $logger->warn(
         "Problem trying to run command: $loggable_command called from $caller. "
-        . "Child exited with non-zero value $exit_status"
+        . "Child exited with non-zero value $exit_status$stderr_msg"
     );
 
     return 
@@ -1692,6 +1782,26 @@ sub add_jitter {
     return $number + int(rand(2 * $jitter + 1)) - $jitter;
 }
 
+=head2 rss_kb
+
+Returns the current process RSS in KB by reading /proc/$$/statm.
+Returns 0 if the file cannot be read.
+
+=cut
+
+my $PAGE_KB = sysconf(_SC_PAGESIZE) / 1024;
+
+sub rss_kb {
+    if (open(my $fh, '<', "/proc/$$/statm")) {
+        my $line = <$fh>;
+        close($fh);
+        # statm fields: size resident shared text lib data dt (in pages)
+        my $resident_pages = (split(' ', $line))[1];
+        return $resident_pages * $PAGE_KB;
+    }
+    return 0;
+}
+
 =head2 str_to_connection_type
 
 In the database we store the connection type as a string but we use a constant binary value internally.
@@ -1816,14 +1926,13 @@ sub expand_ordered_array {
 }
 
 sub make_node_id {
-    my ($tenant_id, $mac) = @_;
+    my ($mac) = @_;
     $mac =~ tr/://d; #A faster way to delete a character
     return (0 << 48) | hex($mac);
 }
 
 sub split_node_id {
     my ($node_id) = @_;
-    my $tenant_id = $node_id >> 48;
     my $mac = clean_mac(sprintf("%012x",$node_id & 0x0000FFFFFFFFFFFF));
     return (0, $mac);
 }
@@ -1921,9 +2030,10 @@ sub dns_resolve {
 
     my $resolver = Net::DNS::Resolver->new(
         nameservers => \@dns_servers,
-        domain      => $domain,
+        searchlist  => [],
         recurse     => 1,
         timeout     => 3,
+        retry       => 2,
         # debug       => 1
     );
 
@@ -1981,6 +2091,16 @@ sub ends_with {
     return index($_[0], $_[1], -length($_[1])) != -1;
 }
 
+sub splitr2 {
+    my ($str, $sep) = @_;
+    my $index = rindex($str, $sep);
+    if ($index == -1 ) {
+        return $str, "";
+    }
+
+    return substr($str, 0, $index), substr($str, $index+1);
+}
+
 =back
 
 =head1 AUTHOR
@@ -1991,7 +2111,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

@@ -1,0 +1,6 @@
+name: Run security_event_maintenance to process delayed events
+testcases:
+
+- name: run_security_event_maintenance
+  steps:
+  - type: pfcron_security_event_maintenance

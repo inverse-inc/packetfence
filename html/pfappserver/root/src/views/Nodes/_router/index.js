@@ -47,7 +47,8 @@ const route = {
       component: TheSearch,
       meta: {
         can: 'read nodes',
-        isFailRoute: true
+        isFailRoute: true,
+        saveSearchNamespace: 'nodes'
       }
     },
     {

@@ -4,12 +4,17 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
-	"github.com/inverse-inc/packetfence/go/ntlm"
-	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"os"
+	"strconv"
+
+	"github.com/inverse-inc/packetfence/go/ntlm"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/julienschmidt/httprouter"
 )
+
+// ConnectorPortOffset is the port offset added when using a connector for NTLM auth
+const ConnectorPortOffset = 100
 
 type PasswordChangeEvent struct {
 	RecordID          int    `json:"RecordID"`
@@ -42,7 +47,7 @@ func (h APIHandler) eventReport(w http.ResponseWriter, r *http.Request, p httpro
 			Message: "Unable to connect to pfconfig service",
 		}
 		j, _ := json.Marshal(res)
-		fmt.Fprintf(w, string(j))
+		w.Write(j)
 		return
 	}
 
@@ -57,11 +62,11 @@ func (h APIHandler) eventReport(w http.ResponseWriter, r *http.Request, p httpro
 			Message: "Unknown payload format, expected Domain and Events JSON",
 		}
 		j, _ := json.Marshal(res)
-		fmt.Fprintf(w, string(j))
+		w.Write(j)
 		return
 	}
 
-	var sectionConf interface{}
+	var sectionConf pfconfigdriver.Domain
 	var exists bool
 
 	hostname, _ := os.Hostname()
@@ -76,23 +81,41 @@ func (h APIHandler) eventReport(w http.ResponseWriter, r *http.Request, p httpro
 			Message: "Unknown domain " + req.Domain + ", record not found",
 		}
 		j, _ := json.Marshal(res)
-		fmt.Fprintf(w, string(j))
+		w.Write(j)
 		return
 	}
 
-	ntlmAuthPort, exists := sectionConf.(map[string]interface{})["ntlm_auth_port"]
-	if !exists {
+	ntlmAuthPort := sectionConf.NtlmAuthPort
+	ntlmAuthHost := sectionConf.NtlmAuthHost
+	if ntlmAuthPort == "" {
 		w.WriteHeader(http.StatusInternalServerError)
 		res := &response{
 			Status:  http.StatusInternalServerError,
 			Message: "Unable to find listening port for domain " + req.Domain,
 		}
 		j, _ := json.Marshal(res)
-		fmt.Fprintf(w, string(j))
+		w.Write(j)
 		return
 	}
 
-	err = ntlm.ReportMSEvent(ctx, ntlmAuthPort.(string), req)
+	if sectionConf.UseConnector == "1" {
+		AuthPort, err := strconv.Atoi(ntlmAuthPort)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			res := &response{
+				Status:  http.StatusInternalServerError,
+				Message: "Invalid NTLM auth port for domain " + req.Domain,
+			}
+			j, _ := json.Marshal(res)
+			w.Write(j)
+			return
+		}
+		// Use connector for NTLM auth
+		ntlmAuthPort = strconv.Itoa(AuthPort + ConnectorPortOffset)
+	}
+	ntlmAuthHostPort := ntlmAuthHost + ":" + ntlmAuthPort
+
+	err = ntlm.ReportMSEvent(ctx, ntlmAuthHostPort, req)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		res := &response{
@@ -100,7 +123,7 @@ func (h APIHandler) eventReport(w http.ResponseWriter, r *http.Request, p httpro
 			Message: err.Error(),
 		}
 		j, _ := json.Marshal(res)
-		fmt.Fprintf(w, string(j))
+		w.Write(j)
 		return
 	}
 
@@ -110,8 +133,7 @@ func (h APIHandler) eventReport(w http.ResponseWriter, r *http.Request, p httpro
 		Message: "Event reported",
 	}
 	j, _ := json.Marshal(res)
-	fmt.Fprintf(w, string(j))
-
+	w.Write(j)
 }
 
 func (h APIHandler) ntlmTest(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
@@ -134,7 +156,7 @@ func (h APIHandler) ntlmTest(w http.ResponseWriter, r *http.Request, p httproute
 			Message: "Unable to connect to pfconfig service",
 		}
 		j, _ := json.Marshal(res)
-		fmt.Fprintf(w, string(j))
+		w.Write(j)
 		return
 	}
 
@@ -149,11 +171,11 @@ func (h APIHandler) ntlmTest(w http.ResponseWriter, r *http.Request, p httproute
 			Message: "Unknown payload format, expected JSON format with id and password",
 		}
 		j, _ := json.Marshal(res)
-		fmt.Fprintf(w, string(j))
+		w.Write(j)
 		return
 	}
 
-	var sectionConf interface{}
+	var sectionConf pfconfigdriver.Domain
 	var exists bool
 	hostname, _ := os.Hostname()
 
@@ -168,23 +190,38 @@ func (h APIHandler) ntlmTest(w http.ResponseWriter, r *http.Request, p httproute
 			Message: "Unknown domain " + req.Id + ", record not found",
 		}
 		j, _ := json.Marshal(res)
-		fmt.Fprintf(w, string(j))
+		w.Write(j)
 		return
 	}
-
-	ntlmAuthPort, exists := sectionConf.(map[string]interface{})["ntlm_auth_port"]
-	if !exists {
+	ntlmAuthPort := sectionConf.NtlmAuthPort
+	ntlmAuthHost := sectionConf.NtlmAuthHost
+	if ntlmAuthPort == "" {
 		w.WriteHeader(http.StatusInternalServerError)
 		res := &response{
 			Status:  http.StatusInternalServerError,
 			Message: "Unable to find listening port for domain " + req.Id,
 		}
 		j, _ := json.Marshal(res)
-		fmt.Fprintf(w, string(j))
+		w.Write(j)
 		return
 	}
-
-	passed, err := ntlm.CheckMachineAccountWithGivenPassword(ctx, ntlmAuthPort.(string), req.Password)
+	if sectionConf.UseConnector == "1" {
+		AuthPort, err := strconv.Atoi(ntlmAuthPort)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			res := &response{
+				Status:  http.StatusInternalServerError,
+				Message: "Invalid NTLM auth port for domain " + req.Id,
+			}
+			j, _ := json.Marshal(res)
+			w.Write(j)
+			return
+		}
+		// Use connector for NTLM auth
+		ntlmAuthPort = strconv.Itoa(AuthPort + ConnectorPortOffset)
+	}
+	ntlmAuthHostPort := ntlmAuthHost + ":" + ntlmAuthPort
+	passed, err := ntlm.CheckMachineAccountWithGivenPassword(ctx, ntlmAuthHostPort, req.Password)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		res := &response{
@@ -192,7 +229,7 @@ func (h APIHandler) ntlmTest(w http.ResponseWriter, r *http.Request, p httproute
 			Message: err.Error(),
 		}
 		j, _ := json.Marshal(res)
-		fmt.Fprintf(w, string(j))
+		w.Write(j)
 		return
 	}
 
@@ -203,7 +240,7 @@ func (h APIHandler) ntlmTest(w http.ResponseWriter, r *http.Request, p httproute
 			Message: "Machine account check failed",
 		}
 		j, _ := json.Marshal(res)
-		fmt.Fprintf(w, string(j))
+		w.Write(j)
 		return
 	}
 
@@ -213,6 +250,5 @@ func (h APIHandler) ntlmTest(w http.ResponseWriter, r *http.Request, p httproute
 		Message: "Machine account test OK",
 	}
 	j, _ := json.Marshal(res)
-	fmt.Fprintf(w, string(j))
-
+	w.Write(j)
 }

@@ -1,6 +1,7 @@
 include config.mk
 
 PF_UDF_OBJ = $(patsubst src/mariadb_udf/%.c, src/mariadb_udf/%.o, $(filter-out src/mariadb_udf/pf_udf.c src/mariadb_udf/test_pf_udf.c, $(wildcard src/mariadb_udf/*.c)))
+MYSQL_SUFFIX=
 
 all:
 	@echo "Please chose which documentation to build:"
@@ -14,11 +15,18 @@ all:
 
 ASCIIDOCS := $(notdir $(wildcard docs/PacketFence_*.asciidoc))
 PDFS = $(patsubst %.asciidoc,docs/%.pdf, $(ASCIIDOCS))
+# Files pulled in by the guides through include:: directives. Every guide
+# depends on all of them so that editing an included file rebuilds the docs.
+# docs/ isn't installed by every package and the post-install scripts run make
+# in /usr/local/pf, so a missing directory is not an error here.
+DOC_INCLUDES := $(shell find docs -mindepth 2 \( -name '*.asciidoc' -o -name '*.help' \) -not -path '*/node_modules/*' 2>/dev/null) $(filter-out $(addprefix docs/,$(ASCIIDOCS)),$(wildcard docs/*.asciidoc))
+# The PDF guides embed the images
+DOC_IMAGES := $(shell find docs/images -type f 2>/dev/null)
 
 clean:
-	rm -f docs/*.html docs/index.js docs/*.pdf
+	rm -f docs/*.html docs/index.js docs/*.pdf docs/styles/*.min.css
 
-docs/%.pdf: docs/%.asciidoc
+docs/%.pdf: docs/%.asciidoc $(DOC_INCLUDES) $(DOC_IMAGES)
 	asciidoctor-pdf \
 		-a pdf-theme=docs/asciidoctor-pdf-theme.yml \
 		-a pdf-fontsdir=docs/fonts \
@@ -32,20 +40,30 @@ docs/%.pdf: docs/%.asciidoc
 pdf: $(PDFS)
 
 HTML = $(patsubst %.asciidoc,docs/%.html, $(ASCIIDOCS))
+MINCSS = docs/styles/app.min.css
 
-docs/%.html: docs/%.asciidoc
+docs/styles/%.min.css: docs/styles/%.css
+	@echo "Minify CSS styles for html docs: $<"
+	npx --yes --package clean-css-cli cleancss --inline remote $< -o $@
+
+.PHONY: css
+css: $(MINCSS)
+
+docs/%.html: docs/%.asciidoc $(MINCSS) $(DOC_INCLUDES)
 	asciidoctor \
 		-n \
 		-r ./docs/asciidoctor-html.rb \
-		-a stylesdir=$(SRC_HTML_PFAPPDIR_ROOT)/dist/css \
-		-a stylesheet=$(notdir $(wildcard $(SRC_HTML_PFAPPDIR_ROOT)/dist/css/app*.css)) \
+		-a stylesheet=styles/app.min.css \
 		-a release_version=$(PF_PATCH_RELEASE) \
 		-a release_minor=$(PF_MINOR_RELEASE) \
 		-a release_month=`date +%B` \
 		$<
 
 docs/index.js: $(HTML)
-	find $$(dirname "$@") -type f  -iname  '*.html' -and -not -iname '*template*' -printf "{\"name\":\"%f\", \"size\":%s, \"last_modifed\" : %T@}\n" | jq -s '{ items: [ .[] |  {name, size, last_modifed : (.last_modifed*1000 | floor)} ] }' > $@
+	html_json=$$(find $$(dirname "$@") -type f -iname '*.html' -not -iname '*template*' -printf '{"name":"%f","size":%s,"last_modifed":%T@}\n' | jq -s '[.[] | {name, size, last_modifed: (.last_modifed*1000 | floor)}]'); \
+	pdf_json=$$(find $$(dirname "$@") -type f -iname '*.pdf' -printf '{"name":"%f","size":%s}\n' | jq -s '.'); \
+	jq -n --argjson html "$$html_json" --argjson pdfs "$$pdf_json" \
+		'{ items: [$$html[] | . as $$h | ($$h.name | sub("\\.html$$"; ".pdf")) as $$pn | ($$pdfs | map(select(.name == $$pn)) | .[0]) as $$pdf | if $$pdf then . + {pdf_size: $$pdf.size} else . end] }' > $@
 
 .PHONY: images
 
@@ -101,13 +119,13 @@ conf/ssl/server.key: | conf/ssl/server.key
 	openssl genrsa -out conf/ssl/server.key 2048
 
 conf/local_secret:
-	date +%s | sha256sum | base64 | head -c 32 > conf/local_secret
+	head -c 512 /dev/urandom | sha256sum | base64 | head -c 32 > $@
 
 conf/unified_api_system_pass:
-	date +%s | sha256sum | base64 | head -c 32 > conf/unified_api_system_pass
+	head -c 512 /dev/urandom | sha256sum | base64 | head -c 32 > $@
 
 conf/system_init_key:
-	hexdump -e '/1 "%x"' < /dev/urandom | head -c 32 > /usr/local/pf/conf/system_init_key
+	hexdump -e '/1 "%x"' < /dev/urandom | head -c 32 > conf/system_init_key
 
 bin/pfcmd: src/pfcmd.c
 	$(CC) -O2 -g -std=c99  -Wall $< -o $@
@@ -116,7 +134,7 @@ bin/ntlm_auth_wrapper: src/ntlm_auth_wrap.c
 	$(CC) -g -std=c99 -Wall $< -o $@ -lcurl -lcjson
 
 src/mariadb_udf/pf_udf.so: src/mariadb_udf/pf_udf.c $(PF_UDF_OBJ)
-	$(CC) -O2 -Wall -g $$(pkg-config libmariadb --cflags) -fPIC -shared -o $@ $< $(PF_UDF_OBJ)
+	$(CC) -O2 -Wall -g $$(pkg-config libmariadb --cflags|sed -e 's/[[:space:]]*$$//')$(MYSQL_SUFFIX) -fPIC -shared -o $@ $< $(PF_UDF_OBJ)
 
 src/mariadb_udf/%.o: src/mariadb_udf/%.c src/mariadb_udf/%.h
 	$(CC) $(TEST_CFLAGS) $(CFLAGS) -fPIC -c $< -o $@
@@ -156,7 +174,7 @@ raddb/sites-enabled:
 .PHONY: translation
 
 translation:
-	for TRANSLATION in de en es fr he_IL it nb_NO nl pl_PL pt_BR; do\
+	for TRANSLATION in de en es fr he_IL it nb_NO nl pl_PL pt_BR tr_TR; do\
 		/usr/bin/msgfmt conf/locale/$$TRANSLATION/LC_MESSAGES/packetfence.po\
 		  --output-file conf/locale/$$TRANSLATION/LC_MESSAGES/packetfence.mo;\
 	done
@@ -237,18 +255,34 @@ rpm/.rpmmacros:
 .PHONY: build_rpm
 build_rpm: conf/git_commit_id conf/build_id rpm/.rpmmacros dist-packetfence-test dist-packetfence-export dist-packetfence-upgrade dist
 	cp $(SRC_RPMDIR)/.rpmmacros $(HOME)
-	ci-build-pkg $(SRC_RPMDIR)/packetfence.spec
-	# no need to build other packages if packetfence build failed
-	ci-build-pkg $(SRC_RPMDIR)/packetfence-release.spec
-	ci-build-pkg $(SRC_RPMDIR)/packetfence-test.spec
-	ci-build-pkg $(SRC_RPMDIR)/packetfence-export.spec
-	ci-build-pkg $(SRC_RPMDIR)/packetfence-upgrade.spec
+	mkdir -p $(PKG_RELEASE_DIR)
+	for spec in packetfence.spec packetfence-release.spec packetfence-test.spec packetfence-export.spec packetfence-upgrade.spec; do \
+		sed -i -e "s/^Release:.*/Release:\t$(RPM_PKG_SUFFIX)%{?dist}/" $(SRC_RPMDIR)/$$spec ; \
+		rpmbuild -ba --clean --rmsource \
+			--define "_topdir $(HOME)/rpmbuild/$(OS_RELEASE_ID)-$(OS_RELEASE_NAME)" \
+			--define "_sourcedir $(SRC_ROOT_DIR)" \
+			$(SRC_RPMDIR)/$$spec || exit 1 ; \
+	done
+	find $(HOME)/rpmbuild/$(OS_RELEASE_ID)-$(OS_RELEASE_NAME) -type f -name '*.rpm' \
+		-exec cp -fv {} $(PKG_RELEASE_DIR)/ \;
 
 .PHONY: build_deb
 build_deb: conf/git_commit_id conf/build_id
 	cp $(SRC_CIDIR)/debian/.devscripts $(HOME)
 	QUILT_PATCHES=$(SRC_DEBDIR)/patches quilt push
-	ci-build-pkg $(SRC_DEBDIR)
+	mkdir -p $(PKG_RELEASE_DIR)
+	sed -i -e "s/(\(.[^+]*\)+.*)/(\1)/" $(SRC_DEBDIR)/changelog
+	cd $(SRC_ROOT_DIR) && DEBEMAIL="" dch \
+		--local "$(DEB_PKG_SUFFIX)" \
+		--controlmaint \
+		--release-heuristic changelog \
+		-t "build for $(CI_COMMIT_REF_NAME)"
+	sed -i -e "s/UNRELEASED/$(OS_RELEASE_NAME)/" $(SRC_DEBDIR)/changelog
+	cd $(SRC_ROOT_DIR) && debuild -us -uc --lintian-opts -i
+	find $(SRC_ROOT_DIR)/.. -maxdepth 1 -name "*$(DEB_PKG_SUFFIX)*" \
+		\( -name '*.deb' -o -name '*.dsc' -o -name '*.tar.*' -o -name '*.build*' -o -name '*.changes' \) \
+		-exec cp -fv {} $(PKG_RELEASE_DIR)/ \;
+	cd $(SRC_ROOT_DIR) && debclean
 
 .PHONY: patch_release
 patch_release:
@@ -312,18 +346,94 @@ test_install:
 # -D to create target directories if they don't exist
 .PHONY: pfconnector_remote_install
 pfconnector_remote_install:
-	# logrotate config is installed through dh_installlogrotate
-	install -v -d -m0750 $(DESTDIR)$(PFCONNECTOR_LOGDIR)
-	install -v -m 0644 $(SRC_PFCONNECTORDIR)/systemd/packetfence-pfconnector-remote.logrotate-drop-in.service -D $(DESTDIR)/etc/systemd/system/logrotate.service.d/override.conf
+	install -v -d -m0750 $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)
+	install -v -d -m0750 $(DESTDIR)$(PFCONNECTOR_BINDIR)
+	install -v -d -m0750 $(DESTDIR)$(PFCONNECTOR_PREFIX)/db
+	# pfconnector-remote combined container
+	install -v -D -m 0644 $(SRC_ROOT_DIR)/containers/pfconnector-remote/Dockerfile $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)/pfconnector-remote/Dockerfile
+	install -v -D -m 0755 $(SRC_PFCONNECTORDIR)/pfconnector-remote-combined-docker-wrapper $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector-remote-combined-docker-wrapper
+	install -v -D -m 0644 $(SRC_PFCONNECTORDIR)/systemd/packetfence-pfconnector-remote-combined.service $(DESTDIR)/etc/systemd/system/packetfence-pfconnector-remote-combined.service
+	install -v -D -m 0644 $(SRC_PFCONNECTORDIR)/containers/systemd-service $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)/systemd-service
+	install -v -D -m 0755 $(SRC_PFCONNECTORDIR)/containers/manage-images.sh $(DESTDIR)$(PFCONNECTOR_CONTAINERSDIR)/manage-images.sh
 	TMPDIR=$(shell mktemp -d)
 	touch $(TMPDIR)/pfconnector-client.env
 	install -v -d -m0750 $(DESTDIR)$(PFCONNECTOR_CONFDIR)
 	install -v -m 0600 $(TMPDIR)/pfconnector-client.env $(DESTDIR)$(PFCONNECTOR_CONFDIR)/pfconnector-client.env
-	install -v -m 0644 $(SRC_PFCONNECTORDIR)/systemd/packetfence-pfconnector-remote.service $(DESTDIR)/etc/systemd/system/packetfence-pfconnector-remote.service
 	install -v -m 0755 $(SRC_PFCONNECTORDIR)/upgrade/remove-unpackaged-pfconnector.sh -D $(DESTDIR)$(PFCONNECTOR_UPGRADEDIR)/remove-unpackaged-pfconnector.sh
 	install -v -m 0755 $(SRC_PFCONNECTORDIR)/configure.sh -D $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector-configure
+	install -v -d -m0755 $(DESTDIR)/etc/docker
+	install -v -m 0600 $(SRC_ROOT_DIR)/containers/daemon.json $(DESTDIR)/etc/docker/daemon.json
+	install -v -m 0644 $(SRC_ROOT_DIR)/config.mk $(DESTDIR)$(PFCONNECTOR_PREFIX)/config.mk
 	make -C $(SRC_GODIR) pfconnector
 	install -v -m 0755 $(SRC_GODIR)/pfconnector $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector
+	install -v -m 0644 $(SRC_CONFDIR)/build_id $(DESTDIR)$(PFCONNECTOR_CONFDIR)/build_id
+	install -v -m 0644 $(SRC_CONFDIR)/pf-release $(DESTDIR)$(PFCONNECTOR_CONFDIR)/pf-release
+	# raddb
+	cp -rv $(SRC_ROOT_DIR)/raddb $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb
+	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/auth.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/auth.conf
+	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/clients.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/clients.conf
+	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/proxy.conf.inc $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/proxy.conf.inc
+	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/radiusd.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/radiusd.conf
+	install -v -d -m0755 $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-enabled
+	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/rest.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-enabled/rest
+	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/mschap.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-enabled/mschap
+	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/eap.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-enabled/eap
+	rm -f $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-enabled/perl
+	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/packetfence-pre-proxy $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-config/attr_filter/packetfence-pre-proxy
+	install -v -d -m0755 $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/sites-available
+	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/packetfence $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/sites-available/packetfence
+	install -v -d -m0755 $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/sites-enabled
+	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/dynamic-clients $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/sites-enabled/dynamic-clients
+
+.PHONY: ntlm_auth_api_remote_install
+ntlm_auth_api_remote_install:
+	# logrotate config is installed through dh_installlogrotate
+	install -v -d -m0750 $(DESTDIR)$(NTLM_AUTH_API_LOGDIR)
+	install -v -d -m0750 $(DESTDIR)$(NTLM_AUTH_API_BINDIR)
+	install -v -d -m0750 $(DESTDIR)$(NTLM_AUTH_API_SBINDIR)
+	install -v -d -m0750 $(DESTDIR)$(NTLM_AUTH_API_CONFDIR)
+	install -v -d -m0750 $(DESTDIR)$(NTLM_AUTH_API_UPGRADEDIR)
+	install -v -d -m0755 $(DESTDIR)$(NTLM_AUTH_API_CONTAINERSDIR)
+	install -v -d -m0755 $(DESTDIR)$(NTLM_AUTH_API_VARDIR)
+	install -v -d -m0755 $(DESTDIR)$(NTLM_AUTH_API_VARDIR)/conf
+	install -v -d -m0755 $(DESTDIR)$(NTLM_AUTH_API_VARDIR)/conf/ntlm-auth-api.d
+	install -v -d -m0755 $(DESTDIR)$(NTLM_AUTH_API_VARDIR)/run
+
+	@echo "install $(SRC_NTLM_AUTH_APIDIR) files"
+	cd $(SRC_NTLM_AUTH_APIDIR) && for file in $$(find . -type f); do \
+		install -v -m 0644 $$file -D $(DESTDIR)$(NTLM_AUTH_API_BINDIR)/$$file ; \
+	done
+
+	install -v -D -m 0755 $(SRC_NTLM_AUTH_API_ADDONSDIR)/ntlm-auth-api-domain $(DESTDIR)$(NTLM_AUTH_API_SBINDIR)/ntlm-auth-api-domain
+	install -v -D -m 0755 $(SRC_NTLM_AUTH_API_ADDONSDIR)/ntlm-auth-api-monitor $(DESTDIR)$(NTLM_AUTH_API_SBINDIR)/ntlm-auth-api-monitor
+	install -v -D -m 0755 $(SRC_NTLM_AUTH_API_ADDONSDIR)/ntlm-auth-api-docker-wrapper $(DESTDIR)$(NTLM_AUTH_API_SBINDIR)/ntlm-auth-api-docker-wrapper
+
+	install -v -D -m 0644 $(SRC_NTLM_AUTH_API_ADDONSDIR)/systemd/packetfence-ntlm-auth-api-domain-remote@.service $(DESTDIR)/etc/systemd/system/packetfence-ntlm-auth-api-domain-remote@.service
+	install -v -D -m 0644 $(SRC_NTLM_AUTH_API_ADDONSDIR)/systemd/packetfence-ntlm-auth-api-remote.service $(DESTDIR)/etc/systemd/system/packetfence-ntlm-auth-api-remote.service
+	install -v -m 0644 $(SRC_NTLM_AUTH_API_ADDONSDIR)/containers/systemd-service $(DESTDIR)$(NTLM_AUTH_API_CONTAINERSDIR)/systemd-service
+	install -v -m 0755 $(SRC_NTLM_AUTH_API_ADDONSDIR)/containers/manage-images.sh $(DESTDIR)$(NTLM_AUTH_API_CONTAINERSDIR)/manage-images.sh
+	install -v -D -m 0644 $(SRC_ROOT_DIR)/containers/ntlm-auth-api/Dockerfile $(DESTDIR)$(NTLM_AUTH_API_CONTAINERSDIR)/ntlm-auth-api/Dockerfile
+	install -v -m 0644 $(SRC_ROOT_DIR)/config.mk $(DESTDIR)$(NTLM_AUTH_API_PREFIX)/config.mk
+
+	install -v -D -m 0644 ${SRC_CONFDIR}/log.conf.d/ntlm-auth-api.conf.example $(DESTDIR)$(NTLM_AUTH_API_CONFDIR)/log.conf.d/ntlm-auth-api.conf
+
+	install -v -m 0644 $(SRC_CONFDIR)/build_id $(DESTDIR)$(NTLM_AUTH_API_CONFDIR)/build_id
+	install -v -m 0644 $(SRC_CONFDIR)/pf-release $(DESTDIR)$(NTLM_AUTH_API_CONFDIR)/pf-release
+	make -C $(SRC_GODIR) sdnotify-proxy
+	install -v -m 0755 $(SRC_GODIR)/sdnotify-proxy $(DESTDIR)$(NTLM_AUTH_API_SBINDIR)/sdnotify-proxy
+	install -v -m 0755 $(SRC_NTLM_AUTH_API_ADDONSDIR)/pfconnector-remote-load.sh $(DESTDIR)$(NTLM_AUTH_API_BINDIR)/pfconnector-remote-load.sh
+
+	TMPDIR=$(shell mktemp -d)
+	touch $(TMPDIR)/ntlm_auth_api.env
+	install -v -m 0600 $(TMPDIR)/ntlm_auth_api.env $(DESTDIR)$(NTLM_AUTH_API_CONFDIR)/ntlm_auth_api.env
+
+.PHONY: ntlm_auth_join_remote_install
+ntlm_auth_join_remote_install:
+	# ntlm-auth-join shares the same prefix as ntlm-auth-api, so directories and shared files
+	# are installed by ntlm_auth_api_remote_install (dependency: packetfence-ntlm-auth-api-remote)
+	install -v -D -m 0755 $(SRC_NTLM_AUTH_API_ADDONSDIR)/ntlm-join-remote-docker-wrapper $(DESTDIR)$(NTLM_AUTH_JOIN_SBINDIR)/ntlm-join-remote-docker-wrapper
+	install -v -D -m 0644 $(SRC_NTLM_AUTH_API_ADDONSDIR)/systemd/packetfence-ntlm-auth-join-remote.service $(DESTDIR)/etc/systemd/system/packetfence-ntlm-auth-join-remote.service
+	install -v -D -m 0644 $(SRC_ROOT_DIR)/containers/ntlm-join-remote/Dockerfile $(DESTDIR)$(NTLM_AUTH_JOIN_CONTAINERSDIR)/ntlm-join-remote/Dockerfile
 
 # install -D will automatically create target directories
 # SRC_RELATIVE_CILIBDIR is used to only get relative paths from PF source tree
@@ -375,10 +485,18 @@ website:
 material: DESTDIR=result
 material:
 	mkdir -p $(CURDIR)/$(DESTDIR)
-	perl $(SRC_ADDONSDIR)/dev-helpers/bin/switch_options_table.pl > $(CURDIR)/$(DESTDIR)/material.html
+	perl $(SRC_ADDONSDIR)/dev-helpers/bin/switch_options_json.pl > $(CURDIR)/$(DESTDIR)/switches.json
 
 html/captive-portal/profile-templates/default/logo.png:
 	mkdir -p html/captive-portal/profile-templates/default
 	cp html/common/packetfence-cp.png /usr/local/pf/html/captive-portal/profile-templates/default/logo.png
+
+html/captive-portal/profile-templates/default/theme.css:
+	mkdir -p html/captive-portal/profile-templates/default
+	cp -n html/common/theme.css /usr/local/pf/html/captive-portal/profile-templates/default/theme.css
+
+html/captive-portal/profile-templates/default/background.png:
+	mkdir -p html/captive-portal/profile-templates/default
+	cp -n html/common/background.png /usr/local/pf/html/captive-portal/profile-templates/default/background.png
 
 

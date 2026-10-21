@@ -1,0 +1,33 @@
+name: Unplug and re-plug to verify device gets guest VLAN
+testcases:
+
+- name: unplug_device
+  steps:
+  - type: virtualswitch_unplug_device
+    api_url: '{{.virtualswitch.api.url}}'
+    interface_id: '{{.security_event_detect_fingerbank_virtualswitch.device.interface.id}}'
+
+- name: wait_for_session_cleanup
+  steps:
+  - type: sleep
+    time_to_sleep: 5
+
+- name: replug_device
+  steps:
+  - type: virtualswitch_plug_device
+    api_url: '{{.virtualswitch.api.url}}'
+    interface_id: '{{.security_event_detect_fingerbank_virtualswitch.device.interface.id}}'
+    mac_address: '{{.security_event_detect_fingerbank_virtualswitch.device.mac_address}}'
+    auth_method: mab
+    profile: '{{.security_event_detect_fingerbank_virtualswitch.device.profile}}'
+
+- name: check_device_on_guest_vlan
+  steps:
+  - type: virtualswitch_device_status
+    api_url: '{{.virtualswitch.api.url}}'
+    interface_id: '{{.security_event_detect_fingerbank_virtualswitch.device.interface.id}}'
+    retry: 20
+    delay: 5
+    assertions:
+      - result.virtualswitch_device_status__port_state ShouldEqual authenticated
+      - result.virtualswitch_device_status__vlan_assigned ShouldEqual {{.security_event_detect_fingerbank_virtualswitch.vlan.guest}}

@@ -1,0 +1,35 @@
+name: Create security event with autoreg action and Fingerbank device trigger
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: create_security_event
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/security_events'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id": "{{.security_event_detect_fingerbank_virtualswitch.event.id}}",
+        "desc": "{{.security_event_detect_fingerbank_virtualswitch.event.desc}}",
+        "enabled": "Y",
+        "actions": ["autoreg", "role"],
+        "access_duration": "{{.security_event_detect_fingerbank_virtualswitch.event.access_duration}}",
+        "target_category": "{{.security_event_detect_fingerbank_virtualswitch.event.target_category}}",
+        "triggers": [{"{{.security_event_detect_fingerbank_virtualswitch.event.trigger_type}}": "{{.security_event_detect_fingerbank_virtualswitch.event.trigger_value}}"}],
+        "max_enable": "{{.security_event_detect_fingerbank_virtualswitch.event.max_enable}}",
+        "auto_enable": "Y",
+        "priority": 1
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
+- name: configreload_hard
+  steps:
+  - type: exec
+    script: "{{.pfserver_pfcmd}} configreload hard"

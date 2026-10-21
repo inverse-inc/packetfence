@@ -1,0 +1,83 @@
+name: Verify 802.1X authentication in RADIUS audit log
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: flush_radius_audit_log_to_db
+  steps:
+  - type: pfcron_flush_radius_audit_log
+
+- name: search_radius_audit_log
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/radius_audit_logs/search'
+    ignore_verify_ssl: true
+    retry: 35
+    delay: 3
+    body: >-
+      {
+        "cursor": 0,
+        "fields": ["id"],
+        "sort": ["created_at DESC"],
+        "limit": 1,
+        "query": {
+          "op": "and",
+          "values": [
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "mac",
+                  "op": "equals",
+                  "value": "{{.virtualswitch.dot1x.computer.mac_address}}"
+                }
+              ]
+            },
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "auth_status",
+                  "op": "equals",
+                  "value": "Accept"
+                }
+              ]
+            },
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "connection_type",
+                  "op": "equals",
+                  "value": "{{.dot1x_wired_computer_auth_virtualswitch.profiles.wired.filters.connection_type}}"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.items.items0 ShouldContainKey id
+    vars:
+      radius_log_id:
+        from: result.bodyjson.items.items0.id
+
+- name: verify_radius_auth_success
+  steps:
+  - type: http
+    method: GET
+    url: '{{.pfserver_webadmin_url}}/api/v1/radius_audit_log/{{.search_radius_audit_log.radius_log_id}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.item.auth_status ShouldEqual Accept
+      - result.bodyjson.item.profile ShouldEqual "{{.dot1x_wired_computer_auth_virtualswitch.profiles.wired.id}}"

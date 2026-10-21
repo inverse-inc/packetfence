@@ -41,8 +41,8 @@ use pf::config qw(
     $WIRED_MAC_AUTH
 );
 use Try::Tiny;
-use pf::util::radius qw(perform_coa perform_disconnect);
 use pf::constants;
+use NetAddr::IP;
 
 # CAPABILITIES
 # access technology supported
@@ -54,6 +54,7 @@ use pf::SwitchSupports qw(
     RoleBasedEnforcement
     AccessListBasedEnforcement
     ExternalPortal
+    Flow
 );
 
 # inline capabilities
@@ -118,13 +119,12 @@ sub getPhonesLLDPAtIfIndex {
                             "$oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
                         ]
                     );
-                    if ($MACresult
-                        && ($MACresult->{"$oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"}
-                            =~ /^(?:0x)?([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})(?::..)?$/i
-                        )
-                        )
-                    {
-                        push @phones, lc("$1:$2:$3:$4:$5:$6");
+                    my $port_id = $MACresult ? $MACresult->{"$oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"} : undef;
+                    my $phone_mac = $self->lldpRemPortIdToMac($port_id);
+                    if (defined $phone_mac) {
+                        push @phones, $phone_mac;
+                    } else {
+                        $logger->debug("LLDP port ID (" . ($port_id // 'undef') . ") of the telephone on ifIndex $ifIndex is not a MAC address");
                     }
                 }
             }
@@ -144,6 +144,9 @@ Overrides the default implementation to add the dynamic acls
 sub returnRadiusAccessAccept {
     my ($self, $args) = @_;
     my $logger = $self->logger;
+    # A subclass that runs the RADIUS filter itself calls us with 'unfiltered'
+    # set; filtering here too would add every answer of the rule twice (#9135).
+    my $caller_filters = isenabled($args->{'unfiltered'});
     $args->{'unfiltered'} = $TRUE;
     $self->compute_action(\$args);
     my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
@@ -151,9 +154,9 @@ sub returnRadiusAccessAccept {
     my %radius_reply = @super_reply;
     my $radius_reply_ref = \%radius_reply;
     return [$status, %$radius_reply_ref] if($status == $RADIUS::RLM_MODULE_USERLOCK);
-    my @acls = defined($radius_reply_ref->{'Aruba-NAS-Filter-Rule'}) ? @{$radius_reply_ref->{'Aruba-NAS-Filter-Rule'}} : ();
+    my @acls = defined($radius_reply_ref->{'HP-NAS-Filter-Rule'}) ? @{$radius_reply_ref->{'HP-NAS-Filter-Rule'}} : ();
 
-    if ( isenabled($self->{_UrlMap}) ) {
+    if ( $args->{'compute_url'} && isenabled($self->{_UrlMap}) ) {
         if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getUrlByName($args->{'user_role'}) ) ) {
             my $redirect_url = $self->getUrlByName($args->{'user_role'});
             $redirect_url .= '/' unless $redirect_url =~ m(\/$);
@@ -163,26 +166,72 @@ sub returnRadiusAccessAccept {
     }
 
     if ( $args->{'compute_acl'} && isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
-        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}))) {
-            my $access_list = $self->getAccessListByName($args->{'user_role'});
-            if ($access_list) {
-                while($access_list =~ /([^\n]+)\n?/g){
-                    push(@acls, $1);
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}, $args->{ifIndex}))) {
+            while ($access_list =~ /([^\n]+)\n?/g) {
+                my ($test, $formated_acl) = $self->returnAccessListAttribute('',$1);
+                if ($test) {
+                    push(@acls, $formated_acl);
                     $logger->info("(".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
                 }
-                $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
-            } else {
-                $logger->info("(".$self->{'_id'}.") No access lists defined for this role ".$args->{'user_role'});
             }
+            $radius_reply_ref->{'HP-NAS-Filter-Rule'} = \@acls;
+            $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
+        } else {
+            $logger->info("(".$self->{'_id'}.") No access lists defined for this role ".$args->{'user_role'});
         }
     }
 
-    $radius_reply_ref->{'Aruba-NAS-Filter-Rule'} = \@acls;
-
-    my $filter = pf::access_filter::radius->new;
-    my $rule = $filter->test('returnRadiusAccessAccept', $args);
-    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    # A subclass that applies the RADIUS filter itself called us unfiltered
+    unless ($caller_filters) {
+        my $filter = pf::access_filter::radius->new;
+        my $rule = $filter->test('returnRadiusAccessAccept', $args);
+        ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    }
     return [$status, %$radius_reply_ref];
+}
+
+=head2 returnInAccessListAttribute
+
+Returns the attribute to use when pushing an input ACL using RADIUS
+
+=cut
+
+sub returnInAccessListAttribute {
+    my ($self) = @_;
+    return '';
+}
+
+
+=head2 returnOutAccessListAttribute
+
+Returns the attribute to use when pushing an output ACL using RADIUS
+
+=cut
+
+sub returnOutAccessListAttribute {
+    my ($self) = @_;
+    return '';
+}
+
+=head2 returnAccessListAttribute
+
+Returns the attribute to use when pushing an ACL using RADIUS
+
+=cut
+
+sub returnAccessListAttribute {
+    my ($self, $acl_num, $acl) = @_;
+    if ($acl =~ /^out\|(.*)/) {
+        if ($self->supportsOutAcl) {
+            return $TRUE, $self->returnOutAccessListAttribute.$acl_num.$1;
+        } else {
+            return $FALSE, '';
+        }
+    } elsif ($acl =~ /^in\|(.*)/) {
+        return $TRUE, $self->returnInAccessListAttribute.$acl_num.$1;
+    } else {
+        return $TRUE, $self->returnInAccessListAttribute.$acl_num.$acl;
+    }
 }
 
 =item parseExternalPortalRequest
@@ -266,7 +315,7 @@ sub radiusDisconnect {
     # initialize
     $add_attributes_ref = {} if ( !defined($add_attributes_ref) );
 
-    if ( !defined( $self->{'_radiusSecret'} ) ) {
+    if ( !$self->hasRadiusSecret() ) {
         $logger->warn(
 "[$self->{'_ip'}] Unable to perform RADIUS CoA-Request: RADIUS Shared Secret not configured"
         );
@@ -285,7 +334,7 @@ sub radiusDisconnect {
 
     my $response;
     try {
-        my $locationlog = locationlog_view_open_mac($mac);
+        my $locationlog = $self->locationlog_for_disconnect($mac);
         my $connection_info =
           $self->radius_deauth_connection_info($send_disconnect_to);
 
@@ -318,9 +367,12 @@ sub radiusDisconnect {
 
             $attributes_ref = { %$attributes_ref, 'Filter-Id' => $role, };
             $logger->info("[$self->{'_ip'}] Returning ACCEPT with Role: $role");
-            $response = perform_coa( $connection_info, $attributes_ref, $vsa );
+            $response = $self->handleRadiusCoa( $connection_info, $attributes_ref, $vsa );
 
         } else {
+            # The port bounce CoA identifies the port with NAS-Port, a NAS-Port-Id is rejected with a CoA-NAK
+            my $port = delete $attributes_ref->{'NAS-Port-Id'};
+            $attributes_ref->{'NAS-Port'} //= $port;
             $vsa = [
                 {
                     'vendor'    => 'HP',
@@ -328,7 +380,7 @@ sub radiusDisconnect {
                     'value'     => '12'
                 }
             ];
-            $response = perform_coa( $connection_info, $attributes_ref, $vsa );
+            $response = $self->handleRadiusCoa( $connection_info, $attributes_ref, $vsa );
         }
     } catch {
         chomp;
@@ -404,13 +456,99 @@ sub returnRoleAttribute {
     return 'HP-User-Role';
 }
 
+=head2 acl_chewer
+
+Format ACL to match with the expected switch format.
+
+=cut
+
+sub acl_chewer {
+    my ($self, $acl, $role) = @_;
+    my $logger = $self->logger;
+    my ($acl_ref , @direction) = $self->format_acl($acl);
+    my $push = $self->aclsForPush;
+
+    my $entries;
+    ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, $push
+        ? sub { $self->untranslatablePushAcl($_[0]) }
+        : sub { $self->untranslatableFilterRule($_[0]) });
+
+    my $i = 0;
+    my $acl_chewed;
+    foreach my $acl (@$entries) {
+        $acl->{'protocol'} =~ s/\(\d*\)//;
+        my $dest;
+        my $dest_port;
+        if (defined($acl->{'destination'}->{'port'})) {
+            $dest_port = $acl->{'destination'}->{'port'};
+            if ($dest_port =~ /range\s+(.*)/) {
+                $dest_port = $1;
+                $dest_port =~ s/\s/-/;
+            } else {
+                $dest_port =~ s/\w+\s+//;
+            }
+        }
+        if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
+            $dest = "any";
+        } elsif($acl->{'destination'}->{'ipv4_addr'} ne '0.0.0.0') {
+            if ($acl->{'destination'}->{'wildcard'} ne '0.0.0.0') {
+                my $net_addr = NetAddr::IP->new($acl->{'destination'}->{'ipv4_addr'}, norm_net_mask($acl->{'destination'}->{'wildcard'}));
+                my $cidr = $net_addr->cidr();
+                $dest = $cidr;
+            } else {
+                $dest = $acl->{'destination'}->{'ipv4_addr'};
+            }
+        }
+        my $src;
+        if ($acl->{'source'}->{'ipv4_addr'} eq '0.0.0.0') {
+            $src = "any";
+        } elsif($acl->{'source'}->{'ipv4_addr'} ne '0.0.0.0') {
+            if ($acl->{'source'}->{'wildcard'} ne '0.0.0.0') {
+                my $net_addr = NetAddr::IP->new($acl->{'source'}->{'ipv4_addr'}, norm_net_mask($acl->{'source'}->{'wildcard'}));
+                my $cidr = $net_addr->cidr();
+                $src = $cidr;
+            } else {
+                $src = $acl->{'source'}->{'ipv4_addr'};
+            }
+        }
+        my $j = $i + 1;
+        if ($push) {
+            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$j." ".$acl->{'action'}." ".$acl->{'protocol'}." ".(($self->usePushACLs) ? $src : "any")." $dest " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' )."\n";
+        } else {
+            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$acl->{'action'}." ".((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] : "in")." ".$acl->{'protocol'}." from any to ".$dest." ".( defined($dest_port) ? $dest_port : '' )."\n";
+        }
+        $i++;
+    }
+    return $acl_chewed;
+}
+
+=head2 untranslatablePushAcl
+
+Why a parsed ACL entry cannot be pushed in the "action protocol source
+destination port" form built by L</acl_chewer>, or undef when it can.
+
+=cut
+
+sub untranslatablePushAcl {
+    my ($self, $entry) = @_;
+    # addresses are turned into a prefix
+    foreach my $side ('source', 'destination') {
+        return "the $side mask '".$entry->{$side}->{'wildcard'}."' is not contiguous" if !$self->aclWildcardIsContiguous($entry->{$side}->{'wildcard'});
+    }
+    # TCP flags do not apply correctly on the switch
+    return "TCP flags are not supported ('".$entry->{'tcp_flags'}."')" if defined $entry->{'tcp_flags'};
+    return "the source port is not sent" if defined $entry->{'source'}->{'port'};
+    return "the ICMP type is not sent ('".$entry->{'icmp_qualifier'}."')" if defined $entry->{'icmp_qualifier'};
+    return undef;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

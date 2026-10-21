@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueI18n from 'vue-i18n'
 import Formatter from './formatter'
+import { pfLocales } from '@/globals/pfLocales'
 
 Vue.use(VueI18n)
 
@@ -33,13 +34,12 @@ export default i18n
 // first item is default
 // labels are in English
 // static definition is less resource-intensive than consuming /api/v1/translations
-export const languages = [
-  {
-    locale: 'en',
-    label: 'English' // i18n defer
-  },
-  {
-    locale: 'fr',
-    label: 'French' // i18n defer
-  },
-]
+export const languages = pfLocales
+  .filter(({ is_ui }) => is_ui)
+  .map(({ label, locale }) => {
+    return {
+      language: locale.split('_')[0],
+      locale,
+      label
+    }
+  })

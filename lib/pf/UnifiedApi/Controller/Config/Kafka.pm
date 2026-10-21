@@ -531,7 +531,9 @@ sub form {
 
 sub config_store {
     my ($self) = @_;
-    $self->config_store_class->new;
+    my $cs = $self->config_store_class->new;
+    $self->lock_config_store($cs);
+    return $cs;
 }
 
 our %fields = (
@@ -585,10 +587,9 @@ sub item {
             push @host_config, { name => $k, value => $v};
         }
 
-        @host_configs = { config => \@host_config, host => $id };
+        push @host_configs, { config => \@host_config, host => $id };
     }
 
-    @host_configs = sort { $a->{host} <=> $b->{host} } @host_configs;
     return \%item;
 }
 
@@ -660,7 +661,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

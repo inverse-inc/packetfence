@@ -19,7 +19,7 @@
           </template>
           <base-form-group :column-label="$t('MAC Address')"><mac>{{ item.mac }}</mac></base-form-group>
           <base-form-group :column-label="$t('Auth Status')">{{ item.auth_status }}</base-form-group>
-          <base-form-group :column-label="$t('Auth Status')">{{ item.auth_type }}</base-form-group>
+          <base-form-group :column-label="$t('Auth Type')">{{ item.auth_type }}</base-form-group>
           <base-form-group :column-label="$t('Auto Registration')">
             <div v-if="item.auto_reg === '1'">{{ $t('Yes') }}</div>
             <div v-else-if="item.auto_reg === '0'">{{ $t('No') }}</div>

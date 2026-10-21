@@ -111,7 +111,7 @@ func connectSocket(ctx context.Context) net.Conn {
 			case "tcp":
 				host := sharedutils.EnvOrDefault("PFCONFIG_TCP_HOST", "127.0.0.1")
 				port := sharedutils.EnvOrDefault("PFCONFIG_TCP_PORT", "44444")
-				c, err = net.Dial("tcp", fmt.Sprintf("%s:%s", host, port))
+				c, err = net.Dial("tcp", net.JoinHostPort(host, port))
 			case "unix":
 				c, err = net.Dial("unix", getPfconfigSocketPath())
 			default:
@@ -133,7 +133,7 @@ func FetchSocket(ctx context.Context, payload string) []byte {
 	c := connectSocket(ctx)
 
 	// Send our query in the socket
-	fmt.Fprintf(c, payload)
+	io.WriteString(c, payload)
 
 	var buf bytes.Buffer
 	buf.ReadFrom(c)
@@ -223,6 +223,20 @@ func decodeJsonInterface(ctx context.Context, b []byte, o interface{}) {
 			panic(err)
 		}
 	}
+}
+
+// Like decodeJsonInterface but returns the error instead of panicking, so an
+// empty/scalar element (e.g. an unset management_network) can't crash the daemon.
+func decodeJsonInterfaceErr(ctx context.Context, b []byte, o interface{}) error {
+	decoder := json.NewDecoder(bytes.NewReader(b))
+	for {
+		if err := decoder.Decode(&o); err == io.EOF {
+			break
+		} else if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func listPfconfigFields(ctx context.Context, t reflect.Type, previousFields []string) []string {
@@ -401,9 +415,11 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
 
 		if receiver.Element != nil {
 			b, _ := receiver.Element.MarshalJSON()
-			decodeInterface(ctx, query.encoding, b, &o)
+			if err := decodeJsonInterfaceErr(ctx, b, &o); err != nil {
+				return fmt.Errorf("could not decode element in response for %s: %w. Response was: %s", query.GetIdentifier(), err, jsonResponse)
+			}
 		} else {
-			return errors.New(fmt.Sprintf("Element in response was invalid. Response was: %s", jsonResponse))
+			return fmt.Errorf("element in response for %s was invalid. Response was: %s", query.GetIdentifier(), jsonResponse)
 		}
 	}
 

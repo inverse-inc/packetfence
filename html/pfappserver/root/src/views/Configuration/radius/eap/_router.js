@@ -1,8 +1,8 @@
 import store from '@/store'
 import RadiusEapStoreModule from './_store'
 
-const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../../_components/TheTabsRadius')
-const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
+const TheTabs = () => import(/* webpackChunkName: "ConfigurationSystem" */ '../../_components/TheTabsRadius')
+const TheView = () => import(/* webpackChunkName: "ConfigurationSystem" */ './_components/TheView')
 
 export const useRouter = $router => {
   return {

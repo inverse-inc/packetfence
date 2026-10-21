@@ -27,7 +27,8 @@ export default [
     component: TheSearch,
     meta: {
       can: 'read dns_log',
-      isFailRoute: true
+      isFailRoute: true,
+      saveSearchNamespace: 'dnsLogs'
     },
     beforeEnter
   },

@@ -19,12 +19,14 @@ endif::[]
 
 //=== Trapeze
 
-In order to have the Trapeze controller working with PacketFence, you need to define the RADIUS configuration and the proper service profiles.
+In order to have the Trapeze controller working with PacketFence, you need to
+define the RADIUS configuration and the proper service profiles.
 
 [float]
 ==== RADIUS configuration
 
-  set radius server PF address 192.168.1.5 timeout 5 retransmit 3 deadtime 0 key secret
+  set radius server PF address 192.168.1.5 timeout 5 retransmit 3 deadtime 0 key
+  secret
   set server group PF-RADIUS members PF
 
 [float]

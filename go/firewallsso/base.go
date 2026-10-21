@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
+	"sync"
 	"time"
 
 	log15 "github.com/inconshreveable/log15"
@@ -35,6 +37,7 @@ type FirewallSSOInt interface {
 	Stop(ctx context.Context, info map[string]string) (bool, error)
 	GetFirewallSSO(ctx context.Context) *FirewallSSO
 	MatchesRole(ctx context.Context, info map[string]string) bool
+	GetRoles(ctx context.Context) []string
 	MatchesNetwork(ctx context.Context, info map[string]string) bool
 	ShouldCacheUpdates(ctx context.Context) bool
 	GetCacheTimeout(ctx context.Context) int
@@ -46,6 +49,7 @@ type FirewallSSOInt interface {
 	SendOnAcctStop(ctx context.Context) bool
 	SendOnAcct(ctx context.Context) bool
 	SendOnAccessReevaluation(ctx context.Context) bool
+	SendOnRoleChange(ctx context.Context) bool
 	SendOnDhcp(ctx context.Context) bool
 }
 
@@ -65,6 +69,7 @@ type FirewallSSO struct {
 	UseConnector            string                `json:"use_connector"`
 	ActOnAccountingStop     string                `json:"act_on_accounting_stop"`
 	SsoOnAccessReevaluation string                `json:"sso_on_access_reevaluation"`
+	SsoOnRoleChange         string                `json:"sso_on_role_change"`
 	SsoOnAccounting         string                `json:"sso_on_accounting"`
 	SsoOnDhcp               string                `json:"sso_on_dhcp"`
 }
@@ -111,25 +116,31 @@ func (fw *FirewallSSO) GetFirewallSSO(ctx context.Context) *FirewallSSO {
 
 // Check whether or not the cached updates are enabled for this firewall
 func (fw *FirewallSSO) ShouldCacheUpdates(ctx context.Context) bool {
-	return fw.CacheUpdates == "enabled"
+	return sharedutils.IsEnabled(fw.CacheUpdates)
 }
 
 // Check if sso needs to be triggered on accounting stop
 func (fw *FirewallSSO) SendOnAcctStop(ctx context.Context) bool {
-	return fw.ActOnAccountingStop == "1"
+	return sharedutils.IsEnabled(fw.ActOnAccountingStop)
 }
 
 // Check if sso needs to be triggered on accounting
 func (fw *FirewallSSO) SendOnAcct(ctx context.Context) bool {
-	return fw.SsoOnAccounting == "1"
+	return sharedutils.IsEnabled(fw.SsoOnAccounting)
 }
 
 // Check if sso needs to be triggered on Access Reevaluation
 func (fw *FirewallSSO) SendOnAccessReevaluation(ctx context.Context) bool {
-	return fw.SsoOnAccessReevaluation == "1"
+	return sharedutils.IsEnabled(fw.SsoOnAccessReevaluation)
 }
+
+// Check if sso needs to be triggered on Role Change
+func (fw *FirewallSSO) SendOnRoleChange(ctx context.Context) bool {
+	return sharedutils.IsEnabled(fw.SsoOnRoleChange)
+}
+
 func (fw *FirewallSSO) SendOnDhcp(ctx context.Context) bool {
-	return fw.SsoOnDhcp == "1"
+	return sharedutils.IsEnabled(fw.SsoOnDhcp)
 }
 
 // Get the cache_timeout configured in the firewall as an int
@@ -267,6 +278,11 @@ func (rbf *RoleBasedFirewallSSO) MatchesRole(ctx context.Context, info map[strin
 	return false
 }
 
+// The roles that are configured for the SSO
+func (rbf *RoleBasedFirewallSSO) GetRoles(ctx context.Context) []string {
+	return rbf.Roles
+}
+
 // Get the logger for a firewall
 func (fw *FirewallSSO) logger(ctx context.Context) log15.Logger {
 	ctx = log.AddToLogContext(ctx, "firewall-id", fw.PfconfigHashNS)
@@ -277,13 +293,37 @@ func (fw *FirewallSSO) getDst(ctx context.Context, proto string, toIP string, to
 	if !sharedutils.IsEnabled(fw.UseConnector) {
 		return fmt.Sprintf("%s:%s", toIP, toPort)
 	} else {
-		dst, err := connector.OpenConnectionTo(ctx, toIP, toPort, proto)
+		dst, err := connector.OpenConnectionTo(ctx, proto, toIP, toPort, "")
 		if err != nil {
 			panic(err)
 		} else {
 			return dst
 		}
 	}
+}
+
+// noRoleWarningInterval is how often the warning about a firewall without any
+// role is logged: roles are optional in the form, and the check runs for every
+// SSO event (every DHCP update on a busy server).
+const noRoleWarningInterval = 5 * time.Minute
+
+// warningLimiter remembers when a warning was last logged for each firewall
+type warningLimiter struct {
+	mu   sync.Mutex
+	last map[string]time.Time
+}
+
+var noRoleWarnings = &warningLimiter{last: map[string]time.Time{}}
+
+// shouldWarn tells whether the warning of a firewall is due, and records it
+func (l *warningLimiter) shouldWarn(id string, now time.Time) bool {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	if last, ok := l.last[id]; ok && now.Sub(last) < noRoleWarningInterval {
+		return false
+	}
+	l.last[id] = now
+	return true
 }
 
 // Execute an SSO Start request on the specified firewall
@@ -302,17 +342,34 @@ func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string
 		return false, nil
 	}
 
+	if !fw.SendOnRoleChange(ctx) && info["source"] == "role_change" {
+		return false, nil
+	}
+
+	// Expected filtering (status, role, network) is logged at DEBUG: it happens for
+	// every SSO event of every firewall that does not apply. A firewall without any
+	// role applies to no device at all, a misconfiguration worth a warning.
 	if !fw.CheckStatus(ctx, info) {
+		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO Start since the device is not registered (status '%s')", info["status"]))
 		return false, nil
 	}
 
 	if !fw.MatchesRole(ctx, info) {
-		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for user device %s since it doesn't match the role", info["role"]))
+		if roles := fw.GetRoles(ctx); len(roles) == 0 {
+			msg := "Not sending SSO Start since no role is selected for this firewall: it applies to the devices of the selected roles only"
+			if noRoleWarnings.shouldWarn(fw.GetFirewallSSO(ctx).PfconfigHashNS, time.Now()) {
+				log.LoggerWContext(ctx).Warn(fmt.Sprintf("%s (logged once every %s for this firewall)", msg, noRoleWarningInterval))
+			} else {
+				log.LoggerWContext(ctx).Debug(msg)
+			}
+		} else {
+			log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO Start since the role '%s' is not one of the roles of this firewall (%s)", info["role"], strings.Join(roles, ", ")))
+		}
 		return false, nil
 	}
 
 	if !fw.MatchesNetwork(ctx, info) {
-		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for IP %s since it doesn't match any configured network", info["ip"]))
+		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO Start for IP %s since it doesn't match any configured network", info["ip"]))
 		return false, nil
 	}
 	log.LoggerWContext(ctx).Info("Processing SSO Start")
@@ -346,7 +403,7 @@ func ExecuteStop(ctx context.Context, fw FirewallSSOInt, info map[string]string)
 		return false, nil
 	}
 
-	if !fw.CheckStatus(ctx, info) {
+	if !fw.SendOnRoleChange(ctx) && info["source"] == "role_change" {
 		return false, nil
 	}
 
@@ -356,7 +413,7 @@ func ExecuteStop(ctx context.Context, fw FirewallSSOInt, info map[string]string)
 	}
 
 	if !fw.MatchesNetwork(ctx, info) {
-		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for IP %s since it doesn't match any configured network", info["ip"]))
+		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO Stop for IP %s since it doesn't match any configured network", info["ip"]))
 		return false, nil
 	}
 	log.LoggerWContext(ctx).Info("Processing SSO Stop")

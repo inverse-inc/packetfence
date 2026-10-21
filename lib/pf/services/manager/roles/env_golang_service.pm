@@ -27,6 +27,7 @@ before generateConfig => sub {
        env_dict => {
            %$service_env,
            LOG_OUTPUT => 'stdout',
+           LOG_LEVEL => 'INFO',
            PFCONFIG_PROTO => $pfconfig_config->section("general")->{proto},
            PFCONFIG_TCP_HOST => $pfconfig_config->section("general")->{tcp_host},
            PFCONFIG_TCP_PORT => $pfconfig_config->section("general")->{tcp_port},
@@ -38,7 +39,8 @@ before generateConfig => sub {
            PF_SERVICES_URL_PFSSO => $Config{services_url}{pfsso},
            PF_SERVICES_URL_PFLDAPEXPLORER => $Config{services_url}{pfldapexplorer},
            PF_SERVICES_URL_PFCONNECTOR_SERVER => $Config{services_url}{'pfconnector-server'},
-           PF_SERVICES_URL_NETDATA =>  $Config{services_url}{netdata},
+           PF_SERVICES_URL_NETDATA => $Config{services_url}{netdata},
+           PF_SERVICES_URL_FINGERBANK_COLLECTOR => $Config{services_url}{'fingerbank-collector'},
            STATSD_ADDRESS => $Config{advanced}{statsd_listen_host}.":".$Config{advanced}{statsd_listen_port},
            PFCONNECTOR_SERVER_DYN_REVERSE_HOST => $management_network ? $management_network->{Tip} : '',
        },
@@ -60,7 +62,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

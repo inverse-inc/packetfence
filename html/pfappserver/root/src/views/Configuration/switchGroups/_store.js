@@ -4,6 +4,7 @@
 import Vue from 'vue'
 import { computed } from '@vue/composition-api'
 import store, { types } from '@/store'
+import apiCall from '@/utils/api-perl'
 import api from './_api'
 
 export const useStore = $store => {
@@ -38,10 +39,10 @@ const actions = {
     const params = {
       sort: 'id',
       fields: ['id', 'description'].join(','),
-      limit: 1000
+      raw: 1
     }
-    return api.list(params).then(response => {
-      return response.items
+    return apiCall.getAll('config/switch_groups', params).then(response => {
+      return response.data.items
     })
   },
   options: ({ commit }, id) => {

@@ -18,8 +18,13 @@
 <script>
 import SwitchesSearch from '../switches/_components/TheSearch'
 import SwitchGroupsSearch from '../switchGroups/_components/TheSearch'
+import DiscoverView from '../discoverNetworkDevices/_components/TheDiscover'
 
 const tabs = {
+  discover_network_devices: {
+    title: 'Discover', // i18n defer
+    component: DiscoverView
+  },
   switches: {
     title: 'Switches', // i18n defer
     component: SwitchesSearch

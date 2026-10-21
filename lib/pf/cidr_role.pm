@@ -69,7 +69,7 @@ sub update_switch_role_with_mask {
     my $switch = pf::SwitchFactory->instantiate({ switch_mac => $locationlog->{'switch_mac'}, switch_ip => $locationlog->{'switch_ip'}, switch_id => $locationlog->{'switch'}});
     return undef unless ($switch);
     return undef unless (pf::util::isenabled($switch->{'_NetworkMap'}));
-    return undef unless $switch->{"_".$locationlog->{'role'}."NetworkFrom"} eq "dynamic";
+    return undef unless exists $switch->{"_".$locationlog->{'role'}."NetworkFrom"} && defined($switch->{"_".$locationlog->{'role'}."NetworkFrom"}) && $switch->{"_".$locationlog->{'role'}."NetworkFrom"} eq "dynamic";
 
     my $networks = $switch->cache_distributed->get($locationlog->{'switch'}.".".$locationlog->{'role'});
 
@@ -201,7 +201,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

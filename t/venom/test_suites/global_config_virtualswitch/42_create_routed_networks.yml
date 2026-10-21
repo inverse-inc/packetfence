@@ -1,0 +1,134 @@
+name: Create routed networks for virtualswitch VLANs
+testcases:
+
+- name: create_guest_network_vlan1
+  steps:
+  - type: pf_api_action
+    method: POST
+    url: 'config/routed_networks'
+    status_code: 201
+    body: >-
+      {
+        "id": "{{.virtualswitch.networks.guest.id}}",
+        "type": "vlan-registration",
+        "netmask": "{{.virtualswitch.networks.guest.netmask}}",
+        "gateway": "{{.virtualswitch.networks.guest.gateway}}",
+        "next_hop": "{{.virtualswitch.namespace.ip}}",
+        "dhcp_start": "{{.virtualswitch.networks.guest.dhcp_start}}",
+        "dhcp_end": "{{.virtualswitch.networks.guest.dhcp_end}}",
+        "dhcp_default_lease_time": "{{.virtualswitch.networks.guest.dhcp_default_lease_time}}",
+        "dhcp_max_lease_time": "{{.virtualswitch.networks.guest.dhcp_max_lease_time}}",
+        "dns": "8.8.8.8,{{.pfserver_mgmt_ip}}",
+        "pool_backend": "memory",
+        "coa": "enabled"
+      }
+
+- name: create_registration_network_vlan2
+  steps:
+  - type: pf_api_action
+    method: POST
+    url: 'config/routed_networks'
+    status_code: 201
+    body: >-
+      {
+        "id": "{{.virtualswitch.networks.registration.id}}",
+        "type": "vlan-registration",
+        "netmask": "{{.virtualswitch.networks.registration.netmask}}",
+        "gateway": "{{.virtualswitch.networks.registration.gateway}}",
+        "next_hop": "{{.virtualswitch.namespace.ip}}",
+        "dhcp_start": "{{.virtualswitch.networks.registration.dhcp_start}}",
+        "dhcp_end": "{{.virtualswitch.networks.registration.dhcp_end}}",
+        "dhcp_default_lease_time": "{{.virtualswitch.networks.registration.dhcp_default_lease_time}}",
+        "dhcp_max_lease_time": "{{.virtualswitch.networks.registration.dhcp_max_lease_time}}",
+        "dns": "8.8.8.8,{{.pfserver_mgmt_ip}}",
+        "pool_backend": "memory",
+        "coa": "enabled"
+      }
+
+- name: create_windows_network_vlan3
+  steps:
+  - type: pf_api_action
+    method: POST
+    url: 'config/routed_networks'
+    status_code: 201
+    body: >-
+      {
+        "id": "{{.virtualswitch.networks.windows.id}}",
+        "type": "vlan-registration",
+        "netmask": "{{.virtualswitch.networks.windows.netmask}}",
+        "gateway": "{{.virtualswitch.networks.windows.gateway}}",
+        "next_hop": "{{.virtualswitch.namespace.ip}}",
+        "dhcp_start": "{{.virtualswitch.networks.windows.dhcp_start}}",
+        "dhcp_end": "{{.virtualswitch.networks.windows.dhcp_end}}",
+        "dhcp_default_lease_time": "{{.virtualswitch.networks.windows.dhcp_default_lease_time}}",
+        "dhcp_max_lease_time": "{{.virtualswitch.networks.windows.dhcp_max_lease_time}}",
+        "dns": "8.8.8.8,{{.pfserver_mgmt_ip}}",
+        "pool_backend": "memory",
+        "coa": "enabled"
+      }
+
+- name: create_user_network_vlan4
+  steps:
+  - type: pf_api_action
+    method: POST
+    url: 'config/routed_networks'
+    status_code: 201
+    body: >-
+      {
+        "id": "{{.virtualswitch.networks.user.id}}",
+        "type": "vlan-registration",
+        "netmask": "{{.virtualswitch.networks.user.netmask}}",
+        "gateway": "{{.virtualswitch.networks.user.gateway}}",
+        "next_hop": "{{.virtualswitch.namespace.ip}}",
+        "dhcp_start": "{{.virtualswitch.networks.user.dhcp_start}}",
+        "dhcp_end": "{{.virtualswitch.networks.user.dhcp_end}}",
+        "dhcp_default_lease_time": "{{.virtualswitch.networks.user.dhcp_default_lease_time}}",
+        "dhcp_max_lease_time": "{{.virtualswitch.networks.user.dhcp_max_lease_time}}",
+        "dns": "8.8.8.8,{{.pfserver_mgmt_ip}}",
+        "pool_backend": "memory",
+        "coa": "enabled"
+      }
+
+- name: create_android_network_vlan5
+  steps:
+  - type: pf_api_action
+    method: POST
+    url: 'config/routed_networks'
+    status_code: 201
+    body: >-
+      {
+        "id": "{{.virtualswitch.networks.android.id}}",
+        "type": "vlan-registration",
+        "netmask": "{{.virtualswitch.networks.android.netmask}}",
+        "gateway": "{{.virtualswitch.networks.android.gateway}}",
+        "next_hop": "{{.virtualswitch.namespace.ip}}",
+        "dhcp_start": "{{.virtualswitch.networks.android.dhcp_start}}",
+        "dhcp_end": "{{.virtualswitch.networks.android.dhcp_end}}",
+        "dhcp_default_lease_time": "{{.virtualswitch.networks.android.dhcp_default_lease_time}}",
+        "dhcp_max_lease_time": "{{.virtualswitch.networks.android.dhcp_max_lease_time}}",
+        "dns": "8.8.8.8,{{.pfserver_mgmt_ip}}",
+        "pool_backend": "memory",
+        "coa": "enabled"
+      }
+
+- name: create_isolation_network_vlan6
+  steps:
+  - type: pf_api_action
+    method: POST
+    url: 'config/routed_networks'
+    status_code: 201
+    body: >-
+      {
+        "id": "{{.virtualswitch.networks.isolation.id}}",
+        "type": "vlan-registration",
+        "netmask": "{{.virtualswitch.networks.isolation.netmask}}",
+        "gateway": "{{.virtualswitch.networks.isolation.gateway}}",
+        "next_hop": "{{.virtualswitch.namespace.ip}}",
+        "dhcp_start": "{{.virtualswitch.networks.isolation.dhcp_start}}",
+        "dhcp_end": "{{.virtualswitch.networks.isolation.dhcp_end}}",
+        "dhcp_default_lease_time": "{{.virtualswitch.networks.isolation.dhcp_default_lease_time}}",
+        "dhcp_max_lease_time": "{{.virtualswitch.networks.isolation.dhcp_max_lease_time}}",
+        "dns": "8.8.8.8,{{.pfserver_mgmt_ip}}",
+        "pool_backend": "memory",
+        "coa": "enabled"
+      }

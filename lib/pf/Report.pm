@@ -71,7 +71,8 @@ sub _db_data {
 my $calculate_default_date_range_sql = <<SQL;
 SELECT
     IFNULL(DATE_FORMAT(DATE_SUB(NOW(), INTERVAL ? SECOND), "%Y-%m-%d %T"), '0000-00-00 00:00:00') as default_start_date,
-    DATE_FORMAT(DATE_SUB(NOW(), INTERVAL ? SECOND), "%Y-%m-%d %T") as default_end_date
+    DATE_FORMAT(DATE_SUB(NOW(), INTERVAL ? SECOND), "%Y-%m-%d %T") as default_end_date,
+    TIMESTAMPDIFF(SECOND, UTC_TIMESTAMP(), NOW()) as utc_offset
 SQL
 sub calculate_default_date_range {
     my ($self) = @_;
@@ -82,6 +83,8 @@ sub calculate_default_date_range {
 
     my $row = $sth->fetchrow_hashref();
     $sth->finish();
+    # The offset of the report dates from UTC, for the quick ranges of the admin
+    $row->{utc_offset} += 0 if defined $row->{utc_offset};
     return (200, $row);
 }
 
@@ -234,7 +237,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

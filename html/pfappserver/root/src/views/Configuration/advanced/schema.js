@@ -6,13 +6,17 @@ export const schema = () => yup.object({
   hash_passwords: yup.string().nullable().label(i18n.t('Method')),
   hashing_cost: yup.string().nullable().label(i18n.t('Cost')),
   ldap_attributes: yup.string().nullable().label(i18n.t('Attributes')),
+  pffilter_max_rss: yup.string().nullable().label(i18n.t('Max RSS')),
   pffilter_processes: yup.string().nullable().label(i18n.t('Processes')),
+  pfperl_api_max_rss: yup.string().nullable().label(i18n.t('Max RSS')),
   pfperl_api_processes: yup.string().nullable().label(i18n.t('Processes')),
   pfperl_api_timeout: yup.string().nullable().label(i18n.t('Timeout')),
+  pfqueue_max_rss: yup.string().nullable().label(i18n.t('Max RSS')),
   timing_stats_level: yup.string().nullable().label(i18n.t('Level')),
   source_to_send_sms_when_creating_users: yup.string().nullable().label(i18n.t('Source')),
   netflow_on_all_networks: yup.string().nullable(),
-  openid_attributes: yup.array().ensure().label(i18n.t('Attributes'))
+  openid_attributes: yup.array().ensure().label(i18n.t('Attributes')),
+  default_role_parent_id: yup.string().nullable().label(i18n.t('Default parent role'))
 })
 
 export default schema

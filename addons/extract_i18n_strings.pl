@@ -13,7 +13,11 @@ can be localized.
 
 =cut
 
+# The repository's lib, after the installed one, for pf::I18N::extract
+use FindBin;
+use lib "$FindBin::Bin/../lib";
 use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
+use pf::I18N::extract qw(perl_unescape po_escape add_source);
 use File::Find;
 use pf::action;
 use pf::admin_roles;
@@ -53,15 +57,10 @@ Add a localizable sring to the list.
 sub add_string {
     my ($string, $source) = @_;
 
-    $string =~ s/\\'/'/g; # unescape single-quotes
-    $string =~ s/(?<!\\)\\/\\\\/g; # escape backslashes
-    $string =~ s/(?<!\\)\"/\\\"/g; # escape double-quotes
-    unless ($strings{$string}) {
-        $strings{$string} = [];
-    }
-    unless (grep(/\Q$source\E/, @{$strings{$string}})) {
-        push(@{$strings{$string}}, $source);
-    }
+    # A quoted string of a module or template: decode its escaped backslashes and
+    # quotes, then escape it for the PO file (the line breaks of the descriptions
+    # are kept and split in print_po)
+    add_source(\%strings, po_escape(perl_unescape($string)), $source);
 }
 
 =head2 add_translation
@@ -248,7 +247,8 @@ sub parse_conf {
         $description =~ s/\"([^\"]+)\"/<i>$1<\/i>/mg; # enclose strings surrounded by double quotes
         $description =~ s/\[(\S+)\]/<strong>$1<\/strong>/mg; # enclose strings surrounded by brakets
         $description =~ s/(https?:\/\/\S+)/<a href="$1">$1<\/a>/g; # make links clickable
-        $description =~ s/\n//g;
+        $description =~ s/\n+$//g;
+        $description =~ s/\n/ /g;
 
         return $description;
     }
@@ -448,7 +448,7 @@ sub print_po {
 
     print <<EOT;
 # English translations for $package package.
-# Copyright (C) 2005-2024 Inverse inc.
+# Copyright (C) 2005-2026 Inverse inc.
 # This file is distributed under the same license as the $package package.
 #
 msgid ""
@@ -522,7 +522,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

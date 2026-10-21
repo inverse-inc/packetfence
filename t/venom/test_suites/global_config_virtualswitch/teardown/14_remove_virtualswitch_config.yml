@@ -1,0 +1,9 @@
+name: Remove virtualswitch configuration
+testcases:
+
+- name: remove_virtualswitch_config
+  steps:
+  - type: exec
+    script: rm -f /etc/virtualswitch/config.yaml
+    assertions:
+      - result.code ShouldEqual 0

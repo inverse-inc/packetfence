@@ -38,6 +38,7 @@ BEGIN {
         nodecategory_view
         nodecategory_view_by_name
         nodecategory_view_by_names
+        nodecategory_view_by_not_in_names
         nodecategory_add
         nodecategory_modify
         nodecategory_exist
@@ -82,14 +83,56 @@ sub nodecategory_populate_from_config {
         return;
     }
 
-    my @keep;
-    my @entries = _order_nodecategory_config($config);
-    for my $args (@entries) {
-        my $id = $args->[0];
-        nodecategory_upsert($id, %{$args->[1]});
-        push @keep, $id;
+    my @names;
+    my @bind;
+    while (my ($id, $role) = each(%$config)) {
+        push @names, $id;
+        push @bind,
+            $id,
+            $role->{max_nodes_per_pid},
+            $role->{notes},
+            $role->{include_parent_acls} // "disabled",
+            $role->{fingerbank_dynamic_access_list} // "disabled",
+            join("\n", @{$role->{acls} // []});
     }
-    _nodecategory_bulk_delete(\@keep);
+
+    if (@names) {
+        my $placeholders = join(", ", ("(?, ?, ?, ?, ?, ?)") x scalar @names);
+        my $sql = "INSERT INTO node_category (name, max_nodes_per_pid, notes, include_parent_acls, fingerbank_dynamic_access_list, acls) "
+            . "VALUES $placeholders "
+            . "ON DUPLICATE KEY UPDATE "
+            . "max_nodes_per_pid = VALUES(max_nodes_per_pid), "
+            . "notes = VALUES(notes), "
+            . "include_parent_acls = VALUES(include_parent_acls), "
+            . "fingerbank_dynamic_access_list = VALUES(fingerbank_dynamic_access_list), "
+            . "acls = VALUES(acls)";
+        my ($status, $sth) = pf::dal::node_category->db_execute($sql, @bind);
+        if (is_error($status)) {
+            $logger->error("Failed to bulk upsert roles into node_category");
+        } else {
+            $sth->finish;
+        }
+    }
+
+    _nodecategory_bulk_delete(\@names);
+}
+
+sub _order_nodecategory_config {
+    my ($config) = @_;
+    my %t;
+    while (my ($id, $role) = each(%$config)) {
+        my $parent = $role->{parent} // '';
+        push @{$t{$parent}}, [$id, $role];
+    }
+
+    return _flatten_nodecategory($t{''}, \%t);
+}
+
+sub _flatten_nodecategory {
+    my ( $parents, $h ) = @_;
+    return @$parents,
+      map { _flatten_nodecategory( $h->{$_}, $h ) }
+      grep { exists $h->{$_} } map { $_->[0] } @$parents;
 }
 
 sub _nodecategory_bulk_delete {
@@ -102,24 +145,6 @@ sub _nodecategory_bulk_delete {
             },
         }
     );
-}
-
-sub _order_nodecategory_config {
-    my ($config) = @_;
-    my %t;
-    while (my ($id, $role) = each(%$config)) {
-        my $parent = $role->{parent} // '';
-        push @{$t{$parent}}, [$id, {%$role}];
-    }
-
-    return _flatten_nodecategory($t{''}, \%t);
-}
-
-sub _flatten_nodecategory {
-    my ( $parents, $h ) = @_;
-    return @$parents,
-      map { _flatten_nodecategory( $h->{$_}, $h ) }
-      grep { exists $h->{$_} } map { $_->[0] } @$parents;
 }
 
 =item nodecategory_upsert
@@ -236,6 +261,26 @@ sub nodecategory_view_by_names {
     return map { _cleanup($_) } @{$iter->all() // []};
 }
 
+=item nodecategory_view_by_not_in_names - view a list of node categories by name. Returns an array of nodecategories
+
+=cut
+
+sub nodecategory_view_by_not_in_names {
+    my (@names) = @_;
+    my ($status, $iter) = pf::dal::node_category->search(
+        -where => {
+            name => {-not_in => \@names},
+        },
+        -with_class => undef,
+        -order_by => 'name',
+    );
+    if (is_error($status)) {
+        return ();
+    }
+
+    return map { _cleanup($_) } @{$iter->all() // []};
+}
+
 =item nodecategory_add - add a node category
 
 =cut
@@ -311,7 +356,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

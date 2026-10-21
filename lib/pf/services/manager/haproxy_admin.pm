@@ -67,6 +67,10 @@ sub generateConfig {
     my $api_frontend_service_host = $api_frontend_service_uri->host;
     my $api_frontend_service_port = $api_frontend_service_uri->port;
 
+    my $httpd_admin_dispatcher_uri = URI->new($Config{services_url}{'httpd_admin_dispatcher'});
+    my $httpd_admin_dispatcher_host = $httpd_admin_dispatcher_uri->host;
+    my $httpd_admin_dispatcher_port = $httpd_admin_dispatcher_uri->port;
+
     my $mgmt_cluster_ip;
     if ( $management_network && defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
         my $mgmt_int = $management_network->tag('int');
@@ -129,11 +133,11 @@ backend $mgmt_back_ip-netdata
         acl paramsquery query -m found
         http-request lua.admin
         http-request set-header Host $mgmt_back_ip
-        http-request set-dst-port int(19999)
+        http-request set-dst-port int(9999)
         http-request set-uri /api/v1/monitoring%[var(req.path)]?%[query] if paramsquery
         http-request set-uri /api/v1/monitoring%[var(req.path)] unless paramsquery
         http-response add-header X-Frame-Options SAMEORIGIN
-        server $mgmt_back_ip $mgmt_back_ip:19999 weight 1 maxconn 100 ssl verify none
+        server $mgmt_back_ip $mgmt_back_ip:9999 weight 1 maxconn 100 ssl verify none
 EOT
 
             $mgmt_api_backend .= <<"EOT";
@@ -225,8 +229,8 @@ backend $mgmt_cluster_ip-portal
         http-request lua.admin
         http-request set-header Host $portal_preview_ip
         http-request add-header X-Forwarded-For-Packetfence 127.0.0.1
-        http-request set-dst-port int(8890)
-        server service 100.64.0.1:0
+        http-request set-dst-port int($httpd_admin_dispatcher_port)
+        server service $httpd_admin_dispatcher_host:0
         http-request set-uri %[var(req.path)]?%[query] if paramsquery
         http-request set-uri %[var(req.path)] unless paramsquery
 
@@ -295,7 +299,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

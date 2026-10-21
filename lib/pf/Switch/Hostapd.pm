@@ -33,7 +33,6 @@ sub description { 'Hostapd' }
 # importing switch constants
 use pf::Switch::constants;
 use pf::util;
-use pf::util::radius qw(perform_disconnect);
 
 =head1 SUBROUTINES
 
@@ -120,7 +119,7 @@ sub radiusDisconnect {
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
 
-    if (!defined($self->{'_radiusSecret'})) {
+    if (!$self->hasRadiusSecret()) {
         $logger->warn(
             "Unable to perform RADIUS Disconnect-Request on $self->{'_ip'}: RADIUS Shared Secret not configured"
         );
@@ -157,7 +156,7 @@ sub radiusDisconnect {
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
-        $response = perform_disconnect($connection_info, $attributes_ref);
+        $response = $self->handleRadiusDisconnect($connection_info, $attributes_ref);
     } catch {
         chomp;
         $logger->warn("Unable to perform RADIUS Disconnect-Request: $_");
@@ -186,6 +185,9 @@ sub returnRadiusAccessAccept {
     my ($self, $args) = @_;
     my $logger = $self->logger;
 
+    # A subclass that runs the RADIUS filter itself calls us with 'unfiltered'
+    # set; filtering here too would add every answer of the rule twice (#9135).
+    my $caller_filters = isenabled($args->{'unfiltered'});
     $args->{'unfiltered'} = $TRUE;
     my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
     my $status = shift @super_reply;
@@ -207,9 +209,12 @@ sub returnRadiusAccessAccept {
         }
     }
 
-    my $filter = pf::access_filter::radius->new;
-    my $rule = $filter->test('returnRadiusAccessAccept', $args);
-    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    # A subclass that applies the RADIUS filter itself called us unfiltered
+    unless ($caller_filters) {
+        my $filter = pf::access_filter::radius->new;
+        my $rule = $filter->test('returnRadiusAccessAccept', $args);
+        ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    }
     return [$status, %$radius_reply_ref];
 }
 
@@ -222,7 +227,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

@@ -39,6 +39,16 @@ function base_args {
     args="$args --env-file /usr/local/pf/var/conf/$name.env"
   fi
 
+  # Pass LOG_LEVEL to container if set
+  if ! [ -z "$LOG_LEVEL" ]; then
+    args="$args -eLOG_LEVEL=$LOG_LEVEL"
+  fi
+
+  # Pass CHISEL_PPROF to container if set (enables the pfconnector pprof server)
+  if ! [ -z "$CHISEL_PPROF" ]; then
+    args="$args -eCHISEL_PPROF=$CHISEL_PPROF"
+  fi
+
   echo "$args"
 }
 
@@ -63,7 +73,7 @@ function build_img {
   if ! [ -z "$HTML_MOUNT" ]; then
     BUILD_PFAPPSERVER_VUE=no
   fi
-  docker build --build-arg=PF_VERSION=$PF_VERSION --build-arg=KNK_REGISTRY_URL=$LOCAL_REGISTRY --build-arg=IMAGE_TAG=$TAG_OR_BRANCH_NAME --build-arg=BUILD_PFAPPSERVER_VUE=$BUILD_PFAPPSERVER_VUE -q -f containers/$img/Dockerfile .
+  docker build --build-arg="GO_CHECK=${GO_CHECK:-no}" --build-arg=PF_VERSION=$PF_VERSION --build-arg=KNK_REGISTRY_URL=$LOCAL_REGISTRY --build-arg=IMAGE_TAG=$TAG_OR_BRANCH_NAME --build-arg=BUILD_PFAPPSERVER_VUE=$BUILD_PFAPPSERVER_VUE -q -f containers/$img/Dockerfile .
 }
 
 function build_base_images {
@@ -114,11 +124,12 @@ function run_multi() {
     run_img $img "$name-$suffix" "$args" "$cmd"
   fi
 }
+
 function sdproxy() {
   SD_NOTIFY_PROXY=/usr/local/pf/sbin/sdnotify-proxy
   SD_SOCK=/usr/local/pf/var/run/$1-systemd-notify.sock
   WATCHDOG_USEC_D=10000000
-  $SD_NOTIFY_PROXY $SD_SOCK /usr/bin/docker run --volume=$SD_SOCK:$SD_SOCK --env NOTIFY_SOCKET=$SD_SOCK --env WATCHDOG_USEC=$WATCHDOG_USEC_D ${@:2}
+  exec $SD_NOTIFY_PROXY $SD_SOCK /usr/bin/docker run --volume=$SD_SOCK:$SD_SOCK --env NOTIFY_SOCKET=$SD_SOCK --env WATCHDOG_USEC=$WATCHDOG_USEC_D ${@:2}
 }
 
 function run_img {
@@ -127,11 +138,11 @@ function run_img {
   args="$3"
   cmd="$4"
   cd /usr/local/pf/
-  docker container rm -f $name 1&2> /dev/null
+  docker container rm -f $name &> /dev/null
   echo "Running with args $args"
   if ! [ -z $NOTIFY_SOCKET ]; then
-    sdproxy $name $args --name=$name $img $cmd
+    sdproxy $name --init $args --name=$name $img $cmd
   else
-   /usr/bin/docker run $args --name=$name $img $cmd
+   exec /usr/bin/docker run $args --name=$name $img $cmd
   fi
 }

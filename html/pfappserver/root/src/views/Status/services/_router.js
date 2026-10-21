@@ -4,6 +4,12 @@ import acl from '@/utils/acl'
 const TheView = () => import(/* webpackChunkName: "Status" */ './_components/TheView')
 
 export const beforeEnter = (to, from, next = () => {}) => {
+  // Skip metrics loading for SAAS mode (netdata unavailable)
+  if (store.getters['system/isSaas']) {
+    next()
+    return
+  }
+
   if (acl.$can('read', 'system')) {
     store.dispatch('system/getHostname').then(() => {
       store.dispatch('cluster/getConfig').then(() => {

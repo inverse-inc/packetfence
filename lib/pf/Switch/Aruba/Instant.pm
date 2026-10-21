@@ -24,7 +24,6 @@ use warnings;
 use base ('pf::Switch::Aruba');
 use pf::constants qw($TRUE);
 use pf::constants::config qw($WEBAUTH_WIRELESS);
-use pf::util::radius qw(perform_disconnect perform_coa);
 use Try::Tiny;
 use pf::util;
 
@@ -37,7 +36,7 @@ sub radiusDisconnect {
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
 
-    if (!defined($self->{'_radiusSecret'})) {
+    if (!$self->hasRadiusSecret()) {
         $logger->warn(
             "Unable to perform RADIUS CoA-Request on $self->{'_ip'}: RADIUS Shared Secret not configured"
         );
@@ -83,11 +82,11 @@ sub radiusDisconnect {
                 'Filter-Id' => $role,
             };
             $logger->info("[$self->{'_ip'}] Returning ACCEPT with role: $role");
-            $response = perform_coa($connection_info, $attributes_ref);
+            $response = $self->handleRadiusCoa($connection_info, $attributes_ref);
 
         }
         else {
-            $response = perform_disconnect($connection_info, $attributes_ref);
+            $response = $self->handleRadiusDisconnect($connection_info, $attributes_ref);
         }
     } catch {
         chomp;
@@ -150,7 +149,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

@@ -13,7 +13,7 @@ Reading and writing configuration parameters
 use strict;
 use warnings;
 
-use Config::IniFiles;
+use fingerbank::IniFiles;
 
 use fingerbank::Constant qw($TRUE $FALSE);
 use fingerbank::FilePath qw($CONF_FILE $CONFIG_DEFAULTS_FILE $CONFIG_DOC_FILE $COMBINATION_MAP_FILE);
@@ -25,6 +25,13 @@ use Time::HiRes qw(time stat);
 
 our %Config;
 our $CACHE = fingerbank::NullCache->new;
+
+# Timestamp of the config generation this process has currently materialized
+# in %Config. Guards read_config against re-deserializing the whole tied
+# IniFiles object graph from $CACHE on every call: the graphs are pinned by
+# the Config::IniFiles section back-references and re-creating one per call
+# leaks the previous copy (multi-MB per request in httpd.aaa).
+our $LOCAL_CACHED_AT;
 
 =head1 METHODS
 
@@ -42,16 +49,29 @@ sub read_config {
         return;
     }
 
+    my $conf_timestamp = ( stat($CONF_FILE) )[9] // 0;
+    my $conf_defaults_timestamp = ( stat($CONFIG_DEFAULTS_FILE) )[9];
+
+    # Fast path: the config this process already materialized is still
+    # current. Costs one small cache get and two stats instead of
+    # rebuilding the tied IniFiles object graph on every call.
+    if(defined($LOCAL_CACHED_AT) && tied(%Config)
+        && $LOCAL_CACHED_AT > $conf_timestamp && $LOCAL_CACHED_AT > $conf_defaults_timestamp) {
+        my $current_cached_at = $CACHE->get('fingerbank::Config::read_config-cached_at');
+        if(defined($current_cached_at) && $current_cached_at == $LOCAL_CACHED_AT) {
+            $logger->trace("Local cache hit for fingerbank config");
+            return;
+        }
+    }
+
     # Check in the cache first
     my $config_cached = $CACHE->get('fingerbank::Config::read_config');
     my $cached_at = $CACHE->get('fingerbank::Config::read_config-cached_at');
     if(defined($config_cached) && defined($cached_at)) {
-        my $conf_timestamp = ( stat($CONF_FILE) )[9];
-        my $conf_defaults_timestamp = ( stat($CONFIG_DEFAULTS_FILE) )[9];
-
         if($cached_at > $conf_timestamp && $cached_at > $conf_defaults_timestamp) {
             $logger->trace("Cache hit for fingerbank config");
             tie %Config, 'fingerbank::ConfigRestore', $config_cached;
+            $LOCAL_CACHED_AT = $cached_at;
             return;
         }
         else {
@@ -63,24 +83,27 @@ sub read_config {
     # We allow empty file in the case a 'fingerbank.conf' file is modified to reflect all the defaults parameters (which will lead to an empty 'fingerbank.conf' file) and that file is not being deleted.
     if ( (-e $CONFIG_DEFAULTS_FILE) && (-e $CONF_FILE) ) {
         $logger->debug("Existing Fingerbank configuration file. Loading it with defaults");
-        tie %Config, 'Config::IniFiles', (
+        tie %Config, 'fingerbank::IniFiles', (
             -file       => $CONF_FILE,
-            -import     => Config::IniFiles->new( -file => $CONFIG_DEFAULTS_FILE ),
+            -import     => fingerbank::IniFiles->new( -file => $CONFIG_DEFAULTS_FILE, -envsubst => 1 ),
             -allowempty => 1,
+            -envsubst   => 1
         ) or $logger->error("Invalid Fingerbank configuration file: $!");
 
         if ( !%Config ) {
             $logger->error("Error while reading Fingerbank configuration file. Cannot continue");
             return;
         }
+        tied(%Config)->SetFileName($CONF_FILE);
     }
 
     # No configuration file found. Loading the defaults
     # SetFileName allow the saving of the tied hash later with the accurate file name
     else {
         $logger->debug("No existing Fingerbank configuration file. Loading defaults");
-        tie %Config, 'Config::IniFiles', ( 
-            -import => Config::IniFiles->new( -file => $CONFIG_DEFAULTS_FILE )
+        tie %Config, 'fingerbank::IniFiles', (
+            -import     => fingerbank::IniFiles->new( -file => $CONFIG_DEFAULTS_FILE, -envsubst => 1 ),
+            -envsubst => 1
         ) or $logger->error("Invalid Fingerbank default configuration file: $!");
 
         if ( !%Config ) {
@@ -90,8 +113,10 @@ sub read_config {
 
         tied(%Config)->SetFileName($CONF_FILE);
     }
+    my $now = time;
     $CACHE->set('fingerbank::Config::read_config', tied(%Config));
-    $CACHE->set('fingerbank::Config::read_config-cached_at', time);
+    $CACHE->set('fingerbank::Config::read_config-cached_at', $now);
+    $LOCAL_CACHED_AT = $now;
 }
 
 =head2 read_defaults
@@ -109,8 +134,9 @@ sub read_defaults {
     }
 
     $logger->debug("Attempting to read Fingerbank default configuration file '$CONFIG_DEFAULTS_FILE'");
-    tie %config_defaults, 'Config::IniFiles', (
+    tie %config_defaults, 'fingerbank::IniFiles', (
         -file => $CONFIG_DEFAULTS_FILE,
+        -envsubst => 1
     ) or $logger->error("Invalid Fingerbank default configuration file: $!");
 
     if ( !%config_defaults ) {
@@ -136,8 +162,9 @@ sub read_doc {
     }
 
     $logger->debug("Attempting to read Fingerbank configuration documentation file '$CONFIG_DOC_FILE'");
-    tie %config_doc, 'Config::IniFiles', (
+    tie %config_doc, 'fingerbank::IniFiles', (
         -file => $CONFIG_DOC_FILE,
+        -envsubst => 1
     ) or $logger->error("Invalid Fingerbank configuration documentation file: $!");
 
     if ( !%config_doc ) {
@@ -165,8 +192,8 @@ sub write_config {
     # Loading the defaults to compare and delete configuration parameters that are equals to their defaults.
     my %defaultConfig;
     $logger->debug("Loading default configuration to compare before write.");
-    tie %defaultConfig, 'Config::IniFiles', (
-        -import => Config::IniFiles->new( -file => $CONFIG_DEFAULTS_FILE )
+    tie %defaultConfig, 'fingerbank::IniFiles', (
+        -import     => fingerbank::IniFiles->new( -file => $CONFIG_DEFAULTS_FILE, -envsubst => 1 )
     ) or $logger->error("Invalid Fingerbank default configuration file: $!");
     
     if ( !%defaultConfig ) {

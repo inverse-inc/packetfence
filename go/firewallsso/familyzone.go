@@ -62,6 +62,6 @@ func (fw *FamilyZone) startHttp(ctx context.Context, info map[string]string, tim
 // Stop send an SSO stop to the firewall if the transport mode is HTTP. Otherwise, this outputs a warning
 // Will return the values from stopHttp for HTTP and no error if its syslog
 func (fw *FamilyZone) Stop(ctx context.Context, info map[string]string) (bool, error) {
-	log.LoggerWContext(ctx).Info("Not supported sending SSO to FamilyZone using HTTP")
+	log.LoggerWContext(ctx).Info("Not supported sending SSO to FamilyZone using HTTP for Stop")
 	return true, nil
 }

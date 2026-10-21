@@ -20,13 +20,15 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 5;
+use Test::More tests => 8;
 use pf::freeradius;
 use pf::SwitchFactory;
+use pf::dal::radius_nas;
+use Time::HiRes qw();
 
 #This test will running last
 use Test::NoWarnings;
-my $timestamp = $$;
+my $timestamp = int(Time::HiRes::time() * 1000000);
 
 my %config = %pf::SwitchFactory::SwitchConfig;
 pf::freeradius::freeradius_populate_nas_config(\%config, $timestamp);
@@ -42,13 +44,29 @@ pf::freeradius::freeradius_populate_nas_config(\%config, $timestamp);
 $validation = pf::freeradius::validation_results($timestamp);
 ok($validation->{config_valid}, "Config is valid");
 
+# A job carrying an older config runs last (#8959)
+pf::freeradius::freeradius_populate_nas_config({%pf::SwitchFactory::SwitchConfig}, $timestamp - 1);
+$validation = pf::freeradius::validation_results($timestamp);
+ok($validation->{config_valid}, "An older config does not replace a newer one");
+my (undef, $count) = pf::dal::radius_nas->count(-where => {nasname => '172.16.8.29'});
+is($count, 0, "A switch removed by the newer config is not added back");
+
+# On a cluster the jobs aren't serialized and their timestamps come from the
+# clocks of different servers: a config is applied whatever its timestamp
+{
+    local $pf::freeradius::cluster_enabled = 1;
+    pf::freeradius::freeradius_populate_nas_config({%pf::SwitchFactory::SwitchConfig}, $timestamp - 1);
+    my (undef, $cluster_count) = pf::dal::radius_nas->count(-where => {nasname => '172.16.8.29'});
+    is($cluster_count, 1, "On a cluster, an older config is not skipped");
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

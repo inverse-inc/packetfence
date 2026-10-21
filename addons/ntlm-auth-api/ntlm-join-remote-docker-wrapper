@@ -1,0 +1,59 @@
+#!/bin/bash
+
+source /usr/local/ntlm-auth-api/containers/systemd-service
+
+name=ntlm-join-remote
+
+option=$1
+
+if [ "$option" == "" ]; then
+    echo "No option given, terminated"
+    exit 1
+fi
+
+if [ "$option" = "start" ]; then
+    echo "Starting ntlm-join-remote"
+
+    args=$(base_args "${name}")
+    args="$args -eLOG_OUTPUT=stdout"
+    args="$args -v /usr/local/ntlm-auth-api/conf:/usr/local/pf/conf"
+    args="$args -v /usr/local/ntlm-auth-api/logs:/usr/local/pf/logs"
+    args="$args -v /usr/local/ntlm-auth-api/var/conf:/usr/local/pf/var/conf"
+    args="$args -p 100.64.0.1:23000:23000"
+
+    run "$name" "$args" &
+    echo $! >/usr/local/ntlm-auth-api/var/run/ntlm-join-remote.pid
+
+    echo "ntlm-join-remote started"
+elif [ "$option" = "stop" ]; then
+    echo "Stopping ntlm-join-remote"
+
+    pid=$(cat /usr/local/ntlm-auth-api/var/run/ntlm-join-remote.pid 2>/dev/null)
+    if [ -n "$pid" ]; then
+        kill "$pid" 2>/dev/null
+        echo '' >/usr/local/ntlm-auth-api/var/run/ntlm-join-remote.pid
+    fi
+
+    docker stop ntlm-join-remote 2>/dev/null
+
+    failures=0
+    while true; do
+        svcs=$(docker ps | grep "ntlm-join-remote")
+        if [ -n "$svcs" ]; then
+            failures=$((failures + 1))
+        else
+            echo "Stopped."
+            break
+        fi
+
+        if [ $failures -gt 30 ]; then
+            echo "ntlm-join-remote failed to stop after 30s."
+            exit 1
+        fi
+
+        sleep 1
+    done
+
+    echo "stopped"
+    sleep 1
+fi

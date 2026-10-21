@@ -129,6 +129,7 @@ Warning: The list of subroutine is incomplete
 # special features
 use pf::SwitchSupports qw(
     FloatingDevice
+    WiredMacAuth
     WiredDot1x
     RadiusDynamicVlanAssignment
     AccessListBasedEnforcement
@@ -1212,6 +1213,9 @@ Overrides the default implementation to add the dynamic acls
 sub returnRadiusAccessAccept {
     my ($self, $args) = @_;
     my $logger = $self->logger;
+    # A subclass that runs the RADIUS filter itself calls us with 'unfiltered'
+    # set; filtering here too would add every answer of the rule twice (#9135).
+    my $caller_filters = isenabled($args->{'unfiltered'});
     $args->{'unfiltered'} = $TRUE;
     $self->compute_action(\$args);
     my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
@@ -1222,7 +1226,7 @@ sub returnRadiusAccessAccept {
     my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
 
     if ( $args->{'compute_acl'} && isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
-        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac})) && !($self->usePushACLs && exists $ConfigRoles{$args->{'user_role'}} )){
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && !($self->usePushACLs && exists $ConfigRoles{$args->{'user_role'}} ) && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}, $args->{ifIndex}))){
             if ($access_list) {
                 my $acl_num = 101;
                 while($access_list =~ /([^\n]+)\n?/g){
@@ -1271,9 +1275,12 @@ sub returnRadiusAccessAccept {
 
     $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
 
-    my $filter = pf::access_filter::radius->new;
-    my $rule = $filter->test('returnRadiusAccessAccept', $args);
-    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    # A subclass that applies the RADIUS filter itself called us unfiltered
+    unless ($caller_filters) {
+        my $filter = pf::access_filter::radius->new;
+        my $rule = $filter->test('returnRadiusAccessAccept', $args);
+        ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    }
     return [$status, %$radius_reply_ref];
 }
 
@@ -1343,7 +1350,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

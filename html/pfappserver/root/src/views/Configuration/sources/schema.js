@@ -1,7 +1,18 @@
 import store from '@/store'
-import { pfActionsSchema as schemaActions } from '@/globals/pfActions'
+import { pfActionsSchema, pfActionsTransliterations } from '@/globals/pfActions'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
+import { connectThroughPortMin, connectThroughPortMax } from './config'
+
+// The rules of a source require a role with an unregistration date, as the API does (pfappserver::Form::Field::SourceRule).
+// Portal modules and users share pfActionsSchema without it: a portal module can get the role from the source,
+// and a user doesn't need a role.
+const schemaActions = pfActionsSchema
+  .ifThenRequires(
+    i18n.t('"{set_unreg_date}" requires either "{set_role}" or "{set_role_on_not_found}".', pfActionsTransliterations),
+    ({ type }) => type === 'set_unreg_date',
+    ({ type }) => ['set_role', 'set_role_on_not_found'].includes(type)
+  )
 
 yup.addMethod(yup.string, 'sourceIdExists', function (message) {
   return this.test({
@@ -26,6 +37,21 @@ yup.addMethod(yup.string, 'sourceIdNotExistsExcept', function (exceptId = '', me
       if (!value || value.toLowerCase() === exceptId.toLowerCase()) return true
       return store.dispatch('config/getSources').then(response => {
         return response.filter(source => source.id.toLowerCase() === value.toLowerCase()).length === 0
+      }).catch(() => {
+        return true
+      })
+    }
+  })
+})
+
+yup.addMethod(yup.string, 'sourceConnectThroughPortNotExistsExcept', function (exceptName = '', message) {
+  return this.test({
+    name: 'sourceConnectThroughPortNotExistsExcept',
+    message: message || i18n.t('Name exists.'),
+    test: (value) => {
+      if (!value) return true
+      return store.dispatch('config/getSources').then(response => {
+        return response.filter(source =>  source.id.toLowerCase() !== exceptName.toLowerCase() && source.pfconnector_port.toLowerCase() === value.toLowerCase()).length === 0
       }).catch(() => {
         return true
       })
@@ -92,7 +118,6 @@ export const schema = (props) => {
     paypal_cert_file_upload,
     sp_cert_path_upload,
     sp_key_path_upload,
-
   } = form || {}
 
   return yup.object({
@@ -177,7 +202,12 @@ export const schema = (props) => {
           : yup.string().nullable()
       }),
     person_mappings: schemaPersonMappings,
-    port: yup.string().label(i18n.t('Port')).isPort(),
+    port: yup.string().label(i18n.t('Port'))
+      .isPort(),
+    pfconnector_port: yup.string().nullable()
+      .label(i18n.t('Port'))
+      .sourceConnectThroughPortNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Port exists.'))
+      .isPort(connectThroughPortMin, connectThroughPortMax),
     protected_resource_url: yup.string().label(i18n.t('URL')),
     proxy_addresses: yup.string().label(i18n.t('Addresses')),
     public_client_key: yup.string().label(i18n.t('Key')),
@@ -186,7 +216,7 @@ export const schema = (props) => {
     redirect_url: yup.string().label(i18n.t('URL')),
     scope: yup.string().nullable().label(i18n.t('Scope')),
     secret_key: yup.string().label(i18n.t('Key')),
-    secret: yup.string().label(i18n.t('Secret')),
+    secret: yup.string().label(i18n.t('Secret')).required(i18n.t('Secret required.')),
     server1_address: yup.string().label(i18n.t('Address')),
     server2_address: yup.string().label(i18n.t('Address')),
     shared_secret_direct: yup.string().label(i18n.t('Secret')),

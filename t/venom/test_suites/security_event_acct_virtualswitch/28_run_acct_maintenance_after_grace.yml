@@ -1,0 +1,6 @@
+name: Run acct_maintenance after grace period expired
+testcases:
+
+- name: run_acct_maintenance_after_grace
+  steps:
+  - type: pfcron_acct_maintenance

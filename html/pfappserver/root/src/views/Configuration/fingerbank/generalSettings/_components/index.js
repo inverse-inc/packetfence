@@ -19,7 +19,7 @@ export {
   BaseFormGroupInput                  as FormGroupUpstreamDatabasePath,
   BaseFormGroupInputNumber            as FormGroupUpstreamSqliteDatabaseRetention,
   BaseFormGroupInput                  as FormGroupCollectorHost,
-  BaseFormGroupInputNumber            as FormGroupCollectorPort,
+  BaseFormGroupInput                  as FormGroupCollectorPort,
   BaseFormGroupSwitch                 as FormGroupCollectorUseHttps,
   BaseFormGroupInput                  as FormGroupCollectorInactiveEndpointsExpiration,
   BaseFormGroupSwitch                 as FormGroupCollectorArpLookup,

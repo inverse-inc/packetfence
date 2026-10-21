@@ -1,0 +1,22 @@
+name: Restore
+testcases:
+- name: get_backup_name
+  steps:
+  - type: exec
+    script: 'find {{.backup_db_and_restore.backup_dir}} -name "packetfence-exportable-backup-*.tgz" -newermt "-10 minute" | head -n 1'
+    assertions:
+      - result.systemout ShouldNotBeEmpty
+
+- name: import_previous_exportation
+  steps:
+  - type: exec
+    script: '/usr/local/pf/addons/full-import/import.sh --db --restore-as-is -f {{.get_backup_name.result.systemout}}'
+
+# import.sh isolates packetfence-base; restart PacketFence like an operator would
+# so the webadmin API is reachable for the following testcases.
+- name: restart_packetfence
+  steps:
+  - type: pfcmd_run_command
+    command: 'service pf start'
+  - type: exec
+    script: sleep 30

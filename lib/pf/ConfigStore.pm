@@ -28,13 +28,13 @@ use pf::config::cluster;
 use pf::constants;
 use pf::CHI;
 use pf::generate_filter qw(filter_with_offset_limit);
-use pf::condition_parser qw(parse_condition_string ast_to_object);
-our %TOP_OPS = (
-    not_and => undef,
-    not_or => undef,
-    and => undef,
-    or => undef,
-);
+use pf::condition_parser qw(parse_condition_string ast_to_object top_level_condition);
+use pf::file_paths qw($run_dir);
+use Fcntl qw(:flock);
+use File::Spec::Functions qw(catfile);
+use Time::HiRes qw();
+
+our $LOCK_TIMEOUT = 30;
 
 =head1 FIELDS
 
@@ -165,6 +165,88 @@ sub rollback {
         $cache->l1_cache->remove($file_path);
     }
     $self->clear_cachedConfig;
+}
+
+=head2 lock_config
+
+Take an exclusive lock on the config file to serialize concurrent writers.
+The lock is held until unlock_config is called or the store is destroyed.
+It is shared by the stores of the same process using the same file.
+The cached config is cleared so it is read again once the lock is held.
+
+Returns true when the lock is held, false when another writer kept it for
+$LOCK_TIMEOUT seconds, undef when there is nothing to lock or the lock file
+cannot be opened.
+
+=cut
+
+our %LOCKS;
+
+sub lock_config {
+    my ($self) = @_;
+    return $TRUE if $self->{_config_locked};
+    my $file = $self->configFile;
+    return undef unless defined $file;
+    my $lock = $LOCKS{$file};
+    if (!$lock) {
+        my $fh = _flock_config_file($file);
+        return $fh unless $fh;
+        $lock = $LOCKS{$file} = { fh => $fh, count => 0 };
+    }
+
+    $lock->{count}++;
+    $self->{_config_locked} = 1;
+    $self->clear_cachedConfig;
+    return $TRUE;
+}
+
+# The handle of the locked file, $FALSE on timeout, undef when the lock file
+# cannot be opened
+sub _flock_config_file {
+    my ($file) = @_;
+    (my $name = $file) =~ s#/#_#g;
+    my $lock_file = catfile($run_dir, "configstore$name.lock");
+    my $logger = get_logger();
+    my $fh;
+    if (!open($fh, '>>', $lock_file)) {
+        $logger->warn("Unable to open $lock_file: $!");
+        return undef;
+    }
+
+    my $deadline = Time::HiRes::time() + $LOCK_TIMEOUT;
+    until (flock($fh, LOCK_EX | LOCK_NB)) {
+        if (Time::HiRes::time() >= $deadline) {
+            $logger->warn("Unable to lock $file after $LOCK_TIMEOUT seconds, another writer holds it");
+            close($fh);
+            return $FALSE;
+        }
+        Time::HiRes::sleep(0.05);
+    }
+
+    return $fh;
+}
+
+=head2 unlock_config
+
+Release the lock taken by lock_config
+
+=cut
+
+sub unlock_config {
+    my ($self) = @_;
+    return unless delete $self->{_config_locked};
+    my $file = $self->configFile;
+    my $lock = $LOCKS{$file};
+    return unless $lock;
+    if (--$lock->{count} <= 0) {
+        delete $LOCKS{$file};
+        close($lock->{fh});
+    }
+}
+
+sub DEMOLISH {
+    my ($self) = @_;
+    $self->unlock_config;
 }
 
 =head2 rewriteConfig
@@ -680,7 +762,7 @@ sub commitPfconfig {
             my $manager = pfconfig::manager->new;
             $manager->expire($self->pfconfigNamespace);
             if(pfconfig::git_storage->is_enabled) {
-                return $self->commitGitStorage(); 
+                return $self->commitGitStorage();
             }
         }
     }
@@ -883,12 +965,8 @@ sub expandCondition {
         } else {
             $condition = { op => $top_op, values => [$condition]};
         }
-    } elsif (!exists $TOP_OPS{$op}) {
-        if ($op eq 'not') {
-            $condition = { op => 'not_and', values => $condition->{values}};
-        } else {
-            $condition = { op => 'and', values => [$condition]};
-        }
+    } else {
+        $condition = top_level_condition($condition);
     }
 
     $item->{$key} = $condition;
@@ -967,9 +1045,29 @@ sub flatten_list_cr {
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
+package pf::ConfigStore::LockTimeout;
+
+=head2 pf::ConfigStore::LockTimeout
+
+The exception raised when the config file stays locked by another writer
+
+=cut
+
+sub new {
+    my ($class, %args) = @_;
+    return bless {%args}, $class;
+}
+
+sub file { $_[0]{file} }
+
+sub message {
+    my ($self) = @_;
+    return "The configuration file $self->{file} is being modified by another request, please try again";
+}
+
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

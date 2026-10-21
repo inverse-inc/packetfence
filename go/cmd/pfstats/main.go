@@ -23,6 +23,7 @@ import (
 	radius "github.com/inverse-inc/go-radius"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
+	"github.com/inverse-inc/packetfence/go/connector"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	statsd "gopkg.in/alexcesaro/statsd.v2"
@@ -91,6 +92,19 @@ type TypeSource interface {
 	Test(source interface{}, ctx context.Context)
 }
 
+func getDst(ctx context.Context, proto string, toIP string, toPort string, useConnector bool) (string, error) {
+	if !useConnector {
+		return fmt.Sprintf("%s:%s", toIP, toPort), nil
+	} else {
+		dst, err := connector.OpenConnectionTo(ctx, proto, toIP, toPort, "")
+		if err != nil {
+			return "", fmt.Errorf("unable to open connection to %s:%s: %w", toIP, toPort, err)
+		} else {
+			return dst, nil
+		}
+	}
+}
+
 var RADIUS radiustype
 
 type radiustype struct{}
@@ -112,9 +126,15 @@ func (s radiustype) Test(source interface{}, ctx context.Context) {
 	client.MaxPacketErrors = 2
 	sources := strings.Split(radiusSource.Host, ",")
 	for num, src := range sources {
+		dst, err := getDst(ctx, "udp", src, radiusSource.Port, bool(radiusSource.UseConnector))
+		if err != nil {
+			log.LoggerWContext(ctx).Error(fmt.Sprintf("Error getting destination for RADIUS source %s: %s", sourceId, err.Error()))
+			StatsdClient.Gauge("source."+radiusSource.Type+"."+radiusSource.PfconfigHashNS+strconv.Itoa(num), 0)
+			continue
+		}
 		ctx2, cancel := context.WithTimeout(ctx, 5*time.Second)
 		defer cancel()
-		response, err := client.Exchange(ctx2, packet, src+":"+radiusSource.Port)
+		response, err := client.Exchange(ctx2, packet, dst)
 		if err != nil {
 			StatsdClient.Gauge("source."+radiusSource.Type+"."+radiusSource.PfconfigHashNS+strconv.Itoa(num), 0)
 			log.LoggerWContext(ctx).Error(fmt.Sprintf("RADIUS test on %s returned this error: %s", sourceId, err.Error()))
@@ -138,12 +158,17 @@ func (s ldaptype) Test(source interface{}, ctx context.Context) {
 	t := StatsdClient.NewTiming()
 	sources := source.(pfconfigdriver.AuthenticationSourceLdap).Host
 	for num, src := range sources {
+		dst, err := getDst(ctx, "tcp", src, source.(pfconfigdriver.AuthenticationSourceLdap).Port, bool(source.(pfconfigdriver.AuthenticationSourceLdap).UseConnector))
+		if err != nil {
+			log.LoggerWContext(ctx).Error(fmt.Sprintf("Error getting destination for LDAP source %s: %s", source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS, err.Error()))
+			StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceLdap).Type+"."+source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS+strconv.Itoa(num), 0)
+			continue
+		}
 		var l *ldap.Conn
-		var err error
 		if source.(pfconfigdriver.AuthenticationSourceLdap).Encryption != "ssl" {
-			l, err = ldap.Dial("tcp", fmt.Sprintf("%s:%s", src, source.(pfconfigdriver.AuthenticationSourceLdap).Port))
+			l, err = ldap.Dial("tcp", dst)
 		} else {
-			l, err = ldap.DialTLS("tcp", fmt.Sprintf("%s:%s", src, source.(pfconfigdriver.AuthenticationSourceLdap).Port), &tls.Config{InsecureSkipVerify: true})
+			l, err = ldap.DialTLS("tcp", dst, &tls.Config{InsecureSkipVerify: true})
 		}
 		if err != nil {
 			StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceLdap).Type+"."+source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS+strconv.Itoa(num), 0)
@@ -231,7 +256,7 @@ func main() {
 			keyConfAdvanced.PfconfigNS = "config::Pf"
 			keyConfAdvanced.PfconfigHostnameOverlay = "yes"
 			pfconfigdriver.FetchDecodeSocket(ctx, &keyConfAdvanced)
-			Options := statsd.Address("localhost:" + keyConfAdvanced.StatsdListenPort)
+			Options := statsd.Address(keyConfAdvanced.StatsdListenHost + ":" + keyConfAdvanced.StatsdListenPort)
 			StatsdClient, err = statsd.New(Options)
 			if err != nil {
 				log.LoggerWContext(ctx).Error("Error while creating statsd client: " + err.Error())
@@ -264,6 +289,8 @@ func main() {
 		ln.Close()
 		os.Exit(0)
 	}(ln, sigc)
+	Connectors := connector.NewConnectorsContainer(ctx)
+	ctx = connector.WithConnectorsContainer(ctx, Connectors)
 
 	// LDAP Sources
 	go func() {
@@ -277,7 +304,7 @@ func main() {
 				source.PfconfigNS = "resource::authentication_sources_ldap"
 				source.PfconfigHashNS = src
 				pfconfigdriver.FetchDecodeSocket(ctx, &source)
-				if source.Monitor == "1" {
+				if sharedutils.IsEnabled(source.Monitor) {
 					var Source = TestSource{LDAP}
 					go Source.SourceType.Test(source, ctx)
 				}
@@ -297,7 +324,7 @@ func main() {
 				source.PfconfigNS = "resource::authentication_sources_radius"
 				source.PfconfigHashNS = src
 				pfconfigdriver.FetchDecodeSocket(ctx, &source)
-				if source.Monitor == "1" {
+				if sharedutils.IsEnabled(source.Monitor) {
 					var Source = TestSource{RADIUS}
 					go Source.SourceType.Test(source, ctx)
 				}

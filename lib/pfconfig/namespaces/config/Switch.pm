@@ -129,9 +129,13 @@ sub build_child {
 
     if ($self->{management_network}) {
         my @management_ips;
-        push @management_ips, $self->{management_network}->tag('vip') if(defined($self->{management_network}->tag('vip')));
-        push @management_ips, $self->{management_network}->tag('ip') if(defined($self->{management_network}->tag('ip')));
         push @management_ips, "100.64.0.1";
+        if (($ENV{PF_SAAS} // '') eq 'yes') {
+            push @management_ips, "127.127.127.127";
+        } else {
+            push @management_ips, $self->{management_network}->tag('vip') if(defined($self->{management_network}->tag('vip')));
+            push @management_ips, $self->{management_network}->tag('ip') if(defined($self->{management_network}->tag('ip')));
+        }
         foreach my $management_ip (@management_ips){
             $tmp_cfg{$management_ip} = {
                 type => 'PacketFence',
@@ -193,7 +197,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

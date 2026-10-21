@@ -24,6 +24,8 @@ our (
     $install_dir, $bin_dir, $sbin_dir, $conf_dir, $lib_dir, $html_dir, $users_cert_dir, $log_dir, $generated_conf_dir, $var_dir, $run_dir,
     $tt_compile_cache_dir, $pfconfig_cache_dir, $domains_chroot_dir, $domains_ntlm_cache_users_dir, $systemd_unit_dir, $acme_challenge_dir,
     $conf_uploads,
+    $generated_iptables_conf_dir, $generated_ip6tables_conf_dir,
+
 
     #Config files
     #pf.conf.default
@@ -114,11 +116,8 @@ our (
     $fingerbank_default_config_file,
     $fingerbank_doc_file,
     $api_i18n_dir,
-    $iptable_config_file,
-    $iptable_input_config_file,
-    $iptable_input_management_config_file,
-    $ip6table_config_file,
-    $ip6table_input_management_config_file,
+    $iptable_custom_config_file,
+    $ip6table_custom_config_file,
     $ssl_config_file, $ssl_default_config_file,
     $tls_config_file, $tls_default_config_file,
     $ocsp_config_file, $ocsp_default_config_file,
@@ -136,6 +135,7 @@ our (
     $provisioning_filters_meta_config_file,
     $provisioning_filters_meta_config_default_file,
     $pfperl_api_restart_task,
+    $dns_connectors_config_file, $domains_connectors_config_file,
 );
 
 BEGIN {
@@ -146,7 +146,9 @@ BEGIN {
     # Categorized by feature, pay attention when modifying
     @EXPORT_OK = qw(
         $install_dir $bin_dir $sbin_dir $conf_dir $lib_dir $html_dir $users_cert_dir $log_dir $generated_conf_dir $var_dir $run_dir
-        $tt_compile_cache_dir $pfconfig_cache_dir $domains_chroot_dir $domains_ntlm_cache_users_dir $systemd_unit_dir $acme_challenge_dir $conf_uploads
+        $tt_compile_cache_dir $pfconfig_cache_dir $domains_chroot_dir $domains_ntlm_cache_users_dir $systemd_unit_dir $acme_challenge_dir
+        $conf_uploads
+        $generated_iptables_conf_dir $generated_ip6tables_conf_dir
         $pf_default_file
         $pf_config_file
         $network_config_file
@@ -224,11 +226,8 @@ BEGIN {
         $fingerbank_default_config_file
         $fingerbank_doc_file
         $api_i18n_dir
-        $iptable_config_file
-        $iptable_input_config_file
-        $iptable_input_management_config_file
-        $ip6table_config_file
-        $ip6table_input_management_config_file
+        $iptable_custom_config_file
+        $ip6table_custom_config_file
         $ssl_config_file $ssl_default_config_file
         $tls_config_file $tls_default_config_file
         $ocsp_config_file $ocsp_default_config_file
@@ -246,6 +245,7 @@ BEGIN {
         $provisioning_filters_meta_config_file
         $provisioning_filters_meta_config_default_file
         $pfperl_api_restart_task
+        $dns_connectors_config_file $domains_connectors_config_file
     );
 }
 
@@ -267,6 +267,8 @@ $log_conf_dir  = catdir($conf_dir,"log.conf.d");
 $kafka_config_dir = catdir($conf_dir, "kafka");
 
 $generated_conf_dir   = catdir($var_dir, "conf");
+$generated_iptables_conf_dir   = catdir($generated_conf_dir, "iptables");
+$generated_ip6tables_conf_dir   = catdir($generated_conf_dir, "ip6tables");
 $tt_compile_cache_dir = catdir($var_dir, "tt_compile_cache");
 $control_dir  = catdir( $var_dir, "control");
 $switch_control_dir  = catdir($var_dir, "switch_control");
@@ -302,7 +304,7 @@ $self_service_default_config_file = catfile($conf_dir,"self_service.conf.default
 $pki_provider_config_file  = catfile($conf_dir,"pki_provider.conf");
 $syslog_config_file  = catfile($conf_dir, "syslog.conf");
 $syslog_default_config_file  = catfile($conf_dir, "syslog.conf.defaults");
-$rsyslog_packetfence_config_file  = "/etc/rsyslog.d/packetfence.conf";
+$rsyslog_packetfence_config_file  = "/etc/rsyslog.d/00-packetfence.conf";
 $fingerbank_collector_env_defaults_file = catfile($conf_dir, "fingerbank-collector.env.defaults");
 $network_behavior_policy_config_file = catfile($conf_dir,"network_behavior_policies.conf");
 
@@ -368,11 +370,8 @@ $cron_default_config_file = catfile($conf_dir,"pfcron.conf.defaults");
 $switch_filters_config_file = catfile($conf_dir,"switch_filters.conf"); 
 $stats_config_file = catfile($conf_dir, "stats.conf");
 $stats_config_default_file = catfile($conf_dir, "stats.conf.defaults");
-$iptable_config_file = catfile($conf_dir, "iptables.conf");
-$iptable_input_config_file = catfile($conf_dir, "iptables-input.conf.inc");
-$iptable_input_management_config_file = catfile($conf_dir, "iptables-input-management.conf.inc");
-$ip6table_config_file = catfile($conf_dir, "ip6tables.conf");
-$ip6table_input_management_config_file = catfile($conf_dir, "ip6tables-input-management.conf.inc");
+$iptable_custom_config_file = catfile($conf_dir, "iptables-custom.conf.inc");
+$ip6table_custom_config_file = catfile($conf_dir, "ip6tables-custom.conf.inc");
 $ssl_config_file = catfile($conf_dir,"ssl.conf");
 $ssl_default_config_file = catfile($conf_dir,"ssl.conf.defaults");
 $tls_config_file = catfile($conf_dir,"radiusd/tls.conf");
@@ -383,6 +382,8 @@ $eap_config_file = catfile($conf_dir,"radiusd/eap_profiles.conf");
 $eap_default_config_file = catfile($conf_dir,"radiusd/eap_profiles.conf.defaults");
 $fast_config_file = catfile($conf_dir,"radiusd/fast.conf");
 $fast_default_config_file = catfile($conf_dir,"radiusd/fast.conf.defaults");
+$dns_connectors_config_file = catfile($conf_dir,"dns_connectors.conf");
+$domains_connectors_config_file = catfile($conf_dir, "domains_connectors.conf");
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
@@ -433,6 +434,10 @@ $connectors_config_file = catdir($conf_dir,"connectors.conf");
     $stats_config_file,
     $syslog_config_file,
     $realm_config_file,
+    $tls_config_file,
+    $ocsp_config_file,
+    $eap_config_file,
+    $fast_config_file,
     $fingerbank_collector_env_defaults_file,
     $portal_modules_config_file,
     $template_switches_config_file,
@@ -442,6 +447,12 @@ $connectors_config_file = catdir($conf_dir,"connectors.conf");
     $mfa_config_file,
     $kafka_config_file,
     $connectors_config_file,
+    $dns_connectors_config_file,
+    $domains_connectors_config_file,
+    $billing_tiers_config_file,
+    $event_loggers_config_file,
+    $provisioning_filters_config_file,
+    $cluster_config_file,
 );
 
 $pffilter_socket_path = catfile($var_dir, "run/pffilter.sock");
@@ -465,7 +476,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

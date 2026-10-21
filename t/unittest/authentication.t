@@ -22,13 +22,13 @@ BEGIN {
 
 use Date::Parse;
 
-use Test::More tests => 61;                      # last test to print
+use Test::More tests => 63;                      # last test to print
 
 use Test::NoWarnings;
 
 use pf::constants;
 use pf::constants::realm;
-use pf::Authentication::constants;
+use pf::Authentication::constants qw($LOGIN_SUCCESS $LOGIN_FAILURE);
 use pf::constants::authentication::messages;
 
 # pf core libs
@@ -568,13 +568,20 @@ is_deeply(
     );
 }
 
+{
+
+    my ($result, $roles) = pf::authentication::adminAuthentication('authtest', 'authtest');
+    is($result, $LOGIN_SUCCESS, "adminAuthentication succeeds for authtest against htpasswd1");
+    is_deeply($roles, ['ALL'], "adminAuthentication returns the ALL access level for authtest");
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

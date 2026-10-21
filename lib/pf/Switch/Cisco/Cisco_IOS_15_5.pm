@@ -126,12 +126,12 @@ use pf::config qw(
 );
 use pf::Switch::constants;
 use pf::util;
-use pf::util::radius qw(perform_coa);
 use pf::web::util;
 use pf::radius::constants;
 use pf::locationlog qw(locationlog_get_session);
 
 sub description { 'Cisco IOS v15.5' }
+sub switchDriverId   { 'cisco_iosxe' }
 
 # CAPABILITIES
 # access technology supported
@@ -146,6 +146,7 @@ use pf::SwitchSupports qw(
     DownloadableListBasedEnforcement
     RoleBasedEnforcement
     ExternalPortal
+    Flow
 );
 
 sub returnRadiusAccessAccept {
@@ -162,11 +163,9 @@ sub returnRadiusAccessAccept {
     my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
 
     if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
-        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac})) && !($self->usePushACLs && exists $ConfigRoles{$args->{'user_role'}} )){
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && !($self->usePushACLs && exists $ConfigRoles{$args->{'user_role'}} ) && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}, $args->{ifIndex}))){
             if ($access_list) {
                 if ($self->useDownloadableACLs) {
-                    my $mac = lc($args->{'mac'});
-                    $mac =~ s/://g;
                     my @acl = split("\n", $access_list);
                     $args->{'acl'} = \@acl;
                     $args->{'acl_num'} = '101';
@@ -213,8 +212,8 @@ sub returnRadiusAdvanced {
     my ($self, $args, $options) = @_;
     my $logger = $self->logger;
     my $status = $RADIUS::RLM_MODULE_OK;
-    my ($role, $session_id) = split('-', $args->{'user_name'});
     my $radius_reply_ref = ();
+    my ($role, $session_id) = splitr2($args->{'user_name'}, '-');
     my @av_pairs;
     $radius_reply_ref->{'control:Proxy-To-Realm'} = 'LOCAL';
     if ($args->{'connection'}->isServiceTemplate) {
@@ -222,48 +221,59 @@ sub returnRadiusAdvanced {
     } elsif ($args->{'connection'}->isACLDownload) {
         my $cache = $self->radius_cache_distributed;
         my $session = $cache->get($session_id);
-        $session->{'id_session'} = $session_id;
+        my $session_state_id;
+        my $session_state;
+        if (exists $options->{'radius_request'}->{'State'} && defined $options->{'radius_request'}->{'State'}) {
+            $session_state_id = $options->{'radius_request'}->{'State'};
+            $session_state_id =~ s/^0x//;
+            $session_state_id = pack("H*", $session_state_id);
+            $session_state = $cache->get($session_state_id);
+        } else {
+            $session_state_id = int(rand(1000000));
+            $session_state = $session;
+            $session_state->{'id_session'} = $session_state_id;
+            $self->setRadiusSession($session_state);
+        }
         # Need to send back a challenge since there is still acl to download
-        if (exists $args->{'scope'} && $args->{'scope'} eq 'packetfence.authorize' && scalar @{$session->{'acl'}} > 1 ) {
+        if (exists $args->{'scope'} && $args->{'scope'} eq 'packetfence.authorize' && scalar @{$session_state->{'acl'} // []} > 1 ) {
             $status = $RADIUS::RLM_MODULE_HANDLED;
             $radius_reply_ref->{'control:Response-Packet-Type'} = 11;
-            $radius_reply_ref->{'state'} = $session_id;
+            $radius_reply_ref->{'state'} = $session_state_id;
             for ( my $loops = 0; $loops < $self->ACLsLimit; $loops++ ) {
-                last if (scalar @{$session->{'acl'}} == 1);
-                my $acl = shift @{$session->{'acl'}};
+                last if (scalar @{$session_state->{'acl'}} == 1);
+                my $acl = shift @{$session_state->{'acl'}};
                 if ($acl !~ /^((in|out)\|)?(permit|deny)/i) {
                     next;
                 }
-                my ($test, $formated_acl) = $self->returnAccessListAttribute($session->{'acl_num'},$acl);
+                my ($test, $formated_acl) = $self->returnAccessListAttribute($session_state->{'acl_num'},$acl);
                 if ($test) {
                     push(@av_pairs, $formated_acl);
                 } else {
                     next;
                 }
-                $session->{'acl_num'} ++;
+                $session_state->{'acl_num'} ++;
                 $logger->info("(".$self->{'_id'}.") Adding access list : $formated_acl to the RADIUS reply");
                 $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
             }
             $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
-            $self->setRadiusSession($session);
+            $self->setRadiusSession($session_state);
             return [$status, %$radius_reply_ref];
         }
-        if (scalar @{$session->{'acl'}} == 1) {
-            my $acl = shift @{$session->{'acl'}};
+        if (scalar @{$session_state->{'acl'}} == 1) {
+            my $acl = shift @{$session_state->{'acl'}};
             if ($acl =~ /^((in|out)\|)?(permit|deny)/i) {
-                my ($test, $formated_acl) = $self->returnAccessListAttribute($session->{'acl_num'},$acl);
+                my ($test, $formated_acl) = $self->returnAccessListAttribute($session_state->{'acl_num'},$acl);
                 if ($test) {
                     push(@av_pairs, $formated_acl);
                     $logger->info("(".$self->{'_id'}.") Adding access list : $formated_acl to the RADIUS reply");
                     $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
-                    $self->setRadiusSession($session);
                 } else {
                     $logger->info("(".$self->{'_id'}.") No more access lists defined for this role ". ( defined($args->{'user_role'}) ? $args->{'user_role'} : 'registration' ));
                 }
             } else {
                 $logger->info("(".$self->{'_id'}.") No more access lists defined for this role ". ( defined($args->{'user_role'}) ? $args->{'user_role'} : 'registration' ));
             }
-        } elsif (scalar @{$session->{'acl'}} == 0) {
+        } elsif (scalar @{$session_state->{'acl'}} == 0) {
             $logger->info("(".$self->{'_id'}.") No more access lists defined for this role ". ( defined($args->{'user_role'}) ? $args->{'user_role'} : 'registration' ));
         } else {
             $logger->info("(".$self->{'_id'}.") No access lists defined for this role ". ( defined($args->{'user_role'}) ? $args->{'user_role'} : 'registration' ));
@@ -273,14 +283,13 @@ sub returnRadiusAdvanced {
     return [$status, %$radius_reply_ref];
 }
 
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

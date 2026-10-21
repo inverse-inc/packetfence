@@ -25,6 +25,7 @@ NOTE: By default, all deconnections will be done using SNMP.
 
 Those switches are supported using 802.1X for networks with or without VoIP.
 
+[options="compact"]
 * Global config settings:
 
   aaa authentication dot1x default radius
@@ -41,11 +42,13 @@ enforcement.
 
 ===== MAC-Authentication without VoIP
 
+[options="compact"]
 * Enable MAC-Authentication globally
 
   mac-authentication enable
   mac-authentication mac-vlan-dyn-activation
 
+[options="compact"]
 * Enable MAC-Authentication on each interface you want PacketFence active
 
    mac-authentication enable
@@ -53,10 +56,12 @@ enforcement.
 
 ===== MAC-Authentication with VoIP
 
+[options="compact"]
 * Enable cdp globally
 
   cdp run
 
+[options="compact"]
 * Apply the following configuration on each interface you want PacketFence active
 
    dual-mode
@@ -67,6 +72,7 @@ enforcement.
 
 ===== 802.1X/MAC-Auth
 
+[options="compact"]
 * Enable 802.1X globally
 
   dot1x-enable
@@ -75,6 +81,7 @@ enforcement.
 
 Where `xx` is the switch port number
 
+[options="compact"]
 * Apply the following configuration on each interface you want PacketFence active
 
    dot1x port-control auto
@@ -89,10 +96,13 @@ Where `xx` is the switch port number
 
 Those switches are supported using 802.1X for networks with or without VoIP.
 
+[options="compact"]
 * RADIUS server configuration
 
-  radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 default key useStrongerSecret dot1x mac-auth no-login
+  radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 default key
+  useStrongerSecret dot1x mac-auth no-login
 
+[options="compact"]
 * Authentication configuration
 
   aaa authentication dot1x default radius
@@ -109,16 +119,20 @@ Those switches are supported using 802.1X for networks with or without VoIP.
     mac-authentication enable
     mac-authentication enable ethe 1/1/1
 
-The configuration above enables authentication on port 1/1/1 - make sure you change this to the ports where you want to perform enforcement.
+The configuration above enables authentication on port 1/1/1 - make sure you
+change this to the ports where you want to perform enforcement.
 
+[options="compact"]
 * SNMP configuration
 
   snmpserver community public ro
   snmpserver community private rw
 
+[options="compact"]
 * PacketFence configuration
 
-While configuring the switch in PacketFence, ensure you set at least the following values:
+While configuring the switch in PacketFence, ensure you set at least the
+following values:
  * Definition, Type: Brocade Switches
  * RADIUS, Secret Passphrase: useStrongerSecret
  * SNMP, Version: v2c
@@ -127,26 +141,32 @@ While configuring the switch in PacketFence, ensure you set at least the followi
 
 ===== VoIP
 
-In order to enable VoIP, you first need to enable LLDP then define the network policy for tagging VoIP traffic on the ports where PacketFence is enabled.
+In order to enable VoIP, you first need to enable LLDP then define the network
+policy for tagging VoIP traffic on the ports where PacketFence is enabled.
 
   lldp run
-  lldp med network-policy application voice tagged vlan 5 priority 5 dscp 46 ports ethe 1/1/1 
+  lldp med network-policy application voice tagged vlan 5 priority 5 dscp 46
+  ports ethe 1/1/1
 
 NOTE: Make sure you change VLAN 5 to the VLAN you use for VoIP
 
+[options="compact"]
 * PacketFence configuration
 
-While configuring the switch in PacketFence, ensure you set at least the following values:
+While configuring the switch in PacketFence, ensure you set at least the
+following values:
  * Roles, voice VLAN: 5
  * Definition, VoIP: enabled
 
 ==== Radius CLI Login
 
-If you want to use the server PacketFence to authenticate users on the Brocade switch.
+If you want to use the server PacketFence to authenticate users on the Brocade
+switch.
 
  * Configure the radius server to send user authentication request to PacketFence
    
    aaa authentication login default radius local
 
-NOTE: Make sure to have a local account in case the switch can not reach the PacketFence server
+NOTE: Make sure to have a local account in case the switch can not reach the
+PacketFence server
 

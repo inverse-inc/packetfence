@@ -56,6 +56,7 @@ our %TYPE_VALIDATOR = (
     'node_role' => \&validate_node_role,
     'time' => \&validate_time,
     'advanced' => \&validate_advanced,
+    'uri' => \&validate_uri,
 );
 
 =head2 validate
@@ -185,6 +186,25 @@ sub validate_time {
     return ($TRUE, undef);
 }
 
+=head2 validate_uri
+
+The URI filters are used as a regex by the captive portal
+
+=cut
+
+sub validate_uri {
+    my ($self, $type, $value) = @_;
+    require pf::web::constants;
+    my (undef, $error) = WEB::compile_profile_filter(WEB::profile_filter_pattern($value));
+    if (defined $error) {
+        # Perl's position marker points into the pattern built around the filter, keep the reason only
+        $error =~ s/;\s*marked by.*//s;
+        $error =~ s/ at \S+ line \d+\.?$//;
+        return ($FALSE, "'$value' is an invalid $type filter: $error");
+    }
+    return ($TRUE, undef);
+}
+
 =head2 validate_advanced
 
 =cut
@@ -205,7 +225,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

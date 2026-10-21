@@ -14,23 +14,14 @@ const state = () => {
     allChartsStatus: '',
     charts: localStorage.getItem(STORAGE_CHARTS_KEY) ? JSON.parse(localStorage.getItem(STORAGE_CHARTS_KEY)) : [],
     alarmsStatus: '',
-    alarms: {}
+    alarms: {},
+    aboutFilter: ''
   }
 }
 
 const getters = {
   isLoading: state => state.allChartsStatus === types.LOADING,
-  uniqueCharts: state => {
-    let charts = [].concat(...Object.values(state.allCharts))
-    // Remove duplicates
-    for (let i = 0; i < charts.length; ++i) {
-      for (let j = i + 1; j < charts.length; ++j) {
-          if (charts[i].id === charts[j].id)
-          charts.splice(j--, 1);
-      }
-    }
-    return charts
-  },
+  uniqueCharts: state => [].concat(...Object.values(state.allCharts)),
   hostsForChart: state => id => {
     return Object.keys(state.allCharts).filter(ip => {
       return state.allCharts[ip].find(chart => chart.id === id)
@@ -120,6 +111,9 @@ const mutations = {
   ALARMS_ERROR: (state) => {
     state.alarmsStatus = types.ERROR
     state.alarms = {}
+  },
+  ABOUT_FILTER_UPDATED: (state, filter) => {
+    state.aboutFilter = filter
   }
 }
 

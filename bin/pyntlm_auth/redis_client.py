@@ -2,6 +2,7 @@ import os
 import redis
 
 import global_vars
+import log
 
 r = None
 namespace = f"ntlm-auth:{os.getenv('IDENTIFIER')}"
@@ -22,6 +23,6 @@ def init_connection():
         r.ping()
         return True
     except Exception as e:
-        print(f"unable to establish redis connection: {str(e)}")
+        log.warning(f"unable to establish redis connection: {str(e)}")
 
     return False

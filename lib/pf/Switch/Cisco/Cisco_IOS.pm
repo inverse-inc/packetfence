@@ -129,6 +129,7 @@ use pf::SwitchSupports qw(
     -RadiusDynamicVlanAssignment
     RadiusVoip
     Lldp
+    Flow
 );
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }
@@ -1173,6 +1174,17 @@ sub getIfIndexByNasPortId {
     }
 }
 
+=item ifIndexCacheTables
+
+The ifDescr table getIfIndexByNasPortId looks NAS-Port-Id up in, refreshed by
+the switch_cache_ifindex pfcron task.
+
+=cut
+
+sub ifIndexCacheTables {
+    return ([-baseoid => '1.3.6.1.2.1.2.2.1.2']);
+}
+
 =item getRelayAgentInfoOptRemoteIdSub
 
 Return the RelayAgentInfoOptRemoteIdSub to match with switch mac in dhcp option 82
@@ -1203,7 +1215,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

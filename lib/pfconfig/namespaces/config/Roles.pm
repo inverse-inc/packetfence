@@ -29,10 +29,8 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file}              = $roles_config_file;
-
     my $defaults = pf::IniFiles->new( -file => $roles_default_config_file, -envsubst => 1 );
     $self->{added_params}->{'-import'} = $defaults;
-    $self->{child_resources} = [ 'resource::RolesReverseLookup'];
 }
 
 sub build_child {
@@ -40,6 +38,7 @@ sub build_child {
     my %reverseLookup;
     my %tmp_cfg = %{ $self->{cfg} };
     my %parents;
+
     while ( my ($name, $data) = each %tmp_cfg ) {
         if (exists $data->{acls} && defined $data->{acls}) {
             $data->{acls} = [split(/\n/, $data->{acls})];
@@ -108,7 +107,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 38;
+use Test::More tests => 73;
 use Test::Mojo;
 use Utils;
 use pf::dal::node;
@@ -37,6 +37,229 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 my $collection_base_url = '/api/v1/config/roles';
 
 my $base_url = '/api/v1/config/role';
+
+$t->options_ok($collection_base_url)
+  ->status_is(200)
+  ->json_is({
+        meta => {
+              'parent_id' => {
+                   'implied' => undef,
+                   'type' => 'string',
+                   'allow_custom' => 0,
+                   'placeholder' => undef,
+                   'allowed' => [
+                                  {
+                                    'text' => 'Machine',
+                                    'value' => 'Machine'
+                                  },
+                                  {
+                                    'text' => 'REJECT',
+                                    'value' => 'REJECT'
+                                  },
+                                  {
+                                    'text' => 'User',
+                                    'value' => 'User'
+                                  },
+                                  {
+                                    'text' => 'acls_error1',
+                                    'value' => 'acls_error1'
+                                  },
+                                  {
+                                    'value' => 'acls_error2',
+                                    'text' => 'acls_error2'
+                                  },
+                                  {
+                                    'value' => 'custom1',
+                                    'text' => 'custom1'
+                                  },
+                                  {
+                                    'text' => 'default',
+                                    'value' => 'default'
+                                  },
+                                  {
+                                    'value' => 'gaming',
+                                    'text' => 'gaming'
+                                  },
+                                  {
+                                    'text' => 'guest',
+                                    'value' => 'guest'
+                                  },
+                                  {
+                                    'value' => 'macDetection',
+                                    'text' => 'macDetection'
+                                  },
+                                  {
+                                    'text' => 'normal',
+                                    'value' => 'normal'
+                                  },
+                                  {
+                                    'text' => 'r1',
+                                    'value' => 'r1'
+                                  },
+                                  {
+                                    'value' => 'r2',
+                                    'text' => 'r2'
+                                  },
+                                  {
+                                    'value' => 'r3',
+                                    'text' => 'r3'
+                                  },
+                                  {
+                                    'value' => 'r4',
+                                    'text' => 'r4'
+                                  },
+                                  {
+                                    'value' => 'r5',
+                                    'text' => 'r5'
+                                  },
+                                  {
+                                    'value' => 'voice',
+                                    'text' => 'voice'
+                                  }
+                                ],
+                   'default' => 'r4',
+                   'required' => 0,
+             },
+          'fingerbank_dynamic_access_list' => {
+                'required' => 0,
+                'allow_custom' => 0,
+                'implied' => undef,
+                'type' => 'string',
+                'allowed' => [
+                               {
+                                 'value' => 'enabled',
+                                 'text' => 'enabled'
+                               },
+                               {
+                                 'value' => 'disabled',
+                                 'text' => 'disabled'
+                               }
+                             ],
+                'default' => undef,
+                'placeholder' => undef
+          },
+            acls => {
+                "default" => undef,
+                "implied" => undef,
+                "placeholder" => "permit tcp any any",
+                "required" => 0,
+                "type" => "string"
+            },
+          'notes' => {
+                       'placeholder' => undef,
+                       'default' => undef,
+                       'required' => 0,
+                       'type' => 'string',
+                       'implied' => undef
+                     },
+          'id' => {
+                    'required' => 1,
+                    'type' => 'string',
+                    'implied' => undef,
+                    'placeholder' => undef,
+                    'default' => undef
+                  },
+          'inherit_vlan' => {
+              'allowed' => [
+                             {
+                               'value' => 'enabled',
+                               'text' => 'enabled'
+                             },
+                             {
+                               'value' => 'disabled',
+                               'text' => 'disabled'
+                             }
+                           ],
+              'allow_custom' => 0,
+              'required' => 0,
+              'implied' => undef,
+              'type' => 'string',
+              'default' => 'disabled',
+              'placeholder' => 'enabled'
+            },
+            'inherit_web_auth_url' => {
+                  'required' => 0,
+                  'allow_custom' => 0,
+                  'implied' => undef,
+                  'type' => 'string',
+                  'allowed' => [
+                                 {
+                                   'text' => 'enabled',
+                                   'value' => 'enabled'
+                                 },
+                                 {
+                                   'text' => 'disabled',
+                                   'value' => 'disabled'
+                                 }
+                               ],
+                  'default' => 'disabled',
+                  'placeholder' => 'enabled'
+            },
+            'max_nodes_per_pid' => {
+               'implied' => undef,
+               'type' => 'integer',
+               'required' => 0,
+               'min_value' => 0,
+               'placeholder' => 0,
+               'default' => 0
+             },
+             'include_parent_acls' => {
+                 'type' => 'string',
+                 'implied' => undef,
+                 'allow_custom' => 0,
+                 'required' => 0,
+                 'allowed' => [
+                                {
+                                  'text' => 'enabled',
+                                  'value' => 'enabled'
+                                },
+                                {
+                                  'text' => 'disabled',
+                                  'value' => 'disabled'
+                                }
+                              ],
+                 'default' => undef,
+                 'placeholder' => undef
+               },
+              'inherit_role' => {
+                  'type' => 'string',
+                  'implied' => undef,
+                  'allow_custom' => 0,
+                  'required' => 0,
+                  'allowed' => [
+                                 {
+                                   'text' => 'enabled',
+                                   'value' => 'enabled'
+                                 },
+                                 {
+                                   'value' => 'disabled',
+                                   'text' => 'disabled'
+                                 }
+                               ],
+                  'placeholder' => 'enabled',
+                  'default' => 'disabled'
+            },
+            acls_enabled => {
+                implied => undef,
+                required => 0,
+                allow_custom => 0,
+                type => 'string',
+                allowed => [
+                       {
+                         'text' => 'enabled',
+                         'value' => 'enabled'
+                       },
+                       {
+                         'value' => 'disabled',
+                         'text' => 'disabled'
+                       }
+                ],
+                placeholder => 'enabled',
+                default => 'enabled'
+            }
+        },
+        status => 200,
+  });
 
 {
     my $id = "test_role_${$}_1";
@@ -130,6 +353,110 @@ $t->post_ok("$base_url/r2/bulk_reevaluate_access" => json => {  })
 $t->post_ok("$base_url/r2/bulk_reevaluate_access" => json => { async => \1 })
   ->status_is(202);
 
+$t->options_ok("$base_url/r5")
+  ->status_is(200)
+  ->json_is("/meta/acls",
+        {
+            "default" => undef,
+            "implied" => undef,
+            "placeholder" => "permit tcp any any",
+            "required" => 0,
+            "type" => "string"
+        }
+  );
+
+$t->post_ok($collection_base_url => json => { id => 'r6', parent_id => 'r5'})
+  ->status_is(201);
+
+# parent_id missing/null/'' semantics — see cleanupItemForCreate /
+# cleanupItemForUpdate in lib/pf/UnifiedApi/Controller/Config/Roles.pm.
+# Test fixture has advanced.default_role_parent_id=r4 (see t/data/pf.conf).
+my $raw_parent_id = sub {
+    my $cs = pf::ConfigStore::Roles->new;
+    $cs->cachedConfig->val($_[0], 'parent_id');
+};
+
+# CREATE: omitted parent_id -> advanced.default_role_parent_id ('r4')
+{
+    my $id = "test_parent_${$}_create_omit";
+    $t->post_ok($collection_base_url => json => { id => $id })
+      ->status_is(201);
+    is($raw_parent_id->($id), 'r4',
+        "CREATE with omitted parent_id materializes default_role_parent_id");
+}
+
+# CREATE: parent_id => null -> empty lock
+{
+    my $id = "test_parent_${$}_create_null";
+    $t->post_ok($collection_base_url => json => { id => $id, parent_id => undef })
+      ->status_is(201);
+    is($raw_parent_id->($id), '',
+        "CREATE with parent_id:null persists explicit empty lock");
+}
+
+# CREATE: parent_id => '' -> empty lock
+{
+    my $id = "test_parent_${$}_create_empty";
+    $t->post_ok($collection_base_url => json => { id => $id, parent_id => '' })
+      ->status_is(201);
+    is($raw_parent_id->($id), '',
+        "CREATE with parent_id:'' persists explicit empty lock");
+}
+
+# CREATE: parent_id => '<value>' -> stored verbatim
+{
+    my $id = "test_parent_${$}_create_value";
+    $t->post_ok($collection_base_url => json => { id => $id, parent_id => 'r5' })
+      ->status_is(201);
+    is($raw_parent_id->($id), 'r5',
+        "CREATE with explicit parent_id stores the value");
+}
+
+# UPDATE: omitted parent_id -> preserved (mergeUpdate carries old value)
+{
+    my $id = "test_parent_${$}_create_value"; # currently r5
+    $t->patch_ok("$base_url/$id" => json => { notes => 'preserved' })
+      ->status_is(200);
+    is($raw_parent_id->($id), 'r5',
+        "UPDATE with omitted parent_id preserves stored value");
+}
+
+# UPDATE: parent_id => null -> empty lock
+{
+    my $id = "test_parent_${$}_create_value"; # currently r5
+    $t->patch_ok("$base_url/$id" => json => { parent_id => undef })
+      ->status_is(200);
+    is($raw_parent_id->($id), '',
+        "UPDATE with parent_id:null persists explicit empty lock");
+}
+
+# UPDATE: parent_id => '' -> empty lock
+{
+    my $id = "test_parent_${$}_create_omit"; # currently r4
+    $t->patch_ok("$base_url/$id" => json => { parent_id => '' })
+      ->status_is(200);
+    is($raw_parent_id->($id), '',
+        "UPDATE with parent_id:'' persists explicit empty lock");
+}
+
+# UPDATE: parent_id => '<value>' -> stored verbatim
+{
+    my $id = "test_parent_${$}_create_null"; # currently empty
+    $t->patch_ok("$base_url/$id" => json => { parent_id => 'r5' })
+      ->status_is(200);
+    is($raw_parent_id->($id), 'r5',
+        "UPDATE with explicit parent_id stores the new value");
+}
+
+# get_nodes_for_role logs a database error instead of dying on an undefined get_logger
+{
+    ok(defined(&pf::UnifiedApi::Controller::Config::Roles::get_logger), "get_logger is imported");
+    no warnings qw(redefine once);
+    local *pf::dal::node::db_execute = sub { return (500, undef) };
+    my @result = eval { pf::UnifiedApi::Controller::Config::Roles::get_nodes_for_role('default') };
+    is($@, '', "get_nodes_for_role doesn't die on a database error");
+    is_deeply(\@result, [500, []], "get_nodes_for_role returns the error status and no nodes");
+}
 
 =head1 AUTHOR
 
@@ -137,7 +464,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

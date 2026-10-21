@@ -28,6 +28,7 @@ use pfappserver::Form::Config::Pfcron::acct_maintenance;
 use pfappserver::Form::Config::Pfcron::auth_log_cleanup;
 use pfappserver::Form::Config::Pfcron::certificates_check;
 use pfappserver::Form::Config::Pfcron::pki_certificates_check;
+use pfappserver::Form::Config::Pfcron::pki_revoked_certs_cleanup;
 use pfappserver::Form::Config::Pfcron::cleanup_chi_database_cache;
 use pfappserver::Form::Config::Pfcron::cluster_check;
 use pfappserver::Form::Config::Pfcron::fingerbank_data_update;
@@ -41,6 +42,7 @@ use pfappserver::Form::Config::Pfcron::person_cleanup;
 use pfappserver::Form::Config::Pfcron::provisioning_compliance_poll;
 use pfappserver::Form::Config::Pfcron::radius_audit_log_cleanup;
 use pfappserver::Form::Config::Pfcron::switch_cache_lldpLocalPort_description;
+use pfappserver::Form::Config::Pfcron::switch_cache_ifindex;
 use pfappserver::Form::Config::Pfcron::security_event_maintenance;
 use pfappserver::Form::Config::Pfcron::password_of_the_day;
 use pfappserver::Form::Config::Pfcron::acct_cleanup;
@@ -50,9 +52,11 @@ use pfappserver::Form::Config::Pfcron::bandwidth_maintenance;
 use pfappserver::Form::Config::Pfcron::ubiquiti_ap_mac_to_ip;
 use pfappserver::Form::Config::Pfcron::purge_binary_logs;
 use pfappserver::Form::Config::Pfcron::node_current_session_cleanup;
+use pfappserver::Form::Config::Pfcron::security_event_purge;
 use pfappserver::Form::Config::Pfcron::flush_radius_audit_log;
 use pfappserver::Form::Config::Pfcron::flush_dns_audit_log;
 use pfappserver::Form::Config::Pfcron::pfflow;
+use pfappserver::Form::Config::Pfcron::switch_observability_acls_cleanup;
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::Pfcron::$_" } qw(
@@ -60,6 +64,7 @@ our %TYPES_TO_FORMS = (
       auth_log_cleanup
       certificates_check
       pki_certificates_check
+      pki_revoked_certs_cleanup
       cleanup_chi_database_cache
       cluster_check
       fingerbank_data_update
@@ -74,6 +79,7 @@ our %TYPES_TO_FORMS = (
       radius_audit_log_cleanup
       dns_audit_log_cleanup
       switch_cache_lldpLocalPort_description
+      switch_cache_ifindex
       security_event_maintenance
       password_of_the_day
       acct_cleanup
@@ -82,9 +88,11 @@ our %TYPES_TO_FORMS = (
       ubiquiti_ap_mac_to_ip
       purge_binary_logs
       node_current_session_cleanup
+      security_event_purge
       flush_radius_audit_log
       flush_dns_audit_log
       pfflow
+      switch_observability_acls_cleanup
     )
 );
 
@@ -136,7 +144,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

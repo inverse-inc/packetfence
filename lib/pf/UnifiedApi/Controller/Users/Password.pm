@@ -74,6 +74,13 @@ sub _handle_password_data {
         }
     }
 
+    if (exists $data->{login_remaining}) {
+        my $login_remaining = $data->{login_remaining};
+        if (defined $login_remaining && $login_remaining eq '') {
+            $data->{login_remaining} = undef;
+        }
+    }
+
     # Not sure why but currently in the cloudnac, the sponsor field breaks the insert
     # This is a temporary fix, we should figure out why this happens
     $data->{sponsor} = ($data->{sponsor} // "") ne "" ? $data->{sponsor} : 0;
@@ -136,7 +143,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

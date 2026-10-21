@@ -92,6 +92,9 @@ sub class_merge {
     @values{qw(security_event_id description auto_enable max_enables grace_period window vclose priority template max_enable_url redirect_url button_text enabled vlan target_category delay_by external_command)} = @_;
     my $item = pf::dal::class->new(\%values);
     my $status = $item->save();
+    if (is_error($status)) {
+        $logger->error("error saving class $id");
+    }
 
     if ($actions) {
         foreach my $action ( split( /\s*,\s*/, $actions ) ) {
@@ -122,7 +125,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

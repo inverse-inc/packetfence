@@ -1,0 +1,36 @@
+name: Enable RADIUS local authentication and NTLM password hashing
+testcases:
+
+- name: enable_local_auth
+  steps:
+  - type: pf_api_config_action
+    id: "base/radius_configuration"
+    method: PATCH
+    body: >-
+      {
+        "local_auth": "enabled"
+      }
+    status_code: 200
+
+- name: set_hash_passwords_ntlm
+  steps:
+  - type: pf_api_config_action
+    id: "base/advanced"
+    method: PATCH
+    body: >-
+      {
+        "hash_passwords": "ntlm"
+      }
+    status_code: 200
+
+- name: restart_api_frontend_service
+  steps:
+  - type: pf_api_service_restart_async
+    service: api-frontend
+    time_to_sleep: 5
+
+- name: restart_radiusd_auth_service
+  steps:
+  - type: pf_api_service_restart
+    service: radiusd-auth
+    time_to_sleep: 5

@@ -171,7 +171,7 @@ sub _can_delete {
 #
 sub node_delete {
     my $timer = pf::StatsD::Timer->new({level => 6});
-    my ($mac) = @_;
+    my ($mac, %opts) = @_;
     my $logger = get_logger();
 
     $mac = clean_mac($mac);
@@ -198,8 +198,69 @@ sub node_delete {
         return ($FALSE, "Unable to delete '$mac' internal error");
     }
 
+    node_clear_portal_session($mac) unless $opts{keep_portal_session};
     $logger->info("node $mac deleted");
     return ($TRUE, '');
+}
+
+=item node_clear_portal_session
+
+Remove the captive portal sessions of devices (keyed by their MAC address) so the portal starts over on their next visit.
+The portal sessions are in the local cache of the server the device reached: in a cluster, the removal is sent to every
+member, in one request per member for all the MAC addresses. The requests are bounded so that a member that is down or
+doesn't answer can't hold the caller (an API worker deleting nodes, the node cleanup), and a failure with one member
+doesn't keep the others from being notified.
+
+=cut
+
+our $PORTAL_SESSION_CONNECT_TIMEOUT_MS = 3_000;
+our $PORTAL_SESSION_TIMEOUT_MS = 10_000;
+
+sub node_clear_portal_session {
+    my @macs = grep { valid_mac($_) } map { clean_mac($_) } grep { defined($_) } @_;
+    return unless @macs;
+    require pf::cluster;
+    if ($pf::cluster::cluster_enabled) {
+        require pf::api::jsonrpcclient;
+        foreach my $server (pf::cluster::config_enabled_servers()) {
+            eval {
+                pf::api::jsonrpcclient->new(
+                    proto              => 'https',
+                    host               => $server->{management_ip},
+                    connect_timeout_ms => $PORTAL_SESSION_CONNECT_TIMEOUT_MS,
+                    timeout_ms         => $PORTAL_SESSION_TIMEOUT_MS,
+                )->notify('clear_portal_session', @macs);
+            };
+            if (my $err = $@) {
+                get_logger->warn("Unable to send the removal of the portal sessions of " . join(', ', @macs) . " to $server->{host}: $err");
+            }
+        }
+        return;
+    }
+    node_remove_portal_session($_) for @macs;
+    return;
+}
+
+=item node_remove_portal_session
+
+Remove the captive portal session of a device from the cache of this server
+
+=cut
+
+sub node_remove_portal_session {
+    my ($mac) = @_;
+    $mac = clean_mac($mac);
+    return unless valid_mac($mac);
+    (my $session_id = $mac) =~ s/://g;
+    eval {
+        require pf::CHI;
+        my $cache = pf::CHI->new(namespace => 'httpd.portal');
+        $cache->remove("$_:$session_id") for qw(session expires flash);
+    };
+    if ($@) {
+        get_logger->warn("Unable to remove the portal session of $mac: $@");
+    }
+    return;
 }
 
 our %DEFAULT_NODE_VALUES = (
@@ -713,14 +774,22 @@ sub node_deregister {
     my ($mac, %info) = @_;
     my $logger = get_logger();
     $pf::StatsD::statsd->increment( called() . ".called" );
+    my $cleaned_mac = clean_mac($mac);
+    if (!$cleaned_mac) {
+        $logger->error("unable to de-register node $mac invalid mac");
+    }
 
+    $mac = $cleaned_mac;
+    # Set by pfpki when it deregisters the devices of a certificate it just
+    # revoked: revoking by CN again would revoke another certificate of the CN
+    my $skip_pki_revoke = delete $info{'skip_pki_revoke'};
     $info{'status'}    = 'unreg';
     $info{'regdate'}   = $ZERO_DATE;
     $info{'unregdate'} = $ZERO_DATE;
     $info{'autoreg'}   = 'no';
 
     my $profile = pf::Connection::ProfileFactory->instantiate($mac);
-    if (my $provisioner = $profile->findProvisioner($mac)) {
+    if (!$skip_pki_revoke && (my $provisioner = $profile->findProvisioner($mac))) {
         if (my $pki_provider = $provisioner->getPkiProvider() ) {
             if (isenabled($pki_provider->revoke_on_unregistration)) {
                 my $node_info = node_view($mac);
@@ -886,6 +955,7 @@ sub node_cleanup {
                 last;
             }
 
+            my @deleted;
             foreach my $row (@nodes) {
                 my $mac = $row->{'mac'};
                 my $voip = $row->{'voip'};
@@ -896,8 +966,12 @@ sub node_cleanup {
                 $logger->info("mac $mac not seen for $delete_time seconds, deleting");
                 require pf::locationlog;
                 pf::locationlog::locationlog_update_end_mac($mac);
-                node_delete($mac);
+                # The portal sessions expire after 6h by default (httpd.portal in chi.conf): a node not seen for a
+                # day has none. Otherwise they are removed once for the whole batch (one request per cluster member)
+                my ($deleted) = node_delete($mac, keep_portal_session => 1);
+                push @deleted, $mac if $deleted && $delete_time < 86400;
             }
+            node_clear_portal_session(@deleted) if @deleted;
 
             my $end_time = time;
             last if (( $end_time - $start_time) > $time_limit );
@@ -1233,61 +1307,6 @@ sub node_update_last_seen {
 }
 
 
-=item check_multihost
-
-Verify, based on open location log for a MAC, if there's more than one endpoint on a switchport.
-
-location_info is an optionnal hashref containing switch ID, switch port and connection type. If provided, there is no need to look them up.
-
-=cut
-
-sub check_multihost {
-    my ( $mac, $location_info ) = @_;
-    my $logger = get_logger();
-
-    return unless isenabled($Config{'advanced'}{'multihost'});
-
-    $mac = clean_mac($mac);
-    unless ( defined $location_info && ($location_info->{'switch_id'} ne "") && ($location_info->{'switch_port'} ne "") && ($location_info->{'connection_type'} ne "") ) {
-        my ($status, $iter) = pf::dal::locationlog->search(
-            -where => {
-                mac => $mac,
-                end_time => $ZERO_DATE,
-            },
-            -limit => 1,
-        );
-        if (is_success($status)) {
-            my $locationlog_info_ref = $iter->next(undef);
-            if ($locationlog_info_ref) {
-                $location_info->{'switch_id'} = $locationlog_info_ref->{'switch'};
-                $location_info->{'switch_port'} = $locationlog_info_ref->{'port'};
-                $location_info->{'connection_type'} = $locationlog_info_ref->{'connection_type'} // '';
-            }
-        }
-    }
-
-    # There is no "multihost" capabilities for wireless or inline connections
-    if ( ($location_info->{'connection_type'} =~ /^Wireless/)  || ($location_info->{'connection_type'} =~ /^Inline/) ) {
-        $logger->debug("Not looking up multihost presence with MAC '$mac' since it is a '$location_info->{'connection_type'}' connection");
-        return;
-    }
-
-    $logger->debug("Looking up multihost presence on switch ID '$location_info->{'switch_id'}', switch port '$location_info->{'switch_port'}' (with MAC '$mac')");
-
-    my @locationlog = pf::locationlog::locationlog_view_open_switchport_no_VoIP($location_info->{'switch_id'}, $location_info->{'switch_port'});
-
-    return unless scalar @locationlog > 1;
-
-    my @mac;
-    $logger->info("Found '" . scalar @locationlog . "' active devices on switch ID '$location_info->{'switch_id'}', switch port '$location_info->{'switch_port'}' (with MAC '$mac')");
-    for my $entry ( @locationlog ) {
-        push @mac, $entry->{'mac'};
-    }
-
-    return @mac;
-}
-
-
 =item node_last_reg_non_inline_on_category
 
 Return the last mac that has been registered in a specific category
@@ -1334,7 +1353,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

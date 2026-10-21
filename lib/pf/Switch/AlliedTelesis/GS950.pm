@@ -46,6 +46,7 @@ sub description { return "Allied Telesis GS950" }
 use pf::SwitchSupports qw(
     WiredDot1x
     WiredMacAuth
+    Flow
 );
 
 =back
@@ -56,7 +57,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

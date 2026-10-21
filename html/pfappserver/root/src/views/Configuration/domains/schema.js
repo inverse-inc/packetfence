@@ -62,7 +62,8 @@ export default (props) => {
       .nullable()
       .required(i18n.t('FQDN required.'))
       .label(i18n.t('FQDN'))
-      .isFQDN('Invalid FQDN.'),
+      .isFQDN('Invalid FQDN.')
+      .isLowerCase(i18n.t('FQDN must be lower case.')),
     ad_server: yup.string()
       .when('id', {
         is: () => !ad_fqdn || !dns_servers,
@@ -72,6 +73,7 @@ export default (props) => {
     dns_name: yup.string().nullable().label(i18n.t('DNS name'))
       .required(i18n.t('Server required.'))
       .isFQDN()
+      .isLowerCase(i18n.t('DNS name must be lower case.'))
       .domainUniqueNamesNotExistsExcept({ id, ...form }),
     dns_servers: yup.string().nullable().label(i18n.t('Servers'))
       .required(i18n.t('DNS servers required.'))

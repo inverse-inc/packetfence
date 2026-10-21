@@ -16,6 +16,7 @@ use pf::Authentication::constants;
 use pf::constants::authentication::messages;
 use JSON::MaybeXS qw(decode_json encode_json);
 use List::Util qw(first);
+use URI::Escape qw(uri_escape);
 extends 'pf::Authentication::Source';
 with qw(pf::Authentication::InternalRole);
 
@@ -24,8 +25,9 @@ has '+class' => (default => 'internal');
 has 'client_id' => (isa => 'Str', is => 'rw', required => 1);
 has 'client_secret' => (isa => 'Str', is => 'rw', required => 1);
 has 'tenant_id' => (isa => "Str", is => "rw", required => 1);
-has 'token_url' => (isa => 'Str', is => 'rw', default => "https://login.microsoftonline.com/%TENANT_ID/oauth2/v2.0/token");
-has 'user_groups_url' => (isa => 'Str', is => 'rw', default => "https://graph.microsoft.com/v1.0/users/%USERNAME/memberOf");
+has 'graph_url' => (isa => 'Str', is => 'rw', default => 'https://graph.microsoft.com');
+has 'oauth_url' => (isa => 'Str', is => 'rw', default => 'https://login.microsoftonline.com');
+has 'user_groups_url_path' => (isa => 'Str', is => 'rw', default => "/v1.0/users/%USERNAME/memberOf");
 has 'user_groups_cache' => (isa => 'Int', is => "rw", default => 0);
 has 'timeout' => (isa => 'Int', is => 'rw', default => 10);
 
@@ -73,17 +75,28 @@ sub dynamic_routing_module { 'Authentication::Login' }
 
 sub build_token_url {
     my ($self) = @_;
-    my $url = $self->token_url;
+    my $url = $self->oauth_url;
+    $url =~ s#/*$##;
     my $tenant_id = $self->tenant_id;
-    $url =~ s/%TENANT_ID/$tenant_id/g;
-    return $url;
+    return "$url/$tenant_id/oauth2/v2.0/token";
 }
 
 sub build_user_groups_url {
     my ($self, $username) = @_;
-    my $url = $self->user_groups_url;
-    $url =~ s/%USERNAME/$username/g;
-    return $url;
+    my $encoded_username = uri_escape($username);
+    my $url = $self->graph_url;
+    $url =~ s#/*$##;
+    my $path = $self->user_groups_url_path;
+    $path = "/$path" unless $path =~ m#^/#;
+    $path =~ s/%USERNAME/$encoded_username/g;
+    return "$url$path";
+}
+
+sub build_scope_url {
+    my ($self) = @_;
+    my $url = $self->graph_url;
+    $url =~ s#/*$##;
+    return "$url/.default";
 }
 
 sub _get_admin_token {
@@ -94,7 +107,7 @@ sub _get_admin_token {
     my $r = $ua->post($self->build_token_url, [
         client_id => $self->client_id,
         client_secret => $self->client_secret,
-        scope => "https://graph.microsoft.com/.default",
+        scope => $self->build_scope_url(),
         grant_type => "client_credentials",
     ]);
     if($r->is_success) {
@@ -192,7 +205,8 @@ sub get_memberOf {
         return map{ $_->{displayName} } @{$response->{value}};
     }
     else {
-        $logger->error("Failed to obtain groups for $username: " . $r->status_line);
+        my $id = $self->id;
+        $logger->error("Failed to obtain groups for $username (source[$id]): " . $r->status_line);
         return $self->handle_failed_admin_call($r, sub{$self->get_memberOf($username)});
     }
 }
@@ -215,7 +229,19 @@ sub get_cached_memberOf {
 
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
-    $params->{memberOf} = [ $self->get_cached_memberOf($params->{username}, $params) ];
+    # Some flows (e.g. sponsor validation) only provide the identity under
+    # 'email' rather than 'username'. Mirror the LDAP source behavior and fall
+    # back to the email so the Graph memberOf lookup can resolve the user
+    # (Graph accepts the userPrincipalName / email as the {id} key).
+    my $username = $params->{username};
+    $username = $params->{email} unless (defined($username) && length($username));
+    if (defined($username) && length($username)) {
+        $params->{memberOf} = [ $self->get_cached_memberOf($username, $params) ];
+    }
+    else {
+        get_logger->warn("No username or email provided while matching in AzureAD source ".$self->id."; skipping group (memberOf) lookup.");
+        $params->{memberOf} = [];
+    }
     my $match = $rule->match;
     # If match any we just want the first
     my @conditions;
@@ -227,7 +253,7 @@ sub match_in_subclass {
         @conditions = grep { $self->match_condition($_, $params) } @$own_conditions;
     }
     push @$matching_conditions, @conditions;
-    return ($params->{'username'}, undef);
+    return ($username, undef);
 }
 
 
@@ -237,7 +263,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

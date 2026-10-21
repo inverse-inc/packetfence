@@ -28,19 +28,26 @@ and one for the "secure" network.
 [float]
 ===== AAA Policy (RADIUS server)
 
-First, we need to build the AAA Policy. Under _Configuration -> Wireless -> AAA Policy_, click on the *Add* button at the bottom right. Configure the RADIUS profile like the following:
+First, we need to build the AAA Policy. Under _Configuration -> Wireless -> AAA
+Policy_, click on the *Add* button at the bottom right. Configure the RADIUS
+profile like the following:
 
+[options="compact"]
 * Host: Choose IP Address in the drop down, and put the RADIUS server (PF) IP
 * Insert a RADIUS secret passphrase
 * Select "Through Wireless Controller" Request Mode
 
-CAUTION: Since we are using RADIUS Dynamic Authorization, we need to enable the RADIUS accounting. Under the RADIUS accounting tab, click the Add button at the bottom right, and insert the proper values.
+CAUTION: Since we are using RADIUS Dynamic Authorization, we need to enable the
+RADIUS accounting. Under the RADIUS accounting tab, click the Add button at the
+bottom right, and insert the proper values.
 
 [float]
 ===== Open SSID
 
-Under _Configuration -> Wireless -> Wireless LANs_, click on the *Add* button at the bottom right. Under Basic Configuration:
+Under _Configuration -> Wireless -> Wireless LANs_, click on the *Add* button at
+the bottom right. Under Basic Configuration:
 
+[options="compact"]
 * Profile Name : Give a convenient name
 * SSID: This is the ESSID name
 * Ensure that the WLAN Status is set to enable
@@ -48,22 +55,27 @@ Under _Configuration -> Wireless -> Wireless LANs_, click on the *Add* button at
 * Ensure that "Allow RADIUS Override" is selected
 
 .Security configuration:
+[options="compact"]
 * Select MAC as authentication type
 * Select your AAA Policy previously created
 * Ensure that you selected Open as the Encryption
 
 .Accounting configuration:
+[options="compact"]
 * Make sure you select "Enable RADIUS Accounting"
 * Select the previously configured AAA Policy
 
 .Advanced configuration:
+[options="compact"]
 * Make sure you select RADIUS Dynamic Authorization
 
 [float]
 ===== Secure SSID
 
-Under _Configuration -> Wireless -> Wireless LANs_, click on the *Add* button at the bottom right. Under Basic Configuration:
+Under _Configuration -> Wireless -> Wireless LANs_, click on the *Add* button at
+the bottom right. Under Basic Configuration:
 
+[options="compact"]
 * Profile Name : Give a convenient name
 * SSID: This is the ESSID name
 * Ensure that the WLAN Status is set to enable
@@ -71,50 +83,75 @@ Under _Configuration -> Wireless -> Wireless LANs_, click on the *Add* button at
 * Ensure that "Allow RADIUS Override" is selected
 
 .Security configuration:
+[options="compact"]
 * Select EAP as authentication type
 * Select your AAA Policy previously created
 * Ensure that you selected WPA/WPA2-TKIP as the Encryption
 * Unselect everything under Fast Roaming (Disable caching)
 
 .Accounting configuration:
+[options="compact"]
 * Make sure you select "Enable RADIUS Accounting"
 * Select the previously configured AAA Policy
 
 .Advanced configuration:
+[options="compact"]
 * Make sure you select RADIUS Dynamic Authorization
 
 [float]
 ===== Profile (WLAN Mapping)
 
-You have multiple options here. Either, you create a general AP profile, and you assign it to your Aps, or you modify the AP device configuration to map the WLAN to the radio interfaces. For the purpose of this document, we will modify the general profile. Under _Profiles -> default-apXXX_ (where XXX is your AP model), in _Interface -> Radios_, edit the existing radios settings. Go to the *WLAN Mapping* tab, select the two SSIDs and click on the *<<* button.
+You have multiple options here. Either, you create a general AP profile, and you
+assign it to your Aps, or you modify the AP device configuration to map the WLAN
+to the radio interfaces. For the purpose of this document, we will modify the
+general profile. Under _Profiles -> default-apXXX_ (where XXX is your AP model),
+in _Interface -> Radios_, edit the existing radios settings. Go to the *WLAN
+Mapping* tab, select the two SSIDs and click on the *<<* button.
 
 [float]
 ===== Profile (Management)
 
-Here, we can configure our SNMP community strings. Located in _Configuration -> Management -> Management Policy_. Again, you can modify the default one, or you can create a brand new Policy.
+Here, we can configure our SNMP community strings. Located in _Configuration ->
+Management -> Management Policy_. Again, you can modify the default one, or you
+can create a brand new Policy.
 
 [float]
 ===== VLANs
 
-You need to ensure that the uplink interface of the controller is configured as a trunk, and that all the necessary VLANs are created on the device. This is configured under _Device -> rfsXXXX-MAC_ (where XXXX is your controller series, and MAC is the latest 3 octets of its mac address). Edit the device configuration, and go to _Interface -> Ethernet Ports_. Ensure that the up1 interface is set as trunk, with all the allowed VLANs. Next, create the VLAN under _Interface -> Virtual Interfaces_.
+You need to ensure that the uplink interface of the controller is configured as
+a trunk, and that all the necessary VLANs are created on the device. This is
+configured under _Device -> rfsXXXX-MAC_ (where XXXX is your controller series,
+and MAC is the latest 3 octets of its mac address). Edit the device
+configuration, and go to _Interface -> Ethernet Ports_. Ensure that the up1
+interface is set as trunk, with all the allowed VLANs. Next, create the VLAN
+under _Interface -> Virtual Interfaces_.
 
 [float]
 ===== Roles (Per-User Firewall)
 
-Since PacketFence 3.3.0, we now support roles for the Motorola hardware using WiNGS 5.x.  To add roles, go in _Configuration -> Security -> Wireless Client Roles_.  First create a global policy that
-will contain your roles.  Next, create your Roles by clicking on the *Add* button on the bottom right.  It is important to configure the Group Configuration line properly by setting the string
-name that we will use in the RADIUS packet.  For example, for a Guests Role, you can put *Group Configuration Exact Guests*, and for a Staff Roles, you can put *Group Configuration Exact Staff*. 
+Since PacketFence 3.3, we now support roles for the Motorola hardware using
+WiNGS 5.x. To add roles, go in _Configuration -> Security -> Wireless Client
+Roles_. First create a global policy that
+will contain your roles. Next, create your Roles by clicking on the *Add* button
+on the bottom right. It is important to configure the Group Configuration line
+properly by setting the string
+name that we will use in the RADIUS packet. For example, for a Guests Role, you
+can put *Group Configuration Exact Guests*, and for a Staff Roles, you can put
+*Group Configuration Exact Staff*.
 In the roles configuration in switches.conf, you would have something like :
 
    roles=CategoryGuests=Guests;CategoryStaff=Staff
 
-Finally, don't forget to configure the appropriate firewall rules for your Roles!  Make sure also to commit the configuration upon your changes.
+Finally, don't forget to configure the appropriate firewall rules for your
+Roles! Make sure also to commit the configuration upon your changes.
 
-NOTE: You need to have an *Advanced Security* license to enable the Per-User Firewall feature.
+NOTE: You need to have an *Advanced Security* license to enable the Per-User
+Firewall feature.
 
 ===== WIPS
 
-In order to enable the WIPS functionality on the Motorola, you need to follow this procedure.  The steps have been done using the CLI.
+In order to enable the WIPS functionality on the Motorola, you need to follow
+this procedure. The steps have been done using the CLI.
 
 First, Create a wips-policy:
 
@@ -133,14 +170,19 @@ Next, create an event policy:
    event-system-policy PF-WIDS
    event wips wips-event syslog off snmp on forward-to-switch off email off
 
-Next, create or adjust your management policy to configure the SNMP traps.  Here is an example policy, please note the two last lines:
+Next, create or adjust your management policy to configure the SNMP traps. Here
+is an example policy, please note the two last lines:
 
    management-policy default
    no http server
    https server
    ssh
-   user admin password 1 e4c93663e3356787d451312eeb8d4704ef09f2331a20133764c3dc3121f13a5b role superuser access all
-   user operator password 1 7c9b1fbb2ed7d5bb50dba0b563eac722b0676b45fed726d3e4e563b0c87d236d role monitor access all
+   user admin password 1
+   e4c93663e3356787d451312eeb8d4704ef09f2331a20133764c3dc3121f13a5b role
+   superuser access all
+   user operator password 1
+   7c9b1fbb2ed7d5bb50dba0b563eac722b0676b45fed726d3e4e563b0c87d236d role monitor
+   access all
    no snmp-server manager v3
    snmp-server community public ro
    snmp-server community private rw
@@ -156,7 +198,8 @@ You then need to tell your controller to use the event policy:
    ...
    use event-system-policy PF-WIDS
 
-Finally, you need to configure a radio interface on your AP to act as a sensor.  Here is an example configuration for a dual-radio AP650:
+Finally, you need to configure a radio interface on your AP to act as a sensor.
+Here is an example configuration for a dual-radio AP650:
 
    ap650 00-23-68-86-EB-BC
    use profile default-ap650
@@ -178,6 +221,7 @@ Finally, you need to configure a radio interface on your AP to act as a sensor. 
 ==== Older Firmwares (< 5.0)
 
 .Option for Public Wireless LAN
+[options="compact"]
 * Check the Dynamic Assignment check-box
 * Select "MAC Authentication" under Authentication
 * Click "Config..." choose the Colon delimiter format
@@ -185,6 +229,7 @@ Finally, you need to configure a radio interface on your AP to act as a sensor. 
 * Under RADIUS put in PacketFence's RADIUS Server information
 
 .Option for Secure Wireless LAN
+[options="compact"]
 * Check the Dynamic Assignment check-box
 * Select "802.1X EAP" under Authentication
 * Check WPA/WPA2-TKIP encryption option
@@ -193,4 +238,5 @@ Finally, you need to configure a radio interface on your AP to act as a sensor. 
 [float]
 ===== SNMP Global configuration
 
-Add the two Read-Only and Read-Write users under _Management Access -> SNMP Access_.
+Add the two Read-Only and Read-Write users under _Management Access -> SNMP
+Access_.

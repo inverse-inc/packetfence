@@ -29,7 +29,7 @@ use HTML::Entities;
 use pf::constants::web qw($USER_AGENT_CACHE_EXPIRATION);
 use pf::web ();
 use pf::api::queue;
-use pf::file_paths qw($install_dir);
+use pf::file_paths qw($install_dir $captiveportal_profile_templates_path);
 use pf::config qw(%Config);
 use pf::activation;
 use fingerbank::Config;
@@ -375,6 +375,7 @@ sub render {
     my $profile = $self->profile;
     $args->{lang} = $self->session->{lang};
     my %saved_fields = %{$self->session->{saved_fields}} if (defined ($self->session->{saved_fields}) );
+    my %theme_assets  = %{$self->_resolve_theme_assets};
 
     my $layout_args = {
         isRootSSO => $self->isRootSSO,
@@ -383,7 +384,7 @@ sub render {
         client_mac => $self->current_mac,
         client_ip => $self->current_ip,
         title => $self->title,
-        logo => $profile->getLogo,
+        %theme_assets,
         profile => $profile,
         lang => $self->session->{lang},
         %saved_fields,
@@ -426,6 +427,9 @@ sub _render {
     };
     $args->{ i18n_format } = sub {
         return $self->i18n_format(@_);
+    };
+    $args->{ duration_str } = sub {
+        return $self->duration_str(@_);
     };
 
     get_logger->debug(sub { "Previous : ". ($self->previous_module_id // "undef") . ", Current module : " . ($self->current_module_id // "undef") });
@@ -515,6 +519,29 @@ sub i18n_format {
     return pf::web::i18n_format($msgid, @args);
 }
 
+=head2 duration_str
+
+Format an amount of seconds, such as a time balance, in days, hours and
+minutes (93784 is "1d 2h 3m"), or in seconds below a minute ("45s").
+
+Also available to the templates as C<duration_str(seconds)>.
+
+=cut
+
+sub duration_str {
+    my ( $self, $seconds ) = @_;
+    $seconds = int($seconds // 0);
+    my $days = int($seconds / 86400);
+    my $hours = int(($seconds % 86400) / 3600);
+    my $minutes = int(($seconds % 3600) / 60);
+    my @parts;
+    push @parts, $days . $self->i18n("d") if $days;
+    push @parts, $hours . $self->i18n("h") if $hours;
+    push @parts, $minutes . $self->i18n("m") if $minutes;
+    push @parts, ($seconds % 60) . $self->i18n("s") unless @parts;
+    return join(' ', @parts);
+}
+
 =head2 error
 
 Create the template for an error
@@ -601,13 +628,47 @@ sub isRootSSO {
     return defined $root_module && $root_module->isa("captiveportal::DynamicRouting::Module::RootSSO")
 }
 
+=head2 _resolve_theme_assets
+
+Resolve theme_path, logo and background_url in a single filesystem pass.
+Fallback order: profile-specific → default profile. Returns undef for
+theme_path and background_url if neither exists (no /common fallback).
+
+=cut
+
+sub _resolve_theme_assets {
+    my ($self) = @_;
+    my $profile_name = $self->profile->name;
+    my @names = ($profile_name);
+    push @names, 'default' if $profile_name ne 'default';
+
+    my %assets = (
+        theme_path     => undef,
+        logo           => undef,
+        background_url => undef,
+    );
+
+    # //= assigns only when still undef, so the first match (own profile) wins
+    for my $name (@names) {
+        my $base = "$captiveportal_profile_templates_path/$name";
+        $assets{theme_path}     //= "/profile-templates/$name/theme.css"     if -f "$base/theme.css" && -s "$base/theme.css";
+        $assets{logo}           //= "/profile-templates/$name/logo.png"       if -f "$base/logo.png";
+        $assets{background_url} //= "/profile-templates/$name/background.png" if -f "$base/background.png";
+    }
+
+    # absolute fallback to config for a logo. 
+    $assets{logo}           //= $self->profile->getLogo;  # config value
+
+    return \%assets;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

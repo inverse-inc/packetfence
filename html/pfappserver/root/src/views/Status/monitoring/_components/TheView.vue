@@ -39,7 +39,7 @@
             <div class="p-3">
               <small class="text-muted">{{ host }}</small>
               <div class="mt-2">
-                <chart :definition="{ ...showChart, height: `${Math.max(25, 80 / Object.keys(cluster).length)}vh` }" :host="`/netdata/${management_ip}`" :data-colors="palette(0)"
+                <chart :definition="{ ...showChart, height: `${Math.max(20, 75 / Object.keys(cluster).length)}vh` }" :host="`/netdata/${management_ip}`" :data-colors="palette(0)"
                   :data-common-max="showChart.metric" :data-common-units="showChart.metric" :data-after="-showAfter" />
               </div>
             </div>
@@ -85,7 +85,7 @@
         </b-col>
       </b-row>
 
-    <b-tabs nav-class="nav-fill" v-model="tabIndex" lazy :key="$i18n.locale">
+    <b-tabs nav-class="nav-fill" v-model="tabIndex" lazy :key="`${host}-${$i18n.locale}`">
       <b-tab v-for="(section, sectionIndex) in filteredSections" :title="$i18n.t(section.name)" :key="`${section.name}-${sectionIndex}-${showAfter}`">
         <template v-for="(group, groupIndex) in section.groups">
           <!-- Named groups are rendered inside a card -->
@@ -129,6 +129,7 @@ const props = {
 }
 
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRefs, watch } from '@vue/composition-api'
+import { notifyHostAlarms } from '../../_composables/useAlarmNotifications'
 import acl from '@/utils/acl'
 import i18n from '@/utils/locale'
 import allSections from '../_config'
@@ -143,7 +144,7 @@ const setup = (props, context) => {
 
   const ip = computed(() => {
     Object.values(cluster.value).map(({ host: _host, management_ip }) => {
-      if(_host === host) return management_ip
+      if(_host === host.value) return management_ip
     })
     const { 0: { management_ip = '127.0.0.1' } = {} } = Object.values(cluster.value)
     return management_ip
@@ -235,31 +236,7 @@ const setup = (props, context) => {
     if ($store.state['$_status'].allCharts) {
       Object.values(cluster.value).forEach(({ management_ip: ip }) => {
         $store.dispatch(`$_status/alarms`, ip).then(({ hostname, alarms = {} } = {}) => {
-          Object.keys(alarms).forEach(url => {
-            const alarm = alarms[url]
-            const label = alarm.chart.split('.')[0].replace(/_/g, ' ') + ' - ' + alarm.family
-            const value = alarm.value_string
-            let status = alarm.status.toLowerCase()
-            switch (status) {
-              case 'warning':
-                break
-              case 'critical':
-                status = 'danger'
-                break
-              default:
-                status = 'info'
-            }
-            const previousNotification = $store.state.notification.all.find(notification => {
-              return notification.url === url && notification.value === value
-            })
-            if (!previousNotification) {
-              $store.dispatch(`notification/${status}`, {
-                message: `<span class="font-weight-normal">${hostname}</span> ${label}`,
-                url,
-                value
-              })
-            }
-          })
+          notifyHostAlarms($store, hostname, alarms)
           getAlarmsTimer.value = setTimeout(getAlarms, alarmsInterval.value)
         })
       })

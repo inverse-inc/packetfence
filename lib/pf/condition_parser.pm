@@ -48,7 +48,7 @@ use pf::constants::condition_parser qw($TRUE_CONDITION);
 use base qw(Exporter);
 
 BEGIN {
-    our @EXPORT_OK = qw(parse_condition_string ast_to_object);
+    our @EXPORT_OK = qw(parse_condition_string ast_to_object top_level_condition);
 }
 
 
@@ -101,6 +101,10 @@ sub parse_condition_string {
     pos() = 0;
     #Reduce whitespace
     /\G\s*/gc;
+    # If condition is empty or only whitespace, default to a true function (always-true condition)
+    if (pos() == length($_)) {
+        return (['FUNC', 'true', []], '');
+    }
     my $expr = eval {_parse_expr()};
     if ($@) {
         return (undef, $@);
@@ -491,6 +495,24 @@ sub object_to_str {
     return $str;
 }
 
+=head2 top_level_condition
+
+The condition (as returned by ast_to_object) with an operator that has values
+at the top (and, or, not_and, not_or), as the condition editor of the admin
+needs it: any other condition is wrapped in an and. A NOT is never a top
+level not by itself, ast_to_object already turns it into not_and, not_or or
+the inverse of a binary operator.
+
+=cut
+
+our %TOP_LEVEL_OPS = map { $_ => 1 } qw(and or not_and not_or);
+
+sub top_level_condition {
+    my ($condition) = @_;
+    return $condition if $TOP_LEVEL_OPS{$condition->{op} // ''};
+    return { op => 'and', values => [$condition] };
+}
+
 sub _object_to_str {
     my ($obj) = @_;
     my $op = $obj->{op};
@@ -498,7 +520,7 @@ sub _object_to_str {
         return 'true()';
     }
     if (exists $OBJ_OPS{$op}) {
-        my $values = $obj->{values};
+        my $values = $obj->{values} // [];
         if ( @$values == 1 ) {
             return object_to_str(@$values);
         }
@@ -507,7 +529,7 @@ sub _object_to_str {
     }
 
     if (exists $OBJ_NOT_OPS{$op}) {
-        my $values = $obj->{values};
+        my $values = $obj->{values} // [];
         return join('', '!(', join( " $OBJ_NOT_OPS{$op} ", map { _object_to_str($_) } @$values ), ')' );
     }
 
@@ -528,7 +550,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

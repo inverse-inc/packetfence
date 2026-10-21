@@ -2,7 +2,7 @@
   <div :class="{ 'w-saas': isSaas, 'wo-saas': !isSaas }">
     <b-navbar toggleable="md" fixed="top" type="dark" class="navbar-expand-md bg-dark" :class="{ 'alert-danger': warnings.length > 0 }">
       <b-nav-toggle target="navbar"></b-nav-toggle>
-      <b-navbar-brand>
+      <b-navbar-brand to="/status/about" @click.native="closeFullscreenDocs">
         <img src="@/assets/packetfence.white.small.svg"/>
       </b-navbar-brand>
       <b-collapse is-nav id="navbar">
@@ -23,8 +23,8 @@
             <template v-slot:button-content>
               <icon name="ellipsis-v"></icon>
             </template>
-            <b-dropdown-item-button v-if="$i18n.locale == 'en'" @click="setLanguage('fr')">Français</b-dropdown-item-button>
-            <b-dropdown-item-button v-else @click="setLanguage('en')">English</b-dropdown-item-button>
+            <b-dropdown-item-button v-for="language in languages" v-show="$i18n.locale !== language.language" :key="`debug-${language.language}`"
+              @click="setLanguage(language.language)">{{ $t(language.label, language.language) }}</b-dropdown-item-button>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-item to="/login">{{ $t('Login to Administration') }}</b-dropdown-item>
           </b-nav-item-dropdown>
@@ -34,14 +34,23 @@
             <template v-slot:button-content>
               <icon name="user-circle"></icon> {{ username }}
             </template>
-            <b-dropdown-item-button v-if="isDebug && $i18n.locale == 'en'" @click="setLanguage('fr')">Français</b-dropdown-item-button>
-            <b-dropdown-item-button v-else-if="isDebug" @click="setLanguage('en')">English</b-dropdown-item-button>
+            <b-dropdown-item-button v-for="language in languages" v-show="$i18n.locale !== language.language" :key="`auth-${language.language}`"
+              @click="setLanguage(language.language)">{{ $t(language.label, language.language) }}</b-dropdown-item-button>
+            <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-item to="/preferences">{{ $t('Preferences') }}</b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-item to="/logout">{{ $t('Log out') }}</b-dropdown-item>
           </b-nav-item-dropdown>
           <b-nav-item @click="toggleDocumentationViewer" :active="showDocumentationViewer" v-b-tooltip.hover.bottom.d300 title="Alt + Shift + H">
             <icon name="question-circle"></icon>
+          </b-nav-item>
+          <b-nav-item to="/live-logs" v-b-tooltip.hover.bottom.d300 title="Alt + Shift + L"
+            :active="$route.path.startsWith('/live-logs')">
+            <icon name="scroll" :class="{ 'text-success': hasRunningSessions }" />
+          </b-nav-item>
+          <b-nav-item to="/historical-logs" v-b-tooltip.hover.bottom.d300 :title="$t('Historical Logs')"
+            :active="$route.path.startsWith('/historical-logs')">
+            <icon name="history" />
           </b-nav-item>
         </b-navbar-nav>
         <app-notifications :isAuthenticated="isAuthenticated || isConfiguratorActive" />
@@ -95,7 +104,7 @@ const components = {
 
 import { computed, ref, watch } from '@vue/composition-api'
 import useEvent from '@/composables/useEvent'
-import i18n from '@/utils/locale'
+import i18n, { languages } from '@/utils/locale'
 
 const setup = (props, context) => {
 
@@ -118,6 +127,12 @@ const setup = (props, context) => {
   })
   const toggleDocumentationViewer = () => {
     $store.dispatch('documentation/toggleViewer')
+  }
+
+  const closeFullscreenDocs = () => {
+    if ($store.getters['documentation/fullscreen']) {
+      $store.dispatch('documentation/closeViewer')
+    }
   }
 
   const isAuthenticated = computed(() => $store.getters['session/isAuthenticated'])
@@ -147,6 +162,15 @@ const setup = (props, context) => {
   const hostname = computed(() => $store.getters['system/hostname'])
   const username = computed(() => $store.state.session.username)
   const version = computed(() => $store.getters['system/version'])
+
+  const uuidRe = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/
+  const hasRunningSessions = computed(() => {
+    const liveLogsState = $store.state.$_live_logs
+    if (!liveLogsState) return false
+    return Object.keys(liveLogsState)
+      .filter(id => uuidRe.test(id))
+      .some(id => $store.getters[`$_live_logs/${id}/isRunning`])
+  })
 
   // show nav links conditionally,
   //  instead of using redundant "v-can"
@@ -206,6 +230,11 @@ const setup = (props, context) => {
           $router.push('/configuration')
             .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
           break
+        case keyCode === 76: // L
+          e.preventDefault()
+          $router.push('/live-logs')
+            .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+          break
         case keyCode === 72: // H
           e.preventDefault()
           $store.dispatch('documentation/toggleViewer')
@@ -254,11 +283,16 @@ const setup = (props, context) => {
     // user preferences
     settings,
     setLanguage,
+    languages,
+
+    // live logs
+    hasRunningSessions,
 
     // documentation
     documentationViewerClass,
     showDocumentationViewer,
     toggleDocumentationViewer,
+    closeFullscreenDocs,
   }
 }
 

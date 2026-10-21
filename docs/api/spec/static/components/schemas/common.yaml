@@ -1,0 +1,16 @@
+EnableValue:
+  description: Enable/disable boolean value as string.
+  type: string
+  enum:
+    - enabled
+    - enable
+    - yes
+    - y
+    - true
+    - 1
+    - disabled
+    - disable
+    - no
+    - n
+    - false
+    - 0

@@ -15,9 +15,11 @@ Developed and tested on a MS220_8P (P standing for PoE) switch
 
 =head1 BUGS AND LIMITATIONS
 
-=head2 Cannot detect VoIP devices
+=head2 VoIP devices detection
 
-VoIP devices cannot be detected via CDP/LLDP via an SNMP lookup.
+VoIP devices are detected through the CDP neighbors of the port (SNMP, CISCO-CDP-MIB),
+which requires SNMP to be enabled for the network in the Meraki dashboard and the
+SNMP read parameters on the switch. LLDP is not queried.
 
 =cut
 
@@ -43,11 +45,13 @@ use pf::Switch::Meraki::MR_v2;
 # CAPABILITIES
 # access technology supported
 sub description { 'Meraki MS v15' }
+sub switchDriverId { 'meraki' }
 use pf::SwitchSupports qw(
     WiredMacAuth
     WiredDot1x
     RadiusVoip
     RoleBasedEnforcement
+    Flow
 );
 
 sub isVoIPEnabled {
@@ -176,7 +180,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

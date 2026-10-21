@@ -3,6 +3,7 @@ package pool
 import (
 	"context"
 	"database/sql"
+	"net"
 	"testing"
 
 	"github.com/inverse-inc/go-utils/log"
@@ -128,6 +129,9 @@ func TestGetFreeIPIndex(t *testing.T) {
 	for i := uint64(0); i < dp.GetDHCPPool().capacity; i++ {
 		index, _, err := dp.GetFreeIPIndex(mac)
 
+		macObj, _ := net.ParseMAC(mac)
+		mac = IncrementMAC(macObj).String()
+
 		if err != nil {
 			t.Error("Error while trying to get a free IP in a non-full pool")
 		}
@@ -221,6 +225,8 @@ func TestFreeIPsRemaining(t *testing.T) {
 	// Empty the pool, should be 0
 	for i := uint64(0); i < cap; i++ {
 		dp.GetFreeIPIndex(mac)
+		macObj, _ := net.ParseMAC(mac)
+		mac = IncrementMAC(macObj).String()
 	}
 
 	expected = 0
@@ -241,4 +247,73 @@ func TestCapacity(t *testing.T) {
 	if dp.Capacity() != cap {
 		t.Error("Pool capacity not equal the one provided at instantiation")
 	}
+}
+
+// TestGetFreeIPIndexOldestReleased exercises the OldestReleased algorithm and
+// ensures it never returns an index that is still reserved by another MAC.
+// Previously the algorithm iterated `released` directly without filtering by
+// `free`, which could pick an already-reserved index and silently overwrite
+// its MAC binding.
+func TestGetFreeIPIndexOldestReleased(t *testing.T) {
+	cap := uint64(10)
+	dp, err := Create(ctx, "memory", cap, "PoolTestOldest", OldestReleased, StatsdClient, MySQLdatabase)
+	if err != nil {
+		t.Fatal("Got an error creating the pool", err)
+	}
+
+	macA := "00:11:22:33:44:01"
+	macB := "00:11:22:33:44:02"
+
+	// Reserve every index for macA.
+	for i := uint64(0); i < cap; i++ {
+		if _, err := dp.ReserveIPIndex(i, macA); err != nil {
+			t.Fatalf("ReserveIPIndex(%d) failed: %s", i, err)
+		}
+	}
+
+	// Free one index — that's the only legitimate candidate for the next
+	// GetFreeIPIndex call regardless of how stale `released` looks.
+	if err := dp.FreeIPIndex(5); err != nil {
+		t.Fatalf("FreeIPIndex(5) failed: %s", err)
+	}
+
+	idx, _, err := dp.GetFreeIPIndex(macB)
+	if err != nil {
+		t.Fatalf("GetFreeIPIndex failed: %s", err)
+	}
+	if idx != 5 {
+		t.Fatalf("OldestReleased returned reserved index %d; expected 5 (the only free index)", idx)
+	}
+	if _, returnedMac, _ := dp.GetMACIndex(idx); returnedMac != macB {
+		t.Fatalf("Expected pool.mac[%d]=%s, got %s", idx, macB, returnedMac)
+	}
+
+	// macA must still own every other index — the algorithm must not have
+	// silently re-bound a reserved slot to macB.
+	for i := uint64(0); i < cap; i++ {
+		if i == 5 {
+			continue
+		}
+		_, m, _ := dp.GetMACIndex(i)
+		if m != macA {
+			t.Fatalf("Index %d expected to still be held by %s, got %s", i, macA, m)
+		}
+	}
+
+	// Pool should now be full.
+	if _, _, err := dp.GetFreeIPIndex(macB); err == nil {
+		t.Error("Expected pool-is-full error, got nil")
+	}
+}
+
+func IncrementMAC(mac net.HardwareAddr) net.HardwareAddr {
+	inc := make(net.HardwareAddr, len(mac))
+	copy(inc, mac)
+	for i := len(inc) - 1; i >= 0; i-- {
+		inc[i]++
+		if inc[i] != 0 {
+			break
+		}
+	}
+	return inc
 }

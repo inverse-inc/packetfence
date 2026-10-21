@@ -20,12 +20,14 @@ AD server running
    filter and `unreg_on_accounting_stop`
 1. Perform Checkup (common test suite)
 1. Configure 802.1X and dynamic VLAN on hostapd secure wlan0 wireless_secure wireless01
+1. Wait some time
+1. Check wireless dot1x status
 1. Start wpa_supplicant in background *on* wireless01
 1. Wait some time to let RADIUS request be sent by wireless01 and handled by
    PacketFence server
 1. Check RADIUS audit log for wireless01 wlan1
 1. Check node status for wireless01 wlan1
-1. Check VLAN assigned to wireless01 wlan1 *on* wireless01 wlan0
+1. Check dynamic VLAN assignment for wlan0 on wireless01
 
 ## Teardown steps
 1. Kill wpa_supplicant

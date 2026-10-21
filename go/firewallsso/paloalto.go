@@ -10,14 +10,15 @@ import (
 	"text/template"
 
 	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/packetfence/go/config/pfcrypt"
 )
 
 type PaloAlto struct {
 	FirewallSSO
-	Transport string `json:"transport"`
-	Password  string `json:"password"`
-	Port      string `json:"port"`
-	Vsys      string `json:"vsys"`
+	Transport string              `json:"transport"`
+	Password  pfcrypt.CryptString `json:"password"`
+	Port      string              `json:"port"`
+	Vsys      string              `json:"vsys"`
 }
 
 // Firewall specific init
@@ -90,7 +91,7 @@ func (fw *PaloAlto) startSyslog(ctx context.Context, info map[string]string, tim
 // Will return an error if it fails to get a valid reply from it
 func (fw *PaloAlto) startHttp(ctx context.Context, info map[string]string, timeout int) (bool, error) {
 	dst := fw.getDst(ctx, "tcp", fw.PfconfigHashNS, fw.Port)
-	resp, err := fw.getHttpClient(ctx).PostForm("https://"+dst+"/api/?type=user-id&vsys=vsys"+fw.Vsys+"&action=set&key="+fw.Password,
+	resp, err := fw.getHttpClient(ctx).PostForm("https://"+dst+"/api/?type=user-id&vsys=vsys"+fw.Vsys+"&action=set&key="+fw.Password.String(),
 		url.Values{"cmd": {fw.startHttpPayload(ctx, info, timeout)}})
 
 	if err != nil {
@@ -176,7 +177,7 @@ func (fw *PaloAlto) stopHttpPayload(ctx context.Context, info map[string]string)
 // Returns an error if it fails to get a valid reply from the firewall
 func (fw *PaloAlto) stopHttp(ctx context.Context, info map[string]string) (bool, error) {
 	dst := fw.getDst(ctx, "tcp", fw.PfconfigHashNS, fw.Port)
-	resp, err := fw.getHttpClient(ctx).PostForm("https://"+dst+"/api/?type=user-id&vsys=vsys"+fw.Vsys+"&action=set&key="+fw.Password,
+	resp, err := fw.getHttpClient(ctx).PostForm("https://"+dst+"/api/?type=user-id&vsys=vsys"+fw.Vsys+"&action=set&key="+fw.Password.String(),
 		url.Values{"cmd": {fw.stopHttpPayload(ctx, info)}})
 
 	if err != nil {

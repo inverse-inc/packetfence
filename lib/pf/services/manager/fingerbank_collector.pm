@@ -22,6 +22,7 @@ use pf::file_paths qw(
     $server_key
 );
 use pf::constants;
+use pf::util;
 
 extends 'pf::services::manager';
 
@@ -35,8 +36,8 @@ sub isManaged {
 sub generateConfig {
     # Perform HTTPS setup
 
-    system("systemctl set-environment COLLECTOR_HTTP_CERT=$server_cert");
-    system("systemctl set-environment COLLECTOR_HTTP_KEY=$server_key");
+    safe_pf_run("systemctl", "set-environment", "COLLECTOR_HTTP_CERT=$server_cert");
+    safe_pf_run("systemctl", "set-environment", "COLLECTOR_HTTP_KEY=$server_key");
 
     return $TRUE;
 }
@@ -47,7 +48,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

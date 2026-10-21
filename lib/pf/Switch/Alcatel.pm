@@ -48,7 +48,6 @@ use pf::config qw(
     $WIRED_MAC_AUTH
 );
 use pf::node;
-use pf::util::radius qw(perform_disconnect);
 
 =head1 SUBROUTINES
 
@@ -63,6 +62,7 @@ use pf::SwitchSupports qw(
     RadiusDynamicVlanAssignment
     RadiusVoip
     ~AccessListBasedEnforcement
+    Flow
 );
 
 sub isVoIPEnabled { return $_[0]->{_VoIPEnabled} }
@@ -172,7 +172,7 @@ sub radiusDisconnect {
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
 
-    if (!defined($self->{'_radiusSecret'})) {
+    if (!$self->hasRadiusSecret()) {
         $logger->warn(
             "[$self->{'_ip'}] Unable to perform RADIUS CoA-Request: RADIUS Shared Secret not configured"
         );
@@ -209,7 +209,7 @@ sub radiusDisconnect {
         $attributes_ref = {
             %$attributes_ref,
         };
-        $response = perform_disconnect($connection_info, $attributes_ref);
+        $response = $self->handleRadiusDisconnect($connection_info, $attributes_ref);
     } catch {
         chomp;
         $logger->warn("[$self->{'_ip'}] Unable to perform RADIUS Disconnect-Request: $_");
@@ -234,7 +234,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

@@ -137,6 +137,8 @@ sub test_domain {
     my ($domain) = @_;
     
     my $ua = LWP::UserAgent->new;
+    # Shorter than the timeout of the admin proxy, so the admin gets this error rather than a gateway timeout
+    $ua->timeout(30);
 
     my $uuid = $UUID_GENERATOR->create_str;
     my $file = "$acme_challenge_dir/$uuid.txt";
@@ -145,7 +147,13 @@ sub test_domain {
     my $response = $ua->get($Config{lets_encrypt}{test_uri} . "?domain=".uri_escape($domain)."&uuid=".uri_escape($uuid));
 
     unlink $file;
-    
+
+    # An HTML error page (proxy or gateway error) isn't readable in the admin UI, nor is the error of LWP itself
+    # (timeout, connection refused): use the status line instead
+    if (!$response->is_success && ($response->content_type eq 'text/html' || ($response->header('Client-Warning') // '') eq 'Internal response')) {
+        return ($FALSE, "Domain testing service error: " . $response->status_line);
+    }
+
     return ($response->is_success, $response->decoded_content);
 }
 
@@ -155,7 +163,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

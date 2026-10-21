@@ -52,11 +52,11 @@ install: build
 
 	# Install all except debian and t directory
 	# dir* to exclude directory itself
-	for i in `find * ! -path 'debian/*' ! -path 'debian' ! -path 'docs/*' ! -path 'docs' ! -path 't/*' ! -path 't' ! -path 'lib/pfconfig/*' ! -path 'lib/pfconfig' ! -path 'sbin/pfconfig*' \
+	for i in `find * ! -path 'debian/*' ! -path 'debian' ! -path 't/*' ! -path 't' ! -path 'lib/pfconfig/*' ! -path 'lib/pfconfig' ! -path 'sbin/pfconfig*' \
 	-not -path "addons/full-upgrade*" -not -path "html/parking*" -type d`; do \
 		install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$i; \
 	done
-	for i in `find * ! -path 'debian/*' ! -path 'debian' ! -path 'docs/*' ! -path 'docs' ! -path 't/*' ! -path 't' ! -path 'lib/pfconfig/*' ! -path 'lib/pfconfig' ! -path 'sbin/pfconfig*' \
+	for i in `find * ! -path 'debian/*' ! -path 'debian' ! -path 't/*' ! -path 't' ! -path 'lib/pfconfig/*' ! -path 'lib/pfconfig' ! -path 'sbin/pfconfig*' \
 	-not -path "addons/full-upgrade/*" -not -path "html/parking/*" ! -path 'conf/pfconfig.conf*' ! -path 'conf/redis_cache.conf*' ! -type d`; do \
 		$(INSTALL) $$i $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$i; \
 	done
@@ -79,6 +79,12 @@ install: build
 	# packetfence-pfconnector-remote package
 	make DESTDIR=$(CURDIR)/debian/packetfence-pfconnector-remote pfconnector_remote_install
 
+	# packetfence-ntlm-auth-api remote package
+	make DESTDIR=$(CURDIR)/debian/packetfence-ntlm-auth-api-remote ntlm_auth_api_remote_install
+
+	# packetfence-ntlm-auth-join-remote package
+	make DESTDIR=$(CURDIR)/debian/packetfence-ntlm-auth-join-remote ntlm_auth_join_remote_install
+
 	# packetfence-ci-lib package
 	make DESTDIR=$(CURDIR)/debian/packetfence-ci-lib ci_lib_install
 
@@ -91,7 +97,7 @@ install: build
 	done
 	# generate translations
 	# TODO this is duplicated in our RPM spec, we should aim to consolidate in a 'make' style step
-	for TRANSLATION in de en es fr he_IL it nl pl_PL pt_BR nb_NO; do \
+	for TRANSLATION in de en es fr he_IL it nl pl_PL pt_BR nb_NO tr_TR; do \
 		/usr/bin/msgfmt $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/locale/$$TRANSLATION/LC_MESSAGES/packetfence.po \
 		--output-file $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/locale/$$TRANSLATION/LC_MESSAGES/packetfence.mo; \
 	done
@@ -134,6 +140,9 @@ install: build
 	install -d -m0755 $(CURDIR)/debian/packetfence/etc/modules-load.d
 	install -m0644 $(CURDIR)/debian/packetfence.modprobe $(CURDIR)/debian/packetfence/etc/modprobe.d/packetfence.conf
 	install -m0644 $(CURDIR)/debian/packetfence.modules-load $(CURDIR)/debian/packetfence/etc/modules-load.d/packetfence.conf
+	install -d -m0755 $(CURDIR)/debian/packetfence/etc/sysctl.d
+	install -m0644 $(CURDIR)/debian/packetfence.sysctl $(CURDIR)/debian/packetfence/etc/sysctl.d/99-packetfence-udp.conf
+	install -m0644 $(CURDIR)/debian/packetfence-reserved-ports.sysctl $(CURDIR)/debian/packetfence/etc/sysctl.d/99-packetfence-reserved-ports.conf
 
 	# copy the rsyslog systemd drop in and journald
 	install -d -m0755 $(CURDIR)/debian/packetfence/etc/systemd/system/rsyslog.service.d/
@@ -151,10 +160,13 @@ install: build
 	install -oroot -groot -m0440 $(CURDIR)/debian/packetfence.sudoers $(CURDIR)/debian/packetfence/etc/sudoers.d/packetfence
 	install -oroot -groot -m0440 $(CURDIR)/disable-dns-lookup.sudoers $(CURDIR)/debian/packetfence/etc/sudoers.d/disable-dns-lookup
 	#PacketFence Mariadb plugin
-	make src/mariadb_udf/pf_udf.so
-	install -D -m0755 src/mariadb_udf/pf_udf.so $(CURDIR)/debian/packetfence/$$(pkg-config mariadb --variable=plugindir)/pf_udf.so
+	make MYSQL_SUFFIX=server src/mariadb_udf/pf_udf.so
+	install -D -m0755 src/mariadb_udf/pf_udf.so $(CURDIR)/debian/packetfence/$$(/usr/bin/mariadb-config --plugindir)/pf_udf.so
 	#dockerignore
-	install -m0755 .dockerignore $(CURDIR)/debian/packetfence/.dockerignore
+	# Must land in the container build context root (/usr/local/pf), not the
+	# filesystem root, otherwise `docker build .` tars logs/ and var/ (see the
+	# "write too long" errors when building local containers).
+	install -D -m0644 .dockerignore $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/.dockerignore
 	#PacketFence pfcmd suid
 	install -d -m0755 $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin
 	gcc src/pfcmd.c -o $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
@@ -218,7 +230,6 @@ binary-arch: build install
 	dh_installinit --name=packetfence-httpd.admin_dispatcher
 	dh_installinit --name=packetfence-httpd.portal
 	dh_installinit --name=packetfence-httpd.webservices
-	dh_installinit --name=packetfence-docker-iptables
 	dh_installinit --name=packetfence-iptables
 	dh_installinit --name=packetfence-ip6tables
 	dh_installinit --name=packetfence-keepalived
@@ -230,6 +241,7 @@ binary-arch: build install
 	dh_installinit --name=packetfence-pfdetect
 	dh_installinit --name=packetfence-pfdhcplistener
 	dh_installinit --name=packetfence-pfdns
+	dh_installinit --name=packetfence-pfdns-connector
 	dh_installinit --name=packetfence-pffilter
 	dh_installinit --name=packetfence-pfcron
 	dh_installinit --name=packetfence-pfperl-api
@@ -262,6 +274,7 @@ binary-arch: build install
 	dh_installinit --no-start --name=packetfence-tracking-config
 	dh_installinit --no-start --name=packetfence-kafka
 	dh_installinit --name=packetfence-netdata
+	dh_installinit --name=packetfence-pfudpproxy
 
 	dh_installcron
 #	dh_installinfo
@@ -283,6 +296,7 @@ binary-arch: build install
 	chmod 2775 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/services.d
 	### Executables
 	# packetfence-export pkg
+	chmod 0755 $(CURDIR)/debian/packetfence-export$(PREFIX)/$(NAME)/addons/exportable-backup.sh
 	chmod 0755 $(CURDIR)/debian/packetfence-export$(PREFIX)/$(NAME)/addons/full-import/export.sh
 	chmod 0755 $(CURDIR)/debian/packetfence-export$(PREFIX)/$(NAME)/addons/full-import/find-extra-files.pl
 	# packetfence-upgrade pkg

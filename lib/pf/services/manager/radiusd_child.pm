@@ -30,7 +30,9 @@ use pfconfig::cached_hash;
 
 use pf::authentication;
 use pf::cluster;
+use pf::log;
 use pf::util;
+use pf::log;
 use Socket;
 
 use pf::constants qw($TRUE $FALSE);
@@ -112,6 +114,7 @@ sub _generateConfig {
     $self->generate_radiusd_acctconf($tt);
     $self->generate_radiusd_eapconf($tt);
     $self->generate_radiusd_restconf($tt);
+    $self->generate_radiusd_redisconf($tt);
     $self->generate_radiusd_sqlconf($tt);
     $self->generate_radiusd_sitesconf($tt);
     $self->generate_radiusd_proxy($tt);
@@ -129,11 +132,26 @@ sub _generateConfig {
 Generates the packetfence and packetfence-tunnel configuration file
 =cut
 
+=head2 multi_domain_disabled_reason
+
+Why the packetfence-multi-domain module (the PacketFence domain lookup for
+MS-CHAP) must not be called, or undef when it is used. Shared by the sites
+that call it, so they all honor advanced.disable_pf_domain_auth.
+
+=cut
+
+sub multi_domain_disabled_reason {
+    return 'explicitly disabled in pf.conf' if isenabled($Config{advanced}{disable_pf_domain_auth});
+    return 'no domains configured' if !keys %ConfigDomain;
+    return undef;
+}
+
 sub generate_radiusd_sitesconf {
     my ($self, $tt) = @_;
     my %tags;
 
     $tags{'remote'} = "";
+    $tags{'multi_domain_disabled'} = multi_domain_disabled_reason();
     $tags{'authorize_eap_choice'} = "";
     $tags{'authentication_auth_type'} = "";
     $tags{'authorize_eap_choice_degraded'} = "";
@@ -235,15 +253,10 @@ EOT
 
     %tags = ();
 
-    if(isenabled($Config{advanced}{disable_pf_domain_auth})){
-        $tags{'multi_domain'} = '# packetfence-multi-domain not activated because explicitly disabled in pf.conf';
-    }
-    elsif(keys %ConfigDomain){
-        $tags{'multi_domain'} = 'packetfence-multi-domain';
-    }
-    else {
-        $tags{'multi_domain'} = '# packetfence-multi-domain not activated because no domains configured';
-    }
+    my $multi_domain_disabled = multi_domain_disabled_reason();
+    $tags{'multi_domain'} = defined($multi_domain_disabled)
+        ? "# packetfence-multi-domain not activated because $multi_domain_disabled"
+        : 'packetfence-multi-domain';
     if(isenabled($Config{radius_configuration}{'filter_in_packetfence-tunnel_authorize'})){
         $tags{'authorize_filter'} = "rest";
     }
@@ -325,7 +338,6 @@ EOT
 
 }
 
-
 =head2 generate_radiusd_mainconf
 
 Generates the radiusd.conf configuration file
@@ -345,11 +357,25 @@ sub generate_radiusd_mainconf {
     $tags{'rpc_port'} = $Config{webservices}{aaa_port} || "7070";
     $tags{'rpc_host'} = $Config{webservices}{aaa_host} || "127.0.0.1";
     $tags{'rpc_proto'} = $Config{webservices}{aaa_proto} || "http";
+    # thread pool max_servers; also caps the rlm_rest connection pool to httpd.aaa
+    # Only a positive integer is usable: radiusd refuses to start on 0 or a negative
+    # value, so anything else (unset, empty, junk) falls back to the default. Don't
+    # test truthiness here, it would silently turn a configured "0" into the default.
+    my $max_servers = $Config{radius_configuration}{radiusd_max_servers};
+    $tags{'max_servers'} = (defined($max_servers) && $max_servers =~ /^\d+$/ && $max_servers > 0)
+        ? $max_servers
+        : 128;
 
     $tt->process("$conf_dir/radiusd/radiusd.conf", \%tags, "$install_dir/raddb/radiusd.conf") or die $tt->error();
     $tt->process("$conf_dir/radiusd/radiusd_loadbalancer.conf", \%tags, "$install_dir/raddb/radiusd_loadbalancer.conf") or die $tt->error();
     $tt->process("$conf_dir/radiusd/radiusd_cli.conf", \%tags, "$install_dir/raddb/radiusd_cli.conf") or die $tt->error();
 }
+
+=head2 generate_radiusd_restconf
+
+Generates the rest configuration file
+
+=cut
 
 sub generate_radiusd_restconf {
     my ($self, $tt) = @_;
@@ -364,6 +390,26 @@ sub generate_radiusd_restconf {
     $tags{'rpc_proto'} = $Config{webservices}{aaa_proto} || "http";
 
     $tt->process("$conf_dir/radiusd/rest.conf", \%tags, "$install_dir/raddb/mods-enabled/rest") or die $tt->error();
+}
+
+=head2 generate_radiusd_redisconf
+
+Generates the redis configuration file
+
+=cut
+
+sub generate_radiusd_redisconf {
+    my ($self, $tt) = @_;
+    my %tags;
+
+    $tags{'template'}    = "$conf_dir/radiusd/redis.conf";
+    $tags{'install_dir'} = $install_dir;
+    $tags{'redis_cache_host'} = $Config{services}{redis_cache_host} || "127.0.0.1";
+    $tags{'redis_cache_port'} = $Config{services}{redis_cache_port} || "6379";
+    $tags{'redis_ntlm_cache_host'} = $Config{services}{redis_ntlm_cache_host} || "127.0.0.1";
+    $tags{'redis_ntlm_cache_port'} = $Config{services}{redis_ntlm_cache_port} || "6383";
+
+    $tt->process("$conf_dir/radiusd/redis.conf", \%tags, "$install_dir/raddb/mods-enabled/redis") or die $tt->error();
 }
 
 sub generate_radiusd_authconf {
@@ -625,6 +671,7 @@ EOT
             }
             $tags{'config'} .= <<"EOT";
 client eduroam_tlrs_server_$i {
+        require_message_authenticator = no
         ipaddr = $radius_ip
         secret = '$radius_secret'
         shortname = eduroam_tlrs$i
@@ -756,6 +803,9 @@ sub generate_radiusd_ldap {
             elsif (defined($pf::config::ConfigRealm{$realm}->{ldap_source_ttls_pap}) && ($pf::config::ConfigRealm{$realm}->{ldap_source_ttls_pap} eq $ldap) ) {
                 $active = $TRUE;
             }
+            elsif (defined($pf::config::ConfigRealm{$realm}->{edir_source}) && ($pf::config::ConfigRealm{$realm}->{edir_source} eq $ldap) ) {
+                $active = $TRUE;
+            }
         }
         next unless $active;
         my $searchattributes = '';
@@ -881,7 +931,9 @@ sub generate_radiusd_proxy {
     foreach my $realm ( @pf::config::ConfigOrderedRealm ) {
         my $options = $pf::config::ConfigRealm{$realm}->{'options'} || '';
         my $real_realm;
-        if (defined $pf::config::ConfigRealm{$realm}->{'regex'} && $pf::config::ConfigRealm{$realm}->{'regex'} ne '') {
+        my $oauth2_realm = '';
+        my $is_regex = defined $pf::config::ConfigRealm{$realm}->{'regex'} && $pf::config::ConfigRealm{$realm}->{'regex'} ne '';
+        if ($is_regex) {
             $real_realm = "\"~".$pf::config::ConfigRealm{$realm}->{'regex'}."\"";
         } else {
             $real_realm = $realm;
@@ -894,14 +946,27 @@ EOT
             my $source = getAuthenticationSource($pf::config::ConfigRealm{$realm}->{azuread_source_ttls_pap});
             my $client_id = $source->client_id;
             my $client_secret = $source->client_secret;
-            $tags{'config'} .= <<"EOT";
+            my $oauth_url = $source->oauth_url;
+            my $oauth2_config = <<"EOT";
 oauth2 {
-    discovery = "https://login.microsoftonline.com/%{Realm}/v2.0"
+    discovery = "$oauth_url/%{Realm}/v2.0"
     client_id = "$client_id"
     client_secret = '$client_secret'
     cache_password = yes
 }
 EOT
+            if ($is_regex) {
+                # For a regex realm FreeRADIUS sets the Realm attribute to the
+                # domain sent by the user, so realm[%{Realm}] can't be used to
+                # find the oauth2 settings. They go in a section named after the
+                # PacketFence realm, selected in the packetfence-tunnel authorize.
+                $oauth2_realm = <<"EOT";
+oauth2_realm $realm {
+$oauth2_config}
+EOT
+            } else {
+                $tags{'config'} .= $oauth2_config;
+            }
         }
         if ($pf::config::ConfigRealm{$realm}->{'radius_auth'} ) {
             $tags{'config'} .= <<"EOT";
@@ -968,6 +1033,7 @@ EOT
 }
 EOT
         }
+        $tags{'config'} .= $oauth2_realm;
         # Generate Eduroam realms config
         my $eduroam_options = $pf::config::ConfigRealm{$realm}->{'eduroam_options'} || '';
         $tags{'eduroam_config'} .= <<"EOT";
@@ -1038,11 +1104,17 @@ EOT
         my @ips = map { inet_ntoa($_) } @addresses[4 .. $#addresses];
         my $src_ip = pf::util::find_outgoing_srcip($ips[0]);
         $source->{'options'} =~ s/\$src_ip/$src_ip/;
+        my $host = $source->{'host'};
+        my $port = $source->{'port'};
+        if ($source->{'use_connector'} && $source->{'pfconnector_port'} ne "") {
+            $host = exists $ENV{PFCONNECTOR_SERVICE_HOST} ? $ENV{PFCONNECTOR_SERVICE_HOST} : "100.64.0.1";
+            $port = $source->{'pfconnector_port'};
+        }
         $tags{'radius_sources'} .= <<"EOT";
 
 home_server $radius {
-ipaddr = $source->{'host'}
-port = $source->{'port'}
+ipaddr = $host
+port = $port
 secret = '$source->{'secret'}'
 $source->{'options'}
 }
@@ -1079,7 +1151,15 @@ EOT
 
     if(isenabled($Config{services}{pfacct})) {
         my $management_ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
-        $tags{'pfacct'} = <<"EOT";
+        my $port = '1813';
+        if ($cluster_enabled || isenabled($Config{services}{radiusd_acct})) {
+            $port = '1823';
+        }
+        if ($cluster_enabled && isenabled($Config{services}{radiusd_acct})) {
+            $port = '1833';
+        }
+
+    $tags{'pfacct'} = <<"EOT";
 # pfacct configuration
 
 realm pfacct {
@@ -1094,7 +1174,7 @@ home_server_pool pfacct_pool {
 home_server pfacct_local {
     type = acct
     ipaddr = 127.0.0.1
-    port = 1813
+    port = $port
     secret = '$local_secret'
     src_ipaddr = $management_ip
 }
@@ -1363,6 +1443,7 @@ EOT
         foreach my $radius_back (uniq(@radius_backend)) {
         $tags{'config'} .= <<"EOT";
 client $radius_back {
+        require_message_authenticator = no
         ipaddr = $radius_back
         secret = '$local_secret'
         port = $self->{eduroam_port}
@@ -1374,17 +1455,18 @@ EOT
     } else {
         my $file = $install_dir."/raddb/sites-enabled/packetfence-cluster";
         unlink($file);
-        my $management_ip
-        = defined( $management_network->tag('vip') )
-        ? $management_network->tag('vip')
-        : $management_network->tag('ip');
-        $tags{'config'} .= <<"EOT";
-client $management_ip {
-        ipaddr = $management_ip
-        secret = '$local_secret'
-        shortname = pf
-}
-EOT
+        #my $management_ip
+        #= defined( $management_network->tag('vip') )
+        #? $management_network->tag('vip')
+        #: $management_network->tag('ip');
+        #$tags{'config'} .= <<"EOT";
+        #client $management_ip {
+        #require_message_authenticator = no
+        #ipaddr = $management_ip
+        #secret = '$local_secret'
+        #shortname = pf
+        #}
+        #EOT
     }
     # Ensure raddb/clients.conf.inc exists. radiusd won't start otherwise.
     $tags{'template'} = "$conf_dir/radiusd/clients.conf.inc";
@@ -1479,12 +1561,24 @@ sub generate_ldap_choice {
     foreach my $key ( @pf::config::ConfigOrderedRealm ) {
         my $choice = "^$key\$";
         if (defined($pf::config::ConfigRealm{$key}->{azuread_source_ttls_pap}) && exists($pf::config::ConfigRealm{$key}->{azuread_source_ttls_pap})) {
-            $choice = $pf::config::ConfigRealm{$key}->{'regex'} if (defined $pf::config::ConfigRealm{$key}->{'regex'} && $pf::config::ConfigRealm{$key}->{'regex'} ne '');
-            $$authorize_ldap_choice .= <<"EOT";
+            if (defined $pf::config::ConfigRealm{$key}->{'regex'} && $pf::config::ConfigRealm{$key}->{'regex'} ne '') {
+                $choice = $pf::config::ConfigRealm{$key}->{'regex'};
+                # The oauth2 settings of a regex realm are in oauth2_realm[$key] (see generate_radiusd_proxy)
+                $$authorize_ldap_choice .= <<"EOT";
+        $oauth2_if (Realm =~ /$choice/) {
+            update control {
+                &OAuth2-Config-Section := "oauth2_realm[$key]"
+            }
+            oauth2
+        }
+EOT
+            } else {
+                $$authorize_ldap_choice .= <<"EOT";
         $oauth2_if (Realm =~ /$choice/) {
             oauth2
         }
 EOT
+            }
             $oauth2_if = 'elsif';
         }
 
@@ -1551,7 +1645,7 @@ our (%ConfigRealm, @ConfigOrderedRealm, %ConfigDomain);
         local $Data::Dumper::Terse = 0;
         local $Data::Dumper::Indent = 2;
         $content .= Data::Dumper->Dump(
-            [\%pf::config::ConfigRealm, \@pf::config::ConfigOrderedRealm, \%pf::config::ConfigDomain],
+            [\%pf::config::ConfigRealm, \@pf::config::ConfigOrderedRealm, \%pf::config::ConfigDomains],
             ['*ConfigRealm', '*ConfigOrderedRealm', '*ConfigDomain']
         );
     }
@@ -1588,22 +1682,69 @@ sub generate_radiusd_certificates {
     }
     foreach my $key (keys %ConfigEAP) {
         foreach my $tls (keys %{$ConfigEAP{$key}->{tls}}) {
+            # The files are replaced with a rename: a symlink left by a previous run is replaced instead of
+            # written through, and the radiusd instances generating their configuration at the same time
+            # never see a missing or partial file
             if ( exists $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{default} && $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{default} eq 'yes' ) {
-                symlink($cert{$key}{$tls}{cert}, "$install_dir/conf/ssl/radius_".$key."_".$tls.".crt");
-                symlink($cert{$key}{$tls}{key}, "$install_dir/conf/ssl/radius_".$key."_".$tls.".key");
-                symlink($cert{$key}{$tls}{ca}, "$install_dir/conf/ssl/radius_".$key."_".$tls.".pem");
+                _replace_with_symlink($cert{$key}{$tls}{cert}, "$install_dir/conf/ssl/radius_".$key."_".$tls.".crt");
+                _replace_with_symlink($cert{$key}{$tls}{key}, "$install_dir/conf/ssl/radius_".$key."_".$tls.".key");
+                _replace_with_symlink($cert{$key}{$tls}{ca}, "$install_dir/conf/ssl/radius_".$key."_".$tls.".pem");
             } else {
                $vars{'cert'} = $cert{$key}{$tls}{cert};
-               $tt->process("$conf_dir/radiusd/cert", \%vars, "$install_dir/conf/ssl/radius_".$key."_".$tls.".crt") or die $tt->error();
+               _replace_with_template($tt, \%vars, "$install_dir/conf/ssl/radius_".$key."_".$tls.".crt");
                $vars{'cert'} = "";
                $vars{'key'} = $cert{$key}{$tls}{key};
-               $tt->process("$conf_dir/radiusd/cert", \%vars, "$install_dir/conf/ssl/radius_".$key."_".$tls.".key") or die $tt->error();
+               _replace_with_template($tt, \%vars, "$install_dir/conf/ssl/radius_".$key."_".$tls.".key");
                $vars{'key'} = "";
                $vars{'ca'} = $cert{$key}{$tls}{ca};
-               $tt->process("$conf_dir/radiusd/cert", \%vars, "$install_dir/conf/ssl/radius_".$key."_".$tls.".pem") or die $tt->error();
+               _replace_with_template($tt, \%vars, "$install_dir/conf/ssl/radius_".$key."_".$tls.".pem");
                $vars{'ca'} = "";
             }
         }
+    }
+}
+
+=head2 _replace_with_symlink
+
+Make $path a symlink to $target, unless it already is one
+
+=cut
+
+sub _replace_with_symlink {
+    my ($target, $path) = @_;
+    return if -l $path && readlink($path) eq $target;
+    my $tmp = "$path.tmp.$$";
+    unlink($tmp);
+    if (!symlink($target, $tmp) || !rename($tmp, $path)) {
+        get_logger->error("Unable to link $path to $target: $!");
+        unlink($tmp);
+    }
+}
+
+=head2 _replace_with_template
+
+Write the radiusd certificate template to $path through a temporary file, so
+that the file of a previous run (a symlink to the default certificates) is
+replaced and not written through, and is kept when the template fails
+
+=cut
+
+sub _replace_with_template {
+    my ($tt, $vars, $path) = @_;
+    my $tmp = "$path.tmp.$$";
+    unlink($tmp);
+    if (!$tt->process("$conf_dir/radiusd/cert", $vars, $tmp)) {
+        unlink($tmp);
+        die $tt->error();
+    }
+    # keep the mode of the previous file, the key is a private key
+    if (!-l $path && (my @stat = stat($path))) {
+        chmod($stat[2] & 07777, $tmp);
+    }
+    if (!rename($tmp, $path)) {
+        my $error = $!;
+        unlink($tmp);
+        die "Unable to write $path: $error";
     }
 }
 
@@ -1621,16 +1762,30 @@ sub _extract_radiusd_certificates {
     foreach my $ext (@vals){
         foreach my $key (keys %ConfigEAP) {
             foreach my $tls (keys %{$ConfigEAP{$key}->{tls}}) {
-                my $ckey = read_file("$install_dir/conf/ssl/radius_".$key."_".$tls.".key");
-                my $mkey = pf::ssl::rsa_from_string($ckey);
+                my $key_file = "$install_dir/conf/ssl/radius_".$key."_".$tls.".key";
+                my $ckey = read_file($key_file);
+                # An EC or a password-protected key can't be loaded: the certificates can't be compared with it
+                my $mkey = eval { pf::ssl::rsa_from_string($ckey) };
+                unless ($mkey) {
+                    get_logger->warn("Unable to load the private key $key_file to tell the server certificate from its CAs, keeping the CA certificates only");
+                }
                 my $cext = read_file("$install_dir/conf/ssl/radius_".$key."_".$tls.".".$ext);
                 my @certs = split_pem($cext);
                 foreach my $cert (@certs) {
                     my $mcert = pf::ssl::x509_from_string($cert);
-                    my ($key_match_res, $key_match_msg) = pf::ssl::validate_cert_key_match($mcert, $mkey);
-                    unless($key_match_res) {
-                        $hcerts{$cert} = $mcert;
+                    unless ($mcert) {
+                        get_logger->warn("Skipping a certificate that can't be decoded in $install_dir/conf/ssl/radius_${key}_${tls}.${ext}");
+                        next;
                     }
+                    if ($mkey) {
+                        my ($key_match_res, $key_match_msg) = pf::ssl::validate_cert_key_match($mcert, $mkey);
+                        next if $key_match_res;
+                    }
+                    else {
+                        my $basic_constraints = eval { $mcert->extensions_by_name->{basicConstraints} };
+                        next unless $basic_constraints && $basic_constraints->basicC('ca');
+                    }
+                    $hcerts{$cert} = $mcert;
                 }
             }
         }
@@ -1722,7 +1877,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

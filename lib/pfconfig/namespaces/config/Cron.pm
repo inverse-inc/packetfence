@@ -19,7 +19,7 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use pf::file_paths qw($cron_config_file $cron_default_config_file);
-use pf::util qw(normalize_time);
+use pf::util qw(normalize_time isenabled);
 use pf::IniFiles;
 use Clone qw(clone);
 
@@ -59,13 +59,13 @@ sub build_child {
                 next;
             }
 
-            if ($key eq 'filter_events' || $key eq 'heuristics') {
+            if ($key =~ /batch$/) {
                 $task_data->{$key} += 0;
                 next;
             }
 
-            if ($key =~ /batch$/) {
-                $task_data->{$key} += 0;
+            if ($key eq 'fingerprint_cache_expiration') {
+                $task_data->{$key} = golangDurationToSeconds($task_data->{$key});
             }
         }
 
@@ -76,14 +76,15 @@ sub build_child {
         }
 
         $task_data->{interval} = $interval;
-        if (exists $task_data->{kafka_brokers}) {
-            $task_data->{kafka_brokers} = [split(/\s*,\s*/, $task_data->{kafka_brokers})];
+        for my $f (qw(fingerprint_networks kafka_brokers)) {
+            if (exists $task_data->{$f}) {
+                $task_data->{$f} = [split(/\s*,\s*/, $task_data->{$f})];
+            }
         }
     }
 
     return $tmp_cfg;
 }
-
 
 =head1 AUTHOR
 
@@ -91,7 +92,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

@@ -25,6 +25,10 @@ BEGIN {
 use Test::More tests => 10;
 use Test::Mojo;
 use Mojo::JSON qw(decode_json);
+use Utils;
+use pf::ConfigStore::Pf;
+
+my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Pf");
 
 #This test will running last
 use Test::NoWarnings;
@@ -49,7 +53,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

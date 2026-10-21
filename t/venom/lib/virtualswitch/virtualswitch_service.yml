@@ -1,0 +1,11 @@
+executor: virtualswitch_service
+input:
+  action: "start"
+  service_name: "virtualswitch-namespace"
+steps:
+- type: exec
+  script: systemctl {{.input.action}} {{.input.service_name}}
+  assertions:
+    - result.code ShouldEqual 0
+output:
+  virtualswitch_service_systemout: "{{.result.systemout}}"

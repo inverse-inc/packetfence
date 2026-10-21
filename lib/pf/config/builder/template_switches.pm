@@ -67,6 +67,7 @@ sub buildEntry {
         label    => $entry->{description},
         supports => \@supports,
         is_template => 1,
+        driver_id => $entry->{driver_id} // "unknown",
     };
 
     return $entry;
@@ -124,7 +125,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

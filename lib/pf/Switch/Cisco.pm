@@ -29,7 +29,6 @@ use pf::constants;
 # importing switch constants
 use pf::Switch::constants;
 use pf::util;
-use pf::util::radius qw(perform_coa);
 
 # CAPABILITIES
 # special features
@@ -1543,7 +1542,7 @@ sub _radiusBounceMac {
         return 1;
     }
 
-    if (!defined($self->{'_radiusSecret'})) {
+    if (!$self->hasRadiusSecret()) {
         $logger->warn(
             "Unable to perform RADIUS CoA-Request on $self->{'_id'}: RADIUS Shared Secret not configured"
         );
@@ -1561,7 +1560,7 @@ sub _radiusBounceMac {
     try {
         my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
 
-        $response = perform_coa( $connection_info,
+        $response = $self->handleRadiusCoa( $connection_info,
             {
                 'Acct-Terminate-Cause' => 'Admin-Reset',
                 'NAS-IP-Address' => $self->{'_switchIp'},
@@ -1802,6 +1801,24 @@ sub returnInAccessListAttribute {
     return "ip:inacl#";
 }
 
+=head2 untranslatableCiscoAcl
+
+Why a parsed ACL entry cannot be sent by L</acl_chewer>, or undef when it can.
+
+The source port and the ICMP type are not sent. Without push ACLs the source is
+always sent as "any", which the switch replaces with the address of the
+endpoint, so an ACL on another source cannot be sent either.
+
+=cut
+
+sub untranslatableCiscoAcl {
+    my ($self, $entry) = @_;
+    return "the source address is replaced by the endpoint" if !$self->usePushACLs && $entry->{'source'}->{'ipv4_addr'} ne '0.0.0.0';
+    return "the source port is not sent" if defined $entry->{'source'}->{'port'};
+    return "the ICMP type is not sent ('".$entry->{'icmp_qualifier'}."')" if defined $entry->{'icmp_qualifier'};
+    return undef;
+}
+
 
 =head2 returnOutAccessListAttribute
 
@@ -1825,9 +1842,12 @@ sub acl_chewer {
     my $logger = $self->logger;
     my ($acl_ref , @direction) = $self->format_acl($acl);
 
+    my $entries;
+    ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, sub { $self->untranslatableCiscoAcl($_[0]) });
+
     my $i = 0;
     my $acl_chewed;
-    foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
+    foreach my $acl (@$entries) {
         $acl->{'protocol'} =~ s/\(\d*\)//;
         my $dest;
         if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
@@ -1877,7 +1897,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

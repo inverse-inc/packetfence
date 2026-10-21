@@ -46,6 +46,10 @@ use pf::Switch::constants;
 
 use base ('pf::Switch::Cisco::Catalyst_3560');
 
+use pf::SwitchSupports qw(
+    Flow
+);
+
 sub description { 'Cisco Catalyst 3750' }
 
 # CAPABILITIES
@@ -85,7 +89,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

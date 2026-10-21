@@ -11,6 +11,8 @@ RUN cd /usr/local/pf/go/ && go mod download
 COPY ./go /usr/local/pf/go
 COPY ./lib /usr/local/pf/lib
 COPY ./config.mk /usr/local/pf/config.mk
+ARG GO_CHECK=no
+RUN if [ "$GO_CHECK" = "yes" ]; then make -C /usr/local/pf/go check; fi
 RUN cd /usr/local/pf/go/ &&  make pfhttpd
 
 FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
@@ -22,4 +24,4 @@ COPY ./raddb/dictionary.freeradius.evs5 ./raddb/dictionary ./raddb/dictionary.in
 COPY html/pfappserver/root/errors/ html/pfappserver/root/errors/
 COPY --from=0 /usr/local/pf/go/pfhttpd /usr/local/pf/sbin/pfhttpd
 
-ENTRYPOINT /usr/local/pf/sbin/pfhttpd run --adapter caddyfile -c /usr/local/pf/conf/caddy-services/api.conf
+ENTRYPOINT ["/usr/local/pf/sbin/pfhttpd", "run", "--adapter", "caddyfile", "-c", "/usr/local/pf/conf/caddy-services/api.conf"]

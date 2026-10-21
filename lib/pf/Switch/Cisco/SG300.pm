@@ -79,6 +79,17 @@ sub getIfIndexByNasPortId {
     return 0;
 }
 
+=head2 ifIndexCacheTables
+
+getIfIndexByNasPortId does not use SNMP: nothing for the switch_cache_ifindex
+pfcron task to refresh.
+
+=cut
+
+sub ifIndexCacheTables {
+    return ();
+}
+
 =head2 NasPortToIfIndex
 
 Translate RADIUS NAS-Port into the physical port ifIndex
@@ -140,7 +151,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

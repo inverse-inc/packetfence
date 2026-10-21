@@ -35,7 +35,6 @@ sub description { 'N1500 Series' }
 
 # importing switch constants
 use pf::Switch::constants;
-use pf::util::radius qw(perform_coa perform_disconnect);
 use pf::util;
 
 # CAPABILITIES
@@ -51,6 +50,7 @@ use pf::SwitchSupports qw(
     DownloadableListBasedEnforcement
     RoleBasedEnforcement
     ExternalPortal
+    Flow
 );
 
 =head2 isVoIPEnabled
@@ -275,7 +275,7 @@ sub radiusDisconnect {
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
 
-    if (!defined($self->{'_radiusSecret'})) {
+    if (!$self->hasRadiusSecret()) {
         $logger->warn(
             "Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): RADIUS Shared Secret not configured"
         );
@@ -306,7 +306,7 @@ sub radiusDisconnect {
 
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
-        $response = perform_disconnect($connection_info, $attributes_ref);
+        $response = $self->handleRadiusDisconnect($connection_info, $attributes_ref);
     } catch {
         chomp;
         $logger->warn("Unable to perform RADIUS CoA-Request on (".$self->{'_id'}.") : $_");
@@ -344,15 +344,13 @@ sub returnRadiusAccessAccept {
     my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
 
     if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
-        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac})) && !($self->usePushACLs && exists $ConfigRoles{$args->{'user_role'}} )){
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && !($self->usePushACLs && exists $ConfigRoles{$args->{'user_role'}} ) && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}, $args->{ifIndex}))){
             if ($access_list) {
                 if ($self->useDownloadableACLs) {
-                    my $mac = $args->{'mac'};
-                    $mac =~ s/://g;
                     my @acl = split("\n", $access_list);
                     $args->{'acl'} = \@acl;
                     $args->{'acl_num'} = '101';
-                    push(@av_pairs, "ACS:CiscoSecure-Defined-ACL=#ACSACL#$mac-".$self->setRadiusSession($args));
+                    push(@av_pairs, "ACS:CiscoSecure-Defined-ACL=#ACSACL#".$args->{'user_role'}."-".$self->setRadiusSession($args));
                 } else {
                     my $acl_num = 101;
                     while($access_list =~ /([^\n]+)\n?/g){
@@ -408,15 +406,33 @@ sub returnRadiusAccessAccept {
     return [$status, %$radius_reply_ref];
 }
 
-=head2 returnAccessListAttribute
+=head2 returnInAccessListAttribute
 
-Returns the attribute to use when pushing an ACL using RADIUS
+Returns the attribute to use when pushing an input ACL using RADIUS
 
 =cut
 
-sub returnAccessListAttribute {
-    my ($self, $acl_num) = @_;
-    return "ip:inacl#$acl_num";
+sub returnInAccessListAttribute {
+    my ($self) = @_;
+    return "ip:inacl#";
+}
+
+=head2 _untranslatableAcl
+
+Why a parsed ACL entry cannot be sent by L</acl_chewer>, or undef when it can.
+Only the protocol, a destination host and the destination port are sent.
+
+=cut
+
+sub _untranslatableAcl {
+    my ($self, $entry) = @_;
+    my $destination = $entry->{'destination'};
+    return "only a destination host is sent, not the network '".$destination->{'ipv4_addr'}." ".$destination->{'wildcard'}."'" if $destination->{'ipv4_addr'} ne '0.0.0.0' && $destination->{'wildcard'} ne '0.0.0.0';
+    return "the source address is not sent" if $entry->{'source'}->{'ipv4_addr'} ne '0.0.0.0';
+    return "the source port is not sent" if defined $entry->{'source'}->{'port'};
+    return "TCP flags are not sent ('".$entry->{'tcp_flags'}."')" if defined $entry->{'tcp_flags'};
+    return "the ICMP type is not sent ('".$entry->{'icmp_qualifier'}."')" if defined $entry->{'icmp_qualifier'};
+    return undef;
 }
 
 =head2 returnRoleAttribute
@@ -500,55 +516,66 @@ sub returnRadiusAdvanced {
     my ($self, $args, $options) = @_;
     my $logger = $self->logger;
     my $status = $RADIUS::RLM_MODULE_OK;
-    my ($mac, $session_id) = split('-', $args->{'user_name'});
+    my ($mac, $session_id) = splitr2($args->{'user_name'}, '-');
     my $radius_reply_ref = ();
     my @av_pairs;
     $radius_reply_ref->{'control:Proxy-To-Realm'} = 'LOCAL';
     if ($args->{'connection'}->isACLDownload) {
         my $cache = $self->radius_cache_distributed;
         my $session = $cache->get($session_id);
-        $session->{'id_session'} = $session_id;
+        my $session_state_id;
+        my $session_state;
+        if (exists $options->{'radius_request'}->{'State'} && defined $options->{'radius_request'}->{'State'}) {
+            $session_state_id = $options->{'radius_request'}->{'State'};
+            $session_state_id =~ s/^0x//;
+            $session_state_id = pack("H*", $session_state_id);
+            $session_state = $cache->get($session_state_id);
+        } else {
+            $session_state_id = int(rand(1000000));
+            $session_state = $session;
+            $session_state->{'id_session'} = $session_state_id;
+            $self->setRadiusSession($session_state);
+        }
         # Need to send back a challenge since there is still acl to download
-        if (exists $args->{'scope'} && $args->{'scope'} eq 'packetfence.authorize' && scalar @{$session->{'acl'}} > 1 ) {
+        if (exists $args->{'scope'} && $args->{'scope'} eq 'packetfence.authorize' && scalar @{$session_state->{'acl'} // []} > 1 ) {
             $status = $RADIUS::RLM_MODULE_HANDLED;
             $radius_reply_ref->{'control:Response-Packet-Type'} = 11;
-            $radius_reply_ref->{'state'} = $session_id;
+            $radius_reply_ref->{'state'} = $session_state_id;
             for ( my $loops = 0; $loops < $self->ACLsLimit; $loops++ ) {
-                last if (scalar @{$session->{'acl'}} == 1);
-                my $acl = shift @{$session->{'acl'}};
+                last if (scalar @{$session_state->{'acl'}} == 1);
+                my $acl = shift @{$session_state->{'acl'}};
                 if ($acl !~ /^((in|out)\|)?(permit|deny)/i) {
                     next;
                 }
-                my ($test, $formated_acl) = $self->returnAccessListAttribute($session->{'acl_num'},$acl);
+                my ($test, $formated_acl) = $self->returnAccessListAttribute($session_state->{'acl_num'},$acl);
                 if ($test) {
                     push(@av_pairs, $formated_acl);
                 } else {
                     next;
                 }
-                $session->{'acl_num'} ++;
+                $session_state->{'acl_num'} ++;
                 $logger->info("(".$self->{'_id'}.") Adding access list : $formated_acl to the RADIUS reply");
                 $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
             }
             $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
-            $self->setRadiusSession($session);
-            push(@av_pairs, "ACS:CiscoSecure-Defined-ACL=$mac-".$session_id);
+            $self->setRadiusSession($session_state);
+            push(@av_pairs, "ACS:CiscoSecure-Defined-ACL=".$args->{'user_role'}."-".$session_id);
             return [$status, %$radius_reply_ref];
         }
-        if (scalar @{$session->{'acl'}} == 1) {
-            my $acl = shift @{$session->{'acl'}};
+        if (scalar @{$session_state->{'acl'}} == 1) {
+            my $acl = shift @{$session_state->{'acl'}};
             if ($acl =~ /^((in|out)\|)?(permit|deny)/i) {
-                my ($test, $formated_acl) = $self->returnAccessListAttribute($session->{'acl_num'},$acl);
+                my ($test, $formated_acl) = $self->returnAccessListAttribute($session_state->{'acl_num'},$acl);
                 if ($test) {
                     push(@av_pairs, $formated_acl);
                     $logger->info("(".$self->{'_id'}.") Adding access list : $formated_acl to the RADIUS reply");
                     $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
-                    $self->setRadiusSession($session);
-                    push(@av_pairs, "ACS:CiscoSecure-Defined-ACL=$mac-".$session_id);
+                    push(@av_pairs, "ACS:CiscoSecure-Defined-ACL=".$args->{'user_role'}."-".$session_id);
                 } else {
                     $logger->info("(".$self->{'_id'}.") No more access lists defined for this role ". ( defined($args->{'user_role'}) ? $args->{'user_role'} : 'registration' ));
                 }
             }
-        } elsif (scalar @{$session->{'acl'}} == 0) {
+        } elsif (scalar @{$session_state->{'acl'}} == 0) {
             $logger->info("(".$self->{'_id'}.") No more access lists defined for this role ". ( defined($args->{'user_role'}) ? $args->{'user_role'} : 'registration' ));
         } else {
             $logger->info("(".$self->{'_id'}.") No access lists defined for this role ". ( defined($args->{'user_role'}) ? $args->{'user_role'} : 'registration' ));
@@ -608,14 +635,17 @@ sub acl_chewer {
     my $logger = $self->logger;
     my ($acl_ref , @direction) = $self->format_acl($acl);
 
+    my $entries;
+    ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, sub { $self->_untranslatableAcl($_[0]) });
+
     my $i = 0;
     my $acl_chewed;
-    foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
+    foreach my $acl (@$entries) {
         $acl->{'protocol'} =~ s/\(\d*\)//;
         if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
-            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] : "").$acl->{'action'}." ".$acl->{'protocol'}." any any " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
+            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$acl->{'action'}." ".$acl->{'protocol'}." any any " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
         } else {
-            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] : "").$acl->{'action'}." ".$acl->{'protocol'}." any host ".$acl->{'destination'}->{'ipv4_addr'}." " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
+            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$acl->{'action'}." ".$acl->{'protocol'}." any host ".$acl->{'destination'}->{'ipv4_addr'}." " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
         }
         $i++;
     }
@@ -628,7 +658,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

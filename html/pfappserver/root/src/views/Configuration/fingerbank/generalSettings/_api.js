@@ -16,5 +16,16 @@ export default {
     return apiCall[patch](['config', 'fingerbank_setting', id], params).then(response => {
       return response.data
     })
+  },
+  fingerbankBulkUpdateGeneralSettings: (items, options = {}) => {
+    const patch = options.quiet ? 'patchQuiet' : 'patch'
+    return apiCall[patch](['config', 'fingerbank_settings', 'bulk_update'], { items }).then(response => {
+      return response.data
+    })
+  },
+  fingerbankCollectorFlags: token => {
+    return apiCall.get('fingerbank-collector/flags', { headers: { Authorization: `Token ${token}` } }).then(response => {
+      return response.data
+    })
   }
 }

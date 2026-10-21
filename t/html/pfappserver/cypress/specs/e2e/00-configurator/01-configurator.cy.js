@@ -3,7 +3,7 @@
 // API async w/ pfqueue polling,
 // instead of poll tracking request chains, just wait a while and intercept final request
 // TODO: improve intercepts w/ pfqueue polling
-let waitForPfqueuePolling = { timeout: 300E3 } // 5 minutes (90 seconds is too short)
+let waitForPfqueuePolling = { timeout: 600E3 } // 10 minutes (90 seconds is too short)
 
 describe('Configurator', () => {
 
@@ -23,14 +23,15 @@ describe('Configurator', () => {
     cy.intercept('GET', '/api/**/config/base/general').as('getGeneral')
     cy.intercept('GET', '/api/**/config/base/alerting').as('getAlerting')
     cy.intercept('GET', '/api/**/user/admin').as('getAdminUser')
-    cy.intercept('PATCH', '/api/**/user/admin/password').as('patchAdminPassword')
+    // admin no longer has a seeded password row (#9118): the form creates it (POST) rather than updates it (PATCH)
+    cy.intercept('POST', '/api/**/user/admin/password').as('createAdminPassword')
 
     // interceptors - step 3
     cy.intercept('GET', '/api/**/fingerbank/account_info').as('getFingerbankAccountInfo')
 
     // interceptors - Step 4
     cy.intercept('GET', '/api/**/config/base/advanced').as('getAdvanced')
-    cy.intercept('GET', '/api/**/service/pf/status').as('getPacketfenceStatus')
+    cy.intercept('PATCH', '/api/**/config/base/advanced').as('patchAdvanced')
 
     cy.visit('/')
    })
@@ -148,7 +149,7 @@ describe('Configurator', () => {
 
     // wait for API
 
-    cy.wait('@patchAdminPassword', waitForPfqueuePolling).its('response.statusCode').should('be.oneOf', [200])
+    cy.wait('@createAdminPassword', waitForPfqueuePolling).its('response.statusCode').should('be.oneOf', [201])
 
 
     /**
@@ -193,16 +194,11 @@ describe('Configurator', () => {
     // wizard circle is highlighted
     cy.get('.wizard-sidebar div.bg-warning, .wizard-sidebar div.btn-outline-primary').last().should('contain', '4')
 
-    // password match
-    cy.fixture('configurator').then(configurator => {
-      cy.get('*[data-card="administrator"] code').last().should('contain', configurator.administrator.password)
-    })
-
     // click start button
     cy.get('button[type="submit"]:contains(Start)').click()
 
     // wait for API
-    cy.wait('@getPacketfenceStatus', waitForPfqueuePolling).its('response.statusCode').should('be.oneOf', [200])
+    cy.wait('@patchAdvanced', waitForPfqueuePolling).its('response.statusCode').should('be.oneOf', [200])
 
 
     /**

@@ -51,11 +51,25 @@
                               namespace="default_realm"
     />
 
+    <form-group-use-connector :column-label="$i18n.t('Use Connector')"
+                              :text="$i18n.t('Use the available PacketFence connectors to connect to this authentication source. By default, a local connector is hosted on this server. Using remote connectors is only supported on a standalone instance at the moment.')"
+                              disabled-value="0"
+                              enabled-value="1"
+                              namespace="use_connector"
+    />
+
     <form-group-sso-on-access-reevaluation namespace="sso_on_access_reevaluation"
                                            :column-label="$i18n.t('SSO on access reevaluation')"
                                            :text="$i18n.t('Trigger Single-Sign-On (Firewall SSO) on access reevaluation.')"
                                            disabled-value="0"
                                            enabled-value="1"
+    />
+
+    <form-group-sso-on-role-change namespace="sso_on_role_change"
+                                   :column-label="$i18n.t('SSO on role change')"
+                                   :text="$i18n.t('Trigger Single-Sign-On (Firewall SSO) when a device role changes. Note: This only triggers during autoregistration. Warning: If the VLAN changes when the role changes, an incorrect SSO update may occur until PacketFence receives a DHCP packet that updates the IP of the device and triggers a new SSO request.')"
+                                   disabled-value="0"
+                                   enabled-value="1"
     />
 
     <form-group-sso-on-accounting namespace="sso_on_accounting"
@@ -93,7 +107,9 @@ import {
   FormGroupPassword,
   FormGroupPort,
   FormGroupUsernameFormat,
+  FormGroupUseConnector,
   FormGroupSsoOnAccessReevaluation,
+  FormGroupSsoOnRoleChange,
   FormGroupSsoOnAccounting,
   FormGroupSsoOnDhcp,
 } from './'
@@ -112,7 +128,9 @@ const components = {
   FormGroupPassword,
   FormGroupPort,
   FormGroupUsernameFormat,
+  FormGroupUseConnector,
   FormGroupSsoOnAccessReevaluation,
+  FormGroupSsoOnRoleChange,
   FormGroupSsoOnAccounting,
   FormGroupSsoOnDhcp,
 }

@@ -1,0 +1,5 @@
+name: Check if node is online
+testcases:
+- name: check_online_status
+  steps:
+  - type: node_online

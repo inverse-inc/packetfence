@@ -17,7 +17,7 @@ use warnings;
 use base qw(Exporter);
 use Readonly;
 
-our @EXPORT_OK = qw($RATE_LIMIT);
+our @EXPORT_OK = qw($RATE_LIMIT $RETRY_DELAY $MAX_RETRIES $RETRY_PERIOD);
 
 =head2 $RATE_LIMIT
 
@@ -27,13 +27,38 @@ The amount of seconds between each fingerbank process based on the query paramet
 
 Readonly our $RATE_LIMIT => 60;
 
+=head2 $RETRY_DELAY
+
+The amount of milliseconds to wait before processing a device again after a failed Fingerbank lookup
+
+=cut
+
+Readonly our $RETRY_DELAY => 30_000;
+
+=head2 $MAX_RETRIES
+
+The maximum amount of consecutive retries after a failed Fingerbank lookup
+
+=cut
+
+Readonly our $MAX_RETRIES => 3;
+
+=head2 $RETRY_PERIOD
+
+The amount of seconds the retries of a device are counted for: after $MAX_RETRIES
+failed retries, no retry is scheduled for this device during that period
+
+=cut
+
+Readonly our $RETRY_PERIOD => 3600;
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

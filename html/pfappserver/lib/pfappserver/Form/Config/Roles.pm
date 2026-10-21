@@ -19,7 +19,7 @@ with qw(
 
 use HTTP::Status qw(:constants is_success);
 
-use pf::config qw(%ConfigRoles);
+use pf::config qw(%ConfigRoles %Config);
 use pf::constants::role qw(@ROLES);
 use pf::SwitchFactory;
 use pfappserver::Util::ACLs qw(_validate_acl);
@@ -54,6 +54,7 @@ has_field 'parent_id' =>
    options_method => \&options_parent_id,
    label => 'Parent',
    required => 0,
+   default_method => \&default_parent_id,
   );
 
 has_field 'max_nodes_per_pid' =>
@@ -77,6 +78,14 @@ has_field 'fingerbank_dynamic_access_list' => (
     checkbox_value => 'enabled',
     unchecked_value => 'disabled',
     label => 'Enabled Fingerbank Dynamic AccessList',
+);
+
+has_field 'acls_enabled' => (
+    type => 'Toggle',
+    checkbox_value => 'enabled',
+    unchecked_value => 'disabled',
+    label => 'Enable ACLs',
+    default => 'enabled',
 );
 
 has_field 'acls' => (
@@ -109,6 +118,12 @@ has_field 'inherit_web_auth_url' => (
     default => 'disabled',
 );
 
+has 'skip_role_acl_check' => (
+    is      => 'rw',
+    isa     => 'Bool',
+    default => 0,
+);
+
 =head2 validate
 
 Make sure none of the reserved names is used.
@@ -126,12 +141,12 @@ sub validate {
     }
 
     my $parent_id = $value->{parent_id};
-    if (defined $parent_id) {
+    if (defined $parent_id && length $parent_id) {
         if ( $id eq $parent_id) {
             $self->field('parent_id')->add_error('Cannot be your own parent.');
         }
         $parent_id = $ConfigRoles{$parent_id}{parent_id};
-        while (defined $parent_id) {
+        while (defined $parent_id && length $parent_id) {
             if ( $id eq $parent_id) {
                 $self->field('parent_id')->add_error('Cannot have a parent of your descendents.');
                 last;
@@ -145,6 +160,8 @@ sub validate {
     if (!defined $acls || $acls eq '' ) {
         return;
     }
+
+    return if $self->skip_role_acl_check;
 
     $acls = [split(/\n/, $acls)];
     while (my ($switch_id, $data) = each %pf::SwitchFactory::SwitchConfig) {
@@ -174,9 +191,31 @@ sub options_parent_id {
     return @roles;
 }
 
+sub default_parent_id {
+    my $self = shift;
+    my $form = $self->form;
+    # When the form is processed with an explicit parent_id input (even
+    # null / empty), the user has spoken — return undef so Select's
+    # _result_from_input doesn't fall back to $self->default and clobber
+    # that input back to advanced.default_role_parent_id.
+    return undef
+        if $form && $form->has_params && exists $form->params->{parent_id};
+    my $id = $form->value->{id} // $form->fif->{id};
+    my $no_id = !defined $id || $id eq '';
+    # Only seed advanced.default_role_parent_id when creating a brand-new
+    # role. For existing roles the form must respect whatever is stored
+    # (including explicit empty / no parent) — otherwise cleanup_item's
+    # `posted => 0` processing fires this default and clobbers the read,
+    # which is what causes the default_role to reappear in the parent_id
+    # dropdown after the admin explicitly clears it.
+    return undef if !$no_id;
+    my $default = $Config{advanced}{default_role_parent_id};
+    return defined $default && length $default ? $default : '';
+}
+
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

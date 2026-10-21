@@ -1,0 +1,70 @@
+name: Verify grace period prevents re-triggering
+testcases:
+
+- name: run_acct_maintenance_during_grace
+  steps:
+  - type: pfcron_acct_maintenance
+
+- name: wait_for_processing
+  steps:
+  - type: sleep
+    time_to_sleep: 5
+
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: check_no_new_open_event
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/security_events/search'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "cursor": 0,
+        "fields": ["security_event_id", "status", "mac"],
+        "sort": ["start_date DESC"],
+        "limit": 10,
+        "query": {
+          "op": "and",
+          "values": [
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "mac",
+                  "op": "equals",
+                  "value": "{{.security_event_acct_virtualswitch.device.mac_address}}"
+                }
+              ]
+            },
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "security_event_id",
+                  "op": "equals",
+                  "value": "{{.security_event_acct_virtualswitch.event.id}}"
+                }
+              ]
+            },
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "status",
+                  "op": "equals",
+                  "value": "open"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.items.items0 ShouldBeEmpty

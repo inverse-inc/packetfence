@@ -1,0 +1,14 @@
+ctrl_interface=/var/run/wpa_supplicant
+ctrl_interface_group=0
+eapol_version=2
+ap_scan=0
+    network={
+    key_mgmt=IEEE8021X
+    eap=TLS
+    identity="{{ wpasupplicant__eap_tls_identity }}"
+    ca_cert="{{ item.dir }}/ca.pem"
+    client_cert="{{ item.dir }}/client.pem"
+    private_key="{{ item.dir}}/client.key"
+    private_key_passwd="{{ wpasupplicant__eap_tls_private_key_passwd }}"
+    eapol_flags=3
+}

@@ -2,8 +2,7 @@ import i18n from '@/utils/locale'
 
 export const pkiProvidersTypes = {
   packetfence_local:  i18n.t('Packetfence Local'),
-  packetfence_pki:    i18n.t('Packetfence PKI'),
-  scep:               i18n.t('SCEP PKI')
+  packetfence_pki:    i18n.t('Packetfence PKI')
 }
 
 export const pkiProvidersTypeOptions = Object.keys(pkiProvidersTypes)

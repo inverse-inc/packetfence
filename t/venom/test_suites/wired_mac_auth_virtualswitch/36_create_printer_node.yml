@@ -1,0 +1,66 @@
+name: Create printer node with known MAC
+testcases:
+
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: get_category_id_of_printer_role
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/node_categories/search'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    body: >-
+      {
+        "cursor": 0,
+        "fields": [
+          "category_id"
+        ],
+        "limit": 10,
+        "query": {
+          "op": "and",
+          "values": [
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "name",
+                  "op": "equals",
+                  "value": "{{.wired_mac_auth_virtualswitch.roles.printer.id}}"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    assertions:
+      - result.statuscode ShouldEqual 200
+    vars:
+      category_id:
+        from: result.bodyjson.items.items0.category_id
+
+- name: create_printer_node
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/nodes'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    body: >-
+      {
+        "category_id": "{{.get_category_id_of_printer_role.category_id}}",
+        "mac": "{{.virtualswitch.printer.mac_address}}",
+        "notes": "virtualswitch printer test node",
+        "pid": null,
+        "status": "reg",
+        "unreg_date": null,
+        "unregdate": null
+      }
+    assertions:
+      - result.statuscode ShouldEqual 201

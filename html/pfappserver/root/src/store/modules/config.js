@@ -4,9 +4,12 @@
 import Vue from 'vue'
 import { types } from '@/store'
 import apiCall from '@/utils/api'
+import apiPerl from '@/utils/api-perl'
+import apiGo from '@/utils/api-go'
 import duration from '@/utils/duration'
 import i18n from '@/utils/locale'
 import acl from '@/utils/acl'
+import { createBatchLoader } from '@/utils/batchLoader'
 
 const encodeURL = (url) => {
   if (Array.isArray(url)) {
@@ -16,9 +19,17 @@ const encodeURL = (url) => {
   }
 }
 
+// Coalesces per-row node_category lookups into batched search requests.
+// Created lazily on first use so it can capture the store's `commit`.
+let roleByCategoryIdLoader = null
+
+// in-flight request of getBaseGuestsAdminRegistration, shared by the callers
+// that dispatch it while it is loading
+let baseGuestsAdminRegistrationRequest = null
+
 const api = {
   getAdminRoles () {
-    return apiCall({ url: 'config/admin_roles', method: 'get', params: { limit: 1000 } })
+    return apiPerl.getAll('config/admin_roles')
   },
   getBaseActiveActive () {
     return apiCall({ url: 'config/base/active_active', method: 'get' })
@@ -107,6 +118,12 @@ const api = {
   getConnectors () {
     return apiCall({ url: 'config/connectors', method: 'get' })
   },
+  getConnectorsDns () {
+    return apiCall({ url: 'config/dns_connectors', method: 'get' })
+  },
+  getConnectorsDomains () {
+    return apiCall({ url: 'config/domains_connectors', method: 'get' })
+  },
   getDomains () {
     return apiCall({ url: 'config/domains', method: 'get' })
   },
@@ -126,7 +143,7 @@ const api = {
     return apiCall({ url: 'config/interfaces', method: 'get' })
   },
   getLayer2Networks () {
-    return apiCall({ url: 'config/l2_networks', method: 'get', params: { limit: 1000 } })
+    return apiPerl.getAll('config/l2_networks')
   },
   getNetworkBehaviorPolicies () {
     return apiCall({ url: 'config/network_behavior_policies', method: 'get' })
@@ -135,25 +152,25 @@ const api = {
     return apiCall({ url: 'config/maintenance_tasks', method: 'get' })
   },
   getMfas () {
-    return apiCall({ url: 'config/mfas', method: 'get' })
+    return apiPerl.getAll('config/mfas')
   },
   getPkiCas () {
-    return apiCall({ url: 'pki/cas', method: 'get', params: { limit: 1000 } })
+    return apiGo.getAll('pki/cas')
   },
   getPkiProfiles () {
-    return apiCall({ url: 'pki/profiles', method: 'get', params: { limit: 1000 } })
+    return apiGo.getAll('pki/profiles')
   },
   getPkiCerts () {
-    return apiCall({ url: 'pki/certs', method: 'get', params: { limit: 1000 } })
+    return apiGo.getAll('pki/certs')
   },
   getPkiScepServers () {
-    return apiCall({ url: 'pki/scepservers', method: 'get', params: { limit: 1000 } })
+    return apiGo.getAll('pki/scepservers')
   },
   getPkiProviders () {
     return apiCall({ url: 'config/pki_providers', method: 'get' })
   },
   getPortalModules () {
-    return apiCall({ url: 'config/portal_modules', method: 'get', params: { limit: 1000 } })
+    return apiPerl.getAll('config/portal_modules')
   },
   getProvisionings () {
     return apiCall({ url: 'config/provisionings', method: 'get' })
@@ -180,31 +197,45 @@ const api = {
     return apiCall({ url: 'config/remote_connection_profiles', method: 'get' })
   },
   getRoles () {
-    return apiCall({ url: 'node_categories', method: 'get', params: { limit: 1000 } })
+    return apiPerl.getAll('node_categories')
+  },
+  getRoleByCategoryId (categoryId) {
+    return apiCall({ url: `node_category/${categoryId}`, method: 'get' })
+  },
+  getRolesByCategoryIds (categoryIds) {
+    const search = {
+      query: {
+        op: 'or',
+        values: categoryIds.map(id => ({ field: 'category_id', op: 'equals', value: `${id}` }))
+      },
+      fields: ['category_id', 'name', 'notes'],
+      limit: categoryIds.length
+    }
+    return apiCall.post('node_categories/search', search).then(response => response.data.items)
   },
   getRoutedNetworks () {
-    return apiCall({ url: 'config/routed_networks', method: 'get', params: { limit: 1000 } })
+    return apiPerl.getAll('config/routed_networks')
   },
   getScans () {
     return apiCall({ url: 'config/scans', method: 'get' })
   },
   getSecurityEvents () {
-    return apiCall({ url: 'config/security_events', method: 'get', params: { limit: 1000 } })
+    return apiPerl.getAll('config/security_events')
   },
   getSelfServices () {
     return apiCall({ url: 'config/self_services', method: 'get' })
   },
   getSources () {
-    return apiCall({ url: 'config/sources', method: 'get', params: { limit: 1000 } })
+    return apiPerl.getAll('config/sources')
   },
   getSsids () {
     return apiCall({ url: 'locationlogs/ssids', method: 'get' })
   },
   getSwitches () {
-    return apiCall({ url: 'config/switches', method: 'get', params: { limit: 1000, raw: 1 } })
+    return apiPerl.getAll('config/switches', { raw: 1 })
   },
   getSwitchGroups () {
-    return apiCall({ url: 'config/switch_groups', method: 'get', params: { limit: 1000, raw: 1 } })
+    return apiPerl.getAll('config/switch_groups', { raw: 1 })
   },
   getSwitchGroupMembers (id) {
     return apiCall({ url: `config/switch_group/${id}/members`, method: 'get' })
@@ -299,6 +330,10 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     connectionProfilesStatus: '',
     connectors: false,
     connectorsStatus: '',
+    connectorsDns: false,
+    connectorsDnsStatus: '',
+    connectorsDomains: false,
+    connectorsDomainsStatus: '',
     domains: false,
     domainsStatus: '',
     eventLoggers: false,
@@ -347,6 +382,7 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     realmsStatus: '',
     roles: false,
     rolesStatus: '',
+    cachedRoles: [], // per-id role lookups (lazy, coalesced) — distinct from the full `roles` list
     routedNetworks: false,
     routedNetworksStatus: '',
     scans: false,
@@ -488,6 +524,12 @@ const getters = {
   },
   isLoadingConnectors: state => {
     return state.connectorsStatus === types.LOADING
+  },
+  isLoadingConnectorsDns: state => {
+    return state.connectorsDnsStatus === types.LOADING
+  },
+  isLoadingConnectorsDomains: state => {
+    return state.connectorsDomainsStatus === types.LOADING
   },
   isLoadingSelfServices: state => {
     return state.selfServicesStatus === types.LOADING
@@ -878,16 +920,22 @@ const actions = {
     }
   },
   getBaseGuestsAdminRegistration: ({ state, getters, commit }) => {
-    if (getters.isLoadingBaseGuestsAdminRegistration) {
-      return Promise.resolve(state.baseGuestsAdminRegistration)
+    if (getters.isLoadingBaseGuestsAdminRegistration && baseGuestsAdminRegistrationRequest) {
+      // wait for the request in flight instead of resolving with the state that
+      // is not loaded yet (e.g. the access duration and time balance actions of
+      // a rule both dispatch this when the rule is rendered)
+      return baseGuestsAdminRegistrationRequest
     }
     if (acl.$can('read', 'configuration_main')) {
       if (!state.baseGuestsAdminRegistration) {
         commit('BASE_GUESTS_ADMIN_REGISTRATION_REQUEST')
-        return api.getBaseGuestsAdminRegistration().then(response => {
+        baseGuestsAdminRegistrationRequest = api.getBaseGuestsAdminRegistration().then(response => {
           commit('BASE_GUESTS_ADMIN_REGISTRATION_UPDATED', response.data.item)
           return state.baseGuestsAdminRegistration
+        }).finally(() => {
+          baseGuestsAdminRegistrationRequest = null
         })
+        return baseGuestsAdminRegistrationRequest
       } else {
         return Promise.resolve(state.baseGuestsAdminRegistration)
       }
@@ -1132,6 +1180,34 @@ const actions = {
       })
     } else {
       return Promise.resolve(state.connectors)
+    }
+  },
+  getConnectorsDns: ({ state, getters, commit }) => {
+    if (getters.isLoadingConnectorsDns) {
+      return Promise.resolve(state.connectorsDns)
+    }
+    if (!state.connectorsDns) {
+      commit('CONNECTORS_DNS_REQUEST')
+      return api.getConnectorsDns().then(response => {
+        commit('CONNECTORS_DNS_UPDATED', response.data.items)
+        return state.connectorsDns
+      })
+    } else {
+      return Promise.resolve(state.connectorsDns)
+    }
+  },
+  getConnectorsDomains: ({ state, getters, commit }) => {
+    if (getters.isLoadingConnectorsDomains) {
+      return Promise.resolve(state.connectorsDomains)
+    }
+    if (!state.connectorsDomains) {
+      commit('CONNECTORS__DOMAINS_REQUEST')
+      return api.getConnectorsDomains().then(response => {
+        commit('CONNECTORS_DOMAINS_UPDATED', response.data.items)
+        return state.connectorsDomains
+      })
+    } else {
+      return Promise.resolve(state.connectorsDomains)
     }
   },
   getSelfServices: ({ state, getters, commit }) => {
@@ -1517,6 +1593,32 @@ const actions = {
       commit('ROLES_UPDATED', [])
       return Promise.resolve(state.roles)
     }
+  },
+  getRoleByCategoryId: ({ state, commit }, categoryId) => {
+    const key = categoryId.toString()
+    // already known from the full list (if some other view bulk-loaded it)
+    // or from a previous lazy lookup?
+    const cached = (state.roles && state.roles.find(role => role.category_id.toString() === key)) ||
+      state.cachedRoles.find(role => role.category_id.toString() === key)
+    if (cached) {
+      return Promise.resolve(cached)
+    }
+    // Coalesce the per-row lookups (one per node in a table) into batched
+    // `POST node_categories/search` requests instead of one GET per id.
+    if (!roleByCategoryIdLoader) {
+      roleByCategoryIdLoader = createBatchLoader(
+        categoryIds => api.getRolesByCategoryIds(categoryIds).then(items => {
+          const byId = new Map()
+          items.forEach(item => {
+            commit('ROLE_CACHED', item)
+            byId.set(item.category_id.toString(), item)
+          })
+          return byId
+        }),
+        { wait: 50, maxBatchSize: 500, cacheKeyFn: id => id.toString(), cache: true }
+      )
+    }
+    return roleByCategoryIdLoader.load(categoryId).then(role => role || null).catch(() => null)
   },
   getRoutedNetworks: ({ state, getters, commit }) => {
     if (getters.isLoadingRoutedNetworks) {
@@ -1938,6 +2040,20 @@ const mutations = {
     state.connectors = connectors
     state.connectorsStatus = types.SUCCESS
   },
+  CONNECTORS_DNS_REQUEST: (state) => {
+    state.connectorsDnsStatus = types.LOADING
+  },
+  CONNECTORS_DNS_UPDATED: (state, connectors) => {
+    state.connectorsDns = connectors
+    state.connectorsDnsStatus = types.SUCCESS
+  },
+  CONNECTORS_DOMAINS_REQUEST: (state) => {
+    state.connectorsDomainsStatus = types.LOADING
+  },
+  CONNECTORS_DOMAINS_UPDATED: (state, connectors) => {
+    state.connectorsDomains = connectors
+    state.connectorsDomainsStatus = types.SUCCESS
+  },
   DOMAINS_REQUEST: (state) => {
     state.domainsStatus = types.LOADING
   },
@@ -2129,6 +2245,23 @@ const mutations = {
   ROLES_UPDATED: (state, roles) => {
     state.roles = roles
     state.rolesStatus = types.SUCCESS
+  },
+  ROLE_APPENDED: (state, role) => {
+    if (state.roles && role) {
+      const exists = state.roles.some(r => r.category_id.toString() === role.category_id.toString())
+      if (!exists) {
+        state.roles.push(role)
+      }
+    }
+  },
+  ROLE_CACHED: (state, role) => {
+    // push (don't replace) so the reactive array dep fires and table cells re-render
+    if (role) {
+      const exists = state.cachedRoles.some(r => r.category_id.toString() === role.category_id.toString())
+      if (!exists) {
+        state.cachedRoles.push(role)
+      }
+    }
   },
   ROUTED_NETWORKS_REQUEST: (state) => {
     state.routedNetworksStatus = types.LOADING

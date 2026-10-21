@@ -29,6 +29,7 @@ use pf::config qw(
 use Cisco::AccessList::Parser;
 use pf::Switch::constants;
 use pf::constants::role qw(@ROLES);
+use pf::constants::switch qw(@HOST_MODES);
 use pf::SwitchFactory;
 use pf::util;
 use pf::config qw(%ConfigRoles);
@@ -193,11 +194,50 @@ has_field 'VoIPDHCPDetect' =>
    default => undef,
   );
 
+has_field 'VoIPFullAuthorization' =>
+  (
+   type => 'Toggle',
+   default => undef,
+   label => 'Full RADIUS authorization for VoIP',
+   tags => { after_element => \&help,
+             help => 'When enabled, the RADIUS reply for a VoIP device contains the Voice VSA AND the full Access-Accept response computed as if the device were a regular endpoint (VLAN tunnel attributes, role attributes, push/downloadable ACLs, access-filter rules). The data VLAN returned alongside the Voice VSA may conflict with the voice VLAN; make sure the switch is configured to accept both.' },
+  );
+
 has_field 'PostMfaValidation' =>
   (
    type => 'Toggle',
    default => undef,
   );
+
+has_field 'host_mode' =>
+  (
+   type => 'Select',
+   label => 'Port host mode',
+   options_method => \&options_host_mode,
+   default => undef,
+   element_class => ['chzn-deselect'],
+   element_attr => { 'data-placeholder' => 'Click to select a host mode' },
+   tags => { after_element => \&help,
+             help => 'Host mode configured on the switch ports. In multi-auth, each endpoint authenticates '
+                   . 'independently: PacketFence keeps a separate locationlog entry per MAC and deauthenticates '
+                   . 'each endpoint with a per-session CoA/Disconnect instead of bouncing the port. Note that most '
+                   . 'switches apply a single data VLAN per port, so returning two different VLANs for two endpoints '
+                   . 'on the same port will not work; use role-based ACLs (push or downloadable) to differentiate them.' },
+  );
+
+=head2 options_host_mode
+
+The port host modes supported by PacketFence.
+
+=cut
+
+sub options_host_mode {
+    my $self = shift;
+
+    my @modes = map { $_ => $_ } @HOST_MODES;
+
+    return ('' => '', @modes);
+}
 
 has_field 'uplink_dynamic' =>
   (
@@ -287,10 +327,16 @@ has_field macSearchesSleepInterval  =>
 
 has_block definition =>
   (
-   render_list => [ qw(description type mode group deauthMethod useCoA deauthOnPrevious cliAccess ExternalPortalEnforcement VoIPEnabled VoIPLLDPDetect VoIPCDPDetect VoIPDHCPDetect PostMfaValidation uplink_dynamic uplink controllerIp disconnectPort coaPort) ],
+   render_list => [ qw(description type mode group deauthMethod useCoA deauthOnPrevious host_mode cliAccess ExternalPortalEnforcement VoIPEnabled VoIPLLDPDetect VoIPCDPDetect VoIPDHCPDetect VoIPFullAuthorization PostMfaValidation uplink_dynamic uplink controllerIp controllerPort disconnectPort coaPort) ],
   );
 
 has_field 'SNMPUseConnector' =>
+  (
+   type => 'Toggle',
+   default => undef,
+  );
+
+has_field 'useSNMP' =>
   (
    type => 'Toggle',
    default => undef,
@@ -445,14 +491,38 @@ has_field 'wsPwd' =>
    type => 'ObfuscatedText',
    label => 'Password',
   );
+has_field 'wsVerifyCertificate' =>
+  (
+   type => 'Toggle',
+   label => 'Verify Certificate',
+   default => undef,
+   tags => { after_element => \&help,
+             help => 'Verify the certificate of the controller when the transport is HTTPS. The certificate must be issued by a trusted certificate authority for the controller address. When disabled, the certificate is not checked, which allows self-signed certificates.' },
+  );
 
 has_field controllerIp =>
   (
-    type => 'IPAddress',
+    type => 'Text',
     label => 'Controller IP Address',
     tags => {
         after_element => \&help,
-        help => 'Use instead this IP address for de-authentication requests. Normally used for Wi-Fi only'
+        help => 'Use instead this IP address or FQDN for de-authentication requests. Normally used for Wi-Fi only'
+    },
+    apply => [
+        {
+            check => sub { valid_ip_fqdn($_[0]) },
+            message => 'Value must be an IPv4 address or a fully qualified domain name',
+        },
+    ],
+  );
+
+has_field controllerPort =>
+  (
+    type => 'PosInteger',
+    label => 'Controller Port',
+    tags => {
+        after_element => \&help,
+        help => 'Port to reach the controller API. If empty, the default ports of the module will be used'
     },
   );
 
@@ -836,7 +906,7 @@ sub validateAccessListMapping {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

@@ -103,3 +103,6 @@ export const recomposeSource = (item) => {
 export const analytics = {
   track: ['sourceType']
 }
+
+export const connectThroughPortMin = 30000
+export const connectThroughPortMax = 30999

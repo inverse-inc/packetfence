@@ -10,28 +10,39 @@
 *.lockone
 .#*
 node_modules
+**/target/
 
 # Configuration not in git
 addons/stress-tester/plan.conf
 conf/connectors.conf
 conf/admin.conf
+conf/domains_connectors.conf
+conf/dns_connectors.conf
 conf/httpd.conf
 conf/wgorchestrator-auth.json
 conf/named.conf
 conf/cluster-files.txt
 conf/event_loggers.conf
 conf/pf.conf
+conf/monitoring/go.d/*.conf
+conf/monitoring/go.d.conf
+conf/pfdns-connector.conf
 conf/*.lock
 conf/*.lockonce
 conf/git_commit_id
 conf/build_id
 conf/log.conf.d/*.conf
 conf/nessus/
+conf/pfdns-connector.conf
+conf/dns_connectors.conf
+conf/domains_connectors.conf
 conf/currently-at
 conf/caddy-services/*.conf
 conf/pfdns.conf
 conf/pfdhcp.conf
 conf/etcd.conf.yml
+conf/monitoring/*.conf
+conf/monitoring/go.d/*.conf
 conf/ssl.conf
 conf/template_switches.conf
 conf/uploads/*
@@ -54,6 +65,7 @@ db/upgrade-tenant-11.2-12.0.sql
 bin/ntlm_auth_wrapper
 bin/pfcmd
 bin/pfcrypt
+bin/pfkafka
 src/mariadb_udf/*.o
 src/mariadb_udf/*.so
 src/mariadb_udf/test_pf_udf
@@ -66,6 +78,7 @@ sbin/pfstats
 sbin/pfacct
 sbin/pfcron
 sbin/pfqueue-go
+sbin/pfudpproxy
 sbin/galera-autofix
 sbin/mysql-probe
 sbin/pfconnector
@@ -125,6 +138,7 @@ conf/radiusd/auth.conf
 conf/radiusd/cli.conf
 conf/radiusd/clients.conf.inc
 conf/radiusd/clients.eduroam.conf.inc
+conf/radiusd/dictionary.local
 conf/radiusd/eap.conf
 conf/radiusd/eduroam
 conf/radiusd/eduroam-cluster
@@ -164,9 +178,11 @@ conf/snort/reference.config
 conf/switches.conf
 conf/httpd.conf.d/ssl-certificates.conf
 conf/iptables.conf
+conf/iptables-custom.conf.inc
 conf/iptables-input.conf.inc
 conf/iptables-input-management.conf.inc
 conf/ip6tables.conf
+conf/ip6tables-custom.conf.inc
 conf/ip6tables-input-management.conf.inc
 conf/listener.msg
 conf/provisioning.conf
@@ -260,6 +276,8 @@ docs/*.html
 docs/index.js
 docs/api/spec/components/
 docs/api/spec/paths/
+docs/api/spec/openapi.json
+docs/api/spec/openapi.yaml
 
 # trap stats graphs
 # TODO we should move them under var/
@@ -299,3 +317,12 @@ html/pfappserver/root/admin/v-index.tt
 lib_perl/
 
 containers/.local_env
+
+# venom test planning files (for local use only)
+t/venom/scenarios/*/PLAN_A.md
+t/venom/scenarios/*/PLAN_B.md
+
+# Temporary documentation files
+ISO_INSTALLATION_COMPARISON.md
+ci/dvd-usb-iso/PLAN.md
+ci/dvd-usb-iso/TROUBLESHOOTING.md

@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-//Logger is pkg/log Logger with prefixing and 2 log levels
+// Logger is pkg/log Logger with prefixing and 2 log levels
 type Logger struct {
 	Info, Debug bool
 	//internal
@@ -30,7 +30,8 @@ func NewLoggerFlag(prefix string, flag int) *Logger {
 }
 
 func (l *Logger) Printf(f string, args ...interface{}) {
-	l.logger.Printf(l.prefix+": "+f, args...)
+	f = l.prefix + ": " + f
+	l.logger.Printf(f, args...)
 }
 
 func (l *Logger) Infof(f string, args ...interface{}) {
@@ -47,7 +48,7 @@ func (l *Logger) Debugf(f string, args ...interface{}) {
 
 func (l *Logger) IfDebug(f func() string) {
 	if l.IsDebug() {
-		l.logger.Printf(l.prefix + ": " + f())
+		l.logger.Printf("%s", l.prefix+": "+f())
 	}
 }
 

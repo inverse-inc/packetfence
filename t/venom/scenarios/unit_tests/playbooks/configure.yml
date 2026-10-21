@@ -5,6 +5,19 @@
   collections:
     - inverse_inc.packetfence
 
+  tasks:
+    - name: Install tcpdump on EL8
+      yum:
+        name: tcpdump
+        state: present
+      when: ansible_facts['os_family'] == "RedHat" and ansible_distribution_major_version == "8"
+
+    - name: Install tcpdump on Debian
+      apt:
+        name: tcpdump
+        state: present
+      when: ansible_facts['os_family'] == "Debian"
+
   roles:
     - role: packetfence_go
       tags: go

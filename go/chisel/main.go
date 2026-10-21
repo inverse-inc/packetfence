@@ -1,6 +1,7 @@
 package chiselmain
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -13,8 +14,10 @@ import (
 	"sync"
 	"time"
 
+	golog "github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	chclient "github.com/inverse-inc/packetfence/go/chisel/client"
+	clientapi "github.com/inverse-inc/packetfence/go/chisel/clientapi"
 	chserver "github.com/inverse-inc/packetfence/go/chisel/server"
 	chshare "github.com/inverse-inc/packetfence/go/chisel/share"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cos"
@@ -161,9 +164,12 @@ var serverHelp = `
     provide a certificate notification email by setting CHISEL_LE_EMAIL.
 
     --tls-ca, a path to a PEM encoded CA certificate bundle or a directory
-    holding multiple PEM encode CA certificate bundle files, which is used to 
-    validate client connections. The provided CA certificates will be used 
-    instead of the system roots. This is commonly used to implement mutual-TLS. 
+    holding multiple PEM encode CA certificate bundle files, which is used to
+    validate client connections. The provided CA certificates will be used
+    instead of the system roots. This is commonly used to implement mutual-TLS.
+
+    --log-level, Log level for pfconfig operations (DEBUG, INFO, WARN, ERROR).
+    Defaults to INFO. Can also be set via LOG_LEVEL env var.
 ` + commonHelp
 
 func server(args []string) {
@@ -189,6 +195,7 @@ func server(args []string) {
 	port := flags.String("port", "", "")
 	pid := flags.Bool("pid", false, "")
 	verbose := flags.Bool("v", false, "")
+	logLevel := flags.String("log-level", "", "")
 
 	flags.Usage = func() {
 		fmt.Print(serverHelp)
@@ -214,7 +221,17 @@ func server(args []string) {
 	if config.KeySeed == "" {
 		config.KeySeed = os.Getenv("CHISEL_KEY")
 	}
-	s, err := chserver.NewServer(config)
+	// Determine effective log level: flag takes precedence, then env var, then default to INFO
+	effectiveLogLevel := sharedutils.EnvOrDefault("LOG_LEVEL", "INFO")
+	if *logLevel != "" {
+		effectiveLogLevel = *logLevel
+	}
+
+	// Create a context with the log level set for pfconfig operations
+	baseCtx := golog.LoggerNewContext(context.Background())
+	baseCtx = golog.LoggerSetLevel(baseCtx, effectiveLogLevel)
+
+	s, err := chserver.NewServerWithContext(baseCtx, config)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -223,7 +240,7 @@ func server(args []string) {
 		generatePidFile()
 	}
 	go cos.GoStats()
-	ctx := cos.InterruptContext()
+	ctx := cos.InterruptContextFrom(baseCtx)
 	w := sync.WaitGroup{}
 	for _, h := range strings.Split(*host, ",") {
 		w.Add(1)
@@ -454,6 +471,13 @@ func client(args []string) {
 	if err := c.Start(ctx); err != nil {
 		log.Fatal(err)
 	}
+	go func(ctx context.Context) {
+		api := clientapi.NewApi(ctx, config.Auth, c.GetTunnel())
+		// The side-car API failing should not be fatal to the tunnel client.
+		if err := api.Start(ctx, ":8081"); err != nil {
+			log.Printf("clientapi: %v", err)
+		}
+	}(ctx)
 	if err := c.Wait(); err != nil {
 		log.Fatal(err)
 	}

@@ -15,9 +15,11 @@ Developed and tested on a MS220_8P (P standing for PoE) switch
 
 =head1 BUGS AND LIMITATIONS
 
-=head2 Cannot detect VoIP devices
+=head2 VoIP devices detection
 
-VoIP devices cannot be detected via CDP/LLDP via an SNMP lookup.
+VoIP devices are detected through the CDP neighbors of the port (SNMP, CISCO-CDP-MIB),
+which requires SNMP to be enabled for the network in the Meraki dashboard and the
+SNMP read parameters on the switch. LLDP is not queried.
 
 =cut
 
@@ -34,6 +36,20 @@ use pf::constants;
 use pf::util;
 use pf::node;
 use pf::Switch::Meraki::MR_v2;
+use pf::access_filter::radius;
+use pf::radius::constants;
+
+# The switch lists a CDP neighbor in its cdpCacheTable 3 to 7 minutes after the
+# port comes up. A device that is not a phone is authenticated again every
+# CDP_RECHECK_TIMEOUT seconds during the first CDP_RECHECK_WINDOW seconds after it
+# was first seen on the switch, which is remembered CDP_RECHECK_MEMORY.
+use constant CDP_RECHECK_TIMEOUT => 300;
+use constant CDP_RECHECK_WINDOW => 900;
+use constant CDP_RECHECK_MEMORY => '48h';
+# When the switch does not answer SNMP (SNMP is disabled in the Meraki dashboard
+# by default), the CDP lookup is skipped for SNMP_UNREACHABLE_MEMORY instead of
+# making every RADIUS request wait for the SNMP timeout.
+use constant SNMP_UNREACHABLE_MEMORY => '10m';
 
 =head1 SUBROUTINES
 
@@ -42,16 +58,157 @@ use pf::Switch::Meraki::MR_v2;
 # CAPABILITIES
 # access technology supported
 sub description { 'Meraki switch MS' }
+sub switchDriverId { 'meraki' }
 use pf::SwitchSupports qw(
     WiredMacAuth
     WiredDot1x
     RadiusVoip
     RoleBasedEnforcement
+    Flow
+    Cdp
 );
 
 sub isVoIPEnabled {
     my ($self) = @_;
     return isenabled($self->{_VoIPEnabled});
+}
+
+=head2 getPhonesCDPAtIfIndex
+
+MS switches expose the CDP neighbors in the CISCO-CDP-MIB cdpCacheTable
+(indexed by the port number, ifDescr "Port N"), the same way Cisco switches do.
+SNMP has to be enabled for the network in the Meraki dashboard and the SNMP read
+parameters have to be set on the switch.
+
+=cut
+
+sub getPhonesCDPAtIfIndex {
+    my ($self, $ifIndex) = @_;
+    return () if !$self->isVoIPEnabled() || !$self->_cdpLookupAvailable();
+    require pf::Switch::Cisco;
+    my @phones = pf::Switch::Cisco::getPhonesCDPAtIfIndex($self, $ifIndex);
+    # connectRead can succeed from its cached sysLocation while the switch no
+    # longer answers (SNMP disabled since, wrong community): a CDP request that
+    # timed out counts as well
+    my $error = $self->{_sessionRead} ? $self->{_sessionRead}->error() : undef;
+    $self->_snmpUnreachable($error) if !@phones && defined($error) && $error =~ /No response/i;
+    return @phones;
+}
+
+=head2 _cdpLookupAvailable
+
+Whether the switch answers SNMP. A switch that does not answer is not queried
+again for SNMP_UNREACHABLE_MEMORY: the lookup runs during the RADIUS request,
+and without this every request would wait for the SNMP timeout. A switch whose
+"Use SNMP" is disabled is not queried, without a warning.
+
+=cut
+
+sub _cdpLookupAvailable {
+    my ($self) = @_;
+    return $FALSE if isdisabled($self->{_useSNMP});
+    return $FALSE if $self->cache_distributed->get($self->{_id} . "-CDP-snmp-unreachable");
+    return $TRUE if $self->connectRead();
+    $self->_snmpUnreachable($self->{_error});
+    return $FALSE;
+}
+
+=head2 _snmpUnreachable
+
+Remember for SNMP_UNREACHABLE_MEMORY that the switch does not answer SNMP.
+
+=cut
+
+sub _snmpUnreachable {
+    my ($self, $error) = @_;
+    $self->logger->warn("$self->{_id} does not answer SNMP" . (defined($error) && $error ne '' ? " ($error)" : '') . ": VoIP phones are not looked up in its CDP neighbors for the next " . SNMP_UNREACHABLE_MEMORY . ". Enable SNMP for the network in the Meraki dashboard and set the SNMP read parameters of the switch, or disable the CDP detection of VoIP phones on the switch");
+    $self->cache_distributed->set($self->{_id} . "-CDP-snmp-unreachable", 1, SNMP_UNREACHABLE_MEMORY);
+}
+
+=head2 isPhoneAtIfIndex
+
+Only a found phone is cached. The switch lists a CDP neighbor in its
+cdpCacheTable minutes after the port comes up, so the first RADIUS request of
+a phone usually comes before it: caching that miss would hide the phone until
+the cache expires.
+
+=cut
+
+sub isPhoneAtIfIndex {
+    my ($self, $mac, $ifIndex) = @_;
+    my $is_phone = $self->SUPER::isPhoneAtIfIndex($mac, $ifIndex);
+    if (!$is_phone && defined($ifIndex)) {
+        $self->cache_distributed->remove($self->{_id} . "-SNMP-isPhoneAtIfIndex-$ifIndex-$mac");
+    }
+    return $is_phone;
+}
+
+=head2 returnRadiusAccessAccept
+
+When a device that was just seen on the switch is not detected as a phone, ask
+the switch to authenticate it again in CDP_RECHECK_TIMEOUT seconds without
+bringing the port down (Session-Timeout with Termination-Action
+RADIUS-Request), when the CDP entry of a phone is in the cdpCacheTable. A
+device that is still not a phone then gets the regular answer.
+
+=cut
+
+sub returnRadiusAccessAccept {
+    my ($self, $args) = @_;
+
+    # the RADIUS filter runs once, at the end, over the complete reply
+    my $unfiltered = $args->{'unfiltered'};
+    $args->{'unfiltered'} = $TRUE;
+    my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
+    $args->{'unfiltered'} = $unfiltered;
+    my $status = shift @super_reply;
+    my %radius_reply = @super_reply;
+    return [$status, %radius_reply] if ($status == $RADIUS::RLM_MODULE_USERLOCK);
+
+    if (!exists($radius_reply{'Session-Timeout'}) && $self->_cdpRecheck($args)) {
+        $self->logger->info("$args->{'mac'} is not a phone according to CDP yet, asking the switch to authenticate it again in " . CDP_RECHECK_TIMEOUT . " seconds");
+        $radius_reply{'Session-Timeout'} = CDP_RECHECK_TIMEOUT;
+        $radius_reply{'Termination-Action'} = 1; # RADIUS-Request
+    }
+
+    return [$status, %radius_reply] if isenabled($args->{'unfiltered'});
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnRadiusAccessAccept', $args);
+    my ($radius_reply_ref, $filtered_status) = $filter->handleAnswerInRule($rule, $args, \%radius_reply);
+    return [$filtered_status, %$radius_reply_ref];
+}
+
+=head2 _cdpRecheck
+
+Whether the device should be authenticated again to look for it in the CDP
+neighbors, when the CDP lookup can run.
+
+Every answer during the first CDP_RECHECK_WINDOW seconds after the device was
+first seen on the switch asks for it, so the device is checked every
+CDP_RECHECK_TIMEOUT seconds until its CDP entry shows up, also when a phone
+reboots or its link flaps right after it connects. After the window, a device
+that is still not a phone gets the regular answer. The first time a device was
+seen is kept CDP_RECHECK_MEMORY.
+
+=cut
+
+sub _cdpRecheck {
+    my ($self, $args) = @_;
+    return $FALSE if $args->{'isPhone'};
+    return $FALSE if !$self->isVoIPEnabled();
+    return $FALSE if defined($self->{_VoIPCDPDetect}) && !isenabled($self->{_VoIPCDPDetect});
+    return $FALSE if !defined($args->{'mac'}) || !defined($args->{'ifIndex'}) || $args->{'ifIndex'} eq '';
+    # authenticating again can't find a phone if the switch does not answer SNMP
+    return $FALSE if !$self->_cdpLookupAvailable();
+    my $key = $self->{_id} . "-CDP-recheck-" . $args->{'mac'};
+    my $cache = $self->cache_distributed;
+    my $now = time();
+    my $first_seen = $cache->get($key);
+    if (!defined($first_seen)) {
+        $cache->set($key, $now, CDP_RECHECK_MEMORY);
+        return $TRUE;
+    }
+    return ($now - $first_seen) < CDP_RECHECK_WINDOW;
 }
 
 =head2 getVoipVSA
@@ -175,7 +332,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

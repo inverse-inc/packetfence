@@ -30,78 +30,72 @@ type pfdnsRefreshableConfig struct {
 }
 
 func newPfconfigRefreshableConfig(ctx context.Context) *pfdnsRefreshableConfig {
-	p := &pfdnsRefreshableConfig{
+	rc := &pfdnsRefreshableConfig{
 		DNSFilter:  cache.New(300*time.Second, 10*time.Second),
 		IpsetCache: cache.New(1*time.Hour, 10*time.Second),
 	}
-	pfconfigdriver.FetchDecodeSocket(ctx, &p.registration)
-	pfconfigdriver.FetchDecodeSocket(ctx, &p.isolation)
-	pfconfigdriver.FetchDecodeSocket(ctx, &p.PfConfDns)
-	p.PassthroughsInit(ctx)
-	p.PassthroughsIsolationInit(ctx)
-	p.recordDNS = p.PfConfDns.RecordDNS == "enabled"
-	return p
+	pfconfigdriver.FetchDecodeSocket(ctx, &rc.registration)
+	pfconfigdriver.FetchDecodeSocket(ctx, &rc.isolation)
+	pfconfigdriver.FetchDecodeSocket(ctx, &rc.PfConfDns)
+	rc.PassthroughsInit(ctx)
+	rc.PassthroughsIsolationInit(ctx)
+	rc.recordDNS = sharedutils.IsEnabled(rc.PfConfDns.RecordDNS)
+	return rc
 }
 
-func (pf *pfdnsRefreshableConfig) PassthroughsInit(ctx context.Context) error {
-	pfconfigdriver.FetchDecodeSocket(ctx, &pf.registration)
+func (rc *pfdnsRefreshableConfig) PassthroughsInit(ctx context.Context) error {
+	rc.FqdnPort = make(map[*regexp.Regexp][]string)
 
-	pf.FqdnPort = make(map[*regexp.Regexp][]string)
-
-	for k, v := range pf.registration.Wildcard {
+	for k, v := range rc.registration.Wildcard {
 		rgx, _ := regexp.Compile(".*" + k)
-		pf.FqdnPort[rgx] = v
+		rc.FqdnPort[rgx] = v
 	}
 
-	for k, v := range pf.registration.Normal {
+	for k, v := range rc.registration.Normal {
 		rgx, _ := regexp.Compile("^" + k + ".$")
-		pf.FqdnPort[rgx] = v
+		rc.FqdnPort[rgx] = v
 	}
 
 	return nil
 }
 
-func (pf *pfdnsRefreshableConfig) PassthroughsIsolationInit(ctx context.Context) error {
-	pfconfigdriver.FetchDecodeSocket(ctx, &pf.isolation)
+func (rc *pfdnsRefreshableConfig) PassthroughsIsolationInit(ctx context.Context) error {
+	rc.FqdnIsolationPort = make(map[*regexp.Regexp][]string)
 
-	pf.FqdnIsolationPort = make(map[*regexp.Regexp][]string)
-
-	for k, v := range pf.isolation.Wildcard {
+	for k, v := range rc.isolation.Wildcard {
 		rgx, _ := regexp.Compile(".*" + k)
-		pf.FqdnIsolationPort[rgx] = v
+		rc.FqdnIsolationPort[rgx] = v
 	}
 
-	for k, v := range pf.isolation.Normal {
+	for k, v := range rc.isolation.Normal {
 		rgx, _ := regexp.Compile("^" + k + ".$")
-		pf.FqdnIsolationPort[rgx] = v
+		rc.FqdnIsolationPort[rgx] = v
 	}
 
 	return nil
 }
 
-func (p *pfdnsRefreshableConfig) IsValid(ctx context.Context) bool {
-	return pfconfigdriver.IsValid(ctx, &p.registration) && pfconfigdriver.IsValid(ctx, &p.isolation) && pfconfigdriver.IsValid(ctx, &p.PfConfDns)
+func (rc *pfdnsRefreshableConfig) IsValid(ctx context.Context) bool {
+	return pfconfigdriver.IsValid(ctx, &rc.registration) && pfconfigdriver.IsValid(ctx, &rc.isolation) && pfconfigdriver.IsValid(ctx, &rc.PfConfDns)
 }
 
-func (p *pfdnsRefreshableConfig) Refresh(ctx context.Context) {
-	if !pfconfigdriver.IsValid(ctx, &p.registration) || !pfconfigdriver.IsValid(ctx, &p.isolation) {
-		p.PassthroughsInit(ctx)
-		p.PassthroughsIsolationInit(ctx)
-		p.DNSFilter = cache.New(300*time.Second, 10*time.Second)
-		p.IpsetCache = cache.New(1*time.Hour, 10*time.Second)
-	}
+func (rc *pfdnsRefreshableConfig) Refresh(ctx context.Context) {
+	pfconfigdriver.FetchDecodeSocket(ctx, &rc.registration)
+	pfconfigdriver.FetchDecodeSocket(ctx, &rc.isolation)
+	pfconfigdriver.FetchDecodeSocket(ctx, &rc.PfConfDns)
+	rc.PassthroughsInit(ctx)
+	rc.PassthroughsIsolationInit(ctx)
 
-	pfconfigdriver.FetchDecodeSocket(ctx, &p.PfConfDns)
-	p.recordDNS = p.PfConfDns.RecordDNS == "enabled"
+	rc.recordDNS = sharedutils.IsEnabled(rc.PfConfDns.RecordDNS)
 }
 
-func (p *pfdnsRefreshableConfig) Clone() pfconfigdriver.Refresh {
+func (rc *pfdnsRefreshableConfig) Clone() pfconfigdriver.Refresh {
 	return &pfdnsRefreshableConfig{
-		registration: p.registration,
-		isolation:    p.isolation,
-		PfConfDns:    p.PfConfDns,
-		DNSFilter:    p.DNSFilter,
-		IpsetCache:   p.IpsetCache,
+		registration: rc.registration,
+		isolation:    rc.isolation,
+		PfConfDns:    rc.PfConfDns,
+		DNSFilter:    rc.DNSFilter,
+		IpsetCache:   rc.IpsetCache,
 	}
 }
 

@@ -29,13 +29,13 @@ use pf::config qw(
      $WIRED_MAC_AUTH
 );
 use Try::Tiny;
-use pf::util::radius qw(perform_coa perform_disconnect);
 sub description {'Aruba 2930M Series'}
 
 use pf::SwitchSupports qw(
     RoleBasedEnforcement
     AccessListBasedEnforcement
     ExternalPortal
+    Flow
 );
 
 =head2 returnRadiusAccessAccept
@@ -67,17 +67,14 @@ sub returnRadiusAccessAccept {
     }
 
     if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
-        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}))) {
-            my $access_list = $self->getAccessListByName($args->{'user_role'});
-            if ($access_list) {
-                while($access_list =~ /([^\n]+)\n?/g){
-                    push(@acls, $1);
-                    $logger->info("(".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
-                }
-                $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
-            } else {
-                $logger->info("(".$self->{'_id'}.") No access lists defined for this role ".$args->{'user_role'});
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}, $args->{ifIndex}))) {
+            while($access_list =~ /([^\n]+)\n?/g){
+                push(@acls, $1);
+                $logger->info("(".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
             }
+            $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
+        } else {
+            $logger->info("(".$self->{'_id'}.") No access lists defined for this role ".$args->{'user_role'});
         }
     }
 
@@ -170,7 +167,7 @@ sub radiusDisconnect {
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
 
-    if (!defined($self->{'_radiusSecret'})) {
+    if (!$self->hasRadiusSecret()) {
         $logger->warn(
             "[$self->{'_ip'}] Unable to perform RADIUS CoA-Request: RADIUS Shared Secret not configured"
         );
@@ -188,7 +185,7 @@ sub radiusDisconnect {
 
     my $response;
     try {
-        my $locationlog = locationlog_view_open_mac($mac);
+        my $locationlog = $self->locationlog_for_disconnect($mac);
         my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
 
         $logger->debug("[$self->{'_ip'}] Network device supports roles. Evaluating role to be returned.");
@@ -220,12 +217,15 @@ sub radiusDisconnect {
                 'Filter-Id' => $role,
             };
             $logger->info("[$self->{'_ip'}] Returning ACCEPT with Role: $role");
-            $response = perform_coa($connection_info, $attributes_ref,$vsa);
+            $response = $self->handleRadiusCoa($connection_info, $attributes_ref,$vsa);
 
         }
         else {
+            # The port bounce CoA identifies the port with NAS-Port, a NAS-Port-Id is rejected with a CoA-NAK
+            my $port = delete $attributes_ref->{'NAS-Port-Id'};
+            $attributes_ref->{'NAS-Port'} //= $port;
             $vsa = [{ 'vendor' => 'HP', 'attribute' => 'HP-Port-Bounce-Host', 'value' => '12' }];
-            $response = perform_coa($connection_info, $attributes_ref,$vsa);
+            $response = $self->handleRadiusCoa($connection_info, $attributes_ref,$vsa);
         }
     } catch {
         chomp;
@@ -294,7 +294,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

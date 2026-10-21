@@ -1,0 +1,7 @@
+name: Restart pfacct service to apply bandwidth accounting config
+testcases:
+
+- name: restart_pfacct
+  steps:
+  - type: pf_api_service_restart
+    service: pfacct

@@ -1,0 +1,82 @@
+name: Close the security event and verify device returns to normal VLAN
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: search_open_security_event
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/security_events/search'
+    ignore_verify_ssl: true
+    retry: 5
+    delay: 3
+    body: >-
+      {
+        "cursor": 0,
+        "fields": ["id", "security_event_id", "status", "mac"],
+        "sort": ["start_date DESC"],
+        "limit": 10,
+        "query": {
+          "op": "and",
+          "values": [
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "mac",
+                  "op": "equals",
+                  "value": "{{.security_event_manual_virtualswitch.device.mac_address}}"
+                }
+              ]
+            },
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "security_event_id",
+                  "op": "equals",
+                  "value": "{{.security_event_manual_virtualswitch.event.id}}"
+                }
+              ]
+            },
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "status",
+                  "op": "equals",
+                  "value": "open"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.items.items0 ShouldContainKey security_event_id
+      - result.bodyjson.items.items0.security_event_id ShouldEqual "{{.security_event_manual_virtualswitch.event.id}}"
+    vars:
+      security_event_row_id:
+        from: result.bodyjson.items.items0.id
+
+- name: close_security_event
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.security_event_manual_virtualswitch.device.mac_address_url_encoded}}/close_security_event'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "security_event_id": {{.search_open_security_event.security_event_row_id}}
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200

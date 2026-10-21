@@ -1,0 +1,21 @@
+executor: virtualswitch_device_status
+input:
+  api_url: "http://10.255.255.2:8080"
+  interface_id: "1"
+steps:
+- type: virtualswitch_api
+  api_url: "{{.input.api_url}}"
+  method: GET
+  endpoint: /api/v1/interfaces/{{.input.interface_id}}/authentication-session
+  vars:
+    virtualswitch_json:
+      from: result.virtualswitch_responsejson
+output:
+  virtualswitch_device_status_: "{{.virtualswitch_json}}"
+  virtualswitch_device_status__port_state: "{{.virtualswitch_json.data.port_state}}"
+  virtualswitch_device_status__device_mac: "{{.virtualswitch_json.data.device_mac}}"
+  virtualswitch_device_status__vlan_assigned: "{{.virtualswitch_json.data.vlan_assigned}}"
+  virtualswitch_device_status__auth_method: "{{.virtualswitch_json.data.auth_method}}"
+  virtualswitch_device_status__session_id: "{{.virtualswitch_json.data.session_id}}"
+  virtualswitch_device_status__interface_name: "{{.virtualswitch_json.data.interface_name}}"
+  virtualswitch_device_status__success: "{{.virtualswitch_json.success}}"

@@ -187,23 +187,30 @@ sub match {
 
     $self->preMatchProcessing;
 
-    foreach my $rule ( @{$self->{'rules'}} ) {
-        if ( ($rule_class ne $rule->{'class'}) || (defined $action && none { $allowed_actions{$_->type} } @{$rule->{actions}}) ) {
-            $logger->trace("Skipping rule " . ($rule->id ) . " for source " . $self->id);
-            next;
-        }
+    my @matched;
+    my $ok = eval {
+        foreach my $rule ( @{$self->{'rules'}} ) {
+            if ( ($rule_class ne $rule->{'class'}) || (defined $action && none { $allowed_actions{$_->type} } @{$rule->{actions}}) ) {
+                $logger->trace("Skipping rule " . ($rule->id ) . " for source " . $self->id);
+                next;
+            }
 
-        my ($matched, $ignore_action, $entry) = $self->match_rule($rule, $params, $extra);
-        if ($matched) {
-            $logger->info("Matched rule (".$rule->{'id'}.") in source ".$self->id.", returning actions.");
-            $self->postMatchProcessing;
-            return ($rule, $ignore_action, $entry);
-        }
+            my ($matched, $ignore_action, $entry) = $self->match_rule($rule, $params, $extra);
+            if ($matched) {
+                $logger->info("Matched rule (".$rule->{'id'}.") in source ".$self->id.", returning actions.");
+                @matched = ($rule, $ignore_action, $entry);
+                last;
+            }
 
-    } # foreach my $rule ( @{$self->{'rules'}} ) {
+        } # foreach my $rule ( @{$self->{'rules'}} ) {
+        1;
+    };
+    my $error = $@;
+    # Tear down even when a rule dies, so the state of this request does not outlive it
     $self->postMatchProcessing;
+    die $error unless $ok;
 
-    return (undef, undef, undef);
+    return @matched[0..2];
 }
 
 sub match_rule {
@@ -346,7 +353,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

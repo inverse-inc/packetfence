@@ -1,0 +1,23 @@
+name: Manually apply security event 1300000 (Generic) via API
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: apply_security_event
+  steps:
+  - type: http
+    method: PUT
+    url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.security_event_manual_virtualswitch.device.mac_address_url_encoded}}/apply_security_event'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id": "{{.security_event_manual_virtualswitch.device.mac_address}}",
+        "mac": "{{.security_event_manual_virtualswitch.device.mac_address}}",
+        "security_event_id": "{{.security_event_manual_virtualswitch.event.id}}"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200

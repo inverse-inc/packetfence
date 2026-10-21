@@ -304,7 +304,7 @@ CONF
     my $conf = <<'CONF';
 [pf_deauth_from_wireless_secure]
 status=enabled
-condition=not_date_is_before(bob.jones, "bob")
+condition=not_date_is_before(bob.jones, "2030-01-01")
 scopes = RegisteredRole
 action.0=modify_node: mac, $mac, status = unreg, autoreg = no
 role = registration
@@ -320,19 +320,18 @@ CONF
                     filters => [
                         pf::filter->new(
                             {
-                                'condition' => pf::condition::not->new( {
+                                # negated inside the date condition, see pf::condition::date_compare
+                                'condition' => pf::condition::key->new({
+                                    key => 'bob',
                                     'condition' => pf::condition::key->new({
-                                        key => 'bob',
-                                        'condition' => pf::condition::key->new({
-                                                        condition => bless({ 'value' => 'bob' }, 'pf::condition::date_before'),
-                                                        'key' => 'jones'
-                                                    }),
-                                    }),
+                                                    condition => pf::condition::date_before->new({ 'value' => '2030-01-01', negate => 1 }),
+                                                    'key' => 'jones'
+                                                }),
                                 }),
                             answer => {
                                     
                                 status => 'enabled',
-                                condition => 'not_date_is_before(bob.jones, "bob")',
+                                condition => 'not_date_is_before(bob.jones, "2030-01-01")',
                                 scopes    => ['RegisteredRole'],
                                 _rule     => 'pf_deauth_from_wireless_secure',
                                 role    => 'registration',
@@ -581,7 +580,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

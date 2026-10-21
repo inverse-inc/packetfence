@@ -1,5 +1,5 @@
 Name:       packetfence-export
-Version:    14.1.0
+Version:    16.0.0
 Release:    2%{?dist}
 BuildArch:  noarch
 Summary:    PacketFence export files
@@ -38,15 +38,29 @@ This package should only be installed on releases before v11.
 %files
 %defattr(-, pf, pf)
 # base directory need to be added to package to be removed during uninstall
+%dir /usr/local/pf/addons
 %dir /usr/local/pf/addons/full-import
 %dir /usr/local/pf/addons/functions
 # add files in package **and** set permissions
 # we only add files install during install process
+%attr(0755, -, -)     /usr/local/pf/addons/exportable-backup.sh
 %attr(0755, -, -)     /usr/local/pf/addons/full-import/export.sh
 %attr(0755, -, -)     /usr/local/pf/addons/full-import/find-extra-files.pl
 %attr(0644, -, -)     /usr/local/pf/addons/functions/*.functions
 
 %changelog
+* Mon Aug 24 2026 Inverse <info@inverse.ca> - 16.0.0-1
+- New release 16.0.0
+
+* Wed May 20 2026 Inverse <info@inverse.ca> - 15.2.0-1
+- New release 15.2.0
+
+* Tue Oct 28 2025 Inverse <info@inverse.ca> - 15.1.0-1
+- New release 15.1.0
+
+* Thu Feb 20 2025 Inverse <info@inverse.ca> - 15.0.0-1
+- New release 15.0.0
+
 * Mon Sep 09 2024 Inverse <info@inverse.ca> - 14.1.0-1
 - New release 14.1.0
 

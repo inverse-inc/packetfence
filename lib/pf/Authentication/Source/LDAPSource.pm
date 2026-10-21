@@ -71,6 +71,8 @@ has 'usernameattribute' => (isa => 'Str', is => 'rw', required => 1);
 has 'searchattributes' => (isa => 'ArrayRef[Str]', is => 'rw', required => 0);
 has 'append_to_searchattributes' => (isa => 'Maybe[Str]', is => 'rw', required => 0);
 has '_cached_connection' => (is => 'rw');
+# Search results shared by the rules of one match() call (see preMatchProcessing)
+has '_search_memo' => (is => 'rw');
 has 'cache_match' => ( isa => 'Bool', is => 'rw', default => 0 );
 has 'email_attribute' => (isa => 'Maybe[Str]', is => 'rw', default => 'mail');
 has 'monitor' => ( isa => 'Bool', is => 'rw', default => 1 );
@@ -183,7 +185,7 @@ sub authenticate {
     return ($FALSE, $COMMUNICATION_ERROR_MSG);
   }
 
-  my $filter = $self->_makefilter(escape_filter_value($username));
+  my $filter = $self->_makefilter($username);
 
   my $result = do {
     my $timer = pf::StatsD::Timer->new({'stat' => "${timer_stat_prefix}.search", level => 7});
@@ -250,7 +252,11 @@ sub _connect {
       @LDAPServers = @{$self->{'host'} // []};
   } else {
       # Lookup the server hostnames to IPs so they can be shuffled better and to improve the failure detection
-      @LDAPServers = map { valid_ip($_) ? $_ : @{resolve($_) // []} } @{$self->{'host'} // []};     
+      if(!$self->use_connector) {
+          @LDAPServers = map { valid_ip($_) ? $_ : @{resolve($_) // []} } @{$self->{'host'} // []};
+      } else {
+          @LDAPServers = @{$self->{'host'} // []};
+      }
   }
   if ($self->shuffle) {
       @LDAPServers = List::Util::shuffle @LDAPServers;
@@ -274,7 +280,17 @@ sub _connect {
 
         if($self->use_connector) {
             require pf::factory::connector;
-            my $connector_conn = pf::factory::connector->for_ip($LDAPServer)->dynreverse("$LDAPServer:$LDAPServerPort");
+            my $dest_ip = pf::factory::connector->resolve($LDAPServer);
+            if (!defined $dest_ip) {
+                $logger->warn("[$self->{'id'}] Unable to resolve $LDAPServer, switching to next server");
+                # Like a server that can't be reached: don't ask the resolver
+                # again on every bind for dead_duration
+                if($honor_dead && $self->dead_duration) {
+                    $self->cache->set($dead_cache_key, $TRUE, $self->dead_duration);
+                }
+                next TRYSERVER;
+            }
+            my $connector_conn = pf::factory::connector->for_ip($dest_ip)->dynreverse("$dest_ip:$LDAPServerPort");
             $connection = pf::LDAP->new(
                 $connector_conn->{host},
                 %LDAPArgs,
@@ -457,8 +473,6 @@ sub match_in_subclass {
     if (defined($forcedbasedn) && $forcedbasedn ne '') {
         $basedn = $forcedbasedn;
     }
-    my $rule_id = $rule->id;
-    $logger->warn("[$id $rule_id] Searching for $filter, from $basedn, with scope $self->{'scope'}");
     return $self->_match_in_subclass($basedn, $filter, $params, $rule, $own_conditions, $matching_conditions);
 }
 
@@ -497,26 +511,42 @@ sub _match_in_subclass {
         push @attributes, $action->value;
     }
 
-    my $result = do {
-        my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}.search",  level => 6});
-        $connection->search(
-          base => $basedn,
-          filter => $filter,
-          scope => $self->{'scope'},
-          attrs => \@attributes
-        )
-    };
+    # Regexp and static-group conditions are not part of the LDAP filter, so
+    # consecutive rules of the same match() usually run the very same search
+    # (the username lookup): run it once and reuse the entries for the other
+    # rules of this request instead of one round trip per rule.
+    my $memo = $self->_search_memo;
+    my $memo_key = join("\0", $basedn, $filter, $self->{'scope'}, sort @attributes);
+    my ($result, $result_count, @entries);
+    if ($memo && exists $memo->{$memo_key}) {
+        ($result_count, @entries) = ($memo->{$memo_key}{count}, @{$memo->{$memo_key}{entries}});
+        $logger->debug("[$self->{'id'} $rule->{'id'}] Reusing the result of the search $filter from $basedn already done for this request");
+    } else {
+        $logger->warn("[$self->{'id'} $rule->{'id'}] Searching for $filter, from $basedn, with scope $self->{'scope'}");
+        $result = do {
+            my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}.search",  level => 6});
+            $connection->search(
+              base => $basedn,
+              filter => $filter,
+              scope => $self->{'scope'},
+              attrs => \@attributes
+            )
+        };
 
-    if ($result->is_error) {
-        $logger->error("[$self->{'id'}] Unable to execute search $filter from $basedn on $LDAPServer:$LDAPServerPort, we skip the rule.");
-        $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count" );
-        return (undef, undef);
+        if ($result->is_error) {
+            $logger->error("[$self->{'id'}] Unable to execute search $filter from $basedn on $LDAPServer:$LDAPServerPort, we skip the rule.");
+            $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count" );
+            return (undef, undef);
+        }
+
+        $result_count = $result->count;
+        @entries = $result->entries;
+        $memo->{$memo_key} = { count => $result_count, entries => [@entries] } if $memo;
     }
 
-    my $result_count = $result->count;
     $logger->debug("[$self->{'id'} $rule->{'id'}] Found $result_count results");
     if ($result_count == 1) {
-        my $entry = $result->pop_entry();
+        my $entry = $entries[0];
         my $dn = $entry->dn;
         my $entry_matches = 1;
         my ($condition, $attribute, $value);
@@ -550,7 +580,7 @@ sub _match_in_subclass {
             # - posixGroup         => memberUid (uid)
             my $dn_search = escape_filter_value($dn);
             $filter = "(|(member=${dn_search})(uniqueMember=${dn_search})(memberUid=${attribute}))";
-            $logger->debug("[$self->{'id'} $rule->{'id'}] Searching is_member filter $filter");
+            $logger->info("[$self->{'id'} $rule->{'id'}] Searching is_member filter $filter");
             $result = $connection->search
               (
                base => $value,
@@ -620,7 +650,23 @@ sub test {
   if (!defined($connection)) {
     my $binddn = $self->{'binddn'} // '';
     $logger->warn("[$id] Unable to connect to any LDAP server");
-    return ($FALSE, "Can't connect to server or bind with '$binddn' on $LDAPServer:$LDAPServerPort");
+    my @hosts = @{$self->{'host'} // []};
+    my ($unresolved, $outside) = $self->_unresolvable_hosts;
+    my @problems;
+    if (@$unresolved) {
+      push @problems, "Unable to resolve " . join(', ', @$unresolved) . ", check the DNS configuration" . ($self->use_connector ? " of the connector" : "");
+    }
+    foreach my $host (sort keys %$outside) {
+      my @ips = @{$outside->{$host}};
+      push @problems, "$host resolves to " . join(', ', @ips) . (@ips > 1 ? ", none of which is" : " which isn't") . " in any network of the connector, check the networks of the connector";
+    }
+    # Only blame the name resolution when none of the hosts could be used, otherwise a
+    # connection or bind error on the other hosts is the main problem
+    if (@problems && @$unresolved + keys(%$outside) == @hosts) {
+      return ($FALSE, join('. ', @problems));
+    }
+    my $server = $LDAPServer // join(', ', @hosts);
+    return ($FALSE, join('. ', "Can't connect to server or bind with '$binddn' on $server:$LDAPServerPort", @problems));
   }
   my $base = $self->{basedn};
   # Search
@@ -639,6 +685,38 @@ sub test {
   }
 
   return ($TRUE, 'LDAP connect, bind and search successful');
+}
+
+=head2 _unresolvable_hosts
+
+The configured hosts that are not IP addresses and can't be used because of
+their name, using the same resolver as _connect: the hosts that can't be
+resolved (arrayref), and with the connector the hosts whose addresses aren't
+in any network of the connector (hashref host => addresses)
+
+=cut
+
+sub _unresolvable_hosts {
+  my ($self) = @_;
+  my (@unresolved, %outside);
+  foreach my $host (@{$self->{'host'} // []}) {
+    next if valid_ip($host);
+    if ($self->use_connector) {
+      require pf::factory::connector;
+      next if defined(pf::factory::connector->resolve($host));
+      # resolve fails when the name can't be resolved or when none of its
+      # addresses is in a network of the connector, tell them apart
+      my ($ips) = pf::factory::connector::resolve_dns_with_custom_resolver($host =~ /\.$/ ? $host : "$host.", $Config{pfdns_connector}{pfdns_connector_server});
+      if ($ips && @$ips) {
+        $outside{$host} = $ips;
+      } else {
+        push @unresolved, $host;
+      }
+    } else {
+      push @unresolved, $host unless @{ resolve($host) // [] };
+    }
+  }
+  return (\@unresolved, \%outside);
 }
 
 =head2 ldap_filter_for_conditions
@@ -665,7 +743,8 @@ sub ldap_filter_for_conditions {
   if ($params->{'username'}) {
       $expression = $self->_makefilter($params->{'username'});
   } elsif ($params->{'email'}) {
-      $expression = '(|(' . $self->{'email_attribute'} . '=' . $params->{'email'} . ')(proxyAddresses=smtp:' . $params->{'email'} . ')(mailLocalAddress=' . $params->{'email'} . ')(mailAlternateAddress=' . $params->{'email'} . '))';
+      my $email = escape_filter_value($params->{'email'});
+      $expression = '(|(' . $self->{'email_attribute'} . '=' . $email . ')(proxyAddresses=smtp:' . $email . ')(mailLocalAddress=' . $email . ')(mailAlternateAddress=' . $email . '))';
   }
 
   if ($expression) {
@@ -684,12 +763,18 @@ sub ldap_filter_for_conditions {
               $str = "${attribute}=${value}";
           } elsif ($operator eq $Conditions::NOT_EQUALS) {
               $str = "!(${attribute}=${value})";
+          } elsif ($operator eq $Conditions::NOT_CONTAINS) {
+              $str = "!(${attribute}=*${value}*)";
           } elsif ($operator eq $Conditions::CONTAINS) {
               $str = "${attribute}=*${value}*";
           } elsif ($operator eq $Conditions::STARTS) {
               $str = "${attribute}=${value}*";
           } elsif ($operator eq $Conditions::ENDS) {
               $str = "${attribute}=*${value}";
+          } elsif ($operator eq $Conditions::HAS_BIT) {
+              $str = "${attribute}:1.2.840.113556.1.4.803:=${value}";
+          } elsif ($operator eq $Conditions::NOT_HAS_BIT) {
+              $str = "!(${attribute}:1.2.840.113556.1.4.803:=${value})";
           }
 
           if ($str) {
@@ -729,20 +814,21 @@ sub search_attributes_in_subclass {
     my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}",  level => 6});
     my ($connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
     if (!defined($connection)) {
-      return ($FALSE, $COMMUNICATION_ERROR_MSG);
+      return $FALSE;
     }
 
+    my $escaped = escape_filter_value($username);
     my $searchresult = $connection->search(
                   base => $self->{'basedn'},
-                  filter => "($self->{'usernameattribute'}=$username)"
+                  filter => "($self->{'usernameattribute'}=$escaped)"
     );
     if ($searchresult->is_error()) {
       $logger->error("Unable to locate user '$username'");
-      return ($FALSE, $COMMUNICATION_ERROR_MSG);
+      return $FALSE;
     }
     if ($searchresult->count == 0) {
       $logger->error("Unable to locate user '$username'");
-      return ($FALSE, $COMMUNICATION_ERROR_MSG);
+      return $FALSE;
     }
     my $entry = $searchresult->entry();
 
@@ -772,6 +858,18 @@ sub postMatchProcessing {
         my ( $connection, $LDAPServer, $LDAPServerPort ) = @$cached_connection;
         $self->_cached_connection(undef);
     }
+    $self->_search_memo(undef);
+}
+
+=head2 preMatchProcessing
+
+Start a fresh search memo for the rules of this match() call
+
+=cut
+
+sub preMatchProcessing {
+    my ($self) = @_;
+    $self->_search_memo({});
 }
 
 =head2 _makefilter
@@ -782,19 +880,22 @@ Create the filter to search for the dn
 
 sub _makefilter {
     my ($self,$username) = @_;
+    # Escape once here so every caller is safe by construction and we never
+    # interpolate an attacker-controlled username into an LDAP filter.
+    my $escaped = escape_filter_value($username);
     my $append_search = defined($self->{'append_to_searchattributes'}) ? $self->{'append_to_searchattributes'} : '';
-    $append_search =~ s/{username}/$username/gi;
+    $append_search =~ s/{username}/$escaped/gi;
 
     if (@{$self->{'searchattributes'} // []}) {
-        my $search = join ("", map { "($_=$username)" } uniq($self->{'usernameattribute'}, @{$self->{'searchattributes'}}));
+        my $search = join ("", map { "($_=$escaped)" } uniq($self->{'usernameattribute'}, @{$self->{'searchattributes'}}));
         return "(&(|$search)".$append_search.")";
     }
 
     if($append_search eq '') {
-        return '(' . "$self->{'usernameattribute'}=$username" . ')';
+        return '(' . "$self->{'usernameattribute'}=$escaped" . ')';
     }
 
-    return $append_search;
+    return "(&($self->{'usernameattribute'}=$escaped)" . $append_search . ")";
 }
 
 sub lookupRole {
@@ -818,7 +919,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,6 +1,0 @@
-name: Restart iptables
-testcases:
-# temp, as a workaround
-- name: restart_iptables
-  steps:
-  - type: perl_iptables_restart

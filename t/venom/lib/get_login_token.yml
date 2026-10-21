@@ -2,8 +2,8 @@ executor: get_login_token
 input:
   username: "{{.pfserver_default_admin_user}}"
   password: "{{.pfserver_admin_password}}"
-  retry: 3
-  delay: 1
+  iretry: 3
+  idelay: 1
   status_code: 200
 steps:
 - type: http
@@ -19,7 +19,7 @@ steps:
     "Content-Type": "application/json"
   assertions:
     - result.statuscode ShouldEqual "{{.input.status_code}}"
-  retry: "{{.input.retry}}"
-  delay: "{{.input.delay}}"
+  retry: "{{.input.iretry}}"
+  delay: "{{.input.idelay}}"
 output: 
   token: "{{.result.bodyjson.token}}"

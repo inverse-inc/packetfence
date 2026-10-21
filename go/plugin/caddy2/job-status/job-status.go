@@ -120,7 +120,8 @@ func (h *JobStatusHandler) sendResults(w http.ResponseWriter, data map[string]st
 
 	res, _ := json.Marshal(results)
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, string(res))
+	w.Write(res)
+
 }
 
 func (h *JobStatusHandler) handleStatusPoll(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
@@ -165,7 +166,7 @@ func (h *JobStatusHandler) writeMessage(ctx context.Context, statusCode int, mes
 		"message": message,
 		"status":  statusCode,
 	})
-	fmt.Fprintf(w, string(res))
+	w.Write(res)
 }
 
 func (h *JobStatusHandler) keyExists(ctx context.Context, key string) (bool, error) {

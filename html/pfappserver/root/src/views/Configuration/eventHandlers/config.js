@@ -4,6 +4,7 @@ import i18n from '@/utils/locale'
 export const types = {
   dhcp:           i18n.t('DHCP'),
   fortianalyser:  i18n.t('FortiAnalyzer'),
+  fortigate_dhcp: i18n.t('FortiGate DHCP'),
   nexpose:        i18n.t('Nexpose'),
   regex:          i18n.t('Regex'),
   security_onion: i18n.t('Security Onion'),

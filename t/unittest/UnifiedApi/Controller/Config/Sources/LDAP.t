@@ -44,12 +44,20 @@ my %args = (
                     value => "1h",
                 }
             ],
-            conditions  => [{
+            conditions  => [
+                {
                     type => 'ldap',
                     value => '1',
                     attribute => 'cn',
                     operator => 'is',
-            }],
+                },
+                {
+                    type => 'ldap',
+                    value => '1',
+                    attribute => 'cn',
+                    operator => 'not contains',
+                }
+            ],
             description => undef,
             id          => "catchall",
             match       => "all"
@@ -119,7 +127,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

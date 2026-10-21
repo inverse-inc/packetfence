@@ -17,6 +17,7 @@ use warnings;
 
 use pf::constants;
 use pfconfig::cached_hash;
+use File::Slurp qw(read_file);
 
 tie our %passthroughs, 'pfconfig::cached_hash', 'resource::passthroughs';
 tie our %isolation_passthroughs, 'pfconfig::cached_hash', 'resource::isolation_passthroughs';
@@ -98,6 +99,26 @@ sub _matches_wildcard_passthrough {
     return ($FALSE, []);
 }
 
+=head2 get_resolv_dns_servers
+
+The nameservers (IPv4 and IPv6) of a resolv.conf file, /etc/resolv.conf by
+default. An empty list when the file can't be read.
+
+=cut
+
+sub get_resolv_dns_servers {
+    my ($resolv_conf) = @_;
+    $resolv_conf //= "/etc/resolv.conf";
+    my @servers;
+    my $resolvconf = eval { read_file($resolv_conf) } // '';
+    for my $line (split(/\n/, $resolvconf)) {
+        if($line =~ /^\s*nameserver\s+(\S+)/) {
+            push @servers, $1;
+        }
+    }
+    return \@servers;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -106,7 +127,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

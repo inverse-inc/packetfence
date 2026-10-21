@@ -33,7 +33,7 @@ Kj44MrvVS4fJuIO7ADRRh5gQG8xe6Y9PoxDVFnwI
 -----END CERTIFICATE-----
 `
 	c := &CertificatesCheck{}
-	err := c.VerifyContents("", []byte(pem), time.Now())
+	err := c.VerifyContents("", []byte(pem), time.Date(2025, time.April, 22, 0, 0, 0, 0, time.UTC))
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -119,7 +119,7 @@ rP4Jpxt4LoXCDQ+YqlxAs3AXBQc6mM8Gx9FyN5l1xWtHNutODpuUXAGrdHb70EyL
 Kj44MrvVS4fJuIO7ADRRh5gQG8xe6Y9PoxDVFnwI
 -----END CERTIFICATE-----
 `
-	err = c.VerifyContents("", []byte(pem), time.Now())
+	err = c.VerifyContents("", []byte(pem), time.Date(2025, time.April, 22, 0, 0, 0, 0, time.UTC))
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -163,7 +163,7 @@ rP4Jpxt4LoXCDQ+YqlxAs3AXBQc6mM8Gx9FyN5l1xWtHNutODpuUXAGrdHb70EyL
 Kj44MrvVS4fJuIO7ADRRh5gQG8xe6Y9PoxDVFnwI
 -----END CERTIFICATE-----
 `
-	err = c.VerifyContents("", []byte(pem), time.Now())
+	err = c.VerifyContents("", []byte(pem), time.Date(2025, time.April, 22, 0, 0, 0, 0, time.UTC))
 	if err != nil {
 		t.Error(err.Error())
 	}

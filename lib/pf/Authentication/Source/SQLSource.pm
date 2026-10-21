@@ -54,7 +54,9 @@ sub authenticate {
    my $result = pf::password::validate_password($username, $password, 0);
 
    if ($result == $pf::password::AUTH_SUCCESS) {
-     return ($TRUE, $AUTH_SUCCESS_MSG);
+      return ($TRUE, $AUTH_SUCCESS_MSG);
+   } elsif ($result == $pf::password::AUTH_FAILED_EXPIRED) {
+      return ($FALSE, $AUTH_PASSWD_EXPIRED);
    }
 
    return ($FALSE, $AUTH_FAIL_MSG);
@@ -136,6 +138,24 @@ sub match {
         });
     }
 
+    my $trigger_radius_mfa = $result->{'trigger_radius_mfa'};
+    if (defined $trigger_radius_mfa) {
+        push @actions, pf::Authentication::Action->new({
+            type    => $Actions::TRIGGER_RADIUS_MFA,
+            value   => $trigger_radius_mfa,
+            class   => pf::Authentication::Action->getRuleClassForAction($Actions::TRIGGER_RADIUS_MFA),
+        });
+    }
+
+    my $trigger_portal_mfa = $result->{'trigger_portal_mfa'};
+    if (defined $trigger_portal_mfa) {
+        push @actions, pf::Authentication::Action->new({
+            type    => $Actions::TRIGGER_PORTAL_MFA,
+            value   => $trigger_portal_mfa,
+            class   => pf::Authentication::Action->getRuleClassForAction($Actions::TRIGGER_PORTAL_MFA),
+        });
+    }
+
     my $time_balance = $result->{'time_balance'};
     if (defined $time_balance) {
         push @actions, pf::Authentication::Action->new({type => $Actions::SET_TIME_BALANCE, value => $time_balance});
@@ -160,7 +180,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

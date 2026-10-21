@@ -6,6 +6,7 @@ import {
   BaseFormGroupInput,
   BaseFormGroupSwitch,
 } from '@/components/new/'
+import BaseFormGroupRolesSearchable from '@/views/Configuration/roles/_components/BaseFormGroupRolesSearchable'
 import BaseFormGroupActions from './BaseFormGroupActions'
 import BaseFormGroupAnswers from './BaseFormGroupAnswers'
 import BaseFormGroupCondition from './BaseFormGroupCondition'
@@ -32,7 +33,7 @@ export {
   BaseFormGroupParams                 as FormGroupParams,
   BaseFormGroupChosenOne              as FormGroupRadiusStatus,
   BaseFormGroupChosenOne              as FormGroupResponseCode,
-  BaseFormGroupChosenOne              as FormGroupRole,
+  BaseFormGroupRolesSearchable        as FormGroupRole,
   BaseFormGroupSwitch                 as FormGroupRunActions,
   BaseFormGroupChosenMultiple         as FormGroupScopes,
   BaseFormGroupChosenOne              as FormGroupType,

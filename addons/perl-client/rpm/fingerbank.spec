@@ -1,6 +1,6 @@
 %global     fb_prefix %{_prefix}/local/%{name}
 Name:       fingerbank
-Version:    4.3.2
+Version:    4.3.4
 Release:    1%{?dist}
 BuildArch:  noarch
 Summary:    An exhaustive device profiling tool
@@ -46,6 +46,8 @@ Fingerbank
 %pre
 /usr/bin/getent group fingerbank || /usr/sbin/groupadd -r fingerbank
 /usr/bin/getent passwd fingerbank || /usr/sbin/useradd -r -d /usr/local/fingerbank -s /sbin/nologin -g fingerbank fingerbank
+/usr/sbin/usermod -u 2026 fingerbank
+/usr/sbin/groupmod -g 2026 fingerbank
 
 %prep
 %setup -q -n %{name}-%{version}
@@ -116,6 +118,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Mon Jun 15 2026 Inverse Inc. <info@inverse.ca> - 4.3.4-1
+- Fix collector.port field type from numeric to text to allow the env variable default
+* Tue Apr 15 2025 Inverse Inc. <info@inverse.ca> - 4.3.3-1
+- USe environment variables for the configuration
 * Tue Aug 23 2022 Inverse Inc. <info@inverse.ca> - 4.3.2-1
 - Adjust permissions detection for SQLite3 databases
 * Thu Jun 16 2022 Inverse Inc. <info@inverse.ca> - 4.3.1-1

@@ -1,0 +1,41 @@
+=== Performance and Optimization Issues
+
+**Large Environment Considerations:**
+
+1. **ARP Table Overflow**: In large registration networks, symptoms include:
+   - DHCP not assigning IPs properly
+   - Failed pings in registration/quarantine VLANs
+   - System log message: "Neighbour table overflow"
+   
+   **Solution**: Increase kernel ARP cache settings in `/etc/sysctl.conf`:
+[source,bash]
+----
+net.ipv4.neigh.default.gc_thresh1 = 2048
+net.ipv4.neigh.default.gc_thresh2 = 4096  
+net.ipv4.neigh.default.gc_thresh3 = 8192
+sysctl -p
+----
+
+2. **Database Connection Limits**: For wireless environments with heavy RADIUS traffic:
+   - Increase MariaDB max_connections from default 100 to at least 300
+   - Monitor for "Too many connections" errors
+   - Check for "Host <hostname> is blocked" messages after connection timeouts
+
+3. **Memory and Resource Usage**: Monitor system resources during peak usage:
+[source,bash]
+----
+# Check memory usage
+free -m
+
+# Monitor active processes
+top -p $(pgrep -d',' -f packetfence)
+
+# Check disk space
+df -h /usr/local/pf/logs /var/lib/mysql
+----
+
+**Guest Pre-registration Security:**
+- Pre-registration exposes PacketFence functionality on the Internet
+- Apply critical OS updates and PacketFence security fixes
+- Ensure valid MTA configuration for email relay
+- Monitor `/signup` page access logs for suspicious activity

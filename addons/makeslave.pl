@@ -10,6 +10,7 @@ BEGIN {
 use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use Config::IniFiles;
 use pf::file_paths qw($pf_config_file);
+use pf::config::crypt;
 
 my %ini;
 
@@ -19,7 +20,7 @@ my %inipfconf;
 tie %inipfconf, 'Config::IniFiles', ( -file => "$pf_config_file" );
 
 my $replication_username = $inipfconf{"active_active"}{"galera_replication_username"};
-my $replication_password = $inipfconf{"active_active"}{"galera_replication_password"};
+my $replication_password = pf::config::crypt::pf_decrypt($inipfconf{"active_active"}{"galera_replication_password"});
 
 if ($replication_username eq "" | $replication_password eq "") {
     die "replication information is missing, check your galera_replication_username or galera_replication_password configuration parameters";

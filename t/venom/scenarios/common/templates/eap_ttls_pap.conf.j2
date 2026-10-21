@@ -1,0 +1,12 @@
+ctrl_interface=/var/run/wpa_supplicant
+ctrl_interface_group=0
+eapol_version=2
+ap_scan=0
+    network={
+    key_mgmt=IEEE8021X
+    eap=TTLS
+    identity="{{ wpasupplicant__eap_ttls_pap_identity }}"
+    password="{{ wpasupplicant__eap_ttls_pap_password }}"
+    phase2="auth=PAP"
+    eapol_flags=3
+}

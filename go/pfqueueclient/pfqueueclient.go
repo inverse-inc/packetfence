@@ -5,16 +5,16 @@ import (
 	"time"
 
 	"github.com/Sereal/Sereal/Go/sereal"
+	"github.com/google/uuid"
 	"github.com/inverse-inc/packetfence/go/redisclient"
 	"github.com/mediocregopher/radix.v2/redis"
-	uuid "github.com/nu7hatch/gouuid"
 )
 
 type PfQueueClient struct {
 }
 
 type PfQueueEncoder interface {
-	Marshal(interface{}) ([]byte, error)
+	Marshal(any) ([]byte, error)
 }
 
 func NewPfQueueClient() *PfQueueClient {
@@ -23,7 +23,8 @@ func NewPfQueueClient() *PfQueueClient {
 
 const DefaultExpiration = time.Minute * 5
 
-func (c *PfQueueClient) Submit(ctx context.Context, queue, task_type string, task_data interface{}) (string, error) {
+func (c *PfQueueClient) Submit(ctx context.Context, queue, task_type string,
+	task_data any) (string, error) {
 	return c.SubmitWithExpiration(ctx, queue, task_type, task_data, DefaultExpiration, 0)
 }
 
@@ -33,7 +34,8 @@ func (c *PfQueueClient) Encoder() PfQueueEncoder {
 	return encoder
 }
 
-func (c *PfQueueClient) SubmitWithExpiration(ctx context.Context, queue, task_type string, task_data interface{}, expire_in time.Duration, status_update int) (string, error) {
+func (c *PfQueueClient) SubmitWithExpiration(ctx context.Context, queue, task_type string,
+	task_data any, expire_in time.Duration, status_update int) (string, error) {
 	queue_name := c.FormatQueueName(queue)
 	taskCounterId := c.taskCounterId(queue_name, task_type, task_data)
 	id, err := c.generateId(taskCounterId)
@@ -48,13 +50,14 @@ func (c *PfQueueClient) SubmitWithExpiration(ctx context.Context, queue, task_ty
 
 	defer redisclient.PutPfQueueRedisClient(redisClient)
 	encoder := c.Encoder()
-	data, err := encoder.Marshal([]interface{}{task_type, task_data})
+	data, err := encoder.Marshal([]any{task_type, task_data})
 	if err != nil {
 		return "", nil
 	}
 
 	redisClient.PipeAppend("MULTI")
-	redisClient.PipeAppend("HMSET", id, "expire", expire_in, "data", data, "status_update", status_update)
+	redisClient.PipeAppend("HMSET", id, "expire", expire_in, "data", data,
+		"status_update", status_update)
 	redisClient.PipeAppend("EXPIRE", id, expire_in)
 	redisClient.PipeAppend("HINCRBY", "TaskCounters", taskCounterId, 1)
 	redisClient.PipeAppend("LPUSH", queue_name, id)
@@ -75,18 +78,18 @@ func (c *PfQueueClient) FormatQueueName(q string) string {
 }
 
 func (c *PfQueueClient) generateId(taskCounterId string) (string, error) {
-	u4, err := uuid.NewV4()
+	u, err := uuid.NewV7()
 	if err != nil {
 		return "", err
 	}
 
-	return "Task:" + u4.String() + ":" + taskCounterId, nil
+	return "Task:" + u.String() + ":" + taskCounterId, nil
 }
 
-func (c *PfQueueClient) taskCounterId(queue, task_type string, task_data interface{}) string {
+func (c *PfQueueClient) taskCounterId(queue, task_type string, task_data any) string {
 	counter_id := queue + ":" + task_type
 	if task_type == "api" {
-		if array, ok := task_data.([]interface{}); ok {
+		if array, ok := task_data.([]any); ok {
 			counter_id += ":" + array[0].(string)
 		}
 	}

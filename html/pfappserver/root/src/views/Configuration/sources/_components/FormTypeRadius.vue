@@ -41,8 +41,13 @@
     <form-group-use-connector namespace="use_connector"
                               :column-label="$i18n.t('Use Connector')"
                               :text="$i18n.t('Use the available PacketFence connectors to connect to this authentication source. By default, a local connector is hosted on this server. Using remote connectors is only supported on a standalone instance at the moment.')"
-                              :enabled-value="1"
-                              :disabled-value="0"
+                              enabled-value="1"
+                              disabled-value="0"
+    />
+
+    <form-group-pfconnector-port namespace="pfconnector_port"
+                                     :column-label="$i18n.t('Connect Through Port')"
+                                     :text="$i18n.t('Which port to use.')"
     />
 
     <form-group-nas-ip-address namespace="nas_ip_address"
@@ -80,6 +85,7 @@ import {
   FormGroupMonitor,
   FormGroupNasIpAddress,
   FormGroupOptions,
+  FormGroupPfconnectorPort,
   FormGroupPort,
   FormGroupRealms,
   FormGroupSecret,
@@ -98,6 +104,7 @@ const components = {
   FormGroupMonitor,
   FormGroupNasIpAddress,
   FormGroupOptions,
+  FormGroupPfconnectorPort,
   FormGroupPort,
   FormGroupRealms,
   FormGroupSecret,

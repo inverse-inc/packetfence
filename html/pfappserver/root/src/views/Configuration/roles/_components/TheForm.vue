@@ -37,6 +37,13 @@
                                                disabled-value="disabled"
     />
 
+    <form-group-acls-enabled namespace="acls_enabled"
+                             :column-label="$i18n.t('Enable ACLs')"
+                             :text="$i18n.t('Enable the use of ACLs defined below')"
+                             enabled-value="enabled"
+                             disabled-value="disabled"
+    />
+
     <form-group-acls namespace="acls"
                      :column-label="$i18n.t('ACLs')"
                      :text="$i18n.t('Access Control Lists')"
@@ -66,7 +73,8 @@
   </base-form>
 </template>
 <script>
-import {computed} from '@vue/composition-api'
+import {computed, ref, set, watch} from '@vue/composition-api'
+import apiCall from '@/utils/api-perl'
 import {
   BaseForm
 } from '@/components/new/'
@@ -78,11 +86,14 @@ import {
   FormGroupParentIdentifier,
   FormGroupIncludeParentAcls,
   FormGroupFingerbankDynamicAccessList,
+  FormGroupAclsEnabled,
   FormGroupAcls,
   FormGroupInheritVlan,
   FormGroupInheritRole,
   FormGroupInheritWebAuthUrl
 } from './'
+
+const INHERITED_FIELDS = ['acls', 'max_nodes_per_pid']
 
 const components = {
   BaseForm,
@@ -93,6 +104,7 @@ const components = {
   FormGroupParentIdentifier,
   FormGroupIncludeParentAcls,
   FormGroupFingerbankDynamicAccessList,
+  FormGroupAclsEnabled,
   FormGroupAcls,
   FormGroupInheritVlan,
   FormGroupInheritRole,
@@ -125,6 +137,58 @@ export const props = {
 
 export const setup = (props) => {
   const schema = computed(() => schemaFn(props))
+
+  const roles = ref([])
+  const basePlaceholders = {}
+  let capturedFromMeta = null
+
+  apiCall.getAll('config/roles', {
+    fields: ['id', 'parent_id', ...INHERITED_FIELDS].join(','),
+    sort: 'id'
+  }).then(response => {
+    const { data: { items = [] } = {} } = response
+    roles.value = items
+  }).catch(() => {})
+
+  watch(
+    [
+      () => props.meta,
+      () => props.form && props.form.parent_id,
+      roles
+    ],
+    () => {
+      const meta = props.meta
+      if (!meta) return
+      if (capturedFromMeta !== meta && INHERITED_FIELDS.some(f => meta[f])) {
+        INHERITED_FIELDS.forEach(f => {
+          basePlaceholders[f] = (meta[f] || {}).placeholder
+        })
+        capturedFromMeta = meta
+      }
+      const parentId = (props.form || {}).parent_id
+      const hasParent = !!parentId
+      const parent = hasParent ? roles.value.find(r => r.id === parentId) : null
+      INHERITED_FIELDS.forEach(f => {
+        if (!meta[f]) return
+        const parentValue = parent ? parent[f] : undefined
+        let nextPlaceholder
+        if (parentValue !== undefined && parentValue !== null && parentValue !== '') {
+          nextPlaceholder = parentValue
+        } else if (hasParent) {
+          // parent_id is set but the role lookup didn't yield a value for
+          // this inherited field — fall back to whatever the backend
+          // initially seeded the placeholder with.
+          nextPlaceholder = basePlaceholders[f]
+        } else {
+          // user explicitly chose "no parent" — show no inherited value.
+          nextPlaceholder = ''
+        }
+        if (meta[f].placeholder === nextPlaceholder) return
+        set(meta, f, { ...meta[f], placeholder: nextPlaceholder })
+      })
+    },
+    { immediate: true }
+  )
 
   return {
     schema

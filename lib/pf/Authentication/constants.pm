@@ -82,6 +82,7 @@ package Conditions;
 Readonly::Scalar our $EQUALS => 'equals';
 Readonly::Scalar our $NOT_EQUALS => 'not equals';
 Readonly::Scalar our $CONTAINS => 'contains';
+Readonly::Scalar our $NOT_CONTAINS => 'not contains';
 Readonly::Scalar our $STARTS => 'starts';
 Readonly::Scalar our $ENDS => 'ends';
 Readonly::Scalar our $MATCHES => 'matches regexp';
@@ -96,6 +97,8 @@ Readonly::Scalar our $IS_NOT => 'is not';
 Readonly::Scalar our $IS_AFTER => 'is after';
 Readonly::Scalar our $IS_MEMBER => 'is member of';
 Readonly::Scalar our $MATCH_FILTER => 'match filter';
+Readonly::Scalar our $HAS_BIT => 'has bit';
+Readonly::Scalar our $NOT_HAS_BIT => 'not has bit';
 
 =item SUBSTRING, NUMBER, DATE, TIME
 
@@ -131,13 +134,13 @@ Allowed operators for each attribute datatype
 
 Readonly::Hash our %OPERATORS =>
   (
-   $SUBSTRING => [$STARTS, $EQUALS, $CONTAINS, $ENDS, $MATCHES],
+   $SUBSTRING => [$STARTS, $EQUALS, $CONTAINS, $NOT_CONTAINS, $ENDS, $MATCHES],
    $NUMBER => [$LOWER, $LOWER_OR_EQUALS, $EQUALS, $HIGHER, $HIGHER_OR_EQUALS],
    $DATE => [$IS_BEFORE, $IS, $IS_AFTER],
    $TIME => [$IS_BEFORE, $IS_AFTER],
    $TIME_PERIOD => [$IN_TIME_PERIOD],
    $CONNECTION => [$IS, $IS_NOT],
-   $LDAP_ATTRIBUTE => [$IS, $STARTS, $EQUALS, $NOT_EQUALS, $CONTAINS, $ENDS, $MATCHES, $IS_MEMBER],
+   $LDAP_ATTRIBUTE => [$IS, $STARTS, $EQUALS, $NOT_EQUALS, $CONTAINS, $NOT_CONTAINS, $ENDS, $MATCHES, $IS_MEMBER, $HAS_BIT, $NOT_HAS_BIT],
    $LDAP_FILTER => [$MATCH_FILTER],
   );
 
@@ -241,7 +244,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,0 +1,9 @@
+executor: pfcron_security_event_maintenance
+input:
+  sudo: ""
+steps:
+- type: pfcron_command_line
+  unit_command: "security_event_maintenance"
+  sudo: "{{.input.sudo}}"
+output:
+  pfcron_security_event_maintenance_systemout: "{{.result.pfcron_command_line_systemout}}"

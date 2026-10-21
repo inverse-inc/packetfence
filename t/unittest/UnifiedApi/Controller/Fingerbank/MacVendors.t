@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 24;
+use Test::More tests => 27;
 use Test::Mojo;
 
 #This test will running last
@@ -59,6 +59,17 @@ $t->post_ok("/api/v1/fingerbank/local/mac_vendors/search" => json =>{ query => {
   ->status_is(200)
   ->json_is("/items/0/name", "me");
 
+# A failed update is reported once and the local database is not synced
+{
+    no warnings qw(redefine once);
+    my $synced = 0;
+    local *pf::fingerbank::sync_local_db = sub { $synced++; return (1, undef) };
+    local *fingerbank::Model::MAC_Vendor::update = sub { return (500, "update failed") };
+    $t->patch_ok($location => json => { name => "you" })
+      ->status_is(500);
+    is($synced, 0, "A failed update does not sync the local Fingerbank database");
+}
+
 $t->delete_ok($location)
   ->status_is(200);
 
@@ -69,7 +80,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

@@ -42,6 +42,7 @@ run:
 run_tests:
 	CI_PIPELINE_ID=$(CI_PIPELINE_ID) \
 	PF_MINOR_RELEASE=$(PF_MINOR_RELEASE) \
+	RESULT_DIR=$(RESULT_DIR) \
 	PF_VM_NAMES="$(PF_VM_NAMES)" \
 	CLUSTER_NAME="$(CLUSTER_NAME)" \
 	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
@@ -49,6 +50,7 @@ run_tests:
 	./test-wrapper.sh run_tests
 
 halt: halt_pf clean_cache
+
 halt_force: halt_pf_force clean_cache
 
 halt_pf:
@@ -66,6 +68,7 @@ halt_pf_force:
 	./test-wrapper.sh halt_force
 
 teardown: teardown_pf clean_cache
+
 teardown_pf:
 	PF_VM_NAMES="$(PF_VM_NAMES)" \
 	CLUSTER_NAME="$(CLUSTER_NAME)" \
@@ -73,11 +76,10 @@ teardown_pf:
 	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
 	./test-wrapper.sh teardown
 
-clean: clean_pf clean_cache
+clean: clean_runner clean_cache
 
-clean_pf:
-	RESULT_DIR=$(RESULT_DIR) \
-	./test-wrapper.sh teardown
+clean_runner:
+	./test-wrapper.sh destroy
 
 clean_cache:
 	sudo /bin/sync; echo 1 | sudo /usr/bin/tee /proc/sys/vm/drop_caches
@@ -102,6 +104,12 @@ configurator_deb12_pristine:
 unit_tests_el8:
 	make \
 	PF_VM_NAMES=pfel8$(DEV_ENV) \
+	SCENARIOS_TO_RUN=unit_tests \
+	$(MAKE_TARGET)
+
+unit_tests_deb12:
+	make \
+	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
 	SCENARIOS_TO_RUN=unit_tests \
 	$(MAKE_TARGET)
 
@@ -147,17 +155,17 @@ mac_auth_deb12:
 
 dot1x_eap_tls_el8:
 	make \
-	PF_VM_NAMES=pfel8$(DEV_ENV) \
-	INT_TEST_VM_NAMES="ad switch01 node01" \
-	SCENARIOS_TO_RUN=dot1x_eap_tls \
-	$(MAKE_TARGET)
+        PF_VM_NAMES=pfel8$(DEV_ENV) \
+	INT_TEST_VM_NAMES="ad" \
+        SCENARIOS_TO_RUN=dot1x_eap_tls \
+        $(MAKE_TARGET)
 
 dot1x_eap_tls_deb12:
 	make \
-	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
-	INT_TEST_VM_NAMES="ad switch01 node01" \
-	SCENARIOS_TO_RUN=dot1x_eap_tls \
-	$(MAKE_TARGET)
+        PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	INT_TEST_VM_NAMES="ad" \
+        SCENARIOS_TO_RUN=dot1x_eap_tls \
+        $(MAKE_TARGET)
 
 inline_deb12:
 	make \
@@ -222,9 +230,9 @@ inline_l2_and_radius_el8:
 	make \
 	PF_VM_NAMES=pfel8$(DEV_ENV) \
 	INT_TEST_VM_NAMES="switch01 node01 node03" \
-
 	SCENARIOS_TO_RUN=inline_l2_and_radius \
 	$(MAKE_TARGET)
+
 inline_l2_and_radius_deb12:
 	make \
 	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
@@ -268,18 +276,96 @@ test_deb12:
         SCENARIOS_TO_RUN=test_venom\
         $(MAKE_TARGET)
 
-cluster_deb12:
+cluster_configurator_deb12:
 	make \
 	PF_VM_NAMES="pf1deb12$(DEV_ENV) pf2deb12$(DEV_ENV) pf3deb12$(DEV_ENV)" \
-	CLUSTER_NAME="$@$(DEV_ENV)" \
-	SCENARIOS_TO_RUN=cluster \
+	CLUSTER_NAME="cluster_deb12$(DEV_ENV)" \
+	SCENARIOS_TO_RUN="cluster_configurator cluster_failover" \
 	$(MAKE_TARGET)
 
-cluster_el8:
+cluster_configurator_el8:
 	make \
 	PF_VM_NAMES="pf1el8$(DEV_ENV) pf2el8$(DEV_ENV) pf3el8$(DEV_ENV)" \
-	CLUSTER_NAME="$@$(DEV_ENV)" \
-	SCENARIOS_TO_RUN=cluster \
+	CLUSTER_NAME="cluster_el8$(DEV_ENV)" \
+	SCENARIOS_TO_RUN="cluster_configurator cluster_failover" \
+	$(MAKE_TARGET)
+
+# Cluster recovery scenarios (A-F). Runs cluster_configurator first to guarantee
+# a healthy cluster, then cluster_recovery. In CI (MAKE_TARGET=run) this builds
+# the cluster from scratch; locally (MAKE_TARGET=run_tests) cluster_configurator's
+# cluster_already_healthy gate skips the rebuild and just re-verifies.
+cluster_recovery_deb12:
+	make \
+	PF_VM_NAMES="pf1deb12$(DEV_ENV) pf2deb12$(DEV_ENV) pf3deb12$(DEV_ENV)" \
+	CLUSTER_NAME="cluster_deb12$(DEV_ENV)" \
+	SCENARIOS_TO_RUN="cluster_configurator cluster_recovery" \
+	$(MAKE_TARGET)
+
+cluster_recovery_el8:
+	make \
+	PF_VM_NAMES="pf1el8$(DEV_ENV) pf2el8$(DEV_ENV) pf3el8$(DEV_ENV)" \
+	CLUSTER_NAME="cluster_el8$(DEV_ENV)" \
+	SCENARIOS_TO_RUN="cluster_configurator cluster_recovery" \
+	$(MAKE_TARGET)
+
+mac_auth_virtualswitch_el8:
+	make \
+	PF_VM_NAMES=pfel8$(DEV_ENV) \
+	SCENARIOS_TO_RUN=mac_auth_virtualswitch \
+	$(MAKE_TARGET)
+
+mac_auth_virtualswitch_deb12:
+	make \
+	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	SCENARIOS_TO_RUN=mac_auth_virtualswitch \
+	$(MAKE_TARGET)
+
+device_profiling_virtualswitch_el8:
+	make \
+	PF_VM_NAMES=pfel8$(DEV_ENV) \
+	SCENARIOS_TO_RUN=device_profiling_virtualswitch \
+	$(MAKE_TARGET)
+
+device_profiling_virtualswitch_deb12:
+	make \
+	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	SCENARIOS_TO_RUN=device_profiling_virtualswitch \
+	$(MAKE_TARGET)
+
+dot1x_wired_computer_auth_virtualswitch_el8:
+	make \
+	PF_VM_NAMES=pfel8$(DEV_ENV) \
+	SCENARIOS_TO_RUN=dot1x_wired_computer_auth_virtualswitch \
+	$(MAKE_TARGET)
+
+dot1x_wired_computer_auth_virtualswitch_deb12:
+	make \
+	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	SCENARIOS_TO_RUN=dot1x_wired_computer_auth_virtualswitch \
+	$(MAKE_TARGET)
+
+pfacct_bandwidth_virtualswitch_el8:
+	make \
+	PF_VM_NAMES=pfel8$(DEV_ENV) \
+	SCENARIOS_TO_RUN=pfacct_bandwidth_virtualswitch \
+	$(MAKE_TARGET)
+
+pfacct_bandwidth_virtualswitch_deb12:
+	make \
+	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	SCENARIOS_TO_RUN=pfacct_bandwidth_virtualswitch \
+	$(MAKE_TARGET)
+
+security_event_virtualswitch_el8:
+	make \
+	PF_VM_NAMES=pfel8$(DEV_ENV) \
+	SCENARIOS_TO_RUN=security_event_virtualswitch \
+	$(MAKE_TARGET)
+
+security_event_virtualswitch_deb12:
+	make \
+	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	SCENARIOS_TO_RUN=security_event_virtualswitch \
 	$(MAKE_TARGET)
 
 ### alias to run tests on other branches
@@ -304,3 +390,13 @@ security_events_deb12_branches: security_events_deb12
 unit_tests_el8_branches: unit_tests_el8
 pfappserver_el8_branches: pfappserver_el8
 pfappserver_deb12_branches: pfappserver_deb12
+mac_auth_virtualswitch_el8_branches: mac_auth_virtualswitch_el8
+mac_auth_virtualswitch_deb12_branches: mac_auth_virtualswitch_deb12
+device_profiling_virtualswitch_el8_branches: device_profiling_virtualswitch_el8
+device_profiling_virtualswitch_deb12_branches: device_profiling_virtualswitch_deb12
+dot1x_wired_computer_auth_virtualswitch_el8_branches: dot1x_wired_computer_auth_virtualswitch_el8
+dot1x_wired_computer_auth_virtualswitch_deb12_branches: dot1x_wired_computer_auth_virtualswitch_deb12
+pfacct_bandwidth_virtualswitch_el8_branches: pfacct_bandwidth_virtualswitch_el8
+pfacct_bandwidth_virtualswitch_deb12_branches: pfacct_bandwidth_virtualswitch_deb12
+security_event_virtualswitch_el8_branches: security_event_virtualswitch_el8
+security_event_virtualswitch_deb12_branches: security_event_virtualswitch_deb12

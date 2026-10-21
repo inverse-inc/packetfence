@@ -23,8 +23,6 @@ use pf::util;
 use File::Find qw(find);
 use pf::constants::firewallsso;
 
-our $META = pf::Authentication::Source::LDAPSource->meta;
-
 has_field 'id' =>
   (
    type => 'Text',
@@ -118,7 +116,7 @@ has_field 'use_connector',
    type => 'Toggle',
    checkbox_value => '1',
    unchecked_value => '0',
-   default => $META->get_attribute('use_connector')->default,
+   default => '1',
   );
 
 has_field 'act_on_accounting_stop',
@@ -135,6 +133,16 @@ has_field 'sso_on_access_reevaluation',
    checkbox_value => '1',
    unchecked_value => '0',
    default => '1',
+  );
+
+has_field 'sso_on_role_change',
+  (
+   type => 'Toggle',
+   checkbox_value => '1',
+   unchecked_value => '0',
+   default => '0',
+   tags => { after_element => \&help,
+             help => 'Note: This only triggers during autoregistration. Warning: If the VLAN changes when the role changes, an incorrect SSO update may occur until PacketFence receives a DHCP packet that updates the IP of the device and triggers a new SSO request.' },
   );
 
   has_field 'sso_on_accounting',
@@ -155,7 +163,7 @@ has_field 'sso_on_access_reevaluation',
 
 has_block 'definition' =>
   (
-   render_list => [ qw(id type password port categories networks cache_updates cache_timeout username_format default_realm act_on_accounting_stop sso_on_access_reevaluation sso_on_accounting sso_on_dhcp) ],
+   render_list => [ qw(id type password port categories networks cache_updates cache_timeout username_format default_realm act_on_accounting_stop sso_on_access_reevaluation sso_on_role_change sso_on_accounting sso_on_dhcp) ],
   );
 
 =head2 Methods
@@ -203,7 +211,7 @@ sub options_categories {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

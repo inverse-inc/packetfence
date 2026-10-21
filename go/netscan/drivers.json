@@ -1,0 +1,121 @@
+{
+  "devices": [
+    {
+      "name": "Cisco IOS-XR",
+      "vendor": "cisco",
+      "os": "ios-xr",
+      "driver": "cisco_iosxr",
+      "sysOID": "^\\.?(1|iso)\\.3\\.6\\.1\\.4\\.1\\.9\\.1(\\..*|$)",
+      "sysOS": "^Cisco IOS XR Software.*",
+      "sysVersion": "\\s+(?:\\w+\\.)+\\w+\\s*"
+    },
+    {
+      "name": "Cisco IOS-XE",
+      "vendor": "cisco",
+      "os": "ios-xe",
+      "driver": "cisco_iosxe",
+      "sysOID": "^\\.?(1|iso)\\.3\\.6\\.1\\.4\\.1\\.9\\.1(\\..*|$)",
+      "sysOS": "^Cisco (IOS|Internetwork Operating System) Software.*",
+      "sysVersion": "\\s+(?:\\w+\\.)+\\w+\\s*"
+    },
+    {
+      "name": "Cisco NX-OS",
+      "vendor": "cisco",
+      "os": "nx-os",
+      "driver": "cisco_nxos",
+      "sysOID": "^\\.?(1|iso)\\.3\\.6\\.1\\.4\\.1\\.9\\.12(\\..*|$)",
+      "sysOS": "^Cisco NX-OS.*",
+      "sysVersion": "\\s+(?:\\w+\\.)+\\w+\\s*"
+    },
+    {
+      "name": "Cisco AireOS",
+      "vendor": "cisco",
+      "os": "aireos",
+      "driver": "cisco_aireos",
+      "sysOID": "^\\.?(1|iso)\\.3\\.6\\.1\\.4\\.1\\.9(\\..*|$)",
+      "sysOS": "^Cisco Controller.*",
+      "sysVersion": "\\s+(?:\\w+\\.)+\\w+\\s*"
+    },
+    {
+      "name": "HPE ArubaOS CX",
+      "vendor": "aruba",
+      "os": "arubaos_cx",
+      "driver": "aruba_aoscx",
+      "sysOID": "^\\.?(1|iso)\\.3\\.6\\.1\\.4\\.1\\.47196\\.4\\.1\\.1(\\..*|$)",
+      "sysOS": "^(Aruba|HPE).*",
+      "sysVersion": "\\s+(?:\\w+\\.)+\\w+\\s*"
+    },
+    {
+      "name": "HPE ArubaOS-Switch",
+      "vendor": "aruba",
+      "os": "arubaos_switch",
+      "driver": null,
+      "sysOID": "^\\.?(1|iso)\\.3\\.6\\.1\\.4\\.1\\.11\\.2\\.3\\.7\\.11(\\..*|$)",
+      "sysOS": "HP ",
+      "sysVersion": "\\s+(?:\\w+\\.)+\\w+\\s*"
+    },
+    {
+      "name": "HPE Comware OS",
+      "vendor": "aruba",
+      "os": "comware_os",
+      "driver": null,
+      "sysOID": "^\\.?(1|iso)\\.3\\.6\\.1\\.4\\.1\\.25506\\.11\\.1(\\..*|$)",
+      "sysOS": "Comware Platform Software",
+      "sysVersion": "\\s+(?:\\w+\\.)+\\w+\\s*"
+    },
+    {
+      "name": "Fortinet FortiOS",
+      "vendor": "fortinet",
+      "os": "fortios",
+      "driver": "fortinet_fortios",
+      "sysOID": "^\\.?(1|iso)\\.3\\.6\\.1\\.4\\.1\\.12356\\.101(\\..*|$)",
+      "sysOS": "Forti",
+      "sysVersion": "\\s+(?:\\w+\\.)+\\w+\\s*"
+    },
+    {
+      "name": "Avaya ERS",
+      "vendor": "avaya",
+      "os": "ers",
+      "driver": null,
+      "sysOID": "^\\.?(1|iso)\\.3\\.6\\.1\\.4\\.1\\.45\\.3(\\..*|$)",
+      "sysOS": "Ethernet Routing Switch",
+      "sysVersion": "\\s+(?:\\w+\\.)+\\w+\\s*"
+    },
+    {
+      "name": "Meraki",
+      "vendor": "meraki",
+      "os": "meraki",
+      "driver": null,
+      "sysOID": "^\\.?(1|iso)\\.3\\.6\\.1\\.4\\.1\\.29671\\.2(\\..*|$)",
+      "sysOS": "^Meraki.*",
+      "sysVersion": "\\s+(?:\\w+\\.)+\\w+\\s*"
+    },
+    {
+      "name": "Arista EOS",
+      "vendor": "arista",
+      "os": "eos",
+      "driver": "arista_eos",
+      "sysOID": "^\\.?(1|iso)\\.3\\.6\\.1\\.4\\.1\\.30065(\\..*|$)",
+      "sysOS": "^Arista Networks EOS",
+      "sysVersion": "\\s+(?:\\w+\\.)+\\w+\\s*"
+    },
+    {
+      "name": "Juniper Junos",
+      "vendor": "juniper",
+      "os": "junos",
+      "driver": "juniper_junos",
+      "sysOID": "^\\.?(1|iso)\\.3\\.6\\.1\\.4\\.1\\.2636(\\..*|$)",
+      "sysOS": "JUNOS",
+      "sysVersion": "\\s+(?:\\w+\\.)+\\w+\\s*"
+    },
+    {
+      "name": "Juniper ScreenOS",
+      "vendor": "juniper",
+      "os": "screenos",
+      "driver": null,
+      "sysOID": "^\\.?(1|iso)\\.3\\.6\\.1\\.4\\.1\\.3224(\\..*|$)",
+      "sysOS": "NetScreen",
+      "sysVersion": "\\s+(?:\\w+\\.)+\\w+\\s*"
+    }
+  ]
+}

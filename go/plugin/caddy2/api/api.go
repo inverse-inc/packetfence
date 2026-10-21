@@ -14,6 +14,7 @@ import (
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/db"
+	"github.com/inverse-inc/packetfence/go/db/sqlcomment"
 	"github.com/inverse-inc/packetfence/go/fbcollectorclient"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -41,6 +42,7 @@ func (APIHandler) CaddyModule() caddy.ModuleInfo {
 
 type APIHandler struct {
 	router *httprouter.Router
+	db     *sql.DB
 }
 
 // Setup the api middleware
@@ -75,6 +77,7 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 
 	router.POST("/api/v1/fleetdm-events/policy", m.Policy)
 	router.POST("/api/v1/fleetdm-events/cve", m.CVE)
+	router.GET("/api/v1/elasticsearch", m.handleElasticsearch)
 
 	var DBP **gorm.DB
 	var DB *gorm.DB
@@ -89,7 +92,7 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 	go func() {
 		for {
 			if done == false {
-				DB, err = gorm.Open(mysql.Open(db.ReturnURIFromConfig(ctx)), &gorm.Config{})
+				DB, err = gorm.Open(mysql.New(mysql.Config{DriverName: sqlcomment.DriverName, DSN: db.ReturnURIFromConfig(ctx)}), &gorm.Config{})
 				if DB != nil {
 					DBP = &DB
 					if wait == false {
@@ -135,12 +138,20 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 	}()
 
 	wg.Wait()
+	// Standalone *sql.DB handle used by handlers that need raw SQL access (e.g. resolving
+	// a node's connector from its locationlog switch IP).
+	if sqlHandle, sqlErr := db.DbFromConfig(ctx); sqlErr != nil {
+		log.LoggerWContext(ctx).Warn("Unable to open sql.DB handle for the API plugin: " + sqlErr.Error())
+	} else {
+		m.db = sqlHandle
+	}
 	NewAdminApiAuditLog(ctx, DBP).AddToRouter(router)
 	NewAuthLog(ctx, DBP).AddToRouter(router)
 	NewDnsAuditLog(ctx, DBP).AddToRouter(router)
 	NewRadacctLog(ctx, DBP).AddToRouter(router)
 	NewRadiusAuditLog(ctx, DBP).AddToRouter(router)
 	NewWrix(ctx, DBP).AddToRouter(router)
+	NewDynamicReport(ctx, DBP).AddToRouter(router)
 
 	m.router = router
 	return nil
@@ -150,6 +161,11 @@ func (h *APIHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next cadd
 	ctx := r.Context()
 
 	defer panichandler.Http(ctx, w)
+
+	// Searches and options of non sql reports are proxied to the perl API
+	if rewriteNonSqlReportRequest(r) {
+		return next.ServeHTTP(w, r)
+	}
 
 	if handle, params, _ := h.router.Lookup(r.Method, r.URL.Path); handle != nil {
 		// We always default to application/json

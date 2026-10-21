@@ -1,0 +1,12 @@
+name: Refresh Fingerbank detection for Windows device
+testcases:
+
+- name: refresh_fingerbank
+  steps:
+  - type: pf_api_node_action
+    method: POST
+    id: '{{.security_event_detect_fingerbank_virtualswitch.device.mac_address}}'
+    url_extra: '/fingerbank_refresh'
+    status_code: 200
+    retry: 6
+    delay: 10

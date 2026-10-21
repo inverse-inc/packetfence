@@ -21,7 +21,12 @@ import (
 	"k8s.io/client-go/tools/cache"
 )
 
-const defaultRadiusAuthK8Filter = "app=radiusd-auth"
+const (
+	defaultRadiusAuthK8Filter = "app=radiusd-auth"
+	defaultRadiusAcctK8Filter = "app=pfacct"
+	defaultRadiusAuthPort     = 1812
+	defaultRadiusAcctPort     = 1813
+)
 
 func isPodReady(pod *v1.Pod) bool {
 	if pod.DeletionTimestamp != nil {
@@ -37,10 +42,10 @@ func isPodReady(pod *v1.Pod) bool {
 	return false
 }
 
-func getPodHostPort(pod *v1.Pod) string {
+func getPodHostPort(pod *v1.Pod, defaultPort int) string {
 	port, err := getPodPort(pod)
 	if err != nil {
-		return pod.Status.PodIP + ":1812"
+		return fmt.Sprintf("%s:%d", pod.Status.PodIP, defaultPort)
 	}
 
 	return fmt.Sprintf("%s:%d", pod.Status.PodIP, port)
@@ -81,12 +86,14 @@ func clientSetFromEnv() (*kubernetes.Clientset, error) {
 	)
 }
 
-func getRadiusAuthFilter() string {
-	if filter := os.Getenv("K8S_RADIUS_AUTH_FILTER"); filter != "" {
+// getRadiusFilter returns the pod label selector from envVar, or defaultFilter
+// when it is unset. Used identically for the auth and accounting backend pools.
+func getRadiusFilter(envVar, defaultFilter string) string {
+	if filter := os.Getenv(envVar); filter != "" {
 		return filter
 	}
 
-	return defaultRadiusAuthK8Filter
+	return defaultFilter
 }
 
 func NewRadiusProxyFromKubernetes(l *cio.Logger, radiusSecret string) (*Proxy, chan struct{}, error) {
@@ -100,30 +107,61 @@ func NewRadiusProxyFromKubernetes(l *cio.Logger, radiusSecret string) (*Proxy, c
 		return nil, nil, err
 	}
 
-	filter := getRadiusAuthFilter()
-
 	namespace := string(data)
-	pods, err := clientset.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{LabelSelector: filter})
+	authFilter := getRadiusFilter("K8S_RADIUS_AUTH_FILTER", defaultRadiusAuthK8Filter)
+	acctFilter := getRadiusFilter("K8S_RADIUS_ACCT_FILTER", defaultRadiusAcctK8Filter)
+
+	authServers, err := listPodHostPorts(clientset, namespace, authFilter, defaultRadiusAuthPort, l)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	servers := []string{}
-	for _, p := range pods.Items {
-		addr := getPodHostPort(&p)
-		l.Infof("Adding address %s", addr)
-		servers = append(servers, addr)
+	acctServers, err := listPodHostPorts(clientset, namespace, acctFilter, defaultRadiusAcctPort, l)
+	if err != nil {
+		return nil, nil, err
 	}
 
 	radiusProxy := NewProxy(
 		&ProxyConfig{
 			Secret:         []byte(radiusSecret),
-			Addrs:          servers,
+			AuthAddrs:      authServers,
+			AcctAddrs:      acctServers,
 			SessionTimeout: 20 * time.Second,
 			Logger:         l,
 		},
 	)
 
+	stop := make(chan struct{})
+	// Auth packets (Access-Request, ...) are load-balanced across radiusd-auth
+	// pods; accounting packets are load-balanced across pfacct pods. Routing is
+	// done by RADIUS packet code in Proxy.backendsForPacket.
+	startPodInformer(clientset, namespace, authFilter, defaultRadiusAuthPort, l, radiusProxy.AddAuthBackend, radiusProxy.DeleteAuthBackend, stop)
+	startPodInformer(clientset, namespace, acctFilter, defaultRadiusAcctPort, l, radiusProxy.AddAcctBackend, radiusProxy.DeleteAcctBackend, stop)
+
+	return radiusProxy, stop, nil
+}
+
+// listPodHostPorts returns the host:port of every pod matching filter, using
+// defaultPort when the pod does not advertise a container port.
+func listPodHostPorts(clientset *kubernetes.Clientset, namespace, filter string, defaultPort int, l *cio.Logger) ([]string, error) {
+	pods, err := clientset.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{LabelSelector: filter})
+	if err != nil {
+		return nil, err
+	}
+
+	servers := []string{}
+	for _, p := range pods.Items {
+		addr := getPodHostPort(&p, defaultPort)
+		l.Infof("Adding address %s", addr)
+		servers = append(servers, addr)
+	}
+
+	return servers, nil
+}
+
+// startPodInformer watches pods matching filter and keeps a backend pool in
+// sync via the add/del callbacks. The controller stops when stop is closed.
+func startPodInformer(clientset *kubernetes.Clientset, namespace, filter string, defaultPort int, l *cio.Logger, add, del func(string), stop chan struct{}) {
 	watchlist := cache.NewFilteredListWatchFromClient(
 		clientset.CoreV1().RESTClient(),
 		string(v1.ResourcePods),
@@ -141,39 +179,52 @@ func NewRadiusProxyFromKubernetes(l *cio.Logger, radiusSecret string) (*Proxy, c
 			AddFunc: func(obj interface{}) {
 				pod := obj.(*v1.Pod)
 				if isPodReady(pod) {
-					address := getPodHostPort(pod)
+					address := getPodHostPort(pod, defaultPort)
 					l.Infof("Adding %s", address)
-					radiusProxy.AddBackend(address)
+					add(address)
 					return
 				}
 			},
 			DeleteFunc: func(obj interface{}) {
-				pod := obj.(*v1.Pod)
-				address := getPodHostPort(pod)
+				pod, ok := obj.(*v1.Pod)
+				if !ok {
+					// On a missed delete the informer delivers a
+					// DeletedFinalStateUnknown tombstone instead of the
+					// object; unwrap it to recover the last-known pod.
+					tombstone, ok := obj.(cache.DeletedFinalStateUnknown)
+					if !ok {
+						l.Infof("DeleteFunc got unexpected object type %T, ignoring", obj)
+						return
+					}
+					pod, ok = tombstone.Obj.(*v1.Pod)
+					if !ok {
+						l.Infof("DeleteFunc tombstone contained unexpected object type %T, ignoring", tombstone.Obj)
+						return
+					}
+				}
+				address := getPodHostPort(pod, defaultPort)
 				l.Infof("Removing %s", address)
-				radiusProxy.DeleteBackend(address)
+				del(address)
 			},
 			UpdateFunc: func(oldObj, newObj interface{}) {
 				pod := newObj.(*v1.Pod)
 				if isPodReady(pod) {
-					address := getPodHostPort(pod)
+					address := getPodHostPort(pod, defaultPort)
 					l.Infof("Adding %s", address)
-					radiusProxy.AddBackend(address)
+					add(address)
 					return
 				}
 
 				if pod.DeletionTimestamp != nil {
-					address := getPodHostPort(pod)
+					address := getPodHostPort(pod, defaultPort)
 					l.Infof("%s is terminating removing", address)
-					radiusProxy.DeleteBackend(address)
+					del(address)
 				}
 			},
 		},
 	)
-	stop := make(chan struct{})
-	go controller.Run(stop)
 
-	return radiusProxy, stop, nil
+	go controller.Run(stop)
 }
 
 func TLSClientConfigFromEnv() rest.TLSClientConfig {

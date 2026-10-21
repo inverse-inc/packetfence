@@ -23,10 +23,10 @@ has 'site' => (isa => 'Str', is => 'rw', default => 'https://www.linkedin.com');
 has 'authorize_path' => (isa => 'Str', is => 'rw', default => '/oauth/v2/authorization');
 has 'access_token_path' => (isa => 'Str', is => 'rw', default => '/oauth/v2/accessToken');
 has 'access_token_param' => (isa => 'Str', is => 'rw', default => 'code');
-has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))');
+has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://api.linkedin.com/v2/userinfo');
 has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/callback');
 has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => 'www.linkedin.com,api.linkedin.com,*.licdn.com,platform.linkedin.com,*.arkoselabs.com');
-has 'scope' => (isa => 'Str', is => 'rw', default => 'r_emailaddress,r_liteprofile');
+has 'scope' => (isa => 'Str', is => 'rw', default => 'openid profile email');
 
 =head2 dynamic_routing_module
 
@@ -64,7 +64,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

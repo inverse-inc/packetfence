@@ -50,16 +50,21 @@ func (p *Proxy) listen() error {
 	if p.remote.Stdio {
 		//TODO check if pipes active?
 	} else if p.remote.LocalProto == "tcp" {
-		addr, err := net.ResolveTCPAddr("tcp", p.remote.LocalHost+":"+p.remote.LocalPort)
-		if err != nil {
-			return p.Errorf("resolve: %s", err)
+		if p.remote.ReusedTcpListener != nil {
+			p.tcp = p.remote.ReusedTcpListener
+			p.remote.ReusedTcpListener = nil
+		} else {
+			addr, err := net.ResolveTCPAddr("tcp", p.remote.LocalHost+":"+p.remote.LocalPort)
+			if err != nil {
+				return p.Errorf("resolve: %s", err)
+			}
+			l, err := net.ListenTCP("tcp", addr)
+			if err != nil {
+				return p.Errorf("tcp: %s", err)
+			}
+			p.Infof("Listening")
+			p.tcp = l
 		}
-		l, err := net.ListenTCP("tcp", addr)
-		if err != nil {
-			return p.Errorf("tcp: %s", err)
-		}
-		p.Infof("Listening")
-		p.tcp = l
 	} else if p.remote.LocalProto == "udp" {
 		l, err := listenUDP(p.Logger, p.sshTun, p.remote)
 		if err != nil {

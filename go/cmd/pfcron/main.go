@@ -22,16 +22,34 @@ import (
 func setProcessing() {
 	var Management pfconfigdriver.ManagementNetwork
 	ctx := context.Background()
-	pfconfigdriver.FetchDecodeSocket(ctx, &Management)
+	logger := log.LoggerWContext(ctx)
+	// Wait for the management network; an empty interface panics downstream.
 	for {
-		if isMaster(ctx, &Management) {
-			atomic.StoreUint32(&processJobs, 1)
-		} else {
-			atomic.StoreUint32(&processJobs, 0)
+		if err := pfconfigdriver.FetchDecodeSocket(ctx, &Management); err != nil || Management.Int == "" {
+			logger.Warn(fmt.Sprintf("Management network not available yet, retrying: %v", err))
+			time.Sleep(5 * time.Second)
+			continue
 		}
+		break
+	}
+	for {
+		updateProcessing(isMaster(ctx, &Management))
 
 		time.Sleep(1 * time.Minute)
 	}
+}
+
+// Report the same flag that wrapJob uses to gate non-local jobs. A running
+// pfcron process alone does not establish that it has taken the master role.
+func updateProcessing(master bool) {
+	state := uint32(0)
+	status := "Not processing non-local jobs"
+	if master {
+		state = 1
+		status = "Processing non-local jobs"
+	}
+	atomic.StoreUint32(&processJobs, state)
+	NotifySystemd("STATUS=" + status)
 }
 
 func isMaster(ctx context.Context, management *pfconfigdriver.ManagementNetwork) bool {
@@ -46,7 +64,10 @@ func isMaster(ctx context.Context, management *pfconfigdriver.ManagementNetwork)
 			return true
 		}
 
-		eth, _ := net.InterfaceByName(management.Int)
+		eth, err := net.InterfaceByName(management.Int)
+		if err != nil || eth == nil {
+			return false
+		}
 		addresses, _ := eth.Addrs()
 		clusterIp := net.ParseIP(keyConfCluster.Ip)
 
@@ -81,13 +102,13 @@ func wrapJob(logger log.PfLogger, j string, l bool) cron.Job {
 
 		select {
 		case v := <-ch:
+			defer func() { ch <- v }()
 			if job := maint.GetJob(j, maint.GetMaintenanceConfig(context.Background())); job != nil {
 				logger.Info("Running " + j)
 				job.Run()
 			} else {
 				logger.Error("Cannot create job " + j)
 			}
-			ch <- v
 		default:
 			logger.Info(" Skipped " + j)
 		}
@@ -134,7 +155,7 @@ func makeArgs(args []string) (map[string]interface{}, error) {
 func NotifySystemd(msg string) {
 	_, err := daemon.SdNotify(false, msg)
 	if err != nil {
-		log.LoggerWContext(context.Background()).Error(fmt.Sprintf("Error sending systemd ready notification: %s", err.Error()))
+		log.LoggerWContext(context.Background()).Error(fmt.Sprintf("Error sending systemd notification: %s", err.Error()))
 	}
 }
 
@@ -172,7 +193,7 @@ func main() {
 
 	w := sync.WaitGroup{}
 	w.Add(1)
-	NotifySystemd("READY=1")
+	NotifySystemd("READY=1\nSTATUS=Waiting for scheduling role")
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 	go func() {

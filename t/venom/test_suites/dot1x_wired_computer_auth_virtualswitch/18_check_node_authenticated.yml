@@ -1,0 +1,11 @@
+name: Verify node is in registered status
+testcases:
+
+- name: check_node_status
+  steps:
+  - type: pf_api_node_action
+    method: GET
+    id: '{{.virtualswitch.dot1x.computer.mac_address}}'
+    status_code: 200
+    assertions:
+      - result.pf_api_node_action_json.item.status ShouldEqual reg

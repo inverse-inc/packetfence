@@ -13,7 +13,11 @@ can be localized.
 
 =cut
 
+# The repository's lib, after the installed one, for pf::I18N::extract
+use FindBin;
+use lib "$FindBin::Bin/../lib";
 use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
+use pf::I18N::extract qw(perl_unescape po_escape add_source);
 use File::Find;
 use pf::web::constants;
 use pf::person;
@@ -38,13 +42,9 @@ Add a localizable sring to the list.
 sub add_string {
     my ($string, $source) = @_;
 
-    $string =~ s/(?<!\\)\"/\\\"/g; # escape double-quotes
-    unless ($strings{$string}) {
-        $strings{$string} = [];
-    }
-    unless (grep(/\Q$source\E/, @{$strings{$string}})) {
-        push(@{$strings{$string}}, $source);
-    }
+    # A quoted string of a module or template: decode its escaped backslashes and
+    # quotes, then escape it for the PO file
+    add_source(\%strings, po_escape(perl_unescape($string)), $source);
 }
 
 =head2 add_translation
@@ -164,10 +164,13 @@ sub parse_mc {
                 my $string = $2;
                 $string =~ s/\\'/'/g;
                 add_string($string, $module);
-            } elsif ($line =~ m/(title|message|label)'?\s+=>\s+['"]([^\$].+?[^'"\\])["']/) {
-                my $string = $2;
-                $string =~ s/\\'/'/g;
-                add_string($string, $module);
+            } elsif ($line =~ m/(title|message|label|empty_select)'?\s+=>\s+['"]([^\$].+?[^'"\\])["']/) {
+                # every localized attribute of the line, ex: the label and the empty_select of a select field
+                while ($line =~ m/(title|message|label|empty_select)'?\s+=>\s+['"]([^\$].+?[^'"\\])["']/g) {
+                    my $string = $2;
+                    $string =~ s/\\'/'/g;
+                    add_string($string, $module);
+                }
             } elsif ($line =~ m/showError\((?:\$c,)?\s?'([^\$].+?[^'\\])'/) {
                 my $string = $1;
                 $string =~ s/\\'/'/g;
@@ -263,7 +266,7 @@ sub print_po {
 
     print <<EOT;
 # English translations for $package package.
-# Copyright (C) 2005-2024 Inverse inc.
+# Copyright (C) 2005-2026 Inverse inc.
 # This file is distributed under the same license as the $package package.
 #
 msgid ""
@@ -338,7 +341,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

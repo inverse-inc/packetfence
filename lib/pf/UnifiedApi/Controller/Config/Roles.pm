@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use pf::dal::node_category;
 use pf::error qw(is_error is_success);
+use pf::log;
 
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
 
@@ -25,7 +26,7 @@ has 'primary_key' => 'role_id';
 
 use pf::ConfigStore::Roles;
 use pfappserver::Form::Config::Roles;
-use pf::config qw(%ConfigRoles);
+use pf::config qw(%ConfigRoles %Config);
 use pfconfig::cached_hash;
 use pf::config::cluster;
 use pf::dal::node;
@@ -40,26 +41,17 @@ use pf::ConfigStore::Firewall_SSO;
 use pf::ConfigStore::Switch;
 use pf::ConfigStore::Source;
 use pf::ConfigStore::PortalModule;
+use pf::api::queue;
 
 tie our %RolesReverseLookup, 'pfconfig::cached_hash', 'resource::RolesReverseLookup';
-tie my %SwitchConfig, 'pfconfig::cached_hash', "config::Switch($host_id)";
 
 sub post_update {
     my ($self, $id) = @_;
-    foreach my $switch_id (keys(%SwitchConfig)) {
-        next if ($switch_id =~ /^group / or $switch_id =~ /.*\/.*/ or $switch_id =~ /.*\:.*/ or $switch_id eq 'default' or $switch_id eq '100.64.0.1' or $switch_id eq '127.0.0.1');
-        my $switch = pf::SwitchFactory->instantiate($switch_id);
-        next unless $switch;
-        $switch->generateAnsibleConfiguration();
-        # Need to wait between each switch to avoid error on semaphore
-        sleep(1);
-    }
+    # Submit to background queue - API returns immediately
+    my $client = pf::api::queue->new(queue => 'general');
+    $client->notify('generate_ansible_configuration_all_switches');
 }
 
-sub post_create {
-    my ($self, $id) = @_;
-    $self->post_update($id);
-}
 
 sub can_delete {
     my ($self) = @_;
@@ -80,11 +72,63 @@ sub cleanup_item {
     my ($self, $item, $form) = @_;
     $item = $self->SUPER::cleanup_item($item, $form);
     my $id = $item->{id};
-    if (exists $ConfigRoles{$id}) {
+    if (defined $id && exists $ConfigRoles{$id}) {
         $item->{children} = $ConfigRoles{$id}{children};
     }
 
     return $item;
+}
+
+sub standardPlaceholder {
+    my ($self) = @_;
+    my $placeholder = $self->SUPER::standardPlaceholder;
+    if (ref $placeholder eq 'HASH') {
+        # The default_role_parent_id role's own parent_id leaks into the
+        # parent_id field placeholder via the form's default_method (fired
+        # by cleanup_item's `init_object + posted=0` processing). Suppress
+        # it — the form's `default` already pre-selects the default parent
+        # for new roles, and clearing the dropdown should show nothing.
+        delete $placeholder->{parent_id};
+    }
+    return $placeholder;
+}
+
+sub cleanupItemForCreate {
+    my ($self, $item) = @_;
+    if (!exists $item->{parent_id}) {
+        my $default_parent = $Config{advanced}{default_role_parent_id};
+        if (defined $default_parent && length $default_parent
+            && $default_parent ne ($item->{id} // '')
+            && $self->config_store->hasId($default_parent)) {
+            $item->{parent_id} = $default_parent;
+        } else {
+            $item->{parent_id} = '';
+        }
+    } elsif (!defined $item->{parent_id}) {
+        $item->{parent_id} = '';
+    }
+    return $item;
+}
+
+sub cleanupItemForUpdate {
+    my ($self, $old_item, $new_data, $data) = @_;
+    # null and "" both mean "user explicitly cleared parent_id" — lock
+    # as empty. Missing key is handled by mergeUpdate (preserves old).
+    if (exists $data->{parent_id}
+        && (!defined $data->{parent_id} || $data->{parent_id} eq '')) {
+        $new_data->{parent_id} = '';
+    }
+    return;
+}
+
+sub cleanupItemForReplace {
+    my ($self, $item) = @_;
+    # PUT replaces the role with exactly this payload. Apply the same
+    # parent_id normalization as create so PUT and POST agree on the
+    # missing/null/value matrix — without this, `{"parent_id": null}`
+    # over PUT would land in storage as undef (param removed) instead
+    # of the explicit empty lock that PATCH produces.
+    return $self->cleanupItemForCreate($item);
 }
 
 sub can_delete_from_config {
@@ -92,7 +136,7 @@ sub can_delete_from_config {
     my $id = $self->id;
     my @errors;
     if (exists $RolesReverseLookup{$id}) {
-         @errors = map { config_delete_error($id, $_) } sort keys %{$RolesReverseLookup{$id}};
+         @errors = map { config_delete_error($id, $_, $RolesReverseLookup{$id}{$_}) } sort keys %{$RolesReverseLookup{$id}};
     }
 
     if (@errors) {
@@ -103,9 +147,13 @@ sub can_delete_from_config {
 }
 
 sub config_delete_error {
-    my ($name, $namespace) = @_;
+    my ($name, $namespace, $ids) = @_;
     my $reason = uc($namespace) . "_IN_USE";
-    return { name => $name, message => "Role still in use for $namespace", reason => $reason, status => 422 };
+    my %seen;
+    my @ids = sort grep { !$seen{$_}++ } @{ $ids // [] };
+    my $message = "Role still in use for $namespace";
+    $message .= ": " . join(", ", @ids) if @ids;
+    return { name => $name, message => $message, reason => $reason, status => 422, ids => \@ids };
 }
 
 my $CAN_DELETE_FROM_DB_SQL = <<SQL;
@@ -257,11 +305,63 @@ sub reassign_role_config_store {
 
 sub reassign_role_config_store_switch {
     my ($self, $errors, $old, $new) = @_;
+    $self->migrate_role_in_switches($old, $new);
+}
+
+=head2 migrate_role_in_switches
+
+Rename every per-role mapping key (${old}Role, ${old}Vlan, ...) to use the new
+role name (${new}Role, ${new}Vlan, ...) for the given role across all switches.
+Used when a role is reassigned/renamed so that switch-specific Role/Vlan/Url/...
+mappings follow the role instead of being lost. An existing mapping already set
+under the new role is preserved (the old value is dropped) so we don't clobber
+config the new role already had.
+
+=cut
+
+sub migrate_role_in_switches {
+    my ($self, $old, $new) = @_;
+    return unless defined $old && length $old;
+    return unless defined $new && length $new;
+    return if $old eq $new;
     my $cs = pf::ConfigStore::Switch->new;
     my $i = 0;
     my $cachedConfig = $cs->cachedConfig;
     for my $sect ($cachedConfig->Sections()) {
-        for my $f (map { "${old}${_}" } qw(Role Url Vlan AccessList Vpn Interface Network NetworkFrom) ) {
+        for my $suffix (qw(Role Url Vlan AccessList Vpn Interface Network NetworkFrom)) {
+            my $old_key = "${old}${suffix}";
+            next if !$cachedConfig->exists($sect, $old_key);
+            my $value = $cachedConfig->val($sect, $old_key);
+            my $new_key = "${new}${suffix}";
+            if (!$cachedConfig->exists($sect, $new_key)) {
+                $cachedConfig->setval($sect, $new_key, $value);
+            }
+            $cachedConfig->delval($sect, $old_key);
+            $i |= 1;
+        }
+    }
+
+    if ($i) {
+        $cs->commit();
+    }
+}
+
+=head2 prune_role_from_switches
+
+Delete every per-role mapping key (${role}Role, ${role}Vlan, ...) for the given
+role from all switches. Used both when a role is reassigned/renamed and when it
+is deleted, so stale per-role keys never accumulate in switches.conf.
+
+=cut
+
+sub prune_role_from_switches {
+    my ($self, $role) = @_;
+    return unless defined $role && length $role;
+    my $cs = pf::ConfigStore::Switch->new;
+    my $i = 0;
+    my $cachedConfig = $cs->cachedConfig;
+    for my $sect ($cachedConfig->Sections()) {
+        for my $f (map { "${role}${_}" } qw(Role Url Vlan AccessList Vpn Interface Network NetworkFrom) ) {
             next if !$cachedConfig->exists($sect, $f);
             $cachedConfig->delval($sect, $f);
             $i |= 1;
@@ -271,6 +371,20 @@ sub reassign_role_config_store_switch {
     if ($i) {
         $cs->commit();
     }
+}
+
+=head2 post_remove
+
+After a role is deleted, prune its per-role mapping keys from all switches so
+that orphaned mappings can't accumulate (which otherwise bloats switches.conf
+and makes the switch config API very slow).
+
+=cut
+
+sub post_remove {
+    my ($self, $id, $old_item) = @_;
+    $self->prune_role_from_switches($id);
+    return;
 }
 
 sub reassign_role_config_store_source {
@@ -423,7 +537,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

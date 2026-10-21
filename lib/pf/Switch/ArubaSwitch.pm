@@ -45,7 +45,6 @@ use pf::config qw(
 );
 use pf::accounting qw(node_accounting_current_sessionid);
 use pf::node qw(node_attributes);
-use pf::util::radius qw(perform_disconnect);
 
 =head1 SUBROUTINES
 
@@ -58,6 +57,7 @@ use pf::SwitchSupports qw(
     WiredMacAuth
     WiredDot1x
     RadiusDynamicVlanAssignment
+    Flow
 );
 
 # inline capabilities
@@ -126,6 +126,17 @@ sub getIfIndexByNasPortId {
             return $1;
         }
     }
+}
+
+=item ifIndexCacheTables
+
+The ifDescr table getIfIndexByNasPortId looks NAS-Port-Id up in, refreshed by
+the switch_cache_ifindex pfcron task.
+
+=cut
+
+sub ifIndexCacheTables {
+    return ([-baseoid => '1.3.6.1.2.1.2.2.1.2']);
 }
 
 =head2 deauthenticateMacRadius
@@ -209,7 +220,7 @@ sub radiusDisconnect {
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
 
-    if (!defined($self->{'_radiusSecret'})) {
+    if (!$self->hasRadiusSecret()) {
         $logger->warn(
             "[$self->{'_ip'}] Unable to perform RADIUS CoA-Request: RADIUS Shared Secret not configured"
         );
@@ -255,11 +266,11 @@ sub radiusDisconnect {
                 'Filter-Id' => $role,
             };
             $logger->info("[$self->{'_ip'}] Returning ACCEPT with Role: $role");
-            $response = perform_coa($connection_info, $attributes_ref);
+            $response = $self->handleRadiusCoa($connection_info, $attributes_ref);
 
         }
         else {
-            $response = perform_disconnect($connection_info, $attributes_ref);
+            $response = $self->handleRadiusDisconnect($connection_info, $attributes_ref);
         }
     } catch {
         chomp;
@@ -284,7 +295,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

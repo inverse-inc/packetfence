@@ -43,6 +43,7 @@ AD server running
 1. Wait `delete_windows` + 10 seconds before running `node_cleanup` task
 1. Delete node by running `pfcron's node_cleanup` task
 1. Check node has been deleted
+1. Release DHCP on node01
 1. Disable `node_cleanup` task
 1. Restart `pfcron` to take change into account
 1. Unconfigure and delete REALMS

@@ -15,6 +15,9 @@ ExecStart=/usr/sbin/keepalived -f /usr/local/pf/var/conf/keepalived.conf --pid=/
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=on-failure
 Slice=packetfence.slice
+# iptables rules
+ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_keepalived_rules("add")'
+ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_keepalived_rules("REMOVE")'
 
 [Install]
 WantedBy=packetfence.target

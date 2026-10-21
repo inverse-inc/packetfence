@@ -12,6 +12,7 @@ use pf::Authentication::constants;
 use pf::constants::authentication::messages;
 use pf::Authentication::Source::LDAPSource;
 use pf::constants;
+use Net::LDAP::Util qw(escape_filter_value);
 
 use Moose;
 extends 'pf::Authentication::Source::LDAPSource';
@@ -52,9 +53,10 @@ sub findAtttributeFrom {
         return ($FALSE, "Error communicating with the LDAP server");
     }
 
+    my $escaped_from_value = escape_filter_value($from_value);
     my $result = $connection->search(
-        base => $self->{basedn}, 
-        filter => "($from_attribute=$from_value)", 
+        base => $self->{basedn},
+        filter => "($from_attribute=$escaped_from_value)",
         attrs => [$to_attribute],
     );
 
@@ -72,7 +74,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

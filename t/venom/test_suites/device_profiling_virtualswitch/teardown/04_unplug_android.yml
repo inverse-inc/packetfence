@@ -1,0 +1,8 @@
+name: Unplug Android device via virtualswitch API
+testcases:
+
+- name: unplug_android_device
+  steps:
+  - type: virtualswitch_unplug_device
+    api_url: '{{.virtualswitch.api.url}}'
+    interface_id: '{{.virtualswitch.android.interface.id}}'

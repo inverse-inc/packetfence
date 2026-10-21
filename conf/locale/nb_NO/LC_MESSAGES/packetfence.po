@@ -1,5 +1,5 @@
 # English translations for PacketFence package.
-# Copyright (C) 2005-2024 Inverse inc.
+# Copyright (C) 2005-2026 Inverse inc.
 # This file is distributed under the same license as the PacketFence package.
 # 
 # Translators:
@@ -47,6 +47,10 @@ msgstr "%s: Gjestetilgang forespørsel"
 msgid "%s: Guest access request accepted"
 msgstr "%s: Gjestetilgang godkjent"
 
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "---Choose a Provider---"
+msgstr "---Velg en leverandør---"
+
 # html/captive-portal/templates/ssl_inspection/windows.html
 msgid ""
 "A <i>Security Warning</i> will appear, asking if you're sure you'd like to "
@@ -64,6 +68,10 @@ msgid ""
 "A file browser will appear, allowing you to select the certificate. Locate "
 "the certificate you downloaded previously (it may be in a folder called "
 "<i>Downloads</i>), and double-click to open it."
+msgstr ""
+
+# html/captive-portal/templates/emails/emails-guest_password_reset.html
+msgid "A password reset was requested for your account."
 msgstr ""
 
 # html/captive-portal/templates/ssl_inspection/chrome.html
@@ -219,6 +227,11 @@ msgid ""
 "show <i>Trusted Root Certification Authorities</i>. Press <i>Next</i> again."
 msgstr ""
 
+# html/captive-portal/templates/status/forgot_password.html
+# html/captive-portal/templates/status/forgot_password_sent.html
+msgid "Back to Login"
+msgstr ""
+
 # html/captive-portal/templates/status.html
 msgid "Bandwidth balance "
 msgstr "Gjenstående båndbredde"
@@ -247,6 +260,14 @@ msgstr ""
 # pf::person::FIELDS
 msgid "Building_number"
 msgstr "Bygnings_nummer"
+
+# html/captive-portal/templates/emails/emails-fleetdm-cve.html
+msgid "CVE"
+msgstr ""
+
+# html/captive-portal/templates/emails/emails-fleetdm-cve.html
+msgid "CVSS score"
+msgstr ""
 
 # html/captive-portal/templates/status.html
 # html/captive-portal/templates/status/billing_cancel_subscription.html
@@ -334,6 +355,10 @@ msgstr ""
 msgid "Click here to access the enrollment page"
 msgstr ""
 
+# html/captive-portal/templates/emails/emails-guest_password_reset.html
+msgid "Click the button below to reset your password."
+msgstr ""
+
 # pf::person::FIELDS
 msgid "Company"
 msgstr "Firma"
@@ -342,10 +367,9 @@ msgstr "Firma"
 msgid "Computer name "
 msgstr "Datamaskinnavn "
 
-# html/captive-
-# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/SMS.pm
-msgid "Confirm Mobile Phone Number"
-msgstr " Bekreft mobiltelefon nummer"
+# html/captive-portal/templates/status/reset_password_token.html
+msgid "Confirm Password"
+msgstr ""
 
 # html/captive-portal/templates/status/reset_password.html
 msgid "Confirm your password"
@@ -361,7 +385,7 @@ msgstr "Bekreft ditt passord"
 # html/captive-portal/templates/provisioner/dpsk.html
 # html/captive-portal/templates/provisioner/intune.html
 # html/captive-portal/templates/provisioner/jamf.html
-# html/captive-portal/templates/provisioner/jamfcloud.html
+# html/captive-portal/templates/provisioner/jamfCloud.html
 # html/captive-portal/templates/provisioner/kandji.html
 # html/captive-portal/templates/provisioner/mobileconfig.html
 # html/captive-portal/templates/provisioner/mobileiron.html
@@ -500,6 +524,10 @@ msgstr ""
 msgid "Description"
 msgstr "Beskrivelse"
 
+# html/captive-portal/templates/emails/emails-fleetdm-cve.html
+msgid "Detail link"
+msgstr ""
+
 # html/captive-portal/templates/device-registration/registration.html
 msgid "Device MAC address"
 msgstr "Enhetens MAC adresse"
@@ -595,6 +623,11 @@ msgstr ""
 msgid "Enter a valid telephone number"
 msgstr "Skriv inn et gyldig telefonnummer"
 
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/SMS.pm
+msgid "Enter the PIN sent to your phone"
+msgstr "Skriv inn PIN-koden som ble sendt til telefonen din"
+
 # html/captive-portal/templates/security_events/bandwidth_expiration.html
 msgid "Expiration"
 msgstr "Utløp"
@@ -617,6 +650,10 @@ msgid ""
 "network access."
 msgstr "Hvis dette ikke gjøres innen %s minutter vil nettverkstilgangen sperres. "
 
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "Female"
+msgstr "Kvinne"
+
 # html/captive-portal/templates/ssl_inspection/firefox.html
 msgid "Firefox CA trust prompt"
 msgstr ""
@@ -637,6 +674,10 @@ msgstr ""
 # pf::person::FIELDS
 msgid "Firstname"
 msgstr "Fornavn"
+
+# html/captive-portal/templates/status/login.html
+msgid "Forgot your password?"
+msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 # pf::person::FIELDS
@@ -674,6 +715,8 @@ msgstr ""
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
 # html/captive-portal/templates/emails/emails-
 # billing_stripe_customer.subscription.deleted.html
+# html/captive-portal/templates/emails/emails-fleetdm-cve.html
+# html/captive-portal/templates/emails/emails-fleetdm-policy-violation.html
 # html/captive-portal/templates/emails/emails-guest_admin_pregistration.html
 # html/captive-portal/templates/emails/emails-guest_email_activation.html
 # html/captive-portal/templates/emails/emails-guest_email_preregistration.html
@@ -690,6 +733,8 @@ msgstr ""
 msgid "Hello"
 msgstr "Hallo"
 
+# html/captive-portal/templates/emails/emails-fleetdm-cve.html
+# html/captive-portal/templates/emails/emails-fleetdm-policy-violation.html
 # html/captive-portal/templates/emails/emails-security_event-triggered.html
 msgid "Here is the device information"
 msgstr ""
@@ -712,6 +757,8 @@ msgid ""
 "<i>Always Trust</i>."
 msgstr ""
 
+# html/captive-portal/templates/emails/emails-fleetdm-cve.html
+# html/captive-portal/templates/emails/emails-fleetdm-policy-violation.html
 # html/captive-portal/templates/emails/emails-security_event-triggered.html
 msgid "Hostname"
 msgstr "Hostnavn"
@@ -728,6 +775,12 @@ msgstr "Jeg har ikke en PIN kode"
 msgid "IP"
 msgstr "IP"
 
+# html/captive-portal/templates/status/forgot_password_sent.html
+msgid ""
+"If an account exists with that username or email, you will receive a "
+"password reset link shortly."
+msgstr ""
+
 # html/captive-portal/templates/provisioner/mobileiron.html
 msgid "If you are using a Windows phone"
 msgstr "Hvis du bruker en Windows telefon"
@@ -739,6 +792,10 @@ msgstr "Hvis du bruker en Android telefon eller tablet"
 # html/captive-portal/templates/provisioner/mobileiron.html
 msgid "If you are using an Apple phone or tablet"
 msgstr "Hvis du bruker en Apple iphone eller ipad"
+
+# html/captive-portal/templates/emails/emails-guest_password_reset.html
+msgid "If you did not request a password reset, please ignore this email."
+msgstr ""
 
 # html/captive-portal/templates/ssl_inspection/osx.html
 msgid ""
@@ -865,6 +922,7 @@ msgstr ""
 # html/captive-portal/templates/oauth2/landing.html
 # html/captive-portal/templates/saml.html
 # html/captive-portal/templates/status/login.html
+# html/captive-portal/templates/status/reset_password_token_success.html
 msgid "Login"
 msgstr "Logg inn"
 
@@ -886,6 +944,8 @@ msgstr "Logg ut"
 msgid "MAC"
 msgstr "MAC"
 
+# html/captive-portal/templates/emails/emails-fleetdm-cve.html
+# html/captive-portal/templates/emails/emails-fleetdm-policy-violation.html
 # html/captive-portal/templates/emails/emails-security_event-triggered.html
 msgid "MAC Address"
 msgstr "MAC adresse"
@@ -910,6 +970,10 @@ msgid ""
 "Make sure <i>Trust</i> is expanded and select the dropdown next to <i>When "
 "using this certificate:</i> and change it to <i>Always Trust</i>."
 msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "Male"
+msgstr "Mann"
 
 # html/captive-portal/templates/stripe-customer-portal/select-account.html
 msgid "Manage"
@@ -939,6 +1003,10 @@ msgstr "Tilgang til nettverket har blitt godkjent"
 
 # html/captive-portal/templates/status.html
 msgid "Network subscriptions"
+msgstr ""
+
+# html/captive-portal/templates/status/reset_password_token.html
+msgid "New Password"
 msgstr ""
 
 # lib/pf/pfcron/task/password_of_the_day.pm
@@ -1002,6 +1070,8 @@ msgstr ""
 msgid "OAuth login"
 msgstr ""
 
+# html/captive-portal/templates/emails/emails-fleetdm-cve.html
+# html/captive-portal/templates/emails/emails-fleetdm-policy-violation.html
 # html/captive-portal/templates/emails/emails-security_event-triggered.html
 msgid "OS"
 msgstr "OS"
@@ -1038,7 +1108,7 @@ msgstr "Når du er på lokasjonen, velg gjestetilgang i gjesteportalen og bruk f
 # html/captive-portal/templates/provisioner/airwatch.html
 # html/captive-portal/templates/provisioner/intune.html
 # html/captive-portal/templates/provisioner/jamf.html
-# html/captive-portal/templates/provisioner/jamfcloud.html
+# html/captive-portal/templates/provisioner/jamfCloud.html
 # html/captive-portal/templates/provisioner/kandji.html
 # html/captive-portal/templates/provisioner/sentinelone.html
 msgid ""
@@ -1148,6 +1218,10 @@ msgstr "Passord"
 msgid "Password Of the Day"
 msgstr ""
 
+# html/captive-portal/templates/emails/emails-guest_password_reset.html
+msgid "Password Reset Request"
+msgstr ""
+
 # html/captive-portal/templates/provisioner/dpsk.html
 msgid "Password: "
 msgstr ""
@@ -1183,6 +1257,10 @@ msgid ""
 "subscription."
 msgstr ""
 
+# html/captive-portal/templates/status/reset_password_token.html
+msgid "Please fill in all fields"
+msgstr ""
+
 # html/captive-portal/templates/emails/emails-guest_email_activation.html
 # html/captive-portal/templates/emails/emails-guest_email_preregistration.html
 msgid "Please ignore this request if you have not requested network access."
@@ -1198,6 +1276,18 @@ msgstr ""
 
 # html/captive-portal/templates/stripe-customer-portal/select-account.html
 msgid "Please select the account you would like to manage"
+msgstr ""
+
+# html/captive-portal/templates/emails/emails-fleetdm-policy-violation.html
+msgid "Policy ID"
+msgstr ""
+
+# html/captive-portal/templates/emails/emails-fleetdm-policy-violation.html
+msgid "Policy name"
+msgstr ""
+
+# html/captive-portal/templates/emails/emails-fleetdm-policy-violation.html
+msgid "Policy query"
 msgstr ""
 
 # pf::person::FIELDS
@@ -1251,8 +1341,21 @@ msgstr "Registrering"
 msgid "Registration pending"
 msgstr "Registrering avventes"
 
+# html/captive-portal/templates/status/reset_password_token_invalid.html
+msgid "Request a new link"
+msgstr ""
+
 # html/captive-portal/templates/sms/validate.html
 msgid "Resend PIN"
+msgstr ""
+
+# html/captive-portal/templates/emails/emails-guest_password_reset.html
+# html/captive-portal/templates/status/reset_password_token.html
+msgid "Reset Password"
+msgstr ""
+
+# html/captive-portal/templates/status/forgot_password.html
+msgid "Reset your password"
 msgstr ""
 
 # html/captive-portal/templates/max-nodes-reached.html
@@ -1289,10 +1392,14 @@ msgstr ""
 msgid "SSID: "
 msgstr ""
 
+# html/captive-portal/templates/emails/emails-fleetdm-cve.html
+# html/captive-portal/templates/emails/emails-fleetdm-policy-violation.html
 # html/captive-portal/templates/emails/emails-security_event-triggered.html
 msgid "Security Event %s was detected on your device."
 msgstr ""
 
+# html/captive-portal/templates/emails/emails-fleetdm-cve.html
+# html/captive-portal/templates/emails/emails-fleetdm-policy-violation.html
 # html/captive-portal/templates/emails/emails-security_event-triggered.html
 msgid "Security Event detected !"
 msgstr ""
@@ -1311,6 +1418,14 @@ msgstr "Velg autentiseringsmetode"
 
 # html/captive-portal/templates/device-registration/registration.html
 msgid "Select registration role"
+msgstr ""
+
+# html/captive-portal/templates/status/forgot_password.html
+msgid "Send Reset Link"
+msgstr ""
+
+# html/captive-portal/templates/status/reset_password_token.html
+msgid "Set your new password"
 msgstr ""
 
 # /usr/local/pf/conf/portal_modules.conf.defaults default_show_local_account
@@ -1348,6 +1463,10 @@ msgid "Status"
 msgstr "Status"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Status.pm
+msgid "Status - Forgot Password"
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/Status.pm
 msgid "Status - Login"
 msgstr "Status - Logg inn"
 
@@ -1358,6 +1477,10 @@ msgstr "Status - Administrer konto"
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Status.pm
 msgid "Status - Network Access"
 msgstr "Status - Nettverkstilgang"
+
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/Status.pm
+msgid "Status - Reset Password"
+msgstr ""
 
 # html/captive-portal/templates/ssl_inspection/android.html
 # html/captive-portal/templates/ssl_inspection/chrome.html
@@ -1445,6 +1568,11 @@ msgid ""
 " it was already used or has expired."
 msgstr "Aktiveringskoden er ugyldig. Mulige årsaker kan være at den aldri har eksistert, allerede er brukt eller har gått ut på dato."
 
+# html/captive-
+# portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
+msgid "The activation code provided is not valid for this page."
+msgstr ""
+
 # html/captive-portal/templates/status.html
 msgid ""
 "The device %s will be disconnected and won't be able to be registered again."
@@ -1469,6 +1597,7 @@ msgid "The system is in maintenance mode"
 msgstr "Systemet er under vedlikehold"
 
 # html/captive-portal/templates/status/reset_password.html
+# html/captive-portal/templates/status/reset_password_token.html
 msgid "The two entered passwords did not match"
 msgstr "Passordene var ikke like"
 
@@ -1590,9 +1719,15 @@ msgstr ""
 msgid "This is your current device."
 msgstr "Dette er din nåværende enhet"
 
+# html/captive-portal/templates/emails/emails-guest_password_reset.html
+msgid "This link will expire in %s minutes."
+msgstr ""
+
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
 # html/captive-portal/templates/emails/emails-
 # billing_stripe_customer.subscription.deleted.html
+# html/captive-portal/templates/emails/emails-fleetdm-cve.html
+# html/captive-portal/templates/emails/emails-fleetdm-policy-violation.html
 # html/captive-portal/templates/emails/emails-guest_admin_pregistration.html
 # html/captive-portal/templates/emails/emails-guest_email_activation.html
 # html/captive-portal/templates/emails/emails-guest_email_preregistration.html
@@ -1601,6 +1736,7 @@ msgstr "Dette er din nåværende enhet"
 # html/captive-portal/templates/emails/emails-
 # guest_local_account_creation.html
 # html/captive-portal/templates/emails/emails-guest_password_of_the_day.html
+# html/captive-portal/templates/emails/emails-guest_password_reset.html
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 # html/captive-portal/templates/emails/emails-guest_sponsor_confirmed.html
 # html/captive-portal/templates/emails/emails-
@@ -1624,6 +1760,10 @@ msgid ""
 "prevent certificate security warnings when accessing this portal, the "
 "network's filtering unit must issue to your computer or mobile device a file"
 " called an SSL certificate."
+msgstr ""
+
+# html/captive-portal/templates/status/reset_password_token_invalid.html
+msgid "This password reset link is invalid or has expired."
 msgstr ""
 
 # html/captive-portal/templates/emails/emails-guest_admin_pregistration.html
@@ -1666,7 +1806,7 @@ msgid ""
 msgstr ""
 
 # html/captive-portal/templates/provisioner/jamf.html
-# html/captive-portal/templates/provisioner/jamfcloud.html
+# html/captive-portal/templates/provisioner/jamfCloud.html
 msgid ""
 "To complete your network activation you need to install the JAMF client."
 msgstr "For å fullføre nettverksaktivering må du installere JAMF klienten."
@@ -1773,6 +1913,10 @@ msgstr "Brukerkonto"
 msgid "Username"
 msgstr "Brukernavn"
 
+# html/captive-portal/templates/status/forgot_password.html
+msgid "Username or Email"
+msgstr ""
+
 # /usr/local/pf/conf/portal_modules.conf.defaults default_login_policy
 msgid "Username/password login"
 msgstr ""
@@ -1856,6 +2000,8 @@ msgid ""
 "You do not own this device %s, you can not declare it as lost or stolen."
 msgstr ""
 
+# html/captive-portal/templates/emails/emails-fleetdm-cve.html
+# html/captive-portal/templates/emails/emails-fleetdm-policy-violation.html
 # html/captive-portal/templates/emails/emails-security_event-triggered.html
 msgid "You have been detected doing malicious activity on the network."
 msgstr "Vi har oppdaget ondsinnet eller uønsket aktivitet fra deg på nettverket."
@@ -2005,6 +2151,10 @@ msgid ""
 "Your network access is currently being enabled. Once network connectivity is"
 " established you will be automatically redirected."
 msgstr "Tilgangen din holder på å bli etablert. Når dette er fullført vil du automatisk videresendes."
+
+# html/captive-portal/templates/status/reset_password_token_success.html
+msgid "Your password has been reset successfully."
+msgstr ""
 
 # html/captive-portal/templates/status/reset_password.html
 msgid "Your password has been updated"
@@ -2167,3 +2317,7 @@ msgstr ""
 # lib/pf/web.pm
 msgid "system scan in progress"
 msgstr "Enheten din skannes. Denne prosessen vil ta ca %s sekunder."
+
+# pf::web::constants (Locales)
+msgid "tr_TR"
+msgstr ""

@@ -116,6 +116,10 @@ sub handle_web_form_release {
             $switch = pf::SwitchFactory->instantiate($last_switch_id);
         }
     }
+    if (!$switch) {
+        return $FALSE;
+    }
+
     if (isenabled($switch->{_deauthOnPrevious})) {
         return $FALSE;
     }
@@ -248,7 +252,8 @@ sub apply_new_node_info {
     get_logger->debug(sub { use Data::Dumper; "Applying new node_info to user ".Dumper($self->new_node_info)});
 
     if(pf::node::is_max_reg_nodes_reached($self->current_mac, $self->new_node_info->{pid}, $self->new_node_info->{category})) {
-        $self->render("max-nodes-reached.html", { show_manage_devices => $self->app->profile->showManageDevicesOnMaxNodes });
+        # the devices are managed on the status page
+        $self->render("max-nodes-reached.html", { show_manage_devices => $self->app->profile->showManageDevicesOnMaxNodes && $self->app->profile->selfServiceStatusEnabled });
         $self->detach();
     }
 
@@ -290,7 +295,7 @@ sub apply_new_node_info {
             $notice .= $self->app->i18n_format(" with unregistration date : %s,", $self->new_node_info->{unregdate});
         }
         if ($self->new_node_info->{time_balance}) {
-            $notice .= $self->app->i18n_format(" with time balance : %s,", $self->new_node_info->{time_balance});
+            $notice .= $self->app->i18n_format(" with time balance : %s,", $self->app->duration_str($self->new_node_info->{time_balance}));
         }
         if ($self->new_node_info->{bandwidth_balance}) {
             $notice .= $self->app->i18n_format(" with bandwidth balance : %s,", $self->new_node_info->{bandwidth_balance});
@@ -316,6 +321,11 @@ Bypass to allow direct access to billing module from the status page or post-reg
 
 sub direct_route_billing {
     my ($self) = @_;
+    # extending the access is part of the status page
+    unless ($self->app->profile->selfServiceStatusEnabled) {
+        $self->app->error("This feature is currently disabled. Please contact your network administrator for more details.");
+        return;
+    }
     my $node = node_view($self->current_mac);
     if($node->{status} eq "reg"){
         $self->session->{direct_route_billing} = $TRUE;
@@ -356,6 +366,13 @@ Show the account details created in the pre-registration
 
 sub show_preregistration_account {
     my ($self) = @_;
+    # Without an account created by the pre-registration there is nothing to show,
+    # and continuing the flow would come back here
+    unless ($self->app->session->{local_account_info}) {
+        get_logger->error("Pre-registration completed without creating a local account, the authentication sources of connection profile " . $self->app->profile->getName . " must create local accounts");
+        $self->app->reset_session;
+        return $self->app->error("Your account could not be created. Please contact your network administrator.");
+    }
     captiveportal::DynamicRouting::Module::ShowLocalAccount->new(
         id => "__TMP_ShowLocalAccount_Module__", 
         parent => $self, 
@@ -383,7 +400,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

@@ -4,6 +4,7 @@
 import Vue from 'vue'
 import { computed } from '@vue/composition-api'
 import { types } from '@/store'
+import apiCall from '@/utils/api-perl'
 import api from './_api'
 import { columns as columnsRoutedNetwork } from './config'
 
@@ -40,14 +41,13 @@ const actions = {
   all: ({ commit }) => {
     const params = {
       sort: 'id',
-      fields: columnsRoutedNetwork.map(r => r.key).join(','),
-      limit: 1000
+      fields: columnsRoutedNetwork.map(r => r.key).join(',')
     }
     commit('ROUTED_NETWORK_REQUEST')
-    return api.routedNetworks(params).then(response => {
+    return apiCall.getAll('config/routed_networks', params).then(response => {
       commit('ROUTED_NETWORK_SUCCESS')
-      commit('ROUTED_NETWORKS_REPLACED', response.items)
-      return response.items
+      commit('ROUTED_NETWORKS_REPLACED', response.data.items)
+      return response.data.items
     }).catch((err) => {
       commit('ROUTED_NETWORK_ERROR', err.response)
       throw err

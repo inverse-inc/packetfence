@@ -33,7 +33,6 @@ sub description { 'Huawei AC6605' }
 # importing switch constants
 use pf::Switch::constants;
 use pf::util;
-use pf::util::radius qw(perform_disconnect);
 use pf::accounting qw(node_accounting_current_sessionid);
 
 =head1 SUBROUTINES
@@ -47,6 +46,7 @@ use pf::accounting qw(node_accounting_current_sessionid);
 use pf::SwitchSupports qw(
     WirelessDot1x
     WirelessMacAuth
+    Flow
 );
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
@@ -122,7 +122,7 @@ sub radiusDisconnect {
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
 
-    if (!defined($self->{'_radiusSecret'})) {
+    if (!$self->hasRadiusSecret()) {
         $logger->warn(
             "Unable to perform RADIUS Disconnect-Request on $self->{'_ip'}: RADIUS Shared Secret not configured"
         );
@@ -160,7 +160,7 @@ sub radiusDisconnect {
         $attributes_ref = { %$add_attributes_ref };
         #$attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
-        $response = perform_disconnect($connection_info, $attributes_ref);
+        $response = $self->handleRadiusDisconnect($connection_info, $attributes_ref);
     } catch {
         chomp;
         $logger->warn("Unable to perform RADIUS Disconnect-Request: $_");
@@ -204,7 +204,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

@@ -86,8 +86,9 @@ export const useViewResource = (resource, props, context) => {
   const onReset = () => init().then(() => isModified.value = false)
 
   const onSave = () => {
-    isModified.value = true
-    save()
+    save().then(() => {
+      isModified.value = true
+    }).catch(() => { /* errors surfaced via session.apiErrors + notifications */ })
   }
 
   watch(props, () => init(), { deep: true, immediate: true })

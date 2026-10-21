@@ -23,10 +23,11 @@ BEGIN {
 }
 
 use Test::Deep;
-use Test::More tests => 37;
+use Test::More tests => 41;
 #This test will running last
 use Test::NoWarnings;
 use Socket;
+use File::Temp qw(tempfile);
 
 use pf::constants;
 use_ok("pf::util::dns");
@@ -112,13 +113,26 @@ cmp_deeply(['tcp:80', 'tcp:443'], $ports, "ports for previous test are OK");
 is($match, $TRUE, "wildcard isolation passthrough should match");
 cmp_deeply(['tcp:80', 'tcp:443'], $ports, "ports for previous test are OK");
 
+sub resolv_servers {
+    my ($content) = @_;
+    my ($fh, $file) = tempfile(UNLINK => 1);
+    print $fh $content;
+    close $fh;
+    return pf::util::dns::get_resolv_dns_servers($file);
+}
+
+cmp_deeply(resolv_servers("# Generated\nsearch example.com\nnameserver 10.0.0.53\n  nameserver\t2001:db8::53\n#nameserver 10.0.0.1\n"), ['10.0.0.53', '2001:db8::53'], "IPv4 and IPv6 nameservers of a resolv.conf");
+cmp_deeply(resolv_servers("search example.com\n"), [], "No nameserver in a resolv.conf");
+cmp_deeply(resolv_servers(""), [], "Empty resolv.conf");
+cmp_deeply(pf::util::dns::get_resolv_dns_servers('/nonexistent/resolv.conf'), [], "Missing resolv.conf");
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

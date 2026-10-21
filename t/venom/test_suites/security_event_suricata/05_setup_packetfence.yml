@@ -239,9 +239,10 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
 
-- name: restart_iptables
+- name: reload_iptables_rules
   steps:
-  - type: perl_iptables_restart 
+  - type: pfcmd_reloadiptablesrules
+    extra: hard
 
 - name: restart_pfdns
   steps:

@@ -1,6 +1,7 @@
 import apiCall from '@/utils/api'
 import {intsToStrings} from '@/utils/convert'
-import _ from 'lodash'
+import trim from 'lodash/trim'
+import isEmpty from 'lodash/isEmpty'
 
 export const ldapFormsSupported = ['LDAP', 'AD', 'EDIR']
 
@@ -31,7 +32,7 @@ export const parseLdapResponseToAttributeArray = (ldapResponse, ldapAttribute) =
 }
 
 export const extractAttributeFromFilter = (filter) => {
-  let attribute = _.trim(filter.split('=')[0], '(')
+  let attribute = trim(filter.split('=')[0], '(')
   if (/^memberOf:([0-9.])+$/.test(attribute)) {
     return 'memberOf'
   }
@@ -47,7 +48,7 @@ const getAllAttributes = (server, filter, scope, base_dn, limit) => {
 
 export const isAttributeDn = (server, filter, scope, base_dn) => {
   return getAllAttributes(server, filter, scope, base_dn).then((exampleEntry) => {
-    if(_.isEmpty(exampleEntry)) {
+    if(isEmpty(exampleEntry)) {
       return false
     }
     exampleEntry = exampleEntry[Object.keys(exampleEntry)[0]]
@@ -73,7 +74,7 @@ export const searchDn = (server, filter, scope, base_dn) => {
       if(!Array.isArray(attribute)) attribute = [attribute]
       attribute.forEach((item) => attributeSet.add(item))
     }
-    let regexQuery = new RegExp(_.trim(filter.split('=')[1], ')(*'), "i")
+    let regexQuery = new RegExp(trim(filter.split('=')[1], ')(*'), "i")
     return [[...attributeSet].filter((item) => regexQuery.test(item)), success]
   })
 }

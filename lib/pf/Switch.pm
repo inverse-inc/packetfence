@@ -23,6 +23,7 @@ use pf::log;
 use Try::Tiny;
 use Switch;
 use Template;
+use pf::error qw(is_success);
 
 our $VERSION = 2.10;
 
@@ -56,7 +57,7 @@ use pf::roles::custom $ROLES_API_LEVEL;
 # SNMP constants (several standard-based and vendor-based namespaces)
 use pf::error::switch;
 use pf::util;
-use pf::util::radius qw(perform_disconnect);
+use pf::util::radius qw(perform_disconnect perform_coa perform_rsso);
 use List::MoreUtils qw(any all uniq);
 use List::Util qw(first);
 use Scalar::Util qw(looks_like_number);
@@ -67,7 +68,7 @@ use pf::access_filter::radius;
 use File::Spec::Functions;
 use File::FcntlLock;
 use JSON::MaybeXS;
-use pf::constants::switch qw($DEFAULT_ACL_TEMPLATE);
+use pf::constants::switch qw($DEFAULT_ACL_TEMPLATE $HOST_MODE_SINGLE_HOST $HOST_MODE_MULTI_AUTH);
 use pf::factory::connector;
 use pf::config::cluster qw($cluster_enabled);
 use Cisco::AccessList::Parser;
@@ -95,7 +96,17 @@ use pf::SwitchSupports qw(
      RadiusDynamicVlanAssignment
 );
 use pf::api::queue_cluster;
+use pf::util::wpa;
 use File::Find;
+use Digest::SHA qw(sha512_hex);
+use CHI;
+use pf::dal::switch_observability;
+use pf::dal::switch_observability_acls;
+
+our $cache_switch_observability =  CHI->new(driver => 'RawMemory', datastore => {});
+
+our $OID_lldpLocPortId   = '1.0.8802.1.1.2.1.3.7.1.3'; # from LLDP-MIB
+our $OID_lldpLocPortDesc = '1.0.8802.1.1.2.1.3.7.1.4'; # from LLDP-MIB
 
 #
 # %TRAP_NORMALIZERS
@@ -120,11 +131,14 @@ sub inlineCapabilities { return; }
 
 sub vpnAttributes { return $FALSE; }
 
+sub switchDriverId { 'none' }
+
 sub new {
     my ($class, $argv) = @_;
     my $self = bless {
         '_error'                        => undef,
         '_id'                           => undef,
+        '_switch_id'                    => undef,
         '_macSearchesMaxNb'             => undef,
         '_macSearchesSleepInterval'     => undef,
         '_mode'                         => undef,
@@ -160,14 +174,18 @@ sub new {
         '_wsPwd'                        => undef,
         '_wsUser'                       => undef,
         '_wsTransport'                  => undef,
+        '_wsVerifyCertificate'          => 'disabled',
         '_radiusSecret'                 => undef,
         '_controllerIp'                 => undef,
+        '_controllerPort'               => undef,
         '_disconnectPort'               => undef,
         '_coaPort'                      => undef,
         '_uplink'                       => undef,
         '_vlans'                        => undef,
         '_ExternalPortalEnforcement'    => 'disabled',
         '_VoIPEnabled'                  => undef,
+        '_VoIPFullAuthorization'        => 'disabled',
+        '_host_mode'                    => $HOST_MODE_SINGLE_HOST,
         '_roles'                        => undef,
         '_inlineTrigger'                => undef,
         '_deauthMethod'                 => undef,
@@ -191,6 +209,7 @@ sub new {
         '_networks'                     => undef,
         '_networks_from'                => undef,
         '_interfaces'                   => undef,
+        '_useSNMP'                      => 'enabled',
         map { "_".$_ => $argv->{$_} } keys %$argv,
     }, $class;
     return $self;
@@ -213,6 +232,10 @@ sub isUpLink {
 sub connectRead {
     my $self   = shift;
     my $logger = $self->logger;
+    if (isdisabled($self->{_useSNMP})) {
+        return 0;
+    }
+
     if ( defined( $self->{_sessionRead} ) ) {
         return 1;
     }
@@ -301,7 +324,91 @@ sub cachedSNMPTable {
         return undef;
     }
     $options //= {};
-    return $self->cache_distributed->compute($self->{'_id'} . "-"  . encode_json($args), $options, sub {$self->{_sessionRead}->get_table(@$args)});
+    return $self->cache_distributed->compute($self->cachedSNMPTableKey($args), $options, sub {$self->{_sessionRead}->get_table(@$args)});
+}
+
+=item cachedSNMPTableKey
+
+The key under which cachedSNMPTable stores a table in the distributed cache.
+
+=cut
+
+sub cachedSNMPTableKey {
+    my ($self, $args) = @_;
+    return $self->{'_id'} . "-" . encode_json($args);
+}
+
+=item refreshCachedSNMPTable
+
+Walk an SNMP table and store it in the cache under the key cachedSNMPTable
+uses, whatever the age of the cached entry. Returns true when the walk
+succeeded.
+
+    $self->refreshCachedSNMPTable([-baseoid => '1.3.6.1.2.1.2.2.1.2']);
+
+=cut
+
+sub refreshCachedSNMPTable {
+    my ($self, $args, $options) = @_;
+    return $FALSE if !$self->connectRead();
+    my $result = $self->{_sessionRead}->get_table(@$args);
+    if (!defined $result) {
+        $self->logger->warn(
+            "Unable to walk the SNMP table " . encode_json($args) . " of " . $self->{'_id'} . ": "
+            . ($self->{_sessionRead}->error() || 'unknown error')
+        );
+        return $FALSE;
+    }
+    $self->cache_distributed->set($self->cachedSNMPTableKey($args), $result, $options // {});
+    return $TRUE;
+}
+
+=item ifIndexCacheTables
+
+The SNMP tables, as cachedSNMPTable arguments, that getIfIndexByNasPortId reads
+to translate the NAS-Port-Id of a RADIUS request into an ifIndex. Empty by
+default: the switch_cache_ifindex pfcron task has nothing to refresh on this
+module. A module that walks ifDescr for it returns
+
+    sub ifIndexCacheTables { return ([-baseoid => '1.3.6.1.2.1.2.2.1.2']) }
+
+=cut
+
+sub ifIndexCacheTables {
+    return ();
+}
+
+=item hasCachedIfIndexTables
+
+True when one of the L</ifIndexCacheTables> is in the cache, that is when the
+switch has already translated a NAS-Port-Id.
+
+=cut
+
+sub hasCachedIfIndexTables {
+    my ($self) = @_;
+    my $cache = $self->cache_distributed;
+    return (any { defined $cache->get($self->cachedSNMPTableKey($_)) } $self->ifIndexCacheTables) ? $TRUE : $FALSE;
+}
+
+=item refreshIfIndexCache
+
+Refresh the L</ifIndexCacheTables>, so that a RADIUS request never waits for
+the SNMP walk. Called by the switch_cache_ifindex pfcron task. Returns undef
+when the module has nothing to refresh, true when every table was refreshed,
+false otherwise.
+
+=cut
+
+sub refreshIfIndexCache {
+    my ($self) = @_;
+    my @tables = $self->ifIndexCacheTables;
+    return undef if !@tables;
+    my $ok = $TRUE;
+    foreach my $args (@tables) {
+        $ok = $FALSE if !$self->refreshCachedSNMPTable($args);
+    }
+    return $ok;
 }
 
 =item cachedSNMPRequest
@@ -334,12 +441,12 @@ sub cachedSNMPRequest {
 sub disconnectRead {
     my $self   = shift;
     my $logger = $self->logger;
-    if ( !defined( $self->{_sessionRead} ) ) {
-        return 1;
+    if ( defined( $self->{_sessionRead} ) ) {
+        $logger->debug( "closing SNMP v" . $self->{_SNMPVersion} . " read connection to $self->{_id}" );
+        $self->{_sessionRead}->close;
+        $self->{_sessionRead} = undef;
     }
-    $logger->debug( "closing SNMP v" . $self->{_SNMPVersion} . " read connection to $self->{_id}" );
-    $self->{_sessionRead}->close;
-    $self->{_sessionRead} = undef;
+
     return 1;
 }
 
@@ -353,6 +460,9 @@ It performs a write test to make sure that the write actually works.
 sub connectWriteTo {
     my ($self, $ip, $sessionKey,$port) = @_;
     my $logger = $self->logger;
+    if (isdisabled($self->{_useSNMP})) {
+        return 0;
+    }
 
     # if connection already exists, no need to connect again
     return 1 if ( defined( $self->{$sessionKey} ) );
@@ -727,6 +837,29 @@ sub _parentRoleForVlan {
 }
 
 sub getAccessListByName {
+    my ($self, $access_list_name, $mac, $port) = @_;
+    my ($type, $acls) = $self->_getAccessListByName($access_list_name, $mac);
+    return if !defined $type;
+    my $status = pf::dal::switch_observability_acls->remove_items(
+        -where => {
+            switch_id => $self->{_id},
+            mac => $mac,
+        }
+    );
+    my $dal = pf::dal::switch_observability_acls->new({
+        switch_id => $self->{_id},
+        mac => $mac,
+        port => (defined $port && $port ne '') ? $port : undef,
+        role_id => $access_list_name,
+        acl_type => $type,
+        acls => $acls,
+        enforcement_timestamp => \"NOW()",
+    });
+    $dal->upsert();
+    return $acls;
+}
+
+sub _getAccessListByName {
     my ($self, $access_list_name, $mac) = @_;
     my $logger = $self->logger;
     my $node = node_view($mac);
@@ -734,18 +867,21 @@ sub getAccessListByName {
         my $acls = $node->{bypass_acls};
         chomp($acls) if defined $acls;
         if (defined $acls && $acls ne '') {
-            return $acls;
+            return "asset", $acls;
         }
     }
 
     if (defined($self->{'_access_lists'}->{$access_list_name})) {
         $logger->debug("Using ACL from the switch entry instead of the one defined in the role");
-        return $self->{'_access_lists'}->{$access_list_name};
+        return "role", $self->{'_access_lists'}->{$access_list_name};
     }
 
-    return if !exists $ConfigRoles{$access_list_name};
+    return undef, undef if !exists $ConfigRoles{$access_list_name};
     my $role = $ConfigRoles{$access_list_name};
-    return if !exists $role->{acls};
+    # Skip role ACLs if the toggle is disabled
+    if (exists $role->{acls_enabled} && !isenabled($role->{acls_enabled})) {
+        return undef, undef;
+    }
     my $acls = $role->{acls} // [];
 
     # Change to a check for FB ACL enabled
@@ -754,29 +890,80 @@ sub getAccessListByName {
         $fb_acl = $self->fingerbank_dynamic_acl($mac);
     }
 
-    return $self->acl_chewer(join("\n", @$acls, @$fb_acl), $access_list_name) if @$acls || @$fb_acl;
+    return "role", $self->acl_chewer(join("\n", @$acls, @$fb_acl), $access_list_name) if @$acls || @$fb_acl;
+
+    # No ACLs on this role — walk up to parent_id if defined
+    my $parent_id = $role->{parent_id};
+    if (defined $parent_id && length $parent_id) {
+        return $self->_getAccessListByName($parent_id, $mac);
+    }
 
     # otherwise log and return undef
     $logger->trace("No parameter ${access_list_name}AccessList found in conf/switches.conf for the switch " . $self->{_id});
-    return;
+    return undef, undef;
 }
 
 sub getRoleAccessListByName {
-    my ($self, $access_list_name, $mac) = @_;
+    my ($self, $access_list_name) = @_;
+    # Only the Push ACLs path (generateAnsibleConfiguration) reads the role ACLs
+    # here: tell acl_chewer to format them for the switch configuration.
+    local $self->{_aclsForPush} = 1;
+    my $acls = $self->_getRoleAccessListByName($access_list_name);
+    if (defined $acls) {
+        my $status = pf::dal::switch_observability_acls->remove_items(
+            -where => {
+                switch_id => $self->{_id},
+                role_id => $access_list_name,
+                mac => "",
+            }
+        );
+        my $dal = pf::dal::switch_observability_acls->new({
+            switch_id => $self->{_id},
+            mac => "",
+            port => undef,
+            role_id => $access_list_name,
+            acl_type => 'role',
+            acls => $acls,
+            enforcement_timestamp => \"NOW()",
+        });
+        $dal->upsert();
+    }
+
+    return $acls;
+}
+
+=item aclsForPush
+
+True when acl_chewer formats the role ACLs for the switch configuration
+(Push ACLs, through getRoleAccessListByName) rather than for a RADIUS reply.
+
+=cut
+
+sub aclsForPush {
+    my ($self) = @_;
+    return ($self->usePushACLs && $self->{_aclsForPush}) ? 1 : 0;
+}
+
+sub _getRoleAccessListByName {
+    my ($self, $access_list_name) = @_;
     my $logger = $self->logger;
 
     return if !exists $ConfigRoles{$access_list_name};
     my $role = $ConfigRoles{$access_list_name};
-    return if !exists $role->{acls};
+    # Skip role ACLs if the toggle is disabled
+    if (exists $role->{acls_enabled} && !isenabled($role->{acls_enabled})) {
+        return;
+    }
     my $acls = $role->{acls} // [];
 
-    # Change to a check for FB ACL enabled
-    my $fb_acl = [];
-    if( isenabled($role->{fingerbank_dynamic_access_list})) {
-        $fb_acl = $self->fingerbank_dynamic_acl($mac);
-    }
 
-    return $self->acl_chewer(join("\n", @$acls, @$fb_acl), $access_list_name) if @$acls || @$fb_acl;
+    return $self->acl_chewer(join("\n", @$acls ), $access_list_name) if @$acls;
+
+    # No ACLs on this role — walk up to parent_id if defined
+    my $parent_id = $role->{parent_id};
+    if (defined $parent_id && length $parent_id) {
+        return $self->_getRoleAccessListByName($parent_id);
+    }
 
     # otherwise log and return undef
     $logger->trace("No parameter ${access_list_name}AccessList found in conf/switches.conf for the switch " . $self->{_id});
@@ -1248,6 +1435,101 @@ sub isVoIPEnabled {
     $logger->warn("VoIP is not supported on this network module") if ($self->{_VoIPEnabled} == $TRUE);
 
     return $FALSE;
+}
+
+=item getHostMode
+
+Returns the host mode configured on the switch ports. See
+L<pf::constants::switch> for the possible values.
+
+=cut
+
+sub getHostMode {
+    my ($self) = @_;
+    return $self->{_host_mode} || $HOST_MODE_SINGLE_HOST;
+}
+
+=item isMultiAuthPort
+
+Returns true when the switch ports are in C<multi-auth> host mode, meaning
+several endpoints authenticate independently on the same port and each one owns
+its RADIUS session.
+
+Callers use this to keep per-MAC state instead of per-port state: one open
+locationlog entry per endpoint, and a per-session CoA/Disconnect instead of a
+port bounce.
+
+=cut
+
+sub isMultiAuthPort {
+    my ($self) = @_;
+    return $self->getHostMode() eq $HOST_MODE_MULTI_AUTH;
+}
+
+=item hasRadiusSecret
+
+Returns true when a RADIUS shared secret is configured on the switch, which is
+needed to send it a CoA or Disconnect request.
+
+=cut
+
+sub hasRadiusSecret {
+    my ($self) = @_;
+    return (defined $self->{_radiusSecret} && length $self->{_radiusSecret}) ? 1 : 0;
+}
+
+=item wiredReevaluationDeauthTechnique
+
+Returns the name of the deauthentication technique to use when re-evaluating a
+wired endpoint's access (see L<pf::api/ReAssignVlan>), honouring the host mode.
+
+On a single-host port the switch's configured C<deauthMethod> is passed to
+L</wiredeauthTechniques> as is. On a C<multi-auth> port the SNMP techniques
+(dot1xPortReauthenticate, handleReAssignVlanTrapForWiredMacAuth) bounce the
+port, which would deauthenticate every other endpoint sharing it, so the RADIUS
+technique is requested instead: it issues a CoA/Disconnect scoped to this
+endpoint's session through its Calling-Station-Id.
+
+The switch falls back on its configured method, with a warning since every
+endpoint on the port will be disconnected, when it cannot send that
+CoA/Disconnect: no RADIUS shared secret is configured, or its module has no
+RADIUS technique for the connection type.
+
+  my $technique = $switch->wiredReevaluationDeauthTechnique($connection_type);
+
+Returns undef when the module has no technique at all for the connection type.
+
+=cut
+
+sub wiredReevaluationDeauthTechnique {
+    my ($self, $connection_type) = @_;
+    my $logger = $self->logger;
+
+    my $use_radius = $self->isMultiAuthPort();
+    if ( $use_radius && !$self->hasRadiusSecret() ) {
+        $logger->warn(
+            "switch (".$self->{'_id'}.") is in multi-auth host mode but has no RADIUS shared secret, so it cannot "
+            . "send a per-session CoA/Disconnect. Falling back on its configured deauthentication method, which "
+            . "will disconnect every endpoint on the port."
+        );
+        $use_radius = 0;
+    }
+
+    my $deauthMethod = $use_radius ? $SNMP::RADIUS : $self->{_deauthMethod};
+    my ($method, $technique) = $self->wiredeauthTechniques($deauthMethod, $connection_type);
+
+    # the caller reports it, with the endpoint and the port
+    return if !defined $technique;
+
+    if ( $use_radius && $method ne $SNMP::RADIUS ) {
+        $logger->warn(
+            "switch (".$self->{'_id'}.") is in multi-auth host mode but its module has no RADIUS deauthentication "
+            . "technique for this connection type. Falling back on '$technique', which will disconnect every "
+            . "endpoint on the port."
+        );
+    }
+
+    return $technique;
 }
 
 =item setVlanAllPort - set the port VLAN for all the non-UpLink ports of a switch
@@ -1876,6 +2158,30 @@ sub getRegExpFromList {
     }
     $regexp .= ')[^0-9]*$';
     return $regexp;
+}
+
+=item lldpRemPortIdToMac - returns the MAC address carried by an LLDP port ID
+
+lldpRemPortId is an octet string. Most switches return a MAC port ID as the
+six raw bytes, which Net::SNMP hands over as 0x001122334455. ArubaOS-CX
+returns it as text instead: 00:11:22:33:44:55. Accept both, with colon, dash
+or no separators, and an optional trailing :xx port suffix.
+
+Returns the lowercase colon separated MAC, or undef when the port ID is not a
+MAC address.
+
+=cut
+
+sub lldpRemPortIdToMac {
+    my ($self, $port_id) = @_;
+    return undef if !defined $port_id;
+    my $h = '([0-9A-F]{2})';
+    if ($port_id =~ /^(?:0x)?$h$h$h$h$h$h(?::..)?$/i
+        || $port_id =~ /^$h:$h:$h:$h:$h:$h(?::..)?$/i
+        || $port_id =~ /^$h-$h-$h-$h-$h-$h$/i) {
+        return lc("$1:$2:$3:$4:$5:$6");
+    }
+    return undef;
 }
 
 =item getBitAtPosition - returns the bit at the position specified
@@ -2900,7 +3206,7 @@ sub radiusDisconnect {
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
 
-    if (!defined($self->{'_radiusSecret'})) {
+    if (!$self->hasRadiusSecret()) {
         $logger->warn(
             "Unable to perform RADIUS Disconnect-Request on $self->{'_id'}: RADIUS Shared Secret not configured"
         );
@@ -2926,11 +3232,8 @@ sub radiusDisconnect {
 
     my $response;
     try {
+        # handleRadiusDisconnect sends it to the disconnectPort of the switch
         my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
-
-        if (defined($self->{'_disconnectPort'}) && $self->{'_disconnectPort'} ne '') {
-            $connection_info->{'nas_port'} = $self->{'_disconnectPort'};
-        }
 
         # transforming MAC to the expected format 00-11-22-33-CA-FE
         $mac = uc($mac);
@@ -2945,7 +3248,7 @@ sub radiusDisconnect {
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
-        $response = perform_disconnect($connection_info, $attributes_ref);
+        $response = $self->handleRadiusDisconnect($connection_info, $attributes_ref);
     } catch {
         chomp;
         $logger->warn("Unable to perform RADIUS Disconnect-Request: $_");
@@ -3178,7 +3481,7 @@ sub wiredeauthTechniques {
 
 sub synchronize_locationlog {
     my ( $self, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc) = @_;
-    locationlog_synchronize($self->{_id},$self->{_ip},$self->{_switchMac}, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc);
+    locationlog_synchronize($self->{_id},$self->{_ip},$self->{_switchMac}, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc, $self->{_switch_id}, $self->isMultiAuthPort());
 }
 
 
@@ -3218,6 +3521,9 @@ sub parseRequest {
     my $port            = $radius_request->{'NAS-Port'};
     my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
     my $nas_port_id     = ( defined($radius_request->{'NAS-Port-Id'}) ? $radius_request->{'NAS-Port-Id'} : undef );
+    if (ref($port) eq 'ARRAY') {
+        $port = $port->[0];
+    }
 
     return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, undef, $nas_port_id);
 }
@@ -3368,6 +3674,12 @@ Takes into account the active/active clustering and centralized deauth
 sub deauth_source_ip {
     my ($self,$dst_ip,$using_connector) = @_;
     my $logger = $self->logger();
+    $dst_ip = $self->resolve_deauth_host($dst_ip, $using_connector);
+    unless (defined($dst_ip) && (Net::IP::ip_is_ipv4($dst_ip) || Net::IP::ip_is_ipv6($dst_ip))) {
+        # (no defined-or operator here: the Switch source filter used below doesn't parse it)
+        $logger->warn("No route can be looked up for the deauthentication destination " . (defined($dst_ip) ? $dst_ip : 'undef') . ", using 0.0.0.0");
+        return "0.0.0.0";
+    }
     my $chi = pf::CHI->new(namespace => 'route_int');
     my $int = $chi->compute($dst_ip, sub {
                                          my @interface_src = split(" ", safe_pf_run(qw(sudo ip route get), $dst_ip));
@@ -3445,16 +3757,28 @@ Create a radius session id.
 
 sub setRadiusSession {
     my($self, $args) = @_;
-    my $mac = $args->{'mac'};
-    my $session_id = ( exists($args->{'id_session'}) ? $args->{'id_session'} : generate_session_id(6) );
+    my $session_id;
+    if (exists($args->{'id_session'})) {
+        $session_id = $args->{'id_session'};
+    } else {
+        my $acl_part = $args->{acl} ? join(".", map { ref eq 'ARRAY' ? @$_ : $_ } @{$args->{acl}}) : "";
+        my $stringToHash = join('.', grep { $_ ne "" } ($args->{'switch'}->{'_id'}, $acl_part));
+        $session_id = substr(sha512_hex($stringToHash), 0, 6);
+    }
     my $chi = $self->radius_cache_distributed;
     $chi->set($session_id,{
-        client_mac => $mac,
+        client_mac => (defined $args->{'mac'} ? $args->{'mac'}
+                       : defined $args->{'client_mac'} ? $args->{'client_mac'}
+                       : ''),
         wlan => $args->{'ssid'},
-        switch_id => $args->{'switch'}->{'_id'},
+        switch_id => (
+            defined($args->{'switch'}->{'_id'}) ? $args->{'switch'}->{'_id'}
+            : defined($args->{'switch_id'}) ? $args->{'switch_id'}
+            : ''),
         acl => exists($args->{'acl'}) ? $args->{acl} : (),
         acl_num => exists($args->{'acl_num'}) ? $args->{'acl_num'} : (),
-    });
+        id_session => $session_id,
+    }, { expires_in => 30 });
     return $session_id;
 }
 
@@ -3832,30 +4156,59 @@ Query the switch for lldpLocPortDesc table and cache the result
 
 sub getLldpLocPortDesc {
     my ( $self ) = @_;
-    my $logger = $self->logger;
-
-    # if can't SNMP read abort
-    return if ( !$self->connectRead() );
-
-    my $oid_lldpLocPortDesc = '1.0.8802.1.1.2.1.3.7.1.4'; # from LLDP-MIB
-    $logger->trace("SNMP get_table for lldpLocPortDesc: $oid_lldpLocPortDesc");
-    my $cache = $self->cache_distributed;
-    my $result = $cache->compute($self->{'_id'} . "-" . $oid_lldpLocPortDesc, sub { $self->{_sessionRead}->get_table( -baseoid => $oid_lldpLocPortDesc, -maxrepetitions  => 1 ) } );
     # here's what we are getting here. Looking for the last element of the OID: lldpRemLocalPortNum
     # iso.0.8802.1.1.2.1.3.7.1.4.10 = STRING: "FastEthernet1/0/8"
     # iso.0.8802.1.1.2.1.3.7.1.4.11 = STRING: "FastEthernet1/0/9"
     # iso.0.8802.1.1.2.1.3.7.1.4.12 = STRING: "FastEthernet1/0/10"
     # iso.0.8802.1.1.2.1.3.7.1.4.13 = STRING: "FastEthernet1/0/11"
-    # NOTE: We set the maxrepetitions to '1' to use 'get-next-requests' instead of 'get-bulk-requests' which tend to return empty results if response is to big
+    return $self->_getLldpLocPortTable($OID_lldpLocPortDesc, 'lldpLocPortDesc');
+}
 
-    return $result;
+=item getLldpLocPortId
+
+Query the switch for lldpLocPortId table and cache the result
+
+Some switches fill lldpLocPortDesc with the interface description set by the
+administrator (Arista EOS), so the port name is only found in lldpLocPortId.
+
+=cut
+
+sub getLldpLocPortId {
+    my ( $self ) = @_;
+    # iso.0.8802.1.1.2.1.3.7.1.3.1 = STRING: "Ethernet1"
+    return $self->_getLldpLocPortTable($OID_lldpLocPortId, 'lldpLocPortId');
+}
+
+=item _getLldpLocPortTable
+
+Walk one column of lldpLocPortTable, through the distributed cache
+
+=cut
+
+sub _getLldpLocPortTable {
+    my ( $self, $oid, $name ) = @_;
+    my $logger = $self->logger;
+
+    # if can't SNMP read abort
+    return if ( !$self->connectRead() );
+
+    $logger->trace("SNMP get_table for $name: $oid");
+    # A max-repetitions of 1 makes Net::SNMP walk with get-next requests
+    # instead of get-bulk ones, which tend to return empty results when the
+    # response is too big. SNMPv1 has no get-bulk and Net::SNMP refuses the
+    # argument there, so only pass it for v2c and v3.
+    my @args = ( -baseoid => $oid );
+    push @args, -maxrepetitions => 1 if ( ($self->{_SNMPVersion} // '') ne '1' );
+    my $cache = $self->cache_distributed;
+    return $cache->compute($self->{'_id'} . "-" . $oid, sub { $self->{_sessionRead}->get_table(@args) } );
 }
 
 =item ifIndexToLldpLocalPort
 
 Translate an ifIndex into an LLDP Local Port number.
 
-We use ifDescr to lookup the lldpRemLocalPortNum in the lldpLocPortDesc table.
+We look up the interface ifDescr, then its ifName, first in the
+lldpLocPortId table and then in the lldpLocPortDesc table.
 
 =cut
 
@@ -3866,21 +4219,29 @@ sub ifIndexToLldpLocalPort {
     # if can't SNMP read abort
     return if ( !$self->connectRead() );
 
-    my $ifDescr = $self->getIfDesc($ifIndex);
-    return if (!defined($ifDescr) || $ifDescr eq '');
+    my %seen;
+    my @names = grep { defined($_) && $_ ne '' && !$seen{$_}++ } ($self->getIfDesc($ifIndex), $self->getIfName($ifIndex));
+    return if (!@names);
 
-    # Get lldpLocPortDesc
-    my $oid_lldpLocPortDesc = '1.0.8802.1.1.2.1.3.7.1.4'; # from LLDP-MIB
-    my $result = $self->getLldpLocPortDesc();
-
-    foreach my $entry ( keys %{$result} ) {
-        if ( $result->{$entry} eq $ifDescr ) {
-            if ( $entry =~ /^$oid_lldpLocPortDesc\.([0-9]+)$/ ) {
-                return $1;
+    # The port ID is the interface name on the switches that send one; the
+    # description can be set by the administrator (Arista EOS) and repeat the
+    # name of another port, e.g. an uplink described after its peer port.
+    foreach my $table ([$OID_lldpLocPortId, 'getLldpLocPortId'], [$OID_lldpLocPortDesc, 'getLldpLocPortDesc']) {
+        my ($oid, $getter) = @$table;
+        my $result = $self->$getter() || {};
+        foreach my $name (@names) {
+            my @ports;
+            foreach my $entry ( keys %{$result} ) {
+                next if ( !defined($result->{$entry}) || $result->{$entry} ne $name );
+                push @ports, $1 if ( $entry =~ /^\Q$oid\E\.([0-9]+)$/ );
             }
+            # An administrator description can repeat another port name, so
+            # only trust a match that points at a single port.
+            return $ports[0] if (@ports == 1);
         }
     }
 
+    $logger->debug("No LLDP local port found for ifIndex $ifIndex (" . join(', ', @names) . ")");
     # nothing found
     return;
 }
@@ -3953,7 +4314,7 @@ sub getCiscoAvPairAttribute {
     my $avpair = listify($radius_request->{'Cisco-AVPair'} // []);
     foreach my $ciscoAVPair (@{$avpair}) {
         $logger->trace("Cisco-AVPair: $ciscoAVPair $attr");
-        if ($ciscoAVPair =~ /^\Q$attr\E=(.*)$/ig) {
+        if ($ciscoAVPair =~ /^\Q$attr\E=([\s\S]*)/ig) {
             return $1;
         } else {
             $logger->info("Unable to extract $attr of Cisco-AVPair: $ciscoAVPair");
@@ -4071,11 +4432,72 @@ sub find_user_by_psk {
     return undef;
 }
 
+=head2 resolve_deauth_host
+
+Returns the IPv4 address to use to reach the given deauthentication host.
+IP addresses are returned unchanged.
+A hostname (e.g. a controllerIp configured as a FQDN) is resolved to its first IPv4 address
+by the local resolver. When the local resolver can't resolve it and the deauthentication can
+go through a pfconnector, it is resolved through pfdns-connector (a controller behind a remote
+connector may only be known at the remote site).
+If the hostname cannot be resolved, it is returned unchanged.
+
+=cut
+
+sub resolve_deauth_host {
+    my ($self, $host, $use_connector) = @_;
+    return $host if !defined($host) || $host eq '' || Net::IP::ip_is_ipv4($host) || Net::IP::ip_is_ipv6($host);
+    my (undef, undef, undef, undef, @addresses) = gethostbyname($host);
+    if (@addresses) {
+        my $ip = Socket::inet_ntoa($addresses[0]);
+        $self->logger->debug("Resolved $host to $ip for the deauthentication");
+        return $ip;
+    }
+    if ($use_connector) {
+        require pf::factory::connector;
+        my $ip = pf::factory::connector->resolve($host);
+        if (defined($ip)) {
+            $self->logger->debug("Resolved $host to $ip through pfdns-connector for the deauthentication");
+            return $ip;
+        }
+    }
+    $self->logger->error("Unable to resolve $host to an IP address for the deauthentication");
+    return $host;
+}
+
+=head2 locationlog_for_disconnect
+
+The open locationlog entry of a MAC, or when there's none its last entry
+(history included) if it was on this switch. The locationlog can already be
+closed when the deauthentication runs: the node removal closes it right after
+queueing the deauthentication.
+
+=cut
+
+sub locationlog_for_disconnect {
+    my ($self, $mac) = @_;
+    my $locationlog = locationlog_view_open_mac($mac);
+    return $locationlog if $locationlog;
+    my $last = locationlog_last_entry_mac(clean_mac($mac));
+    return undef unless $last;
+    my %ids = map { $_ => 1 } grep { defined($_) && $_ ne '' } ($self->{_id}, $self->{_ip});
+    foreach my $field (qw(switch switch_ip switch_mac)) {
+        return $last if defined($last->{$field}) && $ids{$last->{$field}};
+    }
+    return undef;
+}
+
 sub radius_deauth_connection_info {
     my ($self, $send_disconnect_to) = @_;
 
+    $send_disconnect_to = $self->resolve_deauth_host($send_disconnect_to, $self->shouldUseConnectorForRadiusDeauth());
+
     my $using_connector = $FALSE;
-    if($self->shouldUseConnectorForRadiusDeauth()) {
+    if($self->shouldUseConnectorForRadiusDeauth() && !(Net::IP::ip_is_ipv4($send_disconnect_to) || Net::IP::ip_is_ipv6($send_disconnect_to))) {
+        # An unresolved hostname can't be matched against the connector networks
+        get_logger->warn("Not using a connector to perform the deauth: $send_disconnect_to is not an IP address");
+    }
+    elsif($self->shouldUseConnectorForRadiusDeauth()) {
         my $connector = pf::factory::connector->for_ip($send_disconnect_to);
         # Skip using the local connector to do deauth if we're in a cluster since pfconnector will not use the VIP
         if($cluster_enabled && $connector->id eq pf::factory::connector->local_connector->id) {
@@ -4092,8 +4514,19 @@ sub radius_deauth_connection_info {
         useConnector => $using_connector,
         nas_ip => $send_disconnect_to,
         secret => $self->{'_radiusSecret'},
-        LocalAddr => $self->deauth_source_ip($send_disconnect_to, $using_connector),
     };
+
+    # When tunneling via pfconnector, the actual UDP peer is a local connector
+    # endpoint (loopback/docker bridge) on a different interface than the route
+    # to the real NAS IP. Binding LocalAddr to the route-to-NAS interface causes
+    # the connected-UDP kernel filter to drop the connector's reply. Let the
+    # kernel pick the source IP for the connector route instead.
+    unless ($using_connector) {
+        # A host that couldn't be resolved was already reported above: don't resolve it again
+        $connection_info->{LocalAddr} = (Net::IP::ip_is_ipv4($send_disconnect_to) || Net::IP::ip_is_ipv6($send_disconnect_to))
+            ? $self->deauth_source_ip($send_disconnect_to, $using_connector)
+            : "0.0.0.0";
+    }
 
     return $connection_info;
 }
@@ -4219,10 +4652,13 @@ sub format_acl {
 
     my $acls = "ip access-list extended packetfence\n";
     my $i = 0;
-    my @direction;
+    my (@direction, @lines);
     while($acl =~ /([^\n]+)\n?/g) {
         my $acl_line = $1;
         next if($acl_line =~ /^remark/i);
+        # The parser ignores blank lines (a lone \r in a CRLF list) and comments:
+        # skip them too, so each parsed ACL keeps its direction
+        next if($acl_line =~ /^\s*$/ || $acl_line =~ /^\s*!/);
         # Lookup for the current ip address of a node
         if ($acl_line =~ /^#.*\shost\s(([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})).*/i) {
             my $mac = $1;
@@ -4233,6 +4669,10 @@ sub format_acl {
                 get_logger->warn("Bypass ACL because no ip lookup available: ".$acl_line);
                 next;
             }
+        }
+        if ($acl_line =~ /^#.*/i) {
+            get_logger->warn("Bypass ACL because it is starting with #: ".$acl_line);
+            next;
         }
         if ($acl_line =~ /^(in\||out\|)(.*)/) {
             my $direction = $1;
@@ -4246,15 +4686,51 @@ sub format_acl {
             } else {
                 next;
             }
+            $lines[$i] = $raw_acl;
         } else {
             $acls .= $acl_line."\n";
             $direction[$i] = "in";
+            $lines[$i] = $acl_line;
         }
         $i++;
     }
     my $p = Cisco::AccessList::Parser->new();
     my ($acl_ref, $objgrp_ref, $err) = $p->parse( 'input' => $acls );
+    # The parser drops some qualifiers of a line, keep the line of each entry
+    # for untranslatableAclQualifier
+    my $entries = $acl_ref->{'packetfence'}->{'entries'} // [];
+    if (@$entries == @lines) {
+        $entries->[$_]->{'acl_line'} = $lines[$_] for 0 .. $#lines;
+    } else {
+        get_logger->error("Cannot parse the ACLs: " . join(' ', map { s/\s+$//r } @{$err // []}));
+    }
     return ($acl_ref, @direction);
+}
+
+=head2 untranslatableAclQualifier
+
+Why a parsed ACL entry cannot be translated whatever the switch, or undef when
+it can.
+
+Cisco::AccessList::Parser reads the dscp, precedence, tos, fragments,
+time-range and option qualifiers of a line without returning them, so the entry
+of "permit ip any any dscp ef" is the one of "permit ip any any". Translating
+it would widen the ACL. An "evaluate" line gives an entry with no action.
+
+=cut
+
+sub untranslatableAclQualifier {
+    my ($self, $entry) = @_;
+    return "the ACL is not a permit or a deny" if ($entry->{'action'} // '') !~ /^(?:permit|deny)$/;
+    return "the '".lc($1)."' qualifier is not sent" if ($entry->{'acl_line'} // '') =~ /\s(dscp|precedence|tos|fragments|time-range|option)(?:\s|$)/i;
+    # The modules tell "any" by the address 0.0.0.0 alone: an address 0.0.0.0 with
+    # another mask (host 0.0.0.0) would be sent as any
+    foreach my $side ('source', 'destination') {
+        my $address = $entry->{$side};
+        next if ref($address) ne 'HASH' || !defined($address->{'ipv4_addr'}) || $address->{'ipv4_addr'} ne '0.0.0.0';
+        return "the $side address 0.0.0.0 is only sent as any" if !defined($address->{'wildcard'}) || $address->{'wildcard'} ne '255.255.255.255';
+    }
+    return undef;
 }
 
 =head2 acl_chewer
@@ -4267,6 +4743,140 @@ sub acl_chewer {
     my ($self, $acl, $role) = @_;
     return $acl;
 }
+
+=head2 filterUntranslatableAcls
+
+Drop the parsed ACL entries a switch module cannot translate without changing
+their meaning, before it formats them.
+
+C<$untranslatable> is called with each entry and returns why the switch format
+cannot express it, or undef. Skipping a permit only narrows the role, so the
+entry is dropped. Skipping a deny would let the entries after it allow what it
+blocks, so the ACLs of that direction are cut there and end with a deny of
+everything.
+
+A direction whose entries were all skipped also gets that deny of everything:
+sending no ACL at all would leave the device unrestricted, while the switch
+denies whatever an ACL does not permit.
+
+The entries L</untranslatableAclQualifier> rejects are handled the same way,
+and ACLs the parser cannot read are replaced by a deny of everything in each
+of their directions.
+
+Returns the entries to translate and their direction, like L</format_acl>.
+
+=cut
+
+sub filterUntranslatableAcls {
+    my ($self, $acl_ref, $direction, $role, $untranslatable) = @_;
+    my $logger = $self->logger;
+
+    my $parsed = $acl_ref->{'packetfence'}->{'entries'} // [];
+    if (@$parsed != @$direction) {
+        my %seen;
+        my @denied = grep { !$seen{$_ // 'in'}++ } @$direction;
+        $logger->warn("(".$self->{'_id'}.") Denying all the traffic of role '$role': its ACLs cannot be parsed, and sending none would leave the device unrestricted");
+        return ([map { _denyAllAclEntry() } @denied], @denied);
+    }
+
+    my (@entries, @entries_direction, %cut, %kept, %skipped);
+    my $i = 0;
+    foreach my $entry (@$parsed) {
+        my $dir = $direction->[$i++];
+        my $dir_key = $dir // 'in';
+        next if $cut{$dir_key};
+        my $reason = $self->untranslatableAclQualifier($entry) // $untranslatable->($entry);
+        if (!defined $reason) {
+            push @entries, $entry;
+            push @entries_direction, $dir;
+            $kept{$dir_key} = 1;
+            next;
+        }
+        if (($entry->{'action'} // '') ne 'deny') {
+            $logger->warn("(".$self->{'_id'}.") Skipping ACL of role '$role': $reason");
+            $skipped{$dir_key} //= $dir;
+            next;
+        }
+        $logger->warn("(".$self->{'_id'}.") Ending the $dir_key ACLs of role '$role' with a deny all: $reason, and skipping a deny would let the ACLs after it through");
+        push @entries, _denyAllAclEntry();
+        push @entries_direction, $dir;
+        $cut{$dir_key} = 1;
+        $kept{$dir_key} = 1;
+    }
+
+    foreach my $dir_key (sort keys %skipped) {
+        next if $kept{$dir_key};
+        $logger->warn("(".$self->{'_id'}.") Denying all the $dir_key traffic of role '$role': none of its $dir_key ACLs can be sent, and sending none would leave the device unrestricted");
+        push @entries, _denyAllAclEntry();
+        push @entries_direction, $skipped{$dir_key};
+    }
+
+    return (\@entries, @entries_direction);
+}
+
+sub _denyAllAclEntry {
+    return {
+        action      => 'deny',
+        protocol    => 'ip()',
+        source      => { ipv4_addr => '0.0.0.0', wildcard => '255.255.255.255' },
+        destination => { ipv4_addr => '0.0.0.0', wildcard => '255.255.255.255' },
+    };
+}
+
+=head2 untranslatableFilterRule
+
+Why a parsed ACL entry cannot be sent as a C<NAS-Filter-Rule> in the
+"action in protocol from source to destination port" form built by the
+modules, or undef when it can. The rule has no source port, TCP flags or ICMP
+type, addresses are sent as a prefix, the destination port is sent as a bare
+number, so only C<eq> keeps its meaning, and the protocol is sent as its
+number, so a protocol without one is refused.
+
+Options: C<ranges> when the module turns C<range> into a port range, C<source>
+when it sends the source address (the others always send "from any").
+
+=cut
+
+sub untranslatableFilterRule {
+    my ($self, $entry, %options) = @_;
+    # The rule takes a protocol number: a protocol the parser returns without one
+    # (nos, an object group) would be sent as ip, any protocol
+    my $protocol = $entry->{'protocol'};
+    return "the protocol has no number" if !defined($protocol) || ref($protocol) || ($protocol ne 'ip()' && $protocol !~ m{\(\d+\)});
+    if ($entry->{'source'}->{'ipv4_addr'} ne '0.0.0.0') {
+        return "the rule has no source address match" if !$options{'source'};
+        return "the source mask '".$entry->{'source'}->{'wildcard'}."' is not contiguous" if !$self->aclWildcardIsContiguous($entry->{'source'}->{'wildcard'});
+    }
+    return "the destination mask '".$entry->{'destination'}->{'wildcard'}."' is not contiguous" if !$self->aclWildcardIsContiguous($entry->{'destination'}->{'wildcard'});
+    return "the rule has no source port match" if defined $entry->{'source'}->{'port'};
+    return "the rule has no TCP flags match ('".$entry->{'tcp_flags'}."')" if defined $entry->{'tcp_flags'};
+    return "the rule has no ICMP type match ('".$entry->{'icmp_qualifier'}."')" if defined $entry->{'icmp_qualifier'};
+    my $port = $entry->{'destination'}->{'port'};
+    if (defined $port && $port !~ /^eq\s+\S+$/ && !($options{'ranges'} && $port =~ /^range\s+\S+\s+\S+$/)) {
+        return "the port operator '$port' cannot be represented";
+    }
+    return undef;
+}
+
+=head2 aclWildcardIsContiguous
+
+Whether an ACL mask, wildcard (0.0.0.255) or netmask (255.255.255.0), has a
+prefix length. A non contiguous mask such as 0.255.0.255 cannot be written as
+a prefix.
+
+=cut
+
+sub aclWildcardIsContiguous {
+    my ($self, $wildcard) = @_;
+    return 1 if !defined $wildcard;
+    my @octets = split(/\./, $wildcard);
+    return 0 if @octets != 4 || grep { !/^\d+$/ || $_ > 255 } @octets;
+    my $bits = unpack('N', pack('C4', @octets));
+    my $inverse = ~$bits & 0xFFFFFFFF;
+    # a wildcard is a run of low bits, a netmask a run of high bits
+    return ((($bits + 1) & $bits) == 0 || (($inverse + 1) & $inverse) == 0) ? 1 : 0;
+}
+
 
 =head2 returnAccessListAttribute
 
@@ -4325,6 +4935,7 @@ sub compute_action {
     $$args->{'compute_acl'} = (exists($$args->{'compute_acl'}) ? $$args->{'compute_acl'} : $TRUE );
     $$args->{'compute_url'} = (exists($$args->{'compute_url'}) ? $$args->{'compute_url'} : $TRUE );
     $$args->{'compute_vpn'} = (exists($$args->{'compute_vpn'}) ? $$args->{'compute_vpn'} : $TRUE );
+    $$args->{'compute_dpsk'} = (exists($$args->{'compute_dpsk'}) ? $$args->{'compute_dpsk'} : $TRUE );
 }
 
 =head2
@@ -4370,6 +4981,7 @@ sub generateAnsibleConfiguration {
             case /Cisco::Cisco_WLC_AireOS/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "aireos" }
             case /Cisco::/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "cisco.ios.ios" }
             case /Aruba::CX/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "arubanetworks.aoscx.aoscx" }
+            case /Arista::AristaSwitch/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "arista.eos.eos" }
     }
 
     foreach my $role (keys %ConfigRoles) {
@@ -4479,6 +5091,165 @@ sub populateAccessPointMACIP {
     return $FALSE;
 }
 
+sub iterate_user_by_psk {
+    my ($self, $args, $radius_request, $ssid, $bssid, $username, $anonce, $snonce, $eapol_key_frame, $cache_key) = @_;
+    my $pid;
+    my $cache = $self->cache;
+    # Try first the pid of the mac address
+    if (exists $args->{'owner'} && $args->{'owner'}->{'pid'} ne "" && exists $args->{'owner'}->{'psk'} && defined $args->{'owner'}->{'psk'} && $args->{'owner'}->{'psk'} ne "") {
+        if (check_if_radius_request_psk_matches($cache, $radius_request, $args->{'owner'}->{'psk'}, $ssid, $bssid, $username, $anonce, $snonce, $eapol_key_frame, $cache_key)) {
+            get_logger->info("PSK matches the pid associated with the mac ".$args->{'owner'}->{'pid'});
+            return $args->{'owner'}->{'pid'};
+        }
+    }
+
+    my ($status, $iter) = pf::dal::person->search(
+        -where => {
+            psk => {'!=' => [-and => '', undef]},
+        },
+        -columns => [qw(pid psk)],
+        -no_default_join => 1,
+    );
+
+    while (my $person = $iter->next) {
+        get_logger->debug("User ".$person->{pid}." has a PSK. Checking if it matches the one in the packet");
+        if (check_if_radius_request_psk_matches($cache, $radius_request, $person->{psk}, $ssid, $bssid, $username, $anonce, $snonce, $eapol_key_frame, $cache_key)) {
+            get_logger->info("PSK matches the one of ".$person->{pid});
+            $pid = $person->{pid};
+            last;
+        }
+    }
+    return $pid;
+}
+
+sub check_if_radius_request_psk_matches {
+    my ($cache, $radius_request, $psk, $ssid, $bssid, $username, $anonce, $snonce, $eapol_key_frame, $cache_key) = @_;
+
+    my $pmk = $cache->compute(
+        $cache_key."$ssid+$psk",
+        {expires_in => '1 month', expires_variance => '.20'},
+        sub { pf::util::wpa::calculate_pmk($ssid, $psk) },
+    );
+
+    return pf::util::wpa::match_mic(
+      pf::util::wpa::calculate_ptk(
+        $pmk,
+        $bssid,
+        $username,
+        $anonce,
+        $snonce,
+      ),
+      $eapol_key_frame,
+    );
+}
+
+# Same statement as go/db/switch_observability.go MarkSwitchAsSeen: a plain
+# upsert (no CTE, no VALUES()) so it runs on both MariaDB and MySQL, with the
+# same rows semantics: 1 = inserted, 2 = refreshed, 0 = row exists and is
+# still fresh (left untouched).
+my $sql_mark_as_seen = <<"SQL";
+INSERT INTO switch_observability (switch_id, visibility_timestamp)
+VALUES (?, NOW())
+ON DUPLICATE KEY UPDATE visibility_timestamp = IF(
+    visibility_timestamp IS NULL OR visibility_timestamp < DATE_SUB(NOW(), INTERVAL ? MINUTE),
+    NOW(),
+    visibility_timestamp
+);
+SQL
+
+sub mark_as_seen {
+    my ($self) = @_;
+    my $id = $self->{_id};
+    my %options = (expires_in => '1m');
+    $cache_switch_observability->compute(
+        $id,
+        \%options,
+        sub {
+            my ($status, $sth, $info) = pf::dal::switch_observability->db_execute(
+                    $sql_mark_as_seen,
+                    $id,
+                    1,
+            );
+
+            if (!is_success($status)) {
+                return undef;
+            }
+
+            if (!$sth->rows) {
+                $options{expires_in} = '30s';
+            }
+
+            return 1;
+        }
+    );
+}
+
+
+=item handleRadiusDisconnect
+
+Wrapper around perform_disconnect to allow subclasses to intercept and modify the response.
+
+=cut
+
+sub handleRadiusDisconnect {
+    my ($self, $connection_info, $attributes_ref, $vsa) = @_;
+    $self->_setDynauthPort($connection_info, '_disconnectPort');
+    my $response = perform_disconnect($connection_info, $attributes_ref, $vsa);
+    return $self->_handleRadiusResponse($response);
+}
+
+=item handleRadiusCoa
+
+Wrapper around perform_coa to allow subclasses to intercept and modify the response.
+
+=cut
+
+sub handleRadiusCoa {
+    my ($self, $connection_info, $attributes_ref, $vsa) = @_;
+    $self->_setDynauthPort($connection_info, '_coaPort');
+    my $response = perform_coa($connection_info, $attributes_ref, $vsa);
+    return $self->_handleRadiusResponse($response);
+}
+
+=item _setDynauthPort
+
+Send the request to the port configured on the switch entry (disconnectPort or
+coaPort) unless the module already chose one. Without it, perform_dynauth falls
+back to 3799 and the configured port is ignored.
+
+=cut
+
+sub _setDynauthPort {
+    my ($self, $connection_info, $port_param) = @_;
+    return if defined($connection_info->{'nas_port'}) && $connection_info->{'nas_port'} ne '';
+    my $port = $self->{$port_param};
+    $connection_info->{'nas_port'} = $port if defined($port) && $port ne '';
+}
+
+=item handleRadiusRsso
+
+Wrapper around perform_rsso to allow subclasses to intercept and modify the response.
+
+=cut
+
+sub handleRadiusRsso {
+    my ($self, $connection_info, $attributes_ref, $vsa) = @_;
+    my $response = perform_rsso($connection_info, $attributes_ref, $vsa);
+    return $self->_handleRadiusResponse($response);
+}
+
+=item _handleRadiusResponse
+
+Common handler for RADIUS dynauth responses. Override in subclasses to wrap or modify the response.
+
+=cut
+
+sub _handleRadiusResponse {
+    my ($self, $response) = @_;
+    $self->mark_as_seen();
+    return $response;
+}
+
 =back
 
 =head1 AUTHOR
@@ -4487,7 +5258,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

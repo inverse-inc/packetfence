@@ -11,6 +11,279 @@ const RADIUS_SAMPLE = `[["Accept",{"User-Name":{"type":"string","value":"a0:00:0
 
 const RADIUS_ENTRY = `["Accept",{"User-Name":{"type":"string","value":"a0:00:00:00:00:01"},"User-Password":{"type":"string","value":"******"},"NAS-IP-Address":{"type":"ipaddr","value":"192.168.8.1"},"NAS-Port":{"type":"integer","value":1},"Service-Type":{"type":"integer","value":"Call-Check"},"Called-Station-Id":{"type":"string","value":"03:00:00:00:00:01"},"Calling-Station-Id":{"type":"string","value":"a1:00:00:00:00:01"},"NAS-Port-Type":{"type":"integer","value":"Wireless-802.11"},"Event-Timestamp":{"type":"date","value":"May 24 2023 14:50:28 UTC"},"Stripped-User-Name":{"type":"string","value":"a0:00:00:00:00:01"},"Realm":{"type":"string","value":"null"},"FreeRADIUS-Client-IP-Address":{"type":"ipaddr","value":"172.105.101.170"},"PacketFence-KeyBalanced":{"type":"string","value":"16d01a2b08829d827b5be1abae145f0a"},"PacketFence-Radius-Ip":{"type":"string","value":"172.105.101.170"}},{"REST-HTTP-Status-Code":{"type":"integer","value":200},"Tunnel-Private-Group-Id":{"type":"string","value":"2"},"Tunnel-Medium-Type":{"type":"integer","value":"IEEE-802"},"Tunnel-Type":{"type":"integer","value":"VLAN"}},{"PacketFence-Switch-Id":{"type":"string","value":"192.168.8.1"},"PacketFence-Switch-Mac":{"type":"string","value":"03:00:00:00:00:01"},"PacketFence-Switch-Ip-Address":{"type":"string","value":"192.168.8.1"},"PacketFence-IfIndex":{"type":"string","value":"1"},"PacketFence-Connection-Type":{"type":"string","value":"Wireless-802.11-NoEAP"},"Auth-Type":{"type":"integer","value":"Accept"},"PacketFence-Role":{"type":"string","value":"registration"},"PacketFence-Status":{"type":"string","value":"unreg"},"PacketFence-Profile":{"type":"string","value":"default"},"PacketFence-AutoReg":{"type":"string","value":"0"},"PacketFence-IsPhone":{"type":"string","value":""},"PacketFence-Request-Time":{"type":"integer","value":0}}]`
 
+const RADIUS_SAMPLE_TLS = `
+[
+  [
+    "Accept",
+    {
+      "User-Name": {
+        "type": "string",
+        "value": "a0:00:00:00:00:01"
+      },
+      "User-Password": {
+        "type": "string",
+        "value": "******"
+      },
+      "NAS-IP-Address": {
+        "type": "ipaddr",
+        "value": "192.168.8.1"
+      },
+      "NAS-Port": {
+        "type": "integer",
+        "value": 1
+      },
+      "Service-Type": {
+        "type": "integer",
+        "value": "Call-Check"
+      },
+      "Called-Station-Id": {
+        "type": "string",
+        "value": "03:00:00:00:00:01"
+      },
+      "Calling-Station-Id": {
+        "type": "string",
+        "value": "a1:00:00:00:00:01"
+      },
+      "NAS-Port-Type": {
+        "type": "integer",
+        "value": "Wireless-802.11"
+      },
+      "Event-Timestamp": {
+        "type": "date",
+        "value": "May 24 2023 14:50:28 UTC"
+      },
+      "Stripped-User-Name": {
+        "type": "string",
+        "value": "a0:00:00:00:00:01"
+      },
+      "Realm": {
+        "type": "string",
+        "value": "null"
+      },
+      "FreeRADIUS-Client-IP-Address": {
+        "type": "ipaddr",
+        "value": "172.105.101.170"
+      },
+      "PacketFence-KeyBalanced": {
+        "type": "string",
+        "value": "16d01a2b08829d827b5be1abae145f0a"
+      },
+      "PacketFence-Radius-Ip": {
+        "type": "string",
+        "value": "172.105.101.170"
+      },
+      "TLS-Client-Cert-Common-Name": {
+        "type": "string",
+        "value": "bob"
+      }
+    },
+    {
+      "REST-HTTP-Status-Code": {
+        "type": "integer",
+        "value": 200
+      },
+      "Tunnel-Private-Group-Id": {
+        "type": "string",
+        "value": "2"
+      },
+      "Tunnel-Medium-Type": {
+        "type": "integer",
+        "value": "IEEE-802"
+      },
+      "Tunnel-Type": {
+        "type": "integer",
+        "value": "VLAN"
+      }
+    },
+    {
+      "PacketFence-Switch-Id": {
+        "type": "string",
+        "value": "192.168.8.1"
+      },
+      "PacketFence-Switch-Mac": {
+        "type": "string",
+        "value": "03:00:00:00:00:01"
+      },
+      "PacketFence-Switch-Ip-Address": {
+        "type": "string",
+        "value": "192.168.8.1"
+      },
+      "PacketFence-IfIndex": {
+        "type": "string",
+        "value": "1"
+      },
+      "PacketFence-Connection-Type": {
+        "type": "string",
+        "value": "Wireless-802.11-NoEAP"
+      },
+      "Auth-Type": {
+        "type": "integer",
+        "value": "Accept"
+      },
+      "PacketFence-Role": {
+        "type": "string",
+        "value": "registration"
+      },
+      "PacketFence-Status": {
+        "type": "string",
+        "value": "unreg"
+      },
+      "PacketFence-Profile": {
+        "type": "string",
+        "value": "default"
+      },
+      "PacketFence-AutoReg": {
+        "type": "string",
+        "value": "0"
+      },
+      "PacketFence-IsPhone": {
+        "type": "string",
+        "value": ""
+      },
+      "PacketFence-Request-Time": {
+        "type": "integer",
+        "value": 0
+      }
+    }
+  ]
+]
+`
+
+const RADIUS_ENTRY_TLS = `
+[
+  "Accept",
+  {
+    "User-Name": {
+      "type": "string",
+      "value": "a0:00:00:00:00:01"
+    },
+    "User-Password": {
+      "type": "string",
+      "value": "******"
+    },
+    "NAS-IP-Address": {
+      "type": "ipaddr",
+      "value": "192.168.8.1"
+    },
+    "NAS-Port": {
+      "type": "integer",
+      "value": 1
+    },
+    "Service-Type": {
+      "type": "integer",
+      "value": "Call-Check"
+    },
+    "Called-Station-Id": {
+      "type": "string",
+      "value": "03:00:00:00:00:01"
+    },
+    "Calling-Station-Id": {
+      "type": "string",
+      "value": "a1:00:00:00:00:01"
+    },
+    "NAS-Port-Type": {
+      "type": "integer",
+      "value": "Wireless-802.11"
+    },
+    "Event-Timestamp": {
+      "type": "date",
+      "value": "May 24 2023 14:50:28 UTC"
+    },
+    "Stripped-User-Name": {
+      "type": "string",
+      "value": "a0:00:00:00:00:01"
+    },
+    "Realm": {
+      "type": "string",
+      "value": "null"
+    },
+    "FreeRADIUS-Client-IP-Address": {
+      "type": "ipaddr",
+      "value": "172.105.101.170"
+    },
+    "PacketFence-KeyBalanced": {
+      "type": "string",
+      "value": "16d01a2b08829d827b5be1abae145f0a"
+    },
+    "PacketFence-Radius-Ip": {
+      "type": "string",
+      "value": "172.105.101.170"
+    },
+    "TLS-Client-Cert-Common-Name": {
+      "type": "string",
+      "value": "bob"
+    }
+  },
+  {
+    "REST-HTTP-Status-Code": {
+      "type": "integer",
+      "value": 200
+    },
+    "Tunnel-Private-Group-Id": {
+      "type": "string",
+      "value": "2"
+    },
+    "Tunnel-Medium-Type": {
+      "type": "integer",
+      "value": "IEEE-802"
+    },
+    "Tunnel-Type": {
+      "type": "integer",
+      "value": "VLAN"
+    }
+  },
+  {
+    "PacketFence-Switch-Id": {
+      "type": "string",
+      "value": "192.168.8.1"
+    },
+    "PacketFence-Switch-Mac": {
+      "type": "string",
+      "value": "03:00:00:00:00:01"
+    },
+    "PacketFence-Switch-Ip-Address": {
+      "type": "string",
+      "value": "192.168.8.1"
+    },
+    "PacketFence-IfIndex": {
+      "type": "string",
+      "value": "1"
+    },
+    "PacketFence-Connection-Type": {
+      "type": "string",
+      "value": "Wireless-802.11-NoEAP"
+    },
+    "Auth-Type": {
+      "type": "integer",
+      "value": "Accept"
+    },
+    "PacketFence-Role": {
+      "type": "string",
+      "value": "registration"
+    },
+    "PacketFence-Status": {
+      "type": "string",
+      "value": "unreg"
+    },
+    "PacketFence-Profile": {
+      "type": "string",
+      "value": "default"
+    },
+    "PacketFence-AutoReg": {
+      "type": "string",
+      "value": "0"
+    },
+    "PacketFence-IsPhone": {
+      "type": "string",
+      "value": ""
+    },
+    "PacketFence-Request-Time": {
+      "type": "integer",
+      "value": 0
+    }
+  }
+]
+`
 const RADIUS_ENTRY_BAD = `["Accept",{"User-Name
 ":{"type":"string","value":"a0:00:00:00:00:01"},"User-Password":{"type":"string","value":"******"},"NAS-IP-Address":{"type":"ipaddr","value":"192.168.8.1"},"NAS-Port":{"type":"integer","value":1},"Service-Type":{"type":"integer","value":"Call-Check"},"Called-Station-Id":{"type":"string","value":"03:00:00:00:00:01"},"Calling-Station-Id":{"type":"string","value":"a1:00:00:00:00:01"},"NAS-Port-Type":{"type":"integer","value":"Wireless-802.11"},"Event-Timestamp":{"type":"date","value":"May 24 2023 14:50:28 UTC"},"Stripped-User-Name":{"type":"string","value":"a0:00:00:00:00:01"},"Realm":{"type":"string","value":"null"},"FreeRADIUS-Client-IP-Address":{"type":"ipaddr","value":"172.105.101.170"},"PacketFence-KeyBalanced":{"type":"string","value":"16d01a2b08829d827b5be1abae145f0a"},"PacketFence-Radius-Ip":{"type":"string","value":"172.105.101.170"}},{"REST-HTTP-Status-Code":{"type":"integer","value":200},"Tunnel-Private-Group-Id":{"type":"string","value":"2"},"Tunnel-Medium-Type":{"type":"integer","value":"IEEE-802"},"Tunnel-Type":{"type":"integer","value":"VLAN"}},{"PacketFence-Switch-Id":{"type":"string","value":"192.168.8.1"},"PacketFence-Switch-Mac":{"type":"string","value":"03:00:00:00:00:01"},"PacketFence-Switch-Ip-Address":{"type":"string","value":"192.168.8.1"},"PacketFence-IfIndex":{"type":"string","value":"1"},"PacketFence-Connection-Type":{"type":"string","value":"Wireless-802.11-NoEAP"},"Auth-Type":{"type":"integer","value":"Accept"},"PacketFence-Role":{"type":"string","value":"registration"},"PacketFence-Status":{"type":"string","value":"unreg"},"PacketFence-Profile":{"type":"string","value":"default"},"PacketFence-AutoReg":{"type":"string","value":"0"},"PacketFence-IsPhone":{"type":"string","value":""},"PacketFence-Request-Time":{"type":"integer","value":0}}]`
 
@@ -105,6 +378,74 @@ func TestFlushRadiusAuditLogFromRedis(t *testing.T) {
 
 	if count != 2 {
 		t.Fatalf("Flush count logs expect %d, got %d", 2, count)
+	}
+}
+
+func TestFlushRadiusAuditLogWithTLSFromRedis(t *testing.T) {
+	var entries [][]interface{} = make([][]interface{}, 1)
+	json.Unmarshal([]byte(RADIUS_SAMPLE_TLS), &entries)
+	job := NewFlushRadiusAuditLogJob(map[string]interface{}{
+		"batch":       100.0,
+		"type":        "flush_radius_audit_log_job",
+		"status":      "enabled",
+		"description": "Test",
+		"schedule":    "@every 1m",
+		"timeout":     1.0,
+		"local":       "enabled",
+	})
+	ctx := context.Background()
+
+	j := job.(*FlushRadiusAuditLogJob)
+	db, err := getDb()
+	if err != nil {
+		t.Fatalf("No database %s", err.Error())
+	}
+	redis := getRedisClient()
+	redis.Del(ctx, "RADIUS_AUDIT_LOG")
+	redis.LPush(ctx, "RADIUS_AUDIT_LOG", RADIUS_ENTRY_TLS, base64.StdEncoding.EncodeToString([]byte(RADIUS_ENTRY_TLS)))
+
+	res, err := db.Exec("DELETE FROM radius_audit_log;")
+	if err != nil {
+		t.Fatalf("Delete from %s", err.Error())
+	}
+	_ = res
+
+	res, err = db.Exec("DELETE FROM node_tls;")
+	if err != nil {
+		t.Fatalf("Delete from %s", err.Error())
+	}
+	_ = res
+
+	j.Run()
+
+	row := db.QueryRow("SELECT COUNT(id) FROM radius_audit_log;")
+	if err := row.Err(); err != nil {
+		t.Fatalf("Delete from %s", err.Error())
+	}
+
+	count := 0
+	err = row.Scan(&count)
+	if err != nil {
+		t.Fatalf("Cannot flush logs %s", err.Error())
+	}
+
+	if count != 1 {
+		t.Fatalf("Flush count logs expect %d, got %d", 1, count)
+	}
+
+	row = db.QueryRow("SELECT COUNT(*) FROM node_tls;")
+	if err := row.Err(); err != nil {
+		t.Fatalf("Delete from %s", err.Error())
+	}
+
+	count = 0
+	err = row.Scan(&count)
+	if err != nil {
+		t.Fatalf("Cannot flush logs %s", err.Error())
+	}
+
+	if count != 1 {
+		t.Fatalf("Flush count logs expect %d, got %d", 1, count)
 	}
 }
 
@@ -340,4 +681,29 @@ func TestToRequest(t *testing.T) {
 		t.Fatalf("Expected \n'%s'\nGot\n'%s'\n", REQUEST_EXPECTED, request)
 	}
 
+}
+
+func TestFlushRadiusAuditLogUserName(t *testing.T) {
+	j := &FlushRadiusAuditLogJob{}
+	entryWith := func(packetfenceUserName string) []interface{} {
+		var entry []interface{}
+		if err := json.Unmarshal([]byte(RADIUS_ENTRY), &entry); err != nil {
+			t.Fatalf("Cannot parse the entry: %s", err.Error())
+		}
+		if packetfenceUserName != "" {
+			control := entry[3].(map[string]interface{})
+			control["PacketFence-UserName"] = map[string]interface{}{"type": "string", "value": packetfenceUserName}
+		}
+		return entry
+	}
+
+	// EAP-TLS with an anonymous outer identity: PacketFence used the identity of the certificate (#6115)
+	if userName := j.argsFromEntry(entryWith("testuser-tls"))[3]; userName != "testuser-tls" {
+		t.Errorf("user_name is %v, expected the PacketFence user name testuser-tls", userName)
+	}
+
+	// No PacketFence user name (reject, no response): the User-Name of the request
+	if userName := j.argsFromEntry(entryWith(""))[3]; userName != "a0:00:00:00:00:01" {
+		t.Errorf("user_name is %v, expected the User-Name of the request", userName)
+	}
 }

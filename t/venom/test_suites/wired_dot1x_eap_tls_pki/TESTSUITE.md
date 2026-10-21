@@ -6,6 +6,9 @@ N/A
 ### Global config steps
 
 ## Scenario steps
+1. Enable node_cleanup task with following parameters:
+- delete_windows=1m
+1. Restart `pfcron` to take change into account
 1. Create Root CA
 1. Create RADIUS server certificate template
 1. Create Web server certificate template
@@ -31,29 +34,23 @@ N/A
    - ca_cert: /etc/wpa_supplicant/eap_tls/ca.pem
    - client_cert: /etc/wpa_supplicant/eap_tls/client.pem
    - private_key: /etc/wpa_supplicant/eap_tls/client.key
-1. Start wpa_supplicant *on* node01 with eap_tls configuration
+1. Start eapol_test on host with eap_tls configuration
 1. Check RADIUS audit log for node01
+1. Check eapol_test log
+1. Create accounting
 1. Check node status for node01
-1. Check VLAN assigned to node01 *on* switch01
-1. Check Internet access *on* node01
+1. Check if node is online
 
 ## Teardown steps
-1. Kill wpa_supplicant: an accounting stop will be generated if we wait
-   EAP-TIMEOUT on the switch (not the case here due to next task). Access is
-   still working until we run next task.
-1. Unconfigure switch port and dynamic VLAN on switch01
-   1. Generate a RADIUS Accounting stop message (sent by switch01) which update
-      `last_seen` attribute of node01 and unreg device based on
-      `unreg_on_accounting_stop`
-   1. Don't send a RADIUS Disconnect message
-1. Check online status of node01: should be offline due to accounting stop
-1. Check node status for node01
+1. Stop accounting
+1. Check if node01 is offline
+1. Check unregistered node
 1. Wait `delete_windows` + 10 seconds before running `node_cleanup` task
 1. Delete node by running `pfcron's node_cleanup` task
 1. Check node has been deleted
-1. Release IP on node01's interface
 1. Disable `node_cleanup` task
 1. Restart `pfcron` to take change into account
+1. Clean PKI tables
 1. Delete connection profile, source, OCSP profile and configuration
 1. Restart RADIUS services
 

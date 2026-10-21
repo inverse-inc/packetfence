@@ -61,7 +61,48 @@ export default [
             cols: 12
           }
         ]
-      }
+      },
+      {
+        name: 'ProxySQL', // i18n defer
+        items: [
+          {
+            title: 'Client Connections', // i18n defer
+            metric: 'proxysql.client_connections_count',
+            library: libraries.DYGRAPH,
+            cols: 6
+          },
+          {
+            title: 'Client Statements', // i18n defer
+            metric: ' proxysql.client_statements_rate',
+            library: libraries.DYGRAPH,
+            cols: 6
+          },
+          {
+            title: 'Traffic Backend', // i18n defer
+            metric: 'proxysql.backends_traffic',
+            library: libraries.DYGRAPH,
+            cols: 6
+          },
+          {
+            title: 'Traffic Clients', // i18n defer
+            metric: 'proxysql.clients_traffic',
+            library: libraries.DYGRAPH,
+            cols: 6
+          },
+          {
+            title: 'Memory', // i18n defer
+            metric: 'proxysql.memory_used',
+            library: libraries.DYGRAPH,
+            cols: 6
+          },
+          {
+            title: 'Latency', // i18n defer
+            metric: 'proxysql.backend_latency',
+            library: libraries.DYGRAPH,
+            cols: 6
+          }
+        ]
+      },
     ]
   }
 ]

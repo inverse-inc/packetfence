@@ -55,6 +55,15 @@ has_field 'sp_cert_path_upload' => (
    upload_namespace => 'sources',
 );
 
+has_field 'send_acs_url' => (
+   type => 'Toggle',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'disabled',
+   tags => { after_element => \&help,
+             help => 'Send the Assertion Consumer Service URL of this server in the authentication request, so one Identity Provider application can serve several PacketFence servers. The Identity Provider must have this exact URL registered as a reply URL for each server or cluster.' },
+);
+
 has_field 'idp_entity_id' =>
   (
    type => 'Text',
@@ -142,7 +151,7 @@ sub options_sources {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

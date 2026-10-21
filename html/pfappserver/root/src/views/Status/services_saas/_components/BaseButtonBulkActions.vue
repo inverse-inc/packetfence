@@ -4,7 +4,7 @@
     <template #button-content>
       <slot name="default">{{ $i18n.t('{num} selected', { num: selectedItems.length }) }}</slot>
     </template>
-    <b-dropdown-item @click="doRestart" @click.stop="onClick" :disabled="isLoading"><icon name="redo" class="mr-1" /> {{ $i18n.t('Restart All') }}</b-dropdown-item>
+    <b-dropdown-item @click="doRestart" @click.stop="onClick" :disabled="isLoading || isAnySelectedRestarting"><icon name="redo" class="mr-1" /> {{ $i18n.t('Restart All') }}</b-dropdown-item>
   </b-dropdown>
 </template>
 <script>
@@ -37,6 +37,10 @@ const setup = (props, context) => {
   const { root: { $store } = {} } = context
 
   const isLoading = computed(() => $store.getters['k8s/isLoading'])
+  const restarting = computed(() => $store.state.k8s.restarting)
+  const isAnySelectedRestarting = computed(() =>
+    selectedItems.value.some(({ service }) => !!restarting.value[service])
+  )
   const services = computed(() => $store.state.k8s.services)
 
   const doRestart = () => {
@@ -51,6 +55,7 @@ const setup = (props, context) => {
     buttonRef,
     onClick,
     isLoading,
+    isAnySelectedRestarting,
     services,
     doRestart,
   }

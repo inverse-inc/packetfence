@@ -1,6 +1,31 @@
 /// _objects.aup.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
 
 .o-aup {
-    max-height: 50vh;
-    overflow-y: auto;
+  max-height: 50vh;
+  overflow-y: auto;
+
+  // ── Scrollbar theming ──────────────────────────────────────────────────────
+  // Standard (Firefox, Chrome 121+): thin bar, thumb = divider color,
+  // track = card background — automatically adapts with the CSS vars.
+  scrollbar-width: thin;
+  scrollbar-color: var(--pf-divider-color) var(--pf-card-background-color);
+
+  // WebKit (Safari, older Chrome/Edge)
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--pf-card-background-color);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--pf-divider-color);
+    border-radius: 3px;
+
+    &:hover {
+      background-color: var(--pf-text-base-color);
+    }
+  }
 }

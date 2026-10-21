@@ -20,6 +20,12 @@ DEPLOY_USER=${DEPLOY_USER:-reposync}
 DEPLOY_HOST=${DEPLOY_HOST:-web.inverse.ca}
 DEPLOY_PORT=${DEPLOY_PORT:-444}
 
+SSH_DEPLOY_CONFIG=${SSH_DEPLOY_CONFIG:-/etc/ssh/ssh_deploy_config}
+SSH_OPTS="-F ${SSH_DEPLOY_CONFIG}"
+if [ ! -f "${SSH_DEPLOY_CONFIG}" ]; then
+    SSH_OPTS="-p ${DEPLOY_PORT}"
+fi
+
 PUBLIC_REPO_BASE_DIR=${PUBLIC_REPO_BASE_DIR:-/var/www/inverse.ca/downloads/PacketFence}
 
 # CI
@@ -57,7 +63,7 @@ rpm_deploy() {
         # repodata dir will be created by createrepo command
         mkdir_cmd="$DEPLOY_USER@$DEPLOY_HOST mkdir -p $rpm_dir"
 	echo "running following command (on port $DEPLOY_PORT): $mkdir_cmd"
-        ssh -p $DEPLOY_PORT $mkdir_cmd \
+        ssh $SSH_OPTS $mkdir_cmd \
             || die "remote mkdir failed"
 
         if [ "$DEPLOY_SRPMS" == "no" ]; then
@@ -69,13 +75,13 @@ rpm_deploy() {
 
         # copy rpm files
 	echo "copy (on port $DEPLOY_PORT): $src_dir/*.rpm -> $dst_dir"
-        scp -P $DEPLOY_PORT $src_dir/*.rpm $dst_dir \
+        scp $SSH_OPTS $src_dir/*.rpm $dst_dir \
             || die "scp failed"
 
         # update repository
         dst_cmd="$DEPLOY_USER@$DEPLOY_HOST $deploy_cmd"
 	echo "running following command (on port $DEPLOY_PORT): $dst_cmd"
-        ssh -p $DEPLOY_PORT $dst_cmd \
+        ssh $SSH_OPTS $dst_cmd \
             || die "update failed"
     done
 }
@@ -91,18 +97,18 @@ deb_deploy() {
         # dest repo need to exist + conf directory
         mkdir_cmd="$DEPLOY_USER@$DEPLOY_HOST mkdir -p $dst_repo/conf"
 	echo "running following command (on port $DEPLOY_PORT): $mkdir_cmd"
-        ssh -p $DEPLOY_PORT $mkdir_cmd \
+        ssh $SSH_OPTS $mkdir_cmd \
             || die "remote mkdir failed"
 
 	echo "copy (on port $DEPLOY_PORT): $src_dir/* -> $dst_dir"
-        scp -P $DEPLOY_PORT $src_dir/* $dst_dir/ \
+        scp $SSH_OPTS $src_dir/* $dst_dir/ \
             || die "scp failed"
 
         deploy_cmd="/usr/local/bin/ci-repo-deploy deb $dst_repo $CI_ENV_NAME"
         dst_cmd="$DEPLOY_USER@$DEPLOY_HOST $deploy_cmd"
         extra_args="${release_name} ${changes_file}"
 	echo "running following command (on port $DEPLOY_PORT): $dst_cmd $extra_args"
-        ssh -p $DEPLOY_PORT $dst_cmd $extra_args \
+        ssh $SSH_OPTS $dst_cmd $extra_args \
             || die "update failed"
     done
 }
@@ -118,7 +124,37 @@ packetfence_release_deploy() {
         declare -p src_dir dst_dir pf_release_rpm_file pkg_dest_name
 
 	echo "scp (on port $DEPLOY_PORT): ${src_dir}/${pf_release_rpm_file} -> ${dst_dir}/${pkg_dest_name}"
-        scp -P $DEPLOY_PORT "${src_dir}/${pf_release_rpm_file}" "${dst_dir}/${pkg_dest_name}" \
+        scp $SSH_OPTS "${src_dir}/${pf_release_rpm_file}" "${dst_dir}/${pkg_dest_name}" \
+            || die "scp failed"
+    done
+}
+
+# no deploy command because it's just a file
+packetfence_upgrade_deploy() {
+    # EL
+    for release_name in $(ls $RPM_RESULT_DIR); do
+        src_dir="$RPM_RESULT_DIR/${release_name}"
+        dst_repo="$PUBLIC_REPO_BASE_DIR/RHEL$release_name"
+        dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
+        pf_upgrade_rpm_file=$(basename $(ls $src_dir/packetfence-upgrade*))
+        pf_upgrade_rpm_dest_name=${PF_UPGRADE_RPM_DEST_NAME:-"packetfence-upgrade-${PF_MINOR_RELEASE}.el${release_name}.noarch.rpm"}
+        declare -p src_dir dst_dir pf_upgrade_rpm_file pf_upgrade_rpm_dest_name
+
+        echo "scp (on port $DEPLOY_PORT): ${src_dir}/${pf_upgrade_rpm_file} -> ${dst_dir}/${pf_upgrade_rpm_dest_name}"
+        scp $SSH_OPTS "${src_dir}/${pf_upgrade_rpm_file}" "${dst_dir}/${pf_upgrade_rpm_dest_name}" \
+            || die "scp failed"
+    done
+    # Deb
+    for release_name in $(ls $DEB_RESULT_DIR); do
+        src_dir="$DEB_RESULT_DIR/${release_name}"
+        dst_repo="$DEB_BASE_DIR/debian"
+        dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
+        pf_upgrade_deb_file=$(basename $(ls $src_dir/packetfence-upgrade*))
+        pf_upgrade_deb_dest_name=${PF_UPGRADE_DEB_DEST_NAME:-"packetfence-upgrade_${PF_MINOR_RELEASE}.deb"}
+        declare -p src_dir dst_dir pf_upgrade_deb_file pf_upgrade_deb_dest_name
+
+        echo "scp (on port $DEPLOY_PORT): ${src_dir}/${pf_upgrade_deb_file} -> ${dst_dir}/${pf_upgrade_deb_dest_name}"
+        scp $SSH_OPTS "${src_dir}/${pf_upgrade_deb_file}" "${dst_dir}/${pf_upgrade_deb_dest_name}" \
             || die "scp failed"
     done
 }
@@ -135,7 +171,7 @@ packetfence_export_deploy() {
         declare -p src_dir dst_dir pf_export_rpm_file pf_export_rpm_dest_name
 
 	echo "scp (on port $DEPLOY_PORT): ${src_dir}/${pf_export_rpm_file} -> ${dst_dir}/${pf_export_rpm_dest_name}"
-        scp -P $DEPLOY_PORT "${src_dir}/${pf_export_rpm_file}" "${dst_dir}/${pf_export_rpm_dest_name}" \
+        scp $SSH_OPTS "${src_dir}/${pf_export_rpm_file}" "${dst_dir}/${pf_export_rpm_dest_name}" \
             || die "scp failed"
     done
     # Deb
@@ -148,7 +184,7 @@ packetfence_export_deploy() {
         declare -p src_dir dst_dir pf_export_deb_file pf_export_deb_dest_name
 
 	echo "scp (on port $DEPLOY_PORT): ${src_dir}/${pf_export_deb_file} -> ${dst_dir}/${pf_export_deb_dest_name}"
-        scp -P $DEPLOY_PORT "${src_dir}/${pf_export_deb_file}" "${dst_dir}/${pf_export_deb_dest_name}" \
+        scp $SSH_OPTS "${src_dir}/${pf_export_deb_file}" "${dst_dir}/${pf_export_deb_dest_name}" \
             || die "scp failed"
     done
 }
@@ -164,7 +200,7 @@ packetfence_ci_lib_deploy() {
         declare -p src_dir dst_dir pf_ci_lib_deb_file pf_ci_lib_deb_dest_name
 
 	echo "scp (on port $DEPLOY_PORT): ${src_dir}/${pf_ci_lib_deb_file} -> ${dst_dir}/${pf_ci_lib_deb_dest_name}"
-        scp -P $DEPLOY_PORT "${src_dir}/${pf_ci_lib_deb_file}" "${dst_dir}/${pf_ci_lib_deb_dest_name}" \
+        scp $SSH_OPTS "${src_dir}/${pf_ci_lib_deb_file}" "${dst_dir}/${pf_ci_lib_deb_dest_name}" \
             || die "scp failed"
     done
 }
@@ -176,7 +212,7 @@ ppa_deploy() {
     dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
     declare -p src_dir dst_dir
     echo "rsync (on port $DEPLOY_PORT): $src_dir -> $dst_dir"
-    rsync -avz -e "ssh -p $DEPLOY_PORT" $src_dir $dst_dir \
+    rsync -avz -e "ssh $SSH_OPTS" $src_dir $dst_dir \
         || die "rsync failed"
 }
 
@@ -188,13 +224,19 @@ website_deploy() {
     dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
     declare -p src_dir dst_dir
     echo "rsync (on port $DEPLOY_PORT): $src_dir -> $dst_dir"
-    rsync -avz  -e "ssh -p $DEPLOY_PORT" $src_dir $dst_dir \
+    rsync -avz  -e "ssh $SSH_OPTS" $src_dir $dst_dir \
         || die "rsync failed"
 }
 
 
+# Artifacts land in different dirs per deploy type; keep this diagnostic non-fatal.
+case $1 in
+    ppa)     ARTIFACTS_DIR="${PUBLIC_DIR}" ;;
+    website) ARTIFACTS_DIR="website" ;;
+    *)       ARTIFACTS_DIR="${RESULT_DIR}" ;;
+esac
 log_section "Display artifacts"
-tree ${RESULT_DIR}
+tree ${ARTIFACTS_DIR} || true
 
 log_section "Display PacketFence minor release"
 echo "${PF_MINOR_RELEASE}"
@@ -205,6 +247,7 @@ case $1 in
     deb) deb_deploy ;;
     packetfence-release) packetfence_release_deploy ;;
     packetfence-export) packetfence_export_deploy ;;
+    packetfence-upgrade) packetfence_upgrade_deploy ;;
     packetfence-ci-lib) packetfence_ci_lib_deploy ;;
     ppa) ppa_deploy ;;
     website) website_deploy ;;

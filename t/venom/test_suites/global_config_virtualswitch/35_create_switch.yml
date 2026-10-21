@@ -1,0 +1,15 @@
+name: Create virtualswitch switch definition
+testcases:
+
+- name: create_virtualswitch_switch
+  steps:
+  - type: pf_api_action
+    method: POST
+    url: 'config/switches'
+    status_code: 201
+    body: >-
+      {
+        "id": "{{.virtualswitch_switch.id}}",
+        "group": "{{.virtualswitch_switch_group.id}}",
+        "description": "{{.virtualswitch_switch.description}}"
+      }

@@ -1,0 +1,14 @@
+name: Verify device autoregistered with guest role by security event
+testcases:
+
+- name: check_node_autoregistered
+  steps:
+  - type: pf_api_node_action
+    method: GET
+    id: '{{.security_event_detect_fingerbank_virtualswitch.device.mac_address}}'
+    status_code: 200
+    retry: 10
+    delay: 5
+    assertions:
+      - result.pf_api_node_action_json.item.status ShouldEqual reg
+      - result.pf_api_node_action_json.item.category ShouldEqual {{.security_event_detect_fingerbank_virtualswitch.event.target_category}}

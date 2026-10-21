@@ -11,6 +11,8 @@
         - "!all"
 
   tasks:
+    - import_tasks: ../tasks/apt_accept_eol_release.yml
+
     - import_tasks: ../tasks/disable_apt_services.yml
       tags: apt_services
 

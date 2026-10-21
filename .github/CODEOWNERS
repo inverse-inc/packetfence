@@ -1,0 +1,105 @@
+# CODEOWNERS — inverse-inc/packetfence
+#
+# Implements the code-owner review control for the ISO 27001 / SOC 2 change-control
+# baseline (ISO 27001:2022 A.8.32 change management, A.8.4 access to source code;
+# SOC 2 CC8.1). General application paths are owned by the maintainer group; paths
+# with a direct bearing on authentication, authorisation, cryptography or build-chain
+# integrity are owned by the named security reviewers.
+#
+# SEMANTICS: the LAST matching pattern wins. The catch-all is therefore declared
+# first and the high-sensitivity paths after it. A pattern that matches no file is
+# silently inert — every path below was validated against the devel tree.
+#
+# BRANCH SCOPE: GitHub resolves CODEOWNERS from the BASE branch of a pull request.
+# This file governs pull requests targeting `devel` only. It has no effect on pull
+# requests targeting maintenance/* branches until it is backported to each of them.
+#
+# PREREQUISITE: a team is only a valid code owner if it holds write access to this
+# repository. Both teams below must hold at least Write for these rules to operate.
+
+# ---------------------------------------------------------------------------
+# Default owner — everything not matched by a more specific rule below
+# ---------------------------------------------------------------------------
+*                                       @inverse-inc/inverse-maintainers
+
+# ---------------------------------------------------------------------------
+# Authentication, authorisation and credential handling
+# ---------------------------------------------------------------------------
+/lib/pf/Authentication/                 @inverse-inc/inverse-security-reviewers
+/lib/pf/authentication.pm               @inverse-inc/inverse-security-reviewers
+/lib/pf/password.pm                     @inverse-inc/inverse-security-reviewers
+/lib/pf/admin_roles.pm                  @inverse-inc/inverse-security-reviewers
+/lib/pf/auth_log.pm                     @inverse-inc/inverse-security-reviewers
+/lib/pf/access_filter/                  @inverse-inc/inverse-security-reviewers
+/lib/pf/access_filter.pm                @inverse-inc/inverse-security-reviewers
+/lib/pf/role/                           @inverse-inc/inverse-security-reviewers
+/lib/pf/role.pm                         @inverse-inc/inverse-security-reviewers
+/lib/pf/roles/                          @inverse-inc/inverse-security-reviewers
+/lib/pf/roles.pm                        @inverse-inc/inverse-security-reviewers
+/lib/pf/cidr_role.pm                    @inverse-inc/inverse-security-reviewers
+
+# ---------------------------------------------------------------------------
+# RADIUS — the network authentication path
+# ---------------------------------------------------------------------------
+/lib/pf/radius/                         @inverse-inc/inverse-security-reviewers
+/lib/pf/radius.pm                       @inverse-inc/inverse-security-reviewers
+/lib/pf/radius_audit_log.pm             @inverse-inc/inverse-security-reviewers
+/lib/pf/freeradius.pm                   @inverse-inc/inverse-security-reviewers
+/raddb/                                 @inverse-inc/inverse-security-reviewers
+/conf/radiusd/                          @inverse-inc/inverse-security-reviewers
+/conf/radius_filters.conf.defaults      @inverse-inc/inverse-security-reviewers
+/conf/radius_filters.conf.example       @inverse-inc/inverse-security-reviewers
+/go/pfradius/                           @inverse-inc/inverse-security-reviewers
+/go/ntlm/                               @inverse-inc/inverse-security-reviewers
+/src/ntlm_auth_wrap.c                   @inverse-inc/inverse-security-reviewers
+
+# ---------------------------------------------------------------------------
+# TLS / PKI material and configuration
+# ---------------------------------------------------------------------------
+/lib/pf/ssl/                            @inverse-inc/inverse-security-reviewers
+/lib/pf/ssl.pm                          @inverse-inc/inverse-security-reviewers
+/conf/ssl/                              @inverse-inc/inverse-security-reviewers
+/conf/ssl.conf.defaults                 @inverse-inc/inverse-security-reviewers
+/conf/ssl.conf.example                  @inverse-inc/inverse-security-reviewers
+/conf/openssl.cnf                       @inverse-inc/inverse-security-reviewers
+
+# ---------------------------------------------------------------------------
+# Security-event handling
+# ---------------------------------------------------------------------------
+/lib/pf/security_event.pm               @inverse-inc/inverse-security-reviewers
+/lib/pf/security_event_config.pm        @inverse-inc/inverse-security-reviewers
+
+# ---------------------------------------------------------------------------
+# External request surface
+# ---------------------------------------------------------------------------
+/go/api-frontend/                       @inverse-inc/inverse-security-reviewers
+
+# ---------------------------------------------------------------------------
+# Host privilege-escalation surface
+# ---------------------------------------------------------------------------
+/packetfence.sudoers                    @inverse-inc/inverse-security-reviewers
+/disable-dns-lookup.sudoers             @inverse-inc/inverse-security-reviewers
+
+# ---------------------------------------------------------------------------
+# Build-chain integrity — workflows hold repository secrets and perform package
+# signing (reusable_sign_packages.yml)
+# ---------------------------------------------------------------------------
+/.github/workflows/                     @inverse-inc/inverse-security-reviewers
+
+# ---------------------------------------------------------------------------
+# This file governs its own modification, so the review control cannot be
+# weakened without security-reviewer approval.
+# ---------------------------------------------------------------------------
+/.github/CODEOWNERS                     @inverse-inc/inverse-security-reviewers
+
+# ---------------------------------------------------------------------------
+# Deliberate exclusions (recorded so the scope is auditable rather than accidental):
+#   /html/pfappserver/, /html/captive-portal/ — security-relevant but large and
+#       high-churn; assigning them to a three-person team would impede delivery
+#       without materially improving review quality. Owned by maintainers.
+#   /debian/, /rpm/, /ci/, /containers/ — packaging and build tooling changes on
+#       every release; owned by maintainers. Signing itself is covered above via
+#       /.github/workflows/.
+#   /db/ — schema and migrations carry no direct authentication or cryptographic
+#       decision; owned by maintainers.
+# ---------------------------------------------------------------------------

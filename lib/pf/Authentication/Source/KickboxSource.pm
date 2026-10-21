@@ -30,7 +30,7 @@ use pf::error qw(is_success);
 
 extends 'pf::Authentication::Source::NullSource';
 
-Readonly our $KICKBOX_HOST => "https://api.kickbox.io";
+Readonly our $KICKBOX_HOST => "https://api.kickbox.com";
 Readonly our $VERIFY_URI => "/v2/verify";
 Readonly our @ACCEPTABLE_RESULTS => qw(deliverable);
 
@@ -46,7 +46,7 @@ sub authenticate {
 
     # Checking if it's valid first so we don't do unecessary hits on Kickbox
     unless(Email::Valid->address($username)) {
-        $logger->info("$username is not a valid e-mail address. Not verifying with kickbox.io");
+        $logger->info("$username is not a valid e-mail address. Not verifying with Kickbox");
         return ($FALSE, "Invalid e-mail");
     }
 
@@ -62,7 +62,8 @@ sub authenticate {
     $curl->setopt(CURLOPT_NOSIGNAL, 1);
     $curl->setopt(CURLOPT_URL, $uri);
 
-    $logger->info("Calling Kickbox.io service using URI : $uri");
+    # The URI holds the API key, don't log it
+    $logger->info("Calling Kickbox service on $KICKBOX_HOST$VERIFY_URI for e-mail address $username");
 
     # Starts the actual request
     my $curl_return_code = $curl->perform;
@@ -73,17 +74,17 @@ sub authenticate {
         my $info = decode_json($response_body);
         if( any {$_ eq $info->{result}} @ACCEPTABLE_RESULTS){
             $logger->info("$info->{result} is acceptable for e-mail address $username. Considering as valid.");
-            return ($TRUE, "E-mail is valid according to kickbox.io")
+            return ($TRUE, "E-mail is valid according to Kickbox")
         }
         else {
             $logger->info("$info->{result} is NOT acceptable for e-mail address $username. Considering as invalid.");
-            return ($FALSE, "E-mail is not acceptable according to kickbox.io");
+            return ($FALSE, "E-mail is not acceptable according to Kickbox");
         }
     }
     else {
         my $curl_error = $curl->errbuf;
         $logger->error("e-mail could not be validated. Server replied with $response_body. Curl error : $curl_error");
-        return ($FALSE, "Error while contacting kickbox.io");
+        return ($FALSE, "Error while contacting Kickbox");
     }
 
 
@@ -96,7 +97,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

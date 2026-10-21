@@ -26,6 +26,7 @@ const actions = {
         send_anonymous_stats, // track?
         hostname, // strip PII
         quiet, status, // strip noise
+        uuid, // installation uuid
         ...summaryNoPii // safe to xfer
       } = summary
       if (!state.initialized && send_anonymous_stats) {
@@ -90,6 +91,7 @@ const actions = {
             mixpanel.set_group('_language', navigator.languages)
           }
         })
+        mixpanel.identify(uuid)
       }
       else if (state.initialized && !send_anonymous_stats && state.unsubscribe) {
         commit('UNSUBSCRIBE')

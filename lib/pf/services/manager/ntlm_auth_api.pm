@@ -29,7 +29,7 @@ use pf::file_paths qw(
     $var_dir
     $captiveportal_templates_path
 );
-use pf::util;
+use pf::util qw(isenabled safe_pf_run);
 use pf::constants qw($TRUE $FALSE);
 
 extends 'pf::services::manager';
@@ -50,34 +50,40 @@ sub generateConfig {
     my $db_pass = $db_config->{'pass'};
     my $db = $db_config->{'db'};
     my $db_unix_socket = $db_config->{'unix_socket'};
+    my $redis_cache_host = $Config{services}{redis_cache_host};
+    my $redis_cache_port = $Config{services}{redis_cache_port};
 
     if (!defined($db_host) || !defined($db_port) || !defined($db_user) || !defined($db_pass) || !defined($db) || !defined($db_unix_socket) || $db_host eq "" || $db_port eq "" || $db_user eq "" || $db_pass eq "" || $db eq "" || $db_unix_socket eq "") {
         print("Warning: Some of the database settings are missing while generating db.ini, ntlm-auth-api might not able to start properly\n")
     }
 
-    pf_run("sudo echo '[DB]' > $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
-    pf_run("sudo echo 'DB_HOST=$db_host' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
-    pf_run("sudo echo 'DB_PORT=$db_port' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
-    pf_run("sudo echo 'DB_USER=$db_user' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
-    pf_run("sudo echo 'DB_PASS=$db_pass' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
-    pf_run("sudo echo 'DB=$db' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
-    pf_run("sudo echo 'DB_UNIX_SOCKET=$db_unix_socket' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
+    my $db_ini = "$generated_conf_dir/" . $self->name . '.d/' . "db.ini";
+    safe_pf_run("sudo", "echo", "[DB]", {stdout => $db_ini});
+    safe_pf_run("sudo", "echo", "DB_HOST=$db_host", {stdout => $db_ini, stdout_append => 1});
+    safe_pf_run("sudo", "echo", "DB_PORT=$db_port", {stdout => $db_ini, stdout_append => 1});
+    safe_pf_run("sudo", "echo", "DB_USER=$db_user", {stdout => $db_ini, stdout_append => 1});
+    safe_pf_run("sudo", "echo", "DB_PASS=$db_pass", {stdout => $db_ini, stdout_append => 1});
+    safe_pf_run("sudo", "echo", "DB=$db", {stdout => $db_ini, stdout_append => 1});
+    safe_pf_run("sudo", "echo", "DB_UNIX_SOCKET=$db_unix_socket", {stdout => $db_ini, stdout_append => 1});
 
-    pf_run("sudo echo '[CACHE]' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
-    pf_run("sudo echo 'CACHE_HOST=containers-gateway.internal' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
-    pf_run("sudo echo 'CACHE_PORT=6379' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
+    safe_pf_run("sudo", "echo", "[CACHE]", {stdout => $db_ini, stdout_append => 1});
+
+    safe_pf_run("sudo", "echo", "CACHE_HOST=$redis_cache_host", {stdout => $db_ini, stdout_append => 1});
+    safe_pf_run("sudo", "echo", "CACHE_PORT=$redis_cache_port", {stdout => $db_ini, stdout_append => 1});
 
     my $host_id = hostname();
     for my $identifier (keys(%ConfigDomain)) {
         my %conf = %{$ConfigDomain{$identifier}};
+        next if (exists($conf{use_connector}) && isenabled($conf{use_connector}));
         if (exists($conf{ntlm_auth_host}) && exists($conf{ntlm_auth_port}) && exists($conf{machine_account_password})) {
             my $ntlm_auth_host = $conf{ntlm_auth_host};
             my $ntlm_auth_port = $conf{ntlm_auth_port};
 
             $identifier =~ s/$host_id //i;
-            pf_run("sudo echo 'HOST=$ntlm_auth_host' > $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
-            pf_run("sudo echo 'LISTEN=$ntlm_auth_port' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
-            pf_run("sudo echo 'IDENTIFIER=$identifier' >> $generated_conf_dir/" . $self->name . '.d/' . "$identifier.env");
+            my $env_file = "$generated_conf_dir/" . $self->name . '.d/' . "$identifier.env";
+            safe_pf_run("sudo", "echo", "HOST=$ntlm_auth_host", {stdout => $env_file});
+            safe_pf_run("sudo", "echo", "LISTEN=$ntlm_auth_port", {stdout => $env_file, stdout_append => 1});
+            safe_pf_run("sudo", "echo", "IDENTIFIER=$identifier", {stdout => $env_file, stdout_append => 1});
         }
     }
 }
@@ -85,7 +91,12 @@ sub generateConfig {
 sub isManaged {
     my ($self) = @_;
     if ($self->SUPER::isManaged && keys(%ConfigDomain) > 0) {
-        return $TRUE;
+        for my $identifier (keys(%ConfigDomain)) {
+            my %conf = %{$ConfigDomain{$identifier}};
+            if (!exists($conf{use_connector}) || !isenabled($conf{use_connector})) {
+                return $TRUE;
+            }
+        }
     }
     return $FALSE;
 }
@@ -98,7 +109,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

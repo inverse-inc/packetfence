@@ -368,7 +368,8 @@ sub buildForms {
     my ($controller, $child) = @_;
     my @form_classes;
     if ( $controller->can("type_lookup") ) {
-        @form_classes = values %{ $controller->type_lookup };
+        my $type_lookup = $controller->type_lookup;
+        @form_classes = map { $type_lookup->{$_} } sort keys %$type_lookup;
     } else {
         my $form_class = $controller->form_class;
         if (!defined $form_class) {
@@ -376,13 +377,20 @@ sub buildForms {
         }
 
         if ($form_class eq 'pfappserver::Form::Config::Pf') {
-            return map { $form_class->new( section => $_ ) } keys %pf::constants::pfconf::ALLOWED_SECTIONS;
+            return map { $form_class->new( section => $_ ) } sort keys %pf::constants::pfconf::ALLOWED_SECTIONS;
         }
 
         @form_classes = ( $form_class );
     }
 
-    return map { $_->new() } @form_classes;
+    # Get additional form parameters from controller if available and pass them to form constructors
+    my @form_params = ();
+    if ($controller->can("form_parameters")) {
+        my $params = $controller->form_parameters();
+        @form_params = @$params if $params && ref($params) eq 'ARRAY';
+    }
+
+    return map { $_->new(@form_params) } @form_classes;
 }
 
 =head2 searchRequestBody
@@ -590,7 +598,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

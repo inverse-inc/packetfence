@@ -8,6 +8,8 @@
 /usr/local/pf/conf/cloud.conf
 /usr/local/pf/conf/config.toml
 /usr/local/pf/conf/connectors.conf
+/usr/local/pf/conf/dns_connectors.conf
+/usr/local/pf/conf/domains_connectors.conf
 /usr/local/pf/conf/pfcron.conf
 /usr/local/pf/conf/dhcp_filters.conf
 /usr/local/pf/conf/dhcp_fingerprints.conf
@@ -19,9 +21,8 @@
 /usr/local/pf/conf/haproxy-admin.conf
 /usr/local/pf/conf/haproxy-db.conf
 /usr/local/pf/conf/haproxy-portal.conf
-/usr/local/pf/conf/iptables-input.conf.inc
-/usr/local/pf/conf/iptables-input-management.conf.inc
-/usr/local/pf/conf/ip6tables-input-management.conf.inc
+/usr/local/pf/conf/iptables-custom.conf.inc
+/usr/local/pf/conf/ip6tables-custom.conf.inc
 /usr/local/pf/conf/kafka.conf
 /usr/local/pf/conf/keepalived.conf
 /usr/local/pf/conf/log.conf
@@ -31,6 +32,7 @@
 /usr/local/pf/conf/pfdetect.conf
 /usr/local/pf/conf/pfdhcp.conf
 /usr/local/pf/conf/pfdns.conf
+/usr/local/pf/conf/pfdns-connector.conf
 /usr/local/pf/conf/pfqueue.conf
 /usr/local/pf/conf/pki_provider.conf
 /usr/local/pf/conf/portal_modules.conf
@@ -67,6 +69,7 @@
 /usr/local/pf/conf/locale/nb_NO/LC_MESSAGES/packetfence.po
 /usr/local/pf/conf/locale/nl/LC_MESSAGES/packetfence.po
 /usr/local/pf/conf/locale/pt_BR/LC_MESSAGES/packetfence.po
+/usr/local/pf/conf/locale/tr_TR/LC_MESSAGES/packetfence.po
 /usr/local/pf/conf/nessus/remotescan.nessus
 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.tt
 /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
@@ -78,6 +81,7 @@
 /usr/local/pf/conf/radiusd/auth.conf
 /usr/local/pf/conf/radiusd/cert
 /usr/local/pf/conf/radiusd/cli.conf
+/usr/local/pf/conf/radiusd/dictionary.local
 /usr/local/pf/conf/radiusd/eap.conf
 /usr/local/pf/conf/radiusd/eap_profiles.conf
 /usr/local/pf/conf/radiusd/eduroam.conf
@@ -90,6 +94,7 @@
 /usr/local/pf/conf/radiusd/radiusd_cli.conf
 /usr/local/pf/conf/radiusd/radiusd_loadbalancer.conf
 /usr/local/pf/conf/radiusd/rest.conf
+/usr/local/pf/conf/radiusd/redis.conf
 /usr/local/pf/conf/radiusd/sql.conf
 /usr/local/pf/conf/radiusd/tls.conf
 /usr/local/pf/conf/radiusd/packetfence

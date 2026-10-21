@@ -5,6 +5,7 @@ use namespace::autoclean;
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
 use POSIX;
+use List::Util qw(any);
 
 use pf::constants;
 use pf::config qw(%Config);
@@ -22,6 +23,7 @@ use pf::web::custom;
 
 use pf::authentication;
 use pf::Authentication::constants;
+use pf::Authentication::Action;
 use pf::constants::realm;
 
 =head1 NAME
@@ -55,6 +57,17 @@ sub code : Path : Args(2) {
     my $request = $c->request;
     my $logger  = $c->log;
 
+    # Email security gateways (Outlook Safe Links, Proofpoint, ...) pre-fetch
+    # links with a HEAD request before the user ever clicks. Consuming the
+    # activation code on that request leaves the real click with an already
+    # used code. Only a GET (or POST) from the user may validate the code.
+    if ( $request->method ne 'GET' && $request->method ne 'POST' ) {
+        $logger->info("Ignoring " . $request->method . " request for activation code $code from " . $request->address);
+        $c->response->status(200);
+        $c->response->body('');
+        $c->detach;
+    }
+
     # validate code
     my $activation_record = pf::activation::validate_code($type, $code);
     if (  !defined($activation_record)
@@ -80,7 +93,13 @@ sub code : Path : Args(2) {
             get_logger->info("Extending duration to $unregdate");
             node_modify($node_mac, unregdate => $unregdate);
             pf::activation::set_status_verified($GUEST_ACTIVATION, $code);
-            pf::auth_log::record_completed_guest($activation_record->{source_id}, $node_mac, $pf::auth_log::COMPLETED);
+            my $source = pf::authentication::getAuthenticationSource($activation_record->{source_id});
+            pf::auth_log::record_completed_guest($activation_record->{source_id}, $source ? $source->type : '', $node_mac, $pf::auth_log::COMPLETED);
+            # The access was granted with the activation timeout, apply the new unregdate on the network device (ex: Unifi guest authorization)
+            if (defined($node_mac)) {
+                eval { pf::enforcement::reevaluate_access($node_mac, "manage_register", force => 1) };
+                get_logger->error("Unable to re-evaluate the access of $node_mac after its e-mail activation: $@") if $@;
+            }
             $c->stash(
                 title => "Access granted",
                 template => "activation/email.html",
@@ -100,10 +119,8 @@ sub code : Path : Args(2) {
         $c->forward('doSponsorRegistration', [$code]);
 
     } else {
-
-        $logger->info( "User has nothing to do here, redirecting to "
-              . $c->portalSession->destinationUrl );
-        $c->response->redirect( $c->portalSession->destinationUrl );
+        $self->showError($c, "The activation code provided is not valid for this page.");
+        $c->detach;
     }
 }
 
@@ -245,6 +262,7 @@ sub doSponsorRegistration : Private {
             # NOTE: When sponsoring a network access, the new user will be created (in the password table) using
             # the actions of the sponsor authentication source of the connection profile on which the *sponsor* has landed.
             my $actions = pf::authentication::match( $source->{id}, { username => $pid, user_email => $pid , 'context' => $pf::constants::realm::PORTAL_CONTEXT} );
+            add_expiration($source, $actions);
             $info{'password'} =
               pf::password::generate( $pid, $actions );
 
@@ -285,13 +303,35 @@ sub doSponsorRegistration : Private {
     }
 }
 
+sub add_expiration {
+    my ($source, $actions) = @_;
+    return if any {$_->{type} eq "expiration" } @$actions;
+
+    if (pf::config::normalize_time($source->local_account_expiration) != 0) {
+        push @$actions, pf::Authentication::Action->new(class => "authentication", type => "expiration", value => pf::config::access_duration($source->local_account_expiration));
+        return;
+    }
+
+    for my $action (@$actions) {
+        if ($action->type eq "set_access_duration") {
+            push @$actions, pf::Authentication::Action->new(class => "authentication", type => "expiration", value => pf::config::access_duration($action->value));
+            last;
+        }
+
+        if ($action->type eq "set_unreg_date") {
+            push @$actions, pf::Authentication::Action->new(class => "authentication", type => "expiration", value => $action->value);
+            last;
+        }
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

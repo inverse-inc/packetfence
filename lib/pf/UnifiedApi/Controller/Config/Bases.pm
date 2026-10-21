@@ -34,13 +34,11 @@ use pf::error qw(is_error);
 use pf::ConfigStore::Pf;
 use pf::ConfigStore::Network;
 use pfappserver::Model::Config::Pfconfig;
+use pf::config::crypt;
 use pf::config qw(
     %Config
     %Doc_Config
 );
-use Data::UUID;
-
-my $GENERATOR = Data::UUID->new;
 
 sub _update_domain_networks_conf {
     my ($self) = @_;
@@ -251,7 +249,7 @@ sub database_assign {
         my $remote = $json->{remote};
         my %database_proxysql = (
             status => 'enabled',
-            backend => $remote->{host},
+            backends => $remote->{host},
         );
         if ($remote->{ca_cert}) {
             my $path = "$conf_uploads/pf/database_proxysql_cacert.crt";
@@ -285,6 +283,7 @@ sub test_smtp {
     }
 
     my $alerting_config = $form->value;
+    $alerting_config->{smtp_password} = pf::config::crypt::pf_decrypt($alerting_config->{smtp_password});
     my $email = $json->{'test_emailaddr'} || $alerting_config->{emailaddr};
     my $msg = MIME::Lite->new(
         To => $email,
@@ -318,7 +317,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

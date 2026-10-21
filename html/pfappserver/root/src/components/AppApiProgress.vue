@@ -1,5 +1,5 @@
 <template>
-  <b-progress class="fixed-top" height="4px" max="100" :value="percentage" v-show="visible"></b-progress>
+  <b-progress class="fixed-top" height="6px" max="100" :value="percentage" v-show="visible"></b-progress>
 </template>
 
 <script>
@@ -61,6 +61,12 @@ export default {
     overflow: visible !important;
   }
   .progress /deep/ .progress-bar {
-    box-shadow: 0 0 10px rgba($primary,.7);
+    box-shadow: 0 2px 8px 2px rgba($black, 0.5), 0 4px 20px 4px rgba($black, 0.3);
+    animation: pulse-glow 1.5s ease-in-out infinite;
+    transition: width 0.15s linear;
+  }
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 2px 8px 2px rgba($black, 0.5), 0 4px 20px 4px rgba($black, 0.3); }
+    50% { box-shadow: 0 2px 12px 3px rgba($black, 0.7), 0 4px 28px 6px rgba($black, 0.4); }
   }
 </style>

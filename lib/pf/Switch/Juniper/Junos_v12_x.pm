@@ -33,16 +33,7 @@ use base ('pf::Switch::Juniper::Junos');
 
 use pf::constants;
 sub description { 'Junos v12.x' }
-
-use pf::SwitchSupports qw(
-    WiredMacAuth
-    WiredDot1x
-    RadiusVoip
-    RoleBasedEnforcement
-    FloatingDevice
-    MABFloatingDevices
-    ~AccessListBasedEnforcement
-);
+sub switchDriverId { 'juniper_junos' }
 
 =head1 AUTHOR
 
@@ -50,7 +41,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

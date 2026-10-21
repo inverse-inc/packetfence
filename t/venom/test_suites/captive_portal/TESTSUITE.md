@@ -14,7 +14,7 @@ Put a node on registration VLAN to test some captive portal features.
 1. Wait some time to let RADIUS request be sent by switch01 and handled by
    PacketFence server (`mab_activation_delay` + 20 seconds). switch01 also needs to handle answer.
 1. Check RADIUS audit log for node01
-1. Check VLAN assigned to node01 *on* switch01
+1. Check Mac auth unregistered on switch01
 1. Wait some time to let node01 received an IP through DHCP
 1. Run locales test *on* node01
 

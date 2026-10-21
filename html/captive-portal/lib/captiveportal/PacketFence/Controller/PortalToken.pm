@@ -29,6 +29,8 @@ sub index : Path : Args(0) {
     my $actions;
     if (my $uuid = $c->request->param('token')) {
         $actions = cache->get($uuid);
+        # A token can only be exchanged once
+        cache->remove($uuid) if defined($actions);
         if (!defined($actions)) {
             $c->response->status(404);
             $c->response->body('{ "access_level" => "none" }');
@@ -51,7 +53,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

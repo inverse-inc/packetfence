@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/file_paths"
 )
 
@@ -27,6 +28,10 @@ func setupSystemInitKey(envName, fileName string) error {
 }
 
 func init() {
+	// The pfconnector-remote doesn't have pfconfig
+	if sharedutils.IsEnabled(os.Getenv("PFCONNECTOR_REMOTE")) {
+		return
+	}
 	if err := setupSystemInitKey("PF_SYSTEM_INIT_KEY", file_paths.SYSTEM_INIT_KEY_FILE); err != nil {
 		panic("Unable to setup the PF_SYSTEM_INIT secret" + err.Error())
 	}

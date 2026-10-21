@@ -2,11 +2,51 @@ package aaa
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"testing"
 	"time"
 
+	"github.com/VividCortex/mysqlerr"
 	"github.com/davecgh/go-spew/spew"
+	"github.com/go-sql-driver/mysql"
 )
+
+func TestIsRetryableTouchErr(t *testing.T) {
+	for _, test := range []struct {
+		name string
+		err  error
+		want bool
+	}{
+		{"nil", nil, false},
+		{"non-mysql error", errors.New("connection refused"), false},
+		{"deadlock", &mysql.MySQLError{Number: mysqlerr.ER_LOCK_DEADLOCK, Message: "Deadlock found when trying to get lock"}, true},
+		{"lock wait timeout", &mysql.MySQLError{Number: mysqlerr.ER_LOCK_WAIT_TIMEOUT, Message: "Lock wait timeout exceeded"}, true},
+		{"other mysql error", &mysql.MySQLError{Number: mysqlerr.ER_UNKNOWN_COM_ERROR, Message: "WSREP has not yet prepared node for application use"}, false},
+		{"wrapped deadlock", fmt.Errorf("touch: %w", &mysql.MySQLError{Number: mysqlerr.ER_LOCK_DEADLOCK}), true},
+	} {
+		if got := isRetryableTouchErr(test.err); got != test.want {
+			t.Errorf("isRetryableTouchErr(%s) = %v, want %v", test.name, got, test.want)
+		}
+	}
+}
+
+func TestTouchGranularity(t *testing.T) {
+	for _, test := range []struct {
+		timeout time.Duration
+		want    time.Duration
+	}{
+		{30 * time.Minute, time.Minute},     // capped
+		{10 * time.Minute, time.Minute},     // cap boundary
+		{30 * time.Second, 3 * time.Second}, // proportional
+		{5 * time.Second, time.Second},      // floored
+		{0, time.Second},                    // degenerate config
+	} {
+		if got := touchGranularity(test.timeout); got != test.want {
+			t.Errorf("touchGranularity(%v) = %v, want %v", test.timeout, got, test.want)
+		}
+	}
+}
 
 func TestTokenBackend(t *testing.T) {
 	timeout := 1 * time.Second

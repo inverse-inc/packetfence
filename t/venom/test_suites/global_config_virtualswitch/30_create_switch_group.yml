@@ -1,0 +1,29 @@
+name: Create virtualswitch switch group
+testcases:
+
+- name: create_virtualswitch_switch_group
+  steps:
+  - type: pf_api_action
+    method: POST
+    url: 'config/switch_groups'
+    status_code: 201
+    body: >-
+      {
+        "id": "{{.virtualswitch_switch_group.id}}",
+        "description": "{{.virtualswitch_switch_group.description}}",
+        "radiusSecret": "{{.virtualswitch_switch_group.radiusSecret}}",
+        "type": "{{.virtualswitch_switch.type}}",
+        "mode": "production",
+        "useCoA": "Y",
+        "VoIPCDPDetect": "N",
+        "VoIPLLDPDetect": "N",
+        "registrationVlan": "{{.roles.registration.vlan_id}}",
+        "{{.wired_mac_auth_virtualswitch.roles.guest.id}}Vlan": "{{.wired_mac_auth_virtualswitch.roles.guest.vlan_id}}",
+        "{{.wired_mac_auth_virtualswitch.roles.user.id}}Vlan": "{{.wired_mac_auth_virtualswitch.roles.user.vlan_id}}",
+        "{{.wired_mac_auth_virtualswitch.roles.headless_device.id}}Vlan": "{{.wired_mac_auth_virtualswitch.roles.headless_device.vlan_id}}",
+        "{{.wired_mac_auth_virtualswitch.roles.printer.id}}Vlan": "{{.wired_mac_auth_virtualswitch.roles.printer.vlan_id}}",
+        "{{.wired_mac_auth_virtualswitch.roles.isolation.id}}Vlan": "{{.wired_mac_auth_virtualswitch.roles.isolation.vlan_id}}",
+        "{{.device_profiling_virtualswitch.roles.windows.id}}Vlan": "{{.device_profiling_virtualswitch.roles.windows.vlan_id}}",
+        "{{.device_profiling_virtualswitch.roles.ios.id}}Vlan": "{{.device_profiling_virtualswitch.roles.ios.vlan_id}}",
+        "{{.device_profiling_virtualswitch.roles.android.id}}Vlan": "{{.device_profiling_virtualswitch.roles.android.vlan_id}}"
+      }

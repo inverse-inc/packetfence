@@ -1,0 +1,13 @@
+name: Enable bandwidth accounting in RADIUS configuration
+testcases:
+
+- name: enable_bandwidth_accounting
+  steps:
+  - type: pf_api_config_action
+    id: "base/radius_configuration"
+    method: PATCH
+    body: >-
+      {
+        "process_bandwidth_accounting": "enabled"
+      }
+    status_code: 200

@@ -119,7 +119,6 @@ sub report_db_prepare {
         user_agent,
         computername,
         notes,
-        last_arp,
         last_dhcp,
         device_type AS os
       FROM node n LEFT JOIN ip4log i USING (mac)
@@ -145,7 +144,6 @@ sub report_db_prepare {
         user_agent,
         computername,
         notes,
-        last_arp,
         last_dhcp,
         device_type AS os
       FROM node n LEFT JOIN ip4log i USING (mac)
@@ -166,7 +164,6 @@ sub report_db_prepare {
         user_agent,
         computername,
         notes,
-        last_arp,
         last_dhcp,
         device_type AS os
       FROM node
@@ -187,7 +184,6 @@ sub report_db_prepare {
         user_agent,
         computername,
         notes,
-        last_arp,
         last_dhcp,
         device_type AS os
       FROM node n LEFT JOIN ip4log i USING(mac)
@@ -209,7 +205,6 @@ sub report_db_prepare {
         user_agent,
         computername,
         notes,
-        last_arp,
         last_dhcp,
         device_type AS os
       FROM node
@@ -230,7 +225,6 @@ sub report_db_prepare {
         user_agent,
         computername,
         notes,
-        last_arp,
         last_dhcp,
         device_type AS os
       FROM node n LEFT JOIN ip4log i USING (mac)
@@ -2015,7 +2009,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

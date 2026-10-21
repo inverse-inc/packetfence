@@ -40,6 +40,7 @@ BEGIN {
         person_reg_nodes
         person_security_events
         person_cleanup
+        single_person_cleanup
         persons_without_nodes
         person_unassign_nodes
         $PID_RE
@@ -288,14 +289,12 @@ sub person_reg_nodes {
     my ($status, $iter) = pf::dal::node->search(
         -where => {
             pid => $pid,
+            status => "reg",
         },
         -columns => [qw(mac pid notes regdate unregdate status user_agent computername device_class time_balance bandwidth_balance)],
         #To avoid join
         -from => pf::dal::node->table,
         -with_class => undef,
-        -where => {
-            status => "reg",
-        },
     );
     if (is_error($status)) {
         return;
@@ -379,15 +378,7 @@ sub person_cleanup {
         }
         my $password = pf::password::view($pid);
         if(defined($password)){
-            my $expiration = $password->{expiration};
-            if ($expiration eq $ZERO_DATE) {
-                get_logger->debug("Not deleting $pid because the password is set not to expire");
-                next;
-            }
-            $expiration = DateTime::Format::MySQL->parse_datetime($expiration);
-            $expiration->set_time_zone('local');
-            my $cmp = DateTime->compare($now, $expiration);
-            if($cmp < 0){
+            if (_local_account_still_valid($password->{expiration}, $now)) {
                 get_logger->debug("Not deleting $pid because the local account is still valid.");
                 next;
             }
@@ -399,6 +390,47 @@ sub person_cleanup {
     }
 }
 
+=head2 _local_account_still_valid
+
+Whether a local account with this password expiration can still log in.
+A zero or missing expiration is expired, as pf::password::validate_password
+refuses it.
+
+=cut
+
+sub _local_account_still_valid {
+    my ($expiration, $now) = @_;
+    return $FALSE if !defined($expiration) || $expiration eq '' || $expiration eq $ZERO_DATE;
+    $expiration = DateTime::Format::MySQL->parse_datetime($expiration);
+    $expiration->set_time_zone('local');
+    return DateTime->compare($now, $expiration) < 0 ? $TRUE : $FALSE;
+}
+
+=head2 single_person_cleanup
+
+Clean the pid if the local account is not valid anymore
+
+=cut
+
+sub single_person_cleanup {
+    my ($pid) = @_;
+    my $now = DateTime->now(time_zone => 'local');
+
+    if($pf::constants::BUILTIN_USERS{$pid}){
+        get_logger->debug("User $pid is set for deletion but is a built-in user. Not deleting...");
+        return $FALSE
+    }
+    my $password = pf::password::view($pid);
+    if(defined($password)){
+        if (_local_account_still_valid($password->{expiration}, $now)) {
+            get_logger->debug("Not deleting $pid because the local account is still valid.");
+            return $FALSE;
+        }
+        # We delete the password too
+        pf::password::_delete($pid);
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -407,7 +439,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

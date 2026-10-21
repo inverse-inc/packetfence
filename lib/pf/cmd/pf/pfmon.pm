@@ -55,6 +55,8 @@ pfcmd pfmon <task> [options...]
 
 =item switch_cache_lldpLocalPort_description
 
+=item switch_cache_ifindex
+
 =back
 
 =head1 DESCRIPTION
@@ -73,7 +75,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

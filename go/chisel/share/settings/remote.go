@@ -2,6 +2,7 @@ package settings
 
 import (
 	"errors"
+	"fmt"
 	"net"
 	"net/url"
 	"regexp"
@@ -39,8 +40,10 @@ type Remote struct {
 	LastTouched                         time.Time
 	LocalHost, LocalPort, LocalProto    string
 	RemoteHost, RemotePort, RemoteProto string
-	Dynamic, Socks, Reverse, Stdio      bool
 	Handler                             string
+	ReusedTcpListener                   *net.TCPListener
+	ReusedUdpConn                       *net.UDPConn
+	Dynamic, Socks, Reverse, Stdio      bool
 }
 
 const revPrefix = "R:"
@@ -87,6 +90,9 @@ func DecodeRemote(s string) (*Remote, error) {
 
 		if isPort(p) {
 			if !r.Socks && r.RemotePort == "" {
+				if p == "0" {
+					return nil, errors.New("Invalid port")
+				}
 				r.RemotePort = p
 			}
 			r.LocalPort = p
@@ -143,7 +149,52 @@ func DecodeRemote(s string) (*Remote, error) {
 	if r.Stdio && r.Reverse {
 		return nil, errors.New("stdio cannot be reversed")
 	}
+
+	if r.Reverse && r.LocalPort == "0" {
+		if err := r.setupLocalPort(); err != nil {
+			return nil, fmt.Errorf("Cannot bind to a local port: %w", err)
+		}
+	}
+
 	return r, nil
+}
+
+func (r *Remote) setupLocalPort() error {
+	if r.LocalProto == "tcp" {
+		addr, err := net.ResolveTCPAddr("tcp", r.Local())
+		if err != nil {
+			return fmt.Errorf("resolve: %w", err)
+		}
+
+		tl, err := net.ListenTCP("tcp", addr)
+		if err != nil {
+			return fmt.Errorf("net.ListenTCP: %w", err)
+		}
+
+		r.LocalPort = strconv.Itoa(tl.Addr().(*net.TCPAddr).Port)
+		r.ReusedTcpListener = tl
+		r.Dynamic = true
+		return nil
+	}
+
+	if r.LocalProto == "udp" {
+		addr, err := net.ResolveUDPAddr("udp", r.Local())
+		if err != nil {
+			return fmt.Errorf("resolve: %w", err)
+		}
+
+		conn, err := net.ListenUDP("udp", addr)
+		if err != nil {
+			return fmt.Errorf("net.ListenUDP: %w", err)
+		}
+
+		r.LocalPort = strconv.Itoa(conn.LocalAddr().(*net.UDPAddr).Port)
+		r.ReusedUdpConn = conn
+		r.Dynamic = true
+		return nil
+	}
+
+	return errors.New("Proto not supported")
 }
 
 func isPort(s string) bool {
@@ -151,7 +202,7 @@ func isPort(s string) bool {
 	if err != nil {
 		return false
 	}
-	if n <= 0 || n > 65535 {
+	if n < 0 || n > 65535 {
 		return false
 	}
 	return true

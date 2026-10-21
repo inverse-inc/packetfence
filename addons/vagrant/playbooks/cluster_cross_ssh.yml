@@ -1,0 +1,68 @@
+---
+# Cross-node root SSH over mgmt: reuse the shared vagrant key so root@pfX reaches
+# peers on their static mgmt IP even when a node's DHCP NIC has no lease.
+- hosts: pfservers
+  name: cluster cross-node root ssh over mgmt network
+  become: True
+  gather_facts: False
+
+  vars:
+    vagrant_key_file: "{{ lookup('env', 'HOME') }}/.vagrant.d/insecure_private_key"
+    # vagrant provisions per-node, so build the member list from PF_VM_NAMES,
+    # not ansible_play_hosts (which holds only the node being provisioned).
+    cluster_nodes: "{{ packetfence_server_name.split() }}"
+    cluster_aliases: "{{ cluster_nodes | map('regex_search', '^pf[0-9]+') | select | list }}"
+
+  tasks:
+    - name: check shared vagrant key is present on controller
+      stat:
+        path: "{{ vagrant_key_file }}"
+      delegate_to: localhost
+      become: False
+      run_once: True
+      register: vagrant_key_stat
+
+    - name: set up cross-node root ssh
+      when: vagrant_key_stat.stat.exists
+      block:
+        - name: ensure /root/.ssh exists
+          file:
+            path: /root/.ssh
+            state: directory
+            mode: '0700'
+
+        - name: install shared vagrant private key for root
+          copy:
+            content: "{{ lookup('file', vagrant_key_file) }}"
+            dest: /root/.ssh/id_rsa
+            mode: '0600'
+
+        - name: derive matching public key
+          command: ssh-keygen -y -f /root/.ssh/id_rsa
+          register: vagrant_pub
+          changed_when: False
+
+        - name: authorize the shared key for root
+          ansible.posix.authorized_key:
+            user: root
+            key: "{{ vagrant_pub.stdout }}"
+            state: present
+
+        - name: map cluster members to their mgmt IP in /etc/hosts
+          blockinfile:
+            path: /etc/hosts
+            marker: "# {mark} ANSIBLE cluster mgmt cross-ssh"
+            block: |
+              {% for h in cluster_nodes %}
+              {{ hostvars[h].mgmt_ip }} {{ h }} {{ h | regex_search('^pf[0-9]+') }}
+              {% endfor %}
+
+        - name: non-interactive ssh client config for cluster hosts
+          copy:
+            dest: /root/.ssh/config
+            mode: '0600'
+            content: |
+              Host {{ (cluster_nodes + cluster_aliases) | join(' ') }}
+                  User root
+                  StrictHostKeyChecking no
+                  UserKnownHostsFile /dev/null

@@ -1,7 +1,6 @@
 /// _elements.header.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
 
 header {
-  background-color: $pf-background;
   height: $pf-header-height;
   position: fixed;
   top: 0;
@@ -31,4 +30,15 @@ header {
       height: $pf-header-height * $pf-header-tablet-ratio - ($inuit-global-baseline * $inuit-global-spacing-unit-factor);
     }
   }
+}
+
+// ── Logo dark-mode filter ──────────────────────────────────────────────────────
+// Dark mode auto-inverts the logo (brightness(0) invert(1)) so dark/black logos
+// remain visible on dark backgrounds. Set --pf-logo-filter: none in theme.css
+// to disable if the logo is already light/white.
+.pf-logo {
+  max-width: var(--pf-logo-max-width);
+  margin-top: calc(var(--pf-spacing-base) * 4);  // 24px = 4 × 6px base
+  filter: var(--pf-logo-filter);
+  transition: filter 0.3s ease;
 }

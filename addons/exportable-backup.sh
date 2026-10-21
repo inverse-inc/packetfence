@@ -6,7 +6,7 @@
 # - compressed mysqldump to $BACKUP_DIRECTORY
 # - prepare files for backup and exportation, rotate and clean
 #
-# Copyright (C) 2005-2024 Inverse inc.
+# Copyright (C) 2005-2026 Inverse inc.
 #
 # Author: Inverse inc. <info@inverse.ca>
 #
@@ -15,7 +15,9 @@
 
 source /usr/local/pf/addons/functions/helpers.functions
 
+PF_DIRECTORY='/usr/local/pf/'
 BACKUP_DIRECTORY=${BACKUP_DIRECTORY:-/root/backup/}
+export BACKUP_DIRECTORY
 BACKUP_DB_FILENAME='packetfence-db-dump'
 BACKUP_CONF_FILENAME='packetfence-conf-dump'
 BACKUP_OLD_CONF_FILENAME='packetfence-files-dump'
@@ -104,9 +106,12 @@ clean_backup(){
     echo "Start backup cleaning"
     find $BACKUP_DIRECTORY -name "$BACKUP_PF_FILENAME-*.tgz" -mtime +$NB_DAYS_TO_KEEP_BACKUP -delete
     echo "Old backup cleaned"
-    find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-*.sql.gz" -delete
+    find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-*.sql.gz" -mtime +$NB_DAYS_TO_KEEP_BACKUP -delete
+    find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-*.sql.gz" -mmin -120 -delete
+    find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-*.xbstream.gz" -mtime +$NB_DAYS_TO_KEEP_BACKUP -delete
+    find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-*.xbstream.gz" -mmin -120 -delete
     echo "Temp db backup cleaned"
-    find $BACKUP_DIRECTORY -name "$BACKUP_CONF_FILENAME-*.tgz"  -delete
+    find $BACKUP_DIRECTORY -name "$BACKUP_CONF_FILENAME-*.tgz" -delete
     echo "Temp config backup cleaned"
     find $BACKUP_DIRECTORY -name "$BACKUP_OLD_CONF_FILENAME-*.tgz" -mtime +$NB_DAYS_TO_KEEP_BACKUP -delete
     echo "Old config backup cleaned"
@@ -169,14 +174,17 @@ fi
 create_backup_directory
 if check_disk_space; then
     /bin/bash /usr/local/pf/addons/backup-and-maintenance.sh
-    if [ ! -f $BACKUP_FILE ]; then
+    BACKUPRC=$?
+    if (( $BACKUPRC == 0 )); then
         /bin/bash /usr/local/pf/addons/full-import/export.sh $BACKUP_FILE
-    else
-        echo -e $BACKUP_FILE ", file already created. \n"
+        BACKUPRC=$?
     fi
     clean_backup
-    if [ $do_replication == 1 ]; then
-        replicate_backup
+    if (( $BACKUPRC == 0 )); then
+        echo "Exportable backup is done"
+        if [ $do_replication == 1 ]; then
+            replicate_backup
+        fi
     fi
-    echo "Exportable backup is done"
 fi
+exit $BACKUPRC

@@ -22,6 +22,7 @@ use JSON;
 use pfconfig::namespaces::config;
 use pf::log;
 use pf::file_paths qw($domain_config_file);
+use pf::util qw(isenabled);
 use Sys::Hostname;
 
 use base 'pfconfig::namespaces::config';
@@ -30,7 +31,11 @@ sub init {
     my ($self, $host_id) = @_;
     $self->{host_id} = $host_id;
     $self->{file} = $domain_config_file;
-    $self->{child_resources} = [ 'resource::domain_dns_servers' ];
+    $self->{child_resources} = [
+        'resource::domain_dns_servers',
+        'resource::pfconnector_static_connections',
+        'resource::domains',
+    ];
 }
 
 sub build_child {
@@ -59,8 +64,14 @@ sub build_child {
         $host_id = $self->{host_id};
     }
     foreach my $key (keys %tmp_cfg) {
-        if (index($key, $host_id) == 0 && $key =~/^\S+\s+(\S+)$/) {
-            $filtered{$1} = $tmp_cfg{$key};
+        next unless $key =~ /^\S+\s+(\S+)$/;
+        my $bare = $1;
+        # Classic, host-local domains: only this host's own sections. Connector-backed
+        # domains are tenant-wide (stored under a stable, non-host prefix, e.g.
+        # 'connector <id>') and must be visible on every host/pod, so include them
+        # regardless of the prefix.
+        if (index($key, $host_id) == 0 || isenabled($tmp_cfg{$key}{use_connector})) {
+            $filtered{$bare} = $tmp_cfg{$key};
         }
     }
     return \%filtered;
@@ -72,7 +83,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,0 +1,11 @@
+---
+# Device profiling tests using VirtualSwitch
+## Validates that connecting Windows/iOS/Android devices
+## correctly detects them via Fingerbank
+
+- import_playbook: ../common/dev.yml
+  when: lookup("env", "CI") != 'true'
+
+- import_playbook: playbooks/configure.yml
+
+- import_playbook: playbooks/run_tests.yml

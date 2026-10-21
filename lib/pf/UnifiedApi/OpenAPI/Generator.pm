@@ -477,8 +477,10 @@ sub schemaMetaPath {
     $class =~ s/pf::UnifiedApi::Controller:://;
     my @paths = split('::', $class);
     my $name = pop @paths;
+    my $noun = noun($name);
+    my $singular = $noun->singular;
     my $prefix = "/components/schemas";
-    return join('/', $prefix, join("", @paths, "${name}Meta"));
+    return join('/', $prefix, join("", @paths, "${singular}Meta"));
 }
 
 sub path_parameter {
@@ -499,7 +501,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

@@ -79,16 +79,24 @@ func (h *LogTailerHandler) createNewSession(c *gin.Context) {
 
 	if len(params.Files) == 0 {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"message": "No files were specified"})
+		return
 	}
 
+	// regexp.Compile instead of MustCompile: the filter is client input, an
+	// invalid pattern must be a 422, not a panic.
 	var filterRe *regexp.Regexp
+	var err error
 	if params.Filter == "" {
 		filterRe = regexp.MustCompile(`.*`)
 	} else if params.FilterIsRegexp {
-		filterRe = regexp.MustCompile(`(?i)` + params.Filter)
+		filterRe, err = regexp.Compile(`(?i)` + params.Filter)
 	} else {
 		// Simple match
-		filterRe = regexp.MustCompile(`(?i).*` + regexp.QuoteMeta(params.Filter) + `.*`)
+		filterRe, err = regexp.Compile(`(?i).*` + regexp.QuoteMeta(params.Filter) + `.*`)
+	}
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"message": fmt.Sprintf("Invalid regex filter: %s", err)})
+		return
 	}
 
 	h.sessions[sessionId] = NewTailingSession(params.Files, filterRe)
@@ -101,7 +109,7 @@ func (h *LogTailerHandler) createNewSession(c *gin.Context) {
 }
 
 func (h *LogTailerHandler) getSession(c *gin.Context) {
-	func() {
+	found := func() bool {
 		h.sessionsLock.RLock()
 		defer h.sessionsLock.RUnlock()
 
@@ -110,7 +118,7 @@ func (h *LogTailerHandler) getSession(c *gin.Context) {
 
 		if _, ok := h.sessions[sessionId]; !ok {
 			c.JSON(http.StatusNotFound, gin.H{"message": "Unable to find a session with this identifier"})
-			return
+			return false
 		}
 
 		char := "?"
@@ -127,7 +135,12 @@ func (h *LogTailerHandler) getSession(c *gin.Context) {
 		sharedutils.CheckError(err)
 
 		h.sessions[sessionId].Touch()
+		return true
 	}()
+
+	if !found {
+		return
+	}
 
 	h.eventsManager.SubscriptionHandler(c.Writer, c.Request)
 }

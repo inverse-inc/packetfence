@@ -23,8 +23,7 @@
         $ref: '#/components/responses/Forbidden'
       '404':
         $ref: '#/components/responses/NotFound'
-    tags:
-
+    tags: []
   get:
     deprecated: true
     description: Get an item.
@@ -47,8 +46,7 @@
         $ref: '#/components/responses/Forbidden'
       '404':
         $ref: '#/components/responses/NotFound'
-    tags:
-
+    tags: []
   options:
     deprecated: true
     description: Get meta for an item.
@@ -71,8 +69,7 @@
         $ref: '#/components/responses/Forbidden'
       '404':
         $ref: '#/components/responses/NotFound'
-    tags:
-
+    tags: []
   patch:
     deprecated: true
     description: Update an item.
@@ -100,7 +97,7 @@
         $ref: '#/components/responses/NotFound'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
-    tags:
+    tags: []
 
   put:
     deprecated: true
@@ -129,4 +126,4 @@
         $ref: '#/components/responses/NotFound'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
-    tags:
+    tags: []

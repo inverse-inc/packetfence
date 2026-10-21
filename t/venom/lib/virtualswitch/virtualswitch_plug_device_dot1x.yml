@@ -1,0 +1,24 @@
+executor: virtualswitch_plug_device_dot1x
+input:
+  api_url: "http://10.255.255.2:8080"
+  interface_id: "1"
+  mac_address: ""
+  profile: "windows11"
+  eap_type: "peap"
+  user: ""
+  password: ""
+  expected_code: "200"
+steps:
+- type: virtualswitch_api
+  api_url: "{{.input.api_url}}"
+  method: POST
+  endpoint: /api/v1/interfaces/{{.input.interface_id}}/plug
+  body: '{"mac_address": "{{.input.mac_address}}", "auth_method": "802.1x", "eap_type": "{{.input.eap_type}}", "user": "{{.input.user}}", "password": "{{.input.password}}", "profile": "{{.input.profile}}"}'
+  expected_code: "{{.input.expected_code}}"
+  vars:
+    virtualswitch_json:
+      from: result.virtualswitch_responsejson
+output:
+  virtualswitch_plug_device_dot1x_: "{{.virtualswitch_json}}"
+  virtualswitch_plug_device_dot1x__success: "{{.virtualswitch_json.success}}"
+  virtualswitch_plug_device_dot1x__message: "{{.virtualswitch_json.message}}"

@@ -14,7 +14,7 @@ export const useItemTitle = (props) => {
 export const useServices = () => computed(() => {
   return {
     message: i18n.t('Creating or modifying a layer 2 network requires services restart.'),
-    services: ['iptables', 'pfdhcp', 'pfdns'],
+    services: ['pfdhcp'],
     system_services: [],
     k8s_services: [],
     systemd: false

@@ -428,7 +428,8 @@ sub TIEHASH {
     } else {
         $object = $proto->new(@args);
     }
-    die "cannot create a tied pf::IniFiles"
+    use Data::Dumper;
+    die "cannot create a tied pf::IniFiles: " . join(", ", @Config::IniFiles::errors)
         unless $object;
     return $object;
 }
@@ -575,7 +576,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

@@ -24,8 +24,7 @@ use pfconfig::undef_element;
 use pf::log;
 use pfconfig::constants;
 use IO::Socket::UNIX;
-use pf::Sereal qw($DECODER);
-use Sereal::Decoder qw(sereal_decode_with_object);
+use pf::Sereal qw(sereal_decode_safe);
 use Readonly;
 use JSON::MaybeXS qw(encode_json);
 use pfconfig::config;
@@ -62,14 +61,13 @@ sub fetch_decode_socket {
     my $config = $pfconfig::config::INI_CONFIG;
     my $proto = $config->get_proto();
 
-    my $socket;
+    my ($socket, $error);
     my $socket_path = $pfconfig::constants::SOCKET_PATH;
     if(${proto} eq "tcp") {
-        $socket = IO::Socket::INET->new(
-            PeerHost => ($opts{tcp_host} // $config->section('general')->{tcp_host}),
-            PeerPort => ($opts{tcp_port} // $config->section('general')->{tcp_port}),
-            Proto => "tcp",
-            Timeout => ($opts{tcp_timeout} // 5),
+        ($socket, $error) = connect_tcp(
+            host => ($opts{tcp_host} // $config->section('general')->{tcp_host}),
+            port => ($opts{tcp_port} // $config->section('general')->{tcp_port}),
+            timeout => ($opts{tcp_timeout} // 5),
         );
     }
     else {
@@ -77,11 +75,12 @@ sub fetch_decode_socket {
             Type => SOCK_STREAM,
             Peer => $socket_path,
         );
+        $error = "$!";
     }
-    die "cannot connect to the server $!n" unless $socket;
+    die "cannot connect to the server: $error\n" unless $socket;
 
     my $response = fetch_socket($socket, $payload);
-    return sereal_decode_with_object($DECODER, $response);
+    return sereal_decode_safe($response);
 }
 
 sub socket_expire {
@@ -167,13 +166,41 @@ sub normalize_namespace_query {
     return $ns;
 }
 
+=head2 connect_tcp
+
+Connect to pfconfig over TCP.
+
+When pfconfig isn't listening, the kernel can pick its port as the local port
+and connect the socket to itself: that socket would then hold the port and
+pfconfig couldn't bind it anymore. Such a socket is closed.
+
+Returns the socket, or undef and the error.
+
+=cut
+
+sub connect_tcp {
+    my (%args) = @_;
+    my $socket = IO::Socket::INET->new(
+        PeerHost => $args{host},
+        PeerPort => $args{port},
+        Proto => "tcp",
+        (defined($args{timeout}) ? (Timeout => $args{timeout}) : ()),
+    );
+    return (undef, "$!") unless $socket;
+    if ($socket->sockhost eq $socket->peerhost && $socket->sockport == $socket->peerport) {
+        $socket->close();
+        return (undef, "the connection is connected to itself");
+    }
+    return ($socket);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 
@@ -199,4 +226,3 @@ USA.
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
-

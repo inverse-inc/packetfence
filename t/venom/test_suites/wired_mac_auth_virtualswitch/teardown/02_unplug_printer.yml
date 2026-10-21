@@ -1,0 +1,8 @@
+name: Unplug printer device via virtualswitch API (interface 2)
+testcases:
+
+- name: unplug_printer
+  steps:
+  - type: virtualswitch_unplug_device
+    api_url: '{{.virtualswitch.api.url}}'
+    interface_id: '{{.virtualswitch.printer.interface.id}}'

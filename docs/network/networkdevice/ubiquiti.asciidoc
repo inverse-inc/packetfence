@@ -23,14 +23,15 @@ endif::[]
 
 PacketFence supports the EdgeSwitch with the following techniques:
 
+[options="compact"]
 * 802.1X with MAC Authentication fallback
 * 802.1X with MAC Authentication fallback with VoIP
 
 ===== 802.1X with MAC Authentication fallback
 
-We assume that the switch ip is 192.168.1.254
+Switch IP assumed: 192.168.1.254
 
-First on the uplink add this configuration:
+Uplink configuration:
 
   dot1x port-control force-authorized
   vlan participation include 1,2,3,4,5,100
@@ -88,9 +89,9 @@ On each interface (not uplink)
 
 ===== 802.1X with MAC Authentication fallback with VoIP
 
-We assume that the switch ip is 192.168.1.254
+Switch IP assumed: 192.168.1.254
 
-First on the uplink add this configuration:
+Uplink configuration:
 
   dot1x port-control force-authorized
   vlan participation include 1,2,3,4,5,100

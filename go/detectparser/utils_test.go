@@ -1,21 +1,24 @@
 package detectparser
 
 import (
-	"github.com/google/go-cmp/cmp"
+	"errors"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 type ParseTest struct {
 	Line  string
 	Calls []ApiCall
+	Err   error
 }
 
 func RunParseTests(p Parser, tests []ParseTest, t *testing.T) {
 	for i, test := range tests {
 		calls, err := p.Parse(test.Line)
-		if err != nil {
-			t.Errorf("Error Parsing %d) %s", i, test.Line)
-			continue
+
+		if !errors.Is(test.Err, err) {
+			t.Errorf("Got expected error expected: `%v` got: `%v`", test.Err, err)
 		}
 
 		if !cmp.Equal(calls, test.Calls) {

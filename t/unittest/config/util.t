@@ -22,7 +22,7 @@ BEGIN {
 
 use pf::config::util;
 use pf::file_paths qw($html_dir);
-use Test::More tests => 4;
+use Test::More tests => 9;
 
 #This test will running last
 use Test::NoWarnings;
@@ -75,13 +75,21 @@ use Test::NoWarnings;
     );
 }
 
+{
+    is_deeply([pf::config::util::smtp_auth_mechanisms('LOGIN XOAUTH2')], ['LOGIN'], "Office 365 style AUTH uses LOGIN");
+    is_deeply([pf::config::util::smtp_auth_mechanisms('PLAIN LOGIN')], ['PLAIN', 'LOGIN'], "PLAIN is preferred");
+    is_deeply([pf::config::util::smtp_auth_mechanisms('login cram-md5 plain')], ['PLAIN', 'LOGIN'], "case insensitive");
+    is_deeply([pf::config::util::smtp_auth_mechanisms('XOAUTH2')], [], "no supported mechanism");
+    is_deeply([pf::config::util::smtp_auth_mechanisms(undef)], [], "no AUTH");
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

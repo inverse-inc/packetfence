@@ -1,0 +1,22 @@
+name: Deconfigure vswitchbr bridge interface in PF
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: deconfigure_registration_interface
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/interface/{{.virtualswitch.bridge}}'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id": "{{.virtualswitch.bridge}}",
+        "type": "none"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200

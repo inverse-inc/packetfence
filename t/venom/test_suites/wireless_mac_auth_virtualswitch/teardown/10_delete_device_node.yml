@@ -1,0 +1,7 @@
+name: Delete node
+testcases:
+
+- name: delete_node
+  steps:
+  - type: pf_api_node_delete
+    id: '{{.wireless_mac_auth_virtualswitch.device.mac_address}}'

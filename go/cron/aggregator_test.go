@@ -137,7 +137,7 @@ func TestAggregator(t *testing.T) {
 		t.Fatalf("Not aggreated to a single network event")
 	}
 
-	if ne[0].Count != 0 {
+	if ne[0].Count != 2 {
 		t.Fatalf("Not aggreated properly")
 	}
 

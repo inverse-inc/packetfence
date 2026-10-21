@@ -65,7 +65,7 @@ has_field 'categories' =>
    element_class => ['chzn-select'],
    element_attr => {'data-placeholder' => 'Click to add a role'},
    tags => { after_element => \&help,
-             help => 'Nodes with the selected roles will be affected' },
+             help => 'Nodes with the selected roles will be affected. A node without a role (ex: unregistered) is considered to have the default role.' },
   );
 
 has_field 'duration' =>
@@ -186,7 +186,7 @@ sub default_type {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

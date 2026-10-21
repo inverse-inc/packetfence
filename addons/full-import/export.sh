@@ -12,11 +12,14 @@ source /usr/local/pf/addons/functions/helpers.functions
 source /usr/local/pf/addons/functions/database.functions
 
 output="$1"
+BACKUP_DIRECTORY=${BACKUP_DIRECTORY:-/root/backup/}
 BACKUP_DB_FILENAME='packetfence-db-dump-*'
 BACKUP_CONF_FILENAME='packetfence-conf-dump-*'
+# Name of the configuration dump before v14.1
+BACKUP_OLD_CONF_FILENAME='packetfence-files-dump-*'
 
 echo "Search last database dump available."
-last_db_dump=`find /root/backup -name $BACKUP_DB_FILENAME -printf "%T@ %p\n" | sort -n | tail -1 | awk '{ print $2 }'`
+last_db_dump=`find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME" -printf "%T@ %p\n" | sort -n | tail -1 | awk '{ print $2 }'`
 
 if [ -z "$last_db_dump" ]; then
   echo "Unable to find a database dump."
@@ -24,7 +27,11 @@ if [ -z "$last_db_dump" ]; then
 fi
 
 echo "Search last config dump available."
-last_conf_dump=`find /root/backup -name $BACKUP_CONF_FILENAME -printf "%T@ %p\n" | sort -n | tail -1 | awk '{ print $2 }'`
+last_conf_dump=`find $BACKUP_DIRECTORY -name "$BACKUP_CONF_FILENAME" -printf "%T@ %p\n" | sort -n | tail -1 | awk '{ print $2 }'`
+
+if [ -z "$last_conf_dump" ]; then
+  last_conf_dump=`find $BACKUP_DIRECTORY -name "$BACKUP_OLD_CONF_FILENAME" -printf "%T@ %p\n" | sort -n | tail -1 | awk '{ print $2 }'`
+fi
 
 if [ -z "$last_conf_dump" ]; then
   echo "Unable to find a config dump."
@@ -46,17 +53,54 @@ echo "Copying dump files to temporary export directory"
 cp -a $last_db_dump $build_dir/
 cp -a $last_conf_dump $build_dir/
 
-mariadb_args=""
+# mysql/mysqldump arguments, as an array so a password with spaces or quotes is
+# passed as is. On the command line it also wins over a stale password of
+# ~/.my.cnf, which MYSQL_PWD does not. Expanded with ${a[@]+"${a[@]}"} so an
+# empty array works with nounset on bash < 4.4 (packetfence-export on old releases).
+mariadb_args=()
 
 if echo "$last_db_dump" | grep '\.sql.gz$' >/dev/null; then
   if ! test_db_connection_no_creds; then
     echo -n "Please enter the root password for MariaDB:"
-    read -s mariadb_root_pass
-    mariadb_args="$mariadb_args -p$mariadb_root_pass"
+    read -rs mariadb_root_pass
+    echo
+    mariadb_args=(-p"$mariadb_root_pass")
   fi
 
+  # bin/get_pf_conf doesn't exist before v13.1
+  if [ -x /usr/local/pf/bin/get_pf_conf ]; then
+    db_name=$(/usr/local/pf/bin/get_pf_conf database db)
+  else
+    db_name=$(get_db_name /usr/local/pf/conf/pf.conf)
+  fi
+  db_name=${db_name:-pf}
+
   echo "Database dump uses mysqldump. Exporting the grants from the database. Enter the MariaDB root password if prompted to"
-  mysql $mariadb_args --skip-column-names -A -e"SELECT CONCAT('SHOW GRANTS FOR ''',user,'''@''',host,''';') FROM mysql.user WHERE user<>''" | mysql $mariadb_args --skip-column-names -A | sed 's/$/;/g' > grants.sql
+  mysql ${mariadb_args[@]+"${mariadb_args[@]}"} --skip-column-names -A -e"SELECT CONCAT('SHOW GRANTS FOR ''',user,'''@''',host,''';') FROM mysql.user WHERE user<>'' AND user<>'PUBLIC'" | mysql ${mariadb_args[@]+"${mariadb_args[@]}"} --skip-column-names -A | sed 's/$/;/g' > grants.sql
+
+  # pf-user dump omits triggers (no TRIGGER privilege); dump them as root.
+  # Routines are skipped: the base pf dump already carries them.
+  echo "Exporting the triggers from the database"
+  mysqldump ${mariadb_args[@]+"${mariadb_args[@]}"} --single-transaction --no-create-info --no-data --skip-add-drop-table \
+    --triggers "$db_name" > triggers.sql
+
+  # The nightly dump omits large history tables via --ignore-table, but triggers
+  # write to them (e.g. the locationlog trigger inserts into locationlog_history),
+  # so export their structure only to recreate the empty tables on import.
+  # Keep this list in sync with the --ignore-table list in backup-and-maintenance.sh;
+  # only tables that exist are dumped, so obsolete names (pre-10.3) are ignored.
+  excluded_tables="locationlog_history iplog_archive"
+  existing_excluded=""
+  for t in $excluded_tables; do
+    if [ -n "$(mysql ${mariadb_args[@]+"${mariadb_args[@]}"} -N -B -e "SHOW TABLES LIKE '$t'" "$db_name" 2>/dev/null)" ]; then
+      existing_excluded="$existing_excluded $t"
+    fi
+  done
+  if [ -n "$existing_excluded" ]; then
+    echo "Exporting the structure of the tables excluded from the dump:$existing_excluded"
+    mysqldump ${mariadb_args[@]+"${mariadb_args[@]}"} --no-data --skip-triggers --skip-add-drop-table \
+      "$db_name" $existing_excluded > excluded_tables_schema.sql
+  fi
 fi
 
 main_splitter

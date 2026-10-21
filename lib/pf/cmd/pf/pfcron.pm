@@ -33,6 +33,8 @@ pfcmd pfcron <task> [options...]
 
 =item pki_certificates_check
 
+=item pki_revoked_certs_cleanup
+
 =item cleanup_chi_database_cache
 
 =item cluster_check
@@ -65,6 +67,8 @@ pfcmd pfcron <task> [options...]
 
 =item switch_cache_lldpLocalPort_description
 
+=item switch_cache_ifindex
+
 =item ubiquiti_ap_mac_to_ip
 
 =item purge_binary_logs
@@ -79,6 +83,7 @@ pf::cmd::pf::pfcron
 
 use strict;
 use warnings;
+use pf::log;
 use pf::config::pfcron qw(%ConfigCron);
 use pf::constants::exit_code qw($EXIT_SUCCESS);
 use pf::constants;
@@ -123,7 +128,17 @@ sub _run {
     }
 
     if (defined $task) {
-        $task->run();
+        # Stamp the work unit so pf::db can decorate this job's queries for
+        # ProxySQL routing (=> /* pf:pfcron:<task_id> */). Cleared after the run
+        # so any later work never inherits a stale unit (consistent with
+        # sbin/pfqueue-backend).
+        Log::Log4perl::MDC->put('pf_unit', $task_id);
+        my $ok  = eval { $task->run(); 1 };
+        my $err = $@;
+        # NOT MDC->remove('pf_unit'): remove() ignores its argument and empties
+        # the whole context, which would also drop proc/tid/ip/mac.
+        delete Log::Log4perl::MDC->get_context->{pf_unit};
+        die $err unless $ok;
     } else {
         exec('/usr/local/pf/sbin/pfcron', map {/^(.*)$/;$1} $self->args);
     }
@@ -160,7 +175,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

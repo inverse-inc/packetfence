@@ -29,7 +29,7 @@
         />
 
         <form-group-additional-machine-accounts namespace="additional_machine_accounts"
-                                :column-label="$i18n.t(`How many additional machine accounts should be created and used`)"
+                                :column-label="$i18n.t(`Additional machine accounts`)"
                                 :text="$i18n.t(`Additional machine accounts should be created and used to parallel NTLM authentication. PacketFence will use the original machine account name and a short suffix to build the additional machine accounts. E.g. 'primary-1' 'primary-2' if your primiary machine account is set to 'primary'`)"
         />
 
@@ -79,6 +79,13 @@
                                           :column-label="$i18n.t('Domain administrator password')"
                                           :text="$i18n.t(`Domain administrator's password, PacketFence will only use this to update machine account in Active Directory, this will not be saved into config file.`)"
         />
+
+        <form-group-use-connector namespace="use_connector"
+                              :column-label="$i18n.t('Use Connector')"
+                              :text="$i18n.t('Use the available PacketFence connectors to connect to this domain.')"
+                              enabled-value="1"
+                              disabled-value="0"
+    />
 
         <form-group-registration namespace="registration"
                                  :column-label="$i18n.t('Allow on registration')"
@@ -156,6 +163,34 @@
         />
 
       </base-form-tab>
+
+      <base-form-tab :title="$i18n.t('LDAP Connection')">
+        <form-group-force-ldap namespace="force_ldap"
+                            :column-label="$i18n.t('Force Ldap')"
+                            :text="$i18n.t('Force Ldap')"
+          />
+        <form-group-encryption namespace="encryption"
+                            :column-label="$i18n.t('Encryption')"
+                            :text="$i18n.t('Encryption')"
+         />
+        <form-group-channel-binding namespace="channel_binding"
+                            :column-label="$i18n.t('Use channel binding')"
+                            :text="$i18n.t('Use channel binding')"
+         />
+        <form-group-client-cert-file namespace="client_cert_file"
+                            :column-label="$i18n.t('Client Cert File')"
+                            :text="$i18n.t('Client Cert File')"
+         />
+        <form-group-client-key-file namespace="client_key_file"
+                            :column-label="$i18n.t('Client Key File')"
+                            :text="$i18n.t('Client Key File')"
+         />
+        <form-group-ca-file namespace="ca_file"
+                            :column-label="$i18n.t('Ca File')"
+                            :text="$i18n.t('Ca File')"
+         />
+      </base-form-tab>
+
     </b-tabs>
   </base-form>
 </template>
@@ -183,6 +218,7 @@ import {
   FormGroupBindDn,
   FormGroupBindPass,
   FormGroupNtlmv2Only,
+  FormGroupUseConnector,
   FormGroupRegistration,
 
   FormGroupNtlmCache,
@@ -196,6 +232,13 @@ import {
   FormGroupAdResetAccountLockoutCounterAfter,
   FormGroupAdOldPasswordAllowedPeriod,
   FormGroupMaxAllowedPasswordAttemptsPerDevice,
+
+  FormGroupCaFile,
+  FormGroupChannelBinding,
+  FormGroupForceLdap,
+  FormGroupClientCertFile,
+  FormGroupClientKeyFile,
+  FormGroupEncryption,
 
 } from './'
 
@@ -218,6 +261,7 @@ const components = {
   FormGroupBindDn,
   FormGroupBindPass,
   FormGroupNtlmv2Only,
+  FormGroupUseConnector,
   FormGroupRegistration,
 
   FormGroupNtlmCache,
@@ -231,6 +275,13 @@ const components = {
   FormGroupAdResetAccountLockoutCounterAfter,
   FormGroupAdOldPasswordAllowedPeriod,
   FormGroupMaxAllowedPasswordAttemptsPerDevice,
+
+  FormGroupCaFile,
+  FormGroupChannelBinding,
+  FormGroupForceLdap,
+  FormGroupClientCertFile,
+  FormGroupClientKeyFile,
+  FormGroupEncryption,
 }
 
 export const props = {

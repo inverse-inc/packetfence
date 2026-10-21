@@ -16,6 +16,7 @@
   </b-tab>
 </template>
 <script>
+import 'vue2vis/dist/vue2vis.css'
 import { DataSet, Timeline } from 'vue2vis'
 
 const components = {
@@ -94,18 +95,6 @@ const setup = (props, context) => {
           start: new Date(node.regdate),
           end: (node.unregdate && node.unregdate !== '0000-00-00 00:00:00' && node.unregdate !== node.regdate) ? new Date(node.unregdate) : null,
           content: i18n.t('Registered')
-        })
-      }
-      if (node.last_arp && node.last_arp !== '0000-00-00 00:00:00') {
-        addVisGroup({
-          id: `${id.value}-general`,
-          content: i18n.t('General')
-        })
-        addVisItem({
-          id: 'last_arp',
-          group: `${id.value}-general`,
-          start: new Date(node.last_arp),
-          content: i18n.t('Last ARP')
         })
       }
       if (node.last_dhcp && node.last_dhcp !== '0000-00-00 00:00:00') {

@@ -1,0 +1,33 @@
+name: Create VLAN filter for printer role (disabled by default)
+testcases:
+
+- name: create_printer_vlan_filter_disabled
+  steps:
+  - type: pf_api_action
+    method: POST
+    url: 'config/filter_engines/vlan_filters'
+    status_code: 201
+    body: >-
+      {
+        "id": "{{.wired_mac_auth_virtualswitch.vlan_filter.printer.id}}",
+        "description": "{{.wired_mac_auth_virtualswitch.vlan_filter.printer.description}}",
+        "status": "disabled",
+        "run_actions": "enabled",
+        "scopes": ["RegisteredRole"],
+        "condition": {
+          "op": "or",
+          "values": [
+            {
+              "field": "node_info.device_class",
+              "op": "equals",
+              "value": "Printers"
+            },
+            {
+              "field": "node_info.device_class",
+              "op": "equals",
+              "value": "Printers/Scanners"
+            }
+          ]
+        },
+        "role": "{{.wired_mac_auth_virtualswitch.vlan_filter.printer.role}}"
+      }

@@ -124,15 +124,21 @@ sub getTemplatePath {
 
 =item findFirstTemplate
 
-Find the first template in the list
+Find the first template of the list in the template paths
+
+The template paths are searched in order so that a template customized in
+the profile is used instead of a more specific one (a translation) of the
+default templates.
 
 =cut
 
 sub findFirstTemplate {
     my ($self, $files) = @_;
     my $template_paths = $self->{_template_paths};
-    foreach my $file (@$files) {
-        return $file if any {-f "$_/$file"} @$template_paths
+    foreach my $path (@$template_paths) {
+        foreach my $file (@$files) {
+            return $file if -f "$path/$file";
+        }
     }
     return undef;
 }
@@ -683,6 +689,28 @@ sub unregOnAcctStop {
     return isenabled($self->{'_unreg_on_acct_stop'});
 }
 
+=item selfServiceStatusEnabled
+
+Is the status page (/status) of the self-service portal enabled
+
+=cut
+
+sub selfServiceStatusEnabled {
+    my ($self) = @_;
+    return isenabled($self->{'_self_service_status'});
+}
+
+=item selfServiceDeviceRegistrationEnabled
+
+Is the device registration page (/device-registration) of the self-service portal enabled
+
+=cut
+
+sub selfServiceDeviceRegistrationEnabled {
+    my ($self) = @_;
+    return isenabled($self->{'_self_service_device_registration'});
+}
+
 =item autoRegister
 
 is autoregister enabled
@@ -721,7 +749,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,0 +1,19 @@
+name: First server — MariaDB standalone
+testcases:
+# configurator leaves services stopped; bring packetfence-mariadb up in
+# standalone mode before creating the replication user.
+- name: start_packetfence_mariadb
+  steps:
+  - type: exec
+    script: 'systemctl start packetfence-mariadb'
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: mariadb_active
+  steps:
+  - type: exec
+    script: 'systemctl is-active packetfence-mariadb'
+    retry: 12
+    delay: 10
+    assertions:
+      - result.systemout ShouldEqual active

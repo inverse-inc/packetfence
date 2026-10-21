@@ -39,6 +39,7 @@ Services managed by PacketFence:
   pfdhcp                 | dhcpd daemon
   pfdhcplistener         | PF DHCP monitoring daemon
   pfdns                  | DNS daemon
+  pfdns-connector        | DNS daemon for pfconnector
   pffilter               | PF conditions filtering daemon
   pfipset                | IPSET daemon
   pfldapexplorer         | PF ldap search daemon
@@ -49,6 +50,7 @@ Services managed by PacketFence:
   pfsetacls              | ACL service daemon
   pfsso                  | Firewall SSO daemon
   pfstats                | PF statistics daemon
+  pfudpproxy             | UDP reverse proxy for cluster mode
   proxysql               | proxysql daemon
   radiusd                | FreeRADIUS daemon
   radsniff               | radsniff daemon
@@ -317,12 +319,6 @@ sub _doUpdateSystemd {
     print "$service\t${color}${command}$COLORS->{reset}\n" if $show;
 }
 
-sub getIptablesTechnique {
-    require pf::inline::custom;
-    my $iptables = pf::inline::custom->new();
-    return $iptables->{_technique};
-}
-
 sub stopService {
     my ($service,@services) = @_;
     my @managers = pf::services::getManagers(\@services);
@@ -335,22 +331,7 @@ sub stopService {
             $manager->print_status;
         }
     }
-    if(isIptablesManaged($service)) {
-        my $count = true { $_->status eq '0'  } @managers;
-        if( $count ) {
-            getIptablesTechnique->iptables_restore( $install_dir . '/var/iptables.bak' );
-        } else {
-            $logger->error(
-                "Even though 'service pf stop' was called, there are still $count services running. "
-                 . "Can't restore iptables from var/iptables.bak"
-            );
-        }
-    }
     return $EXIT_SUCCESS;
-}
-
-sub isIptablesManaged {
-   return $_[0] eq 'pf' && isenabled($Config{services}{iptables})
 }
 
 sub statusOfService {
@@ -421,7 +402,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

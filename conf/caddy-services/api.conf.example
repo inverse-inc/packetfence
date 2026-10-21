@@ -1,6 +1,8 @@
 # Copyright (C) Inverse inc.
 {
+	# Uncomment the 2 lines below if you want to enable pprof (example curl http://100.64.0.1:2019/debug/pprof/heap)
 	admin off
+	#admin :2019
 	#debug
 }
 
@@ -46,12 +48,18 @@
 
 		api-aaa {
 			no_auth /api/v1/pfconnector/tunnel
-			session_backend db mem
+			no_auth /api/v1/pfconnector/health
+			no_auth /api/v1/fingerbank-collector/flags
+			session_backend {$PF_SESSION_BACKEND:db} mem
 		}
 
 		api
 
+		discover-network-device
+
 		log-tailer
+
+		es-log-tailer
 
 		# Job status access
 		job-status
@@ -79,13 +87,22 @@
 		reverse_proxy /api/v1/pki/* {$PF_SERVICES_URL_PFPKI} {
 		}
 
-		# netdata forward
+		# netdata API access
 		handle_path /api/v1/monitoring/* {
 			@isCss {
 				path *.css
 			}
 			header @isCss >Content-Type "text/css; charset=utf-8"
 			reverse_proxy {$PF_SERVICES_URL_NETDATA}
+		}
+
+		# fingerbank-collector API access
+		handle_path /api/v1/fingerbank-collector/* {
+			reverse_proxy {$PF_SERVICES_URL_FINGERBANK_COLLECTOR} {
+				transport http {
+					tls_insecure_skip_verify
+				}
+			}
 		}
 
 		import api.conf.d/*.conf

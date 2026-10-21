@@ -63,7 +63,10 @@ my @whitelist = (
     '_parentRoleForVlan','_parentRoleForWebAuthUrl','_parentRoleForRole',
     'find_user_by_psk', 'returnAuthorizeProbe', 'returnVpnRoleAttributes', 'shouldUseConnectorForRadiusDeauth', 'radius_deauth_connection_info', 'getVpnByName', '_parentRoleForVpn', 'radius_cache_distributed', 'setRadiusSession', 'useDownloadableACLs', 'defaultACLsLimit', 'defaultDownloadableACLsLimit', 'DownloadableACLsLimit', 'ACLsLimit', 'checkRoleACLs', 'checkRolesACLs', 'acl_chewer', 'makeACLsError',
     'returnAccessListAttribute', 'returnInAccessListAttribute', 'returnOutAccessListAttribute', 'compute_action', 'getNetworkByName', '_parentRoleForNetwork', 'getInterfaceByName',
-    '_parentRoleForInterface', 'getNetworkFromByName', '_parentRoleForNetworkFrom',
+    'untranslatableAclQualifier', 'filterUntranslatableAcls', '_denyAllAclEntry', 'untranslatableFilterRule', 'aclWildcardIsContiguous', 'aclsForPush',
+    '_parentRoleForInterface', 'getNetworkFromByName', '_parentRoleForNetworkFrom', 'switchDriverId', '_getAccessListByName', 'mark_as_seen', 'handleRadiusDisconnect', 'handleRadiusCoa',
+    '_getRoleAccessListByName', 'handleRadiusRsso', '_handleRadiusResponse', 'lldpRemPortIdToMac', 'resolve_deauth_host',
+    'locationlog_for_disconnect', 'getHostMode', 'isMultiAuthPort', 'hasRadiusSecret', 'wiredReevaluationDeauthTechnique', '_setDynauthPort', 'cachedSNMPTableKey', 'refreshCachedSNMPTable', 'ifIndexCacheTables', 'hasCachedIfIndexTables', 'refreshIfIndexCache'
 );
 
 my @missing_subs;
@@ -96,7 +99,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

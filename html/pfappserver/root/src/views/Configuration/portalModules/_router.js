@@ -2,8 +2,8 @@ import store from '@/store'
 import StoreModule from './_store'
 import { analytics } from './config'
 
-const TheList = () => import(/* webpackChunkName: "Configuration" */ './_components/TheList')
-const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
+const TheList = () => import(/* webpackChunkName: "ConfigurationAdvancedAccess" */ './_components/TheList')
+const TheView = () => import(/* webpackChunkName: "ConfigurationAdvancedAccess" */ './_components/TheView')
 
 export const useRouter = $router => {
   return {

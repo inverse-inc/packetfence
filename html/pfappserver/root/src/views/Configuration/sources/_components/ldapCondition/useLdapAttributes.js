@@ -1,5 +1,5 @@
 import {computed, provide, ref, watch} from '@vue/composition-api';
-import _ from 'lodash';
+import debounce from 'lodash/debounce';
 import ProvidedKeys from '@/views/Configuration/sources/_components/ldapCondition/ProvidedKeys';
 import useAdLdap from '@/views/Configuration/sources/_components/ldapCondition/useAdLdap';
 import useOpenLdap from '@/views/Configuration/sources/_components/ldapCondition/useOpenLdap';
@@ -14,7 +14,7 @@ const useLdapAttributes = (props) => {
     })
   }
 
-  const debouncedConnectionCheck = _.debounce(connectionCheck, 1000)
+  const debouncedConnectionCheck = debounce(connectionCheck, 1000)
   const connectedToLdap = ref(false)
   const ldapAttributes = ref([])
   const ldapAttributesLoading = ref(false)

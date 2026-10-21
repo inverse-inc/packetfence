@@ -23,6 +23,7 @@ use pf::condition::all;
 use pf::condition::true;
 use pf::constants::Connection::Profile qw($DEFAULT_PROFILE $MATCH_STYLE_ALL);
 use pf::util qw(isdisabled);
+use pf::log;
 
 sub BUILDARGS {
     my ($self,$args)      = @_;
@@ -35,9 +36,17 @@ sub BUILDARGS {
         next if $id eq $DEFAULT_PROFILE;
         my $profile = $config->{$id};
         next if isdisabled($profile->{status} // 'enabled');
-        my @conditions = map {pf::factory::condition::profile->instantiate($_)} @{$profile->{'filter'}};
-        if ($profile->{'advanced_filter'} ) {
-            push @conditions, pf::factory::condition::profile->instantiate_advanced($profile->{'advanced_filter'});
+        # A profile whose filters can't be built is skipped instead of failing the build of all the profiles
+        my @conditions = eval {
+            my @built = map {pf::factory::condition::profile->instantiate($_)} @{$profile->{'filter'}};
+            if ($profile->{'advanced_filter'} ) {
+                push @built, pf::factory::condition::profile->instantiate_advanced($profile->{'advanced_filter'});
+            }
+            @built;
+        };
+        if ($@) {
+            get_logger->error("Connection profile $id is skipped, unable to build its filters: $@");
+            next;
         }
 
         my $condition;
@@ -66,7 +75,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

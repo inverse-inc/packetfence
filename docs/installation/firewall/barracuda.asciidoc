@@ -20,7 +20,8 @@ endif::[]
 
 ==== Configuration of the Barracuda in PacketFence
 
-Go to *Configuration -> Integration -> Firewall SSO -> Add Firewall -> Barracuda*.
+Go to *Configuration -> Integration -> Firewall SSO -> Add Firewall ->
+Barracuda*.
 
 [options="compact"]
 * *Hostname or IP Address*: IP of your Barracuda
@@ -33,9 +34,12 @@ image::doc-barracuda-cfg_sso_pf.png[scaledwidth="100%",alt="Create the SSO agent
 
 ==== Step 2: Verification
 
-For our example, when the user registers on the portal it will be registered and the role staff will be assigned. The PacketFence server will send a request to the Barracuda database.
+For our example, when the user registers on the portal it will be registered and
+the role staff will be assigned. The PacketFence server will send a request to
+the Barracuda database.
 
-If you want to see if it's working, open an SSH access to your Barracuda and run this command following commands:
+If you want to see if it's working, open an SSH access to your Barracuda and run
+this command following commands:
 
   acpfctrl auth show
 

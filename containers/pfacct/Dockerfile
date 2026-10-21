@@ -11,6 +11,8 @@ RUN cd /usr/local/pf/go/ && go mod download
 COPY ./go /usr/local/pf/go
 COPY ./lib /usr/local/pf/lib
 COPY ./config.mk /usr/local/pf/config.mk
+ARG GO_CHECK=no
+RUN if [ "$GO_CHECK" = "yes" ]; then make -C /usr/local/pf/go check; fi
 RUN cd /usr/local/pf/go/ &&  make pfacct
 
 FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
@@ -21,5 +23,5 @@ COPY --from=0 /usr/local/pf/go/pfacct /usr/local/pf/sbin/pfacct
 
 RUN apt update && apt install freeradius-utils -y
 
-ENTRYPOINT /usr/local/pf/sbin/pfacct
+ENTRYPOINT ["/usr/local/pf/sbin/pfacct"]
 

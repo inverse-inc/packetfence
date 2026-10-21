@@ -16,14 +16,9 @@ use strict;
 use warnings;
 use Moo;
 use IPC::Cmd qw[can_run run];
-use List::MoreUtils qw(uniq);
 use POSIX;
 use pf::config qw(
     %Config
-    @portal_ints
-    @listen_ints
-    @dhcplistener_ints
-    @radius_ints
     %ConfigNetworks
 );
 use pf::file_paths qw(
@@ -77,7 +72,7 @@ sub generateConfig {
     $tags{'router_id'} = "PacketFence-$host_id";
 
     $tags{'vrrp'} = '';
-    $tags{'lvs'} = '';
+
 
     my ($routes,$ips) = $self->generateRoutes();
     $tags{'vrrp'} .= <<"EOT";
@@ -104,7 +99,11 @@ $routes
 EOT
 
     if ( $pf::cluster::cluster_enabled ) {
-        my @ints = uniq(@listen_ints,@dhcplistener_ints, (map { $_->{'Tint'} } @portal_ints, @radius_ints));
+        # Allow the virtual_router_id to be overridden per cluster (DC zone) through the
+        # CLUSTER section of cluster.conf. This lets zones in separate regions use distinct
+        # VRRP router ids. Falls back to the global active_active setting when unset.
+        my $virtual_router_id = $ConfigCluster{$CLUSTER}{'virtual_router_id'} || $Config{'active_active'}{'virtual_router_id'};
+        my @ints = pf::cluster::vrrp_interfaces();
         foreach my $interface ( @ints ) {
             my $cfg = $Config{"interface $interface"};
             next unless $cfg;
@@ -114,40 +113,7 @@ EOT
             }
             my $process_tracking = "haproxy_portal";
             my $cluster_ip = pf::cluster::cluster_ip($interface);
-            if ($Config{"interface $interface"}{'type'} =~ /management/i) {
-                # Defined list of ports we have to listen
-                foreach my $port ( 2055,6343 ) {
-                    $tags{'lvs'} .= <<"EOT";
-virtual_server $cluster_ip $port {
-  delay_loop 2
-  lvs_sched fo
-  lvs_method NAT
-  protocol UDP
-  retry 10
-  delay_before_retry 5
-EOT
-                    my @active_members;
-                    foreach my $member (values %{pf::cluster::members_ips($interface)}) {
-                        $tags{'lvs'} .= <<"EOT";
-  real_server $member $port {
-    SSL_GET {
-      connect_ip $member
-      connect_port 4723
-      url {
-        path "/"
-        status_code 404
-      }
-      connect_timeout 10
-    }
-  }
-EOT
-                    }
-$tags{'lvs'} .= <<"EOT";
-}
-
-EOT
-                }
-            }
+            # NetFlow (2055) and sFlow (6343) UDP load balancing is now handled by pfudpproxy
             if ($Config{"interface $interface"}{'type'} =~ /management/i || $Config{"interface $interface"}{'type'} =~ /radius/i) {
                 $process_tracking = "radius_load_balancer";
                 if(isdisabled($Config{active_active}{centralize_vips})) {
@@ -156,7 +122,7 @@ EOT
             }
             $tags{'vrrp'} .= <<"EOT";
 vrrp_instance $cfg->{'ip'} {
-  virtual_router_id $Config{'active_active'}{'virtual_router_id'}
+  virtual_router_id $virtual_router_id
   advert_int 5
   priority $priority
   state MASTER
@@ -193,6 +159,9 @@ EOT
         }
     }
     parse_template( \%tags, "$conf_dir/keepalived.conf", "$generated_conf_dir/keepalived.conf" );
+    # keepalived >= 2.3 skips an executable configuration file, and the file holds the VRRP password
+    chmod(0640, "$generated_conf_dir/keepalived.conf")
+      or get_logger()->warn("cannot set mode on $generated_conf_dir/keepalived.conf: $!");
     return 1;
 }
 
@@ -265,7 +234,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

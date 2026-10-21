@@ -48,7 +48,7 @@ export const useSearch = makeSearch('connectionProfiles', {
     },
     {
       key: 'id',
-      label: 'MAC', // i18n defer
+      label: 'Profile Name', // i18n defer
       required: true,
       searchable: true,
       visible: true

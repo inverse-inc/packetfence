@@ -3,9 +3,9 @@ import RolesStoreModule from '../roles/_store'
 import SwitchesStoreModule from '../switches/_store'
 import SwitchGroupsStoreModule from './_store'
 
-const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/TheTabsNetworkDevices')
+const TheTabs = () => import(/* webpackChunkName: "ConfigurationPoliciesAccessControl" */ '../_components/TheTabsNetworkDevices')
 const TheCsvImport = () => import(/* webpackChunkName: "Import" */ './_components/TheCsvImport')
-const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
+const TheView = () => import(/* webpackChunkName: "ConfigurationPoliciesAccessControl" */ './_components/TheView')
 
 export const useRouter = $router => {
   return {

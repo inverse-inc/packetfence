@@ -12,14 +12,16 @@ pf::UnifiedApi::Controller::SystemSummary
 
 use strict;
 use warnings;
+use Digest::SHA qw(sha256_hex);
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use pf::db;
 use pf::config::util qw(is_inline_configured);
 use pf::version;
 use pf::cluster;
 use pf::util qw(safe_pf_run isenabled);
-use pf::file_paths qw($git_commit_id_file $install_dir);
+use pf::file_paths qw($git_commit_id_file $install_dir $unified_api_system_pass_file);
 use Fcntl qw(SEEK_SET);
+use Time::Local qw(timegm);
 use pf::UnifiedApi::Controller::Config::System;
 use pf::config qw(%Config);
 
@@ -27,11 +29,13 @@ sub get {
     my ($self) = @_;
     return $self->render(
         json => {
+           uuid(),
            readonly_mode => db_check_readonly() ? $self->json_true : $self->json_false,
            is_inline_configured => is_inline_configured() ? $self->json_true : $self->json_false,
            version => pf::version::version_get_current(),
            hostname => pf::UnifiedApi::Controller::Config::System::_get_hostname,
            uptime(),
+           utc_offset => utc_offset(),
            git_commit_id(),
            db_version => do {my $v = eval { pf::version::version_get_last_db_version() }; $v},
            os => pf::util::host_os_detection(),
@@ -40,6 +44,27 @@ sub get {
         }
     );
 
+}
+
+=head2 utc_offset
+
+The offset in seconds of the server time from UTC. It is taken from the
+database, which computes the default dates of the reports, and from the
+local timezone when the database is not available.
+
+=cut
+
+sub utc_offset {
+    my $offset = eval {
+        my $dbh = db_connect();
+        my ($db_offset) = $dbh->selectrow_array('SELECT TIMESTAMPDIFF(SECOND, UTC_TIMESTAMP(), NOW())');
+        $db_offset;
+    };
+    return int($offset) if defined $offset;
+
+    my $now = time;
+    my @local = localtime($now);
+    return int(timegm(@local[0..5]) - $now);
 }
 
 my $UPTIME_FH;
@@ -60,6 +85,29 @@ sub uptime {
     my $uptime_info = <$UPTIME_FH>;
     my ($uptime, $idle) = $uptime_info =~ /(\d+(?:\.\d+)?) ((\d+(?:\.\d+)?))/;
     return (uptime => $uptime)
+}
+
+=head2 uuid
+
+uuid
+
+=cut
+
+sub uuid {
+    my ($self, $ctx, $args) = @_;
+    my $uuid = undef;
+    if (-f $unified_api_system_pass_file) {
+        if (open(my $fh, $unified_api_system_pass_file)) {
+            {
+                local $/ = undef;
+                $uuid = <$fh>;
+            }
+
+            chomp($uuid);
+            $uuid = sha256_hex($uuid);
+        }
+    }
+    return (uuid => $uuid)
 }
 
 =head2 git_commit_id
@@ -94,7 +142,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

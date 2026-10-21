@@ -30,7 +30,7 @@ import TabIp4Logs from './TabIp4Logs'
 import TabIp6Logs from './TabIp6Logs'
 import TabSecurityEvents from './TabSecurityEvents'
 import TabLocationLogs from './TabLocationLogs'
-import TabTimeline from './TabTimeline'
+const TabTimeline = () => import(/* webpackChunkName: "vendor-vue2vis" */ './TabTimeline')
 
 const components = {
   BaseFormTab,

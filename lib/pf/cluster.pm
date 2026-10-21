@@ -303,6 +303,30 @@ sub members_ips {
     return \%data;
 }
 
+=head2 api_client
+
+A JSON-RPC client to the webservices of a cluster member.
+The connection and the request are bounded (active_active.api_connect_timeout and
+active_active.api_timeout, in seconds) so an unreachable or hung member can't block
+the caller (and its worker) indefinitely.
+Options of pf::api::jsonrpcclient override them, e.g. timeout_ms => 0 for a long operation.
+
+=cut
+
+sub api_client {
+    my ($host, %options) = @_;
+    require pf::api::jsonrpcclient;
+    no warnings 'once';
+    my $config = $pf::config::Config{active_active} // {};
+    return pf::api::jsonrpcclient->new(
+        proto              => 'https',
+        host               => $host,
+        connect_timeout_ms => 1000 * ($config->{api_connect_timeout} || 5),
+        timeout_ms         => 1000 * ($config->{api_timeout} || 60),
+        %options,
+    );
+}
+
 =head2 api_call_each_server
 
 Call an API method on each member of the cluster
@@ -311,13 +335,24 @@ Call an API method on each member of the cluster
 
 sub api_call_each_server {
     my ($asynchronous, $api_method, @api_args) = @_;
+    return _api_call_each_server({}, $asynchronous, $api_method, @api_args);
+}
+
+=head2 _api_call_each_server
+
+api_call_each_server with options for the API client of each member
+
+=cut
+
+sub _api_call_each_server {
+    my ($client_options, $asynchronous, $api_method, @api_args) = @_;
 
     require pf::api::jsonrpcclient;
     my @failed;
     my $method = $asynchronous ? "notify" : "call";
     foreach my $server (config_enabled_servers()){
         next if($server->{host} eq $host_id);
-        my $apiclient = pf::api::jsonrpcclient->new(host => $server->{management_ip}, proto => 'https');
+        my $apiclient = api_client($server->{management_ip}, %$client_options);
         eval {
             pf::log::get_logger->info("Calling $api_method on $server->{host}");
             my ($result) = $apiclient->$method($api_method, @api_args);
@@ -347,7 +382,10 @@ sub sync_files {
     foreach my $file (@$files){
         pf::log::get_logger->info("Synching file $file to cluster members");
         my %data = ( conf_file => $file, from => pf::cluster::current_server()->{management_ip} );
-        push @failed, @{api_call_each_server($options{async}, 'distant_download_configfile', %data)};
+        # A large file (the Fingerbank databases) can take longer than api_timeout to download: with
+        # no_total_timeout, only the member's download bounds it, by its lack of progress
+        my $client_options = $options{no_total_timeout} ? {timeout_ms => 0} : {};
+        push @failed, @{_api_call_each_server($client_options, $options{async}, 'distant_download_configfile', %data)};
     }
     return \@failed;
 }
@@ -438,6 +476,174 @@ sub is_vip_running {
     return $FALSE;
 }
 
+=head2 vip_state_file
+
+Path to the file holding the last VRRP state of a virtual IP on this node
+
+=cut
+
+sub vip_state_file {
+    my ($vip) = @_;
+    return "$var_dir/run/keepalived-vip-$vip.state";
+}
+
+=head2 record_vip_state
+
+Record the VRRP state (master or slave) of a virtual IP on this node with the time of the transition
+Called by keepalived through bin/cluster/pfupdate
+
+=cut
+
+sub record_vip_state {
+    my ($vip, $state) = @_;
+    return unless defined $vip && $vip =~ /^[0-9a-fA-F.:]+$/;
+    eval {
+        write_file(vip_state_file($vip), { atomic => 1 }, join(' ', $state, int(time)));
+    };
+    if ($@) {
+        get_logger->error("Unable to record the state of the virtual IP $vip: $@");
+    }
+}
+
+=head2 read_vip_state
+
+Read the last VRRP state of a virtual IP on this node
+
+=cut
+
+sub read_vip_state {
+    my ($vip) = @_;
+    my $file = vip_state_file($vip);
+    return undef unless -f $file;
+    my ($state, $since) = split(' ', read_file($file, err_mode => 'quiet') // '');
+    return { state => $state, since => $since };
+}
+
+=head2 local_ipv4_addresses
+
+Returns the IPv4 addresses configured on the interfaces of this node
+
+=cut
+
+sub local_ipv4_addresses {
+    my %addresses;
+    foreach my $inf (Net::Interface->interfaces()) {
+        foreach my $address ($inf->address(AF_INET())) {
+            $addresses{inet_ntoa($address)} = $inf->name;
+        }
+    }
+    return \%addresses;
+}
+
+=head2 vrrp_interfaces
+
+The interfaces that have a VRRP instance in the keepalived configuration (and
+so a virtual IP that a member of the cluster holds): the listen, DHCP listener,
+portal and RADIUS interfaces
+
+=cut
+
+sub vrrp_interfaces {
+    require pf::config;
+    my %seen;
+    return grep { defined($_) && !$seen{$_}++ } (
+        @pf::config::listen_ints,
+        @pf::config::dhcplistener_ints,
+        (map { $_->{'Tint'} } @pf::config::portal_ints, @pf::config::radius_ints),
+    );
+}
+
+=head2 vips_status
+
+Returns the virtual IPs of the cluster zone of this node with whether or not
+this node currently holds them. Only the interfaces that have a VRRP instance
+are listed: the other ones never have an owner.
+
+=cut
+
+sub vips_status {
+    return [] unless $cluster_enabled;
+    my $addresses = local_ipv4_addresses();
+    my $management_ip = management_cluster_ip() // '';
+    my %vrrp_interfaces = map { $_ => 1 } vrrp_interfaces();
+    my @vips;
+    foreach my $section (sort keys %{$ConfigCluster{$CLUSTER} // {}}) {
+        next unless $section =~ /^interface (.+)$/;
+        my $interface = $1;
+        next unless $vrrp_interfaces{$interface};
+        my $vip = cluster_ip($interface);
+        next if !defined $vip || $vip eq '';
+        my $state = read_vip_state($vip) // {};
+        push @vips, {
+            interface  => $interface,
+            vip        => $vip,
+            management => ($vip eq $management_ip ? \1 : \0),
+            owner      => (exists $addresses->{$vip} ? \1 : \0),
+            state      => $state->{state},
+            since      => $state->{since},
+        };
+    }
+    return \@vips;
+}
+
+=head2 aggregate_vips_status
+
+Combine the virtual IPs status reported by the members of the cluster (see
+vips_status) into the status of each virtual IP:
+
+  my $vips = aggregate_vips_status([
+      { host => 'pf1', zone => 'DC1', vips => [ ... ] },
+      { host => 'pf2', zone => 'DC1', error => '...' },
+  ]);
+
+Each virtual IP gets its owners and since (the time its owner became master).
+Its status is ok (one owner), split_brain (several owners), none (no owner) or
+unknown (no owner among the members that answered while a member of the same
+zone could not be queried, so it may be the one holding it).
+
+=cut
+
+sub aggregate_vips_status {
+    my ($members) = @_;
+    my (%items, %zone_errors);
+    foreach my $member (@{$members // []}) {
+        my $zone = $member->{zone} // '';
+        if ($member->{error}) {
+            $zone_errors{$zone} = 1;
+            next;
+        }
+        foreach my $v (@{$member->{vips} // []}) {
+            my $item = $items{"$zone|$v->{vip}"} //= {
+                zone       => $member->{zone},
+                vip        => $v->{vip},
+                interface  => $v->{interface},
+                management => $v->{management},
+                owners     => [],
+                since      => undef,
+            };
+            next unless _is_true($v->{owner});
+            push @{$item->{owners}}, $member->{host};
+            if (defined $v->{since} && ($v->{state} // '') eq 'master') {
+                $item->{since} = $v->{since} if !defined $item->{since} || $v->{since} > $item->{since};
+            }
+        }
+    }
+    foreach my $item (values %items) {
+        my $owners = scalar @{$item->{owners}};
+        $item->{status} = $owners > 1 ? 'split_brain'
+          : $owners == 1 ? 'ok'
+          : $zone_errors{$item->{zone} // ''} ? 'unknown'
+          : 'none';
+    }
+    return [ map { $items{$_} } sort keys %items ];
+}
+
+# A boolean of vips_status (\1 or \0) or decoded from JSON
+sub _is_true {
+    my ($value) = @_;
+    return ref($value) eq 'SCALAR' ? ${$value} : $value;
+}
+
 =head2 sync_directory_empty
 
 =cut
@@ -463,8 +669,9 @@ If this is not a cluster, it will dispatch the notification only to itself.
 sub notify_each_server {
     my (@args) = @_;
     if($cluster_enabled) {
+        require pf::api::jsonrpcclient;
         foreach my $server (config_enabled_servers()) {
-            my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $server->{management_ip});
+            my $apiclient = api_client($server->{management_ip});
             $apiclient->notify(@args);
         }
     }
@@ -484,8 +691,20 @@ sub call_server {
     my ($cluster_id, @args) = @_;
     require pf::api::jsonrpcclient;
     my $server = firstval { $_->{host} eq $cluster_id } @config_cluster_servers;
-    my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $server->{management_ip});
+    my $apiclient = api_client($server->{management_ip});
     return $apiclient->call(@args);
+}
+
+=head2 call_server_without_timeout
+
+Call an API method on a cluster member for a long operation (e.g. sync_config_as_master): only the connection is bounded
+
+=cut
+
+sub call_server_without_timeout {
+    my ($cluster_id, @args) = @_;
+    my $server = firstval { $_->{host} eq $cluster_id } @config_cluster_servers;
+    return api_client($server->{management_ip}, timeout_ms => 0)->call(@args);
 }
 
 =head2 queue_stats
@@ -498,7 +717,7 @@ sub queue_stats {
     require pf::api::jsonrpcclient;
     my @stats;
     foreach my $server (enabled_servers()) {
-        my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $server->{management_ip});
+        my $apiclient = api_client($server->{management_ip});
         my %s = (
             %$server,
             stats  => $apiclient->call('queue_stats')
@@ -613,7 +832,7 @@ sub handle_config_conflict {
         # pick the first server of the ones that are at that version and remotely call the sync on it
         my $server = $versions_map->{$latest}->[0];
         get_logger->info("Using $server from the servers holding running the latest version to sync as the master.");
-        call_server($server, 'sync_config_as_master');
+        call_server_without_timeout($server, 'sync_config_as_master');
     }
 
     return;
@@ -627,7 +846,7 @@ sub handle_config_conflict {
     else {
         my $server = $versions_map->{$quorum_version}->[0];
         get_logger->info("Using $server from the servers holding quorum to sync as the master.");
-        call_server($server, 'sync_config_as_master');
+        call_server_without_timeout($server, 'sync_config_as_master');
     }
 
     return;
@@ -641,9 +860,9 @@ Returns the list of ConfigStore to synchronize between cluster members
 =cut
 
 sub stores_to_sync {
-    my @tmp_stores = pf::ConfigStore::All->all_stores();
+    my $tmp_stores = pf::ConfigStore::All->all_stores();
 
-    my @stores = grep { !Role::Tiny->is_role($_) && !$_->does('pf::ConfigStore::Group') && !$_->does('pf::ConfigStore::Filtered') } @tmp_stores;
+    my @stores = grep { !Role::Tiny->is_role($_) && !$_->does('pf::ConfigStore::Group') && !$_->does('pf::ConfigStore::Filtered') } @$tmp_stores;
     return \@stores;
 }
 
@@ -829,7 +1048,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

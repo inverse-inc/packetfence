@@ -3,11 +3,11 @@ package api
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"github.com/inverse-inc/packetfence/go/pfqueueclient"
-	"github.com/julienschmidt/httprouter"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/inverse-inc/packetfence/go/pfqueueclient"
+	"github.com/julienschmidt/httprouter"
 )
 
 func (h APIHandler) Policy(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
@@ -17,7 +17,7 @@ func (h APIHandler) Policy(w http.ResponseWriter, r *http.Request, p httprouter.
 		res, _ := json.Marshal(map[string]string{
 			"message": "Failed to read request body: " + err.Error(),
 		})
-		fmt.Fprintf(w, string(res))
+		w.Write(res)
 		return
 	}
 	defer r.Body.Close()
@@ -33,7 +33,7 @@ func (h APIHandler) Policy(w http.ResponseWriter, r *http.Request, p httprouter.
 		res, _ := json.Marshal(map[string]string{
 			"message": "failed to write policy violation event to pfqueue: " + err.Error(),
 		})
-		fmt.Fprintf(w, string(res))
+		w.Write(res)
 		return
 	}
 
@@ -41,7 +41,7 @@ func (h APIHandler) Policy(w http.ResponseWriter, r *http.Request, p httprouter.
 	res, _ := json.Marshal(map[string]string{
 		"task_key": taskKey,
 	})
-	fmt.Fprintf(w, string(res))
+	w.Write(res)
 	return
 }
 
@@ -52,7 +52,7 @@ func (h APIHandler) CVE(w http.ResponseWriter, r *http.Request, p httprouter.Par
 		res, _ := json.Marshal(map[string]string{
 			"message": "Failed to read request body: " + err.Error(),
 		})
-		fmt.Fprintf(w, string(res))
+		w.Write(res)
 		return
 	}
 	defer r.Body.Close()
@@ -68,7 +68,7 @@ func (h APIHandler) CVE(w http.ResponseWriter, r *http.Request, p httprouter.Par
 		res, _ := json.Marshal(map[string]string{
 			"message": "failed to write CVE event to pfqueue: " + err.Error(),
 		})
-		fmt.Fprintf(w, string(res))
+		w.Write(res)
 		return
 	}
 
@@ -76,6 +76,6 @@ func (h APIHandler) CVE(w http.ResponseWriter, r *http.Request, p httprouter.Par
 	res, _ := json.Marshal(map[string]string{
 		"task_key": taskKey,
 	})
-	fmt.Fprintf(w, string(res))
+	w.Write(res)
 	return
 }

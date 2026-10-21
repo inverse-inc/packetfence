@@ -1,0 +1,11 @@
+# Copyright (C) Inverse inc.
+## Update Log level for ntlm-auth-api
+##
+
+# Available log levels are:
+# DEBUG, INFO, WARNING, ERROR, CRITICAL
+# Default log level is DEBUG
+
+LOG_LEVEL=DEBUG
+
+

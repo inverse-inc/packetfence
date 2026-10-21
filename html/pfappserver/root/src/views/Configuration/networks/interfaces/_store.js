@@ -4,6 +4,7 @@
 import Vue from 'vue'
 import { computed } from '@vue/composition-api'
 import { types } from '@/store'
+import apiCall from '@/utils/api-perl'
 import api from './_api'
 import { columns as columnsInterface } from './config'
 
@@ -43,14 +44,13 @@ const actions = {
   all: ({ commit, getters }) => {
     const params = {
       sort: 'id',
-      fields: columnsInterface.map(r => r.key).join(','),
-      limit: 1000
+      fields: columnsInterface.map(r => r.key).join(',')
     }
     commit('INTERFACE_REQUEST')
-    return api.interfaces(params).then(response => {
+    return apiCall.getAll('config/interfaces', params).then(response => {
       commit('INTERFACE_SUCCESS')
-      commit('INTERFACES_REPLACED', response.items)
-      response.items.forEach(item => {
+      commit('INTERFACES_REPLACED', response.data.items)
+      response.data.items.forEach(item => {
         const { id } = item
         commit('INTERFACE_REPLACED', { ...item, id })
       })

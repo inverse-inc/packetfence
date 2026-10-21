@@ -1,0 +1,41 @@
+name: Create device profiling roles (windows, ios, android)
+testcases:
+
+- name: create_windows_role
+  steps:
+  - type: pf_api_action
+    method: POST
+    url: 'config/roles'
+    status_code: 201
+    body: >-
+      {
+        "id": "{{.device_profiling_virtualswitch.roles.windows.id}}",
+        "max_nodes_per_pid": 0,
+        "notes": "{{.device_profiling_virtualswitch.roles.windows.notes}}"
+      }
+
+- name: create_ios_role
+  steps:
+  - type: pf_api_action
+    method: POST
+    url: 'config/roles'
+    status_code: 201
+    body: >-
+      {
+        "id": "{{.device_profiling_virtualswitch.roles.ios.id}}",
+        "max_nodes_per_pid": 0,
+        "notes": "{{.device_profiling_virtualswitch.roles.ios.notes}}"
+      }
+
+- name: create_android_role
+  steps:
+  - type: pf_api_action
+    method: POST
+    url: 'config/roles'
+    status_code: 201
+    body: >-
+      {
+        "id": "{{.device_profiling_virtualswitch.roles.android.id}}",
+        "max_nodes_per_pid": 0,
+        "notes": "{{.device_profiling_virtualswitch.roles.android.notes}}"
+      }

@@ -242,7 +242,7 @@ export const setup = (props, context) => {
 
   const schema = computed(() => schemaFn(props))
 
-  onMounted(() => $store.dispatch('$_fingerbank/getAccountInfo'))
+  onMounted(() => $store.dispatch('$_fingerbank/getAccountInfo').catch(() => {}))
 
   const accountInfo = computed(() => $store.getters['$_fingerbank/accountInfo'])
 

@@ -51,8 +51,19 @@ rm_conffile() {
     fi
 }
 
+setup_system_init_key() {
+    if [ ! -f /usr/local/pf/conf/system_init_key ]; then
+        if [ ! -d /usr/local/pf/conf ]; then
+            mkdir -p /usr/local/pf/conf
+        fi
+        hexdump -e '/1 "%x"' < /dev/urandom | head -c 32 > /usr/local/pf/conf/system_init_key
+        chmod 600 /usr/local/pf/conf/system_init_key
+    fi
+}
+
 case "$1" in
     install)
+        setup_system_init_key
         stop_service_if_exists packetfence
         if [ -z "$(getent passwd pf)" ]; then
             if ! /usr/bin/id -g pf &>/dev/null; then
@@ -65,11 +76,14 @@ case "$1" in
                 echo "pf user already exist"
         fi
         usermod pf -a -G fingerbank
+        usermod -u 2025 pf
+        groupmod -g 2025 pf
         usermod -aG pf mysql
 
-        # prevent conflicting mariadb service from starting
-        /bin/systemctl mask mariadb
+        # mask the socket too; masking mariadb.service alone leaves :3306 bound
+        /bin/systemctl mask mariadb mariadb.socket
         /bin/systemctl stop mariadb
+        /bin/systemctl stop mariadb.socket || true
         # journald
         /usr/bin/install -d -g systemd-journal /var/log/journal
         /bin/setfacl -R -nm g:adm:rx,d:g:adm:rx /var/log/journal
@@ -85,6 +99,7 @@ case "$1" in
     ;;
 
     upgrade)
+        setup_system_init_key
         # mv the old raddb dir if upgrading from FreeRADIUS 2
         echo "Upgrading from $2"
         if dpkg --compare-versions "$2" lt "6"; then
@@ -105,10 +120,13 @@ case "$1" in
         stop_service_if_exists pfappserver
         /usr/sbin/update-rc.d -f pfappserver remove
         set -e
-        /bin/systemctl isolate packetfence-base.target
-        # prevent conflicting mariadb service from starting
-        /bin/systemctl mask mariadb
+        # mask before isolate: isolate starts packetfence-mariadb, which needs :3306
+        /bin/systemctl mask mariadb mariadb.socket
         /bin/systemctl stop mariadb
+        /bin/systemctl stop mariadb.socket || true
+        # only packetfence-config, packetfence-redis-cache and packetfence-mariadb
+        # services are running after the following command:
+        /bin/systemctl isolate packetfence-base.target
 
         #Change the uid/gid
         set +e
@@ -120,7 +138,6 @@ case "$1" in
 
         usermod pf -a -G fingerbank
         usermod -aG pf mysql
-        usermod -aG pf netdata
 
         disable_service_if_exists packetfence-redis-cache.service
         disable_service_if_exists packetfence-config.service

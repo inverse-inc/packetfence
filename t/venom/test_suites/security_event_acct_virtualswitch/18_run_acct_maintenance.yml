@@ -1,0 +1,6 @@
+name: Run acct_maintenance to check bandwidth triggers
+testcases:
+
+- name: run_acct_maintenance
+  steps:
+  - type: pfcron_acct_maintenance

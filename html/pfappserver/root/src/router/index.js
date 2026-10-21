@@ -16,6 +16,8 @@ import ConfigurationRoute from '@/views/Configuration/_router'
 import ConfiguratorRoute from '@/views/Configurator/_router'
 import PreferencesRoute from '@/views/Preferences/_router'
 import ResetRoute from '@/views/Reset/_router'
+import LiveLogsRoutes from '@/views/LiveLogs/_router'
+import HistoricalLogsRoutes from '@/views/HistoricalLogs/_router'
 
 Vue.use(Loading)
 
@@ -64,12 +66,16 @@ let router = new Router({
     ConfiguratorRoute,
     PreferencesRoute,
     ResetRoute,
+    ...LiveLogsRoutes,
+    ...HistoricalLogsRoutes,
     DefaultRoute
   ]
 })
 
 router.beforeEach((to, from, next) => {
-  if (to.path && !['/', '/login', '/logout', '/expire'].includes(to.path)) {
+  if (to.path && !['/', '/login', '/logout', '/expire'].includes(to.path)
+      && !to.path.startsWith('/live-logs')
+      && !to.path.startsWith('/historical-logs')) {
     showLoader()
   }
   /**
@@ -97,17 +103,25 @@ router.beforeEach((to, from, next) => {
     store.commit('session/CONFIGURATOR_INACTIVE')
     if (to.name !== 'login') { // [4]
       store.dispatch('session/load').then(() => {
-        next() // [5]
+        if (store.state.system.summary === false) {
+          return store.dispatch('system/getSummary') // [5a] ensure summary is loaded before first navigation
+        }
+      }).then(() => {
+        next() // [5b]
       }).catch(() => {
         let currentPath = router.currentRoute.fullPath
         if (currentPath === '/') {
           currentPath = document.location.hash.substring(1)
         }
+        if (currentPath && !['/', '/login', '/logout', '/expire'].includes(currentPath)
+            && !/^\/configurator\//.test(currentPath)) {
+          localStorage.setItem('last_uri', currentPath)
+        }
         axios.get('/api/v1/configurator/config/system/hostname').then(() => {
           next({ name: 'configurator' }) // [6]
         }).catch(() => {
           if (store.state.session.token) {
-            next({ name: 'login', params: { expire: true, previousPath: currentPath } }) // [7]
+            next({ name: 'login', params: { expire: true } }) // [7]
           } else {
             next({ name: 'login' }) // [8]
           }
@@ -120,6 +134,10 @@ router.beforeEach((to, from, next) => {
 })
 
 router.afterEach((to, from) => {
+  if (to.path && !['/', '/login', '/logout', '/expire'].includes(to.path)
+      && !/^\/configurator\//.test(to.path)) {
+    localStorage.setItem('last_uri', to.fullPath)
+  }
   routeData.params = to.params
   routeData.query = to.query
   /**
@@ -135,14 +153,6 @@ router.afterEach((to, from) => {
     window.scrollTo(0, 0) // [3]
     hideLoader()
   }, transitionDelay || 300)
-  /**
-   * Fetch data required for ALL authenticated pages
-   */
-  if (store.state.session.username) {
-    if (store.state.system.summary === false) {
-      store.dispatch('system/getSummary')
-    }
-  }
   store.dispatch('analytics/trackRoute', { to, from })
 })
 

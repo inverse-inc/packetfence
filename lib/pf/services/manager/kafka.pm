@@ -25,7 +25,9 @@ use Sys::Hostname;
 
 use Template;
 use pf::constants qw($TRUE $FALSE);
+use pf::config qw ($management_network);
 use pfconfig::cached_hash;
+
 tie our %ConfigKafka, 'pfconfig::cached_hash', "config::Kafka";
 
 use Moo;
@@ -67,19 +69,20 @@ sub env_vars {
     my ($self) = @_;
     my %env;
     my $hostname = hostname();
-    for my $top ('cluster', $hostname) {
+    my $mgmt_ip = (defined($management_network->tag('vip'))) ? $management_network->tag('vip') : $management_network->tag('ip');
+    for my $top ('cluster', $hostname, '%hostname%') {
         while (my ($k, $v) = each %{$ConfigKafka{$top}}) {
+            $v =~ s/%mgmtip%/$mgmt_ip/g;
             $env{$k} = $v;
         }
     }
-
     return \%env;
 }
 
 sub isManaged {
     my ($self) = @_;
     my $hostname = hostname();
-    ($self->SUPER::isManaged && exists $ConfigKafka{$hostname}) ? $TRUE : $FALSE
+    ($self->SUPER::isManaged && (exists $ConfigKafka{$hostname} || exists $ConfigKafka{'%hostname%'})) ? $TRUE : $FALSE
 }
 
 =head1 AUTHOR
@@ -88,7 +91,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

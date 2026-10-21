@@ -1,0 +1,16 @@
+name: Plug printer device via virtualswitch API (hp-printer profile)
+testcases:
+
+- name: plug_printer_with_mab
+  steps:
+  - type: virtualswitch_plug_device
+    api_url: '{{.virtualswitch.api.url}}'
+    interface_id: '{{.virtualswitch.printer.interface.id}}'
+    mac_address: '{{.virtualswitch.printer.mac_address}}'
+    auth_method: mab
+    profile: '{{.virtualswitch.printer.profile}}'
+
+- name: wait_for_printer_radius_auth
+  steps:
+  - type: sleep
+    time_to_sleep: 10

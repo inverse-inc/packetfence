@@ -384,8 +384,18 @@ sub do_remove {
         return ($status, $msg);
     }
 
-    return $self->dal->remove_by_id($self->build_item_lookup);
+    $self->pre_remove();
+    ($status, $msg) = $self->dal->remove_by_id($self->build_item_lookup);
+    if (is_error($status)) {
+        return ($status, $msg);
+    }
+
+    $self->post_remove();
+    return ($status, $msg);
 }
+
+sub pre_remove { }
+sub post_remove { }
 
 sub can_remove {
     return (200, '');
@@ -602,7 +612,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

@@ -23,6 +23,23 @@ func TestRoundTrip(t *testing.T) {
 		t.Fatalf("Input does not match Output")
 	}
 
+	output, err = PfDecrypt(string(input))
+	if err != nil {
+		t.Fatalf("PfDecrypt: %s", err.Error())
+	}
+
+	if bytes.Compare(input, output) != 0 {
+		t.Fatalf("Input does not match Output")
+	}
+
+	out, err := PfEncrypt([]byte(ciphertext))
+	if err != nil {
+		t.Fatalf("PfEncrypt: %s", err.Error())
+	}
+
+	if out != ciphertext {
+		t.Fatalf("Input does not match Output")
+	}
 }
 
 func TestPerl(t *testing.T) {

@@ -13,8 +13,13 @@
 }
 
 .caption {
-    color: $pf-input-label;
-    font-weight: 600;
-    font-size: 75%;
+    color: var(--pf-text-secondary-color);
+    font-weight: var(--pf-font-weight-normal);
+    font-size: calc(var(--pf-font-size-base) * 0.75);
     text-transform: uppercase;
+}
+
+.no-select {
+    user-select: none;
+    -webkit-user-select: none;
 }

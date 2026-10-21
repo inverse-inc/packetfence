@@ -13,8 +13,8 @@ export const useRouter = $router => {
   }
 }
 
-const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
-const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
+const TheSearch = () => import(/* webpackChunkName: "ConfigurationIntegration" */ './_components/TheSearch')
+const TheView = () => import(/* webpackChunkName: "ConfigurationIntegration" */ './_components/TheView')
 
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_clouds) {

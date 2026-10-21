@@ -42,66 +42,70 @@ export const pfFieldType = {
   /* Promise field types */
   ADMINROLE:                           'adminrole',
   ADMINROLE_BY_ACL_USER:               'adminrole_by_acl_user',
-  DURATION:                            'duration',
   DURATION_BY_ACL_USER:                'duration_by_acl_user',
+  DURATION:                            'duration',
   DURATIONS:                           'durations',
+  MFA:                                 'mfa',
   OPTIONS:                             'options',
   REALM:                               'realm',
-  ROLE:                                'role',
-  ROLE_BY_NAME:                        'role_by_name',
+  BYPASS_ROLE_BY_ACL_NODE:             'bypass_role_by_acl_node',
   ROLE_BY_ACL_NODE:                    'role_by_acl_node',
   ROLE_BY_ACL_USER:                    'role_by_acl_user',
+  ROLE_BY_NAME:                        'role_by_name',
+  ROLE:                                'role',
   ROOT_PORTAL_MODULE:                  'root_portal_module',
   SOURCE:                              'source',
   SSID:                                'ssid',
   SWITCHE:                             'switche',
   SWITCH_GROUP:                        'switch_group',
+  TIME_PERIOD:                         'time_period',
   TIME:                                'time',
-  TIME_PERIOD:                         'time_period'
 }
 
 export const pfFieldTypeComponent = {
   /* native component types */
-  [pfFieldType.NONE]:                  pfComponentType.NONE,
-  [pfFieldType.DATE]:                  pfComponentType.DATE,
-  [pfFieldType.DATETIME]:              pfComponentType.DATETIME,
-  [pfFieldType.HIDDEN]:                pfComponentType.HIDDEN,
-  [pfFieldType.INTEGER]:               pfComponentType.INTEGER,
-  [pfFieldType.PREFIXMULTIPLIER]:      pfComponentType.PREFIXMULTIPLIER,
-  [pfFieldType.SELECTONE]:             pfComponentType.SELECTONE,
-  [pfFieldType.SELECTMANY]:            pfComponentType.SELECTMANY,
-  [pfFieldType.SUBSTRING]:             pfComponentType.SUBSTRING,
-  [pfFieldType.TOGGLE]:                pfComponentType.TOGGLE,
+  [pfFieldType.NONE]:                    pfComponentType.NONE,
+  [pfFieldType.DATE]:                    pfComponentType.DATE,
+  [pfFieldType.DATETIME]:                pfComponentType.DATETIME,
+  [pfFieldType.HIDDEN]:                  pfComponentType.HIDDEN,
+  [pfFieldType.INTEGER]:                 pfComponentType.INTEGER,
+  [pfFieldType.PREFIXMULTIPLIER]:        pfComponentType.PREFIXMULTIPLIER,
+  [pfFieldType.SELECTONE]:               pfComponentType.SELECTONE,
+  [pfFieldType.SELECTMANY]:              pfComponentType.SELECTMANY,
+  [pfFieldType.SUBSTRING]:               pfComponentType.SUBSTRING,
+  [pfFieldType.TOGGLE]:                  pfComponentType.TOGGLE,
 
   /* additional component types */
-  [pfFieldType.ADMINROLE]:             pfComponentType.SELECTMANY,
-  [pfFieldType.ADMINROLE_BY_ACL_USER]: pfComponentType.SELECTMANY,
-  [pfFieldType.CONNECTION]:            pfComponentType.SELECTONE,
-  [pfFieldType.CONNECTION_TYPE]:       pfComponentType.SELECTONE,
-  [pfFieldType.CONNECTION_SUB_TYPE]:   pfComponentType.SELECTONE,
-  [pfFieldType.DURATION]:              pfComponentType.SELECTONE,
-  [pfFieldType.DURATION_BY_ACL_USER]:  pfComponentType.SELECTONE,
-  [pfFieldType.DURATIONS]:             pfComponentType.SELECTMANY,
-  [pfFieldType.GENDER]:                pfComponentType.SELECTONE,
-  [pfFieldType.LDAPATTRIBUTE]:         pfComponentType.SUBSTRING,
-  [pfFieldType.LDAPFILTER]:            pfComponentType.SUBSTRING,
-  [pfFieldType.NODE_STATUS]:           pfComponentType.SELECTONE,
-  [pfFieldType.OPTIONS]:               pfComponentType.SELECTONE,
-  [pfFieldType.RADIUSATTRIBUTE]:       pfComponentType.SUBSTRING,
-  [pfFieldType.REALM]:                 pfComponentType.SELECTONE,
-  [pfFieldType.ROLE]:                  pfComponentType.SELECTONE,
-  [pfFieldType.ROLE_BY_NAME]:          pfComponentType.SELECTONE,
-  [pfFieldType.ROLE_BY_ACL_NODE]:      pfComponentType.SELECTONE,
-  [pfFieldType.ROLE_BY_ACL_USER]:      pfComponentType.SELECTONE,
-  [pfFieldType.ROOT_PORTAL_MODULE]:    pfComponentType.SELECTONE,
-  [pfFieldType.SOURCE]:                pfComponentType.SELECTONE,
-  [pfFieldType.SSID]:                  pfComponentType.SELECTONE,
-  [pfFieldType.SWITCHE]:               pfComponentType.SELECTONE,
-  [pfFieldType.SWITCH_GROUP]:          pfComponentType.SELECTONE,
-  [pfFieldType.TIME]:                  pfComponentType.TIME,
-  [pfFieldType.TIME_BALANCE]:          pfComponentType.SELECTONE,
-  [pfFieldType.TIME_PERIOD]:           pfComponentType.SUBSTRING,
-  [pfFieldType.URL]:                   pfComponentType.SUBSTRING,
+  [pfFieldType.ADMINROLE]:               pfComponentType.SELECTMANY,
+  [pfFieldType.ADMINROLE_BY_ACL_USER]:   pfComponentType.SELECTMANY,
+  [pfFieldType.CONNECTION]:              pfComponentType.SELECTONE,
+  [pfFieldType.CONNECTION_TYPE]:         pfComponentType.SELECTONE,
+  [pfFieldType.CONNECTION_SUB_TYPE]:     pfComponentType.SELECTONE,
+  [pfFieldType.DURATION]:                pfComponentType.SELECTONE,
+  [pfFieldType.DURATION_BY_ACL_USER]:    pfComponentType.SELECTONE,
+  [pfFieldType.DURATIONS]:               pfComponentType.SELECTMANY,
+  [pfFieldType.GENDER]:                  pfComponentType.SELECTONE,
+  [pfFieldType.LDAPATTRIBUTE]:           pfComponentType.SUBSTRING,
+  [pfFieldType.LDAPFILTER]:              pfComponentType.SUBSTRING,
+  [pfFieldType.MFA]:                     pfComponentType.SELECTONE,
+  [pfFieldType.NODE_STATUS]:             pfComponentType.SELECTONE,
+  [pfFieldType.OPTIONS]:                 pfComponentType.SELECTONE,
+  [pfFieldType.RADIUSATTRIBUTE]:         pfComponentType.SUBSTRING,
+  [pfFieldType.REALM]:                   pfComponentType.SELECTONE,
+  [pfFieldType.ROLE]:                    pfComponentType.SELECTONE,
+  [pfFieldType.ROLE_BY_NAME]:            pfComponentType.SELECTONE,
+  [pfFieldType.BYPASS_ROLE_BY_ACL_NODE]: pfComponentType.SELECTONE,
+  [pfFieldType.ROLE_BY_ACL_NODE]:        pfComponentType.SELECTONE,
+  [pfFieldType.ROLE_BY_ACL_USER]:        pfComponentType.SELECTONE,
+  [pfFieldType.ROOT_PORTAL_MODULE]:      pfComponentType.SELECTONE,
+  [pfFieldType.SOURCE]:                  pfComponentType.SELECTONE,
+  [pfFieldType.SSID]:                    pfComponentType.SELECTONE,
+  [pfFieldType.SWITCHE]:                 pfComponentType.SELECTONE,
+  [pfFieldType.SWITCH_GROUP]:            pfComponentType.SELECTONE,
+  [pfFieldType.TIME]:                    pfComponentType.TIME,
+  [pfFieldType.TIME_BALANCE]:            pfComponentType.SELECTONE,
+  [pfFieldType.TIME_PERIOD]:             pfComponentType.SUBSTRING,
+  [pfFieldType.URL]:                     pfComponentType.SUBSTRING,
   [pfFieldType.YESNO]:                 pfComponentType.TOGGLE
 }
 
@@ -115,6 +119,8 @@ export const operatorMap = {
   ends: 'ends',
   matches_regexp: 'matches regexp',
   is_member_of: 'is member of',
+  has_bit: 'has bit',
+  not_has_bit: 'not has bit',
 }
 
 export const pfFieldTypeOperators = {
@@ -130,7 +136,9 @@ export const pfFieldTypeOperators = {
     { text: 'contains', value: operatorMap.contains },
     { text: 'ends', value: operatorMap.ends },
     { text: 'matches regexp', value: operatorMap.matches_regexp },
-    { text: 'is member of', value: operatorMap.is_member_of }
+    { text: 'is member of', value: operatorMap.is_member_of },
+    { text: 'has bit', value: operatorMap.has_bit },
+    { text: 'not has bit', value: operatorMap.not_has_bit }
   ],
   [pfFieldType.LDAPFILTER]: [
     { text: 'match filter', value: 'match filter' }
@@ -283,6 +291,13 @@ export const pfFieldTypeValues = {
   [pfFieldType.DURATIONS]: () =>
     store.dispatch('config/getBaseGuestsAdminRegistration').then(() => store.getters['config/accessDurationsList']),
 
+  [pfFieldType.MFA]: () =>
+    store.dispatch('config/getMfas').then(items => [
+      ...items.map((item) => {
+        return { value: item.id, text: item.id }
+      })
+    ]),
+
   [pfFieldType.OPTIONS]: ({ field }) => {
     if (field === undefined) {
       throw new Error('Missing `field` in pfFieldTypeValues[pfFieldType.OPTIONS]')
@@ -311,6 +326,9 @@ export const pfFieldTypeValues = {
       })
     }),
 
+  [pfFieldType.BYPASS_ROLE_BY_ACL_NODE]: () =>
+    store.dispatch('session/getAllowedNodeBypassRoles').then(() => store.getters['session/allowedNodeBypassRolesList']),
+
   [pfFieldType.ROLE_BY_ACL_NODE]: () =>
     store.dispatch('session/getAllowedNodeRoles').then(() => store.getters['session/allowedNodeRolesList']),
 
@@ -333,15 +351,23 @@ export const pfFieldTypeValues = {
     store.dispatch('config/getSwitchGroups').then(() => store.getters['config/switchGroupsList']),
 
   [pfFieldType.TIME_BALANCE]: () =>
-    [
-      { text: i18n.t('1 hour'), value: '1h' },
-      { text: i18n.t('3 hours'), value: '3h' },
-      { text: i18n.t('12 hours'), value: '12h' },
-      { text: i18n.t('1 day'), value: '1D' },
-      { text: i18n.t('2 days'), value: '2D' },
-      { text: i18n.t('3 days'), value: '3D' },
-      { text: i18n.t('5 days'), value: '5D' }
-    ],
+    store.dispatch('config/getBaseGuestsAdminRegistration').then(() => {
+      // a time balance is an absolute amount of time: leave out the
+      // durations that are relative to a period (F/R base)
+      const choices = store.getters['config/accessDurationsList'].filter(option => option && !option.base)
+      if (choices.length > 0)
+        return choices
+      // the choices can't be read without the configuration_main read right
+      return [
+        { text: i18n.t('1 hour'), value: '1h' },
+        { text: i18n.t('3 hours'), value: '3h' },
+        { text: i18n.t('12 hours'), value: '12h' },
+        { text: i18n.t('1 day'), value: '1D' },
+        { text: i18n.t('2 days'), value: '2D' },
+        { text: i18n.t('3 days'), value: '3D' },
+        { text: i18n.t('5 days'), value: '5D' }
+      ]
+    }),
 
   [pfFieldType.YESNO]: () =>
     [

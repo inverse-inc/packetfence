@@ -16,8 +16,11 @@ use warnings;
 use Moo;
 use pf::file_paths qw($roles_config_file $roles_default_config_file);
 use pf::nodecategory;
-use pf::config;
+use pf::config::cluster;
+use pf::constants;
+use pf::config qw(%Config);
 use pfconfig::manager;
+use pfconfig::git_storage;
 extends 'pf::ConfigStore';
 
 sub configFile { $roles_config_file };
@@ -39,6 +42,119 @@ sub cleanupAfterRead {
     }
 }
 
+=head2 cleanupBeforeCommit
+
+Default `acls` to an empty string when missing so pfconfig's generic-copy
+inheritance does not pull the parent's ACLs into the child's flattened
+node_category row (runtime walk in Switch.pm handles the ACL fallback
+instead).
+
+For `parent_id`: defensive backstop only. On CREATE (section does not
+yet exist) anything still undef at this point is persisted as an
+explicit `parent_id=` (empty) so the pfconfig runtime fallback won't
+auto-fill it. The actual `advanced.default_role_parent_id` resolution
+lives in the UnifiedApi Roles controller hooks
+(`cleanupItemForCreate` / `cleanupItemForReplace` /
+`cleanupItemForUpdate`), which see the raw payload and can distinguish
+"key missing" (apply default) from "key present + null" (lock as
+empty). The runtime fallback for legacy roles whose `parent_id` line
+predates that materialization lives in
+`pfconfig::namespaces::config::Roles::build_child`.
+
+=cut
+
+sub cleanupBeforeCommit {
+    my ($self, $id, $assignments) = @_;
+    $assignments->{acls} = ''
+        unless defined $assignments->{acls};
+
+    # Defensive backstop only. The UnifiedApi Roles controller's
+    # cleanupItemForCreate/cleanupItemForUpdate hooks resolve the
+    # advanced.default_role_parent_id semantics from the raw payload
+    # (which still distinguishes "key missing" from "key present + null").
+    # Anything still undef here on create came from a non-API caller —
+    # persist as the explicit empty lock so the pfconfig runtime
+    # fallback won't auto-fill it.
+    if (!defined $assignments->{parent_id}
+        && !$self->cachedConfig->SectionExists($id)) {
+        $assignments->{parent_id} = '';
+    }
+}
+
+=head2
+
+=cut
+
+sub readDefaults {
+    my ($self) = @_;
+    my $default_section = $Config{advanced}{default_role_parent_id};
+    if (!defined $default_section || $default_section eq '' ) {
+        return undef;
+    }
+
+    my $data = $self->read($default_section, 'id');
+    if ($data) {
+        $data->{id} = undef;
+        $data->{parent_id} = '' unless defined $data->{parent_id};
+    }
+
+    return $data;
+}
+
+
+=head2 parentSections
+
+Return the parent role section so values from parent_id can be inherited.
+
+=cut
+
+sub parentSections {
+    my ($self, $id, $item) = @_;
+    my $parent_id = $item->{parent_id} // $self->cachedConfig->val($id, 'parent_id') // '';
+    my $default_section = $self->default_section;
+    return if defined $default_section && $id eq $default_section;
+    my @parents;
+    my %seen = ($id => 1);
+    while (defined $parent_id && length $parent_id && !$seen{$parent_id} && (!defined $default_section || $default_section ne $parent_id)) {
+        push @parents, $parent_id;
+        $seen{$parent_id} = 1;
+        $parent_id = $self->cachedConfig->val($parent_id, 'parent_id');
+    }
+
+    return @parents, $self->SUPER::parentSections($id, $item);
+}
+
+
+=item commitPfconfig
+
+Override to use light expire instead of hard expire.
+The config will be rebuilt once in commit() via cache_resource,
+avoiding a redundant full rebuild from the parent's hard expire.
+
+=cut
+
+sub commitPfconfig {
+    my ($self) = @_;
+    if (!defined($self->pfconfigNamespace)) {
+        pf::log::get_logger->warn("Can't expire pfconfig in " . ref($self) . " because the pfconfig namespace is not defined.");
+        return ($TRUE, undef);
+    }
+
+    if ($cluster_enabled) {
+        return $self->SUPER::commitPfconfig();
+    }
+
+    my $manager = pfconfig::manager->new;
+    # Light expire: updates control file timestamps and cascades to
+    # children/overlayed without doing a full rebuild. The single
+    # necessary rebuild happens in commit() below.
+    $manager->expire($self->pfconfigNamespace, 1);
+    if (pfconfig::git_storage->is_enabled) {
+        return $self->commitGitStorage();
+    }
+
+    return ($TRUE, undef);
+}
 
 =item commit
 
@@ -49,8 +165,13 @@ Repopulate the node_category table after commiting
 sub commit {
     my ($self) = @_;
     my ($result, $error) = $self->SUPER::commit();
-    pf::log::get_logger->info("commiting via Roles configstore");
-    nodecategory_populate_from_config(pfconfig::manager->new->get_namespace("config::Roles")->build());
+    if ($result) {
+        pf::log::get_logger->info("commiting via Roles configstore");
+        my $manager = pfconfig::manager->new;
+        # Single build: rebuilds from disk, caches in L2, and notifies pfconfig
+        my $config = $manager->cache_resource("config::Roles");
+        nodecategory_populate_from_config($config);
+    }
     return ($result, $error);
 }
 
@@ -62,7 +183,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

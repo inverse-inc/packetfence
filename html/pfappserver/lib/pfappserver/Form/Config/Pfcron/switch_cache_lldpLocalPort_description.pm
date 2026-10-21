@@ -20,7 +20,7 @@ with 'pfappserver::Base::Form::Role::Help';
 
 has_field 'process_switchranges' => (
     type            => 'Toggle',
-    checked_value   => 'enabled',
+    checkbox_value  => 'enabled',
     unchecked_value => 'disabled',
     default_method  => \&default_field_method,
     tags => { 
@@ -47,7 +47,7 @@ sub default_type {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

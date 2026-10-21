@@ -3,9 +3,11 @@ import {
   BaseFormButtonBar,
   BaseFormGroupChosenMultiple,
   BaseFormGroupInput,
-  BaseFormGroupInputDate
+  BaseFormGroupInputDate,
+  BaseFormGroupToggleFalseTrue,
 } from '@/components/new/'
 import BaseFormGroupAclAllowedActions from './BaseFormGroupAclAllowedActions'
+import BaseFormGroupAllowedNodeBypassVlans from './BaseFormGroupAllowedNodeBypassVlans'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -22,7 +24,12 @@ export {
   BaseFormGroupInputDate              as FormGroupAllowedUnregDate,
   BaseFormGroupAclAllowedActions      as FormGroupAllowedActions,
   BaseFormGroupChosenMultiple         as FormGroupAllowedNodeRoles,
-
+  BaseFormGroupChosenMultiple         as FormGroupAllowedNodeBypassRoles,
+  BaseFormGroupAllowedNodeBypassVlans as FormGroupAllowedNodeBypassVlans,
+  BaseFormGroupChosenMultiple         as FormGroupDisallowedRoles,
+  BaseFormGroupChosenMultiple         as FormGroupDisallowedNodeBypassRoles,
+  BaseFormGroupChosenMultiple         as FormGroupDisallowedNodeRoles,
+  BaseFormGroupToggleFalseTrue        as FormGroupDisableBypassVlan,
   TheForm,
   TheView
 }

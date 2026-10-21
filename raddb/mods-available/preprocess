@@ -51,7 +51,7 @@ preprocess {
 	#   H323-Attribute = "h323-attribute=value".
 	#
 	# If this configuration item is set to 'yes', then
-	# the redundant data in the the attribute text is stripped
+	# the redundant data in the attribute text is stripped
 	# out.  The result is:
 	#
 	#  H323-Attribute = "value"

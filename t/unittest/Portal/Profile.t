@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 12;
+use Test::More tests => 18;
 use Test::Exception;
 use JSON::MaybeXS;
 use_ok("pf::Connection::ProfileFactory");
@@ -65,6 +65,21 @@ is($profile->findProvisioner("00:00:00:00:00:00", {device_type => "Playstation 4
 is($profile->findProvisioner("00:00:00:00:00:00", {device_type => undef, category => "guest"}), undef,
     "Shouldn't find a provisioner when there is no OS defined.");
 
+# self service status page and device registration toggles
+{
+    my $enabled = pf::Connection::Profile->new({ self_service_status => 'enabled', self_service_device_registration => 'enabled' });
+    ok($enabled->selfServiceStatusEnabled, "Status page enabled");
+    ok($enabled->selfServiceDeviceRegistrationEnabled, "Device registration enabled");
+
+    my $no_status = pf::Connection::Profile->new({ self_service_status => 'disabled', self_service_device_registration => 'enabled' });
+    ok(!$no_status->selfServiceStatusEnabled, "Status page disabled");
+    ok($no_status->selfServiceDeviceRegistrationEnabled, "Device registration setting is independent of the status page");
+
+    my $no_device_reg = pf::Connection::Profile->new({ self_service_status => 'enabled', self_service_device_registration => 'disabled' });
+    ok($no_device_reg->selfServiceStatusEnabled, "Status page enabled with device registration disabled");
+    ok(!$no_device_reg->selfServiceDeviceRegistrationEnabled, "Device registration disabled");
+}
+
 done_testing();
 
 =head1 AUTHOR
@@ -73,7 +88,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

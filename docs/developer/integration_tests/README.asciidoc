@@ -23,6 +23,7 @@ integrations in a pipeline.
 
 Integration tests rely on:
 
+[options="compact"]
 * <<_virtual_environment>>
 * network topologies built using `libvirt` footnote:[based on Cumulus Networks's project link:https://github.com/CumulusNetworks/cldemo-vagrant[cldemo]]
 * virtual machines different than PacketFence to test integrations

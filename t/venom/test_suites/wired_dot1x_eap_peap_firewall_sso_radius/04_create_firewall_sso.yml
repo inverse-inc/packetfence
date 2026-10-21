@@ -17,7 +17,10 @@ testcases:
         "password": "{{.firewall_sso.radius.radius_secret}}",
         "port": {{.firewall_sso.radius.radius_port}},
         "type": "{{.firewall_sso.radius.type}}",
-        "username_format": "$pf_username"
+        "username_format": "$pf_username",
+        "sso_on_accounting": 1,
+        "sso_on_access_reevaluation": 1,
+        "sso_on_dhcp": 1
       }
     headers:
       "Authorization": "{{.get_login_token.json.result.token}}"

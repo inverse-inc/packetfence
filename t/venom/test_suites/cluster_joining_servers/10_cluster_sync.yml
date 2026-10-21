@@ -1,0 +1,39 @@
+name: Joining servers — sync config from first server
+testcases:
+# docs/cluster/cluster_setup.asciidoc "Sync the PacketFence configuration":
+# pull the whole config from pf1 over the webservices API. Credentials match
+# what cluster_first_server wrote into pf.conf [webservices].
+- name: cluster_sync_from_first_server
+  steps:
+  - type: exec
+    script: '/usr/local/pf/bin/cluster/sync --from={{.pf1_mgmt_ip}} --api-user={{.cluster_webservices_user}} --api-password={{.cluster_webservices_password}}'
+    assertions:
+      - result.code ShouldEqual 0
+
+# reload and start the webservices stack on the joiner (doc step right after
+# the sync). configreload still warns about the DB until mariadb joins, so it
+# is tolerated; the service restarts must succeed.
+- name: reload_config
+  steps:
+  - type: exec
+    script: 'systemctl restart packetfence-config'
+    assertions:
+      - result.code ShouldEqual 0
+  - type: exec
+    script: '/usr/local/pf/bin/pfcmd configreload || true'
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: restart_proxysql
+  steps:
+  - type: exec
+    script: '/usr/local/pf/bin/pfcmd service proxysql restart'
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: restart_httpd_webservices
+  steps:
+  - type: exec
+    script: '/usr/local/pf/bin/pfcmd service httpd.webservices restart'
+    assertions:
+      - result.code ShouldEqual 0

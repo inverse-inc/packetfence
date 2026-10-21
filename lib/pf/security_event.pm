@@ -28,6 +28,7 @@ use pfconfig::cached_scalar;
 use fingerbank::Model::Device;
 use fingerbank::Model::DHCP_Fingerprint;
 use fingerbank::Model::DHCP_Vendor;
+use fingerbank::Config;
 use pf::security_event_config;
 use pf::node;
 use pf::StatsD::Timer;
@@ -515,43 +516,48 @@ sub security_event_last_errors { @ERRORS }
 sub info_for_security_event_engine {
     # NEED TO HANDLE THE NEW TID
     my ($mac,$type,$tid) = @_;
+    $type = lc($type);
     my $node_info = pf::node::node_view($mac);
 
-    my $cache = pf::CHI->new( namespace => 'fingerbank' );
-
-    $type = lc($type);
-
-    my $devices = [];
-    my ($device_id);
-    if($type eq "device"){
+    my $results = {};
+    my $device_id;
+    if ($type eq "device") {
         $device_id = $tid;
     }
-    else {
-        my ($device_result, $device) = fingerbank::Model::Device->find([{name => $node_info->{device_type}}]);
-        if(is_success($device_result)){
-            $device_id = $device->id
-        }
-    }
+    my $mac_vendor_id;
+    my $api_config = fingerbank::Config::is_api_key_configured();
+    if ($api_config) {
+        my $cache = pf::CHI->new( namespace => 'fingerbank' );
 
-    my $attr_map = {
-        dhcp_fingerprint => "fingerbank::Model::DHCP_Fingerprint",
-        dhcp_vendor => "fingerbank::Model::DHCP_Vendor",
-        dhcp6_fingerprint => "fingerbank::Model::DHCP6_Fingerprint",
-        dhcp6_enterprise => "fingerbank::Model::DHCP6_Enterprise",
-    };
-    my $results = {};
-    foreach my $attr (keys %$attr_map){
-        my $model = $attr_map->{$attr};
-        my $query = {value => $node_info->{$attr}};
-        $results->{$attr} = $cache->compute_with_undef("$model\_id_".encode_json($query), sub {
-            my ($status, $result) = $model->find([$query]);
-            return is_success($status) ? $result->id : undef;
+
+        my $devices = [];
+        if (!defined $device_id) {
+            my ($device_result, $device) = fingerbank::Model::Device->find([{name => $node_info->{device_type}}]);
+            if (is_success($device_result)) {
+                $device_id = $device->id
+            }
+        }
+
+        my $attr_map = {
+            dhcp_fingerprint => "fingerbank::Model::DHCP_Fingerprint",
+            dhcp_vendor => "fingerbank::Model::DHCP_Vendor",
+            dhcp6_fingerprint => "fingerbank::Model::DHCP6_Fingerprint",
+            dhcp6_enterprise => "fingerbank::Model::DHCP6_Enterprise",
+        };
+        foreach my $attr (keys %$attr_map) {
+            my $model = $attr_map->{$attr};
+            my $query = {value => $node_info->{$attr}};
+            $results->{$attr} = $cache->compute_with_undef("$model\_id_".encode_json($query), sub {
+                my ($status, $result) = $model->find([$query]);
+                return is_success($status) ? $result->id : undef;
+            });
+        }
+
+        $mac_vendor_id = $cache->compute_with_undef("mac_vendor_id_from_mac_$mac", sub {
+            my $mac_vendor = pf::fingerbank::mac_vendor_from_mac($mac);
+            return $mac_vendor ? $mac_vendor->id : undef;
         });
     }
-    my ($mac_vendor_id) = $cache->compute_with_undef("mac_vendor_id_from_mac_$mac", sub {
-        my $mac_vendor = pf::fingerbank::mac_vendor_from_mac($mac);
-        return $mac_vendor ? $mac_vendor->id : undef;
-    });
 
     my $accounting_history = pf::accounting_events_history->new->latest_mac_history($mac);
 
@@ -660,6 +666,14 @@ sub security_event_trigger {
         my %data;
 
         my $class = class_view($security_event_id);
+        if (!$class) {
+            $logger->error(
+                "security_event $security_event_id triggered not found. " .
+                "Not adding security_event."
+            );
+            next;
+        }
+
         # Check if the security_event is delayed
         if ($class->{'delay_by'}) {
             $data{status} = 'delayed';
@@ -740,6 +754,10 @@ sub security_event_close {
     my $logger = get_logger();
     require pf::class;
     my $class_info = pf::class::class_view($security_event_id);
+    if (!$class_info) {
+        $logger->error("security_event $security_event_id not found, cannot close it for node $mac");
+        return (-1);
+    }
 
     # check auto_enable = 'N'
     if ( $class_info->{'auto_enable'} =~ /^N$/i ) {
@@ -968,6 +986,10 @@ sub _security_event_run_delayed {
     my $security_event_id = $security_event->{security_event_id};
     my %data = (status => 'open');
     my $class = pf::class::class_view($security_event_id);
+    if (!$class) {
+        $logger->error("security_event $security_event_id not found, cannot run the delayed security_event for node $mac");
+        return;
+    }
     if (defined($class->{'window'})) {
         my $date = 0;
         if ($class->{'window'} ne 'dynamic' && $class->{'window'} ne '0' ) {
@@ -1048,7 +1070,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

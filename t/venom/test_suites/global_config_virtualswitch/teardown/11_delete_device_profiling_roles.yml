@@ -1,0 +1,23 @@
+name: Delete device profiling roles (windows, ios, android)
+testcases:
+
+- name: delete_windows_role
+  steps:
+  - type: pf_api_action
+    method: DELETE
+    url: 'config/role/{{.device_profiling_virtualswitch.roles.windows.id}}'
+    status_code: 200
+
+- name: delete_ios_role
+  steps:
+  - type: pf_api_action
+    method: DELETE
+    url: 'config/role/{{.device_profiling_virtualswitch.roles.ios.id}}'
+    status_code: 200
+
+- name: delete_android_role
+  steps:
+  - type: pf_api_action
+    method: DELETE
+    url: 'config/role/{{.device_profiling_virtualswitch.roles.android.id}}'
+    status_code: 200

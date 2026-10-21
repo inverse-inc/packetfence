@@ -12,6 +12,7 @@ use pf::log;
 use pf::util;
 use pf::Portal::Session;
 use pf::web;
+use pf::web::util;
 use pf::node;
 use pf::security_event;
 use pf::class;
@@ -210,9 +211,8 @@ Retrieve the user preferred languages from the following ordered sources:
 
 =item 2. the 'lang' parameter of the Web session
 
-=item 3. the browser accepted languages
-
-=item 4. closest locale that match the browser accepted languages
+=item 3. the browser accepted languages, in the browser's order of preference: the exact locale,
+or else the closest locale of the same language
 
 =back
 
@@ -258,36 +258,13 @@ sub getLanguages :Private {
         $logger->debug("locale from the session is $lang");
     }
 
-    # 3. Check the accepted languages of the browser
-    my $browser_languages = $c->forward('getRequestLanguages');
-    foreach my $browser_language (@$browser_languages) {
-        $browser_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2 || "")/e;
-        if (grep(/^$browser_language$/, @authorized_locales)) {
-            $lang = $browser_language;
-            push(@languages, $lang) unless (grep/^$lang$/, @languages);
-            $logger->debug("locale from the browser is $lang");
-        }
-        else {
-            $logger->debug("locale from the browser $browser_language is not supported");
-        }
-    }
-
-    # 4. Check the closest locale that match the browser language
+    # 3. Check the accepted languages of the browser, in the browser's order of preference
+    # Each one uses the exact locale, or else the closest one of the same language
     # Browser = fr_FR and portal is en_US and fr_CA then fr_CA will be used
-    foreach my $browser_language (@$browser_languages) {
-        $browser_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2 || "")/e;
-        my $language = $1;
-        next unless(defined($language));
-        if (grep(/^$language(.*)/, @authorized_locales)) {
-            $lang = $browser_language;
-            my $match = first { /$language(.*)/ } @authorized_locales;
-            push(@languages, $match) unless (grep/^$language(.*)/, @languages);
-            $logger->debug("Closest locale that match the browser language is $match");
-        }
-        else {
-            $logger->debug("No closest locale found based on the browser $browser_language");
-        }
-    }
+    my $browser_languages = $c->forward('getRequestLanguages');
+    my $browser_locales = pf::web::util::match_browser_locales($browser_languages, \@authorized_locales);
+    $logger->debug("locale(s) matching the browser languages " . join(', ', @$browser_languages) . ": " . join(', ', @$browser_locales));
+    push(@languages, @$browser_locales);
 
     if (scalar @languages > 0) {
         $logger->debug("prefered user languages are " . join(", ", @languages));
@@ -376,7 +353,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

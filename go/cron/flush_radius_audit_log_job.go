@@ -57,13 +57,16 @@ func (j *FlushRadiusAuditLogJob) Run() {
 			break
 		}
 
+		log.LogInfof(ctx, "%s processing %d entries", j.Name(), len(a))
 		rows_affected += len(a)
 
 		var entries [][]interface{} = make([][]interface{}, 0, len(a))
 		for _, jsonStr := range a {
 			if jsonStr == "" {
+				log.LogInfof(ctx, "%s empty entry skipped", j.Name())
 				continue
 			}
+
 			var entry []interface{} = make([]interface{}, 4)
 			if jsonStr[0] != '[' {
 				s, err := base64.StdEncoding.DecodeString(jsonStr)
@@ -73,15 +76,19 @@ func (j *FlushRadiusAuditLogJob) Run() {
 				}
 				jsonStr = string(s)
 			}
-			jsonStr = strings.Replace(jsonStr, "\\", "", -1)
-			err := json.Unmarshal([]byte(jsonStr), &entry)
 
+			err := json.Unmarshal([]byte(jsonStr), &entry)
 			if err != nil {
-				log.LogError(ctx, fmt.Sprintf("%s error running: %s", j.Name(), err.Error()))
+				log.LogError(ctx, fmt.Sprintf("%s error running: %s jsonStr '%s'", j.Name(), err.Error(), jsonStr))
 				continue
 			}
 
 			entries = append(entries, entry)
+		}
+
+		if len(entries) == 0 {
+			log.LogErrorf(ctx, "%s error processing some entries", j.Name())
+			continue
 		}
 
 		j.flushLogs(entries)
@@ -122,24 +129,25 @@ func (j *FlushRadiusAuditLogJob) flushLogs(entries [][]interface{}) error {
 	}
 
 	// REPLACE in node_tls
-	sqlTLS, argsTLS, err := j.buildQueryTLS(entries)
-	if err != nil {
-		return err
-	}
+	sqlTLS, argsTLS, run := j.buildQueryTLS(entries)
+	if run {
+		res, err = db.ExecContext(
+			ctx,
+			sqlTLS,
+			argsTLS...,
+		)
 
-	res, err = db.ExecContext(
-		ctx,
-		sqlTLS,
-		argsTLS...,
-	)
+		if err != nil {
+			return fmt.Errorf("Error with %s\n%v: %w", sqlTLS, argsTLS, err)
+		}
 
-	if err != nil {
-		return err
-	}
+		_, err = res.RowsAffected()
+		if err != nil {
+			return err
+		}
 
-	_, err = res.RowsAffected()
-	if err != nil {
-		return err
+	} else {
+		log.LogDebug(ctx, "Zero Args")
 	}
 
 	log.LogInfo(ctx, fmt.Sprintf("Flushed %d radius_audit_log", rows))
@@ -166,7 +174,7 @@ const NODE_TLS_COLUMN_COUNT = 19
 		radius_reply, request_time, radius_ip
    )\
      VALUES \
-     ( '%{request:Calling-Station-Id}', '%{request:Framed-IP-Address}', '%{%{control:PacketFence-Computer-Name}:-N/A}', '%{request:User-Name}',\
+     ( '%{request:Calling-Station-Id}', '%{request:Framed-IP-Address}', '%{%{control:PacketFence-Computer-Name}:-N/A}', '%{%{control:PacketFence-UserName}:-%{request:User-Name}}',\
        '%{request:Stripped-User-Name}', '%{request:Realm}', 'Radius-Access-Request',\
        '%{%{control:PacketFence-Switch-Id}:-N/A}', '%{%{control:PacketFence-Switch-Mac}:-N/A}', '%{%{control:PacketFence-Switch-Ip-Address}:-N/A}',\
        '%{Packet-Src-IP-Address}', '%{request:Called-Station-Id}', '%{request:Calling-Station-Id}',\
@@ -214,10 +222,16 @@ func (j *FlushRadiusAuditLogJob) argsFromEntry(entry []interface{}) []interface{
 	reply = entry[2].(map[string]interface{})
 	control = entry[3].(map[string]interface{})
 	request = parseRequestArgs(request)
-	args[2] = formatRequestValue(request["PacketFence-Computer-Name"], "N/A")
 	args[0] = formatRequestValue(request["Calling-Station-Id"], "N/A")
 	args[1] = formatRequestValue(request["Framed-IP-Address"], "N/A")
-	args[3] = formatRequestValue(request["User-Name"], "N/A")
+	args[2] = formatRequestValue(control["PacketFence-Computer-Name"], "N/A")
+	// The user name PacketFence used for the request (for instance the
+	// identity of the client certificate in EAP-TLS), the User-Name of the
+	// request otherwise
+	args[3] = formatRequestValue(control["PacketFence-UserName"], "")
+	if args[3] == "" {
+		args[3] = formatRequestValue(request["User-Name"], "N/A")
+	}
 	args[4] = formatRequestValue(request["Stripped-User-Name"], "N/A")
 	args[5] = formatRequestValue(request["Realm"], "N/A")
 	args[6] = "Radius-Access-Request"
@@ -254,7 +268,12 @@ func (j *FlushRadiusAuditLogJob) argsFromEntry(entry []interface{}) []interface{
 	return args
 }
 
-func (j *FlushRadiusAuditLogJob) buildQueryTLS(entries [][]interface{}) (string, []interface{}, error) {
+func (j *FlushRadiusAuditLogJob) buildQueryTLS(entries [][]interface{}) (string, []interface{}, bool) {
+	args := j.argsFromEntriesForTLS(entries)
+	if len(args) == 0 {
+		return "", nil, false
+	}
+
 	sql := `
 INSERT INTO node_tls
 	(
@@ -271,7 +290,7 @@ INSERT INTO node_tls
 	)
 VALUES `
 	bind := "( ?" + strings.Repeat(",?", NODE_TLS_COLUMN_COUNT-1) + ")"
-	sql += bind + strings.Repeat(","+bind, len(entries)-1)
+	sql += bind + strings.Repeat(","+bind, (len(args)/NODE_TLS_COLUMN_COUNT)-1)
 	sql += `
 	 ON DUPLICATE KEY UPDATE TLSCertSerial = VALUES(TLSCertSerial),
 	        TLSCertExpiration = VALUES(TLSCertExpiration), TLSCertValidSince = VALUES(TLSCertValidSince),
@@ -286,13 +305,7 @@ VALUES `
 			TLSClientCertX509v3ExtendedKeyUsageOID = VALUES(TLSClientCertX509v3ExtendedKeyUsageOID)
 
 		`
-	args := make([]interface{}, 0, NODE_TLS_COLUMN_COUNT)
-	for _, e := range entries {
-		if keyExists(e[1].(map[string]interface{}), "Calling-Station-Id") && keyExists(e[1].(map[string]interface{}), "TLS-Client-Cert-Common-Name") {
-			args = append(args, j.argsFromEntryForTLS(e)...)
-		}
-	}
-	return sql, args, nil
+	return sql, args, true
 }
 
 func keyExists(myMap map[string]interface{}, key string) bool {
@@ -300,11 +313,37 @@ func keyExists(myMap map[string]interface{}, key string) bool {
 	return exists
 }
 
-func (j *FlushRadiusAuditLogJob) argsFromEntryForTLS(entry []interface{}) []interface{} {
+func (j *FlushRadiusAuditLogJob) argsFromEntriesForTLS(entries [][]interface{}) []interface{} {
+	ctx := context.Background()
+	args := make([]interface{}, 0, len(entries)*NODE_TLS_COLUMN_COUNT)
+	for _, e := range entries {
+		if len(e) < 1 {
+			continue
+		}
+		lookup, ok := e[1].(map[string]interface{})
+		if !ok {
+			continue
+		}
+		if !keyExists(lookup, "Calling-Station-Id") {
+			log.LogDebug(ctx, "Not found Calling-Station-Id")
+			continue
+		}
+
+		if !keyExists(lookup, "TLS-Client-Cert-Common-Name") {
+			log.LogDebug(ctx, "Not found TLS-Client-Cert-Common-Name")
+			continue
+		}
+
+		args = append(args, j.argsFromEntryForTLS(lookup)...)
+
+	}
+
+	return args
+}
+
+func (j *FlushRadiusAuditLogJob) argsFromEntryForTLS(lookup map[string]interface{}) []interface{} {
 	args := make([]interface{}, NODE_TLS_COLUMN_COUNT)
-	var request map[string]interface{}
-	request = entry[1].(map[string]interface{})
-	request = parseRequestArgs(request)
+	request := parseRequestArgs(lookup)
 	args[0] = formatRequestValue(request["Calling-Station-Id"], "")
 	args[1] = formatRequestValue(request["TLS-Cert-Serial"], "N/A")
 	args[2] = formatRequestValue(request["TLS-Cert-Expiration"], "N/A")

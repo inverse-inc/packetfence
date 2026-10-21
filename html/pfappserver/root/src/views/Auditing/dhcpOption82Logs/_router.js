@@ -27,7 +27,8 @@ export default [
     component: TheSearch,
     meta: {
       can: 'read dhcp_option_82',
-      isFailRoute: true
+      isFailRoute: true,
+      saveSearchNamespace: 'dhcpOption82Logs'
     },
     beforeEnter
   },

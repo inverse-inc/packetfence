@@ -29,15 +29,24 @@ const setup = (props, context) => {
 
   const sections = computed(() => ([
     {
+      name: i18n.t('About'),
+      path: '/status/about'
+    },
+    {
       name: i18n.t('Dashboard'),
       path: '/status/dashboard',
       class: 'no-saas'
     },
     {
+      name: i18n.t('Dashboard'),
+      path: '/status/dashboard_saas',
+      class: 'is-saas'
+    },
+    {
       name: i18n.t('Monitoring'),
       path: '/status/monitoring',
-      class: 'no-saas',
-      items: monitoringHosts.value
+      items: monitoringHosts.value,
+      class: 'no-saas'
     },
     {
       name: i18n.t('Assets'),
@@ -69,6 +78,15 @@ const setup = (props, context) => {
       can: 'read services',
       class: 'is-saas'
     },
+    ...(($store.getters['cluster/isCluster'])
+      ? [{
+        name: i18n.t('Cluster'),
+        path: '/status/cluster',
+        can: 'read system',
+        class: 'no-saas'
+      }]
+      : []
+    ),
     {
       name: i18n.t('Local Queue'),
       path: '/status/queue'

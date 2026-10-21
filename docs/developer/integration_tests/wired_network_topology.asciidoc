@@ -16,11 +16,13 @@ image::integration_tests/wired_topology.png[scaledwidth="100%",alt="Wired topolo
 
 `switch01`, `node01` and `node02` are provisioned using Vagrant like this:
 
+[options="compact"]
 * a first boot with basic shell provisioning to configure interfaces remap and networks
 * a second boot that handles interface remap
 * an Ansible provisioning
 
-Provisioning is deliberately minimalist to make the most during integration tests.
+Provisioning is deliberately minimalist to make the most during integration
+tests.
 
 ===== Inventory Information
 

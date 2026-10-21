@@ -9,7 +9,7 @@ import InterfacesRoutes from './interfaces/_router'
 import Layer2NetworksRoutes from './layer2Networks/_router'
 import RoutedNetworksRoutes from './routedNetworks/_router'
 
-const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/TheTabsNetworks')
+const TheTabs = () => import(/* webpackChunkName: "ConfigurationNetwork" */ '../_components/TheTabsNetworks')
 
 const can = () => !store.getters['system/isSaas']
 

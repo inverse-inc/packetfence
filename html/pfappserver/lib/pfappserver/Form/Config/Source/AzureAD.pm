@@ -42,16 +42,6 @@ has_field 'tenant_id' =>
    default => '',
   );
 
-has_field 'user_groups_url' =>
-  (
-   type => 'Text',
-   required => 1,
-    element_attr => {
-        'placeholder' => $META->get_attribute('user_groups_url')->default
-    },
-    default => $META->get_attribute('user_groups_url')->default,
-  );
-
 has_field 'user_groups_cache' =>
   (
     type         => 'PosInteger',
@@ -70,9 +60,40 @@ has_field 'timeout' =>
     default => $META->get_attribute('timeout')->default,
   );
 
+has_field 'graph_url' =>
+  (
+   type => 'Text',
+   required => 1,
+    element_attr => {
+        'placeholder' => $META->get_attribute('graph_url')->default
+    },
+    default => $META->get_attribute('graph_url')->default,
+  );
+
+has_field 'oauth_url' =>
+  (
+   type => 'Text',
+   required => 1,
+    element_attr => {
+        'placeholder' => $META->get_attribute('oauth_url')->default
+    },
+    default => $META->get_attribute('oauth_url')->default,
+  );
+
+has_field 'user_groups_url_path' =>
+  (
+   type => 'Text',
+   required => 1,
+    element_attr => {
+        'placeholder' => $META->get_attribute('user_groups_url_path')->default
+    },
+    default => $META->get_attribute('user_groups_url_path')->default,
+  );
+
+
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

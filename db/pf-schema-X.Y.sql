@@ -4,8 +4,8 @@ SET sql_mode = "NO_ENGINE_SUBSTITUTION";
 -- Setting the major/minor version of the DB
 --
 
-SET @MAJOR_VERSION = 14;
-SET @MINOR_VERSION = 1;
+SET @MAJOR_VERSION = 16;
+SET @MINOR_VERSION = 0;
 
 --
 -- The VERSION_INT to ensure proper ordering of the version in queries
@@ -131,6 +131,18 @@ INSERT INTO `node_category` (name,notes) VALUES ("voice","VoIP devices");
 --
 
 INSERT INTO `node_category` (name,notes) VALUES ("REJECT","Reject role (Used to block access)");
+
+--
+-- Insert 'User' category
+--
+
+INSERT INTO `node_category` (name,notes) VALUES ("User","User role");
+
+--
+-- Insert 'Machine' category
+--
+
+INSERT INTO `node_category` (name,notes) VALUES ("Machine","Machine role");
 
 --
 -- Table structure for table `node`
@@ -375,6 +387,7 @@ CREATE TABLE `locationlog` (
   `switch_ip` varchar(17) DEFAULT NULL,
   `switch_ip_int` int(10) unsigned AS (INET_ATON(`switch_ip`)) STORED,
   `switch_mac` varchar(17) DEFAULT NULL,
+  `switch_id` varchar(255) DEFAULT NULL,
   `stripped_user_name` varchar (255) DEFAULT NULL,
   `realm`  varchar (255) DEFAULT NULL,
   `session_id` VARCHAR(255) DEFAULT NULL,
@@ -404,6 +417,7 @@ CREATE TABLE `locationlog_history` (
   `switch_ip` varchar(17) DEFAULT NULL,
   `switch_ip_int` int(10) unsigned AS (INET_ATON(`switch_ip`)) STORED,
   `switch_mac` varchar(17) DEFAULT NULL,
+  `switch_id` varchar(255) DEFAULT NULL,
   `stripped_user_name` varchar (255) DEFAULT NULL,
   `realm`  varchar (255) DEFAULT NULL,
   `session_id` VARCHAR(255) DEFAULT NULL,
@@ -442,6 +456,7 @@ BEGIN
             END,
             switch_ip = OLD.switch_ip,
             switch_mac = OLD.switch_mac,
+            switch_id = OLD.switch_id,
             stripped_user_name = OLD.stripped_user_name,
             realm = OLD.realm,
             session_id = OLD.session_id,
@@ -467,6 +482,8 @@ CREATE TABLE `password` (
   `sponsor` tinyint(1) NOT NULL default 0,
   `unregdate` datetime NOT NULL default "0000-00-00 00:00:00",
   `login_remaining` int DEFAULT NULL,
+  `trigger_radius_mfa` varchar(255) default NULL,
+  `trigger_portal_mfa` varchar(255) default NULL,
   PRIMARY KEY (pid),
   KEY password_category (category),
   UNIQUE KEY pid_password_unique (pid)
@@ -478,7 +495,6 @@ CREATE TABLE `password` (
 
 INSERT INTO `person` (pid,notes) VALUES ("admin","Default Admin User - do not delete");
 INSERT INTO `person` (pid,notes) VALUES ("default","Default User - do not delete");
-INSERT INTO password (pid, password, valid_from, expiration, access_duration, access_level, category) VALUES ('admin', 'admin', '1970-01-01', '2038-01-01', NULL, 'ALL', NULL);
 
 --
 -- Trigger to delete the temp password from 'password' when deleting the pid associated with
@@ -1235,6 +1251,7 @@ CREATE TABLE auth_log (
   `attempted_at` datetime NOT NULL,
   `completed_at` datetime,
   `source` varchar(255) NOT NULL,
+  `source_type` varchar(255) NOT NULL default "",
   `profile` VARCHAR(255) DEFAULT NULL,
   KEY pid (pid),
   KEY attempted_at (attempted_at),
@@ -1261,17 +1278,22 @@ DELIMITER ;;
 CREATE FUNCTION `FREERADIUS_DECODE`(str text) RETURNS MEDIUMTEXT CHARSET utf8mb4
     DETERMINISTIC
 BEGIN
-    DECLARE result text;
+    -- Decode byte-wise: MySQL 8 refuses to mix CHAR(128..255) into a utf8mb4 string.
+    DECLARE result MEDIUMBLOB;
     DECLARE ind INT DEFAULT 0;
 
-    SET result = str;
+    SET result = CONVERT(str USING binary);
     WHILE ind <= 255 DO
-       SET result = REPLACE(result, CONCAT('=', LPAD(LOWER(HEX(ind)), 2, 0)), CHAR(ind));
-       SET result = REPLACE(result, CONCAT('=', LPAD(HEX(ind), 2, 0)), CHAR(ind));
+       SET result = REPLACE(result, CONVERT(CONCAT('=', LPAD(LOWER(HEX(ind)), 2, 0)) USING binary), CHAR(ind));
+       SET result = REPLACE(result, CONVERT(CONCAT('=', LPAD(HEX(ind), 2, 0)) USING binary), CHAR(ind));
        SET ind = ind + 1;
     END WHILE;
 
-    RETURN result;
+    -- Bytes that do not form valid utf8mb4 cannot be returned; keep the input as-is.
+    IF NOT (CONVERT(CONVERT(result USING utf8mb4) USING binary) <=> result) THEN
+        RETURN str;
+    END IF;
+    RETURN CONVERT(result USING utf8mb4);
 END ;;
 DELIMITER ;
 
@@ -1507,7 +1529,7 @@ CREATE TABLE `pki_certs` (
   `alert` tinyint(1) DEFAULT 0,
   `subject` longtext DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `cn_serial` (`cn`,`serial_number`) USING HASH,
+  UNIQUE KEY `cn_serial` (`cn`(127),`serial_number`(127)) USING HASH,
   KEY `ca_id` (`ca_id`),
   KEY `ca_name` (`ca_name`),
   KEY `profile_name` (`profile_name`),
@@ -1644,6 +1666,32 @@ CREATE TABLE node_tls (
   `TLSClientCertX509v3SubjectKeyIdentifier` varchar(255) default NULL,
   `TLSClientCertX509v3AuthorityKeyIdentifier` varchar(255) default NULL,
   `TLSClientCertX509v3ExtendedKeyUsageOID` varchar(255) default NULL
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+--
+-- Create switch_observability
+--
+
+CREATE TABLE switch_observability (
+  `switch_id` varchar(255) PRIMARY KEY NOT NULL,
+  `visibility_timestamp` DATETIME default NULL
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+--
+-- Create switch_observability_acls
+--
+
+CREATE TABLE switch_observability_acls (
+  `switch_id` varchar(255) NOT NULL,
+  `mac` varchar(255) NOT NULL,
+  `port` varchar(255) DEFAULT NULL,
+  `role_id` varchar(255) NOT NULL,
+  `acl_type` varchar(255) NOT NULL,
+  `acls` MEDIUMTEXT NOT NULL,
+  `enforcement_timestamp` DATETIME default NULL,
+  PRIMARY KEY (`switch_id`, `mac`, `role_id`),
+  UNIQUE KEY `switch_observability_acls_switch_port` (`switch_id`, `port`),
+  KEY `switch_observability_acls_mac_enforcement` (`mac`, `enforcement_timestamp`)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --

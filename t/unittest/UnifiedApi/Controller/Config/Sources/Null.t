@@ -55,8 +55,10 @@ $t->post_ok("$collection_base_url" =>
             }
           ],
           "conditions" =>  []
-        }
+        },
       ],
+      hash_passwords => 'bcrypt',
+      password_length => 8,
     }
   )
   ->status_is(201);
@@ -68,7 +70,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

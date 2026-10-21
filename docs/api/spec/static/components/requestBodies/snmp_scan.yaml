@@ -1,0 +1,21 @@
+SnmpScanBody:
+  description: Parameters needed for the scan.
+  required:
+    - addresses
+    - credentials
+  content:
+    application/json:
+      schema:
+        properties:
+          credentials:
+            description: SNMP community strings with Read access to be used for scanning. Each address will be test for each credential until a match is found
+            type: array
+            items:
+              $ref: "#/components/schemas/SnmpCredential"
+          addresses:
+            description: Ipv4 addresses in CIDR format (16-32 supported)
+            items:
+              type: string
+            example: ["192.168.10.42", "192.168.10.0/24", "192.165.0.0/16", "192.168.0.0/27"]
+          options:
+            $ref: "#/components/schemas/SnmpOptions"

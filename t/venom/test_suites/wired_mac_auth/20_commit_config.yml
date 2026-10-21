@@ -1,1 +1,23 @@
-../../switches/common/commit_config.yml
+name: Commit changes in configuration
+testcases:
+- name: commit_configuration
+  steps:
+  - type: http
+    method: POST
+    basic_auth_user: "{{.switch01.api.user}}"
+    basic_auth_password: "{{.switch01.api.password}}"
+    url: '{{.switch01.api.url}}/nclu/v1/rpc'
+    ignore_verify_ssl: true
+    body: >-
+      {
+       "cmd": "commit"
+      }
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: sleep_for_15s
+  steps:
+  - type: sleep
+    time_to_sleep: 15

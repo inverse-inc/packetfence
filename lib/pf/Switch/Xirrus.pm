@@ -35,6 +35,7 @@ use warnings;
 
 use POSIX;
 use Try::Tiny;
+use Digest::MD5 qw(md5_hex);
 
 use pf::config qw(
     $MAC
@@ -46,7 +47,6 @@ use pf::constants;
 use pf::node;
 use pf::Switch::constants;
 use pf::util;
-use pf::util::radius qw(perform_disconnect);
 use pf::constants::role qw($REJECT_ROLE);
 
 use base ('pf::Switch');
@@ -70,6 +70,7 @@ use pf::SwitchSupports qw(
     ExternalPortal
     WebFormRegistration
     RoleBasedEnforcement
+    Flow
 );
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
@@ -207,7 +208,7 @@ sub radiusDisconnect {
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
 
-    if (!defined($self->{'_radiusSecret'})) {
+    if (!$self->hasRadiusSecret()) {
         $logger->warn(
             "Unable to perform RADIUS CoA-Request on $self->{'_ip'}: RADIUS Shared Secret not configured"
         );
@@ -243,7 +244,7 @@ sub radiusDisconnect {
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
-        $response = perform_disconnect( $connection_info,
+        $response = $self->handleRadiusDisconnect( $connection_info,
             {
                 'Calling-Station-Id' => $mac,
             },
@@ -341,8 +342,6 @@ sub returnRadiusAccessAccept {
     my ($self, $args) = @_;
     my $logger = $self->logger;
 
-    my $filter = pf::access_filter::radius->new;
-    my $rule = $filter->test('returnRadiusAccessAccept', $args);
     my $radius_reply_ref = {};
     my $status;
 
@@ -361,6 +360,9 @@ sub returnRadiusAccessAccept {
             $self->handleRadiusDeny();
         }
         else{
+            # Only this branch answers without the parent, which applies the filter itself
+            my $filter = pf::access_filter::radius->new;
+            my $rule = $filter->test('returnRadiusAccessAccept', $args);
             $logger->info("Returning ACCEPT");
             ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
             return [$status, %$radius_reply_ref];
@@ -416,9 +418,7 @@ sub getAcceptForm {
     my $challenge = $portalSession->param("ecwp-original-param-challenge");
     my $newchal  = pack "H32", $challenge;
 
-    my @ib = unpack("C*", "\0" . $mac . $newchal);
-    my $encstr = join("", map {sprintf('\%3.3o', $_)} @ib);
-    my ($passvar) = split(/ /, `printf '$encstr' | md5sum`);
+    my $passvar = md5_hex("\0" . $mac . $newchal);
 
     $mac =~ s/:/-/g;
 
@@ -476,7 +476,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

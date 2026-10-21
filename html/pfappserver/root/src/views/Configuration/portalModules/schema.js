@@ -47,7 +47,7 @@ export const schema = (props) => {
     ssl_mobileconfig_path: yup.string().label(i18n.t('URL')),
     ssl_path: yup.string().label(i18n.t('URL')),
     url: yup.string().nullable().label(i18n.t('URL')),
-    username: yup.string().label(i18n.t('Username'))
+    username: yup.string().nullable().label(i18n.t('Username'))
   })
 }
 

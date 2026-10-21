@@ -20,8 +20,7 @@ const tabs = {
   domains: {
     title: 'Active Directory Domains', // i18n defer
     component: DomainsSearch,
-    props: ({ autoJoinDomain }) => ({ autoJoinDomain }),
-    class: 'no-saas'
+    props: ({ autoJoinDomain }) => ({ autoJoinDomain })
   },
   realms: {
     title: 'Realms', // i18n defer

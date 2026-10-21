@@ -29,6 +29,12 @@ Catalyst Controller.
 
 sub auto : Private {
     my ($self, $c) = @_;
+    # The billing pages of the status page are not available when the status
+    # page is disabled on the connection profile
+    unless ($c->profile->selfServiceStatusEnabled) {
+        $self->showError($c, "This feature is currently disabled. Please contact your network administrator for more details.");
+        $c->detach();
+    }
     my $pid     = $c->user_session->{"username"};
     if(!$pid) {
         $c->response->redirect("/status/login");
@@ -91,7 +97,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

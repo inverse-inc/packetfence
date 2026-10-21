@@ -7,10 +7,10 @@ jobs:
     interval: 1s
     hosts: [%%hosts_cluster_members%%]
 
-  - name: packetfence-dns
-    autodetection_retry: 60
-    interval: 1s
-    hosts: [%%hosts_dns%%]
+#  - name: packetfence-dns
+#    autodetection_retry: 60
+#    interval: 1s
+#    hosts: [%%hosts_dns%%]
 
   - name: packetfence-domains
     autodetection_retry: 60

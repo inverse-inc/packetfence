@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/inverse-inc/packetfence/go/radiusdictionary"
+
 	"github.com/inverse-inc/go-radius/dictionary"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/julienschmidt/httprouter"
@@ -49,7 +51,7 @@ type RadiusAttributesResults struct {
 func (h APIHandler) radiusAttributes(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, radiusAttributesJson)
+	w.Write([]byte(radiusAttributesJson))
 }
 
 type searchRequest struct {
@@ -74,7 +76,7 @@ func (h APIHandler) searchRadiusAttributes(w http.ResponseWriter, r *http.Reques
 	}
 
 	out, _ = json.Marshal(&searchResults)
-	fmt.Fprintf(w, string(out))
+	w.Write(out)
 }
 
 func setupRadiusDictionary() {
@@ -82,13 +84,8 @@ func setupRadiusDictionary() {
 	var RadiusConfiguration pfconfigdriver.PfConfRadiusConfiguration
 	pfconfigdriver.FetchDecodeSocket(ctx, &RadiusConfiguration)
 
-	parser := &dictionary.Parser{
-		Opener: &dictionary.FileSystemOpener{
-			Root: "/usr/share/freeradius",
-		},
-		IgnoreIdenticalAttributes:  true,
-		IgnoreUnknownAttributeType: true,
-	}
+	// Handles the optional include of conf/radiusd/dictionary.local
+	parser := radiusdictionary.NewParser()
 
 	results := RadiusAttributesResults{}
 

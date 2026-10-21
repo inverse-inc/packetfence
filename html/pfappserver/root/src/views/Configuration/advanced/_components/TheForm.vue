@@ -88,9 +88,31 @@
                                    :text="$i18n.t('The timeout in seconds for an API request.')"
     />
 
+    <form-group-pfperl-api-max-rss namespace="pfperl_api_max_rss"
+                                    :column-label="$i18n.t('PfPerl API Max RSS')"
+                                    :text="$i18n.t('Maximum RSS in MB before a pfperl-api worker recycles itself. Set to 0 to disable.')"
+    />
+
+    <form-group-pffilter-max-rss namespace="pffilter_max_rss"
+                                  :column-label="$i18n.t('PfFilter Max RSS')"
+                                  :text="$i18n.t('Maximum RSS in MB before a pffilter worker recycles itself. Set to 0 to disable.')"
+    />
+
+    <form-group-pfqueue-max-rss namespace="pfqueue_max_rss"
+                                 :column-label="$i18n.t('PfQueue Max RSS')"
+                                 :text="$i18n.t('Maximum RSS in MB before a pfqueue worker recycles itself. Set to 0 to disable.')"
+    />
+
     <form-group-update-iplog-with-accounting namespace="update_iplog_with_accounting"
                                              :column-label="$i18n.t('Update the iplog using the accounting')"
                                              :text="$i18n.t('Use the information included in the accounting to update the iplog.')"
+                                             enabled-value="enabled"
+                                             disabled-value="disabled"
+    />
+
+    <form-group-update-iplog-with-authentication namespace="update_iplog_with_authentication"
+                                             :column-label="$i18n.t('Update the iplog using the authentication')"
+                                             :text="$i18n.t('Use the information included in the authentication to update the iplog.')"
                                              enabled-value="enabled"
                                              disabled-value="disabled"
     />
@@ -122,13 +144,6 @@
       :text="$i18n.t('The source to use to send an SMS when creating a user.')"
     />
 
-    <form-group-multihost namespace="multihost"
-                          :column-label="$i18n.t('Multihost')"
-                          :text="$i18n.t('Ability to manage all active devices from a same switch port.')"
-                          enabled-value="enabled"
-                          disabled-value="disabled"
-    />
-
     <form-group-active-directory-os-join-check-bypass
       namespace="active_directory_os_join_check_bypass"
       :column-label="$i18n.t('Disable OS AD join check')"
@@ -140,6 +155,11 @@
     <form-group-pfupdate-custom-script-path namespace="pfupdate_custom_script_path"
                                             :column-label="$i18n.t('Path to a custom script called by pfupdate')"
                                             :text="$i18n.t('Path to a custom script called by pfupdate if present.')"
+    />
+
+    <form-group-default-role-parent-id namespace="default_role_parent_id"
+                                       :column-label="$i18n.t('Default parent role')"
+                                       :text="$i18n.t('The default parent role id to use when creating a new role.')"
     />
 
     <form-group-netflow-on-all-networks namespace="netflow_on_all_networks"
@@ -179,23 +199,27 @@ import {
   FormGroupApiInactivityTimeout,
   FormGroupApiMaxExpiration,
   FormGroupConfigurator,
+  FormGroupDefaultRoleParentId,
   FormGroupHashingCost,
   FormGroupHashPasswords,
   FormGroupLanguage,
   FormGroupLdapAttributes,
   FormGroupLocationlogCloseOnAccountingStop,
-  FormGroupMultihost,
   FormGroupNetflowOnAllNetworks,
   FormGroupOpenidAttributes,
+  FormGroupPffilterMaxRss,
   FormGroupPffilterProcesses,
+  FormGroupPfperlApiMaxRss,
   FormGroupPfperlApiProcesses,
   FormGroupPfperlApiTimeout,
-  FormGroupPfupdateCustomScriptPath,
+  FormGroupPfqueueMaxRss,
   FormGroupPortalCspSecurityHeaders,
+  FormGroupPfupdateCustomScriptPath,
   FormGroupScanOnAccounting,
   FormGroupSourceToSendSmsWhenCreatingUsers,
   FormGroupTimingStatsLevel,
   FormGroupUpdateIplogWithAccounting,
+  FormGroupUpdateIplogWithAuthentication,
   FormGroupUpdateIplogWithExternalPortalRequests
 } from './'
 import {computed, toRefs} from '@vue/composition-api'
@@ -210,23 +234,27 @@ const components = {
   FormGroupApiInactivityTimeout,
   FormGroupApiMaxExpiration,
   FormGroupConfigurator,
+  FormGroupDefaultRoleParentId,
   FormGroupHashPasswords,
   FormGroupHashingCost,
   FormGroupLanguage,
   FormGroupLdapAttributes,
   FormGroupLocationlogCloseOnAccountingStop,
-  FormGroupMultihost,
   FormGroupNetflowOnAllNetworks,
   FormGroupOpenidAttributes,
+  FormGroupPffilterMaxRss,
   FormGroupPffilterProcesses,
+  FormGroupPfperlApiMaxRss,
   FormGroupPfperlApiProcesses,
   FormGroupPfperlApiTimeout,
+  FormGroupPfqueueMaxRss,
   FormGroupPortalCspSecurityHeaders,
   FormGroupPfupdateCustomScriptPath,
   FormGroupScanOnAccounting,
   FormGroupSourceToSendSmsWhenCreatingUsers,
   FormGroupTimingStatsLevel,
   FormGroupUpdateIplogWithAccounting,
+  FormGroupUpdateIplogWithAuthentication,
   FormGroupUpdateIplogWithExternalPortalRequests
 }
 

@@ -67,7 +67,7 @@ foreach my $wireless_object (@wireless_devices) {
 
 # regression test for #1426: RADIUS CoA Broken on WLC 5500
 # http://www.packetfence.org/bugs/view.php?id=1426
-my $networkdevice_object = pf::Switch::Cisco::WiSM2->new({
+my $networkdevice_object = pf::Switch::Cisco::Cisco_WLC_AireOS->new({
     'mode' => 'production',
     'radiusSecret' => 'fake',
     'ip' => '127.0.0.1',
@@ -104,7 +104,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

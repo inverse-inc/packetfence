@@ -13,7 +13,7 @@
 # Main package
 #==============================================================================
 Name:       packetfence
-Version:    14.1.0
+Version:    16.0.0
 Release:    2%{?dist}
 Summary:    PacketFence network registration / worm mitigation system
 Packager:   Inverse inc. <support@inverse.ca>
@@ -43,8 +43,12 @@ Obsoletes: %{name}-config <= 9.1.0
 
 AutoReqProv: 0
 
+Conflicts: packetfence-export
+
 Requires: firewalld
 Requires: chkconfig, coreutils, grep, openssl, sed, tar, wget, gettext, conntrack-tools, patch, git
+# ssh binary for the SSH transport of the switch CLI (Net::CLI::Interact)
+Requires: openssh-clients
 # for process management
 Requires: rsyslog
 Requires: procps
@@ -53,7 +57,7 @@ Requires: httpd, mod_ssl
 Requires: mod_perl, mod_proxy_html
 requires: libapreq2, perl-libapreq2
 Requires: redis >= 7.2.5
-Requires: freeradius >= 3.2.6, freeradius-mysql >= 3.2.6, freeradius-perl >= 3.2.6, freeradius-ldap >= 3.2.6, freeradius-utils >= 3.2.6, freeradius-redis >= 3.2.6, freeradius-rest >= 3.2.6
+Requires: freeradius >= 3.2.7, freeradius-mysql >= 3.2.7, freeradius-perl >= 3.2.7, freeradius-ldap >= 3.2.7, freeradius-utils >= 3.2.7, freeradius-redis >= 3.2.7, freeradius-rest >= 3.2.7
 Requires: make
 Requires: net-tools
 Requires: sscep
@@ -61,12 +65,13 @@ Requires: util-linux
 Requires: net-snmp >= 5.3.2.2
 Requires: net-snmp-perl
 Requires: perl >= %{perl_version}
-Requires: packetfence-perl >= 1.2.4
+Requires: packetfence-perl >= 1.2.7
 Requires: MariaDB-server >= 10.11
 Requires: MariaDB-client >= 10.11
 Requires: perl(DBD::mysql)
 Requires: perl(Sub::Exporter)
 Requires: perl(Cisco::AccessList::Parser)
+Requires: perl(Email::Address::XS)
 Requires: jq
 
 Requires: perl(Net::SSLeay)
@@ -192,7 +197,7 @@ Requires: perl(Cache::Cache), perl(HTML::Parser)
 Requires: perl(URI::Escape::XS)
 # Used by Captive Portal authentication modules
 Requires: perl(Apache::Htpasswd)
-Requires: perl(Authen::Radius) >= 0.24
+Requires: perl(Authen::Radius) >= 0.33
 Requires: perl(Authen::Krb5::Simple)
 Requires: perl(WWW::Twilio::API)
 # Required for importation feature
@@ -313,8 +318,10 @@ Requires: docker-ce docker-ce-cli containerd.io
 # For managing the number of connections per device
 Requires: haproxy >= 2.2.0, keepalived >= 2.0.0
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
-Requires: fingerbank >= 4.3.2, fingerbank < 5.0.0
+Requires: fingerbank >= 4.3.3, fingerbank < 5.0.0
 Requires: fingerbank-collector >= 1.4.1, fingerbank-collector < 2.0.0
+# fingerbank-collector-remote ships /etc/systemd/system/packetfence-fingerbank-collector.service, which shadows the on-prem unit from fingerbank-collector
+Conflicts: fingerbank-collector-remote
 #Requires: perl(File::Tempdir)
 
 # For NTLM-Auth
@@ -347,7 +354,7 @@ heterogeneous networks. PacketFence provides features such as
 %build
 # generate translations
 # TODO this is duplicated in debian/rules, we should aim to consolidate in a 'make' style step
-for TRANSLATION in de en es fr he_IL it nl pl_PL pt_BR nb_NO; do
+for TRANSLATION in de en es fr he_IL it nl pl_PL pt_BR nb_NO tr_TR; do
     /usr/bin/msgfmt conf/locale/$TRANSLATION/LC_MESSAGES/packetfence.po \
       --output-file conf/locale/$TRANSLATION/LC_MESSAGES/packetfence.mo
 done
@@ -396,7 +403,6 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.aaa.service %{buildroot}%{_unitdir}/packetfence-httpd.aaa.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.portal.service %{buildroot}%{_unitdir}/packetfence-httpd.portal.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.webservices.service %{buildroot}%{_unitdir}/packetfence-httpd.webservices.service
-%{__install} -D -m0644 conf/systemd/packetfence-docker-iptables.service %{buildroot}%{_unitdir}/packetfence-docker-iptables.service
 %{__install} -D -m0644 conf/systemd/packetfence-iptables.service %{buildroot}%{_unitdir}/packetfence-iptables.service
 %{__install} -D -m0644 conf/systemd/packetfence-ip6tables.service %{buildroot}%{_unitdir}/packetfence-ip6tables.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfperl-api.service %{buildroot}%{_unitdir}/packetfence-pfperl-api.service
@@ -407,6 +413,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-pfdetect.service %{buildroot}%{_unitdir}/packetfence-pfdetect.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdhcplistener.service %{buildroot}%{_unitdir}/packetfence-pfdhcplistener.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdns.service %{buildroot}%{_unitdir}/packetfence-pfdns.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfdns-connector.service %{buildroot}%{_unitdir}/packetfence-pfdns-connector.service
 %{__install} -D -m0644 conf/systemd/packetfence-pffilter.service %{buildroot}%{_unitdir}/packetfence-pffilter.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfcron.service %{buildroot}%{_unitdir}/packetfence-pfcron.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfqueue-go.service %{buildroot}%{_unitdir}/packetfence-pfqueue-go.service
@@ -438,11 +445,15 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-ntlm-auth-api-domain@.service %{buildroot}%{_unitdir}/packetfence-ntlm-auth-api-domain@.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfsetacls.service %{buildroot}%{_unitdir}/packetfence-pfsetacls.service
 %{__install} -D -m0644 conf/systemd/packetfence-kafka.service %{buildroot}%{_unitdir}/packetfence-kafka.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfudpproxy.service %{buildroot}%{_unitdir}/packetfence-pfudpproxy.service
 # systemd path
 %{__install} -D -m0644 conf/systemd/packetfence-tracking-config.path %{buildroot}%{_unitdir}/packetfence-tracking-config.path
 # systemd modules
 %{__install} -D packetfence.modules-load %{buildroot}/etc/modules-load.d/packetfence.conf
 %{__install} -D packetfence.modprobe %{buildroot}/etc/modprobe.d/packetfence.conf
+# kernel tuning for UDP receive buffers (pfacct/pfdns/pfdhcp)
+%{__install} -D -m0644 packetfence.sysctl %{buildroot}/etc/sysctl.d/99-packetfence-udp.conf
+%{__install} -D -m0644 packetfence-reserved-ports.sysctl %{buildroot}/etc/sysctl.d/99-packetfence-reserved-ports.conf
 # override docker-ce unit file
 %{__install} -D -m0644 packetfence.docker-drop-in.service %{buildroot}/etc/systemd/system/docker.service
 
@@ -495,6 +506,7 @@ cp -r addons/watchdog/ %{buildroot}/usr/local/pf/addons/
 cp -r addons/AD/* %{buildroot}/usr/local/pf/addons/AD/
 cp -r addons/monit/ %{buildroot}/usr/local/pf/addons/
 cp -r addons/stress-tester/ %{buildroot}/usr/local/pf/addons/
+cp -r addons/ntlm-auth-api/ %{buildroot}/usr/local/pf/addons/
 cp addons/full-import/*.sh %{buildroot}/usr/local/pf/addons/full-import/
 cp addons/full-import/*.pl %{buildroot}/usr/local/pf/addons/full-import/
 cp addons/functions/*.functions %{buildroot}/usr/local/pf/addons/functions/
@@ -618,6 +630,13 @@ if ! /usr/bin/id pf &>/dev/null; then
     fi
 fi
 
+if [ "$1" = "1" ]; then
+    # Change uid and gid on fresh installation
+    echo "Set uid and gid for pf user to app groups"
+    /usr/sbin/usermod -u 2025 pf
+    /usr/sbin/groupmod -g 2025 pf
+fi
+
 echo "Adding pf user to app groups"
 /usr/sbin/usermod -aG wbpriv,fingerbank,apache pf
 /usr/sbin/usermod -aG pf mysql
@@ -658,6 +677,9 @@ if [ "$1" = "2" ]; then
     perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
 fi
 
+echo "Generate values in kafka.conf"
+/usr/local/pf/addons/upgrade/to-15.0-replace-kafka-values.sh
+
 /usr/bin/mkdir -p /var/log/journal/
 echo "Restarting journald to enable persistent logging"
 /bin/systemctl restart systemd-journald
@@ -684,15 +706,19 @@ chown pf /usr/local/pf/conf/ssl/server.key
 
 #Make configurable logo in default profile templates
 make html/captive-portal/profile-templates/default/logo.png
-
+#Make default theme.css in default profile templates
+make html/captive-portal/profile-templates/default/theme.css
+#Make default background in default profile templates
+make html/captive-portal/profile-templates/default/background.png
+        
 # Create server local RADIUS secret
 if [ ! -f /usr/local/pf/conf/local_secret ]; then
-    date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret
+    head -c 512 /dev/urandom | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret
 fi
 
 # Create server API system user password
 if [ ! -f /usr/local/pf/conf/unified_api_system_pass ]; then
-    date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/unified_api_system_pass
+    head -c 512 /dev/urandom | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/unified_api_system_pass
 fi
 
 # Create server API system user password
@@ -707,6 +733,16 @@ do
     /bin/systemctl disable $service > /dev/null 2>&1
   fi
 done
+
+# openldap-ltb is only pulled in for its client libraries (freeradius-ldap).
+# Its slapd is not used by PacketFence: disable it while it still runs the
+# unconfigured sample configuration shipped with the package.
+SLAPD_CONF=/usr/local/openldap/etc/openldap/slapd.conf
+if [ -f "$SLAPD_CONF" ] && grep -Eq '^rootpw[[:space:]]+secret[[:space:]]*$' "$SLAPD_CONF"; then
+  echo "Disabling unconfigured slapd from openldap-ltb"
+  /bin/systemctl disable --now slapd > /dev/null 2>&1 || true
+  /sbin/chkconfig --del slapd > /dev/null 2>&1 || true
+fi
 
 #Check if RADIUS have a dh
 if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
@@ -746,6 +782,11 @@ echo "# ip forwarding enabled by packetfence" > /etc/sysctl.d/99-ip_forward.conf
 echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.d/99-ip_forward.conf
 sysctl -p /etc/sysctl.d/99-ip_forward.conf
 
+# Reserve the pfconfig port (99-packetfence-reserved-ports.conf, #8576). Merge it with the current
+# reservations so the ones applied by other files aren't dropped until the next boot
+current=$(sysctl -n net.ipv4.ip_local_reserved_ports 2>/dev/null)
+sysctl -w net.ipv4.ip_local_reserved_ports="${current:+$current,}44444" > /dev/null || true
+
 /usr/local/pf/bin/pfcmd fixpermissions
 
 # reloading systemd unit files
@@ -779,7 +820,8 @@ if /usr/local/pf/containers/manage-images.sh; then
     /bin/systemctl start packetfence-config
     # next command need packetfence-config started
     /usr/local/pf/bin/pfcmd generatemariadbconfig --force
-    # only packetfence-config is running after this command
+    # only packetfence-config, packetfence-redis-cache and packetfence-mariadb
+    # services are running after the following command:
     /bin/systemctl isolate packetfence-base
 
     /bin/systemctl enable packetfence-httpd.admin_dispatcher
@@ -798,6 +840,11 @@ if /usr/local/pf/containers/manage-images.sh; then
 
     # Empty root password in order to allow other user to connect as root.
     /usr/bin/mysql -uroot -e "set password for 'root'@'localhost' = password('');"
+    if /usr/bin/mysql -uroot -ss -e "SHOW GRANTS FOR 'PUBLIC';" > /dev/null 2>&1; then
+        /usr/bin/mysql -uroot -ss -e "REVOKE ALL PRIVILEGES ON \`test\`.* FROM 'PUBLIC';" > /dev/null 2>&1 || true
+        /usr/bin/mysql -uroot -ss -e "REVOKE ALL PRIVILEGES ON \`test_%\`.* FROM 'PUBLIC';" > /dev/null 2>&1 || true
+        /usr/bin/mysql -uroot -e "FLUSH PRIVILEGES;"
+    fi
 
     echo Installation complete
     echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443 to complete your PacketFence configuration."
@@ -867,6 +914,8 @@ fi
 %attr(0644, root, root) /etc/systemd/system/packetfence*.slice
 %attr(0644, root, root) /etc/modules-load.d/packetfence.conf
 %attr(0644, root, root) /etc/modprobe.d/packetfence.conf
+%attr(0644, root, root) /etc/sysctl.d/99-packetfence-udp.conf
+%config(noreplace) %attr(0644, root, root) /etc/sysctl.d/99-packetfence-reserved-ports.conf
 
 %attr(0644, root, root) %{_unitdir}/packetfence-*.service
 %attr(0644, root, root) %{_unitdir}/packetfence-*.path
@@ -910,6 +959,8 @@ fi
                         /usr/local/pf/addons/monit/*
 %dir                    /usr/local/pf/addons/packages
                         /usr/local/pf/addons/packages/*
+%dir                    /usr/local/pf/addons/ntlm-auth-api
+                        /usr/local/pf/addons/ntlm-auth-api/*
 %dir                    /usr/local/pf/addons/pfconfig
 %exclude                /usr/local/pf/addons/pfconfig/pfconfig.init
 %dir                    /usr/local/pf/addons/pfconfig/comparator
@@ -927,6 +978,7 @@ fi
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 %attr(6755, root, root) /usr/local/pf/bin/pfcrypt
 %attr(6755, root, root) /usr/local/pf/bin/pfkafka
+%attr(0755, pf, pf)     /usr/local/pf/bin/kafka-init.pl
 %attr(0755, root, root) /usr/local/pf/bin/ntlm_auth_wrapper
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd.pl
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
@@ -934,6 +986,7 @@ fi
                         /usr/local/pf/bin/pflogger-packetfence
 %attr(0755, pf, pf)     /usr/local/pf/bin/pflogger.pl
 %attr(0755, pf, pf)     /usr/local/pf/bin/get_pf_conf
+%attr(0755, pf, pf)     /usr/local/pf/bin/pf-check-requirements
 %attr(0755, pf, pf)     /usr/local/pf/bin/proxysql-read-only-handler.sh
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/maintenance
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/management_update
@@ -941,15 +994,21 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/pfupdate
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/maintenance
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/node
+%dir                    /usr/local/pf/bin/impacket
+%attr(0755, pf, pf)     /usr/local/pf/bin/impacket/impacket_addcomputer.py
+%attr(0755, pf, pf)     /usr/local/pf/bin/impacket/impacket_logger.py
+%attr(0755, pf, pf)     /usr/local/pf/bin/impacket/impacket_utils.py
 %dir                    /usr/local/pf/bin/pyntlm_auth
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/config_generator.py
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/config_loader.py
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/constants.py
+%attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/credcache_push.py
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/entrypoint.py
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/flags.py
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/global_vars.py
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/gunicorn.conf.py
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/handlers.py
+%attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/log.py
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/ms_event.py
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/ncache.py
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/redis_client.py
@@ -968,6 +1027,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcp
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfstats
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfudpproxy
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig
 %attr(0755, pf, pf)     /usr/local/pf/sbin/sdnotify-proxy
 %attr(0755, pf, pf)     /usr/local/pf/sbin/signal-proxy
@@ -993,15 +1053,17 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/radiusd-eduroam-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/haproxy-admin-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/haproxy-portal-docker-wrapper
-%attr(0755, pf, pf)     /usr/local/pf/sbin/haproxy-admin-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfperl-api-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconnector-server-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconnector-client-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfpki-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfcron-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns-connector-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/proxysql-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfacct-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfldapexplorer-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/iptables_monitor.pl
+%attr(0755, pf, pf)     /usr/local/pf/sbin/ip6tables_monitor.pl
 %doc                    /usr/local/pf/ChangeLog
                         /usr/local/pf/conf/*.example
 %dir %attr(0770, pf pf) /usr/local/pf/conf
@@ -1019,6 +1081,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/config.toml
 %config(noreplace)      /usr/local/pf/conf/nexpose-responses.txt
 %config(noreplace)      /usr/local/pf/conf/pfdns.conf
+%config(noreplace)      /usr/local/pf/conf/pfdns-connector.conf
 %config(noreplace)      /usr/local/pf/conf/pfdhcp.conf
 %config(noreplace)      /usr/local/pf/conf/portal_modules.conf
 %config                 /usr/local/pf/conf/portal_modules.conf.defaults
@@ -1029,6 +1092,10 @@ fi
                         /usr/local/pf/conf/self_service.conf.example
 %config(noreplace)      /usr/local/pf/conf/connectors.conf
                         /usr/local/pf/conf/connectors.conf.example
+%config(noreplace)      /usr/local/pf/conf/dns_connectors.conf
+                        /usr/local/pf/conf/dns_connectors.conf.example
+%config(noreplace)      /usr/local/pf/conf/domains_connectors.conf
+                        /usr/local/pf/conf/domains_connectors.conf.example
 %config(noreplace)      /usr/local/pf/conf/network_behavior_policies.conf
                         /usr/local/pf/conf/network_behavior_policies.conf.example
 %config(noreplace)      /usr/local/pf/conf/cloud.conf
@@ -1109,6 +1176,10 @@ fi
 %dir                    /usr/local/pf/conf/locale/nb_NO/LC_MESSAGES
 %config(noreplace)      /usr/local/pf/conf/locale/nb_NO/LC_MESSAGES/packetfence.po
 %config(noreplace)      /usr/local/pf/conf/locale/nb_NO/LC_MESSAGES/packetfence.mo
+%dir                    /usr/local/pf/conf/locale/tr_TR
+%dir                    /usr/local/pf/conf/locale/tr_TR/LC_MESSAGES
+%config(noreplace)      /usr/local/pf/conf/locale/tr_TR/LC_MESSAGES/packetfence.po
+%config(noreplace)      /usr/local/pf/conf/locale/tr_TR/LC_MESSAGES/packetfence.mo
 %config(noreplace)      /usr/local/pf/conf/log.conf
 %dir                    /usr/local/pf/conf/log.conf.d
 %config(noreplace)      /usr/local/pf/conf/log.conf.d/*.conf
@@ -1148,6 +1219,8 @@ fi
                         /usr/local/pf/conf/radiusd/clients.eduroam.conf.inc.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/cert
                         /usr/local/pf/conf/radiusd/cert.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/dictionary.local
+                        /usr/local/pf/conf/radiusd/dictionary.local.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/mschap.conf
                         /usr/local/pf/conf/radiusd/mschap.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/packetfence-cluster
@@ -1180,6 +1253,8 @@ fi
                         /usr/local/pf/conf/radiusd/load_balancer.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/rest.conf
                         /usr/local/pf/conf/radiusd/rest.conf.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/redis.conf
+                        /usr/local/pf/conf/radiusd/redis.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/cli.conf
                         /usr/local/pf/conf/radiusd/cli.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/packetfence-cli
@@ -1258,11 +1333,10 @@ fi
 %config                 /usr/local/pf/conf/httpd.conf.d/log.conf
 %config(noreplace)      /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
                         /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf.example
-%config                 /usr/local/pf/conf/iptables.conf
-%config(noreplace)      /usr/local/pf/conf/iptables-input.conf.inc
-%config(noreplace)      /usr/local/pf/conf/iptables-input-management.conf.inc
-%config                 /usr/local/pf/conf/ip6tables.conf
-%config(noreplace)      /usr/local/pf/conf/ip6tables-input-management.conf.inc
+%config                 /usr/local/pf/conf/iptables.conf.tt
+%config                 /usr/local/pf/conf/ip6tables.conf.tt
+%config(noreplace)      /usr/local/pf/conf/iptables-custom.conf.inc
+%config(noreplace)      /usr/local/pf/conf/ip6tables-custom.conf.inc
 %config(noreplace)      /usr/local/pf/conf/keepalived.conf
                         /usr/local/pf/conf/keepalived.conf.example
 %config(noreplace)      /usr/local/pf/conf/cluster.conf
@@ -1330,6 +1404,8 @@ fi
 %config(noreplace)      /usr/local/pf/lib/pf/inline/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/lookup/node.pm
 %config(noreplace)      /usr/local/pf/lib/pf/lookup/person.pm
+%dir                    /usr/local/pf/lib/pf/cmd
+                        /usr/local/pf/lib/pf/cmd/*
 %dir                    /usr/local/pf/lib/pf/pfcmd
                         /usr/local/pf/lib/pf/pfcmd/*
 %dir                    /usr/local/pf/lib/pf/Portal
@@ -1410,6 +1486,18 @@ fi
 # Changelog
 #==============================================================================
 %changelog
+* Mon Aug 24 2026 Inverse <info@inverse.ca> - 16.0.0-1
+- New release 16.0.0
+
+* Wed May 20 2026 Inverse <info@inverse.ca> - 15.2.0-1
+- New release 15.2.0
+
+* Tue Oct 28 2025 Inverse <info@inverse.ca> - 15.1.0-1
+- New release 15.1.0
+
+* Thu Feb 20 2025 Inverse <info@inverse.ca> - 15.0.0-1
+- New release 15.0.0
+
 * Mon Sep 09 2024 Inverse <info@inverse.ca> - 14.1.0-1
 - New release 14.1.0
 

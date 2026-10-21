@@ -1,6 +1,8 @@
 # Copyright (C) Inverse inc.
 {
+	# Uncomment the 2 lines below if you want to enable pprof (example curl http://100.64.0.1:2021/debug/pprof/heap)
 	admin off
+	#admin :2021
 	#debug
 }
 

@@ -32,6 +32,23 @@
     tags:
       - Nodes
 
+/api/v1/nodes/bulk_apply_bypass_acls:
+  post:
+    summary: Apply Bypass ACLs to bulk nodes.
+    requestBody:
+      $ref: "#/components/requestBodies/NodesBulkBypassAcls"
+    responses:
+      '200':
+        $ref: "#/components/responses/NodesBulk"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Nodes
+
 /api/v1/nodes/bulk_apply_role:
   post:
     summary: Apply Role to bulk nodes.
@@ -171,6 +188,23 @@
 /api/v1/nodes/bulk_restart_switchport:
   post:
     summary: Restart Switch Ports for bulk nodes.
+    requestBody:
+      $ref: "#/components/requestBodies/NodesBulk"
+    responses:
+      '200':
+        $ref: "#/components/responses/NodesBulk"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Nodes
+
+/api/v1/nodes/bulk_delete:
+  delete:
+    summary: Delete bulk nodes.
     requestBody:
       $ref: "#/components/requestBodies/NodesBulk"
     responses:

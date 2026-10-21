@@ -19,6 +19,7 @@ use pf::log;
 use pf::IniFiles;
 use pf::file_paths qw($pf_default_file);
 use pf::authentication;
+use pf::nodecategory;
 use pf::web::util;
 use List::MoreUtils qw(any);
 use fingerbank::Model::Device;
@@ -43,7 +44,7 @@ sub field_list {
     my $list = [];
     my $section = $self->section;
     return [] if !defined $section;
-    push @$list, id => { id => 'id', type => 'Text', tags => {  isSubType =>  1 }};
+    push @$list, id => { id => 'id', type => 'Text', tags => {  isSubType =>  1, subTypeValue => $section }};
     my $default_pf_config = pf::IniFiles->new(-file => $pf_default_file, -allowempty => 1);
     my @section_fields = $default_pf_config->Parameters($section);
     foreach my $name (@section_fields) {
@@ -51,7 +52,8 @@ sub field_list {
         my $doc_section = $Doc_Config{$doc_section_name};
         my $defaults = $Default_Config{$section};
         $doc_section->{description} //= '';
-        $doc_section->{description} =~ s/\n//sg;
+        $doc_section->{description} =~ s/\n+$//sg;
+        $doc_section->{description} =~ s/\n/ /sg;
         my $doc_anchor = $doc_section->{guide_anchor};
         my $doc_anchor_html = defined($doc_anchor) ? " " . pf::web::util::generate_doc_link($doc_anchor) . " " : '';
         my $field =
@@ -181,8 +183,8 @@ sub field_list {
                 $field->{type} = 'Select';
                 $field->{element_class} = ['chzn-deselect', 'input'];
                 $field->{element_attr} = {'data-placeholder' => 'Select a role'};
-                my $roles = $self->ctx->model('Config::Roles')->listFromDB();
-                my @options = ({ value => '', label => ''}, map { { value => $_->{name}, label => $_->{name} } } @$roles);
+                my @roles = nodecategory_view_all();
+                my @options = ({ value => '', label => ''}, map { { value => $_->{name}, label => $_->{name} } } @roles);
                 $field->{options} = \@options;
                 last;
             };
@@ -309,7 +311,104 @@ our %FIELD_VALIDATORS = (
     "general.domain" => sub { validate_pf_domain(@_) ; validate_fqdn_not_in_passthroughs(@_, [ "passthroughs", "isolation_passthroughs" ]) },
     "fencing.passthroughs" => sub { validate_fqdn_not_in_passthroughs(@_, ["passthroughs"]) },
     "fencing.isolation_passthroughs" => sub { validate_fqdn_not_in_passthroughs(@_, ["isolation_passthroughs"]) },
+    "fencing.interception_proxy_port" => sub { validate_port_list(@_, 'lines') },
+    "inline.ports_redirect" => sub { validate_port_protocol_list(@_, 'commas') },
+    "inline.interfaceSNAT" => sub { validate_interface_list(@_, 'lines') },
+    "network.interfaceSNAT" => sub { validate_interface_list(@_, 'strict') },
 );
+
+=head2 _list_items
+
+Split a list the way it is read when the iptables rules are generated:
+
+ - lines: a list field, comma or line separated (lines are saved as commas)
+ - commas: a text field split on commas, spaces around them are ignored
+ - strict: a text field split on commas only, an item with spaces is invalid
+
+An empty item between two separators (8080,,3128, or a blank line) is
+returned as '': the iptables rules would get an empty port or interface. A
+trailing separator is ignored, as when the rules are generated.
+
+=cut
+
+sub _list_items {
+    my ($value, $mode) = @_;
+    $value //= '';
+    if ($mode eq 'strict') {
+        return grep { $_ ne '' } split(/,/, $value);
+    }
+    # The lines of a list field are saved joined with commas
+    $value = join(',', split(/\v+/, $value)) if $mode eq 'lines';
+    $value =~ s/^\s+|\s+$//g;
+    return split(/\s*,\s*/, $value);
+}
+
+=head2 _empty_item_error
+
+Report an empty item of a list, once per field
+
+=cut
+
+sub _empty_item_error {
+    my ($field, @items) = @_;
+    return 0 unless grep { $_ eq '' } @items;
+    $field->add_error("The list has an empty item (two separators in a row)");
+    return 1;
+}
+
+sub _is_port {
+    my ($port) = @_;
+    return defined $port && $port =~ /\A\d{1,5}\z/ && $port >= 1 && $port <= 65535;
+}
+
+=head2 validate_port_list
+
+Validate a list of ports (ex: 8080,3128)
+
+=cut
+
+sub validate_port_list {
+    my (undef, $field, $mode) = @_;
+    my @items = _list_items($field->value, $mode);
+    _empty_item_error($field, @items);
+    for my $item (grep { $_ ne '' } @items) {
+        next if _is_port($item);
+        $field->add_error("'$item' is not a valid port (1-65535)");
+    }
+}
+
+=head2 validate_port_protocol_list
+
+Validate a list of port/protocol (ex: 80/tcp,443/tcp)
+
+=cut
+
+sub validate_port_protocol_list {
+    my (undef, $field, $mode) = @_;
+    my @items = _list_items($field->value, $mode);
+    _empty_item_error($field, @items);
+    for my $item (grep { $_ ne '' } @items) {
+        my ($port, $protocol, @rest) = split('/', $item);
+        next if !@rest && _is_port($port) && defined $protocol && $protocol =~ /\A(?:tcp|udp)\z/i;
+        $field->add_error("'$item' is not a valid port/protocol (ex: 80/tcp)");
+    }
+}
+
+=head2 validate_interface_list
+
+Validate a list of network interface names, a trailing + is the iptables wildcard (ex: eth+)
+
+=cut
+
+sub validate_interface_list {
+    my (undef, $field, $mode) = @_;
+    my @items = _list_items($field->value, $mode);
+    _empty_item_error($field, @items);
+    for my $item (grep { $_ ne '' } @items) {
+        next if $item =~ /\A(?=.{1,15}\z)[a-zA-Z0-9][a-zA-Z0-9_.@-]*\+?\z/;
+        $field->add_error("'$item' is not a valid interface name");
+    }
+}
 
 =head2 validator_for_field
 
@@ -441,7 +540,7 @@ sub get_sms_source_ids {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

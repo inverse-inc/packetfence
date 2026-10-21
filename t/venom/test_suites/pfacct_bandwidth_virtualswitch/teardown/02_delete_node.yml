@@ -1,0 +1,7 @@
+name: Delete test node
+testcases:
+
+- name: delete_node
+  steps:
+  - type: pf_api_node_delete
+    id: '{{.pfacct_bandwidth_virtualswitch.device.mac_address}}'

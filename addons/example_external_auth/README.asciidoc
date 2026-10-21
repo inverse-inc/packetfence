@@ -1,3 +1,15 @@
+== Mock HTTP API server using python (recommended)
+
+We provide a python implementation of this HTTP API server. It is not designed for production use.
+but all the necessary steps, arguments extracting, basic authentication and authorization mechanism are provided in this script.
+You can take this python code snippet to test and build your own API server using any language you'd prefer.
+
+The python script is ready to use as python is a package pre-installed on most of the linux distros.
+Please kindly check out the script in `/t/mock_servers/external_HTTP_API.py` from PacketFence repository, make any changes
+necessary for debugging and troubleshooting.
+
+
+== Mock HTTP API server by PHP
 First install php on your server
 
 Then add the following in /usr/local/pf/conf/httpd.conf.d/httpd.aaa.tt

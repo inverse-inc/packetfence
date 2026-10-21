@@ -8,7 +8,7 @@
 #	".ppp" portion of the username, and to add a set of
 #	"user requested PPP" attributes to the request.
 #
-#	Matching can take place with the the Prefix and Suffix
+#	Matching can take place with the Prefix and Suffix
 #	attributes, just like in the "users" file.
 #	These attributes operate ONLY on the username, though.
 #

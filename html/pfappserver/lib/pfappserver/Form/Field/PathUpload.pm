@@ -19,6 +19,7 @@ use pf::log;
 use pf::file_paths qw($conf_uploads);
 use MIME::Base64;
 use pf::cluster;
+use pfconfig::git_storage;
 has upload_namespace => ( is => 'rw', isa => 'Str', required => 1 );
 has config_prefix => ( is => 'rw', isa => 'Str', required => 1 );
 has '+writeonly' => (default => 1);
@@ -30,11 +31,20 @@ apply [
             my ($value, $field) = @_;
             my $name = $field->name;
             my $id = $field->parent->field("id")->value;
+            $id =~ s/\s+/_/g;
             my $file = "$conf_uploads/" . $field->upload_namespace . "/${id}_$name" . $field->config_prefix;
             safe_file_update($file, decode_base64($value));
             eval { pf::cluster::sync_files([$file]) };
             if ($@) {
                 get_logger->error("Error syncing file $file: $@");
+            }
+
+            if (pfconfig::git_storage->is_enabled) {
+                my ($res, $msg) = pfconfig::git_storage->commit_file($file, strip_path_for_git_storage($file));
+                if (!$res) {
+                    get_logger->error("Error syncing file $file to git storage: $msg");
+                    $field->add_error($msg);
+                }
             }
 
             $field->noupdate(0);
@@ -45,7 +55,7 @@ apply [
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

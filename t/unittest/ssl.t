@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 20;
+use Test::More tests => 32;
 use Test::NoWarnings;
 
 use pf::constants qw($TRUE $FALSE);
@@ -150,6 +150,14 @@ my $x509 = pf::ssl::x509_from_string($ss_test_cert);
 is(ref($x509), "Crypt::OpenSSL::X509", "x509_from_string returns a Crypt::OpenSSL::X509");
 
 is($x509->subject, "C=MX, ST=Cucaracha, L=Villa de los Tacos, O=Zammitocorpo, CN=pf.zammitocorpo.mx", "certificate has the right subject");
+
+# Reference value computed with the OpenSSL CLI pipeline this code replaces:
+#   openssl x509 -noout -modulus | openssl md5
+# (the cert and key match, so both modulus MD5s are identical)
+my $expected_modulus_md5 = "205ee9d2d1c13e5e7b12ae59e00ff974";
+is(pf::ssl::x509_modulus_md5($x509), $expected_modulus_md5, "x509_modulus_md5 matches the OpenSSL CLI value");
+is(pf::ssl::rsa_modulus_md5($rsa), $expected_modulus_md5, "rsa_modulus_md5 matches the OpenSSL CLI value");
+isnt(pf::ssl::rsa_modulus_md5($rsa_bad_cert), $expected_modulus_md5, "non-matching key yields a different modulus MD5");
 
 is(pf::ssl::validate_cert_key_match($x509, $rsa), $TRUE, "Cert/key that are matching should match");
 
@@ -396,18 +404,48 @@ is(ref($x509), "Crypt::OpenSSL::X509", "x509_from_string returns a Crypt::OpenSS
 
 is($x509->subject, "CN=radius", "certificate has the right subject");
 
+my $x509_der = pf::ssl::x509_from_string($x509->as_string(Crypt::OpenSSL::X509::FORMAT_ASN1));
+is(eval { $x509_der->subject }, "CN=radius", "x509_from_string decodes an ASN1 (DER) certificate");
+
+is(pf::ssl::x509_from_string("not a certificate"), undef, "x509_from_string returns undef for data in no known encoding");
+
 my $x509_ca = pf::ssl::x509_from_string($cert_with_chain_ca);
 is(ref($x509_ca), "Crypt::OpenSSL::X509", "x509_from_string returns a Crypt::OpenSSL::X509");
 
 {
-    my $res;
+    my ($res, $message);
     is($x509_ca->subject(), "C=CA, ST=QC, L=Montreal, O=Inverse, CN=Azure_Test", "right intermediate subject was found");
 
     ($res, undef) = pf::ssl::verify_chain($x509, [$x509_ca]);
     is($res, $TRUE, "Cert with custom chain should be valid");
     
-    ($res, undef) = pf::ssl::verify_chain($x509, []);
+    ($res, $message) = pf::ssl::verify_chain($x509, []);
     is($res, $FALSE, "Cert with custom chain shouldn't be valid unless all certs are passed");
+    like($message, qr/unable to get local issuer certificate/i,
+        "Failed chain verification preserves the OpenSSL diagnostic");
+}
+
+# #6630: every installed intermediate must be on the signing chain of the certificate
+{
+    my ($res, $message);
+    my $x509_unrelated = pf::ssl::x509_from_string($ss_test_cert);
+
+    ($res, undef) = pf::ssl::verify_chain($x509, [$x509_unrelated], [$x509_unrelated]);
+    is($res, $FALSE, "Cert with a wrong intermediate isn't valid");
+
+    ($res, $message) = pf::ssl::verify_chain($x509, [$x509_ca, $x509_unrelated], [$x509_ca, $x509_unrelated]);
+    is($res, $FALSE, "Cert with an extra unrelated intermediate isn't valid");
+    like($message, qr/not part of the signing chain.*\Q@{[$x509_unrelated->subject()]}\E/,
+        "The unrelated intermediate is named");
+
+    ($res, undef) = pf::ssl::verify_chain($x509, [$x509_ca], [$x509_ca]);
+    is($res, $TRUE, "Cert with only its chain installed is valid");
+
+    ($res, undef) = pf::ssl::verify_chain($x509, [$x509_ca, $x509_unrelated], [$x509_ca]);
+    is($res, $TRUE, "An unrelated CA certificate that isn't installed as an intermediate (RADIUS CA file) is allowed");
+
+    ($res, undef) = pf::ssl::verify_chain($x509, [$x509_ca, $x509_ca], [$x509_ca, $x509_ca]);
+    is($res, $TRUE, "A duplicated intermediate of the chain is allowed");
 }
 
 my $multi_san_cert = <<EOF;
@@ -466,7 +504,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

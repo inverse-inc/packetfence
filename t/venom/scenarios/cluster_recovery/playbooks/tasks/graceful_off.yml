@@ -1,0 +1,41 @@
+---
+# Clean shutdown that lets galera close properly (writes grastate.dat with a
+# valid seqno; the LAST node to leave the primary component gets
+# safe_to_bootstrap: 1). `pfcmd service pf stop` closes galera cleanly; then a
+# forced poweroff avoids the deb12 graceful-shutdown/systemd deadlock, but only
+# once mariadb is confirmed down, otherwise the power cut dirties grastate.
+- import_tasks: read_uuid.yml
+
+- name: "Graceful PacketFence stop (clean galera close) on {{ inventory_hostname }}"
+  ansible.builtin.command: "timeout -k 30 600 /usr/local/pf/bin/pfcmd service pf stop"
+  changed_when: true
+
+# pfcmd can return success even when a manager failed. Require a loaded unit
+# that stopped successfully, then verify Galera finalized its on-disk state.
+- name: "Wait for packetfence-mariadb to stop on {{ inventory_hostname }}"
+  ansible.builtin.command: "systemctl show --property=LoadState,ActiveState,Result packetfence-mariadb"
+  register: _mariadb_state
+  changed_when: false
+  until:
+    - _mariadb_state.rc == 0
+    - "'LoadState=loaded' in _mariadb_state.stdout_lines"
+    - "'ActiveState=inactive' in _mariadb_state.stdout_lines"
+    - "'Result=success' in _mariadb_state.stdout_lines"
+  retries: 12
+  delay: 5
+
+- name: "Verify Galera saved a clean sequence number on {{ inventory_hostname }}"
+  ansible.builtin.command:
+    argv:
+      - awk
+      - '$1 == "seqno:" { count++; valid = (NF == 2 && $2 ~ /^[0-9]+$/) } END { exit !(count == 1 && valid) }'
+      - /var/lib/mysql/grastate.dat
+  changed_when: false
+
+- name: "Power off {{ inventory_hostname }}"
+  ansible.builtin.shell: "systemctl poweroff --force"
+  async: 1
+  poll: 0
+  failed_when: false
+
+- import_tasks: wait_shut_off.yml

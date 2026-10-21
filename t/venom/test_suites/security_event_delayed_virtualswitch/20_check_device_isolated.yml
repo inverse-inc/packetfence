@@ -1,0 +1,13 @@
+name: Verify device moved to isolation VLAN after delayed event enforced
+testcases:
+
+- name: check_device_in_isolation_vlan
+  steps:
+  - type: virtualswitch_device_status
+    api_url: '{{.virtualswitch.api.url}}'
+    interface_id: '{{.security_event_delayed_virtualswitch.device.interface.id}}'
+    retry: 15
+    delay: 5
+    assertions:
+      - result.virtualswitch_device_status__port_state ShouldEqual authenticated
+      - result.virtualswitch_device_status__vlan_assigned ShouldEqual {{.security_event_delayed_virtualswitch.vlan.isolation}}

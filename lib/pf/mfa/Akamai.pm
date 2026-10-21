@@ -153,10 +153,12 @@ sub check_user {
         @default_device = $self->select_phone($devices->{'result'}->{'devices'}, $self->radius_mfa_method, undef);
     }
 
-    if ($self->radius_mfa_method eq 'push') {
-       if ( grep $_ eq 'push', @{$default_device[0]->{'methods'}}) {
-            return $ACTIONS{'push'}->($self,$default_device[0]->{'device'},$username);
-       }
+    if (defined $otp && $otp eq "") {
+        if ($self->radius_mfa_method eq 'push') {
+            if ( grep $_ eq 'push', @{$default_device[0]->{'methods'}}) {
+                return $ACTIONS{'push'}->($self,$default_device[0]->{'device'},$username);
+            }
+        }
     }
     else {
         if (defined $otp) {
@@ -178,15 +180,19 @@ sub check_user {
             } elsif ($otp =~ /^(sms|push|phone)(\d?)$/i) {
                 my $method = $1;
                 my @device = $self->select_phone($devices->{'result'}->{'devices'}, $method, $2);
+                if (!@device) {
+                    $message = "No available device to trigger method ".$self->radius_mfa_method." for user ".$username;
+                    $logger->info($message);
+                }
                 foreach my $device (@device) {
                     if ( grep $_ =~ $METHOD_ALIAS{$method}, @{$device->{'methods'}}) {
                         return $ACTIONS{$method}->($self,$device->{'device'},$username,$1,$devices);
                     } else {
                         $message = "Unsupported method on device ".$device->{'name'}." for user ".$username;
                         $logger->info($message);
-                        return $FALSE, $message;
                     }
                 }
+                return $FALSE, $message;
             } else {
                 $message = "Method not supported for user $username";
                 $logger->info($message);
@@ -194,6 +200,10 @@ sub check_user {
             }
         } elsif ($self->radius_mfa_method eq 'sms' || $self->radius_mfa_method eq 'phone') {
             my @device = $self->select_phone($devices->{'result'}->{'devices'}, $self->radius_mfa_method, undef);
+            if (!@device) {
+                $message = "No available device to trigger method ".$self->radius_mfa_method." for user ".$username;
+                $logger->info($message);
+            }
             foreach my $device (@device) {
                 if ( grep $_ =~ $METHOD_ALIAS{$self->radius_mfa_method}, @{$device->{'methods'}}) {
                     return $ACTIONS{$self->radius_mfa_method}->($self,$device->{'device'},$username,$self->radius_mfa_method);
@@ -203,6 +213,7 @@ sub check_user {
                     return $FALSE, $message;
                 }
             }
+            return $FALSE, $message;
         } else {
             $message = "OTP is empty for user ".$username;
             $logger->error($message);
@@ -561,7 +572,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

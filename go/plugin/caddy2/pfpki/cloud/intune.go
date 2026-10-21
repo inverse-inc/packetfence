@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/google/uuid"
+	"github.com/inverse-inc/packetfence/go/config/pfcrypt"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/certutils"
 )
@@ -133,7 +134,12 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 		if cname == name {
 			cl.ClientID = vi.(map[string]interface{})["client_id"].(string)
 			cl.TenantID = vi.(map[string]interface{})["tenant_id"].(string)
-			cl.ClientSecret = vi.(map[string]interface{})["client_secret"].(string)
+			s, err := pfcrypt.PfDecrypt(vi.(map[string]interface{})["client_secret"].(string))
+			if err != nil {
+				return err
+			}
+
+			cl.ClientSecret = string(s)
 		}
 	}
 
@@ -213,6 +219,13 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 				}
 			}
 		}
+		if k == "error" {
+			for m, n := range v.(map[string]interface{}) {
+				if m == "message" {
+					return errors.New(n.(string))
+				}
+			}
+		}
 		if k == "value" {
 			for _, n := range v.([]interface{}) {
 				for a, b := range n.(map[string]interface{}) {
@@ -253,6 +266,7 @@ func (cl *Intune) ValidateRequest(ctx context.Context, data []byte) error {
 	request.Request.CallerInfo = PROVIDER_NAME_AND_VERSION_NAME
 
 	slcB, _ := json.Marshal(request)
+
 	req, err := http.NewRequest("POST", cl.Endpoint.Uri+"/"+VALIDATION_URL, bytes.NewBuffer(slcB))
 	if err != nil {
 		log.Print(err)

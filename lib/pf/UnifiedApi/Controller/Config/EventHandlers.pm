@@ -29,6 +29,7 @@ use pf::ConfigStore::Pfdetect;
 use pfappserver::Form::Config::Pfdetect;
 use pfappserver::Form::Config::Pfdetect::dhcp;
 use pfappserver::Form::Config::Pfdetect::fortianalyser;
+use pfappserver::Form::Config::Pfdetect::fortigate_dhcp;
 use pfappserver::Form::Config::Pfdetect::regex;
 use pfappserver::Form::Config::Pfdetect::nexpose;
 use pfappserver::Form::Config::Pfdetect::security_onion;
@@ -41,6 +42,7 @@ our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::Pfdetect::$_" } qw(
         dhcp
         fortianalyser
+        fortigate_dhcp
         nexpose
         regex
         security_onion
@@ -94,7 +96,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

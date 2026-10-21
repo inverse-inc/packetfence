@@ -48,7 +48,6 @@ use pf::log;
 use Try::Tiny;
 use pf::Switch::constants;
 use pf::util;
-use pf::util::radius qw(perform_coa);
 use pf::web::util;
 use pf::radius::constants;
 use pf::constants;
@@ -79,6 +78,7 @@ use pf::SwitchSupports qw(
     RadiusDynamicVlanAssignment
     ExternalPortal
     ~AccessListBasedEnforcement
+    Flow
 );
 
 =item setAdminStatus - bounce host port with radius CoA technique
@@ -104,7 +104,7 @@ sub setAdminStatus {
         return 1;
     }
 
-    if (!defined($self->{'_radiusSecret'})) {
+    if (!$self->hasRadiusSecret()) {
         $logger->warn(
             "Unable to perform RADIUS CoA-Request on $self->{'_id'}: RADIUS Shared Secret not configured"
         );
@@ -122,7 +122,7 @@ sub setAdminStatus {
     try {
         my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
 
-        $response = perform_coa( $connection_info,
+        $response = $self->handleRadiusCoa( $connection_info,
             {
                 'Acct-Terminate-Cause' => 'Admin-Reset',
                 'NAS-IP-Address' => $self->{'_switchIp'},
@@ -189,7 +189,7 @@ sub radiusDisconnect {
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
 
-    if (!defined($self->{'_radiusSecret'})) {
+    if (!$self->hasRadiusSecret()) {
         $logger->warn(
             "Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): RADIUS Shared Secret not configured"
         );
@@ -221,7 +221,7 @@ sub radiusDisconnect {
 
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
-        $response = perform_coa($connection_info, $attributes_ref,
+        $response = $self->handleRadiusCoa($connection_info, $attributes_ref,
             [{'vendor' => 'Pica8', 'attribute' => 'Pica8-AVPair', 'value' => 'subscriber:command=reauthenticate'},
              {'vendor' => 'Pica8', 'attribute' => 'Pica8-AVPair', 'value' => 'subscriber:reauthenticate-type=last'}
             ]);

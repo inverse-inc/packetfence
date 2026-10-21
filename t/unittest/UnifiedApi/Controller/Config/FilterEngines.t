@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 18;
+use Test::More tests => 24;
 use Test::Mojo;
 
 #This test will running last
@@ -70,12 +70,37 @@ $t->post_ok("$url/parse_condition" => json => { condition => 'b =~ "^a\\\\.s$"'}
     status => 200,
     item => {
         condition => {
-            value => '^a\\.s$',
-            op => 'regex',
-            field => 'b',
+            op => 'and',
+            values => [
+                {
+                    value => '^a\\.s$',
+                    op => 'regex',
+                    field => 'b',
+                },
+            ],
         },
         condition_string => 'b =~ "^a\\\\.s$"'
     },
+  });
+
+$t->post_ok("$url/parse_condition" => json => { condition => 'ssid == "Test" || ssid == "Guest"'})
+  ->status_is(200)
+  ->json_is('/item/condition' => {
+        op => 'or',
+        values => [
+            { field => 'ssid', op => 'equals', value => 'Test' },
+            { field => 'ssid', op => 'equals', value => 'Guest' },
+        ],
+  });
+
+$t->post_ok("$url/parse_condition" => json => { condition => '!(ssid == "Test" && vlan == "10")'})
+  ->status_is(200)
+  ->json_is('/item/condition' => {
+        op => 'not_and',
+        values => [
+            { field => 'ssid', op => 'equals', value => 'Test' },
+            { field => 'vlan', op => 'equals', value => '10' },
+        ],
   });
 
 $t->post_ok(
@@ -109,7 +134,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

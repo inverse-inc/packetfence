@@ -3,10 +3,11 @@ package detectparser
 import (
 	"context"
 	"fmt"
+	"time"
+
 	cache "github.com/fdurand/go-cache"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/pfqueueclient"
-	"time"
 )
 
 type PfdetectRegexRule struct {
@@ -99,8 +100,8 @@ func (*JsonRpcApiCall) Call() error {
 }
 
 type PfqueueApiCall struct {
-	Method   string
-	Params   interface{}
+	Method string
+	Params interface{}
 }
 
 func (c *PfqueueApiCall) Call() error {
@@ -140,6 +141,7 @@ type ParserCreater func(*PfdetectConfig) (Parser, error)
 var parserLookup = map[string]ParserCreater{
 	"dhcp":           NewDhcpParser,
 	"fortianalyser":  NewFortiAnalyserParser,
+	"fortigate_dhcp": NewFortiGateDhcpParser,
 	"regex":          NewGenericParser,
 	"security_onion": NewSecurityOnionParser,
 	"snort":          NewSnortParser,

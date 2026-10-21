@@ -1,0 +1,15 @@
+name: Create headless_device role
+testcases:
+
+- name: create_headless_device_role
+  steps:
+  - type: pf_api_action
+    method: POST
+    url: 'config/roles'
+    status_code: 201
+    body: >-
+      {
+        "id": "{{.wired_mac_auth_virtualswitch.roles.headless_device.id}}",
+        "max_nodes_per_pid": 0,
+        "notes": "{{.wired_mac_auth_virtualswitch.roles.headless_device.notes}}"
+      }

@@ -14,6 +14,7 @@ pfcmd <command> [options]
 
  Commands
   cache                       | manage the cache subsystem
+  checkrequirements           | check system hardware requirements (RAM, CPU, disk)
   checkup                     | perform a sanity checkup and report any problems
   class                       | view security event classes
   configreload                | reload the configution
@@ -21,7 +22,6 @@ pfcmd <command> [options]
   fingerbank                  | Fingerbank related commands
   fixpermissions              | fix permissions on pf tree
   floatingnetworkdeviceconfig | query/modify floating network devices configuration parameters
-  generatedockeriptables      | generate and apply the rules for docker images
   generatemariadbconfig       | generate the MariaDB configuration
   generatemonitconfig         | generate the monit configuration
   generatesyslogconfig        | generate the syslog configuration
@@ -36,6 +36,8 @@ pfcmd <command> [options]
   pfcron                      | run pfcron tasks
   pfqueue                     | query/modify pfqueue tasks and counters
   reload                      | rebuild fingerprint or security events tables without restart
+  reloadiptablesrules         | rebuild iptables rules without restart
+  reloadip6tablesrules        | rebuild ip6tables rules without restart
   service                     | start/stop/restart and get PF daemon status
   switchconfig                | query/modify switches.conf configuration parameters
   version                     | output version information
@@ -66,7 +68,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

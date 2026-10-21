@@ -15,6 +15,8 @@ COPY ./src /usr/local/pf/src
 COPY ./config.mk /usr/local/pf/config.mk
 COPY ./Makefile /usr/local/pf/Makefile
 
+ARG GO_CHECK=no
+RUN if [ "$GO_CHECK" = "yes" ]; then make -C /usr/local/pf/go check; fi
 RUN cd /usr/local/pf/go/ && \
     make pfhttpd && \
     make httpdispatcher
@@ -29,4 +31,4 @@ WORKDIR /usr/local/pf/
 COPY --from=0 /usr/local/pf/html /usr/local/pf/html
 COPY --from=0 /usr/local/pf/go/pfhttpd /usr/local/pf/sbin/pfhttpd
 COPY --from=0 /usr/local/pf/go/httpdispatcher /usr/local/pf/sbin/httpdispatcher
-ENTRYPOINT /usr/local/pf/sbin/pfhttpd run --adapter caddyfile -c /usr/local/pf/conf/caddy-services/httpdispatcher.conf
+ENTRYPOINT ["/usr/local/pf/sbin/pfhttpd", "run", "--adapter", "caddyfile", "-c", "/usr/local/pf/conf/caddy-services/httpdispatcher.conf"]

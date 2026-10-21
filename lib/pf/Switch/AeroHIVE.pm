@@ -54,7 +54,6 @@ use pf::roles::custom $ROLES_API_LEVEL;
 # importing switch constants
 use pf::Switch::constants;
 use pf::util;
-use pf::util::radius qw(perform_disconnect perform_coa);
 
 
 =head1 SUBROUTINES
@@ -70,6 +69,7 @@ use pf::SwitchSupports qw(
     WirelessDot1x
     WirelessMacAuth
     RoamingAccounting
+    Flow
 );
 
 # inline capabilities
@@ -161,7 +161,7 @@ sub radiusDisconnect {
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
 
-    if (!defined($self->{'_radiusSecret'})) {
+    if (!$self->hasRadiusSecret()) {
         $logger->warn(
             "Unable to perform RADIUS Disconnect-Request on $self->{'_id'}: RADIUS Shared Secret not configured"
         );
@@ -189,11 +189,8 @@ sub radiusDisconnect {
     try {
         my $roleResolver = pf::roles::custom->instance();
         my $role = $roleResolver->getRoleForNode($mac, $self);
+        # handleRadiusCoa/handleRadiusDisconnect send to coaPort/disconnectPort
         my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
-
-        if (defined($self->{'_disconnectPort'}) && $self->{'_disconnectPort'} ne '') {
-            $connection_info->{'nas_port'} = $self->{'_disconnectPort'};
-        }
 
         # transforming MAC to the expected format 00-11-22-33-CA-FE
         $mac = uc($mac);
@@ -214,10 +211,10 @@ sub radiusDisconnect {
                 'Filter-Id' => $role,
             };
             $logger->info("[$self->{'_ip'}] Returning ACCEPT with Role: $role");
-            $response = perform_coa($connection_info, $attributes_ref);
+            $response = $self->handleRadiusCoa($connection_info, $attributes_ref);
         }
         else {
-            $response = perform_disconnect($connection_info, $attributes_ref);
+            $response = $self->handleRadiusDisconnect($connection_info, $attributes_ref);
         }
     } catch {
         chomp;
@@ -421,7 +418,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

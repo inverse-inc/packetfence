@@ -1,0 +1,16 @@
+name: Install virtualswitch package
+testcases:
+
+  - name: install_virtualswitch_package
+    steps:
+    - type: virtualswitch_install
+      package_name: virtualswitch
+      deb_version: "{{.virtualswitch.package.deb_version}}"
+      rpm_version: "{{.virtualswitch.package.rpm_version}}"
+
+  - name: verify_virtualswitch_installed
+    steps:
+    - type: exec
+      script: which virtualswitch || rpm -q virtualswitch || dpkg -l virtualswitch
+      assertions:
+        - result.code ShouldEqual 0

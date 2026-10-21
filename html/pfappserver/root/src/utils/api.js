@@ -151,6 +151,12 @@ Object.assign(apiCall, {
   }
 })
 
+// `_encodeURL` is needed by `api-perl.js` / `api-go.js` to mirror the
+// path-encoding behavior of the wrapped HTTP methods. Exported here so the
+// backend-specific helpers can build cursor-paginated walkers without
+// duplicating the encoder.
+export { _encodeURL }
+
 /**
  * Intercept requests
  */

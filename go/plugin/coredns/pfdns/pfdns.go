@@ -247,21 +247,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 	// DNS Filter code
 	var Type string
 	for k, v := range pf.NetworkType {
-		switch v.Type {
-		case "inlinel2":
-			Type = "inline"
-
-		case "inlinel3":
-			Type = "inline"
-
-		case "vlan-isolation":
-			Type = "isolation"
-
-		case "vlan-registration":
-			Type = "registration"
-		case "dns-enforcement":
-			Type = "dnsenforcement"
-		}
+		Type = dnsFilterScope(v.Type)
 
 		if k.Contains(bIP) {
 			// Register and inline or dns enforcement then resolv
@@ -736,27 +722,39 @@ func (pf *pfdns) MakeDetectionMecanism(ctx context.Context) error {
 
 	pfconfigdriver.FetchDecodeSocket(ctx, &portal)
 
-	pf.detectionBypass = false
-	if portal.DetectionMecanismBypass == "enabled" {
-		pf.detectionBypass = true
-	}
+	pf.detectionBypass = sharedutils.IsEnabled(portal.DetectionMecanismBypass)
 
 	pf.detectionMechanisms = make([]*regexp.Regexp, 0)
 	var err error
 	for _, v := range portal.DetectionMecanismUrls {
-		fqdn, err := url.Parse(v)
+		host, err := detectionMechanismHost(v)
 		if err != nil {
-			log.LoggerWContext(ctx).Error(fmt.Sprintf("Not able to parse the url %s", err))
+			log.LoggerWContext(ctx).Warn(fmt.Sprintf("Ignoring the detection mechanism URL %q: %s", v, err))
 			continue
 		}
-		err = pf.addDetectionMechanismsToList(ctx, fqdn.Host)
+		err = pf.addDetectionMechanismsToList(ctx, host)
 	}
 	return err
 }
 
+// detectionMechanismHost returns the host name of a detection mechanism URL
+func detectionMechanismHost(rawURL string) (string, error) {
+	fqdn, err := url.Parse(rawURL)
+	if err != nil {
+		return "", err
+	}
+	host := fqdn.Hostname()
+	if host == "" {
+		return "", fmt.Errorf("no host name, the URL must start with http:// or https://")
+	}
+	return host, nil
+}
+
 // addDetectionMechanismsToList add all detection mechanisms in a list
-func (pf *pfdns) addDetectionMechanismsToList(ctx context.Context, r string) error {
-	rgx, err := regexp.Compile(r)
+// A detection mechanism matches its host name only (with or without the trailing dot of a DNS query name),
+// not every name containing it with any character in place of its dots
+func (pf *pfdns) addDetectionMechanismsToList(ctx context.Context, host string) error {
+	rgx, err := regexp.Compile(`(?i)^` + regexp.QuoteMeta(host) + `\.?$`)
 	if err == nil {
 		pf.mutex.Lock()
 		pf.detectionMechanisms = append(pf.detectionMechanisms, rgx)
@@ -802,4 +800,21 @@ func (pf *pfdns) logreply(ctx context.Context, config *pfdnsRefreshableConfig, i
 		})
 		pf.redisCache.RPush(ctx, "DNS_AUDIT_LOG", data)
 	}
+}
+
+// dnsFilterScope returns the DNS filter scope of a network type, or "" for a
+// type without one. A type can list additional daemons after a comma (ex:
+// dns-enforcement,radius): only its first part is the network type.
+func dnsFilterScope(networkType string) string {
+	switch strings.SplitN(networkType, ",", 2)[0] {
+	case "inlinel2", "inlinel3":
+		return "inline"
+	case "vlan-isolation":
+		return "isolation"
+	case "vlan-registration":
+		return "registration"
+	case "dns-enforcement":
+		return "dnsenforcement"
+	}
+	return ""
 }

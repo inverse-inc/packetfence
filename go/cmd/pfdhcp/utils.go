@@ -2,15 +2,16 @@ package main
 
 import (
 	"context"
+	"crypto/rand"
 	"database/sql"
 	"encoding/binary"
 	"fmt"
-	"math/rand"
 	"net"
 	"os"
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	cache "github.com/fdurand/go-cache"
@@ -40,7 +41,7 @@ func connectDB(configDatabase *pfconfigdriver.PfConfDatabase) *sql.DB {
 }
 
 // initiaLease fetch the database to remove already assigned ip addresses
-func initiaLease(dhcpHandler *DHCPHandler, ConfNet pfconfigdriver.RessourseNetworkConf, db *sql.DB) {
+func initiaLease(ctx context.Context, dhcpHandler *DHCPHandler, ConfNet pfconfigdriver.RessourseNetworkConf, db *sql.DB) {
 	// Need to calculate the end ip because of the ip per role feature
 	now := time.Now()
 	endip := binary.BigEndian.Uint32(dhcpHandler.start.To4()) + uint32(dhcpHandler.leaseRange) - uint32(1)
@@ -88,11 +89,24 @@ func initiaLease(dhcpHandler *DHCPHandler, ConfNet pfconfigdriver.RessourseNetwo
 				leaseDuration = endTime.Sub(now)
 			}
 			ip := net.ParseIP(ipstr)
+			if ip == nil {
+				continue
+			}
+			ip4 := ip.To4()
+			if ip4 == nil {
+				continue
+			}
 
 			// Calculate the position for the roaring bitmap
-			position := uint32(binary.BigEndian.Uint32(ip.To4())) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
-			// Remove the position in the roaming bitmap
-			dhcpHandler.available.ReserveIPIndex(uint64(position), mac)
+			position := uint32(binary.BigEndian.Uint32(ip4)) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
+			// Reserve the IP in the pool. If it's already held by another MAC (stale
+			// overlapping ip4log rows for the same IP), skip the cache writes so we
+			// don't end up with two hwcache entries pointing at the same pool slot.
+			// The losing MAC will re-DISCOVER and get a fresh free IP from the pool.
+			if _, err := dhcpHandler.available.ReserveIPIndex(uint64(position), mac); err != nil {
+				log.LoggerWContext(ctx).Warn(fmt.Sprintf("initiaLease: skipping stale lease for mac=%s ip=%s: %s", mac, ipstr, err.Error()))
+				continue
+			}
 			// Add the mac in the cache
 			dhcpHandler.hwcache.Set(mac, int(position), leaseDuration)
 			GlobalIPCache.Set(ipstr, mac, leaseDuration)
@@ -102,7 +116,7 @@ func initiaLease(dhcpHandler *DHCPHandler, ConfNet pfconfigdriver.RessourseNetwo
 }
 
 // InterfaceScopeFromMac detect in which scope the mac is
-func InterfaceScopeFromMac(MAC string) string {
+func InterfaceScopeFromMac(ctx context.Context, MAC string) string {
 	var NetWork string
 	if index, found := GlobalMacCache.Get(MAC); found {
 		for _, v := range DHCPConfig.intsNet {
@@ -122,44 +136,47 @@ func InterfaceScopeFromMac(MAC string) string {
 }
 
 // Detect the vip on each interfaces
-func (d *Interfaces) detectVIP(interfaces []string, db *sql.DB) {
+func (d *Interfaces) detectVIP(ctx context.Context, Interfaces []*net.Interface, db *sql.DB) {
 
 	var keyConfCluster pfconfigdriver.NetInterface
 	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER," + pfconfigdriver.FindClusterName(ctx) + ")"
 
-	for _, v := range interfaces {
-		keyConfCluster.PfconfigHashNS = "interface " + v
+	for _, v := range Interfaces {
+		keyConfCluster.PfconfigHashNS = "interface " + v.Name
 		pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
 		// Nothing in keyConfCluster.Ip so we are not in cluster mode
 		if keyConfCluster.Ip == "" {
-			VIP[v] = true
+			VIP[v.Name] = true
 			continue
 		}
 
-		if _, found := VIP[v]; !found {
-			VIP[v] = false
+		if _, found := VIP[v.Name]; !found {
+			VIP[v.Name] = false
 		}
 
-		eth, _ := net.InterfaceByName(v)
-		adresses, _ := eth.Addrs()
+		adresses, _ := v.Addrs()
 		var found bool
 		found = false
 		for _, adresse := range adresses {
-			IP, _, _ := net.ParseCIDR(adresse.String())
-			VIPIp[v] = net.ParseIP(keyConfCluster.Ip)
-			if IP.Equal(VIPIp[v]) {
+			IP, _, err := net.ParseCIDR(adresse.String())
+			if err != nil {
+				log.LoggerWContext(ctx).Error("Failed to parse CIDR address " + adresse.String() + ": " + err.Error())
+				continue
+			}
+			VIPIp[v.Name] = net.ParseIP(keyConfCluster.Ip)
+			if IP.Equal(VIPIp[v.Name]) {
 				found = true
-				if VIP[v] == false {
-					log.LoggerWContext(ctx).Info(v + " got the VIP")
-					if h, ok := intNametoInterface[v]; ok {
-						go h.handleAPIReq(APIReq{Req: "initialease", NetInterface: v, NetWork: ""}, db)
+				if VIP[v.Name] == false {
+					log.LoggerWContext(ctx).Info(v.Name + " got the VIP")
+					if h, ok := intNametoInterface[v.Name]; ok {
+						go h.handleAPIReq(ctx, APIReq{Req: "initialease", NetInterface: v.Name, NetWork: ""}, db)
 					}
-					VIP[v] = true
+					VIP[v.Name] = true
 				}
 			}
 		}
 		if found == false {
-			VIP[v] = false
+			VIP[v.Name] = false
 		}
 	}
 }
@@ -167,12 +184,23 @@ func (d *Interfaces) detectVIP(interfaces []string, db *sql.DB) {
 // NodeInformation return the node information
 func NodeInformation(ctx context.Context, target net.HardwareAddr, db *sql.DB) (r NodeInfo) {
 
-	rows, err := db.Query("SELECT mac, status, IF(ISNULL(nc.name), '', nc.name) as category FROM node LEFT JOIN node_category as nc on node.category_id = nc.category_id WHERE mac = ?", target.String())
-	defer rows.Close()
+	if err := db.PingContext(ctx); err != nil {
+		log.LoggerWContext(ctx).Error("Unable to ping database, reconnect: " + err.Error())
+	}
+	dbCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	// Prepare the statements
+	// We use the same context for all the queries
+	// because we want to be sure that all the queries are executed in the same context
+	// and that the context is cancelled if one of the queries fails
 
+	rows, err := db.QueryContext(dbCtx, "SELECT mac, status, IF(ISNULL(nc.name), '', nc.name) as category FROM node LEFT JOIN node_category as nc on node.category_id = nc.category_id WHERE mac = ?", target.String())
 	if err != nil {
 		log.LoggerWContext(ctx).Crit(err.Error())
+		// Return default values on error
+		return NodeInfo{Mac: target.String(), Status: "unreg", Category: "default"}
 	}
+	defer rows.Close()
 
 	var (
 		Category string
@@ -195,30 +223,30 @@ func NodeInformation(ctx context.Context, target net.HardwareAddr, db *sql.DB) (
 }
 
 // ShuffleDNS return the dns list
-func ShuffleDNS(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
+func ShuffleDNS(ctx context.Context, ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 	matched, _ := regexp.MatchString(`inlinel[2-3]`, ConfNet.Type)
 	if matched {
 		if !sharedutils.IsEnabled(ConfNet.NatDNS) {
 			var excluded []string
-			return Shuffle(ConfNet.Dns, excluded)
+			return Shuffle(ctx, ConfNet.Dns, excluded)
 		}
 	}
 	if ConfNet.ClusterIPs != "" {
 		if ConfNet.Dnsvip != "" {
 			return []byte(net.ParseIP(ConfNet.Dnsvip).To4())
 		}
-		excluded := DetectDisabledServer(ConfNet.ClusterIPs, ConfNet.Interface.InterfaceName)
-		return Shuffle(ConfNet.ClusterIPs, excluded)
+		excluded := DetectDisabledServer(ctx, ConfNet.ClusterIPs, ConfNet.Interface.InterfaceName)
+		return Shuffle(ctx, ConfNet.ClusterIPs, excluded)
 	}
 	if ConfNet.Dnsvip != "" {
 		return []byte(net.ParseIP(ConfNet.Dnsvip).To4())
 	}
-	excluded := DetectDisabledServer(ConfNet.ClusterIPs, ConfNet.Interface.InterfaceName)
-	return Shuffle(ConfNet.Dns, excluded)
+	excluded := DetectDisabledServer(ctx, ConfNet.ClusterIPs, ConfNet.Interface.InterfaceName)
+	return Shuffle(ctx, ConfNet.Dns, excluded)
 }
 
 // ShuffleGateway return the gateway list
-func ShuffleGateway(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
+func ShuffleGateway(ctx context.Context, ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 	if ConfNet.NextHop != "" {
 		return []byte(net.ParseIP(ConfNet.Gateway).To4())
 	} else if ConfNet.ClusterIPs != "" {
@@ -229,8 +257,8 @@ func ShuffleGateway(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 			return []byte(net.ParseIP(ConfNet.ForceGatewayVIP).To4())
 		}
 
-		excluded := DetectDisabledServer(ConfNet.ClusterIPs, ConfNet.Interface.InterfaceName)
-		return Shuffle(ConfNet.ClusterIPs, excluded)
+		excluded := DetectDisabledServer(ctx, ConfNet.ClusterIPs, ConfNet.Interface.InterfaceName)
+		return Shuffle(ctx, ConfNet.ClusterIPs, excluded)
 
 	} else {
 		return []byte(net.ParseIP(ConfNet.Gateway).To4())
@@ -238,10 +266,26 @@ func ShuffleGateway(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 }
 
 // Shuffle addresses
-func Shuffle(addresses string, excluded []string) (r []byte) {
+func Shuffle(ctx context.Context, addresses string, excluded []string) (r []byte) {
 	var array []net.IP
 	var found bool
+	addressesArray := strings.Split(addresses, ",")
+	if len(addressesArray) == 1 {
+		singleIP := net.ParseIP(addressesArray[0]).To4()
+		if singleIP == nil {
+			return nil
+		}
+		slice := make([]byte, 0, len(singleIP))
+		slice = append(slice, singleIP...)
+		return slice
+	}
+	if len(addressesArray) == 0 {
+		return nil
+	}
 
+	// Check if the address is in the excluded list
+	// If it is, remove it from the list
+	// and add it to the array
 	for _, adresse := range strings.Split(addresses, ",") {
 		found = false
 		for _, exclude := range excluded {
@@ -255,48 +299,87 @@ func Shuffle(addresses string, excluded []string) (r []byte) {
 	}
 
 	slice := make([]byte, 0, len(array))
+	shuffleArray, err := cryptoShuffle(array)
 
-	random := rand.New(rand.NewSource(time.Now().UnixNano()))
-	for i := len(array) - 1; i > 0; i-- {
-		j := random.Intn(i + 1)
-		array[i], array[j] = array[j], array[i]
+	if err != nil {
+		log.LoggerWContext(ctx).Error("Shuffle error: " + err.Error())
+		// Return original array if shuffle fails
+		for _, element := range array {
+			elem := []byte(element.To4())
+			slice = append(slice, elem...)
+		}
+		return slice
 	}
-	for _, element := range array {
-		elem := []byte(element)
+	for _, element := range shuffleArray {
+		elem := []byte(element.To4())
 		slice = append(slice, elem...)
 	}
+
 	return slice
 }
 
 // ShuffleNetIP shuffle an array of net.IP
-func ShuffleNetIP(array []net.IP, randSrc int64) (r []byte) {
+func ShuffleNetIP(ctx context.Context, array []net.IP) (r []byte) {
+	if len(array) == 1 {
+		singleIP := array[0].To4()
+		if singleIP == nil {
+			return nil
+		}
+		slice := make([]byte, 0, len(singleIP))
+		slice = append(slice, singleIP...)
+		return slice
+	}
 
 	slice := make([]byte, 0, len(array))
-
-	if randSrc == 0 {
-		randSrc = time.Now().UnixNano()
+	shuffleArray, err := cryptoShuffle(array)
+	if err != nil {
+		log.LoggerWContext(ctx).Error("Shuffle error: " + err.Error())
+		// Return original array if shuffle fails
+		for _, element := range array {
+			elem := []byte(element.To4())
+			slice = append(slice, elem...)
+		}
+		return slice
 	}
-	random := rand.New(rand.NewSource(randSrc))
-	for i := len(array) - 1; i > 0; i-- {
-		j := random.Intn(i + 1)
-		array[i], array[j] = array[j], array[i]
-	}
-	for _, element := range array {
-		elem := []byte(element)
+	for _, element := range shuffleArray {
+		elem := []byte(element.To4())
 		slice = append(slice, elem...)
 	}
 	return slice
 }
 
+func cryptoShuffle(ips []net.IP) ([]net.IP, error) {
+	n := len(ips)
+	for i := n - 1; i > 0; i-- {
+		// Generate a secure random number modulo (i+1)
+		var b [8]byte
+		_, err := rand.Read(b[:])
+		if err != nil {
+			return nil, fmt.Errorf("failed to generate random number: %w", err)
+		}
+		// Convert bytes to uint64 and apply modulo
+		// Keep as uint64 to avoid overflow issues
+		randomUint64 := uint64(b[0]) | uint64(b[1])<<8 | uint64(b[2])<<16 | uint64(b[3])<<24 |
+			uint64(b[4])<<32 | uint64(b[5])<<40 | uint64(b[6])<<48 | uint64(b[7])<<56
+
+		// Safely convert to int after modulo operation (which guarantees the value is within range)
+		j := int(randomUint64 % uint64(i+1))
+
+		// Swap
+		ips[i], ips[j] = ips[j], ips[i]
+	}
+	return ips, nil
+}
+
 // ShuffleIP shuffle ip
-func ShuffleIP(a []byte, randSrc int64) (r []byte) {
+func ShuffleIP(ctx context.Context, a []byte) (r []byte) {
 
 	var array []net.IP
 	for len(a) != 0 {
 		array = append(array, net.IPv4(a[0], a[1], a[2], a[3]).To4())
 		_, a = a[0], a[4:]
 	}
-	return ShuffleNetIP(array, randSrc)
+	return ShuffleNetIP(ctx, array)
 }
 
 // IPsFromRange split ip range
@@ -308,7 +391,7 @@ func IPsFromRange(iPrange string) (r []net.IP, i int) {
 			ips := strings.Split(rangeip, "-")
 			if len(ips) == 1 {
 				iplist = append(iplist, net.ParseIP(ips[0]))
-			} else {
+			} else if len(ips) >= 2 {
 				start := net.ParseIP(ips[0])
 				end := net.ParseIP(ips[1])
 
@@ -331,10 +414,16 @@ func ExcludeIP(dhcpHandler *DHCPHandler, ipRange string) []net.IP {
 
 	for _, excludeIP := range excludeIPs {
 		if excludeIP != nil {
+			excludeIP4 := excludeIP.To4()
+			if excludeIP4 == nil {
+				continue
+			}
 			// Calculate the position for the dhcp pool
-			position := uint32(binary.BigEndian.Uint32(excludeIP.To4())) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
+			position := uint32(binary.BigEndian.Uint32(excludeIP4)) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
 
-			dhcpHandler.available.ReserveIPIndex(uint64(position), FakeMac)
+			if _, err := dhcpHandler.available.ReserveIPIndex(uint64(position), FakeMac); err != nil {
+				log.LoggerWContext(ctx).Warn(fmt.Sprintf("ExcludeIP: cannot reserve ip=%s as excluded: %s", excludeIP.String(), err.Error()))
+			}
 		}
 	}
 	return excludeIPs
@@ -350,11 +439,25 @@ func AssignIP(dhcpHandler *DHCPHandler, ipRange string) (map[string]uint32, []ne
 		if len(ipRangeArray) >= 1 {
 			for _, rangeip := range ipRangeArray {
 				result := rgx.FindStringSubmatch(rangeip)
-				position := uint32(binary.BigEndian.Uint32(net.ParseIP(result[2]).To4())) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
-				// Remove the position in the roaming bitmap
-				dhcpHandler.available.ReserveIPIndex(uint64(position), result[1])
+				if result == nil || len(result) < 3 {
+					continue
+				}
+				parsedIP := net.ParseIP(result[2])
+				if parsedIP == nil {
+					continue
+				}
+				parsedIP4 := parsedIP.To4()
+				if parsedIP4 == nil {
+					continue
+				}
+				position := uint32(binary.BigEndian.Uint32(parsedIP4)) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
+				// Reserve the static binding in the pool
+				if _, err := dhcpHandler.available.ReserveIPIndex(uint64(position), result[1]); err != nil {
+					log.LoggerWContext(ctx).Warn(fmt.Sprintf("AssignIP: cannot reserve static binding mac=%s ip=%s: %s", result[1], parsedIP.String(), err.Error()))
+					continue
+				}
 				couple[result[1]] = position
-				iplist = append(iplist, net.ParseIP(result[2]))
+				iplist = append(iplist, parsedIP)
 			}
 		}
 	}
@@ -363,7 +466,7 @@ func AssignIP(dhcpHandler *DHCPHandler, ipRange string) (map[string]uint32, []ne
 
 // AddDevicesOptions function add options on the fly
 func AddDevicesOptions(object string, leaseDuration *time.Duration, GlobalOptions map[dhcp.OptionCode][]byte, db *sql.DB) {
-	x, err := decodeOptions(object, db)
+	x, err := decodeOptions(ctx, object, db)
 	if err == nil {
 		for key, value := range x {
 			if key == dhcp.OptionIPAddressLeaseTime {
@@ -433,63 +536,315 @@ func IsIPv6(address net.IP) bool {
 	return strings.Count(address.String(), ":") >= 2
 }
 
+// ip4logStatements holds the ip4log statements, prepared once: this path runs
+// for every DHCP transaction and used to pay four Prepare/Close round trips
+// per call on top of the queries themselves.
+type ip4logStatements struct {
+	mac2ip   *sql.Stmt
+	ip2mac   *sql.Stmt
+	ipClose  *sql.Stmt
+	ipInsert *sql.Stmt
+}
+
+func (s *ip4logStatements) close() {
+	for _, stmt := range []*sql.Stmt{s.mac2ip, s.ip2mac, s.ipClose, s.ipInsert} {
+		if stmt != nil {
+			stmt.Close()
+		}
+	}
+}
+
+var (
+	ip4logStmtsMu sync.RWMutex
+	ip4logStmtsDb *sql.DB
+	ip4logStmts   *ip4logStatements
+)
+
+// ip4logStatementsFor returns the statements prepared against db, preparing
+// them on first use and again if a different handle is passed.
+//
+// A failure is deliberately not memoised: sql.Open does not connect, so the
+// first Prepare is also the first connection attempt, and memoising its error
+// (as a sync.Once would) left every later ip4log write failing for the life of
+// the process when pfdhcp happened to start before the database was accepting
+// connections.
+//
+// That same first-connection property is why preparation runs under ctx: it
+// happens while the write lock is held, so an unreachable database would
+// otherwise park every DHCP worker here for as long as the outage lasts.
+func ip4logStatementsFor(ctx context.Context, db *sql.DB) (*ip4logStatements, error) {
+	ip4logStmtsMu.RLock()
+	if ip4logStmts != nil && ip4logStmtsDb == db {
+		stmts := ip4logStmts
+		ip4logStmtsMu.RUnlock()
+		return stmts, nil
+	}
+	ip4logStmtsMu.RUnlock()
+
+	ip4logStmtsMu.Lock()
+	defer ip4logStmtsMu.Unlock()
+	// Another goroutine may have prepared them while we waited for the lock.
+	if ip4logStmts != nil && ip4logStmtsDb == db {
+		return ip4logStmts, nil
+	}
+
+	var err error
+	prepare := func(query string) *sql.Stmt {
+		if err != nil {
+			return nil
+		}
+		var stmt *sql.Stmt
+		stmt, err = db.PrepareContext(ctx, query)
+		return stmt
+	}
+
+	stmts := &ip4logStatements{}
+	stmts.mac2ip = prepare("SELECT ip FROM ip4log WHERE mac = ? AND (end_time = \"" + ZeroDate + "\" OR ( end_time + INTERVAL 30 SECOND ) > NOW()) ORDER BY start_time DESC LIMIT 1")
+	stmts.ip2mac = prepare("SELECT mac FROM ip4log WHERE ip = ? AND (end_time = \"" + ZeroDate + "\" OR end_time > NOW()) ORDER BY start_time DESC")
+	stmts.ipClose = prepare(" UPDATE ip4log SET end_time = NOW() WHERE ip = ?")
+	stmts.ipInsert = prepare("INSERT INTO ip4log (mac, ip, start_time, end_time) VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? SECOND)) ON DUPLICATE KEY UPDATE mac=VALUES(mac), start_time=NOW(), end_time=VALUES(end_time)")
+	if err != nil {
+		stmts.close()
+		return nil, err
+	}
+
+	if ip4logStmts != nil {
+		ip4logStmts.close()
+	}
+	ip4logStmtsDb, ip4logStmts = db, stmts
+	return stmts, nil
+}
+
+// ip4logConflictCache remembers recently confirmed MAC<->IP bindings so a
+// plain renewal skips the two conflict-detection SELECTs; a device showing up
+// with a new IP (or an IP claimed by a new MAC) is a different key and misses
+// the cache, so conflicts are still detected and closed immediately.
+//
+// The cache only knows about what pfdhcp itself wrote. ip4log is also written
+// by pfacct (radius_accounting -> update_ip4log) and by the Perl DHCP
+// processor for networks pfdhcp does not serve, and neither can invalidate it;
+// the upsert below covers that case, since a row another writer removed comes
+// back as an INSERT rather than an UPDATE.
+var ip4logConflictCache = cache.New(ip4logConflictTtlMax, 10*time.Minute)
+
+const (
+	ip4logConflictTtlMax = 5 * time.Minute
+	ip4logConflictTtlMin = 30 * time.Second
+)
+
+func ip4logConflictKey(mac string, ip string) string {
+	return mac + "|" + ip
+}
+
+// ip4logConflictTtl keeps a binding confirmed for at most half its lease, so
+// the checks re-run at least once per lease even for a quiet, stable client.
+// The lease passed here is the client's own, not the longer ip4log validity
+// the caller derives from it: a TTL longer than T1 would be refreshed by every
+// renewal and the entry would never expire.
+func ip4logConflictTtl(lease time.Duration) time.Duration {
+	ttl := lease / 2
+	if ttl > ip4logConflictTtlMax {
+		ttl = ip4logConflictTtlMax
+	}
+
+	if ttl < ip4logConflictTtlMin {
+		ttl = ip4logConflictTtlMin
+	}
+
+	return ttl
+}
+
+func ip4logBindingConfirmed(mac string, ip string) bool {
+	_, found := ip4logConflictCache.Get(ip4logConflictKey(mac, ip))
+	return found
+}
+
+func confirmIp4logBinding(mac string, ip string, lease time.Duration) {
+	ip4logConflictCache.Set(ip4logConflictKey(mac, ip), 1, ip4logConflictTtl(lease))
+}
+
+func forgetIp4logBinding(mac string, ip string) {
+	ip4logConflictCache.Delete(ip4logConflictKey(mac, ip))
+}
+
 // MysqlUpdateIP4Log update the ip4log table
-func MysqlUpdateIP4Log(mac string, ip string, duration time.Duration, db *sql.DB) error {
-	if err := db.PingContext(ctx); err != nil {
-		log.LoggerWContext(ctx).Error("Unable to ping database, reconnect: " + err.Error())
-	}
+//
+// duration is how long the ip4log entry stays valid (the lease plus the
+// caller's grace period) and lease is the client's own lease, which is what
+// the conflict cache is keyed on in time.
+func MysqlUpdateIP4Log(ctx context.Context, mac string, ip string, duration time.Duration, lease time.Duration, db *sql.DB) error {
+	dbCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
 
-	MAC2IP, err := db.Prepare("SELECT ip FROM ip4log WHERE mac = ? AND (end_time = \"" + ZeroDate + "\" OR ( end_time + INTERVAL 30 SECOND ) > NOW()) ORDER BY start_time DESC LIMIT 1")
+	stmts, err := ip4logStatementsFor(dbCtx, db)
 	if err != nil {
 		return err
 	}
-	defer MAC2IP.Close()
 
-	IP2MAC, err := db.Prepare("SELECT mac FROM ip4log WHERE ip = ? AND (end_time = \"" + ZeroDate + "\" OR end_time > NOW()) ORDER BY start_time DESC")
-	if err != nil {
-		return err
-	}
-	defer IP2MAC.Close()
+	// Only a cache miss runs the checks, and only a miss whose reads both
+	// answered may confirm the binding afterwards: re-confirming on a hit would
+	// push the entry's deadline forward on every renewal and the checks would
+	// never run again for a steadily renewing client.
+	checksRan := !ip4logBindingConfirmed(mac, ip)
+	if checksRan {
+		var (
+			oldMAC string
+			oldIP  string
+		)
+		if err := stmts.mac2ip.QueryRowContext(dbCtx, mac).Scan(&oldIP); err != nil {
+			// No row is the normal answer for a device we have not seen yet;
+			// anything else means the check did not happen and must not be
+			// cached away.
+			if err != sql.ErrNoRows {
+				checksRan = false
+			}
 
-	IPClose, err := db.Prepare(" UPDATE ip4log SET end_time = NOW() WHERE ip = ?")
-	if err != nil {
-		return err
-	}
-	defer IPClose.Close()
+			log.LoggerWContext(ctx).Info(err.Error())
+		}
 
-	IPInsert, err := db.Prepare("INSERT INTO ip4log (mac, ip, start_time, end_time) VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? SECOND)) ON DUPLICATE KEY UPDATE mac=VALUES(mac), start_time=NOW(), end_time=VALUES(end_time)")
-	if err != nil {
-		return err
-	}
-	defer IPInsert.Close()
-	var (
-		oldMAC string
-		oldIP  string
-	)
-	err = MAC2IP.QueryRow(mac).Scan(&oldIP)
-	if err != nil {
-		log.LoggerWContext(ctx).Info(err.Error())
-	}
-	err = IP2MAC.QueryRow(ip).Scan(&oldMAC)
-	if err != nil {
-		log.LoggerWContext(ctx).Info(err.Error())
-	}
-	if len(oldMAC) > 0 && (oldMAC != mac) {
-		_, err = IPClose.Exec(ip)
-		if err != nil {
-			return err
+		if err := stmts.ip2mac.QueryRowContext(dbCtx, ip).Scan(&oldMAC); err != nil {
+			if err != sql.ErrNoRows {
+				checksRan = false
+			}
+
+			log.LoggerWContext(ctx).Info(err.Error())
+		}
+
+		if len(oldMAC) > 0 && (oldMAC != mac) {
+			forgetIp4logBinding(oldMAC, ip)
+			if _, err := stmts.ipClose.ExecContext(dbCtx, ip); err != nil {
+				return err
+			}
+		}
+
+		if len(oldIP) > 0 && (oldIP != ip) {
+			forgetIp4logBinding(mac, oldIP)
+			if _, err := stmts.ipClose.ExecContext(dbCtx, oldIP); err != nil {
+				return err
+			}
 		}
 	}
-	if len(oldIP) > 0 && (oldIP != ip) {
-		_, err = IPClose.Exec(oldIP)
-		if err != nil {
-			return err
+
+	// Always refresh the entry itself: renewals must push end_time forward.
+	res, err := stmts.ipInsert.ExecContext(dbCtx, mac, ip, duration.Seconds())
+	if err != nil {
+		// Do not confirm a binding whose row may not have been written: the
+		// next transaction must re-run the checks rather than trust the cache.
+		forgetIp4logBinding(mac, ip)
+		log.LoggerWContext(ctx).Info(err.Error())
+		return err
+	}
+
+	// RowsAffected is 1 only when the row was inserted, i.e. the entry this
+	// binding relies on was missing because another writer closed or deleted
+	// it. Re-run the conflict checks next time instead of trusting the cache.
+	if rows, rerr := res.RowsAffected(); rerr == nil && rows == 1 {
+		forgetIp4logBinding(mac, ip)
+	} else if checksRan {
+		confirmIp4logBinding(mac, ip, lease)
+	}
+
+	return nil
+}
+
+// sanitizeHostname cleans a DHCP option-12 (host name) value for storage and
+// logging: some clients pad it with trailing NUL bytes or surrounding
+// whitespace.
+func sanitizeHostname(h string) string {
+	return strings.TrimSpace(strings.TrimRight(h, "\x00"))
+}
+
+// recordComputername persists the DHCP option-12 host name as the node's
+// computername and, when network.hostname_change_detection is enabled, raises
+// the internal::hostname_change security event if the host name changed from a
+// previously-stored non-empty value (possible MAC spoofing). This mirrors the
+// Perl pf::api::detect_computername_change, which PacketFence's DHCP processor
+// no longer runs for networks pfdhcp serves (it defers computername to us).
+// computernameCache remembers the last host name known to be stored per MAC so
+// the per-packet write only runs when the value actually changes; a changed
+// host name is a different cache value and goes through immediately. Only a
+// value read back from an existing node row is cached: the node is often
+// created after the DHCP transaction that named it, and caching a host name
+// whose UPDATE matched no row would keep it out of the database for the
+// lifetime of the entry, which is the delay this code exists to remove.
+var computernameCache = cache.New(5*time.Minute, 10*time.Minute)
+
+func recordComputername(ctx context.Context, mac string, hostname string, db *sql.DB) {
+	if hostname == "" {
+		return
+	}
+
+	if last, found := computernameCache.Get(mac); found && last.(string) == hostname {
+		return
+	}
+
+	old, nodeExists := mysqlGetComputername(ctx, mac, db)
+	if !nodeExists {
+		// Nothing to update and nothing worth remembering: the node row is
+		// usually created moments later, and the next transaction writes the
+		// host name then.
+		return
+	}
+
+	if old == hostname {
+		computernameCache.Set(mac, hostname, cache.DefaultExpiration)
+		return
+	}
+
+	// Change detection is disabled by default; the read it needs is the one we
+	// just did either way.
+	netConf := pfconfigdriver.GetType[pfconfigdriver.PfConfNetwork](ctx)
+	if old != "" && sharedutils.IsEnabled(netConf.HostnameChangeDetection) {
+		log.LoggerWContext(ctx).Warn("Computername change detected (" + old + " -> " + hostname + ") for " + mac + ". Possible MAC spoofing.")
+		if AAAClient != nil {
+			if err := AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", "internal", "mac", mac, "tid", "hostname_change"}); err != nil {
+				log.LoggerWContext(ctx).Error("Unable to trigger hostname_change security event for " + mac + ": " + err.Error())
+			}
 		}
 	}
-	_, err = IPInsert.Exec(mac, ip, duration.Seconds())
-	if err != nil {
-		log.LoggerWContext(ctx).Info(err.Error())
+
+	if err := MysqlUpdateComputername(ctx, mac, hostname, db); err != nil {
+		log.LoggerWContext(ctx).Warn("Unable to update computername for " + mac + ": " + err.Error())
+		return
 	}
+
+	computernameCache.Set(mac, hostname, cache.DefaultExpiration)
+}
+
+// mysqlGetComputername returns the node's currently stored computername and
+// whether the node row exists at all; a node with no computername yet reads
+// back as ("", true). A read error reports the node as missing, which only
+// costs the caller a retry on the next transaction.
+func mysqlGetComputername(ctx context.Context, mac string, db *sql.DB) (string, bool) {
+	dbCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	var computername sql.NullString
+	err := db.QueryRowContext(dbCtx, "SELECT computername FROM node WHERE mac = ?", mac).Scan(&computername)
+	if err != nil {
+		if err != sql.ErrNoRows {
+			log.LoggerWContext(ctx).Error("Unable to read computername for " + mac + ": " + err.Error())
+		}
+		return "", false
+	}
+
+	return computername.String, true
+}
+
+// MysqlUpdateComputername records the DHCP option-12 host name as the node's
+// computername. PacketFence (this DHCP server) has the host name directly in
+// the packet it answers, so writing it here makes the machine name land
+// immediately, instead of waiting for the asynchronous Fingerbank collector to
+// aggregate it and a later re-process to persist it. The WHERE clause makes
+// this a no-op when the value is unchanged or the node row does not exist yet.
+func MysqlUpdateComputername(ctx context.Context, mac string, hostname string, db *sql.DB) error {
+	if hostname == "" {
+		return nil
+	}
+	dbCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	_, err := db.ExecContext(dbCtx,
+		"UPDATE node SET computername = ? WHERE mac = ? AND (computername IS NULL OR computername != ?)",
+		hostname, mac, hostname)
 	return err
 }
 
@@ -509,7 +864,7 @@ func setOptionServerIdentifier(srvIP net.IP, handlerIP net.IP) net.IP {
 	return srvIP
 }
 
-func DetectDisabledServer(addresses string, netint string) []string {
+func DetectDisabledServer(ctx context.Context, addresses string, netint string) []string {
 
 	var array []string
 	for _, adresse := range strings.Split(addresses, ",") {
@@ -542,4 +897,35 @@ func DetectDisabledServer(addresses string, netint string) []string {
 func IsDisabled(hostname string) bool {
 	_, err := os.Stat(fmt.Sprintf("/usr/local/pf/var/run/%s-cluster-disabled", hostname))
 	return err == nil
+}
+
+// setBootFields copies the TFTP server (option 66) and boot file name
+// (option 67) into the BOOTP header of a reply (siaddr/sname and file), where
+// legacy PXE ROMs look for them: they often don't request options 66/67 and
+// only read the next-server and boot file of the BOOTP header.
+func setBootFields(p dhcp.Packet, options dhcp.Options) {
+	// Option 66 is a server name, but saved with the ipaddr type it holds the 4 bytes of an IPv4 address
+	if raw := options[dhcp.OptionTFTPServerName]; len(raw) == net.IPv4len && !isHostnameBytes(raw) {
+		p.SetSIAddr(net.IP(raw).To4())
+	} else if server := strings.TrimRight(string(raw), "\x00"); server != "" {
+		if ip := net.ParseIP(server).To4(); ip != nil {
+			p.SetSIAddr(ip)
+		}
+		if len(server) < 64 {
+			p.SetSName([]byte(server))
+		}
+	}
+	if file := strings.TrimRight(string(options[dhcp.OptionBootFileName]), "\x00"); file != "" && len(file) < 128 {
+		p.SetFile([]byte(file))
+	}
+}
+
+// isHostnameBytes tells if the value only has the characters of a host name or an IP address
+func isHostnameBytes(value []byte) bool {
+	for _, c := range value {
+		if !(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '.' || c == '-' || c == '_') {
+			return false
+		}
+	}
+	return true
 }

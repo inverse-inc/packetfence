@@ -2,7 +2,7 @@ import store from '@/store'
 import StoreModule from './_store'
 import { analytics } from './config'
 
-const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
+const TheView = () => import(/* webpackChunkName: "ConfigurationNetwork" */ './_components/TheView')
 
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_certificates)

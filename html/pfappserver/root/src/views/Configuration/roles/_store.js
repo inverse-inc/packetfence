@@ -39,15 +39,30 @@ const getters = {
 }
 
 const actions = {
-  all: () => {
-    const params = {
-      sort: 'id',
-      fields: ['id'].join(','),
-      limit: 1000
+  all: async () => {
+    const pageSize = 1000
+    const acc = []
+    let cursor = 0
+    let hasMore = true
+    while (hasMore) {
+      const response = await api.list({
+        sort: 'id',
+        fields: 'id',
+        limit: pageSize,
+        cursor
+      })
+      const pageItems = response.items || []
+      if (pageItems.length > 0) {
+        acc.push(...pageItems)
+      }
+      const next = response.nextCursor
+      if (next == null || next <= cursor || pageItems.length === 0) {
+        hasMore = false
+      } else {
+        cursor = next
+      }
     }
-    return api.list(params).then(response => {
-      return response.items
-    })
+    return acc
   },
   options: ({ commit }, id) => {
     commit('ITEM_REQUEST')

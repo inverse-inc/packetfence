@@ -44,9 +44,10 @@ const setup = () => {
       can: 'read admin_api_audit_log'
     },
     {
-      name: i18n.t('Live Logs'),
-      path: '/auditing/live/',
-      can: 'read system'
+      name: i18n.t('pftest'),
+      path: '/auditing/pftest',
+      saveSearchNamespace: 'pftest',
+      can: 'create pftest'
     }
   ]))
 

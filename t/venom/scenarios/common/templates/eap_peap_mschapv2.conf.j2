@@ -1,0 +1,12 @@
+ctrl_interface=/var/run/wpa_supplicant
+ctrl_interface_group=0
+eapol_version=2
+ap_scan=0
+    network={
+    key_mgmt=IEEE8021X
+    eap=PEAP
+    identity="{{ wpasupplicant__eap_peap_mschapv2_identity }}"
+    password="{{ wpasupplicant__eap_peap_mschapv2_password }}"
+    phase2="autheap=MSCHAPV2"
+    eapol_flags=3
+}

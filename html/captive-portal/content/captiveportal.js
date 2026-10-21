@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
   initDots();
   initSvgSprite();
   initForm();
+  initQueryParams();
 
   function initButtons() {
     // Don't propagate mouse clicks on disabled buttons and links
@@ -133,18 +134,21 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function initForm() {
-    var form = false;
+    var forms = [];
     var inputs = Array.prototype.slice.call(document.querySelectorAll('form input, form select'));
     if (inputs.length) {
       inputs.forEach(function (input) {
-        form = closest(input, function (el) { return el.tagName.toLowerCase() === 'form' });
-        var inputHandler = function () { checkForm(form); };
+        var inputForm = closest(input, function (el) { return el.tagName.toLowerCase() === 'form' });
+        if (inputForm && forms.indexOf(inputForm) === -1) {
+          forms.push(inputForm);
+        }
+        var inputHandler = function () { checkForm(inputForm); };
+        // 'input' also catches paste (touch/context menu) and autofill, which don't trigger keyup
+        input.addEventListener('input', inputHandler);
         input.addEventListener('keyup', inputHandler);
         input.addEventListener('change', inputHandler);
       });
-      if (form) {
-        checkForm(form);
-      }
+      forms.forEach(checkForm);
     }
     else {
       // no input/select
@@ -165,6 +169,8 @@ document.addEventListener('DOMContentLoaded', function () {
       parent.appendChild(template);
       template.insertBefore(input, button);
       button.addEventListener('click', function (event) {
+        // the button is a link to '#': don't follow it (the preview reloads the page and loses the typed values)
+        event.preventDefault();
         var type = '', label = '', state = '';
         if (button.dataset.state === 'hide') {
           label = button.dataset.hide;
@@ -176,14 +182,14 @@ document.addEventListener('DOMContentLoaded', function () {
           state = 'hide';
           type = 'password';
         }
-        var inputHandler = function () { checkForm(form); };
-        input.removeEventListener('keyup', inputHandler);
-        input.removeEventListener('change', inputHandler);
+        var inputForm = closest(input, function (el) { return el.tagName.toLowerCase() === 'form' });
+        var inputHandler = function () { checkForm(inputForm); };
         var rep = document.createElement('input');
         rep.setAttribute('type', type);
         rep.id = input.id;
         rep.name = input.name;
         rep.value = input.value;
+        rep.addEventListener('input', inputHandler);
         rep.addEventListener('keyup', inputHandler);
         rep.addEventListener('change', inputHandler);
         template.insertBefore(rep, button);
@@ -191,7 +197,6 @@ document.addEventListener('DOMContentLoaded', function () {
         input = rep;
         button.dataset.state = state;
         button.innerHTML = label;
-        return false;
       });
     });
   }
@@ -215,6 +220,51 @@ document.addEventListener('DOMContentLoaded', function () {
         submitBtn.setAttribute('disabled', true);
       }
     }
+  }
+
+  function initQueryParams() {
+    // Store params for re-use when cards become visible
+    var params = new URLSearchParams(window.location.search);
+
+    function autofillVisibleInputs() {
+      params.forEach(function(value, key) {
+        // Find visible input fields (not hidden type) matching the parameter name
+        var inputs = document.querySelectorAll(
+          'input[name="' + key + '"]:not([type="hidden"]), ' +
+          'input[id="' + key + '"]:not([type="hidden"])'
+        );
+        inputs.forEach(function(input) {
+          // Only fill if empty (don't smash existing values)
+          if (!input.value) {
+            input.value = value;
+            // Trigger change event so form validation runs
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        });
+      });
+    }
+
+    // Initial autofill
+    autofillVisibleInputs();
+
+    // Re-trigger on card visibility changes (MutationObserver on class changes)
+    var observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.attributeName === 'class') {
+          var target = mutation.target;
+          // Check if a card just became visible (had c-card--hidden, now doesn't)
+          if (target.classList.contains('c-card') &&
+              !target.classList.contains('c-card--hidden')) {
+            autofillVisibleInputs();
+          }
+        }
+      });
+    });
+
+    // Observe all cards for class changes
+    document.querySelectorAll('.c-card').forEach(function(card) {
+      observer.observe(card, { attributes: true, attributeFilter: ['class'] });
+    });
   }
 
   function addDot(parent, index, active, disabled) {

@@ -1,5 +1,5 @@
 import store from '@/store'
-const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
+const TheView = () => import(/* webpackChunkName: "ConfigurationNetwork" */ './_components/TheView')
 
 export const useRouter = $router => {
   return {

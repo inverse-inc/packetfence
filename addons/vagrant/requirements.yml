@@ -13,7 +13,7 @@ roles:
 
 collections:
   - name: inverse_inc.packetfence
-    version: 1.2.4
+    version: 1.2.6
   - name: debops.debops
     version: 3.0.5
   - name: inverse_inc.cumulus
@@ -26,6 +26,8 @@ collections:
     version: 5.1.1
   - name: ansible.posix
     version: 1.5.4
+  - name: community.general
+    version: 11.4.0
 
 # For collections, to test locally with Vagrant (due to --force option)
 # Ansible will create an export, not a symlink to git repository

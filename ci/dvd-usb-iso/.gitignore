@@ -1,0 +1,19 @@
+# Generated files
+preseed.cfg
+*.iso
+*.md5
+
+# Work directories
+work/
+results/
+isofiles/
+
+# Downloaded files
+debian-*.iso
+
+# Local repository
+pool/
+dists/
+
+# Docker images
+docker-images/

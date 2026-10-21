@@ -182,7 +182,7 @@ func (h *ApiAAAHandler) buildApiAAAHandler(ctx context.Context) error {
 
 	// Backend for SSO
 	if sharedutils.IsEnabled(adminLogin.SSOStatus) {
-		url, err := url.Parse(fmt.Sprintf("%s%s", adminLogin.SSOBaseUrl, adminLogin.SSOAuthorizePath))
+		url, err := url.Parse(fmt.Sprintf("%s%s", servicesURL.HttpdPortal, adminLogin.SSOAuthorizePath))
 		sharedutils.CheckError(err)
 		h.authentication.AddAuthenticationBackend(aaa.NewPortalAuthenticationBackend(ctx, url, false))
 	}
@@ -236,13 +236,13 @@ func (h ApiAAAHandler) handleLogin(w http.ResponseWriter, r *http.Request, p htt
 		res, _ := json.Marshal(map[string]string{
 			"token": token,
 		})
-		fmt.Fprintf(w, string(res))
+		w.Write(res)
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
 		res, _ := json.Marshal(map[string]string{
 			"message": err.Error(),
 		})
-		fmt.Fprintf(w, string(res))
+		w.Write(res)
 	}
 }
 
@@ -281,13 +281,13 @@ func (h ApiAAAHandler) handleTokenInfo(w http.ResponseWriter, r *http.Request, p
 		res, _ := json.Marshal(map[string]interface{}{
 			"item": prettyInfo,
 		})
-		fmt.Fprintf(w, string(res))
+		w.Write(res)
 	} else {
 		w.WriteHeader(http.StatusNotFound)
 		res, _ := json.Marshal(map[string]string{
 			"message": "Couldn't find any information for the current token. Either it is invalid or it has expired.",
 		})
-		fmt.Fprintf(w, string(res))
+		w.Write(res)
 	}
 }
 
@@ -322,7 +322,7 @@ func (h ApiAAAHandler) HandleAAA(w http.ResponseWriter, r *http.Request) bool {
 			res, _ := json.Marshal(map[string]string{
 				"message": err.Error(),
 			})
-			fmt.Fprintf(w, string(res))
+			w.Write(res)
 			return false
 		}
 		r.Header.Set("Authorization", "Bearer "+token)
@@ -340,7 +340,7 @@ func (h ApiAAAHandler) HandleAAA(w http.ResponseWriter, r *http.Request) bool {
 		res, _ := json.Marshal(map[string]string{
 			"message": err.Error(),
 		})
-		fmt.Fprintf(w, string(res))
+		w.Write(res)
 		return false
 	}
 
@@ -359,7 +359,7 @@ func (h ApiAAAHandler) HandleAAA(w http.ResponseWriter, r *http.Request) bool {
 		res, _ := json.Marshal(map[string]string{
 			"message": err.Error(),
 		})
-		fmt.Fprintf(w, string(res))
+		w.Write(res)
 		return false
 	}
 }

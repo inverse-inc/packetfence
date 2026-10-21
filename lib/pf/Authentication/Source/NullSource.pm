@@ -21,6 +21,7 @@ use Email::Valid;
 use pf::util;
 
 extends 'pf::Authentication::Source';
+with 'pf::Authentication::CreateLocalAccountRole';
 
 has '+class' => (default => 'external');
 has '+type' => (default => 'Null');
@@ -114,7 +115,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

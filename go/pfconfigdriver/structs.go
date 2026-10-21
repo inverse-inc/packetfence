@@ -3,10 +3,11 @@ package pfconfigdriver
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net"
+	"strings"
 	"time"
 
-	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/config/pfcrypt"
 )
 
@@ -157,6 +158,7 @@ type PfConfServices struct {
 	Keepalived           string `json:"keepalived"`
 	Netdata              string `json:"netdata"`
 	NetFlowAddress       string `json:"netflow_address"`
+	NetFlowProcessor     string `json:"netflow_processor"`
 	MysqlProbe           string `json:"mysql-probe"`
 	Pfacct               string `json:"pfacct"`
 	Pfdhcp               string `json:"pfdhcp"`
@@ -428,6 +430,14 @@ type RolesChildren struct {
 	Element                 map[string][]string
 }
 
+type PfconnectorStaticConnections struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"resource::pfconnector_static_connections"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string][]string
+}
+
 type ClusterName struct {
 	StructConfig
 	PfconfigMethod          string `val:"hash_element"`
@@ -487,16 +497,17 @@ type AuthenticationSourceEduroam struct {
 
 type AuthenticationSourceRadius struct {
 	StructConfig
-	PfconfigMethod string `val:"hash_element"`
-	PfconfigNS     string `val:"resource::authentication_sources_radius"`
-	PfconfigHashNS string `val:"-"`
-	Description    string `json:"description"`
-	Secret         string `json:"secret"`
-	Port           string `json:"port"`
-	Host           string `json:"host"`
-	Timeout        string `json:"timeout"`
-	Monitor        string `json:"monitor"`
-	Type           string `json:"type"`
+	PfconfigMethod string     `val:"hash_element"`
+	PfconfigNS     string     `val:"resource::authentication_sources_radius"`
+	PfconfigHashNS string     `val:"-"`
+	Description    string     `json:"description"`
+	Secret         string     `json:"secret"`
+	Port           string     `json:"port"`
+	Host           string     `json:"host"`
+	Timeout        string     `json:"timeout"`
+	UseConnector   BoolString `json:"use_connector"`
+	Monitor        string     `json:"monitor"`
+	Type           string     `json:"type"`
 }
 
 type AuthenticationSourceLdap struct {
@@ -514,39 +525,25 @@ type AuthenticationSourceLdap struct {
 	Scope             string              `json:"scope"`
 	EmailAttribute    string              `json:"email_attribute"`
 	UserNameAttribute string              `json:"usernameattribute"`
-	UseConnector      bool                `json:"use_connector"`
+	UseConnector      BoolString          `json:"use_connector"`
 	BindDN            string              `json:"binddn"`
 	Encryption        string              `json:"encryption"`
 	Monitor           string              `json:"monitor"`
 	Type              string              `json:"type"`
 }
 
-func (t *AuthenticationSourceLdap) UnmarshalJSON(data []byte) error {
-	var dataGeneric map[string]interface{}
+type BoolString bool
 
-	if err := json.Unmarshal(data, &dataGeneric); err != nil {
-		return err
-	}
-
-	if use_connector, found := dataGeneric["use_connector"]; found {
-		if str, ok := use_connector.(string); ok {
-			dataGeneric["use_connector"] = sharedutils.IsEnabled(str)
-		} else {
-			dataGeneric["use_connector"] = false
-		}
+func (bit *BoolString) UnmarshalJSON(data []byte) error {
+	asString := strings.ToLower(strings.Trim(string(data), `"`))
+	if asString == "1" {
+		*bit = true
+	} else if asString == "0" {
+		*bit = false
 	} else {
-		dataGeneric["use_connector"] = false
+		return fmt.Errorf("boolean string must be '1' or '0', got %q", asString)
 	}
-
-	// Re-marshal after fixing the data
-	newData, ok := json.Marshal(dataGeneric)
-	if ok != nil {
-		return ok
-	}
-
-	// Without new type the same UnmarshalJSON will be called recursively
-	type ldap2 AuthenticationSourceLdap
-	return json.Unmarshal(newData, (*ldap2)(t))
+	return nil
 }
 
 type PfStats struct {
@@ -577,37 +574,49 @@ type ClusterSummary struct {
 	MultiZoneEnabled int `json:"multi_zone_enabled"`
 }
 
+// PfConfPfdhcp is the [pfdhcp] section of pf.conf. mac2ip_lookup decides
+// whether pf::ip4log::mac2ip asks pfdhcp for a MAC's current IP before falling
+// back to the SQL table, which changes which ip4log entry update_ip4log closes.
+type PfConfPfdhcp struct {
+	StructConfig
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"config::Pf"`
+	PfconfigHashNS string `val:"pfdhcp"`
+	Mac2ipLookup   string `json:"mac2ip_lookup"`
+	Ip2macLookup   string `json:"ip2mac_lookup"`
+}
+
 type PfConfAdvanced struct {
 	StructConfig
-	PfconfigMethod                   string      `val:"hash_element"`
-	PfconfigNS                       string      `val:"config::Pf"`
-	PfconfigHashNS                   string      `val:"advanced"`
-	HashingCost                      string      `json:"hashing_cost"`
-	ScanOnAccounting                 string      `json:"scan_on_accounting"`
-	PffilterProcesses                string      `json:"pffilter_processes"`
-	UpdateIplogWithAccounting        string      `json:"update_iplog_with_accounting"`
-	AdminCspSecurityHeaders          string      `json:"admin_csp_security_headers"`
-	Multihost                        string      `json:"multihost"`
-	SsoOnAccessReevaluation          string      `json:"sso_on_access_reevaluation"`
-	DisablePfDomainAuth              string      `json:"disable_pf_domain_auth"`
-	TimingStatsLevel                 string      `json:"timing_stats_level"`
-	SsoOnDhcp                        string      `json:"sso_on_dhcp"`
-	Language                         string      `json:"language"`
-	StatsdListenPort                 string      `json:"statsd_listen_port"`
-	SsoOnAccounting                  string      `json:"sso_on_accounting"`
-	LocationlogCloseOnAccountingStop string      `json:"locationlog_close_on_accounting_stop"`
-	PortalCspSecurityHeaders         string      `json:"portal_csp_security_headers"`
-	HashPasswords                    string      `json:"hash_passwords"`
-	SourceToSendSmsWhenCreatingUsers string      `json:"source_to_send_sms_when_creating_users"`
-	ActiveDirectoryOsJoinCheckBypass string      `json:"active_directory_os_join_check_bypass"`
-	PfperlApiTimeout                 string      `json:"pfperl_api_timeout"`
-	LdapAttributes                   []string    `json:"ldap_attributes"`
-	ApiInactivityTimeout             int         `json:"api_inactivity_timeout"`
-	ApiMaxExpiration                 int         `json:"api_max_expiration"`
-	NetFlowOnAllNetworks             string      `json:"netflow_on_all_networks"`
-	AccountingTimebucketSize         int         `json:"accounting_timebucket_size"`
-	ZeroTrustNetworkStartingIP       string      `json:"zero_trust_network_starting_ip"`
-	ZeroTrustNetworkNetmask          json.Number `json:"zero_trust_network_netmask"`
+	PfconfigMethod                   string   `val:"hash_element"`
+	PfconfigNS                       string   `val:"config::Pf"`
+	PfconfigHashNS                   string   `val:"advanced"`
+	HashingCost                      string   `json:"hashing_cost"`
+	ScanOnAccounting                 string   `json:"scan_on_accounting"`
+	PffilterProcesses                string   `json:"pffilter_processes"`
+	UpdateIplogWithAccounting        string   `json:"update_iplog_with_accounting"`
+	UpdateIplogWithAuthentication    string   `json:"update_iplog_with_authentication"`
+	AdminCspSecurityHeaders          string   `json:"admin_csp_security_headers"`
+	SsoOnAccessReevaluation          string   `json:"sso_on_access_reevaluation"`
+	DisablePfDomainAuth              string   `json:"disable_pf_domain_auth"`
+	TimingStatsLevel                 string   `json:"timing_stats_level"`
+	SsoOnDhcp                        string   `json:"sso_on_dhcp"`
+	Language                         string   `json:"language"`
+	StatsdListenPort                 string   `json:"statsd_listen_port"`
+	StatsdListenHost                 string   `json:"statsd_listen_host"`
+	SsoOnAccounting                  string   `json:"sso_on_accounting"`
+	LocationlogCloseOnAccountingStop string   `json:"locationlog_close_on_accounting_stop"`
+	PortalCspSecurityHeaders         string   `json:"portal_csp_security_headers"`
+	HashPasswords                    string   `json:"hash_passwords"`
+	SourceToSendSmsWhenCreatingUsers string   `json:"source_to_send_sms_when_creating_users"`
+	ActiveDirectoryOsJoinCheckBypass string   `json:"active_directory_os_join_check_bypass"`
+	PfperlApiTimeout                 string   `json:"pfperl_api_timeout"`
+	LdapAttributes                   []string `json:"ldap_attributes"`
+	ApiInactivityTimeout             int      `json:"api_inactivity_timeout"`
+	ApiMaxExpiration                 int      `json:"api_max_expiration"`
+	NetFlowOnAllNetworks             string   `json:"netflow_on_all_networks"`
+	AccountingTimebucketSize         int      `json:"accounting_timebucket_size"`
+	DefaultRoleParentId              string   `json:"default_role_parent_id"`
 }
 
 type PfConfDns struct {
@@ -616,6 +625,14 @@ type PfConfDns struct {
 	PfconfigNS     string `val:"config::Pf"`
 	PfconfigHashNS string `val:"dns_configuration"`
 	RecordDNS      string `json:"record_dns_in_sql"`
+}
+
+type PfConfNetwork struct {
+	StructConfig
+	PfconfigMethod          string `val:"hash_element"`
+	PfconfigNS              string `val:"config::Pf"`
+	PfconfigHashNS          string `val:"network"`
+	HostnameChangeDetection string `json:"hostname_change_detection"`
 }
 
 type PfConfParking struct {
@@ -711,6 +728,12 @@ type PfConfRadiusConfiguration struct {
 	ProcessBandwidthAccounting         string   `json:"process_bandwidth_accounting"`
 	PfacctWorkers                      string   `json:"pfacct_workers"`
 	PfacctWorkQueueSize                string   `json:"pfacct_work_queue_size"`
+	PfacctRateLimit                    string   `json:"pfacct_rate_limit"`
+	PfacctRateLimitCacheTtl            string   `json:"pfacct_rate_limit_cache_ttl"`
+	PfacctSocketRecvBuffer             string   `json:"pfacct_socket_recv_buffer"`
+	PfacctAAANotifyWorkers             string   `json:"pfacct_aaa_notify_workers"`
+	PfacctAAANotifyQueueSize           string   `json:"pfacct_aaa_notify_queue_size"`
+	RadiusdMaxServers                  string   `json:"radiusd_max_servers"`
 }
 
 type PfQueueConfig struct {
@@ -836,12 +859,67 @@ type NtlmRedisCachedDomains struct {
 	Element                 []string
 }
 
-type Domain struct {
+type Domains struct {
 	StructConfig
 	PfconfigMethod          string `val:"element"`
 	PfconfigNS              string `val:"config::Domain"`
 	PfconfigDecodeInElement string `val:"yes"`
-	Element                 map[string]interface{}
+	Element                 map[string]Domain
+}
+
+type ResourceDomains struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"resource::domains"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string]Domain
+}
+
+type Domain struct {
+	NtKeyCacheEnabled                   string `json:"nt_key_cache_enabled"`
+	AdaccountLockoutDuration            string `json:"ad_account_lockout_duration"`
+	MachineAccountPassword              string `json:"machine_account_password"`
+	Status                              string `json:"status"`
+	NtKeyCacheExpire                    string `json:"nt_key_cache_expire"`
+	MaxAllowedPasswordAttemptsPerDevice string `json:"max_allowed_password_attempts_per_device"`
+	Workgroup                           string `json:"workgroup"`
+	AdditionalMachineAccounts           string `json:"additional_machine_accounts"`
+	StickyDc                            string `json:"sticky_dc"`
+	AdFqdn                              string `json:"ad_fqdn"`
+	DnsName                             string `json:"dns_name"`
+	PasswordIsNtHash                    string `json:"password_is_nt_hash"`
+	AdServer                            string `json:"ad_server"`
+	Ou                                  string `json:"ou"`
+	AdOldPasswordAllowedPeriod          string `json:"ad_old_password_allowed_period"`
+	NtlmAuthHost                        string `json:"ntlm_auth_host"`
+	DnsServers                          string `json:"dns_servers"`
+	NtlmAuthPort                        string `json:"ntlm_auth_port"`
+	NtlmCacheExpiry                     string `json:"ntlm_cache_expiry"`
+	ServerName                          string `json:"server_name"`
+	AdResetAccountLockoutCounterAfter   string `json:"ad_reset_account_lockout_counter_after"`
+	AdAccountLockoutThreshold           string `json:"ad_account_lockout_threshold"`
+	UseConnector                        string `json:"use_connector"`
+}
+
+type Realms struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"config::Realm"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string]Realm
+}
+
+type OrderedRealms struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"config::OrderedRealm"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 []string
+}
+
+type Realm struct {
+	Regex  string `json:"regex"`
+	Domain string `json:"domain"`
 }
 
 type FleetDM struct {
@@ -897,13 +975,52 @@ type PfConfAdminLogin struct {
 	AllowUsernamePassword string `json:"allow_username_password"`
 }
 
+// DynamicReport
+type DynamicReport struct {
+	// pf::Report fields
+	Id          string   `json:"id"`
+	Type        string   `json:"type"` // 'sql' only, 'abstract' is deprecated
+	Description string   `json:"description"`
+	Charts      []string `json:"charts"`
+	Columns     []string `json:"columns"`
+	Formatting  []struct {
+		Field  string `json:"field"`
+		Format string `json:"format"`
+	} `json:"formatting,omitempty"`
+	PersonFields []string `json:"person_fields,omitempty"`
+	NodeFields   []string `json:"node_fields,omitempty"`
+	RoleFields   []string `json:"role_fields,omitempty"`
+	DefaultLimit string   `json:"default_limit,omitempty"`
+	DateLimit    string   `json:"date_limit,omitempty"`
+	// pf::Report::sql fields
+	HasLimit      string   `json:"has_limit"`
+	HasDateRange  string   `json:"has_date_range"`
+	Sql           string   `json:"sql,omitempty"`
+	CursorType    string   `json:"cursor_type,omitempty"`
+	CursorField   []string `json:"cursor_field,omitempty"`
+	CursorDefault []string `json:"cursor_default,omitempty"`
+	Bindings      []string `json:"bindings,omitempty"`
+}
+
+// DynamicReports
+type DynamicReports struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"config::Report"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string]DynamicReport
+}
+
 type Connectors struct {
 	StructConfig
 	PfconfigMethod          string `val:"element"`
 	PfconfigNS              string `val:"config::Connector"`
 	PfconfigDecodeInElement string `val:"yes"`
 	Element                 map[string]struct {
-		Secret string `json:"secret"`
+		Secret                string   `json:"secret"`
+		Networks              []string `json:"networks"`
+		Description           string   `json:"description"`
+		FingerbankEnvironment []string `json:"fingerbank_environment"`
 	}
 }
 
@@ -968,3 +1085,130 @@ type FingerbankSettings struct {
 }
 
 var FingerbankConf = FingerbankSettings{}
+
+type PfConfSwitch struct {
+	StructConfig
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"config::Switch"`
+	PfconfigHashNS string `val:"-"` // Will be the switch IP
+
+	// Basic Information
+	Type        string `json:"type"`
+	Description string `json:"description"`
+	Group       string `json:"group"`
+
+	// VLANs
+	Vlans   map[string]string `json:"vlans"`
+	VlanMap string            `json:"VlanMap"`
+
+	// Interfaces
+	Interfaces map[string]interface{} `json:"interfaces"`
+
+	//Roles
+	Roles   map[string]string `json:"roles"`
+	RoleMap string            `json:"RoleMap"`
+
+	// Network Related
+	Networks     map[string]interface{} `json:"networks"`
+	NetworksFrom map[string]interface{} `json:"networks_from"`
+
+	// Access Control
+	AccessLists           map[string]interface{} `json:"access_lists"`
+	AccessListMap         string                 `json:"AccessListMap"`
+	ACLsLimit             string                 `json:"ACLsLimit"`
+	DownloadableACLsLimit string                 `json:"DownloadableACLsLimit"`
+	UsePushACLs           string                 `json:"UsePushACLs"`
+	UseDownloadableACLs   string                 `json:"UseDownloadableACLs"`
+	PushACLs              string                 `json:"pushACLs"`
+
+	// WebAuth
+	UrlMap                    string                 `json:"UrlMap"`
+	Urls                      map[string]interface{} `json:"urls"`
+	ExternalPortalEnforcement string                 `json:"ExternalPortalEnforcement"`
+
+	// VPN
+	Vpn    map[string]interface{} `json:"vpn"`
+	VpnMap string                 `json:"VpnMap"`
+
+	// MFA
+	PostMfaValidation string `json:"PostMfaValidation"`
+
+	// SNMP
+	SNMPUseConnector   string `json:"SNMPUseConnector"`
+	SNMPVersion        string `json:"SNMPVersion"`
+	SNMPVersionTrap    string `json:"SNMPVersionTrap"`
+	SNMPCommunityRead  string `json:"SNMPCommunityRead"`
+	SNMPCommunityWrite string `json:"SNMPCommunityWrite"`
+	SNMPCommunityTrap  string `json:"SNMPCommunityTrap"`
+
+	// CLI
+	CliAccess    string              `json:"cliAccess"`
+	CliUser      string              `json:"cliUser"`
+	CliPwd       pfcrypt.CryptString `json:"cliPwd"`
+	CliEnablePwd pfcrypt.CryptString `json:"cliEnablePwd"`
+	CliTransport string              `json:"cliTransport"`
+
+	// Web Services
+	WsTransport         string              `json:"wsTransport"`
+	WsVerifyCertificate string              `json:"wsVerifyCertificate"`
+	WsUser              string              `json:"wsUser"`
+	WsPwd               pfcrypt.CryptString `json:"wsPwd"`
+
+	// VoIP Detection
+	VoIPEnabled           int    `json:"VoIPEnabled"`
+	VoIPCDPDetect         string `json:"VoIPCDPDetect"`
+	VoIPDHCPDetect        string `json:"VoIPDHCPDetect"`
+	VoIPLLDPDetect        string `json:"VoIPLLDPDetect"`
+	VoIPFullAuthorization string `json:"VoIPFullAuthorization"`
+
+	// RADIUS
+	UseCoA                   string              `json:"useCoA"`
+	RadiusSecret             pfcrypt.CryptString `json:"radiusSecret"`
+	RadiusDeauthUseConnector string              `json:"radiusDeauthUseConnector"`
+
+	//Advanced
+	InlineTrigger            []interface{} `json:"inlineTrigger"`
+	Mode                     string        `json:"mode"`
+	MacSearchesMaxNb         string        `json:"macSearchesMaxNb"`
+	MacSearchesSleepInterval string        `json:"macSearchesSleepInterval"`
+	DeauthOnPrevious         string        `json:"deauthOnPrevious"`
+	HostMode                 string        `json:"host_mode"`
+	Uplink                   []string      `json:"uplink"`
+}
+
+// PfSwitch struct that will help when fetching multiple switch config from config::Switch
+type PfSwitches struct {
+	PfconfigKeys
+	PfconfigMethod string `val:"keys"`
+	PfconfigNS     string `val:"config::Switch"`
+	Keys           []string
+}
+
+type PfConfPfDnsConnector struct {
+	StructConfig
+	PfconfigMethod       string `val:"hash_element"`
+	PfconfigNS           string `val:"config::Pf"`
+	PfconfigHashNS       string `val:"pfdns_connector"`
+	PfdnsConnectorServer string `json:"pfdns_connector_server"`
+}
+
+type PfConfDnsConnectors struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"config::DnsConnectors"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string]interface{}
+}
+
+type PfRadiusCert struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"config::Ssl"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string]struct {
+		Default string `json:"default,omitempty"`
+		Cert    string `json:"cert,omitempty"`
+		Ca      string `json:"ca,omitempty"`
+		Key     string `json:"key,omitempty"`
+	}
+}

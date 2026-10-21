@@ -48,7 +48,6 @@ FingerbankAccountInfo:
       type: string
     blocked:
       type: boolean
-      nullable: true
     created_at:
       type: string
       format: date-time
@@ -61,12 +60,10 @@ FingerbankAccountInfo:
       type: string
       format: date-time
       example: 1970-01-01 00:00:00
-      nullable: true
     expiration_rfc3339:
       type: string
       format: date-time
       example: 1970-01-01 00:00:00
-      nullable: true
     id:
       type: integer
     key:
@@ -75,7 +72,6 @@ FingerbankAccountInfo:
       type: integer
     max_api_keys:
       type: integer
-      nullable: true
     montly_limit:
       type: integer
     montly_requests:
@@ -144,7 +140,6 @@ FingerbankNba:
   properties:
     result:
       type: boolean
-      nullable: true
     status:
       $ref: '#/components/schemas/Status'
 

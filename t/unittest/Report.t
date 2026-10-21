@@ -539,6 +539,7 @@ BEGIN {
                 field id  => 'Ip4Log::Archive';
                 field default_start_date => '0000-00-00 00:00:00';
                 field default_end_date => match(qr/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
+                field utc_offset => match(qr/^-?\d+$/);
                 field default_limit => 25;
                 field date_limit => undef;
                 field has_date_range => $true;
@@ -628,7 +629,7 @@ BEGIN {
                                 is_role   => $false,
                                 is_cursor   => ($_ eq 'mac' ? $true : $false),
                             }
-                        } qw(mac ip start_time pid detect_date regdate status user_agent computername notes last_arp last_dhcp os)
+                        } qw(mac ip start_time pid detect_date regdate status user_agent computername notes last_dhcp os)
                     )
                 ],
                 default_start_date => undef,
@@ -676,6 +677,7 @@ BEGIN {
                 field id  => 'Node::Report::TestDateRange';
                 field default_start_date => '0000-00-00 00:00:00';
                 field default_end_date => match(qr/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
+                field utc_offset => match(qr/^-?\d+$/);
                 field default_limit => 25;
                 field date_limit => undef;
                 field has_date_range => $true;
@@ -711,6 +713,7 @@ BEGIN {
                 field id  => 'Node::Report::TestDateLimit';
                 field default_start_date => match(qr/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
                 field default_end_date => match(qr/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
+                field utc_offset => match(qr/^-?\d+$/);
                 field default_limit => 25;
                 field date_limit => '24h';
                 field has_date_range => $true;
@@ -951,7 +954,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

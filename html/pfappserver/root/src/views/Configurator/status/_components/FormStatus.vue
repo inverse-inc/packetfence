@@ -5,7 +5,7 @@
       <small class="text-muted ml-2" v-t="'Make sure to keep them in a secure place'"></small>
     </b-card-header>
     <div class="card-body">
-      <b-card v-if="database.root_pass"
+      <b-card
         data-card="database-root" no-body class="mb-3">
         <b-card-header>
           <h5 class="mb-0" v-t="'Database Root Account'"/>
@@ -15,13 +15,14 @@
             <div class="form-control">root</div>
           </base-form-group>
           <base-form-group :column-label="$i18n.t('Password')">
-            <code class="form-control">{{ database.root_pass }}</code>
+            <base-input-group-password :value="database.root_pass"
+              class="flex-grow-1" disabled />
             <b-button size="sm" variant="outline-primary" class="ml-2 text-nowrap" @click.stop.prevent="onClipboard(database.root_pass)">{{ $t('Copy to Clipboard') }}</b-button>
           </base-form-group>
         </div>
       </b-card>
 
-      <b-card v-if="database.pass"
+      <b-card
         data-card="database-user" no-body class="mb-3">
         <b-card-header>
           <h5 class="mb-0" v-t="'Database User Account'"/>
@@ -31,13 +32,14 @@
             <div class="form-control">{{ database.user }}</div>
           </base-form-group>
           <base-form-group :column-label="$i18n.t('Password')">
-            <code class="form-control">{{ database.pass }}</code>
+            <base-input-group-password :value="database.pass"
+              class="flex-grow-1" disabled />
             <b-button size="sm" variant="outline-primary" class="ml-2 text-nowrap" @click.stop.prevent="onClipboard(database.pass)">{{ $t('Copy to Clipboard') }}</b-button>
           </base-form-group>
         </div>
       </b-card>
 
-      <b-card v-if="administrator.password"
+      <b-card
         data-card="administrator" no-body>
         <b-card-header>
           <h5 class="mb-0" v-t="'Administrator Account'"/>
@@ -47,7 +49,8 @@
             <div class="form-control">{{ administrator.pid }}</div>
           </base-form-group>
           <base-form-group :column-label="$i18n.t('Password')">
-            <code class="form-control">{{ administrator.password }}</code>
+            <base-input-group-password :value="administrator.password"
+              class="flex-grow-1" disabled />
             <b-button size="sm" variant="outline-primary" class="ml-2 text-nowrap" @click.stop.prevent="onClipboard(administrator.password)">{{ $t('Copy to Clipboard') }}</b-button>
           </base-form-group>
         </div>
@@ -57,11 +60,15 @@
 </template>
 <script>
 import {
-  BaseFormGroup
+  BaseFormGroup,
+  BaseFormGroupInputPassword,
+  BaseInputGroupPassword,
 } from '@/components/new/'
 
 const components = {
-  BaseFormGroup
+  BaseFormGroup,
+  BaseFormGroupInputPassword,
+  BaseInputGroupPassword
 }
 
 import { computed, inject } from '@vue/composition-api'

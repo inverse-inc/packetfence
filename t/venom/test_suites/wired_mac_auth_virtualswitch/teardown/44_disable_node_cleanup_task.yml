@@ -1,0 +1,21 @@
+name: Disable node cleanup task
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: disable_node_cleanup_task
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/maintenance_task/node_cleanup'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "status": "disabled"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200

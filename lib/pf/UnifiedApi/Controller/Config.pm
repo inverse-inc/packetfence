@@ -26,7 +26,8 @@ use pf::error qw(is_error is_success);
 use Data::UUID;
 use pf::pfqueue::status_updater::redis;
 use pf::UnifiedApi::Search::Builder::Config;
-use pf::condition_parser qw(parse_condition_string ast_to_object);
+use pf::condition_parser qw(parse_condition_string ast_to_object top_level_condition);
+use Scalar::Util qw(looks_like_number);
 
 has 'config_store_class';
 has 'form_class';
@@ -234,8 +235,11 @@ sub items {
 
 sub config_store {
     my ($self) = @_;
-    $self->config_store_class->new;
+    my $cs = $self->config_store_class->new;
+    $self->lock_config_store($cs);
+    return $cs;
 }
+
 
 sub form {
     my ($self, $item, @args) = @_;
@@ -367,7 +371,52 @@ sub cleanup_item {
     $item->{not_deletable} = $cs->is_section_in_import($id) ? $self->json_true : $self->json_false;
     $item->{not_sortable} = $self->is_sortable($cs, $id, $item);
     $item->{id} = $id;
+    $self->ensure_integer_fields($item, $form);
     return $item;
+}
+
+=head2 ensure_integer_fields
+
+Ensures that integer-type form fields (PosInteger, Integer, Port) are returned as actual
+integers for consistent JSON serialization. This fixes inconsistencies where values
+from config files are strings but form defaults are integers.
+
+Handles both simple fields and compound fields (like Duration with interval subfields).
+
+=cut
+
+my %INTEGER_FIELD_TYPES = map { $_ => 1 } qw(PosInteger Integer Port);
+
+sub ensure_integer_fields {
+    my ($self, $item, $form) = @_;
+    return unless defined $form && defined $item;
+
+    for my $field ($form->fields) {
+        my $name = $field->name;
+        my $type = $field->type;
+
+        # Handle simple integer fields
+        if ($INTEGER_FIELD_TYPES{$type} && exists $item->{$name} && defined $item->{$name}) {
+            # Skip non-numeric values (e.g. Template Toolkit expressions like
+            # `[% ENV.env_or_default(...) %]`, or empty strings) — int() would
+            # silently coerce them to 0 and warn.
+            if (looks_like_number($item->{$name})) {
+                $item->{$name} = int($item->{$name});
+            }
+        }
+        # Handle compound fields (e.g., Duration with interval/unit subfields)
+        elsif ($field->can('fields') && exists $item->{$name} && ref($item->{$name}) eq 'HASH') {
+            for my $subfield ($field->fields) {
+                my $subname = $subfield->name;
+                my $subtype = $subfield->type;
+                if ($INTEGER_FIELD_TYPES{$subtype} && exists $item->{$name}{$subname} && defined $item->{$name}{$subname}) {
+                    if (looks_like_number($item->{$name}{$subname})) {
+                        $item->{$name}{$subname} = int($item->{$name}{$subname});
+                    }
+                }
+            }
+        }
+    }
 }
 
 sub is_sortable {
@@ -475,6 +524,17 @@ sub validate_item {
     return 422, { message => "Unable to validate", errors => $self->format_form_errors($form) }, undef;
 }
 
+sub bulk_validate_item {
+    my ($self, $item, $form) = @_;
+    $item = $self->cleanupItemForValidate($item);
+    $self->reset_form($form, $item);
+    $form->process($self->form_process_parameters_for_validation($item));
+    if (!$form->has_errors) {
+        return 200, $form->value, $form;
+    }
+
+    return 422, { message => "Unable to validate", errors => $self->format_form_errors($form) }, undef;
+}
 
 sub form_process_parameters_for_validation {
     my ($self, $item) = @_;
@@ -608,6 +668,20 @@ sub cleanupItemForUpdate {
     return;
 }
 
+=head2 cleanupItemForReplace
+
+Hook to normalize the raw PUT payload before validation. Default is a
+pass-through; subclasses can override to enforce semantics that the
+form would otherwise collapse (e.g. distinguishing missing keys from
+explicit nulls).
+
+=cut
+
+sub cleanupItemForReplace {
+    my ($self, $item) = @_;
+    return $item;
+}
+
 sub replace {
     my ($self) = @_;
     my ($error, $item) = $self->get_json;
@@ -616,6 +690,7 @@ sub replace {
     }
     my $id = $self->id;
     $item->{id} = $id;
+    $item = $self->cleanupItemForReplace($item);
     (my $status, $item) = $self->validate_item($item);
     if (is_error($status)) {
         return $self->render(status => $status, json => $item);
@@ -1227,7 +1302,13 @@ sub bulk_update {
     }
 
     my $items = $data->{items} // [];
-    return $self->bulk_action($items, "bulk_update_callback");
+    my ($status, $form) = $self->form({});
+    if (is_error($status)) {
+        return $self->render_error(422, "Unable to create form");
+    }
+
+    $form->skip_role_acl_check(1) if $form->can('skip_role_acl_check');
+    return $self->bulk_action($items, "bulk_update_callback", form => $form);
 }
 
 =head2 bulk_update_callback
@@ -1237,11 +1318,18 @@ bulk_update_callback
 =cut
 
 sub bulk_update_callback {
-    my ($self, $cs, $id, $item, $results) = @_;
-    my $old_item = $self->item($id);
+    my ($self, $cs, $id, $item, $results, $ctx) = @_;
+    my $old_item = $cs->read($id, 'id');
     my $new_item = {%$old_item, %$item};
     $new_item->{id} = $id;
-    my ($status, $new_data) = $self->validate_item($new_item);
+    my $form = $ctx->{form};
+    my ($status, $new_data);
+    if ($form) {
+        ($status, $new_data) = $self->bulk_validate_item($new_item, $form);
+    } else {
+        ($status, $new_data) = $self->validate_item($new_item);
+    }
+
     if (is_error($status)) {
         %$results = (%$results, %$new_data);
         return $status;
@@ -1291,7 +1379,7 @@ sub bulk_delete_callback {
 }
 
 sub bulk_action {
-    my ($self, $items, $action) = @_;
+    my ($self, $items, $action, %ctx) = @_;
     my $cs = $self->config_store;
     my @results;
     my $i = 0;
@@ -1318,7 +1406,7 @@ sub bulk_action {
             next;
         }
 
-        my $status = $self->$action($cs, $id, $item, \%results);
+        my $status = $self->$action($cs, $id, $item, \%results, \%ctx);
         if (is_success($status)) {
             $success++;
         }
@@ -1498,7 +1586,7 @@ sub parse_condition {
         return $self->render_error(422, "Cannot parse condition", [$err]);
     }
 
-    $self->render(json => { item => {condition_string => $condition, condition => ast_to_object($ast) } });
+    $self->render(json => { item => {condition_string => $condition, condition => top_level_condition(ast_to_object($ast)) } });
 }
 
 sub flatten_condition {
@@ -1528,7 +1616,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

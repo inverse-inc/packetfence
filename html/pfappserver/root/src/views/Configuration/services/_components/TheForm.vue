@@ -82,20 +82,6 @@
                                   disabled-value="disabled"
     />
 
-    <form-group-iptables namespace="iptables"
-                         column-label="iptables"
-                         :text="$i18n.t(`Should iptables be managed by PacketFence?`)"
-                         enabled-value="enabled"
-                         disabled-value="disabled"
-    />
-
-    <form-group-ip6tables namespace="ip6tables"
-                          column-label="ip6tables"
-                          :text="$i18n.t(`Should ip6tables be managed by PacketFence?`)"
-                          enabled-value="enabled"
-                          disabled-value="disabled"
-    />
-
     <form-group-keepalived namespace="keepalived"
                            column-label="keepalived"
                            :text="$i18n.t(`Should keepalived be started?`)"
@@ -120,6 +106,13 @@
     <form-group-netflow-address namespace="netflow_address"
                                 :column-label="$i18n.t('Netflow address')"
                                 :text="$i18n.t(`The network address to listen to listen on. Do not change unless you know what you're doing.`)"
+    />
+
+    <form-group-netflow-processor namespace="netflow_processor"
+                                  :column-label="$i18n.t('Netflow processor')"
+                                  :text="$i18n.t(`Should pfacct process NetFlow traffic? When disabled, pfacct does not listen for NetFlow traffic and the NetFlow kernel module is not loaded for inline networks. Changing this requires to restart pfacct.`)"
+                                  enabled-value="enabled"
+                                  disabled-value="disabled"
     />
 
     <form-group-pfdhcp namespace="pfdhcp"
@@ -209,6 +202,13 @@
                         :text="$i18n.t('Should pfstats be managed by PacketFence?')"
                         enabled-value="enabled"
                         disabled-value="disabled"
+    />
+
+    <form-group-pfudpproxy namespace="pfudpproxy"
+                           column-label="pfudpproxy"
+                           :text="$i18n.t('Should pfudpproxy be managed by PacketFence? This is a UDP reverse proxy for NetFlow/sFlow/IPFIX in cluster mode.')"
+                           enabled-value="enabled"
+                           disabled-value="disabled"
     />
 
     <form-group-proxysql namespace="proxysql"
@@ -320,12 +320,11 @@ import {
   FormGroupHttpdDispatcher,
   FormGroupHttpdPortal,
   FormGroupHttpdWebservices,
-  FormGroupIp6tables,
-  FormGroupIptables,
   FormGroupKeepalived,
   FormGroupMysqlProbe,
   FormGroupNetdata,
   FormGroupNetflowAddress,
+  FormGroupNetflowProcessor,
   FormGroupPfacct,
   FormGroupPfcron,
   FormGroupPfdhcp,
@@ -340,6 +339,7 @@ import {
   FormGroupPfqueueGo,
   FormGroupPfsso,
   FormGroupPfstats,
+  FormGroupPfudpproxy,
   FormGroupProxysql,
   FormGroupRadiusd,
   FormGroupRadiusdAcct,
@@ -369,11 +369,10 @@ const components = {
   FormGroupHttpdDispatcher,
   FormGroupHttpdPortal,
   FormGroupHttpdWebservices,
-  FormGroupIptables,
-  FormGroupIp6tables,
   FormGroupKeepalived,
   FormGroupNetdata,
   FormGroupNetflowAddress,
+  FormGroupNetflowProcessor,
   FormGroupPfacct,
   FormGroupPfcron,
   FormGroupPfdhcp,
@@ -388,6 +387,7 @@ const components = {
   FormGroupPfqueueGo,
   FormGroupPfsso,
   FormGroupPfstats,
+  FormGroupPfudpproxy,
   FormGroupProxysql,
   FormGroupRadiusd,
   FormGroupRadiusdAcct,

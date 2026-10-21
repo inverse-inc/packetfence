@@ -1,0 +1,37 @@
+name: Configure vswitchbr bridge as registration interface in PacketFence
+testcases:
+
+- name: wait_for_bridge_interface
+  steps:
+  - type: exec
+    script: |
+      # Wait for bridge to be created by virtualswitch-namespace service
+      for i in $(seq 1 30); do
+        if ip link show {{.virtualswitch.bridge}} &>/dev/null; then
+          echo "Bridge {{.virtualswitch.bridge}} found"
+          exit 0
+        fi
+        sleep 1
+      done
+      echo "Bridge {{.virtualswitch.bridge}} not found after 30 seconds"
+      exit 1
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: configure_bridge_as_registration_interface
+  steps:
+  - type: pf_api_action
+    method: PATCH
+    url: 'config/interface/{{.virtualswitch.bridge}}'
+    status_code: 200
+    body: >-
+      {
+        "id": "{{.virtualswitch.bridge}}",
+        "type": "{{.virtualswitch.registration.type}}",
+        "ipaddress": "{{.virtualswitch.registration.ip}}",
+        "netmask": "{{.virtualswitch.registration.netmask}}",
+        "dhcpd_enabled": "{{.virtualswitch.registration.dhcpd_enabled}}",
+        "nat_enabled": "disabled",
+        "high_availability": 0,
+        "additional_listening_daemons": {{.virtualswitch.registration.additional_listening_daemons}}
+      }

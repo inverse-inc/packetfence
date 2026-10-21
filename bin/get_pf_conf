@@ -19,6 +19,7 @@ use pf::file_paths qw(
     $pf_default_file
     $pf_config_file
 );
+use pf::config::crypt;
 
 my $pf_defaults_ini = pf::IniFiles->new(
     -file => $pf_default_file,
@@ -49,7 +50,7 @@ if (!$pf_ini->exists($section, $id)) {
     exit 1;
 }
 
-print $pf_ini->val($section, $id);
+print pf::config::crypt::pf_decrypt($pf_ini->val($section, $id));
 
 =head1 AUTHOR
 
@@ -57,7 +58,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

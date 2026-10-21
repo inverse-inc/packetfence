@@ -1,0 +1,30 @@
+=== Database Upgrade Issues
+
+If database upgrade fails during PacketFence upgrade:
+
+1. Check MariaDB service status:
++
+[source,bash]
+----
+systemctl status packetfence-mariadb
+----
+
+2. Examine MariaDB logs for specific error messages:
++
+[source,bash]
+----
+tail -f /usr/local/pf/logs/mariadb.log
+----
+
+3. Verify database backup was created successfully before proceeding
+
+4. Check available disk space in `/var/lib/mysql/` and `/usr/local/pf/logs/`
+
+5. For schema update failures, manually connect to database and check table structure:
++
+[source,bash]
+----
+mysql -u root -p pf
+----
+
+6. If backup restoration is needed, use PacketFence backup files from `/root/backup/`

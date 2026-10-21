@@ -4,6 +4,7 @@
 import Vue from 'vue'
 import { computed } from '@vue/composition-api'
 import { types } from '@/store'
+import apiCall from '@/utils/api-perl'
 import api from './_api'
 import { columns as columnsLayer2Network } from './config'
 
@@ -38,14 +39,13 @@ const actions = {
   all: ({ commit }) => {
     const params = {
       sort: 'id',
-      fields: columnsLayer2Network.map(r => r.key).join(','),
-      limit: 1000
+      fields: columnsLayer2Network.map(r => r.key).join(',')
     }
     commit('LAYER2_NETWORK_REQUEST')
-    return api.layer2Networks(params).then(response => {
+    return apiCall.getAll('config/l2_networks', params).then(response => {
       commit('LAYER2_NETWORK_SUCCESS')
-      commit('LAYER2_NETWORKS_REPLACED', response.items)
-      return response.items
+      commit('LAYER2_NETWORKS_REPLACED', response.data.items)
+      return response.data.items
     }).catch((err) => {
       commit('LAYER2_NETWORK_ERROR', err.response)
       throw err

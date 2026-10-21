@@ -42,6 +42,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
 	_ "gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	pkcs12 "software.sslmate.com/src/go-pkcs12"
 
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -665,26 +666,54 @@ func (c CA) Serial(options ...string) (*big.Int, error) {
 }
 
 func (c CA) FindSerial(p Profile) (*big.Int, error) {
+	var serialNumber int
 
-	ca := &CA{}
+	err := c.DB.Transaction(func(tx *gorm.DB) error {
+		ca := &CA{}
 
-	if CaDB := c.DB.First(&ca, p.CaID).Find(&ca); CaDB.Error != nil {
-		c.DB.First(&ca)
+		// Lock the row for update to prevent race conditions
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(ca, p.CaID).Error; err != nil {
+			// Fallback to first CA if not found
+			if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(ca).Error; err != nil {
+				return err
+			}
+		}
+
+		serialNumber = ca.SerialNumber
+		ca.SerialNumber = ca.SerialNumber + 1
+		return tx.Save(ca).Error
+	})
+
+	if err != nil {
+		return nil, err
 	}
 
-	var certdb Cert
+	return big.NewInt(int64(serialNumber)), nil
+}
 
-	var SerialNumber *big.Int
+// getNextSerialNumber atomically increments and returns the next serial number for a CA
+// Uses database transaction with row-level locking to prevent race conditions
+func getNextSerialNumber(db gorm.DB, caID uint) (*big.Int, error) {
+	var serialNumber int
 
-	err := c.DB.Last(&certdb).Where(&ca)
-	if err.Error != nil {
-		SerialNumber = big.NewInt(1)
-	} else {
-		SerialNumber = big.NewInt(int64(certdb.ID + 1))
+	err := db.Transaction(func(tx *gorm.DB) error {
+		ca := &CA{}
+
+		// Lock the row for update to prevent race conditions
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(ca, caID).Error; err != nil {
+			return err
+		}
+
+		serialNumber = ca.SerialNumber
+		ca.SerialNumber = ca.SerialNumber + 1
+		return tx.Save(ca).Error
+	})
+
+	if err != nil {
+		return nil, err
 	}
 
-	return SerialNumber, nil
-
+	return big.NewInt(int64(serialNumber)), nil
 }
 
 func (c CA) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCertificate bool, options ...string) (bool, error) {
@@ -766,6 +795,8 @@ func revokeNeeded(cn string, profile string, allowTime int, c *gorm.DB) (bool, e
 
 // SCEP Verify
 func (c CA) Verify(m *scep.CSRReqMessage) (bool, error) {
+	log.LoggerWContext(c.Ctx).Info("SCEP request for device " + m.CSR.Subject.CommonName)
+
 	prof, _ := c.GetProfileByName(c.SCEPAssociateProfile)
 
 	if prof.CloudEnabled == 1 {
@@ -1221,10 +1252,12 @@ func (c Cert) New() (types.Info, error) {
 	var newcertdb []Cert
 	var SerialNumber *big.Int
 
-	SerialNumber = big.NewInt(int64(prof.Ca.SerialNumber))
-	prof.Ca.SerialNumber = prof.Ca.SerialNumber + 1
-	prof.Ca.DB = c.DB
-	prof.Ca.DB.Save(prof.Ca)
+	// Get serial number atomically using transaction with row-level locking
+	SerialNumber, err = getNextSerialNumber(c.DB, prof.Ca.ID)
+	if err != nil {
+		Information.Error = err.Error()
+		return Information, err
+	}
 	keyOut, pub, _, err := certutils.GenerateKey(*prof.KeyType, prof.KeySize)
 
 	if err != nil {
@@ -1300,13 +1333,15 @@ func (c Cert) New() (types.Info, error) {
 	// Public key
 	pem.Encode(certBuff, &pem.Block{Type: "CERTIFICATE", Bytes: certByte})
 
-	if err := c.DB.Create(&Cert{Cn: c.Cn, Ca: prof.Ca, CaName: prof.Ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), DNSNames: c.DNSNames, IPAddresses: strings.Join(IPAddresses, ","), Mail: Email, StreetAddress: strings.Join(Subject.StreetAddress, ""), Organisation: strings.Join(Subject.Organization, ""), OrganisationalUnit: strings.Join(Subject.OrganizationalUnit, ""), Country: strings.Join(Subject.Country, ""), State: strings.Join(Subject.Province, ""), Locality: strings.Join(Subject.Locality, ""), PostalCode: strings.Join(Subject.PostalCode, ""), Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: cert.NotAfter, NotBefore: cert.NotBefore, Subject: Subject.String()}).Error; err != nil {
+	created := Cert{Cn: c.Cn, Ca: prof.Ca, CaName: prof.Ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), DNSNames: c.DNSNames, IPAddresses: strings.Join(IPAddresses, ","), Mail: Email, StreetAddress: strings.Join(Subject.StreetAddress, ""), Organisation: strings.Join(Subject.Organization, ""), OrganisationalUnit: strings.Join(Subject.OrganizationalUnit, ""), Country: strings.Join(Subject.Country, ""), State: strings.Join(Subject.Province, ""), Locality: strings.Join(Subject.Locality, ""), PostalCode: strings.Join(Subject.PostalCode, ""), Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: cert.NotAfter, NotBefore: cert.NotBefore, Subject: Subject.String()}
+	if err := c.DB.Create(&created).Error; err != nil {
 		Information.Error = err.Error()
 		Information.Status = http.StatusConflict
 		return Information, errors.New(dbError)
 	}
 	log.LoggerWContext(c.Ctx).Info("Certificate " + c.Cn + " has been generated from profile " + prof.Name + " and sign by " + prof.Ca.Cn)
-	c.DB.Select("id, cn, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number, dns_names, ip_addresses").Where("cn = ? AND profile_name = ?", c.Cn, prof.Name).First(&newcertdb)
+	// Several certificates can share the same CN: return the one just created
+	c.DB.Select("id, cn, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number, dns_names, ip_addresses").Where("id = ?", created.ID).Find(&newcertdb)
 	Information.Entries = newcertdb
 	Information.Serial = SerialNumber.String()
 
@@ -1380,7 +1415,8 @@ func (c Cert) Download(params map[string]string) (types.Info, error) {
 
 	if profile, ok := params["profile"]; ok {
 		if val, ok := params["cn"]; ok {
-			if CertDB := c.DB.Preload("Ca").Where("Cn = ? AND profile_id = ?", val, profile).Find(&cert); CertDB.Error != nil {
+			// Several certificates can share the same CN, return the most recent one
+			if CertDB := c.DB.Preload("Ca").Where("Cn = ? AND profile_id = ?", val, profile).Order("id desc").Limit(1).Find(&cert); CertDB.Error != nil {
 				Information.Error = CertDB.Error.Error()
 				return Information, errors.New(dbError)
 			}
@@ -1510,6 +1546,8 @@ func (c Cert) Revoke(params map[string]string) (types.Info, error) {
 		return Information, err
 	}
 
+	c.deregisterNodesOfRevokedCert(cert, intreason)
+
 	return Information, nil
 }
 
@@ -1595,16 +1633,13 @@ func (c Cert) Resign(params map[string]string) (types.Info, error) {
 	}
 
 	// keyOut contain the private key
-	var certdbprevious Cert
 	var newcertdb []Cert
 
-	//Calculate the serial number to assign
-	var SerialNumber *big.Int
-
-	if CertDB := c.DB.Last(&certdbprevious); CertDB.Error != nil {
-		SerialNumber = big.NewInt(1)
-	} else {
-		SerialNumber = big.NewInt(int64(certdbprevious.ID + 1))
+	// Get serial number atomically using transaction with row-level locking
+	SerialNumber, err := getNextSerialNumber(c.DB, certdb[0].Ca.ID)
+	if err != nil {
+		Information.Error = err.Error()
+		return Information, err
 	}
 
 	Subject := certdb[0].MakeSubject()
@@ -1675,13 +1710,14 @@ func (c Cert) Resign(params map[string]string) (types.Info, error) {
 	h := sha1.New()
 
 	h.Write(cacert.RawIssuer)
-	if err := c.DB.Model(&Cert{}).Where("cn = ?", c.Cn).Updates(map[string]interface{}{"Cn": c.Cn, "Ca": certdb[0].Ca, "CaName": certdb[0].Ca.Cn, "ProfileName": certdb[0].Profile.Name, "SerialNumber": SerialNumber.String(), "DNSNames": cert.DNSNames, "IPAddresses": strings.Join(IPAddresses, ","), "Mail": Email, "StreetAddress": cert.Subject.StreetAddress, "Organisation": cert.Subject.Organization, "OrganisationalUnit": cert.Subject.OrganizationalUnit, "Country": cert.Subject.Country, "State": cert.Subject.Province, "Locality": cert.Subject.Locality, "PostalCode": cert.Subject.PostalCode, "Profile": certdb[0].Profile, "Key": keyOut.String(), "Cert": certBuff.String(), "ValidUntil": cert.NotAfter, "NotBefore": cert.NotBefore, "Subject": cert.Subject.String()}).Error; err != nil {
+	// Update only the certificate being resigned: several certificates can share its CN
+	if err := c.DB.Model(&Cert{}).Where("id = ?", certdb[0].ID).Updates(map[string]interface{}{"Cn": certdb[0].Cn, "Ca": certdb[0].Ca, "CaName": certdb[0].Ca.Cn, "ProfileName": certdb[0].Profile.Name, "SerialNumber": SerialNumber.String(), "DNSNames": cert.DNSNames, "IPAddresses": strings.Join(IPAddresses, ","), "Mail": Email, "StreetAddress": cert.Subject.StreetAddress, "Organisation": cert.Subject.Organization, "OrganisationalUnit": cert.Subject.OrganizationalUnit, "Country": cert.Subject.Country, "State": cert.Subject.Province, "Locality": cert.Subject.Locality, "PostalCode": cert.Subject.PostalCode, "Profile": certdb[0].Profile, "Key": keyOut.String(), "Cert": certBuff.String(), "ValidUntil": cert.NotAfter, "NotBefore": cert.NotBefore, "Subject": cert.Subject.String()}).Error; err != nil {
 		Information.Error = err.Error()
 		Information.Status = http.StatusConflict
 		return Information, errors.New(dbError)
 	}
 
-	c.DB.Select("id, cn, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number, dns_names, ip_addresses").Where("cn = ? AND profile_name = ?", c.Cn, certdb[0].ProfileName).First(&newcertdb)
+	c.DB.Select("id, cn, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number, dns_names, ip_addresses").Where("id = ?", certdb[0].ID).Find(&newcertdb)
 	Information.Entries = newcertdb
 	Information.Serial = SerialNumber.String()
 
@@ -1979,13 +2015,15 @@ func (csr CSR) New(params map[string]string) (types.Info, error) {
 	name := certutils.CertName(certif)
 	notfalse := true
 
-	if err := c.DB.Create(&Cert{Cn: name, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: serial.String(), DNSNames: c.DNSNames, IPAddresses: strings.Join(IPAddresses, ","), Mail: strings.Join(certRequest.EmailAddresses, ","), StreetAddress: attributeMap["streetAddress"], Organisation: attributeMap["O"], OrganisationalUnit: attributeMap["OU"], Country: attributeMap["C"], State: attributeMap["ST"], Locality: attributeMap["L"], PostalCode: attributeMap["postalCode"], Profile: prof, Cert: certBuff.String(), ValidUntil: tmpl.NotAfter, Subject: Subject.String(), Csr: &notfalse}).Error; err != nil {
+	created := Cert{Cn: name, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: serial.String(), DNSNames: c.DNSNames, IPAddresses: strings.Join(IPAddresses, ","), Mail: strings.Join(certRequest.EmailAddresses, ","), StreetAddress: attributeMap["streetAddress"], Organisation: attributeMap["O"], OrganisationalUnit: attributeMap["OU"], Country: attributeMap["C"], State: attributeMap["ST"], Locality: attributeMap["L"], PostalCode: attributeMap["postalCode"], Profile: prof, Cert: certBuff.String(), ValidUntil: tmpl.NotAfter, Subject: Subject.String(), Csr: &notfalse}
+	if err := c.DB.Create(&created).Error; err != nil {
 		Information.Error = err.Error()
 		Information.Status = http.StatusConflict
 		return Information, errors.New(dbError)
 	}
 	var newcertdb []Cert
-	c.DB.Select("id, cn, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number, dns_names, ip_addresses").Where("subject = ? AND profile_name = ?", Subject.String(), prof.Name).First(&newcertdb)
+	// Several certificates can share the same subject: return the one just created
+	c.DB.Select("id, cn, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number, dns_names, ip_addresses").Where("id = ?", created.ID).Find(&newcertdb)
 	Information.Entries = newcertdb
 	Information.Serial = serial.String()
 

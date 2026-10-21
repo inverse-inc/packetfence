@@ -98,11 +98,17 @@ Return the Acceptable User Policy (AUP) defined in the template file
 =cut
 
 sub aup {
+    my ($profile_name) = @_;
     my $logger = get_logger();
 
+    # The AUP customized in the connection profile (Files tab) comes first, as on the portal
+    require pf::Connection::ProfileFactory;
+    my $profile = pf::Connection::ProfileFactory->_from_profile($profile_name // 'default');
     my $html;
     my $template = Template->new({
-        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
+        INCLUDE_PATH => $profile->{_template_paths} // [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
+        # read the template as UTF-8 so that the text is characters, as on the portal
+        ENCODING => 'utf8',
     });
     $template->process( 'aup_text.html', undef, \$html ) || $logger->error($template->error());
 
@@ -129,7 +135,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

@@ -18,7 +18,7 @@
     />
 
     <form-group-rogue-dhcp-detection namespace="rogue_dhcp_detection"
-                                     :column-label="$i18n.t('Rogue DHCP detecti')"
+                                     :column-label="$i18n.t('Rogue DHCP detection')"
                                      :text="$i18n.t('Tries to identify Rogue DHCP Servers and triggers the 1100010 violation if one is found. This feature is only available if the dhcpdetector is activated.')"
                                      enabled-value="enabled"
                                      disabled-value="disabled"

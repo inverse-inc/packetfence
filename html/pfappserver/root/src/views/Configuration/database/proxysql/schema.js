@@ -4,7 +4,7 @@ import yup from '@/utils/yup'
 export const schema = () => yup.object({
   status: yup.string().nullable().label(i18n.t('Enable')),
   cacert: yup.string().nullable().label(i18n.t('CA Certificate')),
-  backend: yup.string().nullable().label(i18n.t('Backend host')),
+  backends: yup.string().nullable().label(i18n.t('Backend hosts')),
 })
 
 export default schema

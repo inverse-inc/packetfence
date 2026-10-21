@@ -21,6 +21,7 @@ use pf::UnifiedApi::Controller::Config;
 use pf::error qw(is_success);
 use pf::util;
 use File::Slurp qw(read_file write_file);
+use pf::util::dns;
 
 sub model {
     require pfappserver::Model::Config::System;
@@ -47,21 +48,9 @@ sub put_gateway {
     }
 }
 
-sub _get_dns_servers {
-    my ($self) = @_;
-    my @servers;
-    my $resolvconf = read_file("/etc/resolv.conf");
-    for my $line (split(/\n/, $resolvconf)) {
-        if($line =~ /^\s*nameserver\s([0-9.]+)/) {
-            push @servers, $1;
-        }
-    }
-    return \@servers;
-}
-
 sub get_dns_servers {
     my ($self) = @_;
-    $self->render(json => {dns_servers => $self->_get_dns_servers});
+    $self->render(json => {dns_servers => pf::util::dns::get_resolv_dns_servers()});
 }
 
 sub put_dns_servers {
@@ -74,8 +63,8 @@ sub put_dns_servers {
         }
         my $tmpfile = File::Temp->new()->filename;
         write_file($tmpfile, $content);
-        pf_run("cat $tmpfile | sudo tee /etc/resolv.conf");
-        my $saved_servers = $self->_get_dns_servers();
+        safe_pf_run(qw(sudo tee /etc/resolv.conf), {stdin => $tmpfile});
+        my $saved_servers = pf::util::dns::get_resolv_dns_servers();
         
         if(scalar(@$servers) != scalar(@$saved_servers)) {
             $self->render(json => {message => "DNS servers haven't been saved properly"}, status => 500);
@@ -98,6 +87,9 @@ sub put_dns_servers {
 
 sub _get_hostname {
     my ($self) = @_;
+    if (defined ($ENV{PF_EXTERNAL_HOSTNAME}) && $ENV{PF_EXTERNAL_HOSTNAME} ne "") {
+        return $ENV{PF_EXTERNAL_HOSTNAME};
+    }
     my $hostname = safe_pf_run(qw(hostnamectl --static));
     chomp($hostname);
     return $hostname if defined($hostname);
@@ -133,7 +125,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

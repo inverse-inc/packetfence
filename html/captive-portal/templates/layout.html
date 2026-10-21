@@ -4,7 +4,13 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta http-equiv="x-ua-compatible" content="ie=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Indicate that light and dark theme are supported. Default is first "light". -->
+  <meta name="color-scheme" content="light dark">
   <link href="/common/styles.css" media="screen" rel="stylesheet" type="text/css" />
+  <!-- Theme CSS configuration -->
+  [% IF theme_path %]
+  <link href="[% theme_path %]" media="screen" rel="stylesheet" type="text/css" />
+  [% END %]
   <script src="/common/pf.js" type="text/javascript"></script>
   <script src="/content/captiveportal.js" type="text/javascript"></script>
   <script src="/common/qrcode.min.js" type="text/javascript"></script>
@@ -12,6 +18,13 @@
   <title>[% IF title.defined ; i18n(title) ; ELSE ; i18n("PacketFence Registration system") ; END %]</title>
 </head>
 <body>
+  [% IF background_url %]
+  <!-- Show background image on larger screens ( tablet + ). -->
+  <picture>
+    <source media="(min-width: 46.25em)" srcset="[% background_url %]">
+    <img class="pf-bg no-select" aria-hidden="true" alt="" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==">
+  </picture>
+  [% END %]
   <!--
     title: [% title %]
     module: [% current_module.pretty_class_name %]
@@ -27,7 +40,7 @@
                 <div id="dots"></div>
               </div>
               <div class="o-pack__item o-layout--right">
-                <a href="/logout">
+                <a href="/logout" class="no-select">
                   [% svgIcon(id='ic_replay_black_24px', size='tiny', variant='secondary') %]
                 </a>
                 <!-- Uncomment to enable language switcher
@@ -49,7 +62,9 @@
         <div class="c-frame c-frame--last">
           <div class="o-layout--center u-padding-horizontal u-padding-horizontal@tablet">
 
-            [% IF logo %]<img src="[% logo %]" class="u-padding-bottom" />[% END %]
+            [% IF logo %]
+            <img src="[% logo %]" class="u-padding-bottom pf-logo no-select" alt=""/>
+            [% END %]
 
             [% IF title.defined %]
             <!-- START title -->
@@ -69,31 +84,22 @@
           </div>
 
           [% content | none %]
+
+          [% UNLESS preregistration %]
+          <!-- Client info — IP / MAC -->
+          <div class="c-divider u-margin-top-small"></div>
+          <div class="c-footer-info o-layout--center u-padding-horizontal u-padding-horizontal@tablet u-padding-top-small u-padding-bottom-small">
+            <p class="text-p3">[% i18n("help: provide info") %]</p>
+            <p class="text-p3 u-margin-none">IP <b>[% client_ip %]</b></p>
+            [% UNLESS isRootSSO %]
+            <p class="text-p3 u-margin-none">MAC <b>[% client_mac %]</b></p>
+            [% END %]
+          </div>
+          [% END %]
         </div><!-- /.c-frame -->
 
       </div>
     </div>
   </main>
-
-  [% UNLESS preregistration %]
-  <footer>
-    <div class="o-layout o-layout--center u-padding-horizontal-small u-padding-horizontal@tablet">
-      <div class="o-layout__item o-layout--center [ u-1/1 u-2/3@tablet ]">
-        <div class="o-pack o-pack--middle">
-          <div class="o-pack__item o-layout--center">
-            <p class="text-p3">[% i18n("help: provide info") %]</p>
-            <p class="text-p3 u-margin-none">IP <b>[% client_ip %]</b></p>
-            [% UNLESS isRootSSO %]
-            <p class="text-p3">MAC <b>[% client_mac %]</b></p>
-            [% END %]
-          </div>
-        </div>
-        <!-- <div class="o-box u-padding-tiny u-padding@tablet">
-          <p class="text-center">[% i18n("help: provide info") %]</p>
-        </div> -->
-      </div>
-    </div>
-  </footer>
-  [% END %]
 </body>
 </html>

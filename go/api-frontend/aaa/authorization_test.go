@@ -304,3 +304,32 @@ func BenchmarkIsAuthorizedAdminActionsDynamic(b *testing.B) {
 		m.isAuthorizedAdminActions(ctx, "GET", "/api/v1/node/00:11:22:33:44:55", map[string]bool{"NODES_READ": true})
 	}
 }
+
+func TestPftestAdminRoleMapping(t *testing.T) {
+	ctx := log.LoggerNewContext(context.Background())
+
+	m := NewTokenAuthorizationMiddleware(NewMemTokenBackend(1*time.Second, 1*time.Second, []string{}))
+
+	// PFTEST_CREATE is the role POST /api/v1/pftest/* maps to via the
+	// explicit pathAdminRolesMap entry — not the SYSTEM fall-through.
+	for _, path := range []string{
+		"/api/v1/pftest/authentication",
+		"/api/v1/pftest/profile_filter",
+		"/api/v1/pftest/cluster/authentication",
+		"/api/v1/pftest/cluster/profile_filter",
+	} {
+		if _, err := m.isAuthorizedAdminActions(ctx, "POST", path, map[string]bool{"PFTEST_CREATE": true}); err != nil {
+			t.Errorf("POST %s with PFTEST_CREATE should be authorized, error: %s", path, err)
+		}
+
+		if _, err := m.isAuthorizedAdminActions(ctx, "POST", path, map[string]bool{"SERVICES_READ": true}); err == nil {
+			t.Errorf("POST %s with only SERVICES_READ must be denied", path)
+		}
+
+		// SYSTEM_CREATE used to be the implicit fall-through requirement;
+		// the explicit PFTEST mapping must take precedence.
+		if _, err := m.isAuthorizedAdminActions(ctx, "POST", path, map[string]bool{"SYSTEM_CREATE": true}); err == nil {
+			t.Errorf("POST %s with SYSTEM_CREATE must be denied now that PFTEST is explicit", path)
+		}
+	}
+}

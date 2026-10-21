@@ -21,49 +21,53 @@ endif::[]
 
 === Multi Machine Account Support ===
 
-Starting from PacketFence 14.1, we brought new feature to ntlm-auth-api that allows the backend API to be able to process NTLM
-requests in a multi-processes model.
-Previously, only one machine account will be created and new NTLM auth request has to wait until the previous one was done.
-The single thread model can slow down the performance in some extreme heavy loaded scenarios: e.g., a huge enterprise with
-a giant windows AD database and devices.
+PacketFence 14.1+ includes ntlm-auth-api multi-process support for NTLM
+requests.
+Previously, single machine account creation meant new NTLM auth requests waited
+for completion of previous requests.
+Single thread model slows performance in heavy load scenarios like large
+enterprises with extensive Windows AD databases and devices.
 
-Now we are able to create multiple machine accounts and register each machine account with a dedicate process when NTLM auth API
-starts.
+Multiple machine accounts can now be created, each registered with a dedicated
+process when NTLM auth API starts.
 
-To enable this feature, you'll have to set the `additional_machine_accounts` to a non-zero value, and corresponding machine
-account will be created based on the previous machine account name.
+Enable by setting `additional_machine_accounts` to non-zero value. Machine
+accounts will be created based on the previous machine account name.
 
-The name pattern of additional machine account is: "base_machine_account_name"-N, N will be 0..9
-E.g., the machine account you created before was NODE-PF, and the additional machine accounts is set to 2,
-then 2 additional accounts will be created on Windows AD with the names of `NODE-PF-0` and `NODE-PF-1`.
+The name pattern of additional machine account is:
+"base_machine_account_name"-N, N will be 0..9
+Example: Previous machine account NODE-PF with additional_machine_accounts set
+to 2 creates `NODE-PF-0` and `NODE-PF-1` in Windows AD.
 
-NOTE: There's a hard limitation of how many characters can we use for a machine account name. On windows system, the
-limit is 14, if you want to enable this feature, you'll have to make sure the machine account name has a length less than
-12. So PacketFence can create additional accounts with a "-N" suffix.
+NOTE: Windows systems limit machine account names to 14 characters. To enable
+this feature, ensure machine account name length is under 12 characters so
+PacketFence can add "-N" suffix.
 
 
 ==== How does this work ====
-PacketFence will re-generate the config file load the configuration file, determine how many sub-processes will be needed
-to use all those machine accounts, then gunicorn master process will launch the X sub processes to handle the requests.
-each of the sub process will take a dedicate machine account to perform the authentication.
+PacketFence regenerates config file, determines required sub-processes for
+machine accounts, then gunicorn master process launches sub-processes to handle
+requests. Each sub-process uses dedicated machine account for authentication.
 
 ==== Limitations ====
 
-1. You can not create more than 10 additional machine accounts for each domain.
-2. The machine account name can not exceed 12 chars if you want to enable `additional_machine_accounts`.
-3. If you use %h as machine account name, the parsed value of %h also need to be less than 12 to enable additional machine accounts.
+1. Maximum 10 additional machine accounts per domain.
+2. Machine account name cannot exceed 12 characters for `additional_machine_accounts`.
+3. Using %h as machine account name requires parsed %h value under 12 characters.
 
 ==== Benchmarks and suggested settings ====
-We did a benchmark on this feature, here's some results for reference:
-All the tests are done on VMs by ESXi 7.0 hosted on a SuperMicro server with 1 CPU of Intel D2123-IT (4C8T @2.2G), 128 G DDR4 RDIMM.
+Benchmark results for reference:
+All the tests are done on VMs by ESXi 7.0 hosted on a SuperMicro server with 1
+CPU of Intel D2123-IT (4C8T @2.2G), 128 G DDR4 RDIMM.
 
-we are testing this using ab (apache benchmark) to directly test against NTLM auth API with:
+we are testing this using ab (apache benchmark) to directly test against NTLM
+auth API with:
 
 1. 2 additional machine accounts is added (total 3)
 2. The PacketFence is hosted on a 4 vCPU 32 Gig VM on ESXi.
 3. The Windows AD is hosted on a 2 vCPU 8 Gig VM on ESXi in the same local network with PacketFence.
 
-```
+----
 ab -n 20000 -c 1 -p ~/eapol_test/payload.admin-akam.json -T 'application/json'  http://127.0.0.1:5002/ntlm/auth
 
 Requests per second:    448.22 [#/sec] (mean)
@@ -84,39 +88,63 @@ Requests per second:    932.21 [#/sec] (mean)
 Time per request:       3.218 [ms] (mean)
 Time per request:       1.073 [ms] (mean, across all concurrent requests)
 
-```
+----
 
-Based on the test results, with a single machine account created on Windows AD, the backend API is possible to handle around
-400 requests/s, with 3 machine accounts, the capacity will raise up to around 1000 req/s, which is a quite busy and
+Based on the test results, with a single machine account created on Windows AD,
+the backend API is possible to handle around
+400 requests/s, with 3 machine accounts, the capacity will raise up to around
+1000 req/s, which is a quite busy and
 heavy-load case.
 
-We suggest creating no more than 5 additional machine accounts (6 total) to maximize the performance as well as keeping
+We suggest creating no more than 5 additional machine accounts (6 total) to
+maximize the performance as well as keeping
 the Windows Event log clean and easy for debugging.
 
-For low worker loads cases, 1 additional machine account is recommended - just to avoid jitter when the master process terminates
+For low worker loads cases, 1 additional machine account is recommended - just
+to avoid jitter when the master process terminates
 the old process after 10k requests and re-spawn a new one.
 
 
 === NT Key Caching ===
 
-NOTE: This section assumes that you already have an Active Directory domain configuration both in _Configuration -> Policies and Access Control -> Domains -> Active Directory Domains_ and _Configuration -> Policies and Access Control -> Authentication Sources_. If you don't, you need to first configure those. Refer to the appropriate sections of this guide for details on how to configure these two components.
+NOTE: This section assumes that you already have an Active Directory domain
+configuration both in _Configuration -> Policies and Access Control -> Domains
+-> Active Directory Domains_ and _Configuration -> Policies and Access Control
+-> Authentication Sources_. If you don't, you need to first configure those.
+Refer to the appropriate sections of this guide for details on how to configure
+these two components.
 
-Using NTLM authentication against an Active Directory for 802.1X EAP-PEAP connections can become a bottleneck when handling dozens of authentications per second. It is possible for PacketFence to cache NT keys in order to reduce external NTLM authentications. The NT key cache temporarily stores the NT session key for all connected devices, not the password or NT hashes.
+Using NTLM authentication against an Active Directory for 802.1X EAP-PEAP
+connections can become a bottleneck when handling dozens of authentications per
+second. It is possible for PacketFence to cache NT keys in order to reduce
+external NTLM authentications. The NT key cache temporarily stores the NT
+session key for all connected devices, not the password or NT hashes.
 
-When NT key caching is enabled, PacketFence will perform a transitive login with the Domain Controller, and cache the NT key of all connected devices that have successfully authenticated. Subsequent authentications will skip the transitive login with the Domain Controller and use the cached NT key. Wrong password and old password attempts are counted and cached to prevent the user account from being locked out from the Domain Controller.
+When NT key caching is enabled, PacketFence will perform a transitive login with
+the Domain Controller, and cache the NT key of all connected devices that have
+successfully authenticated. Subsequent authentications will skip the transitive
+login with the Domain Controller and use the cached NT key. Wrong password and
+old password attempts are counted and cached to prevent the user account from
+being locked out from the Domain Controller.
 
-CAUTION: The cache requires minimally _Windows Server 2008_. Older versions will not work. To ensure a better performance and flexible NTLM authentication caching, _Windows 2012 R2_ or later version is recommended.
+CAUTION: The cache requires minimally _Windows Server 2008_. Older versions will
+not work. To ensure a better performance and flexible NTLM authentication
+caching, _Windows 2012 R2_ or later version is recommended.
 
-CAUTION: The NT key cache uses timestamps to determine the NT key expiration time and dirty-status, Timezone settings for PacketFence and the Windows Domain Controller must be identical and system clocks should be syncronized using NTP.
+CAUTION: The NT key cache uses timestamps to determine the NT key expiration
+time and dirty-status, Timezone settings for PacketFence and the Windows Domain
+Controller must be identical and system clocks should be synchronized using NTP.
 
 ==== PacketFence Configuration
 
 ===== Create Domain
 
-To Enable NT key caching, create a valid Domain config entry in _Configuration -> Policies and Access Control -> Domains -> Active Directory Domains_
+To Enable NT key caching, create a valid Domain config entry in _Configuration
+-> Policies and Access Control -> Domains -> Active Directory Domains_
 
 In the _NT Key cache_ tab,
 
+[options="compact"]
 * Enable NT Key cache.
 * Specify a cache expiration time. Ranges from 60 to 86400. Default is 12000 (in seconds).
 * Fill in the Windows Group Policy Settings
@@ -127,50 +155,66 @@ In the _NT Key cache_ tab,
 
 image::domain-nt-key-cache.jpg[scaledwidth="100%",alt="NT Key cache settings"]
 
-NOTE: Cache expiration time: a value longer than reauth period settings on the switch is recommended. E.g., If the reauth period on a Cisco switch is set to 10800s, a value less than 10800 may cause the cache entry to expire before reauth.
+NOTE: Cache expiration time: a value longer than reauth period settings on the
+switch is recommended. E.g., If the reauth period on a Cisco switch is set to
+10800s, a value less than 10800 may cause the cache entry to expire before
+reauth.
 
 ==== Restart NTLM Auth API
 
 Restart the PacketFence NTLM Auth API to commit the changes.
 
-```
+----
 systemctl restart packetfence-ntlm-auth-api
-```
+----
 
 ===== Windows Account Policies
 
-Those settings can be found on the Windows Domain Controller by the following steps:
+Those settings can be found on the Windows Domain Controller by the following
+steps:
 
 Go to _Start menu -> Administrative Tools -> Group Policy Management_.
 
-In the console tree, expand *Forest* -> *Domains* -> *Your Domain* -> *Group Policy Objects* -> *Default Domain Policy*
+In the console tree, expand *Forest* -> *Domains* -> *Domain Name* -> *Group
+Policy Objects* -> *Default Domain Policy*
 
-In the right panel, navigate to *Settings* page, You will have these parameters in *Policies* -> *Windows Settings* -> *Security Settings* -> *Account Policies, Account lockout policies*
+In the right panel, navigate to *Settings* page, You will have these parameters
+in *Policies* -> *Windows Settings* -> *Security Settings* -> *Account Policies,
+Account lockout policies*
 
-For *Old Password Allowed Period*, There's no group policy settings. The default value is 60 (in minutes). It can be changed using the following guide:
+For *Old Password Allowed Period*, There's no group policy settings. The default
+value is 60 (in minutes). It can be changed using the following guide:
 
 https://learn.microsoft.com/en-US/troubleshoot/windows-server/windows-security/new-setting-modifies-ntlm-network-authentication
 
 image::domain-windows-account-policy.png[scaledwidth="100%",alt="Windows Account Policies"]
 
-NOTE: Steps may vary on different versions of _Windows_. The steps and screenshots above are from _Windows Server 2022_.
+NOTE: Steps may vary on different versions of _Windows_. The steps and
+screenshots above are from _Windows Server 2022_.
 
-NOTE: In newer version of Windows Server, if you didn't see some of the values listed above, they might be in default value. You can check the values by clicking "Edit" on domain policies to check its default values.
+NOTE: In newer version of Windows Server, if you didn't see some of the values
+listed above, they might be in default value. You can check the values by
+clicking "Edit" on domain policies to check its default values.
 
 ===== Create PacketFence User
 
-Create a dedicated user that receives Windows Events from Domain Controller and reports the events to NT Key caching service:
+Create a dedicated user that receives Windows Events from Domain Controller and
+reports the events to NT Key caching service:
 
+[options="compact"]
 * In the PacketFence Admin UI *Users* section, create a new local user with a unique *username* and a strong *password*. Remember these for _Config Windows Event Notifier_
 * Change *Access Level* to *Windows Event Receiver NTLM*
 
 ==== Active Directory Configuration
 
-Report the account *Account Password Change*, *Account Password Reset* (and optionally *User Account Unlock*) to PacketFence in order to help NT Key cache invalidate cache entries accurately.
+Report the account *Account Password Change*, *Account Password Reset* (and
+optionally *User Account Unlock*) to PacketFence in order to help NT Key cache
+invalidate cache entries accurately.
 
 ===== Windows Event Notifier Configuration
 
-Windows Event Notifier is a powershell script used to filter, analyze and report account management events to PacketFence.
+Windows Event Notifier is a powershell script used to filter, analyze and report
+account management events to PacketFence.
 
 Events include:
  * Account password change (Windows Event ID: 4723): mandatory for NT key cache
@@ -188,34 +232,40 @@ Copy the powershell script and replace:
 ===== Config Scheduled Tasks
 
 =====
+[options="compact"]
 * Open *Windows Task Scheduler* and in the left-panel expand *Event Viewer Tasks*, on the right-panel, right-click on the blank area and select *Create new task...*.
 * In the popup window, **Name** the task and in *Security options* select *Run whether user is logged on or not*.
 
 image::domain-nt-key-cache-task-scheduler.jpg[scalewidth="100%", alt="Windows Task Scheduler"]
 
+[options="compact"]
 * Click on *Trigger* tab, then click *New...*.
 * In the popup window, for *Begin the task* select *On an event*, for *Log* select *Security*, for *Event ID* type in *4723*, click "OK".
 * Repeat these steps to add event trigger(s) for the *Account Password Reset* and optionally *User Account Unlock* events.
 
 image::domain-nt-key-cache-task-scheduler-triggers.jpg[scaledwidth="100%",alt="Windows Events Triggers in Task Scheduler"]
 
+[options="compact"]
 * Click on *Action* tab, for *Action* select *Start a program*, in *Program/script* type the full path to powershell.exe (usually `C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe`).
 * In *Add arguments* type the full path to the powershell script (eg: `C:\Users\Administrator\Desktop\event-notifier.ps1`).
 * In *Start in* type the working directory (eg: `C:\Users\Administrator\Desktop`).
 
 image::domain-nt-key-cache-task-scheduler-actions.jpg[scaledwidth="100%",alt="Windows Events Actions"]
 
+[options="compact"]
 * Click "OK" to save the changes, Enter the Administrator password.
 =====
 
 or
 
 =====
+[options="compact"]
 * Open *Windows Event Viewer* and click an event with EventID of *4723* (password change) or *4724* (password reset).
 * Repeat the following steps for each Event ID.
 
 image::domain-windows-events-viewer.png[scaledwidth="100%",alt="Windows Events Viewer"]
 
+[options="compact"]
 * Select *Attach tasks to this event* in the right panel, then choose *Launch a program* for action option, fill in the `powershell REAL_ABSOLUTE_PATH_OF_THE_NOTIFIER_SCRIPT`, click "Save".
 * Run the script with *Administrator Privilege* otherwise it will fail to read windows events.
 
@@ -226,31 +276,55 @@ image::domain-event-trigger-in-task-scheduler.png[scaledwidth="100%",alt="Window
 
 ===== Test Password Change
 
-Manually reset a user password in *Active Directory Users and Computers* and check to see if PacketFence received the event. The JSON entry in the chi_cache value should contain `dirty: 1`. If PacketFence fails to receive the Event, check the logs in the working directory from _Config Scheduled Tasks_ above for more information.
+Manually reset a user password in *Active Directory Users and Computers* and
+check to see if PacketFence received the event. The JSON entry in the chi_cache
+value should contain `dirty: 1`. If PacketFence fails to receive the Event,
+check the logs in the working directory from _Config Scheduled Tasks_ above for
+more information.
 
-On the PacketFence server, use the cache query below and replace the [domainID] with the Domain ID from _Create Domain_ above, and the [username] of the account user.
+On the PacketFence server, use the cache query below and replace the [domainID]
+with the Domain ID from _Create Domain_ above, and the [username] of the account
+user.
 
-```
+----
 mysql pf
 
 mysql> SELECT value from chi_cache WHERE key='nt_key_cache:[domainID]:[username]';
-```
+----
 
 === NTLM Authentication Caching
 
-NOTE: This section assumes that you already have an Active Directory domain configuration both in _Configuration -> Policies and Access Control -> Domains -> Active Directory Domains_ and _Configuration -> Policies and Access Control -> Authentication Sources_. If you don't, you need to first configure those. Refer to the appropriate sections of this guide for details on how to configure those two components.
+NOTE: This section assumes that you already have an Active Directory domain
+configuration both in _Configuration -> Policies and Access Control -> Domains
+-> Active Directory Domains_ and _Configuration -> Policies and Access Control
+-> Authentication Sources_. If you don't, you need to first configure those.
+Refer to the appropriate sections of this guide for details on how to configure
+those two components.
 
-CAUTION: The cache requires minimally Windows Server 2008. Older versions will not work.
+CAUTION: The cache requires minimally Windows Server 2008. Older versions will
+not work.
 
-When using NTLM authentication against an Active Directory for 802.1X EAP-PEAP connections, this can become a bottleneck when handling dozens of authentications per seconds.
+When using NTLM authentication against an Active Directory for 802.1X EAP-PEAP
+connections, this can become a bottleneck when handling dozens of
+authentications per seconds.
 
-To overcome this limitation, it is possible to use a Redis driven cache inside PacketFence to reduce the amount of authentications requiring an external NTLM authentication call. Should a user be in the cache, PacketFence will attempt to compare the 802.1X credentials with those. In the even that the validation fails, a call to ntlm_auth is made. In the event of a cache miss, an ntlm_auth call is made as well. This ensures that even if a user changes his password, his new password is immediately valid for 802.1X EAP-PEAP connections even if the cache contains the outdated entry.
+To overcome this limitation, it is possible to use a Redis driven cache inside
+PacketFence to reduce the amount of authentications requiring an external NTLM
+authentication call. Should a user be in the cache, PacketFence will attempt to
+compare the 802.1X credentials with those. In the event that the validation
+fails, a call to ntlm_auth is made. In the event of a cache miss, an ntlm_auth
+call is made as well. This ensures that even if a user changes his password, his
+new password is immediately valid for 802.1X EAP-PEAP connections even if the
+cache contains the outdated entry.
 
-NOTE: The NTLM cache doesn't cache clear text passwords, it caches the NT hash of the user password.
+NOTE: The NTLM cache doesn't cache clear text passwords, it caches the NT hash
+of the user password.
 
 ==== PacketFence Configuration
 
-First of all, you will need to enable the NTLM caching globally by enabling 'NTLM Redis cache' in _Configuration -> System Configuration -> Radius -> General_. You then need to restart `radiusd-auth` service.
+First of all, you will need to enable the NTLM caching globally by enabling
+'NTLM Redis cache' in _Configuration -> System Configuration -> Radius ->
+General_. You then need to restart `radiusd-auth` service.
 
 Once that is done, you need to configure PacketFence to start caching the
 credentials. In order to do so, go in _Configuration -> Policies and Access
@@ -265,9 +339,12 @@ Next, go in the *NTLM cache* tab and:
 
 image::domain-ntlm-cache.png[scaledwidth="100%",alt="Domain NTLM cache"]
 
-Once done, click on `Save` to commit your changes.
+Once done, click on `Save` to commit the changes.
 
-After that, you will need to enable the `redis_ntlm_cache` service which is used by PacketFence to store the cached credentials. In order to do so, go in _Configuration -> System Configuration -> Main Configuration -> Services_ and enable 'redis_ntlm_cache' and save the changes.
+After that, you will need to enable the `redis_ntlm_cache` service which is used
+by PacketFence to store the cached credentials. In order to do so, go in
+_Configuration -> System Configuration -> Main Configuration -> Services_ and
+enable 'redis_ntlm_cache' and save the changes.
 
 Next, start the service via pfcmd:
 
@@ -275,30 +352,49 @@ Next, start the service via pfcmd:
 
 ==== Active Directory configuration
 
-In order for PacketFence to be able to fetch the NTLM credentials from your Active Directory, it will need a user who has replication rights. The user to which you have to grant the rights, is the one that is configured in the authentication source that you associated in the 'NTLM cache' section of your domain.
+In order for PacketFence to be able to fetch the NTLM credentials from the
+Active Directory, it will need a user who has replication rights. The user to
+which you have to grant the rights, is the one that is configured in the
+authentication source that was associated in the 'NTLM cache' section of the
+domain.
 
-Please refer to the following Microsoft KB entry to configure the replication rights (Replicating Directory Changes and Replicating Directory Changes All): https://support.microsoft.com/en-us/kb/303972
+Please refer to the following Microsoft KB entry to configure the replication
+rights (Replicating Directory Changes and Replicating Directory Changes All):
+https://support.microsoft.com/en-us/kb/303972
 
 === SNMP Traps Limit
 
-PacketFence mainly rely on SNMP traps to communicate with equipment. Due to the fact that traps coming in from approved (configured) devices are all processed by the daemon, it is possible for someone who want to generate a certain load on the PacketFence server to force the generation of non-legitimate SNMP traps or a switch can randomly generate a high quantity of traps sent to PacketFence for an unknown reason.
+PacketFence mainly rely on SNMP traps to communicate with equipment. Due to the
+fact that traps coming in from approved (configured) devices are all processed
+by the daemon, it is possible for someone who want to generate a certain load on
+the PacketFence server to force the generation of non-legitimate SNMP traps or a
+switch can randomly generate a high quantity of traps sent to PacketFence for an
+unknown reason.
 
-Because of that, it is possible to limit the number of SNMP traps coming in from a single switch port and take action if that limit is reached. For example, if over 100 traps are received by PacketFence from the same switch port in a minute, the switch port will be shut and a notification email will be sent.
+Because of that, it is possible to limit the number of SNMP traps coming in from
+a single switch port and take action if that limit is reached. For example, if
+over 100 traps are received by PacketFence from the same switch port in a
+minute, the switch port will be shut and a notification email will be sent.
 
-Here's the default config for the SNMP traps limit feature. As you can see, by default, PacketFence will log the abnormal activity after 100 traps from the same switch port in a minute. These configurations are in the `conf/pf.conf` file:
+Here's the default config for the SNMP traps limit feature. As you can see, by
+default, PacketFence will log the abnormal activity after 100 traps from the
+same switch port in a minute. These configurations are in the `conf/pf.conf`
+file:
 
   [snmp_traps]
   trap_limit = enabled
   trap_limit_threshold = 100
   trap_limit_action =
 
-Alternatively, you can configure these parameters from the PacketFence Web administrative GUI, in the _Configuration -> Network Configuration -> SNMP_ section.
+Alternatively, you can configure these parameters from the admin interface, in
+the _Configuration -> Network Configuration -> SNMP_ section.
 
 === MariaDB optimizations
 
 ==== Tuning MariaDB
 
-If you're PacketFence system is acting very slow, this could be due to your MariaDB configuration. You should do the following to tune performance:
+If the PacketFence system is acting very slow, this could be due to the
+MariaDB configuration. You should do the following to tune performance:
 
 Check the system load
 
@@ -325,7 +421,9 @@ Check iostat and CPU
   Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
   cciss/c0d0       27.94         0.00      1173.65          0       5880
 
-As you can see, the load-average is 1.25 and iowait is peaking at 20% - this is not good. If your iowait is low but your MariaDB is taking over %50 CPU this is also not good. Check your MariaDB install for the following variables:
+As you can see, the load-average is 1.25 and iowait is peaking at 20% - this is
+not good. If the iowait is low but the MariaDB is taking over 50% CPU this is
+also not good. Check the MariaDB install for the following variables:
 
   MariaDB> show variables;
   | innodb_additional_mem_pool_size | 1048576      |
@@ -333,9 +431,11 @@ As you can see, the load-average is 1.25 and iowait is peaking at 20% - this is 
   | innodb_buffer_pool_awe_mem_mb   | 0            |
   | innodb_buffer_pool_size         | 8388608      |
 
-PacketFence relies heavily on InnoDB, so you should increase the `buffer_pool` size from the default values.
+PacketFence relies heavily on InnoDB, so you should increase the `buffer_pool`
+size from the default values.
 
-Go in the administration GUI , in _Configuration -> System Configuration -> Database -> Advanced_ and raise the value of *InnoDB buffer pool size*.
+Go in the admin interface , in _Configuration -> System Configuration ->
+Database -> Advanced_ and raise the value of *InnoDB buffer pool size*.
 
 Then restart packetfence-mariadb
 
@@ -364,21 +464,35 @@ cciss/c0d0        4.80         0.00        48.00          0        240
 
 ==== Avoid "Too many connections" problems
 
-In a wireless context, there tends to be a lot of connections made to the database by our `freeradius` module. The default MariaDB value tend to be low (100) so we encourage you to increase that value to at least 300. See http://dev.mysql.com/doc/refman/5.0/en/too-many-connections.html for details.
+In a wireless context, there tends to be a lot of connections made to the
+database by our `freeradius` module. The default MariaDB value tend to be low
+(100) so we encourage you to increase that value to at least 300. See
+https://dev.mysql.com/doc/refman/5.0/en/too-many-connections.html for details.
 
 ==== Avoid "Host <hostname> is blocked" problems
 
-In a wireless context, there tend to be a lot of connections made to the database by our freeradius module. When the server is loaded, these connection attempts can timeout. If a connection times out during connection, MariaDB will consider this a connection error and after 10 of these (by default) he will lock the host out with a:
+In a wireless context, there tend to be a lot of connections made to the
+database by our freeradius module. When the server is loaded, these connection
+attempts can timeout. If a connection times out during connection, MariaDB will
+consider this a connection error and after 10 of these (by default) he will lock
+the host out with a:
 
-  Host 'host_name' is blocked because of many connection errors. Unblock with 'mysqladmin flush-hosts'
+  Host 'host_name' is blocked because of many connection errors. Unblock with
+  'mysqladmin flush-hosts'
 
-This will grind PacketFence to a halt so you want to avoid that at all cost. One way to do so is to increase the number of maximum connections (see above), to periodically flush hosts or to allow more connection errors. See http://dev.mysql.com/doc/refman/5.0/en/blocked-host.html for details.
+This will grind PacketFence to a halt so you want to avoid that at all cost. One
+way to do so is to increase the number of maximum connections (see above), to
+periodically flush hosts or to allow more connection errors. See
+https://dev.mysql.com/doc/refman/5.0/en/blocked-host.html for details.
 
 ==== Using MariaDB-backup
 
-When dealing with a large database, the database backup and maintenance script (`/usr/local/pf/addons/exportable-backup.sh`) which uses mysqldump may create a long lock on your database which may cause service to hang.
+When dealing with a large database, the database backup and maintenance script
+(`/usr/local/pf/addons/exportable-backup.sh`) which uses mysqldump may create a
+long lock on the database which may cause service to hang.
 
-This is fixed easily by using MariaDB-backup which can complete a full database backup without locking your tables.
+This is fixed easily by using MariaDB-backup which can complete a full database
+backup without locking the tables.
 
 .RHEL-based systems
 [source,bash]
@@ -386,13 +500,13 @@ This is fixed easily by using MariaDB-backup which can complete a full database 
 yum install MariaDB-backup --enablerepo=packetfence
 ----
 
-.Debian-based systems (for PacketFence versions 11.0.0 and later
+.Debian-based systems (for PacketFence versions 11.0 and later
 [source,bash]
 ----
 apt install mariadb-backup
 ----
 
-.Debian-based systems (for PacketFence versions prior to 11.0.0)
+.Debian-based systems (for PacketFence versions prior to 11.0)
 [source,bash]
 ----
 apt install mariadb-backup-10.2
@@ -410,7 +524,7 @@ Next, run the maintenance script [filename]`/usr/local/pf/addons/exportable-back
 
 If the backup fails, check [filename]`/usr/local/pf/logs/innobackup.log` for details and refer to the MariaDB-backup documentation for troubleshooting.
 
-NOTE: In the event that you want to stop using MariaDB-backup for your MariaDB backups, simply uninstall it and the database script will fallback to mysqldump.
+NOTE: In the event that MariaDB-backup should no longer be used for MariaDB backups, simply uninstall it and the database script will fallback to mysqldump.
 
 === Captive Portal Optimizations
 
@@ -420,17 +534,17 @@ This section will address specific problems and known solutions.
 
 ==== "Internet Explorer cannot display the webpage"
 
-Problem: Internet Explorer 8-10 may raise an "Internet Explorer cannot display the webpage" error while attempting to access PacketFence administration interface because TLSv1.2 is not activated but required since PacketFence 7.
+Problem: Internet Explorer 8-10 may raise an "Internet Explorer cannot display the webpage" error while attempting to access PacketFence admin interface because TLSv1.2 is not activated but required since PacketFence 7.
 
 Solution:
 
- * PacketFence administration interface is not started:
+ * PacketFence admin interface is not started:
 
   # cd /usr/local/pf
   # bin/pfcmd service httpd.admin start
 
 
- * It is strongly advised that you update your browser to Internet Explorer 11 or download an alternative.
+ * It is strongly advised to update the browser to Internet Explorer 11 or download an alternative.
 
 
  * TLSv1.2 needs to be activated manually in Internet Explorer 8-10.

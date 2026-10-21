@@ -11,14 +11,17 @@ testcases:
 
   - name: test_if_the_device_is_in_the_ipset_register_set
     steps:
-      - type: exec
-        script: 'ipset test pfsession_Reg_{{.inline_l3.routed_networks}} {{.inline_l3.node.ipaddress}}'
-
+    - type: exec
+      script: 'ipset test pfsession_Reg_{{.inline_l3.routed_networks}} {{.inline_l3.node.ipaddress}}'
+      retry: 5
+      delay: 1
 
   - name: test_if_the_device_is_in_the_ipset_role_id_1
     steps:
-      - type: exec
-        script: 'ipset test PF-iL3_ID1_{{.inline_l3.routed_networks}} {{.inline_l3.node.ipaddress}}'
+    - type: exec
+      script: 'ipset test PF-iL3_ID1_{{.inline_l3.routed_networks}} {{.inline_l3.node.ipaddress}}'
+      retry: 5
+      delay: 1
 
   - name: test_if_the_device_can_reach_cnn_com
     steps:

@@ -55,7 +55,7 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
       result << %(<link rel="icon" type="#{icon_type}" href="#{icon_href}"#{slash}>)
     end
     result << %(<title>#{node.doctitle sanitize: true, use_fallback: true}</title>)
-  
+
     if Asciidoctor::DEFAULT_STYLESHEET_KEYS.include?(node.attr 'stylesheet')
       if (webfonts = node.attr 'webfonts')
         result << %(<link rel="stylesheet" href="#{asset_uri_scheme}//fonts.googleapis.com/css?family=#{webfonts.empty? ? 'Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700' : webfonts}"#{slash}>)
@@ -76,7 +76,7 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
   </style>)
       end
     end
-  
+
     if node.attr? 'icons', 'font'
       if node.attr? 'iconfont-remote'
         result << %(<link rel="stylesheet" href="#{node.attr 'iconfont-cdn', %[#{cdn_base_url}/font-awesome/#{FONT_AWESOME_VERSION}/css/font-awesome.min.css]}"#{slash}>)
@@ -85,15 +85,15 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
         result << %(<link rel="stylesheet" href="#{node.normalize_web_path iconfont_stylesheet, (node.attr 'stylesdir', ''), false}"#{slash}>)
       end
     end
-  
+
     if (syntax_hl = node.syntax_highlighter) && (syntax_hl.docinfo? :head)
       result << (syntax_hl.docinfo :head, node, cdn_base_url: cdn_base_url, linkcss: linkcss, self_closing_tag_slash: slash)
     end
-  
+
     unless (docinfo_content = node.docinfo).empty?
       result << docinfo_content
     end
-  
+
     result << %(<style>
   [data-lang] div:before {
     color: #c1c7cd;
@@ -125,8 +125,50 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
   [data-lang=bash] div:before {
     content: '#';
   }
+
+  /* Copy button styles - integrating with existing PacketFence theme */
+  .listingblock, .literalblock {
+    position: relative;
+  }
+
+  .copy-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 11px;
+    font-family: inherit;
+    cursor: pointer;
+    color: #333;
+    transition: all 0.2s ease;
+    z-index: 10;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .copy-button:hover {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+  }
+
+  .copy-button.copied {
+    background: rgba(76, 175, 80, 0.9);
+    color: white;
+    border-color: rgba(76, 175, 80, 0.5);
+  }
+
+  /* Ensure titles don't interfere with copy button */
+  .listingblock .title,
+  .literalblock .title {
+    padding-right: 80px;
+  }
   </style>)
-  
+
     result << '</head>'
     body_attrs = node.id ? [%(id="#{node.id}")] : []
     if (sectioned = node.sections?) && (node.attr? 'toc-class') && (node.attr? 'toc') && (node.attr? 'toc-placement', 'auto')
@@ -138,17 +180,20 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
     body_attrs << %(class="h-100 #{classes.join ' '}")
     body_attrs << %(style="max-width: #{node.attr 'max-width'};") if node.attr? 'max-width'
     result << %(<body #{body_attrs.join ' '}>)
-  
+
     unless (docinfo_content = node.docinfo :header).empty?
       result << docinfo_content
     end
-  
+
     result << '<div class="container-fluid h-100">'
     result << '  <div class="row h-100">'
-  
+
     unless node.noheader
-      result << '<div id="header" class="col-3 h-100 overflow-auto py-4">'
-  
+      result << '<div id="header" class="col-3 h-100 overflow-auto">'
+      # Add PF icon
+      result << '<div class="header_logo ml-3 mb-4">'
+      result << %(<img src="#{node.image_uri("pf-logo.svg")}" alt="icon"/>)
+      result << '</div>'
       if sectioned && (node.attr? 'toc') && (node.attr? 'toc-placement', 'auto')
         result << %(<div id="toc" class="#{node.attr 'toc-class', 'toc'}">
   #{convert_outline node}
@@ -156,11 +201,11 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
       end
       result << '</div><!-- /#header -->'
     end
-  
-    result << %(<div id="guide" class="h-100 bg-white overflow-auto py-4 #{node.noheader ? 'col' : 'col-9'}"><div class="container">)
-  
+
+    result << %(<div id="guide" class="h-100 bg-white overflow-auto pt-4 pb-0 #{node.noheader ? 'col' : 'col-9'}"><div class="container">)
+
     if node.header?
-      result << %(<h1 class="pb-6">#{node.header.title}</h1>) unless node.notitle
+      result << %(<h1 class="pb-6 mt-4.5">#{node.header.title}</h1>) unless node.notitle
       details = []
       idx = 1
       node.authors.each do |author|
@@ -183,14 +228,13 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
         result << '</div>'
       end
     end
-  
+
     result << %(<div id="content">
     #{node.content}
   </div>)
-  
+
     if node.footnotes? && !(node.attr? 'nofootnotes')
-      result << %(<div id="footnotes">
-  <hr#{slash}>)
+      result << %(<div id="footnotes" class="mt-3" >)
       node.footnotes.each do |footnote|
         result << %(<div class="footnote" id="_footnotedef_#{footnote.index}">
   <a href="#_footnoteref_#{footnote.index}">#{footnote.index}</a>. #{footnote.text}
@@ -198,28 +242,27 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
       end
       result << '</div>'
     end
-  
+
+    result << '</div><!-- /#guide -->'
     unless node.nofooter
       result << '<div id="footer" class="text-black-50">'
       result << '<div id="footer-text">'
       result << %(#{node.attr 'version-label'} #{node.attr 'revnumber'}#{br}) if node.attr? 'revnumber'
       result << %(#{node.attr 'last-update-label'} #{node.attr 'docdatetime'}) if (node.attr? 'last-update-label') && !(node.attr? 'reproducible')
       result << '</div>'
-      result << '</div>'
+      result << '</div><!-- /.footer -->'
     end
-  
-    result << '</div><!-- /#guide -->'
     result << '</div><!-- /.col -->'
     result << '</div><!-- /.row -->'
     result << '</div><!-- .container-fluid -->'
-  
+
     # JavaScript (and auxiliary stylesheets) loaded at the end of body for performance reasons
     # See http://www.html5rocks.com/en/tutorials/speed/script-loading/
-  
+
     if syntax_hl && (syntax_hl.docinfo? :footer)
       result << (syntax_hl.docinfo :footer, node, cdn_base_url: cdn_base_url, linkcss: linkcss, self_closing_tag_slash: slash)
     end
-  
+
     if node.attr? 'stem'
       eqnums_val = node.attr 'eqnums', 'none'
       eqnums_val = 'AMS' if eqnums_val.empty?
@@ -250,16 +293,133 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
   </script>
   <script src="#{cdn_base_url}/mathjax/#{MATHJAX_VERSION}/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>)
     end
-  
+
     unless (docinfo_content = node.docinfo :footer).empty?
       result << docinfo_content
     end
-  
+
+    # Copy button JavaScript - added before closing body tag
+    result << %(<script>
+  function copyToClipboard(button) {
+    // Find the code content within the same block
+    const block = button.closest('.listingblock, .literalblock');
+    const codeElement = block.querySelector('pre code, pre');
+    const codeContent = codeElement ? codeElement.textContent.trim() : '';
+
+    if (!codeContent) {
+      console.warn('No code content found to copy');
+      return;
+    }
+
+    // Modern clipboard API with fallback
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(codeContent).then(() => {
+        showCopyFeedback(button, true);
+      }).catch(err => {
+        console.error('Clipboard API failed:', err);
+        fallbackCopy(codeContent, button);
+      });
+    } else {
+      fallbackCopy(codeContent, button);
+    }
+  }
+
+  function fallbackCopy(text, button) {
+    const tempTextarea = document.createElement('textarea');
+    tempTextarea.value = text;
+    tempTextarea.style.position = 'fixed';
+    tempTextarea.style.left = '-9999px';
+    tempTextarea.style.top = '-9999px';
+    document.body.appendChild(tempTextarea);
+
+    try {
+      tempTextarea.select();
+      tempTextarea.setSelectionRange(0, 99999);
+      const successful = document.execCommand('copy');
+      showCopyFeedback(button, successful);
+    } catch (err) {
+      console.error('Fallback copy failed:', err);
+      showCopyFeedback(button, false);
+    } finally {
+      document.body.removeChild(tempTextarea);
+    }
+  }
+
+  function showCopyFeedback(button, success) {
+    const originalContent = button.innerHTML;
+    const originalTitle = button.title;
+
+    if (success) {
+      button.innerHTML = '✓ Copied';
+      button.title = 'Copied to clipboard!';
+      button.classList.add('copied');
+    } else {
+      button.innerHTML = '✗ Failed';
+      button.title = 'Copy failed - try manual selection';
+    }
+
+    setTimeout(() => {
+      button.innerHTML = originalContent;
+      button.title = originalTitle;
+      button.classList.remove('copied');
+    }, 2000);
+  }
+
+  // Enhanced hover behavior - show button when cursor is near the top
+  document.addEventListener('DOMContentLoaded', function() {
+    const codeBlocks = document.querySelectorAll('.listingblock, .literalblock');
+
+    codeBlocks.forEach(block => {
+      const copyButton = block.querySelector('.copy-button');
+      if (!copyButton) return;
+
+      let hoverTimeout;
+
+      block.addEventListener('mouseenter', function(e) {
+        clearTimeout(hoverTimeout);
+        const rect = block.getBoundingClientRect();
+        const topThird = rect.height * 0.4; // Show when in top 40% of block
+        const relativeY = e.clientY - rect.top;
+
+        if (relativeY <= topThird || rect.height < 100) {
+          copyButton.style.opacity = '1';
+          copyButton.style.visibility = 'visible';
+          copyButton.style.transform = 'translateY(0)';
+        }
+      });
+
+      block.addEventListener('mousemove', function(e) {
+        const rect = block.getBoundingClientRect();
+        const topThird = rect.height * 0.4;
+        const relativeY = e.clientY - rect.top;
+
+        if (relativeY <= topThird || rect.height < 100) {
+          copyButton.style.opacity = '1';
+          copyButton.style.visibility = 'visible';
+          copyButton.style.transform = 'translateY(0)';
+        } else {
+          copyButton.style.opacity = '0';
+          copyButton.style.visibility = 'hidden';
+          copyButton.style.transform = 'translateY(-4px)';
+        }
+      });
+
+      block.addEventListener('mouseleave', function() {
+        hoverTimeout = setTimeout(() => {
+          copyButton.style.opacity = '0';
+          copyButton.style.visibility = 'hidden';
+          copyButton.style.transform = 'translateY(-4px)';
+        }, 100);
+      });
+    });
+  });
+  </script>)
+
     result << '</body>'
     result << '</html>'
     result.join Asciidoctor::LF
   end
-  
+
   def convert_outline node, opts = {}
   return unless node.sections?
   sectnumlevels = opts[:sectnumlevels] || (node.document.attributes['sectnumlevels'] || 3).to_i
@@ -288,17 +448,17 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
     end
     stitle = stitle.gsub DropAnchorRx, '' if stitle.include? '<a'
     if slevel < toclevels && (child_toc_level = convert_outline section, toclevels: toclevels, sectnumlevels: sectnumlevels)
-      result << %(<li#{sections[0].level == 1 ? ' class="mb-3" style="text-indent: -1rem"' : ''}><a href="##{section.id}">#{stitle}</a>)
+      result << %(<li#{sections[0].level == 1 ? ' class="mb-3"' : ''}><a href="##{section.id}">#{stitle}</a>)
       result << child_toc_level
       result << '</li>'
     else
-      result << %(<li class="#{sections[0].level == 1 ? 'mb-3" style="text-indent: -1rem' : 'list-unstyled'}"><a href="##{section.id}">#{stitle}</a></li>)
+      result << %(<li class="#{sections[0].level == 1 ? 'mb-3"' : 'list-unstyled'}"><a href="##{section.id}">#{stitle}</a></li>)
     end
   end
   result << '</ul>'
   result.join Asciidoctor::LF
   end
-  
+
   def convert_section node
     doc_attrs = node.document.attributes
     level = node.level
@@ -354,52 +514,43 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
   </div>)
     end
   end
-  
+
   def convert_listing node
     nowrap = (node.option? 'nowrap') || !(node.document.attr? 'prewrap')
-    if node.style == 'source'
-      lang = node.attr 'language'
-      numbered = node.attr 'linenums'
-      if (syntax_hl = node.document.syntax_highlighter)
-        opts = syntax_hl.highlight? ? {
-          css_mode: ((doc_attrs = node.document.attributes)[%(#{syntax_hl.name}-css)] || :class).to_sym,
-          style: doc_attrs[%(#{syntax_hl.name}-style)]
-        } : {}
-        opts[:nowrap] = nowrap
-      else
-        pre_open = %(<pre class="highlight#{nowrap ? ' nowrap' : ''} bg-secondary text-white #{node.title? ? 'rounded-bottom': 'rounded'} p-3"><code class="#{numbered ? 'numbered ' : ''}#{lang ? %[language-#{lang}" data-lang="#{lang}] : ''}">)
-        pre_close = '</code></pre>'
-      end
-    else
-      pre_open = %(<pre class="bg-secondary text-white rounded p-3#{nowrap ? 'nowrap' : ''}"">)
-      pre_close = '</pre>'
-    end
     id_attribute = node.id ? %( id="#{node.id}") : ''
     title_element = node.title? ? %(<div class="bg-dark text-white rounded-top p-1 pl-3">#{node.captioned_title}</div>\n) : ''
+
+    # Add copy button - only show if not disabled by role
+    copy_button = (node.role && node.role.include?('no-copy')) ? '' : '<button class="copy-button" onclick="copyToClipboard(this)" title="Copy to clipboard">Copy</button>'
+
     lines = node.content.lines.map { |line| %(<div>#{line}</div>) }
     %(<div#{id_attribute} class="listingblock#{(role = node.role) ? " #{role}" : ''}">
-  #{title_element}<div class="content">
-  #{syntax_hl ? (syntax_hl.format node, lang, opts) : pre_open + (lines.join || '') + pre_close}
-  </div>
-  </div>)
-  end
-  
-  def convert_literal node
-    id_attribute = node.id ? %( id="#{node.id}") : ''
-    title_element = node.title? ? %(<div class="bg-dark text-white rounded-top p-1 pl-3">#{node.title}</div>\n) : ''
-    nowrap = !(node.document.attr? 'prewrap') || (node.option? 'nowrap')
-    lines = node.content.lines.map { |line| %(<div>#{line}</div>) }
-    %(<div#{id_attribute} class="literalblock#{(role = node.role) ? " #{role}" : ''}">
-  #{title_element}<div class="content">
+  #{copy_button}#{title_element}<div class="content">
   <pre class="bg-secondary text-white #{node.title? ? 'rounded-bottom': 'rounded'} p-3 #{nowrap ? 'nowrap' : ''}">#{lines.join}</pre>
   </div>
   </div>)
   end
-  
+
+  def convert_literal node
+    id_attribute = node.id ? %( id="#{node.id}") : ''
+    title_element = node.title? ? %(<div class="bg-dark text-white rounded-top p-1 pl-3">#{node.title}</div>\n) : ''
+    nowrap = !(node.document.attr? 'prewrap') || (node.option? 'nowrap')
+
+    # Add copy button - only show if not disabled by role
+    copy_button = (node.role && node.role.include?('no-copy')) ? '' : '<button class="copy-button" onclick="copyToClipboard(this)" title="Copy to clipboard">Copy</button>'
+
+    lines = node.content.lines.map { |line| %(<div>#{line}</div>) }
+    %(<div#{id_attribute} class="literalblock#{(role = node.role) ? " #{role}" : ''}">
+  #{copy_button}#{title_element}<div class="content">
+  <pre class="bg-secondary text-white #{node.title? ? 'rounded-bottom': 'rounded'} p-3 #{nowrap ? 'nowrap' : ''}">#{lines.join}</pre>
+  </div>
+  </div>)
+  end
+
   def convert_dlist node
     result = []
     id_attribute = node.id ? %( id="#{node.id}") : ''
-  
+
     classes = case node.style
     when 'qanda'
       ['qlist', 'qanda', node.role]
@@ -408,9 +559,9 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
     else
       ['dlist', node.style, node.role]
     end.compact
-  
+
     class_attribute = %( class="#{classes.join ' '}")
-  
+
     result << %(<div#{id_attribute}#{class_attribute}>)
     result << %(<div class="title">#{node.title}</div>) if node.title?
     case node.style
@@ -474,16 +625,16 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
       end
       result << '</dl>'
     end
-  
+
     result << '</div>'
     result.join Asciidoctor::LF
   end
-  
+
   def convert_image node
     target = node.attr 'target'
     width_attr = (node.attr? 'width') ? %( width="#{node.attr 'width'}") : ''
     height_attr = (node.attr? 'height') ? %( height="#{node.attr 'height'}") : ''
-    if ((node.attr? 'format', 'svg') || (target.include? '.svg')) && node.document.safe < SafeMode::SECURE &&
+    if ((node.attr? 'format', 'svg') || (target.include? '.svg')) && node.document.safe < Asciidoctor::SafeMode::SECURE &&
         ((svg = (node.option? 'inline')) || (obj = (node.option? 'interactive')))
       if svg
         img = (read_svg_contents node, target) || %(<span class="alt">#{node.alt}</span>)
@@ -508,7 +659,7 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
   #{title_el}
   </div>)
   end
-  
+
   def convert_admonition node
     id_attr = node.id ? %( id="#{node.id}") : ''
     name = node.attr 'name'
@@ -522,20 +673,18 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
     else
       label = %(<div class="title">#{node.attr 'textlabel'}</div>)
     end
-    color = '17a2b8'
-    if (name == 'caution')
-      color = 'f77d05'
-    end
-    %(<div#{id_attr} class="alert bg-light" style="border-left: 3px solid ##{color}">
+    color = name == 'caution' ? 'var(--color-orange)' : 'var(--color-primary)'
+    bgColor = name == 'caution' ? 'var(--color-orange-opacity)' : 'var(--color-primary-opacity)'
+    %(<div#{id_attr} class="alert" style="background-color:#{bgColor};border-left:3px solid #{color}">
   <div class="media pt-2 pb-2">
-    <div class="mr-3 align-self-start">
-      <svg preserveAspectRatio="xMidYMid meet" height="1.5em" width="1.5em" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" stroke="none" style="color:##{color}"><g><path d="M12.2 8.98c.06-.01.12-.03.18-.06.06-.02.12-.05.18-.09l.15-.12c.18-.19.29-.45.29-.71 0-.06-.01-.13-.02-.19a.603.603 0 0 0-.06-.19.757.757 0 0 0-.09-.18c-.03-.05-.08-.1-.12-.15-.28-.27-.72-.37-1.09-.21-.13.05-.23.12-.33.21-.04.05-.09.1-.12.15-.04.06-.07.12-.09.18-.03.06-.05.12-.06.19-.01.06-.02.13-.02.19 0 .26.11.52.29.71.1.09.2.16.33.21.12.05.25.08.38.08.06 0 .13-.01.2-.02M13 16v-4a1 1 0 1 0-2 0v4a1 1 0 1 0 2 0M12 3c-4.962 0-9 4.038-9 9 0 4.963 4.038 9 9 9 4.963 0 9-4.037 9-9 0-4.962-4.037-9-9-9m0 20C5.935 23 1 18.065 1 12S5.935 1 12 1c6.066 0 11 4.935 11 11s-4.934 11-11 11" fill-rule="evenodd"></path></g></svg>
+    <div class="mr-3 align-self-start" style="color:#{color}">
+      <svg preserveAspectRatio="xMidYMid meet" height="1.5em" width="1.5em" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" stroke="none"><g><path d="M12.2 8.98c.06-.01.12-.03.18-.06.06-.02.12-.05.18-.09l.15-.12c.18-.19.29-.45.29-.71 0-.06-.01-.13-.02-.19a.603.603 0 0 0-.06-.19.757.757 0 0 0-.09-.18c-.03-.05-.08-.1-.12-.15-.28-.27-.72-.37-1.09-.21-.13.05-.23.12-.33.21-.04.05-.09.1-.12.15-.04.06-.07.12-.09.18-.03.06-.05.12-.06.19-.01.06-.02.13-.02.19 0 .26.11.52.29.71.1.09.2.16.33.21.12.05.25.08.38.08.06 0 .13-.01.2-.02M13 16v-4a1 1 0 1 0-2 0v4a1 1 0 1 0 2 0M12 3c-4.962 0-9 4.038-9 9 0 4.963 4.038 9 9 9 4.963 0 9-4.037 9-9 0-4.962-4.037-9-9-9m0 20C5.935 23 1 18.065 1 12S5.935 1 12 1c6.066 0 11 4.935 11 11s-4.934 11-11 11" fill-rule="evenodd"></path></g></svg>
     </div>
     <div class="media-body">#{node.content}</div>
   </div>
   </div>)
   end
-  
+
   def convert_table node
     result = []
     id_attribute = node.id ? %( id="#{node.id}") : ''
@@ -557,7 +706,7 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
     end
     class_attribute = %( class="#{classes.join ' '}")
     style_attribute = styles.empty? ? '' : %( style="#{styles.join ' '}")
-  
+
     result << '<div class="table-responsive">'
     result << %(<table#{id_attribute}#{class_attribute}#{style_attribute}>)
     result << %(<caption class="title">#{node.captioned_title}</caption>) if node.title?
@@ -591,7 +740,7 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
   <div class="tableblock">'}</div>)
               end
             end
-  
+
             cell_tag_name = (tsec == :head || cell.style == :header ? 'th' : 'td')
             cell_class_attribute = %( class="text-#{cell.attr 'halign'} align-#{cell.attr 'valign'}")
             cell_colspan_attribute = cell.colspan ? %( colspan="#{cell.colspan}") : ''
@@ -660,5 +809,4 @@ class PfHtml5Converter < (Asciidoctor::Converter.for 'html5')
     result << '</div>'
     result.join Asciidoctor::LF
   end
-
-                                                        end
+end

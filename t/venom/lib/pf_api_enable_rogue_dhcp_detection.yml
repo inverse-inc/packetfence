@@ -1,0 +1,15 @@
+executor: pf_api_enable_rogue_dhcp_detection
+steps:
+- type: pf_api_config_action
+  id: 'base/network'
+  method: PATCH
+  body: >-
+    {
+      "id": "network",
+      "dhcpdetector": "enabled",
+      "rogue_dhcp_detection": "enabled"
+    }
+  status_code: 200
+
+- type: pf_api_service_restart_async
+  service: 'pfdhcplistener'

@@ -46,9 +46,7 @@ Readonly our $SWITCH_REWRITE_MAP => {
     'AeroHIVE' => 'AeroHIVE::AP',
     'Cisco::Catalyst_2960' => 'Cisco::Cisco_IOS_15_0',
     'Cisco::WLC' => 'Cisco::Cisco_WLC_AireOS',
-    'Aruba::CX' => 'Aruba::ArubaOS_CX_10.x',
-    'Aruba::2930M' => 'Aruba::ArubaOS_Switch_16.x',
-    'Meraki::MS220_8' => 'Meraki::MS_v15',
+    'Aruba::2930M' => 'Aruba::ArubaOS_Switch_16_x',
 };
 
 =head1 SUBROUTINES
@@ -224,7 +222,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

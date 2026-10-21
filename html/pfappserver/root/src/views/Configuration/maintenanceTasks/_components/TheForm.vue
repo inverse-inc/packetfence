@@ -86,7 +86,7 @@
     <form-group-rotate v-show="wants('rotate')"
                        namespace="rotate"
                        :column-label="$i18n.t('Rotate')"
-                       :text="$i18n.t(`Enable or disable ${logName} rotation (moving ${logName}_history records to ${logName}_archive)\nIf disabled, this task will delete from the ${logName}_history table rather than the ${logName}_archive.`)"
+                       :text="$i18n.t('Enable or disable {logName} rotation (moving {logName}_history records to {logName}_archive)\nIf disabled, this task will delete from the {logName}_history table rather than the {logName}_archive.', { logName })"
     />
 
     <form-group-rotate-batch v-show="wants('rotate_batch')"
@@ -135,8 +135,8 @@
                                      namespace="process_switchranges"
                                      :column-label="$i18n.t('Process switchranges')"
                                      :text="$i18n.t('Whether or not a switch range should be expanded to process each of its IPs.')"
-                                     enabled-value="Y"
-                                     disabled-value="N"
+                                     enabled-value="enabled"
+                                     disabled-value="disabled"
     />
 
     <form-group-voip v-show="wants('voip')"
@@ -171,9 +171,9 @@
                      :text="$i18n.t('Read Topic.')"
     />
 
-    <form-group-send-topic v-show="wants('send_topic')"
-                     namespace="send_topic"
-                     :column-label="$i18n.t('Send Topic')"
+    <form-group-write-topic v-show="wants('write_topic')"
+                     namespace="write_topic"
+                     :column-label="$i18n.t('Write Topic')"
                      :text="$i18n.t('Send Topic.')"
     />
 
@@ -193,16 +193,36 @@
                      namespace="filter_events"
                      :column-label="$i18n.t('Filter Events')"
                      :text="$i18n.t('Filter Events.')"
-                     enabled-value="1"
-                     disabled-value="0"
+                     enabled-value="enabled"
+                     disabled-value="disabled"
     />
 
     <form-group-heuristics v-show="wants('heuristics')"
                      namespace="heuristics"
                      :column-label="$i18n.t('Heuristics')"
                      :text="$i18n.t('Heuristics.')"
-                     enabled-value="1"
-                     disabled-value="0"
+                     enabled-value="enabled"
+                     disabled-value="disabled"
+    />
+
+    <form-group-fingerprint v-show="wants('fingerprint')"
+                     namespace="fingerprint"
+                     :column-label="$i18n.t('Enable Fingerprinting')"
+                     :text="$i18n.t('Fingerprint.')"
+                     enabled-value="enabled"
+                     disabled-value="disabled"
+    />
+
+    <form-group-fingerprint-networks v-show="wants('fingerprint_networks')"
+                     namespace="fingerprint_networks"
+                     :column-label="$i18n.t('Networks where Fingerprinting in enabled')"
+                     :text="$i18n.t('Fingerprint.')"
+    />
+
+    <form-group-fingerprint-cache-expiration v-show="wants('fingerprint_cache_expiration')"
+                     namespace="fingerprint_cache_expiration"
+                     :column-label="$i18n.t('Fingerprint Cache Expiration')"
+                     :text="$i18n.t('Fingerprint Cache Expiration')"
     />
 
   </base-form>
@@ -235,7 +255,19 @@ import {
   FormGroupTimeout,
   FormGroupUnregWindow,
   FormGroupVoip,
-  FormGroupWindow
+  FormGroupWindow,
+  FormGroupKafkaBrokers,
+  FormGroupKafkaPass,
+  FormGroupKafkaUser,
+  FormGroupReadTopic,
+  FormGroupWriteTopic,
+  FormGroupUuid,
+  FormGroupGroupId,
+  FormGroupFingerprint,
+  FormGroupFingerprintNetworks,
+  FormGroupFingerprintCacheExpiration,
+  FormGroupFilterEvents,
+  FormGroupHeuristics
 } from './'
 
 const components = {
@@ -263,7 +295,19 @@ const components = {
   FormGroupTimeout,
   FormGroupUnregWindow,
   FormGroupVoip,
-  FormGroupWindow
+  FormGroupWindow,
+  FormGroupKafkaBrokers,
+  FormGroupKafkaPass,
+  FormGroupKafkaUser,
+  FormGroupReadTopic,
+  FormGroupWriteTopic,
+  FormGroupUuid,
+  FormGroupGroupId,
+  FormGroupFingerprint,
+  FormGroupFingerprintNetworks,
+  FormGroupFingerprintCacheExpiration,
+  FormGroupFilterEvents,
+  FormGroupHeuristics
 }
 
 export const props = {

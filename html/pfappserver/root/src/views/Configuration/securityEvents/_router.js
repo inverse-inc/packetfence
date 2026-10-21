@@ -4,8 +4,8 @@ import ConnectionProfilesStoreModule from '../connectionProfiles/_store'
 import NetworkBehaviorPoliciesStoreModule from '../networkBehaviorPolicy/_store'
 import { analytics } from './config'
 
-const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
-const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
+const TheSearch = () => import(/* webpackChunkName: "ConfigurationCompliance" */ './_components/TheSearch')
+const TheView = () => import(/* webpackChunkName: "ConfigurationCompliance" */ './_components/TheView')
 
 export const useRouter = $router => {
   return {

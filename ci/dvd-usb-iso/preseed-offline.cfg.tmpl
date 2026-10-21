@@ -1,0 +1,173 @@
+#_preseed_V1
+#### Contents of the preconfiguration file (for bookworm) - OFFLINE USB INSTALLER
+### Localization
+# Allow user to choose language, keyboard, and timezone interactively
+# Do NOT preseed these values - user must select them
+# d-i debian-installer/locale string en_US
+# d-i keyboard-configuration/xkb-keymap select us
+
+### Network configuration
+# Try automatic network configuration (DHCP) first
+d-i netcfg/choose_interface select auto
+
+# Set hostname and domain
+d-i netcfg/get_hostname string packetfence
+d-i netcfg/get_domain string localdomain
+
+# If DHCP fails, force manual configuration (do not allow skipping network setup)
+# PacketFence requires at least one configured network interface
+d-i netcfg/dhcp_failed note
+d-i netcfg/dhcp_options select Configure network manually
+d-i netcfg/dhcp_timeout string 60
+
+# Disable that annoying WEP key dialog.
+d-i netcfg/wireless_wep string
+
+### Configure package manager - OFFLINE MODE WITH DVD
+# Keep CD-ROM as PRIMARY package source - DVD has complete Debian packages
+d-i apt-setup/cdrom/set-first boolean true
+d-i apt-setup/cdrom/set-next boolean false
+d-i apt-setup/cdrom/set-failed boolean false
+
+# Disable network mirror - we use DVD + local PF repo on ISO
+d-i apt-setup/use_mirror boolean false
+
+# Do NOT eject CD-ROM - we need it mounted for PacketFence installation
+d-i cdrom-detect/eject boolean false
+
+### Mirror settings - No external mirrors
+d-i mirror/country string manual
+d-i mirror/http/hostname string
+d-i mirror/http/directory string
+d-i mirror/http/proxy string
+
+### Account setup
+# Skip creation of a normal user account - only root will be created
+d-i passwd/make-user boolean false
+
+# Explicitly set no username to prevent any user creation prompts
+d-i passwd/username string
+d-i passwd/user-fullname string
+
+# Root password will be set during installation
+d-i passwd/root-login boolean true
+
+### Clock and time zone setup
+# Controls whether or not the hardware clock is set to UTC.
+d-i clock-setup/utc boolean true
+
+# Allow user to choose timezone interactively
+# Do NOT preseed timezone - user must select it
+# d-i time/zone string UTC
+
+# Controls whether to use NTP to set the clock during the install
+d-i clock-setup/ntp boolean true
+
+### Partitioning
+# Allow user to choose the disk AND partitioning method
+# Do NOT preset partman-auto/disk - let user select disk
+# Do NOT preset partman-auto/method - let user choose: Guided, Guided LVM, Manual
+
+# Remove existing LVM configuration if present
+d-i partman-lvm/device_remove_lvm boolean true
+
+# Remove existing software RAID if present
+d-i partman-md/device_remove_md boolean true
+
+# Use atomic partitioning recipe when guided is chosen (all files in one partition)
+d-i partman-auto/choose_recipe select atomic
+
+# LVM settings (used only if user chooses LVM)
+d-i partman-auto-lvm/guided_size string max
+d-i partman-lvm/confirm boolean true
+d-i partman-lvm/confirm_nooverwrite boolean true
+
+# Confirm partitioning changes
+d-i partman-partitioning/confirm_write_new_label boolean true
+d-i partman/confirm boolean true
+d-i partman/confirm_nooverwrite boolean true
+d-i partman-md/confirm boolean true
+
+### Base system installation
+# Explicitly specify kernel to install (required for offline DVD installation)
+d-i base-installer/kernel/image string linux-image-amd64
+
+# Force non-interactive install
+debconf debconf/frontend select Noninteractive
+
+d-i krb5-config/admin_server string
+d-i krb5-config/default_realm string
+d-i krb5-config/kerberos_servers string
+
+### Package selection
+tasksel tasksel/first multiselect standard ssh-server
+
+# Individual additional packages to install
+# PF: install linux-headers-amd64 to avoid issue with NetFlow kernel module
+# PF: install systemd packages explicitly for offline installer
+# PF: include apparmor and klibc-utils to prevent autoremove errors
+# PF: include bind9-dnsutils for DNS utilities needed by PacketFence
+# NOTE: lnav and cgroupfs-mount are NOT on DVD-1, they will be installed
+# from the local pf-repo in postinst-offline.sh after the repo is configured
+d-i pkgsel/include string sudo bzip2 acpid cryptsetup \
+                          zlib1g-dev wget curl dkms make \
+                          nfs-common net-tools build-essential \
+                          linux-image-amd64 linux-headers-amd64 \
+                          gnupg2 apt-transport-https \
+                          tmux tcpdump apg sysstat bsd-mailx \
+                          systemd systemd-sysv libnss-systemd \
+                          apparmor klibc-utils linux-base \
+                          bind9-dnsutils
+
+# Whether to upgrade packages after debootstrap.
+# For offline installation, skip upgrade (no network mirrors available)
+d-i pkgsel/upgrade select none
+
+# Do not participate in popularity contest
+popularity-contest popularity-contest/participate boolean false
+
+### Boot loader installation
+# GRUB device selection - Show menu for user to choose disk
+# By setting only_debian to true but NOT presetting bootdev,
+# the installer will show a menu with list of available disks
+d-i grub-installer/only_debian boolean true
+d-i grub-installer/with_other_os boolean true
+
+# Do NOT preseed bootdev - let user choose from list
+# d-i grub-installer/bootdev string default
+
+# Ensure GRUB installation happens (don't skip)
+d-i grub-installer/skip boolean false
+
+# Auto-confirm GRUB installation after user selects device
+# This skips the "Are you sure?" type prompts after device selection
+d-i grub-installer/force-efi-extra-removable boolean false
+
+# Add kernel options for PacketFence
+d-i debian-installer/add-kernel-opts string net.ifnames=0 apparmor=0
+
+### Finishing up the installation
+# Avoid that last message about the install being complete.
+d-i finish-install/reboot_in_progress note
+
+# Late command - run post-installation script for offline setup
+# IMPORTANT: ISO must stay mounted for dependency installation
+# This script will:
+# - Configure the local PF repository from the ISO
+# - Install all dependencies (Docker, MariaDB, FreeRADIUS, etc.)
+# - Copy Docker images to target filesystem
+# - Create first-boot service to install PacketFence
+# NOTE: PacketFence is installed on first boot (requires Docker running)
+d-i preseed/late_command string \
+  mount --bind /proc /target/proc ; \
+  mount --bind /sys /target/sys ; \
+  mount --bind /dev /target/dev ; \
+  in-target mkdir -p /media/cdrom ; \
+  mount --bind /cdrom /target/media/cdrom ; \
+  in-target cp -a /media/cdrom/postinst-offline.sh /usr/local/bin/ ; \
+  in-target chmod 700 /usr/local/bin/postinst-offline.sh ; \
+  in-target /bin/bash /usr/local/bin/postinst-offline.sh %%PF_RELEASE_VERSION%% ; \
+  umount /target/media/cdrom || true ; \
+  umount /target/dev || true ; \
+  umount /target/proc || true ; \
+  umount /target/sys || true

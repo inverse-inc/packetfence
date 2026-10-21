@@ -20,6 +20,7 @@ our (
     @MAC2DEC,
     @NODE_ID_TESTS,
     @UNPRETTY_BANDWIDTH_TESTS,
+    @SPLITR2
 );
 
 BEGIN {
@@ -310,6 +311,40 @@ BEGIN {
             msg => '10 petabytes 2 args',
         },
     );
+    @SPLITR2 = (
+        {
+            in => ['start-middle-end', '-'],
+            out => ['start-middle', 'end'],
+        },
+        {
+            in => ['start-end', '-'],
+            out => ['start', 'end'],
+        },
+        {
+            in => ['start-', '-'],
+            out => ['start', ''],
+        },
+        {
+            in => ['start-', '-'],
+            out => ['start', ''],
+        },
+        {
+            in => ['start:middle:end', ':'],
+            out => ['start:middle', 'end'],
+        },
+        {
+            in => ['start:end', ':'],
+            out => ['start', 'end'],
+        },
+        {
+            in => ['start:', ':'],
+            out => ['start', ''],
+        },
+        {
+            in => ['start:', ':'],
+            out => ['start', ''],
+        },
+    );
 }
 
 use Test::More;
@@ -324,7 +359,9 @@ BEGIN {
       scalar @EXPAND_CSV_TESTS +
       scalar @VALID_UNREG_DATE_TESTS +
       scalar @UNPRETTY_BANDWIDTH_TESTS +
-      scalar @MAC2DEC;
+      scalar @MAC2DEC +
+      scalar @SPLITR2
+      ;
 }
 
 BEGIN {
@@ -475,7 +512,7 @@ for my $test (@MAC2DEC) {
         my $node_id = $test->{node_id};
         my $mac = $test->{mac};
         is(
-            make_node_id(0, $mac),
+            make_node_id($mac),
             $node_id,
             "Convert tenant_id mac (0, $mac) to a node_id ($node_id)"
         );
@@ -516,13 +553,25 @@ for my $test (@MAC2DEC) {
     ok(!ends_with("cat", "catt"), "ends_with");
 }
 
+{
+
+    for my $test (@SPLITR2) {
+        my $in = $test->{in};
+        is_deeply(
+            [splitr2(@{$in})],
+            $test->{out},
+            "splitting of '$in->[0]' '$in->[1]'",
+        );
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2024 Inverse inc.
+Copyright (C) 2005-2026 Inverse inc.
 
 =head1 LICENSE
 

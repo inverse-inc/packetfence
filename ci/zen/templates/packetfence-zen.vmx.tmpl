@@ -1,0 +1,42 @@
+# PacketFence ZEN VMX template. Hardware is pinned to match the prior
+# VirtualBox exports (4 vCPU/16 GB, vmx-07, lsilogic SCSI, e1000); do not
+# change without validating imports in VMware Workstation and ESXi.
+
+.encoding = "UTF-8"
+config.version = "8"
+virtualHW.version = "7"
+guestOS = "debian12-64"
+
+displayName = "%%VM_NAME%%"
+annotation = "PacketFence ZEN appliance"
+
+numvcpus = "4"
+memsize = "16384"
+
+scsi0.present = "TRUE"
+scsi0.virtualDev = "lsilogic"
+scsi0:0.present = "TRUE"
+scsi0:0.fileName = "%%VM_NAME%%-disk001.vmdk"
+scsi0:0.deviceType = "scsi-hardDisk"
+
+ethernet0.present = "TRUE"
+ethernet0.virtualDev = "e1000"
+ethernet0.connectionType = "nat"
+ethernet0.addressType = "generated"
+
+floppy0.present = "FALSE"
+usb.present = "TRUE"
+
+pciBridge0.present = "TRUE"
+pciBridge4.present = "TRUE"
+pciBridge4.virtualDev = "pcieRootPort"
+pciBridge4.functions = "8"
+pciBridge5.present = "TRUE"
+pciBridge5.virtualDev = "pcieRootPort"
+pciBridge5.functions = "8"
+pciBridge6.present = "TRUE"
+pciBridge6.virtualDev = "pcieRootPort"
+pciBridge6.functions = "8"
+pciBridge7.present = "TRUE"
+pciBridge7.virtualDev = "pcieRootPort"
+pciBridge7.functions = "8"

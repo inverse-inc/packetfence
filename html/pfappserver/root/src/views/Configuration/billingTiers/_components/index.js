@@ -1,11 +1,11 @@
 import {BaseViewCollectionItem} from '../../_components/new/'
 import {
   BaseFormButtonBar,
-  BaseFormGroupChosenOne,
   BaseFormGroupInput,
   BaseFormGroupInputNumber,
   BaseFormGroupSwitch,
 } from '@/components/new/'
+import BaseFormGroupRolesSearchable from '@/views/Configuration/roles/_components/BaseFormGroupRolesSearchable'
 import {BaseFormGroupIntervalUnit} from '@/views/Configuration/_components/new/'
 import TheForm from './TheForm'
 import TheView from './TheView'
@@ -18,7 +18,7 @@ export {
   BaseFormGroupInput                  as FormGroupName,
   BaseFormGroupInput                  as FormGroupDescription,
   BaseFormGroupInputNumber            as FormGroupPrice,
-  BaseFormGroupChosenOne              as FormGroupRole,
+  BaseFormGroupRolesSearchable        as FormGroupRole,
   BaseFormGroupIntervalUnit           as FormGroupAccessDuration,
   BaseFormGroupSwitch                 as FormGroupUseTimeBalance,
 
