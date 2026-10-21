@@ -13,6 +13,7 @@ import (
 	chi "github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/packetfence/go/api-frontend/unifiedapierrors"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/db/sqlcomment"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/handlers"
@@ -105,6 +106,9 @@ func (h *Handler) buildPfpkiHandler(ctx context.Context) error {
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
+	// JSON errors like the rest of the API, set before the routes so the mounted sub-routers get them too
+	r.NotFound(unifiedapierrors.UnknownPath)
+	r.MethodNotAllowed(unifiedapierrors.MethodNotAllowed)
 
 	PFPki := &pfpki
 

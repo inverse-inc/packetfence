@@ -120,7 +120,7 @@ if($as_master){
         pf::cluster::sync_config_as_master();
         pf::cluster::sync_files(\@added_files);
         if($with_fingerbank_db) {
-            pf::cluster::sync_files([$fingerbank::FilePath::UPSTREAM_DB_FILE]);
+            pf::cluster::sync_files([$fingerbank::FilePath::UPSTREAM_DB_FILE], no_total_timeout => 1);
         }
     }
 

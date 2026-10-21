@@ -134,18 +134,21 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function initForm() {
-    var form = false;
+    var forms = [];
     var inputs = Array.prototype.slice.call(document.querySelectorAll('form input, form select'));
     if (inputs.length) {
       inputs.forEach(function (input) {
-        form = closest(input, function (el) { return el.tagName.toLowerCase() === 'form' });
-        var inputHandler = function () { checkForm(form); };
+        var inputForm = closest(input, function (el) { return el.tagName.toLowerCase() === 'form' });
+        if (inputForm && forms.indexOf(inputForm) === -1) {
+          forms.push(inputForm);
+        }
+        var inputHandler = function () { checkForm(inputForm); };
+        // 'input' also catches paste (touch/context menu) and autofill, which don't trigger keyup
+        input.addEventListener('input', inputHandler);
         input.addEventListener('keyup', inputHandler);
         input.addEventListener('change', inputHandler);
       });
-      if (form) {
-        checkForm(form);
-      }
+      forms.forEach(checkForm);
     }
     else {
       // no input/select
@@ -166,6 +169,8 @@ document.addEventListener('DOMContentLoaded', function () {
       parent.appendChild(template);
       template.insertBefore(input, button);
       button.addEventListener('click', function (event) {
+        // the button is a link to '#': don't follow it (the preview reloads the page and loses the typed values)
+        event.preventDefault();
         var type = '', label = '', state = '';
         if (button.dataset.state === 'hide') {
           label = button.dataset.hide;
@@ -177,14 +182,14 @@ document.addEventListener('DOMContentLoaded', function () {
           state = 'hide';
           type = 'password';
         }
-        var inputHandler = function () { checkForm(form); };
-        input.removeEventListener('keyup', inputHandler);
-        input.removeEventListener('change', inputHandler);
+        var inputForm = closest(input, function (el) { return el.tagName.toLowerCase() === 'form' });
+        var inputHandler = function () { checkForm(inputForm); };
         var rep = document.createElement('input');
         rep.setAttribute('type', type);
         rep.id = input.id;
         rep.name = input.name;
         rep.value = input.value;
+        rep.addEventListener('input', inputHandler);
         rep.addEventListener('keyup', inputHandler);
         rep.addEventListener('change', inputHandler);
         template.insertBefore(rep, button);
@@ -192,7 +197,6 @@ document.addEventListener('DOMContentLoaded', function () {
         input = rep;
         button.dataset.state = state;
         button.innerHTML = label;
-        return false;
       });
     });
   }

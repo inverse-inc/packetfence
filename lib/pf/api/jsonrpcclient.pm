@@ -114,6 +114,19 @@ Curl transfer timeout in milli seconds
 
 has timeout_ms => (is => 'rw', default => 0 ) ;
 
+=head2 low_speed_limit
+
+=head2 low_speed_time
+
+Abort the transfer when less than low_speed_limit bytes per second are transferred during
+low_speed_time seconds. Unlike timeout_ms, it doesn't cap a transfer that keeps progressing.
+
+=cut
+
+has low_speed_limit => (is => 'rw', default => 0 ) ;
+
+has low_speed_time => (is => 'rw', default => 0 ) ;
+
 use constant REQUEST => 0;
 use constant RESPONSE => 2;
 use constant NOTIFICATION => 2;
@@ -225,6 +238,10 @@ sub curl {
     $curl->setopt(CURLOPT_HTTPHEADER, ['Content-Type: application/json-rpc',"Request: $function"]);
     $curl->setopt(CURLOPT_CONNECTTIMEOUT_MS, $self->connect_timeout_ms // 0);
     $curl->setopt(CURLOPT_TIMEOUT_MS, $self->timeout_ms // 0);
+    if ($self->low_speed_time) {
+        $curl->setopt(CURLOPT_LOW_SPEED_LIMIT, $self->low_speed_limit || 1);
+        $curl->setopt(CURLOPT_LOW_SPEED_TIME, $self->low_speed_time);
+    }
     if($self->proto eq 'https') {
         if($self->username && $self->password) {
             $curl->setopt(CURLOPT_USERNAME, $self->username);
