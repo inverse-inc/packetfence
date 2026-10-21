@@ -816,6 +816,9 @@ sub _getAccessListByName {
 
 sub getRoleAccessListByName {
     my ($self, $access_list_name) = @_;
+    # Only the Push ACLs path (generateAnsibleConfiguration) reads the role ACLs
+    # here: tell acl_chewer to format them for the switch configuration.
+    local $self->{_aclsForPush} = 1;
     my $acls = $self->_getRoleAccessListByName($access_list_name);
     if (defined $acls) {
         my $status = pf::dal::switch_observability_acls->remove_items(
@@ -838,6 +841,18 @@ sub getRoleAccessListByName {
     }
 
     return $acls;
+}
+
+=item aclsForPush
+
+True when acl_chewer formats the role ACLs for the switch configuration
+(Push ACLs, through getRoleAccessListByName) rather than for a RADIUS reply.
+
+=cut
+
+sub aclsForPush {
+    my ($self) = @_;
+    return ($self->usePushACLs && $self->{_aclsForPush}) ? 1 : 0;
 }
 
 sub _getRoleAccessListByName {
@@ -4349,10 +4364,13 @@ sub format_acl {
 
     my $acls = "ip access-list extended packetfence\n";
     my $i = 0;
-    my @direction;
+    my (@direction, @lines);
     while($acl =~ /([^\n]+)\n?/g) {
         my $acl_line = $1;
         next if($acl_line =~ /^remark/i);
+        # The parser ignores blank lines (a lone \r in a CRLF list) and comments:
+        # skip them too, so each parsed ACL keeps its direction
+        next if($acl_line =~ /^\s*$/ || $acl_line =~ /^\s*!/);
         # Lookup for the current ip address of a node
         if ($acl_line =~ /^#.*\shost\s(([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})).*/i) {
             my $mac = $1;
@@ -4380,15 +4398,51 @@ sub format_acl {
             } else {
                 next;
             }
+            $lines[$i] = $raw_acl;
         } else {
             $acls .= $acl_line."\n";
             $direction[$i] = "in";
+            $lines[$i] = $acl_line;
         }
         $i++;
     }
     my $p = Cisco::AccessList::Parser->new();
     my ($acl_ref, $objgrp_ref, $err) = $p->parse( 'input' => $acls );
+    # The parser drops some qualifiers of a line, keep the line of each entry
+    # for untranslatableAclQualifier
+    my $entries = $acl_ref->{'packetfence'}->{'entries'} // [];
+    if (@$entries == @lines) {
+        $entries->[$_]->{'acl_line'} = $lines[$_] for 0 .. $#lines;
+    } else {
+        get_logger->error("Cannot parse the ACLs: " . join(' ', map { s/\s+$//r } @{$err // []}));
+    }
     return ($acl_ref, @direction);
+}
+
+=head2 untranslatableAclQualifier
+
+Why a parsed ACL entry cannot be translated whatever the switch, or undef when
+it can.
+
+Cisco::AccessList::Parser reads the dscp, precedence, tos, fragments,
+time-range and option qualifiers of a line without returning them, so the entry
+of "permit ip any any dscp ef" is the one of "permit ip any any". Translating
+it would widen the ACL. An "evaluate" line gives an entry with no action.
+
+=cut
+
+sub untranslatableAclQualifier {
+    my ($self, $entry) = @_;
+    return "the ACL is not a permit or a deny" if ($entry->{'action'} // '') !~ /^(?:permit|deny)$/;
+    return "the '".lc($1)."' qualifier is not sent" if ($entry->{'acl_line'} // '') =~ /\s(dscp|precedence|tos|fragments|time-range|option)(?:\s|$)/i;
+    # The modules tell "any" by the address 0.0.0.0 alone: an address 0.0.0.0 with
+    # another mask (host 0.0.0.0) would be sent as any
+    foreach my $side ('source', 'destination') {
+        my $address = $entry->{$side};
+        next if ref($address) ne 'HASH' || !defined($address->{'ipv4_addr'}) || $address->{'ipv4_addr'} ne '0.0.0.0';
+        return "the $side address 0.0.0.0 is only sent as any" if !defined($address->{'wildcard'}) || $address->{'wildcard'} ne '255.255.255.255';
+    }
+    return undef;
 }
 
 =head2 acl_chewer
@@ -4401,6 +4455,140 @@ sub acl_chewer {
     my ($self, $acl, $role) = @_;
     return $acl;
 }
+
+=head2 filterUntranslatableAcls
+
+Drop the parsed ACL entries a switch module cannot translate without changing
+their meaning, before it formats them.
+
+C<$untranslatable> is called with each entry and returns why the switch format
+cannot express it, or undef. Skipping a permit only narrows the role, so the
+entry is dropped. Skipping a deny would let the entries after it allow what it
+blocks, so the ACLs of that direction are cut there and end with a deny of
+everything.
+
+A direction whose entries were all skipped also gets that deny of everything:
+sending no ACL at all would leave the device unrestricted, while the switch
+denies whatever an ACL does not permit.
+
+The entries L</untranslatableAclQualifier> rejects are handled the same way,
+and ACLs the parser cannot read are replaced by a deny of everything in each
+of their directions.
+
+Returns the entries to translate and their direction, like L</format_acl>.
+
+=cut
+
+sub filterUntranslatableAcls {
+    my ($self, $acl_ref, $direction, $role, $untranslatable) = @_;
+    my $logger = $self->logger;
+
+    my $parsed = $acl_ref->{'packetfence'}->{'entries'} // [];
+    if (@$parsed != @$direction) {
+        my %seen;
+        my @denied = grep { !$seen{$_ // 'in'}++ } @$direction;
+        $logger->warn("(".$self->{'_id'}.") Denying all the traffic of role '$role': its ACLs cannot be parsed, and sending none would leave the device unrestricted");
+        return ([map { _denyAllAclEntry() } @denied], @denied);
+    }
+
+    my (@entries, @entries_direction, %cut, %kept, %skipped);
+    my $i = 0;
+    foreach my $entry (@$parsed) {
+        my $dir = $direction->[$i++];
+        my $dir_key = $dir // 'in';
+        next if $cut{$dir_key};
+        my $reason = $self->untranslatableAclQualifier($entry) // $untranslatable->($entry);
+        if (!defined $reason) {
+            push @entries, $entry;
+            push @entries_direction, $dir;
+            $kept{$dir_key} = 1;
+            next;
+        }
+        if (($entry->{'action'} // '') ne 'deny') {
+            $logger->warn("(".$self->{'_id'}.") Skipping ACL of role '$role': $reason");
+            $skipped{$dir_key} //= $dir;
+            next;
+        }
+        $logger->warn("(".$self->{'_id'}.") Ending the $dir_key ACLs of role '$role' with a deny all: $reason, and skipping a deny would let the ACLs after it through");
+        push @entries, _denyAllAclEntry();
+        push @entries_direction, $dir;
+        $cut{$dir_key} = 1;
+        $kept{$dir_key} = 1;
+    }
+
+    foreach my $dir_key (sort keys %skipped) {
+        next if $kept{$dir_key};
+        $logger->warn("(".$self->{'_id'}.") Denying all the $dir_key traffic of role '$role': none of its $dir_key ACLs can be sent, and sending none would leave the device unrestricted");
+        push @entries, _denyAllAclEntry();
+        push @entries_direction, $skipped{$dir_key};
+    }
+
+    return (\@entries, @entries_direction);
+}
+
+sub _denyAllAclEntry {
+    return {
+        action      => 'deny',
+        protocol    => 'ip()',
+        source      => { ipv4_addr => '0.0.0.0', wildcard => '255.255.255.255' },
+        destination => { ipv4_addr => '0.0.0.0', wildcard => '255.255.255.255' },
+    };
+}
+
+=head2 untranslatableFilterRule
+
+Why a parsed ACL entry cannot be sent as a C<NAS-Filter-Rule> in the
+"action in protocol from source to destination port" form built by the
+modules, or undef when it can. The rule has no source port, TCP flags or ICMP
+type, addresses are sent as a prefix, the destination port is sent as a bare
+number, so only C<eq> keeps its meaning, and the protocol is sent as its
+number, so a protocol without one is refused.
+
+Options: C<ranges> when the module turns C<range> into a port range, C<source>
+when it sends the source address (the others always send "from any").
+
+=cut
+
+sub untranslatableFilterRule {
+    my ($self, $entry, %options) = @_;
+    # The rule takes a protocol number: a protocol the parser returns without one
+    # (nos, an object group) would be sent as ip, any protocol
+    my $protocol = $entry->{'protocol'};
+    return "the protocol has no number" if !defined($protocol) || ref($protocol) || ($protocol ne 'ip()' && $protocol !~ m{\(\d+\)});
+    if ($entry->{'source'}->{'ipv4_addr'} ne '0.0.0.0') {
+        return "the rule has no source address match" if !$options{'source'};
+        return "the source mask '".$entry->{'source'}->{'wildcard'}."' is not contiguous" if !$self->aclWildcardIsContiguous($entry->{'source'}->{'wildcard'});
+    }
+    return "the destination mask '".$entry->{'destination'}->{'wildcard'}."' is not contiguous" if !$self->aclWildcardIsContiguous($entry->{'destination'}->{'wildcard'});
+    return "the rule has no source port match" if defined $entry->{'source'}->{'port'};
+    return "the rule has no TCP flags match ('".$entry->{'tcp_flags'}."')" if defined $entry->{'tcp_flags'};
+    return "the rule has no ICMP type match ('".$entry->{'icmp_qualifier'}."')" if defined $entry->{'icmp_qualifier'};
+    my $port = $entry->{'destination'}->{'port'};
+    if (defined $port && $port !~ /^eq\s+\S+$/ && !($options{'ranges'} && $port =~ /^range\s+\S+\s+\S+$/)) {
+        return "the port operator '$port' cannot be represented";
+    }
+    return undef;
+}
+
+=head2 aclWildcardIsContiguous
+
+Whether an ACL mask, wildcard (0.0.0.255) or netmask (255.255.255.0), has a
+prefix length. A non contiguous mask such as 0.255.0.255 cannot be written as
+a prefix.
+
+=cut
+
+sub aclWildcardIsContiguous {
+    my ($self, $wildcard) = @_;
+    return 1 if !defined $wildcard;
+    my @octets = split(/\./, $wildcard);
+    return 0 if @octets != 4 || grep { !/^\d+$/ || $_ > 255 } @octets;
+    my $bits = unpack('N', pack('C4', @octets));
+    my $inverse = ~$bits & 0xFFFFFFFF;
+    # a wildcard is a run of low bits, a netmask a run of high bits
+    return ((($bits + 1) & $bits) == 0 || (($inverse + 1) & $inverse) == 0) ? 1 : 0;
+}
+
 
 =head2 returnAccessListAttribute
 
