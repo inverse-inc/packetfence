@@ -1,0 +1,14 @@
+---
+# The libvirt domain name is non-deterministic (Vagrantfile builds the prefix
+# with SecureRandom.hex), so the only reliable handle is the UUID vagrant stored
+# in its dotfile — exactly what test-wrapper.sh:start_existing_vm reads.
+# vagrant_pf_dotfile_path is passed in by test-wrapper.sh via -e.
+- name: "Read libvirt domain UUID for {{ inventory_hostname }}"
+  ansible.builtin.slurp:
+    src: "{{ vagrant_pf_dotfile_path }}/machines/{{ inventory_hostname }}/libvirt/id"
+  delegate_to: localhost
+  register: _domid
+
+- name: "Set domain_uuid for {{ inventory_hostname }}"
+  ansible.builtin.set_fact:
+    domain_uuid: "{{ _domid.content | b64decode | trim }}"

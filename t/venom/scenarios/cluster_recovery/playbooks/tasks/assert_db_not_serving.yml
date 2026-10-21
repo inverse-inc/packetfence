@@ -1,0 +1,20 @@
+---
+# Assert MariaDB is NOT offering cluster service on this node. In the "wrong
+# order" scenario a booted non-safe node with no bootstrapped peer must not
+# reach a Primary component: either mysqld is still in pf-mariadb's wait loop
+# (query fails / empty) or it started in normal mode but stays non-Primary.
+- name: "Pause {{ not_serving_wait_seconds }}s to let {{ inventory_hostname }} settle into its wait state"
+  ansible.builtin.pause:
+    seconds: "{{ not_serving_wait_seconds }}"
+
+- name: "Probe galera cluster status on {{ inventory_hostname }}"
+  ansible.builtin.shell: "mysql -uroot -N -e \"SHOW STATUS LIKE 'wsrep_cluster_status'\" 2>/dev/null | awk '{print $2}'"
+  register: _wsrep_status
+  failed_when: false
+  changed_when: false
+
+- name: "Assert {{ inventory_hostname }} has not reached a Primary component"
+  ansible.builtin.assert:
+    that: _wsrep_status.stdout | trim != 'Primary'
+    fail_msg: "MariaDB unexpectedly reached Primary on {{ inventory_hostname }} before the safe-to-bootstrap node came online"
+    success_msg: "{{ inventory_hostname }} correctly refuses to form a cluster without a bootstrapped peer"
