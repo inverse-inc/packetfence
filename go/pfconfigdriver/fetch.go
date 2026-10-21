@@ -228,15 +228,7 @@ func decodeJsonInterface(ctx context.Context, b []byte, o interface{}) {
 // Like decodeJsonInterface but returns the error instead of panicking, so an
 // empty/scalar element (e.g. an unset management_network) can't crash the daemon.
 func decodeJsonInterfaceErr(ctx context.Context, b []byte, o interface{}) error {
-	decoder := json.NewDecoder(bytes.NewReader(b))
-	for {
-		if err := decoder.Decode(&o); err == io.EOF {
-			break
-		} else if err != nil {
-			return err
-		}
-	}
-	return nil
+	return json.Unmarshal(b, o)
 }
 
 func listPfconfigFields(ctx context.Context, t reflect.Type, previousFields []string) []string {
@@ -337,9 +329,12 @@ func FindClusterName(ctx context.Context) string {
 	return myClusterName
 }
 
-// Checks wheter the LoadedAt field of the PfconfigObject (set by FetchDecodeSocket) is before or after the timestamp of the namespace control file.
-// If the LoadedAt field was set before the namespace control file, then the resource isn't valid anymore
-// If the namespace control file doesn't exist, the resource is considered invalid
+// Checks whether the last touch cache that pfconfig reported when the PfconfigObject was loaded
+// (set by FetchDecodeSocket) is still the one pfconfig reports now.
+// pfconfig touches that value every time a namespace is expired, so any change of it means the
+// resource isn't valid anymore. Only the values reported by pfconfig are compared with each
+// other, never with our own clock, so this holds when pfconfig runs with a different clock than
+// we do (another container, another cluster member) or when a clock steps backwards.
 func IsValid(ctx context.Context, o PfconfigObject) bool {
 	q := createQuery(ctx, o)
 	ns := q.basens
@@ -349,11 +344,29 @@ func IsValid(ctx context.Context, o PfconfigObject) bool {
 		return false
 	} else if float64(time.Now().UnixMicro()/1000000)-globalMeta.getReloadedTouchCache() > globalMeta.getPhoneInAtLeast() {
 		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Memory configuration is more than %d seconds old. Considering %s as invalid do reload it.", int(globalMeta.getPhoneInAtLeast()), ns))
-	} else if float64(o.GetLoadedAt().UnixMicro()/1000000) >= globalMeta.getLastTouchCache() {
+	} else if o.GetLoadedTouchCache() == globalMeta.getLastTouchCache() {
 		return true
 	}
 	log.LoggerWContext(ctx).Debug(fmt.Sprintf("Resource is not valid anymore. Was loaded at %s", o.GetLoadedAt()))
 	return false
+}
+
+// Stores the last touch cache that a reply from pfconfig carried and reports whether the reply
+// carried one at all.
+// A reply that carries none decodes as zero, and zero is what IsValid reads as "nothing was ever
+// loaded", so storing it would invalidate every resource of the process at once and send all of
+// them back to pfconfig. The value we already have is kept instead, which makes the resources
+// reload when pfconfig reports a different one, like they do for any expiration.
+func updateLastTouchCache(ctx context.Context, lastTouchCache float64, identifier string) bool {
+	if lastTouchCache == 0 {
+		log.LoggerWContext(ctx).Warn(fmt.Sprintf("The reply for %s carried no last touch cache. Keeping the one we have.", identifier))
+		return false
+	}
+
+	if !globalMeta.publishLastTouchCache(lastTouchCache) {
+		log.LoggerWContext(ctx).Debug(fmt.Sprintf("The reply for %s carried an older last touch cache than the one we have. Keeping ours until another reply reports it.", identifier))
+	}
+	return true
 }
 
 // Fetch and decode from the socket but only if the PfconfigObject is not valid anymore
@@ -391,31 +404,42 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
 
 	transferMetadata(ctx, &o, &newo)
 
-	reflect.ValueOf(o).Elem().Set(reflect.ValueOf(newo).Elem())
+	// Decode into a fresh object. A failed refresh must preserve the caller's
+	// previous configuration and its validity metadata.
+	destination := o
+	o = newo
 
 	query := createQuery(ctx, o)
 
 	jsonResponse := FetchSocket(ctx, query.GetPayload())
 
+	var lastTouchCache float64
+
 	if query.method == "keys" {
 		if cs, ok := o.(PfconfigKeysInt); ok {
-			decodeInterface(ctx, query.encoding, jsonResponse, cs.GetResponse())
+			if err := decodeJsonInterfaceErr(ctx, jsonResponse, cs.GetResponse()); err != nil {
+				return fmt.Errorf("could not decode keys for %s: %w", query.GetIdentifier(), err)
+			}
 			cs.SetKeysFromResponse()
-			globalMeta.setLastTouchCache(o.GetLastTouchCache())
+			lastTouchCache = o.GetLastTouchCache()
 		} else {
 			panic("Wrong struct type for keys. Required PfconfigKeysInt")
 		}
 	} else if metadataFromField(ctx, o, "PfconfigArray") == "yes" || metadataFromField(ctx, o, "PfconfigDecodeInElement") == "yes" {
-		decodeInterface(ctx, query.encoding, jsonResponse, &o)
-		globalMeta.setLastTouchCache(o.GetLastTouchCache())
+		if err := decodeJsonInterfaceErr(ctx, jsonResponse, o); err != nil {
+			return fmt.Errorf("could not decode response for %s: %w", query.GetIdentifier(), err)
+		}
+		lastTouchCache = o.GetLastTouchCache()
 	} else {
 		receiver := &PfconfigElementResponse{}
-		decodeInterface(ctx, query.encoding, jsonResponse, receiver)
-		globalMeta.setLastTouchCache(receiver.LastTouchCache)
+		if err := decodeJsonInterfaceErr(ctx, jsonResponse, receiver); err != nil {
+			return fmt.Errorf("could not decode response for %s: %w", query.GetIdentifier(), err)
+		}
+		lastTouchCache = receiver.LastTouchCache
 
 		if receiver.Element != nil {
 			b, _ := receiver.Element.MarshalJSON()
-			if err := decodeJsonInterfaceErr(ctx, b, &o); err != nil {
+			if err := decodeJsonInterfaceErr(ctx, b, o); err != nil {
 				return fmt.Errorf("could not decode element in response for %s: %w. Response was: %s", query.GetIdentifier(), err, jsonResponse)
 			}
 		} else {
@@ -423,8 +447,24 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
 		}
 	}
 
-	globalMeta.setReloadedTouchCache(float64(time.Now().UnixMicro() / 1000000))
+	// Only a reply we could decode updates the last touch cache, so a failed fetch above leaves
+	// the resources that are loaded alone instead of sending all of them back to pfconfig
+	loadedTouchCache := lastTouchCache
+	if updateLastTouchCache(ctx, lastTouchCache, query.GetIdentifier()) {
+		// This reply tells us which expiration pfconfig is at, so what we have is current
+		globalMeta.setReloadedTouchCache(float64(time.Now().UnixMicro() / 1000000))
+	} else {
+		// The reply carried none, so the global is the only value we can stamp this one with,
+		// and it doesn't confirm it either: leaving the reloaded touch cache alone lets the
+		// staleness check reload rather than serve resources we can't tell are still current
+		loadedTouchCache = globalMeta.getLastTouchCache()
+	}
+
 	o.SetLoadedAt(time.Now())
+	// Stamping from the global instead would let a fetch that overlaps this one move it, and this
+	// resource would then carry a touch cache that its own reply was not built with
+	o.SetLoadedTouchCache(loadedTouchCache)
+	reflect.ValueOf(destination).Elem().Set(reflect.ValueOf(o).Elem())
 
 	return nil
 }
