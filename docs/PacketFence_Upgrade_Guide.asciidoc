@@ -1027,6 +1027,18 @@ included by the authentication, load-balancer and CLI servers:
 /usr/local/pf/bin/pfcmd service radiusd restart
 ----
 
+=== Security event templates customized in a connection profile
+
+A security event template customized in a connection profile (for example
+`security_events/generic.html`) is now used for every browser language. It
+used to be replaced by a translation shipped with the default templates (such
+as `generic.fr.html` or `generic.es_ES.html`) when the browser preferred that
+language.
+
+If you customized a security event template in a connection profile and rely
+on the shipped translations for other languages, customize the language
+variants (`<template_name>.<locale_name>.html`) in the connection profile too.
+
 === Intermediate certificates must be part of the chain
 
 The admin interface reports a chain as invalid when one of the intermediate
