@@ -168,7 +168,7 @@ sub radiusDisconnect {
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
 
-    if (!defined($self->{'_radiusSecret'})) {
+    if (!$self->hasRadiusSecret()) {
         $logger->warn(
             "Unable to perform RADIUS CoA-Request on $self->{'_ip'}: RADIUS Shared Secret not configured"
         );
@@ -176,7 +176,6 @@ sub radiusDisconnect {
     }
     # Where should we send the RADIUS CoA-Request?
     # to network device by default
-    my $nas_port = $self->{'_disconnectPort'} || '3799';
     my $send_disconnect_to = $self->{'_ip'};
     # but if controllerIp is set, we send there
     if (defined($self->{'_controllerIp'}) && $self->{'_controllerIp'} ne '') {
@@ -190,7 +189,6 @@ sub radiusDisconnect {
     my $response;
     try {
         my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
-        $connection_info->{nas_port} = $nas_port;
         my $locationlog = locationlog_view_open_mac($mac);
         $logger->debug("network device supports roles. Evaluating role to be returned");
         my $roleResolver = pf::roles::custom->instance();
@@ -379,12 +377,16 @@ sub acl_chewer {
     my ($self, $acl, $role) = @_;
     my $logger = $self->logger;
     my ($acl_ref , @direction) = $self->format_acl($acl);
+    my $push = $self->aclsForPush;
+
+    my $entries;
+    ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, $push
+        ? sub { $self->untranslatablePushAcl($_[0]) }
+        : sub { $self->untranslatableFilterRule($_[0], ranges => 1) });
 
     my $i = 0;
     my $acl_chewed;
-    foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
-        #Bypass acl that contain tcp_flag, it doesnt apply correctly on the switch
-        next if (defined($acl->{'tcp_flags'}));
+    foreach my $acl (@$entries) {
         $acl->{'protocol'} =~ s/\(\d*\)//;
         my $dest;
         my $dest_port;
@@ -421,7 +423,7 @@ sub acl_chewer {
             }
         }
         my $j = $i + 1;
-        if ($self->usePushACLs && (whowasi() eq "pf::Switch::getRoleAccessListByName")) {
+        if ($push) {
             $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$j." ".$acl->{'action'}." ".$acl->{'protocol'}." ".(($self->usePushACLs) ? $src : "any")." $dest " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' )."\n";
         } else {
             $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$acl->{'action'}." ".((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] : "in")." ".$acl->{'protocol'}." from any to ".$dest." ".( defined($dest_port) ? $dest_port : '' )."\n";
