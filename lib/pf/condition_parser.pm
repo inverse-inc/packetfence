@@ -48,7 +48,7 @@ use pf::constants::condition_parser qw($TRUE_CONDITION);
 use base qw(Exporter);
 
 BEGIN {
-    our @EXPORT_OK = qw(parse_condition_string ast_to_object);
+    our @EXPORT_OK = qw(parse_condition_string ast_to_object top_level_condition);
 }
 
 
@@ -493,6 +493,24 @@ sub object_to_str {
         $str =~ s/\)$//;
     }
     return $str;
+}
+
+=head2 top_level_condition
+
+The condition (as returned by ast_to_object) with an operator that has values
+at the top (and, or, not_and, not_or), as the condition editor of the admin
+needs it: any other condition is wrapped in an and. A NOT is never a top
+level not by itself, ast_to_object already turns it into not_and, not_or or
+the inverse of a binary operator.
+
+=cut
+
+our %TOP_LEVEL_OPS = map { $_ => 1 } qw(and or not_and not_or);
+
+sub top_level_condition {
+    my ($condition) = @_;
+    return $condition if $TOP_LEVEL_OPS{$condition->{op} // ''};
+    return { op => 'and', values => [$condition] };
 }
 
 sub _object_to_str {

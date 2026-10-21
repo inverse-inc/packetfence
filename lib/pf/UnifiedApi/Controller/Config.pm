@@ -26,7 +26,7 @@ use pf::error qw(is_error is_success);
 use Data::UUID;
 use pf::pfqueue::status_updater::redis;
 use pf::UnifiedApi::Search::Builder::Config;
-use pf::condition_parser qw(parse_condition_string ast_to_object);
+use pf::condition_parser qw(parse_condition_string ast_to_object top_level_condition);
 use Scalar::Util qw(looks_like_number);
 
 has 'config_store_class';
@@ -1586,7 +1586,7 @@ sub parse_condition {
         return $self->render_error(422, "Cannot parse condition", [$err]);
     }
 
-    $self->render(json => { item => {condition_string => $condition, condition => ast_to_object($ast) } });
+    $self->render(json => { item => {condition_string => $condition, condition => top_level_condition(ast_to_object($ast)) } });
 }
 
 sub flatten_condition {
