@@ -27,6 +27,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
+  - Email authentication sources have a new `Wait for activation` option (`wait_for_activation`). When enabled, the device is not granted temporary network access after registering: it stays on the captive portal and is registered automatically once the activation link is clicked, typically from another device such as a phone. The email activation timeout then only bounds the validity of the link
+
 === Enhancements
 
   - RADIUS dynamic clients (switches resolved from radius_nas) are now cached for 300 seconds. With the FreeRADIUS build shipped by PacketFence, `lifetime = 0` deleted the client after every request and re-ran the radius_nas lookups for every packet (fork commit b04cb25fe, reverted separately in inverse-inc/freeradius-server#3). A changed switch secret or type now applies to an already-known switch within five minutes
@@ -34,6 +36,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Bug Fixes
 
+  - Email authentication sources now check that their rules can register the device before sending the activation email. A source without a matching role and access duration used to grant temporary access and then fail when the link was clicked
   - LOG_LEVEL was ignored by the mod_perl services (httpd.aaa, httpd.webservices, httpd.portal): the variable reached the container but Apache never exposed it to Perl, so log4perl stayed at INFO. The httpd templates now PerlPassEnv it
   - `radius_configuration.pfacct_rate_limit` had no effect: the toggle was decoded but never applied, so accounting was forwarded to httpd.aaa unconditionally
   - The pfacct accounting rate limiter no longer suppresses Accounting-Stop packets, which locationlog close, unreg_on_acct_stop and floating-device handling rely on

@@ -20,9 +20,10 @@ has '+source' => (
     builder => '_build_source',
 );
 
+use pf::activation;
 use pf::auth_log;
 use pf::config qw(%Config);
-use pf::constants qw($TRUE);
+use pf::constants qw($TRUE $FALSE);
 use pf::log;
 use pf::authentication;
 use pf::Authentication::constants;
@@ -32,6 +33,18 @@ use pf::node;
 use pf::enforcement;
 use POSIX;
 
+=head2 allowed_urls_auth_module
+
+The allowed URLs in this module
+
+=cut
+
+sub allowed_urls_auth_module {
+    return [
+        '/email/check',
+    ];
+}
+
 =head2 execute_child
 
 Execute this module
@@ -40,13 +53,123 @@ Execute this module
 
 sub execute_child {
     my ($self) = @_;
-    if($self->app->request->method eq "POST"){
+    if($self->app->request->path eq "email/check"){
+        $self->check_activation();
+    }
+    elsif($self->app->request->method eq "POST"){
         $self->do_email_registration();
+    }
+    elsif($self->source->waitForActivation && $self->session_activation_pending()){
+        $self->waiting_room();
+    }
+    elsif($self->source->waitForActivation && !$self->session->{activation_code} && pf::activation::activation_has_entry($self->current_mac, $pf::activation::GUEST_ACTIVATION)){
+        # The session that was waiting for this code is gone (portal window
+        # closed, cookies cleared): nothing would register the device once the
+        # link is clicked, so invalidate the code instead of leaving a link that
+        # tells the user to return to a waiting room that no longer exists
+        get_logger->info("Cannot restore the pending activation code from the user session, invalidating the codes of the device");
+        pf::activation::invalidate_codes_for_mac($self->current_mac, $pf::activation::GUEST_ACTIVATION);
+        $self->app->flash->{error} = "Your previous registration could not be resumed. Please register again.";
+        $self->prompt_fields();
+    }
+    elsif($self->session->{email_activated}){
+        # Cleared before done() so that if the actions fail, the user gets the
+        # form back instead of looping on done() with an already verified code
+        delete $self->session->{email_activated};
+        delete $self->session->{activation_code};
+        local $self->{_completing_activation} = $TRUE;
+        $self->done();
     }
     else{
         $self->prompt_fields();
     }
 };
+
+=head2 check_session_activation
+
+If the activation entry cannot be restored from the session, it will redirect to signup after invalidating any previous codes
+
+=cut
+
+sub check_session_activation {
+    my ($self) = @_;
+    unless($self->session->{activation_code}){
+        get_logger->error("Cannot restore activation code from user session.");
+        pf::activation::invalidate_codes_for_mac($self->current_mac, $pf::activation::GUEST_ACTIVATION);
+        $self->app->redirect("/signup");
+        $self->detach();
+    }
+}
+
+=head2 session_activation_pending
+
+Whether the activation code stored in the session is still waiting to be
+clicked (unverified and not expired). Other codes of the same device are
+ignored: they may belong to another registration that invalidated this one.
+
+=cut
+
+sub session_activation_pending {
+    my ($self) = @_;
+    my $code = $self->session->{activation_code};
+    return $FALSE unless $code;
+    return defined(pf::activation::find_unverified_code($pf::activation::GUEST_ACTIVATION, $code)) ? $TRUE : $FALSE;
+}
+
+=head2 check_activation
+
+Polled by the waiting room. Answers 200 once the activation link has been
+clicked (or once the code can no longer be activated, so the user is sent
+back to the signup form), 401 while the code is still pending.
+
+=cut
+
+sub check_activation {
+    my ($self) = @_;
+
+    $self->check_session_activation();
+
+    # Checked first: a code only leaves the pending state (verified, invalidated
+    # or expired), so the record read below cannot be older than this answer
+    # and a link clicked in between is not reported as expired
+    if($self->source->waitForActivation && $self->session_activation_pending()){
+        get_logger->debug("Activation record has not yet been validated");
+        $self->app->response_code(401);
+        $self->app->template_output('');
+        return;
+    }
+
+    my $record = pf::activation::view_by_code($pf::activation::GUEST_ACTIVATION, $self->session->{activation_code});
+    if(defined($record) && $record->{status} eq $pf::activation::VERIFIED){
+        get_logger->info("Activation record has been validated.");
+        $self->session->{email_activated} = $TRUE;
+    }
+    elsif(!$self->source->waitForActivation){
+        get_logger->info("The source no longer waits for the activation on the portal. Sending the user back to the signup form.");
+    }
+    else {
+        get_logger->info("Activation record has expired or was invalidated. Sending the user back to the signup form.");
+        $self->app->flash->{error} = "The activation link has expired or is no longer valid. Please register again.";
+    }
+    $self->app->response_code(200);
+    $self->app->template_output('');
+}
+
+=head2 waiting_room
+
+Keep the user on the portal until the activation link is clicked
+
+=cut
+
+sub waiting_room {
+    my ($self) = @_;
+    $self->render("waiting.html", {
+        email_activation => $TRUE,
+        check_url => '/email/check',
+        email => $self->app->session->{email},
+        %{$self->_release_args()},
+    });
+}
 
 sub required_fields_child {['email_instructions']}
 
@@ -79,6 +202,7 @@ sub do_email_registration {
     my %info;
     $info{'activation_domain'} = $source->{activation_domain} if (defined($source->{activation_domain}));
     $info{'activation_timeout'} = normalize_time($source->{email_activation_timeout});
+    $info{'wait_for_activation'} = $source->waitForActivation;
 
     # form valid, adding person (using modify in case person already exists)
     my $note = 'email activation. Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time);
@@ -107,7 +231,8 @@ sub do_email_registration {
     $self->username($pid);
 
     pf::auth_log::record_guest_attempt($source->id, $source->type, $self->current_mac, $pid, $self->app->profile->name);
-    pf::auth_log::record_completed_guest($source->id, $source->type, $self->current_mac, $pf::auth_log::COMPLETED, $self->app->profile->name);
+    # When waiting for the activation, the registration is only completed once the link is clicked
+    pf::auth_log::record_completed_guest($source->id, $source->type, $self->current_mac, $pf::auth_log::COMPLETED, $self->app->profile->name) unless $source->waitForActivation;
 
     if($self->app->preregistration) {
         # Mark the registration as completed as the email doesn't have to be validated
@@ -115,6 +240,16 @@ sub do_email_registration {
         $self->done();
     }
     else {
+        # Report a source whose rules cannot register the device now, while the
+        # user can still act on it, rather than after the link has been clicked
+        unless($self->rules_allow_registration()) {
+            get_logger->warn("The rules of source ".$source->id." do not allow $pid to register a device, no activation email sent");
+            $self->app->flash->{error} = "You do not have permission to register a device with this username";
+            $self->session->{source_id} = undef;
+            $self->prompt_fields();
+            return;
+        }
+
         # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
         my ( $auth_return, $err, $activation_code ) =
           pf::activation::create_and_send_activation_code(
@@ -128,6 +263,25 @@ sub do_email_registration {
 
         $self->session->{activation_code} = $activation_code;
 
+        if($source->waitForActivation) {
+            # No temporary access: the device stays on the portal until the
+            # link is clicked (typically from another device). The waiting
+            # room polls /email/check and done() is called once verified.
+            unless($auth_return && defined($activation_code)) {
+                get_logger->error("Unable to create or send the activation code for $email, the device cannot wait for an activation that will never come");
+                if(defined($activation_code)) {
+                    my $record = pf::activation::view_by_code($pf::activation::GUEST_ACTIVATION, $activation_code);
+                    pf::activation::modify_status($record->{code_id}, $pf::activation::INVALIDATED) if $record;
+                }
+                delete $self->session->{activation_code};
+                $self->app->flash->{error} = "Unable to send the activation email. Please try again later.";
+                $self->prompt_fields();
+                return;
+            }
+            $self->waiting_room();
+            return;
+        }
+
         # We compute the data and release the user
         # He will come back afterwards.
         $self->execute_actions();
@@ -135,6 +289,37 @@ sub do_email_registration {
         $self->app->root_module->apply_new_node_info();
         $self->app->root_module->release();
     }
+}
+
+=head2 rules_allow_registration
+
+Dry run of the actions to know if the source's rules can register the device
+(a role and an unregdate, time balance or bandwidth balance).
+Only the actions themselves are run: the local account is not created and the
+computed node info and session values are restored afterwards.
+
+=cut
+
+sub rules_allow_registration {
+    my ($self) = @_;
+    my $session = $self->app->session;
+    my @session_keys = qw(destination_url portal_module_force_destination_url mfa_id);
+    my %saved_session = map { exists($session->{$_}) ? ($_ => $session->{$_}) : () } @session_keys;
+    my %saved_node_info = %{$self->new_node_info};
+
+    $self->captiveportal::DynamicRouting::Module::execute_actions();
+    my $allowed = $self->actions_allow_registration();
+
+    %{$self->new_node_info} = %saved_node_info;
+    foreach my $key (@session_keys) {
+        if(exists($saved_session{$key})) {
+            $session->{$key} = $saved_session{$key};
+        }
+        else {
+            delete $session->{$key};
+        }
+    }
+    return $allowed ? $TRUE : $FALSE;
 }
 
 =head2 execute_actions
@@ -146,8 +331,10 @@ Override the actions since there is an activation timeout for the unregdate.
 after 'execute_actions' => sub {
     my ($self) = @_;
 
-    # Don't make the user leave the portal in preregistration
-    if(!$self->app->preregistration) {
+    # Don't make the user leave the portal in preregistration.
+    # When waiting for the activation on the portal, the actions are only
+    # executed once the link has been clicked, so the real unregdate applies.
+    if(!$self->app->preregistration && !$self->source->waitForActivation) {
         # we record the unregdate to reuse it after
         pf::activation::set_unregdate($pf::activation::GUEST_ACTIVATION, $self->session->{activation_code}, $self->new_node_info->{unregdate});
 
@@ -160,6 +347,23 @@ after 'execute_actions' => sub {
         $self->new_node_info->{unregdate} = $unregdate;
     }
     return $TRUE;
+};
+
+=head2 execute_actions (completion of a waiting registration)
+
+When the device waited on the portal for the activation link, the
+registration is completed once the actions run by done() succeed: the auth
+log entry is marked completed then, with the profile it was attempted on.
+
+=cut
+
+around 'execute_actions' => sub {
+    my ($orig, $self, @args) = @_;
+    my $result = $self->$orig(@args);
+    if ($result && $self->{_completing_activation}) {
+        pf::auth_log::record_completed_guest($self->source->id, $self->source->type, $self->current_mac, $pf::auth_log::COMPLETED, $self->app->profile->name);
+    }
+    return $result;
 };
 
 =head2 auth_source_params_child

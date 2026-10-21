@@ -27194,6 +27194,9 @@
                      },
                      "type" : {
                         "$ref" : "#/components/schemas/Meta"
+                     },
+                     "wait_for_activation" : {
+                        "$ref" : "#/components/schemas/Meta"
                      }
                   },
                   "type" : "object"
@@ -30451,6 +30454,10 @@
                "type" : {
                   "default" : "Email",
                   "description" : "Discriminator `Email`",
+                  "type" : "string"
+               },
+               "wait_for_activation" : {
+                  "description" : "Keep the device on the captive portal until the activation link is clicked, typically from another device. No temporary network access is granted.",
                   "type" : "string"
                }
             },

@@ -88,12 +88,29 @@ sub code : Path : Args(2) {
     # Email activated guests only need to prove their email was valid by clicking on the link.
     if ( $activation_record->{'type'} eq $GUEST_ACTIVATION ) {
 
+        my $source = pf::authentication::getAuthenticationSource($activation_record->{source_id});
         my $unregdate = $activation_record->{unregdate};
+
+        # The device is waiting on the portal: just mark the code as verified,
+        # the portal registers the device once it sees the verified status.
+        # A code with an unregdate was issued with temporary access (before the
+        # option was enabled) and goes through the regular flow below.
+        if ( !$unregdate && $source && $source->can('waitForActivation') && $source->waitForActivation ) {
+            get_logger->info("Activation code verified, the device is waiting on the portal to complete its registration");
+            # The auth log entry is completed by the portal, once the device is registered
+            pf::activation::set_status_verified($GUEST_ACTIVATION, $code);
+            $c->stash(
+                title => "Access granted",
+                template => "activation/email.html",
+                wait_for_activation => 1,
+            );
+            $c->detach();
+        }
+
         if($unregdate) {
             get_logger->info("Extending duration to $unregdate");
             node_modify($node_mac, unregdate => $unregdate);
             pf::activation::set_status_verified($GUEST_ACTIVATION, $code);
-            my $source = pf::authentication::getAuthenticationSource($activation_record->{source_id});
             pf::auth_log::record_completed_guest($activation_record->{source_id}, $source ? $source->type : '', $node_mac, $pf::auth_log::COMPLETED);
             # The access was granted with the activation timeout, apply the new unregdate on the network device (ex: Unifi guest authorization)
             if (defined($node_mac)) {
