@@ -30,7 +30,9 @@ use pfconfig::cached_hash;
 
 use pf::authentication;
 use pf::cluster;
+use pf::log;
 use pf::util;
+use pf::log;
 use Socket;
 
 use pf::constants qw($TRUE $FALSE);
@@ -130,11 +132,26 @@ sub _generateConfig {
 Generates the packetfence and packetfence-tunnel configuration file
 =cut
 
+=head2 multi_domain_disabled_reason
+
+Why the packetfence-multi-domain module (the PacketFence domain lookup for
+MS-CHAP) must not be called, or undef when it is used. Shared by the sites
+that call it, so they all honor advanced.disable_pf_domain_auth.
+
+=cut
+
+sub multi_domain_disabled_reason {
+    return 'explicitly disabled in pf.conf' if isenabled($Config{advanced}{disable_pf_domain_auth});
+    return 'no domains configured' if !keys %ConfigDomain;
+    return undef;
+}
+
 sub generate_radiusd_sitesconf {
     my ($self, $tt) = @_;
     my %tags;
 
     $tags{'remote'} = "";
+    $tags{'multi_domain_disabled'} = multi_domain_disabled_reason();
     $tags{'authorize_eap_choice'} = "";
     $tags{'authentication_auth_type'} = "";
     $tags{'authorize_eap_choice_degraded'} = "";
@@ -236,15 +253,10 @@ EOT
 
     %tags = ();
 
-    if(isenabled($Config{advanced}{disable_pf_domain_auth})){
-        $tags{'multi_domain'} = '# packetfence-multi-domain not activated because explicitly disabled in pf.conf';
-    }
-    elsif(keys %ConfigDomain){
-        $tags{'multi_domain'} = 'packetfence-multi-domain';
-    }
-    else {
-        $tags{'multi_domain'} = '# packetfence-multi-domain not activated because no domains configured';
-    }
+    my $multi_domain_disabled = multi_domain_disabled_reason();
+    $tags{'multi_domain'} = defined($multi_domain_disabled)
+        ? "# packetfence-multi-domain not activated because $multi_domain_disabled"
+        : 'packetfence-multi-domain';
     if(isenabled($Config{radius_configuration}{'filter_in_packetfence-tunnel_authorize'})){
         $tags{'authorize_filter'} = "rest";
     }
@@ -1643,22 +1655,69 @@ sub generate_radiusd_certificates {
     }
     foreach my $key (keys %ConfigEAP) {
         foreach my $tls (keys %{$ConfigEAP{$key}->{tls}}) {
+            # The files are replaced with a rename: a symlink left by a previous run is replaced instead of
+            # written through, and the radiusd instances generating their configuration at the same time
+            # never see a missing or partial file
             if ( exists $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{default} && $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{default} eq 'yes' ) {
-                symlink($cert{$key}{$tls}{cert}, "$install_dir/conf/ssl/radius_".$key."_".$tls.".crt");
-                symlink($cert{$key}{$tls}{key}, "$install_dir/conf/ssl/radius_".$key."_".$tls.".key");
-                symlink($cert{$key}{$tls}{ca}, "$install_dir/conf/ssl/radius_".$key."_".$tls.".pem");
+                _replace_with_symlink($cert{$key}{$tls}{cert}, "$install_dir/conf/ssl/radius_".$key."_".$tls.".crt");
+                _replace_with_symlink($cert{$key}{$tls}{key}, "$install_dir/conf/ssl/radius_".$key."_".$tls.".key");
+                _replace_with_symlink($cert{$key}{$tls}{ca}, "$install_dir/conf/ssl/radius_".$key."_".$tls.".pem");
             } else {
                $vars{'cert'} = $cert{$key}{$tls}{cert};
-               $tt->process("$conf_dir/radiusd/cert", \%vars, "$install_dir/conf/ssl/radius_".$key."_".$tls.".crt") or die $tt->error();
+               _replace_with_template($tt, \%vars, "$install_dir/conf/ssl/radius_".$key."_".$tls.".crt");
                $vars{'cert'} = "";
                $vars{'key'} = $cert{$key}{$tls}{key};
-               $tt->process("$conf_dir/radiusd/cert", \%vars, "$install_dir/conf/ssl/radius_".$key."_".$tls.".key") or die $tt->error();
+               _replace_with_template($tt, \%vars, "$install_dir/conf/ssl/radius_".$key."_".$tls.".key");
                $vars{'key'} = "";
                $vars{'ca'} = $cert{$key}{$tls}{ca};
-               $tt->process("$conf_dir/radiusd/cert", \%vars, "$install_dir/conf/ssl/radius_".$key."_".$tls.".pem") or die $tt->error();
+               _replace_with_template($tt, \%vars, "$install_dir/conf/ssl/radius_".$key."_".$tls.".pem");
                $vars{'ca'} = "";
             }
         }
+    }
+}
+
+=head2 _replace_with_symlink
+
+Make $path a symlink to $target, unless it already is one
+
+=cut
+
+sub _replace_with_symlink {
+    my ($target, $path) = @_;
+    return if -l $path && readlink($path) eq $target;
+    my $tmp = "$path.tmp.$$";
+    unlink($tmp);
+    if (!symlink($target, $tmp) || !rename($tmp, $path)) {
+        get_logger->error("Unable to link $path to $target: $!");
+        unlink($tmp);
+    }
+}
+
+=head2 _replace_with_template
+
+Write the radiusd certificate template to $path through a temporary file, so
+that the file of a previous run (a symlink to the default certificates) is
+replaced and not written through, and is kept when the template fails
+
+=cut
+
+sub _replace_with_template {
+    my ($tt, $vars, $path) = @_;
+    my $tmp = "$path.tmp.$$";
+    unlink($tmp);
+    if (!$tt->process("$conf_dir/radiusd/cert", $vars, $tmp)) {
+        unlink($tmp);
+        die $tt->error();
+    }
+    # keep the mode of the previous file, the key is a private key
+    if (!-l $path && (my @stat = stat($path))) {
+        chmod($stat[2] & 07777, $tmp);
+    }
+    if (!rename($tmp, $path)) {
+        my $error = $!;
+        unlink($tmp);
+        die "Unable to write $path: $error";
     }
 }
 
@@ -1676,16 +1735,30 @@ sub _extract_radiusd_certificates {
     foreach my $ext (@vals){
         foreach my $key (keys %ConfigEAP) {
             foreach my $tls (keys %{$ConfigEAP{$key}->{tls}}) {
-                my $ckey = read_file("$install_dir/conf/ssl/radius_".$key."_".$tls.".key");
-                my $mkey = pf::ssl::rsa_from_string($ckey);
+                my $key_file = "$install_dir/conf/ssl/radius_".$key."_".$tls.".key";
+                my $ckey = read_file($key_file);
+                # An EC or a password-protected key can't be loaded: the certificates can't be compared with it
+                my $mkey = eval { pf::ssl::rsa_from_string($ckey) };
+                unless ($mkey) {
+                    get_logger->warn("Unable to load the private key $key_file to tell the server certificate from its CAs, keeping the CA certificates only");
+                }
                 my $cext = read_file("$install_dir/conf/ssl/radius_".$key."_".$tls.".".$ext);
                 my @certs = split_pem($cext);
                 foreach my $cert (@certs) {
                     my $mcert = pf::ssl::x509_from_string($cert);
-                    my ($key_match_res, $key_match_msg) = pf::ssl::validate_cert_key_match($mcert, $mkey);
-                    unless($key_match_res) {
-                        $hcerts{$cert} = $mcert;
+                    unless ($mcert) {
+                        get_logger->warn("Skipping a certificate that can't be decoded in $install_dir/conf/ssl/radius_${key}_${tls}.${ext}");
+                        next;
                     }
+                    if ($mkey) {
+                        my ($key_match_res, $key_match_msg) = pf::ssl::validate_cert_key_match($mcert, $mkey);
+                        next if $key_match_res;
+                    }
+                    else {
+                        my $basic_constraints = eval { $mcert->extensions_by_name->{basicConstraints} };
+                        next unless $basic_constraints && $basic_constraints->basicC('ca');
+                    }
+                    $hcerts{$cert} = $mcert;
                 }
             }
         }

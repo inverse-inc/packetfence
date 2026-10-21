@@ -24,6 +24,7 @@ vlan=isolation
 whitelisted_roles=
 template=generic
 recipient_template_email=security_event-triggered
+user_template_email=security_event-triggered
 
 [1100001]
 desc=Nessus Scan

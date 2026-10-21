@@ -428,6 +428,9 @@ sub _render {
     $args->{ i18n_format } = sub {
         return $self->i18n_format(@_);
     };
+    $args->{ duration_str } = sub {
+        return $self->duration_str(@_);
+    };
 
     get_logger->debug(sub { "Previous : ". ($self->previous_module_id // "undef") . ", Current module : " . ($self->current_module_id // "undef") });
     $self->detect_first_action();
@@ -514,6 +517,29 @@ Pass message id through gettext then sprintf it.
 sub i18n_format {
     my ( $self, $msgid, @args ) = @_;
     return pf::web::i18n_format($msgid, @args);
+}
+
+=head2 duration_str
+
+Format an amount of seconds, such as a time balance, in days, hours and
+minutes (93784 is "1d 2h 3m"), or in seconds below a minute ("45s").
+
+Also available to the templates as C<duration_str(seconds)>.
+
+=cut
+
+sub duration_str {
+    my ( $self, $seconds ) = @_;
+    $seconds = int($seconds // 0);
+    my $days = int($seconds / 86400);
+    my $hours = int(($seconds % 86400) / 3600);
+    my $minutes = int(($seconds % 3600) / 60);
+    my @parts;
+    push @parts, $days . $self->i18n("d") if $days;
+    push @parts, $hours . $self->i18n("h") if $hours;
+    push @parts, $minutes . $self->i18n("m") if $minutes;
+    push @parts, ($seconds % 60) . $self->i18n("s") unless @parts;
+    return join(' ', @parts);
 }
 
 =head2 error
