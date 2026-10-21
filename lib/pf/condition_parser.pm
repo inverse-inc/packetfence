@@ -502,7 +502,7 @@ sub _object_to_str {
         return 'true()';
     }
     if (exists $OBJ_OPS{$op}) {
-        my $values = $obj->{values};
+        my $values = $obj->{values} // [];
         if ( @$values == 1 ) {
             return object_to_str(@$values);
         }
@@ -511,7 +511,7 @@ sub _object_to_str {
     }
 
     if (exists $OBJ_NOT_OPS{$op}) {
-        my $values = $obj->{values};
+        my $values = $obj->{values} // [];
         return join('', '!(', join( " $OBJ_NOT_OPS{$op} ", map { _object_to_str($_) } @$values ), ')' );
     }
 

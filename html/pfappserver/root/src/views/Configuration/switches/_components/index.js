@@ -83,6 +83,7 @@ export {
   BaseFormGroupToggleNYDefault            as FormGroupToggleAccessListMap,
   BaseFormGroupToggleNYDefault            as FormGroupToggleInterfaceMap,
   BaseFormGroupSwitch                     as FormGroupDeauthOnPrevious,
+  BaseFormGroupChosenOne                  as FormGroupHostMode,
   BaseFormGroupToggleNYDefault            as FormGroupToggleRoleMap,
   BaseFormGroupToggleNYDefault            as FormGroupToggleVpnMap,
   BaseFormGroupToggleNYDefault            as FormGroupToggleUrlMap,
@@ -97,6 +98,7 @@ export {
   BaseFormGroupInputPassword              as FormGroupWebServicesPwd,
   BaseFormGroupChosenOne                  as FormGroupWebServicesTransport,
   BaseFormGroupInput                      as FormGroupWebServicesUser,
+  BaseFormGroupToggleNYDefault            as FormGroupWebServicesVerifyCertificate,
 
   BaseInput                               as InputRoleMapNetwork,
   BaseInputToggleNetworkFrom              as InputToggleNetworkFrom,
