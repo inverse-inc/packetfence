@@ -44,6 +44,7 @@ use fingerbank::Collector;
 use pf::AtFork;
 use DateTime;
 use DateTime::Format::RFC3339;
+use Date::Parse qw(str2time);
 use pf::config qw(%Config);
 use pf::util qw(isdisabled isenabled valid_mac);
 use pf::locationlog qw(locationlog_view_open_mac);
@@ -138,6 +139,17 @@ sub process {
         $force = $TRUE;
         return DateTime->now(time_zone => "local");
     });
+
+    # A node deleted then recreated after this MAC was last processed has no device type
+    # and the collector may have no newer data: profile it again. A node that Fingerbank
+    # can't classify keeps being processed only on new data.
+    if (!$force && $node_before && !$node_before->{device_type} && $node_before->{detect_date}) {
+        my $detected = str2time($node_before->{detect_date});
+        if (defined($detected) && $detected > $process_timestamp->epoch) {
+            $logger->debug("$mac has no device type and was detected after it was last processed, profiling it again");
+            $force = $TRUE;
+        }
+    }
 
     # Querying for a resultset
     my $query_args = endpoint_attributes($mac);
