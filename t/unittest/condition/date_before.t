@@ -20,11 +20,13 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 8;                      # last test to print
+use Test::More tests => 31;                      # last test to print
 
 use Test::NoWarnings;
 
 use_ok("pf::condition::date_before");
+use pf::condition_parser;
+use pf::factory::condition;
 
 my $filter = new_ok ( "pf::condition::date_before", [value => '2034-10-28 13:37:42'],"Test pf::condition::date_before constructor with control date");
 
@@ -37,6 +39,64 @@ $filter = new_ok ( "pf::condition::date_before", [],"Test pf::condition::date_be
 ok($filter->match('2015-11-27 13:49:42'), "given date is before control date");
 
 ok(!$filter->match('2042-11-27 13:49:42'),"given date is not before control date");
+
+$filter = new_ok ( "pf::condition::date_before", [value => 'now'],"Test pf::condition::date_before constructor with 'now'");
+
+ok($filter->match('2015-11-27 13:49:42'), "given date is before now");
+
+ok(!$filter->match('2042-11-27 13:49:42'), "given date is not before now");
+
+$filter = new_ok ( "pf::condition::date_before", [value => ''],"Test pf::condition::date_before constructor with an empty value");
+
+ok($filter->match('2015-11-27 13:49:42'), "empty value means now");
+
+ok(!$filter->match('0000-00-00 00:00:00'), "unset date doesn't match");
+
+ok(!$filter->match(undef), "undefined date doesn't match");
+
+ok(!$filter->match('not a date'), "invalid date doesn't match");
+
+$filter = new_ok ( "pf::condition::date_before", [value => '2030-01-01'],"Test pf::condition::date_before constructor with a date only");
+
+ok($filter->match('2015-11-27 13:49:42'), "date only control date");
+
+ok($filter->match("2015-11-27"), "date only given date");
+
+ok(!eval { pf::condition::date_before->new(value => 'garbage') }, "invalid control date fails the construction");
+
+like($@, qr/Invalid date 'garbage'/, "with the reason");
+
+my $without_seconds = pf::condition::date_before->new(value => '2030-01-01 12:00');
+ok($without_seconds->match('2030-01-01 11:59:59'), "control date without seconds is read as HH:MM:00");
+ok(!$without_seconds->match('2030-01-01 12:00:00'), "at the minute");
+
+ok(!eval { pf::condition::date_before->new(value => '2030-01-01 12:00:00Z') }, "control date with characters after the time fails the construction");
+
+ok(!eval { pf::condition::date_before->new(value => '2030-01-01T12:00:00') }, "control date in another format fails the construction");
+
+$filter = pf::condition::date_before->new(value => 'now');
+
+ok($filter->match('2015-11-27 12:00'), "given date without seconds");
+
+# the negated operator, built like a filter rule
+sub rule {
+    my ($condition) = @_;
+    my ($ast, $err) = pf::condition_parser::parse_condition_string($condition);
+    die $err->{highlighted_error} if $err;
+    return pf::factory::condition::buildCondition($ast);
+}
+
+my $not_rule = rule('not_date_is_before(node_info.unregdate, "now")');
+
+ok($not_rule->match({ node_info => { unregdate => '2042-11-27 13:49:42' } }), "not_date_is_before matches a date not before now");
+
+ok(!$not_rule->match({ node_info => { unregdate => '2015-11-27 13:49:42' } }), "not_date_is_before doesn't match a date before now");
+
+ok(!$not_rule->match({ node_info => { unregdate => '0000-00-00 00:00:00' } }), "not_date_is_before doesn't match an unset date");
+
+ok(!$not_rule->match({ node_info => { } }), "not_date_is_before doesn't match a missing date");
+
+ok(!eval { rule('not_date_is_before(node_info.unregdate, "2030-13")') }, "a rule with an invalid control date fails to build");
 
 =head1 AUTHOR
 

@@ -112,7 +112,7 @@ BEGIN {
 
 }
 
-use Test::More tests => 24 + 2 * ( scalar @CACHEABLE_RULES + scalar @NON_CACHEABLE_RULES);
+use Test::More tests => 27 + 2 * ( scalar @CACHEABLE_RULES + scalar @NON_CACHEABLE_RULES);
 
 #This test will running last
 use Test::NoWarnings;
@@ -310,6 +310,30 @@ ok(!$source->is_rule_cacheable(undef), "undef is always uncacheable");
       )
 }
 
+
+# A server name the connector can't resolve is marked dead like a server that
+# can't be reached, so the resolver is not asked again on every bind
+{
+    require pf::factory::connector;
+    my $resolves = 0;
+    no warnings qw(redefine once);
+    local *pf::factory::connector::resolve = sub { $resolves++; return undef };
+    my $source = pf::Authentication::Source::LDAPSource->new(
+        id => 'ldap_unresolvable', host => ['unresolvable.example.com'], port => 389,
+        encryption => 'none', use_connector => 1, dead_duration => 60,
+        basedn => 'dc=example,dc=com', binddn => '', password => '', scope => 'sub',
+        usernameattribute => 'sAMAccountName',
+    );
+    my $dead_key = "SERVER_DEAD:ldap_unresolvable:unresolvable.example.com";
+    $source->cache->remove($dead_key);
+    my ($connection) = $source->_connect();
+    ok(!defined $connection, "no connection to a server whose name can't be resolved");
+    ok($source->cache->get($dead_key), "the server is marked dead");
+    $resolves = 0;
+    $source->_connect();
+    is($resolves, 1, "the next bind only resolves it in the pass that ignores the dead servers");
+    $source->cache->remove($dead_key);
+}
 
 =head1 AUTHOR
 

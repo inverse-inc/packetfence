@@ -187,7 +187,7 @@ func handleIsolationPassthrough(res http.ResponseWriter, req *http.Request) {
 
 	IPSET.jobs <- job{
 		"Add",
-		"pfsession_passthrough",
+		"pfsession_isol_passthrough",
 		ipset.NewEntry(
 			ipset.EntryIP(Ip),
 			ipset.EntryPort(Port),

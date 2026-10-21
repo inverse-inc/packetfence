@@ -14,7 +14,7 @@ RUN apt-get update && \
         ansible \
         rclone \
         genisoimage \
-        openssh-client && \
+        openssh-client util-linux && \
     install -d -m 0755 /etc/apt/keyrings && \
     curl -fsSL https://apt.releases.hashicorp.com/gpg \
         | gpg --dearmor -o /etc/apt/keyrings/hashicorp.gpg && \

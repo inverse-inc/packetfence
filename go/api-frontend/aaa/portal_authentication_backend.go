@@ -55,6 +55,12 @@ func (pab *PortalAuthenticationBackend) Authenticate(ctx context.Context, userna
 		return false, nil, err
 	}
 
+	// The portal must have granted an access level (no administration rule matched otherwise)
+	accessLevel := strings.TrimSpace(reply.AccessLevel)
+	if accessLevel == "" || accessLevel == "NONE" {
+		return false, nil, nil
+	}
+
 	ti := pab.buildTokenInfo(ctx, &reply)
 
 	return true, ti, nil
