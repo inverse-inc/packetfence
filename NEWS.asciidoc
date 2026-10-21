@@ -44,6 +44,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Bug Fixes
 
+  - Portal: a user who chose an OAuth, OpenID or SAML method and comes back without completing it is shown that method's page (with the other methods of the Choice) instead of being sent straight back to the provider (#7447)
+
   - pfpki OCSP responder answered with a 500 error instead of "unknown" for a serial number that is in neither the certificates nor the revoked certificates
 
   - The certificate chain validation of the admin interface now rejects intermediate certificates that are not part of the certificate's signing chain, instead of reporting the chain as valid and sending them to the clients (#6630)
