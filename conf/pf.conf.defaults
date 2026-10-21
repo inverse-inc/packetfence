@@ -1646,6 +1646,7 @@ sso_base_url=
 sso_login_path=/admin-sso
 sso_authorize_path=/portaltoken
 sso_login_text=Single Sign On
+sso_allowed_callback_hosts=
 allow_username_password=enabled
 
 [fleetdm]
