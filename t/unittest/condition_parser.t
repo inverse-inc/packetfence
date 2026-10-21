@@ -483,6 +483,32 @@ BEGIN {
             },
             'true()',
         ],
+        [
+            {
+                op => 'and',
+            },
+            '',
+        ],
+        [
+            {
+                op     => 'and',
+                values => [],
+            },
+            '',
+        ],
+        [
+            {
+                op => 'not_and',
+            },
+            '!()',
+        ],
+        [
+            {
+                op     => 'not_or',
+                values => [],
+            },
+            '!()',
+        ],
     );
 
     $TEST_COUNT = 1 + (scalar @VALID_STRING_TESTS) + (true { @$_ == 3  } @VALID_STRING_TESTS ) + (scalar @INVALID_STRINGS) + (scalar @VALID_IDS) + (scalar @OBJECT_TO_STR_TESTS);
