@@ -256,7 +256,7 @@ sub fetch_all_intermediates {
 
         push @$chain, $inter;
 
-        if($inter->issuer() ne $inter->subject()) {
+        if(!is_self_signed($inter)) {
             return fetch_all_intermediates($inter, $chain);
         }
         else {
@@ -373,26 +373,82 @@ sub generate_csr {
     return ($TRUE, $csr);
 }
 
+=head2 is_self_signed
+
+Whether a Crypt::OpenSSL::X509 certificate is self-signed (its own issuer)
+
+=cut
+
+sub is_self_signed {
+    my ($x509) = @_;
+    return $x509->issuer() eq $x509->subject();
+}
+
+=head2 unrelated_certificates
+
+Given a Crypt::OpenSSL::X509 certificate, the certificates available to build
+its chain and the certificates that must be part of it, return the latter that
+are not on any signing path of the certificate.
+
+The paths are followed by issuer name, the way fetch_all_intermediates does,
+from the certificate up to a self-signed certificate or to an issuer that is
+not among the available certificates (the OS CA bundle takes over from there).
+Every available certificate whose subject matches an issuer is followed, so
+cross-signed certificates (same subject, different issuers) are all on the
+chain.
+
+=cut
+
+sub unrelated_certificates {
+    my ($cert, $available, $required) = @_;
+
+    my %on_chain;
+    my @to_visit = ($cert);
+    while (my $current = shift @to_visit) {
+        next if is_self_signed($current);
+        foreach my $candidate (@$available) {
+            next if $on_chain{$candidate->as_string()};
+            next unless $candidate->subject() eq $current->issuer();
+            $on_chain{$candidate->as_string()} = 1;
+            push @to_visit, $candidate;
+        }
+    }
+
+    return grep { !$on_chain{$_->as_string()} } @$required;
+}
+
 =head2 verify_chain
 
 Given a Crypt::OpenSSL::X509 certificate and an array of Crypt::OpenSSL::X509 intermediates, validate that the whole signing chain is valid.
 Will include the built-in CAs while performing the verification
 
+When an array of intermediate certificates is passed as third argument (the
+ones that are installed with the certificate), each of them must also be part
+of the signing chain: an unrelated intermediate would be accepted by OpenSSL
+and then sent to the clients along with the certificate (#6630).
+
 =cut
 
 sub verify_chain {
-    my ($cert, $intermediates) = @_;
+    my ($cert, $intermediates, $installed_intermediates) = @_;
     my $cert_str = $cert->as_string();
 
     my $bundle = "";
     foreach my $inter (@$intermediates) {
         $bundle .= $inter->as_string();
     }
-    $bundle .= "\n$cert_str\n";
+
+    # A self-signed certificate is its own trust anchor, so it has to be part
+    # of the trusted material to verify. In any other case the certificate
+    # being verified must NOT be trusted itself, otherwise the verification
+    # succeeds no matter what intermediates were provided (#6630).
+    if (is_self_signed($cert)) {
+        $bundle .= "\n$cert_str\n";
+    }
 
     # Trusted material for the verification: the system CA bundle followed by
-    # the provided intermediates and certificate (matches the previous
-    # "cat $OS_CA_CERT_FILE $tmpinter" behavior).
+    # the provided intermediates, so that chains ending on a private CA are
+    # accepted as long as that CA was provided.
     my $ca_content = (-r $OS_CA_CERT_FILE) ? read_file($OS_CA_CERT_FILE) : "";
     my (undef, $cafile) = tempfile();
     write_file($cafile, $ca_content . $bundle);
@@ -417,6 +473,13 @@ sub verify_chain {
         $result //= "Unable to run OpenSSL certificate verification";
         get_logger->error("Chain verification failed: $result");
         return ($FALSE, $result);
+    }
+
+    if (my @unrelated = unrelated_certificates($cert, $intermediates, $installed_intermediates // [])) {
+        my $msg = "Intermediate certificate(s) not part of the signing chain of the certificate: "
+            . join("; ", map { $_->subject() } @unrelated);
+        get_logger->error("Chain verification failed: $msg");
+        return ($FALSE, $msg);
     }
     else {
         get_logger->info("Chain verification succeeded");

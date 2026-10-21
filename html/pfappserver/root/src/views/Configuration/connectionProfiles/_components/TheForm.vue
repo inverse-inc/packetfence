@@ -143,6 +143,20 @@
         <form-group-self-service namespace="self_service"
                                  :column-label="$i18n.t('Self service policy')"
         />
+
+        <form-group-self-service-status namespace="self_service_status"
+                                        :column-label="$i18n.t('Self service status page')"
+                                        :text="$i18n.t('This allows users to access the self service status page (http://{fqdn}/status) to see and manage their devices. Device registration requires the status page to be enabled.', basesGeneral)"
+                                        enabled-value="enabled"
+                                        disabled-value="disabled"
+        />
+
+        <form-group-self-service-device-registration namespace="self_service_device_registration"
+                                                     :column-label="$i18n.t('Self service device registration')"
+                                                     :text="$i18n.t('This allows users to register their other devices from the self service device registration page (http://{fqdn}/device-registration). It also requires a self service policy.', basesGeneral)"
+                                                     enabled-value="enabled"
+                                                     disabled-value="disabled"
+        />
       </base-form-tab>
       <base-form-tab :title="$i18n.t('Captive Portal')">
         <form-group-logo namespace="logo"
@@ -266,6 +280,8 @@ import {
   FormGroupAccessRegistrationWhenRegistered,
   FormGroupNetworkLogoff,
   FormGroupNetworkLogoffPopup,
+  FormGroupSelfServiceStatus,
+  FormGroupSelfServiceDeviceRegistration,
   FormGroupLocale
 } from './'
 
@@ -308,6 +324,8 @@ const components = {
   FormGroupAccessRegistrationWhenRegistered,
   FormGroupNetworkLogoff,
   FormGroupNetworkLogoffPopup,
+  FormGroupSelfServiceStatus,
+  FormGroupSelfServiceDeviceRegistration,
   FormGroupLocale
 }
 

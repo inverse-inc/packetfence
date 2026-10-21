@@ -88,9 +88,6 @@ sub returnRadiusAccessAccept {
 
     my $node = $args->{'node_info'};
 
-    my $filter = pf::access_filter::radius->new;
-    my $rule = $filter->test('returnRadiusAccessAccept', $args);
-
     if ( $self->externalPortalEnforcement ) {
         my $security_event = pf::security_event::security_event_view_top($args->{'mac'});
         # if user is unregistered or is in security_event then we reject him to show him the captive portal
@@ -100,6 +97,9 @@ sub returnRadiusAccessAccept {
             $self->handleRadiusDeny();
         }
         else{
+            # Only this branch answers without the parent, which applies the filter itself
+            my $filter = pf::access_filter::radius->new;
+            my $rule = $filter->test('returnRadiusAccessAccept', $args);
             $logger->info("Returning ACCEPT");
             ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
             return [$status, %$radius_reply_ref];

@@ -80,6 +80,7 @@ export {
   BaseFormGroupInput                      as FormGroupDownloadableAclsLimit,
   BaseFormGroupInput                      as FormGroupAclsLimit,
   BaseFormGroupSwitch                     as FormGroupDeauthOnPrevious,
+  BaseFormGroupChosenOne                  as FormGroupHostMode,
   BaseFormGroupToggleNYDefault            as FormGroupToggleAccessListMap,
   BaseFormGroupToggleNYDefault            as FormGroupToggleRoleMap,
   BaseFormGroupToggleNYDefault            as FormGroupToggleVpnMap,
@@ -96,6 +97,7 @@ export {
   BaseFormGroupInputPassword              as FormGroupWebServicesPwd,
   BaseFormGroupChosenOne                  as FormGroupWebServicesTransport,
   BaseFormGroupInput                      as FormGroupWebServicesUser,
+  BaseFormGroupToggleNYDefault            as FormGroupWebServicesVerifyCertificate,
 
   BaseInput                               as InputRoleMapNetwork,
   BaseInputToggleNetworkFrom              as InputToggleNetworkFrom,

@@ -66,6 +66,7 @@ type ReportOptionsDetails struct {
 	DateLimit        *string               `json:"date_limit"`
 	DefaultStartDate *string               `json:"default_start_date"`
 	DefaultEndDate   *string               `json:"default_end_date"`
+	UtcOffset        *int64                `json:"utc_offset,omitempty"` // offset in seconds of the report dates (server time) from UTC
 	Columns          []ReportOptionsColumn `json:"columns"`
 	Charts           []string              `json:"charts"`
 }
@@ -287,6 +288,20 @@ func getDefaultDateRange(a *DynamicReport, interval string) (string, string) {
 	return startDate, endDate
 }
 
+// getUtcOffset returns the offset in seconds of the database time, used for
+// the report dates, from UTC, so that the admin can compute its quick ranges
+// with the server clock. It returns nil when the database can't tell.
+func getUtcOffset(a *DynamicReport) *int64 {
+	result := struct {
+		Utc_offset *int64
+	}{}
+	res := (*a.DBP).Raw(`SELECT TIMESTAMPDIFF(SECOND, UTC_TIMESTAMP(), NOW()) as utc_offset`).Scan(&result)
+	if res.Error != nil {
+		return nil
+	}
+	return result.Utc_offset
+}
+
 func fillOptionsColumns(columns *[]ReportOptionsColumn, report *pfconfigdriver.DynamicReport) {
 	// Match TEXT in: foo [as ][\]"TEXT[\]"
 	// All possible format: foo as \"bar\" | foo "bar" | "foo \"bar\"" | "bar"
@@ -342,9 +357,11 @@ func fillOptionsStruct(a *DynamicReport, options *ReportOptions, report *pfconfi
 		defaultStartDate, defaultEndDate := getDefaultDateRange(a, report.DateLimit)
 		options.ReportMeta.DefaultEndDate = &defaultEndDate
 		options.ReportMeta.DefaultStartDate = &defaultStartDate
+		options.ReportMeta.UtcOffset = getUtcOffset(a)
 	} else {
 		options.ReportMeta.DefaultEndDate = nil
 		options.ReportMeta.DefaultStartDate = nil
+		options.ReportMeta.UtcOffset = nil
 	}
 	options.ReportMeta.Columns = []ReportOptionsColumn{} // force json [] instead of null
 	fillOptionsColumns(&options.ReportMeta.Columns, report)
