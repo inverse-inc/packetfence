@@ -165,6 +165,12 @@ For example, if `malware.es_ES.html` exists and you are using the `es_ES`
 (Spanish) locale then it will be loaded instead of `malware.html` on a
 security event set to load the `malware` template.
 +
+The templates of the connection profile are searched before the default
+templates. A `<template_name>.html` customized in the connection profile is
+therefore used even when the default templates have a translation of it, such
+as the shipped `generic.fr.html`. To keep a page per language, customize the
+`<template_name>.<locale_name>.html` variants in the connection profile too.
++
 * Rest of the captive portal
 +
 In the templates, if a string is in a `i18n()` call it will be translated.

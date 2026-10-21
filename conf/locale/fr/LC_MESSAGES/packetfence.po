@@ -2120,6 +2120,10 @@ msgid ""
 "id='timeleft'>%s</strong>"
 msgstr "Vous n'êtes pas connecté au réseau, mais il vous reste <strong id = 'timeleft'>% s</strong>"
 
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication.pm
+msgid "Your account didn't provide an e-mail address, which is needed to create your local account. Please use another login method."
+msgstr "Votre compte n'a pas fourni d'adresse courriel, nécessaire pour créer votre compte local. Veuillez utiliser une autre méthode de connexion."
+
 # html/captive-portal/templates/status.html
 msgid "Your WPA Wi-Fi key: "
 msgstr "Votre clé Wi-Fi WPA :"
@@ -2130,6 +2134,10 @@ msgid ""
 "Your XML configuration have been generated and is now ready to download.  "
 "Follow the link below in order to get access to the secure SSID."
 msgstr "Votre configuration XML a été générée et est prête à être téléchargée. Pour accéder au SSID sécurisé, suivez le lien ci-dessous. "
+
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Root.pm
+msgid "Your account could not be created. Please contact your network administrator."
+msgstr "Votre compte n'a pas pu être créé. Veuillez contacter votre administrateur réseau."
 
 # html/captive-portal/templates/lost_stolen.html
 msgid "Your device %s has been declared as lost or stolen."

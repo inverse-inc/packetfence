@@ -131,11 +131,26 @@ sub _generateConfig {
 Generates the packetfence and packetfence-tunnel configuration file
 =cut
 
+=head2 multi_domain_disabled_reason
+
+Why the packetfence-multi-domain module (the PacketFence domain lookup for
+MS-CHAP) must not be called, or undef when it is used. Shared by the sites
+that call it, so they all honor advanced.disable_pf_domain_auth.
+
+=cut
+
+sub multi_domain_disabled_reason {
+    return 'explicitly disabled in pf.conf' if isenabled($Config{advanced}{disable_pf_domain_auth});
+    return 'no domains configured' if !keys %ConfigDomain;
+    return undef;
+}
+
 sub generate_radiusd_sitesconf {
     my ($self, $tt) = @_;
     my %tags;
 
     $tags{'remote'} = "";
+    $tags{'multi_domain_disabled'} = multi_domain_disabled_reason();
     $tags{'authorize_eap_choice'} = "";
     $tags{'authentication_auth_type'} = "";
     $tags{'authorize_eap_choice_degraded'} = "";
@@ -237,15 +252,10 @@ EOT
 
     %tags = ();
 
-    if(isenabled($Config{advanced}{disable_pf_domain_auth})){
-        $tags{'multi_domain'} = '# packetfence-multi-domain not activated because explicitly disabled in pf.conf';
-    }
-    elsif(keys %ConfigDomain){
-        $tags{'multi_domain'} = 'packetfence-multi-domain';
-    }
-    else {
-        $tags{'multi_domain'} = '# packetfence-multi-domain not activated because no domains configured';
-    }
+    my $multi_domain_disabled = multi_domain_disabled_reason();
+    $tags{'multi_domain'} = defined($multi_domain_disabled)
+        ? "# packetfence-multi-domain not activated because $multi_domain_disabled"
+        : 'packetfence-multi-domain';
     if(isenabled($Config{radius_configuration}{'filter_in_packetfence-tunnel_authorize'})){
         $tags{'authorize_filter'} = "rest";
     }
