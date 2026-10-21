@@ -24,6 +24,7 @@ use base ('pf::Switch');
 
 use DateTime;
 use DateTime::Format::MySQL;
+use POSIX ();
 use pf::security_event qw(security_event_count_reevaluate_access);
 use pf::constants::node qw($STATUS_UNREGISTERED);
 use pf::file_paths qw($var_dir);
@@ -393,6 +394,47 @@ sub _set_unifi_os_csrf_token {
 }
 
 
+=head2 guestAuthorizationMinutes
+
+Minutes of guest authorization to request from the controller for a node
+with the given unregistration date (MySQL datetime, server local time).
+
+Without "minutes" the controller applies its own guest default (4 or 8 hours
+depending on the setup), which cut off registered nodes that have no
+unregistration date (#9203). Such nodes get
+$GUEST_AUTHORIZATION_MINUTES_NO_EXPIRY; a date in the past gets 1 minute
+(delta_ms is an absolute difference, so an expired date used to grant as
+much access as it was late).
+
+Returns undef when the date can't be parsed: the controller default then
+applies.
+
+=cut
+
+our $GUEST_AUTHORIZATION_MINUTES_NO_EXPIRY = 525600; # one year
+
+sub guestAuthorizationMinutes {
+    my ($self, $unregdate, $now_epoch) = @_;
+    $now_epoch //= time;
+    if (!defined($unregdate) || $unregdate eq '' || $unregdate eq $ZERO_DATE) {
+        return $GUEST_AUTHORIZATION_MINUTES_NO_EXPIRY;
+    }
+    # mktime rather than DateTime->set_time_zone('local'), which dies on a
+    # time skipped by a DST change
+    my $end = eval {
+        my $dt = DateTime::Format::MySQL->parse_datetime($unregdate);
+        POSIX::mktime($dt->second, $dt->minute, $dt->hour, $dt->day, $dt->month - 1, $dt->year - 1900, 0, 0, -1);
+    };
+    if (!defined($end)) {
+        $self->logger->warn("Unable to parse the unregistration date '$unregdate', not sending a guest authorization duration: the controller default applies");
+        return undef;
+    }
+    my $seconds_left = $end - $now_epoch;
+    return 1 if $seconds_left <= 0;
+    # round up: a partial minute left still needs access
+    return int(($seconds_left + 59) / 60);
+}
+
 =head2 _deauthenticateMacWithHTTP
 
 Enable or disable the access of a user (portal vs no portal) using an HTTP webservices call
@@ -415,15 +457,8 @@ sub _deauthenticateMacWithHTTP {
     unless ($node_info->{status} eq $STATUS_UNREGISTERED || security_event_count_reevaluate_access($mac))  {
         $command = "authorize-guest";
 
-        if($node_info->{unregdate} ne $ZERO_DATE) {
-            my $now = DateTime->now();
-            $now->set_time_zone('local');
-
-            my $unregdate = DateTime::Format::MySQL->parse_datetime($node_info->{unregdate});
-            $unregdate->set_time_zone('local');
-
-            $args->{minutes} = $now->delta_ms($unregdate)->in_units('minutes');
-        }
+        my $minutes = $self->guestAuthorizationMinutes($node_info->{unregdate});
+        $args->{minutes} = $minutes if defined($minutes);
     } else {
         $command = "unauthorize-guest";
     }
