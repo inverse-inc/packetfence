@@ -14434,6 +14434,7 @@
                   "radius_audit_log_cleanup" : "#/components/schemas/ConfigMaintenanceTaskSubTypeRadiusAuditLogCleanup",
                   "security_event_maintenance" : "#/components/schemas/ConfigMaintenanceTaskSubTypeSecurityEventMaintenance",
                   "security_event_purge" : "#/components/schemas/ConfigMaintenanceTaskSubTypeSecurityEventPurge",
+                  "switch_cache_ifindex" : "#/components/schemas/ConfigMaintenanceTaskSubTypeSwitchCacheIfindex",
                   "switch_cache_lldpLocalPort_description" : "#/components/schemas/ConfigMaintenanceTaskSubTypeSwitchCacheLldplocalportDescription",
                   "switch_observability_acls_cleanup" : "#/components/schemas/ConfigMaintenanceTaskSubTypeSwitchObservabilityAclsCleanup",
                   "ubiquiti_ap_mac_to_ip" : "#/components/schemas/ConfigMaintenanceTaskSubTypeUbiquitiApMacToIp"
@@ -14526,6 +14527,9 @@
                   "$ref" : "#/components/schemas/ConfigMaintenanceTaskSubTypeSecurityEventPurge"
                },
                {
+                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskSubTypeSwitchCacheIfindex"
+               },
+               {
                   "$ref" : "#/components/schemas/ConfigMaintenanceTaskSubTypeSwitchCacheLldplocalportDescription"
                },
                {
@@ -14567,6 +14571,7 @@
                   "radius_audit_log_cleanup" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeRadiusAuditLogCleanup",
                   "security_event_maintenance" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSecurityEventMaintenance",
                   "security_event_purge" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSecurityEventPurge",
+                  "switch_cache_ifindex" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSwitchCacheIfindex",
                   "switch_cache_lldpLocalPort_description" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSwitchCacheLldplocalportDescription",
                   "switch_observability_acls_cleanup" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSwitchObservabilityAclsCleanup",
                   "ubiquiti_ap_mac_to_ip" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeUbiquitiApMacToIp"
@@ -14657,6 +14662,9 @@
                },
                {
                   "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSecurityEventPurge"
+               },
+               {
+                  "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSwitchCacheIfindex"
                },
                {
                   "$ref" : "#/components/schemas/ConfigMaintenanceTaskMetaSubTypeSwitchCacheLldplocalportDescription"
@@ -15505,6 +15513,31 @@
                         "$ref" : "#/components/schemas/Meta"
                      },
                      "window" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     }
+                  },
+                  "type" : "object"
+               }
+            },
+            "type" : "object"
+         },
+         "ConfigMaintenanceTaskMetaSubTypeSwitchCacheIfindex" : {
+            "properties" : {
+               "meta" : {
+                  "properties" : {
+                     "id" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "process_switchranges" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "schedule" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "status" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "type" : {
                         "$ref" : "#/components/schemas/Meta"
                      }
                   },
@@ -17012,6 +17045,36 @@
                      }
                   },
                   "type" : "object"
+               }
+            },
+            "required" : [
+               "id",
+               "type"
+            ],
+            "type" : "object"
+         },
+         "ConfigMaintenanceTaskSubTypeSwitchCacheIfindex" : {
+            "properties" : {
+               "id" : {
+                  "description" : "Pfcron Name",
+                  "type" : "string"
+               },
+               "process_switchranges" : {
+                  "description" : "Whether or not a switch range should be expanded to process each of its IPs",
+                  "type" : "string"
+               },
+               "schedule" : {
+                  "description" : "The schedule for maintenance task (cron like spec).",
+                  "type" : "string"
+               },
+               "status" : {
+                  "description" : "Whether or not this task is enabled.<br>Requires a restart of pfcron to be effective.",
+                  "type" : "string"
+               },
+               "type" : {
+                  "default" : "switch_cache_ifindex",
+                  "description" : "Discriminator `switch_cache_ifindex`",
+                  "type" : "string"
                }
             },
             "required" : [
@@ -35302,6 +35365,10 @@
                "wsUser" : {
                   "description" : "Username",
                   "type" : "string"
+               },
+               "wsVerifyCertificate" : {
+                  "description" : "Verify the certificate of the controller when the transport is HTTPS. The certificate must be issued by a trusted certificate authority for the controller address. When disabled, the certificate is not checked, which allows self-signed certificates.",
+                  "type" : "string"
                }
             },
             "required" : [
@@ -35748,6 +35815,10 @@
                "wsUser" : {
                   "description" : "Username",
                   "type" : "string"
+               },
+               "wsVerifyCertificate" : {
+                  "description" : "Verify the certificate of the controller when the transport is HTTPS. The certificate must be issued by a trusted certificate authority for the controller address. When disabled, the certificate is not checked, which allows self-signed certificates.",
+                  "type" : "string"
                }
             },
             "required" : [
@@ -36005,6 +36076,9 @@
                         "$ref" : "#/components/schemas/Meta"
                      },
                      "wsUser" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "wsVerifyCertificate" : {
                         "$ref" : "#/components/schemas/Meta"
                      }
                   },
@@ -36281,6 +36355,9 @@
                         "$ref" : "#/components/schemas/Meta"
                      },
                      "wsUser" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "wsVerifyCertificate" : {
                         "$ref" : "#/components/schemas/Meta"
                      }
                   },
@@ -58673,6 +58750,7 @@
                         "radius_audit_log_cleanup",
                         "security_event_maintenance",
                         "security_event_purge",
+                        "switch_cache_ifindex",
                         "switch_cache_lldpLocalPort_description",
                         "switch_observability_acls_cleanup",
                         "ubiquiti_ap_mac_to_ip"
@@ -58736,6 +58814,7 @@
                         "radius_audit_log_cleanup",
                         "security_event_maintenance",
                         "security_event_purge",
+                        "switch_cache_ifindex",
                         "switch_cache_lldpLocalPort_description",
                         "switch_observability_acls_cleanup",
                         "ubiquiti_ap_mac_to_ip"
@@ -58805,6 +58884,7 @@
                         "radius_audit_log_cleanup",
                         "security_event_maintenance",
                         "security_event_purge",
+                        "switch_cache_ifindex",
                         "switch_cache_lldpLocalPort_description",
                         "switch_observability_acls_cleanup",
                         "ubiquiti_ap_mac_to_ip"
@@ -58874,6 +58954,7 @@
                         "radius_audit_log_cleanup",
                         "security_event_maintenance",
                         "security_event_purge",
+                        "switch_cache_ifindex",
                         "switch_cache_lldpLocalPort_description",
                         "switch_observability_acls_cleanup",
                         "ubiquiti_ap_mac_to_ip"
@@ -58951,6 +59032,7 @@
                         "radius_audit_log_cleanup",
                         "security_event_maintenance",
                         "security_event_purge",
+                        "switch_cache_ifindex",
                         "switch_cache_lldpLocalPort_description",
                         "switch_observability_acls_cleanup",
                         "ubiquiti_ap_mac_to_ip"

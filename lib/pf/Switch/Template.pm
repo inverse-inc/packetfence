@@ -259,11 +259,8 @@ handleDisconnect
 sub handleDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
     my $send_disconnect_to = $self->disconnectAddress($add_attributes_ref);
+    # handleRadiusDisconnect sends it to the disconnectPort of the switch
     my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
-
-    if (defined($self->{'_disconnectPort'}) && $self->{'_disconnectPort'} ne '') {
-        $connection_info->{'nas_port'} = $self->{'_disconnectPort'};
-    }
 
     my $radiusDisconnect = $self->{_template}{disconnect};
     my %args = (
@@ -310,11 +307,8 @@ handleCoa
 sub handleCoa {
     my ($self, $mac, $add_attributes_ref, $role) = @_;
     my $send_disconnect_to = $self->disconnectAddress($add_attributes_ref);
+    # handleRadiusCoa sends it to the coaPort of the switch
     my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
-
-    if (defined($self->{'_coaPort'}) && $self->{'_coaPort'} ne '') {
-        $connection_info->{'nas_port'} = $self->{'_coaPort'};
-    }
 
     my $radiusDisconnect = $self->{_template}{coa};
     my %args = (
@@ -343,7 +337,24 @@ sub handleCoaOrDisconnect {
         return $self->handleCoa($mac, $add_attributes_ref, $role);
     }
 
+    if (isenabled($self->{_useCoA})) {
+        $self->logger->info("Sending a Disconnect-Request instead of a CoA-Request to $self->{_id} for $mac: " . $self->_coaFallbackReason($role));
+    }
     return $self->handleDisconnect($mac, $add_attributes_ref);
+}
+
+=head2 _coaFallbackReason
+
+Why a CoA-Request cannot be sent although useCoA is enabled
+
+=cut
+
+sub _coaFallbackReason {
+    my ($self, $role) = @_;
+    if (!defined($role)) {
+        return "the node has no role on this switch (it is unregistered or pending, isolated, has no category or no node entry, or its role is not mapped on the switch)";
+    }
+    return "role mapping is disabled on this switch (RoleMap, UrlMap and VpnMap)";
 }
 
 =item deauthTechniques

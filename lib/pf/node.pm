@@ -719,13 +719,16 @@ sub node_deregister {
     }
 
     $mac = $cleaned_mac;
+    # Set by pfpki when it deregisters the devices of a certificate it just
+    # revoked: revoking by CN again would revoke another certificate of the CN
+    my $skip_pki_revoke = delete $info{'skip_pki_revoke'};
     $info{'status'}    = 'unreg';
     $info{'regdate'}   = $ZERO_DATE;
     $info{'unregdate'} = $ZERO_DATE;
     $info{'autoreg'}   = 'no';
 
     my $profile = pf::Connection::ProfileFactory->instantiate($mac);
-    if (my $provisioner = $profile->findProvisioner($mac)) {
+    if (!$skip_pki_revoke && (my $provisioner = $profile->findProvisioner($mac))) {
         if (my $pki_provider = $provisioner->getPkiProvider() ) {
             if (isenabled($pki_provider->revoke_on_unregistration)) {
                 my $node_info = node_view($mac);

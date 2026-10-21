@@ -531,7 +531,9 @@ sub form {
 
 sub config_store {
     my ($self) = @_;
-    $self->config_store_class->new;
+    my $cs = $self->config_store_class->new;
+    $self->lock_config_store($cs);
+    return $cs;
 }
 
 our %fields = (

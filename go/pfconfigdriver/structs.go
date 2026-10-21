@@ -1148,9 +1148,10 @@ type PfConfSwitch struct {
 	CliTransport string              `json:"cliTransport"`
 
 	// Web Services
-	WsTransport string              `json:"wsTransport"`
-	WsUser      string              `json:"wsUser"`
-	WsPwd       pfcrypt.CryptString `json:"wsPwd"`
+	WsTransport         string              `json:"wsTransport"`
+	WsVerifyCertificate string              `json:"wsVerifyCertificate"`
+	WsUser              string              `json:"wsUser"`
+	WsPwd               pfcrypt.CryptString `json:"wsPwd"`
 
 	// VoIP Detection
 	VoIPEnabled           int    `json:"VoIPEnabled"`

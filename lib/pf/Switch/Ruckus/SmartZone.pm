@@ -158,11 +158,8 @@ sub radiusDisconnect {
 
     my $response;
     try {
+        # handleRadiusDisconnect sends it to the disconnectPort of the switch
         my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
-
-        if (defined($self->{'_disconnectPort'}) && $self->{'_disconnectPort'} ne '') {
-            $connection_info->{'nas_port'} = $self->{'_disconnectPort'};
-        }
 
         # transforming MAC to the expected format 00-11-22-33-CA-FE
         $mac = uc($mac);
@@ -285,6 +282,9 @@ sub returnRadiusAccessAccept {
     my ($self, $args) = @_;
     my $logger = $self->logger;
 
+    # A subclass that runs the RADIUS filter itself calls us with 'unfiltered'
+    # set; filtering here too would add every answer of the rule twice (#9135).
+    my $caller_filters = isenabled($args->{'unfiltered'});
     $args->{'unfiltered'} = $TRUE;
     $self->compute_action(\$args);
     my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
@@ -301,9 +301,12 @@ sub returnRadiusAccessAccept {
         }
     }
     
-    my $filter = pf::access_filter::radius->new;
-    my $rule = $filter->test('returnRadiusAccessAccept', $args);
-    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    # A subclass that applies the RADIUS filter itself called us unfiltered
+    unless ($caller_filters) {
+        my $filter = pf::access_filter::radius->new;
+        my $rule = $filter->test('returnRadiusAccessAccept', $args);
+        ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    }
     return [$status, %$radius_reply_ref];
 }
 
