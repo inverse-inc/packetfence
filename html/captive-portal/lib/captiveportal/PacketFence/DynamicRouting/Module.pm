@@ -79,7 +79,6 @@ sub available_actions {
         'set_time_balance',
         'set_bandwidth_balance',
         'destination_url',
-        'set_access_level',
     ];
 }
 

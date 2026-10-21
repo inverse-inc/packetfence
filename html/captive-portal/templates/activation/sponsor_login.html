@@ -1,23 +1,23 @@
-<form method="post" action="[% post_uri %]">
+<div class="o-layout o-layout--center u-padding">
 
-  <div class="o-layout o-layout--center u-padding">
+  <div class="o-layout__item">
 
-    <div class="o-layout__item">
-
-      [% IF txt_auth_error.defined %]
-      <div class="o-media o-media--error u-padding u-margin-bottom">
-        <div class="o-media__img">[% flashIcon(level='error', size='tiny') %]</div>
-        <p class="o-media__body">[% i18n(txt_auth_error) %]</p>
-      </div>
-      [% ELSE %]
-      <div class="o-media o-media--notice u-padding u-margin-bottom">
-        <div class="o-media__img">[% flashIcon(level='notice', size='tiny') %]</div>
-        <p class="o-media__body">[% i18n("Before we proceed with guest activation, we need you to authenticate.") %]</p>
-      </div>
-      [% END %]
+    [% IF txt_auth_error.defined %]
+    <div class="o-media o-media--error u-padding u-margin-bottom">
+      <div class="o-media__img">[% flashIcon(level='error', size='tiny') %]</div>
+      <p class="o-media__body">[% i18n(txt_auth_error) %]</p>
     </div>
+    [% ELSE %]
+    <div class="o-media o-media--notice u-padding u-margin-bottom">
+      <div class="o-media__img">[% flashIcon(level='notice', size='tiny') %]</div>
+      <p class="o-media__body">[% i18n("Before we proceed with guest activation, we need you to authenticate.") %]</p>
+    </div>
+    [% END %]
+  </div>
 
-    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+  <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+    [% IF allow_username_password %]
+    <form method="post" action="[% post_uri %]">
       [%# User / Pass %]
       <div class="input-container">
         <label for="username">[% i18n("Username") %]</label>
@@ -31,11 +31,15 @@
       <div class="u-margin-top">
         <button type="submit" name="submit" class="c-btn c-btn--primary u-1/1">[% i18n("Login") %]</button>
       </div>
+    </form>
+    [% END %]
+    [% IF sso_login_url %]
+    <div class="u-margin-top">
+      <a class="c-btn [% allow_username_password ? 'c-btn--secondary' : 'c-btn--primary' %] u-1/1" href="[% sso_login_url | html %]">[% i18n(sso_login_text) %]</a>
     </div>
-
+    [% END %]
   </div>
-</div>
 
-</form>
+</div>
 
 [% INCLUDE 'password-button.inc' %]

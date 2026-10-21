@@ -159,14 +159,22 @@ sub login : Local {
         template => 'status/login.html',
         title => "Status - Login",
     );
-    if ( all_defined( $username, $password ) ) {
+    # Single sign-on through the SelfRegSSO root module, back to this page
+    $self->stashSsoLogin($c, '/status/login');
+    if ( my $token = $request->param('token') ) {
+        $self->loginFromSsoToken($c, $token);
+    }
+    elsif ( all_defined( $username, $password ) && $self->ssoPasswordLoginAllowed ) {
         $c->forward(Authenticate => 'authenticationLogin');
-        if ( $c->has_errors ) {
-            $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
-            $c->clear_errors;
-        } else {
-            $c->response->redirect('/status');
-        }
+    }
+    else {
+        return;
+    }
+    if ( $c->has_errors ) {
+        $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
+        $c->clear_errors;
+    } else {
+        $c->response->redirect('/status');
     }
 }
 
