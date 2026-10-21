@@ -47,6 +47,10 @@ msgstr "%s: Gjestetilgang forespørsel"
 msgid "%s: Guest access request accepted"
 msgstr "%s: Gjestetilgang godkjent"
 
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "---Choose a Provider---"
+msgstr "---Velg en leverandør---"
+
 # html/captive-portal/templates/ssl_inspection/windows.html
 msgid ""
 "A <i>Security Warning</i> will appear, asking if you're sure you'd like to "
@@ -646,6 +650,10 @@ msgid ""
 "network access."
 msgstr "Hvis dette ikke gjøres innen %s minutter vil nettverkstilgangen sperres. "
 
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "Female"
+msgstr "Kvinne"
+
 # html/captive-portal/templates/ssl_inspection/firefox.html
 msgid "Firefox CA trust prompt"
 msgstr ""
@@ -962,6 +970,10 @@ msgid ""
 "Make sure <i>Trust</i> is expanded and select the dropdown next to <i>When "
 "using this certificate:</i> and change it to <i>Always Trust</i>."
 msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "Male"
+msgstr "Mann"
 
 # html/captive-portal/templates/stripe-customer-portal/select-account.html
 msgid "Manage"
