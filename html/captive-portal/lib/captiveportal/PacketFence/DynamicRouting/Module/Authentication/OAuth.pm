@@ -103,6 +103,12 @@ sub execute_child {
         if($self->with_aup) {
             $self->landing();
         }
+        # The user was already sent to the provider and came back to the portal without completing the authentication.
+        # Show the landing page so that they can retry or choose another way to register instead of sending them back to the provider.
+        elsif($self->session->{provider_visited}) {
+            get_logger->debug("Provider already visited, showing the landing page");
+            $self->landing();
+        }
         else {
             get_logger->debug("No AUP, proceeding directly to provider");
             $self->redirect_to_provider();
@@ -118,6 +124,7 @@ Redirects to the OAuth provider and registers the attempt in the authlog
 
 sub redirect_to_provider {
     my ($self) = @_;
+    $self->session->{provider_visited} = 1;
     pf::auth_log::record_oauth_attempt($self->source->id, $self->source->type, $self->current_mac, $self->app->profile->name);
     $self->app->redirect($self->get_client->authorize);
 }
@@ -164,8 +171,18 @@ sub handle_callback {
     my $response = $token->get($self->source->{'protected_resource_url'}, $h ); 
 
     if ($response->is_success) {
-        my $info = $self->_decode_response($response); 
-        my $pid = $self->_extract_username_from_response($info); 
+        my $info = $self->_decode_response($response);
+        # only the attribute names: the values are personal data
+        get_logger->debug(sub { "OAuth2 response attributes: " . join(", ", sort keys %{ ref($info) eq 'HASH' ? $info : {} }) });
+        $self->save_provider_info($info);
+        my $pid = $self->_extract_username_from_response($info);
+        if (!defined($pid) || $pid eq '') {
+            get_logger->error("OAuth2: no username found in the response of the provider");
+            pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED, $self->app->profile->name);
+            $self->app->flash->{error} = "OAuth2 Error: Your account didn't provide a username, please use another login method";
+            $self->landing();
+            return;
+        }
         
         $self->username($pid);
         if($info->{email}) { 
@@ -213,6 +230,14 @@ sub _extract_username_from_response {
     my ($self, $info) = @_;
     return $info->{email};
 }
+
+=head2 save_provider_info
+
+Meant for child modules to keep information from the provider response
+
+=cut
+
+sub save_provider_info { }
 
 =head2 auth_source_params_child
 

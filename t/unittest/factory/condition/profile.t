@@ -24,7 +24,7 @@ BEGIN {
 }
 
 use pf::factory::condition::profile;
-use Test::More tests => 13;
+use Test::More tests => 16;
 use Test::NoWarnings;
 
 {
@@ -123,6 +123,15 @@ use Test::NoWarnings;
         ),
     );
 
+}
+
+{
+    # negated date comparison: an unset or missing date doesn't match
+    my $condition = pf::factory::condition::profile->instantiate_advanced(
+        'not_date_is_after(node_info.unregdate, "now")');
+    ok($condition->match({ node_info => { unregdate => '2015-11-27 13:49:42' } }), "not_date_is_after matches a past date");
+    ok(!$condition->match({ node_info => { unregdate => '0000-00-00 00:00:00' } }), "not_date_is_after doesn't match an unset date");
+    ok(!$condition->match({ node_info => { } }), "not_date_is_after doesn't match a missing date");
 }
 
 =head1 AUTHOR

@@ -123,7 +123,8 @@ sub _handler {
 
     # Portal-profile filters
     # TODO: Migrate to Catalyst
-    if ( defined($WEB::ALLOWED_RESOURCES_PROFILE_FILTER) && $uri =~ /$WEB::ALLOWED_RESOURCES_PROFILE_FILTER/o ) {
+    my $profile_filter = WEB::allowed_resources_profile_filter();
+    if ( defined($profile_filter) && $uri =~ $profile_filter ) {
         $logger->info("Matched profile uri filter for $uri");
         #Send the current URI to catalyst with the pnotes
         $r->pnotes(last_uri => $uri);

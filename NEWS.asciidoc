@@ -27,21 +27,94 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
+  - Per-switch port host mode — new `host_mode` parameter on switches and switch groups (`single-host`, `multi-host`, `multi-auth`, `multi-domain`). In `multi-auth`, several endpoints authenticate independently on the same port: PacketFence keeps one locationlog entry per MAC and deauthenticates each endpoint with a per-session CoA/Disconnect instead of bouncing the port
+
+  - New `switch_cache_ifindex` maintenance task (enabled, every 12h) that keeps the cached `ifDescr` table of the Cisco IOS, Arista, Aruba and 3Com switches warm, so a wired RADIUS request no longer waits for the SNMP walk that translates its NAS-Port-Id into an ifIndex. Only the switches that already translated one are walked: the first request to a switch whose table is not cached yet, such as a new switch, still waits for the walk (#7380)
+
+  - CoA and Disconnect requests can use attributes from a local RADIUS dictionary, `conf/radiusd/dictionary.local` (FreeRADIUS format), for vendor attributes PacketFence doesn't ship (e.g. `Extreme-Dynamic-Config`) (#8627)
+
 === Enhancements
 
+  - API change: the paths served by the Go services (pfdhcp, pfconnector, pfipset, pfpki, pfsso) answer an unknown path with a JSON 404 and an unsupported method with a JSON 405, like the Perl API. pfipset, pfpki and pfsso used to answer 200 with an empty body (#8523)
+
+  - Cluster: the JSON-RPC calls between members have a connect timeout and a request timeout (`active_active.api_connect_timeout`, 5s, and `active_active.api_timeout`, 60s), and pfconfig's database calls time out (`connect_timeout`, `read_timeout`, `write_timeout` in the `[mysql]` section of `pfconfig.conf`, 5s/15s/15s). An unhealthy member no longer hangs the admin API of the others (#8204)
+
+  - New pfcron task pki_revoked_certs_cleanup, disabled by default, to purge revoked PKI certificates that are expired and were revoked more than the window ago (#6907)
+
+  - LDAP sources: the username lookup used to evaluate the "matches regexp" and "is member of" conditions now runs once per authentication instead of once per rule (#9273)
   - RADIUS dynamic clients (switches resolved from radius_nas) are now cached for 300 seconds. With the FreeRADIUS build shipped by PacketFence, `lifetime = 0` deleted the client after every request and re-ran the radius_nas lookups for every packet (fork commit b04cb25fe, reverted separately in inverse-inc/freeradius-server#3). A changed switch secret or type now applies to an already-known switch within five minutes
+  - Meraki MS switches detect Cisco IP phones through CDP (#7236), like Cisco switches: with VoIP enabled and "VoIP CDP Detect" (enabled by default), PacketFence reads the cdpCacheTable of the switch over SNMP during the RADIUS request. *After the upgrade*, enable SNMP for the network in the Meraki dashboard and set the SNMP read parameters of the switch, or disable "VoIP CDP Detect" on it: otherwise a request arriving while the switch is probed waits for the SNMP timeout (about 4 seconds) once every 10 minutes, with a warning in `packetfence.log`. A switch whose "Use SNMP" is disabled is not queried
   - FreeRADIUS thread pool size (`max_servers`) is now configurable as `radius_configuration.radiusd_max_servers` (Configuration > RADIUS > General) and defaults to 128 instead of 64; it also bounds the rlm_rest connection pool to httpd.aaa
 
 === Bug Fixes
 
   - pfconfig could not start again after a restart when one of its clients was connected to its own port: while pfconfig was down, the kernel could pick 44444 as the local port of a client connecting to it. Clients now close such a connection, and the packages reserve the port in `/etc/sysctl.d/99-packetfence-reserved-ports.conf` (`net.ipv4.ip_local_reserved_ports`). That parameter is a single list: add other reservations to this file rather than setting it in another one
+
+  - Cluster: an interface of pf.conf that cluster.conf doesn't define for a server is now ignored on that server, instead of being used there with the IP address of the server where pf.conf was configured (in a multi-zone cluster, keepalived refused to start on the members of a zone without that interface). In a multi-zone cluster, `pfcmd checkup` warns about an interface ignored on a server while the other servers of its zone have it, and about an interface defined for no server, including the ones without an IP address (e.g. monitor or dhcp-listener), which now need their sections in cluster.conf
+
+  - The isolation passthroughs (`fencing.isolation_passthroughs`) resolved by pfdns were added to the registration passthrough ipset (`pfsession_passthrough`), so the isolation network never let them through and the registration network did. They are now added to `pfsession_isol_passthrough`, used by the isolation network rules. A setup relying on an isolation passthrough being reachable from the registration network must add it to the passthroughs too
+
+  - Cluster: `/usr/local/pf/bin/cluster/sync --from` checks the webservices of the server to sync from first and stops with what to verify when they can't be used, instead of logging the same error for each file. It now exits with 1 when a file can't be synced, including an entry of `cluster-files.txt` that doesn't exist on that server or can't be written locally (it exited with 0)
+
+  - Audit logs: searching the RADIUS audit log by request time offers the range operators. API change: the searches of the RADIUS, DNS and admin API audit logs, the authentication log, the RADIUS accounting log and the WRIX locations (`POST /api/v1/<collection>/search`) return 200 with an empty `items` list and a `total` of 0 when nothing matches, instead of 404 "entries not found". An invalid search (unknown field or operator) returns 422 and a database error 500
+
+  - Email: the SMTP authentication uses a mechanism offered by the server (PLAIN, then LOGIN) instead of always trying PLAIN, which failed with servers offering only LOGIN (e.g. Office 365: "504 5.7.4 Unrecognized authentication type")
+
+  - `inline.ports_redirect`, `inline.interfaceSNAT`, `fencing.interception_proxy_port` and `network.interfaceSNAT` are now validated (ports, port/protocol pairs such as `80/tcp`, interface names), instead of accepting text that broke the generated iptables rules. A value saved before in another format has to be corrected before its form can be saved again
+
+  - Portal: a user who chose an OAuth, OpenID or SAML method and comes back without completing it is shown that method's page (with the other methods of the Choice) instead of being sent straight back to the provider (#7447)
+
+  - pfpki OCSP responder answered with a 500 error instead of "unknown" for a serial number that is in neither the certificates nor the revoked certificates
+
+  - The certificate chain validation of the admin interface now rejects intermediate certificates that are not part of the certificate's signing chain, instead of reporting the chain as valid and sending them to the clients (#6630)
+
+  - PFConnector: switches defined with a subnet (CIDR) are now propagated to the remote connectors, which only received single-IP switches and so didn't accept the RADIUS requests of the others (#9406)
+
+  - Git storage (cloud deployments): the local Fingerbank entries (devices, combinations, DHCP fingerprints, ...) created through the admin API are now saved to the git storage and restored on the pfconfig pods (`PFCONFIG_GIT_STORAGE_FINGERBANK_DB_DIRECTORY`). They were kept in the pod that handled the request and lost on its restart
+
+  - The CoA and Disconnect ports of a switch (`coaPort`, `disconnectPort`) are now used by every switch module instead of the 3799 default (#4749). A port set on a switch group now applies to all its members. Aruba CX and AeroHIVE sent their CoA-Request to `disconnectPort`: they now use `coaPort`, so a switch entry that relied on `disconnectPort` for the CoA must set `coaPort` too
+
+  - PacketFence PKI: revoking a certificate, for any reason except `superseded`, now deregisters the devices whose last EAP-TLS authentication used it and re-evaluates their access, so a device that falls back to MAC authentication isn't accepted with its previous role. With _Revoke on unregistration_ enabled on the PKI provider, unregistering a device therefore also unregisters the other devices that last authenticated with its certificate. FreeRADIUS still only rejects the certificate itself when OCSP is enabled in the OCSP profile (#8017)
+
+  - Authentication rule conditions on `switch_group`, `switch_id`, `mac` and `computer_name` now apply to 802.1X and MAB requests (#9002). They were only evaluated on the captive portal and for CLI/VPN logins, so such rules never matched a RADIUS request. *Review these rules before upgrading*: a rule that never matched until now can start assigning its role, and a negative condition such as `switch_group is not X` now matches every switch outside group X. The `dynamic_register_node` action also passes the MAC and computer name to the rules
+
+  - Role ACLs translated for the switch could allow more than the role. Aruba CX, Arista, AOS v16, FortiSwitch, Cisco and Dell N1500 dropped conditions their format cannot carry (the source address or port, the ICMP type, TCP flags, port operators other than `eq`): `permit ip host 10.1.1.1 any` became a permit of all the traffic of the endpoint, `gt 1024` became port 1024. A deny with TCP flags was skipped on Aruba CX, Arista and AOS v16 and let the lines after it through, AOS v16 dropped every destination port, and Dell N1500 sent no ACL at all. A permit that cannot be expressed is now skipped with a warning, and a deny that cannot be expressed ends the ACLs with a deny all. A non contiguous mask no longer breaks the translation on Aruba CX, Arista, AOS v16 and FortiSwitch. A role whose ACLs can't be parsed, or whose ACLs of a direction were all skipped, now gets a deny all instead of no ACL. Its endpoints used to be unrestricted; they are now cut off, with "Denying all the" in `packetfence.log`
   - LOG_LEVEL was ignored by the mod_perl services (httpd.aaa, httpd.webservices, httpd.portal): the variable reached the container but Apache never exposed it to Perl, so log4perl stayed at INFO. The httpd templates now PerlPassEnv it
+  - Dell N1500 and Cisco ASA: role ACLs were never sent in the Access-Accept, because a stale `returnAccessListAttribute` override returned a single value. Both modules now use the base implementation, and the N1500 (firmware 6.8 or later) installs the ACL as a dynamic ACL
   - `radius_configuration.pfacct_rate_limit` had no effect: the toggle was decoded but never applied, so accounting was forwarded to httpd.aaa unconditionally
+  - The RADIUS audit log records the user name PacketFence used for the request, such as the certificate identity with EAP-TLS, instead of the outer User-Name (#6115). Searching the audit log on an outer identity such as `anonymous` no longer finds the new entries
   - The pfacct accounting rate limiter no longer suppresses Accounting-Stop packets, which locationlog close, unreg_on_acct_stop and floating-device handling rely on
+  - Local user passwords with an expiration after 2038 are accepted again (#9122). A local account whose password expiration is the zero date (0000-00-00) can't log in, as since 2021, and the person cleanup now deletes it too instead of keeping it as "set not to expire" (see the Upgrade Guide)
   - RADIUS: for MAB and PAP requests, when the post-auth REST call to httpd.aaa fails (unreachable, timeout, 5xx) radiusd no longer answers with an Access-Reject but leaves the request unanswered, logging a "NoResponse" row in the RADIUS audit log. An Access-Reject tore down sessions the switch had already authorized on every httpd.aaa restart. EAP requests keep the Reject (the EAP conversation cannot be resumed on retransmit). Note: a NAS counts unanswered requests towards its dead-server criteria, so a stalled PacketFence now triggers the switch's fail-over behaviour (e.g. Cisco critical-auth) instead of de-authorizing ports
   - RADIUS: /radius/rest/authorize now answers 503 instead of 401 when the request could not be evaluated (database unavailable, handler exception), so radiusd treats it as a failure rather than a deny; a database outage no longer turns every reauthentication into an Access-Reject
+  - Filters: the `date is before`/`date is after` operators accept `now` (or an empty value) for the time of the evaluation and `YYYY-MM-DD` dates, as well as `YYYY-MM-DD HH:MM:SS` and `YYYY-MM-DD HH:MM`. An unset date (for example the `node_info.unregdate` of a node without an expiration) no longer makes the evaluation fail and never matches, also with the `is not before`/`is not after` operators. A rule with a date in another format now fails to build (logged when the filters are loaded, and listed by `pfcmd checkup`), see the upgrade notes
+
+  - 802.1X autoregistration with "Dot1x recompute role from portal" and "Dot1x unset on unmatch": a device matching no rule is now kept unregistered and gets the registration role, instead of being registered without a role. A role applied by a provisioner still registers it (#6126)
+
+  - Scan engines limited to roles no longer scan nodes without a role (ex: before registration): such a node is considered to have the `default` role. Add the `default` role to the engine to keep scanning devices before registration (#5575)
+
+  - Apple provisioning with EAP-PEAP: the RADIUS server certificate is no longer installed as a trusted root. The profile installs the provisioner's "RADIUS server CA path" certificate as a trusted root instead, and the network trusts both, limited to the RADIUS server name, so a renewed server certificate keeps working (#3432)
+
+  - The node field `last_arp`, never set by PacketFence, is removed from the admin UI, the filter field lists, the default reports Node::Active, Node::Inactive, Node::Registered::{Active,All} and Node::Unregistered::{Active,All}, and `pfcmd node view`. Exports of these reports lose that column. The database column is kept (#5756)
+
+  - Captive portal: a change to the URI filter of a connection profile is applied without restarting httpd.portal. A URI filter that isn't a valid regex is refused when the profile is saved. Local code using `$WEB::ALLOWED_RESOURCES_PROFILE_FILTER` must call `WEB::allowed_resources_profile_filter()` instead (#1351)
+
+  - `services.iptables` / `services.ip6tables` set to disabled (System Configuration > Services) had no lasting effect: any PacketFence service start re-applied and flushed the rules. When disabled, PacketFence no longer applies nor flushes the rules. Installations that have it disabled start without PacketFence firewall rules after the upgrade (#5022)
+
+  - Captive portal: the SMS PIN validation page is titled "Enter the PIN sent to your phone" instead of "Confirm Mobile Phone Number". Sites that translated the old string in their own catalogs need to translate the new one (#3391)
+
+  - RADIUS: assigning a certificate profile of its own to an EAP TLS profile that used the default certificate overwrote the default RADIUS certificate (raddb/certs/server.crt, server.key and ca.pem) through the symlinks of the previous configuration, and going back to the default certificate didn't restore the symlinks. Installations that already hit this ("Failed to parse server certificate", "Certificate/Key don't match") must upload their default RADIUS certificate again (#7594)
+
+  - Captive portal: a security event template customized in a connection profile is no longer replaced by a translation shipped with the default templates (such as `generic.fr.html`) for browsers preferring that language. Customize the language variants in the profile to keep a page per language (#7625)
+
+  - Access re-evaluation no longer fails on a port shared by several authenticated endpoints. A second endpoint authenticating on the port used to close the other endpoints' locationlog entries, after which `pf::enforcement::reevaluate_access` logged "Can't re-evaluate access because no open locationlog entry was found" and never sent their CoA. Set `host_mode=multi-auth` on the switch to keep per-endpoint entries
+  - Removed the `advanced.multihost` configuration parameter, which had no effect since the admin UI rewrite: its only consumer was the old Catalyst node view, along with the unused `pf::node::check_multihost` helper. It is replaced by the per-switch `host_mode`
+
+  - Inline: pfipset no longer fails to start (`FATAL: ipset restore failed`) on layer 2 inline networks with registered or isolated nodes. The inline sets are now pre-populated in the format of their set type, entries for missing sets are skipped, and a failed pre-population is logged instead of stopping the service (#9339)
 
 === Security Fixes
+
+  - Email: when STARTTLS is selected and fails (refused by the server, handshake or certificate error), sending now fails with the error instead of continuing in cleartext, which also sent the SMTP username and password unencrypted. Setups that select STARTTLS against a server that doesn't support it will now get "SMTP STARTTLS failed on <server>: <error>"; select the encryption the server supports
 
 == Version 15.2.0 released on 2026-08-24
 
