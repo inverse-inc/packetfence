@@ -159,6 +159,9 @@ EOT
         }
     }
     parse_template( \%tags, "$conf_dir/keepalived.conf", "$generated_conf_dir/keepalived.conf" );
+    # keepalived >= 2.3 skips an executable configuration file, and the file holds the VRRP password
+    chmod(0640, "$generated_conf_dir/keepalived.conf")
+      or get_logger()->warn("cannot set mode on $generated_conf_dir/keepalived.conf: $!");
     return 1;
 }
 
