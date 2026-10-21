@@ -1027,6 +1027,16 @@ included by the authentication, load-balancer and CLI servers:
 /usr/local/pf/bin/pfcmd service radiusd restart
 ----
 
+=== Scan engines limited to roles and nodes without a role
+
+A node without a role, such as an unregistered device scanned before
+registration, is now considered to have the `default` role when choosing the
+scan engine. Before, it matched every scan engine, including the ones limited
+to other roles.
+
+If a scan engine has *Roles* set and *Scan before registration* enabled, add
+the `default` role to it to keep scanning the devices before registration.
+
 === services.iptables and services.ip6tables are now honored
 
 When `services.iptables` or `services.ip6tables` is disabled (_System
