@@ -122,6 +122,21 @@ storage=distributed
 # Make sure to adjust according to pfcron switch_cache_lldpLocalPort_description.interval
 expires_in=48h
 
+[namespace role_networks]
+#
+# namespace role_networks.storage
+#
+# The storage to use for the namespace
+# Holds the networks of each role (from the <Role>Network switch attributes),
+# used to expand "net <Role>" ACLs. Refreshed when the switch configuration is
+# committed; the expiry only catches the changes made without a commit (an
+# edit of switches.conf followed by a configreload).
+storage=distributed
+#
+# namespace role_networks.expires_in
+#
+expires_in=1h
+
 [storage person_lookup]
 #
 # storage person_lookup.expires_in
