@@ -158,9 +158,13 @@ Remove the private key passphrase:
  Enter pass phrase for PRIVATEKEY.key:
  writing RSA key
 
-Send the CSR and retreive the certificate:
+Send the CSR and retrieve the certificate:
 
- sscep enroll -c ./ca-prefix  -k ./private.key -r ./MYCSR.csr -u http://ip_address/scep/template_name -S sha1 -l ./cert.crt
+ sscep enroll -c ./ca-prefix  -k ./private.key -r ./MYCSR.csr -u http://ip_address/scep/template_name -S sha256 -E aes256 -l ./cert.crt
+
+NOTE: Without `-E`, `sscep` encrypts the request with DES, which OpenSSL 3 no
+longer supports by default. The enrollment then fails with `request payload
+encrypt failed` and `unsupported ... Algorithm (DES-CBC : 8)`.
 
 ==== Certificate creation
 
@@ -190,6 +194,50 @@ a new one. You will need to specify a reason of the revokation.
 ===== Click on the *Revoke* button on the certificate:
 
 image::packetfence-pki-revoked_certificate.png[scaledwidth="100%",alt="Revoke a certificate"]
+
+===== Cleaning up revoked certificates
+
+Revoked certificates are kept in the database, so the OCSP responder can keep
+reporting them as revoked. To purge old revoked certificates, enable the
+`pki_revoked_certs_cleanup` maintenance task in _Configuration -> System
+Configuration -> Maintenance Tasks_. It is disabled by default.
+
+The task deletes a revoked certificate once it was revoked more than `window`
+ago (1 year by default) *and* the certificate itself has expired. A revoked
+certificate that has not expired yet is never deleted, so it can't be reported
+as valid again. Deleting a revoked certificate also removes it from the history
+of the device or user it was issued to.
+
+===== Enforcing the revocation in EAP-TLS
+
+FreeRADIUS only refuses a revoked certificate when it checks its status with
+OCSP, and OCSP checking is disabled by default. To enable it, go in
+_Configuration -> System Configuration -> RADIUS -> OCSP Profiles_, edit the
+`default` profile (used by the default TLS profile) and enable OCSP, then
+restart the `radiusd-auth` service. The default profile already points to the
+OCSP responder of the PacketFence PKI
+(`http://127.0.0.1:22225/api/v1/pki/ocsp`) and overrides the URL of the
+certificate, since PacketFence PKI certificates do not carry one. With OCSP
+enabled, the authentication of a revoked certificate is rejected with
+`eap_tls: ocsp: Cert status: revoked` in the RADIUS audit log.
+
+NOTE: With the URL override, every client certificate is checked against the
+PacketFence PKI. If your endpoints also use certificates from another CA,
+create a separate OCSP profile for them (pointing to the OCSP responder of that
+CA) instead of enabling the override on a shared profile.
+
+When a certificate is revoked for any reason other than `superseded`, the
+PacketFence PKI also deregisters the devices whose last EAP-TLS authentication
+used it and re-evaluates their access. Without this, a switch that falls back
+to MAC authentication after the EAP-TLS reject would give the device its
+registered role back. A `superseded` certificate (expired, or replaced by a new
+one) keeps its devices registered.
+
+This also applies to the revocation done when a device is unregistered with
+_Revoke on unregistration_ enabled on the PKI provider: its certificate is
+revoked (reason `keyCompromise`), so the other devices whose last EAP-TLS
+authentication used the same certificate are unregistered too, and the device
+itself is deregistered and re-evaluated a second time.
 
 ==== Resign a certificate
 

@@ -25,6 +25,7 @@ export {
   BaseFormGroupSwitch                 as FormGroupHttpdWebservices,
   BaseFormGroupSwitch                 as FormGroupKeepalived,
   BaseFormGroupInput                  as FormGroupNetflowAddress,
+  BaseFormGroupSwitch                 as FormGroupNetflowProcessor,
   BaseFormGroupSwitch                 as FormGroupNetdata,
   BaseFormGroupSwitch                 as FormGroupPfacct,
   BaseFormGroupSwitch                 as FormGroupPfcron,

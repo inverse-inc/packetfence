@@ -25,14 +25,16 @@ has '+source' => (
 
 =head2 _decode_response
 
-The e-mail is returned as a quoted string
+Get the e-mail from the OpenID Connect userinfo (Sign In with LinkedIn using OpenID Connect),
+or from the legacy emailAddress API
 
 =cut
 
 sub _decode_response {
     my ($self, $response) = @_;
     my $data = decode_json($response->content());
-    return {email => $data->{elements}->[0]->{'handle~'}->{emailAddress}};
+    my $email = $data->{email} // $data->{elements}->[0]->{'handle~'}->{emailAddress};
+    return {email => $email};
 }
 
 sub _build_source {

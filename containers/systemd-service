@@ -73,7 +73,7 @@ function build_img {
   if ! [ -z "$HTML_MOUNT" ]; then
     BUILD_PFAPPSERVER_VUE=no
   fi
-  docker build --build-arg=PF_VERSION=$PF_VERSION --build-arg=KNK_REGISTRY_URL=$LOCAL_REGISTRY --build-arg=IMAGE_TAG=$TAG_OR_BRANCH_NAME --build-arg=BUILD_PFAPPSERVER_VUE=$BUILD_PFAPPSERVER_VUE -q -f containers/$img/Dockerfile .
+  docker build --build-arg="GO_CHECK=${GO_CHECK:-no}" --build-arg=PF_VERSION=$PF_VERSION --build-arg=KNK_REGISTRY_URL=$LOCAL_REGISTRY --build-arg=IMAGE_TAG=$TAG_OR_BRANCH_NAME --build-arg=BUILD_PFAPPSERVER_VUE=$BUILD_PFAPPSERVER_VUE -q -f containers/$img/Dockerfile .
 }
 
 function build_base_images {

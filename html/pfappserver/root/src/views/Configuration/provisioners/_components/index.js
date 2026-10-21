@@ -40,6 +40,7 @@ export {
   BaseFormGroupInputPassword                as FormGroupClientSecret,
   BaseFormGroupInput                        as FormGroupCustomerId,
   BaseFormGroupInput                        as FormGroupDescription,
+  BaseFormGroupChosenMultiple               as FormGroupDeviceLookup,
   BaseFormGroupSwitch                       as FormGroupDeviceTypeDetection,
   BaseFormGroupInput                        as FormGroupDomains,
   BaseFormGroupSwitch                       as FormGroupDpsk,

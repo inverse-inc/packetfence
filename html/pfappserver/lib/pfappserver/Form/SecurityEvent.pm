@@ -39,6 +39,7 @@ my $ID_ERR_MSG = "The security event ID should be between 1 and 2000000000";
 has 'triggers' => ( is => 'ro' );
 has 'templates' => ( is => 'ro', builder => 'build_templates');
 has 'placeholders' => ( is => 'ro' );
+has 'email_templates' => ( is => 'ro', builder => 'build_email_templates');
 
 # Form fields
 has_field 'enabled' =>
@@ -101,6 +102,18 @@ has_field 'user_mail_message' =>
         deflate_value_method   => \&deflate_extra_message,
     );
 
+has_field 'user_template_email' =>
+  (
+   type => 'Select',
+   options_method => \&options_email_template,
+   # a value that is not in the list (e.g. saved before this was a select) is
+   # kept, so the security event can still be saved
+   no_option_validation => 1,
+   label => 'User template email',
+   tags => { after_element => \&help,
+             help => 'Template email to use to send the security event by email to the endpoint owner.' },
+  );
+
 has_field 'email_recipient_message' =>
     (
         type                   => 'TextArea',
@@ -143,7 +156,11 @@ has_field 'recipient_email' =>
 
 has_field 'recipient_template_email' =>
   (
-   type => 'Text',
+   type => 'Select',
+   options_method => \&options_email_template,
+   # a value that is not in the list (e.g. saved before this was a select) is
+   # kept, so the security event can still be saved
+   no_option_validation => 1,
    label => 'Recipient template email',
    tags => { after_element => \&help,
              help => 'Template email to use to send the security event by email.' },
@@ -447,6 +464,34 @@ sub build_templates {
     return [map { { value => $_, label => "${_}.html" } } sort(uniq(@templates))];
 }
 
+=head2 options_email_template
+
+=cut
+
+sub options_email_template {
+    my ($self) = @_;
+    return @{$self->form->email_templates // []};
+}
+
+
+=head2 build_email_templates
+
+The email templates (emails-<name>.html) that can be used by the email actions
+Same include path as pf::config::util::add_standard_include_path
+
+=cut
+
+sub build_email_templates {
+    my @dirs = ("$captiveportal_profile_templates_path/default/emails", "$captiveportal_templates_path/emails");
+    my @templates;
+    foreach my $dir (@dirs) {
+        next unless opendir(my $dh, $dir);
+        push @templates, map { /^emails-(.+)\.html$/ ? $1 : () } readdir($dh);
+        closedir($dh);
+    }
+
+    return [map { { value => $_, label => $_ } } sort(uniq(@templates))];
+}
 
 =head2 validate
 

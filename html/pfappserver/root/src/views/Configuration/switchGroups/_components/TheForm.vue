@@ -41,6 +41,11 @@
                                        disabled-value="N"
         />
 
+        <form-group-host-mode namespace="host_mode"
+                              :column-label="$i18n.t('Port host mode')"
+                              :text="$i18n.t('Host mode configured on the switch ports. In multi-auth, each endpoint authenticates independently: PacketFence keeps a separate locationlog entry per MAC and deauthenticates each endpoint with a per-session CoA/Disconnect instead of bouncing the port. Note that most switches apply a single data VLAN per port, so returning two different VLANs for two endpoints on the same port will not work; use role-based ACLs (push or downloadable) to differentiate them.')"
+        />
+
         <form-group-external-portal-enforcement namespace="ExternalPortalEnforcement"
                                                 v-show="supports(['ExternalPortal'])"
                                                 :column-label="$i18n.t('External Portal Enforcement')"
@@ -469,6 +474,10 @@
         <form-group-web-services-pwd namespace="wsPwd"
                                      :column-label="$i18n.t('Password')"
         />
+        <form-group-web-services-verify-certificate namespace="wsVerifyCertificate"
+                                                    :column-label="$i18n.t('Verify Certificate')"
+                                                    :text="$i18n.t('Verify the certificate of the controller when the transport is HTTPS. The certificate must be issued by a trusted certificate authority for the controller address. When disabled, the certificate is not checked, which allows self-signed certificates.')"
+        />
 
       </base-form-tab>
       <base-form-tab :title="$i18n.t('ACLs')" v-if="supports(['PushACLs', 'DownloadableListBasedEnforcement'])">
@@ -651,6 +660,7 @@ import {
   FormGroupDownloadableAclsLimit,
   FormGroupAclsLimit,
   FormGroupDeauthOnPrevious,
+  FormGroupHostMode,
   FormGroupVoipEnabled,
   FormGroupVoipLldpDetect,
   FormGroupVoipCdpDetect,
@@ -660,6 +670,7 @@ import {
   FormGroupWebServicesPwd,
   FormGroupWebServicesTransport,
   FormGroupWebServicesUser,
+  FormGroupWebServicesVerifyCertificate,
 
   InputRoleMapNetwork,
   InputToggleNetworkFrom,
@@ -739,6 +750,7 @@ const components = {
   FormGroupDownloadableAclsLimit,
   FormGroupAclsLimit,
   FormGroupDeauthOnPrevious,
+  FormGroupHostMode,
   FormGroupVoipEnabled,
   FormGroupVoipLldpDetect,
   FormGroupVoipCdpDetect,
@@ -748,6 +760,7 @@ const components = {
   FormGroupWebServicesPwd,
   FormGroupWebServicesTransport,
   FormGroupWebServicesUser,
+  FormGroupWebServicesVerifyCertificate,
 
   InputRoleMapNetwork,
   InputToggleNetworkFrom,
