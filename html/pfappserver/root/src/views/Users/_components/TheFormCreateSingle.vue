@@ -148,7 +148,7 @@
         </div>
       </div>
     </base-form>
-    <the-preview-modal v-model="showPreviewModal"/>
+    <the-preview-modal v-model="showPreviewModal" :quantity="1"/>
   </b-form>
 </template>
 <script>
