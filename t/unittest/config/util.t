@@ -22,7 +22,7 @@ BEGIN {
 
 use pf::config::util;
 use pf::file_paths qw($html_dir);
-use Test::More tests => 4;
+use Test::More tests => 9;
 
 #This test will running last
 use Test::NoWarnings;
@@ -73,6 +73,14 @@ use Test::NoWarnings;
         ],
         "Add to an array",
     );
+}
+
+{
+    is_deeply([pf::config::util::smtp_auth_mechanisms('LOGIN XOAUTH2')], ['LOGIN'], "Office 365 style AUTH uses LOGIN");
+    is_deeply([pf::config::util::smtp_auth_mechanisms('PLAIN LOGIN')], ['PLAIN', 'LOGIN'], "PLAIN is preferred");
+    is_deeply([pf::config::util::smtp_auth_mechanisms('login cram-md5 plain')], ['PLAIN', 'LOGIN'], "case insensitive");
+    is_deeply([pf::config::util::smtp_auth_mechanisms('XOAUTH2')], [], "no supported mechanism");
+    is_deeply([pf::config::util::smtp_auth_mechanisms(undef)], [], "no AUTH");
 }
 
 =head1 AUTHOR

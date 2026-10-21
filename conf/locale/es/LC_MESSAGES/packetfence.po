@@ -56,6 +56,10 @@ msgstr "Pedido de acceso de invitados"
 msgid "%s: Guest access request accepted"
 msgstr "%s: Pedido de acceso de invitados aceptado"
 
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "---Choose a Provider---"
+msgstr "---Elija un proveedor---"
+
 # html/captive-portal/templates/ssl_inspection/windows.html
 msgid ""
 "A <i>Security Warning</i> will appear, asking if you're sure you'd like to "
@@ -372,11 +376,6 @@ msgstr "Compañia"
 msgid "Computer name "
 msgstr "Nombre del ordenador"
 
-# html/captive-
-# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/SMS.pm
-msgid "Confirm Mobile Phone Number"
-msgstr "Confirme su número de móvil"
-
 # html/captive-portal/templates/status/reset_password_token.html
 msgid "Confirm Password"
 msgstr ""
@@ -633,6 +632,11 @@ msgstr ""
 msgid "Enter a valid telephone number"
 msgstr "Ingrese un número de teléfono válido"
 
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/SMS.pm
+msgid "Enter the PIN sent to your phone"
+msgstr "Introduzca el PIN enviado a su teléfono"
+
 # html/captive-portal/templates/security_events/bandwidth_expiration.html
 msgid "Expiration"
 msgstr "Vencimiento"
@@ -654,6 +658,10 @@ msgid ""
 "Failure to do so within %s minutes will result in a termination of your "
 "network access."
 msgstr "El no realizar esto dentro de los próximos %s miniutos resultará en la terminación de su acceso a la red"
+
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "Female"
+msgstr "Femenino"
 
 # html/captive-portal/templates/ssl_inspection/firefox.html
 msgid "Firefox CA trust prompt"
@@ -971,6 +979,10 @@ msgid ""
 "Make sure <i>Trust</i> is expanded and select the dropdown next to <i>When "
 "using this certificate:</i> and change it to <i>Always Trust</i>."
 msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "Male"
+msgstr "Masculino"
 
 # html/captive-portal/templates/stripe-customer-portal/select-account.html
 msgid "Manage"
@@ -2103,7 +2115,7 @@ msgstr ""
 msgid ""
 "You're not connected to the network, but have a timebank of <strong "
 "id='timeleft'>%s</strong>"
-msgstr "Usted no está conectado a la red, pero tienen un banco de tiempo de <strong d='timeleft'>%s</strong>"
+msgstr "Usted no está conectado a la red, pero tienen un banco de tiempo de <strong id='timeleft'>%s</strong>"
 
 # html/captive-portal/templates/status.html
 msgid "Your WPA Wi-Fi key: "

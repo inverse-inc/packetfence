@@ -532,6 +532,7 @@ func (I *Interface) handleRequest(ctx context.Context, p dhcp.Packet, handler DH
 
 			answer.D = dhcp.ReplyPacket(p, dhcp.ACK, setOptionServerIdentifier(srvIP, handler.ip).To4(), reqIP, leaseDuration,
 				GlobalOptions.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
+			setBootFields(answer.D, GlobalOptions)
 			var cacheDuration time.Duration
 			if leaseDuration < time.Duration(60)*time.Second {
 				cacheDuration = time.Duration(120) * time.Second
@@ -811,6 +812,7 @@ reply:
 	log.LoggerWContext(ctx).Info("DHCPOFFER on " + answer.IP.String() + " to " + clientMac + " (" + clientHostname + ")")
 	answer.D = dhcp.ReplyPacket(p, dhcp.Offer, setOptionServerIdentifier(srvIP, handler.ip).To4(), answer.IP, leaseDuration,
 		GlobalOptions.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
+	setBootFields(answer.D, GlobalOptions)
 
 	return answer
 }

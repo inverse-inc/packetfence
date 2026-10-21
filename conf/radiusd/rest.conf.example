@@ -198,6 +198,12 @@ rest {
 		uri = "${..connect_uri}/radius/rest/filter"
 		method = 'post'
 		body = 'json'
+		# In the proxy sections rlm_rest bodies the proxied copy of the
+		# packet (pre-proxy) or the home server's reply (post-proxy), neither
+		# of which carries NAS-IP-Address / Calling-Station-Id. Send the
+		# original request too so PacketFence can identify the switch and
+		# the endpoint; the proxy list stays available under its own key.
+		body_lists = "request proxy-request"
 		tls = ${..tls}
 		attr_num = 'true'
 		raw_value ='true'
@@ -207,6 +213,7 @@ rest {
 		uri = "${..connect_uri}/radius/rest/filter"
 		method = 'post'
 		body = 'json'
+		body_lists = "request proxy-reply"
 		tls = ${..tls}
 		attr_num = 'true'
 		raw_value ='true'

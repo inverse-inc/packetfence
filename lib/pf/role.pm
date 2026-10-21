@@ -18,7 +18,7 @@ use warnings;
 use pf::log;
 
 use pf::constants;
-use Scalar::Util qw(blessed);
+use Scalar::Util qw(blessed reftype);
 use pf::constants::trigger qw($TRIGGER_ID_PROVISIONER $TRIGGER_TYPE_PROVISIONER);
 use pf::config qw(
     %ConfigFloatingDevices
@@ -435,6 +435,7 @@ sub getRegisteredRole {
                 radius_request => $args->{radius_request},
                 realm => $args->{realm},
                 context => $pf::constants::realm::RADIUS_CONTEXT,
+                %{ _connection_params($args) },
             };
             my %info;
             my $matched = pf::authentication::match2([@sources], $params, undef, \$attributes);
@@ -608,6 +609,7 @@ sub getNodeInfoForAutoReg {
                 radius_request => $args->{radius_request},
                 realm => $args->{realm},
                 context => $pf::constants::realm::RADIUS_CONTEXT,
+                %{ _connection_params($args) },
             };
             my $matched = pf::authentication::match2([@sources], $params, undef, \$attributes);
             my $source = $matched->{source_id};
@@ -891,9 +893,36 @@ sub makeParams {
         radius_request => $args->{radius_request},
         realm => $args->{realm},
         context => $pf::constants::realm::RADIUS_CONTEXT,
+        %{ _connection_params($args) },
     };
     $params->{'stripped_user_name'} = $args->{'stripped_user_name'} if(defined($args->{'stripped_user_name'}));
     return $params;
+}
+
+=head2 _connection_params
+
+The endpoint and network device attributes of the authentication rule
+conditions (mac, switch_id, switch_group, computer_name). The portal and the
+RADIUS CLI/VPN paths already pass them; without them a rule condition on the
+switch group never matches an 802.1X or MAB request.
+
+=cut
+
+sub _connection_params {
+    my ( $args ) = @_;
+    my %params;
+    my $switch = $args->{'switch'};
+    if (ref($switch)) {
+        $params{'switch_id'} = $switch->{'_id'} if defined $switch->{'_id'};
+        $params{'switch_group'} = $switch->{'_group'} if defined $switch->{'_group'};
+    }
+    $params{'mac'} = $args->{'mac'} if defined $args->{'mac'};
+    # On the RADIUS path node_info is a pf::dal::node object, not a plain hash
+    my $node_info = $args->{'node_info'};
+    if ((reftype($node_info) // '') eq 'HASH' && defined $node_info->{'computername'}) {
+        $params{'computer_name'} = $node_info->{'computername'};
+    }
+    return \%params;
 }
 
 =head1 AUTHOR
