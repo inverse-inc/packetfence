@@ -83,6 +83,7 @@ export {
   BaseFormGroupToggleNYDefault            as FormGroupToggleAccessListMap,
   BaseFormGroupToggleNYDefault            as FormGroupToggleInterfaceMap,
   BaseFormGroupSwitch                     as FormGroupDeauthOnPrevious,
+  BaseFormGroupChosenOne                  as FormGroupHostMode,
   BaseFormGroupToggleNYDefault            as FormGroupToggleRoleMap,
   BaseFormGroupToggleNYDefault            as FormGroupToggleVpnMap,
   BaseFormGroupToggleNYDefault            as FormGroupToggleUrlMap,
