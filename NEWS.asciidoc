@@ -42,6 +42,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Bug Fixes
 
+  - The certificate chain validation of the admin interface now rejects intermediate certificates that are not part of the certificate's signing chain, instead of reporting the chain as valid and sending them to the clients (#6630)
+
   - PFConnector: switches defined with a subnet (CIDR) are now propagated to the remote connectors, which only received single-IP switches and so didn't accept the RADIUS requests of the others (#9406)
 
   - Git storage (cloud deployments): the local Fingerbank entries (devices, combinations, DHCP fingerprints, ...) created through the admin API are now saved to the git storage and restored on the pfconfig pods (`PFCONFIG_GIT_STORAGE_FINGERBANK_DB_DIRECTORY`). They were kept in the pod that handled the request and lost on its restart
