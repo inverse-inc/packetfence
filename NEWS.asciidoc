@@ -48,6 +48,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Bug Fixes
 
+  - pfconfig could not start again after a restart when one of its clients was connected to its own port: while pfconfig was down, the kernel could pick 44444 as the local port of a client connecting to it. Clients now close such a connection, and the packages reserve the port in `/etc/sysctl.d/99-packetfence-reserved-ports.conf` (`net.ipv4.ip_local_reserved_ports`). That parameter is a single list: add other reservations to this file rather than setting it in another one
+
   - Cluster: an interface of pf.conf that cluster.conf doesn't define for a server is now ignored on that server, instead of being used there with the IP address of the server where pf.conf was configured (in a multi-zone cluster, keepalived refused to start on the members of a zone without that interface). In a multi-zone cluster, `pfcmd checkup` warns about an interface ignored on a server while the other servers of its zone have it, and about an interface defined for no server, including the ones without an IP address (e.g. monitor or dhcp-listener), which now need their sections in cluster.conf
 
   - The isolation passthroughs (`fencing.isolation_passthroughs`) resolved by pfdns were added to the registration passthrough ipset (`pfsession_passthrough`), so the isolation network never let them through and the registration network did. They are now added to `pfsession_isol_passthrough`, used by the isolation network rules. A setup relying on an isolation passthrough being reachable from the registration network must add it to the passthroughs too
