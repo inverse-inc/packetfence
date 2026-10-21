@@ -36,6 +36,8 @@ variables:
   PIPELINE_TIMEOUT_TEARDOWN: 6m
   PIPELINE_TIMEOUT_CLEAN: 3m
   BUILD_PFAPPSERVER_VUE: "yes"
+  # Opt in to Go analysis and full builds on both build images.
+  GO_CHECK: "no"
   PFBUILD_RHEL_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-centos-8
   PFBUILD_DEB_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-debian-bookworm
   KANIKO_DEBUG_IMG: ghcr.io/inverse-inc/packetfence/kaniko-executor:debug
@@ -72,6 +74,8 @@ variables:
   # Heavy 3-VM cluster tests. Also run on TEST=yes (after the test stage passes);
   # TEST_CLUSTER=yes forces them on their own.
   TEST_CLUSTER: ""
+  # Override with a tag assigned to a suitably sized cluster runner.
+  CLUSTER_RUNNER_TAG: "test-cluster-shell-v7"
 
 
 ################################################################################
@@ -170,8 +174,8 @@ variables:
   rules:
     - if: '$PUBLISH_PPA == "yes" || $CI_COMMIT_MESSAGE =~ /publish_ppa=yes/'
     - if: '$CI_COMMIT_TAG'
-    - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" )'
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" )'
+    - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" || $TEST_CLUSTER == "yes" || $CI_COMMIT_MESSAGE =~ /test_cluster=yes/ )'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" || $TEST_CLUSTER == "yes" || $CI_COMMIT_MESSAGE =~ /test_cluster=yes/ )'
     - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ($BUILD_PF_IMG_DVD_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_dvd_usb_iso=yes/)'
 
 .gated_by_test_yes:
@@ -464,14 +468,18 @@ variables:
   tags:
     - test-shell-v7
 
-# Strict gate: build_artifacts must not start if pre_ci_lint_yaml failed or if any
-# build_images job failed. pre_ci_lint_yaml is non-optional (always present) so a
-# lint failure blocks every artifact job. Every concrete build_images job is
+# Strict gate: build_artifacts must not start if YAML lint, either Go check, or
+# any build_images job failed. The lint job is always present and non-optional.
+# The opt-in Go jobs and every concrete build_images job are
 # listed as optional: true so a gated-out job (rules → when:never) does not
 # block — only jobs that actually ran and failed will skip the dependents.
 .needs_all_build_images:
   needs:
     - job: pre_ci_lint_yaml
+    - job: pre_ci_go_check_debian_bookworm
+      optional: true
+    - job: pre_ci_go_check_centos_8
+      optional: true
     - job: kaniko
       optional: true
     - job: pfdebian
@@ -566,9 +574,13 @@ variables:
     - test-shell-v7
 
 # Cluster test family runs in its own stage (heavy 3-VM jobs, opt-in).
+# Default to the cluster pool; allow a controlled run on a larger cluster host.
+# The selected runner still needs disk space and libvirt support for three PF VMs.
 .test_cluster_job:
   extends: .test_job
   stage: test_cluster
+  tags:
+    - "$CLUSTER_RUNNER_TAG"
 
 .deploy_packages_job:
   stage: deploy
@@ -796,6 +808,31 @@ pre_ci_test_cleanup:
     - ${TESTCIDIR}/clean-test-environment.test.sh
   allow_failure: false
 
+# Opt-in Go gate + full build, including on feature branches. Run on both
+# build images: checks use the host OS with cgo, so findings can differ.
+.go_check_job:
+  extends:
+    - .check_job
+  needs:
+    - job: run_pipeline_if_necessary
+      optional: true
+  rules:
+    - if: '$GO_CHECK == "yes"'
+    - when: never
+  script:
+    - make -C go check-build
+  allow_failure: false
+
+pre_ci_go_check_debian_bookworm:
+  extends:
+    - .go_check_job
+  image: ${PFBUILD_DEB_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+
+pre_ci_go_check_centos_8:
+  extends:
+    - .go_check_job
+  image: ${PFBUILD_RHEL_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+
 ########################################
 # BUILD_IMG_CONTAINER JOBS (kaniko / pfdebian / pfdebian_related / radiusd / radiusd_related)
 ########################################
@@ -954,10 +991,16 @@ build_img_vagrant_devel_and_branches_debian_bookworm:
 # the pipeline's PPA (http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}).
 # They also gate on the full build_images set: publish_ppa's chain omits the
 # golden base box (build_img_vagrant_*) the bake consumes.
+.bake_img_rules:
+  # standalone (.test_rules) or cluster-only (TEST_CLUSTER) pipelines need the box
+  rules:
+    - !reference [.test_rules, rules]
+    - !reference [.cluster_test_rules, rules]
+
 bake_img_vagrant_el8:
   extends:
     - .bake_img_vagrant_job
-    - .test_rules
+    - .bake_img_rules
   needs:
     - !reference [.needs_all_build_images, needs]
     - job: publish_ppa
@@ -969,7 +1012,7 @@ bake_img_vagrant_el8:
 bake_img_vagrant_deb12:
   extends:
     - .bake_img_vagrant_job
-    - .test_rules
+    - .bake_img_rules
   needs:
     - !reference [.needs_all_build_images, needs]
     - job: publish_ppa
@@ -1482,6 +1525,7 @@ cluster_configurator_deb12:
     - .test_cluster_job
     - .test_script_job
     - .cluster_test_rules
+    - .test_job_vagrant_deb12
 
 cluster_configurator_el8:
   variables:
@@ -1490,6 +1534,35 @@ cluster_configurator_el8:
     - .test_cluster_job
     - .test_script_job
     - .cluster_test_rules
+    - .test_job_vagrant_el8
+
+# Recovery family (A-F): builds the cluster then runs cluster_recovery in the
+# same job/VMs. Slow (~1h+); same TEST_CLUSTER gate as the configurator jobs.
+cluster_recovery_deb12:
+  timeout: 5h
+  variables:
+    CLUSTER_SETUP_TIMEOUT: 120m
+    CLUSTER_RECOVERY_TIMEOUT: 150m
+    PIPELINE_TIMEOUT_SCRIPT: 280m
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
+  extends:
+    - .test_cluster_job
+    - .test_script_job
+    - .cluster_test_rules
+    - .test_job_vagrant_deb12
+
+cluster_recovery_el8:
+  timeout: 5h
+  variables:
+    CLUSTER_SETUP_TIMEOUT: 120m
+    CLUSTER_RECOVERY_TIMEOUT: 150m
+    PIPELINE_TIMEOUT_SCRIPT: 280m
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
+  extends:
+    - .test_cluster_job
+    - .test_script_job
+    - .cluster_test_rules
+    - .test_job_vagrant_el8
 
 ### release
 configurator_el8_pristine:

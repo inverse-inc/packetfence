@@ -47,6 +47,8 @@ Conflicts: packetfence-export
 
 Requires: firewalld
 Requires: chkconfig, coreutils, grep, openssl, sed, tar, wget, gettext, conntrack-tools, patch, git
+# ssh binary for the SSH transport of the switch CLI (Net::CLI::Interact)
+Requires: openssh-clients
 # for process management
 Requires: rsyslog
 Requires: procps
@@ -451,6 +453,7 @@ done
 %{__install} -D packetfence.modprobe %{buildroot}/etc/modprobe.d/packetfence.conf
 # kernel tuning for UDP receive buffers (pfacct/pfdns/pfdhcp)
 %{__install} -D -m0644 packetfence.sysctl %{buildroot}/etc/sysctl.d/99-packetfence-udp.conf
+%{__install} -D -m0644 packetfence-reserved-ports.sysctl %{buildroot}/etc/sysctl.d/99-packetfence-reserved-ports.conf
 # override docker-ce unit file
 %{__install} -D -m0644 packetfence.docker-drop-in.service %{buildroot}/etc/systemd/system/docker.service
 
@@ -731,6 +734,16 @@ do
   fi
 done
 
+# openldap-ltb is only pulled in for its client libraries (freeradius-ldap).
+# Its slapd is not used by PacketFence: disable it while it still runs the
+# unconfigured sample configuration shipped with the package.
+SLAPD_CONF=/usr/local/openldap/etc/openldap/slapd.conf
+if [ -f "$SLAPD_CONF" ] && grep -Eq '^rootpw[[:space:]]+secret[[:space:]]*$' "$SLAPD_CONF"; then
+  echo "Disabling unconfigured slapd from openldap-ltb"
+  /bin/systemctl disable --now slapd > /dev/null 2>&1 || true
+  /sbin/chkconfig --del slapd > /dev/null 2>&1 || true
+fi
+
 #Check if RADIUS have a dh
 if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
   echo "Building default RADIUS certificates..."
@@ -768,6 +781,11 @@ sed -i 's/\%.*$//g' /etc/resolv.conf
 echo "# ip forwarding enabled by packetfence" > /etc/sysctl.d/99-ip_forward.conf
 echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.d/99-ip_forward.conf
 sysctl -p /etc/sysctl.d/99-ip_forward.conf
+
+# Reserve the pfconfig port (99-packetfence-reserved-ports.conf, #8576). Merge it with the current
+# reservations so the ones applied by other files aren't dropped until the next boot
+current=$(sysctl -n net.ipv4.ip_local_reserved_ports 2>/dev/null)
+sysctl -w net.ipv4.ip_local_reserved_ports="${current:+$current,}44444" > /dev/null || true
 
 /usr/local/pf/bin/pfcmd fixpermissions
 
@@ -897,6 +915,7 @@ fi
 %attr(0644, root, root) /etc/modules-load.d/packetfence.conf
 %attr(0644, root, root) /etc/modprobe.d/packetfence.conf
 %attr(0644, root, root) /etc/sysctl.d/99-packetfence-udp.conf
+%config(noreplace) %attr(0644, root, root) /etc/sysctl.d/99-packetfence-reserved-ports.conf
 
 %attr(0644, root, root) %{_unitdir}/packetfence-*.service
 %attr(0644, root, root) %{_unitdir}/packetfence-*.path
@@ -1200,6 +1219,8 @@ fi
                         /usr/local/pf/conf/radiusd/clients.eduroam.conf.inc.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/cert
                         /usr/local/pf/conf/radiusd/cert.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/dictionary.local
+                        /usr/local/pf/conf/radiusd/dictionary.local.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/mschap.conf
                         /usr/local/pf/conf/radiusd/mschap.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/packetfence-cluster

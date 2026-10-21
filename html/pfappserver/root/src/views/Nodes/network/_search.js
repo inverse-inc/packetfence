@@ -84,12 +84,6 @@ export const search = {
       icon: 'calendar-alt'
     },
     {
-      value: 'last_arp',
-      text: 'Last ARP Date', // i18n defer
-      types: [conditionType.DATETIME],
-      icon: 'calendar-alt'
-    },
-    {
       value: 'last_dhcp',
       text: 'Last DHCP Date', // i18n defer
       types: [conditionType.DATETIME],
