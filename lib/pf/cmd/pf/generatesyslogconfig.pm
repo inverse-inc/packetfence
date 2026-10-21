@@ -19,7 +19,7 @@ use base qw(pf::cmd);
 use pf::file_paths qw($syslog_config_file $syslog_default_config_file $log_dir $rsyslog_packetfence_config_file);
 use pf::IniFiles;
 use Template;
-use File::Slurp qw(write_file);
+use File::Slurp qw(read_file write_file);
 use pf::constants::exit_code qw($EXIT_SUCCESS);
 use pf::constants::syslog;
 
@@ -110,6 +110,60 @@ sub section_data {
 }
 
 
+our $RSYSLOG_MAIN_CONFIG = '/etc/rsyslog.conf';
+our $RSYSLOG_DROPIN_DIR = '/etc/rsyslog.d';
+
+=head2 inputs_config
+
+The configuration of the rsyslog inputs, written before the rest of the configuration.
+
+imjournal keeps its position in a state file, otherwise rsyslog reads the
+whole journal again (and appends it to the log files) every time it starts.
+On a first start without a state file, it starts at the end of the journal.
+
+It is configured with module() since the distributions load imuxsock that
+way, which makes the legacy directives ($SystemLogRateLimitInterval, ...)
+invalid. When the configuration already loads imjournal (e.g. the main
+configuration of EL), it isn't loaded again (rsyslog refuses it). Its rate
+limiting is then disabled with the legacy directives, which still apply to a
+module loaded with module() (unlike the imuxsock ones).
+
+=cut
+
+sub inputs_config {
+    return qq{\$imjournalRatelimitInterval 0\n\$imjournalRatelimitBurst 0\n} if main_config_loads_imjournal();
+    return qq{module(load="imjournal" StateFile="imjournal.state" IgnorePreviousMessages="on" Ratelimit.Interval="0" Ratelimit.Burst="0")\n};
+}
+
+=head2 main_config_loads_imjournal
+
+Whether the rsyslog configuration already loads imjournal: the main file, or
+another file of rsyslog.d than the one generated here. Loading it a second time
+would be ignored, with its parameters.
+
+=cut
+
+sub main_config_loads_imjournal {
+    my @files = ($RSYSLOG_MAIN_CONFIG, grep { $_ ne $rsyslog_packetfence_config_file } sort glob("$RSYSLOG_DROPIN_DIR/*.conf"));
+    foreach my $file (@files) {
+        my $config = eval { read_file($file) } // '';
+        return 1 if $config =~ /^\s*(?:module\s*\(\s*load\s*=\s*["']imjournal["']|\$ModLoad\s+imjournal\b)/m;
+    }
+    return 0;
+}
+
+=head2 remove_legacy_inputs_config
+
+Remove the legacy input directives of the templates of previous versions, replaced by inputs_config
+
+=cut
+
+sub remove_legacy_inputs_config {
+    my ($config) = @_;
+    $config =~ s/^[ \t]*\$(?:ModLoad[ \t]+(?:imuxsock|imjournal)|SystemLogRateLimit(?:Interval|Burst)|imjournalRatelimit(?:Interval|Burst))\b.*\n//mg;
+    return $config;
+}
+
 sub _run {
     my ($self) = @_;
     my $template = "/usr/local/pf/conf/rsyslog.conf.tt";
@@ -117,7 +171,7 @@ sub _run {
     my $output = '';
     $tt->process($template, {items => $self->items}, \$output) || die $tt->error();
     # The template used by the forwarding actions must be defined before them
-    write_file($rsyslog_packetfence_config_file, $FORWARD_TEMPLATE . $output);
+    write_file($rsyslog_packetfence_config_file, $FORWARD_TEMPLATE . inputs_config() . remove_legacy_inputs_config($output));
     return $EXIT_SUCCESS; 
 }
 
