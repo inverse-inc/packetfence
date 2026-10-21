@@ -17,6 +17,7 @@ VAGRANT_LIB_DIR=$(readlink -e "$(dirname "${BASH_SOURCE[0]}")")
 PF_SRC_DIR=$(echo "${VAGRANT_LIB_DIR}" | grep -oP '.*?(?=\/ci\/)')
 
 source "${PF_SRC_DIR}/ci/lib/common/functions.sh"
+source "${PF_SRC_DIR}/ci/lib/ansible-galaxy-cache.sh"
 
 configure_and_check() {
     BAKE_ARCH=${BAKE_ARCH:?BAKE_ARCH must be set (e.g. el8, deb12)}
@@ -274,6 +275,9 @@ EOF
 bake_box() {
     local rc=0
     provision_and_run_configurator || rc=$?
+    # test-wrapper.sh's Galaxy cache selection dies with its subshell; the
+    # playbooks below run from addons/vagrant and need the same collections.
+    prepare_ansible_dependencies "${VAGRANT_DIR}/requirements.yml" "${VAGRANT_DIR}/ansible.cfg"
     capture_venom_logs
     [ "${rc}" -eq 0 ] || die "configurator run failed (rc=${rc}) — see results/ artifact"
     unregister_pf_vm
