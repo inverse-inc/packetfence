@@ -9,6 +9,7 @@ pf::cmd::pf::fixpermissions add documentation
 
  Commands :
   all                             | executes a fix on the permissions on all PF files
+  strict                          | fixes permissions and fails if an existing path cannot be repaired
   file file1 [file2, file3, ...]  | executes a fix on the permissions on a list of files (absolute paths)
     (File(s) must exist and located in /usr/local/pf or /usr/local/fingerbank)
 
@@ -44,12 +45,48 @@ use pf::constants qw($DIR_MODE $PFCMD_MODE);
 use pf::constants::user;
 use pf::util;
 use File::Find;
+use Errno qw(ENOENT);
 
 use fingerbank::Util;
 
 use File::Spec::Functions qw(catfile);
 
 sub default_action { 'all' }
+
+our $STRICT = 0;
+
+sub action_strict {
+    my ($self) = @_;
+    local $STRICT = 1;
+    my $ok = eval { $self->action_all(); 1 };
+    unless ($ok) {
+        print STDERR "Permission repair failed: $@";
+        return $EXIT_FAILURE;
+    }
+    return $EXIT_SUCCESS;
+}
+
+# Some configuration files and generated directories are optional. Skip only
+# absent paths; inaccessible paths and dangling symlinks must still fail.
+sub _apply_strict {
+    my ($operation, $apply, @paths) = @_;
+    foreach my $path (@paths) {
+        unless (lstat($path)) {
+            next if $! == ENOENT;
+            die "Cannot inspect $path: $!\n";
+        }
+        $apply->($path) == 1 or die "Cannot $operation $path: $!\n";
+    }
+}
+
+sub _chmod {
+    my ($mode, @paths) = @_;
+    if ($STRICT) {
+        _apply_strict('chmod', sub { chmod($mode, $_[0]) }, @paths);
+    } else {
+        chmod($mode, @paths);
+    }
+}
 
 =head2 action_all
 
@@ -79,9 +116,9 @@ sub action_all {
         'root',
         $pfcmd,
     );
-    chmod($PFCMD_MODE, $pfcmd);
-    chmod(0664, @stored_config_files, $config_version_file);
-    chmod($DIR_MODE, $conf_dir, $var_dir, "$var_dir/redis_cache", "$var_dir/redis_queue");
+    _chmod($PFCMD_MODE, $pfcmd);
+    _chmod(0664, @stored_config_files, $config_version_file);
+    _chmod($DIR_MODE, $conf_dir, $var_dir, "$var_dir/redis_cache", "$var_dir/redis_queue");
     _fingerbank();
     print "Fixed permissions.\n";
     return $EXIT_SUCCESS;
@@ -153,10 +190,15 @@ sub _changeFilesToOwner {
 
     if(defined $uid && defined $gid) {
         my ($group, undef, undef, undef)= getgrgid($gid);
-        chown $uid, $gid, @files;
+        if ($STRICT) {
+            _apply_strict('chown', sub { chown($uid, $gid, $_[0]) }, @files);
+        } else {
+            chown $uid, $gid, @files;
+        }
     }
     else {
         my $msg = "Problem getting group and user id for $user\n";
+        die $msg if $STRICT;
         print STDERR $msg;
         get_logger->error($msg);
     }
@@ -167,6 +209,8 @@ sub _changePathToOwnerRecursive {
     my ($login,$pass,$uid,$gid) = getpwnam($user);
     if(defined $uid && defined $gid) {
         my ($group, undef, undef, undef)= getgrgid($gid);
+        # File::Find warns and skips directories it cannot traverse.
+        local $SIG{__WARN__} = sub { die @_ } if $STRICT;
         finddepth ({no_chdir=>1, untaint=>1, wanted=>sub {
             if( ! -l $File::Find::name) {
               chown ($uid, $gid, untaint_chain($File::Find::name))
@@ -176,6 +220,7 @@ sub _changePathToOwnerRecursive {
     }
     else {
         my $msg = "Problem getting group and user id for $user\n";
+        die $msg if $STRICT;
         print STDERR $msg;
         get_logger->error($msg);
     }
@@ -184,6 +229,30 @@ sub _changePathToOwnerRecursive {
 
 sub _fingerbank {
     fingerbank::Util::fix_permissions();
+    return unless $STRICT;
+
+    # Older Fingerbank helpers ignore failed chown/chmod calls. Check their
+    # postconditions without requiring a new Fingerbank package for this upgrade.
+    my (undef, undef, $uid, $gid) = getpwnam($fingerbank::Constant::FINGERBANK_USER);
+    defined($uid) && defined($gid) or die "Cannot look up the Fingerbank account\n";
+    my %modes = (
+        (map { $_ => $fingerbank::Constant::FILE_PERMISSIONS } @fingerbank::FilePath::FILES),
+        (map { $_ => $fingerbank::Constant::PATH_PERMISSIONS } @fingerbank::FilePath::PATHS),
+        $fingerbank::FilePath::INSTALL_PATH . 'db/upgrade.pl' => 0775,
+    );
+    my %required = map { $_ => 1 } @fingerbank::FilePath::PATHS;
+    foreach my $path (sort keys %modes) {
+        unless (lstat($path)) {
+            next if $! == ENOENT && !$required{$path};
+            die "Cannot inspect $path: $!\n";
+        }
+        my @stat = stat($path);
+        @stat or die "Cannot stat $path: $!\n";
+        if ($stat[4] != $uid || $stat[5] != $gid || ($stat[2] & 07777) != $modes{$path}) {
+            die sprintf("Incorrect permissions on %s: got %s:%s %04o, expected %s:%s %04o\n",
+                $path, $stat[4], $stat[5], $stat[2] & 07777, $uid, $gid, $modes{$path});
+        }
+    }
 }
 
 =head1 AUTHOR
