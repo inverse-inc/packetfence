@@ -1,5 +1,5 @@
 <template>
-  <div class="card mx-3 mb-3 bg-light">
+  <div class="card mx-3 mb-3">
     <div class="card-body">
       <b-row align-v="center" class="mb-2">
         <b-col>
