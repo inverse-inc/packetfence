@@ -931,7 +931,9 @@ sub generate_radiusd_proxy {
     foreach my $realm ( @pf::config::ConfigOrderedRealm ) {
         my $options = $pf::config::ConfigRealm{$realm}->{'options'} || '';
         my $real_realm;
-        if (defined $pf::config::ConfigRealm{$realm}->{'regex'} && $pf::config::ConfigRealm{$realm}->{'regex'} ne '') {
+        my $oauth2_realm = '';
+        my $is_regex = defined $pf::config::ConfigRealm{$realm}->{'regex'} && $pf::config::ConfigRealm{$realm}->{'regex'} ne '';
+        if ($is_regex) {
             $real_realm = "\"~".$pf::config::ConfigRealm{$realm}->{'regex'}."\"";
         } else {
             $real_realm = $realm;
@@ -945,7 +947,7 @@ EOT
             my $client_id = $source->client_id;
             my $client_secret = $source->client_secret;
             my $oauth_url = $source->oauth_url;
-            $tags{'config'} .= <<"EOT";
+            my $oauth2_config = <<"EOT";
 oauth2 {
     discovery = "$oauth_url/%{Realm}/v2.0"
     client_id = "$client_id"
@@ -953,6 +955,18 @@ oauth2 {
     cache_password = yes
 }
 EOT
+            if ($is_regex) {
+                # For a regex realm FreeRADIUS sets the Realm attribute to the
+                # domain sent by the user, so realm[%{Realm}] can't be used to
+                # find the oauth2 settings. They go in a section named after the
+                # PacketFence realm, selected in the packetfence-tunnel authorize.
+                $oauth2_realm = <<"EOT";
+oauth2_realm $realm {
+$oauth2_config}
+EOT
+            } else {
+                $tags{'config'} .= $oauth2_config;
+            }
         }
         if ($pf::config::ConfigRealm{$realm}->{'radius_auth'} ) {
             $tags{'config'} .= <<"EOT";
@@ -1019,6 +1033,7 @@ EOT
 }
 EOT
         }
+        $tags{'config'} .= $oauth2_realm;
         # Generate Eduroam realms config
         my $eduroam_options = $pf::config::ConfigRealm{$realm}->{'eduroam_options'} || '';
         $tags{'eduroam_config'} .= <<"EOT";
@@ -1546,12 +1561,24 @@ sub generate_ldap_choice {
     foreach my $key ( @pf::config::ConfigOrderedRealm ) {
         my $choice = "^$key\$";
         if (defined($pf::config::ConfigRealm{$key}->{azuread_source_ttls_pap}) && exists($pf::config::ConfigRealm{$key}->{azuread_source_ttls_pap})) {
-            $choice = $pf::config::ConfigRealm{$key}->{'regex'} if (defined $pf::config::ConfigRealm{$key}->{'regex'} && $pf::config::ConfigRealm{$key}->{'regex'} ne '');
-            $$authorize_ldap_choice .= <<"EOT";
+            if (defined $pf::config::ConfigRealm{$key}->{'regex'} && $pf::config::ConfigRealm{$key}->{'regex'} ne '') {
+                $choice = $pf::config::ConfigRealm{$key}->{'regex'};
+                # The oauth2 settings of a regex realm are in oauth2_realm[$key] (see generate_radiusd_proxy)
+                $$authorize_ldap_choice .= <<"EOT";
+        $oauth2_if (Realm =~ /$choice/) {
+            update control {
+                &OAuth2-Config-Section := "oauth2_realm[$key]"
+            }
+            oauth2
+        }
+EOT
+            } else {
+                $$authorize_ldap_choice .= <<"EOT";
         $oauth2_if (Realm =~ /$choice/) {
             oauth2
         }
 EOT
+            }
             $oauth2_if = 'elsif';
         }
 
