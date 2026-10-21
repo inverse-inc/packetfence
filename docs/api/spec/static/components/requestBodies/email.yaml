@@ -12,7 +12,7 @@ EmailPreview:
             description: Email template from *html/captive-portal/templates/emails/emails-[template].html*.
           args:
             type: object
-            description: Key-value map of template values.
+            description: Key-value map of template values. With `with_aup` set to true, `aup` is set to the acceptable use policy of the default connection profile (*aup_text.html*).
           locale:
             type: string
             description: Language of the email (ex. fr, fr-CA, pt_BR), matched against the supported locales. Defaults to the Accept-Language header of the request, then to the default language.
@@ -38,7 +38,7 @@ EmailSend:
             description: Email template from *html/captive-portal/templates/emails/emails-[template].html*.
           args:
             type: object
-            description: Key-value map of template values.
+            description: Key-value map of template values. With `with_aup` set to true, `aup` is set to the acceptable use policy of the default connection profile (*aup_text.html*).
           to:
             type: string
             description: Email address recipient.

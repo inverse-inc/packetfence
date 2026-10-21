@@ -31,6 +31,12 @@ sub handle_email_payload {
         return undef;
     }
 
+    # Include the acceptable use policy in the email (ex: printed guest accounts)
+    if (delete $data->{args}{with_aup}) {
+        require pf::web::guest;
+        $data->{args}{aup} = pf::web::guest::aup();
+    }
+
     return $data;
 }
 
@@ -42,6 +48,7 @@ sub preview {
     return unless($data);
 
     my $msg = pf::config::util::build_email($data->{template}, 'dummy@example.com', $data->{subject}, $data->{args}, $self->email_template_options($data));
+    # The body is UTF-8 encoded, decode it so that the JSON doesn't encode it a second time
     return $self->render(json => {body => Encode::decode_utf8(MIME::Base64::decode($msg->body_as_string))});
 }
 

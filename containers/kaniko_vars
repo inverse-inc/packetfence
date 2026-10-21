@@ -12,5 +12,8 @@ export PF_MINOR_RELEASE="${PF_MINOR_RELEASE:-$PF_VERSION}"
 # Go toolchain version consumed by pfbuild-* Dockerfiles; sourced from config.mk.
 export GOVERSION="${GOVERSION:-$(awk -F'= *' '/^GOVERSION[[:space:]]*=/{print $2; exit}' $CI_PROJECT_DIR/config.mk)}"
 
+# Optional Go analysis in service image builder stages.
+export GO_CHECK="${GO_CHECK:-no}"
+
 # variables to pass during build
-DOCKFILE_VARS='PF_VERSION KNK_REGISTRY_URL IMAGE_TAG FINGERBANK_BUILD_API_KEY BUILD_PFAPPSERVER_VUE PKGS_TO_EXCLUDE GOVERSION PF_MINOR_RELEASE'
+DOCKFILE_VARS='PF_VERSION KNK_REGISTRY_URL IMAGE_TAG FINGERBANK_BUILD_API_KEY BUILD_PFAPPSERVER_VUE PKGS_TO_EXCLUDE GOVERSION PF_MINOR_RELEASE GO_CHECK'

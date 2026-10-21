@@ -1271,8 +1271,8 @@ sub do_get {
     } else {
         $item->_load_locationlog;
         $item = $item->to_hash();
-        my $end_time = $item->{last_end_time};
-        $item->{not_deletable} = defined $end_time && $end_time eq '0000-00-00 00:00:00' ? $self->json_true : $self->json_false;
+        # A node with an open locationlog can be deleted, _do_remove deregisters
+        # it, reevaluates its access and closes the locationlog first
     }
 
     return ($status, $item);
