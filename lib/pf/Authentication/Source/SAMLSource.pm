@@ -201,19 +201,12 @@ sub handle_response {
         }
 
         my @attribute_list = $attribute_statement->Attribute;
-        my $username;
         # For debug
         foreach my $attribute (@attribute_list){
-            get_logger->debug($attribute->Name);
-            get_logger->debug($attribute->AttributeValue->any->content);
+            get_logger->debug(sub { $attribute->Name . " = " . ($self->_attribute_value($attribute) // '<empty>') });
         }
 
-        foreach my $attribute (@attribute_list){
-            if($attribute->Name eq $self->username_attribute){
-                $username = $attribute->AttributeValue->any->content;
-                last;
-            }
-        }
+        my $username = $self->_username_from_attributes(@attribute_list);
 
         if($username){
             return ($username, "Authentication successful with username : $username");
@@ -252,6 +245,37 @@ sub assertion_consumer_service_url {
     my ($self) = @_;
     require pf::config::util;
     return pf::config::util::get_captive_portal_uri() . "/saml/assertion";
+}
+
+=head2 _attribute_value
+
+The content of the value of a SAML attribute, undef when the attribute has no
+value or an empty one (<saml:AttributeValue/>). For a multi-valued attribute it
+is the last value: the Lasso getters return the last element in scalar
+context, as the code did before.
+
+=cut
+
+sub _attribute_value {
+    my ($self, $attribute) = @_;
+    my $values = $attribute->AttributeValue or return undef;
+    my $value = $values->any or return undef;
+    return $value->content;
+}
+
+=head2 _username_from_attributes
+
+The value of the username attribute among the attributes of a SAML assertion
+
+=cut
+
+sub _username_from_attributes {
+    my ($self, @attributes) = @_;
+    foreach my $attribute (@attributes) {
+        next if ($attribute->Name // '') ne $self->username_attribute;
+        return $self->_attribute_value($attribute);
+    }
+    return undef;
 }
 
 =head2 generate_sp_metadata
