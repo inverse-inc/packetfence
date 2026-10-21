@@ -55,6 +55,8 @@ pfcmd pfmon <task> [options...]
 
 =item switch_cache_lldpLocalPort_description
 
+=item switch_cache_ifindex
+
 =back
 
 =head1 DESCRIPTION

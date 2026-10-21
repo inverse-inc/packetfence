@@ -26,11 +26,8 @@ export const libraries = {
   PEITY: 'peity'
 }
 
-export const palettes = [
-  '#b2182b #d6604d #f4a582 #fddbc7 #f7f7f7 #d1e5f0 #92c5de #4393c3 #2166ac',
-  '#01665e #35978f #80cdc1 #c7eae5 #f5f5f5 #f6e8c3 #dfc27d #bf812d #8c510a',
-  '#762a83 #9970ab #c2a5cf #e7d4e8 #f7f7f7 #d9f0d3 #a6dba0 #5aae61 #1b7837'
-]
+import { palettes } from '../../_config/palettes'
+export { palettes }
 
 const props = {
   definition: {

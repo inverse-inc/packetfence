@@ -164,10 +164,13 @@ sub parse_mc {
                 my $string = $2;
                 $string =~ s/\\'/'/g;
                 add_string($string, $module);
-            } elsif ($line =~ m/(title|message|label)'?\s+=>\s+['"]([^\$].+?[^'"\\])["']/) {
-                my $string = $2;
-                $string =~ s/\\'/'/g;
-                add_string($string, $module);
+            } elsif ($line =~ m/(title|message|label|empty_select)'?\s+=>\s+['"]([^\$].+?[^'"\\])["']/) {
+                # every localized attribute of the line, ex: the label and the empty_select of a select field
+                while ($line =~ m/(title|message|label|empty_select)'?\s+=>\s+['"]([^\$].+?[^'"\\])["']/g) {
+                    my $string = $2;
+                    $string =~ s/\\'/'/g;
+                    add_string($string, $module);
+                }
             } elsif ($line =~ m/showError\((?:\$c,)?\s?'([^\$].+?[^'\\])'/) {
                 my $string = $1;
                 $string =~ s/\\'/'/g;
