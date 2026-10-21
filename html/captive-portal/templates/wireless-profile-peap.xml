@@ -24,10 +24,10 @@
                                 <false/>
                                 <key>PayloadCertificateAnchorUUID</key>
                                 <array>
-                                        <string>c83817c4-d7c4-11e4-b9d6-1681e6b88ec1</string>
+                                        <string>[% payload_uuid.anchor %]</string>
                                         [%# The RADIUS CA is also an anchor so that a renewed server certificate is trusted %]
                                         [% IF for_ios AND radius_ca != "" %]
-                                        <string>EADECED2-961E-4A8B-85B4-E22A70FBF684</string>
+                                        <string>[% payload_uuid.ca %]</string>
                                         [% END %]
                                 </array>
                                 [% IF for_ios AND radius_ca != "" %]
@@ -67,11 +67,9 @@
                         <key>PayloadType</key>
                         <string>com.apple.wifi.managed</string>
                         <key>PayloadUUID</key>
-                        <string>247F8812-0419-4548-9389-EA76325DEFC8</string>
+                        <string>[% payload_uuid.wifi %]</string>
                         <key>PayloadVersion</key>
                         <integer>1</integer>
-                        <key>PayloadCertificateUUID</key>
-                        <string>506CD34F-0AD1-4421-9F98-BA19DC4E0253</string>
                         <key>SSID_STR</key>
                         <string>[% provisioner.ssid %]</string>
                 </dict>
@@ -100,7 +98,7 @@
                         [%# On iOS the RADIUS server certificate is only the trust anchor of the network, the CA is installed as root below %]
                         <string>[% IF for_ios %]com.apple.security.pkcs1[% ELSE %]com.apple.security.root[% END %]</string>
                         <key>PayloadUUID</key>
-                        <string>c83817c4-d7c4-11e4-b9d6-1681e6b88ec1</string>
+                        <string>[% payload_uuid.anchor %]</string>
                         <key>PayloadVersion</key>
                         <integer>1</integer>
                 </dict>
@@ -121,7 +119,7 @@
                         <key>PayloadType</key>
                         <string>com.apple.security.root</string>
                         <key>PayloadUUID</key>
-                        <string>EADECED2-961E-4A8B-85B4-E22A70FBF684</string>
+                        <string>[% payload_uuid.ca %]</string>
                         <key>PayloadVersion</key>
                         <integer>1</integer>
                 </dict>
@@ -166,7 +164,7 @@
         <key>PayloadType</key>
         <string>Configuration</string>
         <key>PayloadUUID</key>
-        <string>5F3EC12F-570E-48EE-A433-E8DC8E9EC4FE</string>
+        <string>[% payload_uuid.profile %]</string>
         <key>PayloadVersion</key>
         <integer>1</integer>
 </dict>
