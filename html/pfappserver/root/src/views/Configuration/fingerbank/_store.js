@@ -13,13 +13,6 @@ import {
 } from './generalSettings/_store'
 
 import {
-  state as stateCombinations,
-  getters as gettersCombinations,
-  actions as actionsCombinations,
-  mutations as mutationsCombinations
-} from './combinations/_store'
-
-import {
   state as stateDevices,
   getters as gettersDevices,
   actions as actionsDevices,
@@ -72,7 +65,6 @@ import {
 const state = () => {
   return {
     ...stateGeneralSettings(),
-    ...stateCombinations(),
     ...stateDevices(),
     ...stateDhcpFingerprints(),
     ...stateDhcpVendors(),
@@ -100,7 +92,6 @@ const state = () => {
 
 const getters = {
   ...gettersGeneralSettings,
-  ...gettersCombinations,
   ...gettersDevices,
   ...gettersDhcpFingerprints,
   ...gettersDhcpVendors,
@@ -121,7 +112,6 @@ const getters = {
 
 const actions = {
   ...actionsGeneralSettings,
-  ...actionsCombinations,
   ...actionsDevices,
   ...actionsDhcpFingerprints,
   ...actionsDhcpVendors,
@@ -170,7 +160,6 @@ const actions = {
 
 const mutations = {
   ...mutationsGeneralSettings,
-  ...mutationsCombinations,
   ...mutationsDevices,
   ...mutationsDhcpFingerprints,
   ...mutationsDhcpVendors,

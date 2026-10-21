@@ -1216,7 +1216,6 @@ field_allowed_lookup
 =cut
 
 my %FB_MODEL_2_PATH = (
-    Combination       => 'combinations',
     Device            => 'devices',
     DHCP6_Enterprise  => 'dhcp6_enterprises',
     DHCP6_Fingerprint => 'dhcp6_fingerprints',

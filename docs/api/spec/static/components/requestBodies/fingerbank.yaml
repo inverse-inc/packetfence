@@ -1,26 +1,3 @@
-FingerbankCombination:
-  required: true
-  content:
-    application/json:
-      schema:
-        $ref: '#/components/schemas/FingerbankCombinationForm'
-
-FingerbankCombinationsSearch:
-  required: true
-  content:
-    application/json:
-      schema:
-        type: object
-        properties:
-          cursor:
-            $ref: '#/components/schemas/FingerbankPaginatedCursor'
-          sort:
-            $ref: '#/components/schemas/FingerbankCombinationsSort'
-          query:
-            $ref: '#/components/schemas/FingerbankCombinationsQuery'
-          limit:
-            $ref: '#/components/schemas/FingerbankPaginatedLimit'
-
 FingerbankDevice:
   required: true
   content:
