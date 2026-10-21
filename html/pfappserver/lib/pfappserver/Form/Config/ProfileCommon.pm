@@ -16,9 +16,10 @@ use strict;
 use warnings;
 
 use HTML::FormHandler::Moose::Role;
-use List::MoreUtils qw(uniq);
+use List::MoreUtils qw(uniq any);
 
-use pf::config qw($fqdn);
+use pf::config qw($fqdn %ConfigPortalModules);
+use pf::util qw(isenabled);
 use pf::authentication;
 use pf::ConfigStore::Provisioning;
 use pf::ConfigStore::BillingTiers;
@@ -54,7 +55,7 @@ The captival portal block
 
 has_block 'captive_portal' =>
   (
-    render_list => [qw(logo redirecturl always_use_redirecturl block_interval sms_pin_retry_limit sms_request_limit login_attempt_limit access_registration_when_registered network_logoff network_logoff_popup)],
+    render_list => [qw(logo redirecturl always_use_redirecturl block_interval sms_pin_retry_limit sms_request_limit login_attempt_limit access_registration_when_registered network_logoff network_logoff_popup self_service_status self_service_device_registration)],
   );
 
 =head1 Fields
@@ -400,7 +401,7 @@ has_field 'dot1x_unset_on_unmatch' =>
     unchecked_value => 'disabled',
     default => 'disabled',
     tags => { after_element => \&help,
-             help => 'When enabled, PacketFence will unset the role of the device if no authentication sources returned one.' },
+             help => 'When enabled, PacketFence will unset the role of the device if no authentication sources returned one, the device is then unregistered and gets the registration role.' },
   );
 
 =head2 show_manage_devices_on_max_nodes
@@ -534,6 +535,40 @@ has_field 'network_logoff' =>
    unchecked_value => 'disabled',
    tags => { after_element => \&help,
              help => "This allows users to access the network logoff page (http://$fqdn/networklogoff) in order to terminate their network access (switch their device back to unregistered)" },
+  );
+
+=head2 self_service_status
+
+Controls whether or not this connection profile allows access to the self service status page (/status)
+
+=cut
+
+has_field 'self_service_status' =>
+  (
+   type => 'Toggle',
+   label => 'Self service status page',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'enabled',
+   tags => { after_element => \&help,
+             help => "This allows users to access the self service status page (http://$fqdn/status) to see and manage their devices. Device registration requires the status page to be enabled." },
+  );
+
+=head2 self_service_device_registration
+
+Controls whether or not this connection profile allows access to the self service device registration page (/device-registration)
+
+=cut
+
+has_field 'self_service_device_registration' =>
+  (
+   type => 'Toggle',
+   label => 'Self service device registration',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'enabled',
+   tags => { after_element => \&help,
+             help => "This allows users to register their other devices from the self service device registration page (http://$fqdn/device-registration). It also requires a self service policy." },
   );
 
 =head2 network_logoff_popup
@@ -703,6 +738,70 @@ sub validate {
             last;
         }
     }
+
+    $self->warn_preregistration_without_local_account();
+}
+
+=head2 warn_preregistration_without_local_account
+
+With preregistration, the portal shows the local account created while
+registering: warn when none of the sources the portal can use creates one, the
+users wouldn't be able to complete the portal
+
+=cut
+
+sub warn_preregistration_without_local_account {
+    my ($self) = @_;
+    my $value = $self->value;
+    return if !isenabled($value->{preregistration});
+    return if any { source_creates_local_account($_) } preregistration_source_ids($value);
+    $self->add_pf_warning({
+        message => "Preregistration is enabled but none of the authentication sources of this connection profile and its portal modules creates local accounts: users won't be able to complete the portal. Enable \"Create local account\" on a source.",
+    });
+}
+
+=head2 preregistration_source_ids
+
+The sources the portal of a connection profile can authenticate with: the
+sources of the connection profile (all the non exclusive sources when none is
+selected) and the sources set on the portal modules under its root module
+
+=cut
+
+sub preregistration_source_ids {
+    my ($profile) = @_;
+    my @source_ids = @{$profile->{sources} // []};
+    if (!@source_ids) {
+        @source_ids = map { $_->id } grep { $_->class ne 'exclusive' } @{pf::authentication::getAllAuthenticationSources()};
+    }
+    my @modules = ($profile->{root_module} || $pf::constants::Connection::Profile::DEFAULT_ROOT_MODULE);
+    my %seen;
+    while (defined(my $id = shift @modules)) {
+        next if $seen{$id}++;
+        my $module = $ConfigPortalModules{$id} or next;
+        push @modules, _list($module->{modules});
+        push @source_ids, _list($module->{source_id});
+    }
+    return uniq @source_ids;
+}
+
+sub _list {
+    my ($value) = @_;
+    return () if !defined $value || $value eq '';
+    return @$value if ref($value) eq 'ARRAY';
+    return split(/\s*,\s*/, $value);
+}
+
+=head2 source_creates_local_account
+
+Whether the authentication source creates a local account
+
+=cut
+
+sub source_creates_local_account {
+    my ($source_id) = @_;
+    my $source = pf::authentication::getAuthenticationSource($source_id);
+    return $source && $source->can('create_local_account') && isenabled($source->create_local_account);
 }
 
 =head2 field_default_value

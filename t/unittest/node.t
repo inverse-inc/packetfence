@@ -28,7 +28,7 @@ use pf::locationlog;
 use pf::security_event qw(security_event_view_last_closed);
 use Utils;
 use pf::constants::config qw($WIRELESS_802_1X);
-use Test::More tests => 21;
+use Test::More tests => 32;
 
 #This test will running last
 use Test::NoWarnings;
@@ -116,6 +116,66 @@ ok (node_modify($node_mac, category_id => 4), "Not changing anything");
     );
     ($res, $msg) = pf::node::_can_delete($mac);
     ok (!$res, "Cannot remove $mac");
+}
+
+{
+    require pf::CHI;
+    my $cache = pf::CHI->new(namespace => 'httpd.portal');
+    my $mac = Utils::test_mac();
+    (my $session_id = $mac) =~ s/://g;
+    ok (node_add_simple($mac), "$mac added");
+    $cache->set("session:$session_id", { username => 'bob' });
+    $cache->set("expires:$session_id", time + 3600);
+    my ($deleted) = node_delete($mac);
+    ok ($deleted, "$mac deleted");
+    ok (!defined $cache->get("session:$session_id"), "portal session of $mac removed with the node");
+    ok (!defined $cache->get("expires:$session_id"), "portal session expiration of $mac removed with the node");
+}
+
+{
+    require pf::CHI;
+    require pf::api;
+    my $cache = pf::CHI->new(namespace => 'httpd.portal');
+    my $mac = Utils::test_mac();
+    (my $session_id = $mac) =~ s/://g;
+    ok (node_add_simple($mac), "$mac added");
+    $cache->set("session:$session_id", { username => 'bob' });
+    my ($deleted) = node_delete($mac, keep_portal_session => 1);
+    ok (defined $cache->get("session:$session_id"), "portal session of $mac kept with keep_portal_session (node cleanup)");
+    pf::api->clear_portal_session($mac);
+    ok (!defined $cache->get("session:$session_id"), "the clear_portal_session API method removes the portal session of $mac");
+    ok ($deleted, "$mac deleted");
+}
+
+# In a cluster: one bounded request per member for all the MAC addresses, and a
+# member that fails doesn't keep the next ones from being notified
+{
+    require pf::cluster;
+    require pf::api::jsonrpcclient;
+    my @sent;
+    no warnings qw(redefine once);
+    local $pf::cluster::cluster_enabled = 1;
+    local *pf::cluster::config_enabled_servers = sub {
+        ({ host => 'member1', management_ip => '192.0.2.1' }, { host => 'member2', management_ip => '192.0.2.2' })
+    };
+    local *pf::api::jsonrpcclient::notify = sub {
+        my ($client, $method, @args) = @_;
+        push @sent, [ $client->host, $method, @args ];
+        die "Connection timed out\n" if $client->host eq '192.0.2.1';
+        ok($client->connect_timeout_ms > 0 && $client->timeout_ms > 0, "the request to " . $client->host . " is bounded");
+    };
+    pf::node::node_clear_portal_session('00:11:22:33:44:55', 'AA-BB-CC-DD-EE-FF', 'not a mac');
+    is_deeply(
+        \@sent,
+        [
+            [ '192.0.2.1', 'clear_portal_session', '00:11:22:33:44:55', 'aa:bb:cc:dd:ee:ff' ],
+            [ '192.0.2.2', 'clear_portal_session', '00:11:22:33:44:55', 'aa:bb:cc:dd:ee:ff' ],
+        ],
+        "one request per member with all the valid MAC addresses, also after a member failed"
+    );
+    @sent = ();
+    pf::node::node_clear_portal_session('not a mac');
+    is(scalar @sent, 0, "no request without a valid MAC address");
 }
 
 =head1 AUTHOR

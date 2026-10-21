@@ -763,6 +763,12 @@ tracking-config_binary=/dev/null
 netflow_address=0.0.0.0
 
 #
+# services.netflow_processor
+#
+# Should pfacct process NetFlow traffic?
+netflow_processor=enabled
+
+#
 # services.netflow_target_host_port
 #
 # NetFlow Target Host Port
@@ -1075,11 +1081,6 @@ timing_stats_level=5
 # The source to use to send an SMS when creating a user
 source_to_send_sms_when_creating_users=
 #
-# advanced.multihost
-#
-# Ability to manage all active devices from a same switch port
-multihost=disabled
-#
 # active_directory_os_join_check_bypass
 #
 # Enable to bypass the operating system domain join verification.
@@ -1334,6 +1335,17 @@ radius_proxy_with_vip=enabled
 # Process Firewall SSO only on the managemenr server (the current load balancer).
 # Disabling it will allow each members of the cluster to send Firewall SSO request to firewalls
 firewall_sso_on_management=disabled
+#
+# active_active.api_connect_timeout
+#
+# Timeout in seconds to connect to the webservices of another cluster member
+api_connect_timeout=5
+#
+# active_active.api_timeout
+#
+# Timeout in seconds of a call to the webservices of another cluster member.
+# The long operations (syncing the configuration, transferring files) aren't capped by it.
+api_timeout=60
 
 [parking]
 #
@@ -1645,6 +1657,7 @@ sso_base_url=
 sso_login_path=/admin-sso
 sso_authorize_path=/portaltoken
 sso_login_text=Single Sign On
+sso_allowed_callback_hosts=
 allow_username_password=enabled
 
 [fleetdm]
