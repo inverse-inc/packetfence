@@ -35,12 +35,16 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Enhancements
 
+  - New pfcron task pki_revoked_certs_cleanup, disabled by default, to purge revoked PKI certificates that are expired and were revoked more than the window ago (#6907)
+
   - LDAP sources: the username lookup used to evaluate the "matches regexp" and "is member of" conditions now runs once per authentication instead of once per rule (#9273)
   - RADIUS dynamic clients (switches resolved from radius_nas) are now cached for 300 seconds. With the FreeRADIUS build shipped by PacketFence, `lifetime = 0` deleted the client after every request and re-ran the radius_nas lookups for every packet (fork commit b04cb25fe, reverted separately in inverse-inc/freeradius-server#3). A changed switch secret or type now applies to an already-known switch within five minutes
   - Meraki MS switches detect Cisco IP phones through CDP (#7236), like Cisco switches: with VoIP enabled and "VoIP CDP Detect" (enabled by default), PacketFence reads the cdpCacheTable of the switch over SNMP during the RADIUS request. *After the upgrade*, enable SNMP for the network in the Meraki dashboard and set the SNMP read parameters of the switch, or disable "VoIP CDP Detect" on it: otherwise a request arriving while the switch is probed waits for the SNMP timeout (about 4 seconds) once every 10 minutes, with a warning in `packetfence.log`. A switch whose "Use SNMP" is disabled is not queried
   - FreeRADIUS thread pool size (`max_servers`) is now configurable as `radius_configuration.radiusd_max_servers` (Configuration > RADIUS > General) and defaults to 128 instead of 64; it also bounds the rlm_rest connection pool to httpd.aaa
 
 === Bug Fixes
+
+  - pfpki OCSP responder answered with a 500 error instead of "unknown" for a serial number that is in neither the certificates nor the revoked certificates
 
   - The certificate chain validation of the admin interface now rejects intermediate certificates that are not part of the certificate's signing chain, instead of reporting the chain as valid and sending them to the clients (#6630)
 

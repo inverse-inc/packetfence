@@ -191,6 +191,19 @@ a new one. You will need to specify a reason of the revokation.
 
 image::packetfence-pki-revoked_certificate.png[scaledwidth="100%",alt="Revoke a certificate"]
 
+===== Cleaning up revoked certificates
+
+Revoked certificates are kept in the database, so the OCSP responder can keep
+reporting them as revoked. To purge old revoked certificates, enable the
+`pki_revoked_certs_cleanup` maintenance task in _Configuration -> System
+Configuration -> Maintenance Tasks_. It is disabled by default.
+
+The task deletes a revoked certificate once it was revoked more than `window`
+ago (1 year by default) *and* the certificate itself has expired. A revoked
+certificate that has not expired yet is never deleted, so it can't be reported
+as valid again. Deleting a revoked certificate also removes it from the history
+of the device or user it was issued to.
+
 ===== Enforcing the revocation in EAP-TLS
 
 FreeRADIUS only refuses a revoked certificate when it checks its status with
