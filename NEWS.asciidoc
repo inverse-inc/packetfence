@@ -46,6 +46,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Bug Fixes
 
+  - Audit logs: searching the RADIUS audit log by request time offers the range operators. API change: the searches of the RADIUS, DNS and admin API audit logs, the authentication log, the RADIUS accounting log and the WRIX locations (`POST /api/v1/<collection>/search`) return 200 with an empty `items` list and a `total` of 0 when nothing matches, instead of 404 "entries not found". An invalid search (unknown field or operator) returns 422 and a database error 500
+
   - Email: the SMTP authentication uses a mechanism offered by the server (PLAIN, then LOGIN) instead of always trying PLAIN, which failed with servers offering only LOGIN (e.g. Office 365: "504 5.7.4 Unrecognized authentication type")
 
   - `inline.ports_redirect`, `inline.interfaceSNAT`, `fencing.interception_proxy_port` and `network.interfaceSNAT` are now validated (ports, port/protocol pairs such as `80/tcp`, interface names), instead of accepting text that broke the generated iptables rules. A value saved before in another format has to be corrected before its form can be saved again
