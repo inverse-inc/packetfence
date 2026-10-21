@@ -6603,9 +6603,9 @@ msgstr "Utilisez une UO spécifique pour le compte PacketFence. La chaîne OU lu
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid ""
-"Use instead this IP address for de-authentication requests. Normally used "
-"for Wi-Fi only"
-msgstr "Utilisez plutôt cette adresse IP pour la requête de désassociation . Normalement seulement utilisé pour le Wi-Fi."
+"Use instead this IP address or FQDN for de-authentication requests. Normally "
+"used for Wi-Fi only"
+msgstr "Utilisez plutôt cette adresse IP ou ce FQDN pour la requête de désassociation. Normalement seulement utilisé pour le Wi-Fi."
 
 # conf/documentation.conf
 # (radius_configuration.normalize_radius_machine_auth_username)
