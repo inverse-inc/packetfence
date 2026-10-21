@@ -99,6 +99,12 @@ Moreover, don't forget to add Facebook as a *Source* from the connection
 profile definition, available from _Configuration -> Policies and Access
 Control -> Connection Profiles_.
 
+A Facebook account can be registered with a phone number only, without an
+e-mail address. Such a user gets `<Facebook account ID>@facebook` as username.
+If *Create local account* is enabled on the source, they can't register: the
+credentials of the local account are sent by e-mail, so the portal asks them to
+use another login method.
+
 CAUTION: By allowing OAuth through Facebook, you will give Facebook access
 to the users while they are sitting in the registration VLAN.
 

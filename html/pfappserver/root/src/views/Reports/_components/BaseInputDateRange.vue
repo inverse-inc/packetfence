@@ -60,18 +60,37 @@ const props = {
   value: {
     type: Object,
     default: () => ({ start_date: undefined, end_date: undefined, date_limit: undefined })
+  },
+  // offset in seconds of the server time from UTC, from the report meta
+  utcOffset: {
+    type: Number
   }
 }
 
 import { computed, customRef, nextTick, ref, toRefs, watch } from '@vue/composition-api'
 import { format, parse, addSeconds, subSeconds, differenceInSeconds } from 'date-fns'
 import i18n from '@/utils/locale'
+import store from '@/store'
 import { duration2seconds } from '@/views/Configuration/accessDurations/config'
+
+// The report dates are in the timezone of the server: return the current time
+// shifted so that it formats as the server clock in the browser timezone.
+// The offset comes from the report meta (REPORTS_READ), else from the system
+// summary (SYSTEM_READ), else the browser clock is used
+const serverNow = (reportOffset) => {
+  const now = new Date()
+  const { utc_offset: summaryOffset } = store.state.system.summary || {}
+  const utc_offset = [reportOffset, summaryOffset].find(offset => offset !== undefined && offset !== null)
+  if (utc_offset === undefined)
+    return now
+  return addSeconds(now, utc_offset + now.getTimezoneOffset() * 60)
+}
 
 const setup = (props, context) => {
 
   const {
-    value
+    value,
+    utcOffset
   } = toRefs(props)
 
   const { emit } = context
@@ -159,8 +178,8 @@ const setup = (props, context) => {
   const setRangeByPeriod = period => {
     showPeriod.value = false
     emit('input', {
-      start_date: format(subSeconds(new Date(), period), 'YYYY-MM-DD HH:mm:ss'),
-      end_date: format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+      start_date: format(subSeconds(serverNow(utcOffset.value), period), 'YYYY-MM-DD HH:mm:ss'),
+      end_date: format(serverNow(utcOffset.value), 'YYYY-MM-DD HH:mm:ss')
     })
    }
 
@@ -208,7 +227,7 @@ const setup = (props, context) => {
     isLocked.value = !isLocked.value
   }
   const bumpEndDate = () => {
-    endDate.value = format(addSeconds(new Date(), timerLocked), 'YYYY-MM-DD HH:mm:ss')
+    endDate.value = format(addSeconds(serverNow(utcOffset.value), timerLocked), 'YYYY-MM-DD HH:mm:ss')
   }
   watch(isLocked, () => {
     if (intervalLocked) {
@@ -221,7 +240,7 @@ const setup = (props, context) => {
   })
   watch(() => value.value.end_date, () => {
     const end = parse(endDate.value, 'YYYY-MM-DD HH:mm:ss')
-    const diff = Math.abs(differenceInSeconds(new Date(), end))
+    const diff = Math.abs(differenceInSeconds(serverNow(utcOffset.value), end))
     if (diff <= timerLocked) {
       isLocked.value = true
     }
