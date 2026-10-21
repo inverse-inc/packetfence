@@ -177,6 +177,9 @@ sub info {
 
 Instantiate the Crypt::OpenSSL::* objects from a hash payload
 
+Returns the certificate, the intermediates, the CAs to verify the chain with, the CA, the key,
+and whether the certificate field contained a chain
+
 =cut
 
 sub objects_from_payload {
@@ -187,13 +190,29 @@ sub objects_from_payload {
     my @cas;
     my $ca;
     my $key;
+    my $fetch_error;
+    my $chain_in_certificate = 0;
     eval {
-        $cert = pf::ssl::x509_from_string($data->{certificate}) or die "Failed to parse server certificate\n";
+        # The certificate field can contain the full chain (e.g. a fullchain.pem): server certificate first, then its intermediates
+        my @chain = grep { /-----BEGIN CERTIFICATE-----/ } split_pem($data->{certificate} // '');
+        my $cert_text = @chain ? shift(@chain) : $data->{certificate};
+        $chain_in_certificate = @chain ? 1 : 0;
+        $cert = pf::ssl::x509_from_string($cert_text) or die "Failed to parse server certificate\n";
         $key = pf::ssl::rsa_from_string($data->{private_key}) or die "Failed to parse private key\n";
-        
-        if(exists($data->{intermediate_cas})) {
-            @intermediate_cas = map { pf::ssl::x509_from_string($_) or die "Failed to parse one of the certificate CAs\n" } @{$data->{intermediate_cas}};
+
+        # The intermediates are, in order: the intermediate_cas given, the chain pasted after the server certificate,
+        # none when intermediate_cas is given empty (e.g. read from a certificate file without a chain), or else fetched through the AIA
+        my @provided_intermediate_cas = grep { defined($_) && /\S/ } @{$data->{intermediate_cas} // []};
+        if (@provided_intermediate_cas) {
+            @intermediate_cas = map { pf::ssl::x509_from_string($_) or die "Failed to parse one of the certificate CAs\n" } @provided_intermediate_cas;
             @cas = @intermediate_cas;
+        }
+        elsif (@chain) {
+            @intermediate_cas = map { pf::ssl::x509_from_string($_) or die "Failed to parse one of the intermediate certificates following the server certificate\n" } @chain;
+            @cas = @intermediate_cas;
+        }
+        elsif (exists($data->{intermediate_cas})) {
+            # No intermediate
         }
         else {
             my ($res, $certs) = pf::ssl::fetch_all_intermediates($cert);
@@ -202,9 +221,7 @@ sub objects_from_payload {
                 @cas = @intermediate_cas;
             }
             else {
-                my $msg = "Unable to fetch intermediate certificates ($certs). You will have to upload your intermediate chain manually in x509 (Apache) format.";
-                $self->log->error($msg);
-                return $self->render_error("422", $msg);
+                $fetch_error = "Unable to fetch intermediate certificates ($certs). You will have to upload your intermediate chain manually in x509 (Apache) format.";
             }
         }
 
@@ -214,6 +231,11 @@ sub objects_from_payload {
         chomp($msg);
         $self->log->error($msg);
         $self->render_error("500", $msg);
+        return (undef);
+    }
+    if ($fetch_error) {
+        $self->log->error($fetch_error);
+        $self->render_error("422", $fetch_error);
         return (undef);
     }
 
@@ -251,7 +273,7 @@ sub objects_from_payload {
         $ca = \@x509s;
     }
 
-    return ($cert, \@intermediate_cas, \@cas, $ca, $key);
+    return ($cert, \@intermediate_cas, \@cas, $ca, $key, $chain_in_certificate);
 }
 
 =head2 replace
@@ -268,7 +290,7 @@ sub replace {
     # Explicitely disable Let's Encrypt if manually managing certs
     pf::ssl::lets_encrypt::resource_state($self->stash->{certificate_id}, "disabled");
 
-    my ($cert, $intermediate_cas, $cas, $ca, $key) = $self->objects_from_payload($data);
+    my ($cert, $intermediate_cas, $cas, $ca, $key, $chain_in_certificate) = $self->objects_from_payload($data);
     unless(defined($cert)) {
         return;
     }
@@ -280,7 +302,7 @@ sub replace {
             if($chain_msg =~ /^Intermediate certificate\(s\) not part of the signing chain/) {
                 $msg .= " Remove them from the intermediate certificates, they would be sent to the clients along with the certificate.";
             }
-            elsif(exists($data->{intermediate_cas})) {
+            elsif(exists($data->{intermediate_cas}) || $chain_in_certificate) {
                 $msg .= " Ensure the intermediates certificate file you provided contains all the intermediate certificate authorities in x509 (Apache) format.";
             }
             else {
