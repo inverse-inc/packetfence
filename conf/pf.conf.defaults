@@ -763,6 +763,12 @@ tracking-config_binary=/dev/null
 netflow_address=0.0.0.0
 
 #
+# services.netflow_processor
+#
+# Should pfacct process NetFlow traffic?
+netflow_processor=enabled
+
+#
 # services.netflow_target_host_port
 #
 # NetFlow Target Host Port
