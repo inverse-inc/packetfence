@@ -65,6 +65,8 @@ pfcmd pfcron <task> [options...]
 
 =item switch_cache_lldpLocalPort_description
 
+=item switch_cache_ifindex
+
 =item ubiquiti_ap_mac_to_ip
 
 =item purge_binary_logs

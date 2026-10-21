@@ -37,6 +37,11 @@
 # eduroam.post-proxy call the RADIUS filter in the post-proxy accounting section
 # eduroam.preacct call the RADIUS filter in the eduroam preacct section
 #
+# In the pre-proxy and post-proxy scopes the home server's side of the exchange
+# is available as radius_request.proxy-request.* and radius_request.proxy-reply.*
+# (e.g. radius_request.proxy-reply.Tunnel-Private-Group-Id), next to the usual
+# request attributes.
+#
 #This rule will return the VLAN ID id 42 for this specific MAC address
 #
 #[SpecificVlanForMac]
