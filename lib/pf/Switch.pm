@@ -3136,11 +3136,8 @@ sub radiusDisconnect {
 
     my $response;
     try {
+        # handleRadiusDisconnect sends it to the disconnectPort of the switch
         my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
-
-        if (defined($self->{'_disconnectPort'}) && $self->{'_disconnectPort'} ne '') {
-            $connection_info->{'nas_port'} = $self->{'_disconnectPort'};
-        }
 
         # transforming MAC to the expected format 00-11-22-33-CA-FE
         $mac = uc($mac);
@@ -5030,6 +5027,7 @@ Wrapper around perform_disconnect to allow subclasses to intercept and modify th
 
 sub handleRadiusDisconnect {
     my ($self, $connection_info, $attributes_ref, $vsa) = @_;
+    $self->_setDynauthPort($connection_info, '_disconnectPort');
     my $response = perform_disconnect($connection_info, $attributes_ref, $vsa);
     return $self->_handleRadiusResponse($response);
 }
@@ -5042,8 +5040,24 @@ Wrapper around perform_coa to allow subclasses to intercept and modify the respo
 
 sub handleRadiusCoa {
     my ($self, $connection_info, $attributes_ref, $vsa) = @_;
+    $self->_setDynauthPort($connection_info, '_coaPort');
     my $response = perform_coa($connection_info, $attributes_ref, $vsa);
     return $self->_handleRadiusResponse($response);
+}
+
+=item _setDynauthPort
+
+Send the request to the port configured on the switch entry (disconnectPort or
+coaPort) unless the module already chose one. Without it, perform_dynauth falls
+back to 3799 and the configured port is ignored.
+
+=cut
+
+sub _setDynauthPort {
+    my ($self, $connection_info, $port_param) = @_;
+    return if defined($connection_info->{'nas_port'}) && $connection_info->{'nas_port'} ne '';
+    my $port = $self->{$port_param};
+    $connection_info->{'nas_port'} = $port if defined($port) && $port ne '';
 }
 
 =item handleRadiusRsso

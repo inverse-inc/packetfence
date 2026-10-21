@@ -65,7 +65,7 @@ my @whitelist = (
     'returnAccessListAttribute', 'returnInAccessListAttribute', 'returnOutAccessListAttribute', 'compute_action', 'getNetworkByName', '_parentRoleForNetwork', 'getInterfaceByName',
     'untranslatableAclQualifier', 'filterUntranslatableAcls', '_denyAllAclEntry', 'untranslatableFilterRule', 'aclWildcardIsContiguous', 'aclsForPush',
     '_parentRoleForInterface', 'getNetworkFromByName', '_parentRoleForNetworkFrom', 'switchDriverId', '_getAccessListByName', 'mark_as_seen', 'handleRadiusDisconnect', 'handleRadiusCoa',
-    '_getRoleAccessListByName', 'handleRadiusRsso', '_handleRadiusResponse', 'lldpRemPortIdToMac',
+    '_getRoleAccessListByName', 'handleRadiusRsso', '_handleRadiusResponse', 'lldpRemPortIdToMac', '_setDynauthPort',
     'cachedSNMPTableKey', 'refreshCachedSNMPTable', 'ifIndexCacheTables', 'hasCachedIfIndexTables', 'refreshIfIndexCache'
 );
 
