@@ -147,3 +147,90 @@ export const stateBadge = state => {
     default: return null
   }
 }
+
+const networkRange = network => (ipv4Re.test(network) ? toRange(network) : null)
+
+// High availability of a connector, as reported by its active host in
+// pfconnector-remotes/{id}/status (system.ha): the hosts share the connector
+// id and the VIP, the one holding the VIP (master) runs the tunnel and the
+// standby hosts report to it. null when HA is off or not reported.
+export const connectorHa = status => {
+  const { system: { ha } = {} } = status || {}
+  if (!ha || !ha.enabled)
+    return null
+  const peers = (ha.peers || []).map(peer => ({ ...peer, alive: !!peer.alive }))
+  return {
+    vip: ha.vip,
+    hostname: ha.hostname,
+    address: ha.address,
+    state: ha.state,
+    peers,
+    alive: peers.filter(peer => peer.alive).length
+  }
+}
+
+// host:port values an equipment item is reached on through the connector,
+// taken from the connector's tunnel forwards of the protocol its kind uses
+// (RADIUS sources over udp, AD/LDAP and firewalls over tcp); the IPs alone
+// when none match
+const ENDPOINT_PROTOS = {
+  authentication_sources: row => (row.type === 'RADIUS' ? ['udp'] : ['tcp']),
+  domains: () => ['tcp'],
+  firewalls: () => ['tcp']
+}
+export const equipmentEndpoints = (row, status) => {
+  const {
+    static_connections: staticConnections = [],
+    bound_remotes: boundRemotes = []
+  } = status || {}
+  const protos = (ENDPOINT_PROTOS[row.group] || (() => null))(row)
+  const endpoints = [...(staticConnections || []), ...(boundRemotes || [])]
+    .filter(forward => row.ips.includes(forward.remote_host) && (!protos || protos.includes(forward.local_proto)))
+    .map(forward => `${forward.remote_host}:${forward.remote_port}/${forward.local_proto}`)
+  const unique = [...new Set(endpoints)]
+  return (unique.length) ? unique : row.ips
+}
+
+// IPv4 networks in address order, then the others
+export const sortNetworks = (networks = []) => [...networks].sort((a, b) => {
+  const rangeA = networkRange(a)
+  const rangeB = networkRange(b)
+  if (rangeA && rangeB)
+    return (rangeA[0] - rangeB[0]) || (rangeA[1] - rangeB[1])
+  if (rangeA)
+    return -1
+  if (rangeB)
+    return 1
+  return a.localeCompare(b)
+})
+
+// Interface reaching an IP or a network: the one with an address in a subnet
+// containing or overlapping it (local: true), else the default route one
+// (main), or null.
+// interfaces: [{ name, cidrs: ['10.0.0.237/24'], main }]
+const overlaps = (a, b) => a && b && a[0] <= b[1] && b[0] <= a[1]
+export const interfaceFor = (ipOrNetwork, interfaces = []) => {
+  const range = toRange(ipOrNetwork)
+  const match = range && interfaces.find(({ cidrs = [] }) => cidrs.some(cidr => overlaps(toRange(cidr), range)))
+  if (match)
+    return { name: match.name, main: !!match.main, local: true }
+  const main = interfaces.find(({ main }) => main)
+  return (main) ? { name: main.name, main: true, local: false } : null
+}
+
+// Interfaces of a connector host, as reported by the connectors that
+// support it (system.host_interfaces), else []
+export const connectorInterfaces = status => {
+  const { system: { host_interfaces: interfaces = [] } = {} } = status || {}
+  return (interfaces || [])
+    .filter(({ up }) => up !== false)
+    .map(({ name, addresses = [], main }) => ({ name, cidrs: (addresses || []).filter(cidr => ipv4Re.test(cidr)), main }))
+}
+
+// PacketFence interfaces (config/interfaces); no default route is known
+export const packetfenceInterfaces = (items = []) => (items || [])
+  .filter(({ ipaddress, netmask }) => ipaddress && netmask)
+  .map(({ id, name, ipaddress, netmask, type }) => {
+    const bits = ipv4ToInt(netmask).toString(2).replace(/0/g, '').length
+    return { name: name || id, cidrs: [`${ipaddress}/${bits}`], type: type || '' }
+  })

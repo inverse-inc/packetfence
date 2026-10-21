@@ -65,9 +65,14 @@ export const useSearch = makeSearch('connectorsConnectors', {
       visible: true
     },
     {
+      key: 'role',
+      label: 'High availability', // i18n defer
+      visible: true
+    },
+    {
       key: 'static_ports',
       label: 'Static ports', // i18n defer
-      visible: true
+      visible: false
     },
     {
       key: 'version',
@@ -77,14 +82,14 @@ export const useSearch = makeSearch('connectorsConnectors', {
     {
       key: 'issues',
       label: 'Issues', // i18n defer
-      visible: true
+      visible: false
     },
     {
       key: 'networks',
       label: 'Networks', // i18n defer
       required: true,
       searchable: true,
-      visible: false
+      visible: true
     },
     {
       key: 'host_ips',

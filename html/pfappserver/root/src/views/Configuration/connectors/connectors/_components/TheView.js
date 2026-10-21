@@ -12,7 +12,7 @@ const components = {
   TheForm
 }
 
-import { computed, provide } from '@vue/composition-api'
+import { computed, provide, watch } from '@vue/composition-api'
 import { renderHOCWithScopedSlots } from '@/components/new/'
 import {
   useViewCollectionItem,
@@ -38,6 +38,32 @@ const setup = (props, context) => {
 
   const tabs = useTabs(props, context)
   provide('connectorTabs', tabs)
+
+  // quick launch from the fleet diagram (?action=): open the DNS lookup, or
+  // the terminal / restart confirmation, once; the action is removed from
+  // the URL so a reload doesn't repeat it
+  const { root } = context
+  const { query: { action } = {} } = root.$route || {}
+  if (action) {
+    const query = Object.fromEntries(Object.entries(root.$route.query).filter(([key]) => key !== 'action'))
+    root.$router.replace({ query }).catch(() => {})
+    if (action === 'dns')
+      tabs.networkingView.value = 'dns'
+    else if (action === 'restart' && remote.canUpdate.value)
+      remote.showRestartModal.value = true
+    else if (action === 'terminal' && remote.canUpdate.value) {
+      // the code prompt needs the connector's terminal settings; without TOTP
+      // the terminal tab can only be opened from a click on the page itself
+      // (popup blocker), so the Troubleshooting tab is just shown
+      const stop = watch(remote.system, system => {
+        if (!system)
+          return
+        stop()
+        if (remote.isConnected.value && remote.isTerminalEnabled.value && system.terminal_totp !== false)
+          remote.openTerminal()
+      })
+    }
+  }
 
   // the form buttons only apply to the Settings tab
   const { isSettings } = tabs

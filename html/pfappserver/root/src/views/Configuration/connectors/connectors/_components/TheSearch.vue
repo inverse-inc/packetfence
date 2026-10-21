@@ -43,14 +43,17 @@
       <base-search :use-search="useSearch">
         <b-button variant="outline-primary" @click="goToNew">{{ $t('New Cloud Connector') }}</b-button>
       </base-search>
+      <the-topology class="my-3" :items="itemsWithStatus" :remote-info="remoteInfo" :equipment="equipmentInfo" :dns="dnsConfig"
+        :interfaces="packetfenceInterfaces" :saas="isSaas"
+        :version="packetfenceVersion" :is-loading="isLoading" />
       <base-table-sortable ref="tableRef"
         :busy="isLoading"
         :hover="itemsWithStatus.length > 0"
         :items="itemsWithStatus"
         :fields="visibleColumns"
-        class="mb-0"
+        class="mb-0 text-nowrap"
         show-empty
-         fixed
+        responsive
         striped
         selectable
         @row-clicked="goToItem"
@@ -81,6 +84,19 @@
         <template v-slot:cell(connected)="{ item }">
           <icon name="circle" :class="`text-${statusVariant(item.status)}`"
             v-b-tooltip.hover.top.d300 :title="`${statusLabel(item.status)}: ${statusTooltip(item.status)}`" />
+        </template>
+        <template v-slot:cell(role)="{ item }">
+          <template v-if="ha(item.id)">
+            <b-badge variant="success" class="mr-1"
+              v-b-tooltip.hover.top.d300 :title="$t('Active host {host}: holds the virtual IP {vip} and runs the tunnel.', { host: ha(item.id).hostname || ha(item.id).address, vip: ha(item.id).vip })">{{ $t('master') }}</b-badge>
+            <span class="text-monospace small">{{ ha(item.id).vip }}</span>
+            <b-badge :variant="ha(item.id).alive === ha(item.id).peers.length ? 'light' : 'warning'" class="ml-1 border"
+              v-b-tooltip.hover.top.d300 :title="ha(item.id).peers.map(peer => `${peer.hostname || peer.address} (${peer.address}): ${peer.alive ? $t('standby, reporting') : $t('not reporting')}`).join(' · ')">
+              {{ $t('{alive}/{count} standby', { alive: ha(item.id).alive, count: ha(item.id).peers.length }) }}
+            </b-badge>
+          </template>
+          <span v-else-if="system(item.id)" class="text-muted">{{ $t('single host') }}</span>
+          <span v-else class="text-muted">-</span>
         </template>
         <template v-slot:cell(status)="data">
           <b-badge :variant="statusVariant(data.item.status)"
@@ -189,7 +205,10 @@ import {
   BaseTableSortable
 } from '@/components/new/'
 
+import TheTopology from './TheTopology'
+
 const components = {
+  TheTopology,
   BaseButtonConfirm,
   BaseButtonHelp,
   BaseSearch,
@@ -204,6 +223,9 @@ import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
 import i18n from '@/utils/locale'
 import api from '../_api'
+import dnsApi from '../../dns/_api'
+import domainsApi from '../../domains/_api'
+import { listAll } from '../_composables/useDnsTopology'
 import { useSearch, useStore, useRouter } from '../_composables/useCollection'
 import { connectorInstallCommand } from '../_composables/useInstallCommand'
 import {
@@ -212,6 +234,7 @@ import {
   formatPercent,
   formatUptime
 } from '../_composables/useRemoteStatus'
+import { connectorHa } from '../_composables/useConnectorRows'
 
 const REMOTE_CONCURRENCY = 3 // each remote status call takes 1s or more
 
@@ -273,6 +296,35 @@ const setup = (props, context) => {
 
   const upIds = statuses => Object.keys(statuses).filter(id => statuses[id] === 'up')
 
+  // equipment behind every connector, for the topology
+  const equipmentInfo = ref({})
+  const fetchEquipment = ids => {
+    const queue = [...ids]
+    const worker = () => {
+      const id = queue.shift()
+      if (!id)
+        return Promise.resolve()
+      return api.equipment(id)
+        .then(response => {
+          equipmentInfo.value = { ...equipmentInfo.value, [id]: response }
+        })
+        .catch(() => {})
+        .then(worker)
+    }
+    return Promise.all(Array.from({ length: Math.min(REMOTE_CONCURRENCY, queue.length) }, worker))
+  }
+
+  // DNS servers and domains of the connectors, with the connectors in
+  // configuration order (the order deciding which tunnel reaches a server)
+  const dnsConfig = ref({ connectors: [], servers: [], domains: [] })
+  const fetchDnsConfig = () => Promise.all([listAll(api.list), listAll(dnsApi.list), listAll(domainsApi.list)])
+    .then(([connectors, servers, domains]) => {
+      dnsConfig.value = { connectors, servers, domains }
+    })
+    .catch(() => {
+      // gracefully ignore errors, the diagram shows the DNS servers without their domains
+    })
+
   const fetchStatuses = (fetchNewlyUp = true) => {
     return getConnectorsStatus().then(statuses => {
       const next = Object.fromEntries(
@@ -293,7 +345,15 @@ const setup = (props, context) => {
 
   const onRefresh = () => {
     fetchStatuses(false).then(() => fetchRemote(upIds(connectorStatuses.value)))
+    fetchEquipment(items.value.map(item => item.id))
+    fetchDnsConfig()
   }
+
+  // equipment of connectors not fetched yet (first search, new connector)
+  watch(items, list => {
+    fetchEquipment(list.map(item => item.id).filter(id => !(id in equipmentInfo.value)))
+    fetchDnsConfig()
+  })
 
   onMounted(() => {
     onRefresh()
@@ -321,7 +381,22 @@ const setup = (props, context) => {
     }))
   })
 
+  const packetfenceVersion = computed(() => $store.getters['system/version'])
+  // PacketFence interfaces, not shown on cloud (pod interfaces)
+  const isSaas = computed(() => !!$store.getters['system/isSaas'])
+  const packetfenceInterfaces = ref([])
+  onMounted(() => {
+    $store.dispatch('config/getInterfaces')
+      .then(items => {
+        packetfenceInterfaces.value = items || []
+      })
+      .catch(() => {
+        // gracefully ignore errors, the diagram shows no PacketFence interface
+      })
+  })
+
   const remote = id => remoteInfo.value[id] || null
+  const ha = id => connectorHa(remoteInfo.value[id])
   const system = id => (remoteInfo.value[id] && remoteInfo.value[id].system) || null
   const staticPorts = id => {
     const { static_connections: connections = [] } = remote(id) || {}
@@ -416,6 +491,13 @@ const setup = (props, context) => {
   return {
     useSearch,
     itemsWithStatus,
+    remoteInfo,
+    equipmentInfo,
+    dnsConfig,
+    packetfenceInterfaces,
+    isSaas,
+    ha,
+    packetfenceVersion,
     lastRefresh,
     isRemoteLoading,
     onRefresh,
