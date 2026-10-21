@@ -27,6 +27,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
+  - CoA and Disconnect requests can use attributes from a local RADIUS dictionary, `conf/radiusd/dictionary.local` (FreeRADIUS format), for vendor attributes PacketFence doesn't ship (e.g. `Extreme-Dynamic-Config`) (#8627)
+
 === Enhancements
 
   - LDAP sources: the username lookup used to evaluate the "matches regexp" and "is member of" conditions now runs once per authentication instead of once per rule (#9273)
