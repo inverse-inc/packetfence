@@ -12,11 +12,14 @@ source /usr/local/pf/addons/functions/helpers.functions
 source /usr/local/pf/addons/functions/database.functions
 
 output="$1"
+BACKUP_DIRECTORY=${BACKUP_DIRECTORY:-/root/backup/}
 BACKUP_DB_FILENAME='packetfence-db-dump-*'
 BACKUP_CONF_FILENAME='packetfence-conf-dump-*'
+# Name of the configuration dump before v14.1
+BACKUP_OLD_CONF_FILENAME='packetfence-files-dump-*'
 
 echo "Search last database dump available."
-last_db_dump=`find /root/backup -name "$BACKUP_DB_FILENAME" -printf "%T@ %p\n" | sort -n | tail -1 | awk '{ print $2 }'`
+last_db_dump=`find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME" -printf "%T@ %p\n" | sort -n | tail -1 | awk '{ print $2 }'`
 
 if [ -z "$last_db_dump" ]; then
   echo "Unable to find a database dump."
@@ -24,7 +27,11 @@ if [ -z "$last_db_dump" ]; then
 fi
 
 echo "Search last config dump available."
-last_conf_dump=`find /root/backup -name "$BACKUP_CONF_FILENAME" -printf "%T@ %p\n" | sort -n | tail -1 | awk '{ print $2 }'`
+last_conf_dump=`find $BACKUP_DIRECTORY -name "$BACKUP_CONF_FILENAME" -printf "%T@ %p\n" | sort -n | tail -1 | awk '{ print $2 }'`
+
+if [ -z "$last_conf_dump" ]; then
+  last_conf_dump=`find $BACKUP_DIRECTORY -name "$BACKUP_OLD_CONF_FILENAME" -printf "%T@ %p\n" | sort -n | tail -1 | awk '{ print $2 }'`
+fi
 
 if [ -z "$last_conf_dump" ]; then
   echo "Unable to find a config dump."
@@ -60,7 +67,12 @@ if echo "$last_db_dump" | grep '\.sql.gz$' >/dev/null; then
     mariadb_args=(-p"$mariadb_root_pass")
   fi
 
-  db_name=$(/usr/local/pf/bin/get_pf_conf database db)
+  # bin/get_pf_conf doesn't exist before v13.1
+  if [ -x /usr/local/pf/bin/get_pf_conf ]; then
+    db_name=$(/usr/local/pf/bin/get_pf_conf database db)
+  else
+    db_name=$(get_db_name /usr/local/pf/conf/pf.conf)
+  fi
   db_name=${db_name:-pf}
 
   echo "Database dump uses mysqldump. Exporting the grants from the database. Enter the MariaDB root password if prompted to"
