@@ -30,6 +30,9 @@ SystemSummary:
     uptime:
       type: string
       description: System uptime.
+    utc_offset:
+      type: integer
+      description: Offset in seconds of the server time (the timezone of the reports) from UTC.
     version:
       type: string
       description: PacketFence version.

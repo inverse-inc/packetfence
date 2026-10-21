@@ -73,13 +73,10 @@ sub get_socket {
     my $socket;
     my $socket_path = $pfconfig::constants::SOCKET_PATH;
     if($self->{proto} eq "tcp") {
-        $socket = IO::Socket::INET->new(
-            PeerHost => $self->{tcp_host},
-            PeerPort => $self->{tcp_port},
-            Proto => "tcp",
-        );
+        my $error;
+        ($socket, $error) = pfconfig::util::connect_tcp(host => $self->{tcp_host}, port => $self->{tcp_port});
         if(!$socket) {
-            print STDERR "Can't connect to pfconfig on $self->{tcp_host}:$self->{tcp_port} : $!\n";
+            print STDERR "Can't connect to pfconfig on $self->{tcp_host}:$self->{tcp_port} : $error\n";
         }
     }
     else {

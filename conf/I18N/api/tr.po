@@ -2748,6 +2748,12 @@ msgstr ""
 msgid "Check for SSL certificates validity in packetfence pki"
 msgstr ""
 
+#: conf/pfcron.conf.defaults[pki_revoked_certs_cleanup]/description
+msgid ""
+"Cleanup revoked PKI certificates. A revoked certificate is removed once it "
+"was revoked more than the window ago and it is expired."
+msgstr ""
+
 #: html/pfappserver/root/src/views/Configuration/billingTiers/_components/TheForm.vue:36
 msgid ""
 "Check this box to have the access duration be a real time usage.<br/>This "
@@ -9588,7 +9594,7 @@ msgid "Key usage"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeKickbox.vue:18
-msgid "Kickbox.io API key"
+msgid "Kickbox API key"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/advanced/_components/TheForm.vue:62
@@ -18751,6 +18757,10 @@ msgid ""
 " EAP-Request packets."
 msgstr ""
 
+#: html/pfappserver/root/src/views/Configuration/portalModules/_components/TheList.vue:298
+msgid "The unsaved changes of the portal modules will be lost."
+msgstr ""
+
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:19
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:14
 msgid "The username to use for login to the captive portal."
@@ -20087,8 +20097,8 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheForm.vue:306
 #: html/pfappserver/root/src/views/Configuration/switches/_components/TheForm.vue:311
 msgid ""
-"Use instead this IP address for de-authentication requests. Normally used "
-"for Wi-Fi only."
+"Use instead this IP address or FQDN for de-authentication requests. Normally "
+"used for Wi-Fi only."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/radius/ocsp/_components/TheForm.vue:30
@@ -20868,9 +20878,7 @@ msgid ""
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/connectionProfiles/_components/TheForm.vue:70
-msgid ""
-"When enabled, PacketFence will unset the role of the device if no "
-"authentication sources returned one."
+msgid "When enabled, PacketFence will unset the role of the device if no authentication sources returned one, the device is then unregistered and gets the registration role."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheForm.vue:73

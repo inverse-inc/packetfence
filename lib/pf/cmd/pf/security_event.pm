@@ -66,7 +66,8 @@ sub parse_add {
         print STDERR "'$mac' MAC address is invalid\n";
         return 0;
     }
-    unless(defined(class_view($security_event_id))) {
+    # class_view returns 0 for an unknown ID
+    unless(class_view($security_event_id)) {
         print STDERR "Invalid security event ID\n";
         return 0;
     }
@@ -87,7 +88,7 @@ sub validate_mac {
 
 sub validate_security_event_id {
     my ($self, $security_event_id) = @_;
-    unless(defined(class_view($security_event_id))) {
+    unless(class_view($security_event_id)) {
         print STDERR "Invalid security event ID\n";
         $self->showHelp();
     }
