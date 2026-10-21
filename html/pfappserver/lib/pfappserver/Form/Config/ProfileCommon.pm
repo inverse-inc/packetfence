@@ -54,7 +54,7 @@ The captival portal block
 
 has_block 'captive_portal' =>
   (
-    render_list => [qw(logo redirecturl always_use_redirecturl block_interval sms_pin_retry_limit sms_request_limit login_attempt_limit access_registration_when_registered network_logoff network_logoff_popup)],
+    render_list => [qw(logo redirecturl always_use_redirecturl block_interval sms_pin_retry_limit sms_request_limit login_attempt_limit access_registration_when_registered network_logoff network_logoff_popup self_service_status self_service_device_registration)],
   );
 
 =head1 Fields
@@ -534,6 +534,40 @@ has_field 'network_logoff' =>
    unchecked_value => 'disabled',
    tags => { after_element => \&help,
              help => "This allows users to access the network logoff page (http://$fqdn/networklogoff) in order to terminate their network access (switch their device back to unregistered)" },
+  );
+
+=head2 self_service_status
+
+Controls whether or not this connection profile allows access to the self service status page (/status)
+
+=cut
+
+has_field 'self_service_status' =>
+  (
+   type => 'Toggle',
+   label => 'Self service status page',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'enabled',
+   tags => { after_element => \&help,
+             help => "This allows users to access the self service status page (http://$fqdn/status) to see and manage their devices. Device registration requires the status page to be enabled." },
+  );
+
+=head2 self_service_device_registration
+
+Controls whether or not this connection profile allows access to the self service device registration page (/device-registration)
+
+=cut
+
+has_field 'self_service_device_registration' =>
+  (
+   type => 'Toggle',
+   label => 'Self service device registration',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'enabled',
+   tags => { after_element => \&help,
+             help => "This allows users to register their other devices from the self service device registration page (http://$fqdn/device-registration). It also requires a self service policy." },
   );
 
 =head2 network_logoff_popup

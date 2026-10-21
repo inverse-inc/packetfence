@@ -8,6 +8,10 @@ source /usr/local/pf/addons/full-upgrade/helpers.functions
 source /usr/local/pf/addons/full-upgrade/database.functions
 source /usr/local/pf/addons/full-upgrade/configuration.functions
 
+# log the whole upgrade output to a file in addition to STDOUT, unless the
+# caller (do-upgrade.sh) already set it up
+setup_upgrade_log
+
 function get_libmariadb_dev() {
     libmariadb_version=$(dpkg -l libmariadb-dev|grep '^ii'|cut -d ':' -f 2 | cut -d '+' -f 1)
     if [ -n "${libmariadb_version}" ]; then

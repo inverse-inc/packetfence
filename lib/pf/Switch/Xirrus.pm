@@ -208,7 +208,7 @@ sub radiusDisconnect {
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
 
-    if (!defined($self->{'_radiusSecret'})) {
+    if (!$self->hasRadiusSecret()) {
         $logger->warn(
             "Unable to perform RADIUS CoA-Request on $self->{'_ip'}: RADIUS Shared Secret not configured"
         );
@@ -342,8 +342,6 @@ sub returnRadiusAccessAccept {
     my ($self, $args) = @_;
     my $logger = $self->logger;
 
-    my $filter = pf::access_filter::radius->new;
-    my $rule = $filter->test('returnRadiusAccessAccept', $args);
     my $radius_reply_ref = {};
     my $status;
 
@@ -362,6 +360,9 @@ sub returnRadiusAccessAccept {
             $self->handleRadiusDeny();
         }
         else{
+            # Only this branch answers without the parent, which applies the filter itself
+            my $filter = pf::access_filter::radius->new;
+            my $rule = $filter->test('returnRadiusAccessAccept', $args);
             $logger->info("Returning ACCEPT");
             ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
             return [$status, %$radius_reply_ref];

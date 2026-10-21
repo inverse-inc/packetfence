@@ -235,8 +235,11 @@ sub items {
 
 sub config_store {
     my ($self) = @_;
-    $self->config_store_class->new;
+    my $cs = $self->config_store_class->new;
+    $self->lock_config_store($cs);
+    return $cs;
 }
+
 
 sub form {
     my ($self, $item, @args) = @_;

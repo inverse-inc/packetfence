@@ -45,6 +45,12 @@ use DateTime;
 use DateTime::Format::RFC3339;
 use pf::config qw(%Config);
 use pf::util qw(isdisabled isenabled valid_mac);
+use pf::locationlog qw(locationlog_view_open_mac);
+use pf::factory::connector;
+use pfconfig::git_storage;
+use File::Basename qw(basename dirname);
+use File::Compare qw(compare);
+use File::Copy qw(copy);
 
 # Do not remove, even if its not explicitely used. When taking collector requests out of the cache, this must be imported.
 use URI::http;
@@ -79,8 +85,19 @@ our %RECORD_RESULT_ATTR_MAP = (
 use fingerbank::Config;
 $fingerbank::Config::CACHE = cache();
 
-my $collector;
-my $collector_ua;
+# The configured (clustered) collector and its LWP client.
+my $local_collector;
+my $local_collector_ua;
+
+# Collectors co-located with a pfconnector, keyed by connector id:
+# { collector => ..., ua => ..., expires_at => ... }. A collector of undef records that the
+# connector has no reachable dedicated collector, so the configured one is used.
+my %connector_collectors;
+
+# How long, in seconds, a connector's collector is trusted before it is resolved again.
+# The pfconnector-server hands out the collectors' reverse ports in memory: a tunnel going
+# down removes one and a pfconnector-server restart can give it to another connector.
+our $CONNECTOR_COLLECTOR_TTL = 60;
 my $api_client;
 
 =head1 METHODS
@@ -225,21 +242,174 @@ Currently done via a call to the Fingerbank collector
 
 =cut
 
+=head2 _collector_for_mac
+
+Given a MAC address, resolve the fingerbank collector that should be queried for it.
+
+When the device is behind a pfconnector (determined from its open locationlog entry's
+switch IP), this returns a collector pointing at the collector co-located with that
+pfconnector so we only query the relevant collector instead of fanning out across all
+of them. Otherwise (no open session, local device, tunnel down or any error) it falls
+back to the configured/clustered collector.
+
+Returns a list of ($collector, $collector_ua, $suffix), the suffix being "local" or the
+connector id whose collector is returned.
+
+=cut
+
+sub _collector_for_mac {
+    my ($mac) = @_;
+
+    my $connector_id = _collector_suffix_for_mac($mac);
+    return _local_collector() if $connector_id eq "local";
+
+    my $entry = $connector_collectors{$connector_id};
+    if (!$entry || $entry->{expires_at} <= time) {
+        my $collector = _build_connector_collector($connector_id);
+        $entry = $connector_collectors{$connector_id} = {
+            collector  => $collector,
+            ua         => ($collector ? $collector->get_lwp_client() : undef),
+            expires_at => time + $CONNECTOR_COLLECTOR_TTL,
+        };
+    }
+
+    # No dedicated collector for this connector (tunnel down, lookup failure): fall back to local
+    return _local_collector() unless $entry->{collector};
+
+    return ($entry->{collector}, $entry->{ua}, $connector_id);
+}
+
+=head2 _local_collector
+
+The configured (clustered) collector, its LWP client and the "local" suffix.
+
+=cut
+
+sub _local_collector {
+    $local_collector //= fingerbank::Collector->new_from_config;
+    $local_collector_ua //= $local_collector->get_lwp_client();
+    return ($local_collector, $local_collector_ua, "local");
+}
+
+=head2 _collector_request
+
+Send a request for a MAC's endpoint data to the collector resolved for it. A dedicated
+(per-connector) collector that fails is retried once on the configured collector; when
+it could not be reached at all, the connector is marked as having no dedicated collector
+for $CONNECTOR_COLLECTOR_TTL seconds so the following lookups go straight to the
+configured collector instead of failing on it again.
+
+Reads and writes go to the same collector: a collector only applies a PATCH to its own
+copy of the endpoint, so writing elsewhere than where the data is read would leave the
+written attributes invisible to the next read.
+
+=cut
+
+sub _collector_request {
+    my ($name, $method, $mac, $content) = @_;
+
+    my ($collector, $collector_ua, $suffix) = _collector_for_mac($mac);
+    my $res = _send_collector_request($collector, $collector_ua, $name, $method, $mac, $content);
+    return $res if ($res->is_success || $suffix eq "local");
+
+    get_logger->warn("Dedicated fingerbank collector for connector '$suffix' failed for $mac (".$res->status_line."). Retrying on the configured collector.");
+    if ($res->is_server_error) {
+        $connector_collectors{$suffix} = { collector => undef, ua => undef, expires_at => time + $CONNECTOR_COLLECTOR_TTL };
+    }
+
+    ($collector, $collector_ua) = _local_collector();
+    return _send_collector_request($collector, $collector_ua, $name, $method, $mac, $content);
+}
+
+=head2 _send_collector_request
+
+Send a request to a given collector. The built HTTP::Request is cached keyed by the
+collector's host and port, which it embeds, so it can never be replayed against
+another collector.
+
+=cut
+
+sub _send_collector_request {
+    my ($collector, $collector_ua, $name, $method, $mac, $content) = @_;
+
+    my $target = $collector->host.":".$collector->port;
+    my $req = cache()->compute("pf::fingerbank::${name}::request::${target}::$mac", sub {
+        $collector->build_request($method, "/endpoint_data/$mac");
+    });
+    _refresh_collector_auth($req);
+    $req->content($content) if defined $content;
+
+    return $collector_ua->request($req);
+}
+
+=head2 _collector_suffix_for_mac
+
+Determine the collector suffix ("local" or a connector id) for a MAC based on its open
+locationlog entry and the connector that handles its switch IP.
+
+=cut
+
+sub _collector_suffix_for_mac {
+    my ($mac) = @_;
+
+    # Without a connector that has networks, every device is on the local connector:
+    # don't pay for a locationlog lookup on every fingerprint.
+    return "local" unless(eval { pf::factory::connector->has_remote_connectors });
+
+    my $entry = eval { locationlog_view_open_mac($mac) };
+    return "local" unless($entry);
+
+    my $switch_ip = $entry->{switch_ip} || $entry->{switch};
+    return "local" unless($switch_ip);
+
+    my $connector = eval { pf::factory::connector->for_ip($switch_ip) };
+    return "local" unless($connector && $connector->id && $connector->id ne "local_connector");
+
+    return $connector->id;
+}
+
+=head2 _build_connector_collector
+
+Build a fingerbank::Collector pointing at the collector co-located with the pfconnector
+identified by the given connector id. Returns undef on any failure so the caller falls
+back to the configured collector.
+
+=cut
+
+sub _build_connector_collector {
+    my ($connector_id) = @_;
+    my $logger = pf::log::get_logger;
+
+    my $connector = eval { pf::factory::connector->new($connector_id) };
+    unless($connector) {
+        $logger->debug("Unable to instantiate connector '$connector_id' for fingerbank collector lookup: $@");
+        return undef;
+    }
+
+    my $uri = eval { $connector->fingerbank_collector_endpoint };
+    unless($uri) {
+        $logger->debug("Unable to obtain a dedicated fingerbank collector endpoint for connector '$connector_id'. Falling back to the configured collector. ".($@ // ""));
+        return undef;
+    }
+
+    my $host = $uri->host;
+    $logger->debug("Using dedicated fingerbank collector $host:".$uri->port." for connector '$connector_id'");
+
+    return fingerbank::Collector->new(
+        cache     => $fingerbank::Config::CACHE,
+        host      => $host,
+        port      => $uri->port,
+        use_https => ($uri->scheme eq 'https' ? 'enabled' : 'disabled'),
+    );
+}
+
 sub endpoint_attributes {
     my ($mac) = @_;
     my $timer = pf::StatsD::Timer->new({level => 7});
 
     return undef unless(valid_mac($mac));
 
-    $collector //= fingerbank::Collector->new_from_config;
-    $collector_ua //= $collector->get_lwp_client();
-    
-    my $req = cache()->compute("pf::fingerbank::endpoint_attributes::request::$mac", sub {
-        $collector->build_request("GET", "/endpoint_data/$mac");
-    });
-    _refresh_collector_auth($req);
-
-    my $res = $collector_ua->request($req);
+    my $res = _collector_request("endpoint_attributes", "GET", $mac);
     if ($res->is_success) {
         my $data = decode_json($res->decoded_content);
         # Change the last_updated into a DateTime
@@ -290,16 +460,7 @@ sub update_collector_endpoint_data {
 
     return undef unless(valid_mac($mac));
 
-    $collector //= fingerbank::Collector->new_from_config;
-    $collector_ua //= $collector->get_lwp_client();
-    
-    my $req = cache()->compute("pf::fingerbank::update_collector_endpoint_data::request::$mac", sub {
-        $collector->build_request("PATCH", "/endpoint_data/$mac");
-    });
-    _refresh_collector_auth($req);
-    $req->content(encode_json($data));
-
-    my $res = $collector_ua->request($req);
+    my $res = _collector_request("update_collector_endpoint_data", "PATCH", $mac, encode_json($data));
     if ($res->is_success) {
         return decode_json($res->decoded_content);
     }
@@ -466,6 +627,67 @@ sub sync_configuration {
 sub sync_local_db {
     pf::cluster::sync_files([$fingerbank::FilePath::LOCAL_DB_FILE]);
     clear_cache();
+
+    if (pfconfig::git_storage->is_enabled) {
+        my ($res, $msg) = pfconfig::git_storage->commit_file($fingerbank::FilePath::LOCAL_DB_FILE, "fingerbank/db/fingerbank_Local.db");
+        if (!$res) {
+            get_logger->error("Error syncing $fingerbank::FilePath::LOCAL_DB_FILE to git storage: $msg");
+            return (0, $msg);
+        }
+        my $deployed = eval {
+            # The deploy is only needed for its git pull side (placing the DB file on the
+            # pfconfig pods); no pfconfig namespace depends on the local Fingerbank DB, so
+            # expire a single cheap namespace instead of __all__
+            pfconfig::git_storage->deploy(namespace => "config::FingerbankSettings", light => 1);
+        };
+        # Outside of k8s the deploy doesn't die when pfconfig refuses the pull, it returns false
+        if ($@ || !$deployed) {
+            get_logger->error("Error deploying git storage after local Fingerbank DB update: " . ($@ || "pfconfig did not accept the pull"));
+            return (0, "Local Fingerbank database was saved to git storage but deploying it failed. Please retry the change.");
+        }
+    }
+    return (1, undef);
+}
+
+=head2 restore_local_db_from_storage
+
+With git storage, replace the local Fingerbank database with the copy in the
+git repository when they differ, before an edit is applied to it. The repository
+holds the copy every pod shares: a pod that came up with an empty or stale local
+database would otherwise push it over the shared copy with its next edit, and
+the deploy would spread it to every pod. A pod whose last edit was committed has
+the same copy, so nothing is replaced then.
+
+Returns (1) when the local database can be edited, (0, $message) when the
+repository could not be read.
+
+=cut
+
+sub restore_local_db_from_storage {
+    return (1) unless pfconfig::git_storage->is_enabled;
+
+    my ($pulled, $pull_msg) = pfconfig::git_storage->pull();
+    return (0, $pull_msg // "Unable to pull the git storage repository") unless $pulled;
+
+    my $repo_db = pfconfig::git_storage->git_directory . "/fingerbank/db/" . basename($fingerbank::FilePath::LOCAL_DB_FILE);
+    return (1) unless -f $repo_db;
+
+    my $local_db = $fingerbank::FilePath::LOCAL_DB_FILE;
+    return (1) if -f $local_db && compare($repo_db, $local_db) == 0;
+
+    # Copied next to the database and renamed in place, so a reader never sees a
+    # partially written file. The copy gets a new mtime, which the Fingerbank
+    # client uses to notice the change.
+    my $tmp = dirname($local_db) . "/." . basename($local_db) . ".git_storage.$$";
+    if (!copy($repo_db, $tmp) || !rename($tmp, $local_db)) {
+        my $error = "$!";
+        unlink($tmp);
+        get_logger->error("Unable to restore $local_db from the git storage repository: $error");
+        return (0, "Unable to restore the local Fingerbank database from git storage: $error");
+    }
+    clear_cache();
+    get_logger->info("The local Fingerbank database differed from the git storage copy: restored it from git storage before the edit");
+    return (1);
 }
 
 sub sync_upstream_db {
@@ -737,8 +959,9 @@ Clear the cache in a thread environment
 =cut
 
 sub CLONE {
-    $collector_ua = undef;
-    $collector = undef;
+    $local_collector_ua = undef;
+    $local_collector = undef;
+    %connector_collectors = ();
     $api_client = undef;
 }
 

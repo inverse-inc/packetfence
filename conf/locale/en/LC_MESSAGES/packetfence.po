@@ -1516,6 +1516,26 @@ msgstr ""
 msgid "Time balance "
 msgstr ""
 
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Application.pm
+#. Abbreviation of "days" appended to a number in a time balance (e.g. 1d 2h 3m)
+msgid "d"
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Application.pm
+#. Abbreviation of "hours" appended to a number in a time balance (e.g. 1d 2h 3m)
+msgid "h"
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Application.pm
+#. Abbreviation of "minutes" appended to a number in a time balance (e.g. 1d 2h 3m)
+msgid "m"
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Application.pm
+#. Abbreviation of "seconds" appended to a number in a time balance (e.g. 1d 2h 3m)
+msgid "s"
+msgstr ""
+
 # pf::person::FIELDS
 msgid "Title"
 msgstr ""
