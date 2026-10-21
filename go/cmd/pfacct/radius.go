@@ -96,6 +96,16 @@ func (h *PfAcct) HandleAccounting(w radius.ResponseWriter, r *radius.Request) {
 	switchInfo := iSwitchInfo.(*SwitchInfo)
 	callingStation := rfc2865.CallingStationID_GetString(r.Packet)
 	mac, err := mac.NewFromString(callingStation)
+	if err != nil && isVpnAccounting(r.Packet) {
+		// A VPN session has no MAC address: the Calling-Station-Id is the
+		// address of the remote client (FortiGate SSL-VPN for instance).
+		outPacket := r.Response(radius.CodeAccountingResponse)
+		rfc2865.ReplyMessage_SetString(outPacket, "Accounting OK")
+		w.Write(h.AddProxyState(outPacket, r))
+		h.sendVpnAccounting(ctx, r)
+		return
+	}
+
 	if err != nil {
 		logError(ctx, fmt.Sprintf("Calling Station is invalid: '%s' error: %s", callingStation, err.Error()))
 		outPacket := r.Response(radius.CodeAccountingResponse)
@@ -410,6 +420,64 @@ func (h *PfAcct) sendRadiusAccountingCall(r *radius.Request, m mac.Mac, native n
 	if !h.RateLimit || h.rateLimit(attr, status) {
 		h.enqueueAAANotify(ctx, m, attr)
 	}
+}
+
+// isVpnAccounting tells whether an accounting packet that has no MAC address in
+// its Calling-Station-Id is the accounting of a VPN session: a user name, the
+// address of its tunnel (Framed-IP-Address), and a Connect-Info starting with
+// "vpn" (FortiGate: vpn-ssl, vpn-ipsec, ...) or the Virtual NAS-Port-Type. The
+// tunnel address leaves out the exec and command accounting of switch
+// management logins, which are Virtual too but have none (and vpn_accounting
+// needs it anyway).
+func isVpnAccounting(p *radius.Packet) bool {
+	if rfc2865.UserName_GetString(p) == "" {
+		return false
+	}
+
+	if ip := rfc2865.FramedIPAddress_Get(p); ip == nil || ip.IsUnspecified() {
+		return false
+	}
+
+	if strings.HasPrefix(strings.ToLower(rfc2869.ConnectInfo_GetString(p)), "vpn") {
+		return true
+	}
+
+	return rfc2865.NASPortType_Get(p) == rfc2865.NASPortType_Value_Virtual
+}
+
+// sendVpnAccounting forwards the accounting of a VPN session to httpd.aaa
+// (vpn_accounting). It has no MAC address, so none of the per node processing
+// applies; the notifications of a session stay ordered by sharding on the
+// session.
+func (h *PfAcct) sendVpnAccounting(ctx context.Context, r *radius.Request) {
+	attr := packetToMap(ctx, r.Packet)
+	if val, ok := attr["NAS-IP-Address"]; !ok || val == "0.0.0.0" {
+		attr["NAS-IP-Address"] = vpnAccountingNasIp(ctx, r.RemoteAddr)
+	}
+
+	key := rfc2866.AcctSessionID_GetString(r.Packet) + "|" + rfc2865.UserName_GetString(r.Packet)
+	queueIndex := djb2Hash([]byte(key)) % uint64(len(h.aaaNotifyQueues))
+	select {
+	case h.aaaNotifyQueues[queueIndex] <- aaaNotifyJob{ctx: ctx, attr: attr, method: "vpn_accounting"}:
+	default:
+		h.aaaNotifyDropped.Add(1)
+	}
+}
+
+// vpnAccountingNasIp is the NAS of a VPN accounting packet without
+// NAS-IP-Address. The role of the user was cached at authorization under the
+// NAS-IP-Address of the Access-Request or the address of the switch entry:
+// use the switch entry identified when the secret was looked up when it is a
+// single address, since behind the docker proxy of the pfacct container the
+// source of the packet is the bridge gateway, and the source otherwise.
+func vpnAccountingNasIp(ctx context.Context, remote net.Addr) string {
+	if info, ok := ctx.Value(switchInfoKey).(*SwitchInfo); ok && info != nil {
+		if ip := net.ParseIP(info.Nasname); ip != nil && !ip.IsUnspecified() {
+			return ip.String()
+		}
+	}
+
+	return strings.Split(remote.String(), ":")[0]
 }
 
 // enqueueAAANotify hands a radius_accounting notification to the MAC-sharded
