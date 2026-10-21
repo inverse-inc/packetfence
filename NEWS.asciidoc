@@ -44,6 +44,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Bug Fixes
 
+  - `inline.ports_redirect`, `inline.interfaceSNAT`, `fencing.interception_proxy_port` and `network.interfaceSNAT` are now validated (ports, port/protocol pairs such as `80/tcp`, interface names), instead of accepting text that broke the generated iptables rules. A value saved before in another format has to be corrected before its form can be saved again
+
   - Portal: a user who chose an OAuth, OpenID or SAML method and comes back without completing it is shown that method's page (with the other methods of the Choice) instead of being sent straight back to the provider (#7447)
 
   - pfpki OCSP responder answered with a 500 error instead of "unknown" for a serial number that is in neither the certificates nor the revoked certificates
