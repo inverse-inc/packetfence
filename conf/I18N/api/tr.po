@@ -18757,6 +18757,10 @@ msgid ""
 " EAP-Request packets."
 msgstr ""
 
+#: html/pfappserver/root/src/views/Configuration/portalModules/_components/TheList.vue:298
+msgid "The unsaved changes of the portal modules will be lost."
+msgstr ""
+
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:19
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:14
 msgid "The username to use for login to the captive portal."
