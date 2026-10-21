@@ -44,6 +44,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Bug Fixes
 
+  - Email: the SMTP authentication uses a mechanism offered by the server (PLAIN, then LOGIN) instead of always trying PLAIN, which failed with servers offering only LOGIN (e.g. Office 365: "504 5.7.4 Unrecognized authentication type")
+
   - `inline.ports_redirect`, `inline.interfaceSNAT`, `fencing.interception_proxy_port` and `network.interfaceSNAT` are now validated (ports, port/protocol pairs such as `80/tcp`, interface names), instead of accepting text that broke the generated iptables rules. A value saved before in another format has to be corrected before its form can be saved again
 
   - Portal: a user who chose an OAuth, OpenID or SAML method and comes back without completing it is shown that method's page (with the other methods of the Choice) instead of being sent straight back to the provider (#7447)
@@ -97,6 +99,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - Inline: pfipset no longer fails to start (`FATAL: ipset restore failed`) on layer 2 inline networks with registered or isolated nodes. The inline sets are now pre-populated in the format of their set type, entries for missing sets are skipped, and a failed pre-population is logged instead of stopping the service (#9339)
 
 === Security Fixes
+
+  - Email: when STARTTLS is selected and fails (refused by the server, handshake or certificate error), sending now fails with the error instead of continuing in cleartext, which also sent the SMTP username and password unencrypted. Setups that select STARTTLS against a server that doesn't support it will now get "SMTP STARTTLS failed on <server>: <error>"; select the encryption the server supports
 
 == Version 15.2.0 released on 2026-08-24
 
