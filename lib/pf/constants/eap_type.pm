@@ -25,8 +25,8 @@ our @EXPORT_OK = qw(
     $DYNAMID $ROB_EAP $SECURID_EAP $MS_AUTHENTICATION_TLV $SENTRINET $EAP_AACTIONEC_WIRELESS
     $COGENT_BIOMETRIC_EAP $AIRFORTRESS_EAP $EAP_HTTP_DIGEST $SECURISUITE_EAP
     $DEVICECONNECT_EAP $EAP_SPEKE $EAP_MOBAC $EAP_FAST $ZONELABS $EAP_LINK $EAP_PAX $EAP_PSK
-    $EAP_SAKE $EAP_IKEV2 $EAP_AKA2 $EAP_GPSK $EAP_PWD $EAP_EVEV1 %RADIUS_EAP_TYPE_2_VALUES
-    %RADIUS_EAP_VALUES_2_TYPE
+    $EAP_SAKE $EAP_IKEV2 $EAP_AKA2 $EAP_GPSK $EAP_PWD $EAP_EVEV1 $EAP_PT_EAP $EAP_TEAP
+    %RADIUS_EAP_TYPE_2_VALUES %RADIUS_EAP_VALUES_2_TYPE
 );
 
 # Eap_type types
@@ -85,9 +85,11 @@ Readonly::Scalar our $EAP_AKA2 => 50;
 Readonly::Scalar our $EAP_GPSK => 51;
 Readonly::Scalar our $EAP_PWD => 52;
 Readonly::Scalar our $EAP_EVEV1 => 53;
+Readonly::Scalar our $EAP_PT_EAP => 54;
+Readonly::Scalar our $EAP_TEAP => 55;
 
 #This was auto generated from the following command
-# egrep ^ATTRIBUTE /usr/share/freeradius/dictionary.freeradius.internal  | grep EAP-Type- | awk 'BEGIN{print "our %RADIUS_EAP_TYPE_2_VALUES = ("} {print "    \"" $2 "\" => "  $3 - 1280 "," } END { print ");" }' | perl -p -e's/EAP-Type-//'
+# egrep ^ATTRIBUTE /usr/share/freeradius/dictionary.freeradius.internal  | grep -E "\s+EAP-Type-" | awk 'BEGIN{print "our %RADIUS_EAP_TYPE_2_VALUES = ("} {print "    \"" $2 "\" => "  $3 - 1280 "," } END { print ");" }' | perl -p -e's/EAP-Type-//'
 
 our %RADIUS_EAP_TYPE_2_VALUES = (
     "Base" => 0,
@@ -144,6 +146,8 @@ our %RADIUS_EAP_TYPE_2_VALUES = (
     "EAP-GPSK" => 51,
     "EAP-PWD" => 52,
     "EAP-EVEv1" => 53,
+    "EAP-PT-EAP" => 54,
+    "EAP-TEAP" => 55,
     "Microsoft-MS-CHAPv2" => 26,
     "Cisco-MS-CHAPv2" => 29,
     "MS-CHAP-V2" => 26,
