@@ -40,7 +40,6 @@
 #     node_info.machine_account
 #     node_info.category
 #     node_info.mac
-#     node_info.last_arp
 #     node_info.last_dhcp
 #     node_info.user_agent
 #     node_info.computername
@@ -184,10 +183,15 @@
 #
 #
 # Param(x) can be:
-# - any switch configuration parameter to override (Only available for radius_authorize scope)
+# - any switch configuration parameter to override (only applied in the radius_authorize and reevaluate scopes)
 #
 # Switch can be:
-# - any switch module
+# - any switch module (only used in the instantiate_module and external_portal scopes)
+#
+# A rule can list several scopes and have both a switch module and parameters:
+# the module is used when the switch is instantiated or an external portal
+# request is identified, the parameters when a RADIUS request is authorized or
+# the access of a device is re-evaluated.
 #
 # -------------------------
 #

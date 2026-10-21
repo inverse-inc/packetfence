@@ -15,6 +15,7 @@ use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use Data::Dumper;
 use MIME::Base64;
+use Encode qw();
 use pf::error qw(is_error);
 use pf::config::util qw();
 
@@ -29,6 +30,12 @@ sub handle_email_payload {
         return undef;
     }
 
+    # Include the acceptable use policy in the email (ex: printed guest accounts)
+    if (delete $data->{args}{with_aup}) {
+        require pf::web::guest;
+        $data->{args}{aup} = pf::web::guest::aup();
+    }
+
     return $data;
 }
 
@@ -40,7 +47,8 @@ sub preview {
     return unless($data);
 
     my $msg = pf::config::util::build_email($data->{template}, 'dummy@example.com', $data->{subject}, $data->{args});
-    return $self->render(json => {body => MIME::Base64::decode($msg->body_as_string)});
+    # The body is UTF-8 encoded, decode it so that the JSON doesn't encode it a second time
+    return $self->render(json => {body => Encode::decode_utf8(MIME::Base64::decode($msg->body_as_string))});
 }
 
 sub send_email {
