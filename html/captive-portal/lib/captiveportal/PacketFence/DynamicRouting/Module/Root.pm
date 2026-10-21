@@ -366,6 +366,13 @@ Show the account details created in the pre-registration
 
 sub show_preregistration_account {
     my ($self) = @_;
+    # Without an account created by the pre-registration there is nothing to show,
+    # and continuing the flow would come back here
+    unless ($self->app->session->{local_account_info}) {
+        get_logger->error("Pre-registration completed without creating a local account, the authentication sources of connection profile " . $self->app->profile->getName . " must create local accounts");
+        $self->app->reset_session;
+        return $self->app->error("Your account could not be created. Please contact your network administrator.");
+    }
     captiveportal::DynamicRouting::Module::ShowLocalAccount->new(
         id => "__TMP_ShowLocalAccount_Module__", 
         parent => $self, 

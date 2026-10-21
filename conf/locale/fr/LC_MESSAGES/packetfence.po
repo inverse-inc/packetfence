@@ -2131,6 +2131,10 @@ msgid ""
 "Follow the link below in order to get access to the secure SSID."
 msgstr "Votre configuration XML a été générée et est prête à être téléchargée. Pour accéder au SSID sécurisé, suivez le lien ci-dessous. "
 
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Root.pm
+msgid "Your account could not be created. Please contact your network administrator."
+msgstr "Votre compte n'a pas pu être créé. Veuillez contacter votre administrateur réseau."
+
 # html/captive-portal/templates/lost_stolen.html
 msgid "Your device %s has been declared as lost or stolen."
 msgstr "Votre appareil %s a été déclaré perdu ou volé."
