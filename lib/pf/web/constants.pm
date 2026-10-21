@@ -109,8 +109,10 @@ Readonly::Scalar our $EXT_URL_AEROHIVE                => '^/AeroHIVE::AP';
 Readonly::Scalar our $EXT_URL_AEROHIVE_SHORT          => '^/AeroHIVE';
 Readonly::Scalar our $EXT_URL_ARUBA                   => '^/Aruba';
 Readonly::Scalar our $EXT_URL_ARUBA_SWITCH            => '^/Aruba::2930M';
+Readonly::Scalar our $EXT_URL_ARUBA_ARUBAOS_SWITCH_16_X => '^/Aruba::ArubaOS_Switch_16_x';
 Readonly::Scalar our $EXT_URL_CISCO_CATALYST_2960     => '^/Cisco::Catalyst_2960';
 Readonly::Scalar our $EXT_URL_CISCO_CISCO_IOS_15_0    => '^/Cisco::Cisco_IOS_15_0';
+Readonly::Scalar our $EXT_URL_CISCO_CISCO_IOS_15_5    => '^/Cisco::Cisco_IOS_15_5';
 Readonly::Scalar our $EXT_URL_CISCO_WLC               => '^/Cisco::WLC';
 Readonly::Scalar our $EXT_URL_CISCO_WLC_AIREOS        => '^/Cisco::Cisco_WLC_AireOS';
 Readonly::Scalar our $EXT_URL_CISCO_WLC_IOS_XE        => '^/Cisco::Cisco_WLC_IOS_XE';
@@ -125,7 +127,7 @@ Readonly::Scalar our $EXT_URL_MIKROTIK                => '^/Mikrotik';
 Readonly::Scalar our $EXT_URL_FORTIGATE               => '^/Fortinet::FortiGate';
 Readonly::Scalar our $EXT_URL_CAMBIUM                 => '^/Cambium';
 Readonly::Scalar our $EXT_URL_MOJO                    => '^/Mojo';
-Readonly::Scalar our $EST_URL_DELL                    => '^/Dell:N1500';
+Readonly::Scalar our $EXT_URL_DELL_N1500              => '^/Dell::N1500';
 Readonly::Scalar our $EXT_URL_EXOS                    => '^/Extreme::EXOS';
 Readonly::Scalar our $EXT_URL_EXTREME_AP              => '^/Extreme::AP';
 Readonly::Scalar our $EXT_URL_F5                      => '^/F5';
@@ -201,23 +203,72 @@ Readonly::Array our @LOCALES =>
    qw(en_US es_ES fr_FR fr_CA de_DE he_IL it_IT nb_NO nl_NL pl_PL pt_BR tr_TR)
   );
 
-=item ALLOWED_RESOURCES_PROFILE_FILTER
+=item allowed_resources_profile_filter
 
-Build a regex that will decide what is considered a local ressource
-(allowed to Apache's further processing).
+Returns a regex that will decide what is considered a local ressource
+(allowed to Apache's further processing), or undef when no connection profile
+has a URI filter.
 
 URL ending with / will only be anchored at the beginning (^/path/) otherwise
 an ending anchor is also installed (^/file$).
 
 Anything else should be redirected. This happens in L<pf::web::dispatcher>.
 
+The regex is built from the current URI filters of the connection profiles
+(pfconfig) and only recompiled when they change, so a change to a profile
+filter is applied without restarting the portal.
+
 =cut
 
-my @components_profile_filter =  _clean_urls_match_filter();
-# add $ to non-slash ending URLs
-foreach (@components_profile_filter) { s{([^/])$}{$1\$} };
-my $allow_profile = join('|', @components_profile_filter);
-Readonly::Scalar our $ALLOWED_RESOURCES_PROFILE_FILTER => qr/ ^(?: $allow_profile ) /xo if($allow_profile ne ''); # eXtended pattern, compile Once
+my ($profile_filter_source, $profile_filter_regex) = ('', undef);
+
+sub allowed_resources_profile_filter {
+    my $allow_profile = join('|', map { profile_filter_pattern($_) } _clean_urls_match_filter());
+    if ($allow_profile ne $profile_filter_source) {
+        my ($regex, $error) = compile_profile_filter($allow_profile);
+        if (defined $error) {
+            # Keep the previous regex, the error is logged once per change of the filters
+            require pf::log;
+            pf::log::get_logger()->error("Invalid connection profile URI filter, keeping the previous ones: $error");
+        } else {
+            $profile_filter_regex = $regex;
+        }
+        $profile_filter_source = $allow_profile;
+    }
+    return $profile_filter_regex;
+}
+
+=item profile_filter_pattern
+
+The pattern of a connection profile URI filter: a URL ending with / is only
+anchored at the beginning, an ending anchor is added otherwise
+
+=cut
+
+sub profile_filter_pattern {
+    my ($filter) = @_;
+    $filter =~ s{([^/])$}{$1\$};
+    return $filter;
+}
+
+=item compile_profile_filter
+
+Compile the alternation of URI filter patterns, returns the regex (undef when
+there is no filter) and the error message if it doesn't compile
+
+=cut
+
+sub compile_profile_filter {
+    my ($allow_profile) = @_;
+    return (undef, undef) if $allow_profile eq '';
+    my $regex = eval { qr/ ^(?: $allow_profile ) /x }; # eXtended pattern
+    if (!defined $regex) {
+        my $error = $@ || 'unknown error';
+        $error =~ s/\s+$//;
+        return (undef, $error);
+    }
+    return ($regex, undef);
+}
 
 =item EXTERNAL_PORTAL_URL
 
