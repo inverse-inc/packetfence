@@ -7,10 +7,10 @@
 
       <!-- flow lines: right angles only -->
       <path v-for="edge in layout.edges" :key="edge.key" :d="edge.d"
-        :style="{ fill: 'none', stroke: edge.color, strokeWidth: 1.5, strokeOpacity: edge.opacity, strokeDasharray: edge.dashed ? '5 4' : 'none', strokeLinejoin: 'miter', strokeLinecap: 'square' }" />
+        :style="{ fill: 'none', stroke: edge.color, strokeWidth: (related && related.edges.has(edge.key)) ? 2 : 1.5, strokeOpacity: (related && !related.edges.has(edge.key)) ? FADED * edge.opacity : edge.opacity, transition: 'stroke-opacity 150ms', strokeDasharray: edge.dashed ? '5 4' : 'none', strokeLinejoin: 'miter', strokeLinecap: 'square' }" />
 
       <g v-for="node in layout.nodes" :key="node.key"
-        :style="{ cursor: 'pointer', outline: 'none' }" tabindex="0" role="link"
+        :style="{ cursor: 'pointer', outline: 'none', opacity: (related && !related.nodes.has(node.key)) ? FADED : 1, transition: 'opacity 150ms' }" tabindex="0" role="link"
         @mouseenter="hovered = node.key" @mouseleave="hovered = null"
         @focus="hovered = node.key" @blur="hovered = null"
         @click="goTo(node.to)" @keydown.enter="goTo(node.to)">
@@ -89,6 +89,7 @@ const ROW_HEIGHT = 56
 const PAD = 2
 const ICON_SIZE = 18
 const TEXT_X = 42
+const FADED = 0.2 // opacity of the boxes and lines not related to the hovered box
 const GUTTER_PAD = 8
 const LANE_GAP = 6
 const MAX_LANES = 3
@@ -304,7 +305,7 @@ const setup = (props, context) => {
         to: { name: 'connectorsDomains' }
       }
       nodes.push(block)
-      edges.push({ key: `edge-${block.key}`, ...edgeStyle, d: route(source.x + source.w, mid(source), block.x, mid(block), trunkX) })
+      edges.push({ key: `edge-${block.key}`, from: source.key, to: block.key, ...edgeStyle, d: route(source.x + source.w, mid(source), block.x, mid(block), trunkX) })
       const domainNodes = {}
       shown.forEach((domain, index) => {
         const tunnel = (connected && remote) ? tunnelOf(domain.servers, remote) : null
@@ -324,7 +325,7 @@ const setup = (props, context) => {
         }
         nodes.push(node)
         domainNodes[domain.id] = node
-        edges.push({ key: `edge-${node.key}`, ...edgeStyle, d: route(block.x + block.w, mid(block), node.x, mid(node), block.x + block.w + gap / 2) })
+        edges.push({ key: `edge-${node.key}`, from: block.key, to: node.key, ...edgeStyle, d: route(block.x + block.w, mid(block), node.x, mid(node), block.x + block.w + gap / 2) })
       })
       if (hidden) {
         const node = {
@@ -339,7 +340,7 @@ const setup = (props, context) => {
           to: { name: 'connectorsDomains' }
         }
         nodes.push(node)
-        edges.push({ key: `edge-${node.key}`, ...edgeStyle, d: route(block.x + block.w, mid(block), node.x, mid(node), block.x + block.w + gap / 2) })
+        edges.push({ key: `edge-${node.key}`, from: block.key, to: node.key, ...edgeStyle, d: route(block.x + block.w, mid(block), node.x, mid(node), block.x + block.w + gap / 2) })
       }
       // brackets in the right gutter, one lane per DNS server drawn in the
       // band with a domain shown
@@ -350,7 +351,7 @@ const setup = (props, context) => {
           const to = domainNodes[domain]
           if (to)
             edges.push({
-              key: `bracket-${key}-${server.id}-${domain}`, color: colors.cyan, opacity: 0.8, dashed: true,
+              key: `bracket-${key}-${server.id}-${domain}`, from: from.key, to: to.key, bracket: true, color: colors.cyan, opacity: 0.8, dashed: true,
               d: `M${from.x + from.w} ${mid(from)} H${laneX} V${mid(to)} H${to.x + to.w}`
             })
         })
@@ -410,7 +411,7 @@ const setup = (props, context) => {
       }
       nodes.push(head)
       edges.push({
-        key: `edge-pf-${head.key}`, color: connected ? colors.success : colors.secondary, opacity: connected ? 0.7 : 0.6,
+        key: `edge-pf-${head.key}`, from: packetfence.key, to: head.key, color: connected ? colors.success : colors.secondary, opacity: connected ? 0.7 : 0.6,
         dashed: !connected,
         d: route(packetfence.x + packetfence.w, mid(packetfence), head.x, mid(head), pfTrunk)
       })
@@ -434,7 +435,7 @@ const setup = (props, context) => {
         }
         nodes.push(node)
         edges.push({
-          key: `edge-standby-${node.key}`, color: colors.secondary, opacity: 0.6, dashed: true,
+          key: `edge-standby-${node.key}`, from: head.key, to: node.key, color: colors.secondary, opacity: 0.6, dashed: true,
           // a bracket back to the master, inside the network trunk
           d: route(node.x + node.w, mid(node), head.x + head.w, mid(head) + 8, head.x + head.w + gap * 0.25)
         })
@@ -467,7 +468,7 @@ const setup = (props, context) => {
         }
         nodes.push(node)
         edges.push({
-          key: `edge-${head.key}-${node.key}`,
+          key: `edge-${head.key}-${node.key}`, from: head.key, to: node.key,
           color: connected ? colors.success : colors.secondary, opacity: connected ? 0.7 : 0.6, dashed: !connected,
           d: route(head.x + head.w, mid(head), node.x, mid(node), bandTrunk)
         })
@@ -497,7 +498,7 @@ const setup = (props, context) => {
           if (server)
             serverNodes[server.id] = deviceNode
           edges.push({
-            key: `edge-${deviceNode.key}`,
+            key: `edge-${deviceNode.key}`, from: node.key, to: deviceNode.key,
             color: connected ? colors.success : colors.secondary, opacity: connected ? 0.7 : 0.6, dashed: !connected,
             d: route(node.x + node.w, mid(node), deviceNode.x, mid(deviceNode), node.x + node.w + gap / 2)
           })
@@ -544,8 +545,8 @@ const setup = (props, context) => {
       }
       nodes.push(direct, outside)
       edges.push(
-        { key: 'edge-pf-direct', color: colors.secondary, opacity: 0.6, d: route(packetfence.x + packetfence.w, mid(packetfence), direct.x, mid(direct), pfTrunk) },
-        { key: 'edge-direct-network', color: colors.secondary, opacity: 0.6, d: route(direct.x + direct.w, mid(direct), outside.x, mid(outside), direct.x + direct.w + gap / 2) }
+        { key: 'edge-pf-direct', from: packetfence.key, to: direct.key, color: colors.secondary, opacity: 0.6, d: route(packetfence.x + packetfence.w, mid(packetfence), direct.x, mid(direct), pfTrunk) },
+        { key: 'edge-direct-network', from: direct.key, to: outside.key, color: colors.secondary, opacity: 0.6, d: route(direct.x + direct.w, mid(direct), outside.x, mid(outside), direct.x + direct.w + gap / 2) }
       )
       const serverNodes = {}
       dnsInfo.direct.forEach((server, index) => {
@@ -564,7 +565,7 @@ const setup = (props, context) => {
         nodes.push(node)
         serverNodes[server.id] = node
         edges.push({
-          key: `edge-${node.key}`, color: colors.secondary, opacity: 0.6,
+          key: `edge-${node.key}`, from: outside.key, to: node.key, color: colors.secondary, opacity: 0.6,
           d: route(outside.x + outside.w, mid(outside), node.x, mid(node), outside.x + outside.w + gap / 2)
         })
       })
@@ -581,6 +582,42 @@ const setup = (props, context) => {
       nodes,
       edges
     }
+  })
+
+  // hovered box: its path up to PacketFence, everything below it, and the
+  // DNS servers / domains it is bracketed to (with their own path up)
+  const related = computed(() => {
+    const key = hovered.value
+    if (!key)
+      return null
+    const { edges } = layout.value
+    const links = edges.filter(edge => edge.from && !edge.bracket)
+    const relatedNodes = new Set([key])
+    const relatedEdges = new Set()
+    const walk = (start, next) => {
+      const queue = [start]
+      while (queue.length) {
+        const current = queue.shift()
+        next(current).forEach(edge => {
+          relatedEdges.add(edge.key)
+          const other = (edge.from === current) ? edge.to : edge.from
+          if (!relatedNodes.has(other)) {
+            relatedNodes.add(other)
+            queue.push(other)
+          }
+        })
+      }
+    }
+    const up = start => walk(start, current => links.filter(edge => edge.to === current))
+    up(key)
+    walk(key, current => links.filter(edge => edge.from === current))
+    edges.filter(edge => edge.bracket && (edge.from === key || edge.to === key)).forEach(edge => {
+      relatedEdges.add(edge.key)
+      const other = (edge.from === key) ? edge.to : edge.from
+      relatedNodes.add(other)
+      up(other)
+    })
+    return { nodes: relatedNodes, edges: relatedEdges }
   })
 
   // actions menu of a connector: each item opens the connector view on the
@@ -658,6 +695,8 @@ const setup = (props, context) => {
     layout,
     colors,
     hovered,
+    related,
+    FADED,
     nodeHeight: NODE_HEIGHT,
     iconSize: ICON_SIZE,
     textX: TEXT_X,
