@@ -43,7 +43,7 @@
       <base-form-tab :title="$i18n.t('DPSK')">
         <form-group-dynamic-pre-shared-key namespace="dynamic_pre_shared_key"
                                            :column-label="$i18n.t('Show the user WPA pre-shared key')"
-                                           :text="$i18n.t('Will display the WPA pre-shared key on the status page when a DPSK provisioner is configured.')"
+                                           :text="$i18n.t('Will display the WPA pre-shared key on the status page. With a DPSK provisioner, or a provisioner with DPSK enabled, the key is generated if the user does not have one yet.')"
                                            enabled-value="enabled"
                                            disabled-value="disabled"
         />

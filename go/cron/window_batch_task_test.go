@@ -374,3 +374,49 @@ func TestNodeCurrentSessionCleanup(t *testing.T) {
 		},
 	)
 }
+
+func TestPkiRevokedCertsCleanup(t *testing.T) {
+
+	testWindowSqlCleanup(
+		t,
+		"pki_revoked_certs_cleanup",
+		map[string]interface{}{
+			"timeout": 10.0,
+			"batch":   100.0,
+			"window":  float64(24 * 60 * 60),
+		},
+		[]string{
+			"DELETE FROM pki_revoked_certs WHERE cn LIKE 'pfcron-test-%'",
+			`
+     INSERT INTO pki_revoked_certs (cn, revoked, valid_until) VALUES
+        ( 'pfcron-test-old-expired', DATE_SUB(NOW(), INTERVAL 2 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY) ),
+        ( 'pfcron-test-old-expired', DATE_SUB(NOW(), INTERVAL 2 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY) ),
+        ( 'pfcron-test-old-expired', DATE_SUB(NOW(), INTERVAL 2 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY) ),
+        ( 'pfcron-test-old-valid', DATE_SUB(NOW(), INTERVAL 2 DAY), DATE_ADD(NOW(), INTERVAL 1 YEAR) ),
+        ( 'pfcron-test-old-valid', DATE_SUB(NOW(), INTERVAL 2 DAY), DATE_ADD(NOW(), INTERVAL 1 YEAR) ),
+        ( 'pfcron-test-recent-expired', NOW(), DATE_SUB(NOW(), INTERVAL 1 DAY) ),
+        ( 'pfcron-test-recent-expired', NOW(), DATE_SUB(NOW(), INTERVAL 1 DAY) ),
+        ( 'pfcron-test-future-expired', DATE_ADD(NOW(), INTERVAL 1 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY) )
+            `,
+		},
+		0,
+		[]sqlCountTest{
+			{
+				name:          "expired certificates revoked before the window are deleted",
+				sql:           ` SELECT COUNT(*) FROM pki_revoked_certs WHERE cn = 'pfcron-test-old-expired' `,
+				expectedCount: 0,
+			},
+			{
+				name:          "revoked certificates that are not expired are kept",
+				sql:           ` SELECT COUNT(*) FROM pki_revoked_certs WHERE cn = 'pfcron-test-old-valid' `,
+				expectedCount: 2,
+			},
+			{
+				name:          "certificates revoked within the window are kept",
+				sql:           ` SELECT COUNT(*) FROM pki_revoked_certs WHERE cn IN ('pfcron-test-recent-expired', 'pfcron-test-future-expired') `,
+				expectedCount: 3,
+			},
+		},
+		[]string{"DELETE FROM pki_revoked_certs WHERE cn LIKE 'pfcron-test-%'"},
+	)
+}

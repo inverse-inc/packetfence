@@ -959,7 +959,7 @@ sub connection_profiles {
         billing_tiers|description|sources|redirecturl|always_use_redirecturl|
         allowed_devices|allow_android_devices|
         reuse_dot1x_credentials|provisioners|filter_match_style|sms_pin_retry_limit|
-        sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal|mac_auth_recompute_role_from_portal|dot1x_unset_on_unmatch|scan|root_module|preregistration|autoregister|access_registration_when_registered|self_service|
+        sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal|mac_auth_recompute_role_from_portal|dot1x_unset_on_unmatch|scan|root_module|preregistration|autoregister|access_registration_when_registered|self_service|self_service_status|self_service_device_registration|
         dpsk|default_psk_key|status|unreg_on_acct_stop|vlan_pool_technique|show_manage_devices_on_max_nodes)/x;
     my $validator = pf::validation::profile_filters->new;
 
@@ -989,6 +989,14 @@ sub connection_profiles {
                 my $advanced_filter = $data->{advanced_filter};
                 if ($advanced_filter =~ /tenant_id/) {
                     add_problem( $FATAL, "advanced_filter '$advanced_filter' cannot be use a tenant_id as a condition" );
+                }
+                # Built like the connection profiles are: a profile whose advanced filter can't be built is skipped
+                if (defined $advanced_filter && $advanced_filter ne '') {
+                    eval { pf::factory::condition::profile->instantiate_advanced($advanced_filter) };
+                    if (my $build_err = $@) {
+                        chomp($build_err);
+                        add_problem( $WARN, "Connection profile '$connection_profile' is skipped, its advanced filter can't be built: $build_err" );
+                    }
                 }
             }
         }

@@ -15,11 +15,18 @@ all:
 
 ASCIIDOCS := $(notdir $(wildcard docs/PacketFence_*.asciidoc))
 PDFS = $(patsubst %.asciidoc,docs/%.pdf, $(ASCIIDOCS))
+# Files pulled in by the guides through include:: directives. Every guide
+# depends on all of them so that editing an included file rebuilds the docs.
+# docs/ isn't installed by every package and the post-install scripts run make
+# in /usr/local/pf, so a missing directory is not an error here.
+DOC_INCLUDES := $(shell find docs -mindepth 2 \( -name '*.asciidoc' -o -name '*.help' \) -not -path '*/node_modules/*' 2>/dev/null) $(filter-out $(addprefix docs/,$(ASCIIDOCS)),$(wildcard docs/*.asciidoc))
+# The PDF guides embed the images
+DOC_IMAGES := $(shell find docs/images -type f 2>/dev/null)
 
 clean:
 	rm -f docs/*.html docs/index.js docs/*.pdf docs/styles/*.min.css
 
-docs/%.pdf: docs/%.asciidoc
+docs/%.pdf: docs/%.asciidoc $(DOC_INCLUDES) $(DOC_IMAGES)
 	asciidoctor-pdf \
 		-a pdf-theme=docs/asciidoctor-pdf-theme.yml \
 		-a pdf-fontsdir=docs/fonts \
@@ -42,7 +49,7 @@ docs/styles/%.min.css: docs/styles/%.css
 .PHONY: css
 css: $(MINCSS)
 
-docs/%.html: docs/%.asciidoc $(MINCSS)
+docs/%.html: docs/%.asciidoc $(MINCSS) $(DOC_INCLUDES)
 	asciidoctor \
 		-n \
 		-r ./docs/asciidoctor-html.rb \
