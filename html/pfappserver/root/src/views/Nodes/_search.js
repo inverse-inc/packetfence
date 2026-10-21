@@ -15,18 +15,21 @@ export const search = {
     {
       key: 'status',
       label: 'Status', // i18n defer
+      thStyle: 'width: 90px;',
       sortable: true,
       visible: true
     },
     {
       key: 'online',
       label: 'Online', // i18n defer
+      thStyle: 'width: 90px;',
       sortable: true,
       visible: true
     },
     {
       key: 'mac',
       label: 'MAC Address', // i18n defer
+      thStyle: 'width: 160px;',
       searchable: true,
       required: true,
       sortable: true,

@@ -116,6 +116,7 @@ export {
   BaseFormGroupInputPassword                as FormGroupSecret,
   BaseFormGroupInput                        as FormGroupSecretKey,
   BaseFormGroupSwitch                       as FormGroupSendEmailConfirmation,
+  BaseFormGroupSwitch                       as FormGroupSendAcsUrl,
   BaseFormGroupInput                        as FormGroupServiceProviderEntityIdentifier,
   BaseFormGroupFileUpload                   as FormGroupServiceProviderCertPath,
   BaseFormGroupFileUpload                   as FormGroupServiceProviderKeyPath,
