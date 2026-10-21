@@ -102,11 +102,12 @@ like($@, qr{Identity Provider metadata file /nonexistent/idp\.xml}, "missing IdP
 eval { source(idp_cert_path => '/tmp')->check_files_readable() };
 like($@, qr{Identity Provider certificate file /tmp }, "directory instead of a file is reported");
 
-# Lasso::Server->new returns undef when the key can't be loaded
+# Lasso::Server->new returns undef when the key file isn't a PEM key (a
+# certificate is accepted as the key)
 my $cert = '/usr/local/pf/t/data/server.crt';
 my $key = '/usr/local/pf/t/data/server.key';
-eval { source(sp_key_path => $cert, sp_cert_path => $cert)->lasso_server() };
-like($@, qr{SAML source test: unable to load the Service Provider key \(\Q$cert\E\) and certificate}, "a certificate used as the SP key is reported");
+eval { source(sp_key_path => $readable, sp_cert_path => $cert)->lasso_server() };
+like($@, qr{SAML source test: unable to load the Service Provider key \(\Q$readable\E\) and certificate}, "an invalid SP key is reported");
 
 eval { source(sp_key_path => $key, sp_cert_path => $cert)->lasso_server() };
 like($@, qr{SAML source test: unable to load the Identity Provider metadata \(\Q$readable\E\)}, "invalid IdP metadata is reported");
