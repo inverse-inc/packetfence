@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 26;
+use Test::More tests => 32;
 use Test::NoWarnings;
 
 use pf::constants qw($TRUE $FALSE);
@@ -423,6 +423,29 @@ is(ref($x509_ca), "Crypt::OpenSSL::X509", "x509_from_string returns a Crypt::Ope
     is($res, $FALSE, "Cert with custom chain shouldn't be valid unless all certs are passed");
     like($message, qr/unable to get local issuer certificate/i,
         "Failed chain verification preserves the OpenSSL diagnostic");
+}
+
+# #6630: every installed intermediate must be on the signing chain of the certificate
+{
+    my ($res, $message);
+    my $x509_unrelated = pf::ssl::x509_from_string($ss_test_cert);
+
+    ($res, undef) = pf::ssl::verify_chain($x509, [$x509_unrelated], [$x509_unrelated]);
+    is($res, $FALSE, "Cert with a wrong intermediate isn't valid");
+
+    ($res, $message) = pf::ssl::verify_chain($x509, [$x509_ca, $x509_unrelated], [$x509_ca, $x509_unrelated]);
+    is($res, $FALSE, "Cert with an extra unrelated intermediate isn't valid");
+    like($message, qr/not part of the signing chain.*\Q@{[$x509_unrelated->subject()]}\E/,
+        "The unrelated intermediate is named");
+
+    ($res, undef) = pf::ssl::verify_chain($x509, [$x509_ca], [$x509_ca]);
+    is($res, $TRUE, "Cert with only its chain installed is valid");
+
+    ($res, undef) = pf::ssl::verify_chain($x509, [$x509_ca, $x509_unrelated], [$x509_ca]);
+    is($res, $TRUE, "An unrelated CA certificate that isn't installed as an intermediate (RADIUS CA file) is allowed");
+
+    ($res, undef) = pf::ssl::verify_chain($x509, [$x509_ca, $x509_ca], [$x509_ca, $x509_ca]);
+    is($res, $TRUE, "A duplicated intermediate of the chain is allowed");
 }
 
 my $multi_san_cert = <<EOF;
