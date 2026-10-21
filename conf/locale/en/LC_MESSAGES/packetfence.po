@@ -1516,6 +1516,26 @@ msgstr ""
 msgid "Time balance "
 msgstr ""
 
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Application.pm
+#. Abbreviation of "days" appended to a number in a time balance (e.g. 1d 2h 3m)
+msgid "d"
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Application.pm
+#. Abbreviation of "hours" appended to a number in a time balance (e.g. 1d 2h 3m)
+msgid "h"
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Application.pm
+#. Abbreviation of "minutes" appended to a number in a time balance (e.g. 1d 2h 3m)
+msgid "m"
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Application.pm
+#. Abbreviation of "seconds" appended to a number in a time balance (e.g. 1d 2h 3m)
+msgid "s"
+msgstr ""
+
 # pf::person::FIELDS
 msgid "Title"
 msgstr ""
@@ -1780,6 +1800,10 @@ msgstr ""
 # html/captive-portal/templates/provisioner/android.html
 # html/captive-portal/templates/provisioner/mobileconfig.html
 msgid "Your XML configuration have been generated and is now ready to download.  Follow the link below in order to get access to the secure SSID."
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Root.pm
+msgid "Your account could not be created. Please contact your network administrator."
 msgstr ""
 
 # html/captive-portal/templates/lost_stolen.html

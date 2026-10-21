@@ -689,6 +689,28 @@ sub unregOnAcctStop {
     return isenabled($self->{'_unreg_on_acct_stop'});
 }
 
+=item selfServiceStatusEnabled
+
+Is the status page (/status) of the self-service portal enabled
+
+=cut
+
+sub selfServiceStatusEnabled {
+    my ($self) = @_;
+    return isenabled($self->{'_self_service_status'});
+}
+
+=item selfServiceDeviceRegistrationEnabled
+
+Is the device registration page (/device-registration) of the self-service portal enabled
+
+=cut
+
+sub selfServiceDeviceRegistrationEnabled {
+    my ($self) = @_;
+    return isenabled($self->{'_self_service_device_registration'});
+}
+
 =item autoRegister
 
 is autoregister enabled

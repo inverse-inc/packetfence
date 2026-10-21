@@ -3,7 +3,6 @@ package models
 import (
 	"context"
 	"errors"
-	"net/url"
 	"strings"
 	"time"
 
@@ -56,13 +55,39 @@ type RadiusAuditLog struct {
 	Ctx *context.Context `json:"-" gorm:"-"`
 }
 
+// urldecode decodes the =XX escapes of the radius_request and radius_reply
+// columns. Any other "=" is kept as is: rows written before the CoA and
+// Disconnect entries were escaped contain raw values such as
+// "subscriber:command=reauthenticate", which must not make the whole entry
+// unreadable.
 func urldecode(s string) string {
-	s = strings.ReplaceAll(s, "=", "%")
-	unescaped, err := url.QueryUnescape(s)
-	if err != nil {
+	if strings.IndexByte(s, '=') == -1 {
 		return s
 	}
-	return unescaped
+	out := make([]byte, 0, len(s))
+	for i := 0; i < len(s); i++ {
+		if s[i] == '=' && i+2 < len(s) && isHex(s[i+1]) && isHex(s[i+2]) {
+			out = append(out, unhex(s[i+1])<<4|unhex(s[i+2]))
+			i += 2
+			continue
+		}
+		out = append(out, s[i])
+	}
+	return string(out)
+}
+
+func isHex(c byte) bool {
+	return ('0' <= c && c <= '9') || ('a' <= c && c <= 'f') || ('A' <= c && c <= 'F')
+}
+
+func unhex(c byte) byte {
+	switch {
+	case '0' <= c && c <= '9':
+		return c - '0'
+	case 'a' <= c && c <= 'f':
+		return c - 'a' + 10
+	}
+	return c - 'A' + 10
 }
 
 func (r RadiusAuditLog) TableName() string {

@@ -920,6 +920,9 @@ end of the upgrade.
 
 If you customized those files, the package manager keeps your version and ships
 the new defaults alongside (`.rpmnew` on RHEL, dpkg conffile prompt on Debian).
+After an automated upgrade, the new defaults were merged into your file when
+possible; when they couldn't be merged, they are kept in
+[filename]`haproxy-portal.conf.upgrade-new` / [filename]`haproxy-admin.conf.upgrade-new`.
 Merge the new `ssl-default-bind-ciphers`, `ssl-default-bind-ciphersuites`,
 `ssl-default-server-ciphers`, `ssl-default-server-ciphersuites` and
 `ssl-default-*-options` lines into your files, then restart:
@@ -937,6 +940,72 @@ Internet Explorer 11 on Windows 7 when an RSA certificate is in use.
 ====
 
 == Upgrading from a version prior to X.Y.Z
+
+=== advanced.multihost replaced by the per-switch host_mode
+
+The `advanced.multihost` parameter had no effect and is removed. Remove it from
+[filename]`pf.conf` so `pfcmd checkup` stops reporting it as unknown:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-16.0-remove-advanced-multihost.pl
+----
+
+Switches whose ports authenticate several endpoints independently (Cisco
+`multi-auth`, and the equivalent on other vendors) must now have `host_mode`
+set to `multi-auth` in their switch or switch group configuration, so that each
+endpoint keeps its own locationlog entry and is re-evaluated through a
+per-session RADIUS CoA/Disconnect.
+
+=== Local accounts with a zero password expiration are cleaned up
+
+A local account whose password expiration is the zero date (`0000-00-00
+00:00:00`) can't log in: PacketFence has refused it as expired since 2021. The
+person cleanup task kept these accounts as "set not to expire". It now deletes
+them, with their password, like the other expired local accounts that own no
+device. PacketFence doesn't create such an expiration itself (the admin requires
+a date), but an import or the API can.
+
+To find them before upgrading:
+
+[source,bash]
+----
+mysql pf -e "SELECT pid FROM password WHERE expiration = '0000-00-00 00:00:00'"
+----
+
+Set an expiration date on the accounts that must stay.
+
+=== CoA-Request of Aruba CX and AeroHIVE switches sent to the CoA port
+
+The Aruba CX (`Aruba::ArubaOS_CX_10_x`) and AeroHIVE switch types sent their
+CoA-Request to the _Disconnect Port_ (`disconnectPort`) of the switch. They now
+send it to the _CoA Port_ (`coaPort`), like the other switch types, and the
+Disconnect-Request to the _Disconnect Port_.
+
+A switch or switch group of these types that sets the _Disconnect Port_ but not
+the _CoA Port_ now gets its CoA-Requests on the default port 3799, and a switch
+listening elsewhere doesn't answer them (a timeout in [filename]`packetfence.log`).
+Set its _CoA Port_ to the port it listens on for CoA.
+
+=== Authentication rules on the switch, its group, the MAC or the computer name now apply to 802.1X and MAB
+
+Authentication rule conditions on `switch_group`, `switch_id`, `mac` and
+`computer_name` were only evaluated on the captive portal and for CLI/VPN
+logins: they never matched an 802.1X or MAB request. They now do. Before
+upgrading, review the rules of the sources used for 802.1X and MAB that use
+these conditions: a rule that never matched can start assigning its role, and a
+negative condition such as `switch_group is not X` now matches every switch
+outside group X.
+
+=== Role ACLs are now sent to Dell N1500 and Cisco ASA
+
+On Dell N1500 and Cisco ASA entries with *Role by access list* enabled, the
+role ACLs were never added to the RADIUS reply, so they were ignored. They are
+now sent, and enforced by the device. Before upgrading, review the ACLs of the
+roles these devices use, since endpoints can lose access they had until now.
+On the Dell N1500, a role ACL is translated: only its protocol, destination
+host and destination port are sent. Check the ACLs sent to the switch in
+`packetfence.log` after the upgrade.
 
 === RADIUS dynamic clients are now cached for 300 seconds
 
@@ -969,6 +1038,101 @@ language.
 If you customized a security event template in a connection profile and rely
 on the shipped translations for other languages, customize the language
 variants (`<template_name>.<locale_name>.html`) in the connection profile too.
+
+=== Intermediate certificates must be part of the chain
+
+The admin interface reports a chain as invalid when one of the intermediate
+certificates isn't part of the certificate's signing chain, including the
+server certificate itself pasted among its intermediates. Remove those
+certificates from the intermediates (_Configuration -> System Configuration ->
+SSL Certificates_).
+
+=== EAP-MSCHAPv2 VPN authentication against Active Directory
+
+EAP-MSCHAPv2 outside of a PEAP or TTLS tunnel, as used by IKEv2 VPNs (for
+example FortiGate), was verified with the generic `mschap` module instead of the
+Active Directory domain of the realm, and failed (`Program returned code (5)`).
+[filename]`/usr/local/pf/conf/radiusd/packetfence` now looks the domain up in the
+`Auth-Type MS-CHAP` section of the `authenticate` section.
+
+The file is a package configuration file: it is updated automatically unless
+you modified it (see the general procedure above). If you kept a customized
+copy, add the domain lookup before `packetfence-mschap-authenticate` in the
+`Auth-Type MS-CHAP` section of `server packetfence`:
+
+[source]
+----
+if (!PacketFence-Domain) {
+        packetfence-multi-domain.authorize
+}
+packetfence-mschap-authenticate
+----
+
+Leave it out if `advanced.disable_pf_domain_auth` is enabled. The packaged
+file now honors this setting for its three calls of `packetfence-multi-domain`
+(this one, the MS-CHAP lookup in `authorize` and the degraded tunnel), like
+`packetfence-tunnel` already did.
+
+and restart the RADIUS authentication servers:
+
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service radiusd restart
+----
+
+=== RADIUS filters in the pre-proxy and post-proxy scopes receive the request again
+
+Since FreeRADIUS 3.2.8, the REST calls of the `pre-proxy` and `post-proxy`
+sections send the proxied copy of the packet or the home server's reply instead
+of the original request. RADIUS filters in the `pre-proxy` and `post-proxy`
+scopes (`packetfence.*` and `eduroam.*`) then had no switch and no MAC address
+to evaluate. [filename]`/usr/local/pf/conf/radiusd/rest.conf` now
+asks for both lists (`body_lists`), so these filters get the original request
+again. The proxy lists are available as `radius_request.proxy-request.*` and
+`radius_request.proxy-reply.*`. This needs the `rest` module of FreeRADIUS 3.2.10
+or later: the `packetfence` package now requires it, and the 16.0 repository
+provides it. An older FreeRADIUS ignores `body_lists`, and these filters stay
+skipped.
+
+The file is a package configuration file: it is updated automatically unless
+you modified it (see the general procedure above). If you kept a customized
+copy, add `body_lists` to the `pre-proxy` and `post-proxy` blocks of its `rest`
+section:
+
+[source,ini]
+----
+	pre-proxy {
+		...
+		body = 'json'
+		body_lists = "request proxy-request"
+		...
+	}
+	post-proxy {
+		...
+		body = 'json'
+		body_lists = "request proxy-reply"
+		...
+	}
+----
+
+Then restart all RADIUS instances:
+
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service radiusd restart
+----
+
+Until then, [filename]`packetfence.log` reports `No switch IP (NAS-IP-Address /
+Client-IP-Address) nor switch MAC (Called-Station-Id) in the RADIUS request
+handed to the ... filter` and the filters of these scopes are skipped.
+
+=== Role ACLs that can't be translated for the switch
+
+After the upgrade, a role whose ACL lines can't all be expressed for a switch
+has the untranslatable permits skipped, and is cut at an untranslatable deny. A
+role whose ACLs are all untranslatable, or can't be parsed, denies all traffic.
+Look in [filename]`packetfence.log` for "Skipping ACL of role", "with a deny all" and
+"Denying all the", and rewrite the reported lines.
 
 == Troubleshooting Upgrades
 
