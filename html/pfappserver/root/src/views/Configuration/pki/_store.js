@@ -38,6 +38,13 @@ import {
   mutations as mutationsScepServers
 } from './scepServers/_store'
 
+import {
+  state as stateHsms,
+  getters as gettersHsms,
+  actions as actionsHsms,
+  mutations as mutationsHsms
+} from './hsms/_store'
+
 // Default values
 const state = () => {
   return {
@@ -45,7 +52,8 @@ const state = () => {
     ...stateProfiles(),
     ...stateCerts(),
     ...stateRevokedCerts(),
-    ...stateScepServers()
+    ...stateScepServers(),
+    ...stateHsms()
   }
 }
 
@@ -55,9 +63,10 @@ const getters = {
   ...gettersCerts,
   ...gettersRevokedCerts,
   ...gettersScepServers,
+  ...gettersHsms,
 
-  isWaiting: state => [types.LOADING, types.DELETING].includes(state.caStatus) || [types.LOADING, types.DELETING].includes(state.profileStatus) || [types.LOADING, types.DELETING].includes(state.certStatus) || [types.LOADING, types.DELETING].includes(state.revokedCertStatus) || [types.LOADING, types.DELETING].includes(state.scepServerStatus),
-  isLoading: state => state.caStatus === types.LOADING || state.profileStatus === types.LOADING || state.certStatus === types.LOADING || state.revokedCertStatus === types.LOADING || state.scepServerStatus === types.LOADING
+  isWaiting: state => [types.LOADING, types.DELETING].includes(state.caStatus) || [types.LOADING, types.DELETING].includes(state.profileStatus) || [types.LOADING, types.DELETING].includes(state.certStatus) || [types.LOADING, types.DELETING].includes(state.revokedCertStatus) || [types.LOADING, types.DELETING].includes(state.scepServerStatus) || [types.LOADING, types.DELETING].includes(state.hsmStatus),
+  isLoading: state => state.caStatus === types.LOADING || state.profileStatus === types.LOADING || state.certStatus === types.LOADING || state.revokedCertStatus === types.LOADING || state.scepServerStatus === types.LOADING || state.hsmStatus === types.LOADING
 }
 
 const actions = {
@@ -65,7 +74,8 @@ const actions = {
   ...actionsProfiles,
   ...actionsCerts,
   ...actionsRevokedCerts,
-  ...actionsScepServers
+  ...actionsScepServers,
+  ...actionsHsms
 }
 
 const mutations = {
@@ -73,7 +83,8 @@ const mutations = {
   ...mutationsProfiles,
   ...mutationsCerts,
   ...mutationsRevokedCerts,
-  ...mutationsScepServers
+  ...mutationsScepServers,
+  ...mutationsHsms
 }
 
 export default {

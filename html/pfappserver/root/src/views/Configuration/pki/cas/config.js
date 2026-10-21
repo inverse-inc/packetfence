@@ -15,10 +15,12 @@ export const decomposeCa = (item) => {
 export const recomposeCa = (item) => {
   const {
     id, key_usage = [], extended_key_usage = [],
+    hsm_id, hsm_key_id, // `hsm_key_id` is read-only
     ...rest
   } = item
   return {
     ...((id) ? {ID: +id} : {}),
+    ...((hsm_id) ? {hsm_id: `${hsm_id}`} : {}), // omit when empty
     key_usage: key_usage.join('|'),
     extended_key_usage: extended_key_usage.join('|'),
     ...rest

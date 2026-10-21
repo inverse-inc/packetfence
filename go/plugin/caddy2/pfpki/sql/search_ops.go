@@ -178,7 +178,7 @@ func (s *SearchEndsWithOp) SqlWhere(class interface{}) (Where, error) {
 }
 
 func checkField(class interface{}, field string) (string, error) {
-	classFields := SqlFields(class)
+	classFields := SearchableFields(class)
 	normalizedField := ""
 	var valid bool = false
 	for _, classField := range classFields {

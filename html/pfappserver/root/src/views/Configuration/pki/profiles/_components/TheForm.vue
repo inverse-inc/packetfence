@@ -143,6 +143,61 @@
                                   :column-label="$i18n.t('SCEP Server')"
         />
       </base-form-tab>
+      <base-form-tab :title="$i18n.t('ACME')">
+        <form-group-acme-enabled namespace="acme_enabled"
+                                 :column-label="$i18n.t('Enable ACME')"
+                                 :text="$i18n.t('Enable RFC 8555 ACME enrollment under this profile. Devices contact /api/v1/pki/acme/&lt;profile&gt;/directory; everything else is link-discovered. Apple managed-device payloads use this.')"
+                                 :enabled-value="1"
+                                 :disabled-value="0"
+        />
+        <form-group-acme-allowed-identifiers namespace="acme_allowed_identifiers"
+                                             :column-label="$i18n.t('Allowed identifier types')"
+                                             :text="$i18n.t('Comma-separated identifier types accepted in /new-order. dns,ip,email for generic clients; permanent-identifier for Apple managed-device enrollment.')"
+        />
+        <form-group-acme-eab-required namespace="acme_eab_required"
+                                      :column-label="$i18n.t('Require External Account Binding')"
+                                      :text="$i18n.t('When enabled, /new-account must carry a valid EAB inner JWS. Keys are minted through the API (POST /api/v1/pki/profile/&lt;id&gt;/acme/eab) and distributed via MDM payload, see the PKI documentation.')"
+                                      :enabled-value="1"
+                                      :disabled-value="0"
+        />
+        <form-group-acme-attestation-formats namespace="acme_attestation_formats"
+                                             :column-label="$i18n.t('Attestation formats')"
+                                             :text="$i18n.t('Comma-separated attestation formats accepted on device-attest-01. Only apple is implemented today; leaving empty disables device-attest-01 and falls back to http-01.')"
+        />
+        <form-group-acme-attestation-roots namespace="acme_attestation_roots"
+                                           :column-label="$i18n.t('Attestation root CAs (PEM)')"
+                                           :text="$i18n.t('Optional PEM bundle of trusted attestation roots. Overrides the embedded Apple Enterprise Attestation Root CA. Leave empty to use the built-in roots.')"
+                                           auto-fit
+        />
+        <form-group-acme-account-expiry namespace="acme_account_expiry"
+                                        :column-label="$i18n.t('Account expiry (days)')"
+                                        :text="$i18n.t('Lifetime of a new ACME account. An expired account is refused until the device registers its key again, which renews it. Use 0 for accounts that never expire. The ACME state cleanup task does not remove accounts.')"
+        />
+        <form-group-acme-order-expiry namespace="acme_order_expiry"
+                                      :column-label="$i18n.t('Order expiry (days)')"
+                                      :text="$i18n.t('Lifetime of a new-order before it is considered expired and reclaimed by the cleanup task.')"
+        />
+        <form-group-acme-authz-expiry namespace="acme_authz_expiry"
+                                      :column-label="$i18n.t('Authorization expiry (hours)')"
+                                      :text="$i18n.t('Lifetime of an authorization (and its challenges) before reclamation. ACME clients refresh this from the directory.')"
+        />
+      </base-form-tab>
+      <base-form-tab :title="$i18n.t('EST')">
+        <form-group-est-enabled namespace="est_enabled"
+                                :column-label="$i18n.t('Enable EST')"
+                                :text="$i18n.t('Enable RFC 7030 EST enrollment under this profile at /.well-known/est/&lt;profile&gt;/ (cacerts, csrattrs, simpleenroll, simplereenroll, serverkeygen).')"
+                                :enabled-value="1"
+                                :disabled-value="0"
+        />
+        <form-group-est-username namespace="est_username"
+                                 :column-label="$i18n.t('EST username')"
+                                 :text="$i18n.t('HTTP Basic user name EST clients must present. Leave empty to accept any user name.')"
+        />
+        <form-group-est-password namespace="est_password"
+                                 :column-label="$i18n.t('EST password')"
+                                 :text="$i18n.t('HTTP Basic password EST clients must present to enroll. Enrollment is refused while it is empty.')"
+        />
+      </base-form-tab>
       <base-form-tab :title="$i18n.t('Renewal Configuration')">
         <form-group-days-before-renewal namespace="days_before_renewal"
                                         :column-label="$i18n.t('Days before renewal')"
@@ -156,7 +211,11 @@
         />
         <form-group-days-before-renewal-mail namespace="days_before_renewal_mail"
                                              :column-label="$i18n.t('Days before sending renewal email')"
-                                             :text="$i18n.t('Number of days before certificate expiration to trigger sending email.')"
+                                             :text="$i18n.t('Number of days before certificate expiration to trigger sending email. Ignored when the schedule below is set.')"
+        />
+        <form-group-renewal-mail-days namespace="renewal_mail_days"
+                                      :column-label="$i18n.t('Renewal email schedule')"
+                                      :text="$i18n.t('Optional comma-separated thresholds in days before expiry, e.g. \'14,7,1\'. When set, the certificate owner is emailed once per threshold instead of repeatedly once the single value above is crossed.')"
         />
         <form-group-renewal-mail-subject namespace="renewal_mail_subject"
                                          :column-label="$i18n.t('Renewal mail subject')"
@@ -178,7 +237,7 @@
         />
         <form-group-revoked-valid-until namespace="revoked_valid_until"
                                         :column-label="$i18n.t('Days after revoked certificate is valid')"
-                                        :text="$i18n.t('Number of days an old certificate is still valid after it has been revoked.')"
+                                        :text="$i18n.t('Number of days a certificate superseded by a newer one with the same Common Name stays valid. Certificates revoked for any other reason are refused at once.')"
         />
       </base-form-tab>
 
@@ -210,6 +269,7 @@ import {
   FormGroupCountry,
   FormGroupDaysBeforeRenewal,
   FormGroupDaysBeforeRenewalMail,
+  FormGroupRenewalMailDays,
   FormGroupDigest,
   FormGroupExtendedKeyUsage,
   FormGroupIdentifier,
@@ -241,7 +301,18 @@ import {
   FormGroupStreetAddress,
   FormGroupValidity,
   FormGroupScepServerEnabled,
-  FormGroupScepServerId
+  FormGroupScepServerId,
+  FormGroupAcmeEnabled,
+  FormGroupAcmeAllowedIdentifiers,
+  FormGroupAcmeEabRequired,
+  FormGroupAcmeAttestationFormats,
+  FormGroupAcmeAttestationRoots,
+  FormGroupAcmeAccountExpiry,
+  FormGroupAcmeOrderExpiry,
+  FormGroupAcmeAuthzExpiry,
+  FormGroupEstEnabled,
+  FormGroupEstUsername,
+  FormGroupEstPassword
 } from './'
 import {computed, toRefs} from '@vue/composition-api'
 import {keySizes, keyTypes} from '../../config'
@@ -283,13 +354,25 @@ const components = {
   FormGroupDaysBeforeRenewal,
   FormGroupRenewalMail,
   FormGroupDaysBeforeRenewalMail,
+  FormGroupRenewalMailDays,
   FormGroupRenewalMailSubject,
   FormGroupRenewalMailFrom,
   FormGroupRenewalMailHeader,
   FormGroupRenewalMailFooter,
   FormGroupRevokedValidUntil,
   FormGroupScepServerEnabled,
-  FormGroupScepServerId
+  FormGroupScepServerId,
+  FormGroupAcmeEnabled,
+  FormGroupAcmeAllowedIdentifiers,
+  FormGroupAcmeEabRequired,
+  FormGroupAcmeAttestationFormats,
+  FormGroupAcmeAttestationRoots,
+  FormGroupAcmeAccountExpiry,
+  FormGroupAcmeOrderExpiry,
+  FormGroupAcmeAuthzExpiry,
+  FormGroupEstEnabled,
+  FormGroupEstUsername,
+  FormGroupEstPassword
 }
 
 export const props = {
