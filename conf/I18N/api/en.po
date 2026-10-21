@@ -864,7 +864,7 @@ msgid "Address"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/networks/fencing/_components/TheForm.vue:15
-msgid "Address ranges/CIDR blocks that PacketFence will monitor/detect/trap on. Gateway, network, and broadcast addresses are ignored. Comma-separated entries should be of the form\\na.b.c.0/24\\na.b.c.0-255\\na.b.c.0-a.b.c.255\\na.b.c.d"
+msgid "Address ranges/CIDR blocks that PacketFence will monitor/detect/trap on. Gateway, network, and broadcast addresses are ignored. Comma-separated entries should be of the form\na.b.c.0/24\na.b.c.0-255\na.b.c.0-a.b.c.255\na.b.c.d"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/networks/layer2Networks/schema.js:41
@@ -890,7 +890,7 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/firewalls/_components/FormTypePaloAlto.vue:50
 #: html/pfappserver/root/src/views/Configuration/firewalls/_components/FormTypeSmoothWall.vue:40
 #: html/pfappserver/root/src/views/Configuration/firewalls/_components/FormTypeWatchGuard.vue:40
-msgid "Adjust the 'Cache timeout' to half the expiration delay in your firewall.\\nYour DHCP renewal interval should match this value."
+msgid "Adjust the 'Cache timeout' to half the expiration delay in your firewall.\nYour DHCP renewal interval should match this value."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Auditing/adminApiLogs/_components/TheView.vue:6
@@ -3385,7 +3385,7 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/firewalls/_components/FormTypePaloAlto.vue:38
 #: html/pfappserver/root/src/views/Configuration/firewalls/_components/FormTypeSmoothWall.vue:28
 #: html/pfappserver/root/src/views/Configuration/firewalls/_components/FormTypeWatchGuard.vue:28
-msgid "Comma delimited list of networks on which the SSO applies.\\nFormat : 192.168.0.0/24"
+msgid "Comma delimited list of networks on which the SSO applies.\nFormat : 192.168.0.0/24"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/floatingDevices/_components/TheForm.vue:36
@@ -6392,7 +6392,7 @@ msgid "Enable mysql-probe in haproxy-db to detect the availability of the MariaD
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/maintenanceTasks/_components/TheForm.vue:89
-msgid "Enable or disable ${logName} rotation (moving ${logName}_history records to ${logName}_archive)\\nIf disabled, this task will delete from the ${logName}_history table rather than the ${logName}_archive."
+msgid "Enable or disable {logName} rotation (moving {logName}_history records to {logName}_archive)\nIf disabled, this task will delete from the {logName}_history table rather than the {logName}_archive."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/captivePortal/_components/TheForm.vue:93
@@ -6440,7 +6440,7 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/firewalls/_components/FormTypePaloAlto.vue:43
 #: html/pfappserver/root/src/views/Configuration/firewalls/_components/FormTypeSmoothWall.vue:33
 #: html/pfappserver/root/src/views/Configuration/firewalls/_components/FormTypeWatchGuard.vue:33
-msgid "Enable this to debounce updates to the Firewall.\\nBy default, PacketFence will send a SSO on every DHCP request for every device. Enabling this enables 'sleep' periods during which the update is not sent if the informations stay the same."
+msgid "Enable this to debounce updates to the Firewall.\nBy default, PacketFence will send a SSO on every DHCP request for every device. Enabling this enables 'sleep' periods during which the update is not sent if the informations stay the same."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/pkiProviders/_components/FormTypePacketfencePki.vue:67
@@ -7842,7 +7842,7 @@ msgid "How long can a registered node be inactive before it becomes unregistered
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/maintenanceTasks/_components/TheForm.vue:119
-msgid "How long can an unregistered node be inactive before being deleted.\\nThis shouldn't be used if you are using port-security."
+msgid "How long can an unregistered node be inactive before being deleted.\nThis shouldn't be used if you are using port-security."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/captivePortal/_components/TheForm.vue:37
@@ -15966,7 +15966,7 @@ msgid "Should the local instance of Fingerbank record unmatched parameters so th
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/realms/_components/TheForm.vue:131
-msgid "Should the usernames matching this realm be stripped when used in the authorization phase of 802.1x.\\nNote that this doesn't control the stripping in FreeRADIUS, use the options above for that."
+msgid "Should the usernames matching this realm be stripped when used in the authorization phase of 802.1x.\nNote that this doesn't control the stripping in FreeRADIUS, use the options above for that."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/realms/_components/TheForm.vue:124
@@ -16247,7 +16247,7 @@ msgid "Sources by type"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeSponsorEmail.vue:19
-msgid "Sources that will be associated with this source (For the Sponsor).\\nOnly sources able to find an email address can be selected."
+msgid "Sources that will be associated with this source (For the Sponsor).\nOnly sources able to find an email address can be selected."
 msgstr ""
 
 #: html/pfappserver/root/src/globals/pfLocales.js:11
@@ -17631,7 +17631,7 @@ msgid "The network address to listen to listen on. Do not change unless you know
 msgstr ""
 
 #: html/pfappserver/root/src/components/new/BaseCsvImport.vue:214
-msgid "The newline sequence. Leave blank to auto-detect. Must be one of \\\r, \\\n, or \\\r\\\n."
+msgid "The newline sequence. Leave blank to auto-detect. Must be one of \\r, \\n, or \\r\\n."
 msgstr ""
 
 #: html/pfappserver/root/src/components/new/BaseCsvImport.vue:246
@@ -17994,7 +17994,7 @@ msgid "This operation may take a few minutes."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/connectionProfiles/_components/TheForm.vue:48
-msgid "This option emulates SSO when someone needs to face the captive portal after a successful 802.1x connection. 802.1x credentials are reused on the portal to match an authentication and get the appropriate actions. As a security precaution, this option will only reuse 802.1x credentials if there is an authentication source matching the provided realm. This means, if users use 802.1x credentials with a domain part (username@domain, domain\\\username), the domain part needs to be configured as a realm under the RADIUS section and an authentication source needs to be configured for that realm. If users do not use 802.1x credentials with a domain part, only the NULL realm will be match IF an authentication source is configured for it."
+msgid "This option emulates SSO when someone needs to face the captive portal after a successful 802.1x connection. 802.1x credentials are reused on the portal to match an authentication and get the appropriate actions. As a security precaution, this option will only reuse 802.1x credentials if there is an authentication source matching the provided realm. This means, if users use 802.1x credentials with a domain part (username@domain, domain\\username), the domain part needs to be configured as a realm under the RADIUS section and an authentication source needs to be configured for that realm. If users do not use 802.1x credentials with a domain part, only the NULL realm will be match IF an authentication source is configured for it."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheForm.vue:39
@@ -19950,7 +19950,7 @@ msgid "Whether or not the provisioner should be enforced. This will trigger chec
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/maintenanceTasks/_components/TheForm.vue:10
-msgid "Whether or not this task is enabled.\\nRequires a restart of pfcron to be effective."
+msgid "Whether or not this task is enabled.\nRequires a restart of pfcron to be effective."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:95

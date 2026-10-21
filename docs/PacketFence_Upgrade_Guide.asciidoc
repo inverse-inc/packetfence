@@ -1027,6 +1027,33 @@ included by the authentication, load-balancer and CLI servers:
 /usr/local/pf/bin/pfcmd service radiusd restart
 ----
 
+=== Translation overrides of the admin help texts with a line break or a backslash
+
+The admin help texts that contain a line break or a backslash (11 of them) are
+now stored in the translation catalogs as the admin looks them up, so they are
+translated. Their msgids changed in [filename]`/usr/local/pf/conf/I18N/api/*.po`:
+a line break is now `\n` instead of `\\n`, and a backslash is written `\\` once.
+The help text of the log rotation of the maintenance tasks also changed: the
+name of the log is now written `{logName}` instead of `${logName}`.
+
+If you override one of these texts in a
+[filename]`/usr/local/pf/conf/I18N/api/<language>.local.po` file, the override no
+longer applies: copy the new msgid from
+[filename]`/usr/local/pf/conf/I18N/api/en.po` into it. The overrides that may be
+concerned are the ones with an escaped backslash or `${logName}`:
+
+[source,bash]
+----
+grep -nF -e '\\' -e '${logName}' /usr/local/pf/conf/I18N/api/*.local.po
+----
+
+Then restart the API to load the catalogs again:
+
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service pfperl-api restart
+----
+
 === NTLM auth API host of domains joined before 15.1
 
 Domains joined before 15.1 are saved with `ntlm_auth_host=127.0.0.1` in
