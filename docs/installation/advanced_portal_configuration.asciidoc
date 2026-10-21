@@ -488,6 +488,12 @@ devices.
 In _Configuration -> Policies and Access Control -> Connection Profiles_,
 assign the _"Self service policy"_, then click Save.
 
+Device registration can also be disabled on a specific connection profile, even if
+it inherits a self service policy from the default profile, by disabling
+_"Self service device registration"_ in the connection profile. As users log in
+through the status page, device registration is also unavailable when the
+_"Self service status page"_ is disabled.
+
 WARNING: The `portal` listening daemon may need to be added to the management
 interface for the _"self service portal"_ to be accessible.
 
@@ -507,6 +513,10 @@ Service Portal_, choose a _Self Service Portal_, specify the _"Self Service
 Portal -> Allowed roles"_, then click Save.
 
 Status page is available by default, even if a self service policy is not configured. Optionally, it can be disabled in all but the PacketFence management network (registration, isolation, inline) by enabling *Status URI only on management interface* in _Configuration -> Advanced Access Configuration -> Captive Portal_.
+
+The status page can also be disabled per connection profile by disabling
+_"Self service status page"_ in _Configuration -> Policies and Access Control ->
+Connection Profiles_.
 
 In _Configuration -> Policies and Access Control -> Connection Profiles_,
 assign the _"Self service policy"_, then click Save.

@@ -229,9 +229,36 @@ systemctl start packetfence-proxysql
 
 Review the checkup output to ensure no errors are shown. Any 'FATAL' error will prevent PacketFence from starting up and should be dealt with immediately.
 
+===== Start service on node C
+
+Nodes A and B keep handling the traffic while the services start on node C,
+so node C must not take the virtual IP addresses yet. Since node C now ignores
+nodes A and B, its `keepalived` does not take part in the same election: it
+would claim the virtual IP addresses as soon as it starts, and devices could
+then register on node C while RADIUS still authenticates them on nodes A and
+B, whose database doesn't know about the registration. Prevent `keepalived`
+from starting on node C until nodes A and B are stopped:
+
+.On node C
+[source,bash]
+----
+systemctl mask --runtime packetfence-keepalived
+----
+
+Next, start the application service on node C using the instructions provided
+in
+<<PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,Restart PacketFence services section>>.
+All services start except `packetfence-keepalived`. Node C holds no virtual
+IP address, so it does not answer DHCP nor receive the RADIUS and portal
+traffic, which still go to nodes A and B.
+
+NOTE: Proceed with the next steps as soon as the services on node C are
+started, to keep short the time during which nodes A and B accept changes that
+will not reach node C.
+
 ===== Stop services on nodes A and B
 
-Next, stop all application services on node A and B:
+Then, stop all application services on node A and B:
 
 
 .Stop PacketFence services
@@ -249,11 +276,23 @@ systemctl stop packetfence-mariadb
 IMPORTANT: `packetfence-config` should stay started in order to run
 `/usr/local/pf/bin/cluster/node` commands.
 
-===== Start service on node C
+===== Start keepalived on node C
 
-Now, start the application service on node C using the instructions provided
-in
-<<PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,Restart PacketFence services section>>.
+Finally, let node C take over the virtual IP addresses:
+
+.On node C
+[source,bash]
+----
+systemctl unmask --runtime packetfence-keepalived
+systemctl start packetfence-keepalived
+----
+
+The service is only interrupted between the moment nodes A and B are stopped
+and the moment node C takes over the virtual IP addresses.
+
+NOTE: `mask --runtime` does not survive a reboot. If node C is rebooted before
+this step, `packetfence-keepalived` starts with the other services, so make
+sure nodes A and B are stopped first.
 
 ==== Validate migration
 
@@ -270,6 +309,15 @@ systemctl stop packetfence-mariadb
 /usr/local/pf/bin/pfcmd service pf stop
 ----
 
+If `packetfence-keepalived` is still masked on node C, unmask it so it is not
+left masked:
+
+.On node C
+[source,bash]
+----
+systemctl unmask --runtime packetfence-keepalived
+----
+
 .On nodes A and B
 [source,bash]
 ----
@@ -277,7 +325,7 @@ systemctl start packetfence-mariadb
 /usr/local/pf/bin/pfcmd service pf start
 ----
 
-Once confident to try the failover to node C again, do the exact opposite of the commands above to try the upgrade again.
+Once confident to try the failover to node C again, follow the steps from <<_start_service_on_node_c,Start service on node C>> again, masking `packetfence-keepalived` on node C before starting its services.
 
 ===== If all goes well
 
@@ -307,6 +355,14 @@ Then, <<PacketFence_Upgrade_Guide.asciidoc#_automation_of_upgrades,apply the upg
 NOTE: It is important to run the upgrade commands in the same shell that ran the `export` so that the environment variable is properly taken into consideration when the upgrade script executes.
 
 ===== Configuration synchronisation
+
+The upgrade process has already migrated the configuration of nodes A and B
+to the new version, the same way it did on node C. This step is still needed
+because node C has been running alone since it was upgraded: any
+configuration change done on node C in the meantime (and any difference
+between the nodes before the upgrade) only exists on node C. Synchronizing
+from node C makes nodes A and B use the exact same configuration as the node
+that is currently serving the network.
 
 Now sync the configuration by running the following **on nodes A and B**
 
