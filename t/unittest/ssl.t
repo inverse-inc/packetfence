@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 30;
+use Test::More tests => 32;
 use Test::NoWarnings;
 
 use pf::constants qw($TRUE $FALSE);
@@ -403,6 +403,11 @@ $x509 = pf::ssl::x509_from_string($cert_with_chain_cert);
 is(ref($x509), "Crypt::OpenSSL::X509", "x509_from_string returns a Crypt::OpenSSL::X509");
 
 is($x509->subject, "CN=radius", "certificate has the right subject");
+
+my $x509_der = pf::ssl::x509_from_string($x509->as_string(Crypt::OpenSSL::X509::FORMAT_ASN1));
+is(eval { $x509_der->subject }, "CN=radius", "x509_from_string decodes an ASN1 (DER) certificate");
+
+is(pf::ssl::x509_from_string("not a certificate"), undef, "x509_from_string returns undef for data in no known encoding");
 
 my $x509_ca = pf::ssl::x509_from_string($cert_with_chain_ca);
 is(ref($x509_ca), "Crypt::OpenSSL::X509", "x509_from_string returns a Crypt::OpenSSL::X509");
