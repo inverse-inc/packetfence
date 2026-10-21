@@ -986,6 +986,14 @@ sub connection_profiles {
                 if ($advanced_filter =~ /tenant_id/) {
                     add_problem( $FATAL, "advanced_filter '$advanced_filter' cannot be use a tenant_id as a condition" );
                 }
+                # Built like the connection profiles are: a profile whose advanced filter can't be built is skipped
+                if (defined $advanced_filter && $advanced_filter ne '') {
+                    eval { pf::factory::condition::profile->instantiate_advanced($advanced_filter) };
+                    if (my $build_err = $@) {
+                        chomp($build_err);
+                        add_problem( $WARN, "Connection profile '$connection_profile' is skipped, its advanced filter can't be built: $build_err" );
+                    }
+                }
             }
         }
 

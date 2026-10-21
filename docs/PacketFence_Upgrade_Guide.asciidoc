@@ -1027,6 +1027,31 @@ included by the authentication, load-balancer and CLI servers:
 /usr/local/pf/bin/pfcmd service radiusd restart
 ----
 
+=== Date conditions in filters and connection profiles
+
+The `date_is_before`, `date_is_after`, `not_date_is_before` and
+`not_date_is_after` operators of the filter engines (RADIUS, switch, DHCP,
+DNS, VLAN... filters) and of the connection profile advanced filters changed:
+
+* The value now also accepts `now` (or an empty value) for the time of the
+  evaluation, and a date without a time (`YYYY-MM-DD`). Existing
+  `YYYY-MM-DD HH:MM:SS` and `YYYY-MM-DD HH:MM` values work as before.
+* A value that isn't exactly in one of these formats is now refused when a
+  connection profile is saved. This includes values with characters after
+  the time, such as `2030-01-01 12:00:00Z` or `2030-01-01 12:00:00.000`,
+  which used to be read as `2030-01-01 12:00:00`. An existing filter rule or
+  connection profile with such a value is skipped when the configuration is
+  loaded, with an error in [filename]`packetfence.log`: the filter rule is
+  not applied, and the connection profile never matches, so its devices get
+  another profile. `pfcmd checkup` lists these filter rules and connection
+  profiles; correct their value before or right after the upgrade.
+* A rule never matches when the compared date is unset
+  (`0000-00-00 00:00:00`, for example the `node_info.unregdate` of a node
+  without an expiration) or missing, also with `not_date_is_before` and
+  `not_date_is_after`. Previously, an unset date made the evaluation fail,
+  and a `not_date_*` filter rule matched when the date was missing. If a
+  rule relied on that, add an explicit condition for it.
+
 === Scan engines limited to roles and nodes without a role
 
 A node without a role, such as an unregistered device scanned before
