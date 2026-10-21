@@ -1,6 +1,8 @@
 #!/bin/bash
 set -o nounset -o pipefail -o errexit
 
+source "$(dirname "${BASH_SOURCE[0]}")/../../ci/lib/ansible-galaxy-cache.sh"
+
 die() {
     echo "$(basename $0): $@" >&2 ; exit 1
 }
@@ -105,15 +107,24 @@ configure_and_check() {
 
     export ANSIBLE_INVENTORY
     export VENOM_ROOT_DIR
+    LOCAL_BAKED_BOX=${LOCAL_BAKED_BOX:-no}
     export USE_VAGRANT_BOX VAGRANT_BOX_VERSION
-    export SKIP_CONFIGURATOR_BAKED
+    export SKIP_CONFIGURATOR_BAKED LOCAL_BAKED_BOX
 }
 
-# PF VMs eligible for the per-pipeline baked box (echoes the VM name, "" if
-# not eligible). Kept in sync with baked_box_vms in pfservers/Vagrantfile.
+# Map eligible PF VMs to their per-pipeline base box (empty if ineligible).
+# Kept in sync with baked_base_box in pfservers/Vagrantfile.
+# LOCAL_BAKED_BOX=yes maps localdev VMs to a `bake-vagrant-img.sh local` box.
 baked_box_for_pf_vm() {
     case "$1" in
-        pfel8dev|pfdeb12dev) echo "$1" ;;
+        pfel8dev|pf[123]el8dev) echo pfel8dev ;;
+        pfdeb12dev|pf[123]deb12dev) echo pfdeb12dev ;;
+        pfel8localdev|pf[123]el8localdev|pfdeb12localdev|pf[123]deb12localdev)
+            if [ "${LOCAL_BAKED_BOX:-no}" = yes ]; then
+                echo "${1/#pf[123]/pf}"
+            else
+                echo ""
+            fi ;;
         *)                   echo "" ;;
     esac
 }
@@ -143,7 +154,8 @@ register_vagrant_box_or_fallback() {
         return $?
     fi
 
-    local box_name="inverse-inc/${box}"
+    source "${VENOM_ROOT_DIR}/../../ci/lib/vagrant/box-category.sh"
+    local box_name="inverse-inc/${box}-$(vagrant_box_category)"
 
     if vagrant box list | grep -qF "${box_name} (libvirt, ${VAGRANT_BOX_VERSION})"; then
         log_subsection "Box ${box_name} v${VAGRANT_BOX_VERSION} already registered"
@@ -223,37 +235,23 @@ reclaim_disk_space() {
     fi
 }
 
-run_ansible_galaxy() {
-    local req_file=${1:-}
-    local force=${2:-}
-    if [ -z "$force" ]; then
-        local ansible_cmd="ansible-galaxy install -r ${req_file}"
-    else
-        local ansible_cmd="ansible-galaxy install -r ${req_file} --force"
-    fi
-    for retry in {5..1}; do
-        if ${ansible_cmd}; then
-            break
-        elif [ $retry -gt 1 ]; then
-            sleep 10
-        else
-            exit 1
-        fi
-    done
-}
-
-# force-install each requirements file once per run instead of once per VM
-declare -A GALAXY_DONE
+# Select the matching cache on every call, including when switching from
+# provisioning requirements to the scenario requirements (or back for teardown).
 run_ansible_galaxy_once() {
-    local req_file=$1
-    if [ -z "${GALAXY_DONE[${req_file}]:-}" ]; then
-        # cd first: collections/roles paths in the local ansible.cfg are relative to CWD
-        ( cd $(dirname ${req_file}) ; run_ansible_galaxy ${req_file} force )
-        GALAXY_DONE[${req_file}]=1
-    fi
+    prepare_ansible_dependencies "$1" "$(dirname "$1")/ansible.cfg"
 }
 
 run() {
+    if [ "${SCENARIOS_TO_RUN}" = "cluster_configurator cluster_recovery" ]; then
+        # Each phase gets its own clock. The CI job timeout must cover both
+        # budgets plus teardown; setup can no longer consume recovery's time.
+        time_phase "Cluster setup" timeout "${CLUSTER_SETUP_TIMEOUT:-120m}" "$0" prepare_cluster
+        # C repeats the configurator's rolling reboot: skip it here
+        SCENARIOS_TO_RUN=cluster_recovery RECOVERY_SCENARIOS="${RECOVERY_SCENARIOS:-A B D E F}" \
+            time_phase "Cluster recovery" \
+            timeout "${CLUSTER_RECOVERY_TIMEOUT:-150m}" "$0" run_tests
+        return
+    fi
     local run_start=$(date +%s)
     check_free_space
     log_section "Tests"
@@ -266,6 +264,16 @@ run() {
     time_phase "Run scenarios: ${SCENARIOS_TO_RUN}" run_tests
     local total=$(( $(date +%s) - run_start ))
     log_section "Full run took $((total/60))m$((total%60))s"
+}
+
+# Inventory's box_url for the private bucket (packetfence-vagrant-box) is not
+# fetchable over anonymous HTTPS (403); pre-register the box via authenticated
+# rclone so vagrant never tries the public URL. Public boxes (generic/*,
+# debian/*) have no bucket URL and are left for vagrant to handle.
+prepare_cluster() {
+    check_free_space
+    time_phase "Import and prepare cluster nodes" start_and_provision_pf_vm ${PF_VM_NAMES}
+    SCENARIOS_TO_RUN=cluster_configurator run_tests
 }
 
 # Inventory's box_url for the private bucket (packetfence-vagrant-box) is not
@@ -342,10 +350,20 @@ wait_for_ssh() {
 }
 
 # Start with or without VM
+# Prep/readdress playbooks for baked cluster clones (no-op for standalone VMs).
+baked_cluster_playbook() {
+    local playbook=$1 vm=$2
+    [[ "${vm}" =~ ^pf[123](deb12|el8)(local)?dev$ ]] || return 0
+    ( cd "${VAGRANT_DIR}"; ansible-playbook "playbooks/${playbook}" -l "${vm}" )
+}
+
 start_vm() {
     local vm=$1
     local dotfile_path=$2
     declare -p dotfile_path
+
+    # Once per VM, in this scope: the playbooks below read the exported paths
+    run_ansible_galaxy_once ${VAGRANT_DIR}/requirements.yml
 
     # baked is non-empty only for baked-box-eligible PF VMs in baked-box mode
     local baked=""
@@ -369,13 +387,12 @@ start_vm() {
         if [ -n "${baked}" ]; then
             # Baked-box mode: PF VM is already fully provisioned + configured.
             # Re-running site.yml would undo the bake, so only refresh network.
-            ( cd ${VAGRANT_DIR}; \
-              run_ansible_galaxy ${VAGRANT_DIR}/requirements.yml force )
+            baked_cluster_playbook cluster_prep_baked.yml "${vm}"
             refresh_network_post_import "${vm}"
+            baked_cluster_playbook cluster_readdress_baked.yml "${vm}"
             reregister_rhel_post_import "${vm}"
         else
             ( cd ${VAGRANT_DIR}; \
-              run_ansible_galaxy ${VAGRANT_DIR}/requirements.yml force ; \
               ansible-playbook site.yml -l $vm )
         fi
     else
@@ -393,17 +410,17 @@ start_vm() {
         fi
         if [ -n "${baked}" ]; then
             ( cd ${VAGRANT_DIR} ; \
-              run_ansible_galaxy ${VAGRANT_DIR}/requirements.yml force ; \
               SKIP_SITE_PROVISION=yes \
               VAGRANT_DOTFILE_PATH=${dotfile_path} \
                       vagrant up \
                       ${vm} \
                       ${VAGRANT_UP_OPTS} ) 2>&1 | filter_vagrant_progress
+            baked_cluster_playbook cluster_prep_baked.yml "${vm}"
             refresh_network_post_import "${vm}"
+            baked_cluster_playbook cluster_readdress_baked.yml "${vm}"
             reregister_rhel_post_import "${vm}"
         else
             ( cd ${VAGRANT_DIR} ; \
-              run_ansible_galaxy ${VAGRANT_DIR}/requirements.yml force ; \
               VAGRANT_DOTFILE_PATH=${dotfile_path} \
                       vagrant up \
                       ${vm} \
@@ -412,18 +429,55 @@ start_vm() {
     fi
 }
 
+# Boot baked clones together and prepare them in one ansible run per playbook;
+# the heavy PF starts in those playbooks are throttled to one node at a time.
+start_baked_pf_vms() {
+    local vm_names=$* vm cluster_vms=""
+    local vm_list=${vm_names// /,}
+    for vm in ${vm_names}; do
+        [[ "${vm}" =~ ^pf[123](deb12|el8)(local)?dev$ ]] && cluster_vms="${cluster_vms},${vm}"
+    done
+    cluster_vms=${cluster_vms#,}
+    ( cd "${VAGRANT_DIR}"
+      SKIP_SITE_PROVISION=yes VAGRANT_DOTFILE_PATH="${VAGRANT_PF_DOTFILE_PATH}" \
+          vagrant up ${vm_names} ${VAGRANT_UP_OPTS} 2>&1 | filter_vagrant_progress )
+    if [ -n "${cluster_vms}" ]; then
+        ( cd "${VAGRANT_DIR}"; ansible-playbook playbooks/cluster_prep_baked.yml -l "${cluster_vms}" )
+    fi
+    log_subsection "Refresh network on ${vm_list} (post-import boot)"
+    ( cd "${VAGRANT_DIR}"; ansible-playbook playbooks/refresh_network_post_import.yml -l "${vm_list}" )
+    if [ -n "${cluster_vms}" ]; then
+        ( cd "${VAGRANT_DIR}"; ansible-playbook playbooks/cluster_readdress_baked.yml -l "${cluster_vms}" )
+    fi
+    log_subsection "Re-register RHEL subscription on ${vm_list} (post-import)"
+    ( cd "${VAGRANT_DIR}"; ansible-playbook playbooks/register_rhel_subscription.yml -l "${vm_list}" )
+}
+
 start_and_provision_pf_vm() {
     local vm_names=${@:-vmname}
     log_subsection "Start and provision PacketFence $vm_names"
     run_ansible_galaxy_once ${VAGRANT_DIR}/requirements.yml
-    # Baked-box mode boots each PF VM from its pre-baked image and only
-    # refreshes the network (no site.yml), so it can't share the parallel
-    # provision path below — start_vm handles the baked flow per VM.
-    if [ "${USE_VAGRANT_BOX}" = "yes" ]; then
+    if [ "${USE_VAGRANT_BOX}" = yes ]; then
+        # The baked path is all-or-nothing: one unmapped node would otherwise be
+        # fully provisioned while its peers boot from the baked box.
+        local unmapped=""
         for vm in ${vm_names}; do
-            start_vm ${vm} ${VAGRANT_PF_DOTFILE_PATH}
+            [ -n "$(baked_box_for_pf_vm "${vm}")" ] || unmapped="${unmapped} ${vm}"
         done
-        return
+        if [ -n "${unmapped}" ]; then
+            maybe_fallback_to_full_provision "no baked box for:${unmapped}"
+        fi
+    fi
+    if [ "${USE_VAGRANT_BOX}" = yes ]; then
+        # Validate every node's box before creating any clones; fallback applies to all nodes.
+        for vm in ${vm_names}; do
+            register_vagrant_box_or_fallback "${vm}"
+            [ "${USE_VAGRANT_BOX}" = yes ] || break
+        done
+        if [ "${USE_VAGRANT_BOX}" = yes ]; then
+            start_baked_pf_vms ${vm_names}
+            return
+        fi
     fi
     # boot all nodes first (one parallel vagrant up for the missing ones), then
     # wait for SSH on all and install PacketFence in a single ansible run
@@ -468,43 +522,120 @@ start_and_provision_other_vm() {
 
 run_tests() {
     log_subsection "Configure VM for tests and run tests"
-    # install roles and collections in VENOM_ROOT_DIR
+    # Select the scenario dependencies; provisioning uses a separate cache.
     run_ansible_galaxy_once ${VENOM_ROOT_DIR}/requirements.yml
 
     for scenario_name in ${SCENARIOS_TO_RUN}; do
+        if [ "${scenario_name}" = cluster_recovery ] && [ -n "${RESULT_DIR}" ]; then
+            # Host output bypasses guest sanitization: the shared sampler only
+            # emits allowlisted numeric kernel counters, never arbitrary text.
+            python3 "${VAGRANT_DIR}/playbooks/files/sample-resource-usage.py" \
+                "${RESULT_DIR}/runner/resource-usage.jsonl" >/dev/null 2>&1 &
+            resource_sampler_pid=$!
+            trap 'stop_resource_sampler' EXIT
+            trap 'exit 143' TERM
+            trap 'exit 130' INT
+        fi
         scenario_path="${SCENARIOS_BASE_DIR}/${scenario_name}"
+        # expose the vagrant dotfile path so scenarios that power-control VMs
+        # (e.g. cluster_recovery) can resolve the libvirt domain UUID
+        local dotfile_ev="vagrant_pf_dotfile_path=${VAGRANT_PF_DOTFILE_PATH}"
+        # RECOVERY_SCENARIOS="A B D" limits cluster_recovery; unset runs all
+        local scenarios_ev=()
+        if [ "${scenario_name}" = cluster_recovery ] && [ -n "${RECOVERY_SCENARIOS:-}" ]; then
+            [[ "${RECOVERY_SCENARIOS}" =~ ^[A-F]( [A-F])*$ ]] \
+                || die "RECOVERY_SCENARIOS must be space-separated scenario IDs in A-F, got: ${RECOVERY_SCENARIOS}"
+            scenarios_ev=(-e "{\"recovery_scenarios\": [$(printf '"%s",' ${RECOVERY_SCENARIOS} | sed 's/,$//')]}")
+            echo "Recovery scenarios: ${RECOVERY_SCENARIOS}"
+        fi
         if [ -e "${scenario_path}/ansible_inventory.yml" ]; then
             echo "Additional Ansible inventory detected, will use it"
-            # will find roles and collections in VENOM_ROOT_DIR
-            ansible-playbook ${scenario_path}/site.yml -l $ANSIBLE_VM_LIST -e "@${scenario_path}/ansible_inventory.yml"
+            # Roles and collections resolve from the selected dependency cache.
+            ansible-playbook ${scenario_path}/site.yml -l $ANSIBLE_VM_LIST -e "${dotfile_ev}" "${scenarios_ev[@]}" -e "@${scenario_path}/ansible_inventory.yml"
         else
-            ansible-playbook ${scenario_path}/site.yml -l $ANSIBLE_VM_LIST
+            ansible-playbook ${scenario_path}/site.yml -l $ANSIBLE_VM_LIST -e "${dotfile_ev}" "${scenarios_ev[@]}"
         fi
+        stop_resource_sampler
     done
+}
+
+stop_resource_sampler() {
+    if [ -n "${resource_sampler_pid:-}" ]; then
+        kill "${resource_sampler_pid}" 2>/dev/null || true
+        wait "${resource_sampler_pid}" 2>/dev/null || true
+        resource_sampler_pid=
+    fi
 }
 
 teardown() {
     log_section "Teardown"
+    # first: works even when every VM is unreachable, and guarantees RESULT_DIR
+    # is non-empty so the job still uploads artifacts
+    collect_runner_diagnostics
     ansible_teardown
-    delete_ansible_files
 }
 
 ansible_teardown() {
     log_subsection "Ansible teardown (RHEL8 Unregister and Get Logs on all VM)"
     if [ -n "${ANSIBLE_VM_LIST}" ]; then
+        run_ansible_galaxy_once "${VAGRANT_DIR}/requirements.yml"
         ( cd $VAGRANT_DIR ; \
-          ansible-playbook teardown.yml -l $ANSIBLE_VM_LIST )
+          ansible-playbook teardown.yml -l $ANSIBLE_VM_LIST ) \
+            || echo "WARN: ansible teardown failed, keeping runner diagnostics"
     else
         echo "No VM detected, nothing to unconfigure"
     fi
 }
 
-delete_ansible_files() {
-    log_subsection "Remove Ansible files"
-    delete_dir_if_exists ${VAGRANT_DIR}/roles
-    delete_dir_if_exists ${VAGRANT_DIR}/ansible_collections
-    delete_dir_if_exists ${VENOM_ROOT_DIR}/roles
-    delete_dir_if_exists ${VENOM_ROOT_DIR}/ansible_collections
+# Runner-side view of the VMs. This is all we get about a VM that stopped
+# answering SSH, since guest-side collection can't run on an unreachable host.
+collect_runner_diagnostics() {
+    log_subsection "Collect runner diagnostics"
+    if [ -z "${RESULT_DIR}" ]; then
+        echo "RESULT_DIR is unset, skipping runner diagnostics"
+        return 0
+    fi
+    local out_dir="${RESULT_DIR}/runner"
+    mkdir -p "${out_dir}"
+
+    {
+        echo "job:       ${CI_JOB_NAME:-localdev} ${CI_JOB_URL:-}"
+        echo "pipeline:  ${CI_PIPELINE_ID}"
+        echo "commit:    ${CI_COMMIT_SHA:-} (${CI_COMMIT_REF_NAME:-})"
+        echo "runner:    $(hostname)"
+        echo "collected: $(date '+%F %T %Z')"
+        echo "vms:       ${ALL_VM_NAMES}"
+        echo "scenarios: ${SCENARIOS_TO_RUN}"
+    } > "${out_dir}/job-summary.txt"
+
+    timeout 30 df -h > "${out_dir}/df.txt" 2>&1 || true
+    timeout 30 free -m > "${out_dir}/free.txt" 2>&1 || true
+    timeout 30 virsh list --all > "${out_dir}/virsh-list.txt" 2>&1 || true
+
+    local prefix="vagrant-${CI_COMMIT_REF_SLUG-${USER}}-"
+    for dom in $(virsh list --all --name 2>/dev/null | grep -F "${prefix}" || true); do
+        collect_domain_diagnostics "${dom}" "${out_dir}"
+    done
+}
+
+collect_domain_diagnostics() {
+    local dom=$1
+    local dom_dir="$2/${dom}"
+    mkdir -p "${dom_dir}"
+    {
+        timeout 30 virsh domstate --domain "${dom}" --reason
+        timeout 30 virsh domblklist --domain "${dom}"
+        timeout 30 virsh domifaddr --domain "${dom}" --source lease
+    } > "${dom_dir}/domain-state.txt" 2>&1 || true
+    timeout 30 virsh dumpxml --domain "${dom}" > "${dom_dir}/domain.xml" 2>&1 || true
+    # a panic or an fsck prompt shows on the console and in no log file
+    timeout 30 virsh screenshot --domain "${dom}" --file "${dom_dir}/console.ppm" \
+        >/dev/null 2>&1 || rm -f "${dom_dir}/console.ppm"
+    # qemu's own log: guest panic, disk errors, OOM kill of the qemu process
+    if ! timeout 30 cat "/var/log/libvirt/qemu/${dom}.log" > "${dom_dir}/qemu.log" 2>/dev/null; then
+        sudo -n timeout 30 cat "/var/log/libvirt/qemu/${dom}.log" \
+             > "${dom_dir}/qemu.log" 2>/dev/null || rm -f "${dom_dir}/qemu.log"
+    fi
 }
 
 # Cleaning = no test VMs, no leftover disk. vagrant destroy misses orphans
@@ -533,7 +664,6 @@ destroy() {
     cleanup_baked_boxes
     delete_dir_if_exists "${VAGRANT_PF_DOTFILE_PATH}"
     delete_dir_if_exists "${VAGRANT_COMMON_DOTFILE_PATH}"
-    delete_ansible_files
 }
 
 # vagrant destroy only removes VMs it still tracks; one left by a failed `up`
@@ -580,6 +710,7 @@ configure_and_check
 
 case $1 in
     run) run ;;
+    prepare_cluster) prepare_cluster ;;
     run_tests) time_phase "Run scenarios: ${SCENARIOS_TO_RUN}" run_tests ;;
     destroy) destroy ;;
     teardown) teardown ;;

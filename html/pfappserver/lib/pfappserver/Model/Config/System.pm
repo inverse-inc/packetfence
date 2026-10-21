@@ -339,6 +339,15 @@ sub writeNetworkConfigs {
     my $interface_defroute ="no";
     while (my ($interface, $interface_values) = each %$interfaces_ref) {
         next if ( !$interface_values->{is_running} );
+        # interface_rhel.tt always emits BOOTPROTO=static + IPADDR=, so an
+        # address-less interface would overwrite its real IPADDR with an empty
+        # one. Callers pass get('all'), so a transiently address-less interface
+        # gets swept in even when only another one is being changed.
+        # interface_debian.tt already guards its stanzas the same way.
+        if ( !$interface_values->{'ipaddress'} && !$interface_values->{'ipv6_address'} ) {
+            $logger->warn("Interface $interface has no address, keeping its existing persistent configuration");
+            next;
+        }
         if ($gateway_interface eq $interface) {
             $interface_defroute = "yes";
             $interface_gateway = $gateway;

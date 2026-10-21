@@ -948,6 +948,16 @@ these conditions: a rule that never matched can start assigning its role, and a
 negative condition such as `switch_group is not X` now matches every switch
 outside group X.
 
+=== Role ACLs are now sent to Dell N1500 and Cisco ASA
+
+On Dell N1500 and Cisco ASA entries with *Role by access list* enabled, the
+role ACLs were never added to the RADIUS reply, so they were ignored. They are
+now sent, and enforced by the device. Before upgrading, review the ACLs of the
+roles these devices use, since endpoints can lose access they had until now.
+On the Dell N1500, a role ACL is translated: only its protocol, destination
+host and destination port are sent. Check the ACLs sent to the switch in
+`packetfence.log` after the upgrade.
+
 === RADIUS dynamic clients are now cached for 300 seconds
 
 [filename]`/usr/local/pf/raddb/sites-available/dynamic-clients` now sets
@@ -967,6 +977,60 @@ included by the authentication, load-balancer and CLI servers:
 ----
 /usr/local/pf/bin/pfcmd service radiusd restart
 ----
+
+=== RADIUS filters in the pre-proxy and post-proxy scopes receive the request again
+
+Since FreeRADIUS 3.2.8, the REST calls of the `pre-proxy` and `post-proxy`
+sections send the proxied copy of the packet or the home server's reply instead
+of the original request. RADIUS filters in the `pre-proxy` and `post-proxy`
+scopes (`packetfence.*` and `eduroam.*`) then had no switch and no MAC address
+to evaluate. [filename]`/usr/local/pf/conf/radiusd/rest.conf` now
+asks for both lists (`body_lists`), so these filters get the original request
+again. The proxy lists are available as `radius_request.proxy-request.*` and
+`radius_request.proxy-reply.*`. This needs the `rest` module of FreeRADIUS 3.2.10
+or later: the `packetfence` package now requires it, and the 16.0 repository
+provides it. An older FreeRADIUS ignores `body_lists`, and these filters stay
+skipped.
+
+The file is a package configuration file: it is updated automatically unless
+you modified it (see the general procedure above). If you kept a customized
+copy, add `body_lists` to the `pre-proxy` and `post-proxy` blocks of its `rest`
+section:
+
+[source,ini]
+----
+	pre-proxy {
+		...
+		body = 'json'
+		body_lists = "request proxy-request"
+		...
+	}
+	post-proxy {
+		...
+		body = 'json'
+		body_lists = "request proxy-reply"
+		...
+	}
+----
+
+Then restart all RADIUS instances:
+
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service radiusd restart
+----
+
+Until then, [filename]`packetfence.log` reports `No switch IP (NAS-IP-Address /
+Client-IP-Address) nor switch MAC (Called-Station-Id) in the RADIUS request
+handed to the ... filter` and the filters of these scopes are skipped.
+
+=== Role ACLs that can't be translated for the switch
+
+After the upgrade, a role whose ACL lines can't all be expressed for a switch
+has the untranslatable permits skipped, and is cut at an untranslatable deny. A
+role whose ACLs are all untranslatable, or can't be parsed, denies all traffic.
+Look in [filename]`packetfence.log` for "Skipping ACL of role", "with a deny all" and
+"Denying all the", and rewrite the reported lines.
 
 == Troubleshooting Upgrades
 
