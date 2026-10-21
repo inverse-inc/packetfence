@@ -172,6 +172,13 @@ sub execute_actions {
 
     $self->app->session->{source} = $self->source;
     if(isenabled($self->source->{create_local_account})){
+        # The credentials of the local account are sent by e-mail, ex: a Facebook account registered with a phone number has none
+        if(!$self->local_account_email()) {
+            get_logger->error("Can't create the local account of " . ($self->app->session->{username} // '') . ": the source " . $self->source->id . " didn't provide an e-mail address");
+            $self->app->flash->{error} = "Your account didn't provide an e-mail address, which is needed to create your local account. Please use another login method.";
+            $self->session->{source_id} = undef;
+            return $FALSE;
+        }
         if(!$self->create_local_account()) {
             $self->app->flash->{error} = "Unable to create the local account with this username. Please try registering using a different email or phone number.";
             # Make sure the current source is not remembered since it failed...
@@ -285,6 +292,17 @@ Meant for child modules to define their params
 
 sub auth_source_params_child { {} }
 
+=head2 local_account_email
+
+The e-mail address the local account credentials are sent to
+
+=cut
+
+sub local_account_email {
+    my ($self) = @_;
+    return $self->session->{fields}->{email} // $self->session->{email} // $self->app->session->{email};
+}
+
 =head2 create_local_account
 
 Create a local account using the email in the session
@@ -299,7 +317,7 @@ sub create_local_account {
 
     my $auth_params = $self->auth_source_params();
 
-    my $email = $self->session->{fields}->{email} // $self->session->{email} // $self->app->session->{email};
+    my $email = $self->local_account_email();
     unless($email){
         get_logger->error("Can't create account since there is no user e-mail in the session.");
         return $FALSE;

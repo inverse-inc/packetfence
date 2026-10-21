@@ -111,6 +111,13 @@ sub _initialize {
     $logger->error(CGI::Session->errstr()) unless $session;
     $session->expires($EXPIRES_IN);
 
+    # The dummy session is shared by all the requests without a session ID
+    # Don't restore or compute anything from it, it would belong to another client
+    if ($sid eq md5_hex($DUMMY_MAC)) {
+        $self->{_dummy_session} = 1;
+        return;
+    }
+
     $self->{'_client_ip'} = $self->_restoreFromSession("_client_ip",sub {
             return $self->_resolveIp();
         }
@@ -124,7 +131,7 @@ sub _initialize {
 
     my $client_mac = $self->{_client_mac};
 
-    $self->{_dummy_session} = ($sid eq md5_hex($DUMMY_MAC));
+    $self->{_dummy_session} = 0;
 
     $self->session->param("_client_mac", $client_mac);
 
