@@ -381,6 +381,7 @@ server packetfence {
 		#}
 		if ("%{%{control:PacketFence-Proxied-From}:-False}" == "True") {
 	[% local_realm %]
+	[% degraded_cache_miss_compute %]
 			if ("%{%{control:PacketFence-Authorization-Status}:-Allow}" == "deny") {
 				packetfence-audit-log-reject
 				reject
@@ -493,6 +494,36 @@ server packetfence {
 		update control {
 			PacketFence-Proxied-From := "True"
 		}
+[% IF degraded_realms %]
+		# Cache the answers of the remote servers for the degraded mode of the
+		# realm, never the ones of the degraded mode itself
+		if ( ( [% degraded_cache %] ) && !&proxy-reply:PacketFence-Degraded && !&control:PacketFence-Degraded ) {
+			if ( &proxy-reply:Packet-Type == Access-Accept ) {
+				# The authentication this answer was given to (EAP method or
+				# no-EAP for a MAB, and the identity), it is only replayed to the
+				# same one
+				update proxy-reply {
+					&PacketFence-Degraded-Auth := "%{%{EAP-Type}:-no-EAP}:%{md5:%{tolower:%{User-Name}}}"
+				}
+				rest-radcache {
+					fail = 1
+					notfound = 1
+					invalid = 1
+				}
+				update proxy-reply {
+					&PacketFence-Degraded-Auth !* ANY
+				}
+			}
+			# The remote server now rejects the device: forget its last accepted answer
+			elsif ( &proxy-reply:Packet-Type == Access-Reject ) {
+				rest-radcache.authorize {
+					fail = 1
+					notfound = 1
+					invalid = 1
+				}
+			}
+		}
+[% END %]
 
 		[% post_proxy_filter %]
 	}
@@ -795,3 +826,119 @@ server packetfence-degraded-tunnel {
 	}
 
 }
+
+[% IF degraded_realms %]
+#
+#  Degraded mode of the proxied realms
+#
+#  This server is the fallback of the home server pools of the realms with
+#  the degraded mode enabled: it is only used when all the remote RADIUS
+#  servers of the realm are dead. It authenticates the request locally
+#  (EAP-TLS, or PEAP/TTLS through packetfence-degraded-tunnel) with the EAP
+#  profile of the realm, then answers with the attributes the remote server
+#  returned the last time it accepted the device (packetfence-connector-cache).
+#
+server packetfence-degraded {
+	authorize {
+		# Never proxy again what is answered locally
+		update control {
+			&Proxy-To-Realm := LOCAL
+		}
+
+		filter_username
+		filter_password
+		preprocess
+
+[% authorize_eap_choice_degraded %]
+
+		packetfence-degraded-mab
+		pap
+	}
+
+	authenticate {
+		Auth-Type PAP {
+			pap
+		}
+
+[% authentication_auth_type_degraded %]
+
+	}
+
+	preacct {
+		preprocess
+	}
+
+	accounting {
+		# Not used: only the authentication pools fall back to this server,
+		# accounting is left unanswered while the remote servers are dead so
+		# that the switches keep it for them
+		ok
+		attr_filter.accounting_response
+	}
+
+	session {
+	}
+
+	post-auth {
+		# Answer with the attributes cached for the device
+		rest-radcache {
+			fail = 1
+			notfound = 1
+			invalid = 1
+		}
+		# Only replayed to the authentication it was given to: an answer cached
+		# for an EAP authentication is not given to a MAB request with the same
+		# MAC address, nor to another EAP method or identity
+		if ((ok || updated) && &reply:PacketFence-Degraded-Auth && (&reply:PacketFence-Degraded-Auth == "%{%{EAP-Type}:-no-EAP}:%{md5:%{tolower:%{User-Name}}}")) {
+			update reply {
+				# Echoed by the remote server to the packetfence server when it was cached
+				&Proxy-State !* ANY
+				# Attributes of the cached session, not of this one
+				&Class !* ANY
+				&State !* ANY
+				&PacketFence-Degraded-Auth !* ANY
+				&PacketFence-Degraded := "Cache-Hit"
+			}
+		}
+		else {
+			# Remove what may have been read from the cache for another authentication
+			attr_filter.packetfence_degraded_mismatch
+			update reply {
+				&PacketFence-Degraded := "Cache-Miss"
+			}
+[% degraded_cache_miss_reject %]
+		}
+		linelog
+
+		Post-Auth-Type REJECT {
+			attr_filter.access_reject
+
+			# Insert EAP-Failure message if the request was
+			# rejected by policy instead of because of an
+			# authentication failure
+			eap-degraded
+
+			#  Remove reply message if the response contains an EAP-Message
+			remove_reply_message_if_eap
+			linelog
+		}
+	}
+
+	pre-proxy {
+	}
+
+	#
+	#  Runs on the request of the packetfence server once this server
+	#  answered: hand the answer back to it as any proxied one.
+	#
+	post-proxy {
+		update control {
+			&PacketFence-Proxied-From := "True"
+			&PacketFence-Degraded := &proxy-reply:PacketFence-Degraded
+		}
+		update proxy-reply {
+			&PacketFence-Degraded !* ANY
+		}
+	}
+}
+[% END %]

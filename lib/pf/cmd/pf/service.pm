@@ -16,6 +16,7 @@ pfcmd service <service> [start|stop|restart|status|generateconfig|updatesystemd]
 Services managed by PacketFence:
 
   api-frontend           | Golang daemon providing API
+  connector-cache        | Cache of the proxied RADIUS answers for the degraded mode of the realms
   fingerbank-collector   | Fingerprinting data collection daemon
   galera-autofix         | Automated recovery of Galera clusters
   haproxy-admin          | haproxy admin daemon

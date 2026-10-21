@@ -958,6 +958,21 @@ included by the authentication, load-balancer and CLI servers:
 /usr/local/pf/bin/pfcmd service radiusd restart
 ----
 
+=== RADIUS proxy degraded mode: merge the customized RADIUS templates
+
+The realms proxying the authentication have a new _Degraded mode_ option (see
+the RADIUS Proxy Degraded Mode section of the Installation Guide). It needs new
+sections of [filename]`/usr/local/pf/conf/radiusd/packetfence` and
+[filename]`/usr/local/pf/conf/radiusd/rest.conf`. Both files are package
+configuration files: they are updated automatically unless you modified them
+(see the general procedure above). If you kept a customized copy, merge it with
+the new [filename]`.example` file before enabling the degraded mode on a realm:
+without the `packetfence-degraded` virtual server, the home server pools of the
+realm fall back to a server that doesn't exist and the RADIUS services don't
+start.
+
+A realm with the degraded mode enabled must also have `nostrip` in its options.
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]

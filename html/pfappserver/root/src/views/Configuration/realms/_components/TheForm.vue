@@ -64,6 +64,18 @@
                                               disabled-value="disabled"
         />
 
+        <form-group-radius-degraded namespace="radius_degraded"
+                                    :column-label="$i18n.t('Degraded mode')"
+                                    :text="$i18n.t('Cache the attributes returned by the remote RADIUS servers and, when all of them are unreachable, authenticate locally and answer from the cache.')"
+                                    enabled-value="enabled"
+                                    disabled-value="disabled"
+        />
+
+        <form-group-radius-degraded-cache-miss namespace="radius_degraded_cache_miss"
+                                               :column-label="$i18n.t('Degraded mode cache miss')"
+                                               :text="$i18n.t('What to do in degraded mode when the device has no cached answer.')"
+        />
+
         <form-group-radius-acct namespace="radius_acct"
                                 :column-label="$i18n.t('RADIUS ACCT')"
                                 :text="$i18n.t('The RADIUS Server(s) to proxy accounting.')"
@@ -176,6 +188,8 @@ import {
   FormGroupRadiusAuth,
   FormGroupRadiusAuthProxyType,
   FormGroupRadiusAuthComputeInPf,
+  FormGroupRadiusDegraded,
+  FormGroupRadiusDegradedCacheMiss,
   FormGroupRadiusAcct,
   FormGroupRadiusAcctProxyType,
   FormGroupEduroamOptions,
@@ -206,6 +220,8 @@ const components = {
   FormGroupRadiusAuth,
   FormGroupRadiusAuthProxyType,
   FormGroupRadiusAuthComputeInPf,
+  FormGroupRadiusDegraded,
+  FormGroupRadiusDegradedCacheMiss,
   FormGroupRadiusAcct,
   FormGroupRadiusAcctProxyType,
   FormGroupEduroamOptions,

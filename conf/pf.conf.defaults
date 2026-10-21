@@ -670,6 +670,11 @@ fingerbank-collector=enabled
 # Location of the fingerbank-collector binary. Only necessary to change if you are not running the pre-packaged version.
 fingerbank-collector_binary=/usr/local/fingerbank/collector/fingerbank-collector
 #
+# services.connector-cache
+#
+# Should the connector-cache be started? It only runs when a realm has the degraded mode enabled.
+connector-cache=enabled
+#
 # services.openssl_binary
 #
 # Location of the openssl binary. Only necessary to change if you are not running the RPMed version.

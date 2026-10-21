@@ -182,11 +182,7 @@ EOT
     my @realms;
     foreach my $realm ( @pf::config::ConfigOrderedRealm ) {
         if (isenabled($pf::config::ConfigRealm{$realm}->{'radius_auth_compute_in_pf'})) {
-            if (defined $pf::config::ConfigRealm{$realm}->{'regex'} && $pf::config::ConfigRealm{$realm}->{'regex'} ne '') {
-                push (@realms, "Realm =~ /$pf::config::ConfigRealm{$realm}->{'regex'}/");
-            } else {
-                push (@realms, "Realm == \"$realm\"");
-            }
+            push (@realms, realm_condition($realm));
         }
     }
     if (@realms) {
@@ -198,6 +194,8 @@ EOT
         }
 EOT
     }
+
+    generate_degraded_realms(\%tags);
 
     # Remote config
 
@@ -376,6 +374,7 @@ sub generate_radiusd_restconf {
     $tags{'rpc_port'} = $Config{webservices}{aaa_port} || "7070";
     $tags{'rpc_host'} = $Config{webservices}{aaa_host} || "127.0.0.1";
     $tags{'rpc_proto'} = $Config{webservices}{aaa_proto} || "http";
+    $tags{'degraded_realms'} = scalar(degraded_realms());
 
     $tt->process("$conf_dir/radiusd/rest.conf", \%tags, "$install_dir/raddb/mods-enabled/rest") or die $tt->error();
 }
@@ -534,11 +533,7 @@ EOT
         my @local_realms;
         foreach my $realm ( @{$eduroam_authentication_source[0]{'local_realm'}} ) {
             if (!$pf::config::ConfigRealm{$realm}->{'eduroam_radius_auth'} ) {
-                 if (defined $pf::config::ConfigRealm{$realm}->{'regex'} && $pf::config::ConfigRealm{$realm}->{'regex'} ne '') {
-                     push (@local_realms, "Realm =~ /$pf::config::ConfigRealm{$realm}->{'regex'}/");
-                 } else {
-                     push (@local_realms, "Realm == \"$realm\"");
-                 }
+                 push (@local_realms, realm_condition($realm));
             }
         }
         if (@local_realms) {
@@ -575,11 +570,7 @@ EOT
         $tags{'reject_realm'} = '';
         my @reject_realms;
         foreach my $reject_realm ( @{$eduroam_authentication_source[0]{'reject_realm'}} ) {
-                 if (defined $pf::config::ConfigRealm{$reject_realm}->{'regex'} && $pf::config::ConfigRealm{$reject_realm}->{'regex'} ne '') {
-                     push (@reject_realms, "Realm =~ /$pf::config::ConfigRealm{$reject_realm}->{'regex'}/");
-                 } else {
-                     push (@reject_realms, "Realm == \"$reject_realm\"");
-                 }
+                 push (@reject_realms, realm_condition($reject_realm));
         }
         if (@reject_realms) {
             $tags{'reject_realm'} .= '            if ( ';
@@ -981,6 +972,7 @@ home_server = $radius
 EOT
                 }
             }
+            $tags{'config'} .= "fallback = packetfence-degraded\n" if is_degraded_realm($realm);
             $tags{'config'} .= <<"EOT";
 }
 EOT
@@ -1157,6 +1149,17 @@ EOT
         $tags{'pfacct'} = "# pfacct is not enabled";
     }
 
+    if (degraded_realms()) {
+        $tags{'config'} .= <<"EOT";
+
+# Local fallback of the realms with the degraded mode enabled,
+# used when all the home servers of their pools are dead
+home_server packetfence-degraded {
+    virtual_server = packetfence-degraded
+}
+EOT
+    }
+
     $tt->process("$conf_dir/radiusd/proxy.conf.inc", \%tags, "$install_dir/raddb/proxy.conf.inc") or die $tt->error();
 
     undef %tags;
@@ -1285,11 +1288,7 @@ EOT
             $tags{'local_realm'} = '';
             my @realms;
             foreach my $realm ( @{$eduroam_authentication_source[0]{'local_realm'}} ) {
-                 if (defined $pf::config::ConfigRealm{$realm}->{'regex'} && $pf::config::ConfigRealm{$realm}->{'regex'} ne '') {
-                     push (@realms, "Realm =~ /$pf::config::ConfigRealm{$realm}->{'regex'}/");
-                 } else {
-                     push (@realms, "Realm == \"$realm\"");
-                 }
+                 push (@realms, realm_condition($realm));
             }
             if (@realms) {
                 $tags{'local_realm'} .= 'if ( ';
@@ -1464,6 +1463,91 @@ sub generate_radiusd_mschap {
 
 }
 
+=head2 degraded_realms
+
+The realms proxying authentication with the degraded mode enabled
+
+=cut
+
+sub degraded_realms {
+    return grep { is_degraded_realm($_) } @pf::config::ConfigOrderedRealm;
+}
+
+=head2 is_degraded_realm
+
+Whether the realm caches the proxied answers and falls back to the local degraded virtual server
+
+=cut
+
+sub is_degraded_realm {
+    my ($realm) = @_;
+    my $config = $pf::config::ConfigRealm{$realm};
+    return $config->{'radius_auth'} && isenabled($config->{'radius_degraded'});
+}
+
+=head2 realm_condition
+
+The unlang condition matching a realm
+
+=cut
+
+sub realm_condition {
+    my ($realm) = @_;
+    my $regex = $pf::config::ConfigRealm{$realm}->{'regex'};
+    return (defined $regex && $regex ne '') ? "Realm =~ /$regex/" : "Realm == \"$realm\"";
+}
+
+=head2 generate_degraded_realms
+
+Generates the unlang caching the proxied answers and handling the cache misses of the degraded mode
+
+=cut
+
+sub generate_degraded_realms {
+    my ($tags) = @_;
+    my @realms = degraded_realms();
+    $tags->{'degraded_realms'} = scalar(@realms);
+    $tags->{'degraded_cache'} = '';
+    $tags->{'degraded_cache_miss_reject'} = '';
+    $tags->{'degraded_cache_miss_compute'} = '';
+    return unless @realms;
+
+    $tags->{'degraded_cache'} = join(' || ', map { realm_condition($_) } @realms);
+
+    my (@reject, @compute);
+    foreach my $realm (@realms) {
+        my $config = $pf::config::ConfigRealm{$realm};
+        my $cache_miss = $config->{'radius_degraded_cache_miss'} || 'compute_in_pf';
+        if ($cache_miss eq 'reject') {
+            push @reject, realm_condition($realm);
+        }
+        # The realms authorized from PacketFence already call it after every
+        # proxied answer, degraded ones included (cache hits too: PacketFence's
+        # answer then replaces the cached one, as for any proxied answer)
+        elsif ($cache_miss eq 'compute_in_pf' && !isenabled($config->{'radius_auth_compute_in_pf'})) {
+            push @compute, realm_condition($realm);
+        }
+    }
+    if (@reject) {
+        my $condition = join(' || ', @reject);
+        $tags->{'degraded_cache_miss_reject'} = <<"EOT";
+			if ( $condition ) {
+				reject
+			}
+EOT
+    }
+    # Only the tunnelled EAP requests: the other ones are sent to PacketFence
+    # after any proxied answer (packetfence-post-auth-rest)
+    if (@compute) {
+        my $condition = join(' || ', @compute);
+        $tags->{'degraded_cache_miss_compute'} = <<"EOT";
+		if ( "%{control:PacketFence-Degraded}" == "Cache-Miss" && ( EAP-Type == TTLS || EAP-Type == PEAP ) && ( $condition ) ) {
+			rest
+		}
+EOT
+    }
+}
+
 =head2 generate_eap_choice
 
 Generate the configuration for eap choice
@@ -1481,7 +1565,10 @@ sub generate_eap_choice {
         my $choice = $key;
         $choice = $pf::config::ConfigRealm{$key}->{'regex'} if (defined $pf::config::ConfigRealm{$key}->{'regex'} && $pf::config::ConfigRealm{$key}->{'regex'} ne '');
         my $eap = ( defined($pf::config::ConfigRealm{$key}->{'eap'}) && $pf::config::ConfigRealm{$key}->{'eap'} ne '') ? $pf::config::ConfigRealm{$key}->{'eap'} : 'eap';
-        $eap = $eap."-".$suffix if ($suffix ne "" && $suffix ne "eap-degraded");
+        # The eap.conf template names the degraded instances <profile>-eap-degraded
+        if ($suffix ne "") {
+            $eap = ($eap eq 'eap') ? $suffix : $eap."-".$suffix;
+        }
         $$authorize_eap_choice .= <<"EOT";
             $if (Realm =~ /$choice/) {
                 $eap {
@@ -1492,9 +1579,10 @@ EOT
             $if = 'elsif';
     }
     if ($if eq 'elsif') {
+        my $eap = ($suffix ne "") ? $suffix : "eap";
         $$authorize_eap_choice .= <<"EOT";
             else {
-                eap {
+                $eap {
                     ok = return
                 }
             }

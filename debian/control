@@ -30,6 +30,8 @@ Conflicts: packetfence-captive-portal-javascript, packetfence-doc, packetfence-p
 Replaces: packetfence-captive-portal-javascript, packetfence-doc, packetfence-pfappserver-javascript
 Depends: ${misc:Depends}, vlan,
  packetfence-ntlm-wrapper (>= ${source:Version}), packetfence-golang-daemon (>= ${source:Version}),
+# cache of the proxied RADIUS answers for the degraded mode of the realms
+ packetfence-connector-cache (>= 0.1.7),
  openssl,
  packetfence-archive-keyring (>= ${source:Version}),
  gpg,

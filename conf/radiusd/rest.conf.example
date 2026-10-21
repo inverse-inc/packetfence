@@ -329,3 +329,63 @@ rest rest-cli {
 		idle_timeout = 60
 	}
 }
+
+[% IF degraded_realms %]
+#
+#  Cache of the answers of the remote RADIUS servers used by the realms with
+#  the degraded mode enabled (packetfence-connector-cache)
+#
+rest rest-radcache {
+	tls {
+	}
+	connect_uri = "http://127.0.0.1:12142"
+	connect_timeout = 1.0
+	#  Read the cached answer of the device (Calling-Station-Id)
+	post-auth {
+		uri = "${..connect_uri}/api/v1/radcache/get"
+		method = 'post'
+		body = 'json'
+		tls = ${..tls}
+		timeout = 1.000000
+		attr_num = 'true'
+		raw_value ='true'
+		chunk = '8192'
+	}
+	#  Delete the cached answer of the device (Calling-Station-Id) when the
+	#  remote RADIUS server rejects it: called from post-proxy as
+	#  rest-radcache.authorize
+	authorize {
+		uri = "${..connect_uri}/api/v1/radcache/delete"
+		method = 'post'
+		body = 'json'
+		tls = ${..tls}
+		timeout = 1.000000
+		attr_num = 'true'
+		raw_value ='true'
+		chunk = '8192'
+	}
+	#  Store the answer of the remote RADIUS server
+	post-proxy {
+		uri = "${..connect_uri}/api/v1/radcache/set"
+		method = 'post'
+		body = 'json'
+		tls = ${..tls}
+		timeout = 1.000000
+		attr_num = 'true'
+		raw_value ='true'
+		chunk = '8192'
+		body_lists = "proxy-reply request"
+	}
+	pool {
+		#  Start even if the cache is not available
+		start = 0
+		min = 0
+		max = ${thread[pool].max_servers}
+		spare = ${thread[pool].max_spare_servers}
+		uses = 0
+		retry_delay = 30
+		lifetime = 0
+		idle_timeout = 60
+	}
+}
+[% END %]

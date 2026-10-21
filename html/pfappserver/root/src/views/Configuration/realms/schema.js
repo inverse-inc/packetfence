@@ -42,6 +42,7 @@ export default (props) => {
     options: yup.string().nullable().label(i18n.t('Options')),
     radius_auth: schemaServers,
     radius_auth_proxy_type: yup.string().nullable().label(i18n.t('Type')),
+    radius_degraded_cache_miss: yup.string().nullable().label(i18n.t('Cache miss')),
     radius_acct: schemaServers,
     radius_acct_proxy_type: yup.string().nullable().label(i18n.t('Type')),
     eduroam_options: yup.string().nullable().label(i18n.t('Options')),
