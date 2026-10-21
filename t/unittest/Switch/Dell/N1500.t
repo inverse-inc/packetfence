@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 3;
+use Test::More tests => 5;
 use pf::Switch::Dell::N1500;
 
 #This test will running last
@@ -36,6 +36,19 @@ ok(
 ok(
     $switch->getBitAtPosition(pack("B*", "0000000000100100"), $SNMP::LLDP::TELEPHONE),
     "$SNMP::LLDP::TELEPHONE is found in bit table"
+);
+
+# A role ACL keeps its direction separator, so the reply sends it as an inacl attribute
+is(
+    $switch->acl_chewer("permit ip any host 192.0.2.10", 'testrole'),
+    "in|permit ip any host 192.0.2.10 \n",
+    "a role ACL line is chewed with its in| direction"
+);
+
+is(
+    ($switch->returnAccessListAttribute(101, "in|permit ip any host 192.0.2.10 "))[1],
+    "ip:inacl#101=permit ip any host 192.0.2.10 ",
+    "a chewed role ACL line is sent as ip:inacl"
 );
 
 =head1 AUTHOR

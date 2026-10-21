@@ -138,7 +138,7 @@ func (h PfssoHandler) spawnSso(ctx context.Context, firewall firewallsso.Firewal
 		goCtx := connector.WithConnectorsContainer(ctxLog, h.connectors)
 		sent, err := f(goCtx, infoCopy)
 		if err != nil {
-			log.LoggerWContext(goCtx).Error(fmt.Sprintf("Error while sending SSO to %s: %s"+firewall.GetFirewallSSO(goCtx).PfconfigHashNS, err))
+			log.LoggerWContext(goCtx).Error(fmt.Sprintf("Error while sending SSO to %s: %s", firewall.GetFirewallSSO(goCtx).PfconfigHashNS, err))
 		}
 
 		if sent {
@@ -182,7 +182,7 @@ func (h PfssoHandler) handleUpdate(w http.ResponseWriter, r *http.Request, p htt
 			// Delete any entries for this MAC that aren't matching this cache key
 			for k, _ := range h.updateCache.Items() {
 				// If its not our current cache key but its made for the same MAC, then we'll remove it since its not relevant anymore
-				if k != cacheKey && strings.Contains(k, "|mac|"+info["mac"]) {
+				if k != cacheKey && strings.Contains(k, "|mac|"+info["mac"]+"|ip|") {
 					log.LoggerWContext(ctx).Debug("Deleting irrelevant cache key " + k)
 					h.updateCache.Delete(k)
 				}

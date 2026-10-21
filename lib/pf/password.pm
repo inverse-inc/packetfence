@@ -359,7 +359,7 @@ sub validate_password {
             'password.pid' => $pid,
             'person.potd' => $allow_potd ? 'yes' : ['no', undef],
         },
-        -columns => [qw(password.pid|pid password.password|password), 'IFNULL(UNIX_TIMESTAMP(valid_from),0)|valid_from', 'IFNULL(UNIX_TIMESTAMP(expiration),0)|expiration', qw(password.access_duration|access_duration password.category|category person.potd|potd)],
+        -columns => [qw(password.pid|pid password.password|password), 'IF(valid_from > NOW(),1,0)|not_yet_valid', 'IF(expiration IS NULL OR expiration < NOW(),1,0)|expired', qw(password.access_duration|access_duration password.category|category person.potd|potd)],
         #To avoid a join
         -limit => 1,
     );
@@ -372,17 +372,17 @@ sub validate_password {
     }
 
     if ( _check_password( $password, $temppass_record->{'password'}) ) {
+        # The validity window is checked by the database: UNIX_TIMESTAMP returns
+        # NULL for dates after 2038 on MariaDB < 11.5
+
         # password is valid but not yet valid
-        # valid_from is in unix timestamp format so an int comparison is enough
-        my $valid_from = $temppass_record->{'valid_from'};
-        if ( defined $valid_from && $valid_from > time ) {
+        if ( $temppass_record->{'not_yet_valid'} ) {
             $logger->info("Password validation failed for $pid: password not yet valid, please verify the Registration Window");
             return $AUTH_FAILED_NOT_YET_VALID;
         }
 
         # password is valid but expired
-        # expiration is in unix timestamp format so an int comparison is enough
-        if ( $temppass_record->{'expiration'} < time ) {
+        if ( $temppass_record->{'expired'} ) {
             $logger->info("Password validation failed for $pid: password has expired");
             return $AUTH_FAILED_EXPIRED;
         }

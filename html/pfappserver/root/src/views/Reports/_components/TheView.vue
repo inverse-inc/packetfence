@@ -15,6 +15,7 @@
         >
           <base-input-date-range v-if="hasDateRange"
             v-model="dateRange"
+            :utc-offset="meta.utc_offset"
             :disabled="isLoading" />
         </the-search>
         <b-tabs v-if="charts.length"
@@ -36,6 +37,7 @@
             <b-col cols="auto" class="pr-0">
               <base-input-date-range v-if="hasDateRange"
                 v-model="dateRange"
+                :utc-offset="meta.utc_offset"
                 :disabled="isLoading" />
             </b-col>
             <b-col cols="auto" class="pl-0 mr-auto" v-if="dateLimit">

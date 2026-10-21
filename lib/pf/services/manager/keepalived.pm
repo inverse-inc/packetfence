@@ -16,14 +16,9 @@ use strict;
 use warnings;
 use Moo;
 use IPC::Cmd qw[can_run run];
-use List::MoreUtils qw(uniq);
 use POSIX;
 use pf::config qw(
     %Config
-    @portal_ints
-    @listen_ints
-    @dhcplistener_ints
-    @radius_ints
     %ConfigNetworks
 );
 use pf::file_paths qw(
@@ -108,7 +103,7 @@ EOT
         # CLUSTER section of cluster.conf. This lets zones in separate regions use distinct
         # VRRP router ids. Falls back to the global active_active setting when unset.
         my $virtual_router_id = $ConfigCluster{$CLUSTER}{'virtual_router_id'} || $Config{'active_active'}{'virtual_router_id'};
-        my @ints = uniq(@listen_ints,@dhcplistener_ints, (map { $_->{'Tint'} } @portal_ints, @radius_ints));
+        my @ints = pf::cluster::vrrp_interfaces();
         foreach my $interface ( @ints ) {
             my $cfg = $Config{"interface $interface"};
             next unless $cfg;
