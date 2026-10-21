@@ -27,6 +27,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
+  - New `switch_cache_ifindex` maintenance task (enabled, every 12h) that keeps the cached `ifDescr` table of the Cisco IOS, Arista, Aruba and 3Com switches warm, so a wired RADIUS request no longer waits for the SNMP walk that translates its NAS-Port-Id into an ifIndex. Only the switches that already translated one are walked: the first request to a switch whose table is not cached yet, such as a new switch, still waits for the walk (#7380)
+
   - CoA and Disconnect requests can use attributes from a local RADIUS dictionary, `conf/radiusd/dictionary.local` (FreeRADIUS format), for vendor attributes PacketFence doesn't ship (e.g. `Extreme-Dynamic-Config`) (#8627)
 
 === Enhancements
