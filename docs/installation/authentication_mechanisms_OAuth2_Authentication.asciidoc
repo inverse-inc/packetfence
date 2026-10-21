@@ -170,7 +170,14 @@ specify the following as the Callback URL
 https://YOUR_PORTAL_HOSTNAME/oauth2/callback
 
 Get more details about how to configure the LinkedIn application inside
-https://docs.microsoft.com/fr-fr/linkedin/shared/authentication/authentication[Microsoft documentation].
+https://learn.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/sign-in-with-linkedin-v2[Microsoft documentation].
+
+The App must have the *Sign In with LinkedIn using OpenID Connect* product.
+The source uses it by default, with the scope `openid profile email` and the API URL
+`https://api.linkedin.com/v2/userinfo`. A source created before PacketFence
+16.0 keeps the legacy scope (`r_emailaddress,r_liteprofile`) and API URL,
+which LinkedIn no longer grants to new Apps: if the login fails after the
+LinkedIn page, set these two values in the source.
 
 Of course, replace the hostname with the values from `general.hostname` and
 `general.domain`.
