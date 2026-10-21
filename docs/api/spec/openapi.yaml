@@ -5230,7 +5230,8 @@ components:
           type: string
         dot1x_unset_on_unmatch:
           description: When enabled, PacketFence will unset the role of the device
-            if no authentication sources returned one.
+            if no authentication sources returned one, the device is then unregistered
+            and gets the registration role.
           type: string
         dpsk:
           description: This enables the Dynamic PSK feature on this connection profile.

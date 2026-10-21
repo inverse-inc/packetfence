@@ -67,7 +67,7 @@
 
         <form-group-dot1x-unset-on-unmatch namespace="dot1x_unset_on_unmatch"
                                            :column-label="$i18n.t('Dot1x unset on unmatch')"
-                                           :text="$i18n.t('When enabled, PacketFence will unset the role of the device if no authentication sources returned one.')"
+                                           :text="$i18n.t('When enabled, PacketFence will unset the role of the device if no authentication sources returned one, the device is then unregistered and gets the registration role.')"
                                            enabled-value="enabled"
                                            disabled-value="disabled"
         />
