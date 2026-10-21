@@ -37,6 +37,11 @@
 # eduroam.post-proxy call the RADIUS filter in the post-proxy accounting section
 # eduroam.preacct call the RADIUS filter in the eduroam preacct section
 #
+# In the pre-proxy and post-proxy scopes the home server's side of the exchange
+# is available as radius_request.proxy-request.* and radius_request.proxy-reply.*
+# (e.g. radius_request.proxy-reply.Tunnel-Private-Group-Id), next to the usual
+# request attributes.
+#
 #This rule will return the VLAN ID id 42 for this specific MAC address
 #
 #[SpecificVlanForMac]
@@ -180,7 +185,6 @@
 #     node_info.machine_account
 #     node_info.category
 #     node_info.mac
-#     node_info.last_arp
 #     node_info.last_dhcp
 #     node_info.user_agent
 #     node_info.computername
@@ -235,6 +239,8 @@
 #     defined
 #     date_is_before
 #     date_is_after
+#       (the value of date_is_before and date_is_after is a date "YYYY-MM-DD HH:MM:SS",
+#        "YYYY-MM-DD HH:MM", "YYYY-MM-DD" or "now" for the time of the evaluation)
 #
 # attribute can be:
 #

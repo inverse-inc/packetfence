@@ -763,6 +763,12 @@ tracking-config_binary=/dev/null
 netflow_address=0.0.0.0
 
 #
+# services.netflow_processor
+#
+# Should pfacct process NetFlow traffic?
+netflow_processor=enabled
+
+#
 # services.netflow_target_host_port
 #
 # NetFlow Target Host Port
@@ -1074,11 +1080,6 @@ timing_stats_level=5
 #
 # The source to use to send an SMS when creating a user
 source_to_send_sms_when_creating_users=
-#
-# advanced.multihost
-#
-# Ability to manage all active devices from a same switch port
-multihost=disabled
 #
 # active_directory_os_join_check_bypass
 #
@@ -1656,6 +1657,7 @@ sso_base_url=
 sso_login_path=/admin-sso
 sso_authorize_path=/portaltoken
 sso_login_text=Single Sign On
+sso_allowed_callback_hosts=
 allow_username_password=enabled
 
 [fleetdm]

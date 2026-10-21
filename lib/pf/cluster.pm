@@ -476,6 +476,174 @@ sub is_vip_running {
     return $FALSE;
 }
 
+=head2 vip_state_file
+
+Path to the file holding the last VRRP state of a virtual IP on this node
+
+=cut
+
+sub vip_state_file {
+    my ($vip) = @_;
+    return "$var_dir/run/keepalived-vip-$vip.state";
+}
+
+=head2 record_vip_state
+
+Record the VRRP state (master or slave) of a virtual IP on this node with the time of the transition
+Called by keepalived through bin/cluster/pfupdate
+
+=cut
+
+sub record_vip_state {
+    my ($vip, $state) = @_;
+    return unless defined $vip && $vip =~ /^[0-9a-fA-F.:]+$/;
+    eval {
+        write_file(vip_state_file($vip), { atomic => 1 }, join(' ', $state, int(time)));
+    };
+    if ($@) {
+        get_logger->error("Unable to record the state of the virtual IP $vip: $@");
+    }
+}
+
+=head2 read_vip_state
+
+Read the last VRRP state of a virtual IP on this node
+
+=cut
+
+sub read_vip_state {
+    my ($vip) = @_;
+    my $file = vip_state_file($vip);
+    return undef unless -f $file;
+    my ($state, $since) = split(' ', read_file($file, err_mode => 'quiet') // '');
+    return { state => $state, since => $since };
+}
+
+=head2 local_ipv4_addresses
+
+Returns the IPv4 addresses configured on the interfaces of this node
+
+=cut
+
+sub local_ipv4_addresses {
+    my %addresses;
+    foreach my $inf (Net::Interface->interfaces()) {
+        foreach my $address ($inf->address(AF_INET())) {
+            $addresses{inet_ntoa($address)} = $inf->name;
+        }
+    }
+    return \%addresses;
+}
+
+=head2 vrrp_interfaces
+
+The interfaces that have a VRRP instance in the keepalived configuration (and
+so a virtual IP that a member of the cluster holds): the listen, DHCP listener,
+portal and RADIUS interfaces
+
+=cut
+
+sub vrrp_interfaces {
+    require pf::config;
+    my %seen;
+    return grep { defined($_) && !$seen{$_}++ } (
+        @pf::config::listen_ints,
+        @pf::config::dhcplistener_ints,
+        (map { $_->{'Tint'} } @pf::config::portal_ints, @pf::config::radius_ints),
+    );
+}
+
+=head2 vips_status
+
+Returns the virtual IPs of the cluster zone of this node with whether or not
+this node currently holds them. Only the interfaces that have a VRRP instance
+are listed: the other ones never have an owner.
+
+=cut
+
+sub vips_status {
+    return [] unless $cluster_enabled;
+    my $addresses = local_ipv4_addresses();
+    my $management_ip = management_cluster_ip() // '';
+    my %vrrp_interfaces = map { $_ => 1 } vrrp_interfaces();
+    my @vips;
+    foreach my $section (sort keys %{$ConfigCluster{$CLUSTER} // {}}) {
+        next unless $section =~ /^interface (.+)$/;
+        my $interface = $1;
+        next unless $vrrp_interfaces{$interface};
+        my $vip = cluster_ip($interface);
+        next if !defined $vip || $vip eq '';
+        my $state = read_vip_state($vip) // {};
+        push @vips, {
+            interface  => $interface,
+            vip        => $vip,
+            management => ($vip eq $management_ip ? \1 : \0),
+            owner      => (exists $addresses->{$vip} ? \1 : \0),
+            state      => $state->{state},
+            since      => $state->{since},
+        };
+    }
+    return \@vips;
+}
+
+=head2 aggregate_vips_status
+
+Combine the virtual IPs status reported by the members of the cluster (see
+vips_status) into the status of each virtual IP:
+
+  my $vips = aggregate_vips_status([
+      { host => 'pf1', zone => 'DC1', vips => [ ... ] },
+      { host => 'pf2', zone => 'DC1', error => '...' },
+  ]);
+
+Each virtual IP gets its owners and since (the time its owner became master).
+Its status is ok (one owner), split_brain (several owners), none (no owner) or
+unknown (no owner among the members that answered while a member of the same
+zone could not be queried, so it may be the one holding it).
+
+=cut
+
+sub aggregate_vips_status {
+    my ($members) = @_;
+    my (%items, %zone_errors);
+    foreach my $member (@{$members // []}) {
+        my $zone = $member->{zone} // '';
+        if ($member->{error}) {
+            $zone_errors{$zone} = 1;
+            next;
+        }
+        foreach my $v (@{$member->{vips} // []}) {
+            my $item = $items{"$zone|$v->{vip}"} //= {
+                zone       => $member->{zone},
+                vip        => $v->{vip},
+                interface  => $v->{interface},
+                management => $v->{management},
+                owners     => [],
+                since      => undef,
+            };
+            next unless _is_true($v->{owner});
+            push @{$item->{owners}}, $member->{host};
+            if (defined $v->{since} && ($v->{state} // '') eq 'master') {
+                $item->{since} = $v->{since} if !defined $item->{since} || $v->{since} > $item->{since};
+            }
+        }
+    }
+    foreach my $item (values %items) {
+        my $owners = scalar @{$item->{owners}};
+        $item->{status} = $owners > 1 ? 'split_brain'
+          : $owners == 1 ? 'ok'
+          : $zone_errors{$item->{zone} // ''} ? 'unknown'
+          : 'none';
+    }
+    return [ map { $items{$_} } sort keys %items ];
+}
+
+# A boolean of vips_status (\1 or \0) or decoded from JSON
+sub _is_true {
+    my ($value) = @_;
+    return ref($value) eq 'SCALAR' ? ${$value} : $value;
+}
+
 =head2 sync_directory_empty
 
 =cut
@@ -501,6 +669,7 @@ If this is not a cluster, it will dispatch the notification only to itself.
 sub notify_each_server {
     my (@args) = @_;
     if($cluster_enabled) {
+        require pf::api::jsonrpcclient;
         foreach my $server (config_enabled_servers()) {
             my $apiclient = api_client($server->{management_ip});
             $apiclient->notify(@args);
