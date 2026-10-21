@@ -719,13 +719,16 @@ sub node_deregister {
     }
 
     $mac = $cleaned_mac;
+    # Set by pfpki when it deregisters the devices of a certificate it just
+    # revoked: revoking by CN again would revoke another certificate of the CN
+    my $skip_pki_revoke = delete $info{'skip_pki_revoke'};
     $info{'status'}    = 'unreg';
     $info{'regdate'}   = $ZERO_DATE;
     $info{'unregdate'} = $ZERO_DATE;
     $info{'autoreg'}   = 'no';
 
     my $profile = pf::Connection::ProfileFactory->instantiate($mac);
-    if (my $provisioner = $profile->findProvisioner($mac)) {
+    if (!$skip_pki_revoke && (my $provisioner = $profile->findProvisioner($mac))) {
         if (my $pki_provider = $provisioner->getPkiProvider() ) {
             if (isenabled($pki_provider->revoke_on_unregistration)) {
                 my $node_info = node_view($mac);
@@ -1235,61 +1238,6 @@ sub node_update_last_seen {
             }
         );
     }
-}
-
-
-=item check_multihost
-
-Verify, based on open location log for a MAC, if there's more than one endpoint on a switchport.
-
-location_info is an optionnal hashref containing switch ID, switch port and connection type. If provided, there is no need to look them up.
-
-=cut
-
-sub check_multihost {
-    my ( $mac, $location_info ) = @_;
-    my $logger = get_logger();
-
-    return unless isenabled($Config{'advanced'}{'multihost'});
-
-    $mac = clean_mac($mac);
-    unless ( defined $location_info && ($location_info->{'switch_id'} ne "") && ($location_info->{'switch_port'} ne "") && ($location_info->{'connection_type'} ne "") ) {
-        my ($status, $iter) = pf::dal::locationlog->search(
-            -where => {
-                mac => $mac,
-                end_time => $ZERO_DATE,
-            },
-            -limit => 1,
-        );
-        if (is_success($status)) {
-            my $locationlog_info_ref = $iter->next(undef);
-            if ($locationlog_info_ref) {
-                $location_info->{'switch_id'} = $locationlog_info_ref->{'switch'};
-                $location_info->{'switch_port'} = $locationlog_info_ref->{'port'};
-                $location_info->{'connection_type'} = $locationlog_info_ref->{'connection_type'} // '';
-            }
-        }
-    }
-
-    # There is no "multihost" capabilities for wireless or inline connections
-    if ( ($location_info->{'connection_type'} =~ /^Wireless/)  || ($location_info->{'connection_type'} =~ /^Inline/) ) {
-        $logger->debug("Not looking up multihost presence with MAC '$mac' since it is a '$location_info->{'connection_type'}' connection");
-        return;
-    }
-
-    $logger->debug("Looking up multihost presence on switch ID '$location_info->{'switch_id'}', switch port '$location_info->{'switch_port'}' (with MAC '$mac')");
-
-    my @locationlog = pf::locationlog::locationlog_view_open_switchport_no_VoIP($location_info->{'switch_id'}, $location_info->{'switch_port'});
-
-    return unless scalar @locationlog > 1;
-
-    my @mac;
-    $logger->info("Found '" . scalar @locationlog . "' active devices on switch ID '$location_info->{'switch_id'}', switch port '$location_info->{'switch_port'}' (with MAC '$mac')");
-    for my $entry ( @locationlog ) {
-        push @mac, $entry->{'mac'};
-    }
-
-    return @mac;
 }
 
 

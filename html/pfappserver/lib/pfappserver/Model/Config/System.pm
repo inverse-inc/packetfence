@@ -181,10 +181,17 @@ sub restart_pfconfig {
 
 =head2 write_network_persistent
 
+Write the persistent OS network configuration of the interfaces.
+
+  $system->write_network_persistent($interfaces, $gateway, removed => \@interfaces);
+
+removed lists the interfaces that were just deleted: they are not in
+$interfaces anymore and must not be kept in the OS configuration.
+
 =cut
 
 sub write_network_persistent {
-    my ( $self, $interfaces_ref, $gateway ) = @_;
+    my ( $self, $interfaces_ref, $gateway, %options ) = @_;
     my $logger = get_logger();
 
     my ($status, $status_msg, $systemObj);
@@ -209,7 +216,7 @@ sub write_network_persistent {
     return ($status, $systemObj) if ( is_error($status) );
 
     # Write persistent network configurations
-    ($status, $status_msg) = $systemObj->writeNetworkConfigs($interfaces_ref, $gateway, $gateway_interface);
+    ($status, $status_msg) = $systemObj->writeNetworkConfigs($interfaces_ref, $gateway, $gateway_interface, %options);
     return ($status, $status_msg) if ( is_error($status) );
 
     $status_msg = "Persistent network configurations successfully written";
