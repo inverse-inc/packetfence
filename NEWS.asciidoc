@@ -35,6 +35,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Enhancements
 
+  - Cluster: the JSON-RPC calls between members have a connect timeout and a request timeout (`active_active.api_connect_timeout`, 5s, and `active_active.api_timeout`, 60s), and pfconfig's database calls time out (`connect_timeout`, `read_timeout`, `write_timeout` in the `[mysql]` section of `pfconfig.conf`, 5s/15s/15s). An unhealthy member no longer hangs the admin API of the others (#8204)
+
   - New pfcron task pki_revoked_certs_cleanup, disabled by default, to purge revoked PKI certificates that are expired and were revoked more than the window ago (#6907)
 
   - LDAP sources: the username lookup used to evaluate the "matches regexp" and "is member of" conditions now runs once per authentication instead of once per rule (#9273)
