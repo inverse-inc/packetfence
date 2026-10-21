@@ -13,6 +13,7 @@ pf::ConfigStore::Switch;
 =cut
 
 use Moo;
+use Time::HiRes qw();
 use namespace::autoclean;
 use pf::log;
 use pf::api::queue;
@@ -76,11 +77,14 @@ sub commit {
     # job. In k8s the pfconfig replicas may still be syncing the change from git, so
     # the worker cannot reliably read it back itself; the producer already has the
     # authoritative copy from the switches.conf it just wrote.
+    # The timestamp is taken before reading the config so a job with a newer
+    # timestamp always carries a config at least as recent.
+    my $timestamp = int(Time::HiRes::time() * 1000000);
     my $manager = pfconfig::manager->new;
     $manager->expire($self->pfconfigNamespace);
     my $switches = $manager->get_cache($self->pfconfigNamespace);
     my $client = pf::api::queue->new(queue => 'priority');
-    $client->notify( 'switch_freeradius_populate_nas_config', $switches);
+    $client->notify( 'switch_freeradius_populate_nas_config', $switches, $timestamp);
     return ($result, $error);
 }
 
