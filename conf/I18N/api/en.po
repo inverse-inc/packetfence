@@ -2641,6 +2641,12 @@ msgstr ""
 msgid "Check for SSL certificates validity in packetfence pki"
 msgstr ""
 
+#: conf/pfcron.conf.defaults:[pki_revoked_certs_cleanup]/description
+msgid ""
+"Cleanup revoked PKI certificates. A revoked certificate is removed once it "
+"was revoked more than the window ago and it is expired."
+msgstr ""
+
 #: html/pfappserver/root/src/views/Configuration/billingTiers/_components/TheForm.vue:36
 msgid "Check this box to have the access duration be a real time usage.<br/>This requires a working accounting configuration."
 msgstr ""
@@ -13868,6 +13874,10 @@ msgstr ""
 
 #: html/pfappserver/root/src/components/new/BaseButtonRefresh.vue:4
 msgid "Refresh [Alt + R]"
+msgstr ""
+
+#: conf/pfcron.conf.defaults:[switch_cache_ifindex]/description
+msgid "Refresh the cached SNMP tables used to translate a RADIUS NAS-Port-Id into an ifIndex on the switches that already translated one, so RADIUS requests never wait for the SNMP walk. Switches declared by a MAC or IPv6 address are not refreshed"
 msgstr ""
 
 #: conf/portal_modules.conf.defaults:[default_blackhole_policy]/description

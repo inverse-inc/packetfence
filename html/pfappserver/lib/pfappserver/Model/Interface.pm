@@ -130,6 +130,10 @@ sub delete {
         return ($status, $status_msg);
     }
 
+    # Remove the deleted interface from the persistent OS configuration; it is
+    # named for the writers that keep what they don't know about
+    $models->{'system'}->write_network_persistent($self->get('all'), $models->{'system'}->getDefaultGateway(), removed => [$interface]);
+
     # Remove associated network entries
     @results = $self->_listInterfaces('all');
     if ($models->{network}->cleanupNetworks(\@results)) {
@@ -397,10 +401,12 @@ sub update {
 
     # Persistent OS change
     if ( $network_configuration_changed ) {
-        if ($ipaddress && $ipaddress ne '') {
-            my $interfaces = $self->get('all');
-            $models->{'system'}->write_network_persistent($interfaces,$gateway);
-        }
+        # Also for an interface without an IP address, so that it is brought up at boot
+        my $interfaces = $self->get('all');
+        # the type is saved below (setType): give the writer the one being set,
+        # it only brings up an address-less interface that PacketFence configures
+        $interfaces->{$interface}{type} = $interface_ref->{type} if $interfaces->{$interface} && $interface_ref->{type};
+        $models->{'system'}->write_network_persistent($interfaces,$gateway);
 
         @result = $self->_listInterfaces('all');
         $models->{network}->cleanupNetworks(\@result);
@@ -460,7 +466,13 @@ sub getType {
         # rely on pf.conf's info
         else {
             $type = $interface->{type};
-            if ($type !~ /radius/i && $type !~ /portal/i && $type !~ /dns/i && $type !~ /dhcp/i) {
+            my $enforcement = $interface->{enforcement} // '';
+            # a DNS enforcement interface has type=internal,enforcement=dns in pf.conf
+            # (type=internal,radius when the radius daemon was added)
+            if ($enforcement =~ /^dns$/i) {
+                $type = ($type =~ /radius/i) ? 'dns-enforcement,radius' : 'dns-enforcement';
+            }
+            elsif ($type !~ /radius/i && $type !~ /portal/i && $type !~ /dns/i && $type !~ /dhcp/i) {
                 $type = ($type =~ /management|managed/i) ? 'management' : 'other';
             }
         }
@@ -501,7 +513,12 @@ sub setType {
                                     $self->_prepare_interface_for_pfconf($interface, $interface_ref, $type));
 
         # Update networks.conf
-        if ( $type =~ /management|portal|^radius$|dhcp|dns/ ) {
+        # The type can carry the additional listening daemons (e.g.
+        # vlan-registration,portal or dns-enforcement,dhcp), so the decision is made
+        # on the primary type only: an enforcement interface keeps its network
+        # whatever daemons are added to it.
+        my $primary_type = (split /,/, $type)[0];
+        if ( $primary_type =~ /^(?:management|portal|radius|dhcp|dhcp-listener|dns)$/i ) {
             # management interfaces must not appear in networks.conf
             $models->{network}->remove($interface_ref->{network}) if ($interface_ref->{network});
         }
@@ -718,9 +735,12 @@ sub _prepare_interface_for_pfconf {
             $int_config_ref->{'type'} .= ",radius";
         }
     }
-    elsif ($type eq "dns-enforcement") {
+    elsif ($type =~ /^dns-enforcement/i) {
         $int_config_ref->{'type'} = 'internal';
         $int_config_ref->{'enforcement'} = 'dns';
+        if ($type =~ /radius/i) {
+            $int_config_ref->{'type'} .= ",radius";
+        }
     }
     elsif ($type eq "inline") {
         $int_config_ref->{'type'} = 'internal';

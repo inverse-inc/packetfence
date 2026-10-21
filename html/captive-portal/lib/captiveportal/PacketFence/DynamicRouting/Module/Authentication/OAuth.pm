@@ -164,8 +164,11 @@ sub handle_callback {
     my $response = $token->get($self->source->{'protected_resource_url'}, $h ); 
 
     if ($response->is_success) {
-        my $info = $self->_decode_response($response); 
-        my $pid = $self->_extract_username_from_response($info); 
+        my $info = $self->_decode_response($response);
+        # only the attribute names: the values are personal data
+        get_logger->debug(sub { "OAuth2 response attributes: " . join(", ", sort keys %{ ref($info) eq 'HASH' ? $info : {} }) });
+        $self->save_provider_info($info);
+        my $pid = $self->_extract_username_from_response($info);
         if (!defined($pid) || $pid eq '') {
             get_logger->error("OAuth2: no username found in the response of the provider");
             pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED, $self->app->profile->name);
@@ -220,6 +223,14 @@ sub _extract_username_from_response {
     my ($self, $info) = @_;
     return $info->{email};
 }
+
+=head2 save_provider_info
+
+Meant for child modules to keep information from the provider response
+
+=cut
+
+sub save_provider_info { }
 
 =head2 auth_source_params_child
 
