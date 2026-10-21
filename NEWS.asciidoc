@@ -91,6 +91,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - Local user passwords with an expiration after 2038 are accepted again (#9122). A local account whose password expiration is the zero date (0000-00-00) can't log in, as since 2021, and the person cleanup now deletes it too instead of keeping it as "set not to expire" (see the Upgrade Guide)
   - RADIUS: for MAB and PAP requests, when the post-auth REST call to httpd.aaa fails (unreachable, timeout, 5xx) radiusd no longer answers with an Access-Reject but leaves the request unanswered, logging a "NoResponse" row in the RADIUS audit log. An Access-Reject tore down sessions the switch had already authorized on every httpd.aaa restart. EAP requests keep the Reject (the EAP conversation cannot be resumed on retransmit). Note: a NAS counts unanswered requests towards its dead-server criteria, so a stalled PacketFence now triggers the switch's fail-over behaviour (e.g. Cisco critical-auth) instead of de-authorizing ports
   - RADIUS: /radius/rest/authorize now answers 503 instead of 401 when the request could not be evaluated (database unavailable, handler exception), so radiusd treats it as a failure rather than a deny; a database outage no longer turns every reauthentication into an Access-Reject
+  - Kickbox source: calls the documented `https://api.kickbox.com` instead of `https://api.kickbox.io`. An IP allow-list set up on the Kickbox side only works with the documented host. Outbound filters must allow `api.kickbox.com`
+
   - Filters: the `date is before`/`date is after` operators accept `now` (or an empty value) for the time of the evaluation and `YYYY-MM-DD` dates, as well as `YYYY-MM-DD HH:MM:SS` and `YYYY-MM-DD HH:MM`. An unset date (for example the `node_info.unregdate` of a node without an expiration) no longer makes the evaluation fail and never matches, also with the `is not before`/`is not after` operators. A rule with a date in another format now fails to build (logged when the filters are loaded, and listed by `pfcmd checkup`), see the upgrade notes
 
   - 802.1X autoregistration with "Dot1x recompute role from portal" and "Dot1x unset on unmatch": a device matching no rule is now kept unregistered and gets the registration role, instead of being registered without a role. A role applied by a provisioner still registers it (#6126)
@@ -117,6 +119,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - Inline: pfipset no longer fails to start (`FATAL: ipset restore failed`) on layer 2 inline networks with registered or isolated nodes. The inline sets are now pre-populated in the format of their set type, entries for missing sets are skipped, and a failed pre-population is logged instead of stopping the service (#9339)
 
 === Security Fixes
+
+  - Kickbox source: the API key was written to packetfence.log at INFO level (as part of the request URL). The log line now shows only the host and the e-mail address
 
   - Email: when STARTTLS is selected and fails (refused by the server, handshake or certificate error), sending now fails with the error instead of continuing in cleartext, which also sent the SMTP username and password unencrypted. Setups that select STARTTLS against a server that doesn't support it will now get "SMTP STARTTLS failed on <server>: <error>"; select the encryption the server supports
 

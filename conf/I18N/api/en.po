@@ -9135,7 +9135,7 @@ msgid "Key usage"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeKickbox.vue:18
-msgid "Kickbox.io API key"
+msgid "Kickbox API key"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/advanced/_components/TheForm.vue:62

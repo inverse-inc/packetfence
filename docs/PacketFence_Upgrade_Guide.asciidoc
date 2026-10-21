@@ -1027,6 +1027,12 @@ included by the authentication, load-balancer and CLI servers:
 /usr/local/pf/bin/pfcmd service radiusd restart
 ----
 
+=== Kickbox source calls api.kickbox.com
+
+The Kickbox authentication source now calls `https://api.kickbox.com` (the host
+documented by Kickbox) instead of `https://api.kickbox.io`. If outbound traffic
+from PacketFence is filtered, allow HTTPS to `api.kickbox.com`.
+
 === Multi-zone clusters: interfaces must be defined for each server
 
 The `[interface X]` sections of [filename]`/usr/local/pf/conf/pf.conf` are the

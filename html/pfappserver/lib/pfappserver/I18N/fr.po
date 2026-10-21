@@ -2515,8 +2515,8 @@ msgid "Kickbox"
 msgstr "Kickbox"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Kickbox.pm
-msgid "Kickbox.io API key."
-msgstr "Clé d’API de Kickbox.io"
+msgid "Kickbox API key."
+msgstr "Clé d’API de Kickbox"
 
 # pf::Authentication::Source::LDAPSource (name)
 msgid "LDAP"
