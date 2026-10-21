@@ -42,6 +42,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Bug Fixes
 
+  - PFConnector: switches defined with a subnet (CIDR) are now propagated to the remote connectors, which only received single-IP switches and so didn't accept the RADIUS requests of the others (#9406)
+
   - Git storage (cloud deployments): the local Fingerbank entries (devices, combinations, DHCP fingerprints, ...) created through the admin API are now saved to the git storage and restored on the pfconfig pods (`PFCONFIG_GIT_STORAGE_FINGERBANK_DB_DIRECTORY`). They were kept in the pod that handled the request and lost on its restart
 
   - The CoA and Disconnect ports of a switch (`coaPort`, `disconnectPort`) are now used by every switch module instead of the 3799 default (#4749). A port set on a switch group now applies to all its members. Aruba CX and AeroHIVE sent their CoA-Request to `disconnectPort`: they now use `coaPort`, so a switch entry that relied on `disconnectPort` for the CoA must set `coaPort` too
