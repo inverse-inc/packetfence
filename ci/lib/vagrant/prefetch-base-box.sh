@@ -16,7 +16,7 @@ set -o nounset -o pipefail -o errexit
 #           BUCKET (default: packetfence-vagrant-box),
 #           PROVIDER (default: libvirt),
 #           VAGRANT_BOX_LOCAL_NAME (default: inverse-inc/${BOX_NAME}),
-#           WORK_DIR (default: /var/local/gitlab-runner/vagrant_img_cache).
+#           WORK_DIR (default: ${VAGRANT_IMG_CACHE:-$HOME/vagrant_img_cache}).
 
 BOX_NAME=${BOX_NAME:?BOX_NAME must be set}
 RCLONE_ACCESS_KEY_ID=${RCLONE_ACCESS_KEY_ID:?RCLONE_ACCESS_KEY_ID must be set}
@@ -26,7 +26,7 @@ RCLONE_LINODE_URL=${RCLONE_LINODE_URL:?RCLONE_LINODE_URL must be set}
 BUCKET=${BUCKET:-packetfence-vagrant-box}
 PROVIDER=${PROVIDER:-libvirt}
 VAGRANT_BOX_LOCAL_NAME=${VAGRANT_BOX_LOCAL_NAME:-inverse-inc/${BOX_NAME}}
-WORK_DIR=${WORK_DIR:-/var/local/gitlab-runner/vagrant_img_cache}
+WORK_DIR=${WORK_DIR:-${VAGRANT_IMG_CACHE:-${HOME}/vagrant_img_cache}}
 BOX_VERSION=${BOX_VERSION:-}
 
 # Env-config rclone remote: creds never appear on the command line.
