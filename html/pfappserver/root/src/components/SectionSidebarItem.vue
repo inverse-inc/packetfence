@@ -27,13 +27,13 @@
           v-b-tooltip.hover.right.d300 :title="(expanded) ? $t('Hide saved searches') : $t('Show saved searches')"
           @click.stop.prevent="toggleSavedSearches">
           <small class="text-muted">{{ countSavedSearches }}</small>
-          <icon class="ml-1" :name="(expanded) ? 'minus' : 'plus'" scale="0.75" />
+          <icon class="saved-search-chevron ml-1" :class="{ 'is-collapsed': !expanded }" name="chevron-down" scale="0.75" />
         </span>
         <slot/>
       </div>
     </b-nav-item>
     <b-nav class="section-sidenav mb-2" v-if="standardSearches && standardSearches.length > 0" vertical>
-      <div class="section-sidenav-group small py-0" v-t="'Standard Searches'" />
+      <div class="section-sidenav-group small py-0" :class="{ 'ml-3': indent }" v-t="'Standard Searches'" />
       <b-nav-item
         exact exact-active-class="active"
         v-for="search in standardSearches"
@@ -41,13 +41,13 @@
         class="saved-search"
         :to="routeFromItemSearch(item, search)"
       >
-        <div class="section-sidebar-item pl-3">
+        <div class="section-sidebar-item pl-3" :class="{ 'ml-3': indent }">
           <text-highlight :queries="[filter]">{{ search.name }}</text-highlight>
         </div>
       </b-nav-item>
     </b-nav>
     <b-nav class="section-sidenav mb-2" v-if="showSavedSearches && expanded && savedBasicSearches.length > 0" vertical>
-      <div class="section-sidenav-group small py-0" v-t="'Basic Searches'" />
+      <div class="section-sidenav-group small py-0" :class="{ 'ml-3': indent }" v-t="'Basic Searches'" />
       <b-nav-item
         exact exact-active-class="active"
         v-for="search in savedBasicSearches"
@@ -55,14 +55,14 @@
         class="saved-search"
         :to="routeFromItemSearch(item, search)"
       >
-        <div class="section-sidebar-item pl-3">
+        <div class="section-sidebar-item pl-3" :class="{ 'ml-3': indent }">
           <text-highlight :queries="[filter]">{{ search.name }}</text-highlight>
           <icon class="mx-1" name="trash-alt" @click.stop.prevent="deleteBasicSavedSearch(search)" />
         </div>
       </b-nav-item>
     </b-nav>
     <b-nav class="section-sidenav mb-2" v-if="showSavedSearches && expanded && savedAdvancedSearches.length > 0" vertical>
-      <div class="section-sidenav-group small py-0" v-t="'Advanced Searches'" />
+      <div class="section-sidenav-group small py-0" :class="{ 'ml-3': indent }" v-t="'Advanced Searches'" />
       <b-nav-item
         exact exact-active-class="active"
         v-for="search in savedAdvancedSearches"
@@ -70,7 +70,7 @@
         class="saved-search"
         :to="routeFromItemSearch(item, search)"
       >
-        <div class="section-sidebar-item pl-3">
+        <div class="section-sidebar-item pl-3" :class="{ 'ml-3': indent }">
           <text-highlight :queries="[filter]">{{ search.name }}</text-highlight>
           <icon class="mx-1" name="trash-alt" @click.stop.prevent="deleteAdvancedSavedSearch(search)" />
         </div>
@@ -242,6 +242,12 @@ export default {
 .saved-search {
   svg.fa-icon {
     visibility: hidden;
+  }
+}
+.saved-search-toggle .saved-search-chevron {
+  transition: transform 300ms ease;
+  &.is-collapsed {
+    transform: rotate(-90deg);
   }
 }
 .saved-search .section-sidebar-item:hover {
