@@ -34,6 +34,15 @@
           </mj-text>
         </mj-column>
       </mj-section>
+      <mj-raw>[% IF aup %]</mj-raw>
+      <mj-section padding-top="0">
+        <mj-column>
+          <mj-text align="left" line-height="1.4">
+            [% aup %]
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-raw>[% END %]</mj-raw>
       <mj-section padding-top="0">
         <mj-column>
           <mj-text>

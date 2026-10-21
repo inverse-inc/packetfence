@@ -17,16 +17,22 @@
     <form-group-enforce namespace="enforce"
       :column-label="$i18n.t('Enforce')"
       :text="$i18n.t('Whether or not the provisioner should be enforced. This will trigger checks to validate the device is compliant with the provisioner during RADIUS authentication and on the captive portal.')"
+      enabled-value="enabled"
+      disabled-value="disabled"
     />
 
     <form-group-auto-register namespace="autoregister"
       :column-label="$i18n.t('Auto register')"
       :text="$i18n.t('Whether or not devices should be automatically registered on the network if they are authorized in the provisioner.')"
+      enabled-value="enabled"
+      disabled-value="disabled"
     />
 
     <form-group-apply-role namespace="apply_role"
       :column-label="$i18n.t('Apply role')"
       :text="$i18n.t('When enabled, this will apply the configured role to the endpoint if it is authorized in the provisioner.')"
+      enabled-value="enabled"
+      disabled-value="disabled"
     />
 
     <form-group-role-to-apply namespace="role_to_apply"
@@ -37,6 +43,8 @@
     <form-group-sync-pid namespace="sync_pid"
       :column-label="$i18n.t('Sync PID')"
       :text="$i18n.t('Whether or not the PID (username) should be synchronized from the provisioner to PacketFence.')"
+      enabled-value="enabled"
+      disabled-value="disabled"
     />
 
     <form-group-category namespace="category"
@@ -76,14 +84,20 @@
 
     <form-group-device-type-detection namespace="device_type_detection"
       :column-label="$i18n.t('Automatic device detection')"
+      enabled-value="enabled"
+      disabled-value="disabled"
     />
 
     <form-group-query-computers namespace="query_computers"
       :column-label="$i18n.t('Query JAMF computers inventory')"
+      enabled-value="enabled"
+      disabled-value="disabled"
     />
 
     <form-group-query-mobile-devices namespace="query_mobiledevices"
       :column-label="$i18n.t('Query JAMF mobile devices inventory')"
+      enabled-value="enabled"
+      disabled-value="disabled"
     />
   </base-form>
 </template>

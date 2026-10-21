@@ -55,6 +55,8 @@
 #   starts_with(ATTRIBUTE, "value"), ends_with(ATTRIBUTE, "value")
 #   includes(ATTRIBUTE, "value") (one of the values of a list)
 #   date_is_before(ATTRIBUTE, "date"), date_is_after(ATTRIBUTE, "date")
+#     (the date is "YYYY-MM-DD HH:MM:SS", "YYYY-MM-DD HH:MM", "YYYY-MM-DD" or
+#      "now" for the time of the evaluation)
 #   fingerbank_device_is_a(ATTRIBUTE, "device")
 #   time_period("period")
 #   true()
@@ -75,7 +77,6 @@
 #     node_info.machine_account
 #     node_info.category
 #     node_info.mac
-#     node_info.last_arp
 #     node_info.last_dhcp
 #     node_info.user_agent
 #     node_info.computername

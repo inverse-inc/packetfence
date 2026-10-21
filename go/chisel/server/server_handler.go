@@ -20,6 +20,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
+	"github.com/inverse-inc/packetfence/go/api-frontend/unifiedapierrors"
 	chshare "github.com/inverse-inc/packetfence/go/chisel/share"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cnet"
 	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
@@ -152,8 +153,7 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//missing :O
-	w.WriteHeader(404)
-	w.Write([]byte("Not found"))
+	unifiedapierrors.UnknownPath(w, r)
 }
 
 // dhcpEvent mirrors the fingerbank-collector's dhcp_forwarder.DhcpEvent JSON.
@@ -1267,55 +1267,158 @@ func (s *Server) handleRemoteRadiusNas(w http.ResponseWriter, req *http.Request)
 		return
 	}
 
-	type NasEntry struct {
-		Nasname string `json:"nasname"`
-		Secret  string `json:"secret"`
-		Type    string `json:"type"`
-	}
-
-	var entries []NasEntry
-	for _, key := range switches.PfconfigKeys.Keys {
-		if key == "default" || key == "100.64.0.1" || key == "127.127.127.127" {
-			continue
-		}
-
-		// Filter by connector networks if a connector_id was provided
-		if len(connectorNetworks) > 0 {
-			switchIP := net.ParseIP(key)
-			if switchIP == nil {
-				continue
-			}
-			inNetwork := false
-			for _, network := range connectorNetworks {
-				if network.Contains(switchIP) {
-					inNetwork = true
-					break
-				}
-			}
-			if !inNetwork {
-				continue
-			}
-		}
-
+	var withSecret []radiusNasKey
+	secrets := map[string]string{}
+	for _, nasKey := range radiusNasKeys(switches.PfconfigKeys.Keys, connectorNetworks) {
 		sw := pfconfigdriver.PfConfSwitch{}
-		sw.PfconfigHashNS = key
+		sw.PfconfigHashNS = nasKey.Key
 		if err := pfconfigdriver.FetchDecodeSocket(ctx, &sw); err != nil {
-			log.LoggerWContext(ctx).Warn(fmt.Sprintf("remote-radius-nas: failed to fetch switch %s from pfconfig, skipping: %s", key, err))
+			log.LoggerWContext(ctx).Warn(fmt.Sprintf("remote-radius-nas: failed to fetch switch %s from pfconfig, skipping: %s", nasKey.Key, err))
 			continue
 		}
 		secret := sw.RadiusSecret.String()
 		if secret == "" {
 			continue
 		}
-		entries = append(entries, NasEntry{
-			Nasname: key,
-			Secret:  secret,
-			Type:    "other",
-		})
+		secrets[nasKey.Key] = secret
+		withSecret = append(withSecret, nasKey)
+	}
+
+	unique, duplicates := uniqueRadiusNasKeys(withSecret)
+	for _, d := range duplicates {
+		log.LoggerWContext(ctx).Warn(fmt.Sprintf("remote-radius-nas: switch %s is the same network as switch %s, skipping it: the connector's RADIUS server cannot load two clients for one network", d.Key, d.KeptKey))
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	json.NewEncoder(w).Encode(entries)
+	json.NewEncoder(w).Encode(radiusNasEntries(unique, secrets))
+}
+
+// NasEntry is a RADIUS client sent to a remote connector
+type NasEntry struct {
+	Nasname string `json:"nasname"`
+	Secret  string `json:"secret"`
+	Type    string `json:"type"`
+}
+
+// radiusNasEntries builds the RADIUS clients of a remote connector. The list is
+// never nil: without any switch it is sent as [] rather than null, which
+// sync-radius-nas.sh can't iterate over (jq '.[]'), and the oneshot would then
+// fail and keep radiusd-auth from starting.
+func radiusNasEntries(keys []radiusNasKey, secrets map[string]string) []NasEntry {
+	entries := []NasEntry{}
+	for _, nasKey := range keys {
+		entries = append(entries, NasEntry{
+			Nasname: nasKey.Nasname,
+			Secret:  secrets[nasKey.Key],
+			Type:    "other",
+		})
+	}
+	return entries
+}
+
+// radiusNasKey is a switch key to send to a remote connector as a RADIUS client, with
+// the nasname it is sent as.
+type radiusNasKey struct {
+	Key     string
+	Nasname string
+}
+
+// radiusNasDuplicate is a switch key left out because it is the same network as KeptKey.
+type radiusNasDuplicate struct {
+	Key     string
+	KeptKey string
+}
+
+// radiusNasKeys selects the switch keys that can become RADIUS clients on a remote
+// connector, in sorted order so the result does not depend on the order pfconfig
+// returns them in.
+//
+// A switch is keyed by a single IP or by a CIDR subnet. With connector networks, a
+// single IP must be inside one of them and a subnet must overlap one; any other key
+// (e.g. a MAC-keyed switch) cannot be matched to a network and is skipped.
+//
+// The nasname is the normalized form of the key, the way the connector's FreeRADIUS
+// reads a client address: the network address for a subnet (10.0.0.7/24 is sent as
+// 10.0.0.0/24) and the bare IP for a single-host subnet.
+func radiusNasKeys(keys []string, connectorNetworks []*net.IPNet) []radiusNasKey {
+	sorted := append([]string(nil), keys...)
+	sort.Strings(sorted)
+
+	var selected []radiusNasKey
+	for _, key := range sorted {
+		if key == "default" || key == "100.64.0.1" || key == "127.127.127.127" {
+			continue
+		}
+
+		nasname := key
+		if switchIP := net.ParseIP(key); switchIP != nil {
+			if len(connectorNetworks) > 0 && !networksContain(connectorNetworks, switchIP) {
+				continue
+			}
+			nasname = switchIP.String()
+		} else if _, switchNet, err := net.ParseCIDR(key); err == nil {
+			if len(connectorNetworks) > 0 && !networksOverlap(connectorNetworks, switchNet) {
+				continue
+			}
+			nasname = switchNet.String()
+			if ones, bits := switchNet.Mask.Size(); ones == bits {
+				nasname = switchNet.IP.String()
+			}
+		} else if len(connectorNetworks) > 0 {
+			// Not an IP nor a subnet (e.g. a MAC-keyed switch): cannot be matched to a network
+			continue
+		}
+
+		selected = append(selected, radiusNasKey{Key: key, Nasname: nasname})
+	}
+
+	return selected
+}
+
+// uniqueRadiusNasKeys keeps one key per nasname. The connector's FreeRADIUS refuses
+// to start on two clients for one network (10.0.0.0/24 and 10.0.0.7/24), which would
+// take RADIUS down for every switch behind the connector. The key already in
+// normalized form is kept if there is one, otherwise the first one; the others are
+// returned as duplicates.
+func uniqueRadiusNasKeys(keys []radiusNasKey) ([]radiusNasKey, []radiusNasDuplicate) {
+	var unique []radiusNasKey
+	index := map[string]int{}
+	var duplicates []radiusNasDuplicate
+	for _, nasKey := range keys {
+		i, seen := index[nasKey.Nasname]
+		if !seen {
+			index[nasKey.Nasname] = len(unique)
+			unique = append(unique, nasKey)
+			continue
+		}
+		kept := unique[i]
+		dropped := nasKey
+		if nasKey.Key == nasKey.Nasname && kept.Key != kept.Nasname {
+			unique[i] = nasKey
+			kept, dropped = nasKey, kept
+		}
+		duplicates = append(duplicates, radiusNasDuplicate{Key: dropped.Key, KeptKey: kept.Key})
+	}
+
+	return unique, duplicates
+}
+
+func networksContain(networks []*net.IPNet, ip net.IP) bool {
+	for _, network := range networks {
+		if network.Contains(ip) {
+			return true
+		}
+	}
+	return false
+}
+
+func networksOverlap(networks []*net.IPNet, subnet *net.IPNet) bool {
+	for _, network := range networks {
+		if network.Contains(subnet.IP) || subnet.Contains(network.IP) {
+			return true
+		}
+	}
+	return false
 }
 
 func (s *Server) handleLocalSecret(w http.ResponseWriter, req *http.Request) {

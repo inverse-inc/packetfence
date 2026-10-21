@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -66,7 +67,12 @@ func (a *Wrix) Search(w http.ResponseWriter, r *http.Request, p httprouter.Param
 
 	body.DBRes, err = model.Search(vars)
 	if err != nil {
-		setError(&body, err, http.StatusNotFound)
+		// Nothing found isn't an error (empty page): what remains is an invalid query or a failure
+		status := http.StatusInternalServerError
+		if errors.Is(err, models.ErrInvalidSearch) {
+			status = http.StatusUnprocessableEntity
+		}
+		setError(&body, err, status)
 		outputResult(w, body)
 		return
 	}
