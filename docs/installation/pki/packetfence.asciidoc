@@ -158,9 +158,13 @@ Remove the private key passphrase:
  Enter pass phrase for PRIVATEKEY.key:
  writing RSA key
 
-Send the CSR and retreive the certificate:
+Send the CSR and retrieve the certificate:
 
- sscep enroll -c ./ca-prefix  -k ./private.key -r ./MYCSR.csr -u http://ip_address/scep/template_name -S sha1 -l ./cert.crt
+ sscep enroll -c ./ca-prefix  -k ./private.key -r ./MYCSR.csr -u http://ip_address/scep/template_name -S sha256 -E aes256 -l ./cert.crt
+
+NOTE: Without `-E`, `sscep` encrypts the request with DES, which OpenSSL 3 no
+longer supports by default. The enrollment then fails with `request payload
+encrypt failed` and `unsupported ... Algorithm (DES-CBC : 8)`.
 
 ==== Certificate creation
 
