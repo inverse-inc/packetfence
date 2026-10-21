@@ -69,6 +69,7 @@ use pf::api::queue;
 use pf::access_filter::radius;
 use pf::registration;
 use pf::access_filter::switch;
+use pf::firewallsso();
 use pf::role::pool;
 use pf::dal;
 use pf::security_event;
@@ -97,6 +98,42 @@ sub new {
     my ( $class, %argv ) = @_;
     my $self = bless { }, $class;
     return $self;
+}
+
+=item * _unregister_on_unmatch
+
+When the role is recomputed for an autoregistered 802.1X node and no rule
+matched, pf::role::getNodeInfoForAutoReg leaves the node unregistered. If the
+connection profile unsets the role on unmatch ("Dot1x unset on unmatch"), keep
+it unregistered instead of registering it without a role, so it gets the
+registration role. A role computed anyway (ex: applied by a provisioner) keeps
+the node registered with it.
+
+=cut
+
+sub _unregister_on_unmatch {
+    my ($self, $args, $node_defaults) = @_;
+    return $FALSE unless ($node_defaults->{'status'} // '') eq 'unreg';
+    return $FALSE unless ($node_defaults->{'category'} // '') eq '';
+    my $profile = $args->{'profile'};
+    return $FALSE unless $profile && isenabled($profile->dot1xUnsetOnUnmatch);
+    $self->logger->info("No rule matched for $args->{'mac'} and the connection profile " . $profile->getName . " unsets the role on unmatch, the node stays unregistered");
+    return $TRUE;
+}
+
+=item * _keep_unregistered
+
+Leave the node unregistered, as pf::node::node_deregister does: no
+autoregistration and no registration dates kept from a previous registration
+
+=cut
+
+sub _keep_unregistered {
+    my ($node_obj) = @_;
+    $node_obj->{status} = "unreg";
+    $node_obj->{autoreg} = "no";
+    $node_obj->{regdate} = $ZERO_DATE;
+    $node_obj->{unregdate} = $ZERO_DATE;
 }
 
 =item * authorize - handling the RADIUS authorize call
@@ -305,16 +342,22 @@ sub authorize {
         $args->{'action'} = $action;
         $args = { %$args, %$attributes } if (ref($attributes) eq 'HASH');
         $node_obj->merge(\%autoreg_node_defaults);
-        $logger->debug("[$mac] auto-registering node");
-        # automatic registration
-        $info{autoreg} = 1;
-        ($status, $status_msg) = pf::registration::setup_node_for_registration($node_obj, \%info, $action);
-        if (is_error($status)) {
-            $logger->error("auto-registration of node failed $status_msg");
+        if ($self->_unregister_on_unmatch($args, \%autoreg_node_defaults)) {
             $do_auto_reg = 0;
-            $node_obj->{status} = "unreg";
-            $RAD_REPLY_REF = [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => $status_msg) ];
-            goto CLEANUP;
+            $args->{'autoreg'} = 0;
+            _keep_unregistered($node_obj);
+        } else {
+            $logger->debug("[$mac] auto-registering node");
+            # automatic registration
+            $info{autoreg} = 1;
+            ($status, $status_msg) = pf::registration::setup_node_for_registration($node_obj, \%info, $action);
+            if (is_error($status)) {
+                $logger->error("auto-registration of node failed $status_msg");
+                $do_auto_reg = 0;
+                $node_obj->{status} = "unreg";
+                $RAD_REPLY_REF = [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => $status_msg) ];
+                goto CLEANUP;
+            }
         }
     }
 
@@ -1019,15 +1062,21 @@ sub vpn {
             $args->{'action'} = $action;
             $args = { %$args, %$attributes } if (ref($attributes) eq 'HASH');
             $node_obj->merge(\%autoreg_node_defaults);
-            $logger->debug("[$mac] auto-registering node");
-            # automatic registration
-            $info{autoreg} = 1;
-            ($status, $status_msg) = pf::registration::setup_node_for_registration($node_obj, \%info, $action);
-            if (is_error($status)) {
-                $logger->error("auto-registration of node failed $status_msg");
+            if ($self->_unregister_on_unmatch($args, \%autoreg_node_defaults)) {
                 $do_auto_reg = 0;
-                $node_obj->{status} = "unreg";
-                return [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => $status_msg) ];
+                $args->{'autoreg'} = 0;
+                _keep_unregistered($node_obj);
+            } else {
+                $logger->debug("[$mac] auto-registering node");
+                # automatic registration
+                $info{autoreg} = 1;
+                ($status, $status_msg) = pf::registration::setup_node_for_registration($node_obj, \%info, $action);
+                if (is_error($status)) {
+                    $logger->error("auto-registration of node failed $status_msg");
+                    $do_auto_reg = 0;
+                    $node_obj->{status} = "unreg";
+                    return [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => $status_msg) ];
+                }
             }
         }
 
@@ -1090,6 +1139,7 @@ sub returnRadiusVpn{
         my $values = $matched->{values};
         $args->{'user_role'} = $values->{$Actions::SET_ROLE};
     }
+    pf::firewallsso::cache_vpn_role($args->{'radius_request'}{'NAS-IP-Address'} // $args->{'switch'}{'_ip'}, $args->{'user_name'}, $args->{'user_role'});
     return $args->{'switch'}->returnAuthorizeVPN($args);
 }
 
@@ -1352,6 +1402,9 @@ sub handleConnectionTypeChange {
     }
 }
 
+# Scopes already warned about a request without a switch IP, see radius_filter
+my %WARNED_NO_SWITCH_IP;
+
 =head2 radius_filter
 
 Handle radius filter request
@@ -1365,13 +1418,31 @@ sub radius_filter {
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
     my %RAD_REPLY_REF;
 
+    # The proxy sections of FreeRADIUS body the proxied copy / the home server's
+    # reply unless rest.conf asks for the original request as well
+    # (body_lists = "request ..."): without NAS-IP-Address nor switch MAC there
+    # is no switch and no endpoint to evaluate the filters against. A switch
+    # defined by its MAC (Called-Station-Id) is still looked up.
+    # Warned once per process and scope, and no Reply-Message: in post-proxy it
+    # would end up in the Access-Accept sent to the switch.
+    if ((!defined($switch_ip) || $switch_ip eq '') && (!defined($switch_mac) || $switch_mac eq '')) {
+        unless ($WARNED_NO_SWITCH_IP{$scope}++) {
+            $logger->warn(
+                "No switch IP (NAS-IP-Address / Client-IP-Address) nor switch MAC (Called-Station-Id) in the RADIUS request handed to the $scope filter: skipping the filters. "
+                ."In the pre-proxy/post-proxy sections make sure rest.conf sends the request list (body_lists). "
+                ."Logged once per process."
+            );
+        }
+        return [ $RADIUS::RLM_MODULE_NOOP ];
+    }
+
     $logger->debug("instantiating switch");
     my $switch = pf::SwitchFactory->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $switch_ip}, {radius_request => $radius_request});
 
     # is switch object correct?
     if (!$switch) {
         $logger->warn(
-            "Can't instantiate switch ($switch_ip). This request will be failed. "
+            "Can't instantiate switch (" . ($switch_ip // $switch_mac) . "). This request will be failed. "
             ."Are you sure your switches.conf is correct?"
         );
         return [ $RADIUS::RLM_MODULE_NOOP, ('Reply-Message' => "Switch is not managed by PacketFence") ];

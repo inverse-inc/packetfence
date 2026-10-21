@@ -33,7 +33,24 @@ sub form_parameters {
     if (!defined $name) {
         return [];
     }
-    return [section => $name];
+    return [section => $name, submitted_proxy => $self->stash->{submitted_proxy}];
+}
+
+=head2 bulk_update
+
+The general settings are saved together: the upstream API key is tested with
+the proxy settings submitted in the same request
+
+=cut
+
+sub bulk_update {
+    my ($self) = @_;
+    my ($error, $data) = $self->get_json;
+    if (!defined($error) && ref($data) eq 'HASH' && ref($data->{items}) eq 'ARRAY') {
+        my ($proxy) = grep { ref($_) eq 'HASH' && ($_->{id} // '') eq 'proxy' } @{$data->{items}};
+        $self->stash(submitted_proxy => { %$proxy }) if $proxy;
+    }
+    return $self->SUPER::bulk_update();
 }
 
 sub cached_form {
