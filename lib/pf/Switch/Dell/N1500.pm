@@ -417,6 +417,24 @@ sub returnInAccessListAttribute {
     return "ip:inacl#";
 }
 
+=head2 _untranslatableAcl
+
+Why a parsed ACL entry cannot be sent by L</acl_chewer>, or undef when it can.
+Only the protocol, a destination host and the destination port are sent.
+
+=cut
+
+sub _untranslatableAcl {
+    my ($self, $entry) = @_;
+    my $destination = $entry->{'destination'};
+    return "only a destination host is sent, not the network '".$destination->{'ipv4_addr'}." ".$destination->{'wildcard'}."'" if $destination->{'ipv4_addr'} ne '0.0.0.0' && $destination->{'wildcard'} ne '0.0.0.0';
+    return "the source address is not sent" if $entry->{'source'}->{'ipv4_addr'} ne '0.0.0.0';
+    return "the source port is not sent" if defined $entry->{'source'}->{'port'};
+    return "TCP flags are not sent ('".$entry->{'tcp_flags'}."')" if defined $entry->{'tcp_flags'};
+    return "the ICMP type is not sent ('".$entry->{'icmp_qualifier'}."')" if defined $entry->{'icmp_qualifier'};
+    return undef;
+}
+
 =head2 returnRoleAttribute
 
 What RADIUS Attribute (usually VSA) should the role be returned into.
@@ -617,9 +635,12 @@ sub acl_chewer {
     my $logger = $self->logger;
     my ($acl_ref , @direction) = $self->format_acl($acl);
 
+    my $entries;
+    ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, sub { $self->_untranslatableAcl($_[0]) });
+
     my $i = 0;
     my $acl_chewed;
-    foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
+    foreach my $acl (@$entries) {
         $acl->{'protocol'} =~ s/\(\d*\)//;
         if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
             $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$acl->{'action'}." ".$acl->{'protocol'}." any any " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";

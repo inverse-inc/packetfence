@@ -290,6 +290,22 @@ Then you have to convert it to:
 The configuration needs to be done is the one above (N1500 Series (FW >=
 6.6.0.17))
 
+A role ACL line that the switch can't receive as is, is not sent, and a warning
+is logged in [filename]`packetfence.log`:
+
+* a source address other than `any`, and `host 0.0.0.0` (0.0.0.0 is only sent
+  as any),
+* a destination network: only `any` and a destination host are sent,
+* a source port, TCP flags (`established`, ...) and ICMP types,
+* the `dscp`, `precedence`, `tos`, `fragments`, `time-range` and `option` qualifiers,
+
+Skipping a `permit` only narrows the role. Skipping a `deny` would let the lines
+after it allow what it blocks, so the ACL is cut at that `deny` and ends with a
+deny of all the traffic. A role whose lines were all skipped, or whose ACLs
+PacketFence cannot parse, gets that deny all too: sending no ACL would leave the
+endpoint unrestricted. Check [filename]`packetfence.log` for the warning naming
+the line.
+
 Troubleshooting command:
 
  debug console

@@ -29,8 +29,6 @@ build {
       "PF_MINOR_RELEASE=${var.pf_version}"
     ]
     inventory_directory = "${var.provisioner_dir}/inventory"
-    galaxy_file = "${var.provisioner_dir}/requirements.yml"
-    galaxy_force_install = true
     # temp
     keep_inventory_file = true
   }

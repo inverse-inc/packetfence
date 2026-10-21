@@ -15,7 +15,7 @@ pf::services::manager::ip6tables
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths qw($install_dir);
+use pf::file_paths qw($install_dir $generated_conf_dir);
 use pf::log;
 use pf::util;
 use pf::ip6tables;
@@ -55,15 +55,15 @@ sub _stop {
 
 =head2 isAlive
 
-Check if ip6tables is alive.
+Check that the monitor is active and a nonempty rules file has been generated.
+This does not verify that the rules were successfully loaded into the kernel.
 
 =cut
 
 sub isAlive {
     my ($self) = @_;
-    my $logger = get_logger();
-    my $rules = safe_pf_run('sudo', $Config{'services'}{"ip6tables_binary"}, '-S') // '';
-    return ($rules =~ /\Q$pf::ip6tables::FW_FILTER_INPUT_MGMT\E/m) ? 1 : 0;
+    return 0 unless $self->SUPER::isAlive();
+    return -s "$generated_conf_dir/ip6tables_generated_rules.conf" ? 1 : 0;
 }
 
 =head1 AUTHOR

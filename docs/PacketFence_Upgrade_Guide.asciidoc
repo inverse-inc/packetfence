@@ -968,6 +968,14 @@ included by the authentication, load-balancer and CLI servers:
 /usr/local/pf/bin/pfcmd service radiusd restart
 ----
 
+=== Role ACLs that can't be translated for the switch
+
+After the upgrade, a role whose ACL lines can't all be expressed for a switch
+has the untranslatable permits skipped, and is cut at an untranslatable deny. A
+role whose ACLs are all untranslatable, or can't be parsed, denies all traffic.
+Look in [filename]`packetfence.log` for "Skipping ACL of role", "with a deny all" and
+"Denying all the", and rewrite the reported lines.
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]
