@@ -30,7 +30,7 @@ use pf::dal::locationlog;
 
 #insert known data
 #run tests
-use Test::More tests => 137;
+use Test::More tests => 147;
 use Test::Mojo;
 use Test::NoWarnings;
 use Utils;
@@ -228,6 +228,29 @@ $t->delete_ok('/api/v1/nodes/bulk_delete' => json => { items => ['11:22:33:44:55
   ->status_is(200)
   ->json_is("/items/0/mac", '11:22:33:44:55:66')
   ->json_is("/items/0/status", 200);
+
+# the portal session of a deleted node is removed
+{
+    require pf::CHI;
+    my $cache = pf::CHI->new(namespace => 'httpd.portal');
+    my $session_id = sub { (my $id = $_[0]) =~ s/://g; $id };
+
+    my $mac = Utils::test_mac();
+    $t->post_ok('/api/v1/nodes' => json => { mac => $mac })
+      ->status_is(201);
+    $cache->set("session:" . $session_id->($mac), { username => 'bob' });
+    $t->delete_ok("/api/v1/node/$mac")
+      ->status_is(200);
+    ok(!defined $cache->get("session:" . $session_id->($mac)), "DELETE /api/v1/node/$mac removes its portal session");
+
+    $mac = Utils::test_mac();
+    $t->post_ok('/api/v1/nodes' => json => { mac => $mac })
+      ->status_is(201);
+    $cache->set("session:" . $session_id->($mac), { username => 'bob' });
+    $t->delete_ok('/api/v1/nodes/bulk_delete' => json => { items => [$mac] })
+      ->status_is(200);
+    ok(!defined $cache->get("session:" . $session_id->($mac)), "bulk delete of $mac removes its portal session");
+}
 
 =head1 AUTHOR
 

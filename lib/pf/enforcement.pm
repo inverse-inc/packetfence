@@ -109,6 +109,11 @@ sub reevaluate_access {
 
     my $locationlog_entry = locationlog_view_open_mac($mac);
     if ( !$locationlog_entry ) {
+        if (_is_in_dns_enforcement_network($ip)) {
+            # pfdns checks the node status and role on every query, nothing to push
+            $logger->debug("$mac is on a DNS enforcement network, access is enforced by pfdns");
+            return 1;
+        }
         $logger->warn("Can't re-evaluate access because no open locationlog entry was found");
         return;
 
@@ -271,6 +276,24 @@ sub _vlan_reevaluation {
     }
 
     return 1;
+}
+
+=item _is_in_dns_enforcement_network
+
+Returns true if the IP address belongs to a network of type dns-enforcement
+
+=cut
+
+sub _is_in_dns_enforcement_network {
+    my ($ip) = @_;
+    return $FALSE unless defined $ip && length $ip;
+    my $addr = NetAddr::IP->new($ip) or return $FALSE;
+    foreach my $network ( keys %ConfigNetworks ) {
+        next if ( !pf::config::is_network_type_dns_enforcement($network) );
+        my $net_addr = NetAddr::IP->new($network, $ConfigNetworks{$network}{'netmask'}) or next;
+        return $TRUE if $net_addr->contains($addr);
+    }
+    return $FALSE;
 }
 
 =item _should_we_reassign_vlan
