@@ -186,6 +186,10 @@ sub interfaces_defined {
     my $cached_pf_config = pfconfig::namespaces::config::Pf->new(pfconfig::manager->new);
     $cached_pf_config->build();
     foreach my $interface ( $cached_pf_config->GroupMembers("interface") ) {
+        # Not in the configuration of this server: an interface that cluster.conf
+        # doesn't define for it is ignored on it (multi-zone cluster), the cluster
+        # check reports the ones that shouldn't be
+        next unless ref($Config{$interface}) eq 'HASH';
         my %int_conf = %{$Config{$interface}};
         my $type = $int_conf{'type'};
         my $int_with_no_config_required_regexp = qr/(?:monitor|dhcplistener|dhcp-listener|high-availability|other)/;
