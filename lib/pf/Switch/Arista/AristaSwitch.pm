@@ -438,12 +438,18 @@ sub acl_chewer {
     my ($self, $acl, $role) = @_;
     my $logger = $self->logger;
     my ($acl_ref , @direction) = $self->format_acl($acl);
+    my $push = $self->aclsForPush;
+
+    my $entries;
+    ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, $push
+        ? sub { $self->_untranslatablePushAcl($_[0]) }
+        : sub { $self->untranslatableFilterRule($_[0]) });
 
     my $i = 0;
     my $acl_number = "10";
     my $acl_chewed;
-    foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
-        if ($self->usePushACLs && (whowasi() eq "pf::Switch::getRoleAccessListByName")) {
+    foreach my $acl (@$entries) {
+        if ($push) {
             $acl->{'protocol'} =~ s/\(\d*\)//;
             my $dest;
             if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
@@ -471,8 +477,6 @@ sub acl_chewer {
             $acl_chewed =~ s/\s+$//;
             $acl_chewed .= "\n";
         } else {
-            #Bypass acl that contain tcp_flag, it doesnt apply correctly on the switch
-            next if (defined($acl->{'tcp_flags'}));
             if ($acl->{'protocol'}  =~ /\((\d+)\)/g) {
                 $acl->{'protocol'} = $1;
             } else {
@@ -512,6 +516,20 @@ sub acl_chewer {
         }
     }
     return $acl_chewed;
+}
+
+=item _untranslatablePushAcl
+
+Why a parsed ACL entry cannot be pushed in the "sequence action protocol source
+destination port flags" form built by L</acl_chewer>, or undef when it can.
+
+=cut
+
+sub _untranslatablePushAcl {
+    my ($self, $entry) = @_;
+    return "the source port is not sent" if defined $entry->{'source'}->{'port'};
+    return "the ICMP type is not sent ('".$entry->{'icmp_qualifier'}."')" if defined $entry->{'icmp_qualifier'};
+    return undef;
 }
 
 =back

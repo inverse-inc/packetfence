@@ -105,6 +105,9 @@ use pf::dal::switch_observability_acls;
 
 our $cache_switch_observability =  CHI->new(driver => 'RawMemory', datastore => {});
 
+our $OID_lldpLocPortId   = '1.0.8802.1.1.2.1.3.7.1.3'; # from LLDP-MIB
+our $OID_lldpLocPortDesc = '1.0.8802.1.1.2.1.3.7.1.4'; # from LLDP-MIB
+
 #
 # %TRAP_NORMALIZERS
 # A hash of cisco trap normalizers
@@ -171,6 +174,7 @@ sub new {
         '_wsPwd'                        => undef,
         '_wsUser'                       => undef,
         '_wsTransport'                  => undef,
+        '_wsVerifyCertificate'          => 'disabled',
         '_radiusSecret'                 => undef,
         '_controllerIp'                 => undef,
         '_controllerPort'               => undef,
@@ -900,6 +904,9 @@ sub _getAccessListByName {
 
 sub getRoleAccessListByName {
     my ($self, $access_list_name) = @_;
+    # Only the Push ACLs path (generateAnsibleConfiguration) reads the role ACLs
+    # here: tell acl_chewer to format them for the switch configuration.
+    local $self->{_aclsForPush} = 1;
     my $acls = $self->_getRoleAccessListByName($access_list_name);
     if (defined $acls) {
         my $status = pf::dal::switch_observability_acls->remove_items(
@@ -922,6 +929,18 @@ sub getRoleAccessListByName {
     }
 
     return $acls;
+}
+
+=item aclsForPush
+
+True when acl_chewer formats the role ACLs for the switch configuration
+(Push ACLs, through getRoleAccessListByName) rather than for a RADIUS reply.
+
+=cut
+
+sub aclsForPush {
+    my ($self) = @_;
+    return ($self->usePushACLs && $self->{_aclsForPush}) ? 1 : 0;
 }
 
 sub _getRoleAccessListByName {
@@ -4038,30 +4057,59 @@ Query the switch for lldpLocPortDesc table and cache the result
 
 sub getLldpLocPortDesc {
     my ( $self ) = @_;
-    my $logger = $self->logger;
-
-    # if can't SNMP read abort
-    return if ( !$self->connectRead() );
-
-    my $oid_lldpLocPortDesc = '1.0.8802.1.1.2.1.3.7.1.4'; # from LLDP-MIB
-    $logger->trace("SNMP get_table for lldpLocPortDesc: $oid_lldpLocPortDesc");
-    my $cache = $self->cache_distributed;
-    my $result = $cache->compute($self->{'_id'} . "-" . $oid_lldpLocPortDesc, sub { $self->{_sessionRead}->get_table( -baseoid => $oid_lldpLocPortDesc, -maxrepetitions  => 1 ) } );
     # here's what we are getting here. Looking for the last element of the OID: lldpRemLocalPortNum
     # iso.0.8802.1.1.2.1.3.7.1.4.10 = STRING: "FastEthernet1/0/8"
     # iso.0.8802.1.1.2.1.3.7.1.4.11 = STRING: "FastEthernet1/0/9"
     # iso.0.8802.1.1.2.1.3.7.1.4.12 = STRING: "FastEthernet1/0/10"
     # iso.0.8802.1.1.2.1.3.7.1.4.13 = STRING: "FastEthernet1/0/11"
-    # NOTE: We set the maxrepetitions to '1' to use 'get-next-requests' instead of 'get-bulk-requests' which tend to return empty results if response is to big
+    return $self->_getLldpLocPortTable($OID_lldpLocPortDesc, 'lldpLocPortDesc');
+}
 
-    return $result;
+=item getLldpLocPortId
+
+Query the switch for lldpLocPortId table and cache the result
+
+Some switches fill lldpLocPortDesc with the interface description set by the
+administrator (Arista EOS), so the port name is only found in lldpLocPortId.
+
+=cut
+
+sub getLldpLocPortId {
+    my ( $self ) = @_;
+    # iso.0.8802.1.1.2.1.3.7.1.3.1 = STRING: "Ethernet1"
+    return $self->_getLldpLocPortTable($OID_lldpLocPortId, 'lldpLocPortId');
+}
+
+=item _getLldpLocPortTable
+
+Walk one column of lldpLocPortTable, through the distributed cache
+
+=cut
+
+sub _getLldpLocPortTable {
+    my ( $self, $oid, $name ) = @_;
+    my $logger = $self->logger;
+
+    # if can't SNMP read abort
+    return if ( !$self->connectRead() );
+
+    $logger->trace("SNMP get_table for $name: $oid");
+    # A max-repetitions of 1 makes Net::SNMP walk with get-next requests
+    # instead of get-bulk ones, which tend to return empty results when the
+    # response is too big. SNMPv1 has no get-bulk and Net::SNMP refuses the
+    # argument there, so only pass it for v2c and v3.
+    my @args = ( -baseoid => $oid );
+    push @args, -maxrepetitions => 1 if ( ($self->{_SNMPVersion} // '') ne '1' );
+    my $cache = $self->cache_distributed;
+    return $cache->compute($self->{'_id'} . "-" . $oid, sub { $self->{_sessionRead}->get_table(@args) } );
 }
 
 =item ifIndexToLldpLocalPort
 
 Translate an ifIndex into an LLDP Local Port number.
 
-We use ifDescr to lookup the lldpRemLocalPortNum in the lldpLocPortDesc table.
+We look up the interface ifDescr, then its ifName, first in the
+lldpLocPortId table and then in the lldpLocPortDesc table.
 
 =cut
 
@@ -4072,21 +4120,29 @@ sub ifIndexToLldpLocalPort {
     # if can't SNMP read abort
     return if ( !$self->connectRead() );
 
-    my $ifDescr = $self->getIfDesc($ifIndex);
-    return if (!defined($ifDescr) || $ifDescr eq '');
+    my %seen;
+    my @names = grep { defined($_) && $_ ne '' && !$seen{$_}++ } ($self->getIfDesc($ifIndex), $self->getIfName($ifIndex));
+    return if (!@names);
 
-    # Get lldpLocPortDesc
-    my $oid_lldpLocPortDesc = '1.0.8802.1.1.2.1.3.7.1.4'; # from LLDP-MIB
-    my $result = $self->getLldpLocPortDesc();
-
-    foreach my $entry ( keys %{$result} ) {
-        if ( $result->{$entry} eq $ifDescr ) {
-            if ( $entry =~ /^$oid_lldpLocPortDesc\.([0-9]+)$/ ) {
-                return $1;
+    # The port ID is the interface name on the switches that send one; the
+    # description can be set by the administrator (Arista EOS) and repeat the
+    # name of another port, e.g. an uplink described after its peer port.
+    foreach my $table ([$OID_lldpLocPortId, 'getLldpLocPortId'], [$OID_lldpLocPortDesc, 'getLldpLocPortDesc']) {
+        my ($oid, $getter) = @$table;
+        my $result = $self->$getter() || {};
+        foreach my $name (@names) {
+            my @ports;
+            foreach my $entry ( keys %{$result} ) {
+                next if ( !defined($result->{$entry}) || $result->{$entry} ne $name );
+                push @ports, $1 if ( $entry =~ /^\Q$oid\E\.([0-9]+)$/ );
             }
+            # An administrator description can repeat another port name, so
+            # only trust a match that points at a single port.
+            return $ports[0] if (@ports == 1);
         }
     }
 
+    $logger->debug("No LLDP local port found for ifIndex $ifIndex (" . join(', ', @names) . ")");
     # nothing found
     return;
 }
@@ -4433,10 +4489,13 @@ sub format_acl {
 
     my $acls = "ip access-list extended packetfence\n";
     my $i = 0;
-    my @direction;
+    my (@direction, @lines);
     while($acl =~ /([^\n]+)\n?/g) {
         my $acl_line = $1;
         next if($acl_line =~ /^remark/i);
+        # The parser ignores blank lines (a lone \r in a CRLF list) and comments:
+        # skip them too, so each parsed ACL keeps its direction
+        next if($acl_line =~ /^\s*$/ || $acl_line =~ /^\s*!/);
         # Lookup for the current ip address of a node
         if ($acl_line =~ /^#.*\shost\s(([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})).*/i) {
             my $mac = $1;
@@ -4464,15 +4523,51 @@ sub format_acl {
             } else {
                 next;
             }
+            $lines[$i] = $raw_acl;
         } else {
             $acls .= $acl_line."\n";
             $direction[$i] = "in";
+            $lines[$i] = $acl_line;
         }
         $i++;
     }
     my $p = Cisco::AccessList::Parser->new();
     my ($acl_ref, $objgrp_ref, $err) = $p->parse( 'input' => $acls );
+    # The parser drops some qualifiers of a line, keep the line of each entry
+    # for untranslatableAclQualifier
+    my $entries = $acl_ref->{'packetfence'}->{'entries'} // [];
+    if (@$entries == @lines) {
+        $entries->[$_]->{'acl_line'} = $lines[$_] for 0 .. $#lines;
+    } else {
+        get_logger->error("Cannot parse the ACLs: " . join(' ', map { s/\s+$//r } @{$err // []}));
+    }
     return ($acl_ref, @direction);
+}
+
+=head2 untranslatableAclQualifier
+
+Why a parsed ACL entry cannot be translated whatever the switch, or undef when
+it can.
+
+Cisco::AccessList::Parser reads the dscp, precedence, tos, fragments,
+time-range and option qualifiers of a line without returning them, so the entry
+of "permit ip any any dscp ef" is the one of "permit ip any any". Translating
+it would widen the ACL. An "evaluate" line gives an entry with no action.
+
+=cut
+
+sub untranslatableAclQualifier {
+    my ($self, $entry) = @_;
+    return "the ACL is not a permit or a deny" if ($entry->{'action'} // '') !~ /^(?:permit|deny)$/;
+    return "the '".lc($1)."' qualifier is not sent" if ($entry->{'acl_line'} // '') =~ /\s(dscp|precedence|tos|fragments|time-range|option)(?:\s|$)/i;
+    # The modules tell "any" by the address 0.0.0.0 alone: an address 0.0.0.0 with
+    # another mask (host 0.0.0.0) would be sent as any
+    foreach my $side ('source', 'destination') {
+        my $address = $entry->{$side};
+        next if ref($address) ne 'HASH' || !defined($address->{'ipv4_addr'}) || $address->{'ipv4_addr'} ne '0.0.0.0';
+        return "the $side address 0.0.0.0 is only sent as any" if !defined($address->{'wildcard'}) || $address->{'wildcard'} ne '255.255.255.255';
+    }
+    return undef;
 }
 
 =head2 acl_chewer
@@ -4485,6 +4580,140 @@ sub acl_chewer {
     my ($self, $acl, $role) = @_;
     return $acl;
 }
+
+=head2 filterUntranslatableAcls
+
+Drop the parsed ACL entries a switch module cannot translate without changing
+their meaning, before it formats them.
+
+C<$untranslatable> is called with each entry and returns why the switch format
+cannot express it, or undef. Skipping a permit only narrows the role, so the
+entry is dropped. Skipping a deny would let the entries after it allow what it
+blocks, so the ACLs of that direction are cut there and end with a deny of
+everything.
+
+A direction whose entries were all skipped also gets that deny of everything:
+sending no ACL at all would leave the device unrestricted, while the switch
+denies whatever an ACL does not permit.
+
+The entries L</untranslatableAclQualifier> rejects are handled the same way,
+and ACLs the parser cannot read are replaced by a deny of everything in each
+of their directions.
+
+Returns the entries to translate and their direction, like L</format_acl>.
+
+=cut
+
+sub filterUntranslatableAcls {
+    my ($self, $acl_ref, $direction, $role, $untranslatable) = @_;
+    my $logger = $self->logger;
+
+    my $parsed = $acl_ref->{'packetfence'}->{'entries'} // [];
+    if (@$parsed != @$direction) {
+        my %seen;
+        my @denied = grep { !$seen{$_ // 'in'}++ } @$direction;
+        $logger->warn("(".$self->{'_id'}.") Denying all the traffic of role '$role': its ACLs cannot be parsed, and sending none would leave the device unrestricted");
+        return ([map { _denyAllAclEntry() } @denied], @denied);
+    }
+
+    my (@entries, @entries_direction, %cut, %kept, %skipped);
+    my $i = 0;
+    foreach my $entry (@$parsed) {
+        my $dir = $direction->[$i++];
+        my $dir_key = $dir // 'in';
+        next if $cut{$dir_key};
+        my $reason = $self->untranslatableAclQualifier($entry) // $untranslatable->($entry);
+        if (!defined $reason) {
+            push @entries, $entry;
+            push @entries_direction, $dir;
+            $kept{$dir_key} = 1;
+            next;
+        }
+        if (($entry->{'action'} // '') ne 'deny') {
+            $logger->warn("(".$self->{'_id'}.") Skipping ACL of role '$role': $reason");
+            $skipped{$dir_key} //= $dir;
+            next;
+        }
+        $logger->warn("(".$self->{'_id'}.") Ending the $dir_key ACLs of role '$role' with a deny all: $reason, and skipping a deny would let the ACLs after it through");
+        push @entries, _denyAllAclEntry();
+        push @entries_direction, $dir;
+        $cut{$dir_key} = 1;
+        $kept{$dir_key} = 1;
+    }
+
+    foreach my $dir_key (sort keys %skipped) {
+        next if $kept{$dir_key};
+        $logger->warn("(".$self->{'_id'}.") Denying all the $dir_key traffic of role '$role': none of its $dir_key ACLs can be sent, and sending none would leave the device unrestricted");
+        push @entries, _denyAllAclEntry();
+        push @entries_direction, $skipped{$dir_key};
+    }
+
+    return (\@entries, @entries_direction);
+}
+
+sub _denyAllAclEntry {
+    return {
+        action      => 'deny',
+        protocol    => 'ip()',
+        source      => { ipv4_addr => '0.0.0.0', wildcard => '255.255.255.255' },
+        destination => { ipv4_addr => '0.0.0.0', wildcard => '255.255.255.255' },
+    };
+}
+
+=head2 untranslatableFilterRule
+
+Why a parsed ACL entry cannot be sent as a C<NAS-Filter-Rule> in the
+"action in protocol from source to destination port" form built by the
+modules, or undef when it can. The rule has no source port, TCP flags or ICMP
+type, addresses are sent as a prefix, the destination port is sent as a bare
+number, so only C<eq> keeps its meaning, and the protocol is sent as its
+number, so a protocol without one is refused.
+
+Options: C<ranges> when the module turns C<range> into a port range, C<source>
+when it sends the source address (the others always send "from any").
+
+=cut
+
+sub untranslatableFilterRule {
+    my ($self, $entry, %options) = @_;
+    # The rule takes a protocol number: a protocol the parser returns without one
+    # (nos, an object group) would be sent as ip, any protocol
+    my $protocol = $entry->{'protocol'};
+    return "the protocol has no number" if !defined($protocol) || ref($protocol) || ($protocol ne 'ip()' && $protocol !~ m{\(\d+\)});
+    if ($entry->{'source'}->{'ipv4_addr'} ne '0.0.0.0') {
+        return "the rule has no source address match" if !$options{'source'};
+        return "the source mask '".$entry->{'source'}->{'wildcard'}."' is not contiguous" if !$self->aclWildcardIsContiguous($entry->{'source'}->{'wildcard'});
+    }
+    return "the destination mask '".$entry->{'destination'}->{'wildcard'}."' is not contiguous" if !$self->aclWildcardIsContiguous($entry->{'destination'}->{'wildcard'});
+    return "the rule has no source port match" if defined $entry->{'source'}->{'port'};
+    return "the rule has no TCP flags match ('".$entry->{'tcp_flags'}."')" if defined $entry->{'tcp_flags'};
+    return "the rule has no ICMP type match ('".$entry->{'icmp_qualifier'}."')" if defined $entry->{'icmp_qualifier'};
+    my $port = $entry->{'destination'}->{'port'};
+    if (defined $port && $port !~ /^eq\s+\S+$/ && !($options{'ranges'} && $port =~ /^range\s+\S+\s+\S+$/)) {
+        return "the port operator '$port' cannot be represented";
+    }
+    return undef;
+}
+
+=head2 aclWildcardIsContiguous
+
+Whether an ACL mask, wildcard (0.0.0.255) or netmask (255.255.255.0), has a
+prefix length. A non contiguous mask such as 0.255.0.255 cannot be written as
+a prefix.
+
+=cut
+
+sub aclWildcardIsContiguous {
+    my ($self, $wildcard) = @_;
+    return 1 if !defined $wildcard;
+    my @octets = split(/\./, $wildcard);
+    return 0 if @octets != 4 || grep { !/^\d+$/ || $_ > 255 } @octets;
+    my $bits = unpack('N', pack('C4', @octets));
+    my $inverse = ~$bits & 0xFFFFFFFF;
+    # a wildcard is a run of low bits, a netmask a run of high bits
+    return ((($bits + 1) & $bits) == 0 || (($inverse + 1) & $inverse) == 0) ? 1 : 0;
+}
+
 
 =head2 returnAccessListAttribute
 

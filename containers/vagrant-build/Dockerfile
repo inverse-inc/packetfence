@@ -16,6 +16,7 @@ RUN apt-get update -qq && apt-get install -y --no-install-recommends \
         qemu-utils \
         rclone \
         unzip \
+        util-linux \
     && rm -rf /var/lib/apt/lists/*
 
 # Layer 2: packer binary — separate from apt so bumping PACKER_VERSION only
@@ -40,11 +41,17 @@ RUN set -eux; \
 COPY ci/packer/vagrant_img/plugins.pkr.hcl /tmp/packer-init/
 RUN packer init /tmp/packer-init && rm -rf /tmp/packer-init
 
-# Layer 4: bake Ansible Galaxy collections so builds skip the download step
-COPY ci/packer/vagrant_img/provisioners/requirements.yml /tmp/galaxy-requirements.yml
-RUN ansible-galaxy role install -r /tmp/galaxy-requirements.yml \
-    && ansible-galaxy collection install -r /tmp/galaxy-requirements.yml \
-    && rm /tmp/galaxy-requirements.yml
+# Layer 4: seed the same cache used at runtime, with each requirements set isolated.
+COPY ci/lib/ansible-galaxy-cache.sh /tmp/galaxy/ansible-galaxy-cache.sh
+COPY ci/packer/vagrant_img/ansible.cfg /tmp/galaxy/ansible.cfg
+COPY ci/packer/vagrant_img/provisioners/requirements.yml /tmp/galaxy/packer.yml
+RUN ANSIBLE_GALAXY_CACHE_DIR=/opt/packetfence/ansible-galaxy \
+        bash /tmp/galaxy/ansible-galaxy-cache.sh /tmp/galaxy/packer.yml /tmp/galaxy/ansible.cfg true \
+    && rm /tmp/galaxy/packer.yml
+COPY addons/vagrant/requirements.yml /tmp/galaxy/nodes.yml
+RUN ANSIBLE_GALAXY_CACHE_DIR=/opt/packetfence/ansible-galaxy \
+        bash /tmp/galaxy/ansible-galaxy-cache.sh /tmp/galaxy/nodes.yml /tmp/galaxy/ansible.cfg true \
+    && rm -rf /tmp/galaxy
 
 # Entrypoint starts apt-cacher-ng before handing off to packer.
 # Mount /var/cache/apt-cacher-ng as a Docker volume to persist cache across CI jobs.

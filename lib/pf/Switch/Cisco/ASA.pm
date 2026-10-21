@@ -539,17 +539,6 @@ sub parseExternalPortalRequest {
 }
 
 
-=head2 returnAccessListAttribute
-
-Returns the attribute to use when pushing an ACL using RADIUS
-
-=cut
-
-sub returnAccessListAttribute {
-    my ($self, $acl_num) = @_;
-    return "ip:inacl#$acl_num";
-}
-
 =head2 returnRoleAttribute
 
 What RADIUS Attribute (usually VSA) should the role be returned into.

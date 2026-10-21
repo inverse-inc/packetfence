@@ -25423,6 +25423,9 @@ components:
         wsUser:
           description: Username
           type: string
+        wsVerifyCertificate:
+          description: Verify the certificate of the controller when the transport is HTTPS. The certificate must be issued by a trusted certificate authority for the controller address. When disabled, the certificate is not checked, which allows self-signed certificates.
+          type: string
       required:
       - id
       type: object
@@ -25757,6 +25760,9 @@ components:
         wsUser:
           description: Username
           type: string
+        wsVerifyCertificate:
+          description: Verify the certificate of the controller when the transport is HTTPS. The certificate must be issued by a trusted certificate authority for the controller address. When disabled, the certificate is not checked, which allows self-signed certificates.
+          type: string
       required:
       - id
       type: object
@@ -25926,6 +25932,8 @@ components:
             wsTransport:
               $ref: '#/components/schemas/Meta'
             wsUser:
+              $ref: '#/components/schemas/Meta'
+            wsVerifyCertificate:
               $ref: '#/components/schemas/Meta'
           type: object
       type: object
@@ -26104,6 +26112,8 @@ components:
             wsTransport:
               $ref: '#/components/schemas/Meta'
             wsUser:
+              $ref: '#/components/schemas/Meta'
+            wsVerifyCertificate:
               $ref: '#/components/schemas/Meta'
           type: object
       type: object
