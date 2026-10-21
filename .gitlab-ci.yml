@@ -36,6 +36,8 @@ variables:
   PIPELINE_TIMEOUT_TEARDOWN: 6m
   PIPELINE_TIMEOUT_CLEAN: 3m
   BUILD_PFAPPSERVER_VUE: "yes"
+  # Opt in to Go analysis and full builds on both build images.
+  GO_CHECK: "no"
   PFBUILD_RHEL_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-centos-8
   PFBUILD_DEB_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-debian-bookworm
   KANIKO_DEBUG_IMG: ghcr.io/inverse-inc/packetfence/kaniko-executor:debug
@@ -466,14 +468,18 @@ variables:
   tags:
     - test-shell-v7
 
-# Strict gate: build_artifacts must not start if pre_ci_lint_yaml failed or if any
-# build_images job failed. pre_ci_lint_yaml is non-optional (always present) so a
-# lint failure blocks every artifact job. Every concrete build_images job is
+# Strict gate: build_artifacts must not start if YAML lint, either Go check, or
+# any build_images job failed. The lint job is always present and non-optional.
+# The opt-in Go jobs and every concrete build_images job are
 # listed as optional: true so a gated-out job (rules → when:never) does not
 # block — only jobs that actually ran and failed will skip the dependents.
 .needs_all_build_images:
   needs:
     - job: pre_ci_lint_yaml
+    - job: pre_ci_go_check_debian_bookworm
+      optional: true
+    - job: pre_ci_go_check_centos_8
+      optional: true
     - job: kaniko
       optional: true
     - job: pfdebian
@@ -801,6 +807,31 @@ pre_ci_test_cleanup:
   script:
     - ${TESTCIDIR}/clean-test-environment.test.sh
   allow_failure: false
+
+# Opt-in Go gate + full build, including on feature branches. Run on both
+# build images: checks use the host OS with cgo, so findings can differ.
+.go_check_job:
+  extends:
+    - .check_job
+  needs:
+    - job: run_pipeline_if_necessary
+      optional: true
+  rules:
+    - if: '$GO_CHECK == "yes"'
+    - when: never
+  script:
+    - make -C go check-build
+  allow_failure: false
+
+pre_ci_go_check_debian_bookworm:
+  extends:
+    - .go_check_job
+  image: ${PFBUILD_DEB_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+
+pre_ci_go_check_centos_8:
+  extends:
+    - .go_check_job
+  image: ${PFBUILD_RHEL_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
 
 ########################################
 # BUILD_IMG_CONTAINER JOBS (kaniko / pfdebian / pfdebian_related / radiusd / radiusd_related)

@@ -8,6 +8,8 @@
 
 :8777 {
 	route * {
+		configstore
+
 		logger {
 			level INFO
 		}

@@ -731,6 +731,16 @@ do
   fi
 done
 
+# openldap-ltb is only pulled in for its client libraries (freeradius-ldap).
+# Its slapd is not used by PacketFence: disable it while it still runs the
+# unconfigured sample configuration shipped with the package.
+SLAPD_CONF=/usr/local/openldap/etc/openldap/slapd.conf
+if [ -f "$SLAPD_CONF" ] && grep -Eq '^rootpw[[:space:]]+secret[[:space:]]*$' "$SLAPD_CONF"; then
+  echo "Disabling unconfigured slapd from openldap-ltb"
+  /bin/systemctl disable --now slapd > /dev/null 2>&1 || true
+  /sbin/chkconfig --del slapd > /dev/null 2>&1 || true
+fi
+
 #Check if RADIUS have a dh
 if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
   echo "Building default RADIUS certificates..."
@@ -1200,6 +1210,8 @@ fi
                         /usr/local/pf/conf/radiusd/clients.eduroam.conf.inc.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/cert
                         /usr/local/pf/conf/radiusd/cert.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/dictionary.local
+                        /usr/local/pf/conf/radiusd/dictionary.local.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/mschap.conf
                         /usr/local/pf/conf/radiusd/mschap.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/packetfence-cluster
