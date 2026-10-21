@@ -637,6 +637,38 @@ process_switchranges=disabled
 # Local task
 local=0
 
+[switch_cache_ifindex]
+#
+# type
+#
+# Task type
+type=switch_cache_ifindex
+#
+# status
+#
+# If the task is enabled
+status=enabled
+#
+# description
+#
+# The description of task
+description=Refresh the cached SNMP tables used to translate a RADIUS NAS-Port-Id into an ifIndex on the switches that already translated one, so RADIUS requests never wait for the SNMP walk. Switches declared by a MAC or IPv6 address are not refreshed
+#
+# schedule
+#
+# The schedule of task
+schedule=@every 12h
+#
+# process_switchranges
+#
+# Whether or not a switch range should be expanded to process each of its IPs
+process_switchranges=disabled
+#
+# local
+#
+# Local task
+local=0
+
 [certificates_check]
 #
 # type
@@ -695,6 +727,48 @@ description=Check for SSL certificates validity in packetfence pki
 #
 # The schedule of task
 schedule=@every 12h
+#
+# local
+#
+# Local task
+local=0
+
+[pki_revoked_certs_cleanup]
+#
+# type
+#
+# Task type
+type=pki_revoked_certs_cleanup
+#
+# status
+#
+# If the task is enabled
+status=disabled
+#
+# description
+#
+# The description of task
+description=Cleanup revoked PKI certificates. A revoked certificate is removed once it was revoked more than the window ago and it is expired.
+#
+# schedule
+#
+# The schedule of task
+schedule=@every 1h
+#
+# batch
+#
+# How many pki_revoked_certs entries to clean up in one run
+batch=100
+#
+# timeout
+#
+# How long a pki_revoked_certs_cleanup job can run
+timeout=10s
+#
+# window
+#
+# How long to keep a revoked certificate after its revocation date before deleting it
+window=1Y
 #
 # local
 #

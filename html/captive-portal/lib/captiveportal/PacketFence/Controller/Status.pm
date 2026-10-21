@@ -29,6 +29,10 @@ Catalyst Controller.
 
 sub auto :Private {
     my ( $self, $c ) = @_;
+    unless ($c->profile->selfServiceStatusEnabled) {
+        $self->showError($c, "This feature is currently disabled. Please contact your network administrator for more details.");
+        $c->detach();
+    }
     $c->session->{release_bypass} = $TRUE;
     $c->stash->{isDeviceRegEnable} = $c->forward(DeviceRegistration => "isDeviceRegEnabled");
     $c->stash->{stripeCustomerPortalEnabled} = $c->profile->stripeCustomerPortalEnabled;

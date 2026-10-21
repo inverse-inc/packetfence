@@ -1,6 +1,8 @@
 #!/bin/bash
 set -o nounset -o pipefail -o errexit
 
+source "$(dirname "${BASH_SOURCE[0]}")/../../ci/lib/ansible-galaxy-cache.sh"
+
 die() {
     echo "$(basename $0): $@" >&2 ; exit 1
 }
@@ -233,77 +235,10 @@ reclaim_disk_space() {
     fi
 }
 
-run_ansible_galaxy() {
-    local req_file=${1:-}
-    local force=${2:-}
-    if [ -z "$force" ]; then
-        local ansible_cmd="ansible-galaxy install -r ${req_file}"
-    else
-        local ansible_cmd="ansible-galaxy install -r ${req_file} --force"
-    fi
-    for retry in {5..1}; do
-        if ${ansible_cmd}; then
-            break
-        elif [ $retry -gt 1 ]; then
-            sleep 10
-        else
-            exit 1
-        fi
-    done
-}
-
-# Skip ansible-galaxy (minutes per install) when the requirements are
-# unchanged: checksum stamp in the install dir, then a runner-local cache.
-# GALAXY_FORCE=yes reinstalls.
-ANSIBLE_GALAXY_CACHE=${ANSIBLE_GALAXY_CACHE:-${HOME}/.cache/pf-ansible-galaxy}
-ANSIBLE_GALAXY_CACHE_DAYS=${ANSIBLE_GALAXY_CACHE_DAYS:-14}
-GALAXY_CONTENT_DIRS="roles ansible_collections"
-
+# Select the matching cache on every call, including when switching from
+# provisioning requirements to the scenario requirements (or back for teardown).
 run_ansible_galaxy_once() {
-    local req_file=$1
-    local req_dir=$(dirname ${req_file})
-    local stamp=${req_dir}/ansible_collections/.requirements.sha256
-    local req_sum=$( { cat ${req_file}; ansible-galaxy --version | head -1; } | sha256sum | cut -d ' ' -f 1)
-    local entry=${ANSIBLE_GALAXY_CACHE}/${req_sum}
-    local d
-
-    if [ "${GALAXY_FORCE:-no}" != yes ]; then
-        if [ -d ${req_dir}/roles ] && [ "$(cat ${stamp} 2>/dev/null)" = "${req_sum}" ]; then
-            echo "Ansible requirements unchanged since last install, skipping: ${req_file}"
-            return 0
-        fi
-        if [ -f ${entry}/.complete ]; then
-            echo "Restoring Ansible requirements from runner cache ${entry}: ${req_file}"
-            for d in ${GALAXY_CONTENT_DIRS}; do
-                rm -rf ${req_dir}/${d}
-                cp -a ${entry}/${d} ${req_dir}/${d}
-            done
-            touch ${entry} ${entry}/.complete
-            echo "${req_sum}" > ${stamp}
-            return 0
-        fi
-    fi
-
-    # cd first: collections/roles paths in the local ansible.cfg are relative to CWD
-    ( cd ${req_dir} && run_ansible_galaxy ${req_file} force ) || die "ansible-galaxy install failed: ${req_file}"
-    mkdir -p $(dirname ${stamp})
-    echo "${req_sum}" > ${stamp}
-    save_ansible_galaxy_cache ${req_dir} ${entry} || echo "Could not save Ansible requirements to runner cache (non fatal)"
-}
-
-# Atomic save: first rename wins; failures are non fatal.
-save_ansible_galaxy_cache() {
-    local req_dir=$1 entry=$2 tmp d
-    mkdir -p ${ANSIBLE_GALAXY_CACHE} || return 1
-    find ${ANSIBLE_GALAXY_CACHE} -mindepth 1 -maxdepth 1 -type d \
-         ! -newermt "-${ANSIBLE_GALAXY_CACHE_DAYS} days" -exec rm -rf {} + 2>/dev/null || true
-    [ -f ${entry}/.complete ] && return 0
-    tmp=$(mktemp -d -p ${ANSIBLE_GALAXY_CACHE} .tmp.XXXXXX) || return 1
-    for d in ${GALAXY_CONTENT_DIRS}; do
-        cp -a ${req_dir}/${d} ${tmp}/${d} || { rm -rf ${tmp}; return 1; }
-    done
-    touch ${tmp}/.complete
-    mv -T ${tmp} ${entry} 2>/dev/null || rm -rf ${tmp}
+    prepare_ansible_dependencies "$1" "$(dirname "$1")/ansible.cfg"
 }
 
 run() {
@@ -427,6 +362,9 @@ start_vm() {
     local dotfile_path=$2
     declare -p dotfile_path
 
+    # Once per VM, in this scope: the playbooks below read the exported paths
+    run_ansible_galaxy_once ${VAGRANT_DIR}/requirements.yml
+
     # baked is non-empty only for baked-box-eligible PF VMs in baked-box mode
     local baked=""
     if [ "${USE_VAGRANT_BOX}" = "yes" ]; then
@@ -449,15 +387,12 @@ start_vm() {
         if [ -n "${baked}" ]; then
             # Baked-box mode: PF VM is already fully provisioned + configured.
             # Re-running site.yml would undo the bake, so only refresh network.
-            ( cd ${VAGRANT_DIR}; \
-              run_ansible_galaxy ${VAGRANT_DIR}/requirements.yml force )
             baked_cluster_playbook cluster_prep_baked.yml "${vm}"
             refresh_network_post_import "${vm}"
             baked_cluster_playbook cluster_readdress_baked.yml "${vm}"
             reregister_rhel_post_import "${vm}"
         else
             ( cd ${VAGRANT_DIR}; \
-              run_ansible_galaxy ${VAGRANT_DIR}/requirements.yml force ; \
               ansible-playbook site.yml -l $vm )
         fi
     else
@@ -475,7 +410,6 @@ start_vm() {
         fi
         if [ -n "${baked}" ]; then
             ( cd ${VAGRANT_DIR} ; \
-              run_ansible_galaxy ${VAGRANT_DIR}/requirements.yml force ; \
               SKIP_SITE_PROVISION=yes \
               VAGRANT_DOTFILE_PATH=${dotfile_path} \
                       vagrant up \
@@ -487,7 +421,6 @@ start_vm() {
             reregister_rhel_post_import "${vm}"
         else
             ( cd ${VAGRANT_DIR} ; \
-              run_ansible_galaxy ${VAGRANT_DIR}/requirements.yml force ; \
               VAGRANT_DOTFILE_PATH=${dotfile_path} \
                       vagrant up \
                       ${vm} \
@@ -589,7 +522,7 @@ start_and_provision_other_vm() {
 
 run_tests() {
     log_subsection "Configure VM for tests and run tests"
-    # install roles and collections in VENOM_ROOT_DIR
+    # Select the scenario dependencies; provisioning uses a separate cache.
     run_ansible_galaxy_once ${VENOM_ROOT_DIR}/requirements.yml
 
     for scenario_name in ${SCENARIOS_TO_RUN}; do
@@ -617,7 +550,7 @@ run_tests() {
         fi
         if [ -e "${scenario_path}/ansible_inventory.yml" ]; then
             echo "Additional Ansible inventory detected, will use it"
-            # will find roles and collections in VENOM_ROOT_DIR
+            # Roles and collections resolve from the selected dependency cache.
             ansible-playbook ${scenario_path}/site.yml -l $ANSIBLE_VM_LIST -e "${dotfile_ev}" "${scenarios_ev[@]}" -e "@${scenario_path}/ansible_inventory.yml"
         else
             ansible-playbook ${scenario_path}/site.yml -l $ANSIBLE_VM_LIST -e "${dotfile_ev}" "${scenarios_ev[@]}"
@@ -640,12 +573,12 @@ teardown() {
     # is non-empty so the job still uploads artifacts
     collect_runner_diagnostics
     ansible_teardown
-    delete_ansible_files
 }
 
 ansible_teardown() {
     log_subsection "Ansible teardown (RHEL8 Unregister and Get Logs on all VM)"
     if [ -n "${ANSIBLE_VM_LIST}" ]; then
+        run_ansible_galaxy_once "${VAGRANT_DIR}/requirements.yml"
         ( cd $VAGRANT_DIR ; \
           ansible-playbook teardown.yml -l $ANSIBLE_VM_LIST ) \
             || echo "WARN: ansible teardown failed, keeping runner diagnostics"
@@ -705,14 +638,6 @@ collect_domain_diagnostics() {
     fi
 }
 
-delete_ansible_files() {
-    log_subsection "Remove Ansible files"
-    delete_dir_if_exists ${VAGRANT_DIR}/roles
-    delete_dir_if_exists ${VAGRANT_DIR}/ansible_collections
-    delete_dir_if_exists ${VENOM_ROOT_DIR}/roles
-    delete_dir_if_exists ${VENOM_ROOT_DIR}/ansible_collections
-}
-
 # Cleaning = no test VMs, no leftover disk. vagrant destroy misses orphans
 # (dotfile-only; DOMAIN_PREFIX's random hex never reclaims them), so sweep
 # libvirt directly, scoped to the Vagrantfile prefix. Networks are shared/reused.
@@ -739,7 +664,6 @@ destroy() {
     cleanup_baked_boxes
     delete_dir_if_exists "${VAGRANT_PF_DOTFILE_PATH}"
     delete_dir_if_exists "${VAGRANT_COMMON_DOTFILE_PATH}"
-    delete_ansible_files
 }
 
 # vagrant destroy only removes VMs it still tracks; one left by a failed `up`

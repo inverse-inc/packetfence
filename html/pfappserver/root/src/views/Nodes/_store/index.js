@@ -113,7 +113,7 @@ const actions = {
       let ip4 = {}
       api.ip4logOpen(mac).then(data => {
         Object.assign(ip4, data)
-        ip4.active = data.end_time === '0000-00-00 00:00:00'
+        ip4.active = !!data // the open endpoint only returns leases with no end time or ending in the future
       }).catch(() => {
         Object.assign(ip4, { active: false })
       }).finally(() => {
@@ -135,7 +135,7 @@ const actions = {
       let ip6 = {}
       api.ip6logOpen(mac).then(data => {
         Object.assign(ip6, data)
-        ip6.active = data.end_time === '0000-00-00 00:00:00'
+        ip6.active = !!data // the open endpoint only returns leases with no end time or ending in the future
       }).catch(() => {
         Object.assign(ip6, { active: false })
       }).finally(() => {
