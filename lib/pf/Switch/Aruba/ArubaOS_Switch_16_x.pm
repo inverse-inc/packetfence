@@ -169,7 +169,7 @@ sub radiusDisconnect {
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
 
-    if (!defined($self->{'_radiusSecret'})) {
+    if (!$self->hasRadiusSecret()) {
         $logger->warn(
             "[$self->{'_ip'}] Unable to perform RADIUS CoA-Request: RADIUS Shared Secret not configured"
         );
@@ -187,7 +187,7 @@ sub radiusDisconnect {
 
     my $response;
     try {
-        my $locationlog = locationlog_view_open_mac($mac);
+        my $locationlog = $self->locationlog_for_disconnect($mac);
         my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
 
         $logger->debug("[$self->{'_ip'}] Network device supports roles. Evaluating role to be returned.");
@@ -223,6 +223,9 @@ sub radiusDisconnect {
 
         }
         else {
+            # The port bounce CoA identifies the port with NAS-Port, a NAS-Port-Id is rejected with a CoA-NAK
+            my $port = delete $attributes_ref->{'NAS-Port-Id'};
+            $attributes_ref->{'NAS-Port'} //= $port;
             $vsa = [{ 'vendor' => 'HP', 'attribute' => 'HP-Port-Bounce-Host', 'value' => '12' }];
             $response = $self->handleRadiusCoa($connection_info, $attributes_ref,$vsa);
         }

@@ -261,7 +261,8 @@ const actions = {
     const data = {
       args: {
         pid: user.pid,
-        password: user.password
+        password: user.password,
+        with_aup: !!user.withAup
       },
       template: 'guest_local_account_creation'
     }
@@ -278,7 +279,8 @@ const actions = {
       template: 'guest_local_account_creation',
       args: {
         pid: data.pid,
-        password: data.password
+        password: data.password,
+        with_aup: !!data.withAup
       },
       to: data.email,
       subject: data.subject
