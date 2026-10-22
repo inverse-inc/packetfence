@@ -1,5 +1,7 @@
+import socket
 import time
 
+import config_generator
 import global_vars
 from samba import param, NTSTATUSError, ntstatus
 from samba.credentials import Credentials, DONT_USE_KERBEROS
@@ -29,6 +31,16 @@ def _finddc(lp, **kwargs):
         return error_code, str(e), None
 
 
+# the secure channel connects to the DC by name. When a sticky DC is given as an IP,
+# its name may not be resolvable (no DNS servers, or DNS without that DC), so pin it in /etc/hosts.
+def _ensure_resolvable(ip, name):
+    try:
+        socket.gethostbyname(name)
+    except Exception:
+        log.info(f"sticky DC name {name} is not resolvable, adding hosts entry: {ip} {name}")
+        config_generator.generate_hosts_entry(ip, name)
+
+
 def find_dc(lp):
     error_code = -1
     error_message = "unknown error"
@@ -42,6 +54,8 @@ def find_dc(lp):
             error_code, error_message, pdc_dns_name = _finddc(lp, address=sticky_dc)
             if error_code == 0:
                 log.info(f"using sticky DC: {sticky_dc} ({pdc_dns_name})")
+                if utils.is_ipv4(sticky_dc):
+                    _ensure_resolvable(sticky_dc, pdc_dns_name)
                 return error_code, error_message, pdc_dns_name
             log.warning(f"sticky DC {sticky_dc} unavailable: e = {error_code}, m = {error_message}")
 
