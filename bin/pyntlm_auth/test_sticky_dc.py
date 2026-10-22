@@ -1,4 +1,5 @@
 import importlib
+import socket
 import sys
 import unittest
 from unittest import mock
@@ -51,10 +52,14 @@ class TestFindDc(unittest.TestCase):
             mock.patch.object(rpc, 'Net', return_value=self.net),
             mock.patch.object(rpc, 'Credentials', mock.Mock()),
             mock.patch.object(rpc, 'NTSTATUSError', FakeNTSTATUSError),
+            mock.patch.object(rpc.socket, 'gethostbyname', return_value='10.0.0.12'),
+            mock.patch.object(rpc.config_generator, 'generate_hosts_entry'),
         ]
+        mocks = []
         for p in patchers:
-            p.start()
+            mocks.append(p.start())
             self.addCleanup(p.stop)
+        self.resolve, self.hosts_entry = mocks[3:]
 
     def finddc_by_address(self, answers):
         def finddc(**kwargs):
@@ -98,6 +103,28 @@ class TestFindDc(unittest.TestCase):
         self.finddc_by_address({'dc1': FakeNTSTATUSError(1, 'down'), 'dc2': FakeNTSTATUSError(2, 'down too')})
         self.assertEqual(rpc.find_dc(self.lp), (2, 'down too', None))
         self.assertFalse(any('domain' in k for k in self.called_kwargs()))
+
+    def test_sticky_dc_ip_adds_hosts_entry_when_name_unresolvable(self):
+        global_vars.c_sticky_dc = ['10.0.0.12']
+        self.finddc_by_address({'10.0.0.12': 'dc2.example.com'})
+        self.resolve.side_effect = socket.gaierror('not found')
+        self.assertEqual(rpc.find_dc(self.lp), (0, '', 'dc2.example.com'))
+        self.hosts_entry.assert_called_once_with('10.0.0.12', 'dc2.example.com')
+
+    def test_sticky_dc_ip_no_hosts_entry_when_name_resolvable(self):
+        global_vars.c_sticky_dc = ['10.0.0.12']
+        self.finddc_by_address({'10.0.0.12': 'dc2.example.com'})
+        self.assertEqual(rpc.find_dc(self.lp), (0, '', 'dc2.example.com'))
+        self.resolve.assert_called_once_with('dc2.example.com')
+        self.hosts_entry.assert_not_called()
+
+    def test_sticky_dc_fqdn_no_hosts_entry(self):
+        global_vars.c_sticky_dc = ['dc2.example.com']
+        self.finddc_by_address({'dc2.example.com': 'dc2.example.com'})
+        self.resolve.side_effect = socket.gaierror('not found')
+        self.assertEqual(rpc.find_dc(self.lp), (0, '', 'dc2.example.com'))
+        self.resolve.assert_not_called()
+        self.hosts_entry.assert_not_called()
 
     def test_sticky_dc_wildcard_fallback(self):
         global_vars.c_sticky_dc = ['dc1', '*']
