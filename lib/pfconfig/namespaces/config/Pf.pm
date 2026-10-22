@@ -107,7 +107,10 @@ sub build_child {
         # An interface that isn't defined for this host in cluster.conf doesn't exist on it
         # (e.g. a member of another zone in a multi-zone cluster), keeping it would make this host use
         # the IP address of another server.
-        foreach my $key (grep { /^interface / } keys %Config) {
+        # Only when clustering is enabled: a standalone server's cluster.conf still has an empty
+        # CLUSTER section, without interface sections, and the CLUSTER overlay must then keep them all.
+        my @interfaces = $ConfigCluster{CLUSTER}{management_ip} ? grep { /^interface / } keys %Config : ();
+        foreach my $key (@interfaces) {
             next if exists $ConfigCluster{$self->{host_id}}{$key};
             # A normal case in a multi-zone cluster (a zone without this interface): pfcmd checkup warns about the others
             $logger->info("Ignoring $key on $self->{host_id}: it isn't defined for this server in cluster.conf");

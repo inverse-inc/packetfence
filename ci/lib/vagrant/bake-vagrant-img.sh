@@ -252,6 +252,20 @@ register_box_locally() {
     local version="0.0.${CI_PIPELINE_ID}"
     local metadata="${RESULT_DIR}/metadata.json"
     log_section "Register ${name} v${version} in the local vagrant store"
+    # `vagrant box remove` leaves the libvirt pool volume behind, and
+    # vagrant-libvirt reuses a volume with the same box name and version
+    # instead of uploading the new image: drop it so the new bake is used.
+    local vol_prefix="${name//\//-VAGRANTSLASH-}_vagrant_box_image_${version}"
+    local vol dom
+    for vol in $(virsh -c qemu:///system vol-list "${LIBVIRT_POOL}" 2>/dev/null \
+                     | awk -v p="${vol_prefix}" 'index($1, p) == 1 { print $1 }'); do
+        for dom in $(virsh -c qemu:///system list --all --name 2>/dev/null); do
+            virsh -c qemu:///system dumpxml "${dom}" 2>/dev/null | grep -qF "${vol}" \
+                && die "Pool volume ${vol} is used by domain ${dom}, destroy it before registering this bake"
+        done
+        echo "Deleting stale pool volume ${vol}"
+        virsh -c qemu:///system vol-delete --pool "${LIBVIRT_POOL}" "${vol}"
+    done
     # metadata.json keeps the version (a raw .box registers as 0)
     cat > "${metadata}" <<EOF
 {
