@@ -1,4 +1,4 @@
-"""Prompt text for the PacketFence assistant.
+"""Prompt text for NACBot.
 
 The static system prompt and the pure functions that build its runtime
 addenda. Deliberately free of imports from app.py: everything these need is

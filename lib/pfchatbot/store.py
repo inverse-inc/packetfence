@@ -49,28 +49,7 @@ DB_SOCKET = os.environ.get("CHATBOT_DB_SOCKET", "")          # optional unix soc
 # least-privilege DB user when hardening matters more than zero-config.
 # Layered like PF's own config: defaults first, pf.conf overrides; pfconfig.conf
 # ([mysql] section) covers containerized installs that keep credentials there.
-PF_CONF_DIR = os.environ.get("PF_CONF_DIR", "/usr/local/pf/conf")
-
-def _read_ini_section(path: str, want: set) -> dict:
-    out, section = {}, None
-    try:
-        with open(path, "r", encoding="utf-8", errors="replace") as f:
-            for line in f:
-                line = line.strip()
-                if not line or line.startswith("#"):
-                    continue
-                if line.startswith("[") and line.endswith("]"):
-                    section = line[1:-1].strip().lower()
-                    continue
-                if section in want and "=" in line:
-                    k, v = line.split("=", 1)
-                    v = v.strip()
-                    if "[%" in v:        # unexpanded template (pf.conf.defaults)
-                        continue
-                    out[k.strip().lower()] = v
-    except OSError:
-        pass
-    return out
+from pfconf import PF_CONF_DIR, read_ini_section as _read_ini_section
 
 def _pf_conf_database() -> dict:
     merged = {}

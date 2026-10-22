@@ -7,8 +7,10 @@ operations plus any local files / URLs configured in the environment. It
 exposes four tools to the model — pf_search_operations, pf_describe_operation,
 pf_call_operation, pf_search_docs — and loops until the model has an answer.
 
-The customer supplies PROVIDER and API_KEY externally (e.g. from the
-PacketFence admin UI); this service is stateless and BYOK for generation.
+The customer supplies the provider and API key (BYOK) in the [pfchatbot]
+section of pf.conf, edited from the PacketFence admin UI (Configuration >
+Integration > NACBot); see pfconf.py. The environment below is
+the fallback for any key the ini leaves empty.
 
 Env:
     PROVIDER=openai|anthropic          MODEL=<optional; provider default>
@@ -42,7 +44,6 @@ import numpy as np
 import httpx
 from fastapi import FastAPI, Request, UploadFile, File, Form
 from fastapi.responses import JSONResponse, Response
-from fastapi.staticfiles import StaticFiles
 
 import providers
 from prompts import SYSTEM, version_line, style_addendum, read_only_line
@@ -74,7 +75,12 @@ try:
 except FileNotFoundError:
     pass
 
-# ── config (env) ─────────────────────────────────────────────────────────────
+# ── config (pf.conf [pfchatbot], env as fallback) ────────────────────────────
+import pfconf
+# what the process was started with, for keys the ini later leaves empty
+_ENV_LIVE = {k: os.environ.get(pfconf.KEYS[k][0], "") for k in pfconf.LIVE_KEYS}
+pfconf.apply_to_environ()
+
 PROVIDER      = os.environ.get("PROVIDER", "").strip().lower()
 API_KEY       = os.environ.get("API_KEY", "")
 MODEL         = os.environ.get("MODEL", "") or None
@@ -325,57 +331,44 @@ def _rag_signature() -> str:
     return h.hexdigest()[:16]
 
 
-# Provider settings (key/model) stay in a small local JSON file — they are
-# per-deployment configuration, not per-user conversation data.
-DATA_DIR = os.environ.get("DATA_DIR", os.path.expanduser("~/.local/share/pf-chatbot"))
-
-# ── runtime provider settings (UI-overridable; .env is the static default) ──
+# Provider settings (key/model) live in pf.conf [pfchatbot]. They are re-read
+# whenever pf.conf changes, so a key or model saved in the admin UI applies on
+# the next request without restarting the service.
 _cfg_lock = threading.Lock()
-
-
-def _settings_path() -> str:
-    return os.path.join(DATA_DIR, "settings.json")
-
-
-def _load_overrides() -> dict:
-    try:
-        with open(_settings_path(), "r", encoding="utf-8") as f:
-            d = json.load(f)
-        return d if isinstance(d, dict) else {}
-    except (OSError, ValueError):
-        return {}
-
-
-def _save_overrides(d: dict) -> None:
-    os.makedirs(DATA_DIR, exist_ok=True)
-    path = _settings_path()
-    tmp = path + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(d, f)
-    os.replace(tmp, path)
-    try:
-        os.chmod(path, 0o600)  # holds an API key
-    except OSError:
-        pass
-
-
-def _clear_overrides() -> None:
-    try:
-        os.remove(_settings_path())
-    except OSError:
-        pass
+_cfg_mtime = None
 
 
 def _effective_config() -> dict:
-    """Env defaults overlaid with any UI-saved overrides."""
-    cfg = {"provider": PROVIDER, "api_key": API_KEY, "model": MODEL, "source": "env"}
-    ov = _load_overrides()
-    if ov.get("provider") and ov.get("api_key"):
-        cfg.update(
-            provider=ov["provider"], api_key=ov["api_key"],
-            model=ov.get("model") or None, source="override",
-        )
-    return cfg
+    """pf.conf [pfchatbot] provider/key/model, env as fallback."""
+    cfg = pfconf.live_settings(_ENV_LIVE)
+    return {"provider": cfg["provider"].strip().lower(), "api_key": cfg["api_key"],
+            "model": cfg["model"] or None, "source": "pf.conf"}
+
+
+def _reload_provider_if_changed() -> None:
+    global _cfg_mtime
+    m = pfconf.mtime()
+    if m == _cfg_mtime:
+        return
+    with _cfg_lock:
+        if m == _cfg_mtime:
+            return
+        _cfg_mtime = m
+        cfg = _effective_config()
+        if (cfg["provider"], cfg["api_key"], cfg["model"]) == _state.get("cfg_key"):
+            return
+        _state["cfg_key"] = (cfg["provider"], cfg["api_key"], cfg["model"])
+        if not cfg["provider"] or not cfg["api_key"]:
+            _state["provider"] = None
+            _state["cfg"] = {"provider": cfg["provider"], "api_key": "", "model": "", "source": "pf.conf"}
+            print("[pf-bot] no provider configured; set it in Configuration > Integration > "
+                  "NACBot (pf.conf [pfchatbot])")
+            return
+        try:
+            _apply_provider(cfg)
+        except Exception as e:
+            _state["provider"] = None
+            print(f"[pf-bot] provider init failed: {e}")
 
 
 def _test_api_key(provider_name: str, api_key: str, model: str | None) -> dict:
@@ -1976,8 +1969,8 @@ def run_agent(history: list[dict], debug: bool = False,
     prov = _state.get("provider")
     if prov is None:
         return (
-            "No provider configured — set PROVIDER and API_KEY in .env, or use the gear icon "
-            "in the UI to pick a provider and enter a key.",
+            "No provider configured — an administrator sets the provider and API key in "
+            "Configuration > Integration > NACBot.",
             [], {},
         )
     _pending_confirm.set(None)
@@ -2142,15 +2135,7 @@ def _init():
         print(f"[pf-bot] conversation store ready: {store.status()}")
     except Exception as e:
         print(f"[pf-bot] conversation store UNAVAILABLE: {e}")
-    cfg = _effective_config()
-    if not cfg["provider"] or not cfg["api_key"]:
-        print("[pf-bot] PROVIDER and API_KEY are required; set them in .env or via the UI settings (gear icon).")
-        _state["ready"] = True
-        return
-    try:
-        _apply_provider(cfg)
-    except Exception as e:
-        print(f"[pf-bot] provider init failed: {e}")
+    _reload_provider_if_changed()
     _state["pf_version"] = _detect_pf_version()
     print(f"[pf-bot] PacketFence version: {_state['pf_version'] or 'unknown'}")
     _state["ready"] = True
@@ -2366,6 +2351,7 @@ def _provider_names() -> list[str]:
 def get_models():
     """List models available to the active provider's API key. Returns the
     current model plus the fetched list (newest/recommended flagged)."""
+    _reload_provider_if_changed()
     prov = _state.get("provider")
     cfg = _state.get("cfg") or {}
     if prov is None:
@@ -2382,29 +2368,6 @@ def get_models():
         "current": prov.model,
         "models": models,
     })
-
-
-@app.post("/write/models")
-def switch_model(payload: dict, request: Request):
-    """Switch the active model (keeps the same provider + key)."""
-    if not may_write(request):
-        return deny_write()
-    model = (payload.get("model") or "").strip()
-    if not model:
-        return JSONResponse({"error": "model required"}, status_code=400)
-    with _cfg_lock:
-        cur = _state.get("cfg") or {}
-        if not cur.get("provider") or not cur.get("api_key"):
-            return JSONResponse({"error": "no provider configured"}, status_code=400)
-        cfg = {"provider": cur["provider"], "api_key": cur["api_key"],
-               "model": model, "source": cur.get("source", "override")}
-        try:
-            _apply_provider(cfg)
-        except Exception as e:
-            return JSONResponse({"error": str(e)}, status_code=400)
-        # persist as an override so it survives restarts (unless env-only)
-        _save_overrides({"provider": cfg["provider"], "api_key": cfg["api_key"], "model": model})
-        return JSONResponse({"ok": True, "provider": cfg["provider"], "model": model})
 
 
 @app.post("/write/settings/test")
@@ -2429,62 +2392,19 @@ def test_settings(payload: dict, request: Request):
 
 @app.get("/settings")
 def get_settings():
+    """Active provider and model (read-only; edited in pf.conf [pfchatbot])."""
+    _reload_provider_if_changed()
     cfg = _state.get("cfg") or {}
     key = cfg.get("api_key") or ""
     return JSONResponse(
         {
-            "provider": cfg.get("provider") or PROVIDER or "",
-            "model": cfg.get("model") or MODEL or "",
-            "source": cfg.get("source", "env"),
+            "provider": cfg.get("provider") or "",
+            "model": cfg.get("model") or "",
+            "source": cfg.get("source", "pf.conf"),
             "key_hint": ("\u2026" + key[-4:]) if len(key) >= 8 else ("set" if key else ""),
             "providers": _provider_names(),
-            "env_default": bool(PROVIDER and API_KEY),
         }
     )
-
-
-@app.post("/write/settings")
-def post_settings(payload: dict, request: Request):
-    if not may_write(request):
-        return deny_write()
-    with _cfg_lock:
-        if payload.get("reset"):
-            _clear_overrides()
-            cfg = {"provider": PROVIDER, "api_key": API_KEY, "model": MODEL, "source": "env"}
-            if not cfg["provider"] or not cfg["api_key"]:
-                _state["provider"] = None
-                _state["cfg"] = {"provider": "", "api_key": "", "model": "", "source": "env"}
-                return JSONResponse({"ok": True, "provider": "", "model": "",
-                                     "note": "reset; no defaults in .env, so no provider is active"})
-            try:
-                _apply_provider(cfg)
-            except Exception as e:
-                return JSONResponse({"error": f"reset failed: {e}"}, status_code=400)
-            c = _state["cfg"]
-            return JSONResponse({"ok": True, "provider": c["provider"], "model": c["model"], "source": "env"})
-
-        provider = (payload.get("provider") or "").strip().lower()
-        api_key = (payload.get("api_key") or "").strip()
-        model = (payload.get("model") or "").strip() or None
-        if provider not in _provider_names():
-            return JSONResponse({"error": f"unknown provider {provider!r}"}, status_code=400)
-
-        cur = _state.get("cfg") or {}
-        if not api_key:
-            # keep the existing key only when the provider isn't changing
-            if provider == cur.get("provider") and cur.get("api_key"):
-                api_key = cur["api_key"]
-            else:
-                return JSONResponse({"error": "API key required for this provider"}, status_code=400)
-
-        cfg = {"provider": provider, "api_key": api_key, "model": model, "source": "override"}
-        try:
-            _apply_provider(cfg)
-        except Exception as e:
-            return JSONResponse({"error": str(e)}, status_code=400)
-        _save_overrides({"provider": provider, "api_key": api_key, "model": model})
-        c = _state["cfg"]
-        return JSONResponse({"ok": True, "provider": c["provider"], "model": c["model"], "source": "override"})
 
 
 @app.post("/write/confirm_write")
@@ -2533,6 +2453,7 @@ def chat(payload: dict, request: Request):
             }
         )
 
+    _reload_provider_if_changed()
     pid = current_pid(request)
     now = time.time()
     if not tid or not store.thread_exists(pid, tid):
@@ -2783,15 +2704,3 @@ def node_set_role(mac: str, payload: dict, request: Request):
 def get_config():
     return JSONResponse({"pf_admin_url": PF_ADMIN_URL,
                          "pf_version": _state.get("pf_version") or ""})
-
-
-# ── static UI ────────────────────────────────────────────────────────────────
-# The page computes its own base path from location.pathname (see index.html),
-# so no server-side injection is needed; behind the admin proxy Caddy strips
-# /api/v1/pfchatbot before requests reach us, exactly as for the API routes.
-# MUST stay the last route registration in this file: a mount at "/" is matched
-# after the explicit routes above, so it serves index.html and any future
-# assets without shadowing /chat, /config, /write/*, etc.
-app.mount("/", StaticFiles(
-    directory=os.path.join(os.path.dirname(os.path.abspath(__file__)), "static"),
-    html=True), name="ui")

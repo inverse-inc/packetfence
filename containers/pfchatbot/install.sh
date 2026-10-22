@@ -1,17 +1,15 @@
 #!/usr/bin/env bash
 # install.sh — finish a pfchatbot deployment on a PacketFence install that
-# already has the code (lib/html/containers/addons pfchatbot dirs) and a
+# already has the code (lib/containers/addons pfchatbot dirs) and a
 # container image. Idempotent: safe to re-run, including after PF upgrades.
 #
-#   bash /usr/local/pf/containers/pfchatbot/install.sh [--image TAG] [--skip-launcher]
+#   bash /usr/local/pf/containers/pfchatbot/install.sh [--image TAG]
 set -u
 
 PF=/usr/local/pf
 IMAGE="pf-chatbot"
-SKIP_LAUNCHER=0
 while [ $# -gt 0 ]; do case "$1" in
   --image) IMAGE="$2"; shift 2 ;;
-  --skip-launcher) SKIP_LAUNCHER=1; shift ;;
   *) echo "unknown arg: $1" >&2; exit 2 ;;
 esac; done
 
@@ -25,7 +23,7 @@ step "1. Preflight"
 [ -f "$PF/conf/pf-release" ] || die "no PacketFence at $PF"
 ok "$(cat $PF/conf/pf-release)"
 command -v docker >/dev/null || die "docker not found"
-for d in lib/pfchatbot html/pfchatbot containers/pfchatbot addons/pfchatbot; do
+for d in lib/pfchatbot containers/pfchatbot addons/pfchatbot; do
   [ -d "$PF/$d" ] || die "$PF/$d missing — deploy the pfchatbot dirs first"
 done
 ok "pfchatbot directories present"
@@ -55,7 +53,6 @@ else
   if [ -f "$PF/.dockerignore" ] || cat > "$PF/.dockerignore" <<'DI'
 *
 !lib/pfchatbot
-!html/pfchatbot
 !containers/pfchatbot
 containers/pfchatbot/docs
 DI
@@ -87,7 +84,7 @@ EX="$PF/lib/pfchatbot/pfchatbot.env.example"
 [ -f "$EX" ] || EX="$PF/containers/pfchatbot/pfchatbot.env.example"
 if [ ! -f "$PF/conf/pfchatbot.env" ]; then
   cp "$EX" "$PF/conf/pfchatbot.env"
-  warn "created conf/pfchatbot.env from the example — EDIT IT: API_KEY, PF_PASSWORD, PF_ADMIN_URL"
+  warn "created conf/pfchatbot.env from the example — EDIT IT: PF_ADMIN_URL"
 else
   ok "conf/pfchatbot.env exists"
 fi
@@ -101,9 +98,8 @@ else
 fi
 chmod 600 "$PF/conf/pfchatbot.env" "$PF/conf/pfchatbot-testtool.env"
 if grep -qE 'REPLACE-ME|sk-REPLACE' "$PF/conf/pfchatbot.env"; then
-  warn "placeholders remain in conf/pfchatbot.env — the service will start but"
-  warn "chat needs a real API_KEY (or set a provider via the UI gear icon) and"
-  warn "PF API calls need real PF_USERNAME/PF_PASSWORD"
+  warn "placeholders remain in conf/pfchatbot.env — the service will start, but"
+  warn "the bot ignores them only where pf.conf [pfchatbot] sets the same setting"
 fi
 
 step "4. Documentation corpus for RAG"
@@ -126,12 +122,16 @@ ok "service active"
 BIND=$(journalctl -u "$UNIT" -n 50 --no-pager 2>/dev/null | grep -oE 'binding [0-9.]+:[0-9]+' | tail -1 | awk '{print $2}')
 ok "bound ${BIND:-unknown}"
 
-step "6. Launcher"
-if [ "$SKIP_LAUNCHER" = 1 ]; then
-  ok "skipped (--skip-launcher)"
-else
-  bash "$PF/addons/pfchatbot/inject-launcher.sh" || warn "launcher inject failed — run it manually later"
-fi
+step "6. Settings (pf.conf [pfchatbot])"
+# provider/key/model and the PF API account live in pf.conf, edited from
+# Configuration > Integration > NACBot; pfchatbot.env is the fallback
+for k in provider api_key pf_username pf_password; do
+  if sed -n '/^\[pfchatbot\]/,/^\[/p' "$PF/conf/pf.conf" 2>/dev/null | grep -qE "^$k *= *[^ ]"; then
+    ok "$k set in pf.conf"
+  else
+    warn "$k not set in pf.conf [pfchatbot] — set it in Configuration > Integration > NACBot (or pfchatbot.env)"
+  fi
+done
 
 step "7. Self-tests"
 PASS=0; FAIL=0; SKIP=0
@@ -158,11 +158,11 @@ if [ -n "$HOST" ]; then
   fi
 fi
 
-# 7.1 UI serves
-if [ -n "$HOST" ] && curl -s -m 10 "http://$HOST:$PORT/" | head -c 15 | grep -q '<!doctype'; then
-  t_ok "UI serves at $HOST:$PORT"
+# 7.1 API serves (the UI is part of the admin SPA, not this service)
+if [ -n "$HOST" ] && curl -s -m 10 "http://$HOST:$PORT/config" | grep -q '"pf_version"'; then
+  t_ok "API serves at $HOST:$PORT"
 else
-  [ -n "$HOST" ] && t_fail "UI not serving at $HOST:$PORT"
+  [ -n "$HOST" ] && t_fail "API not serving at $HOST:$PORT"
 fi
 
 # 7.2 conversation store (via journal — /chat transitively proves it too)
@@ -176,7 +176,7 @@ fi
 if journalctl -u "$UNIT" --since '15 min ago' --no-pager 2>/dev/null | grep -q 'provider='; then
   t_ok "LLM provider initialized"
 else
-  t_skip "no provider yet — set API_KEY in conf/pfchatbot.env or via the UI gear icon"
+  t_skip "no provider yet — set it in Configuration > Integration > NACBot (applies without restart)"
 fi
 
 # 7.4 chat round-trip (only meaningful with a provider)
@@ -233,7 +233,7 @@ echo "  curl -sk -X POST -H \"Authorization: \$TOK\" -H 'Content-Type: applicati
 echo "    https://$ADMIN_HOST:1443/api/v1/pfchatbot/chat -d '{\"message\":\"ping\"}' | jq -r .reply"
 echo
 echo "${B}Done.${N} Remaining manual items:"
-echo "  - put real credentials in $PF/conf/pfchatbot.env if warned above, then: systemctl restart $UNIT"
-echo "  - open https://<host>:1443/api/v1/pfchatbot/ (log into the admin UI first, same hostname)"
+echo "  - set the provider, API key and PF API account in Configuration > Integration > NACBot"
+echo "  - open the assistant from the admin UI navbar (needs the CHATBOT_READ admin role)"
 echo "  - acceptance matrix: chatbot-user read=200/write=403, chatbot-admin 200/200 (see README)"
 echo "  - after any PF upgrade: re-run this script (it is idempotent) — see addons/pfchatbot/MODIFICATIONS.md"

@@ -1,4 +1,4 @@
-"""Tool schemas for the PacketFence assistant.
+"""Tool schemas for NACBot.
 
 Pure data: the JSON-schema definitions the model sees, plus the human labels
 shown in the activity trace. Nothing here touches the API client, the database

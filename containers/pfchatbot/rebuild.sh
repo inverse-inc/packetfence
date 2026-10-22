@@ -34,7 +34,7 @@ done
 
 step "2. Checking the files the image needs are present"
 missing=0
-for f in containers/pfchatbot/supervisor.sh lib/pfchatbot/app.py lib/pfchatbot/store.py lib/pfchatbot/prompts.py lib/pfchatbot/tools.py lib/pfchatbot/pf-testtool-helper.py containers/pfchatbot/requirements.txt html/pfchatbot/index.html; do
+for f in containers/pfchatbot/supervisor.sh lib/pfchatbot/app.py lib/pfchatbot/store.py lib/pfchatbot/pfconf.py lib/pfchatbot/prompts.py lib/pfchatbot/tools.py lib/pfchatbot/pf-testtool-helper.py containers/pfchatbot/requirements.txt; do
   if [ -s "/usr/local/pf/$f" ]; then ok "$f"; else bad "$f missing or empty"; missing=1; fi
 done
 [ "$missing" = 0 ] || exit 1

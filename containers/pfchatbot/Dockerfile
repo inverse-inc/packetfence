@@ -21,8 +21,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # App
 COPY lib/pfchatbot/app.py .
-COPY html/pfchatbot/ ./static/
 COPY lib/pfchatbot/store.py .
+COPY lib/pfchatbot/pfconf.py .
 COPY lib/pfchatbot/prompts.py .
 COPY lib/pfchatbot/tools.py .
 COPY lib/pfchatbot/providers/ ./providers/
