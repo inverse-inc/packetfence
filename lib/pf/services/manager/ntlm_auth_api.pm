@@ -68,7 +68,7 @@ sub generateConfig {
     pf_run("sudo echo 'CACHE_PORT=6379' >> $generated_conf_dir/" . $self->name . '.d/' . "db.ini");
 
     my $host_id = hostname();
-    for my $identifier (keys(%ConfigDomain)) {
+    for my $identifier (local_domains(\%ConfigDomain)) {
         my %conf = %{$ConfigDomain{$identifier}};
         if (exists($conf{ntlm_auth_host}) && exists($conf{ntlm_auth_port}) && exists($conf{machine_account_password})) {
             my $ntlm_auth_host = $conf{ntlm_auth_host};
@@ -84,10 +84,27 @@ sub generateConfig {
 
 sub isManaged {
     my ($self) = @_;
-    if ($self->SUPER::isManaged && keys(%ConfigDomain) > 0) {
+    if ($self->SUPER::isManaged && (my @domains = local_domains(\%ConfigDomain))) {
         return $TRUE;
     }
     return $FALSE;
+}
+
+=head2 local_domains
+
+The sorted identifiers of the domains served by a local ntlm-auth-api container:
+the enabled ones that don't use a connector. A domain without a status is enabled.
+
+=cut
+
+sub local_domains {
+    my ($domains) = @_;
+    my @identifiers = grep {
+        my $conf = $domains->{$_};
+        !(defined($conf->{status}) && isdisabled($conf->{status}))
+          && !(exists($conf->{use_connector}) && isenabled($conf->{use_connector}))
+    } keys(%$domains);
+    return sort @identifiers;
 }
 
 
