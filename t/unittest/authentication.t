@@ -588,6 +588,9 @@ is_deeply(
     is($build->(undef, 'sms.example.com/send')->as_string, 'https://sms.example.com/send', "SMSApi missing protocol falls back to https");
     ok(!defined $build->('http', 'ftp://sms.example.com/send'), "SMSApi api_url with its own protocol is refused");
     ok(!defined $build->('https', '/send'), "SMSApi api_url without a host is refused");
+    ok(!defined $build->('https', ' sms.example.com/send'), "SMSApi api_url with leading whitespace is refused");
+    ok(!defined $build->('https', 'sms example.com/send'), "SMSApi api_url with whitespace in the host is refused");
+    ok(!defined $build->('https', 'sms.example.com/send me'), "SMSApi api_url with whitespace in the path is refused");
     $source->api_url('data://hello');
     ok(
         !$source->sendSMS({ to => '5145551234', message => 'PIN: 1234' }),

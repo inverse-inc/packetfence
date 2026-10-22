@@ -83,13 +83,14 @@ sub match_in_subclass {
 Build the full URL from api_protocol and api_url.
 Anything other than 'http' in api_protocol is sent over https, so a hand edited
 configuration can't select another scheme.
-Returns undef when api_url is empty, carries its own scheme or has no host
+Returns undef when api_url is empty, contains whitespace, carries its own scheme or has no host
 
 =cut
 
 sub build_api_url {
     my ($protocol, $url) = @_;
     return undef unless defined $url && length $url;
+    return undef if $url =~ /\s/;
     return undef if $url =~ m{^[a-z][a-z0-9+.-]*://}i;
     my $scheme = (defined $protocol && $protocol eq 'http') ? 'http' : 'https';
     my $uri = URI->new("$scheme://$url");
