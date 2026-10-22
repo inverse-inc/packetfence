@@ -186,6 +186,7 @@ def config_load():
 
     ad_fqdn = cp_dm.get(identifier, 'ad_fqdn')
     ad_server = cp_dm.get(identifier, 'ad_server')
+    sticky_dc = utils.parse_sticky_dc(cp_dm.get(identifier, 'sticky_dc', fallback='*'))
     realm = cp_dm.get(identifier, 'dns_name')
     workgroup = cp_dm.get(identifier, 'workgroup')
     dns_servers = cp_dm.get(identifier, 'dns_servers')
@@ -277,6 +278,7 @@ def config_load():
     log.debug("NTLM Auth API started with the following parameters:")
     log.debug(f"ad_fqdn                     {ad_fqdn}")
     log.debug(f"ad_server                   {ad_server}")
+    log.debug(f"sticky_dc                   {','.join(sticky_dc)}")
     log.debug(f"server_name                 {server_name_raw}")
     log.debug(f"server_name (parsed)        {server_name_or_hostname}")
     log.debug(f"dns_name                    {realm}")
@@ -385,6 +387,7 @@ def config_load():
 
     global_vars.c_server_name = ad_fqdn
     global_vars.c_ad_server = ad_server
+    global_vars.c_sticky_dc = sticky_dc
     global_vars.c_realm = realm
     global_vars.c_workgroup = workgroup
     global_vars.c_username = username
