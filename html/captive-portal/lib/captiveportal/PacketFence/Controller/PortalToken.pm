@@ -27,10 +27,12 @@ sub cache { return pf::CHI->new(namespace => 'portaladmin'); }
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
     my $actions;
-    if (my $uuid = $c->request->param('token')) {
-        $actions = cache->get($uuid);
+    # The token comes in the Authorization header so it isn't written to the access log
+    my $authorization = $c->request->header('Authorization') // '';
+    if (my ($token) = $authorization =~ /^Bearer\s+(\S+)$/) {
+        $actions = cache->get($token);
         # A token can only be exchanged once
-        cache->remove($uuid) if defined($actions);
+        cache->remove($token) if defined($actions);
         if (!defined($actions)) {
             $c->response->status(404);
             $c->response->body('{ "access_level" => "none" }');
