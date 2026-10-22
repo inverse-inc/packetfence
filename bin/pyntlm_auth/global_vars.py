@@ -47,6 +47,7 @@ c_domain = None
 c_username = None
 c_server_name = None
 c_ad_server = None
+c_sticky_dc = ['*']  # DCs to pin, in order. '*' means auto-discovery
 c_ad_server_port = None
 c_encryption = None
 c_listen_port = None
@@ -84,6 +85,7 @@ def _debug():
     log.debug(f"---- Domain profile settings ----")
     log.debug(f"global_vars.c_server_name                   {c_server_name}")
     log.debug(f"global_vars.c_ad_server                     {c_ad_server}")
+    log.debug(f"global_vars.c_sticky_dc                     {c_sticky_dc}")
     log.debug(f"global_vars.c_realm                         {c_realm}")
     log.debug(f"global_vars.c_workgroup                     {c_workgroup}")
     log.debug(f"global_vars.c_username                      {c_username}")
