@@ -62,6 +62,7 @@ export const useSections = () => {
         { name: i18n.t('Event Loggers'), path: '/configuration/event_loggers', saveSearchNamespace: 'eventLoggers' },
         { name: i18n.t('Firewall SSO'), path: '/configuration/firewalls', saveSearchNamespace: 'firewalls' },
         { name: i18n.t('FleetDM'), path: '/configuration/fleetdm', class: 'no-saas'},
+        { name: i18n.t('NACBot'), path: '/configuration/pfchatbot', class: 'no-saas'},
         { name: i18n.t('Web Services'), path: '/configuration/webservices' },
         { name: i18n.t('Switch Templates'), path: '/configuration/switch_templates', saveSearchNamespace: 'switchTemplates' },
         { name: i18n.t('Event Handlers'), path: '/configuration/pfdetect', saveSearchNamespace: 'eventHandlers' },

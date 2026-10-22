@@ -1,0 +1,25 @@
+import store from '@/store'
+import BasesStoreModule from '../bases/_store'
+
+const TheView = () => import(/* webpackChunkName: "ConfigurationIntegration" */ './_components/TheView')
+
+export const beforeEnter = (to, from, next = () => {}) => {
+  if (!store.state.$_bases) {
+    store.registerModule('$_bases', BasesStoreModule)
+  }
+  next()
+}
+
+const can = () => !store.getters['system/isSaas']
+
+export default [
+  {
+    path: 'pfchatbot',
+    name: 'pfchatbot',
+    component: TheView,
+    meta: {
+      can
+    },
+    beforeEnter
+  }
+]

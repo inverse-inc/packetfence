@@ -33,6 +33,9 @@ our @ADMIN_ACTIONS = qw(
 
     ADMIN_API_AUDIT_LOG_READ
 
+    CHATBOT_READ
+    CHATBOT_WRITE
+
     CONFIGURATION_MAIN_READ
     CONFIGURATION_MAIN_UPDATE
     CONFIGURATION_MAIN_CREATE
@@ -232,7 +235,7 @@ our @ADMIN_ACTIONS = qw(
 
 # Actions not allowed in readonly mode
 # Any actions that will update the database is not allowed
-our %ADMIN_NOT_IN_READONLY = map { $_ => 1} grep { !/_READ$/ && /^(NODES_|SWITCHES_|SECURITY_EVENTS_|WRIX_|USERS_|USERS_ROLES_)/ && !/^USERS_SOURCES_/ && $_ ne 'USERS_READ_SPONSORED' } @ADMIN_ACTIONS ;
+our %ADMIN_NOT_IN_READONLY = map { $_ => 1} grep { !/_READ$/ && /^(CHATBOT_|NODES_|SWITCHES_|SECURITY_EVENTS_|WRIX_|USERS_|USERS_ROLES_)/ && !/^USERS_SOURCES_/ && $_ ne 'USERS_READ_SPONSORED' } @ADMIN_ACTIONS ;
 
 =head1 AUTHOR
 
