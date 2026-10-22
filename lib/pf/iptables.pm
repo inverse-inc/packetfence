@@ -33,6 +33,7 @@ use Try::Tiny;
 use Switch;
 use Symbol qw(gensym);
 use File::Path qw(make_path);
+use File::Temp qw(tempfile);
 use IPC::Open3 qw(open3);
 use File::Basename;
 use Scalar::Util 'reftype';
@@ -154,6 +155,18 @@ sub new {
    return $self;
 }
 
+=item iptables_is_managed
+
+Returns true if PacketFence manages iptables (services.iptables), when disabled no rule is applied or flushed
+
+=cut
+
+sub iptables_is_managed {
+    return 1 if isenabled($Config{'services'}{'iptables'});
+    get_logger->info("iptables is not managed by PacketFence (services.iptables is disabled), not touching the rules");
+    return 0;
+}
+
 =item iptables_configreload
 
 Reload the config
@@ -163,6 +176,7 @@ Reload the config
 sub iptables_configreload {
     my ($force) = @_;
     my $logger = get_logger();
+    return 0 unless iptables_is_managed();
     $logger->info( "Start config reload" );
     if ($force eq 1) {
         iptables_flush_to_default();
@@ -174,6 +188,7 @@ sub iptables_configreload {
 
 sub iptables_flush_to_default {
     my $logger = get_logger();
+    return 0 unless iptables_is_managed();
     safe_pf_run(qw(sudo iptables -F));
     safe_pf_run(qw(sudo iptables -X));
     safe_pf_run(qw(sudo iptables -t nat -F));
@@ -217,6 +232,7 @@ Generate the iptable config from iptables service config.
 sub iptables_generate_config {
     my ($self) = @_;
     my $logger = get_logger();
+    return 0 unless iptables_is_managed();
 
     if ( ! util_management_network_is_set("generate_config") ) {
         return 0;
@@ -343,7 +359,7 @@ sub iptables_services_rules {
       packetfence-haproxy-portal.service
       packetfence-httpd.aaa.service
       packetfence-httpd.dispatcher.service
-      packetfenca-httpd.portal.service
+      packetfence-httpd.portal.service
       packetfence-httpd.webservices.service
       packetfence-kafka.service
       packetfence-keepalived.service
@@ -1146,7 +1162,8 @@ sub iptables_pfdhcp_rules {
 
     if ( @dhcp_ints ) {
         $chains->{name} = $service_name;
-        foreach my $tint ( @dhcp_ints ) {
+        foreach my $network ( @dhcp_ints ) {
+            my $tint = $network->{Tint};
             util_safe_push( "-i $tint -p udp -m udp --dport 67 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         }
     } else {
@@ -1424,6 +1441,7 @@ sub iptables_kafka_rules {
                 util_safe_push( "-i $tint -p tcp -m tcp -s $ip --dport 29092 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
                 util_safe_push( "-i $tint -p tcp -m tcp -s $ip --dport 9092 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
                 util_safe_push( "-i $tint -p tcp -m tcp -s $ip --dport 9093 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+                util_safe_push( "-i $tint -p tcp -m tcp -s $ip --dport 9095 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
             }
         } else {
             $logger->warn("Service $service_name: No ConfigKafka iptables cluster_ips is available.");
@@ -1864,12 +1882,13 @@ sub inline_mangle_rules {
                 if (defined $iplog) {
                     my $ip = new NetAddr::IP::Lite clean_ip($iplog);
                     if ($net_addr->contains($ip)) {
-                        if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                            push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network $iplog");
-                            push(@ops, "add PF-iL3_ID$row->{'category_id'}_$network $iplog");
+                        push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network " . _inline_session_entry($network, $IPTABLES_MARK_REG, $iplog, $mac));
+                        my $category_id = $row->{'category_id'};
+                        if (defined($category_id) && $category_id ne '') {
+                            my $prefix = ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) ? "PF-iL3_ID" : "PF-iL2_ID";
+                            push(@ops, "add ${prefix}${category_id}_$network $iplog");
                         } else {
-                            push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network $iplog,$mac");
-                            push(@ops, "add PF-iL2_ID$row->{'category_id'}_$network $iplog");
+                            $logger->debug("$mac is registered without a role: no PF-iL set to add $iplog to on $network");
                         }
                     }
                 }
@@ -1890,11 +1909,7 @@ sub inline_mangle_rules {
                     if (defined $iplog) {
                         my $ip = new NetAddr::IP::Lite clean_ip($iplog);
                         if ($net_addr->contains($ip)) {
-                            if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                                push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_ISOLATION}\_$network $iplog");
-                            } else {
-                                push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_ISOLATION}\_$network $iplog,$mac");
-                            }
+                            push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_ISOLATION}\_$network " . _inline_session_entry($network, $IPTABLES_MARK_ISOLATION, $iplog, $mac));
                         }
                     }
                 }
@@ -1902,10 +1917,7 @@ sub inline_mangle_rules {
         }
 
         if (@ops) {
-            my $cmd = "LANG=C sudo ipset restore 2>&1";
-            open(IPSET, "| $cmd") || die "$cmd failed: $!\n";
-            print IPSET join("\n", @ops);
-            close IPSET;
+            _ipset_restore(uniq @ops);
         }
         $logger->info("Mangle rules are done.");
     } else {
@@ -1921,6 +1933,105 @@ sub inline_mangle_rules {
         }
         $logger->info("Mangle rules inline snat interface are done.");
     }
+}
+
+=head2 _inline_session_entry
+
+The entry to add to the pfsession_<mark>_<network> set for an endpoint, in
+the format of the set type pf::ipset::iptables_generate creates: bitmap:ip
+(an address), except the unreg set of a split layer 2 network which is
+bitmap:ip,mac (address,mac). Feeding "ip,mac" to a bitmap:ip set is an ipset
+syntax error that aborts the whole restore.
+
+inline_mangle_rules only pre-populates the reg and isolation sets, so it never
+gets the address,mac form; the unreg case mirrors the pfipset daemon, which
+adds to that set too.
+
+=cut
+
+sub _inline_session_entry {
+    my ($network, $mark, $ip, $mac) = @_;
+    if (   $ConfigNetworks{$network}{'type'} !~ /^$NET_TYPE_INLINE_L3$/i
+        && isenabled($ConfigNetworks{$network}{'split_network'})
+        && $mark eq $IPTABLES_MARK_UNREG) {
+        return "$ip,$mac";
+    }
+    return $ip;
+}
+
+=head2 _ipset_restore
+
+Feed "add <set> <entry>" lines to ipset restore to pre-populate the inline
+sets. Entries already present are tolerated (-exist), lines for sets that do
+not exist are skipped with a warning (ipset restore stops at the first bad
+line, so one of them used to silently drop every entry after it), and a
+failure is logged with ipset's own message instead of killing the service:
+the sets are only pre-populated here and pfipset keeps them up to date
+afterwards. Returns true when every line was applied.
+
+=cut
+
+sub _ipset_restore {
+    my (@ops) = @_;
+    my $logger = get_logger();
+
+    # Only filter when the listing succeeded: an empty but successful listing
+    # means no set exists at all, while a failed one tells nothing
+    my $list_status;
+    my @names = safe_pf_run(qw(sudo ipset list -n), { status_ref => \$list_status });
+    my $listed = defined($list_status) && $list_status == 0;
+    my %sets = map { chomp(my $name = $_); ($name => 1) } @names;
+
+    my @lines;
+    my %skipped;
+    foreach my $op (@ops) {
+        my ($set) = $op =~ /^add\s+(\S+)/;
+        if ($listed && defined($set) && !$sets{$set}) {
+            push @{$skipped{$set}}, $op;
+            next;
+        }
+        push @lines, $op;
+    }
+    # One warning per missing set: a missing role set would otherwise log one
+    # line per node of that role
+    foreach my $set (sort keys %skipped) {
+        my $count = scalar(@{$skipped{$set}});
+        $logger->warn("ipset $set does not exist, skipping $count " . ($count == 1 ? "entry" : "entries") . " (first: '$skipped{$set}[0]')");
+    }
+    return 1 unless @lines;
+
+    my ($fh, $tmpfile) = tempfile();
+    print $fh map { "$_\n" } @lines;
+    close($fh);
+    my $status;
+    my $output = safe_pf_run(qw(sudo ipset restore -exist),
+        { stdin => $tmpfile, redirect_stderr_to_stdout => 1, status_ref => \$status, accepted_exit_status => [1] });
+    unlink $tmpfile;
+
+    if (!defined($status) || $status != 0) {
+        $output //= '';
+        $output =~ s/^\s+|\s+$//g;
+        $output =~ s/\s*\n\s*/ | /g;
+        $logger->error("ipset restore failed (" . _exit_description($status) . ") while pre-populating " . scalar(@lines) . " inline entries: $output");
+        return 0;
+    }
+    $logger->info("ipset restore pre-populated " . scalar(@lines) . " inline entries");
+    return 1;
+}
+
+=head2 _exit_description
+
+How a command ended, from its wait status: its exit code, or the signal that
+killed it (the exit code is then 0).
+
+=cut
+
+sub _exit_description {
+    my ($status) = @_;
+    return 'exit unknown' if !defined($status);
+    return 'could not be run' if $status == -1;
+    return 'killed by signal ' . ($status & 127) if $status & 127;
+    return 'exit ' . ($status >> 8);
 }
 
 sub inline_nat_redirect_rules {

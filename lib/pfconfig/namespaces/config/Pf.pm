@@ -103,6 +103,17 @@ sub build_child {
     # for cluster overlaying
     if(defined($self->{host_id}) && exists($ConfigCluster{$self->{host_id}})){
         $logger->debug("Doing the cluster overlaying for host $self->{host_id}");
+        # The interfaces of pf.conf are the ones of the server where it was configured.
+        # An interface that isn't defined for this host in cluster.conf doesn't exist on it
+        # (e.g. a member of another zone in a multi-zone cluster), keeping it would make this host use
+        # the IP address of another server.
+        foreach my $key (grep { /^interface / } keys %Config) {
+            next if exists $ConfigCluster{$self->{host_id}}{$key};
+            # A normal case in a multi-zone cluster (a zone without this interface): pfcmd checkup warns about the others
+            $logger->info("Ignoring $key on $self->{host_id}: it isn't defined for this server in cluster.conf");
+            delete $Config{$key};
+            $self->{ordered_sections} = [ grep { $_ ne $key } @{$self->{ordered_sections} // []} ];
+        }
         while(my ($key, $config) = (each %{$ConfigCluster{$self->{host_id}}})){
             if($key =~ /^interface /){
                 unless(any {$_ eq $key} @{$self->{ordered_sections}}) {
@@ -217,7 +228,9 @@ sub set_timezone {
         my $msg = "WARNING: The timezone is being changed from $lt to $tz on the system. It is advised to reboot the server so that all services start with the correct timezone.\n";
         print STDERR $msg;
         get_logger->warn($msg);
-        system("sudo timedatectl set-timezone $tz") && die "Unable to set timezone on the system \n";
+        my $status;
+        safe_pf_run(qw(sudo timedatectl set-timezone), $tz, { status_ref => \$status });
+        die "Unable to set timezone on the system \n" unless (defined($status) && $status == 0);
     }
 }
 

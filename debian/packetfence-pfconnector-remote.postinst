@@ -23,17 +23,49 @@ export LC_CTYPE
 
 case "$1" in
     configure)
+    if [ ! -f /usr/local/pfconnector-remote/raddb/certs/server.pem ]; then
+        make -C /usr/local/pfconnector-remote/raddb/certs
+    fi
+    cp /usr/local/pfconnector-remote/raddb/sites-available/status /usr/local/pfconnector-remote/raddb/sites-enabled/status
     /usr/local/pfconnector-remote/upgrade/remove-unpackaged-pfconnector.sh
+    # The bundled /etc/docker/daemon.json sets the docker0 bridge IP (bip) to
+    # 100.64.0.1/24, but docker only applies it on (re)start. Restart docker if
+    # docker0 isn't already on that address so the connector containers and the
+    # containers-gateway.internal mapping resolve correctly.
+    if ! ip -4 -o addr show docker0 2>/dev/null | grep -qF 'inet 100.64.0.1/24'; then
+        echo "Restarting docker to apply docker0 bridge IP 100.64.0.1"
+        /bin/systemctl restart docker
+    fi
+    # get containers image and tag them locally
+    /usr/local/pfconnector-remote/containers/manage-images.sh
+    # stop and disable legacy pfconnector-remote service in favor of the combined one
+    if systemctl is-enabled --quiet "packetfence-pfconnector-remote.service" 2>/dev/null; then
+        /bin/systemctl stop packetfence-pfconnector-remote.service 2>/dev/null || true
+        /bin/systemctl disable packetfence-pfconnector-remote.service 2>/dev/null || true
+    fi
     /bin/systemctl daemon-reload
-    /bin/systemctl enable packetfence-pfconnector-remote.service
+    /bin/systemctl enable packetfence-pfconnector-remote-combined.service
     if [ -n "$2" ]; then
-        echo "Upgrade detected, restarting packetfence-pfconnector-remote service"
-        /bin/systemctl restart packetfence-pfconnector-remote.service
+        if systemctl is-active --quiet "packetfence-pfconnector-remote-combined.service"; then
+            echo "Upgrade detected, restarting packetfence-pfconnector-remote-combined service"
+            /bin/systemctl restart packetfence-pfconnector-remote-combined.service
+        fi
     else
-        /bin/systemctl stop packetfence-pfconnector-remote.service
+        /bin/systemctl stop packetfence-pfconnector-remote-combined.service
+    fi
+
+    if ! grep -qE '^100\.64\.0\.1[[:space:]]+containers-gateway\.internal([[:space:]]|$)' /etc/hosts; then
+        # Drop any stale mapping (e.g. the old 127.0.0.1 loopback entry) before adding the connector gateway one
+        sed -i -E '/[[:space:]]containers-gateway\.internal([[:space:]]|$)/d' /etc/hosts
+        echo "" >> /etc/hosts
+        echo "100.64.0.1 containers-gateway.internal" >> /etc/hosts
     fi
     
+    echo ""
     echo "Connector installation completed"
+    echo ""
+    echo "Run /usr/local/pfconnector-remote/bin/pfconnector-configure to setup the pfconnector-remote"
+    echo ""
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

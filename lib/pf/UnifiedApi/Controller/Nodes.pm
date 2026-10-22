@@ -1271,8 +1271,8 @@ sub do_get {
     } else {
         $item->_load_locationlog;
         $item = $item->to_hash();
-        my $end_time = $item->{last_end_time};
-        $item->{not_deletable} = defined $end_time && $end_time eq '0000-00-00 00:00:00' ? $self->json_true : $self->json_false;
+        # A node with an open locationlog can be deleted, _do_remove deregisters
+        # it, reevaluates its access and closes the locationlog first
     }
 
     return ($status, $item);
@@ -1315,13 +1315,17 @@ sub bulk_delete {
 
     my ($indexes, $results) = bulk_init_results($items);
     my $nodes = $iter->all;
+    my @deleted;
     for my $node (@$nodes) {
         my $mac = $node->{mac};
         my $index = $indexes->{$mac};
-        my ($status, $msg) = $self->_do_remove($node);
+        my ($status, $msg) = $self->_do_remove($node, keep_portal_session => 1);
         $results->[$index]{status} = $status;
         $results->[$index]{message} = is_error($status) ? ($msg // "Unable to remove resource") : "Deleted $mac successfully";
+        push @deleted, $mac if is_success($status);
     }
+    # One removal of the portal sessions for all the nodes (one request per cluster member)
+    pf::node::node_clear_portal_session(@deleted) if @deleted;
 
     return $self->render(status => 200, json => { items => $results });
 }
@@ -1338,7 +1342,7 @@ _do_remove
 =cut
 
 sub _do_remove {
-    my ($self, $lookup) = @_;
+    my ($self, $lookup, %opts) = @_;
     my $mac = $lookup->{mac};
     my ($result, $msg) = pf::node::_can_delete($mac);
     if (!$result) {
@@ -1347,7 +1351,11 @@ sub _do_remove {
         pf::locationlog::locationlog_update_end_mac($mac);
     }
 
-    return $self->dal->remove_by_id($lookup);
+    my ($status, @rest) = $self->dal->remove_by_id($lookup);
+    if (is_success($status) && !$opts{keep_portal_session}) {
+        pf::node::node_clear_portal_session($mac);
+    }
+    return ($status, @rest);
 }
 
 =head2 create_data_update
@@ -1388,8 +1396,30 @@ sub update_data {
         $data->{unregdate} = '0000-00-00 00:00:00';
     }
 
+    $self->update_regdate($data);
     $self->ensure_person_exists($data);
     return $data;
+}
+
+=head2 update_regdate
+
+The update is a plain SQL UPDATE, so the DAL cannot see a node becoming
+registered. Set regdate when the node moves to reg without a registration
+date, and keep the stored one when the node already has it.
+
+=cut
+
+sub update_regdate {
+    my ($self, $data) = @_;
+    return if !pf::dal::node::missing_regdate($data->{status}, $data->{regdate});
+    my ($status, $node) = pf::dal::node->find($self->build_item_lookup);
+    if (is_success($status) && $node->status eq 'reg') {
+        delete $data->{regdate} if exists $data->{regdate};
+        return;
+    }
+
+    $data->{regdate} = \'NOW()';
+    return;
 }
 
 sub per_device_class {

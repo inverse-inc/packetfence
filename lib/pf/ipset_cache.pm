@@ -20,6 +20,7 @@ use Moo;
 use CHI;
 use pf::log;
 use pf::util qw(safe_pf_run);
+use File::Temp qw(tempfile);
 
 our $logger = get_logger();
 
@@ -84,15 +85,17 @@ sub _add_pairs_to_ipset {
     my $setname = $self->setname;
     my $binary = $self->ipset_binary;
     my $data = join("\n", (map { "add $setname " . _format_pair($_) } @$pairs), "");
-    my $pid = open(my $ipset, "| LANG=C sudo $binary -! restore 2>&1");
-    unless (defined $pid) {
-        $logger->error("Cannot start ipset ");
+    my ($fh, $tmpfile) = tempfile();
+    print $fh $data;
+    close($fh);
+    my $status;
+    safe_pf_run("sudo", $binary, "-!", "restore",
+        { stdin => $tmpfile, redirect_stderr_to_stdout => 1, status_ref => \$status });
+    unlink $tmpfile;
+    unless (defined $status && $status == 0) {
+        $logger->error("Cannot run ipset restore");
         return undef;
     }
-    $logger->trace("ipset process pid : $pid");
-    print $ipset $data;
-    close($ipset);
-    waitpid($pid, 0);
     return 1;
 }
 

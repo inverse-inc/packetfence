@@ -16,12 +16,17 @@ testcases:
     service: "pfqueue-go"
     time_to_sleep: 5
 
+# idempotent — retry the transient 502 while the admin API backend recovers.
 - name: update_systemd
   steps:
   - type: http
     method: POST
     url: '{{.pfserver_webadmin_url}}/api/v1/configurator/service/pf/update_systemd'
     ignore_verify_ssl: true
+    retry: 12
+    delay: 10
+    retry_if:
+      - result.statuscode ShouldNotEqual 200
     headers:
       "Content-Type": "application/json"
     assertions:

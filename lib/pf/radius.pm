@@ -69,6 +69,7 @@ use pf::api::queue;
 use pf::access_filter::radius;
 use pf::registration;
 use pf::access_filter::switch;
+use pf::firewallsso();
 use pf::role::pool;
 use pf::dal;
 use pf::security_event;
@@ -97,6 +98,42 @@ sub new {
     my ( $class, %argv ) = @_;
     my $self = bless { }, $class;
     return $self;
+}
+
+=item * _unregister_on_unmatch
+
+When the role is recomputed for an autoregistered 802.1X node and no rule
+matched, pf::role::getNodeInfoForAutoReg leaves the node unregistered. If the
+connection profile unsets the role on unmatch ("Dot1x unset on unmatch"), keep
+it unregistered instead of registering it without a role, so it gets the
+registration role. A role computed anyway (ex: applied by a provisioner) keeps
+the node registered with it.
+
+=cut
+
+sub _unregister_on_unmatch {
+    my ($self, $args, $node_defaults) = @_;
+    return $FALSE unless ($node_defaults->{'status'} // '') eq 'unreg';
+    return $FALSE unless ($node_defaults->{'category'} // '') eq '';
+    my $profile = $args->{'profile'};
+    return $FALSE unless $profile && isenabled($profile->dot1xUnsetOnUnmatch);
+    $self->logger->info("No rule matched for $args->{'mac'} and the connection profile " . $profile->getName . " unsets the role on unmatch, the node stays unregistered");
+    return $TRUE;
+}
+
+=item * _keep_unregistered
+
+Leave the node unregistered, as pf::node::node_deregister does: no
+autoregistration and no registration dates kept from a previous registration
+
+=cut
+
+sub _keep_unregistered {
+    my ($node_obj) = @_;
+    $node_obj->{status} = "unreg";
+    $node_obj->{autoreg} = "no";
+    $node_obj->{regdate} = $ZERO_DATE;
+    $node_obj->{unregdate} = $ZERO_DATE;
 }
 
 =item * authorize - handling the RADIUS authorize call
@@ -209,7 +246,13 @@ sub authorize {
 
     my ($status_code, $node_obj) = pf::dal::node->find_or_create({"mac" => $mac});
     if (is_error($status_code)) {
-        $node_obj = pf::dal::node->new({"mac" => $mac});
+        # The node could not be read (e.g. the DB is down). Answering with a
+        # fabricated default node would move a registered device to the
+        # registration VLAN and saving it at CLEANUP would clobber the real
+        # row once the DB comes back; fail the request so the NAS retries.
+        $logger->error("Unable to read node $mac from the database ($status_code). This request will be failed to avoid altering the access of the device.");
+        $RAD_REPLY_REF = [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Database is unavailable", RADIUS_FAILURE => 'database') ];
+        goto AUDIT;
     }
     $node_obj->_load_locationlog;
     if ($status_code != $STATUS::CREATED) {
@@ -299,24 +342,57 @@ sub authorize {
         $args->{'action'} = $action;
         $args = { %$args, %$attributes } if (ref($attributes) eq 'HASH');
         $node_obj->merge(\%autoreg_node_defaults);
-        $logger->debug("[$mac] auto-registering node");
-        # automatic registration
-        $info{autoreg} = 1;
-        ($status, $status_msg) = pf::registration::setup_node_for_registration($node_obj, \%info, $action);
-        if (is_error($status)) {
-            $logger->error("auto-registration of node failed $status_msg");
+        if ($self->_unregister_on_unmatch($args, \%autoreg_node_defaults)) {
             $do_auto_reg = 0;
-            $node_obj->{status} = "unreg";
-            $RAD_REPLY_REF = [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => $status_msg) ];
-            goto CLEANUP;
+            $args->{'autoreg'} = 0;
+            _keep_unregistered($node_obj);
+        } else {
+            $logger->debug("[$mac] auto-registering node");
+            # automatic registration
+            $info{autoreg} = 1;
+            ($status, $status_msg) = pf::registration::setup_node_for_registration($node_obj, \%info, $action);
+            if (is_error($status)) {
+                $logger->error("auto-registration of node failed $status_msg");
+                $do_auto_reg = 0;
+                $node_obj->{status} = "unreg";
+                $RAD_REPLY_REF = [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => $status_msg) ];
+                goto CLEANUP;
+            }
         }
     }
 
     # if it's an IP Phone, let _authorizeVoip decide (extension point)
     if ($args->{'isPhone'} && isenabled($switch->{_VoIPEnabled})) {
-        $RAD_REPLY_REF = $self->_authorizeVoip($args);
-        $args->{'user_role'} = $VOICE_ROLE;
-        goto CLEANUP;
+        my $voip_reply_ref = $self->_authorizeVoip($args);
+
+        if (!isenabled($switch->{_VoIPFullAuthorization})) {
+            $RAD_REPLY_REF = $voip_reply_ref;
+            $args->{'user_role'} = $VOICE_ROLE;
+            goto CLEANUP;
+        }
+
+        # VoIPFullAuthorization is enabled: keep the Voice VSA but continue through the regular
+        # authorize flow so the FULL Access-Accept (VLAN tunnel attributes, role
+        # attributes, push/downloadable ACLs, access-filter rules) is computed as
+        # if this were a regular endpoint. The Voice VSA is merged on top after
+        # returnRadiusAccessAccept(). Note: the data VLAN attributes returned
+        # alongside the Voice VSA may conflict with the voice VLAN unless the
+        # switch is configured to accept both (e.g. Cisco device-traffic-class=voice
+        # with a separate access VLAN).
+        if (ref($voip_reply_ref) eq 'ARRAY' && @$voip_reply_ref >= 1
+            && $voip_reply_ref->[0] == $RADIUS::RLM_MODULE_OK) {
+            my @voip_pairs = @$voip_reply_ref;
+            shift @voip_pairs;
+            $args->{'_voip_vsa'} = { @voip_pairs };
+            $logger->info("VoIPFullAuthorization enabled on switch ($switch_id): captured Voice VSA, "
+                . "continuing through regular flow to compute full Access-Accept for phone $mac");
+        } else {
+            # _authorizeVoip refused (e.g. switch does not support VoIP via RADIUS);
+            # fall back to the original behavior so the failure is returned.
+            $RAD_REPLY_REF = $voip_reply_ref;
+            $args->{'user_role'} = $VOICE_ROLE;
+            goto CLEANUP;
+        }
     }
 
     # if switch is not in production, we don't interfere with it: we log and we return OK
@@ -379,6 +455,19 @@ sub authorize {
 
     $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($args);
 
+    # If we are in VoIPFullAuthorization mode, merge the previously captured Voice VSA
+    # on top of the regular Access-Accept (VLAN tunnel attributes, role
+    # attributes, push/downloadable ACLs, access-filter rules).
+    if (defined $args->{'_voip_vsa'} && ref($args->{'_voip_vsa'}) eq 'HASH'
+        && ref($RAD_REPLY_REF) eq 'ARRAY' && @$RAD_REPLY_REF >= 1) {
+        my @reply = @$RAD_REPLY_REF;
+        my $status = shift @reply;
+        $RAD_REPLY_REF = [
+            $status,
+            pf::radius::_merge_radius_attrs(@reply, %{$args->{'_voip_vsa'}}),
+        ];
+    }
+
 CLEANUP:
     # If the device is lost or stolen, then ensure we execute the actions of the violation so the emails can be sent on connection
     $self->check_lost_stolen($mac);
@@ -424,8 +513,12 @@ sub accounting {
 
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
 
+    my %handled_natively = map { $_ => 1 }
+        split(/,/, ($headers->{'X-PacketFence-Handled-Natively'} // ''));
+
     # update last_seen of MAC address as some activity from it has been seen
-    node_update_last_seen($mac);
+    # (skipped when pfacct already refreshed it natively for this packet)
+    node_update_last_seen($mac) unless $handled_natively{node_last_seen};
     my $acct_status_type = $radius_request->{'Acct-Status-Type'};
 
     my $isStart  = $acct_status_type  == $ACCOUNTING::START;
@@ -614,7 +707,14 @@ sub _authorizeVoip {
             ('Reply-Message' => "Server reported: VoIP authorization over RADIUS not supported for this network device")
         ];
     }
-    $args->{'switch'}->synchronize_locationlog($args->{'ifIndex'}, $args->{'switch'}->getVlanByName($VOICE_ROLE), $args->{'mac'}, $VOIP, $args->{'connection_type'}, $args->{'connection_sub_type'}, $args->{'user_name'}, $args->{'ssid'}, undef, undef, $VOICE_ROLE, $args->{ifDesc});
+
+    # When VoIPFullAuthorization is enabled the caller will continue through the regular
+    # authorize flow, which performs its own synchronize_locationlog with the
+    # computed role/vlan. Skip the VoIP-only locationlog write here to avoid
+    # an immediately-overwritten entry.
+    if (!isenabled($args->{'switch'}->{_VoIPFullAuthorization})) {
+        $args->{'switch'}->synchronize_locationlog($args->{'ifIndex'}, $args->{'switch'}->getVlanByName($VOICE_ROLE), $args->{'mac'}, $VOIP, $args->{'connection_type'}, $args->{'connection_sub_type'}, $args->{'user_name'}, $args->{'ssid'}, undef, undef, $VOICE_ROLE, $args->{ifDesc});
+    }
 
     my %RAD_REPLY = $args->{'switch'}->getVoipVsa();
     $args->{'switch'}->disconnectRead();
@@ -929,7 +1029,10 @@ sub vpn {
 
         my ($status_code, $node_obj) = pf::dal::node->find_or_create({"mac" => $mac});
         if (is_error($status_code)) {
-            $node_obj = pf::dal::node->new({"mac" => $mac});
+            # Node unreadable (e.g. DB down): fail instead of proceeding with
+            # a fabricated default node that would be saved over the real row.
+            $logger->error("Unable to read node $mac from the database ($status_code). This request will be failed to avoid altering the access of the device.");
+            return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Database is unavailable", RADIUS_FAILURE => 'database') ];
         }
         $node_obj->_load_locationlog;
         if ($status_code != $STATUS::CREATED) {
@@ -959,15 +1062,21 @@ sub vpn {
             $args->{'action'} = $action;
             $args = { %$args, %$attributes } if (ref($attributes) eq 'HASH');
             $node_obj->merge(\%autoreg_node_defaults);
-            $logger->debug("[$mac] auto-registering node");
-            # automatic registration
-            $info{autoreg} = 1;
-            ($status, $status_msg) = pf::registration::setup_node_for_registration($node_obj, \%info, $action);
-            if (is_error($status)) {
-                $logger->error("auto-registration of node failed $status_msg");
+            if ($self->_unregister_on_unmatch($args, \%autoreg_node_defaults)) {
                 $do_auto_reg = 0;
-                $node_obj->{status} = "unreg";
-                return [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => $status_msg) ];
+                $args->{'autoreg'} = 0;
+                _keep_unregistered($node_obj);
+            } else {
+                $logger->debug("[$mac] auto-registering node");
+                # automatic registration
+                $info{autoreg} = 1;
+                ($status, $status_msg) = pf::registration::setup_node_for_registration($node_obj, \%info, $action);
+                if (is_error($status)) {
+                    $logger->error("auto-registration of node failed $status_msg");
+                    $do_auto_reg = 0;
+                    $node_obj->{status} = "unreg";
+                    return [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => $status_msg) ];
+                }
             }
         }
 
@@ -1030,6 +1139,7 @@ sub returnRadiusVpn{
         my $values = $matched->{values};
         $args->{'user_role'} = $values->{$Actions::SET_ROLE};
     }
+    pf::firewallsso::cache_vpn_role($args->{'radius_request'}{'NAS-IP-Address'} // $args->{'switch'}{'_ip'}, $args->{'user_name'}, $args->{'user_role'});
     return $args->{'switch'}->returnAuthorizeVPN($args);
 }
 
@@ -1292,6 +1402,9 @@ sub handleConnectionTypeChange {
     }
 }
 
+# Scopes already warned about a request without a switch IP, see radius_filter
+my %WARNED_NO_SWITCH_IP;
+
 =head2 radius_filter
 
 Handle radius filter request
@@ -1305,13 +1418,31 @@ sub radius_filter {
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
     my %RAD_REPLY_REF;
 
+    # The proxy sections of FreeRADIUS body the proxied copy / the home server's
+    # reply unless rest.conf asks for the original request as well
+    # (body_lists = "request ..."): without NAS-IP-Address nor switch MAC there
+    # is no switch and no endpoint to evaluate the filters against. A switch
+    # defined by its MAC (Called-Station-Id) is still looked up.
+    # Warned once per process and scope, and no Reply-Message: in post-proxy it
+    # would end up in the Access-Accept sent to the switch.
+    if ((!defined($switch_ip) || $switch_ip eq '') && (!defined($switch_mac) || $switch_mac eq '')) {
+        unless ($WARNED_NO_SWITCH_IP{$scope}++) {
+            $logger->warn(
+                "No switch IP (NAS-IP-Address / Client-IP-Address) nor switch MAC (Called-Station-Id) in the RADIUS request handed to the $scope filter: skipping the filters. "
+                ."In the pre-proxy/post-proxy sections make sure rest.conf sends the request list (body_lists). "
+                ."Logged once per process."
+            );
+        }
+        return [ $RADIUS::RLM_MODULE_NOOP ];
+    }
+
     $logger->debug("instantiating switch");
     my $switch = pf::SwitchFactory->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $switch_ip}, {radius_request => $radius_request});
 
     # is switch object correct?
     if (!$switch) {
         $logger->warn(
-            "Can't instantiate switch ($switch_ip). This request will be failed. "
+            "Can't instantiate switch (" . ($switch_ip // $switch_mac) . "). This request will be failed. "
             ."Are you sure your switches.conf is correct?"
         );
         return [ $RADIUS::RLM_MODULE_NOOP, ('Reply-Message' => "Switch is not managed by PacketFence") ];
@@ -1326,7 +1457,10 @@ sub radius_filter {
     Log::Log4perl::MDC->put( 'mac', $mac );
     my ($status_code, $node_obj) = pf::dal::node->find_or_create({"mac" => $mac});
     if (is_error($status_code)) {
-        $node_obj = pf::dal::node->new({"mac" => $mac});
+        # Node unreadable (e.g. DB down): don't evaluate filters against a
+        # fabricated default node; decline like the unknown-switch case above.
+        $logger->error("Unable to read node $mac from the database ($status_code). Skipping radius filters.");
+        return [ $RADIUS::RLM_MODULE_NOOP, ('Reply-Message' => "Database is unavailable") ];
     }
     my $connection = pf::Connection->new;
     $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch, $radius_request);
@@ -1434,6 +1568,31 @@ sub _machine_auth_detection {
         $$node_obj->machine_account($user_name);
         $$options->{'machine_account'} = $user_name;
     }
+}
+
+=item _merge_radius_attrs
+
+Merge two flat lists of RADIUS attribute key/value pairs. When the same
+attribute appears on both sides, values are combined into an arrayref so
+multivalued attributes (e.g. Cisco-AVPair, Filter-Id) are preserved.
+
+=cut
+
+sub _merge_radius_attrs {
+    my (@pairs) = @_;
+    my @order;
+    my %merged;
+    while (my ($k, $v) = splice(@pairs, 0, 2)) {
+        if (exists $merged{$k}) {
+            my @existing = ref($merged{$k}) eq 'ARRAY' ? @{$merged{$k}} : ($merged{$k});
+            my @incoming = ref($v)         eq 'ARRAY' ? @$v             : ($v);
+            $merged{$k}  = [@existing, @incoming];
+        } else {
+            push @order, $k;
+            $merged{$k} = $v;
+        }
+    }
+    return map { ($_ => $merged{$_}) } @order;
 }
 
 =back

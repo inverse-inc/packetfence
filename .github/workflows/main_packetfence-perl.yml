@@ -26,6 +26,24 @@ jobs:
       path_changes: ${{ steps.filters.outputs.src }}
       regex_match_branch: ${{ steps.regex-match.outputs.match }}
     steps:
+      # This runner's workspace can still hold root-owned files from a container
+      # job that ran before ci/runner-hooks was installed on it (see
+      # ci/runner-hooks/README.md). The checkout below cleans the workspace as
+      # the unprivileged runner user and dies on them:
+      #   Error: EACCES: permission denied, unlink '.../.git/refs/heads/<branch>'
+      # Only root can chown them back and the runner user has no sudo, so borrow
+      # root from a container. Inline rather than a local composite action:
+      # those are loaded from the workspace, which is not checked out yet.
+      - name: Reclaim workspace ownership
+        run: |
+          stray="$(find "$RUNNER_WORKSPACE" -not -uid "$(id -u)" -print -quit 2>/dev/null || true)"
+          if [ -z "$stray" ]; then
+            echo "$RUNNER_WORKSPACE is already owned by $(id -un)"
+            exit 0
+          fi
+          echo "Root-owned leftovers in the workspace, e.g. $stray"
+          docker run --rm -v "$RUNNER_WORKSPACE:/w" alpine:3 chown -hR "$(id -u):$(id -g)" /w \
+            || echo "::warning title=Runner workspace ownership::Could not reclaim $RUNNER_WORKSPACE; the checkout below may fail with EACCES."
 
       - name: Regex match devel and maintenance branches 
         uses: kaisugi/action-regex-match@v1.0.0
@@ -46,11 +64,13 @@ jobs:
               - 'addons/packetfence-perl/**'
               - '.github/workflows/main_packetfence-perl.yml'
               - '.github/workflows/packetfence-perl_build_image_package.yml'
-              - '.github/workflows/reusable_sign_package_debian.yml'
-              - '.github/workflows/reusable_sign_package_rhel8.yml'
+              - '.github/workflows/reusable_sign_packages.yml'
               - '.github/workflows/reusable_upload_packages.yml'
               - 'containers/packetfence-perl/rhel8/**'
-              - 'containers/packetfence-perl/debian/**'
+              # debian12, not debian/: there is no containers/packetfence-perl/debian
+              # directory, so the old glob matched nothing and changes to the Debian
+              # image never triggered this workflow. Kept in step with the build matrix.
+              - 'containers/packetfence-perl/debian12/**'
       - run:  | 
           echo ${{ steps.filters.outputs.src }}
           echo ${{ steps.filters.outputs.changes }}
@@ -74,7 +94,7 @@ jobs:
     if: ${{ contains( github.event.head_commit.message, '[perl]') || needs.build_preparation.outputs.path_changes == 'true' && needs.build_preparation.outputs.regex_match_branch != '' }}
     strategy:
       matrix:
-        images: ['debian11', 'debian12', 'rhel8']
+        images: ['debian12', 'rhel8']
     uses:  ./.github/workflows/packetfence-perl_build_image_package.yml
     needs: ['build_preparation']
     with:
@@ -87,17 +107,18 @@ jobs:
   unit_tests_packages:
     strategy:
       matrix:
-        images: ['debian11', 'debian12', 'rhel8']
+        images: ['debian12', 'rhel8']
     uses:  ./.github/workflows/reusable_unit_test.yml
     needs: ['build_preparation', 'build_images_and_packages']
     with:
       _IMAGE_TYPE: ${{ matrix.images }}
       _PACKAGE_NAME: ${{ needs.build_preparation.outputs.package_name }}
+    secrets: inherit
 
   sign_package:
     strategy:
       matrix:
-        images: ['debian11', 'debian12', 'rhel8']
+        images: ['debian12', 'rhel8']
     uses:  ./.github/workflows/reusable_sign_packages.yml
     needs: ['build_preparation', 'build_images_and_packages', 'unit_tests_packages']
     with:
@@ -110,7 +131,7 @@ jobs:
   upload_packages:
     strategy:
       matrix:
-        images: ['debian11', 'debian12', 'rhel8']
+        images: ['debian12', 'rhel8']
     uses:  ./.github/workflows/reusable_upload_packages.yml
     needs: ['build_preparation', 'build_images_and_packages', 'unit_tests_packages', 'sign_package']
     with:

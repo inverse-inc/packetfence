@@ -251,6 +251,10 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
 
+- name: enable_rogue_dhcp_detection
+  steps:
+  - type: pf_api_enable_rogue_dhcp_detection
+
 - name: restart_pfdns_service
   steps:
   - type: exec

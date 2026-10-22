@@ -19,3 +19,11 @@ testcases:
         "Content-Type": "application/json"
       assertions:
         - result.statuscode ShouldEqual 201
+
+# Seed a marker in a restored config location so later tests can prove the config is restored.
+- name: create_config_restore_marker
+  steps:
+  - type: exec
+    script: echo 'venom-config-restore-marker' > {{.backup_db_and_restore.conf_marker}}
+    assertions:
+      - result.code ShouldEqual 0

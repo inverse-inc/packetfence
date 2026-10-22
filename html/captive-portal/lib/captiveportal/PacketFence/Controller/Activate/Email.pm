@@ -57,6 +57,17 @@ sub code : Path : Args(2) {
     my $request = $c->request;
     my $logger  = $c->log;
 
+    # Email security gateways (Outlook Safe Links, Proofpoint, ...) pre-fetch
+    # links with a HEAD request before the user ever clicks. Consuming the
+    # activation code on that request leaves the real click with an already
+    # used code. Only a GET (or POST) from the user may validate the code.
+    if ( $request->method ne 'GET' && $request->method ne 'POST' ) {
+        $logger->info("Ignoring " . $request->method . " request for activation code $code from " . $request->address);
+        $c->response->status(200);
+        $c->response->body('');
+        $c->detach;
+    }
+
     # validate code
     my $activation_record = pf::activation::validate_code($type, $code);
     if (  !defined($activation_record)
@@ -82,7 +93,13 @@ sub code : Path : Args(2) {
             get_logger->info("Extending duration to $unregdate");
             node_modify($node_mac, unregdate => $unregdate);
             pf::activation::set_status_verified($GUEST_ACTIVATION, $code);
-            pf::auth_log::record_completed_guest($activation_record->{source_id}, $node_mac, $pf::auth_log::COMPLETED);
+            my $source = pf::authentication::getAuthenticationSource($activation_record->{source_id});
+            pf::auth_log::record_completed_guest($activation_record->{source_id}, $source ? $source->type : '', $node_mac, $pf::auth_log::COMPLETED);
+            # The access was granted with the activation timeout, apply the new unregdate on the network device (ex: Unifi guest authorization)
+            if (defined($node_mac)) {
+                eval { pf::enforcement::reevaluate_access($node_mac, "manage_register", force => 1) };
+                get_logger->error("Unable to re-evaluate the access of $node_mac after its e-mail activation: $@") if $@;
+            }
             $c->stash(
                 title => "Access granted",
                 template => "activation/email.html",

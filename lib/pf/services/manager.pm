@@ -264,9 +264,7 @@ sub pid {
     my ($self) = @_;
     my $logger = get_logger();
     my $name = $self->{name};
-    my $pid = `sudo systemctl show -p MainPID packetfence-$name`;
-    chomp $pid;
-    $pid = (split(/=/, $pid))[1];
+    my $pid = $self->systemctlShowProperty('MainPID', "packetfence-$name");
     if (defined $pid) {
         $logger->debug("sudo systemctl packetfence-$name returned $pid");
     } else {
@@ -321,7 +319,9 @@ sub stopService {
     }
     my $pid    = $self->pid;
     $logger->info("Stopping $name with pid $pid");
-    `sudo systemctl stop packetfence-$name`;
+    my $stop_status;
+    safe_pf_run(qw(sudo systemctl stop), "packetfence-$name", { status_ref => \$stop_status });
+    local $? = $stop_status // -1;
     if ( $? == -1 ) {
         $logger->error("failed to execute: $!\n");
     }
@@ -417,9 +417,12 @@ sub isAlive {
     my ($self) = @_;
     my $logger = get_logger();
     my $target = $self->systemdTarget;
-    my $res = system("sudo systemctl -q is-active $target");
-    my $alive = $res == 0 ? 1 : 0;
-    $logger->debug("sudo systemctl -q is-active $target returned code $res");
+    my $res;
+    # is-active exits non-zero (3) for inactive/failed services, which is a
+    # normal state and must not be logged as a command failure on this hot path.
+    safe_pf_run(qw(sudo systemctl -q is-active), $target, { status_ref => \$res, accepted_exit_status => [1, 2, 3, 4] });
+    my $alive = (defined $res && $res == 0) ? 1 : 0;
+    $logger->debug("sudo systemctl -q is-active $target returned code " . ($res // -1));
     return $alive;
 }
 
@@ -449,9 +452,7 @@ Return true if systemd consider the service as enabled
 sub isEnabled {
     my ($self) = @_;
     my $name   = $self->name;
-    my $state  = `sudo systemctl show -p UnitFileState packetfence-$name`;
-    chomp $state;
-    $state = ( split( /=/, $state ) )[1];
+    my $state  = $self->systemctlShowProperty('UnitFileState', "packetfence-$name");
     if ( defined $state and $state eq "enabled" ) {
         return $TRUE;
     }
@@ -483,9 +484,7 @@ sub _unitFileExists {
     # Use 'systemctl show' instead of 'systemctl cat' because
     # 'systemctl cat' fails inside Docker containers while
     # 'systemctl show' works via the D-Bus socket.
-    my $output = `sudo systemctl show -p LoadState $target 2>/dev/null`;
-    chomp $output;
-    my $load_state = (split(/=/, $output))[1];
+    my $load_state = $self->systemctlShowProperty('LoadState', $target, { redirect_stderr_to_stdout => 1 });
     return defined $load_state && $load_state ne 'not-found';
 }
 
@@ -497,7 +496,9 @@ Enable the service in systemd.
 
 sub sysdEnable {
     my $self = shift;
-    return system( "sudo systemctl enable " . $self->systemdTarget) == 0;
+    my $status;
+    safe_pf_run(qw(sudo systemctl enable), $self->systemdTarget, { status_ref => \$status });
+    return defined($status) && $status == 0;
 }
 
 =head2 sysdDisable
@@ -511,7 +512,9 @@ sub sysdDisable {
     my $target = $self->systemdTarget;
     # Check if the unit file exists before trying to disable it
     return $TRUE unless $self->_unitFileExists($target);
-    return system( "sudo systemctl disable " . $target) == 0;
+    my $status;
+    safe_pf_run(qw(sudo systemctl disable), $target, { status_ref => \$status });
+    return defined($status) && $status == 0;
 }
 
 =head2 _build_restart_launcher
@@ -557,6 +560,24 @@ restart the service
 sub restart {
     my ($self) = @_;
     return $self->restartService();
+}
+
+=head2 systemctlShowProperty
+
+Run C<systemctl show -p PROPERTY NAME> and return the value of the property
+(the part after the C<=>), with any trailing newline removed. Returns undef
+if the command produced no output. An optional hashref of options is passed
+through to C<safe_pf_run>.
+
+=cut
+
+sub systemctlShowProperty {
+    my ($self, $prop, $name, $options) = @_;
+    my @extra = defined $options ? ($options) : ();
+    my $value = safe_pf_run(qw(sudo systemctl show -p), $prop, $name, @extra);
+    return undef unless defined $value;
+    chomp $value;
+    return (split(/=/, $value, 2))[1];
 }
 
 =head1 AUTHOR

@@ -19,6 +19,25 @@ jobs:
   git_checkout:
     runs-on: package-build
     steps:
+      # This runner's workspace can still hold root-owned files from a container
+      # job that ran before ci/runner-hooks was installed on it (see
+      # ci/runner-hooks/README.md). The checkout below cleans the workspace as
+      # the unprivileged runner user and dies on them:
+      #   Error: EACCES: permission denied, unlink '.../.git/refs/heads/<branch>'
+      # Only root can chown them back and the runner user has no sudo, so borrow
+      # root from a container. Inline rather than a local composite action:
+      # those are loaded from the workspace, which is not checked out yet.
+      - name: Reclaim workspace ownership
+        run: |
+          stray="$(find "$RUNNER_WORKSPACE" -not -uid "$(id -u)" -print -quit 2>/dev/null || true)"
+          if [ -z "$stray" ]; then
+            echo "$RUNNER_WORKSPACE is already owned by $(id -un)"
+            exit 0
+          fi
+          echo "Root-owned leftovers in the workspace, e.g. $stray"
+          docker run --rm -v "$RUNNER_WORKSPACE:/w" alpine:3 chown -hR "$(id -u):$(id -g)" /w \
+            || echo "::warning title=Runner workspace ownership::Could not reclaim $RUNNER_WORKSPACE; the checkout below may fail with EACCES."
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -26,25 +45,22 @@ jobs:
     runs-on: package-build
     needs: git_checkout
     container:
-      image: registry.gitlab.com/orange-opensource/gitlab-buildpkg/${{ inputs._IMAGE_TYPE == 'rhel8' && 'centos:8' || inputs._IMAGE_TYPE == 'debian11' && 'debian:bullseye'  || inputs._IMAGE_TYPE == 'debian12' && 'debian:bookworm' }}
+      # Per-distro build image: signing-packages is debian:bookworm with signing
+      # tooling only, so 'make build_rpm' died there on a missing yum. These are
+      # the images the GitLab pipeline builds packages with (.gitlab-ci.yml:38-39),
+      # tagged with PFBUILD_DEFAULT_DEV_TAG.
+      image: ghcr.io/inverse-inc/packetfence/${{ inputs._IMAGE_TYPE == 'rhel8' && 'pfbuild-centos-8' || 'pfbuild-debian-bookworm' }}:latest
+      credentials:
+        username: ${{ vars.USER_GITHUB }}
+        password: ${{ secrets.TOKEN_GITHUB }}
       env:
         EXECUTION_DIRECTORY: '/mnt/packetfence/'
 #      volumes:
 #        - ${{ github.workspace }}/:${{ inputs._VOLUME_MOUNT }}
     steps:
-      - name: Copy 
+      - name: Copy
         run: |
           cp -avT ${GITHUB_WORKSPACE} ${EXECUTION_DIRECTORY}
-
-      - name: Install RHEL dependencies ${{ inputs._IMAGE_TYPE }}
-        if: inputs._IMAGE_TYPE == 'rhel8'
-        run: dnf -y install rpm-sign python39 && python3.9 -m pip install -q  -U pip && pip install -q pynacl requests
-
-      - name: Install Debian dependencies ${{ inputs._IMAGE_TYPE }}
-        if: inputs._IMAGE_TYPE == 'debian11'  || inputs._IMAGE_TYPE == 'debian12'
-        run:  apt -qq update && apt -qq -y install python3 python3-pip && python3 -m pip install -q -U pip ${{ env.BREAK_OPTION}} && pip install -q pynacl requests ${{ env.BREAK_OPTION}}
-        env:
-          BREAK_OPTION: ${{ inputs._IMAGE_TYPE == 'debian12' && '--break-system-packages' || '' }}
 
       - name: Safety add directory
         shell: bash
@@ -52,6 +68,18 @@ jobs:
           cd ${EXECUTION_DIRECTORY}
           git config --global --add safe.directory '*'
           cd -
+
+      # psono.py needs requests + PyNaCl, which signing-packages pre-baked and the
+      # pfbuild images do not yet carry. Drop this step once they do.
+      - name: Ensure psono client deps
+        shell: bash
+        run: |
+          python3 -c 'import nacl, requests' 2>/dev/null && exit 0
+          if command -v dnf >/dev/null; then
+            dnf install -y python3-pynacl python3-requests
+          else
+            apt-get update -qq && apt-get install -y --no-install-recommends python3 python3-nacl python3-requests
+          fi
 
       - name: Build package ${{inputs._IMAGE_TYPE}}
         shell: bash
@@ -67,7 +95,13 @@ jobs:
           set -e &&  make SHELL='sh' -e ${{ inputs._IMAGE_TYPE == 'rhel8' && 'build_rpm' || 'build_deb'}}
           ls -la "${EXECUTION_DIRECTORY}"/addons/perl-client/result/${{ inputs._IMAGE_TYPE == 'rhel8' && 'centos/8' || inputs._IMAGE_TYPE == 'debian11' && 'debian/bullseye' || inputs._IMAGE_TYPE == 'debian12' && 'debian/bookworm'}}
         env:
+          # Consumed by the package version suffix in addons/perl-client/vars.mk,
+          # which mirrors config.mk's GitLab-flavoured variables. CI_COMMIT_TIMESTAMP
+          # is deliberately not exported: it is unset for workflow_dispatch and
+          # schedule, and an empty value would win over vars.mk's git fallback under
+          # make -e, degrading the date component to midnight.
           CI_COMMIT_REF_NAME: ${{ inputs._BRANCH_NAME }}
+          CI_PIPELINE_ID: ${{ github.run_id }}
     
       - name: Upload the package to artifactory ${{inputs._IMAGE_TYPE}}
         uses: actions/upload-artifact@v4.4.3

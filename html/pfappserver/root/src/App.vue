@@ -48,6 +48,10 @@
             :active="$route.path.startsWith('/live-logs')">
             <icon name="scroll" :class="{ 'text-success': hasRunningSessions }" />
           </b-nav-item>
+          <b-nav-item to="/historical-logs" v-b-tooltip.hover.bottom.d300 :title="$t('Historical Logs')"
+            :active="$route.path.startsWith('/historical-logs')">
+            <icon name="history" />
+          </b-nav-item>
         </b-navbar-nav>
         <app-notifications :isAuthenticated="isAuthenticated || isConfiguratorActive" />
       </b-collapse>

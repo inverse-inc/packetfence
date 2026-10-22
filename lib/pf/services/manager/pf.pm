@@ -21,6 +21,7 @@ use Moo;
 use pf::constants qw($TRUE $FALSE);
 use pf::log;
 use pf::util::console;
+use pf::util;
 use pf::cluster;
 extends 'pf::services::manager';
 
@@ -95,7 +96,10 @@ sub print_status {
                     $isManaged = $FALSE;
                 }
             }
-            my $active = `systemctl is-active $service`;
+            # is-active exits non-zero for inactive/failed/activating states
+            # but still prints the state word, so accept those exit codes to
+            # preserve the output (and avoid uninitialized-value warnings).
+            my $active = safe_pf_run(qw(systemctl is-active), $service, { accepted_exit_status => [1, 2, 3, 4] }) // '';
             chomp $active;
             $service .= (" " x (50 - length($service)));
             if ($active eq 'reloading') {
@@ -148,9 +152,7 @@ sub print_status {
 sub sub_pid {
     my ($self, $service) = @_;
     my $logger = get_logger();
-    my $pid = `sudo systemctl show -p MainPID $service`;
-    chomp $pid;
-    $pid = (split(/=/, $pid))[1];
+    my $pid = $self->systemctlShowProperty('MainPID', $service);
     if (defined $pid) {
         $logger->debug("sudo systemctl $service returned $pid");
     } else {

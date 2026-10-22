@@ -30,6 +30,8 @@ import (
 	dhcp "github.com/inverse-inc/dhcp4"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
+	"github.com/inverse-inc/packetfence/go/api-frontend/unifiedapierrors"
+	"github.com/inverse-inc/packetfence/go/jsonrpc2"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	statsd "gopkg.in/alexcesaro/statsd.v2"
 )
@@ -84,6 +86,10 @@ var (
 
 	// Connection pool
 	dbConnPool *sql.DB
+
+	// JSON-RPC2 client to the PacketFence AAA API, used to trigger security
+	// events (e.g. hostname_change) back into PacketFence.
+	AAAClient *jsonrpc2.Client
 )
 
 // initializeCaches sets up all the cache systems with consistent timeouts
@@ -139,6 +145,9 @@ func main() {
 
 	// Initialize StatsD client
 	go initStatsD(ctx)
+
+	// Client to the AAA API for triggering security events (hostname_change)
+	AAAClient = jsonrpc2.NewAAAClientFromConfig(ctx)
 
 	// Initialize DHCP configuration
 	DHCPConfig = newDHCPConfig()
@@ -208,7 +217,7 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 	// ctx = log.AddToLogContext(ctx, "mac", answer.MAC.String())
 	clientMac := answer.MAC.String()
-	clientHostname := string(options[dhcp.OptionHostName])
+	clientHostname := sanitizeHostname(string(options[dhcp.OptionHostName]))
 	prettyType := "DHCP" + strings.ToUpper(msgType.String())
 
 	// Get the appropriate handler and network scope
@@ -247,6 +256,19 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 	}
 
 	log.LoggerWContext(ctx).Debug(clientMac + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId()))
+
+	// PacketFence is the DHCP server for this network (a handler/network was
+	// found above). Record the client host name (option 12) on the node right
+	// away from the packet we're answering, rather than relying on the
+	// asynchronous Fingerbank collector to aggregate it later. The Perl DHCP
+	// processor defers computername to us for the networks we serve
+	// (pf_is_dhcp), so this is the authoritative writer for those networks.
+	if clientHostname != "" {
+		switch msgType {
+		case dhcp.Discover, dhcp.Request, dhcp.Inform:
+			recordComputername(ctx, clientMac, clientHostname, db)
+		}
+	}
 
 	// Process request based on message type
 	switch msgType {
@@ -470,7 +492,14 @@ func (I *Interface) handleRequest(ctx context.Context, p dhcp.Packet, handler DH
 					options[key] = value
 				}
 			}
-			GlobalOptions = options
+			// Copy rather than alias: the network, device and pffilter overrides
+			// below write into GlobalOptions, while the reply is assembled with
+			// options[dhcp.OptionParameterRequestList], which has to stay the
+			// configured request list rather than whatever an override set.
+			GlobalOptions = make(dhcp.Options, len(options))
+			for key, value := range options {
+				GlobalOptions[key] = value
+			}
 			leaseDuration := handler.leaseDuration
 			// Add network options
 			AddDevicesOptions(NetScope.IP.String(), &leaseDuration, GlobalOptions, db)
@@ -503,6 +532,7 @@ func (I *Interface) handleRequest(ctx context.Context, p dhcp.Packet, handler DH
 
 			answer.D = dhcp.ReplyPacket(p, dhcp.ACK, setOptionServerIdentifier(srvIP, handler.ip).To4(), reqIP, leaseDuration,
 				GlobalOptions.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
+			setBootFields(answer.D, GlobalOptions)
 			var cacheDuration time.Duration
 			if leaseDuration < time.Duration(60)*time.Second {
 				cacheDuration = time.Duration(120) * time.Second
@@ -513,7 +543,7 @@ func (I *Interface) handleRequest(ctx context.Context, p dhcp.Packet, handler DH
 			// Update Global Caches
 			GlobalIPCache.Set(reqIP.String(), answer.MAC.String(), cacheDuration)
 			GlobalMacCache.Set(answer.MAC.String(), reqIP.String(), cacheDuration)
-			err := MysqlUpdateIP4Log(ctx, answer.MAC.String(), reqIP.String(), cacheDuration, db)
+			err := MysqlUpdateIP4Log(ctx, answer.MAC.String(), reqIP.String(), cacheDuration, leaseDuration, db)
 			if err != nil {
 				log.LoggerWContext(ctx).Info(err.Error() + " mac=" + clientMac)
 			}
@@ -730,7 +760,14 @@ reply:
 			options[key] = value
 		}
 	}
-	GlobalOptions = options
+	// Copy rather than alias: the network, device and pffilter overrides
+	// below write into GlobalOptions, while the reply is assembled with
+	// options[dhcp.OptionParameterRequestList], which has to stay the
+	// configured request list rather than whatever an override set.
+	GlobalOptions = make(dhcp.Options, len(options))
+	for key, value := range options {
+		GlobalOptions[key] = value
+	}
 	leaseDuration := handler.leaseDuration
 
 	// Add network options on the fly
@@ -775,6 +812,7 @@ reply:
 	log.LoggerWContext(ctx).Info("DHCPOFFER on " + answer.IP.String() + " to " + clientMac + " (" + clientHostname + ")")
 	answer.D = dhcp.ReplyPacket(p, dhcp.Offer, setOptionServerIdentifier(srvIP, handler.ip).To4(), answer.IP, leaseDuration,
 		GlobalOptions.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
+	setBootFields(answer.D, GlobalOptions)
 
 	return answer
 }
@@ -1007,6 +1045,8 @@ func startNetworkListeners(ctx context.Context, jobs chan job) {
 func setupAPIRoutes(ctx context.Context, db *sql.DB) *mux.Router {
 	api := &API{DB: db, Ctx: ctx}
 	router := mux.NewRouter()
+	router.NotFoundHandler = http.HandlerFunc(unifiedapierrors.UnknownPath)
+	router.MethodNotAllowedHandler = http.HandlerFunc(unifiedapierrors.MethodNotAllowed)
 
 	// API endpoints
 	router.HandleFunc("/api/v1/dhcp/mac/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", api.handleMac2Ip).Methods("GET")

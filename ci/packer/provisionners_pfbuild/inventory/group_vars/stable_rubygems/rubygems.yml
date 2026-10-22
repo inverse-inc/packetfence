@@ -1,5 +1,0 @@
----
-gems:
-  - name: 'asciidoctor'
-  - name: 'asciidoctor-pdf'
-  - name: 'rouge'

@@ -1,5 +1,5 @@
 Name:       packetfence-test
-Version:    15.2.0
+Version:    16.0.0
 Release:    1%{?dist}
 BuildArch:  noarch
 Summary:    PacketFence test files
@@ -120,6 +120,9 @@ PacketFence test files. This package contains all files related to PacketFence t
 %attr(0755, -, -)     /usr/local/pf/t/addons-functions/*.tests
 
 %changelog
+* Mon Aug 24 2026 Inverse <info@inverse.ca> - 16.0.0-1
+- New release 16.0.0
+
 * Wed May 20 2026 Inverse <info@inverse.ca> - 15.2.0-1
 - New release 15.2.0
 

@@ -1,0 +1,15 @@
+name: Joining servers — assert synced file kept its executable bit (#8984)
+testcases:
+# The bug: sync transferred file content only, so the pulled file arrived as
+# 0664 (no exec bit). `test -x` is false when no exec bit is set — even for
+# root — so it fails on the buggy behavior and passes once the mode is kept.
+- name: synced_file_is_executable
+  steps:
+  - type: exec
+    script: 'test -x /usr/local/pf/conf/venom_exec_sync_test.sh'
+    assertions:
+      - result.code ShouldEqual 0
+  - type: exec
+    script: 'grep -qF packetfence-8984 /usr/local/pf/conf/venom_exec_sync_test.sh'
+    assertions:
+      - result.code ShouldEqual 0

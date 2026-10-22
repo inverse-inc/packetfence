@@ -17,6 +17,7 @@ module.exports = function(grunt) {
           'styles.css': 'scss/styles.scss'
         },
         options: {
+          sourceMap: false, // exclude CSS source maps for production builds.
           outputStyle: 'compressed'
         }
       },
@@ -31,8 +32,10 @@ module.exports = function(grunt) {
         options: {
           map: false,
           processors: [
-            require('autoprefixer')(),
-            require('csswring').postcss // minifier
+            // Insert static fallback values before every var() for IE8-IE11 compatibility.
+            // preserve: true keeps both the static fallback AND the var() declaration.
+            require('postcss-custom-properties')({ preserve: true }),
+            require('autoprefixer')()
           ]
         },
         src: 'styles.css'
@@ -41,6 +44,7 @@ module.exports = function(grunt) {
         options: {
           map: true,
           processors: [
+            require('postcss-custom-properties')({ preserve: true }),
             require('autoprefixer')()
           ]
         },
@@ -59,7 +63,7 @@ module.exports = function(grunt) {
   });
 
   grunt.loadNpmTasks('grunt-sass');
-  grunt.loadNpmTasks('grunt-postcss');
+  grunt.loadNpmTasks('@lodder/grunt-postcss');
   grunt.loadNpmTasks('grunt-contrib-watch');
 
   // Build CSS for distribution

@@ -45,6 +45,11 @@
           disabled-value="N"
         />
 
+        <form-group-host-mode namespace="host_mode"
+          :column-label="$i18n.t('Port host mode')"
+          :text="$i18n.t('Host mode configured on the switch ports. In multi-auth, each endpoint authenticates independently: PacketFence keeps a separate locationlog entry per MAC and deauthenticates each endpoint with a per-session CoA/Disconnect instead of bouncing the port. Note that most switches apply a single data VLAN per port, so returning two different VLANs for two endpoints on the same port will not work; use role-based ACLs (push or downloadable) to differentiate them.')"
+        />
+
         <form-group-external-portal-enforcement namespace="ExternalPortalEnforcement"
           v-show="supports(['ExternalPortal'])"
           :column-label="$i18n.t('External Portal Enforcement')"
@@ -70,6 +75,11 @@
         <form-group-voip-dhcp-detect namespace="VoIPDHCPDetect"
           :column-label="$i18n.t('VoIP DHCP Detect')"
           :text="$i18n.t('Detect VoIP with the DHCP Fingerprint.')"
+        />
+
+        <form-group-voip-full-authorization namespace="VoIPFullAuthorization"
+          :column-label="$i18n.t('Full RADIUS authorization for VoIP')"
+          :text="$i18n.t('When enabled, the RADIUS reply for a VoIP device contains the Voice VSA AND the full Access-Accept response computed as if the device were a regular endpoint — VLAN tunnel attributes, role attributes, downloadable/push ACLs, and any access-filter rules. The data VLAN returned alongside the Voice VSA may conflict with the device\'s voice VLAN; make sure your switch is configured to accept both (e.g. Cisco device-traffic-class=voice with a separate access VLAN).')"
         />
 
         <form-group-uplink-dynamic namespace="uplink_dynamic"
@@ -303,7 +313,13 @@
         <form-group-controller-ip namespace="controllerIp"
           v-show="supports(['WirelessMacAuth', 'WirelessDot1x'])"
           :column-label="$i18n.t('Controller IP Address')"
-          :text="$i18n.t('Use instead this IP address for de-authentication requests. Normally used for Wi-Fi only.')"
+          :text="$i18n.t('Use instead this IP address or FQDN for de-authentication requests. Normally used for Wi-Fi only.')"
+        />
+
+        <form-group-controller-port namespace="controllerPort"
+          v-show="supports(['WirelessMacAuth', 'WirelessDot1x'])"
+          :column-label="$i18n.t('Controller Port')"
+          :text="$i18n.t('Port to reach the controller API. If empty, the default ports of the module will be used.')"
         />
 
         <form-group-disconnect-port namespace="disconnectPort"
@@ -463,6 +479,10 @@
         <form-group-web-services-pwd namespace="wsPwd"
           :column-label="$i18n.t('Password')"
         />
+        <form-group-web-services-verify-certificate namespace="wsVerifyCertificate"
+          :column-label="$i18n.t('Verify Certificate')"
+          :text="$i18n.t('Verify the certificate of the controller when the transport is HTTPS. The certificate must be issued by a trusted certificate authority for the controller address. When disabled, the certificate is not checked, which allows self-signed certificates.')"
+        />
 
       </base-form-tab>
       <base-form-tab :title="$i18n.t('ACLs')" v-if="supports(['PushACLs', 'DownloadableListBasedEnforcement'])">
@@ -515,6 +535,7 @@ import {
   FormGroupCliUser,
   FormGroupCoaPort,
   FormGroupControllerIp,
+  FormGroupControllerPort,
   FormGroupDeauthenticationMethod,
   FormGroupDescription,
   FormGroupDisconnectPort,
@@ -572,14 +593,17 @@ import {
   FormGroupDownloadableAclsLimit,
   FormGroupAclsLimit,
   FormGroupDeauthOnPrevious,
+  FormGroupHostMode,
   FormGroupVoipEnabled,
   FormGroupVoipLldpDetect,
   FormGroupVoipCdpDetect,
   FormGroupVoipDhcpDetect,
+  FormGroupVoipFullAuthorization,
   FormGroupPostMfaValidation,
   FormGroupWebServicesPwd,
   FormGroupWebServicesTransport,
   FormGroupWebServicesUser,
+  FormGroupWebServicesVerifyCertificate,
 
   InputRoleMapNetwork,
   InputToggleNetworkFrom,
@@ -599,6 +623,7 @@ const components = {
   FormGroupCliUser,
   FormGroupCoaPort,
   FormGroupControllerIp,
+  FormGroupControllerPort,
   FormGroupDeauthenticationMethod,
   FormGroupDescription,
   FormGroupDisconnectPort,
@@ -656,14 +681,17 @@ const components = {
   FormGroupAclsLimit,
   FormGroupDownloadableAclsLimit,
   FormGroupDeauthOnPrevious,
+  FormGroupHostMode,
   FormGroupVoipEnabled,
   FormGroupVoipLldpDetect,
   FormGroupVoipCdpDetect,
   FormGroupVoipDhcpDetect,
+  FormGroupVoipFullAuthorization,
   FormGroupPostMfaValidation,
   FormGroupWebServicesPwd,
   FormGroupWebServicesTransport,
   FormGroupWebServicesUser,
+  FormGroupWebServicesVerifyCertificate,
 
   InputRoleMapNetwork,
   InputToggleNetworkFrom,

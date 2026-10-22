@@ -23,6 +23,51 @@ has 'primary_key' => 'connector_id';
 
 use pf::ConfigStore::Connector;
 use pfappserver::Form::Config::Connector;
+use Mojo::UserAgent;
+use pf::config qw(%Config);
+use pf::log;
+
+sub status {
+    my ($self) = @_;
+    my $logger = get_logger();
+
+    my $config_store = $self->config_store_class->new;
+    my $connectors = $config_store->readAllIds;
+
+    my $status_map = {};
+    my $url = $Config{services_url}{'pfconnector-server'};
+    if ($url) {
+        my $ua = Mojo::UserAgent->new;
+        $ua->connect_timeout(5);
+        $ua->request_timeout(5);
+        my $tx = $ua->get("$url/api/v1/pfconnector/connector-status");
+        if (!$tx->error) {
+            my $data = $tx->res->json;
+            if (ref($data) eq 'HASH') {
+                $status_map = $data->{connector_status} // {};
+            } else {
+                $logger->warn("Unexpected response from pfconnector-server connector-status: not a JSON object");
+            }
+        } else {
+            $logger->warn("Failed to fetch connector status from pfconnector-server: " . $tx->error->{message});
+        }
+    } else {
+        $logger->warn("Missing services_url for pfconnector-server, cannot fetch connector status");
+    }
+
+    my @items;
+    foreach my $connector_id (sort @$connectors) {
+        my $status;
+        if (exists $status_map->{$connector_id}) {
+            $status = $status_map->{$connector_id} ? 'up' : 'down';
+        } else {
+            $status = 'unknown';
+        }
+        push @items, { id => $connector_id, status => $status };
+    }
+
+    return $self->render(json => { items => \@items });
+}
 
 =head1 AUTHOR
 

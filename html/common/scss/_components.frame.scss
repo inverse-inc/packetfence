@@ -1,8 +1,13 @@
 /// _components.frame.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
+///
+/// Border: three-tier cascade — [1] IE static → [2] var() fallback → [3] color-mix() modern.
 
 .c-frame {
-  background-color: $pf-frame-background;
+  background-color: $pf-card-background-color;
   border-radius: $pf-border-radius;
+  box-shadow: 0 0 0 1px #{$pf-frame-border-color};                                                    // [1] IE
+  box-shadow: 0 0 0 1px var(--pf-frame-border-color, transparent);                                   // [2] no color-mix()
+  box-shadow: 0 0 0 1px color-mix(in oklch, var(--pf-card-background-color) 85%, CanvasText);        // [3] modern
 }
 
 .c-frame--first {
@@ -16,29 +21,16 @@
 }
 
 .c-frame--raised {
-  -webkit-box-shadow: 3px 3px 18px 0px rgba(0,0,0,0.5);
-  -moz-box-shadow: 3px 3px 18px 0px rgba(0,0,0,0.5);
-  box-shadow: 3px 3px 18px 0px rgba(0,0,0,0.5);
+  box-shadow: 0 2px 8px #{$pf-media-border-color};                                                    // [1] IE
+  box-shadow: 0 2px 8px var(--pf-media-border-color, transparent);                                   // [2] no color-mix()
+  box-shadow: 0 2px 8px color-mix(in oklch, var(--pf-alert-background-color) 75%, CanvasText);       // [3] modern
 }
 
-/*
- * See https://github.com/evankarageorgos/hue
- *
- * The following classes can be added to the page's body.
- */
-.c-frame--earlyMorning {
-  min-height: 100%;
-  background:
-    linear-gradient(-180deg, #BCC5CE 0%, #929EAD 98%),
-    radial-gradient(at top left, rgba(255,255,255,0.30) 0%, rgba(0,0,0,0.30) 100%);
-  background-blend-mode: screen;
-}
-
-.c-frame--air {
-  min-height: 100%;
-  background:
-    linear-gradient(to bottom, #D5DEE7 0%, #E8EBF2 50%, #E2E7ED 100%),
-    linear-gradient(to bottom, rgba(0,0,0,0.02) 50%, rgba(255,255,255,0.02) 61%, rgba(0,0,0,0.02) 73%),
-    linear-gradient(33deg, rgba(255,255,255,0.20) 0%, rgba(0,0,0,0.20) 100%);
-  background-blend-mode: normal,color-burn;
+@media (prefers-color-scheme: dark) {
+  .c-frame--raised {
+    // drop shadow not needed on dark backgrounds — restore border ring
+    box-shadow: 0 0 0 1px #{$pf-dark-frame-border-color};                                            // [1] IE
+    box-shadow: 0 0 0 1px var(--pf-frame-border-color, transparent);                                 // [2] no color-mix()
+    box-shadow: 0 0 0 1px color-mix(in oklch, var(--pf-card-background-color) 85%, CanvasText);      // [3] modern
+  }
 }

@@ -12,6 +12,8 @@ const (
 	logInfo  = "info"
 	logWarn  = "warn"
 	logError = "error"
+	logFatal = "fatal"
+	logTrace = "trace"
 )
 
 type LogMetaEngine struct {
@@ -131,7 +133,63 @@ func NewRsyslogMetaEngine() *LogMetaEngine {
 	}
 }
 
+// The rsyslog file templates write an ISO-8601 (RFC3339) timestamp:
+//
+//	2026-06-11T00:00:18.164560+02:00 host pfperl-api-docker-wrapper[289102]: rest of line
+//
+// This is the format actually found in /usr/local/pf/logs today; the legacy
+// "Jan _2 15:04:05" form below is kept as a fallback for older files. Both
+// the live tailing sessions and the history endpoint parse lines through
+// this engine, so the format contract exists exactly once.
+var isoExtractionRe = regexp.MustCompile(`^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:[+-]\d{2}:\d{2}|Z))\s+(\S+)\s+([^\[\s:]+)(?:\[\d+\])?:\s*(.*)$`)
+
+// Level tokens as the PacketFence daemons emit them: log4perl/apache/syslog
+// style level words in any casing and the golang lvl=<abbrev> form. Longer
+// variants are listed before their prefixes so WARNING/CRITICAL match whole.
+var isoLevelWordRe = regexp.MustCompile(`(?i)\b(DEBUG|INFO|NOTICE|WARNING|WARN|ERROR|ERR|CRITICAL|CRIT|FATAL|TRACE)\b`)
+var isoLevelLvlRe = regexp.MustCompile(`\blvl=(dbug|info|warn|eror|crit)\b`)
+
+// Keys are upper-case; look tokens up through strings.ToUpper so the word
+// and lvl= forms share one normalization.
+var isoLevelMap = map[string]string{
+	"DEBUG": logDebug, "DBUG": logDebug, "TRACE": logTrace,
+	"INFO": logInfo, "NOTICE": logInfo,
+	"WARN": logWarn, "WARNING": logWarn,
+	"ERROR": logError, "ERR": logError, "EROR": logError,
+	"CRIT": logFatal, "CRITICAL": logFatal, "FATAL": logFatal,
+}
+
+// ExtractMetaISO parses an ISO-8601-prefixed syslog line. It returns the
+// extracted meta, the raw timestamp string as it appears in the line, and
+// whether the line carried a header at all (continuation lines of stack
+// traces do not).
+func (lme *LogMetaEngine) ExtractMetaISO(log string) (lm LogMeta, rawTs string, ok bool) {
+	m := isoExtractionRe.FindStringSubmatch(log)
+	if m == nil {
+		return lm, "", false
+	}
+	rawTs = m[1]
+	lm.Timestamp, _ = time.Parse(time.RFC3339Nano, rawTs)
+	lm.Hostname = m[2]
+	lm.SyslogName = m[3]
+	lm.Process = m[3]
+	lm.LogWithoutPrefix = strings.Trim(m[4], " ")
+
+	// The structured lvl= token wins over prose level words: a debug line
+	// whose message mentions "error" must stay debug.
+	if lvl := isoLevelLvlRe.FindStringSubmatch(lm.LogWithoutPrefix); lvl != nil {
+		lm.LogLevel = isoLevelMap[strings.ToUpper(lvl[1])]
+	} else if lvl := isoLevelWordRe.FindStringSubmatch(lm.LogWithoutPrefix); lvl != nil {
+		lm.LogLevel = isoLevelMap[strings.ToUpper(lvl[1])]
+	}
+	return lm, rawTs, true
+}
+
 func (lme *LogMetaEngine) ExtractMeta(log string) (lm LogMeta) {
+	if isoMeta, _, ok := lme.ExtractMetaISO(log); ok {
+		return isoMeta
+	}
+
 	if m := lme.GlobalExtractionRe.FindAllStringSubmatch(log, -1); m != nil {
 		lm.Timestamp, _ = time.ParseInLocation("Jan _2 15:04:05 2006", fmt.Sprintf("%s %d", m[0][lme.TimestampPos], time.Now().Year()), time.Local)
 		lm.Hostname = m[0][lme.HostnamePos]

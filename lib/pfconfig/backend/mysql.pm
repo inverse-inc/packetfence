@@ -15,12 +15,11 @@ pfconfig::backend::mysql
 use strict;
 use warnings;
 use Sereal::Encoder qw(sereal_encode_with_object);
-use Sereal::Decoder qw(sereal_decode_with_object);
 use DBI;
 use pfconfig::config;
 use Try::Tiny;
 use pf::log;
-use pf::Sereal qw($DECODER $ENCODER_FREEZER);
+use pf::Sereal qw($ENCODER_FREEZER sereal_decode_safe);
 use pf::config::crypt::object;
 use pf::config::crypt::object::freeze;
 
@@ -69,9 +68,16 @@ sub _get_db {
     $logger->info("Connecting to MySQL database");
     my $cfg    = pfconfig::config->new->section('mysql');
     my $db;
+    my $compression = ($cfg->{host} // '') eq 'localhost' ? 0 : 1;
     eval {
-        $db = DBI->connect( "DBI:mysql:database=$cfg->{db};host=$cfg->{host};port=$cfg->{port};mysql_socket=$cfg->{unix_socket}",
-            $cfg->{user}, $cfg->{pass}, { 'RaiseError' => 1, mysql_auto_reconnect => 1 } );
+        # pfconfig serves one request at a time: bound the DB calls so a stalled database
+        # (e.g. a galera flow control pause) can't block the whole configuration service.
+        # Its request alarm can't interrupt a blocking libmysqlclient call, only these socket timeouts can.
+        my $connect_timeout = $cfg->{connect_timeout} || 5;
+        my $read_timeout = $cfg->{read_timeout} || 15;
+        my $write_timeout = $cfg->{write_timeout} || 15;
+        $db = DBI->connect( "DBI:mysql:database=$cfg->{db};host=$cfg->{host};port=$cfg->{port};mysql_socket=$cfg->{unix_socket};mysql_connect_timeout=$connect_timeout;mysql_read_timeout=$read_timeout;mysql_write_timeout=$write_timeout",
+            $cfg->{user}, $cfg->{pass}, { 'RaiseError' => 1, mysql_auto_reconnect => 1, mysql_compression => $compression } );
     };
     if($@) {
         $self->_set_last_failed_time();
@@ -213,7 +219,7 @@ sub get {
     }
     my $element;
     while ( my $row = $statement->fetchrow_hashref() ) {
-        $element = sereal_decode_with_object($DECODER, $row->{value});
+        $element = sereal_decode_safe($row->{value});
     }
     return $element;
 }

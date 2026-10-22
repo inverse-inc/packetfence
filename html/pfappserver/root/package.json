@@ -1,6 +1,6 @@
 {
   "name": "packetfence-admin",
-  "version": "15.1.0",
+  "version": "15.2.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -23,7 +23,7 @@
     "mime-types": "^2.1.35",
     "mixpanel-browser": "^2.56.0",
     "papaparse": "5.4.1",
-    "pinia": "2.1.7",
+    "pinia": "2.2.8",
     "plotly.js": "^3.7.0",
     "plotly.js-locales": "^2.35.2",
     "promised-debounce": "^0.4.2",

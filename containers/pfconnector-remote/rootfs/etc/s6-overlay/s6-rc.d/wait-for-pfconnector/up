@@ -1,0 +1,1 @@
+/bin/bash -c "for i in $(seq 1 60); do curl -sf http://localhost:22226/api/v1/pfconnector/remote-radius-conf > /dev/null 2>&1 && exit 0; sleep 1; done; echo 'Timed out waiting for pfconnector-client on port 22226'; exit 1"

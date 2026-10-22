@@ -205,7 +205,8 @@ sub get_memberOf {
         return map{ $_->{displayName} } @{$response->{value}};
     }
     else {
-        $logger->error("Failed to obtain groups for $username: " . $r->status_line);
+        my $id = $self->id;
+        $logger->error("Failed to obtain groups for $username (source[$id]): " . $r->status_line);
         return $self->handle_failed_admin_call($r, sub{$self->get_memberOf($username)});
     }
 }
@@ -228,7 +229,19 @@ sub get_cached_memberOf {
 
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
-    $params->{memberOf} = [ $self->get_cached_memberOf($params->{username}, $params) ];
+    # Some flows (e.g. sponsor validation) only provide the identity under
+    # 'email' rather than 'username'. Mirror the LDAP source behavior and fall
+    # back to the email so the Graph memberOf lookup can resolve the user
+    # (Graph accepts the userPrincipalName / email as the {id} key).
+    my $username = $params->{username};
+    $username = $params->{email} unless (defined($username) && length($username));
+    if (defined($username) && length($username)) {
+        $params->{memberOf} = [ $self->get_cached_memberOf($username, $params) ];
+    }
+    else {
+        get_logger->warn("No username or email provided while matching in AzureAD source ".$self->id."; skipping group (memberOf) lookup.");
+        $params->{memberOf} = [];
+    }
     my $match = $rule->match;
     # If match any we just want the first
     my @conditions;
@@ -240,7 +253,7 @@ sub match_in_subclass {
         @conditions = grep { $self->match_condition($_, $params) } @$own_conditions;
     }
     push @$matching_conditions, @conditions;
-    return ($params->{'username'}, undef);
+    return ($username, undef);
 }
 
 

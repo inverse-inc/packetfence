@@ -80,9 +80,10 @@ case "$1" in
         groupmod -g 2025 pf
         usermod -aG pf mysql
 
-        # prevent conflicting mariadb service from starting
-        /bin/systemctl mask mariadb
+        # mask the socket too; masking mariadb.service alone leaves :3306 bound
+        /bin/systemctl mask mariadb mariadb.socket
         /bin/systemctl stop mariadb
+        /bin/systemctl stop mariadb.socket || true
         # journald
         /usr/bin/install -d -g systemd-journal /var/log/journal
         /bin/setfacl -R -nm g:adm:rx,d:g:adm:rx /var/log/journal
@@ -119,12 +120,13 @@ case "$1" in
         stop_service_if_exists pfappserver
         /usr/sbin/update-rc.d -f pfappserver remove
         set -e
+        # mask before isolate: isolate starts packetfence-mariadb, which needs :3306
+        /bin/systemctl mask mariadb mariadb.socket
+        /bin/systemctl stop mariadb
+        /bin/systemctl stop mariadb.socket || true
         # only packetfence-config, packetfence-redis-cache and packetfence-mariadb
         # services are running after the following command:
         /bin/systemctl isolate packetfence-base.target
-        # prevent conflicting mariadb service from starting
-        /bin/systemctl mask mariadb
-        /bin/systemctl stop mariadb
 
         #Change the uid/gid
         set +e

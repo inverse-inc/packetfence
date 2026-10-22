@@ -14,6 +14,7 @@ use strict;
 use warnings;
 #
 use lib '/usr/local/pf/lib';
+use lib '/usr/local/pf/lib_perl/lib/perl5/';
 
 BEGIN {
     #include test libs
@@ -28,8 +29,9 @@ use pf::config qw(%Config);
 my $PF_DIR = '/usr/local/pf';
 my $schema = "$PF_DIR/db/pf-schema-X.Y.sql";
 my $db_name = "pf_smoke_test_isutf8$$";
-my ($dbuser, $dbpass, $host, $port) = @{$Config{database}}{qw(user pass host port)};
-my $dbh     = DBI->connect( "DBI:mysql:host=$host;port=$port", $dbuser, $dbpass, { RaiseError => 1 } );
+my ($dbuser, $dbpass, $host, $port, $unix_socket) = @{$Config{database}}{qw(user pass host port unix_socket)};
+my $dsn = "dbi:mysql:dbname=;host=$host;port=$port;mysql_client_found_rows=0;;mysql_socket=$unix_socket";
+my $dbh     = DBI->connect($dsn, $dbuser, $dbpass, { RaiseError => 1 });
 $dbh->do("DROP DATABASE IF EXISTS $db_name;") or bail_out($dbh->errstr);
 $dbh->do("CREATE DATABASE $db_name;")         or bail_out($dbh->errstr);
 system("mysql -h\"$host\" -P\"$port\" -u\"$dbuser\" -p\"$dbpass\" $db_name < $schema");

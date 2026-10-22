@@ -62,16 +62,17 @@ static char args_doc[] = "[arguments passed to ntlm_auth]";
 
 /* The options we understand. */
 static struct argp_option options[] = {
-    {"host"       ,'h', "hostname or ip", 0, "StatsD host. Default is localhost."},
-    {"port"       ,'p', "port", 0, "StatsD port. Default is 8125."},
-    {"insecure"   ,'i', 0, 0, "Log insecure arguments such as the password."},
-    {"nostatsd"   ,'s', 0, 0, "Don't send performance counters to statsd."},
-    {"noresolv"   ,'n', 0, 0, "Do not resolve value for host and port."},
-    {"log"        ,'l', 0, 0, "Send results to syslog."},
-    {"logfacility",'f', "facility", 0, "Syslog facility. Default is local5."},
-    {"loglevel"   ,'d', "level", 0, "Syslog level. Default is info."},
-    {"api_host"   ,'a', "hostname/ip" ,0, "NTLM auth API host or IP" },
-    {"api_port"   ,'t', "port" ,0, "NTLM auth API listening port" },
+    {"host"        ,'h', "hostname or ip", 0, "StatsD host. Default is localhost."},
+    {"port"        ,'p', "port", 0, "StatsD port. Default is 8125."},
+    {"insecure"    ,'i', 0, 0, "Log insecure arguments such as the password."},
+    {"nostatsd"    ,'s', 0, 0, "Don't send performance counters to statsd."},
+    {"noresolv"    ,'n', 0, 0, "Do not resolve value for host and port."},
+    {"log"         ,'l', 0, 0, "Send results to syslog."},
+    {"logfacility" ,'f', "facility", 0, "Syslog facility. Default is local5."},
+    {"loglevel"    ,'d', "level", 0, "Syslog level. Default is info."},
+    {"api_host"    ,'a', "hostname/ip" ,0, "NTLM auth API host or IP" },
+    {"api_port"    ,'t', "port" ,0, "NTLM auth API listening port" },
+    {"connector_id",'c', "id", 0, "PacketFence connector identifier; sent to the API in the JSON body."},
     {0}
 };
 
@@ -82,6 +83,7 @@ struct arguments {
     char *port;
     char *api_host;
     char *api_port;
+    char *connector_id;
 };
 
 /* Parse a single option. */
@@ -115,6 +117,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
         break;
     case 't':
         arguments->api_port = arg;
+        break;
+    case 'c':
+        arguments->connector_id = arg;
         break;
     case 'f':
         if (strcasecmp(arg, "auth") == 0) {
@@ -314,6 +319,7 @@ char **argv, **envp;
     arguments.level = LOG_INFO;
     arguments.api_host = "";
     arguments.api_port = "0";
+    arguments.connector_id = "";
     /* Parse our arguments; every option seen by parse_opt will
        be reflected in arguments. */
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
@@ -374,6 +380,12 @@ char **argv, **envp;
         } else if (strncmp(argv[i], "--domain=", strlen("--domain=")) == 0) {
             cJSON_AddStringToObject(json, "domain", argv[i] + strlen("--domain="));
         }
+    }
+
+    /* Skip when unset, or when expanded from %{%{...}:-''} with no value */
+    if (strcmp(arguments.connector_id, "") != 0 &&
+        strcmp(arguments.connector_id, "''") != 0) {
+        cJSON_AddStringToObject(json, "connector_id", arguments.connector_id);
     }
 
     char *json_string = cJSON_Print(json);

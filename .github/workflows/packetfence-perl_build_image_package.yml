@@ -28,6 +28,25 @@ jobs:
         package_version: ${{ steps.contents.outputs.data }}
 
     steps:
+      # This runner's workspace can still hold root-owned files from a container
+      # job that ran before ci/runner-hooks was installed on it (see
+      # ci/runner-hooks/README.md). The checkout below cleans the workspace as
+      # the unprivileged runner user and dies on them:
+      #   Error: EACCES: permission denied, unlink '.../.git/refs/heads/<branch>'
+      # Only root can chown them back and the runner user has no sudo, so borrow
+      # root from a container. Inline rather than a local composite action:
+      # those are loaded from the workspace, which is not checked out yet.
+      - name: Reclaim workspace ownership
+        run: |
+          stray="$(find "$RUNNER_WORKSPACE" -not -uid "$(id -u)" -print -quit 2>/dev/null || true)"
+          if [ -z "$stray" ]; then
+            echo "$RUNNER_WORKSPACE is already owned by $(id -un)"
+            exit 0
+          fi
+          echo "Root-owned leftovers in the workspace, e.g. $stray"
+          docker run --rm -v "$RUNNER_WORKSPACE:/w" alpine:3 chown -hR "$(id -u):$(id -g)" /w \
+            || echo "::warning title=Runner workspace ownership::Could not reclaim $RUNNER_WORKSPACE; the checkout below may fail with EACCES."
+
       - name: Checkout repository
         uses: actions/checkout@v4    
 
@@ -46,11 +65,13 @@ jobs:
           echo "Found version: $package_version"
           echo "PACKAGE_VERSION=$package_version" >> "$GITHUB_ENV"
           echo "data=$package_version" >> "$GITHUB_OUTPUT"
-        env: 
-          command_rpm: set -e && docker run --rm -i -v ${{ github.workspace }}/addons/packetfence-perl:${{ inputs._WORKDIR }}/ redhat/ubi8:8.8 /bin/bash -c \
-            "set -e && cd ${{ inputs._WORKDIR }}/ && yum -y  install rpm-build > /dev/null 2>&1 && rpmspec -q --qf "%{version}"  rhel8/SPECS/packetfence-perl.spec"
-          command_deb: set -e && docker run --rm -i -v ${{ github.workspace }}/addons/packetfence-perl:${{ inputs._WORKDIR }}/ debian:11.0 /bin/bash -c \
-            "set -e && cd ${{ inputs._WORKDIR }}/ && apt update > /dev/null 2>&1  && apt install build-essential -y > /dev/null 2>&1 && dpkg-parsechangelog --show-field Version"
+        env:
+          # rpm-build (RHEL) and build-essential/dpkg-dev (Debian) are pre-baked
+          # in the signing-* images, so no runtime install is needed.
+          command_rpm: set -e && docker run --rm -i -v ${{ github.workspace }}/addons/packetfence-perl:${{ inputs._WORKDIR }}/ ghcr.io/inverse-inc/packetfence/signing-packages:latest /bin/bash -c \
+            "set -e && cd ${{ inputs._WORKDIR }}/ && rpmspec -q --qf \"%{version}\"  rhel8/SPECS/packetfence-perl.spec"
+          command_deb: set -e && docker run --rm -i -v ${{ github.workspace }}/addons/packetfence-perl:${{ inputs._WORKDIR }}/ ghcr.io/inverse-inc/packetfence/signing-packages:latest /bin/bash -c \
+            "set -e && cd ${{ inputs._WORKDIR }}/ && dpkg-parsechangelog --show-field Version"
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -88,16 +109,26 @@ jobs:
       credentials:
         username: ${{ vars.USER_GITHUB }}
         password: ${{ secrets.TOKEN_GITHUB }}
-      volumes:
-        - ${{ github.workspace }}/addons/packetfence-perl/:${{ inputs._WORKDIR  }}
-    steps:     
+    steps:
+      # This job must check out on its own: it shares the 'packetfence-perl-package-build'
+      # label with build_image, so it can land on a different runner whose workspace still
+      # holds an older revision.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Build package ${{inputs._IMAGE_TYPE}}
+        working-directory: ${{ github.workspace }}/addons/packetfence-perl
         run: |
-          cd /root
-          set -e && python3 install_cpan.py -d dependencies.csv -vi true && ./build_package.sh
+          set -e && python3 install_cpan.py -df dependencies.csv -vi true && ./build_package.sh
           ls -la ${{ inputs._OUTPUT_DIRECTORY }}
           ls -la ${{ inputs._OUTPUT_DIRECTORY }}/${{env.PATH_PACKAGE}}/packages/
         env:
+          # cpan reads its config from $HOME/.cpan/CPAN/MyConfig.pm; the runner forces
+          # HOME=/github/home, which hides the policy baked into the image (INSTALL_BASE,
+          # allow_installing_module_downgrades, allow_installing_outdated_dists, urllist).
+          HOME: /root
+          # build_package.sh honours ${WORKDIR:-/root} to locate debian/ and rhel8/.
+          WORKDIR: ${{ github.workspace }}/addons/packetfence-perl
           PATH_PACKAGE: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'rhel8' || 'debian' }}
     
       - name: Upload the package to artifactory ${{inputs._IMAGE_TYPE}}
@@ -110,3 +141,13 @@ jobs:
           PACKAGE_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'packetfence-perl-*.rpm' || inputs._IMAGE_TYPE == 'debian11' && 'packetfence-perl*.deb' || inputs._IMAGE_TYPE == 'debian12' && 'packetfence-perl*.deb' }}
           ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm8' || inputs._IMAGE_TYPE == 'debian11' && 'package-deb11' || inputs._IMAGE_TYPE == 'debian12' && 'package-deb12' }}
           PATH_PACKAGE: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'rhel8' || 'debian' }}
+
+      # Every step above ran as root inside the container while $GITHUB_WORKSPACE is a
+      # bind mount of the runner's own workspace, so checkout's .git and the build
+      # products under addons/packetfence-perl are left owned by root. The next job to
+      # land on this runner checks out as the runner user and cannot clean them:
+      # EACCES: permission denied, unlink '.../.git/logs/refs/heads/<branch>'.
+      # $RUNNER_TEMP is created by the runner process, so it carries the right owner.
+      - name: Give the workspace back to the runner user
+        if: always()
+        run: chown -hR "$(stat -c '%u:%g' "$RUNNER_TEMP")" "$GITHUB_WORKSPACE"

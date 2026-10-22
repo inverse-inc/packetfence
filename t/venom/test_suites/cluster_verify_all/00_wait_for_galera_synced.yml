@@ -1,0 +1,23 @@
+name: Galera enabled, then wait for Synced
+testcases:
+# Fast-fail on a standalone mariadb (wsrep_on=OFF) — saves 10 minutes
+# of polling for state that will never arrive when the cluster hasn't
+# been bootstrapped. cluster_first_server enables wsrep as part of
+# step 5 (pf.conf [active_active] block + generatemariadbconfig).
+- name: wsrep_enabled
+  steps:
+  - type: exec
+    script: 'mysql -uroot -N -e "SHOW VARIABLES LIKE ''wsrep_on''" | awk "{print \$2}"'
+    assertions:
+      - result.systemout ShouldEqual ON
+      - result.code ShouldEqual 0
+
+- name: wait_synced
+  steps:
+  - type: exec
+    script: 'mysql -uroot -N -e "SHOW STATUS LIKE ''wsrep_local_state_comment''" | awk "{print \$2}"'
+    retry: 40
+    delay: 15
+    assertions:
+      - result.systemout ShouldEqual Synced
+      - result.code ShouldEqual 0

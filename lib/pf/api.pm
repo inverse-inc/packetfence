@@ -74,7 +74,9 @@ use pf::password();
 use pf::web::guest();
 use pf::dhcp::processor_v4();
 use pf::dhcp::processor_v6();
+use pf::util::dhcp();
 use pf::util::dhcpv6();
+use MIME::Base64();
 use pf::domain::ntlm_cache();
 use pf::access_filter::switch;
 use Hash::Merge qw (merge);
@@ -149,9 +151,20 @@ sub echo : Public {
 }
 
 sub switch_freeradius_populate_nas_config : Public {
-    my ($class) = @_;
-    tie my %switches, 'pfconfig::cached_hash', "config::Switch";
-    pf::freeradius::freeradius_populate_nas_config(\%switches);
+    my ($class, $switches, $timestamp) = @_;
+    if (ref($switches) eq 'HASH') {
+        # Config supplied by the producer (normal path). It is authoritative, so
+        # there is no need to read it back from pfconfig. In k8s the pfconfig
+        # replicas may still be syncing the change from git, so reading it here
+        # could serve pre-sync data.
+        pf::freeradius::freeradius_populate_nas_config($switches, $timestamp);
+    }
+    else {
+        # Fallback for jobs enqueued without config (e.g. an in-flight job during
+        # an upgrade). Best-effort read from pfconfig; may lag git sync in k8s.
+        tie my %s, 'pfconfig::cached_hash', "config::Switch";
+        pf::freeradius::freeradius_populate_nas_config(\%s);
+    }
     return;
 }
 
@@ -317,9 +330,9 @@ sub unreg_node_for_pid : Public:AllowedAsAction(pid, $pid) {
 }
 
 sub synchronize_locationlog : Public {
-    my ( $class, $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc, $switch_id) = @_;
+    my ( $class, $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc, $switch_id, $multi_auth) = @_;
 
-    return (pf::locationlog::locationlog_synchronize($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc, $switch_id));
+    return (pf::locationlog::locationlog_synchronize($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc, $switch_id, $multi_auth));
 }
 
 sub open_iplog : Public {
@@ -377,9 +390,15 @@ sub ReAssignVlan : Public : Fork {
         _reassignSNMPConnections($switch, $postdata->{'mac'}, $postdata->{'ifIndex'}, $postdata->{'connection_type'} );
     }
     elsif ( $postdata->{'connection_type'} & $pf::config::WIRED) {
-        my ( $switchdeauthMethod, $deauthTechniques )
-            = $switch->wiredeauthTechniques( $switch->{_deauthMethod}, $postdata->{'connection_type'} );
-        $switch->$deauthTechniques( $postdata->{'ifIndex'}, $postdata->{'mac'} );
+        # Honours the switch host mode: a multi-auth port gets a per-session RADIUS
+        # CoA/Disconnect instead of a port bounce that would drop its other endpoints.
+        my $deauthTechnique = $switch->wiredReevaluationDeauthTechnique( $postdata->{'connection_type'} );
+        unless (defined $deauthTechnique) {
+            $logger->error("Could not reassign VLAN of $postdata->{'mac'} on ifIndex $postdata->{'ifIndex'} of switch ".$switch->{'_id'}.": no deauthentication technique");
+            return;
+        }
+        $logger->debug("reassigning VLAN of $postdata->{'mac'} on ifIndex $postdata->{'ifIndex'} of switch ".$switch->{'_id'}." with $deauthTechnique");
+        $switch->$deauthTechnique( $postdata->{'ifIndex'}, $postdata->{'mac'} );
     }
     else {
         $logger->error("Connection type is not wired. Could not reassign VLAN.");
@@ -423,10 +442,10 @@ sub desAssociate : Public : Fork {
         return;
     }
 
-    my ($switchdeauthMethod, $deauthTechniques) = $switch->deauthTechniques($switch->{'_deauthMethod'}, $postdata->{'connection_type'});
-
     my $filter = pf::access_filter::switch->new;
     $filter->filterSwitch('reevaluate',\$switch, $postdata);
+
+    my ($switchdeauthMethod, $deauthTechniques) = $switch->deauthTechniques($switch->{'_deauthMethod'}, $postdata->{'connection_type'});
 
     # sleep long enough to give the device enough time to fetch the redirection page.
     sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
@@ -712,12 +731,12 @@ sub notify_configfile_changed : Public {
     my $master_server = pf::cluster::find_server_by_hostname($postdata{server});
     die "Master server is not in configuration" unless ($master_server);
 
-    my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $master_server->{management_ip});
+    my $apiclient = pf::cluster::api_client($master_server->{management_ip});
 
     eval {
         my %data = ( conf_file => $postdata{conf_file} );
-        my ($result) = $apiclient->call( 'download_configfile', %data );
-        pf::util::safe_file_update($postdata{conf_file}, $result);
+        my ($result, $mode) = $apiclient->call( 'download_configfile', %data );
+        pf::util::safe_file_update($postdata{conf_file}, $result, undef, $mode);
 
         $logger->info("Successfully downloaded configuration $postdata{conf_file} from $postdata{server}");
     };
@@ -737,8 +756,10 @@ sub download_configfile : Public {
 
     die "Config file $postdata{conf_file} doesn't exist" unless(-e $postdata{conf_file});
     my $config = read_file($postdata{conf_file});
+    # Apply the original source file's mode as-is
+    my $mode = (stat($postdata{conf_file}))[2];
 
-    return $config;
+    return ($config, $mode);
 }
 
 sub distant_download_configfile : Public {
@@ -749,9 +770,10 @@ sub distant_download_configfile : Public {
 
     my $file = $postdata{conf_file};
     my %data = ( conf_file => $file );
-    my $apiclient = pf::api::jsonrpcclient->new(host => $postdata{from}, proto => 'https');
-    my ($result) = $apiclient->call( 'download_configfile', %data );
-    pf::util::safe_file_update($file, $result);
+    # The file can be big (e.g. the Fingerbank database) and the link slow: abort only when the transfer stalls
+    my $apiclient = pf::cluster::api_client($postdata{from}, timeout_ms => 0, low_speed_limit => 1, low_speed_time => 120);
+    my ($result, $mode) = $apiclient->call( 'download_configfile', %data );
+    pf::util::safe_file_update($file, $result, undef, $mode);
     return 1;
 }
 
@@ -800,7 +822,7 @@ sub expire_cluster : Public {
     my @failed;
     foreach my $server (pf::cluster::config_enabled_servers()){
         next if($pf::cluster::host_id eq $server->{host});
-        my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $server->{management_ip});
+        my $apiclient = pf::cluster::api_client($server->{management_ip});
         my %data = (
             namespace => $postdata{namespace},
             light => 1
@@ -1153,7 +1175,10 @@ sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $userna
         stripped_user_name => $stripped_user,
         realm => $node_info->{'realm'},
         context => $pf::constants::realm::RADIUS_CONTEXT,
+        mac => $postdata{'mac'},
     };
+    # Like the 802.1X/MAB role computation (pf::role::_connection_params)
+    $params->{'computer_name'} = $node_info->{'computername'} if defined $node_info->{'computername'};
 
     my $matched = pf::authentication::match2([@sources], $params);
     unless ($matched) {
@@ -1207,8 +1232,19 @@ sub fingerbank_lookup : Public :AllowedAsAction(mac, $mac) {
 =cut
 
 sub fingerbank_process : Public {
-    my ( $class, $mac ) = @_;
-    pf::fingerbank::process($mac);
+    my ( $class, $mac, $overrides ) = @_;
+    pf::fingerbank::process($mac, undef, $overrides);
+}
+
+=head2 fingerbank_process_retry
+
+Process a device again after a failed Fingerbank lookup, scheduled by pf::fingerbank::process
+
+=cut
+
+sub fingerbank_process_retry : Public {
+    my ( $class, $mac, $overrides ) = @_;
+    pf::fingerbank::process($mac, undef, $overrides, retry => 1);
 }
 
 =head2 fingerbank_update_component
@@ -1361,6 +1397,108 @@ sub process_dhcpv6 : Public {
     $dhcpv6Processor->process_packet($udp_payload);
 }
 
+=head2 process_dhcp_event
+
+Processes a DHCP packet forwarded by the fingerbank-collector (the
+pfdhcplistener replacement). The collector sniffs raw DHCP frames off the wire
+and ships the base64-encoded UDP payload here through the pfconnector-server,
+which relays it over the webservices JSON-RPC endpoint.
+
+Unlike pfdhcplistener, the collector has no listening interface, so it cannot
+provide the interface/VLAN context process_dhcpv4 normally receives. We
+synthesize it: collector-forwarded traffic is never inline (is_inline_vlan=0),
+which is the only code path that reads interface/interface_ip/interface_vlan;
+the remaining uses are log/statsd strings. net_type is set to 'internal' so
+pf::util::is_prod_interface() returns false and DHCP packets do not trigger
+per-packet post-registration conformity scans (which is how pfdhcplistener
+behaved on a normal 'internal' capture interface).
+
+Expects: version (4 or 6), payload (base64 UDP payload), and optionally
+src_mac, dst_mac, src_ip, dst_ip. DHCPv6 is delegated to process_dhcpv6, whose
+processor base64-decodes the payload itself.
+
+=cut
+
+sub process_dhcp_event : Public {
+    my ($class, %postdata) = @_;
+    my @require = qw(version payload);
+    my @found = grep { exists $postdata{$_} } @require;
+    return unless pf::util::validate_argv(\@require, \@found);
+
+    my $version = $postdata{'version'};
+
+    # DHCPv6: the v6 processor base64-decodes the payload itself, so hand it the
+    # base64 string verbatim through the existing entry point.
+    if ($version == 6) {
+        return $class->process_dhcpv6($postdata{'payload'});
+    }
+
+    if ($version != 4) {
+        $logger->warn("process_dhcp_event: unsupported DHCP version '$version'");
+        return;
+    }
+
+    my $payload = MIME::Base64::decode_base64($postdata{'payload'});
+    unless (length($payload)) {
+        $logger->warn("process_dhcp_event: empty DHCPv4 payload");
+        return;
+    }
+
+    my $dhcp;
+    eval { $dhcp = pf::util::dhcp::decode_dhcp($payload); };
+    if ($@ || !$dhcp) {
+        $logger->warn("process_dhcp_event: unable to decode DHCPv4 packet: $@");
+        return;
+    }
+
+    # Frame massaging mirrors pfdhcplistener: chaddr is the full 16-byte hardware
+    # address field; the node MAC is its first 6 bytes.
+    my $dhcp_mac = pf::util::clean_mac(substr($dhcp->{'chaddr'}, 0, 12));
+    if ($dhcp_mac ne "00:00:00:00:00:00" && !pf::util::valid_mac($dhcp_mac)) {
+        $logger->debug("process_dhcp_event: invalid CHADDR ($dhcp_mac), skipping");
+        return;
+    }
+    unless ($dhcp_mac) {
+        $logger->debug("process_dhcp_event: chaddr is undefined, skipping");
+        return;
+    }
+    $dhcp->{'chaddr'}   = $dhcp_mac;
+    $dhcp->{'src_mac'}  = pf::util::clean_mac($postdata{'src_mac'} // '');
+    $dhcp->{'dest_mac'} = pf::util::clean_mac($postdata{'dst_mac'}) if defined $postdata{'dst_mac'};
+    $dhcp->{'src_ip'}   = $postdata{'src_ip'} if defined $postdata{'src_ip'};
+    $dhcp->{'dest_ip'}  = $postdata{'dst_ip'} if defined $postdata{'dst_ip'};
+
+    # Match pfdhcplistener, which always sets src_mac from the L2 frame and drops
+    # the packet on an invalid source MAC. Validate unconditionally so a
+    # missing/empty src_mac is skipped rather than processed with a bogus MAC
+    # (which would emit rogue-DHCP alerts with an empty server MAC).
+    unless (pf::util::valid_mac($dhcp->{'src_mac'})) {
+        $logger->debug("process_dhcp_event: source MAC '" . $dhcp->{'src_mac'} . "' is invalid, skipping");
+        return;
+    }
+
+    my $processor = pf::dhcp::processor_v4->new(
+        dhcp     => $dhcp,
+        src_mac  => $dhcp->{'src_mac'},
+        dest_mac => $dhcp->{'dest_mac'},
+        src_ip   => $dhcp->{'src_ip'},
+        dest_ip  => $dhcp->{'dest_ip'},
+        # Collector-forwarded DHCP carries no interface/VLAN context. It is never
+        # inline, so interface/interface_ip/interface_vlan (only read in the
+        # inline branch and in log/statsd strings) get safe sentinels. net_type
+        # is 'internal' (not 'dhcp-listener') so is_prod_interface() is false and
+        # DHCP traffic does not trigger per-packet post-registration scans.
+        is_inline_vlan => 0,
+        interface      => 'dhcp-listener',
+        interface_ip   => undef,
+        interface_vlan => $pf::config::NO_VLAN,
+        net_type       => 'internal',
+    );
+    $processor->process_packet();
+
+    return $pf::config::TRUE;
+}
+
 =head2 copy_directory
 
 Copy a directory on this server
@@ -1413,7 +1551,7 @@ sub radius_rest_authorize :Public :RestPath(/radius/rest/authorize) {
         $calling_station_id = $remapped_radius_request{'Calling-Station-Id'}
     }
 
-    if (pf::util::valid_mac($calling_station_id)) {
+    if (pf::util::valid_mac($calling_station_id) || _is_mac_auth_without_calling_station_id(\%remapped_radius_request)) {
         $return = $class->radius_authorize(%remapped_radius_request);
     } else {
         $return = $class->radius_switch_access(%remapped_radius_request);
@@ -1423,6 +1561,34 @@ sub radius_rest_authorize :Public :RestPath(/radius/rest/authorize) {
     $return = pf::radius::rest::format_response($return);
 
     return $return;
+}
+
+=head2 _is_mac_auth_without_calling_station_id
+
+Some switches (ex: Avaya ERS NEAP) do MAC authentication without a
+Calling-Station-Id, the MAC address is only in the User-Name.
+A request without a valid Calling-Station-Id is a MAC authentication if its
+User-Name is a MAC address, its NAS-Port-Type is Ethernet or Wireless-802.11,
+and it is not a login on the switch itself (Service-Type
+NAS-Prompt-User/Administrative-User). Such a request isn't checked against a
+password, so anything else (ex: no NAS-Port-Type) stays a switch login.
+
+=cut
+
+sub _is_mac_auth_without_calling_station_id {
+    my ($radius_request) = @_;
+    my $value = sub {
+        my $v = $radius_request->{$_[0]};
+        return ref($v) eq 'ARRAY' ? $v->[0] : $v;
+    };
+    return 0 unless pf::util::valid_mac($value->('User-Name'));
+    # FreeRADIUS sends the numeric values (NAS-Port-Type 15 = Ethernet,
+    # 19 = Wireless-802.11; Service-Type 6 = Administrative-User, 7 = NAS-Prompt-User)
+    my $nas_port_type = $value->('NAS-Port-Type') // '';
+    return 0 unless any { $nas_port_type eq $_ } qw(15 19 Ethernet Wireless-802.11);
+    my $service_type = $value->('Service-Type') // '';
+    return 0 if any { $service_type eq $_ } qw(6 7 Administrative-User NAS-Prompt-User);
+    return 1;
 }
 
 =head2 radius_rest_filter
@@ -1479,7 +1645,7 @@ sub radius_rest_accounting :Public :RestPath(/radius/rest/accounting) {
 
     my $remapped_radius_request = pf::radius::rest::format_request($radius_request);
 
-    my $return = $class->handle_accounting_metadata($remapped_radius_request);
+    my $return = $class->handle_accounting_metadata($remapped_radius_request, $headers);
 
     my $radius = new pf::radius::custom();
     eval {
@@ -1496,9 +1662,18 @@ sub radius_rest_accounting :Public :RestPath(/radius/rest/accounting) {
 }
 
 sub handle_accounting_metadata : Public {
-    my ($class, $RAD_REQUEST) = @_;
+    my ($class, $RAD_REQUEST, $headers) = @_;
     $logger->debug("Entering handling of accounting metadata");
     my $client = pf::client::getClient();
+
+    # pfacct advertises the primitives it already executed natively for this
+    # packet (X-PacketFence-Handled-Natively); skip them here to avoid
+    # duplicate DB writes. Requests from other sources carry no marker and
+    # keep the full behavior. The JSON-RPC path carries the headers inside the
+    # request (PF_HEADERS), the REST path passes them alongside it.
+    $headers //= $RAD_REQUEST->{PF_HEADERS} // {};
+    my %handled_natively = map { $_ => 1 }
+        split(/,/, $headers->{'X-PacketFence-Handled-Natively'} // '');
 
     my $return = [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Accounting OK") ];
     my $mac = pf::util::clean_mac($RAD_REQUEST->{'Calling-Station-Id'});
@@ -1516,7 +1691,7 @@ sub handle_accounting_metadata : Public {
         # Tracking IP address.
         my $framed_ip = $RAD_REQUEST->{"Framed-IP-Address"};
         if ($framed_ip) {
-            if (pf::util::isenabled($advanced->{update_iplog_with_accounting})) {
+            if (pf::util::isenabled($advanced->{update_iplog_with_accounting}) && !$handled_natively{ip4log}) {
                 $logger->info("Updating iplog from accounting request");
                 $client->notify("update_ip4log", mac => $mac, ip => $framed_ip);
             }
@@ -1615,6 +1790,66 @@ sub firewallsso_accounting : Public {
     }
 }
 
+=head2 vpn_accounting
+
+The accounting of a VPN session, which has no MAC address (FortiGate SSL-VPN for
+instance): pfacct sends it here instead of radius_accounting. It sends the
+firewall SSO of the user with the address of its tunnel (Framed-IP-Address) and
+the role it was given when it was authorized. The Stop of a session sends the
+role the session started with (by Acct-Session-Id).
+
+=cut
+
+sub vpn_accounting : Public {
+    my ($class, $RAD_REQUEST) = @_;
+    my $logger = pf::log::get_logger();
+    return if !(any { pf::util::isenabled($_->{'sso_on_accounting'}) } values %pf::config::ConfigFirewallSSO);
+
+    my $username = $RAD_REQUEST->{'User-Name'};
+    my $ip = $RAD_REQUEST->{'Framed-IP-Address'};
+    if (!$username || !$ip) {
+        $logger->debug("VPN accounting without user name or Framed-IP-Address, no firewall SSO");
+        return;
+    }
+
+    my $is_stop = ($RAD_REQUEST->{'Acct-Status-Type'} == $ACCOUNTING::STOP);
+    my $role = pf::firewallsso::vpn_role($RAD_REQUEST->{'NAS-IP-Address'}, $username);
+
+    # As for the MAC sessions (firewallsso_accounting): the role at the start of the
+    # session is kept for its Stop, so a re-authorization with another role during
+    # the session doesn't make the Stop remove the wrong role
+    my $session_id = $RAD_REQUEST->{'Acct-Session-Id'};
+    if ($session_id) {
+        my $cache = pf::CHI->new(namespace => 'accounting');
+        my $cache_key = "sso_vpn_role:" . ($RAD_REQUEST->{'NAS-IP-Address'} // '') . ":" . lc($username) . ":$session_id";
+        if ($is_stop) {
+            my $cached_role = $cache->get($cache_key);
+            $role = $cached_role if $cached_role;
+            $cache->remove($cache_key);
+        } elsif ($role && !$cache->get($cache_key)) {
+            $cache->set($cache_key, $role, "24 hours");
+        }
+    }
+
+    if (!$role) {
+        $logger->info("No role known for VPN user '$username' (NAS $RAD_REQUEST->{'NAS-IP-Address'}), no firewall SSO: the VPN must authorize its users through PacketFence");
+        return;
+    }
+
+    my $client = pf::client::getClient();
+    $client->notify( 'firewallsso', (
+        method   => $is_stop ? "Stop" : "Update",
+        mac      => '',
+        endpoint => $username,
+        ip       => $ip,
+        timeout  => '3600',
+        username => $username,
+        role     => $role,
+        status   => $pf::node::STATUS_REGISTERED,
+        source   => $ACCOUNTING,
+    ) );
+}
+
 =head2 firewall_sso_call
 
 Trigger a firewall SSO
@@ -1699,6 +1934,18 @@ sub chi_cache_clear : Public {
     my ($class, $namespace) = @_;
     my $cache = pf::CHI->new( namespace => $namespace );
     return $cache->clear();
+}
+
+=head2 clear_portal_session
+
+Remove the captive portal sessions of devices (one or more MAC addresses) from the cache of this server (see pf::node::node_clear_portal_session)
+
+=cut
+
+sub clear_portal_session : Public {
+    my ($class, @macs) = @_;
+    pf::node::node_remove_portal_session($_) for @macs;
+    return;
 }
 
 =head2 enableMABFloatingInQueue

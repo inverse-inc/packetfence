@@ -36,12 +36,15 @@ func NewFirewallsContainer(ctx context.Context) *FirewallsContainer {
 
 func (fc *FirewallsContainer) All(ctx context.Context) map[string]FirewallSSOInt {
 	firewalls := map[string]FirewallSSOInt{}
-	for id, o := range fc.Structs {
+	for id, o := range fc.SnapshotStructs(ctx) {
 		firewalls[id] = o.(FirewallSSOInt)
 	}
 	return firewalls
 }
 
 func (fc *FirewallsContainer) Get(ctx context.Context, id string) FirewallSSOInt {
-	return fc.Structs[id].(FirewallSSOInt)
+	if o, ok := fc.GetStruct(ctx, id); ok {
+		return o.(FirewallSSOInt)
+	}
+	return nil
 }

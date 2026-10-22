@@ -13,7 +13,7 @@
 # Main package
 #==============================================================================
 Name:       packetfence
-Version:    15.2.0
+Version:    16.0.0
 Release:    2%{?dist}
 Summary:    PacketFence network registration / worm mitigation system
 Packager:   Inverse inc. <support@inverse.ca>
@@ -47,6 +47,8 @@ Conflicts: packetfence-export
 
 Requires: firewalld
 Requires: chkconfig, coreutils, grep, openssl, sed, tar, wget, gettext, conntrack-tools, patch, git
+# ssh binary for the SSH transport of the switch CLI (Net::CLI::Interact)
+Requires: openssh-clients
 # for process management
 Requires: rsyslog
 Requires: procps
@@ -63,7 +65,7 @@ Requires: util-linux
 Requires: net-snmp >= 5.3.2.2
 Requires: net-snmp-perl
 Requires: perl >= %{perl_version}
-Requires: packetfence-perl >= 1.2.4
+Requires: packetfence-perl >= 1.2.7
 Requires: MariaDB-server >= 10.11
 Requires: MariaDB-client >= 10.11
 Requires: perl(DBD::mysql)
@@ -318,6 +320,8 @@ Requires: haproxy >= 2.2.0, keepalived >= 2.0.0
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
 Requires: fingerbank >= 4.3.3, fingerbank < 5.0.0
 Requires: fingerbank-collector >= 1.4.1, fingerbank-collector < 2.0.0
+# fingerbank-collector-remote ships /etc/systemd/system/packetfence-fingerbank-collector.service, which shadows the on-prem unit from fingerbank-collector
+Conflicts: fingerbank-collector-remote
 #Requires: perl(File::Tempdir)
 
 # For NTLM-Auth
@@ -447,6 +451,9 @@ done
 # systemd modules
 %{__install} -D packetfence.modules-load %{buildroot}/etc/modules-load.d/packetfence.conf
 %{__install} -D packetfence.modprobe %{buildroot}/etc/modprobe.d/packetfence.conf
+# kernel tuning for UDP receive buffers (pfacct/pfdns/pfdhcp)
+%{__install} -D -m0644 packetfence.sysctl %{buildroot}/etc/sysctl.d/99-packetfence-udp.conf
+%{__install} -D -m0644 packetfence-reserved-ports.sysctl %{buildroot}/etc/sysctl.d/99-packetfence-reserved-ports.conf
 # override docker-ce unit file
 %{__install} -D -m0644 packetfence.docker-drop-in.service %{buildroot}/etc/systemd/system/docker.service
 
@@ -699,15 +706,19 @@ chown pf /usr/local/pf/conf/ssl/server.key
 
 #Make configurable logo in default profile templates
 make html/captive-portal/profile-templates/default/logo.png
-
+#Make default theme.css in default profile templates
+make html/captive-portal/profile-templates/default/theme.css
+#Make default background in default profile templates
+make html/captive-portal/profile-templates/default/background.png
+        
 # Create server local RADIUS secret
 if [ ! -f /usr/local/pf/conf/local_secret ]; then
-    date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret
+    head -c 512 /dev/urandom | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret
 fi
 
 # Create server API system user password
 if [ ! -f /usr/local/pf/conf/unified_api_system_pass ]; then
-    date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/unified_api_system_pass
+    head -c 512 /dev/urandom | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/unified_api_system_pass
 fi
 
 # Create server API system user password
@@ -722,6 +733,16 @@ do
     /bin/systemctl disable $service > /dev/null 2>&1
   fi
 done
+
+# openldap-ltb is only pulled in for its client libraries (freeradius-ldap).
+# Its slapd is not used by PacketFence: disable it while it still runs the
+# unconfigured sample configuration shipped with the package.
+SLAPD_CONF=/usr/local/openldap/etc/openldap/slapd.conf
+if [ -f "$SLAPD_CONF" ] && grep -Eq '^rootpw[[:space:]]+secret[[:space:]]*$' "$SLAPD_CONF"; then
+  echo "Disabling unconfigured slapd from openldap-ltb"
+  /bin/systemctl disable --now slapd > /dev/null 2>&1 || true
+  /sbin/chkconfig --del slapd > /dev/null 2>&1 || true
+fi
 
 #Check if RADIUS have a dh
 if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
@@ -760,6 +781,11 @@ sed -i 's/\%.*$//g' /etc/resolv.conf
 echo "# ip forwarding enabled by packetfence" > /etc/sysctl.d/99-ip_forward.conf
 echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.d/99-ip_forward.conf
 sysctl -p /etc/sysctl.d/99-ip_forward.conf
+
+# Reserve the pfconfig port (99-packetfence-reserved-ports.conf, #8576). Merge it with the current
+# reservations so the ones applied by other files aren't dropped until the next boot
+current=$(sysctl -n net.ipv4.ip_local_reserved_ports 2>/dev/null)
+sysctl -w net.ipv4.ip_local_reserved_ports="${current:+$current,}44444" > /dev/null || true
 
 /usr/local/pf/bin/pfcmd fixpermissions
 
@@ -888,6 +914,8 @@ fi
 %attr(0644, root, root) /etc/systemd/system/packetfence*.slice
 %attr(0644, root, root) /etc/modules-load.d/packetfence.conf
 %attr(0644, root, root) /etc/modprobe.d/packetfence.conf
+%attr(0644, root, root) /etc/sysctl.d/99-packetfence-udp.conf
+%config(noreplace) %attr(0644, root, root) /etc/sysctl.d/99-packetfence-reserved-ports.conf
 
 %attr(0644, root, root) %{_unitdir}/packetfence-*.service
 %attr(0644, root, root) %{_unitdir}/packetfence-*.path
@@ -974,6 +1002,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/config_generator.py
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/config_loader.py
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/constants.py
+%attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/credcache_push.py
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/entrypoint.py
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/flags.py
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/global_vars.py
@@ -1190,6 +1219,8 @@ fi
                         /usr/local/pf/conf/radiusd/clients.eduroam.conf.inc.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/cert
                         /usr/local/pf/conf/radiusd/cert.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/dictionary.local
+                        /usr/local/pf/conf/radiusd/dictionary.local.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/mschap.conf
                         /usr/local/pf/conf/radiusd/mschap.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/packetfence-cluster
@@ -1455,6 +1486,9 @@ fi
 # Changelog
 #==============================================================================
 %changelog
+* Mon Aug 24 2026 Inverse <info@inverse.ca> - 16.0.0-1
+- New release 16.0.0
+
 * Wed May 20 2026 Inverse <info@inverse.ca> - 15.2.0-1
 - New release 15.2.0
 

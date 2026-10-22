@@ -140,6 +140,9 @@ install: build
 	install -d -m0755 $(CURDIR)/debian/packetfence/etc/modules-load.d
 	install -m0644 $(CURDIR)/debian/packetfence.modprobe $(CURDIR)/debian/packetfence/etc/modprobe.d/packetfence.conf
 	install -m0644 $(CURDIR)/debian/packetfence.modules-load $(CURDIR)/debian/packetfence/etc/modules-load.d/packetfence.conf
+	install -d -m0755 $(CURDIR)/debian/packetfence/etc/sysctl.d
+	install -m0644 $(CURDIR)/debian/packetfence.sysctl $(CURDIR)/debian/packetfence/etc/sysctl.d/99-packetfence-udp.conf
+	install -m0644 $(CURDIR)/debian/packetfence-reserved-ports.sysctl $(CURDIR)/debian/packetfence/etc/sysctl.d/99-packetfence-reserved-ports.conf
 
 	# copy the rsyslog systemd drop in and journald
 	install -d -m0755 $(CURDIR)/debian/packetfence/etc/systemd/system/rsyslog.service.d/
@@ -160,7 +163,10 @@ install: build
 	make MYSQL_SUFFIX=server src/mariadb_udf/pf_udf.so
 	install -D -m0755 src/mariadb_udf/pf_udf.so $(CURDIR)/debian/packetfence/$$(/usr/bin/mariadb-config --plugindir)/pf_udf.so
 	#dockerignore
-	install -m0755 .dockerignore $(CURDIR)/debian/packetfence/.dockerignore
+	# Must land in the container build context root (/usr/local/pf), not the
+	# filesystem root, otherwise `docker build .` tars logs/ and var/ (see the
+	# "write too long" errors when building local containers).
+	install -D -m0644 .dockerignore $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/.dockerignore
 	#PacketFence pfcmd suid
 	install -d -m0755 $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin
 	gcc src/pfcmd.c -o $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
@@ -290,6 +296,7 @@ binary-arch: build install
 	chmod 2775 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/services.d
 	### Executables
 	# packetfence-export pkg
+	chmod 0755 $(CURDIR)/debian/packetfence-export$(PREFIX)/$(NAME)/addons/exportable-backup.sh
 	chmod 0755 $(CURDIR)/debian/packetfence-export$(PREFIX)/$(NAME)/addons/full-import/export.sh
 	chmod 0755 $(CURDIR)/debian/packetfence-export$(PREFIX)/$(NAME)/addons/full-import/find-extra-files.pl
 	# packetfence-upgrade pkg

@@ -41,6 +41,7 @@ BEGIN {
         attempted_at
         completed_at
         source
+        source_type
         profile
     );
 
@@ -52,6 +53,7 @@ BEGIN {
         attempted_at => '',
         completed_at => undef,
         source => '',
+        source_type => '',
         profile => undef,
     );
 
@@ -63,6 +65,7 @@ BEGIN {
         attempted_at
         completed_at
         source
+        source_type
         profile
     );
 
@@ -115,6 +118,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
+        source_type => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
         profile => {
             type => 'VARCHAR',
             is_auto_increment => 0,
@@ -136,6 +145,7 @@ BEGIN {
         auth_log.attempted_at
         auth_log.completed_at
         auth_log.source
+        auth_log.source_type
         auth_log.profile
     );
 

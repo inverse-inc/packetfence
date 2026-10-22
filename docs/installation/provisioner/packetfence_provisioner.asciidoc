@@ -36,7 +36,7 @@ and password.
 ==== Configure the feature
 
 NOTE: If EAP-TLS provisioning is desired, you have to configure a PKI before
-going any further. Two sections exists to assist you: <<pf-pki,PacketFence PKI>>, which covers PacketFence's implementation, or <<ms-pki,PacketFence MSPKI>> which covers Microsoft's.
+going any further. See <<pf-pki,PacketFence PKI>> for details.
 
 Configure SSID for devices after authentication.
 
@@ -100,6 +100,14 @@ Mac OS X/iOS require the provisioning profile to be signed if you want to remove
 the `untrusted` warning when installing the profile. For more information,
 please refer to the PKI guides referred earlier in 'Configure the feature'
 above.
+
+With EAP-PEAP, the profile installs the certificate configured in *RADIUS
+server CA path* as a trusted root on the device, and the RADIUS server
+certificate as a regular certificate. The network trusts both, limited to the
+name (CN) of the RADIUS server certificate, so a server certificate renewed
+by the same CA, with the same name, is accepted without provisioning the
+device again. Choose that CA knowingly: it becomes a trusted root of the
+device.
 
 ===== Other Corporate Devices
 

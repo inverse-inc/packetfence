@@ -25,6 +25,11 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
+    # First configurator API call after a cold boot: the haproxy-admin ->
+    # pfperl-api backend may not be warm yet and return 504. Retry so the
+    # first call self-heals (idempotent PATCH). Seen on slower cluster VMs.
+    retry: 5
+    delay: 10
 
 # switch interface to static state
 - name: bounce_dhcp_listener_int

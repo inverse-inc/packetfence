@@ -23,7 +23,8 @@ describe('Configurator', () => {
     cy.intercept('GET', '/api/**/config/base/general').as('getGeneral')
     cy.intercept('GET', '/api/**/config/base/alerting').as('getAlerting')
     cy.intercept('GET', '/api/**/user/admin').as('getAdminUser')
-    cy.intercept('PATCH', '/api/**/user/admin/password').as('patchAdminPassword')
+    // admin no longer has a seeded password row (#9118): the form creates it (POST) rather than updates it (PATCH)
+    cy.intercept('POST', '/api/**/user/admin/password').as('createAdminPassword')
 
     // interceptors - step 3
     cy.intercept('GET', '/api/**/fingerbank/account_info').as('getFingerbankAccountInfo')
@@ -148,7 +149,7 @@ describe('Configurator', () => {
 
     // wait for API
 
-    cy.wait('@patchAdminPassword', waitForPfqueuePolling).its('response.statusCode').should('be.oneOf', [200])
+    cy.wait('@createAdminPassword', waitForPfqueuePolling).its('response.statusCode').should('be.oneOf', [201])
 
 
     /**

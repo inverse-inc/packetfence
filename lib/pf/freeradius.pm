@@ -41,7 +41,7 @@ BEGIN {
     );
 }
 
-use pf::config qw($local_secret $management_network);
+use pf::config qw($local_secret $management_network $unified_api_system_user);
 use pf::db;
 use pf::dal::radius_nas;
 use pf::dal;
@@ -140,26 +140,109 @@ sub freeradius_populate_nas_config {
           && $radiusSecret =~ /\S/
     } keys %$switch_config;
     return unless @switches;
+    # Concurrent jobs (e.g. switches created at the same time through the API)
+    # must not interleave, and an older config must not replace a newer one.
+    my $lock = _lock_radius_nas();
     #Should be handled in code above this
     unless (defined $timestamp ) {
         $timestamp = int (time * 1000000);
     }
 
-    my @entries = (
-        (map { { %{$switch_config->{$_}}, id => $_ } } @switches),
-        additional_switches(),
-    );
-    #Looping through all the switches 100 at a time
-    my $it = natatime 100, @entries;
-    while (my @sw = $it->()) {
-        my @rows = map {
-            _build_radius_nas_row($_->{id}, $_, $timestamp)
-        } @sw;
-        # insert NAS
-        _insert_nas_bulk( @rows );
+    # On a cluster the jobs are not serialized (no GET_LOCK on Galera) and their
+    # timestamps come from the clocks of different servers: don't skip there
+    my $current = $cluster_enabled ? undef : _current_radius_nas_timestamp();
+    if (defined $current && $current > $timestamp) {
+        $logger->info("Skipping the radius_nas update from $timestamp, a newer configuration ($current) is already loaded");
+        _unlock_radius_nas($lock);
+        return;
     }
-    _delete_expired($timestamp);
+
+    # The lock is released even if the update dies, the connection of the worker
+    # is kept and would otherwise keep it
+    eval {
+        my @entries = (
+            (map { { %{$switch_config->{$_}}, id => $_ } } @switches),
+            additional_switches(),
+            pfconnector_nas_row(),
+        );
+        #Looping through all the switches 100 at a time
+        my $it = natatime 100, @entries;
+        while (my @sw = $it->()) {
+            my @rows = map {
+                _build_radius_nas_row($_->{id}, $_, $timestamp)
+            } @sw;
+            # insert NAS
+            _insert_nas_bulk( @rows );
+        }
+        _delete_expired($timestamp);
+    };
+    my $error = $@;
+    _unlock_radius_nas($lock);
+    die $error if $error;
     validate_radius_nas_table($timestamp);
+}
+
+=head2 _lock_radius_nas
+
+Take a database lock on the radius_nas table update
+
+=cut
+
+sub _lock_radius_nas {
+    # GET_LOCK is not supported by Galera
+    return undef if $cluster_enabled;
+    my $logger = get_logger();
+    my ($status, $sth) = pf::dal->db_execute("SELECT GET_LOCK('pf_radius_nas_populate', 30)");
+    if (is_error($status)) {
+        $logger->warn("Unable to lock the radius_nas table update");
+        return undef;
+    }
+
+    my ($locked) = $sth->fetchrow_array;
+    $sth->finish;
+    if (!$locked) {
+        $logger->warn("Timeout waiting for the radius_nas table update lock");
+        return undef;
+    }
+
+    return 1;
+}
+
+=head2 _unlock_radius_nas
+
+Release the lock taken by _lock_radius_nas
+
+=cut
+
+sub _unlock_radius_nas {
+    my ($lock) = @_;
+    return unless $lock;
+    my ($status, $sth) = pf::dal->db_execute("SELECT RELEASE_LOCK('pf_radius_nas_populate')");
+    $sth->finish unless is_error($status);
+}
+
+=head2 _current_radius_nas_timestamp
+
+The newest config timestamp in the radius_nas table
+
+=cut
+
+sub _current_radius_nas_timestamp {
+    my ($status, $sth) = pf::dal->db_execute("SELECT MAX(config_timestamp) FROM radius_nas");
+    return undef if is_error($status);
+    my ($timestamp) = $sth->fetchrow_array;
+    $sth->finish;
+    return $timestamp;
+}
+
+sub pfconnector_nas_row {
+    my $pass = $unified_api_system_user ? $unified_api_system_user->{pass} : undef;
+    return () unless defined $pass && $pass =~ /\S/;
+    return ({
+        id           => 'pfconnector',
+        radiusSecret => $pass,
+        type         => 'PacketFence',
+    });
 }
 
 sub additional_switches {
@@ -175,8 +258,12 @@ sub additional_switches {
                 }
             } (@$entries);
         }
+    } elsif (ref($management_network)) {
+        my $mgmt_ip = $management_network->tag('vip') || $management_network->tag('ip');
+        if (defined $mgmt_ip && $mgmt_ip =~ /\S/) {
+            push @switches, { id => $mgmt_ip, radiusSecret => $local_secret, type => 'PacketFence'};
+        }
     }
-
 
     return @switches;
 }
@@ -249,6 +336,7 @@ sub _build_radius_nas_row {
 }
 
 =back
+
 
 =head1 AUTHOR
 

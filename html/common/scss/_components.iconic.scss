@@ -8,15 +8,15 @@ $pf-iconic-size--large:    $inuit-global-line-height * 7/3;
   width: 100%; // fill container
 
   use {
-    fill: $pf-base-text-color;
-  }  
+    fill: $pf-text-base-color;
+  }
 
   &--primary use {
-    fill: $pf-color-primary;
+    fill: $pf-primary-color;
   }
 
   &--secondary use {
-    fill: $pf-color-secondary;
+    fill: $pf-secondary-color;
   }
 }
 

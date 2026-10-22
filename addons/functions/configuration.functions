@@ -1,6 +1,11 @@
 #!/bin/bash
 
 export PF_CONF_PATH="/usr/local/pf/conf/pf.conf"
+export CLUSTER_CONF_PATH="/usr/local/pf/conf/cluster.conf"
+
+# Interface renames applied to pf.conf during handle_network_change; reused to
+# adjust the local node's sections in cluster.conf (old_name -> new_name).
+declare -A PF_IFACE_RENAMES
 
 function ipcalc_wrapper() {
   if is_deb_based; then
@@ -22,6 +27,10 @@ function restore_config_files() {
   dump_dir="$1"
   files=`get_config_files`
   for f in $files; do
+    # cluster.conf is not restored here; handle_cluster_conf_restore decides its fate.
+    if [ "$f" = "$CLUSTER_CONF_PATH" ]; then
+      continue
+    fi
     echo "Restoring $f"
     mkdir -p `dirname $f`
     check_code $?
@@ -102,6 +111,8 @@ function rewrite_pf_ip_address() {
 function rename_interface() {
   perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '$PF_CONF_PATH') ; \$c->RenameSection('interface $1', 'interface $2') ; \$c->RewriteConfig"
   echo "Renamed $1 to $2 in pf.conf"
+  # Remember the rename so cluster.conf's node/VIP sections can be updated too.
+  PF_IFACE_RENAMES["$1"]="$2"
 }
 
 function delete_interface() {
@@ -143,6 +154,11 @@ function handle_network_change() {
       handle_interface_exists $interface
       check_code $?
     else
+      # --restore-as-is: don't prompt to remap/delete; leave the interface untouched.
+      if [ "${do_restore_as_is:-0}" = 1 ]; then
+        echo "--restore-as-is: leaving $interface untouched in pf.conf"
+        continue
+      fi
       stop_it=""
       while [ -z "$stop_it" ]; do
         sub_splitter
@@ -246,6 +262,126 @@ function delete_pf_database_port() {
 
 function is_cluster() {
   [ `perl -I/usr/local/pf/lib_perl/lib/perl5/ -I/usr/local/pf/lib -Mpf::config::cluster -e 'print $cluster_enabled'` -eq 1 ]
+}
+
+# A restored cluster.conf describes a real cluster only when CLUSTER/management_ip
+# is set (same test pf::config::cluster uses for $cluster_enabled).
+function cluster_conf_is_active() {
+  [ -f "$CLUSTER_CONF_PATH" ] || return 1
+  local mgmt_ip
+  mgmt_ip=$(perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '$CLUSTER_CONF_PATH'); \$v = \$c->val('CLUSTER', 'management_ip'); print defined(\$v) ? \$v : ''")
+  [ -n "$mgmt_ip" ]
+}
+
+function cluster_conf_has_host() {
+  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '$CLUSTER_CONF_PATH'); exit(\$c->SectionExists('$1') ? 0 : 1)"
+}
+
+function cluster_rename_interface_section() {
+  local prefix="$1" old="$2" new="$3"
+  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '$CLUSTER_CONF_PATH'); if (\$c->SectionExists('$prefix interface $old')) { \$c->RenameSection('$prefix interface $old', '$prefix interface $new'); \$c->RewriteConfig; }"
+}
+
+function cluster_set_interface_ip() {
+  local prefix="$1" ifn="$2" ip="$3"
+  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '$CLUSTER_CONF_PATH'); if (\$c->SectionExists('$prefix interface $ifn')) { \$c->setval('$prefix interface $ifn', 'ip', '$ip'); \$c->RewriteConfig; }"
+}
+
+function cluster_set_management_ip() {
+  local section="$1" ip="$2"
+  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '$CLUSTER_CONF_PATH'); if (\$c->SectionExists('$section')) { \$c->setval('$section', 'management_ip', '$ip'); \$c->RewriteConfig; }"
+}
+
+# Reset the live cluster.conf to an empty (standalone) configuration.
+function reset_cluster_conf() {
+  if [ -f "${CLUSTER_CONF_PATH}.example" ]; then
+    cp -a "${CLUSTER_CONF_PATH}.example" "$CLUSTER_CONF_PATH"
+  else
+    printf '[CLUSTER]\nmanagement_ip=\n' > "$CLUSTER_CONF_PATH"
+  fi
+  chown pf: "$CLUSTER_CONF_PATH"
+}
+
+# Decide what to do with cluster.conf on import (it is skipped by restore_config_files):
+#   --restore-as-is       : keep this server's current cluster.conf untouched
+#   --update-cluster-conf : restore the export's cluster.conf and adjust it for this server
+#   default               : keep the export's copy for reference, reset the live one to empty
+function handle_cluster_conf_restore() {
+  local dump_dir="$1"
+  local src="$dump_dir/usr/local/pf/conf/cluster.conf"
+
+  if [ "${do_restore_as_is:-0}" -eq 1 ]; then
+    echo "--restore-as-is: keeping this server's current cluster.conf unchanged"
+    return 0
+  fi
+
+  if [ "${do_update_cluster_conf:-0}" -eq 1 ]; then
+    if [ -f "$src" ]; then
+      echo "Restoring cluster.conf from the export and adjusting it for this server"
+      cp -a "$src" "$CLUSTER_CONF_PATH"
+      chown pf: "$CLUSTER_CONF_PATH"
+      handle_cluster_conf_change
+    else
+      echo "WARN: no cluster.conf found in the export; leaving the current one in place"
+    fi
+    return 0
+  fi
+
+  # Default: do not adopt the export's cluster configuration. Keep it for
+  # reference and leave this server standalone with an empty cluster.conf.
+  if [ -f "$src" ]; then
+    echo "Saving the export's cluster.conf as ${CLUSTER_CONF_PATH}.imported for reference"
+    cp -a "$src" "${CLUSTER_CONF_PATH}.imported"
+    chown pf: "${CLUSTER_CONF_PATH}.imported"
+  fi
+  echo "Resetting cluster.conf to a standalone (empty) configuration"
+  reset_cluster_conf
+}
+
+# Adjust the restored cluster.conf for this server, mirroring the pf.conf handling.
+# Only the local node ([<hostname>] and its interfaces) is adjusted from the
+# already-corrected pf.conf; VIP interface renames are propagated cluster-wide,
+# but VIP IPs and peer-node sections cannot be derived here and are left as-is.
+function handle_cluster_conf_change() {
+  echo "Checking cluster.conf for any necessary node configuration changes"
+  if ! cluster_conf_is_active; then
+    echo "cluster.conf has no cluster management IP; nothing to adjust (standalone configuration)"
+    return 0
+  fi
+
+  local host=`hostname`
+  echo "Detected a cluster configuration; adjusting local node '$host' in cluster.conf"
+
+  if ! cluster_conf_has_host "$host"; then
+    echo "WARN: cluster.conf has no [$host] section. The backup likely comes from a different node or cluster."
+    echo "WARN: Review $CLUSTER_CONF_PATH manually before enabling clustering."
+    return 0
+  fi
+
+  # Interface renames resolved while adjusting pf.conf apply cluster-wide, so
+  # update both the local node's sections and the CLUSTER (VIP) sections.
+  if [ "${#PF_IFACE_RENAMES[@]}" -gt 0 ]; then
+    for old in "${!PF_IFACE_RENAMES[@]}"; do
+      new="${PF_IFACE_RENAMES[$old]}"
+      echo "Renaming interface $old to $new in cluster.conf ([$host] and [CLUSTER])"
+      cluster_rename_interface_section "$host" "$old" "$new"
+      cluster_rename_interface_section "CLUSTER" "$old" "$new"
+    done
+  fi
+
+  # Sync the local node's interface IPs and management IP from the corrected pf.conf.
+  for interface in `list_pf_interfaces`; do
+    local pf_ip=`get_pf_ip_address $interface`
+    [ -z "$pf_ip" ] && continue
+    cluster_set_interface_ip "$host" "$interface" "$pf_ip"
+    if get_pf_interface_type "$interface" | grep -q management; then
+      echo "Setting management_ip of [$host] to $pf_ip in cluster.conf"
+      cluster_set_management_ip "$host" "$pf_ip"
+    fi
+  done
+
+  echo "NOTE: Virtual IPs in [CLUSTER ...] and peer-node sections were left unchanged."
+  echo "NOTE: Verify $CLUSTER_CONF_PATH: peer nodes' IPs cannot be derived from this server."
 }
 
 function get_pf_version_in_export() {

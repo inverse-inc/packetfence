@@ -20,6 +20,16 @@ PF_RELEASE_VERSION=${2:-15.1}
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 PF_ROOT=$(cd "${SCRIPT_DIR}/../.." && pwd)
 
+source "${SCRIPT_DIR}/../debian-version.conf"
+
+if [ -n "${DEBIAN_SNAPSHOT_DATE:-}" ]; then
+    DEBIAN_MIRROR="https://snapshot.debian.org/archive/debian/${DEBIAN_SNAPSHOT_DATE}"
+    echo "Using Debian snapshot mirror: ${DEBIAN_MIRROR}"
+else
+    DEBIAN_MIRROR="http://deb.debian.org/debian"
+    echo "WARNING: DEBIAN_SNAPSHOT_DATE not set, using current mirror (may cause version conflicts)"
+fi
+
 # PacketFence repository URL configuration
 # Available options:
 #   - debian-branches: Branch builds (default, for devel/feature branches)
@@ -66,7 +76,19 @@ CHROOT_DIR=$(mktemp -d)
 trap 'echo "Cleaning up chroot..."; ${SUDO} rm -rf "${CHROOT_DIR}"' EXIT
 
 echo "===> Creating minimal chroot for package download"
-${SUDO} debootstrap --variant=minbase --include=apt,gnupg,ca-certificates bookworm ${CHROOT_DIR} http://deb.debian.org/debian
+${SUDO} debootstrap --variant=minbase --include=apt,gnupg,ca-certificates bookworm ${CHROOT_DIR} ${DEBIAN_MIRROR}
+
+if [ -n "${DEBIAN_SNAPSHOT_DATE:-}" ]; then
+    ${SUDO} tee ${CHROOT_DIR}/etc/apt/sources.list > /dev/null << EOF
+deb [check-valid-until=no] ${DEBIAN_MIRROR} bookworm main
+deb [check-valid-until=no] ${DEBIAN_MIRROR} bookworm-updates main
+deb [check-valid-until=no] https://snapshot.debian.org/archive/debian-security/${DEBIAN_SNAPSHOT_DATE} bookworm-security main
+EOF
+    ${SUDO} tee ${CHROOT_DIR}/etc/apt/apt.conf.d/99snapshot > /dev/null << 'EOF'
+Acquire::Check-Valid-Until "false";
+Acquire::Retries "3";
+EOF
+fi
 
 # Add PacketFence repository only (we'll use DVD for Debian packages)
 echo "===> Configuring PacketFence repository in chroot"

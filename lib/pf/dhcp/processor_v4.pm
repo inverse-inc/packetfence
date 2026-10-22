@@ -268,9 +268,21 @@ sub process_packet {
         $tmp{'dhcp_vendor'} = defined($dhcp->{'options'}{'60'}) ? $dhcp->{'options'}{'60'} : '';
         $tmp{'last_dhcp'} = mysql_date();
         if (defined($dhcp->{'options'}{'12'})) {
-            $tmp{'computername'} = $dhcp->{'options'}{'12'};
-            if(isenabled($Config{network}{hostname_change_detection})){
-                $self->apiClient->notify('detect_computername_change', $dhcp->{'chaddr'}, $tmp{'computername'});
+            # When PacketFence is the DHCP server for this network (pfdhcp), it
+            # records the computername itself, synchronously, from the packet it
+            # answers -- so it lands immediately instead of waiting on the
+            # asynchronous Fingerbank collector. Only the listener/collector
+            # path owns the computername for networks PF does not serve. We skip
+            # here only when we can affirmatively determine PF is the DHCP server
+            # (a known client IP that falls in a served network); otherwise we
+            # still record it to avoid losing the hostname.
+            my $req_ip = ($dhcp->{'yiaddr'} ne "0.0.0.0") ? $dhcp->{'yiaddr'} : $dhcp->{'options'}{'50'};
+            my $pf_serves_dhcp = (defined($req_ip) && $self->pf_is_dhcp($req_ip)) ? 1 : 0;
+            unless ($pf_serves_dhcp) {
+                $tmp{'computername'} = $dhcp->{'options'}{'12'};
+                if(isenabled($Config{network}{hostname_change_detection})){
+                    $self->apiClient->notify('detect_computername_change', $dhcp->{'chaddr'}, $tmp{'computername'});
+                }
             }
         }
 
@@ -406,7 +418,9 @@ sub parse_dhcp_ack {
 
     my $s_ip = $dhcp->{'src_ip'};
     my $s_mac = $dhcp->{'src_mac'};
-    my $client_mask = join( '.', @{$dhcp->{'options'}->{'1'}});
+    # Option 1 (subnet mask) is optional: DHCPINFORM-triggered ACKs and some
+    # servers omit it. Guard the array deref so a missing option doesn't die.
+    my $client_mask = defined($dhcp->{'options'}->{'1'}) ? join( '.', @{$dhcp->{'options'}->{'1'}}) : undef;
     my $lease_length = $dhcp->{'options'}->{'51'};
 
     my $client_ip;

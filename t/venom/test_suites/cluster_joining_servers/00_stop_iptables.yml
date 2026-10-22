@@ -1,0 +1,13 @@
+name: Joining servers — stop iptables
+testcases:
+# docs/cluster/cluster_setup.asciidoc "Stop iptables (all servers)" — the
+# joiners' share (pf1 stopped its own in cluster_first_server).
+- name: stop_iptables
+  steps:
+  - type: exec
+    # packetfence-iptables is Restart=always and its monitor exits on SIGTERM,
+    # so systemctl stop reports non-zero even though the service does stop.
+    # The exit code isn't a reliable signal — tolerate it.
+    script: 'systemctl stop packetfence-iptables || true'
+    assertions:
+      - result.code ShouldEqual 0

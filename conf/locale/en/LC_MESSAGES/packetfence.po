@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 15.1.0\n"
+"Project-Id-Version: 15.2.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2026-05-19 13:07-0400\n"
+"PO-Revision-Date: 2026-07-22 15:15-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -37,6 +37,10 @@ msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
 msgid "%s: Guest access request accepted"
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "---Choose a Provider---"
 msgstr ""
 
 # html/captive-portal/templates/ssl_inspection/windows.html
@@ -314,10 +318,6 @@ msgstr ""
 msgid "Computer name "
 msgstr ""
 
-# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/SMS.pm
-msgid "Confirm Mobile Phone Number"
-msgstr ""
-
 # html/captive-portal/templates/status/reset_password_token.html
 msgid "Confirm Password"
 msgstr ""
@@ -552,6 +552,10 @@ msgstr ""
 msgid "Enter a valid telephone number"
 msgstr ""
 
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/SMS.pm
+msgid "Enter the PIN sent to your phone"
+msgstr ""
+
 # html/captive-portal/templates/security_events/bandwidth_expiration.html
 msgid "Expiration"
 msgstr ""
@@ -570,6 +574,10 @@ msgstr ""
 
 # html/captive-portal/templates/emails/emails-guest_email_activation.html
 msgid "Failure to do so within %s minutes will result in a termination of your network access."
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "Female"
 msgstr ""
 
 # html/captive-portal/templates/ssl_inspection/firefox.html
@@ -840,6 +848,10 @@ msgstr ""
 
 # html/captive-portal/templates/ssl_inspection/osx.html
 msgid "Make sure <i>Trust</i> is expanded and select the dropdown next to <i>When using this certificate:</i> and change it to <i>Always Trust</i>."
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "Male"
 msgstr ""
 
 # html/captive-portal/templates/stripe-customer-portal/select-account.html
@@ -1516,6 +1528,26 @@ msgstr ""
 msgid "Time balance "
 msgstr ""
 
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Application.pm
+#. Abbreviation of "days" appended to a number in a time balance (e.g. 1d 2h 3m)
+msgid "d"
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Application.pm
+#. Abbreviation of "hours" appended to a number in a time balance (e.g. 1d 2h 3m)
+msgid "h"
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Application.pm
+#. Abbreviation of "minutes" appended to a number in a time balance (e.g. 1d 2h 3m)
+msgid "m"
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Application.pm
+#. Abbreviation of "seconds" appended to a number in a time balance (e.g. 1d 2h 3m)
+msgid "s"
+msgstr ""
+
 # pf::person::FIELDS
 msgid "Title"
 msgstr ""
@@ -1773,6 +1805,10 @@ msgstr ""
 msgid "You're not connected to the network, but have a timebank of <strong id='timeleft'>%s</strong>"
 msgstr ""
 
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication.pm
+msgid "Your account didn't provide an e-mail address, which is needed to create your local account. Please use another login method."
+msgstr ""
+
 # html/captive-portal/templates/status.html
 msgid "Your WPA Wi-Fi key: "
 msgstr ""
@@ -1780,6 +1816,10 @@ msgstr ""
 # html/captive-portal/templates/provisioner/android.html
 # html/captive-portal/templates/provisioner/mobileconfig.html
 msgid "Your XML configuration have been generated and is now ready to download.  Follow the link below in order to get access to the secure SSID."
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Root.pm
+msgid "Your account could not be created. Please contact your network administrator."
 msgstr ""
 
 # html/captive-portal/templates/lost_stolen.html

@@ -77,6 +77,7 @@ import {
   BaseFormTab
 } from '@/components/new/'
 import schemaFn from '../schema'
+import { connectorInstallCommand } from '../_composables/useInstallCommand'
 import {
   FormGroupIdentifier,
   FormGroupDescription,
@@ -130,7 +131,8 @@ export const setup = (props, context) => {
   const installCommand = computed(() => {
     const { id, secret } = props.form || {}
     const server = $store.getters['system/hostname'] || window.location.hostname
-    return `curl -sL https://proxy.saas.packetfence.com/connector-remote-install.sh | bash -s -- ${id || ''} ${secret || ''} ${server}`
+    const version = $store.getters['system/version']
+    return connectorInstallCommand({ id, secret, server, version })
   })
 
   const onCopyInstallCommand = () => {

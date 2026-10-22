@@ -1,4 +1,5 @@
 import store from '@/store'
+import { loadClusterConfig } from '@/utils/cluster'
 import StoreModule from './_store/sessions'
 
 const TheForm = () => import(/* webpackChunkName: "LiveLogs" */ './_components/TheForm')
@@ -8,12 +9,17 @@ export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_live_logs) {
     store.registerModule('$_live_logs', StoreModule)
   }
+  loadClusterConfig()
   const isFromLiveLogs = from && from.path && from.path.startsWith('/live-logs')
   if (to && to.name === 'live_logs' && !isFromLiveLogs) {
     const liveLogsState = store.state.$_live_logs
-    if (liveLogsState && liveLogsState._lastSessionId && liveLogsState._lastSessionId in liveLogsState) {
-      next({ name: 'live_log', params: { id: liveLogsState._lastSessionId } })
-      return
+    if (liveLogsState && liveLogsState._lastSessionId) {
+      const id = liveLogsState._lastSessionId
+      // Resolve either a single-session id (legacy) or a group_id (cluster).
+      if (id in liveLogsState || (liveLogsState._groups && id in liveLogsState._groups)) {
+        next({ name: 'live_log', params: { id } })
+        return
+      }
     }
   }
   next()
@@ -37,10 +43,16 @@ export default [
     props: route => ({ id: route.params.id }),
     beforeEnter: (to, from, next) => {
       beforeEnter()
-      if (!(to.params.id in store.state.$_live_logs))
+      const liveLogsState = store.state.$_live_logs
+      const id = to.params.id
+      const known = liveLogsState && (
+        id in liveLogsState ||
+        (liveLogsState._groups && id in liveLogsState._groups)
+      )
+      if (!known) {
         next('/live-logs')
-      else {
-        store.commit('$_live_logs/SET_LAST_SESSION', to.params.id)
+      } else {
+        store.commit('$_live_logs/SET_LAST_SESSION', id)
         next()
       }
     },

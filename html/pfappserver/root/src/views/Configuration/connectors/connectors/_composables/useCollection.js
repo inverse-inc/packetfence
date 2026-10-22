@@ -43,6 +43,12 @@ export const useSearch = makeSearch('connectorsConnectors', {
       visible: true
     },
     {
+      key: 'status',
+      label: 'Status', // i18n defer
+      thStyle: 'width: 80px;', tdClass: 'text-center',
+      visible: true
+    },
+    {
       key: 'description',
       label: 'Description', // i18n defer
       searchable: true,

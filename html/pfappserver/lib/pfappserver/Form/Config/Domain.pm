@@ -62,6 +62,7 @@ has_field 'ad_fqdn' =>
    label => 'Active Directory server',
    required => 1,
    messages => { required => 'Please specify the FQDN of the Active Directory server' },
+   apply => [ { check => qr/^[^A-Z]*$/, message => 'FQDN must be lower case.' } ],
    tags => { after_element => \&help,
              help => 'The FQDN of the Active Directory server' },
   );
@@ -140,6 +141,7 @@ has_field 'dns_name' =>
    label => 'DNS name of the domain',
    required => 1,
    messages => { required => 'Please specify the DNS name of the domain' },
+   apply => [ { check => qr/^[^A-Z]*$/, message => 'DNS name must be lower case.' } ],
    tags => { after_element => \&help,
              help => 'The DNS name (FQDN) of the domain.' },
   );
@@ -353,6 +355,21 @@ has_field 'channel_binding' => (
     default => 'disabled',
 );
 
+# Join the domain over LDAPS even when the machine account goes to the default
+# Computers container (impacket-addcomputer -method=LDAPS instead of SAMR).
+# The admin UI has shown this toggle since "Add force LDAP" (b4d5b7912a) but the
+# field was never declared here, so the validated item handed to create() lost
+# it and the join always used SAMR (#9092).
+has_field 'force_ldap' => (
+    type            => 'Toggle',
+    label           => 'Force LDAP',
+    checkbox_value  => 'enabled',
+    unchecked_value => 'disabled',
+    default => 'disabled',
+    tags => { after_element => \&help,
+        help => 'Always use LDAPS to create the machine account, even when the OU is the default Computers container.' },
+);
+
 
 has_field 'encryption' =>
   (
@@ -422,7 +439,7 @@ Validate NTLM cache fields if ntlm_cache is enabled
 sub validate {
     my ($self) = @_;
 
-    if (($self->field('id')->value() // '') !~ /^[0-9a-zA-Z\.\-_]+ [0-9a-zA-Z]+$/) {
+    if (($self->field('id')->value() // '') !~ /^[0-9a-zA-Z]+$/) {
         $self->field('id')->add_error("The id is invalid. The id can only contain alphanumeric characters.");
     }
 

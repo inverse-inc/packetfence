@@ -41,7 +41,7 @@ is_deeply(
             },
             {
                 name => "auth_log",
-                trigger => 'CREATE DEFINER=`root`@`localhost` TRIGGER log_event_auth_log AFTER INSERT ON `auth_log` FOR EACH ROW BEGIN SET @k = pf_logger( "auth_log", "process_name", NEW.process_name, "mac", NEW.mac, "pid", NEW.pid, "status", NEW.status, "attempted_at", NEW.attempted_at, "completed_at", NEW.completed_at, "source", NEW.source, "profile", NEW.profile); END;',
+                trigger => 'CREATE DEFINER=`root`@`localhost` TRIGGER log_event_auth_log AFTER INSERT ON `auth_log` FOR EACH ROW BEGIN SET @k = pf_logger( "auth_log", "process_name", NEW.process_name, "mac", NEW.mac, "pid", NEW.pid, "status", NEW.status, "attempted_at", NEW.attempted_at, "completed_at", NEW.completed_at, "source", NEW.source, "source_type", NEW.source_type, "profile", NEW.profile); END;',
             },
             {
                 name => "dhcp_option82",

@@ -413,6 +413,14 @@ yup.addMethod(yup.string, 'isFQDN', function (message) {
   })
 })
 
+yup.addMethod(yup.string, 'isLowerCase', function (message) {
+  return this.test({
+    name: 'isLowerCase',
+    message: message || i18n.t('Must be lower case.'),
+    test: value => ['', null, undefined].includes(value) || value === value.toLowerCase()
+  })
+})
+
 export const isHex = (value, length = 16) => {
   return `${value}`.toLowerCase().replace(/[^0-9a-f]/g, '').length === length
 }
@@ -472,6 +480,54 @@ yup.addMethod(yup.string, 'isPort', function (min = 1, max = 65535, message) {
     name: 'isPort',
     message: message || i18n.t(`Invalid port range (${min}-${max}).`),
     test: value => ['', null, undefined].includes(value) || (+value === parseInt(value) && +value >= min && +value <= max)
+  })
+})
+
+// Split a list the way it is read when the iptables rules are generated:
+//  lines: a list field, comma or line separated
+//  commas: a text field split on commas, spaces around them are ignored
+//  strict: a text field split on commas only, an item with spaces is invalid
+// An empty item between two separators (8080,,3128, or a blank line) is kept
+// as '', which no check accepts: the rules would get an empty port or
+// interface. A trailing separator is ignored, as when the rules are generated.
+const splitList = (value, mode = 'lines') => {
+  if (mode === 'strict')
+    return value.split(',').filter(item => item !== '')
+  // the lines of a list field are saved joined with commas
+  const joined = (mode === 'lines') ? value.split(/[\n\v\f\r\u0085\u2028\u2029]+/).join(',') : value
+  const items = joined.trim().split(/\s*,\s*/)
+  while (items.length > 0 && items[items.length - 1] === '')
+    items.pop()
+  return items
+}
+const isPortNumber = value => /^\d{1,5}$/.test(value) && +value >= 1 && +value <= 65535
+// a trailing + is the iptables wildcard (ex: eth+)
+const isInterfaceName = value => /^(?=.{1,15}$)[a-zA-Z0-9][a-zA-Z0-9_.@-]*\+?$/.test(value)
+
+yup.addMethod(yup.string, 'isPortCsv', function (message, mode = 'lines') {
+  return this.test({
+    name: 'isPortCsv',
+    message: message || i18n.t('Invalid list of ports (1-65535).'),
+    test: value => ['', null, undefined].includes(value) || splitList(value, mode).every(isPortNumber)
+  })
+})
+
+yup.addMethod(yup.string, 'isPortProtocolCsv', function (message, mode = 'commas') {
+  return this.test({
+    name: 'isPortProtocolCsv',
+    message: message || i18n.t('Invalid list of ports, expected port/protocol (ex: 80/tcp).'),
+    test: value => ['', null, undefined].includes(value) || splitList(value, mode).every(item => {
+      const [port, protocol, ...rest] = item.split('/')
+      return rest.length === 0 && isPortNumber(port) && /^(tcp|udp)$/i.test(protocol)
+    })
+  })
+})
+
+yup.addMethod(yup.string, 'isInterfaceNameCsv', function (message, mode = 'lines') {
+  return this.test({
+    name: 'isInterfaceNameCsv',
+    message: message || i18n.t('Invalid list of interface names.'),
+    test: value => ['', null, undefined].includes(value) || splitList(value, mode).every(isInterfaceName)
   })
 })
 

@@ -91,6 +91,22 @@ func TestFetchDecodeSocket(t *testing.T) {
 
 }
 
+func TestDecodeJsonInterfaceErr(t *testing.T) {
+	// A scalar/empty element must return an error, not panic.
+	var o PfconfigObject = &ManagementNetwork{}
+	if err := decodeJsonInterfaceErr(ctx, []byte(`"eth0"`), &o); err == nil {
+		t.Error("Decoding a scalar into ManagementNetwork should return an error, not panic")
+	}
+
+	var valid PfconfigObject = &ManagementNetwork{}
+	if err := decodeJsonInterfaceErr(ctx, []byte(`{"int":"eth0"}`), &valid); err != nil {
+		t.Errorf("Decoding a valid element shouldn't error: %s", err)
+	}
+	if valid.(*ManagementNetwork).Int != "eth0" {
+		t.Error("Valid element wasn't decoded correctly")
+	}
+}
+
 func TestFetchDecodeSocketCache(t *testing.T) {
 	gen := PfConfGeneral{}
 

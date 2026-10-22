@@ -48,7 +48,7 @@ BEGIN {
 
 =cut
 
-Readonly::Scalar our $VERSION     => "4.3.3";
+Readonly::Scalar our $VERSION     => "4.3.4";
 Readonly::Scalar our $FALSE       => 0;
 Readonly::Scalar our $TRUE        => 1;
 Readonly::Scalar our $YES         => 'yes';

@@ -5,7 +5,7 @@ import Vue from 'vue'
 import store from '@/store'
 import api from '../_api'
 import { createDebouncer } from 'promised-debounce'
-import i18n from '@/utils/locale'
+import { defaultScopes, addMeta, delMeta, isFilteredGetter, eventsFilteredGetter, computeFilters, setScopeFilter } from '@/utils/logEvents'
 
 // Default values
 const state = () => {
@@ -22,32 +22,12 @@ const state = () => {
       background: 'white',
       size: 'normal',
       order: 'forward',
-      output: 'raw'
+      output: 'raw',
+      levelHighlight: true
     },
     events: [],
     filters: {},
-    scopes: {
-      hostname: {
-        label: i18n.t('Hostname'),
-        values: {}
-      },
-      filename: {
-        label: i18n.t('Log Name'),
-        values: {}
-      },
-      log_level: {
-        label: i18n.t('Log Level'),
-        values: {}
-      },
-      process: {
-        label: i18n.t('Process Name'),
-        values: {}
-      },
-      syslog_name: {
-        label: i18n.t('Syslog Name'),
-        values: {}
-      }
-    },
+    scopes: defaultScopes(),
     size: 500,
     lines: 0,
     debouncer: false,
@@ -71,27 +51,8 @@ const getters = {
   events: state => state.events,
   scopes: state => state.scopes,
   filters: state => state.filters,
-  isFiltered: state => (scope, key) => {
-    const { scopes: { [scope]: { values: { [key]: { filter = false } = {} } = {} } = {} } = {} } = state
-    return filter
-  },
-  eventsFiltered: state => {
-    const fk = Object.keys(state.filters)
-    if (fk.length === 0) {
-      return state.events
-    }
-    return state.events.filter(event => {
-      const { data: { meta: { timestamp, log_without_prefix, ...meta } = {} } = {} } = event
-      for (let i = 0; i < fk.length; i++) {
-        let k = fk[i]
-        let a = state.filters[k]
-        if (!a.includes(meta[k])) {
-          return false
-        }
-      }
-      return event
-    })
-  },
+  isFiltered: isFilteredGetter,
+  eventsFiltered: eventsFilteredGetter,
   size: state => state.size,
   lines: state => state.lines,
   options: state => state.options,
@@ -107,9 +68,11 @@ const actions = {
   setOptions: ({ commit }, options) => {
     commit('SET_OPTIONS', options)
   },
-  stopSession: ({ state, commit }) => {
+  stopSession: ({ state, commit }, peerOverride) => {
     commit('LOG_SESSION_STOPPING')
-    return api.delete(state.session.session_id).then(response => {
+    // Caller may pass the peer explicitly so the header survives a page reload that wiped state.session.peer.
+    const peer = peerOverride || state.session.peer
+    return api.delete(state.session.session_id, peer).then(response => {
       commit('LOG_SESSION_STOPPED')
       return response
     }).catch(err => {
@@ -131,7 +94,7 @@ const actions = {
         }
         promise = api.item(state.session.session_id, pollBody)
       } else {
-        promise = api.item(state.session.session_id)
+        promise = api.item(state.session.session_id, null, state.session.peer)
       }
       return promise.then(response => {
         commit('LOG_SESSION_RESPONSE', response)
@@ -164,7 +127,7 @@ const actions = {
   touchSession: ({ state, commit }) => {
     if (state.paused) {
       commit('LOG_SESSION_REQUEST')
-      return api.touch(state.session.session_id).then(response => {
+      return api.touch(state.session.session_id, state.session.peer).then(response => {
         commit('LOG_SESSION_SUCCESS')
         return response
       }).catch(err => {
@@ -173,15 +136,15 @@ const actions = {
       })
     }
   },
-  toggleFilter: ({ getters, commit }, { scope, key }) => {
-    if (getters.isFiltered(scope, key)) { // disable
-      commit('LOG_FILTER_DISABLE', { scope, key })
-      commit('UPDATE_FILTERS')
-    }
-    else { //enable
-      commit('LOG_FILTER_ENABLE', { scope, key })
-      commit('UPDATE_FILTERS')
-    }
+  // Explicit target state: the cluster view computes the desired flag once
+  // from the merged scopes and sets it on every peer module, so peers can
+  // never toggle in opposite directions.
+  setFilter: ({ commit }, { scope, key, filter }) => {
+    commit('LOG_FILTER_SET', { scope, key, filter })
+    commit('UPDATE_FILTERS')
+  },
+  toggleFilter: ({ getters, dispatch }, { scope, key }) => {
+    return dispatch('setFilter', { scope, key, filter: !getters.isFiltered(scope, key) })
   },
   setSize: ({ commit }, size) => {
     commit('UPDATE_SIZE', +size)
@@ -189,37 +152,6 @@ const actions = {
   clearEvents: ({ commit }) => {
     commit('CLEAR_EVENTS')
     commit('CLEAR_COUNTS')
-  }
-}
-
-const addMeta = (scopes, event) => {
-  const { data: { meta: { timestamp, log_without_prefix, ...meta } = {} } = {} } = event
-  for (let key of Object.keys(meta)) {
-    if (!(key in scopes)) {
-      Vue.set(scopes[key], 'values', { [meta[key]]: { count: 1 } })
-    }
-    else if (!(meta[key] in scopes[key].values)) {
-      Vue.set(scopes[key], 'values', Object.entries({
-        ...scopes[key].values,
-        [meta[key]]: { count: 1 }
-      }).sort(([a], [b]) => {
-        if (!a) return -1
-        if (!b) return 1
-        return +a - +b
-      }).reduce((r, [k, v]) => {
-        return { ...r, [k]: v }
-      }, {}))
-    }
-    else {
-      Vue.set(scopes[key].values[meta[key]], 'count', scopes[key].values[meta[key]].count + 1)
-    }
-  }
-}
-
-const delMeta = (scopes, event) => {
-  const { data: { meta: { timestamp, log_without_prefix, ...meta } = {} } = {} } = event
-  for (let key of Object.keys(meta)) {
-    Vue.set(scopes[key].values[meta[key]], 'count', scopes[key].values[meta[key]].count - 1)
   }
 }
 
@@ -310,22 +242,11 @@ const mutations = {
       state.message = response.data.message
     }
   },
-  LOG_FILTER_ENABLE: (state, { scope, key }) => {
-    state.scopes[scope].values[key].filter = true
-  },
-  LOG_FILTER_DISABLE: (state, { scope, key }) => {
-    state.scopes[scope].values[key].filter = false
+  LOG_FILTER_SET: (state, { scope, key, filter }) => {
+    setScopeFilter(state.scopes, scope, key, filter)
   },
   UPDATE_FILTERS: (state) => {
-    state.filters = Object.entries(state.scopes).reduce((r, [k, { values: f }]) => {
-      let v = Object.entries(f).reduce((r, [k, v]) => {
-        return (v.filter) ? [ ...r, k ] : r
-      }, [])
-      return {
-        ...r,
-        ...((v.length > 0) ? { [k]: v } : {})
-      }
-    }, {})
+    state.filters = computeFilters(state.scopes)
   },
   UPDATE_SIZE: (state, size) => {
     state.size = size

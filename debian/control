@@ -19,17 +19,20 @@ Pre-Depends:  ca-certificates,
  packetfence-pfcmd-suid (>= ${source:Version}), packetfence-config (>= ${source:Version}),
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
  fingerbank (>= 4.3.3), fingerbank (<< 5.0.0),
- fingerbank-collector (>= 1.4.1), fingerbank-collector (<< 2.0.0),
+ fingerbank-collector (>= 1.6.1), fingerbank-collector (<< 2.0.0),
  packetfence-redis-cache (>= ${source:Version}),
- packetfence-perl (>= 1.2.4),
+ packetfence-perl (>= 1.2.7),
 # Removed for now
 # libmariadbd-dev (>= 10.1), libmariadbd-dev (<< 10.5.18)
 Breaks: libdata-alias-perl, packetfence-export
-Conflicts: packetfence-captive-portal-javascript, packetfence-doc, packetfence-pfappserver-javascript, packetfence-export
+# fingerbank-collector-remote ships /etc/systemd/system/packetfence-fingerbank-collector.service, which shadows the on-prem unit from fingerbank-collector
+Conflicts: packetfence-captive-portal-javascript, packetfence-doc, packetfence-pfappserver-javascript, packetfence-export, fingerbank-collector-remote
 Replaces: packetfence-captive-portal-javascript, packetfence-doc, packetfence-pfappserver-javascript
 Depends: ${misc:Depends}, vlan,
  packetfence-ntlm-wrapper (>= ${source:Version}), packetfence-golang-daemon (>= ${source:Version}),
  openssl,
+# ssh binary for the SSH transport of the switch CLI (Net::CLI::Interact)
+ openssh-client,
  packetfence-archive-keyring (>= ${source:Version}),
  gpg,
  jq,
@@ -43,9 +46,10 @@ Depends: ${misc:Depends}, vlan,
  libapache2-mod-apreq2, libapache2-mod-perl2,
  libapache2-request-perl, libtie-dxhash-perl, libapache-session-perl,
  libapache-ssllookup-perl, libapache2-mod-systemd,
-# freeradius
- freeradius (>= 3.2.7), freeradius-ldap,
- freeradius-mysql, freeradius-utils, freeradius-rest, freeradius-redis,
+# freeradius: rlm_rest >= 3.2.10 for body_lists (RADIUS filters of the proxy
+# sections). The PacketFence builds carry epoch 4, which the floor must include.
+ freeradius (>= 4:3.2.10), freeradius-ldap,
+ freeradius-mysql, freeradius-utils, freeradius-rest (>= 4:3.2.10), freeradius-redis,
  eapoltest,
 # systemd sd_notify support
  liblinux-systemd-daemon-perl,
@@ -134,6 +138,7 @@ Depends: ${misc:Depends}, vlan,
 # packaging workaround (we don't require it but something in catalyst seem to do)
  libmodule-install-perl,
 # i18n
+ gettext,
  liblocale-gettext-perl,
  locales-all,
 # logging framework
@@ -206,7 +211,9 @@ Description: GPG keys provided by PacketFence project
 
 Package: packetfence-pfconnector-remote
 Architecture: all
-Depends: fingerbank-collector-remote (>= 1.4.1), freeradius-common
+Depends: docker-ce, docker-ce-cli, containerd.io, iproute2, jq, make
+Conflicts: fingerbank-collector, fingerbank-collector-remote, freeradius-common
+Replaces: fingerbank-collector, fingerbank-collector-remote, freeradius-common
 Description: PacketFence Connector
  PacketFence Connector files. This package contains all files related to PacketFence Connector.
 

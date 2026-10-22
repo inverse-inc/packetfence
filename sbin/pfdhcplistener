@@ -28,7 +28,7 @@ use File::Basename qw(basename);
 use Getopt::Std;
 use Net::Pcap 0.16;
 use Pod::Usage;
-use POSIX qw(:signal_h pause :sys_wait_h SIG_BLOCK SIG_UNBLOCK);
+use POSIX qw(:signal_h pause :sys_wait_h SIG_BLOCK SIG_UNBLOCK SIG_SETMASK);
 use Fcntl qw(:flock);
 use Try::Tiny;
 use pf::util::dhcp;
@@ -354,16 +354,19 @@ sub process_pkt {
                     $logger->trace("Rate limit key : $rate_limit_key");
                 }
 
-                my $rate_limiting = $Config{network}->{dhcp_rate_limiting} // 300;
+                my $rate_limiting = normalize_time($Config{network}->{dhcp_rate_limiting} // 300);
                 # We send the packet to be processed if:
                 #  - there is no rate limit key (packet doesn't contain info to be rate-limited)
                 #  - there is no rate limiting configured
                 #  - there is no cache entry (packet wasn't seen in the last $rate_limiting seconds)
                 if(!defined($rate_limit_key) || $rate_limiting == 0 || !$rate_limit_cache->get($rate_limit_key)) {
                     my $apiclient = api_client();
-                    $apiclient->notify('process_dhcpv4', %args);
+                    $apiclient->notify_hashed($dhcp_mac, 'process_dhcpv4', %args);
                     if(defined($rate_limit_key) && $rate_limiting != 0) {
-                        $rate_limit_cache->set($rate_limit_key, 1, $rate_limiting);
+                        # Jitter the suppression window (+/- 25%): endpoints whose leases
+                        # renew in lockstep would otherwise all leave the cache in the same
+                        # second and re-flood pfqueue in one synchronized wave every cycle.
+                        $rate_limit_cache->set($rate_limit_key, 1, add_jitter($rate_limiting, int($rate_limiting / 4)));
                     }
                 }
                 else {
@@ -378,7 +381,7 @@ sub process_pkt {
                 # TODO: Rate-limiting for IPv6 just as for IPv4
 
                 my $apiclient = api_client();
-                $apiclient->notify('process_dhcpv6', MIME::Base64::encode($l4->{data}));
+                $apiclient->notify_hashed($args{src_mac}, 'process_dhcpv6', MIME::Base64::encode($l4->{data}));
             }
 
             # Non IPv4 nor IPv6 packet
@@ -435,12 +438,13 @@ run all runtasks
 
 sub runtasks {
     my $mask = POSIX::SigSet->new(POSIX::SIGCHLD());
-    sigprocmask(SIG_BLOCK, $mask);
+    my $oldmask = POSIX::SigSet->new();
+    sigprocmask(SIG_BLOCK, $mask, $oldmask);
     while (@REGISTERED_TASKS) {
         my $task = shift @REGISTERED_TASKS;
         runtask($task);
     }
-    sigprocmask(SIG_UNBLOCK, $mask);
+    sigprocmask(SIG_SETMASK, $oldmask);
 }
 
 =head2 runtask
@@ -457,6 +461,9 @@ sub runtask {
     }
     elsif ($pid == 0) {
         $SIG{CHLD} = 'DEFAULT';
+        # The parent forked us inside its SIGCHLD-blocked window; unblock so the
+        # child starts with a clean signal mask matching its DEFAULT disposition.
+        sigprocmask(SIG_UNBLOCK, POSIX::SigSet->new(POSIX::SIGCHLD()));
         $IS_CHILD = 1;
         Log::Log4perl::MDC->put('tid', $$);
         setup_global($task);

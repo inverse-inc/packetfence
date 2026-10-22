@@ -177,7 +177,7 @@ export const pfActions = {
   /* keys are alphabetical, please insert new actions in order above */
 }
 
-const pfActionsTransliterations = Object.keys(pfActions).reduce((transliterations, key) => {
+export const pfActionsTransliterations = Object.keys(pfActions).reduce((transliterations, key) => {
   return { ...transliterations, [key]: pfActions[key].text }
 }, {})
 
@@ -237,12 +237,6 @@ export const pfActionsSchema = yup.array().ensure()
     ({ type }) => type === 'set_access_duration',
     ({ type }) => ['set_role', 'set_role_from_source', 'set_role_on_not_found'].includes(type)
   )
-  // `set_access_durations' requires 'mark_as_sponsor'
-  .ifThenRequires(
-    i18n.t('"{set_access_durations}" requires "{mark_as_sponsor}".', pfActionsTransliterations),
-    ({ type }) => type === 'set_access_durations',
-    ({ type }) => type !== 'mark_as_sponsor'
-  )
   // 'set_role' requires either 'set_access_duration' or 'set_unreg_date'
   .ifThenRequires(
     i18n.t('"{set_role}" requires either "{set_access_duration}" or "{set_unreg_date}".', pfActionsTransliterations),
@@ -259,12 +253,6 @@ export const pfActionsSchema = yup.array().ensure()
   .ifThenRequires(
     i18n.t('"{set_role_on_not_found}" requires either "{set_access_duration}" or "{set_unreg_date}".', pfActionsTransliterations),
     ({ type }) => type === 'set_role_on_not_found',
-    ({ type }) => ['set_access_duration', 'set_unreg_date'].includes(type)
-  )
-  // 'set_unreg_date' requires either 'set_role' or 'set_role_on_not_found'
-  .ifThenRequires(
-    i18n.t('"{set_unreg_date}" requires either "{set_role}" or "{set_role_on_not_found}".', pfActionsTransliterations),
-    ({ type }) => type === 'set_unreg_date',
     ({ type }) => ['set_access_duration', 'set_unreg_date'].includes(type)
   )
   // 'set_unreg_date' restricts 'set_access_duration'

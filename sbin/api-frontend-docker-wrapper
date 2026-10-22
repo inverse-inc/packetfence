@@ -6,7 +6,9 @@ name=api-frontend
 
 args=`base_args $name`
 args="$args -v /usr/local/pf/var/conf:/usr/local/pf/var/conf -v /usr/local/pf/conf:/usr/local/pf/conf"
-args="$args -v /usr/local/pf/logs:/usr/local/pf/logs"
+# Read-only: pfhttpd only reads these files (log-tailer live sessions and
+# the logs/history endpoint); only rsyslogd on the host writes them.
+args="$args -v /usr/local/pf/logs:/usr/local/pf/logs:ro"
 args="$args -v /usr/share/freeradius:/usr/share/freeradius"
 args="$args -v /var/log:/var/log:ro"
 args="$args -p 9999:9999"

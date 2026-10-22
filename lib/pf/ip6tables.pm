@@ -39,6 +39,7 @@ use pf::util;
 use pf::config qw(
     $management_network
     @portal_ints
+    %Config
 );
 use pf::file_paths qw(
     $generated_conf_dir
@@ -61,7 +62,20 @@ BEGIN {
     ip6tables_flush_to_default
     ip6tables_services_rules
     ip6tables_haproxy_portal_rules
+    util_management_network_ipv6_is_set
   );
+}
+
+=item ip6tables_is_managed
+
+Returns true if PacketFence manages ip6tables (services.ip6tables), when disabled no rule is applied or flushed
+
+=cut
+
+sub ip6tables_is_managed {
+    return 1 if isenabled($Config{'services'}{'ip6tables'});
+    get_logger->info("ip6tables is not managed by PacketFence (services.ip6tables is disabled), not touching the rules");
+    return 0;
 }
 
 =item iptables_configreload
@@ -73,6 +87,7 @@ Reload the config
 sub ip6tables_configreload {
     my ($force) = @_;
     my $logger = get_logger();
+    return 0 unless ip6tables_is_managed();
     $logger->info( "Start config reload" );
     if ($force eq 1) {
         ip6tables_flush_to_default();
@@ -84,6 +99,7 @@ sub ip6tables_configreload {
 
 sub ip6tables_flush_to_default {
     my $logger = get_logger();
+    return 0 unless ip6tables_is_managed();
     safe_pf_run(qw(sudo ip6tables -F));
     safe_pf_run(qw(sudo ip6tables -X));
     safe_pf_run(qw(sudo ip6tables -t raw -F));
@@ -121,10 +137,7 @@ Generate the iptable config from iptables service config.
 sub ip6tables_generate_config {
     my ($self) = @_;
     my $logger = get_logger();
-
-    if ( ! util_management_network_is_set("generate_config") ) {
-        return 0;
-    }
+    return 0 unless ip6tables_is_managed();
 
     # Check for and load content from custom specific file if it exists
     my $custom = util_add_custom_config_from_file( $ip6table_custom_config_file );
@@ -153,8 +166,12 @@ sub ip6tables_generate_config {
         raw => { PREROUTING => [], OUTPUT => [] }
     );
 
-    my $tint = $management_network->{Tint};
-    push @{$merged{filter}{INPUT}}, "-i $tint -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT";
+    # Log IPv6 status on management network (SSH is handled by IPv4 iptables)
+    if ( util_management_network_ipv6_is_set("generate_config") ) {
+        $logger->info("IPv6 configured on management interface");
+    } else {
+        $logger->debug("IPv6 not configured on management interface");
+    }
 
     foreach my $name (sort keys %configs) {
         my $fw = $configs{$name};
@@ -329,6 +346,32 @@ sub util_management_network_is_set {
         $logger->warn("Service $service_name: Management Interface is not set.");
         return 0;
     }
+    return 1;
+}
+
+=item util_management_network_ipv6_is_set
+
+Function to check if management interface has IPv6 configured
+
+=cut
+
+sub util_management_network_ipv6_is_set {
+    my ( $service_name ) = @_ ;
+    my $logger = get_logger();
+
+    # First check if management interface exists
+    return 0 unless util_management_network_is_set($service_name);
+
+    # Check if IPv6 is configured on management interface
+    my $ipv6_address = $management_network->tag("ipv6_address");
+    my $ipv6_prefix = $management_network->tag("ipv6_prefix");
+
+    if ( !defined($ipv6_address) || $ipv6_address eq "" ||
+         !defined($ipv6_prefix) || $ipv6_prefix eq "" ) {
+        $logger->debug("Service $service_name: IPv6 not configured on management interface.");
+        return 0;
+    }
+
     return 1;
 }
 

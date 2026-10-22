@@ -20,6 +20,7 @@ Read the F<pf.conf> configuration file.
 use strict;
 use warnings;
 use DBI;
+use Scalar::Util qw(blessed);
 use File::Basename;
 use pf::log;
 use pf::config;
@@ -80,9 +81,105 @@ sub set_session {
     return;
 }
 
+=item pf_query_comment
+
+Build the ProxySQL routing remark for the current execution context.
+
+Format: C</* pf:E<lt>serviceE<gt>[:E<lt>unitE<gt>] */>
+
+C<service> is the running daemon (the logging 'proc' MDC, which defaults to
+basename($0)). C<unit> is the logical work unit (a pfcron job id or pfqueue task
+type) when one has been stamped in the 'pf_unit' MDC at a dispatch point;
+otherwise it is omitted and C<service> is the whole routing bucket.
+
+ProxySQL rules should match this with C<match_pattern> (not C<match_digest>,
+which strips comments) anchored on C<^/\* pf:>. Note the tag may contain C<.>,
+C</> and C<->; escape these (or use character classes) when matching a specific
+service/unit, since C<match_pattern> is a regex.
+
+=cut
+
+sub pf_query_comment {
+    my $service = Log::Log4perl::MDC->get('proc');
+    $service = basename($0) unless defined $service && length $service;
+    my $tag = 'pf:' . _sanitize_query_tag($service);
+    my $unit = Log::Log4perl::MDC->get('pf_unit');
+    if (defined $unit && length $unit) {
+        my $u = _sanitize_query_tag($unit);
+        $tag .= ":$u" if length $u;
+    }
+    return "/* $tag */";
+}
+
+=item _sanitize_query_tag
+
+Make a value safe to embed inside a SQL comment: never allow the comment
+terminator, normalize package separators, and keep only routing-safe characters.
+
+=cut
+
+sub _sanitize_query_tag {
+    my ($v) = @_;
+    return '' unless defined $v;
+    $v =~ s{\*/}{}g;            # never allow the comment terminator
+    $v =~ s/::/\//g;            # perl package separator -> slash
+    $v =~ s/\s+/_/g;            # collapse whitespace
+    $v =~ s{[^A-Za-z0-9_\-/.]}{}g;
+    return $v;
+}
+
+=item _decorate_statement
+
+Return a copy of the SQL statement with the routing remark prepended, unless it
+is already decorated. Works on a copy (never the caller's value), so it is safe
+for static string literals -- unlike modifying DBI's @_ alias in place, which
+dies on read-only literals. The decorated SQL is what gets prepared, so it also
+becomes the prepare_cached cache key (distinct units => distinct cached
+statements).
+
+=cut
+
+sub _decorate_statement {
+    my ($sql) = @_;
+    return $sql unless defined $sql;
+    return $sql if $sql =~ m{^\s*/\* pf:};
+    return pf_query_comment() . ' ' . $sql;
+}
+
 our %CALLBACKS = (
     connected => \&set_session,
 );
+
+# DBI handle subclass installed via the RootClass connect attribute (see
+# db_connect). Every prepare/prepare_cached/do goes through these overrides,
+# which decorate the statement with the routing remark before handing it to the
+# real DBI method. The select* helpers call prepare internally, so they are
+# covered transitively. set_session and other callbacks still fire as usual.
+{
+    package pf::db::dbi;
+    our @ISA = ('DBI');
+
+    package pf::db::dbi::st;
+    our @ISA = ('DBI::st');
+
+    package pf::db::dbi::db;
+    our @ISA = ('DBI::db');
+
+    sub prepare {
+        my ($dbh, $statement, @attr) = @_;
+        return $dbh->SUPER::prepare(pf::db::_decorate_statement($statement), @attr);
+    }
+
+    sub prepare_cached {
+        my ($dbh, $statement, @attr) = @_;
+        return $dbh->SUPER::prepare_cached(pf::db::_decorate_statement($statement), @attr);
+    }
+
+    sub do {
+        my ($dbh, $statement, @attr) = @_;
+        return $dbh->SUPER::do(pf::db::_decorate_statement($statement), @attr);
+    }
+}
 
 tie %$DB_Config, 'pfconfig::cached_hash', 'resource::Database';
 
@@ -102,9 +199,10 @@ sub db_connect {
     }
     my $logger = get_logger();
     $logger->debug("(Re)Connecting to MySQL (pid: $$)");
-    my ($dsn, $user, $pass) = db_data_source_info();
+    my ($dsn, $user, $pass, $config) = db_data_source_info();
     # make sure we have a database handle
-    if ( $DBH = DBI->connect($dsn, $user, $pass, { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1, mysql_enable_utf8mb4 => 1, Callbacks => \%CALLBACKS })) {
+    my $compression = ($config->{host} // '') eq 'localhost' ? 0 : 1;
+    if ( $DBH = DBI->connect($dsn, $user, $pass, { RaiseError => 0, PrintError => 0, mysql_compression => $compression, mysql_auto_reconnect => 1, mysql_enable_utf8mb4 => 1, RootClass => 'pf::db::dbi', Callbacks => \%CALLBACKS })) {
         $logger->debug("connected");
         return on_connect($DBH);
     }
@@ -162,8 +260,11 @@ on_connect
 sub on_connect {
     my ($dbh) = @_;
     $LAST_CONNECT = time();
-    if (my $sql = init_command($dbh)) {
-        $dbh->do($sql);
+    # One statement per do(): multi statements are not enabled on the handle
+    for my $sql (init_command($dbh)) {
+        if (!defined $dbh->do($sql)) {
+            get_logger->error("Unable to initialize the database connection with '$sql': " . ($dbh->errstr // ''));
+        }
     }
     return $dbh;
 }
@@ -184,27 +285,28 @@ sub db_data_source_info {
         $dsn,
         $config->{user},
         $config->{pass},
+        $config,
     );
 }
 
 =head2 init_command
 
-init_command
+The statements to run on a new connection
 
 =cut
 
 sub init_command {
     my ($dbh) = @_;
-    my $sql = '';
+    my @sql;
     if (my $new_timeout = db_get_max_statement_timeout()) {
         my ($name, $current_timeout) = $dbh->selectrow_array("SHOW VARIABLES WHERE Variable_name in ('max_statement_time', 'max_execution_time')");
         if ($name) {
-            $sql .= "SET SESSION $name=" . convert_timeout($current_timeout, $new_timeout) . ";";
+            push @sql, "SET SESSION $name=" . convert_timeout($current_timeout, $new_timeout);
         }
     }
 
-    $sql .= "SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci';";
-    return $sql;
+    push @sql, "SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'";
+    return @sql;
 }
 
 sub convert_timeout {
@@ -308,6 +410,12 @@ sub db_data {
     return (@array);
 }
 
+# Whether a value is a prepared statement handle and not the SQL of a statement
+sub _is_statement_handle {
+    my ($statement) = @_;
+    return blessed($statement) && $statement->isa('DBI::st') ? 1 : 0;
+}
+
 =item * db_query_execute - execute a given database statement (making sure it succeed) and retuns the statement handle
 
 =over 6
@@ -385,7 +493,8 @@ sub db_query_execute {
 
         # fetch statement, run query and catch errors
         $db_statement = $module_statements_ref->{$query};
-        my $valid_prepared_statement = (defined($db_statement) && (ref($db_statement) eq 'DBI::st'));
+        # the handles are of a subclass of DBI::st (RootClass pf::db::dbi)
+        my $valid_prepared_statement = _is_statement_handle($db_statement);
         # hack! for statements that we can't prepare, we have put the SQL statement in the statement ref
         # and we will prepare it now
         my $dbh = get_db_handle;
@@ -394,7 +503,7 @@ sub db_query_execute {
             $db_statement = $dbh->prepare($db_statement);
         }
 
-        my $valid_statement = (defined($db_statement) && (ref($db_statement) eq 'DBI::st'));
+        my $valid_statement = _is_statement_handle($db_statement);
         $logger->trace( sub { "SQL statement ($query): " . $db_statement->{Statement} } ) if ($valid_statement);
         $logger->trace( sub { "SQL params ($query): " . join(', ', map { defined $_ ? $_ : '<null>' } @params) } ) if (@params);
 

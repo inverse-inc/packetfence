@@ -76,6 +76,7 @@ export const schema = (props, roles) => {
     wsPwd: yup.string().nullable().label(i18n.t('Password')),
     uplink: yup.string().nullable(),
     controllerIp: yup.string().nullable(),
+    controllerPort: yup.string().nullable().minAsInt(1, i18n.t('Invalid port.')),
     disconnectPort: yup.string().nullable().minAsInt(1, i18n.t('Invalid port.')),
     coaPort: yup.string().nullable().minAsInt(1, i18n.t('Invalid port.')),
     radiusSecret: yup.string().nullable(),

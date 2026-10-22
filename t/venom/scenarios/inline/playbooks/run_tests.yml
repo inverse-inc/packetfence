@@ -6,7 +6,7 @@
   vars:
     # put your test suites to try here
     test_suites:
-      - configurator_inline
+      - configurator
       - inline/l3
       - inline/l3/teardown
       - inline/l2
@@ -22,6 +22,7 @@
       args:
         chdir: '{{ venom_dir }}'
       loop: '{{ test_suites }}'
+      when: not (item == 'configurator' and lookup('env', 'SKIP_CONFIGURATOR_BAKED') == 'yes')
       vars:
         venom_wrapper_args:
           # temp, overcome two Venom issues:

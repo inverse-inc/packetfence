@@ -130,6 +130,11 @@ Notes on the configuration:
    management IP on which the zone should be joined.
  * Given the zones aren't in the same layer 2 network, the same virtual IP
    cannot be used between zones.
+ * By default all zones share the `virtual_router_id` defined in the
+   `active_active` section of `pf.conf`. If zones share a layer 2 network with
+   another keepalived cluster, a distinct VRRP router id can be set per zone by
+   adding `virtual_router_id=<1-255>` to the zone's "CLUSTER" section (for
+   example under `[DC2 CLUSTER]`).
  * Always declare a "CLUSTER" definition even though a zone has
    only a single server.
  * The network equipment should point RADIUS authentication and accounting to
@@ -292,6 +297,11 @@ Notes on the configuration:
    management IP on which the zone should be joined.
  * Given the zones aren't in the same layer 2 network, the same virtual IP
    cannot be used between zones.
+ * By default all zones share the `virtual_router_id` defined in the
+   `active_active` section of `pf.conf`. If zones share a layer 2 network with
+   another keepalived cluster, a distinct VRRP router id can be set per zone by
+   adding `virtual_router_id=<1-255>` to the zone's "CLUSTER" section (for
+   example under `[DC2 CLUSTER]`).
  * Always declare a "CLUSTER" definition even though a zone has
    only a single server.
  * The network equipment should point RADIUS authentication and accounting to

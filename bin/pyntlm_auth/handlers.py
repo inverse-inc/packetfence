@@ -1,5 +1,6 @@
 import binascii
 import hashlib
+import json
 import re
 import time
 from http import HTTPStatus
@@ -9,6 +10,7 @@ from flask import request, g
 from samba import ntstatus
 
 import config_loader
+import credcache_push
 import flags
 import global_vars
 import ms_event
@@ -291,6 +293,11 @@ def ntlm_auth_handler():
         else:
             domain = global_vars.c_domain
 
+        # Set by ntlm_auth_wrapper -c %{PacketFence-ConnectorID}; identifies
+        # the pfconnector-remote that received the RADIUS request, so the
+        # credcache push can mirror the nt_key to that connector's cache too.
+        g.request_connector_id = (data.get('connector_id') or '').strip()
+
     except Exception as e:
         return f"Error processing JSON payload, {str(e)}", HTTPStatus.UNPROCESSABLE_ENTITY
 
@@ -299,11 +306,27 @@ def ntlm_auth_handler():
     else:
         mac = ""
 
-    if global_vars.c_nt_key_cache_enabled and hasattr(g, 'db') and mac != "":
-        domain = global_vars.c_domain_identifier
-        nt_key, error_code, info = ncache.cached_login(domain, account_username, mac, challenge, nt_response, )
+    if global_vars.c_nt_key_cache_enabled and mac != "":
+        log.debug(f"ntlm_auth_handler: using cached_login path for user={account_username!r} mac={mac!r}")
+        domain = global_vars.c_cache_domain
+        nt_key, error_code, info = ncache.cached_login(domain, account_username, mac, challenge, nt_response)
+        # On a cache hit cached_login does not call update_cache_entry, so
+        # the radius-receiving connector would never learn the nt_key. Fire
+        # the forward push here too; the request-scoped guard inside
+        # _maybe_push_forward de-duplicates against the miss-then-update
+        # path that already fired it.
+        if error_code == 0 and nt_key:
+            cache_key = ncache.build_cache_key(domain, account_username)
+            cache_v_json = json.dumps({"nt_key": nt_key, "nt_status": 0})
+            credcache_push.push_forward_async(cache_key, cache_v_json, 0)
     else:
+        log.debug(f"ntlm_auth_handler: using direct RPC path for user={account_username!r} mac={mac!r} nt_key_cache_enabled={global_vars.c_nt_key_cache_enabled!r}")
         nt_key, error_code, info = rpc.transitive_login(account_username, challenge, nt_response, domain=domain)
+        if error_code == 0 and nt_key:
+            cache_key = ncache.build_cache_key(domain, account_username)
+            cache_v_json = json.dumps({"nt_key": nt_key, "nt_status": 0})
+            log.debug(f"ntlm_auth_handler: direct RPC success, pushing to credcache key={cache_key!r}")
+            credcache_push.push_async(cache_key, cache_v_json, 0)
     return format_response(nt_key, error_code)
 
 

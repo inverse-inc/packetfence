@@ -9,12 +9,12 @@ SET sql_mode = "NO_ENGINE_SUBSTITUTION";
 -- Setting the major/minor version of the DB
 --
 
-SET @MAJOR_VERSION = 15;
-SET @MINOR_VERSION = 2;
+SET @MAJOR_VERSION = 16;
+SET @MINOR_VERSION = 0;
 
 
 SET @PREV_MAJOR_VERSION = 15;
-SET @PREV_MINOR_VERSION = 1;
+SET @PREV_MINOR_VERSION = 2;
 
 --
 -- The VERSION_INT to ensure proper ordering of the version in queries
@@ -24,10 +24,29 @@ SET @VERSION_INT = @MAJOR_VERSION << 16 | @MINOR_VERSION << 8;
 
 SET @PREV_VERSION_INT = @PREV_MAJOR_VERSION << 16 | @PREV_MINOR_VERSION << 8;
 
+--
+-- Stored procedures
+--
+-- All procedures used by this upgrade are defined together here, then dropped
+-- in the cleanup section at the end.
+--
+-- The Add*/Drop* helpers exist for cross-engine portability: MariaDB supports
+-- `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`, `ADD [UNIQUE] {KEY|INDEX} IF NOT
+-- EXISTS` and `DROP INDEX IF EXISTS`, but stock MySQL (5.6/5.7/8.0) does NOT.
+-- To keep a single upgrade script that runs cleanly and re-runnably
+-- (idempotent) on MariaDB, MySQL 5 and MySQL 8, do NOT use the `IF [NOT]
+-- EXISTS` clause on ALTER TABLE -- call these helpers instead. They check
+-- INFORMATION_SCHEMA and emit the DDL via a prepared statement only when
+-- needed. Every construct used (stored procedures with IN params,
+-- INFORMATION_SCHEMA, PREPARE/EXECUTE/DEALLOCATE on ALTER TABLE) is supported
+-- on MySQL >= 5.0.13 and every MariaDB release.
+--
+
+--
+-- ValidateVersion: aborts the upgrade unless the DB is at the expected
+-- previous version (@PREV_VERSION_INT).
+--
 DROP PROCEDURE IF EXISTS ValidateVersion;
---
--- Updating to current version
---
 DELIMITER //
 CREATE PROCEDURE ValidateVersion()
 BEGIN
@@ -43,17 +62,200 @@ BEGIN
       END IF;
 END
 //
-
 DELIMITER ;
 
+--
+-- AddColumnUnlessExists: add a column only if it is missing.
+--   Example:
+--   CALL AddColumnUnlessExists('locationlog', 'switch_id',
+--       'VARCHAR(255) DEFAULT NULL AFTER `switch_mac`');
+--
+DROP PROCEDURE IF EXISTS AddColumnUnlessExists;
+DELIMITER //
+CREATE PROCEDURE AddColumnUnlessExists(
+    IN p_table      VARCHAR(64),
+    IN p_column     VARCHAR(64),
+    IN p_definition TEXT
+)
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME   = p_table
+          AND COLUMN_NAME  = p_column
+    ) THEN
+        SET @ddl = CONCAT('ALTER TABLE `', p_table, '` ADD COLUMN `', p_column, '` ', p_definition);
+        PREPARE stmt FROM @ddl;
+        EXECUTE stmt;
+        DEALLOCATE PREPARE stmt;
+    END IF;
+END
+//
+DELIMITER ;
+
+--
+-- DropColumnIfExists: drop a column only if it exists.
+--   Example:
+--   CALL DropColumnIfExists('locationlog', 'old_column');
+--
+DROP PROCEDURE IF EXISTS DropColumnIfExists;
+DELIMITER //
+CREATE PROCEDURE DropColumnIfExists(
+    IN p_table  VARCHAR(64),
+    IN p_column VARCHAR(64)
+)
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME   = p_table
+          AND COLUMN_NAME  = p_column
+    ) THEN
+        SET @ddl = CONCAT('ALTER TABLE `', p_table, '` DROP COLUMN `', p_column, '`');
+        PREPARE stmt FROM @ddl;
+        EXECUTE stmt;
+        DEALLOCATE PREPARE stmt;
+    END IF;
+END
+//
+DELIMITER ;
+
+--
+-- AddIndexUnlessExists: add an index/key only if it is missing. p_definition
+-- is the full index clause as it would follow `ADD `.
+--   Examples:
+--   CALL AddIndexUnlessExists('node', 'node_bypass_role_id',
+--       'INDEX `node_bypass_role_id` (`bypass_role_id`)');
+--   CALL AddIndexUnlessExists('pki_certs', 'cn_serial',
+--       'UNIQUE KEY `cn_serial` (`cn`,`serial_number`) USING HASH');
+--
+DROP PROCEDURE IF EXISTS AddIndexUnlessExists;
+DELIMITER //
+CREATE PROCEDURE AddIndexUnlessExists(
+    IN p_table      VARCHAR(64),
+    IN p_index      VARCHAR(64),
+    IN p_definition TEXT
+)
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM INFORMATION_SCHEMA.STATISTICS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME   = p_table
+          AND INDEX_NAME   = p_index
+    ) THEN
+        SET @ddl = CONCAT('ALTER TABLE `', p_table, '` ADD ', p_definition);
+        PREPARE stmt FROM @ddl;
+        EXECUTE stmt;
+        DEALLOCATE PREPARE stmt;
+    END IF;
+END
+//
+DELIMITER ;
+
+--
+-- DropIndexIfExists: drop an index only if it exists.
+--   Example:
+--   CALL DropIndexIfExists('bandwidth_accounting', 'bandwidth_accounting_tenant_id_mac');
+--
+DROP PROCEDURE IF EXISTS DropIndexIfExists;
+DELIMITER //
+CREATE PROCEDURE DropIndexIfExists(
+    IN p_table VARCHAR(64),
+    IN p_index VARCHAR(64)
+)
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM INFORMATION_SCHEMA.STATISTICS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME   = p_table
+          AND INDEX_NAME   = p_index
+    ) THEN
+        SET @ddl = CONCAT('ALTER TABLE `', p_table, '` DROP INDEX `', p_index, '`');
+        PREPARE stmt FROM @ddl;
+        EXECUTE stmt;
+        DEALLOCATE PREPARE stmt;
+    END IF;
+END
+//
+DELIMITER ;
+
+--
+-- Updating to current version
+--
 \! echo "Checking PacketFence schema version...";
 call ValidateVersion;
-
-DROP PROCEDURE IF EXISTS ValidateVersion;
 
 --
 -- UPGRADE STATEMENTS GO HERE
 --
+
+--
+-- Index switch_observability_acls by mac for the switch_observability_acls_cleanup task
+-- and for per-device ACL lookups
+--
+\! echo "Adding index switch_observability_acls_mac_enforcement to switch_observability_acls...";
+CALL AddIndexUnlessExists('switch_observability_acls', 'switch_observability_acls_mac_enforcement',
+    'KEY `switch_observability_acls_mac_enforcement` (`mac`,`enforcement_timestamp`)');
+
+--
+-- Remove phantom switch_observability rows written by 15.1 / 15.2: the flow
+-- aggregator upserted the agent address even when the collector had not set
+-- it ("invalid IP") or when it was 0.0.0.0, and pfacct accepted an empty id.
+--
+\! echo "Removing phantom switch_observability rows...";
+DELETE FROM switch_observability WHERE switch_id IN ('', 'invalid IP', '0.0.0.0');
+
+--
+-- Record the authentication source type alongside the source id in auth_log
+--
+\! echo "Adding column source_type to auth_log...";
+CALL AddColumnUnlessExists('auth_log', 'source_type',
+    'VARCHAR(255) NOT NULL DEFAULT "" AFTER `source`');
+
+--
+-- FREERADIUS_DECODE: decode byte-wise so the function works on MySQL 8
+-- (it raised ERROR 3854 for every input there) and returns valid UTF-8
+--
+\! echo "Updating FREERADIUS_DECODE...";
+DROP FUNCTION IF EXISTS `FREERADIUS_DECODE`;
+DELIMITER ;;
+CREATE FUNCTION `FREERADIUS_DECODE`(str text) RETURNS MEDIUMTEXT CHARSET utf8mb4
+    DETERMINISTIC
+BEGIN
+    -- Decode byte-wise: MySQL 8 refuses to mix CHAR(128..255) into a utf8mb4 string.
+    DECLARE result MEDIUMBLOB;
+    DECLARE ind INT DEFAULT 0;
+
+    SET result = CONVERT(str USING binary);
+    WHILE ind <= 255 DO
+       SET result = REPLACE(result, CONVERT(CONCAT('=', LPAD(LOWER(HEX(ind)), 2, 0)) USING binary), CHAR(ind));
+       SET result = REPLACE(result, CONVERT(CONCAT('=', LPAD(HEX(ind), 2, 0)) USING binary), CHAR(ind));
+       SET ind = ind + 1;
+    END WHILE;
+
+    -- Bytes that do not form valid utf8mb4 cannot be returned; keep the input as-is.
+    IF NOT (CONVERT(CONVERT(result USING utf8mb4) USING binary) <=> result) THEN
+        RETURN str;
+    END IF;
+    RETURN CONVERT(result USING utf8mb4);
+END ;;
+DELIMITER ;
+
+--
+-- Default User and Machine roles: missing from the schema of fresh installs
+-- until the roles were saved once
+--
+INSERT IGNORE INTO `node_category` (name,notes) VALUES ("User","User role");
+INSERT IGNORE INTO `node_category` (name,notes) VALUES ("Machine","Machine role");
+
+--
+-- Clean up the helper / validation procedures
+--
+DROP PROCEDURE IF EXISTS ValidateVersion;
+DROP PROCEDURE IF EXISTS AddColumnUnlessExists;
+DROP PROCEDURE IF EXISTS DropColumnIfExists;
+DROP PROCEDURE IF EXISTS AddIndexUnlessExists;
+DROP PROCEDURE IF EXISTS DropIndexIfExists;
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());

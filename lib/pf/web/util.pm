@@ -27,6 +27,7 @@ use pf::util;
 use pf::config::util;
 use pf::web;
 use File::Slurp;
+use List::Util qw(first any);
 
 BEGIN {
     use Exporter ();
@@ -318,6 +319,31 @@ Generate the HTML link to a section of documentation
 sub generate_doc_link {
     my ($section, $guide) = @_;
     return '<a target="_blank" href="' . generate_doc_url($section, $guide) . '"><i class="icon-question-circle-o"></i></a>';
+}
+
+=head2 match_browser_locales
+
+Returns the authorized locales matching the browser languages, keeping the browser's order of preference.
+
+For each browser language, the exact locale is used when it's authorized, otherwise the first authorized
+locale of the same language (browser = fr_FR, portal = en_US and fr_CA, then fr_CA is used).
+
+=cut
+
+sub match_browser_locales {
+    my ($browser_languages, $authorized_locales) = @_;
+    my @locales;
+    foreach my $browser_language (@{$browser_languages // []}) {
+        # two-letter language only: a three-letter one (fil, frr) isn't another language's code
+        next unless $browser_language =~ /^\s*([a-zA-Z]{2})(?![a-zA-Z])(?:_([a-zA-Z]{2}))?/;
+        my $language = lc($1);
+        my $locale = defined($2) ? "${language}_" . uc($2) : $language;
+        my $match = first { $_ eq $locale } @$authorized_locales;
+        $match //= first { /^\Q$language\E(?:_|$)/ } @$authorized_locales;
+        next unless defined($match);
+        push @locales, $match unless any { $_ eq $match } @locales;
+    }
+    return \@locales;
 }
 
 =back

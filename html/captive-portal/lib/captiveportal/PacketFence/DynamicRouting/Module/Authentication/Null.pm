@@ -69,7 +69,7 @@ sub authenticate {
         get_logger->info("Validating e-mail for user $pid");
         if($self->create_account && person_exist($pid)) {
             if (!single_person_cleanup($pid)) {
-                pf::auth_log::record_auth($self->source->id, $self->current_mac, $pid, $pf::auth_log::FAILED, $self->app->profile->name);
+                pf::auth_log::record_auth($self->source->id, $self->source->type, $self->current_mac, $pid, $pf::auth_log::FAILED, $self->app->profile->name);
                 $self->app->flash->{error} = "Trying to create a local account that already exists and is still valid";
                 $self->prompt_fields();
                 return;
@@ -77,10 +77,10 @@ sub authenticate {
         }
         my ($return, $message, $source_id, $extra) = pf::authentication::authenticate({username => $pid, password => '', rule_class => $Rules::AUTH, context => $pf::constants::realm::PORTAL_CONTEXT}, $self->source);
         if(defined($return) && $return == 1){
-            pf::auth_log::record_auth($source_id, $self->current_mac, $pid, $pf::auth_log::COMPLETED, $self->app->profile->name);
+            pf::auth_log::record_auth($self->source->id, $self->source->type, $self->current_mac, $pid, $pf::auth_log::COMPLETED, $self->app->profile->name);
         }
         else {
-            pf::auth_log::record_auth($source_id, $self->current_mac, $pid, $pf::auth_log::FAILED, $self->app->profile->name);
+            pf::auth_log::record_auth($self->source->id, $self->source->type, $self->current_mac, $pid, $pf::auth_log::FAILED, $self->app->profile->name);
             $self->app->flash->{error} = $message;
             $self->prompt_fields();
             return;
@@ -89,7 +89,7 @@ sub authenticate {
     }
     else {
         $pid = $default_pid;
-        pf::auth_log::record_auth($self->source->id, $self->current_mac, $pid, $pf::auth_log::COMPLETED, $self->app->profile->name);
+        pf::auth_log::record_auth($self->source->id, $self->source->type, $self->current_mac, $pid, $pf::auth_log::COMPLETED, $self->app->profile->name);
         $self->transfer_saving_fields();
     }
     $self->username($pid);

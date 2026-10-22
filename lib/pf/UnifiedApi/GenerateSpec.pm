@@ -94,7 +94,7 @@ sub formsToMetaSchemas {
                 mapping => \%mapping,
                 propertyName => $propertyName
             },
-            oneOf => [@$oneOf]
+            oneOf => [sort { $a->{'$ref'} cmp $b->{'$ref'} } @$oneOf]
         };
     } elsif (@formsWithoutSubtype) {
         # No subtypes at all, create oneOf with inline schemas
@@ -329,7 +329,7 @@ sub isRequiredField {
 
 sub fieldSubTypeValue {
     my ($field) = @_;
-    return $field->get_tag('subTypeValue') // $field->value;
+    return $field->tag_exists('subTypeValue') ? $field->get_tag('subTypeValue') : $field->value;
 }
 
 sub isSubTypeField {

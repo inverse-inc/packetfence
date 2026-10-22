@@ -22,6 +22,7 @@ use JSON;
 use pfconfig::namespaces::config;
 use pf::log;
 use pf::file_paths qw($domain_config_file);
+use pf::util qw(isenabled);
 use Sys::Hostname;
 
 use base 'pfconfig::namespaces::config';
@@ -63,8 +64,14 @@ sub build_child {
         $host_id = $self->{host_id};
     }
     foreach my $key (keys %tmp_cfg) {
-        if (index($key, $host_id) == 0 && $key =~/^\S+\s+(\S+)$/) {
-            $filtered{$1} = $tmp_cfg{$key};
+        next unless $key =~ /^\S+\s+(\S+)$/;
+        my $bare = $1;
+        # Classic, host-local domains: only this host's own sections. Connector-backed
+        # domains are tenant-wide (stored under a stable, non-host prefix, e.g.
+        # 'connector <id>') and must be visible on every host/pod, so include them
+        # regardless of the prefix.
+        if (index($key, $host_id) == 0 || isenabled($tmp_cfg{$key}{use_connector})) {
+            $filtered{$bare} = $tmp_cfg{$key};
         }
     }
     return \%filtered;

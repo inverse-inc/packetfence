@@ -22,13 +22,13 @@ BEGIN {
 
 use Date::Parse;
 
-use Test::More tests => 61;                      # last test to print
+use Test::More tests => 63;                      # last test to print
 
 use Test::NoWarnings;
 
 use pf::constants;
 use pf::constants::realm;
-use pf::Authentication::constants;
+use pf::Authentication::constants qw($LOGIN_SUCCESS $LOGIN_FAILURE);
 use pf::constants::authentication::messages;
 
 # pf core libs
@@ -566,6 +566,13 @@ is_deeply(
         $source->{message},
         "line1 \$pin\nline2",
     );
+}
+
+{
+
+    my ($result, $roles) = pf::authentication::adminAuthentication('authtest', 'authtest');
+    is($result, $LOGIN_SUCCESS, "adminAuthentication succeeds for authtest against htpasswd1");
+    is_deeply($roles, ['ALL'], "adminAuthentication returns the ALL access level for authtest");
 }
 
 =head1 AUTHOR

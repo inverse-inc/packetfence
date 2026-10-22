@@ -96,17 +96,30 @@ func (h *udpHandler) handleWrite(p *udpPacket) error {
 	//  array of listeners where all listeners are
 	//  sweeped periodically, removing the idle ones
 	maxConns := sharedutils.EnvOrDefaultInt("PFCONNECTOR_UDP_MAX_CONNS", 1000)
+	oneShot := false
 	if !exists {
 		if h.udpConns.len() <= maxConns {
 			go h.handleRead(p, conn)
 		} else {
-			h.Infof("exceeded max udp connections (%d)", maxConns)
+			// Over the cap no reader goroutine is spawned, and the reader is the
+			// only thing that removes a conn from the map: keep the conn just
+			// long enough for the write below, otherwise it (and its socket)
+			// leak for the lifetime of the channel.
+			oneShot = true
+			h.Infof("exceeded max udp connections (%d), reply for %s will be dropped", maxConns, p.Src)
 		}
 	}
 	// TODO: Only apply this to remotes that are specific to RADIUS
 	_, err = conn.Write(packet)
+	if oneShot {
+		h.udpConns.remove(conn.id)
+	}
 	if err != nil {
-		return err
+		// A write error only concerns this conn (it may also have just been
+		// closed by its idle reader): drop the datagram and keep the channel
+		// alive rather than tearing down every other conn with it.
+		h.Debugf("write error %s: %s", conn.id, err)
+		h.udpConns.remove(conn.id)
 	}
 
 	return nil
@@ -193,9 +206,15 @@ func (cs *udpConns) len() int {
 	return l
 }
 
+// remove closes the conn in addition to dropping it from the map: the map
+// removal alone would strand the OS socket until the GC finalizer runs (or
+// forever while referenced), which is how idle exit-node conns used to pile up.
 func (cs *udpConns) remove(id string) {
 	cs.Lock()
-	delete(cs.m, id)
+	if conn, ok := cs.m[id]; ok {
+		conn.Close()
+		delete(cs.m, id)
+	}
 	cs.Unlock()
 }
 

@@ -4,6 +4,18 @@
   collections:
     - inverse_inc.packetfence
 
+  # The default route (and ansible_default_ipv4) can still be down when this
+  # play gathers facts — e.g. right after the OS-upgrade reboot — leaving
+  # ansible_default_ipv4 empty so templates reading .interface fail.
+  pre_tasks:
+    - name: wait for the default route to be up
+      ansible.builtin.command: timeout 120 bash -c 'until ip -4 route list default | grep -q .; do sleep 2; done'
+      changed_when: false
+    - name: refresh network facts now the default route is up
+      ansible.builtin.setup:
+        gather_subset:
+          - network
+
   # search roles in collections
   roles:
 

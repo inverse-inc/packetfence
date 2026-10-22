@@ -15,7 +15,9 @@ pf::api::queue_cluster
 use strict;
 use warnings;
 use pf::cluster qw($cluster_enabled);
+use pf::config::pfqueue qw(%ConfigPfqueue);
 use pf::log;
+use pf::util qw(isenabled);
 use Moo;
 use List::Util qw(shuffle);
 use CHI;
@@ -123,6 +125,45 @@ sub local_notify {
     my ($self, $method, @args) = @_;
     get_logger->debug("sending $method locally");
     $self->local_client->submit($self->queue, api => [$method, @args]);
+    return;
+}
+
+=head2 notify_hashed
+
+Submit an api call keyed by $hash_key. When the target queue is configured
+with hashed=enabled the call is routed to the worker bucket selected by
+jhash($hash_key) % workers, preserving per-key ordering across packets.
+Hashed submissions are always processed on the local node (random
+cluster-wide routing would break the per-key ordering guarantee). When the
+target queue is not hashed, falls back to the regular notify() path so
+callers can use the same API regardless of queue configuration.
+
+=cut
+
+sub notify_hashed {
+    my ($self, $hash_key, $method, @args) = @_;
+    my $queue_conf = $ConfigPfqueue{queue_config}{$self->queue};
+    if ($queue_conf && isenabled($queue_conf->{hashed})) {
+        $self->local_notify_hashed($hash_key, $method, @args);
+    } else {
+        $self->notify($method, @args);
+    }
+    return;
+}
+
+=head2 local_notify_hashed
+
+Send a hashed submission to the local redis service. Selects the worker
+bucket via submit_hashed() using the queue's configured workers count.
+
+=cut
+
+sub local_notify_hashed {
+    my ($self, $hash_key, $method, @args) = @_;
+    my $queue = $self->queue;
+    my $workers = $ConfigPfqueue{queue_config}{$queue}{workers};
+    get_logger->debug("sending $method locally (hashed key=$hash_key, workers=$workers)");
+    $self->local_client->submit_hashed($workers, $hash_key, $queue, api => [$method, @args]);
     return;
 }
 

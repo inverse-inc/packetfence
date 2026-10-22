@@ -4,8 +4,8 @@ SET sql_mode = "NO_ENGINE_SUBSTITUTION";
 -- Setting the major/minor version of the DB
 --
 
-SET @MAJOR_VERSION = 15;
-SET @MINOR_VERSION = 2;
+SET @MAJOR_VERSION = 16;
+SET @MINOR_VERSION = 0;
 
 --
 -- The VERSION_INT to ensure proper ordering of the version in queries
@@ -131,6 +131,18 @@ INSERT INTO `node_category` (name,notes) VALUES ("voice","VoIP devices");
 --
 
 INSERT INTO `node_category` (name,notes) VALUES ("REJECT","Reject role (Used to block access)");
+
+--
+-- Insert 'User' category
+--
+
+INSERT INTO `node_category` (name,notes) VALUES ("User","User role");
+
+--
+-- Insert 'Machine' category
+--
+
+INSERT INTO `node_category` (name,notes) VALUES ("Machine","Machine role");
 
 --
 -- Table structure for table `node`
@@ -483,7 +495,6 @@ CREATE TABLE `password` (
 
 INSERT INTO `person` (pid,notes) VALUES ("admin","Default Admin User - do not delete");
 INSERT INTO `person` (pid,notes) VALUES ("default","Default User - do not delete");
-INSERT INTO password (pid, password, valid_from, expiration, access_duration, access_level, category) VALUES ('admin', 'admin', '1970-01-01', '2038-01-01', NULL, 'ALL', NULL);
 
 --
 -- Trigger to delete the temp password from 'password' when deleting the pid associated with
@@ -1240,6 +1251,7 @@ CREATE TABLE auth_log (
   `attempted_at` datetime NOT NULL,
   `completed_at` datetime,
   `source` varchar(255) NOT NULL,
+  `source_type` varchar(255) NOT NULL default "",
   `profile` VARCHAR(255) DEFAULT NULL,
   KEY pid (pid),
   KEY attempted_at (attempted_at),
@@ -1266,17 +1278,22 @@ DELIMITER ;;
 CREATE FUNCTION `FREERADIUS_DECODE`(str text) RETURNS MEDIUMTEXT CHARSET utf8mb4
     DETERMINISTIC
 BEGIN
-    DECLARE result text;
+    -- Decode byte-wise: MySQL 8 refuses to mix CHAR(128..255) into a utf8mb4 string.
+    DECLARE result MEDIUMBLOB;
     DECLARE ind INT DEFAULT 0;
 
-    SET result = str;
+    SET result = CONVERT(str USING binary);
     WHILE ind <= 255 DO
-       SET result = REPLACE(result, CONCAT('=', LPAD(LOWER(HEX(ind)), 2, 0)), CHAR(ind));
-       SET result = REPLACE(result, CONCAT('=', LPAD(HEX(ind), 2, 0)), CHAR(ind));
+       SET result = REPLACE(result, CONVERT(CONCAT('=', LPAD(LOWER(HEX(ind)), 2, 0)) USING binary), CHAR(ind));
+       SET result = REPLACE(result, CONVERT(CONCAT('=', LPAD(HEX(ind), 2, 0)) USING binary), CHAR(ind));
        SET ind = ind + 1;
     END WHILE;
 
-    RETURN result;
+    -- Bytes that do not form valid utf8mb4 cannot be returned; keep the input as-is.
+    IF NOT (CONVERT(CONVERT(result USING utf8mb4) USING binary) <=> result) THEN
+        RETURN str;
+    END IF;
+    RETURN CONVERT(result USING utf8mb4);
 END ;;
 DELIMITER ;
 
@@ -1673,7 +1690,8 @@ CREATE TABLE switch_observability_acls (
   `acls` MEDIUMTEXT NOT NULL,
   `enforcement_timestamp` DATETIME default NULL,
   PRIMARY KEY (`switch_id`, `mac`, `role_id`),
-  UNIQUE KEY `switch_observability_acls_switch_port` (`switch_id`, `port`)
+  UNIQUE KEY `switch_observability_acls_switch_port` (`switch_id`, `port`),
+  KEY `switch_observability_acls_mac_enforcement` (`mac`, `enforcement_timestamp`)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --

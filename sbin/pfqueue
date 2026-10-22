@@ -246,12 +246,13 @@ run all run_tasks
 
 sub run_tasks {
     my $mask = POSIX::SigSet->new(POSIX::SIGCHLD());
-    sigprocmask(SIG_BLOCK, $mask);
+    my $oldmask = POSIX::SigSet->new();
+    sigprocmask(SIG_BLOCK, $mask, $oldmask);
     while (@REGISTERED_TASKS) {
         my $task = shift @REGISTERED_TASKS;
         run_task($task);
     }
-    sigprocmask(SIG_UNBLOCK, $mask);
+    sigprocmask(SIG_SETMASK, $oldmask);
 }
 
 =head2 run_task

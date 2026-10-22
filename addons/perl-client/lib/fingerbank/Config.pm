@@ -26,6 +26,13 @@ use Time::HiRes qw(time stat);
 our %Config;
 our $CACHE = fingerbank::NullCache->new;
 
+# Timestamp of the config generation this process has currently materialized
+# in %Config. Guards read_config against re-deserializing the whole tied
+# IniFiles object graph from $CACHE on every call: the graphs are pinned by
+# the Config::IniFiles section back-references and re-creating one per call
+# leaks the previous copy (multi-MB per request in httpd.aaa).
+our $LOCAL_CACHED_AT;
+
 =head1 METHODS
 
 =head2 read_config
@@ -42,16 +49,29 @@ sub read_config {
         return;
     }
 
+    my $conf_timestamp = ( stat($CONF_FILE) )[9] // 0;
+    my $conf_defaults_timestamp = ( stat($CONFIG_DEFAULTS_FILE) )[9];
+
+    # Fast path: the config this process already materialized is still
+    # current. Costs one small cache get and two stats instead of
+    # rebuilding the tied IniFiles object graph on every call.
+    if(defined($LOCAL_CACHED_AT) && tied(%Config)
+        && $LOCAL_CACHED_AT > $conf_timestamp && $LOCAL_CACHED_AT > $conf_defaults_timestamp) {
+        my $current_cached_at = $CACHE->get('fingerbank::Config::read_config-cached_at');
+        if(defined($current_cached_at) && $current_cached_at == $LOCAL_CACHED_AT) {
+            $logger->trace("Local cache hit for fingerbank config");
+            return;
+        }
+    }
+
     # Check in the cache first
     my $config_cached = $CACHE->get('fingerbank::Config::read_config');
     my $cached_at = $CACHE->get('fingerbank::Config::read_config-cached_at');
     if(defined($config_cached) && defined($cached_at)) {
-        my $conf_timestamp = ( stat($CONF_FILE) )[9];
-        my $conf_defaults_timestamp = ( stat($CONFIG_DEFAULTS_FILE) )[9];
-
         if($cached_at > $conf_timestamp && $cached_at > $conf_defaults_timestamp) {
             $logger->trace("Cache hit for fingerbank config");
             tie %Config, 'fingerbank::ConfigRestore', $config_cached;
+            $LOCAL_CACHED_AT = $cached_at;
             return;
         }
         else {
@@ -93,8 +113,10 @@ sub read_config {
 
         tied(%Config)->SetFileName($CONF_FILE);
     }
+    my $now = time;
     $CACHE->set('fingerbank::Config::read_config', tied(%Config));
-    $CACHE->set('fingerbank::Config::read_config-cached_at', time);
+    $CACHE->set('fingerbank::Config::read_config-cached_at', $now);
+    $LOCAL_CACHED_AT = $now;
 }
 
 =head2 read_defaults

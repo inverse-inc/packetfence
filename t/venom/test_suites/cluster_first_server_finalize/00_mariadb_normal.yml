@@ -1,0 +1,36 @@
+name: First server finalize — restart MariaDB normally
+testcases:
+# docs/cluster/cluster_setup.asciidoc "Starting the first server normally":
+# now that the joiners hold the cluster, drop the --force-new-cluster bootstrap
+# and bring pf1 back as a regular member.
+- name: stop_mariadb
+  steps:
+  - type: exec
+    script: 'systemctl stop packetfence-mariadb'
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: unset_force_new_cluster
+  steps:
+  - type: exec
+    script: 'systemctl unset-environment MARIADB_ARGS'
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: start_mariadb_normal
+  steps:
+  - type: exec
+    script: 'systemctl start packetfence-mariadb'
+    assertions:
+      - result.code ShouldEqual 0
+
+# pf1 rejoins the running cluster (joiners keep quorum) — wait for Synced.
+- name: wait_wsrep_synced
+  steps:
+  - type: exec
+    script: 'mysql -uroot -N -e "SHOW STATUS LIKE ''wsrep_local_state_comment''" | awk "{print \$2}"'
+    retry: 40
+    delay: 15
+    assertions:
+      - result.systemout ShouldEqual Synced
+      - result.code ShouldEqual 0

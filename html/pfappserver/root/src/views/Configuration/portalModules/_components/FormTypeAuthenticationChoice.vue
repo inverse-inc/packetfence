@@ -24,6 +24,16 @@
       :text="$i18n.t('These fields will be saved through the registration process')"
     />
 
+    <form-group-with-aup namespace="with_aup"
+      :column-label="$i18n.t('Require AUP')"
+      :text="$i18n.t('Require the user to accept the AUP')"
+    />
+
+    <form-group-aup-template namespace="aup_template"
+      :column-label="$i18n.t('AUP template')"
+      :text="$i18n.t('The template to use for the Acceptable Use Policy')"
+    />
+
     <form-group-template namespace="template"
       :column-label="$i18n.t('Template')"
     />
@@ -71,7 +81,9 @@ import {
   FormGroupMultiSourceAuthClasses,
   FormGroupMultiSourceObjectClasses,
   FormGroupMultiSourceTypes,
-  FormGroupTemplate
+  FormGroupTemplate,
+  FormGroupWithAup,
+  FormGroupAupTemplate
 } from './'
 
 const components = {
@@ -87,7 +99,9 @@ const components = {
   FormGroupMultiSourceAuthClasses,
   FormGroupMultiSourceObjectClasses,
   FormGroupMultiSourceTypes,
-  FormGroupTemplate
+  FormGroupTemplate,
+  FormGroupWithAup,
+  FormGroupAupTemplate
 }
 
 import { useForm as setup, useFormProps as props } from '../_composables/useForm'

@@ -1,8 +1,7 @@
 # Configurator inline L2
 
-This configurator test suite is different from: configurator and
-configurator_inline because it configures only one interface as inline with
-DHCP enabled.
+This configurator test suite is different from the shared `configurator`
+suite because it configures only one interface as inline with DHCP enabled.
 
 ## Requirements
 PacketFence server has been provisionned using Vagrant and Ansible and is in

@@ -20,7 +20,7 @@ use warnings;
 use base 'pfconfig::backend';
 use CHI;
 use pfconfig::empty_string;
-use pf::Sereal qw($DECODER $ENCODER_FREEZER);
+use pf::Sereal::CHISerializer;
 
 my $empty_string = pfconfig::empty_string->new;
 
@@ -35,10 +35,7 @@ sub init {
     $self->{cache} = CHI->new(
         driver       => 'Memory',
         datastore    => {},
-        'serializer' => {
-            serializer => 'Sereal',
-            options    => { encoder => $ENCODER_FREEZER, decoder => $DECODER }
-        }
+        'serializer' => pf::Sereal::CHISerializer->new,
     );
 }
 

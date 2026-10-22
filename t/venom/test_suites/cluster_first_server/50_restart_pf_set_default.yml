@@ -1,0 +1,33 @@
+name: First server — restart PacketFence + enable cluster target
+testcases:
+# docs/cluster/cluster_setup.asciidoc "Database setup / First server" +
+# "Enable PacketFence clustering services at boot". pf restart brings up the
+# cluster services (keepalived, radiusd-loadbalancer); it can exit non-zero
+# while joiners are absent, so we tolerate it and rely on the health checks
+# in 60_assert_galera_up.yml. timeout guards against an indefinite hang when a
+# DB-dependent service blocks on the not-yet-up proxysql VIP (observed wedging
+# pfcmd for >1h); the galera assertions then reveal the real state.
+- name: restart_pf
+  steps:
+  - type: exec
+    script: 'timeout -k 30 1200 /usr/local/pf/bin/pfcmd service pf restart || true'
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: set_default_cluster_target
+  steps:
+  - type: exec
+    script: 'systemctl set-default packetfence-cluster'
+    assertions:
+      - result.code ShouldEqual 0
+
+# "Stop iptables (all servers)" — pf1's share of that step; joiners stop their
+# own in cluster_joining_servers. packetfence-iptables is Restart=always and
+# its monitor exits on SIGTERM, so systemctl stop reports non-zero even though
+# the service does stop — tolerate the exit code.
+- name: stop_iptables
+  steps:
+  - type: exec
+    script: 'systemctl stop packetfence-iptables || true'
+    assertions:
+      - result.code ShouldEqual 0

@@ -145,6 +145,10 @@ def config_load():
         log.critical("parameter IDENTIFIER not found in system environment. unable to start ntlm-auth-api.")
         sys.exit(1)
     global_vars.c_domain_identifier = socket.gethostname() + " " + _IDENTIFIER
+    # Cache rows in chi_cache (and the mirrored credcache) are keyed on this
+    # bare identifier so multiple ntlm-auth-api instances configured for the
+    # same domain can share NT keys, bad-password counters, etc.
+    global_vars.c_cache_domain = _IDENTIFIER
 
     log.info(f"ntlm-auth-api@{_IDENTIFIER} is starting on port {global_vars.c_listen_port}.")
 

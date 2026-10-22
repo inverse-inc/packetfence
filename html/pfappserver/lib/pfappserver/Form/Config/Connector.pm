@@ -12,6 +12,10 @@ Form definition to create or update a connector
 
 use HTML::FormHandler::Moose;
 use pf::ConfigStore::Connector::DomainsConnectors;
+use pfconfig::cached_hash;
+
+tie my %ConnectorConfig, "pfconfig::cached_hash" , "config::Connector";
+
 extends 'pfappserver::Base::Form';
 with qw(
     pfappserver::Base::Form::Role::Help
@@ -36,7 +40,7 @@ has_field 'networks' =>
 
 has_field 'networks.contains' =>
   (
-   type => 'Text',
+   type => 'CIDR',
   );
 
 has_field 'secret' =>
@@ -52,6 +56,27 @@ has_field 'fingerbank_environment' => (
 has_field 'fingerbank_environment.contains' => (
    type => 'EnvVar',
 );
+
+sub validate_networks {
+    my ($self, $field) = @_;
+    my $networks = $field->value;
+    my %counts;
+    for my $n (@$networks) {
+        $counts{$n}++;
+        if ($counts{$n} == 2) {
+            $field->add_error("Cannot have network '$n' defined multiple times");
+        }
+    }
+
+    my $id = $self->field("id")->value;
+    for my $k (grep { $_ ne $id && $_ ne 'local_connector' } keys %ConnectorConfig) {
+        for my $n (@{$ConnectorConfig{$k}{networks} // []}) {
+            if (exists $counts{$n}) {
+                $field->add_error("network '$n' is defined in '$k'");
+            }
+        }
+    }
+}
 
 =over
 

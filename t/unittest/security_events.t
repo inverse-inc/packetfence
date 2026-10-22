@@ -21,24 +21,30 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 33;
+use Test::More tests => 21;
 use Test2::Tools::Compare qw(bag item end);
 use_ok('pf::security_event');
 
 # Will be able to match a security_event with multiple triggers by only passing the trigger info
 my @security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({device_id => 2});
-is(@security_events, 1);
-is($security_events[0], "1100009");
+Test2::Tools::Compare::is(
+    \@security_events,
+    ['1100009'],
+);
 
 # Will be able to match a security_event with multiple data that will all trigger it
 @security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({device_id => 2, dhcp_fingerprint_id => 3});
-is(@security_events, 1);
-is($security_events[0], "1100009");
+Test2::Tools::Compare::is(
+    \@security_events,
+    ['1100009'],
+);
 
 # Will be able to match a security_event with multiple data when only a part will match
 @security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({device_id => 2, dhcp_fingerprint_id => "dinde"});
-is(@security_events, 1);
-is($security_events[0], "1100009");
+Test2::Tools::Compare::is(
+    \@security_events,
+    ['1100009'],
+);
 
 # Will be able to match multiple security_events on the same trigger
 @security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({last_detect_id => 1});
@@ -64,26 +70,38 @@ Test2::Tools::Compare::is(
 
 # Will be able to match a mac trigger that uses a regex
 @security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({mac => "12:34:56:78:90:12"});
-is(@security_events, 1);
-is($security_events[0], "1100009");
+Test2::Tools::Compare::is(
+    \@security_events,
+    ['1100009'],
+);
 
 # Will not be able to match on a disabled security_event
 @security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({last_detect_id => -1});
-is(@security_events, 0);
+Test2::Tools::Compare::is(
+    \@security_events,
+    [],
+);
 
 # Can match a combined trigger
 @security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({last_detect_id => 10, mac => "21:34:56:78:90:12"});
-is(@security_events, 1);
-is($security_events[0], "1100011");
+Test2::Tools::Compare::is(
+    \@security_events,
+    ['1100011'],
+);
 
 # Can't match a part of a combined trigger
 @security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({last_detect_id => 9, mac => "21:34:56:78:90:12"});
-is(@security_events, 0);
+Test2::Tools::Compare::is(
+    \@security_events,
+    [],
+);
 
 # Test a security_event using DHCPv6 fingerprint
 @security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({dhcp6_fingerprint_id => 2});
-is(@security_events, 1);
-is($security_events[0], "1100012");
+Test2::Tools::Compare::is(
+    \@security_events,
+    ['1100012'],
+);
 
 # Test a security_event using DHCPv6 fingerprint that shouldn't match
 @security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({dhcp6_fingerprint_id => 3});
@@ -91,36 +109,53 @@ is(@security_events, 0);
 
 # Test a security_event using DHCPv6 enterprise
 @security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({dhcp6_enterprise_id => 2});
-is(@security_events, 1);
-is($security_events[0], "1100012");
+Test2::Tools::Compare::is(
+    \@security_events,
+    ['1100012'],
+);
 
 # Test a security_event using DHCPv6 enteprise that shouldn't match
 @security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({dhcp6_enterprise_id => 1});
-is(@security_events, 0);
+Test2::Tools::Compare::is(
+    \@security_events,
+    [],
+);
 
 # Test a security_event using role
 @security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({role => "default"});
-is(@security_events, 1);
-is($security_events[0], "1100014");
+Test2::Tools::Compare::is(
+    \@security_events,
+    ['1100014'],
+);
 
 # Test a security_event using VLAN
 @security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({last_vlan => "100"});
-is(@security_events, 1);
-is($security_events[0], "1100019");
+Test2::Tools::Compare::is(
+    \@security_events,
+    ['1100019'],
+);
 
 # Test a security_event using network
 @security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({last_ip => "172.30.0.1"});
-is(@security_events, 1);
-is($security_events[0], "1100020");
+Test2::Tools::Compare::is(
+    \@security_events,
+    ['1100020'],
+);
 
 # Test a security_event using network and device_is_not
 @security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({last_ip => "172.31.0.1", device_id => 1});
-is(@security_events, 1);
-is($security_events[0], "1100021");
+Test2::Tools::Compare::is(
+    \@security_events,
+    ['1100021'],
+);
 
 # Test a security_event using network and device_is_not
 @security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({last_ip => "172.31.0.1", device_id => 33453});
-is(@security_events, 0);
+#is(@security_events, 0);
+Test2::Tools::Compare::is(
+    \@security_events,
+    [],
+);
 
 @security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all(
     {
@@ -128,8 +163,10 @@ is(@security_events, 0);
         last_switch      => '172.16.8.30'
     }
 );
-is(@security_events, 1);
-is($security_events[0], "1100018");
+Test2::Tools::Compare::is(
+    \@security_events,
+    ['1100018'],
+);
 
 #This test will running last
 use Test::NoWarnings;

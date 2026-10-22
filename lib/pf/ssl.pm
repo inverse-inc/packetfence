@@ -17,6 +17,7 @@ use warnings;
 
 use File::Temp qw(tempfile);
 use pf::constants qw($TRUE $FALSE);
+use Digest::MD5 qw(md5_hex);
 use File::Slurp qw(read_file write_file);
 use LWP::UserAgent;
 use pf::util;
@@ -85,26 +86,28 @@ Get a Crypt::OpenSSL::RSA from a PEM or ASN1 string
 
 sub x509_from_string {
     my ($cert) = @_;
-   
-    my %encodings = (
-        PEM => Crypt::OpenSSL::X509::FORMAT_PEM, 
-        ASN1 => Crypt::OpenSSL::X509::FORMAT_ASN1,
+
+    # Ordered list: PEM is by far the most common, try it first
+    my @encodings = (
+        [ PEM => Crypt::OpenSSL::X509::FORMAT_PEM ],
+        [ ASN1 => Crypt::OpenSSL::X509::FORMAT_ASN1 ],
     );
 
-    while(my ($encoding_str, $encoding) = each(%encodings)) {
+    for my $encoding (@encodings) {
+        my ($encoding_str, $format) = @$encoding;
         my $x509;
         eval {
-            $x509 = Crypt::OpenSSL::X509->new_from_string($cert, $encoding);
+            $x509 = Crypt::OpenSSL::X509->new_from_string($cert, $format);
         };
         if($@) {
-            get_logger->info("Certificate is not $encoding_str encoded. Trying next encoding.");
+            get_logger->debug("Certificate is not $encoding_str encoded. Trying next encoding.");
         }
         else {
             return $x509;
         }
     }
 
-    get_logger->warn("Certificate cannot be decoded with known encodings: ".join(", ", keys(%encodings)));
+    get_logger->warn("Certificate cannot be decoded with known encodings: ".join(", ", map { $_->[0] } @encodings));
     return undef;
 }
 
@@ -133,7 +136,7 @@ Get the modulus MD5 of an RSA key
 
 sub rsa_modulus_md5 {
     my ($rsa) = @_;
-    return openssl_modulus_md5("rsa", $rsa->get_private_key_string());
+    return modulus_md5("rsa", $rsa->get_private_key_string());
 }
 
 =head2 x509_modulus_md5
@@ -144,26 +147,48 @@ Get the modulus MD5 of an x509 certificate
 
 sub x509_modulus_md5 {
     my ($x509) = @_;
-    return openssl_modulus_md5("x509", $x509->as_string());
+    return modulus_md5("x509", $x509->as_string());
 }
 
-=head2 openssl_modulus_md5
+=head2 modulus_md5
 
-Get the modulus MD5 through OpenSSL
+Get the modulus MD5 of an RSA key ("rsa") or x509 certificate ("x509").
+
+This computes the same value as the OpenSSL pipeline:
+
+    openssl $type -noout -modulus | openssl md5
+
+i.e. the MD5 of the C<Modulus=E<lt>UPPERCASE-HEXE<gt>\n> line that
+C<openssl -modulus> prints, but does so in pure Perl without shelling out.
 
 =cut
 
-sub openssl_modulus_md5 {
+sub modulus_md5 {
     my ($type, $data) = @_;
-    my $result = `echo "$data" | openssl $type -noout -modulus | openssl md5 | awk '{ print \$2 }'`;
-    chomp($result);
-    if($? != 0) {
-        get_logger->error("Unable to get modulus: $result");
+
+    my $modulus = eval {
+        if ($type eq "rsa") {
+            my $rsa = rsa_from_string($data);
+            my ($n) = $rsa->get_key_parameters();
+            $n->to_hex;
+        }
+        elsif ($type eq "x509") {
+            my $x509 = x509_from_string($data);
+            defined($x509) ? $x509->modulus() : undef;
+        }
+        else {
+            die "unsupported modulus type '$type'\n";
+        }
+    };
+
+    if ($@ || !defined($modulus) || $modulus eq "") {
+        get_logger->error("Unable to get modulus: " . ($@ || "no modulus could be extracted"));
         return undef;
     }
-    else {
-        return $result;
-    }
+
+    # openssl prints the modulus as "Modulus=<UPPERCASE-HEX>" followed by a
+    # newline, and that exact byte sequence is what gets hashed.
+    return md5_hex("Modulus=" . $modulus . "\n");
 }
 
 =head2 validate_cert_key_match
@@ -233,7 +258,7 @@ sub fetch_all_intermediates {
 
         push @$chain, $inter;
 
-        if($inter->issuer() ne $inter->subject()) {
+        if(!is_self_signed($inter)) {
             return fetch_all_intermediates($inter, $chain);
         }
         else {
@@ -350,31 +375,113 @@ sub generate_csr {
     return ($TRUE, $csr);
 }
 
+=head2 is_self_signed
+
+Whether a Crypt::OpenSSL::X509 certificate is self-signed (its own issuer)
+
+=cut
+
+sub is_self_signed {
+    my ($x509) = @_;
+    return $x509->issuer() eq $x509->subject();
+}
+
+=head2 unrelated_certificates
+
+Given a Crypt::OpenSSL::X509 certificate, the certificates available to build
+its chain and the certificates that must be part of it, return the latter that
+are not on any signing path of the certificate.
+
+The paths are followed by issuer name, the way fetch_all_intermediates does,
+from the certificate up to a self-signed certificate or to an issuer that is
+not among the available certificates (the OS CA bundle takes over from there).
+Every available certificate whose subject matches an issuer is followed, so
+cross-signed certificates (same subject, different issuers) are all on the
+chain.
+
+=cut
+
+sub unrelated_certificates {
+    my ($cert, $available, $required) = @_;
+
+    my %on_chain;
+    my @to_visit = ($cert);
+    while (my $current = shift @to_visit) {
+        next if is_self_signed($current);
+        foreach my $candidate (@$available) {
+            next if $on_chain{$candidate->as_string()};
+            next unless $candidate->subject() eq $current->issuer();
+            $on_chain{$candidate->as_string()} = 1;
+            push @to_visit, $candidate;
+        }
+    }
+
+    return grep { !$on_chain{$_->as_string()} } @$required;
+}
+
 =head2 verify_chain
 
 Given a Crypt::OpenSSL::X509 certificate and an array of Crypt::OpenSSL::X509 intermediates, validate that the whole signing chain is valid.
 Will include the built-in CAs while performing the verification
 
+When an array of intermediate certificates is passed as third argument (the
+ones that are installed with the certificate), each of them must also be part
+of the signing chain: an unrelated intermediate would be accepted by OpenSSL
+and then sent to the clients along with the certificate (#6630).
+
 =cut
 
 sub verify_chain {
-    my ($cert, $intermediates) = @_;
+    my ($cert, $intermediates, $installed_intermediates) = @_;
     my $cert_str = $cert->as_string();
 
-    my (undef, $tmpinter) = tempfile();
     my $bundle = "";
     foreach my $inter (@$intermediates) {
         $bundle .= $inter->as_string();
     }
-    $bundle .= "\n$cert_str\n";
-    write_file($tmpinter, $bundle);
 
-    my $result = `/bin/bash -c "echo '$cert_str' | openssl verify -verbose -CAfile <(cat $OS_CA_CERT_FILE $tmpinter)"`;
-    unlink $tmpinter;
+    # A self-signed certificate is its own trust anchor, so it has to be part
+    # of the trusted material to verify. In any other case the certificate
+    # being verified must NOT be trusted itself, otherwise the verification
+    # succeeds no matter what intermediates were provided (#6630).
+    if (is_self_signed($cert)) {
+        $bundle .= "\n$cert_str\n";
+    }
 
-    if($? != 0) {
-        get_logger->error("Chain verification failed");
+    # Trusted material for the verification: the system CA bundle followed by
+    # the provided intermediates, so that chains ending on a private CA are
+    # accepted as long as that CA was provided.
+    my $ca_content = (-r $OS_CA_CERT_FILE) ? read_file($OS_CA_CERT_FILE) : "";
+    my (undef, $cafile) = tempfile();
+    write_file($cafile, $ca_content . $bundle);
+
+    # The certificate being verified, passed as a file argument rather than
+    # through a shell pipe.
+    my (undef, $certfile) = tempfile();
+    write_file($certfile, $cert_str);
+
+    my $status;
+    my $result = safe_pf_run(
+        "openssl", "verify", "-verbose", "-CAfile", $cafile, $certfile,
+        # Keep diagnostics for usage/file errors (1) and verification failures
+        # (2); the status check below still rejects the chain.
+        { redirect_stderr_to_stdout => 1, status_ref => \$status,
+          accepted_exit_status => [1, 2] },
+    );
+    unlink $cafile;
+    unlink $certfile;
+
+    if (!defined($status) || $status != 0) {
+        $result //= "Unable to run OpenSSL certificate verification";
+        get_logger->error("Chain verification failed: $result");
         return ($FALSE, $result);
+    }
+
+    if (my @unrelated = unrelated_certificates($cert, $intermediates, $installed_intermediates // [])) {
+        my $msg = "Intermediate certificate(s) not part of the signing chain of the certificate: "
+            . join("; ", map { $_->subject() } @unrelated);
+        get_logger->error("Chain verification failed: $msg");
+        return ($FALSE, $msg);
     }
     else {
         get_logger->info("Chain verification succeeded");

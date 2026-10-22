@@ -40,15 +40,12 @@ sub match {
         }
     }
 
-    my $Config = fingerbank::Config::get_config;    
-
     $logger->debug("Attempting to interrogate Fingerbank Collector");
 
-    my %upstream_args = map {lc($_) => $args->{lc($_)}} @fingerbank::Constant::QUERY_PARAMETERS;
-
+    # The collector builds the interrogate query from its own endpoint data;
+    # only the MAC is needed to identify the endpoint
     my $collector = fingerbank::Collector->new_from_config();
     my $ua = $collector->get_lwp_client();
-    my $query_args = encode_json(\%upstream_args);
 
     my $req = $collector->build_request("GET", "/endpoint_data/".$args->{mac}."/details");
 

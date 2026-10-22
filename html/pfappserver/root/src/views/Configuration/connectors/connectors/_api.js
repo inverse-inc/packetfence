@@ -44,5 +44,10 @@ export default {
   },
   delete: id => {
     return apiCall.delete(['config', 'connector', id])
+  },
+  status: () => {
+    return apiCall.get('config/connectors/status').then(response => {
+      return response.data
+    })
   }
 }

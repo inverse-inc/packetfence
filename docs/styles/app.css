@@ -160,11 +160,11 @@ em, i     { font-style: italic; }
 code, kbd, samp, tt {
   font-family: var(--font-mono);
   font-size: 0.875em;
-  background-color: var(--color-grey6);
-  border: 1px solid var(--color-grey5);
+  background-color: var(--code-bg, var(--color-grey6));
+  border: 1px solid var(--code-border-color, var(--color-grey5));
   border-radius: 3px;
   padding: 0.1em 0.35em;
-  color: var(--color-navy);
+  color: var(--code-color, var(--color-navy));
 }
 
 pre code,
@@ -222,6 +222,12 @@ pre samp {
 #header .details span + span::before { content: " · "; }
 
 /* ── TOC container (#toc = list inside the sidebar) ──────────────────────── */
+#toc {
+  --code-bg: rgba(255, 255, 255, 0.15);
+  --code-border-color: rgba(255, 255, 255, 0.2);
+  --code-color: inherit;
+}
+
 #toctitle {
   font-size: 0.75rem;
   font-weight: 700;
@@ -281,6 +287,7 @@ pre samp {
 .sectlevel4 {
   padding-left: 2.25rem !important;
 }
+
 
 /* ── Footer ──────────────────────────────────────────────────────────────── */
 #footer {
