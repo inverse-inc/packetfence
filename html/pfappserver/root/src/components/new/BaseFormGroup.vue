@@ -14,7 +14,7 @@
     :label-cols-xl="labelColsXl"
   >
     <template v-slot:description v-if="apiFeedback">
-      <div v-html="apiFeedback" class="text-warning"/>
+      <div v-safe-html="apiFeedback" class="text-warning"/>
     </template>
     <template v-slot:invalid-feedback v-if="invalidFeedback">
       <span v-html="invalidFeedback" />

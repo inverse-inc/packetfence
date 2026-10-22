@@ -15,6 +15,7 @@ type TokenBackend interface {
 	StoreTokenInfo(token string, ti *TokenInfo) error
 	TokenIsValid(token string) bool
 	TouchTokenInfo(token string)
+	InvalidateToken(token string)
 	Type() string
 }
 

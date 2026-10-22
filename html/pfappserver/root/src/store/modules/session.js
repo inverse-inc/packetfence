@@ -7,17 +7,15 @@ import apiCall from '@/utils/api'
 import i18n from '@/utils/locale'
 import duration from '@/utils/duration'
 
-const STORAGE_TOKEN_KEY = 'user-token'
-
 const api = {
   login: user => {
-    return apiCall.postQuiet('login', user).then(response => {
-      apiCall.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`
-      return response
-    })
+    // The session token is delivered as an HttpOnly cookie by the server and
+    // sent automatically on subsequent same-origin requests — no Authorization
+    // header handling needed on the client.
+    return apiCall.postQuiet('login', user)
   },
-  setToken: token => {
-    apiCall.defaults.headers.common['Authorization'] = `Bearer ${token}`
+  logout: () => {
+    return apiCall.postQuiet('logout')
   },
   getTokenInfo: readonly => {
     let url = 'token_info'
@@ -69,7 +67,7 @@ const initialState = () => {
     configuratorEnabled: false,
     configuratorActive: false,
     message: '',
-    token: localStorage.getItem(STORAGE_TOKEN_KEY) || '',
+    authenticated: false,
     username: '',
     expires_at: null,
     expired: false,
@@ -108,7 +106,7 @@ const initialState = () => {
 
 const getters = {
   isLoading: state => state.loginStatus === types.LOADING,
-  isAuthenticated: state => !!state.token && state.roles.length > 0,
+  isAuthenticated: state => state.authenticated && state.roles.length > 0,
   getSessionTime: state => () => {
     if (state.expires_at) {
       const now = new Date()
@@ -162,30 +160,24 @@ const getters = {
 
 const actions = {
   load: ({ state, dispatch }) => {
-    if (state.token) {
-      if (!state.username) {
-        return dispatch('update', state.token)
-      }
+    if (state.authenticated && state.username) {
       return Promise.resolve()
-    } else {
-      return Promise.reject(new Error('No token'))
     }
+    // The token is an HttpOnly cookie we can't read; probe the server to find
+    // out whether we have a live session and, if so, load its claims.
+    return dispatch('update')
   },
-  update: ({ commit, dispatch }, token) => {
-    localStorage.setItem(STORAGE_TOKEN_KEY, token)
-    api.setToken(token)
-    commit('TOKEN_UPDATED', token)
+  update: ({ commit, dispatch }) => {
     return dispatch('getTokenInfo').then(roles => {
+      commit('AUTHENTICATED', true)
       commit('ROLES_UPDATED', roles)
       setupAcl()
       dispatch('getConfiguratorState')
     })
   },
   delete: ({ commit }) => {
-    localStorage.removeItem(STORAGE_TOKEN_KEY)
     acl.reset()
-    api.setToken(null)
-    commit('TOKEN_DELETED')
+    commit('AUTHENTICATED', false)
     commit('EXPIRES_AT_DELETED')
     commit('USERNAME_DELETED')
     commit('ROLES_DELETED')
@@ -212,13 +204,12 @@ const actions = {
   login: ({ state, commit, dispatch }, user) => {
     commit('LOGIN_REQUEST')
     return api.login(user).then(response => {
-      const token = response.data.token
-      return dispatch('update', token).then(() => {
+      return dispatch('update').then(() => {
         const hasAccess = ['reports', 'services', 'radius_log', 'dhcp_option_82', 'dns_log', 'admin_api_audit_log', 'nodes', 'users', 'configuration_main'].find(target => {
           return acl.$can('read', target)
         })
         if (hasAccess) {
-          commit('LOGIN_SUCCESS', token)
+          commit('LOGIN_SUCCESS')
           if (state.loginResolver) {
             state.loginResolver(response)
             state.loginPromise = null
@@ -236,10 +227,9 @@ const actions = {
     })
   },
   logout: ({ dispatch }) => {
-    return new Promise((resolve) => {
-      dispatch('delete')
-      resolve()
-    })
+    // Best-effort server-side logout (clears the HttpOnly cookie + invalidates
+    // the token); always clear local state regardless of the request outcome.
+    return api.logout().catch(() => {}).then(() => dispatch('delete'))
   },
   getTokenInfo: ({ commit }, readonly = false) => {
     return api.getTokenInfo(readonly).then(response => {
@@ -404,12 +394,8 @@ const mutations = {
   CONFIGURATOR_INACTIVE: (state) => {
     state.configuratorActive = false
   },
-  TOKEN_UPDATED: (state, token) => {
-    state.token = token
-    state.expired = false
-  },
-  TOKEN_DELETED: (state) => {
-    state.token = ''
+  AUTHENTICATED: (state, value) => {
+    state.authenticated = value
     state.expired = false
   },
   USERNAME_UPDATED: (state, username) => {

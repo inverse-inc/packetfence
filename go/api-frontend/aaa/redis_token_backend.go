@@ -90,4 +90,8 @@ func (rtb *RedisTokenBackend) TouchTokenInfo(token string) {
 	_, _ = rtb.redis.Expire(context.Background(), rtb.tokenKey(token), rtb.inActivityTimeout).Result()
 }
 
+func (rtb *RedisTokenBackend) InvalidateToken(token string) {
+	_ = rtb.redis.Del(context.Background(), rtb.tokenKey(token)).Err()
+}
+
 var _ TokenBackend = (*RedisTokenBackend)(nil)

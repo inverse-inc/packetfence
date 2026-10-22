@@ -67,6 +67,12 @@ func (tb *MultiTokenBackend) TouchTokenInfo(token string) {
 	}
 }
 
+func (tb *MultiTokenBackend) InvalidateToken(token string) {
+	for _, b := range tb.backends {
+		b.InvalidateToken(token)
+	}
+}
+
 func (tb *MultiTokenBackend) AdminActionsForToken(ctx context.Context, token string) map[string]bool {
 	for _, b := range tb.backends {
 		if ti, _ := b.TokenInfoForToken(token); ti != nil {
