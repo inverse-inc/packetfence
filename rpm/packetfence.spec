@@ -989,6 +989,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/t_sdnotify.py
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/t_worker_register.py
 %attr(0755, pf, pf)     /usr/local/pf/bin/pyntlm_auth/utils.py
+%exclude                /usr/local/pf/bin/pyntlm_auth/test_sticky_dc.py
 %attr(0755, pf, pf)     /usr/local/pf/sbin/galera-autofix
 %attr(0755, pf, pf)     /usr/local/pf/sbin/mysql-probe
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconnector
