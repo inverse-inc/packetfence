@@ -16,31 +16,38 @@ use HTML::FormHandler::Moose::Role;
 use pf::authentication;
 use pfconfig::cached_hash;
 
+=head2 validate_connect_port
+
+Ensure the pfconnector_port is not used by another RADIUS source or DNS server.
+
+$kind is the kind of item the form saves ('radius' or 'dns'): only that item is
+skipped, a RADIUS source and a DNS server can share an id.
+
+=cut
+
 sub validate_connect_port {
-    my ($self) = @_;
+    my ($self, $kind) = @_;
     my $value  = $self->value;
     my $port   = $value->{pfconnector_port};
     return if !defined $port || length($port) == 0;
-    my $id      = $value->{id};
+    my $id      = $value->{id} // '';
     my $sources = pf::authentication::getAuthenticationSourcesByType('RADIUS');
 
     for my $source (@$sources) {
-        if ( $id eq $source->{id} ) {
-            next;
-        }
-
+        next if $kind eq 'radius' && $id eq $source->{id};
         my $p = $source->{pfconnector_port};
-        if ( defined $p && $p == $port ) {
-            $self->field('pfconnector_port')
+        if ( defined $p && length($p) && $p == $port ) {
+            return $self->field('pfconnector_port')
               ->add_error('Port should be unique');
         }
     }
 
     tie our %DnsConnectors, 'pfconfig::cached_hash', "config::DnsConnectors";
-    for my $data ( values %DnsConnectors ) {
-        my $p = $data->{pfconnector_port};
-        if ( defined $p && $p == $port ) {
-            $self->field('pfconnector_port')
+    for my $dns_id ( keys %DnsConnectors ) {
+        next if $kind eq 'dns' && $id eq $dns_id;
+        my $p = $DnsConnectors{$dns_id}{pfconnector_port};
+        if ( defined $p && length($p) && $p == $port ) {
+            return $self->field('pfconnector_port')
               ->add_error('Port should be unique');
         }
     }
