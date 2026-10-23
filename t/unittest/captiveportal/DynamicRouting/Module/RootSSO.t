@@ -19,13 +19,20 @@ BEGIN {
 }
 
 use Test::More tests => 18;
+use Test::MockModule;
 use Test::NoWarnings;
 use pf::config qw(%Config);
+use pf::config::util;
 use captiveportal::PacketFence::DynamicRouting::Module::RootSSO;
 
 sub valid { captiveportal::PacketFence::DynamicRouting::Module::RootSSO::is_valid_callback($_[0]) }
 
 # the test configuration: pf.pfdemo.org, management 10.0.0.13, internal interface 192.168.1.1
+# portal_hosts reads the interfaces from pfconfig, which the tests running in parallel keep
+# rebuilding (interfaces::management_network is a child of config::Switch), so pin its result
+my $config_util = Test::MockModule->new('pf::config::util');
+$config_util->mock('portal_hosts', sub { ('192.168.1.1', '192.168.2.1', '10.0.0.13', 'pf.pfdemo.org') });
+
 ok(valid('https://pf.pfdemo.org:1443/admin#/login'), 'fqdn');
 ok(valid('https://PF.pfdemo.org:1443/admin/#/login'), 'fqdn, case insensitive');
 ok(valid('https://10.0.0.13:1443/admin/'), 'management IP');
