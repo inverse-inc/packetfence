@@ -2,13 +2,15 @@ package pf::ConfigStore::Radiusd::TeapProfile;
 
 =head1 NAME
 
-pf::ConfigStore::Radiusd::TeapProfile add documentation
+pf::ConfigStore::Radiusd::TeapProfile
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::ConfigStore::Radiusd::TeapProfile
+Config store for the EAP-TEAP profiles in conf/radiusd/teap.conf, with the
+shipped defaults imported from conf/radiusd/teap.conf.defaults. Changes are
+exposed through the pfconfig namespace config::Teap.
 
 =cut
 

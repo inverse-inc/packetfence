@@ -10,7 +10,12 @@ pfconfig::namespaces::config::Teap
 
 pfconfig::namespaces::config::Teap
 
-This module creates the configuration hash associated to teap.conf
+This module creates the configuration hash associated to teap.conf, one
+entry per EAP-TEAP profile, with conf/radiusd/teap.conf.defaults imported for
+missing values.
+
+resource::eap_config uses it to resolve the teap_config of each EAP profile
+into the matching TEAP profile, so it is rebuilt whenever teap.conf changes.
 
 =cut
 

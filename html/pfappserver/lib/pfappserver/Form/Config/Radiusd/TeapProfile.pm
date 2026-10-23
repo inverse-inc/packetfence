@@ -2,11 +2,13 @@ package pfappserver::Form::Config::Radiusd::TeapProfile;
 
 =head1 NAME
 
-pfappserver::Form::Config::Radiusd::TeapProfile -
+pfappserver::Form::Config::Radiusd::TeapProfile - Form for an EAP-TEAP profile
 
 =head1 DESCRIPTION
 
-pfappserver::Form::Config::Radiusd::TeapProfile
+Validates an EAP-TEAP profile from conf/radiusd/teap.conf: the TLS profile,
+the authority identity, the identity types requested inside the tunnel and
+the inner EAP method used by default, for users and for machines.
 
 =cut
 
