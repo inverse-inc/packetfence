@@ -6,6 +6,7 @@ export const provisioningTypes = {
   android:      i18n.t('Android'),
   deny:         i18n.t('Deny'),
   dpsk:         i18n.t('DPSK'),
+  generic_http: i18n.t('Generic HTTP'),
   jamf:         i18n.t('Jamf'),
   jamfCloud:    i18n.t('Jamf Cloud'),
   kandji:       i18n.t('Kandji'),
