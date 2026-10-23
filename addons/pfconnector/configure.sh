@@ -42,6 +42,21 @@ fi
 
 echo "FETCH_REMOTES_VIA_API=true" >> /usr/local/pfconnector-remote/conf/pfconnector-client.env
 echo "PFCONNECTOR_REMOTE=true" >> /usr/local/pfconnector-remote/conf/pfconnector-client.env
+# The remote terminal gives a root shell on this box from the PacketFence
+# admin interface (role and TOTP code required): only when asked for.
+if prompt "Allow opening a root terminal on this connector from the PacketFence admin interface?"; then
+  echo "PFCONNECTOR_TERMINAL=true" >> /usr/local/pfconnector-remote/conf/pfconnector-client.env
+else
+  echo "PFCONNECTOR_TERMINAL=false" >> /usr/local/pfconnector-remote/conf/pfconnector-client.env
+fi
+# TOTP second factor gating remote terminal activation. Set to false to
+# allow the terminal with only the admin-initiated one-time session.
+echo "PFCONNECTOR_TERMINAL_TOTP=true" >> /usr/local/pfconnector-remote/conf/pfconnector-client.env
+
+# The TOTP seed gating remote terminal access (conf/terminal_totp) is
+# generated and displayed as a QR code by the package postinst; the
+# pfconnector-client generates it on first start if it is missing. Run
+# bin/pfconnector-totp-qrcode to display the enrollment QR code again.
 
 # Create a dummy system_init_key file to prevent Docker from creating it as a directory
 if [ ! -f /usr/local/pfconnector-remote/conf/system_init_key ]; then

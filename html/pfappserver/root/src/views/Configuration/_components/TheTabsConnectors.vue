@@ -19,7 +19,7 @@ import DomainsSearch from '../connectors/domains/_components/TheSearch'
 
 const tabs = {
   connectorsConnectors: {
-    title: 'Connectors', // i18n defer
+    title: 'Cloud Connectors', // i18n defer
     component: ConnectorsSearch
   },
   connectorsDomains: {

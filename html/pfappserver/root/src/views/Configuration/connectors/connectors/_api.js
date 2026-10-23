@@ -49,5 +49,42 @@ export default {
     return apiCall.get('config/connectors/status').then(response => {
       return response.data
     })
+  },
+  equipment: id => {
+    return apiCall.get(['config', 'connector', id, 'equipment']).then(response => {
+      return response.data
+    })
+  },
+
+  remoteStatus: id => {
+    return apiCall.get(['pfconnector-remotes', id, 'status']).then(response => {
+      return response.data
+    })
+  },
+  // polled: errors are reported in the UI, not as notifications
+  remoteStatusQuiet: id => {
+    return apiCall.getQuiet(['pfconnector-remotes', id, 'status']).then(response => {
+      return response.data
+    })
+  },
+  remoteRestart: id => {
+    return apiCall.post(['pfconnector-remotes', id, 'restart']).then(response => {
+      return response.data
+    })
+  },
+  remoteUpgrade: id => {
+    return apiCall.post(['pfconnector-remotes', id, 'upgrade']).then(response => {
+      return response.data
+    })
+  },
+  terminalSession: id => {
+    return apiCall.post('terminal', { pfconnector_id: id }).then(response => {
+      return response.data
+    })
+  },
+  terminalAuthorize: (id, uuid, code) => {
+    return apiCall.get(['terminal', id, 'authorize', uuid], { params: { code } }).then(response => {
+      return response.data
+    })
   }
 }

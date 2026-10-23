@@ -3,6 +3,7 @@ package chserver
 import (
 	"bufio"
 	"context"
+	"crypto/subtle"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -31,6 +32,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/pfk8s"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
+	"github.com/miekg/dns"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/sync/errgroup"
 )
@@ -98,6 +100,18 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	case apiPrefix + "/remote-binds":
 		s.handleRemoteBinds(w, r)
+		return
+	case apiPrefix + "/pfconnector-info":
+		s.handlePfconnectorInfo(w, r)
+		return
+	case apiPrefix + "/remote-terminal":
+		s.handleRemoteTerm(w, r)
+		return
+	case apiPrefix + "/connector-detail":
+		s.handleConnectorDetail(w, r)
+		return
+	case apiPrefix + "/dns-lookup":
+		s.handleDnsLookup(w, r)
 		return
 	case apiPrefix + "/reprovision-static-connections":
 		s.handleReprovisionStaticConnections(w, r)
@@ -605,15 +619,24 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// Listen only on the address the dynreverse is advertised on (the
+	// management IP, see PFCONNECTOR_SERVER_DYN_REVERSE_HOST), not on all the
+	// interfaces of the server. The consumers (the other containers, the
+	// other cluster members) connect to that address.
+	bindHost := ""
+	if ip := net.ParseIP(host); ip != nil && ip.To4() != nil && !ip.IsUnspecified() {
+		bindHost = ip.String() + ":"
+	}
+
 	connectorId := payload.ConnectorID
 	if o, ok := activeTunnels.Load(connectorId); ok {
 		for i := 0; i < DYNREVERSE_BIND_ATTEMPTS; i++ {
 			tun := o.(*tunnel.Tunnel)
 			to := payload.To
 			if payload.LocalPort != "" {
-				to = fmt.Sprintf("%s:%s", payload.LocalPort, to)
+				to = fmt.Sprintf("%s%s:%s", bindHost, payload.LocalPort, to)
 			} else {
-				to = fmt.Sprintf("0:%s", to)
+				to = fmt.Sprintf("%s0:%s", bindHost, to)
 			}
 			remoteStr := fmt.Sprintf("R:%s", to)
 			remote, err := settings.DecodeRemote(remoteStr)
@@ -891,6 +914,283 @@ func (s *Server) addStaticServicePorts(ctx context.Context, remotes []*settings.
 			l.Error(fmt.Sprintf("Unable to add static ports to pfconnector service: %s", err))
 		}
 	}
+}
+
+// DnsLookupReply is the response of /dns-lookup.
+type DnsLookupReply struct {
+	Reachable bool     `json:"reachable"`
+	Rcode     string   `json:"rcode"`
+	LatencyMs int64    `json:"latency_ms"`
+	Answers   []string `json:"answers"`
+	Error     string   `json:"error,omitempty"`
+}
+
+// isDnsConnectorPort reports whether port is the pfconnector_port of one of
+// the configured DNS connectors.
+func isDnsConnectorPort(ctx context.Context, port string) bool {
+	dnsConnectors := pfconfigdriver.PfConfDnsConnectors{}
+	if err := pfconfigdriver.FetchDecodeSocket(ctx, &dnsConnectors); err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("Unable to fetch DNS connectors configuration: %s", err))
+		return false
+	}
+	for _, entryRaw := range dnsConnectors.Element {
+		entry, _ := entryRaw.(map[string]interface{})
+		if p, ok := entry["pfconnector_port"].(string); ok && p == port {
+			return true
+		}
+	}
+	return false
+}
+
+// handleDnsLookup performs a DNS query against one of this server's local
+// tunnel listeners (a DNS connector's pfconnector_port), exercising the full
+// path: server bind -> chisel tunnel -> connector-remote -> DNS server.
+// Any DNS response (even NXDOMAIN) proves the tunnel and the DNS server are
+// reachable; a timeout means the path is broken somewhere.
+func (s *Server) handleDnsLookup(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	port := req.URL.Query().Get("port")
+	name := req.URL.Query().Get("name")
+	qtypeStr := req.URL.Query().Get("type")
+	if qtypeStr == "" {
+		qtypeStr = "A"
+	}
+	if port == "" || name == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "Missing port or name query parameter"})
+		return
+	}
+	if _, err := strconv.ParseUint(port, 10, 16); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "Invalid port"})
+		return
+	}
+	// Only query a DNS connector's tunnel listener, never an arbitrary local
+	// port of the server.
+	if !isDnsConnectorPort(req.Context(), port) {
+		w.WriteHeader(http.StatusForbidden)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusForbidden, Message: "Port is not the pfconnector_port of a DNS connector"})
+		return
+	}
+	qtype, ok := dns.StringToType[strings.ToUpper(qtypeStr)]
+	if !ok {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "Invalid DNS record type"})
+		return
+	}
+
+	m := new(dns.Msg)
+	m.SetQuestion(dns.Fqdn(name), qtype)
+	m.RecursionDesired = true
+
+	client := &dns.Client{Timeout: 5 * time.Second}
+	reply := DnsLookupReply{Answers: []string{}}
+	start := time.Now()
+	in, _, err := client.Exchange(m, "127.0.0.1:"+port)
+	reply.LatencyMs = time.Since(start).Milliseconds()
+	if err != nil {
+		reply.Error = err.Error()
+	} else {
+		reply.Reachable = true
+		reply.Rcode = dns.RcodeToString[in.Rcode]
+		for _, rr := range in.Answer {
+			reply.Answers = append(reply.Answers, rr.String())
+		}
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(reply)
+}
+
+// StaticConnectionStatus describes one configured static connection of a
+// connector and whether its server-side listener is currently bound.
+type StaticConnectionStatus struct {
+	Spec       string `json:"spec"`
+	LocalPort  string `json:"local_port"`
+	LocalProto string `json:"local_proto"`
+	RemoteHost string `json:"remote_host"`
+	RemotePort string `json:"remote_port"`
+	Bound      bool   `json:"bound"`
+}
+
+// ConnectorDetailReply is the response of /connector-detail.
+type ConnectorDetailReply struct {
+	ConnectorID       string                   `json:"connector_id"`
+	Connected         bool                     `json:"connected"`
+	RemoteIPs         []string                 `json:"remote_ips"`
+	StaticConnections []StaticConnectionStatus `json:"static_connections"`
+	BoundRemotes      []tunnel.BoundRemoteInfo `json:"bound_remotes"`
+}
+
+// handleConnectorDetail reports, for one connector: whether its tunnel is
+// active, the IPs the remote reported about itself, its configured static
+// connections (with per-port bound status) and every port currently bound
+// on this server for its tunnel.
+func (s *Server) handleConnectorDetail(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	connectorID := req.URL.Query().Get("connector-id")
+	if connectorID == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "Missing connector-id query parameter"})
+		return
+	}
+
+	reply := ConnectorDetailReply{
+		ConnectorID:       connectorID,
+		RemoteIPs:         []string{},
+		StaticConnections: []StaticConnectionStatus{},
+		BoundRemotes:      []tunnel.BoundRemoteInfo{},
+	}
+
+	var tun *tunnel.Tunnel
+	if o, ok := activeTunnels.Load(connectorID); ok {
+		tun = o.(*tunnel.Tunnel)
+		reply.Connected = tun.IsActive()
+		reply.BoundRemotes = tun.BoundRemotes()
+	}
+
+	if ips := s.redis.Get(req.Context(), "ips:"+connectorID).Val(); ips != "" {
+		reply.RemoteIPs = strings.Split(ips, ",")
+	}
+
+	boundKeys := map[string]bool{}
+	for _, b := range reply.BoundRemotes {
+		boundKeys[b.LocalProto+"/"+b.LocalPort] = true
+	}
+
+	pfconnectorStaticConnections := pfconfigdriver.PfconnectorStaticConnections{}
+	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &pfconnectorStaticConnections); err != nil {
+		log.LoggerWContext(req.Context()).Error(fmt.Sprintf("Failed to fetch pfconnector static connections from pfconfig: %s", err))
+	} else if specs, found := pfconnectorStaticConnections.Element[connectorID]; found {
+		for _, spec := range specs {
+			remote, err := settings.DecodeRemote(spec)
+			if err != nil {
+				log.LoggerWContext(req.Context()).Error(fmt.Sprintf("Unable to decode static connection %s: %s", spec, err))
+				continue
+			}
+			reply.StaticConnections = append(reply.StaticConnections, StaticConnectionStatus{
+				Spec:       spec,
+				LocalPort:  remote.LocalPort,
+				LocalProto: remote.LocalProto,
+				RemoteHost: remote.RemoteHost,
+				RemotePort: remote.RemotePort,
+				Bound:      boundKeys[remote.LocalProto+"/"+remote.LocalPort],
+			})
+		}
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(reply)
+}
+
+// terminalSessionTimeout is the idle timeout of a remotely-authorized
+// terminal session: the connector-remote shuts gotty down once the terminal
+// has seen no user input for this long. Any input resets the clock.
+const terminalSessionTimeout = 600 * time.Second
+
+// handleRemoteTerm validates a one-time terminal session id created by the
+// admin API (terminal:<uuid> in Redis, holding the target connector id).
+// The connector-remote calls this before starting its gotty terminal; the
+// id is deleted on first use, whether it matches the connector or not.
+func (s *Server) handleRemoteTerm(w http.ResponseWriter, req *http.Request) {
+	id := req.URL.Query().Get("id")
+	connectorID := req.URL.Query().Get("connectorid")
+	if id == "" {
+		http.Error(w, "Missing id query parameter", http.StatusBadRequest)
+		return
+	}
+	if connectorID == "" {
+		http.Error(w, "Missing connectorid query parameter", http.StatusBadRequest)
+		return
+	}
+
+	// One-time use: GETDEL reads and removes the session in a single step, so
+	// two concurrent activations cannot both use it.
+	resolvedConnectorID := s.redis.GetDel(req.Context(), "terminal:"+id)
+	if err := resolvedConnectorID.Err(); err != nil {
+		log.LoggerWContext(req.Context()).Error(fmt.Sprintf("Error retrieving connector ID for terminal session %s: %s", id, err))
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+	if resolvedConnectorID.Val() != connectorID {
+		log.LoggerWContext(req.Context()).Error(fmt.Sprintf("Connector ID %s does not match terminal session %s", connectorID, id))
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	log.LoggerWContext(req.Context()).Info(fmt.Sprintf("Authorized terminal session for connector ID %s", connectorID))
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"authorized": true,
+		"message":    fmt.Sprintf("Authorized terminal session for connector ID %s", connectorID),
+		"timeout":    terminalSessionTimeout.String(),
+	})
+}
+
+// connectorIPsTTL is how long the IPs reported by a connector-remote are
+// kept. Connectors report them every few seconds while their tunnel is up, so
+// the IPs of a connector that went away expire on their own.
+const connectorIPsTTL = 5 * time.Minute
+
+// handlePfconnectorInfo stores the IPs a connector-remote reports about
+// itself (POSTed through the tunnel after its remote binds are up) under
+// ips:<connector-id> in Redis, for the admin UI status panel.
+//
+// Every connector reaches this API through the same tunnel-local bind, so the
+// request does not tell which tunnel it came from: the connector
+// authenticates with its tunnel credentials (HTTP basic auth, the same
+// id:secret as the tunnel itself), which prevents one connector from
+// overwriting the IPs of another.
+func (s *Server) handlePfconnectorInfo(w http.ResponseWriter, req *http.Request) {
+	authID, authSecret, ok := req.BasicAuth()
+	if !ok {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+	s.refreshUsersPfconfig()
+	user, found := s.users.Get(authID)
+	if !found || subtle.ConstantTimeCompare([]byte(user.Pass), []byte(authSecret)) != 1 {
+		log.LoggerWContext(req.Context()).Warn(fmt.Sprintf("Refused connector information with invalid credentials for connector %s", authID))
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	clientInfo := struct {
+		IPs         []string `json:"ips"`
+		ConnectorID string   `json:"connector_id"`
+	}{}
+
+	if err := json.NewDecoder(req.Body).Decode(&clientInfo); err != nil {
+		log.LoggerWContext(req.Context()).Error(fmt.Sprintf("Error decoding client info: %s", err))
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+	if clientInfo.ConnectorID == "" {
+		http.Error(w, "Missing connector_id", http.StatusBadRequest)
+		return
+	}
+	if clientInfo.ConnectorID != authID {
+		log.LoggerWContext(req.Context()).Warn(fmt.Sprintf("Connector %s tried to report the information of connector %s", authID, clientInfo.ConnectorID))
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+	ips := strings.Join(clientInfo.IPs, ",")
+	if status := s.redis.Set(req.Context(), "ips:"+clientInfo.ConnectorID, ips, connectorIPsTTL); status.Err() != nil {
+		log.LoggerWContext(req.Context()).Error(fmt.Sprintf("Error storing client info in Redis: %s", status.Err()))
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"status":       "success",
+		"connector_id": clientInfo.ConnectorID,
+		"ips":          clientInfo.IPs,
+		"message":      "Connector information received successfully",
+	})
 }
 
 type FingerbankServersReply struct {

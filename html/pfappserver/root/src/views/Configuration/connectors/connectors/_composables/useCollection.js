@@ -10,11 +10,11 @@ export const useItemTitle = (props) => {
   return computed(() => {
     switch (true) {
       case !isNew.value && !isClone.value:
-        return i18n.t('Connector <code>{id}</code>', { id: id.value })
+        return i18n.t('Cloud Connector <code>{id}</code>', { id: id.value })
       case isClone.value:
-        return i18n.t('Clone Connector <code>{id}</code>', { id: id.value })
+        return i18n.t('Clone Cloud Connector <code>{id}</code>', { id: id.value })
       default:
-        return i18n.t('New Connector')
+        return i18n.t('New Cloud Connector')
     }
   })
 }
@@ -29,11 +29,27 @@ import api from '../_api'
 export const useSearch = makeSearch('connectorsConnectors', {
   api,
   sortBy: null, // use natural order (sortable)
+  // Client-side columns (status and remote data) are filled from
+  // config/connectors/status and pfconnector-remotes/{id}/status, not from
+  // the search: the search returns them as null.
   columns: [
     {
       key: 'selected',
       thStyle: 'width: 40px;', tdClass: 'text-center',
       locked: true
+    },
+    {
+      key: 'connected',
+      label: 'Connected', // i18n defer
+      thClass: 'text-center', tdClass: 'text-center',
+      thStyle: 'width: 90px;',
+      visible: true
+    },
+    {
+      key: 'status',
+      label: 'Tunnel', // i18n defer
+      thStyle: 'width: 110px;',
+      visible: false
     },
     {
       key: 'id',
@@ -43,21 +59,112 @@ export const useSearch = makeSearch('connectorsConnectors', {
       visible: true
     },
     {
-      key: 'status',
-      label: 'Status', // i18n defer
-      thStyle: 'width: 80px;', tdClass: 'text-center',
-      visible: true
-    },
-    {
       key: 'description',
       label: 'Description', // i18n defer
       searchable: true,
       visible: true
     },
     {
+      key: 'role',
+      label: 'High availability', // i18n defer
+      visible: true
+    },
+    {
+      key: 'static_ports',
+      label: 'Static ports', // i18n defer
+      visible: false
+    },
+    {
+      key: 'version',
+      label: 'Version', // i18n defer
+      visible: true
+    },
+    {
+      key: 'issues',
+      label: 'Issues', // i18n defer
+      visible: false
+    },
+    {
       key: 'networks',
       label: 'Networks', // i18n defer
+      required: true,
+      searchable: true,
       visible: true
+    },
+    {
+      key: 'host_ips',
+      label: 'Host IP(s)', // i18n defer
+      visible: false
+    },
+    {
+      key: 'hostname',
+      label: 'Hostname', // i18n defer
+      visible: false
+    },
+    {
+      key: 'uptime',
+      label: 'Uptime', // i18n defer
+      visible: false
+    },
+    {
+      key: 'cpu_usage',
+      label: 'CPU %', // i18n defer
+      visible: false
+    },
+    {
+      key: 'cpu_count',
+      label: 'CPUs', // i18n defer
+      visible: false
+    },
+    {
+      key: 'mem_usage',
+      label: 'Memory %', // i18n defer
+      visible: false
+    },
+    {
+      key: 'mem',
+      label: 'Memory used / total', // i18n defer
+      visible: false
+    },
+    {
+      key: 'disk_usage',
+      label: 'Disk %', // i18n defer
+      visible: false
+    },
+    {
+      key: 'disk',
+      label: 'Disk used / total', // i18n defer
+      visible: false
+    },
+    {
+      key: 'load',
+      label: 'Load (1/5/15m)', // i18n defer
+      visible: false
+    },
+    {
+      key: 'dynamic_count',
+      label: 'On-demand forwards', // i18n defer
+      visible: false
+    },
+    {
+      key: 'terminal',
+      label: 'Terminal', // i18n defer
+      visible: false
+    },
+    {
+      key: 'log_files',
+      label: 'Log files', // i18n defer
+      visible: false
+    },
+    {
+      key: 'central_version',
+      label: 'PacketFence version', // i18n defer
+      visible: false
+    },
+    {
+      key: 'fingerbank_environment',
+      label: 'Fingerbank Environment', // i18n defer
+      visible: false
     },
     {
       key: 'buttons',
@@ -84,6 +191,17 @@ export const useSearch = makeSearch('connectorsConnectors', {
     {
       value: 'description',
       text: i18n.t('Description'),
+      types: [conditionType.SUBSTRING]
+    },
+    // lists are matched as stored, comma-joined: use "contains" for one entry
+    {
+      value: 'networks',
+      text: i18n.t('Networks'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'fingerbank_environment',
+      text: i18n.t('Fingerbank Environment'),
       types: [conditionType.SUBSTRING]
     }
   ]

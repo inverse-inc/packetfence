@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"io/ioutil"
+	"io"
 	"log"
 	"net"
 	"os"
@@ -58,6 +58,52 @@ type Tunnel struct {
 	ConnectorID       string
 	radiusProxy       *radius_proxy.Proxy
 	k8ControllerDrop  chan struct{}
+
+	//registry of currently bound inbound proxies, used to report which
+	//static/dynamic ports are effectively listening for this tunnel
+	boundProxiesMut sync.Mutex
+	boundProxies    map[*Proxy]struct{}
+}
+
+// BoundRemoteInfo describes one currently bound inbound proxy.
+type BoundRemoteInfo struct {
+	LocalHost  string `json:"local_host"`
+	LocalPort  string `json:"local_port"`
+	LocalProto string `json:"local_proto"`
+	RemoteHost string `json:"remote_host"`
+	RemotePort string `json:"remote_port"`
+}
+
+func (t *Tunnel) registerProxy(p *Proxy) {
+	t.boundProxiesMut.Lock()
+	if t.boundProxies == nil {
+		t.boundProxies = map[*Proxy]struct{}{}
+	}
+	t.boundProxies[p] = struct{}{}
+	t.boundProxiesMut.Unlock()
+}
+
+func (t *Tunnel) unregisterProxy(p *Proxy) {
+	t.boundProxiesMut.Lock()
+	delete(t.boundProxies, p)
+	t.boundProxiesMut.Unlock()
+}
+
+// BoundRemotes returns the remotes of every currently bound inbound proxy.
+func (t *Tunnel) BoundRemotes() []BoundRemoteInfo {
+	t.boundProxiesMut.Lock()
+	defer t.boundProxiesMut.Unlock()
+	out := make([]BoundRemoteInfo, 0, len(t.boundProxies))
+	for p := range t.boundProxies {
+		out = append(out, BoundRemoteInfo{
+			LocalHost:  p.remote.LocalHost,
+			LocalPort:  p.remote.LocalPort,
+			LocalProto: p.remote.LocalProto,
+			RemoteHost: p.remote.RemoteHost,
+			RemotePort: p.remote.RemotePort,
+		})
+	}
+	return out
 }
 
 // New Tunnel from the given Config
@@ -81,7 +127,7 @@ func New(c Config) *Tunnel {
 	//setup socks server (not listening on any port!)
 	extra := ""
 	if c.Socks {
-		sl := log.New(ioutil.Discard, "", 0)
+		sl := log.New(io.Discard, "", 0)
 		if t.Logger.Debug {
 			sl = log.New(os.Stdout, "[socks]", log.Ldate|log.Ltime)
 		}
@@ -209,7 +255,9 @@ func (t *Tunnel) BindRemotes(ctx context.Context, remotes []*settings.Remote) er
 	eg, ctx := errgroup.WithContext(ctx)
 	for _, proxy := range proxies {
 		p := proxy
+		t.registerProxy(p)
 		eg.Go(func() error {
+			defer t.unregisterProxy(p)
 			return p.Run(ctx)
 		})
 	}

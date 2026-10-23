@@ -2,7 +2,11 @@ package clientapi
 
 import (
 	"context"
+	"crypto/rand"
+	"crypto/subtle"
+	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -12,6 +16,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -26,13 +32,87 @@ const defaultCredcacheTarget = "http://127.0.0.1:12142/api/v1/credcache/"
 
 // Handler struct
 type API struct {
-	Router      *chi.Mux
-	ConnectorId string
-	ctx         context.Context
-	cancel      context.CancelFunc
-	tunnel      *tunnel.Tunnel
-	mdCache     *multiDomainCache
-	statusCache *connectorStatusCache
+	Router          *chi.Mux
+	ConnectorId     string
+	TerminalEnabled bool
+	// LogsEnabled mirrors PFCONNECTOR_LOGS (default true): whether the
+	// live log streaming endpoint is available.
+	LogsEnabled   bool
+	ctx           context.Context
+	cancel        context.CancelFunc
+	tunnel        *tunnel.Tunnel
+	mdCache       *multiDomainCache
+	statusCache   *connectorStatusCache
+	commandChan   chan Message
+	serverRunning int32
+	// terminalActivity is the unix-nano timestamp of the last terminal
+	// activity (user input to the pty). Pointer so it survives API being copied.
+	terminalActivity *atomic.Int64
+	// terminalIdle is the idle-timeout watcher of the current terminal
+	// session. Pointer so it survives API being copied.
+	terminalIdle *terminalIdleWatcher
+	// terminalTOTPRequired mirrors PFCONNECTOR_TERMINAL_TOTP (default true):
+	// whether activating the terminal requires the TOTP second factor.
+	terminalTOTPRequired bool
+	// terminalTOTP is the connector-local second factor required to activate
+	// the terminal. nil while terminalTOTPRequired means activation is
+	// refused (fail closed).
+	terminalTOTP *terminalTOTP
+	// terminalSecret is the secret of the current terminal session. Pointer
+	// so it survives API being copied.
+	terminalSecret *terminalSessionSecret
+}
+
+// terminalSessionSecret is the secret generated when a terminal session is
+// authorized and handed to the pfconnector server's API, which sends it with
+// the terminal websocket. The terminal is only reachable with it: being able
+// to reach this API (the tunnel bind on the server) is not enough.
+type terminalSessionSecret struct {
+	mu     sync.Mutex
+	secret string
+}
+
+// renew replaces the secret of the session and returns the new one.
+func (t *terminalSessionSecret) renew() (string, error) {
+	b := make([]byte, 32)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	t.secret = hex.EncodeToString(b)
+	return t.secret, nil
+}
+
+// clear ends the session: no secret matches anymore.
+func (t *terminalSessionSecret) clear() {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	t.secret = ""
+}
+
+// valid reports whether secret is the one of the current session.
+func (t *terminalSessionSecret) valid(secret string) bool {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	return t.secret != "" && subtle.ConstantTimeCompare([]byte(t.secret), []byte(secret)) == 1
+}
+
+// terminalSecretHeader carries the session secret, set by the pfconnector
+// server's API.
+const terminalSecretHeader = "X-PacketFence-Terminal-Secret"
+
+// MessageType is a command for the gotty terminal lifecycle goroutine.
+type MessageType int
+
+const (
+	StartProcessing MessageType = iota
+	StopProcessing
+)
+
+// Message carries a command for the terminal lifecycle goroutine.
+type Message struct {
+	Type MessageType
 }
 
 type Service struct {
@@ -53,6 +133,30 @@ func NewApi(ctx context.Context, ConnectorID string, tun *tunnel.Tunnel) API {
 	}
 	Api.mdCache.startRefresher(ctx, tunState)
 	Api.statusCache.startRefresher(ctx, tunState)
+
+	Api.commandChan = make(chan Message)
+	Api.terminalActivity = &atomic.Int64{}
+	Api.terminalIdle = &terminalIdleWatcher{}
+	Api.terminalSecret = &terminalSessionSecret{}
+	Api.LogsEnabled = logsEnabled()
+	var err error
+	Api.TerminalEnabled, err = Api.terminal()
+	if err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error initializing terminal: %v", err))
+	}
+	if Api.TerminalEnabled {
+		Api.terminalTOTPRequired = terminalTOTPRequired()
+		if Api.terminalTOTPRequired {
+			Api.terminalTOTP, err = newTerminalTOTP(ctx, Api.ConnectorId)
+			if err != nil {
+				// No usable seed means no terminal at all
+				log.LoggerWContext(ctx).Error(fmt.Sprintf("Disabling the remote terminal: %v", err))
+				Api.TerminalEnabled = false
+			}
+		} else {
+			log.LoggerWContext(ctx).Warn("PFCONNECTOR_TERMINAL_TOTP is disabled: terminal activation only requires the one-time session uuid")
+		}
+	}
 
 	Api.setupRoutes()
 
@@ -84,9 +188,52 @@ func (api *API) setupRoutes() {
 		})
 	})
 
+	// Reverse proxy in front of the local gotty terminal server
+	gottyURL, err := url.Parse("http://localhost:8022")
+	if err != nil {
+		log.LoggerWContext(api.ctx).Error(fmt.Sprintf("Error parsing gotty URL: %v", err))
+	}
+
+	gottyProxy := httputil.NewSingleHostReverseProxy(gottyURL)
+	originalDirector := gottyProxy.Director
+	gottyProxy.Director = func(req *http.Request) {
+		originalDirector(req)
+		req.Host = gottyURL.Host
+
+		if strings.ToLower(req.Header.Get("Upgrade")) == "websocket" {
+			req.Header.Set("X-Forwarded-Proto", "http")
+			req.Header.Set("X-Forwarded-Host", req.Host)
+			req.Header.Set("Origin", "http://"+gottyURL.Host)
+		}
+	}
+	gottyProxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
+		log.LoggerWContext(api.ctx).Error(fmt.Sprintf("Terminal proxy error: %v", err))
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusBadGateway)
+		w.Write([]byte("The terminal is temporarily unavailable. Please try again in a few moments."))
+	}
+
 	api.Router.Route("/api/v1", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Use(localhostOnly)
+
+			// Only the websocket of the terminal: the page and its assets
+			// are served by the pfconnector server's API. It requires the
+			// secret of the current session, generated by enableTerminal.
+			r.HandleFunc("/terminal/ws", func(w http.ResponseWriter, r *http.Request) {
+				if !api.terminalSecret.valid(r.Header.Get(terminalSecretHeader)) {
+					http.Error(w, "No authorized terminal session", http.StatusForbidden)
+					return
+				}
+				if !strings.EqualFold(r.Header.Get("Upgrade"), "websocket") {
+					http.Error(w, "Only websocket requests are accepted", http.StatusBadRequest)
+					return
+				}
+				r.Header.Del(terminalSecretHeader)
+				r.URL.Path = "/ws"
+				r.URL.RawPath = ""
+				gottyProxy.ServeHTTP(w, r)
+			})
 
 			r.Route("/service", func(r chi.Router) {
 				r.Post("/all", statusAll(api))
@@ -100,8 +247,151 @@ func (api *API) setupRoutes() {
 			r.Post("/radius/multi-domain/authorize", multiDomainAuthorize(api))
 			r.Handle("/credcache/*", credcacheProxy())
 			r.Handle("/credcache", credcacheProxy())
+			r.Route("/system", func(r chi.Router) {
+				r.Get("/info", systemInfo(api))
+				r.Post("/restart", systemRestart(api))
+				r.Post("/upgrade", systemUpgrade(api))
+			})
+			r.Get("/logs/{name}", tailLog(api))
+			// Terminal activation, called by the pfconnector server's API
+			// through the tunnel (one-time uuid check via remote-terminal,
+			// then the TOTP code).
+			r.Get("/authorize/{id}", enableTerminal(api))
 		})
 	})
+}
+
+// enableTerminal validates the one-time terminal session id against the
+// pfconnector server (through the tunnel-local 22226 bind) and starts the
+// gotty terminal. The authorized duration is an idle timeout: the terminal
+// stays up as long as the user types and stops once it has been idle for
+// that long.
+func enableTerminal(api *API) http.HandlerFunc {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		if !api.TerminalEnabled {
+			http.Error(res, "The remote terminal is not enabled on this connector", http.StatusForbidden)
+			return
+		}
+		id := chi.URLParam(req, "id")
+		if id == "" {
+			http.Error(res, "Missing terminal ID", http.StatusBadRequest)
+			return
+		}
+
+		query := url.Values{"connectorid": {api.ConnectorId}, "id": {id}}
+		r, err := http.Get("http://127.0.0.1:22226/api/v1/pfconnector/remote-terminal?" + query.Encode())
+		if err != nil {
+			http.Error(res, fmt.Sprintf("Failed to enable terminal: %v", err), http.StatusInternalServerError)
+			return
+		}
+		defer r.Body.Close()
+		if r.StatusCode != http.StatusOK {
+			http.Error(res, fmt.Sprintf("Failed to enable terminal: %s", r.Status), http.StatusInternalServerError)
+			return
+		}
+		var j map[string]interface{}
+		json.NewDecoder(r.Body).Decode(&j)
+		if j["authorized"] != true {
+			http.Error(res, "Terminal not authorized", http.StatusForbidden)
+			return
+		}
+
+		// Second factor: the 6-digit TOTP code, validated against the seed
+		// stored on this box. The one-time session uuid was already consumed
+		// above, so every code guess costs a fresh session on the server.
+		// Skipped only when PFCONNECTOR_TERMINAL_TOTP is explicitly disabled.
+		if api.terminalTOTPRequired {
+			if api.terminalTOTP == nil {
+				http.Error(res, "Terminal TOTP is not initialized", http.StatusForbidden)
+				return
+			}
+			if err := api.terminalTOTP.validate(req.URL.Query().Get("code")); err != nil {
+				status := http.StatusForbidden
+				if errors.Is(err, errTOTPLocked) {
+					status = http.StatusTooManyRequests
+				}
+				log.LoggerWContext(api.ctx).Warn(fmt.Sprintf("Refused terminal activation for session %s: %v", id, err))
+				http.Error(res, err.Error(), status)
+				return
+			}
+		}
+
+		timeout := 360 * time.Second
+		if t, ok := j["timeout"].(string); ok && t != "" {
+			if d, err := time.ParseDuration(t); err == nil {
+				timeout = d
+			} else if secs, err := strconv.Atoi(t); err == nil {
+				timeout = time.Duration(secs) * time.Second
+			}
+		}
+		// Start the idle clock now so an untouched session still expires.
+		api.terminalActivity.Store(time.Now().UnixNano())
+
+		// A new secret per authorized session: the previous session, if
+		// any, can't reach the terminal anymore.
+		secret, err := api.terminalSecret.renew()
+		if err != nil {
+			http.Error(res, "Failed to create the terminal session", http.StatusInternalServerError)
+			return
+		}
+
+		select {
+		case api.commandChan <- Message{Type: StartProcessing}:
+			log.LoggerWContext(api.ctx).Info("Terminal start command sent successfully")
+		case <-time.After(time.Second * 5):
+			api.terminalSecret.clear()
+			http.Error(res, "Timeout sending start command", http.StatusInternalServerError)
+			return
+		}
+		api.watchTerminalIdle(timeout)
+
+		res.Header().Set("Content-Type", "application/json")
+		res.WriteHeader(http.StatusOK)
+		json.NewEncoder(res).Encode(map[string]string{"message": "Terminal is enabled", "secret": secret})
+	})
+}
+
+// terminalIdleWatcher holds the cancel function of the idle-timeout watcher
+// of the current terminal session, so that a new activation replaces the
+// previous watcher instead of piling up another one.
+type terminalIdleWatcher struct {
+	mu     sync.Mutex
+	cancel context.CancelFunc
+}
+
+// watchTerminalIdle stops the terminal once it has seen no user input for
+// timeout. It replaces the watcher of any previous activation, so only the
+// latest session's timeout applies.
+func (api *API) watchTerminalIdle(timeout time.Duration) {
+	ctx, cancel := context.WithCancel(api.ctx)
+	api.terminalIdle.mu.Lock()
+	if api.terminalIdle.cancel != nil {
+		api.terminalIdle.cancel()
+	}
+	api.terminalIdle.cancel = cancel
+	api.terminalIdle.mu.Unlock()
+
+	go func() {
+		ticker := time.NewTicker(5 * time.Second)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+			}
+			last := time.Unix(0, api.terminalActivity.Load())
+			if time.Since(last) >= timeout {
+				// The command goroutine is gone once api.ctx is done: don't
+				// block forever on the unbuffered channel.
+				select {
+				case api.commandChan <- Message{Type: StopProcessing}:
+				case <-ctx.Done():
+				}
+				return
+			}
+		}
+	}()
 }
 
 // credcacheProxy forwards every request under /api/v1/credcache to the URL

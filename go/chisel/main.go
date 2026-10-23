@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -92,7 +91,7 @@ var commonHelp = `
 
 func generatePidFile() {
 	pid := []byte(strconv.Itoa(os.Getpid()))
-	if err := ioutil.WriteFile("chisel.pid", pid, 0644); err != nil {
+	if err := os.WriteFile("chisel.pid", pid, 0644); err != nil {
 		log.Fatal(err)
 	}
 }
