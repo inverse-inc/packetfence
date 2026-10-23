@@ -109,7 +109,7 @@ testcases:
 
   - type: http
     method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/source/{{.wireless_dot1x_eap_peap.sources.ad_machine.name}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/source/{{.wireless_dot1x_eap_teap.sources.ad_machine.name}}'
     ignore_verify_ssl: true
     headers:
       "Authorization": "{{.get_login_token.result.token}}"
@@ -117,3 +117,32 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
 
+
+- name: restore_default_eap_profile
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/radiusd/eap_profile/default'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "eap_authentication_types":["GTC", "MD5", "MSCHAPv2", "PEAP", "TLS", "TTLS", "TEAP"],
+        "teap_config":"default"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: delete_teap_profile
+  steps:
+  - type: http
+    method: DELETE
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/radiusd/teap_profile/test-teap-profile'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
