@@ -17,6 +17,9 @@ testcases:
             "isNew":true,
             "authority_identity":"1234",
             "identity_types":"machine,user",
+            "default_eap_type":"mschapv2",
+            "user_eap_type":"mschapv2",
+            "machine_eap_type":"mschapv2",
             "tls":"tls-eap-teap"
           }
         headers:
