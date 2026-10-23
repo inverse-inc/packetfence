@@ -248,15 +248,6 @@ DELIMITER ;
 INSERT IGNORE INTO `node_category` (name,notes) VALUES ("User","User role");
 INSERT IGNORE INTO `node_category` (name,notes) VALUES ("Machine","Machine role");
 
---
--- Clean up the helper / validation procedures
---
-DROP PROCEDURE IF EXISTS ValidateVersion;
-DROP PROCEDURE IF EXISTS AddColumnUnlessExists;
-DROP PROCEDURE IF EXISTS DropColumnIfExists;
-DROP PROCEDURE IF EXISTS AddIndexUnlessExists;
-DROP PROCEDURE IF EXISTS DropIndexIfExists;
-
 \! echo "Updating locationlog";
 CALL AddColumnUnlessExists('locationlog', 'teap_username', "varchar(255) DEFAULT '' NOT NULL");
 CALL AddColumnUnlessExists('locationlog', 'teap_machinename', "varchar(255) DEFAULT '' NOT NULL");
