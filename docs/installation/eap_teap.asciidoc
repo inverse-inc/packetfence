@@ -41,7 +41,9 @@ It is know not to work with:
 
 TEAP supports EAP-MSCHAPv2, EAP-TLS and PAP as inner methods, but it's always better to use secure and mature inner methods.
 Windows by default supports EAP-MSCHAPv2 and EAP-TLS when you configure 802.1x client and TEAP.
-We currently enabled EAP-MSCHAPv2 and EAP-TLS as inner methods for TEAP by default.
+PacketFence supports EAP-MSCHAPv2 and EAP-TLS as inner methods. Each TEAP profile uses one inner method per
+identity type (see *User EAP Type* and *Machine EAP Type* below): the shipped "Default" profile uses EAP-TLS
+for the user identity. To use EAP-MSCHAPv2, create a TEAP profile with the EAP types set to MSCHAPv2.
 
 ==== EAP chaining
 
@@ -85,6 +87,11 @@ Config TEAP Profiles
 
 *Itentity Types* is a setting that telling Radius Server which identities should be authenticated. Supported values are "machine", "machine,user", "user", "user,machine".
 If you want to authenticate both machine identity and user identity, select "machine,user" or "user,machine".
+
+*User EAP Type* and *Machine EAP Type* set the inner method used to authenticate the user identity and the machine
+identity. The RADIUS server requires that method: a client that asks for another one inside the tunnel is rejected,
+so they must match the inner methods configured on your clients. *Default EAP Type* is only used for an identity
+type that has no EAP type of its own. The shipped "Default" profile uses EAP-TLS for user and machine identities.
 
 *Authority Identity* identifies your RADIUS server to TEAP supplicants (per RFC 7170). The shipped default
 `packetfence.local` MUST be changed for any production deployment, and MUST be identical across every node
