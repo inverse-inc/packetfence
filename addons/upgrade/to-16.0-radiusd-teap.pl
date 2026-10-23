@@ -2,12 +2,12 @@
 
 =head1 NAME
 
-to-15.2-radiusd-teap.pl
+to-16.0-radiusd-teap.pl
 
 =head1 DESCRIPTION
 
 Patch in-place radiusd templates that ship as %config(noreplace) so existing
-installations pick up the EAP-TEAP support added in 15.2:
+installations pick up the EAP-TEAP support added in 16.0:
 
   - conf/radiusd/eap.conf       : add the [% ELSIF eaptype == "TEAP" %] block
                                   before the FAST elsif, sourced from
@@ -19,6 +19,11 @@ installations pick up the EAP-TEAP support added in 15.2:
   - conf/radiusd/teap.conf      : ensure the file exists (touch if missing).
 
 The script is idempotent: re-running it after a successful pass is a no-op.
+
+A file with a pending package-manager copy (.rpmnew / .dpkg-dist) is left
+alone: addons/full-upgrade/run-upgrade.sh merges that copy after this script
+runs, and the new version already carries the TEAP block, so patching it here
+would add the block twice.
 
 =cut
 
@@ -55,6 +60,7 @@ sub patch_eap_conf {
     my $source  = "$CONF_DIR/eap.conf.example";
 
     return 0 unless -f $target;
+    return 0 if pending_pkgnew($target);
 
     my $current = slurp($target);
     if ($current =~ /\[% ELSIF eaptype == "TEAP" %\]/) {
@@ -86,6 +92,7 @@ sub patch_mschap_conf {
     my $source = "$CONF_DIR/mschap.conf.example";
 
     return 0 unless -f $target;
+    return 0 if pending_pkgnew($target);
 
     my $current = slurp($target);
     if ($current =~ /^\s*mschap\s+chrooted_mschap_mppe\s*\{/m) {
@@ -128,6 +135,16 @@ sub ensure_teap_conf {
     return 1;
 }
 
+sub pending_pkgnew {
+    my ($path) = @_;
+    for my $suffix (qw(.rpmnew .dpkg-dist)) {
+        next unless -e "$path$suffix";
+        print "$path$suffix is pending; the package upgrade merge will add the TEAP block. Skipping $path.\n";
+        return 1;
+    }
+    return 0;
+}
+
 sub slurp {
     my ($path) = @_;
     open(my $fh, '<', $path) or die "Cannot read $path: $!";
@@ -147,7 +164,7 @@ sub write_file {
 
 sub backup {
     my ($path) = @_;
-    my $bak = "$path.before-15.2.$STAMP";
+    my $bak = "$path.before-16.0.$STAMP";
     copy($path, $bak) or die "Cannot back up $path -> $bak: $!";
     chown $pf_uid, $pf_gid, $bak if defined $pf_uid;
     print "Backed up $path -> $bak\n";
