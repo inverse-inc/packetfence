@@ -137,6 +137,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - Admin forms — no 500 when creating a connection profile without `advanced_filter`, DNS enforcement interfaces no longer saved as type `other`, source time balance choices from `access_duration_choices`, Jamf Cloud provisioner switches and rule condition values displayed correctly, Fingerbank tab selection fixed (#9435, #9417, #9419, #9507, #9508, #9479)
   - Admin UI — MAC column not truncated, readable status chart colors, single condition kept when switching filter modes, server time for report date ranges, scrollable portal module palette, portal module delete and Save fixed (#9437, #9438, #9439, #9442, #9451, #9502)
   - i18n: admin strings extracted as looked up at runtime (en.po passes `msgfmt -c`) (#9547)
+  - Connectors: saving an existing DNS server with a pfconnector port no longer fails with "Port should be unique" (#9584)
 
 === Security Fixes
 

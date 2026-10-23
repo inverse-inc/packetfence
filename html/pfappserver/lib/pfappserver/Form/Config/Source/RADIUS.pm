@@ -113,7 +113,7 @@ sub _options_set_role_from_source {
 
 sub validate {
     my ($self) = @_;
-    $self->validate_connect_port();
+    $self->validate_connect_port('radius');
 }
 
 =head1 COPYRIGHT
