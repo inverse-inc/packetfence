@@ -60,10 +60,10 @@ Teardown runs in reverse order, cleaning up test artifacts first:
 
 | Range | Phase | Description |
 |-------|-------|-------------|
-| 0x | Unplug Devices | Unplug test device from virtualswitch |
+| 0x | Disable Node Cleanup, Unplug Devices | Disable node cleanup task, unplug test device from virtualswitch |
 | 1x | Delete Nodes | Delete test node |
 | 2x | Delete Entities | Delete connection profile |
-| 4x | Infrastructure Cleanup | Disable node cleanup task |
+| 4x | Infrastructure Cleanup | Disable DNS recording |
 
 ## Requirements
 
@@ -96,19 +96,23 @@ Note: Roles (headless_device) are created in `global_config_virtualswitch`.
 
 ## Teardown
 
-### 0x - Unplug Devices
-1. Unplug wireless device (interface 7)
-2. Unplug all interfaces (cleanup)
+### 0x - Disable Node Cleanup, Unplug Devices
+1. Disable node cleanup task
+2. Restart pfcron service
+3. Unplug wireless device (interface 7)
+4. Unplug all interfaces (cleanup)
+
+Node cleanup is disabled first: with its 1 minute delete window, pfcron could
+otherwise delete the node before the 1x step does, making it fail with a 404.
 
 ### 1x - Delete Nodes
-3. Delete wireless device node
+5. Delete wireless device node
 
 ### 2x - Delete Entities
-4. Delete connection profile
+6. Delete connection profile
 
 ### 4x - Infrastructure Cleanup
-5. Disable node cleanup task
-6. Disable DNS recording (`record_dns_in_sql`) and restart pfcron/pfdns — this is the last suite to run in the `mac_auth_virtualswitch` scenario, so DNS recording (enabled in `wired_mac_auth_virtualswitch/04_enable_dns_recording_restart_services.yml`) is turned off here
+7. Disable DNS recording (`record_dns_in_sql`) and restart pfcron/pfdns — this is the last suite to run in the `mac_auth_virtualswitch` scenario, so DNS recording (enabled in `wired_mac_auth_virtualswitch/04_enable_dns_recording_restart_services.yml`) is turned off here
 
 Note: Registration interface, routed networks, and roles deletion are handled in `global_config_virtualswitch`.
 
