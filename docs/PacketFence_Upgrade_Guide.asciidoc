@@ -1319,6 +1319,19 @@ role whose ACLs are all untranslatable, or can't be parsed, denies all traffic.
 Look in [filename]`packetfence.log` for "Skipping ACL of role", "with a deny all" and
 "Denying all the", and rewrite the reported lines.
 
+=== Sticky DC is honored by the NTLM auth API
+
+The `Sticky DC` setting of a domain was ignored since the NTLM authentication
+moved to the NTLM auth API. It is now honored again: when it is set to anything
+other than `*`, the NTLM auth API only uses the listed domain controller(s), even
+when DNS servers are configured. It accepts a comma-separated list of hostnames
+or IPs, tried in order. End the list with `*` (ex: `dc1.example.com,*`) to fall
+back to any available domain controller when none of the listed ones is reachable.
+
+Before upgrading, check the `sticky_dc` value of each domain in
+[filename]`/usr/local/pf/conf/domain.conf`, and set it back to `*` if you don't
+want to pin a domain controller.
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]
