@@ -206,13 +206,6 @@ CALL AddIndexUnlessExists('switch_observability_acls', 'switch_observability_acl
 DELETE FROM switch_observability WHERE switch_id IN ('', 'invalid IP', '0.0.0.0');
 
 --
--- Record the authentication source type alongside the source id in auth_log
---
-\! echo "Adding column source_type to auth_log...";
-CALL AddColumnUnlessExists('auth_log', 'source_type',
-    'VARCHAR(255) NOT NULL DEFAULT "" AFTER `source`');
-
---
 -- FREERADIUS_DECODE: decode byte-wise so the function works on MySQL 8
 -- (it raised ERROR 3854 for every input there) and returns valid UTF-8
 --
@@ -242,6 +235,100 @@ END ;;
 DELIMITER ;
 
 --
+-- Record the authentication source type alongside the source id in auth_log
+--
+\! echo "Adding column source_type to auth_log...";
+CALL AddColumnUnlessExists('auth_log', 'source_type',
+    'VARCHAR(255) NOT NULL DEFAULT "" AFTER `source`');
+
+--
+-- Record the authentication source on the node itself.
+--
+-- pf::radius already resolves the matched source id and already treats it as a
+-- node attribute (%NODE_ATTRIBUTES_TO_RADIUS_ATTRIBUTES maps source =>
+-- PacketFence-Source), but it was only ever forwarded to radius_audit_log and
+-- never persisted. person.source cannot serve this purpose: person is 1:N with
+-- node (many devices share a pid, commonly 'default'), so it is last-write-wins
+-- across a person's devices.
+--
+-- Not backfillable: existing rows keep NULL / "". Consumers must treat an empty
+-- source_type as UNCLASSIFIED, never as a guest or a non-guest.
+--
+\! echo "Adding columns source and source_type to node...";
+CALL AddColumnUnlessExists('node', 'source',
+    'VARCHAR(255) DEFAULT NULL AFTER `bypass_acls`');
+CALL AddColumnUnlessExists('node', 'source_type',
+    'VARCHAR(255) NOT NULL DEFAULT "" AFTER `source`');
+
+--
+-- Record the source FAMILY alongside the concrete type.
+--
+-- source_type is the leaf: a Facebook login records 'Facebook', a Github login
+-- 'Github', and so on. Anything that wants to ask "was this a social login?" has
+-- to enumerate every provider that exists, and quietly gets the wrong answer the
+-- next time one is added.
+--
+-- source_base_type is the family, taken from the class hierarchy
+-- (pf::Authentication::Source::base_type): all six OAuth providers record
+-- 'OAuth', AD/EDIR/GoogleWorkspaceLDAP record 'LDAP', Paypal/Stripe record
+-- 'Billing'. A new provider inherits its family the moment it is written.
+--
+-- Not backfillable: existing rows keep "". Consumers must treat an empty value
+-- as UNCLASSIFIED, never as a match or a non-match.
+--
+\! echo "Adding column source_base_type to node and auth_log...";
+CALL AddColumnUnlessExists('node', 'source_base_type',
+    'VARCHAR(255) NOT NULL DEFAULT "" AFTER `source_type`');
+CALL AddColumnUnlessExists('auth_log', 'source_base_type',
+    'VARCHAR(255) NOT NULL DEFAULT "" AFTER `source_type`');
+
+--
+-- Indexes for the usage-counting queries, and for the captive portal write path.
+--
+-- Each index is added by its own guarded ALTER (AddIndexUnlessExists) so a partial
+-- prior run re-runs cleanly -- combining them into one ALTER would fail the retry
+-- once any single index already existed. So this is three separate builds and three
+-- metadata-lock windows, not one combined ALTER. The standard upgrade stops the
+-- PacketFence services first, so nothing else holds those locks. Where several
+-- databases share one server and are upgraded live, bound the wait for that run
+-- (mysql --init-command="SET SESSION lock_wait_timeout=5") and upgrade them one
+-- after the other.
+--
+-- auth_log_completion covers the UPDATE issued by pf::auth_log::invalidate_previous
+-- and record_completed_guest/_oauth (WHERE process_name/source/mac ORDER BY
+-- attempted_at DESC LIMIT 1), which has no usable index today: measured as a
+-- full scan of every row on the synchronous path of every portal login. With 8
+-- concurrent completions on a 5M-row auth_log a single UPDATE ran 322s and the
+-- others timed out (ER_LOCK_WAIT_TIMEOUT); with the index the same workload
+-- completes in 5.5s.
+--
+-- attempted_at must remain the last part and must be reached through full-length
+-- equalities: prefix key parts are excluded from const_key_parts, which would
+-- reintroduce the filesort this index exists to remove.
+--
+\! echo "Adding index auth_log_completion to auth_log...";
+CALL AddIndexUnlessExists('auth_log', 'auth_log_completion',
+    'KEY `auth_log_completion` (`mac`,`source`,`process_name`,`attempted_at`)');
+
+--
+-- The third column is source_base_type, not source_type. Filtering on a column
+-- the index does not contain does not merely lose covering -- measured on 5M
+-- rows, the optimizer dropped completed_at from the range entirely, degrading to
+-- a ref on status alone (70% of the table) and taking the query from 1.1s to
+-- over two minutes. Both columns will not fit: 1022 + 6 + 1022 + 1022 + 69 =
+-- 3141 bytes exceeds InnoDB's 3072 key limit.
+--
+-- Nothing else loses an index path by this: the report.conf reports that display
+-- source_type use date_field=attempted_at and are served by KEY attempted_at.
+--
+\! echo "Adding index auth_log_billing to auth_log...";
+CALL AddIndexUnlessExists('auth_log', 'auth_log_billing',
+    'KEY `auth_log_billing` (`status`,`completed_at`,`source_base_type`,`mac`)');
+
+\! echo "Adding index node_status_last_seen to node...";
+CALL AddIndexUnlessExists('node', 'node_status_last_seen',
+    'KEY `node_status_last_seen` (`status`,`last_seen`,`pid`)');
+
 -- Default User and Machine roles: missing from the schema of fresh installs
 -- until the roles were saved once
 --
