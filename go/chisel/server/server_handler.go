@@ -591,6 +591,61 @@ func (s *Server) pfconnectorHost(req *http.Request) string {
 	return host
 }
 
+// dynReverseGatewayHost returns the IPv4 address of the containers gateway
+// when PacketFence runs as classic containers on a bridge network: those
+// containers reach the dynreverse ports through it (pf::connector::reverse_host
+// sends them to containers-gateway.internal), not through the management IP
+// the ports are advertised on. Empty otherwise.
+func dynReverseGatewayHost() string {
+	if os.Getenv("IS_A_CLASSIC_PF_CONTAINER") == "" || os.Getenv("DOCKER_NETWORK_IS_HOST") != "" {
+		return ""
+	}
+	name := sharedutils.EnvOrDefault("PFCONNECTOR_SERVER_DYN_REVERSE_GATEWAY", "containers-gateway.internal")
+	if ip := net.ParseIP(name); ip != nil {
+		if ip.To4() != nil {
+			return ip.String()
+		}
+		return ""
+	}
+	ips, err := net.LookupIP(name)
+	if err != nil {
+		return ""
+	}
+	for _, ip := range ips {
+		if ip.To4() != nil {
+			return ip.String()
+		}
+	}
+	return ""
+}
+
+// bindDynReverseGatewayCompanion binds the dynreverse remote a second time on
+// the containers gateway (same port, same destination) when the primary is
+// bound on a specific address that the classic containers do not use. The
+// companion is touched with the primary (Remote.Companion) and closes on its
+// own once idle. Failures are logged: the advertised address keeps working.
+func bindDynReverseGatewayCompanion(ctx context.Context, tun *tunnel.Tunnel, primary *settings.Remote, bindHost, port, to string) {
+	gateway := dynReverseGatewayHost()
+	if bindHost == "" || gateway == "" || bindHost == gateway+":" {
+		return
+	}
+	companion, err := settings.DecodeRemote(fmt.Sprintf("R:%s:%s:%s", gateway, port, to))
+	if err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("Unable to build the containers gateway listener of dynreverse %s: %s", primary, err))
+		return
+	}
+	companion.LastTouched = time.Now()
+	primary.Lock()
+	primary.Companion = companion
+	primary.Unlock()
+	go func() {
+		bgCtx := context.Background()
+		if err := tun.BindRemotes(bgCtx, []*settings.Remote{companion}); err != nil {
+			log.LoggerWContext(bgCtx).Error(fmt.Sprintf("Error binding the containers gateway listener %s: %s", companion, err))
+		}
+	}()
+}
+
 func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -615,6 +670,11 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 		remote.Lock()
 		defer remote.Unlock()
 		remote.LastTouched = time.Now()
+		if c := remote.Companion; c != nil {
+			c.Lock()
+			c.LastTouched = remote.LastTouched
+			c.Unlock()
+		}
 		json.NewEncoder(w).Encode(gin.H{"host": host, "port": remote.LocalPort, "message": fmt.Sprintf("Reusing existing port %s", remote.LocalPort)})
 		return
 	}
@@ -685,6 +745,7 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 			err = <-doneChan
 
 			if err == nil {
+				bindDynReverseGatewayCompanion(req.Context(), tun, remote, bindHost, dynPort, payload.To)
 				json.NewEncoder(w).Encode(gin.H{"host": host, "port": dynPort, "message": fmt.Sprintf("Setup remote %s", remoteStr)})
 				return
 			} else {
