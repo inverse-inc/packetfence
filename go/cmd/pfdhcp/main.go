@@ -155,6 +155,7 @@ func main() {
 	// Initialize DHCP configuration
 	DHCPConfig = newDHCPConfig()
 	DHCPConfig.readConfig(ctx, dbConnPool)
+	go watchConnectorScopes(ctx, dbConnPool)
 	webservices = pfconfigdriver.GetType[pfconfigdriver.PfConfWebservices](ctx)
 
 	// Initialize worker pool for DHCP requests

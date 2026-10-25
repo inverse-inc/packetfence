@@ -67,12 +67,12 @@ func connectorTestScope(t *testing.T) (pfconfigdriver.ConnectorInterface, net.IP
 			dhcp.OptionDomainName:       []byte(ConfNet.DomainName),
 		},
 	}
-	intNametoInterface[ConnectorInterfaceName] = &Interface{
+	setConnectorInterface(&Interface{
 		Name:          ConnectorInterfaceName,
 		InterfaceType: ConnectorInterfaceType,
 		Ipv4:          scopeIP,
 		network:       []Network{{network: *ipnet, dhcpHandler: handler}},
-	}
+	})
 	return ci, scopeIP
 }
 

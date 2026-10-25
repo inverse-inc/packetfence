@@ -137,7 +137,7 @@ func (a *API) handleAllStats(res http.ResponseWriter, req *http.Request) {
 		result.Items = append(result.Items, Stats{})
 	}
 	for _, i := range interfaces.Element {
-		if h, ok := intNametoInterface[i]; ok {
+		if h, ok := lookupInterface(i); ok {
 			stat := h.handleAPIReq(a.Ctx, APIReq{Req: "stats", NetInterface: i, NetWork: ""}, a.DB)
 			for _, s := range stat.([]Stats) {
 				result.Items = append(result.Items, s)
@@ -160,7 +160,7 @@ func (a *API) handleAllStats(res http.ResponseWriter, req *http.Request) {
 func (a *API) handleStats(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
-	if h, ok := intNametoInterface[vars["int"]]; ok {
+	if h, ok := lookupInterface(vars["int"]); ok {
 		stat := h.handleAPIReq(a.Ctx, APIReq{Req: "stats", NetInterface: vars["int"], NetWork: vars["network"]}, a.DB)
 
 		outgoingJSON, err := json.Marshal(stat)
@@ -181,7 +181,7 @@ func (a *API) handleStats(res http.ResponseWriter, req *http.Request) {
 func (a *API) handleDuplicates(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
-	if h, ok := intNametoInterface[vars["int"]]; ok {
+	if h, ok := lookupInterface(vars["int"]); ok {
 		stat := h.handleAPIReq(a.Ctx, APIReq{Req: "duplicates", NetInterface: vars["int"], NetWork: vars["network"]}, a.DB)
 
 		outgoingJSON, err := json.Marshal(stat)
@@ -202,7 +202,7 @@ func (a *API) handleDuplicates(res http.ResponseWriter, req *http.Request) {
 func (a *API) handleDebug(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
-	if h, ok := intNametoInterface[vars["int"]]; ok {
+	if h, ok := lookupInterface(vars["int"]); ok {
 		stat := h.handleAPIReq(a.Ctx, APIReq{Req: "debug", NetInterface: vars["int"], Role: vars["role"]}, a.DB)
 
 		outgoingJSON, err := json.Marshal(stat)
@@ -505,7 +505,7 @@ func (a *API) handleMessage(res http.ResponseWriter, req *http.Request) {
 		unifiedapierrors.Error(res, "giaddr must be set (relayed request)", http.StatusBadRequest)
 		return
 	}
-	iface, ok := intNametoInterface[ConnectorInterfaceName]
+	iface, ok := lookupInterface(ConnectorInterfaceName)
 	if !ok {
 		unifiedapierrors.Error(res, "No connector DHCP scope configured", http.StatusNotFound)
 		return

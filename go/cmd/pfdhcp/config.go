@@ -334,8 +334,12 @@ func (d *Interfaces) readConfig(ctx context.Context, MyDB *sql.DB) {
 
 	}
 
-	if connectorIf := buildConnectorInterface(ctx, MyDB, general, portal); connectorIf != nil {
-		d.intsNet = append(d.intsNet, *connectorIf)
+	// Served apart from the local interfaces and rebuilt when the connectors
+	// change (connector_scopes.go).
+	if connectors, err := fetchConnectors(ctx); err != nil {
+		log.LoggerWContext(ctx).Error("Unable to fetch connectors config from pfconfig: " + err.Error())
+	} else {
+		loadConnectorInterface(ctx, connectors, MyDB, general, portal)
 	}
 }
 
@@ -366,12 +370,7 @@ func dohOnly() bool {
 // when there is none. The scope is derived from the interface: network and
 // netmask from its CIDR, server identifier (and default gateway) its address,
 // range, lease times, DNS and domain from the dhcp_* fields.
-func buildConnectorInterface(ctx context.Context, MyDB *sql.DB, general *pfconfigdriver.PfConfGeneral, portal *pfconfigdriver.PfConfCaptivePortal) *Interface {
-	connectors := pfconfigdriver.Connectors{}
-	if err := pfconfigdriver.FetchDecodeSocket(ctx, &connectors); err != nil {
-		log.LoggerWContext(ctx).Error("Unable to fetch connectors config from pfconfig: " + err.Error())
-		return nil
-	}
+func buildConnectorInterface(ctx context.Context, connectors pfconfigdriver.Connectors, MyDB *sql.DB, general *pfconfigdriver.PfConfGeneral, portal *pfconfigdriver.PfConfCaptivePortal) *Interface {
 	iface := &Interface{Name: ConnectorInterfaceName, InterfaceType: ConnectorInterfaceType, listenPort: bootpServer}
 	wg := &sync.WaitGroup{}
 	ids := make([]string, 0, len(connectors.Element))
