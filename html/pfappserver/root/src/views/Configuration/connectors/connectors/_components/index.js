@@ -11,11 +11,14 @@ import BaseFormGroupFingerbankEnvironment from './BaseFormGroupFingerbankEnviron
 import BaseFormGroupInterfaces from './BaseFormGroupInterfaces'
 import BaseFormGroupRoutes from './BaseFormGroupRoutes'
 import BaseFormGroupDnsServers from './BaseFormGroupDnsServers'
-import TheStatus from './TheStatus' // before TheForm: TheForm reads this binding at module-eval time
-import TheHostInterfaces from './TheHostInterfaces' // before TheForm: same reason
-import TheEquipment from './TheEquipment' // before TheForm: TheForm reads this binding at module-eval time
-import TheCache from './TheCache' // before TheForm: same reason
-import TheDnsTest from './TheDnsTest' // before TheForm: same reason
+// before TheForm/TheView: they read these bindings at module-eval time
+import TabDevices from './TabDevices'
+import TabNetworking from './TabNetworking'
+import TabOverview from './TabOverview'
+import TabTroubleshooting from './TabTroubleshooting'
+import TheDnsTest from './TheDnsTest'
+import TheHostInterfaces from './TheHostInterfaces'
+import TheHeader from './TheHeader'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -35,11 +38,13 @@ export {
   BaseFormGroupInputNumber            as FormGroupHaVrid,
   BaseFormGroupChosenOne              as FormGroupHaInterface,
 
-  TheForm,
-  TheStatus,
-  TheHostInterfaces,
-  TheEquipment,
-  TheCache,
+  TabDevices,
+  TabNetworking,
+  TabOverview,
+  TabTroubleshooting,
   TheDnsTest,
+  TheHostInterfaces,
+  TheForm,
+  TheHeader,
   TheView
 }

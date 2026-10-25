@@ -112,13 +112,12 @@ func (h APIHandler) pfconnectorDnsLookup() http.HandlerFunc {
 		// (same logic as resource::pfconnector_static_connections); locating
 		// the IP in the connectors' networks is the fallback for entries
 		// predating the connector field.
-		container := connector.NewConnectorsContainer(h.ctx)
 		var conn *connector.Connector
 		if id := entryStr("connector"); id != "" {
-			conn = container.Get(h.ctx, id)
+			conn = h.pfconnector(h.ctx, id)
 		}
 		if conn == nil {
-			conn = container.ForIP(h.ctx, net.ParseIP(dnsIP))
+			conn = h.pfconnectorForIP(h.ctx, net.ParseIP(dnsIP))
 		}
 		if conn == nil {
 			http.Error(w, "No connector (not even local_connector) matches the DNS server", http.StatusUnprocessableEntity)

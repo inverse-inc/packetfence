@@ -40,7 +40,7 @@ func (h APIHandler) pfconnectorRemoteStatus() http.HandlerFunc {
 			return
 		}
 
-		conn := connector.NewConnectorsContainer(h.ctx).Get(h.ctx, connectorID)
+		conn := h.pfconnector(h.ctx, connectorID)
 		if conn == nil {
 			http.Error(w, "Unknown PFconnector ID", http.StatusNotFound)
 			return
@@ -134,7 +134,7 @@ func (h APIHandler) pfconnectorRemoteUpgrade() http.HandlerFunc {
 			return
 		}
 
-		conn := connector.NewConnectorsContainer(h.ctx).Get(h.ctx, connectorID)
+		conn := h.pfconnector(h.ctx, connectorID)
 		if conn == nil {
 			http.Error(w, "Unknown PFconnector ID", http.StatusNotFound)
 			return
@@ -226,10 +226,10 @@ func (h APIHandler) pfconnectorRemoteHaSwitch() http.HandlerFunc {
 	})
 }
 
-// pfconnectorForIP tells which connector serves an IP address (connectors.conf
+// pfconnectorForIPHandler tells which connector serves an IP address (connectors.conf
 // networks, top-down), so the domain form can point at the connector whose
 // host needs the NTLM packages for a domain controller behind it.
-func (h APIHandler) pfconnectorForIP() http.HandlerFunc {
+func (h APIHandler) pfconnectorForIPHandler() http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ip := net.ParseIP(chi.URLParam(r, "ip"))
 		if ip == nil {
@@ -257,7 +257,7 @@ func (h APIHandler) pfconnectorRemoteRestart() http.HandlerFunc {
 			return
 		}
 
-		conn := connector.NewConnectorsContainer(h.ctx).Get(h.ctx, connectorID)
+		conn := h.pfconnector(h.ctx, connectorID)
 		if conn == nil {
 			http.Error(w, "Unknown PFconnector ID", http.StatusNotFound)
 			return

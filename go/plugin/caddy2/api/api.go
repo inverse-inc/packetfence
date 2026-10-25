@@ -45,6 +45,8 @@ type APIHandler struct {
 	router *chi.Mux
 	ctx    context.Context
 	db     *sql.DB
+	// connectors is shared by all the requests, see pfconnector()
+	connectors *sharedConnectors
 }
 
 // Setup the api middleware
@@ -68,13 +70,13 @@ func (m *APIHandler) Provision(_ caddy.Context) error {
 // Build the Handler which will initialize the routes
 func (m *APIHandler) buildHandler(ctx context.Context) error {
 	m.ctx = ctx
+	m.connectors = &sharedConnectors{}
 	router := chi.NewRouter()
 	m.router = router
 
+	// No RealIP/Logger: Caddy already writes the access log, and the request
+	// URLs carry terminal session uuids and TOTP codes.
 	m.router.Use(middleware.RequestID)
-	// No middleware.RealIP: it would rewrite RemoteAddr from a client-supplied
-	// X-Forwarded-For header.
-	m.router.Use(middleware.Logger)
 	m.router.Use(middleware.Recoverer)
 
 	m.router.Use(func(next http.Handler) http.Handler {
@@ -115,7 +117,7 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 			r.Post("/{connectorID}/ha/switch", m.pfconnectorRemoteHaSwitch())
 			// connector-cache management (see pfconnector_cache.go)
 			m.mountPfconnectorCacheRoutes(r)
-			r.Get("/for-ip/{ip}", m.pfconnectorForIP())
+			r.Get("/for-ip/{ip}", m.pfconnectorForIPHandler())
 			// HandleFunc (like the terminal routes) so the websocket
 			// upgrade GET flows through to the reverse proxy untouched.
 			r.HandleFunc("/{connectorID}/logs/{name}", m.proxyConnectorLogs())

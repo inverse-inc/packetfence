@@ -28,12 +28,15 @@ const (
 	logsPingPeriod   = 30 * time.Second
 	logsWriteTimeout = 10 * time.Second
 	logsReadTimeout  = 90 * time.Second
-	// logsBackfillMaxBytes bounds the bytes read from the end of a file for
-	// the backfill, whatever ?lines= asks for and however long the lines are.
-	logsBackfillMaxBytes = 8 * 1024 * 1024
 	// logsMaxLineBytes bounds a single log line during backfill; longer
-	// lines are skipped rather than growing the scanner buffer unbounded.
+	// lines are truncated to that size.
 	logsMaxLineBytes = 64 * 1024
+	// logsMaxBackfillBytes bounds how much of the end of the file the
+	// backfill reads, whatever the number of lines requested.
+	logsMaxBackfillBytes = 4 * 1024 * 1024
+	// logsBackfillChunk is the size of the blocks read backwards from the
+	// end of the file during backfill.
+	logsBackfillChunk = 64 * 1024
 )
 
 // logFiles is the allowlist of streamable logs: UI key -> in-container path.
@@ -99,13 +102,10 @@ var logsUpgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool { return true },
 }
 
-// readLastNLines returns up to n trailing lines of fileName, reading the
-// file backwards from its end so the cost is bounded by the tail wanted, not
-// by the size of the file (a log that grew for weeks is opened in the
-// viewer as fast as a fresh one). Lines longer than logsMaxLineBytes are
-// dropped together with everything before them, as the forward scan did
-// when it gave up on one; the read stops at logsBackfillMaxBytes whatever
-// the line lengths.
+// readLastNLines returns up to n trailing lines of fileName. It reads the
+// file backwards from its end, in blocks, and stops as soon as it has n lines
+// or has read logsMaxBackfillBytes, so the cost does not depend on the size
+// of the file. Lines longer than logsMaxLineBytes are truncated.
 func readLastNLines(fileName string, n int) ([]string, error) {
 	if n <= 0 {
 		return []string{}, nil
@@ -115,48 +115,59 @@ func readLastNLines(fileName string, n int) ([]string, error) {
 		return nil, err
 	}
 	defer file.Close()
-	st, err := file.Stat()
+
+	info, err := file.Stat()
 	if err != nil {
 		return nil, err
 	}
+	size := info.Size()
+	limit := size - logsMaxBackfillBytes
+	if limit < 0 {
+		limit = 0
+	}
 
-	const chunk = 64 * 1024
-	offset := st.Size()
-	var buf []byte
-	newlines := 0
-	// n+1 newlines guarantee n complete lines after the first one (the bytes
-	// before it may be a partial line unless the read reached the start).
-	for offset > 0 && newlines <= n && len(buf) < logsBackfillMaxBytes {
-		size := int64(chunk)
-		if offset < size {
-			size = offset
+	// Read blocks backwards until the data holds more than n line breaks
+	// (n complete lines plus the start of the one before) or the start of
+	// the readable window is reached.
+	offset := size
+	var data []byte
+	for offset > limit && bytes.Count(data, []byte{'\n'}) <= n {
+		chunk := int64(logsBackfillChunk)
+		if offset-limit < chunk {
+			chunk = offset - limit
 		}
-		offset -= size
-		part := make([]byte, size)
-		if _, err := file.ReadAt(part, offset); err != nil && err != io.EOF {
+		offset -= chunk
+		buf := make([]byte, chunk)
+		if _, err := file.ReadAt(buf, offset); err != nil && err != io.EOF {
 			return nil, err
 		}
-		newlines += bytes.Count(part, []byte{'\n'})
-		buf = append(part, buf...)
+		data = append(buf, data...)
 	}
-	buf = bytes.TrimSuffix(buf, []byte{'\n'})
-	if len(buf) == 0 {
+
+	// A trailing newline ends the last line, it does not start a new one
+	data = bytes.TrimSuffix(data, []byte{'\n'})
+	if len(data) == 0 {
 		return []string{}, nil
 	}
-	lines := strings.Split(string(buf), "\n")
-	if offset > 0 && len(lines) > 0 {
-		// The first element starts mid-line (or is the tail of a line we did
-		// not read in full).
-		lines = lines[1:]
-	}
-	for i := len(lines) - 1; i >= 0; i-- {
-		if len(lines[i]) > logsMaxLineBytes {
-			lines = lines[i+1:]
-			break
+	parts := bytes.Split(data, []byte{'\n'})
+	// Unless the window starts at the beginning of the file or right after a
+	// line break, its first line is partial
+	if offset > 0 && len(parts) > 1 {
+		prev := make([]byte, 1)
+		if _, err := file.ReadAt(prev, offset-1); err != nil || prev[0] != '\n' {
+			parts = parts[1:]
 		}
 	}
-	if len(lines) > n {
-		lines = lines[len(lines)-n:]
+	if len(parts) > n {
+		parts = parts[len(parts)-n:]
+	}
+	lines := make([]string, 0, len(parts))
+	for _, part := range parts {
+		part = bytes.TrimSuffix(part, []byte{'\r'})
+		if len(part) > logsMaxLineBytes {
+			part = part[:logsMaxLineBytes]
+		}
+		lines = append(lines, string(part))
 	}
 	return lines, nil
 }

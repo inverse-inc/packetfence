@@ -21,6 +21,9 @@ type adminRoleMapping struct {
 	prefix     string
 	role       string
 	roleSuffix string
+	// methodSuffixes overrides methodSuffixMap for some methods on this
+	// prefix, when roleSuffix is not set
+	methodSuffixes map[string]string
 }
 
 const ALLOW_ANY = "*"
@@ -28,11 +31,14 @@ const ALLOW_ANY = "*"
 var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: apiPrefix + "/current_user", role: ALLOW_ANY},
 	adminRoleMapping{prefix: apiPrefix + "/radius_attributes", role: ALLOW_ANY},
-	// A shell on the connector host: the strongest connector action, for
-	// every method (the websocket upgrade is a GET).
+	// Opening a terminal gives a root shell on the connector-remote, so every
+	// terminal route (create, authorize and the proxied websocket, all GET or
+	// POST) requires the write privilege on connectors.
 	adminRoleMapping{prefix: apiPrefix + "/terminal", role: "CONNECTORS", roleSuffix: "_UPDATE"},
 	adminRoleMapping{prefix: apiPrefix + "/pfconnector-remotes/dns-lookup", role: "CONNECTORS", roleSuffix: "_READ"},
-	adminRoleMapping{prefix: apiPrefix + "/pfconnector-remotes", role: "CONNECTORS"},
+	// POST on a connector-remote (restart, upgrade) acts on an existing
+	// connector, it does not create anything.
+	adminRoleMapping{prefix: apiPrefix + "/pfconnector-remotes", role: "CONNECTORS", methodSuffixes: map[string]string{"POST": "_UPDATE"}},
 
 	adminRoleMapping{prefix: apiPrefix + "/preference/", role: ALLOW_ANY},
 	adminRoleMapping{prefix: apiPrefix + "/preferences", role: ALLOW_ANY},
@@ -103,6 +109,8 @@ var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: configApiPrefix + "/checkup", role: ALLOW_ANY},
 	adminRoleMapping{prefix: configApiPrefix + "/cluster_status", role: "SERVICES"},
 	adminRoleMapping{prefix: configApiPrefix + "/connection_profile/", role: "CONNECTION_PROFILES"},
+	adminRoleMapping{prefix: configApiPrefix + "/connector/", role: "CONNECTORS"},
+	adminRoleMapping{prefix: configApiPrefix + "/connectors", role: "CONNECTORS"},
 	adminRoleMapping{prefix: configApiPrefix + "/connection_profiles", role: "CONNECTION_PROFILES"},
 	adminRoleMapping{prefix: configApiPrefix + "/event_logger/", role: "EVENT_LOGGERS"},
 	adminRoleMapping{prefix: configApiPrefix + "/event_loggers", role: "EVENT_LOGGERS"},
@@ -232,6 +240,9 @@ func (tam *TokenAuthorizationMiddleware) isAuthorizedAdminActions(ctx context.Co
 		if strings.HasPrefix(path, base) && role != "" {
 			baseAdminRole = role
 			suffix = o.roleSuffix
+			if suffix == "" {
+				suffix = o.methodSuffixes[method]
+			}
 			break
 		}
 	}

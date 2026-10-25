@@ -66,8 +66,9 @@ case "$1" in
 
     # Installs configured before the remote terminal existed lack its
     # toggles in pfconnector-client.env (configure.sh only runs at initial
-    # setup): default them to enabled on upgrade, before the service
-    # restart below so the restarted connector picks them up.
+    # setup): add them on upgrade, before the service restart below so the
+    # restarted connector picks them up. The terminal (a root shell from the
+    # admin interface) stays disabled until the admin enables it.
     ENV_FILE=/usr/local/pfconnector-remote/conf/pfconnector-client.env
     if [ -f "$ENV_FILE" ]; then
         # Guard against a missing trailing newline before appending
@@ -75,7 +76,7 @@ case "$1" in
             echo "" >> "$ENV_FILE"
         fi
         if ! grep -q '^PFCONNECTOR_TERMINAL=' "$ENV_FILE"; then
-            echo "PFCONNECTOR_TERMINAL=true" >> "$ENV_FILE"
+            echo "PFCONNECTOR_TERMINAL=false" >> "$ENV_FILE"
         fi
         if ! grep -q '^PFCONNECTOR_TERMINAL_TOTP=' "$ENV_FILE"; then
             echo "PFCONNECTOR_TERMINAL_TOTP=true" >> "$ENV_FILE"
@@ -95,26 +96,33 @@ case "$1" in
         TOTP_SECRET=$(head -c 20 /dev/urandom | base32 | tr -d '=\n')
         echo "otpauth://totp/PacketFence%20pfconnector:$(hostname)?algorithm=SHA1&digits=6&issuer=PacketFence%20pfconnector&period=30&secret=${TOTP_SECRET}" > "$TOTP_FILE"
         chmod 600 "$TOTP_FILE"
-        echo ""
-        echo "=================================================================="
-        echo "Opening a remote terminal on this connector from the PacketFence"
-        echo "admin interface requires a TOTP code. Enroll this connector in an"
-        echo "authenticator app now:"
-        echo ""
-        if command -v qrencode > /dev/null 2>&1; then
-            qrencode -t ansiutf8 "$(cat "$TOTP_FILE")"
+        # The secret is only displayed on a terminal: an upgrade triggered
+        # from the admin interface writes this output to conf/upgrade.log,
+        # which the admin interface can display.
+        if [ -t 1 ]; then
             echo ""
+            echo "=================================================================="
+            echo "Opening a remote terminal on this connector from the PacketFence"
+            echo "admin interface requires a TOTP code. Enroll this connector in an"
+            echo "authenticator app now:"
+            echo ""
+            if command -v qrencode > /dev/null 2>&1; then
+                qrencode -t ansiutf8 "$(cat "$TOTP_FILE")"
+                echo ""
+            else
+                echo "(install the qrencode package to display this as a QR code)"
+            fi
+            echo "otpauth URL (kept in $TOTP_FILE):"
+            cat "$TOTP_FILE"
+            echo ""
+            echo "Run /usr/local/pfconnector-remote/bin/pfconnector-totp-qrcode to display this QR code again."
+            echo "If this host joins an existing high-availability group, it adopts the"
+            echo "seed of the active host instead: enroll that one (or run the command"
+            echo "above after the host has joined)."
+            echo "=================================================================="
         else
-            echo "(install the qrencode package to display this as a QR code)"
+            echo "A TOTP seed for the remote terminal was generated, run /usr/local/pfconnector-remote/bin/pfconnector-totp-qrcode on this box to enroll it."
         fi
-        echo "otpauth URL (kept in $TOTP_FILE):"
-        cat "$TOTP_FILE"
-        echo ""
-        echo "Run /usr/local/pfconnector-remote/bin/pfconnector-totp-qrcode to display this QR code again."
-        echo "If this host joins an existing high-availability group, it adopts the"
-        echo "seed of the active host instead: enroll that one (or run the command"
-        echo "above after the host has joined)."
-        echo "=================================================================="
     fi
 
     # The collector used to run on the host (fingerbank-collector-remote's

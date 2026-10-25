@@ -333,3 +333,80 @@ func TestPftestAdminRoleMapping(t *testing.T) {
 		}
 	}
 }
+
+// The remote terminal opens a root shell on the connector-remote, so all its
+// routes require CONNECTORS_UPDATE, whatever the method.
+func TestTerminalAdminRoleMapping(t *testing.T) {
+	ctx := log.LoggerNewContext(context.Background())
+	m := NewTokenAuthorizationMiddleware(NewMemTokenBackend(1*time.Second, 1*time.Second, []string{}))
+
+	for _, method := range []string{"GET", "POST"} {
+		for _, path := range []string{"/api/v1/terminal", "/api/v1/terminal/connector1/", "/api/v1/terminal/connector1/authorize/abc"} {
+			if res, _ := m.isAuthorizedAdminActions(ctx, method, path, map[string]bool{"NODES_READ": true}); res {
+				t.Errorf("%s %s was authorized without any CONNECTORS role", method, path)
+			}
+			if res, _ := m.isAuthorizedAdminActions(ctx, method, path, map[string]bool{"CONNECTORS_READ": true}); res {
+				t.Errorf("%s %s was authorized with CONNECTORS_READ only", method, path)
+			}
+			if res, err := m.isAuthorizedAdminActions(ctx, method, path, map[string]bool{"CONNECTORS_UPDATE": true}); !res {
+				t.Errorf("%s %s was not authorized with CONNECTORS_UPDATE, error: %v", method, path, err)
+			}
+		}
+	}
+}
+
+// Restarting or upgrading a connector-remote modifies an existing connector:
+// it requires CONNECTORS_UPDATE, while reading its status, its logs or doing
+// a DNS lookup only requires CONNECTORS_READ.
+func TestPfconnectorRemotesAdminRoleMapping(t *testing.T) {
+	ctx := log.LoggerNewContext(context.Background())
+	m := NewTokenAuthorizationMiddleware(NewMemTokenBackend(1*time.Second, 1*time.Second, []string{}))
+
+	tests := []struct {
+		method, path, role string
+	}{
+		{"POST", "/api/v1/pfconnector-remotes/connector1/restart", "CONNECTORS_UPDATE"},
+		{"POST", "/api/v1/pfconnector-remotes/connector1/upgrade", "CONNECTORS_UPDATE"},
+		{"GET", "/api/v1/pfconnector-remotes/connector1/status", "CONNECTORS_READ"},
+		{"GET", "/api/v1/pfconnector-remotes/connector1/logs/pfconnector-client", "CONNECTORS_READ"},
+		{"POST", "/api/v1/pfconnector-remotes/dns-lookup", "CONNECTORS_READ"},
+	}
+	for _, test := range tests {
+		if res, err := m.isAuthorizedAdminActions(ctx, test.method, test.path, map[string]bool{test.role: true}); !res {
+			t.Errorf("%s %s was not authorized with %s, error: %v", test.method, test.path, test.role, err)
+		}
+		for _, other := range []string{"CONNECTORS_READ", "CONNECTORS_CREATE", "CONNECTORS_UPDATE", "CONNECTORS_DELETE"} {
+			if other == test.role {
+				continue
+			}
+			if res, _ := m.isAuthorizedAdminActions(ctx, test.method, test.path, map[string]bool{other: true}); res {
+				t.Errorf("%s %s was authorized with %s instead of %s", test.method, test.path, other, test.role)
+			}
+		}
+	}
+}
+
+// The configuration of the connectors is managed with the CONNECTORS role,
+// like the connector-remote actions, so that role is usable on its own.
+func TestConfigConnectorsAdminRoleMapping(t *testing.T) {
+	ctx := log.LoggerNewContext(context.Background())
+	m := NewTokenAuthorizationMiddleware(NewMemTokenBackend(1*time.Second, 1*time.Second, []string{}))
+
+	tests := []struct {
+		method, path, role string
+	}{
+		{"GET", "/api/v1/config/connectors", "CONNECTORS_READ"},
+		{"GET", "/api/v1/config/connector/connector1", "CONNECTORS_READ"},
+		{"POST", "/api/v1/config/connectors", "CONNECTORS_CREATE"},
+		{"PATCH", "/api/v1/config/connector/connector1", "CONNECTORS_UPDATE"},
+		{"DELETE", "/api/v1/config/connector/connector1", "CONNECTORS_DELETE"},
+	}
+	for _, test := range tests {
+		if res, err := m.isAuthorizedAdminActions(ctx, test.method, test.path, map[string]bool{test.role: true}); !res {
+			t.Errorf("%s %s was not authorized with %s, error: %v", test.method, test.path, test.role, err)
+		}
+		if res, _ := m.isAuthorizedAdminActions(ctx, test.method, test.path, map[string]bool{"SYSTEM_READ": true, "SYSTEM_CREATE": true, "SYSTEM_UPDATE": true, "SYSTEM_DELETE": true}); res {
+			t.Errorf("%s %s is still authorized with the SYSTEM role", test.method, test.path)
+		}
+	}
+}

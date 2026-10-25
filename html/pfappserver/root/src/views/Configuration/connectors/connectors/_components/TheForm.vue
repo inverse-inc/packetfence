@@ -5,54 +5,17 @@
     :schema="schema"
     :isLoading="isLoading"
   >
-    <b-tabs card nav-wrapper-class="mb-3">
-      <b-tab v-if="!isNew && !isClone && id" :title="$i18n.t('Status')">
-        <the-status :id="id" />
-        <div class="card mx-3 bg-light">
-          <div class="card-body">
-            <b-row align-v="center">
-              <b-col>
-                <h6 class="mb-0">{{ $i18n.t('Remote Connector Installation') }}</h6>
-                <small class="text-muted">{{ $i18n.t('Use this command to install and configure the remote connector on a target host.') }}</small>
-              </b-col>
-              <b-col cols="auto">
-                <b-button variant="outline-primary" @click="showInstallModal = true">
-                  {{ $i18n.t('Show Install Command') }}
-                </b-button>
-              </b-col>
-            </b-row>
-          </div>
-        </div>
+    <b-tabs card nav-wrapper-class="mb-3" v-model="tabIndex">
+      <template v-if="isLive">
+        <tab-overview />
+        <tab-networking :id="id" />
+        <tab-devices />
+        <tab-troubleshooting :id="id" />
+      </template>
 
-        <b-modal v-model="showInstallModal"
-          size="lg"
-          :title="$i18n.t('Install Remote Connector')"
-          centered
-        >
-          <p class="mb-2">{{ $i18n.t('Run the following command on the target host to install and configure the remote connector:') }}</p>
-          <b-form-textarea
-            ref="commandRef"
-            :value="installCommand"
-            rows="3"
-            readonly
-            class="text-monospace bg-dark text-light"
-            no-resize
-          />
-          <template #modal-footer="{ hide }">
-            <b-button variant="secondary" @click="hide()">{{ $i18n.t('Close') }}</b-button>
-            <b-button variant="primary" @click="onCopyInstallCommand">{{ $i18n.t('Copy to Clipboard') }}</b-button>
-          </template>
-        </b-modal>
-      </b-tab>
-      <b-tab v-if="!isNew && !isClone && id" :title="$i18n.t('Equipment')">
-        <the-equipment :id="id" />
-      </b-tab>
-      <b-tab v-if="!isNew && !isClone && id" :title="$i18n.t('Cache')">
-        <the-cache :id="id" />
-      </b-tab>
-      <base-form-tab :title="$i18n.t('Configuration')">
-        <b-tabs nav-wrapper-class="mb-3 mx-3">
-          <base-form-tab :title="$i18n.t('Connector')" active>
+      <base-form-tab :title="$i18n.t('Settings')">
+        <b-tabs v-model="settingsTabIndex" nav-wrapper-class="mb-3">
+          <base-form-tab :title="$i18n.t('Connector')">
             <form-group-identifier namespace="id"
               :column-label="$i18n.t('Connector ID')"
               :disabled="!isNew && !isClone"
@@ -71,16 +34,18 @@
               :text="$i18n.t('Outbound networks for which this connector should be used. When a network matches multiple connectors, a top-down match is performed based on their order in the configuration. This filtering only applies when PacketFence performs outbound traffic to a server or equipment via the connector, not when receiving inbound traffic.')"
             />
           </base-form-tab>
+
           <base-form-tab :title="$i18n.t('Fingerbank')">
             <form-group-fingerbank-environment namespace="fingerbank_environment"
               :column-label="$i18n.t('Environment')"
             />
           </base-form-tab>
+
           <base-form-tab :title="$i18n.t('Networking')">
-            <b-alert show variant="info" class="mx-3">
+            <b-alert show variant="info">
               {{ $i18n.t('The remote connector creates these VLAN interfaces on its host or addresses its secondary interfaces, assigns them the given IP address and installs the static routes. Changes are applied within a few seconds and re-applied every time the connector starts. The main interface of the host (the one carrying the tunnel) is never reconfigured.') }}
             </b-alert>
-            <the-host-interfaces v-if="!isNew && !isClone && id" :interfaces="hostInterfaces" class="mx-3 mb-3" />
+            <the-host-interfaces v-if="isLive" :interfaces="hostInterfaces" class="mb-3" />
             <form-group-interfaces namespace="interfaces"
               :column-label="$i18n.t('Interfaces')"
               :text="$i18n.t('One interface per row. With a VLAN ID, an 802.1Q VLAN interface is created on top of the chosen interface of the connector host and named &quot;interface.vlan&quot; (e.g. eth0.100); without one, the address is assigned to the chosen interface itself (a secondary network card of the host, e.g. ens192; the main interface accepts VLANs only). The IP address is written with its prefix length (e.g. 10.10.100.1/24). Enable DHCP to serve addresses on that network: the connector relays the requests to the PacketFence DHCP server through its tunnel, and the server hands out the range configured here (the network is the one of the interface address). Enable DNS to make the connector answer every DNS query received on that interface with the interface address (captive-portal DNS).')"
@@ -90,7 +55,7 @@
               :text="$i18n.t('Optional static routes installed on the connector host. A route needs a gateway, an interface, or both. The default route cannot be managed from here.')"
             />
 
-            <b-alert show variant="info" class="mx-3 mt-3">
+            <b-alert show variant="info" class="mt-3">
               {{ $i18n.t('High availability: install this connector on two or more hosts with the same ID and secret and set a virtual IP here. The hosts form a VRRP group; the one holding the virtual IP runs the tunnel and the others stand by, mirror its credential cache and take over within seconds. Configure switches, portal redirection and DHCP relays with the virtual IP. Leave it empty for a single host.') }}
             </b-alert>
             <form-group-ha-vip namespace="ha_vip"
@@ -111,25 +76,149 @@
               :text="$i18n.t('Interface carrying the virtual IP and the VRRP advertisements on the connector hosts.')"
             />
           </base-form-tab>
+
           <base-form-tab :title="$i18n.t('DNS')">
-            <b-alert show variant="info" class="mx-3">
+            <b-alert show variant="info">
               {{ $i18n.t('DNS servers of the site reachable through this connector, with the domains each one is authoritative for. PacketFence forwards the queries for those domains to the server through the tunnel, and uses them to route hostnames under those domains (LDAP sources, Active Directory servers) to this connector. A domain can be served through one connector only; several DNS servers of this connector may serve the same domain, PacketFence then fails over between them. The tunnel port is allocated automatically.') }}
             </b-alert>
             <form-group-dns-servers namespace="dns_servers"
               :column-label="$i18n.t('DNS Servers')"
               :text="$i18n.t('One row per DNS server: its IP address on the remote site, its port (53 by default), the domains it serves (type a name and press enter) and, optionally, a fixed tunnel port in the 30000-30999 range.')"
             />
-            <the-dns-test v-if="!isNew && !isClone && id" :id="id" :form="form" />
+            <the-dns-test v-if="isLive" :id="id" :form="form" class="mt-3" />
           </base-form-tab>
         </b-tabs>
+
+        <template v-if="!isNew && !isClone">
+          <b-card class="mt-3" bg-variant="light" no-body>
+            <b-card-body>
+              <b-row align-v="center">
+                <b-col>
+                  <h6 class="mb-0">{{ $i18n.t('Remote Connector Installation') }}</h6>
+                  <small class="text-muted">{{ $i18n.t('Use this command to install and configure the remote connector on a target host.') }}</small>
+                </b-col>
+                <b-col cols="auto">
+                  <b-button variant="outline-primary" @click="showInstallModal = true">
+                    {{ $i18n.t('Show Install Command') }}
+                  </b-button>
+                </b-col>
+              </b-row>
+            </b-card-body>
+          </b-card>
+
+          <b-card v-if="isLive" class="mt-3" bg-variant="light" no-body>
+            <b-card-body>
+              <b-row align-v="center">
+                <b-col>
+                  <h6 class="mb-0">{{ $i18n.t('Version') }}</h6>
+                  <small v-if="system" class="text-muted">
+                    {{ $i18n.t('PacketFence is {central}; this connector runs {version}.', { central: (status && status.central_version) || '-', version: system.version }) }}
+                  </small>
+                  <small v-else class="text-muted">{{ $i18n.t('The version is reported while the tunnel is connected.') }}</small>
+                </b-col>
+                <b-col cols="auto" v-if="canUpdate && status && status.upgrade_available">
+                  <b-button variant="primary" :disabled="!isConnected || isUpgrading" @click="showUpgradeModal = true">
+                    <icon name="arrow-circle-up" class="mr-1" />{{ $i18n.t('Update to {version}', { version: status.central_version }) }}
+                  </b-button>
+                </b-col>
+              </b-row>
+            </b-card-body>
+          </b-card>
+        </template>
       </base-form-tab>
     </b-tabs>
+
+    <b-modal v-model="showInstallModal"
+      size="lg"
+      :title="$i18n.t('Install Remote Connector')"
+      centered
+    >
+      <p class="mb-2">{{ $i18n.t('Run the following command on the target host to install and configure the remote connector:') }}</p>
+      <b-form-textarea
+        :value="installCommand"
+        rows="3"
+        readonly
+        class="text-monospace bg-dark text-light"
+        no-resize
+      />
+      <template #modal-footer="{ hide }">
+        <b-button variant="secondary" @click="hide()">{{ $i18n.t('Close') }}</b-button>
+        <b-button variant="primary" @click="onCopyInstallCommand">{{ $i18n.t('Copy to Clipboard') }}</b-button>
+      </template>
+    </b-modal>
+
+    <template v-if="isLive">
+      <b-modal v-model="showTerminalModal"
+        :title="$i18n.t('Open Remote Terminal')"
+        centered
+      >
+        <p>{{ $i18n.t('Enter the 6-digit code from the authenticator enrolled on this connector. The code is validated by the remote connector itself.') }}</p>
+        <b-form @submit.prevent="authorizeTerminal">
+          <b-form-input v-model="terminalCode" class="text-monospace"
+            autofocus autocomplete="one-time-code" inputmode="numeric" maxlength="6" placeholder="123456" />
+        </b-form>
+        <template #modal-footer="{ hide }">
+          <b-button variant="secondary" @click="hide()">{{ $i18n.t('Cancel') }}</b-button>
+          <b-button variant="primary" :disabled="isTerminalLoading || terminalCode.length !== 6" @click="authorizeTerminal">
+            {{ $i18n.t('Open Terminal') }}
+          </b-button>
+        </template>
+      </b-modal>
+
+      <b-modal v-model="showUpgradeModal"
+        :title="$i18n.t('Upgrade Remote Connector')"
+        centered
+      >
+        <p>{{ $i18n.t('The remote connector will point its PacketFence package repository at version {version}, upgrade its packetfence-pfconnector-remote package and restart. Network activity through this connector will be interrupted for a short period. Continue?', { version: status ? status.central_version : '' }) }}</p>
+        <template #modal-footer="{ hide }">
+          <b-button variant="secondary" @click="hide()">{{ $i18n.t('Cancel') }}</b-button>
+          <b-button variant="warning" :disabled="isUpgrading" @click="onUpgrade">{{ $i18n.t('Upgrade') }}</b-button>
+        </template>
+      </b-modal>
+
+      <b-modal v-model="showNtlmInstallModal"
+        :title="$i18n.t('Install NTLM Authentication Services')"
+        centered
+      >
+        <p>{{ $i18n.t('The connector host will install the packetfence-ntlm-auth-join-remote and packetfence-ntlm-auth-api-remote packages from the PacketFence repository of its own version (signature-verified). The connector itself is not restarted. Continue?') }}</p>
+        <template #modal-footer="{ hide }">
+          <b-button variant="secondary" @click="hide()">{{ $i18n.t('Cancel') }}</b-button>
+          <b-button variant="primary" :disabled="isInstalling" @click="onInstallNtlm">{{ $i18n.t('Install') }}</b-button>
+        </template>
+      </b-modal>
+
+      <b-modal v-model="showSwitchModal"
+        :title="$i18n.t('Make Another Host Active')"
+        centered
+      >
+        <p>{{ $i18n.t('The virtual IP and the tunnel will move to {host} ({address}). This is a controlled failover: RADIUS is answered in degraded mode for a few seconds while the new host connects. Continue?', { host: switchTarget ? switchTarget.hostname : '', address: switchTarget ? switchTarget.address : '' }) }}</p>
+        <template #modal-footer="{ hide }">
+          <b-button variant="secondary" @click="hide()">{{ $i18n.t('Cancel') }}</b-button>
+          <b-button variant="primary" :disabled="isSwitching" @click="onSwitchActive">{{ $i18n.t('Make active') }}</b-button>
+        </template>
+      </b-modal>
+
+      <b-modal v-model="showRestartModal"
+        :title="$i18n.t('Restart Remote Connector')"
+        centered
+        @show="restartConfirm = ''"
+      >
+        <p>{{ $i18n.t('The whole remote connector will be restarted (RADIUS, Fingerbank collector and tunnel included). Network activity through this connector will be interrupted for a short period. Continue?') }}</p>
+        <p class="mb-1" v-html="$i18n.t('Type <code>{word}</code> to continue.', { word: restartWord })" />
+        <b-form @submit.prevent="onConfirmRestart">
+          <b-form-input v-model="restartConfirm" class="text-monospace" autocomplete="off" />
+        </b-form>
+        <template #modal-footer="{ hide }">
+          <b-button variant="secondary" @click="hide()">{{ $i18n.t('Cancel') }}</b-button>
+          <b-button variant="danger" :disabled="isRestarting || restartConfirm !== restartWord" @click="onConfirmRestart">{{ $i18n.t('Restart') }}</b-button>
+        </template>
+      </b-modal>
+    </template>
   </base-form>
 </template>
 <script>
-import { computed, onMounted, provide, ref } from '@vue/composition-api'
+import { computed, inject, provide, ref } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import api from '../_api'
 import {
   BaseForm,
   BaseFormTab
@@ -148,11 +237,12 @@ import {
   FormGroupHaVrid,
   FormGroupHaInterface,
   FormGroupDnsServers,
-  TheStatus,
-  TheHostInterfaces,
-  TheEquipment,
-  TheCache,
+  TabDevices,
+  TabNetworking,
+  TabOverview,
+  TabTroubleshooting,
   TheDnsTest,
+  TheHostInterfaces
 } from './'
 
 const components = {
@@ -170,11 +260,12 @@ const components = {
   FormGroupHaVrid,
   FormGroupHaInterface,
   FormGroupDnsServers,
-  TheStatus,
-  TheHostInterfaces,
-  TheEquipment,
-  TheCache,
+  TabDevices,
+  TabNetworking,
+  TabOverview,
+  TabTroubleshooting,
   TheDnsTest,
+  TheHostInterfaces
 }
 
 export const props = {
@@ -201,34 +292,35 @@ export const props = {
   }
 }
 
+const restartWord = 'RESTART'
+
 export const setup = (props, context) => {
   const schema = computed(() => schemaFn(props))
 
   const { root: { $store } = {} } = context
 
-  const showInstallModal = ref(false)
+  const remote = inject('connectorRemote')
+  const { tabIndex, tabs, settingsTabIndex } = inject('connectorTabs')
+  const { onRestart } = remote
+
+  const isLive = computed(() => tabs.value.length > 1)
 
   // Network interfaces of the connector host, as reported by the connector
-  // (system info host_interfaces). Offered as choices in the Networking tab;
-  // empty while the connector is disconnected, new or predates the feature.
-  const hostInterfaces = ref([])
+  // (system info host_interfaces): choices of the Networking settings, empty
+  // while the connector is disconnected, new or predates the feature.
+  const hostInterfaces = computed(() => {
+    const { host_interfaces: interfaces } = remote.system.value || {}
+    return Array.isArray(interfaces) ? interfaces : []
+  })
   provide('connectorHostInterfaces', hostInterfaces)
   // Choices for the interface carrying the HA virtual IP: the host's
   // non-VLAN interfaces, main (default route) one first.
-  const haInterfaceOptions = computed(() => (hostInterfaces.value || [])
+  const haInterfaceOptions = computed(() => hostInterfaces.value
     .filter(({ name }) => name && !name.includes('.'))
     .map(({ name, main }) => ({ text: main ? `${name} (${i18n.t('main')})` : name, value: name }))
   )
-  onMounted(() => {
-    if (props.isNew || props.isClone || !props.id)
-      return
-    api.remoteStatus(props.id).then(response => {
-      const { system: { host_interfaces: interfaces = [] } = {} } = response || {}
-      hostInterfaces.value = interfaces
-    }).catch(() => {
-      hostInterfaces.value = []
-    })
-  })
+
+  const showInstallModal = ref(false)
 
   const installCommand = computed(() => {
     const { id, secret } = props.form || {}
@@ -250,13 +342,69 @@ export const setup = (props, context) => {
     }
   }
 
+  const restartConfirm = ref('')
+  const onConfirmRestart = () => {
+    if (restartConfirm.value === restartWord)
+      onRestart()
+  }
+
+  // not spread: remote.isLoading would shadow the isLoading prop
+  const {
+    status,
+    system,
+    isConnected,
+    canUpdate,
+    isUpgrading,
+    isRestarting,
+    isTerminalLoading,
+    showTerminalModal,
+    showUpgradeModal,
+    showRestartModal,
+    terminalCode,
+    authorizeTerminal,
+    onUpgrade,
+    isInstalling,
+    showNtlmInstallModal,
+    onInstallNtlm,
+    isSwitching,
+    showSwitchModal,
+    switchTarget,
+    onSwitchActive
+  } = remote
+
   return {
+    status,
+    system,
+    isConnected,
+    canUpdate,
+    isUpgrading,
+    isRestarting,
+    isTerminalLoading,
+    showTerminalModal,
+    showUpgradeModal,
+    showRestartModal,
+    terminalCode,
+    authorizeTerminal,
+    onUpgrade,
+    isInstalling,
+    showNtlmInstallModal,
+    onInstallNtlm,
+    isSwitching,
+    showSwitchModal,
+    switchTarget,
+    onSwitchActive,
     schema,
+    tabIndex,
+    settingsTabIndex,
+    isLive,
     hostInterfaces,
     haInterfaceOptions,
     showInstallModal,
     installCommand,
-    onCopyInstallCommand
+    onCopyInstallCommand,
+    restartWord,
+    restartConfirm,
+    onConfirmRestart
   }
 }
 

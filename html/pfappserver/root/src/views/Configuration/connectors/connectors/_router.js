@@ -4,7 +4,7 @@ import FingerbankStoreModule from '../../fingerbank/_store'
 
 const TheSearch = () => import(/* webpackChunkName: "ConfigurationNetwork" */ './_components/TheSearch')
 const TheView = () => import(/* webpackChunkName: "ConfigurationNetwork" */ './_components/TheView')
-const TheTopology = () => import(/* webpackChunkName: "ConfigurationNetwork" */ './_components/TheTopology')
+const TheTopologyMap = () => import(/* webpackChunkName: "ConfigurationNetwork" */ './_components/TheTopologyMap')
 
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_connectors)
@@ -20,7 +20,7 @@ export const useRouter = $router => {
   return {
     goToCollection: () => $router.push({ name: 'connectorsConnectors' }),
     goToItem: params => $router
-      .push({ name: 'connectorsConnector', params })
+      .push({ name: 'connectorsConnector', params, query: $router.currentRoute.query }) // keep ?tab=
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
     goToClone: params => $router.push({ name: 'cloneConnectorsConnector', params }),
     goToNew: params => $router.push({ name: 'newConnectorsConnector', params }),
@@ -41,7 +41,7 @@ export default [
   {
     path: 'connectors/topology',
     name: 'connectorsTopology',
-    component: TheTopology,
+    component: TheTopologyMap,
     beforeEnter
   },
   {
