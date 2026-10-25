@@ -76,7 +76,7 @@ our @SyslogInfo = (
     {
         'description' => 'pfdhcp general log',
         'name'       => 'pfdhcp.log',
-        'conditions' => [ '$programname == "pfdhcp"' ]
+        'conditions' => [ '$programname == "pfdhcp"', '$programname == "pfdhcp-docker-wrapper"' ]
     },
     {
         'description' => 'pfconfig general log',

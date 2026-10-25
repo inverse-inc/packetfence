@@ -9,10 +9,15 @@ Before=packetfence-httpd.portal.service
 StartLimitBurst=3
 StartLimitInterval=60
 Type=notify
+NotifyAccess=all
 WatchdogSec=30s
+TimeoutStopSec=60
 Environment=LOG_LEVEL=INFO
 EnvironmentFile=-/usr/local/pf/conf/pfdhcp.conf
-ExecStart=/usr/local/pf/sbin/pfdhcp
+ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfdhcp' -e 'pf::services::manager::pfdhcp->new()->generateConfig()'
+ExecStart=/usr/local/pf/sbin/pfdhcp-docker-wrapper
+ExecStop=/bin/bash -c "docker stop pfdhcp ; echo Stopped"
+PIDFile=/usr/local/pf/var/run/pfdhcp-systemd-notify.pid
 Restart=on-failure
 Slice=packetfence.slice
 # iptables rules
