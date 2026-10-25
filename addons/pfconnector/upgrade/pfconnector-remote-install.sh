@@ -20,11 +20,39 @@ LOCK=/run/lock/pfconnector-apt.lock
 ALLOWED="packetfence-ntlm-auth-api-remote packetfence-ntlm-auth-join-remote"
 MIN_INTERVAL=60
 
-log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >> "$LOG"; }
-state() { printf '%s\n' "$1" > "$STATE.tmp" && mv "$STATE.tmp" "$STATE"; }
+# conf/ is writable by the connector container while this script runs as
+# root on the host: never follow a symlink placed there, and never copy
+# what the trigger contains to the log.
 
-[ -f "$TRIGGER" ] || exit 0
-requested=$(tr -s '[:space:]' ' ' < "$TRIGGER" | sed 's/^ //; s/ $//')
+# The log is opened once, and the opened file checked afterwards: a symlink
+# swapped in between can't redirect the output.
+if [ -L "$LOG" ] || { [ -e "$LOG" ] && [ ! -f "$LOG" ]; }; then
+  echo "Refusing install: $LOG is not a regular file" >&2
+  exit 1
+fi
+exec 3>>"$LOG"
+if [ "$(readlink -f /proc/$$/fd/3)" != "$(readlink -f "$(dirname "$LOG")")/$(basename "$LOG")" ]; then
+  echo "Refusing install: $LOG changed while it was opened" >&2
+  exit 1
+fi
+
+log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >&3; }
+# The state file is replaced by a rename of a fresh file (mktemp creates it
+# exclusively, rename replaces a symlink instead of following it).
+state() {
+  local tmp
+  tmp=$(mktemp "$(dirname "$STATE")/.install_state.XXXXXX") || return
+  chmod 0644 "$tmp" && printf '%s\n' "$1" > "$tmp" && mv -f "$tmp" "$STATE" || rm -f "$tmp"
+}
+
+[ -e "$TRIGGER" ] || [ -L "$TRIGGER" ] || exit 0
+if [ -L "$TRIGGER" ] || [ ! -f "$TRIGGER" ]; then
+  rm -f "$TRIGGER"
+  log "Refusing install: the install request is not a regular file"
+  state "failed: invalid install request"
+  exit 1
+fi
+requested=$(head -c 1024 "$TRIGGER" | tr -s '[:space:]' ' ' | sed 's/^ //; s/ $//')
 rm -f "$TRIGGER"
 
 # Rate limit: one attempt per MIN_INTERVAL, whatever the trigger says
@@ -32,7 +60,7 @@ if [ -f "$STAMP" ]; then
   last=$(stat -c %Y "$STAMP" 2>/dev/null || echo 0)
   now=$(date +%s)
   if [ $((now - last)) -lt "$MIN_INTERVAL" ]; then
-    log "Refusing install of '$requested': last attempt $((now - last))s ago (minimum ${MIN_INTERVAL}s)"
+    log "Refusing install: last attempt $((now - last))s ago (minimum ${MIN_INTERVAL}s)"
     state "failed: last install attempt $((now - last))s ago, retry in $((MIN_INTERVAL - now + last))s"
     exit 1
   fi
@@ -44,8 +72,8 @@ for p in $requested; do
   ok=""
   for a in $ALLOWED; do [ "$p" = "$a" ] && ok=1; done
   if [ -z "$ok" ]; then
-    log "Refusing install: package '$p' is not in the allowed list ($ALLOWED)"
-    state "failed: package '$p' is not allowed"
+    log "Refusing install: a requested package is not in the allowed list ($ALLOWED)"
+    state "failed: a requested package is not allowed"
     exit 1
   fi
   packages="$packages $p"
@@ -70,8 +98,8 @@ fi
 log "Installing$packages"
 state "installing:$packages"
 export DEBIAN_FRONTEND=noninteractive
-if apt-get update >> "$LOG" 2>&1 \
-  && apt-get install -y -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold $packages >> "$LOG" 2>&1; then
+if apt-get update >&3 2>&1 \
+  && apt-get install -y -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold $packages >&3 2>&1; then
   # The packages' postinst enables their services but does not start them on
   # a fresh install; the admin expects the join service to answer right away
   # (the domain join reaches it through the tunnel). --no-block: the
@@ -79,7 +107,7 @@ if apt-get update >> "$LOG" 2>&1 \
   for p in $packages; do
     unit="$p.service"
     if systemctl list-unit-files "$unit" >/dev/null 2>&1 && systemctl is-enabled --quiet "$unit" 2>/dev/null; then
-      systemctl start --no-block "$unit" >> "$LOG" 2>&1 && log "Started $unit" || log "Could not start $unit (see journalctl -u $unit)"
+      systemctl start --no-block "$unit" >&3 2>&1 && log "Started $unit" || log "Could not start $unit (see journalctl -u $unit)"
     fi
   done
   log "Install of$packages completed"
