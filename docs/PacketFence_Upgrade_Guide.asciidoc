@@ -1352,6 +1352,24 @@ packetfence-pfconnector-remote service. Connectors must be upgraded to this
 version for the terminal to work: the terminal session is now enforced on the
 connector itself.
 
+=== Connectors: DNS servers configured on the connectors
+
+The _Connectors -> DNS_ and _Connectors -> Domains_ sections are replaced by
+the _DNS_ section of each connector's _Settings_ tab (_Configuration -> Network
+Configuration -> Cloud Connectors_): a DNS server and the domains it serves are
+configured on the connector that reaches it. Migrate the existing
+[filename]`/usr/local/pf/conf/dns_connectors.conf` and
+[filename]`/usr/local/pf/conf/domains_connectors.conf` with:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-16.0-connectors-dns-servers.pl
+----
+
+Each DNS server goes under the connector its first domain was mapped to;
+domain mappings without a DNS server had no effect and are dropped with a
+notice. The old files are kept with a `.migrated` suffix.
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]

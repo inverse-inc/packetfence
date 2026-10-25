@@ -43,6 +43,10 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - Juniper EX switches running Junos 18.x or later (`Juniper::Junos_v18_x`) can now enforce role ACLs. PacketFence translates the ACLs of the role into `Juniper-Switching-Filter` attributes and sends them inline in the Access-Accept, so no filter has to be pre-provisioned on the switch. Set `AccessListMap` to `Y` on the switch to enable it (#9297)
   - Huawei CloudEngine S5735 (YunShan/V600) dynamic ACLs — the new `Huawei::S5735` switch type pushes the access list of a role inline in the Access-Accept with the `HW-Data-Filter` RADIUS attribute, so no ACL has to be pre-configured on the switch. Access re-evaluation disconnects the endpoint by MAC address (`Calling-Station-Id`) only: the switch silently ignored the Disconnect-Request PacketFence sent for Huawei switches, which carried no `Calling-Station-Id` and an `Acct-Session-Id` that is empty or stale
   - Cloud Connectors in the admin UI — fleet list with a topology diagram, status panel (tunnel, connections, system information, restart and upgrade), live logs, a DNS test through the connector's tunnel, the equipment located behind each connector, and an opt-in remote terminal protected by a TOTP second factor (#8810)
+  - Cloud Connectors: VLAN interfaces and static routes applied on the connector host, with DHCP relay to PacketFence through the tunnel, a captive-portal DNS responder and the PROXY protocol for the captive portal (#9587)
+  - Cloud Connectors: active/passive high availability of a connector over a VRRP virtual IP, with credential cache mirroring and a "Make active" switch in the admin UI (#9587)
+  - Cloud Connectors: the site DNS servers and their domains are configured on the connector itself (#9587)
+  - Cloud Connectors: install the NTLM authentication services on the connector host, terminal session recordings, connector-cache management, Fingerbank API through the tunnel and a live traffic map (#9587)
 
 === Enhancements
 
