@@ -111,7 +111,7 @@ export const useSections = () => {
             { name: i18n.t('Device Parking'), path: '/configuration/parking' }
           ]
         },
-        { name: i18n.t('Connectors'), path: '/configuration/connectors' },
+        { name: i18n.t('Cloud Connectors'), path: '/configuration/connectors', saveSearchNamespace: 'connectorsConnectors' },
         { name: i18n.t('SNMP'), path: '/configuration/snmp_traps', class: 'no-saas' },
         { name: i18n.t('Floating Devices'), path: '/configuration/floating_devices', class: 'no-saas', saveSearchNamespace: 'floatingDevices' }
       ]

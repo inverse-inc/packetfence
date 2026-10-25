@@ -1,0 +1,108 @@
+/api/v1/terminal:
+  post:
+    summary: Create a terminal session for a connector-remote.
+    description: |
+      Creates a one-time session (valid 2 minutes) to open a root terminal
+      on a connector-remote. It must then be authorized with
+      `/api/v1/terminal/{connector_id}/authorize/{uuid}`.
+
+      All the `/api/v1/terminal` endpoints require `CONNECTORS_UPDATE`.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - pfconnector_id
+            properties:
+              pfconnector_id:
+                type: string
+    responses:
+      '200':
+        description: The session.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                uuid:
+                  type: string
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+      '403':
+        $ref: "#/components/responses/Forbidden"
+    tags:
+      - PFconnector remotes
+
+/api/v1/terminal/{connector_id}/authorize/{uuid}:
+  get:
+    summary: Authorize a terminal session.
+    description: |
+      Consumes the one-time session and relays the TOTP code to the
+      connector-remote, which validates it against the seed stored on the
+      remote host (unless PFCONNECTOR_TERMINAL_TOTP is disabled there). On
+      success, the `PF-TERMINAL` cookie (HttpOnly, SameSite=Strict, scoped to
+      the terminal path of the connector) gives access to the terminal; the
+      session secret the remote returns is kept by the server and only sent to
+      the remote with the terminal websocket.
+    parameters:
+      - $ref: "#/components/parameters/pfconnector_remote_id"
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: code
+        in: query
+        required: false
+        description: The 6-digit TOTP code.
+        schema:
+          type: string
+    responses:
+      '200':
+        description: The terminal is enabled.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+      '403':
+        description: Session or TOTP code refused (the reason as plain text).
+      '429':
+        description: Too many invalid TOTP codes, activation temporarily locked.
+      '502':
+        description: The connector-remote could not be reached.
+    tags:
+      - PFconnector remotes
+
+/api/v1/terminal/{connector_id}/:
+  get:
+    summary: The terminal page of a connector-remote.
+    description: |
+      The web terminal (gotty) page and its assets (`js/`, `css/`, icons,
+      `manifest.json`, `auth_token.js`, `config.js`), served by this server.
+      `ws` is the terminal websocket, the only path proxied to the
+      connector-remote; it must be a same-origin websocket upgrade. All
+      require the `PF-TERMINAL` cookie of an authorized session.
+    parameters:
+      - $ref: "#/components/parameters/pfconnector_remote_id"
+    responses:
+      '200':
+        description: The terminal page.
+        content:
+          text/html:
+            schema:
+              type: string
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+      '403':
+        description: No authorized terminal session for this connector.
+    tags:
+      - PFconnector remotes

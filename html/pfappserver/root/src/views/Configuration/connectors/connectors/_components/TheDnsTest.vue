@@ -1,5 +1,5 @@
 <template>
-  <div class="card mx-3 mb-3 bg-light">
+  <div class="card mx-3 mb-3">
     <div class="card-body">
       <b-row align-v="center" class="mb-2">
         <b-col>
@@ -8,7 +8,7 @@
         </b-col>
       </b-row>
 
-      <b-form inline @submit.prevent="lookup">
+      <b-form inline @submit.prevent.stop="lookup">
         <b-form-select v-model="serverId" :options="serverOptions" class="mr-2" :disabled="mode === 'packetfence'" />
         <b-form-input v-model="name" class="mr-2 flex-grow-1"
           :placeholder="$i18n.t('Hostname to resolve, e.g. dc1.') + (firstDomain || 'example.com')"

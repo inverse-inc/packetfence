@@ -8,8 +8,8 @@
         <dl>
             <dt class="no-saas" v-t="'Networks:'"></dt>
             <dd class="no-saas" v-t="'Configure networks managed by PacketFence, including network settings, interfaces, inline mode, fencing parameters, and device parking.'"></dd>
-            <dt v-t="'Connectors:'"></dt>
-            <dd v-t="'Connectors extend PacketFence capabilities to remote sites, providing domain join and DNS resolution services.'"></dd>
+            <dt v-t="'Cloud Connectors:'"></dt>
+            <dd v-t="'Cloud connectors extend PacketFence capabilities to remote sites, providing domain join and DNS resolution services.'"></dd>
             <dt class="no-saas" v-t="'SNMP:'"></dt>
             <dd class="no-saas" v-t="'Configure the SNMP traps engine used by PacketFence for switch and device communication.'"></dd>
             <dt class="no-saas" v-t="'Floating Devices:'"></dt>

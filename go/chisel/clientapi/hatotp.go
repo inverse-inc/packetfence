@@ -212,8 +212,10 @@ func (api *API) SyncTOTPSeedFromMaster(ctx context.Context, vip, secret string) 
 		if err := os.WriteFile(path, []byte(seed+"\n"), 0600); err != nil {
 			return false, fmt.Errorf("persisting the TOTP seed to %s: %w", path, err)
 		}
+		// A new seed starts with a clean lockout/replay state
+		os.Remove(path + ".state")
 		api.terminalTOTPMu.Lock()
-		api.terminalTOTP = &terminalTOTP{key: key}
+		api.terminalTOTP = &terminalTOTP{key: key, statePath: path + ".state"}
 		api.terminalTOTPMu.Unlock()
 		changed = true
 	}

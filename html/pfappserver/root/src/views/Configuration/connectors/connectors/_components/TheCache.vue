@@ -1,5 +1,5 @@
 <template>
-  <div class="card mx-3 mb-3 bg-light">
+  <div class="card mb-3 bg-light">
     <div class="card-body">
       <b-row align-v="center" class="mb-2">
         <b-col>
@@ -89,7 +89,8 @@
               <b-button size="sm" variant="link" class="p-0 ml-1 align-baseline" :disabled="isBusy" @click="showRestartModal = true">{{ $i18n.t('Restart it now') }}</b-button>
             </b-alert>
 
-            <b-form @submit.prevent="save">
+            <!-- inside the connector form: the submit must not reach it -->
+            <b-form @submit.prevent.stop="save">
               <b-form-group v-for="field in fields" :key="field.key"
                 :label="field.label" :description="field.help"
                 label-cols-md="5" label-size="sm" class="mb-2"

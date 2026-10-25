@@ -2,8 +2,7 @@ package clientapi
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/hex"
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -18,19 +17,10 @@ import (
 	"github.com/sorenisanerd/gotty/server"
 )
 
-// randomToken returns n random bytes as hex.
-func randomToken(n int) string {
-	b := make([]byte, n)
-	if _, err := rand.Read(b); err != nil {
-		log.Fatal("Unable to generate the terminal credential:", err)
-	}
-	return hex.EncodeToString(b)
-}
-
 // BashFactory builds the bash slaves served by gotty. activity is the shared
 // last-activity clock (unix nanos) that the idle watcher in enableTerminal
-// reads; every pty read/write bumps it. Every slave (one per websocket
-// connection) is recorded as an asciicast when recording is enabled.
+// reads; every write to the pty (user input) bumps it. Every slave (one per
+// websocket connection) is recorded as an asciicast when recording is enabled.
 type BashFactory struct {
 	activity    *atomic.Int64
 	recording   terminalRecordingConfig
@@ -148,13 +138,13 @@ func (slave *BashSlave) Write(data []byte) (int, error) {
 	return slave.pty.Write(data)
 }
 
+// Read does not count as activity: a command that keeps printing (top,
+// tail -f) in a forgotten tab must not keep the root shell open forever.
+// Only the user's input resets the idle timeout.
 func (slave *BashSlave) Read(data []byte) (int, error) {
 	n, err := slave.pty.Read(data)
-	if n > 0 {
-		slave.touch()
-		if slave.recorder != nil {
-			slave.recorder.Output(data[:n])
-		}
+	if n > 0 && slave.recorder != nil {
+		slave.recorder.Output(data[:n])
 	}
 	return n, err
 }
@@ -196,6 +186,11 @@ func (api *API) watchTerminalIdle(ctx context.Context) {
 }
 
 func (api *API) terminal() (bool, error) {
+	PFCONNECTOR_TERMINAL := os.Getenv("PFCONNECTOR_TERMINAL")
+	if !sharedutils.IsEnabled(PFCONNECTOR_TERMINAL) {
+		log.Println("PFCONNECTOR_TERMINAL is not enabled")
+		return false, nil
+	}
 
 	// Options for the GoTTY server
 	options := &server.Options{
@@ -204,9 +199,9 @@ func (api *API) terminal() (bool, error) {
 		Port:            "8022",
 		EnableReconnect: true,
 		ReconnectTime:   10,
-		MaxConnection:   0,
-		// Credential is set per activation (StartProcessing below).
-		EnableBasicAuth: true,
+		// One terminal per authorized session
+		MaxConnection:   1,
+		EnableBasicAuth: false,
 		Credential:      "",
 		EnableTLS:       false,
 		TitleFormat:     "pfconnector-remote",
@@ -214,7 +209,9 @@ func (api *API) terminal() (bool, error) {
 		PermitArguments: false,
 		Width:           0,
 		Height:          0,
-		WSOrigin:        ".*", // Regular expression to accept all origins
+		// Only through the terminal proxy of the local API, which sets
+		// this origin on the websocket
+		WSOrigin: `^http://localhost:8022$`,
 	}
 
 	// Create the custom factory
@@ -232,9 +229,10 @@ func (api *API) terminal() (bool, error) {
 	// Create the GoTTY server
 	gottyServer, err := server.New(factory, options)
 	if err != nil {
-		log.Fatal("Error creating GoTTY server:", err)
+		// Only the terminal is unavailable: the rest of the connector
+		// (tunnel, RADIUS, ...) keeps running.
+		return false, fmt.Errorf("error creating GoTTY server: %w", err)
 	}
-	api.gottyOptions = options
 
 	var serverCtx context.Context
 	var serverCancel context.CancelFunc
@@ -257,13 +255,6 @@ func (api *API) terminal() (bool, error) {
 
 					atomic.StoreInt32(&api.serverRunning, 1)
 					factory.setSession(msg.Session, msg.AdminUser)
-					// Fresh credential for this activation: gotty reads it
-					// when Run starts (basic auth) and on every websocket
-					// handshake (auth token); the proxy in client_api.go
-					// presents it, so a local process without it is refused.
-					api.terminalCredMu.Lock()
-					options.Credential = "pfconnector:" + randomToken(24)
-					api.terminalCredMu.Unlock()
 
 					serverCtx, serverCancel = context.WithCancel(api.ctx)
 					// One idle watcher per running terminal, gone with it:
@@ -274,6 +265,8 @@ func (api *API) terminal() (bool, error) {
 					go func() {
 						defer func() {
 							atomic.StoreInt32(&api.serverRunning, 0)
+							// The session ends with the server
+							api.terminalSecret.clear()
 							log.Println("GoTTY server stopped")
 						}()
 
@@ -306,12 +299,6 @@ func (api *API) terminal() (bool, error) {
 	}()
 
 	time.Sleep(time.Millisecond * 100)
-
-	PFCONNECTOR_TERMINAL := os.Getenv("PFCONNECTOR_TERMINAL")
-	if !sharedutils.IsEnabled(PFCONNECTOR_TERMINAL) {
-		log.Println("PFCONNECTOR_TERMINAL is not enabled")
-		return false, nil
-	}
 
 	log.Println("PFCONNECTOR_TERMINAL is enabled")
 

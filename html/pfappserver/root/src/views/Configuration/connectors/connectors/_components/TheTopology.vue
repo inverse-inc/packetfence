@@ -1,580 +1,720 @@
 <template>
-  <b-card no-body>
-    <b-card-header class="d-flex align-items-center">
-      <h4 class="mb-0 flex-grow-1">{{ $t('Connectors Topology') }}</h4>
-      <small class="text-muted mr-3" v-if="updatedAt">{{ $t('Updated') }} {{ updatedAt }}</small>
-      <b-button size="sm" variant="outline-secondary" class="mr-1" @click="paused = !paused">
-        <icon :name="paused ? 'play' : 'pause'" class="mr-1" />{{ paused ? $t('Resume') : $t('Pause') }}
-      </b-button>
-      <b-button size="sm" variant="outline-primary" @click="goToCollection">{{ $t('Connectors list') }}</b-button>
-    </b-card-header>
-    <div class="card-body">
-      <b-alert :show="!!error" variant="danger" class="mb-3">{{ error }}</b-alert>
-      <b-alert :show="!error && loaded && !nodes.length" variant="info" class="mb-0">{{ $t('No connector is configured.') }}</b-alert>
-      <div v-if="nodes.length" class="connectors-topology">
-        <svg :viewBox="`0 0 ${width} ${height}`" class="w-100" preserveAspectRatio="xMidYMin meet" :style="{ maxHeight: `${height}px` }">
-          <defs>
-            <filter id="topology-shadow" x="-10%" y="-10%" width="120%" height="140%">
-              <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.15" />
-            </filter>
-          </defs>
+  <div ref="wrapperRef" class="connector-topology" :style="{ width: '100%', position: 'relative' }">
+    <svg v-if="layout.nodes.length > 1"
+      :width="layout.width" :height="layout.height" :viewBox="`0 0 ${layout.width} ${layout.height}`"
+      :style="{ display: 'block', fill: 'none', overflow: 'visible' }"
+      role="img" :aria-label="$i18n.t('Cloud connectors topology')">
 
-          <!-- links -->
-          <g v-for="node in nodes" :key="`link-${node.id}`" class="link" @click="select(node.id)">
-            <path :d="node.path" fill="none" stroke="#e9ecef" :stroke-width="node.strokeWidth + 4" stroke-linecap="round" />
-            <path :d="node.path" fill="none" :stroke="node.color" :stroke-width="node.strokeWidth" stroke-linecap="round"
-              :stroke-dasharray="node.dash" :class="{ flowing: node.flowing }" :style="node.flowing ? { animationDuration: node.flowDuration } : {}">
-              <title>{{ node.title }}</title>
-            </path>
-            <g v-if="node.connected" :transform="`translate(${node.labelX}, ${node.labelY})`" class="link-label">
-              <text text-anchor="middle" dy="-4">{{ node.rttLabel }}</text>
-              <text text-anchor="middle" dy="12" class="text-rate">{{ node.rateLabel }}</text>
-            </g>
+      <!-- flow lines: right angles only -->
+      <path v-for="edge in layout.edges" :key="edge.key" :d="edge.d"
+        :style="{ fill: 'none', stroke: edge.color, strokeWidth: (related && related.edges.has(edge.key)) ? 2 : 1.5, strokeOpacity: (related && !related.edges.has(edge.key)) ? FADED * edge.opacity : edge.opacity, transition: 'stroke-opacity 150ms', strokeDasharray: edge.dashed ? '5 4' : 'none', strokeLinejoin: 'miter', strokeLinecap: 'square' }" />
+
+      <g v-for="node in layout.nodes" :key="node.key"
+        :style="{ cursor: 'pointer', outline: 'none', opacity: (related && !related.nodes.has(node.key)) ? FADED : 1, transition: 'opacity 150ms' }" tabindex="0" role="link"
+        @mouseenter="hovered = node.key" @mouseleave="hovered = null"
+        @focus="hovered = node.key" @blur="hovered = null"
+        @click="goTo(node.to)" @keydown.enter="goTo(node.to)">
+        <title>{{ node.tooltip }}</title>
+        <!-- box -->
+        <rect :x="node.x" :y="node.y" :width="node.w" :height="nodeHeight" rx="6"
+          :style="{ fill: node.fill, stroke: hovered === node.key ? colors.primary : node.border, strokeWidth: hovered === node.key ? 2 : 1 }" />
+        <!-- type accent -->
+        <rect :x="node.x" :y="node.y" width="5" :height="nodeHeight" rx="2" :style="{ fill: node.accent, stroke: 'none' }" />
+        <!-- type icon -->
+        <g v-if="node.icon" :transform="`translate(${node.x + 14} ${node.y + (nodeHeight - iconSize) / 2}) scale(${iconSize / node.icon.size})`">
+          <path v-for="(d, i) in node.icon.paths" :key="i" :d="d" :style="{ fill: node.iconColor, stroke: 'none' }" />
+        </g>
+        <!-- connected dot on the icon -->
+        <circle v-if="node.dot" :cx="node.x + 14 + iconSize" :cy="node.y + (nodeHeight - iconSize) / 2 + 2" r="5"
+          :style="{ fill: node.dot, stroke: node.fill, strokeWidth: 2 }" />
+        <text :x="node.x + textX" :y="node.y + 18" :style="{ fill: node.titleColor, fontSize: '13px', fontWeight: 600, fontFamily: node.mono ? monoFont : 'inherit', stroke: 'none' }">{{ node.title }}<tspan v-if="node.titleExtra && node.titleExtra.length > 3" dx="6" :style="{ fill: node.subtitleColor, fontSize: '12px', fontWeight: 400 }">{{ node.titleExtra }}</tspan></text>
+        <text :x="node.x + textX" :y="node.y + 34" :style="{ fill: node.subtitleColor, fontSize: '11px', stroke: 'none' }">{{ node.subtitle }}</text>
+        <!-- DNS domain issues of a connector, detailed in its menu -->
+        <g v-if="node.issues" @click.stop="openMenu(node)" @keydown.enter.stop="openMenu(node)">
+          <title>{{ node.issues.tooltip }}</title>
+          <rect :x="node.x + node.w - 26 - node.issues.w" :y="node.y + 25" :width="node.issues.w" height="14" rx="7"
+            :style="{ fill: colors.orange, stroke: 'none' }" />
+          <text :x="node.x + node.w - 26 - node.issues.w / 2" :y="node.y + 35" text-anchor="middle"
+            :style="{ fill: colors.white, fontSize: '10px', fontWeight: 700, stroke: 'none' }">{{ node.issues.label }}</text>
+        </g>
+        <!-- master / slave pill -->
+        <g v-if="node.badge">
+          <rect :x="node.x + node.w - node.badge.w - node.badgeRight" :y="node.y + 7" :width="node.badge.w" height="16" rx="8" :style="{ fill: node.badge.color, stroke: 'none' }" />
+          <text :x="node.x + node.w - node.badge.w / 2 - node.badgeRight" :y="node.y + 19" text-anchor="middle"
+            :style="{ fill: colors.white, fontSize: '10px', fontWeight: 700, letterSpacing: '0.4px', stroke: 'none' }">{{ node.badge.label }}</text>
+        </g>
+        <!-- actions menu (3 dots) -->
+        <g v-if="node.kind === 'connector'" @click.stop="openMenu(node)" @keydown.enter.stop="openMenu(node)">
+          <title>{{ $i18n.t('Actions') }}</title>
+          <rect :x="node.x + node.w - 26" :y="node.y + 4" width="22" :height="nodeHeight - 8" rx="4"
+            :style="{ fill: menu && menu.key === node.key ? colors.light : 'transparent', stroke: 'none' }" />
+          <g :transform="`translate(${node.x + node.w - 19} ${node.y + (nodeHeight - 16) / 2}) scale(${16 / menuIcon.size})`">
+            <path v-for="(d, i) in menuIcon.paths" :key="i" :d="d" :style="{ fill: node.titleColor, stroke: 'none' }" />
           </g>
-
-          <!-- PacketFence -->
-          <g :transform="`translate(${pf.x}, ${pf.y})`" filter="url(#topology-shadow)">
-            <rect :width="pf.w" :height="pf.h" rx="10" fill="#0d6efd" />
-            <text :x="pf.w / 2" :y="pf.h / 2 - 4" text-anchor="middle" fill="#fff" class="node-title">PacketFence</text>
-            <text :x="pf.w / 2" :y="pf.h / 2 + 14" text-anchor="middle" fill="#dbe7ff" class="node-sub">{{ $t('{n} connector(s), {c} connected', { n: nodes.length, c: connectedCount }) }}</text>
-          </g>
-
-          <!-- connectors -->
-          <g v-for="node in nodes" :key="`node-${node.id}`">
-            <g :transform="`translate(${node.x}, ${node.y})`" class="connector-node" :class="{ selected: node.id === selectedId }"
-              filter="url(#topology-shadow)" @click="select(node.id)">
-              <title>{{ node.title }}</title>
-              <rect :width="node.w" :height="node.h" rx="8" fill="#fff" :stroke="node.color" :stroke-width="node.id === selectedId ? 3 : 2" />
-              <circle :cx="14" :cy="node.h / 2" r="5" :fill="node.color" />
-              <text :x="28" :y="node.h / 2 - 5" class="node-title">{{ node.label }}</text>
-              <text v-if="node.haVip" :x="node.w - 10" :y="node.h / 2 - 5" text-anchor="end" class="node-sub" fill="#6c757d">HA {{ node.haVip }}</text>
-              <text :x="28" :y="node.h / 2 + 12" class="node-sub" fill="#6c757d">{{ node.subLabel }}</text>
-            </g>
-            <!-- HA standby satellites -->
-            <g v-for="sat in node.satellites" :key="`sat-${node.id}-${sat.address}`">
-              <line :x1="node.x + node.w" :y1="node.y + node.h / 2" :x2="sat.x" :y2="sat.y + sat.h / 2" :stroke="sat.color" stroke-width="1.5" stroke-dasharray="3 3" />
-              <g :transform="`translate(${sat.x}, ${sat.y})`" class="satellite">
-                <title>{{ sat.title }}</title>
-                <rect :width="sat.w" :height="sat.h" rx="10" fill="#fff" :stroke="sat.color" stroke-width="1.5" />
-                <circle :cx="10" :cy="sat.h / 2" r="3.5" :fill="sat.color" />
-                <text :x="19" :y="sat.h / 2 + 3.5" class="sat-label">{{ sat.label }}</text>
-              </g>
-            </g>
-          </g>
-        </svg>
-        <div class="d-flex flex-wrap align-items-center mt-2 small text-muted">
-          <span class="mr-3"><span class="legend-swatch" style="background:#28a745"></span>{{ $t('connected') }}</span>
-          <span class="mr-3"><span class="legend-swatch" style="background:#dc3545"></span>{{ $t('tunnel down') }}</span>
-          <span class="mr-3"><span class="legend-swatch" style="background:#adb5bd"></span>{{ $t('never connected') }}</span>
-          <span class="mr-3"><span class="legend-swatch" style="background:#fd7e14"></span>{{ $t('standby host with FreeRADIUS down') }}</span>
-          <span>{{ $t('Link width and animation follow the tunnel throughput; the label shows the keepalive round trip and the rate from / to the site. Click a connector for the details. Refreshed every {s} seconds.', { s: pollSeconds }) }}</span>
-        </div>
-
-        <!-- traffic history -->
-        <b-row class="mt-3">
-          <b-col lg="8" class="mb-3 mb-lg-0">
-            <b-card no-body class="h-100">
-              <b-card-header class="d-flex align-items-center py-2">
-                <strong class="flex-grow-1">{{ $t('Tunnel traffic') }} <small class="text-muted">{{ selected ? selected.label : $t('all connectors') }}</small></strong>
-                <b-button-group size="sm">
-                  <b-button v-for="w in trafficWindows" :key="w.seconds" :variant="w.seconds === trafficWindow ? 'primary' : 'outline-secondary'" @click="trafficWindow = w.seconds">{{ w.label }}</b-button>
-                </b-button-group>
-              </b-card-header>
-              <div class="card-body p-2">
-                <div v-show="hasTraffic" ref="trafficRef" class="topology-chart"></div>
-                <p v-show="!hasTraffic" class="text-muted small text-center my-4">{{ $t('Collecting the history: the servers sample the tunnels every few seconds, the chart appears with the first samples.') }}</p>
-              </div>
-            </b-card>
-          </b-col>
-          <b-col lg="4">
-            <b-card no-body class="h-100">
-              <b-card-header class="py-2"><strong>{{ $t('Top services') }} <small class="text-muted">{{ $t('over the window') }}</small></strong></b-card-header>
-              <div class="card-body p-2">
-                <div v-show="hasTraffic" ref="servicesRef" class="topology-chart"></div>
-                <p v-show="!hasTraffic" class="text-muted small text-center my-4">{{ $t('No traffic recorded yet.') }}</p>
-              </div>
-            </b-card>
-          </b-col>
-        </b-row>
-
-        <!-- details of the selected connector -->
-        <b-card v-if="selected" class="mt-3" no-body>
-          <b-card-header class="d-flex align-items-center py-2">
-            <strong class="flex-grow-1">{{ selected.label }} <small class="text-muted text-monospace">{{ selected.id }}</small></strong>
-            <b-button size="sm" variant="outline-primary" class="mr-1" @click="goToItem({ id: selected.id })">{{ $t('Open connector') }}</b-button>
-            <b-button size="sm" variant="outline-secondary" @click="selectedId = null">{{ $t('Close') }}</b-button>
-          </b-card-header>
-          <b-row no-gutters>
-            <b-col :md="selected.haRows.length ? 7 : 12" class="p-3">
-              <h6 class="text-secondary">{{ $t('Traffic by service') }}</h6>
-              <b-table-simple v-if="selected.services.length" small class="mb-0">
-                <b-thead>
-                  <b-tr>
-                    <b-th>{{ $t('Service') }}</b-th>
-                    <b-th>{{ $t('Destination') }}</b-th>
-                    <b-th class="text-right">{{ $t('From site') }}</b-th>
-                    <b-th class="text-right">{{ $t('To site') }}</b-th>
-                    <b-th class="text-right">{{ $t('Active') }}</b-th>
-                    <b-th class="text-right">{{ $t('Total') }}</b-th>
-                  </b-tr>
-                </b-thead>
-                <b-tbody>
-                  <b-tr v-for="svc in selected.services" :key="svc.key">
-                    <b-td>{{ svc.name }}<b-badge v-if="svc.reverse" variant="light" class="border ml-1" :title="$t('Opened by PacketFence toward the connector')">{{ $t('reverse') }}</b-badge></b-td>
-                    <b-td class="text-monospace small">{{ svc.destination }}</b-td>
-                    <b-td class="text-right text-monospace">{{ svc.rateIn }}</b-td>
-                    <b-td class="text-right text-monospace">{{ svc.rateOut }}</b-td>
-                    <b-td class="text-right">{{ svc.active }}</b-td>
-                    <b-td class="text-right text-monospace small">↓ {{ svc.totalIn }} ↑ {{ svc.totalOut }}</b-td>
-                  </b-tr>
-                </b-tbody>
-              </b-table-simple>
-              <p v-else class="text-muted mb-0">{{ $t('No traffic carried by the tunnel yet.') }}</p>
-            </b-col>
-            <b-col v-if="selected.haRows.length" md="5" class="p-3 border-left">
-              <h6 class="text-secondary">{{ $t('High availability') }} <small class="text-muted">VIP {{ selected.haVip }}</small></h6>
-              <b-table-simple small class="mb-0">
-                <b-thead>
-                  <b-tr>
-                    <b-th>{{ $t('Host') }}</b-th>
-                    <b-th>{{ $t('Role') }}</b-th>
-                    <b-th>{{ $t('FreeRADIUS') }}</b-th>
-                    <b-th>{{ $t('State') }}</b-th>
-                  </b-tr>
-                </b-thead>
-                <b-tbody>
-                  <b-tr v-for="row in selected.haRows" :key="row.address">
-                    <b-td class="text-monospace">{{ row.hostname }} <small class="text-muted">{{ row.address }}</small></b-td>
-                    <b-td>{{ row.role }}</b-td>
-                    <b-td><b-badge :variant="row.radiusOk ? 'success' : 'warning'">{{ row.radiusOk ? $t('ok') : $t('down') }}</b-badge></b-td>
-                    <b-td><b-badge :variant="row.alive ? 'success' : 'danger'">{{ row.alive ? $t('alive') : $t('not reporting') }}</b-badge></b-td>
-                  </b-tr>
-                </b-tbody>
-              </b-table-simple>
-            </b-col>
-          </b-row>
-        </b-card>
-      </div>
+        </g>
+      </g>
+    </svg>
+    <div v-if="menu" ref="menuRef" class="dropdown-menu show" role="menu"
+      :style="{ position: 'absolute', left: `${menu.left}px`, top: `${menu.top}px`, right: 'auto' }">
+      <h6 class="dropdown-header">{{ menu.id }}</h6>
+      <template v-for="item in menu.items">
+        <h6 v-if="item.header" :key="item.key" class="dropdown-header">{{ item.header }}</h6>
+        <a v-else :key="item.key" href="javascript:void(0)" role="menuitem"
+          class="dropdown-item" :class="{ disabled: item.disabled, 'text-danger': item.danger && !item.disabled, 'text-warning': item.warning }"
+          :title="item.disabled ? item.reason : (item.tooltip || '')"
+          @click.stop="!item.disabled && onMenuItem(item)">
+          <icon :name="item.icon" class="mr-2" />{{ item.label }}<small v-if="item.detail" class="d-block text-muted ml-4">{{ item.detail }}</small>
+        </a>
+      </template>
     </div>
-  </b-card>
+    <base-table-empty v-if="layout.nodes.length <= 1" :is-loading="isLoading">{{ $i18n.t('No cloud connector configured.') }}</base-table-empty>
+  </div>
 </template>
 <script>
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from '@vue/composition-api'
+import { computed, onBeforeUnmount, onMounted, ref } from '@vue/composition-api'
+import Icon from 'vue-awesome/components/Icon'
+import { BaseTableEmpty } from '@/components/new/'
+import { useResizeObserver } from '@/composables/useDom'
+import acl from '@/utils/acl'
 import i18n from '@/utils/locale'
-import bytes from '@/utils/bytes'
-import plotly, { config as plotlyConfig } from '@/utils/plotly'
-import api from '../_api'
-import { useRouter } from '../_composables/useCollection'
+import { connectorHa, connectorInterfaces, equipmentEndpoints, equipmentRows, interfaceFor, packetfenceInterfaces, sortNetworks, staticState } from '../_composables/useConnectorRows'
+import { dnsTopology } from '../_composables/useDnsTopology'
 
-const pollSeconds = 3
-// The history is refreshed less often than the live map: the servers sample
-// every 5 s, so 15 s adds a few points per refresh.
-const trafficPollSeconds = 15
-const trafficWindows = [
-  { seconds: 300, label: '5 min' },
-  { seconds: 900, label: '15 min' },
-  { seconds: 3600, label: '1 h' }
-]
-
-// Layout constants (SVG user units; the viewBox scales to the card width).
-const WIDTH = 1000
-const PF = { x: 40, w: 180, h: 64 }
-const NODE = { x: 560, w: 240, minH: 56, gap: 18, top: 36 }
-const SAT = { x: NODE.x + NODE.w + 26, w: 170, h: 20, gap: 6 }
-
-// Human name of a tunnel destination, from the port PacketFence exposes.
-const SERVICE_NAMES = {
-  '1812/udp': 'RADIUS authentication',
-  '1813/udp': 'RADIUS accounting',
-  '1815/udp': 'RADIUS CLI',
-  '80/tcp': 'Captive portal (HTTP)',
-  '443/tcp': 'Captive portal (HTTPS)',
-  '8880/tcp': 'Captive portal (HTTP)',
-  '8843/tcp': 'Captive portal (HTTPS)',
-  '3306/tcp': 'MySQL',
-  '6379/tcp': 'Redis',
-  '9090/tcp': 'Web services',
-  '22226/tcp': 'Connector API',
-  '4723/tcp': 'Fingerbank collector'
+const components = {
+  BaseTableEmpty
 }
-const serviceName = (destination, reverse) => {
-  const m = destination.match(/^(.*?):(\d+)(?:\/(\w+))?(?:\|(\w+))?$/)
-  if (!m)
-    return destination
-  const [ , host, port, proto = 'tcp' ] = m
-  if (/fingerbank\.org$/.test(host))
-    return 'Fingerbank API'
-  const named = SERVICE_NAMES[`${port}/${proto}`]
-  if (named)
-    return named
-  const p = parseInt(port)
-  if (p >= 30000 && p <= 30999)
-    return i18n.t('DNS / RADIUS source tunnel')
-  if (p >= 23000 && p <= 23999)
-    return reverse ? 'Fingerbank collector' : i18n.t('NTLM authentication')
-  return `${proto.toUpperCase()} ${port}`
+
+const NODE_HEIGHT = 44
+const ROW_HEIGHT = 56
+const PAD = 2
+const ICON_SIZE = 18
+const TEXT_X = 42
+const FADED = 0.2 // opacity of the boxes and lines not related to the hovered box
+const GUTTER_PAD = 8
+const LANE_GAP = 6
+const MAX_LANES = 3
+const MAX_DOMAINS = 5
+const CHAR_WIDTH = { title: 7.4, subtitle: 6.2, chip: 5.8 } // 13px / 11px / 10px text
+const MONO_FONT = 'SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace'
+
+// icons registered in main.js, by node kind / equipment group
+const ICONS = {
+  packetfence: 'shield-alt',
+  network: 'project-diagram',
+  connector: 'plug',
+  switches: 'sitemap',
+  authentication_sources: 'user-lock',
+  domains: 'id-card',
+  firewalls: 'lock',
+  dns_connectors: 'server',
+  dns_domain: 'globe'
 }
+
+// bootstrap CSS variables, read from the page with fallbacks
+const COLOR_VARS = {
+  primary: ['--primary', '#007bff'],
+  success: ['--success', '#28a745'],
+  danger: ['--danger', '#dc3545'],
+  secondary: ['--secondary', '#6c757d'],
+  dark: ['--dark', '#343a40'],
+  white: ['--white', '#ffffff'],
+  light: ['--light', '#f8f9fa'],
+  gray: ['--gray', '#6c757d'],
+  teal: ['--teal', '#20c997'],
+  blue: ['--blue', '#007bff'],
+  purple: ['--purple', '#6f42c1'],
+  indigo: ['--indigo', '#6610f2'],
+  orange: ['--orange', '#fd7e14'],
+  cyan: ['--cyan', '#17a2b8']
+}
+const readColors = () => {
+  const style = (typeof window !== 'undefined') ? window.getComputedStyle(document.documentElement) : null
+  return Object.keys(COLOR_VARS).reduce((colors, key) => {
+    const [cssVar, fallback] = COLOR_VARS[key]
+    const value = style && style.getPropertyValue(cssVar).trim()
+    return { ...colors, [key]: value || fallback }
+  }, {})
+}
+
+const iconData = name => {
+  const icon = Icon.icons[name]
+  if (!icon)
+    return null
+  return { size: Math.max(icon.width, icon.height), paths: icon.paths.map(path => path.d) }
+}
+
+const props = {
+  // connectors with their tunnel status: [{ id, description, networks, status }]
+  items: {
+    type: Array,
+    default: () => ([])
+  },
+  // pfconnector-remotes/{id}/status of the connected connectors, by id
+  remoteInfo: {
+    type: Object,
+    default: () => ({})
+  },
+  // config/connector/{id}/equipment, by id
+  equipment: {
+    type: Object,
+    default: () => ({})
+  },
+  // config/connectors (configuration order), with the DNS servers and the
+  // domains configured on them (dnsServersOf)
+  dns: {
+    type: Object,
+    default: () => ({ connectors: [], servers: [], domains: [] })
+  },
+  // config/interfaces
+  interfaces: {
+    type: Array,
+    default: () => ([])
+  },
+  // cloud: the PacketFence interfaces are pod interfaces, not shown
+  saas: {
+    type: Boolean
+  },
+  version: {
+    type: String
+  },
+  isLoading: {
+    type: Boolean
+  }
+}
+
+const fit = (text, width, kind = 'title') => {
+  const value = `${text || ''}`
+  const max = Math.max(4, Math.floor(width / CHAR_WIDTH[kind]))
+  return (value.length > max) ? `${value.slice(0, max - 1)}…` : value
+}
+
+// width of a pill label (10px text)
+const chipWidth = label => Math.ceil(label.length * CHAR_WIDTH.chip) + 12
+
+// right-angle route: out to the trunk, along it, then in to the target
+const route = (x1, y1, x2, y2, trunkX) => (Math.abs(y2 - y1) < 1)
+  ? `M${x1} ${y1} H${x2}`
+  : `M${x1} ${y1} H${trunkX} V${y2} H${x2}`
 
 const setup = (props, context) => {
   const { root: { $router } = {} } = context
-  const { goToCollection, goToItem } = useRouter($router)
 
-  const connectors = ref([])
-  const loaded = ref(false)
-  const error = ref(null)
-  const paused = ref(false)
-  const updatedAt = ref(null)
-  const selectedId = ref(null)
-  // Previous cumulative counters per connector (and per service), to derive
-  // bytes per second between two samples.
-  const previous = new Map()
-  const rates = ref({})
-  const serviceRates = ref({})
+  const colors = readColors()
+  const hovered = ref(null)
 
-  const rate = (now, prev, dt, field) => (now[field] >= prev[field]) ? (now[field] - prev[field]) / dt : 0
+  const wrapperRef = ref(null)
+  const width = ref(0)
+  useResizeObserver(wrapperRef, entries => {
+    const [entry] = entries
+    width.value = Math.floor(entry.contentRect.width)
+  })
 
-  const refresh = () => {
-    return api.topology().then(reply => {
-      const list = reply.connectors || []
-      const nextRates = {}
-      const nextServiceRates = {}
-      list.forEach(c => {
-        const stats = c.stats || null
-        const prev = previous.get(c.id)
-        if (stats && prev && stats.sampled_at && prev.sampled_at) {
-          const dt = (new Date(stats.sampled_at) - new Date(prev.sampled_at)) / 1000
-          if (dt > 0) {
-            nextRates[c.id] = { in: rate(stats, prev, dt, 'bytes_in'), out: rate(stats, prev, dt, 'bytes_out') }
-            const prevServices = new Map((prev.services || []).map(s => [`${s.reverse ? '<' : ''}${s.destination}`, s]))
-            nextServiceRates[c.id] = {}
-            ;(stats.services || []).forEach(s => {
-              const key = `${s.reverse ? '<' : ''}${s.destination}`
-              const p = prevServices.get(key)
-              if (p)
-                nextServiceRates[c.id][key] = { in: rate(s, p, dt, 'bytes_in'), out: rate(s, p, dt, 'bytes_out') }
-            })
-          }
+  // connected: green dot; anything else is disconnected: red dot, greyed box
+  const statusColor = status => (status === 'up') ? colors.success : colors.danger
+
+  const layout = computed(() => {
+    const W = Math.max(width.value, 760)
+    const gap = Math.max(36, Math.round(W * 0.04))
+    // DNS servers and domains declared through the connectors, their tunnel
+    const dnsInfo = dnsTopology(props.dns.connectors, props.dns.servers, props.dns.domains)
+    const hasDomains = Object.values(dnsInfo.servers).some(server => server.chips.length)
+    // right gutter for the DNS server -> domain brackets, one lane per server
+    const gutter = (hasDomains) ? GUTTER_PAD + (MAX_LANES * LANE_GAP) : 0
+    const available = W - (2 * PAD) - (3 * gap) - gutter
+    // identical boxes in every column
+    const boxW = Math.floor(available / 4)
+    const pfX = PAD
+    const connX = pfX + boxW + gap
+    const netX = connX + boxW + gap
+    const devX = netX + boxW + gap
+    const rowY = row => PAD + (row * ROW_HEIGHT)
+    const mid = node => node.y + (NODE_HEIGHT / 2)
+
+    // PacketFence -> connectors -> networks -> devices, one band per
+    // connector (connectors never share a network). An HA connector is one
+    // entry with several hosts sharing its id and VIP: the master runs the
+    // tunnel, the standby hosts it reports (system.ha.peers) are drawn under
+    // it. A child is drawn on its parent's row, its siblings below.
+    const firstNetwork = item => sortNetworks(item.networks || [])[0]
+    const connectors = [...props.items].sort((a, b) => {
+      const [na, nb] = [firstNetwork(a), firstNetwork(b)]
+      if (na !== nb) {
+        if (!na) return 1
+        if (!nb) return -1
+        return (sortNetworks([na, nb])[0] === na) ? -1 : 1
+      }
+      return a.id.localeCompare(b.id)
+    })
+    const tunnelColor = { bound: colors.success, partial: colors.orange, not_bound: colors.danger }
+    const deviceAccent = { switches: 'blue', authentication_sources: 'purple', domains: 'indigo', firewalls: 'orange', dns_connectors: 'cyan' }
+
+    const nodes = []
+    const edges = []
+    let row = 0
+
+    // the connectors' tunnels end on the management interface
+    const pfInterfaces = (props.saas) ? [] : packetfenceInterfaces(props.interfaces)
+    const management = pfInterfaces.find(({ type }) => /management/.test(type))
+    const viaInterface = iface => (!iface)
+      ? null
+      : ((iface.local) ? i18n.t('via {name}', { name: iface.name }) : i18n.t('via {name} (default route)', { name: iface.name }))
+
+    // tunnel state of a group of DNS servers: bound, partial, not_bound or null
+    const tunnelOf = (servers, remote) => {
+      const states = servers.map(server => staticState(remote, { port: server.pfconnector_port, host: server.ip })).filter(Boolean)
+      if (!states.length)
+        return null
+      if (states.every(state => state === 'bound'))
+        return 'bound'
+      return (states.some(state => state !== 'not_bound')) ? 'partial' : 'not_bound'
+    }
+
+    // "DNS forwarding" block of a band: a box in the network column, one box
+    // per domain forwarded through the band, brackets from the DNS servers
+    // (serverNodes, by id) to their domains. Returns the rows used.
+    // the DNS servers of a connector are configured in its settings
+    const dnsSettings = owner => (owner)
+      ? { name: 'connectorsConnector', params: { id: owner }, query: { tab: 'settings', section: 'dns' } }
+      : { name: 'connectorsConnectors' }
+    const dnsBlock = ({ key, owner, source, trunkX, startRow, serverNodes, remote, connected, edgeStyle }) => {
+      const servers = Object.values(dnsInfo.servers).filter(server => server.owner === owner && server.chips.length)
+      if (!servers.length)
+        return 0
+      const domains = []
+      servers.forEach(server => server.chips.forEach(chip => {
+        let domain = domains.find(({ id }) => id === chip.domain)
+        if (!domain) {
+          domain = { id: chip.domain, state: chip.state, servers: [] }
+          domains.push(domain)
         }
-        if (stats)
-          previous.set(c.id, stats)
-        else
-          previous.delete(c.id)
+        domain.servers.push(server)
+        if (chip.state === 'elsewhere')
+          domain.state = 'elsewhere'
+      }))
+      // domains forwarded elsewhere than declared first, then the ones
+      // served by several servers, then by name
+      domains.sort((a, b) => ((b.state === 'elsewhere') - (a.state === 'elsewhere')) || (b.servers.length - a.servers.length) || a.id.localeCompare(b.id))
+      const shown = (domains.length > MAX_DOMAINS) ? domains.slice(0, MAX_DOMAINS - 1) : domains
+      const hidden = domains.length - shown.length
+      const muted = !connected && owner
+      const block = {
+        key: `dns-${key}`, kind: 'network',
+        x: netX, y: rowY(startRow), w: boxW,
+        fill: muted ? colors.light : colors.white, border: colors.gray, accent: colors.cyan,
+        icon: iconData(ICONS.dns_domain), iconColor: muted ? colors.secondary : colors.dark,
+        titleColor: muted ? colors.secondary : colors.dark, subtitleColor: colors.secondary,
+        title: fit(i18n.t('DNS forwarding'), boxW - TEXT_X - 8),
+        subtitle: fit(i18n.t('{domains} domain(s) · {servers} server(s)', { domains: domains.length, servers: servers.length }), boxW - TEXT_X - 8, 'subtitle'),
+        tooltip: domains.map(({ id }) => id).join(', '),
+        to: dnsSettings(owner)
+      }
+      nodes.push(block)
+      edges.push({ key: `edge-${block.key}`, from: source.key, to: block.key, ...edgeStyle, d: route(source.x + source.w, mid(source), block.x, mid(block), trunkX) })
+      const domainNodes = {}
+      shown.forEach((domain, index) => {
+        const tunnel = (connected && remote) ? tunnelOf(domain.servers, remote) : null
+        const via = i18n.t('via {servers}', { servers: domain.servers.map(({ id }) => id).join(', ') })
+        const declared = (dnsInfo.declared || {})[domain.id]
+        const node = {
+          key: `dns-${key}-${domain.id}`, kind: 'device',
+          x: devX, y: rowY(startRow + index), w: boxW,
+          fill: muted ? colors.light : colors.white, border: colors.gray,
+          accent: (domain.state === 'elsewhere') ? colors.orange : colors.cyan,
+          icon: iconData(ICONS.dns_domain), iconColor: muted ? colors.secondary : colors.dark, dot: tunnelColor[tunnel],
+          titleColor: muted ? colors.secondary : colors.dark, subtitleColor: colors.secondary,
+          title: fit((domain.state === 'elsewhere') ? `! ${domain.id}` : domain.id, boxW - TEXT_X - 8),
+          subtitle: fit([(domain.state === 'elsewhere') && i18n.t('declared on {connector}', { connector: declared }), via, tunnel && tunnel.replace('_', ' ')].filter(Boolean).join(' · '), boxW - TEXT_X - 8, 'subtitle'),
+          tooltip: [i18n.t('DNS domain'), domain.id, via, (domain.state === 'elsewhere') && i18n.t('declared on {connector}, forwarded through this tunnel', { connector: declared }), tunnel && i18n.t('tunnel {state}', { state: tunnel.replace('_', ' ') })].filter(Boolean).join(' · '),
+          to: dnsSettings(owner)
+        }
+        nodes.push(node)
+        domainNodes[domain.id] = node
+        edges.push({ key: `edge-${node.key}`, from: block.key, to: node.key, ...edgeStyle, d: route(block.x + block.w, mid(block), node.x, mid(node), block.x + block.w + gap / 2) })
       })
-      rates.value = nextRates
-      serviceRates.value = nextServiceRates
-      connectors.value = list
-      error.value = null
-      updatedAt.value = new Date().toLocaleTimeString()
-    }).catch(() => {
-      error.value = i18n.t('Unable to load the connectors topology.')
-    }).finally(() => {
-      loaded.value = true
+      if (hidden) {
+        const node = {
+          key: `dns-${key}-more`, kind: 'device',
+          x: devX, y: rowY(startRow + shown.length), w: boxW,
+          fill: colors.light, border: colors.gray, accent: colors.secondary,
+          icon: iconData(ICONS.dns_domain), iconColor: colors.secondary,
+          titleColor: colors.secondary, subtitleColor: colors.secondary,
+          title: fit(i18n.t('+{count} more domains', { count: hidden }), boxW - TEXT_X - 8),
+          subtitle: fit(domains.slice(shown.length).map(({ id }) => id).join(', '), boxW - TEXT_X - 8, 'subtitle'),
+          tooltip: domains.slice(shown.length).map(({ id }) => id).join(', '),
+          to: dnsSettings(owner)
+        }
+        nodes.push(node)
+        edges.push({ key: `edge-${node.key}`, from: block.key, to: node.key, ...edgeStyle, d: route(block.x + block.w, mid(block), node.x, mid(node), block.x + block.w + gap / 2) })
+      }
+      // brackets in the right gutter, one lane per DNS server drawn in the
+      // band with a domain shown
+      servers.filter(server => serverNodes[server.id] && server.chips.some(({ domain }) => domainNodes[domain])).slice(0, MAX_LANES).forEach((server, lane) => {
+        const from = serverNodes[server.id]
+        const laneX = devX + boxW + GUTTER_PAD + (lane * LANE_GAP)
+        server.chips.forEach(({ domain }) => {
+          const to = domainNodes[domain]
+          if (to)
+            edges.push({
+              key: `bracket-${key}-${server.id}-${domain}`, from: from.key, to: to.key, bracket: true, color: colors.cyan, opacity: 0.8, dashed: true,
+              d: `M${from.x + from.w} ${mid(from)} H${laneX} V${mid(to)} H${to.x + to.w}`
+            })
+        })
+      })
+      return shown.length + (hidden ? 1 : 0)
+    }
+
+    const packetfence = {
+      key: 'packetfence', kind: 'packetfence',
+      x: pfX, y: rowY(0), w: boxW,
+      fill: colors.primary, border: colors.primary, accent: colors.primary,
+      icon: iconData(ICONS.packetfence), iconColor: colors.white,
+      titleColor: colors.white, subtitleColor: colors.light,
+      title: fit('PacketFence', boxW - TEXT_X - 8),
+      subtitle: fit([props.version && i18n.t('version {version}', { version: props.version }), management && management.name].filter(Boolean).join(' · '), boxW - TEXT_X - 8, 'subtitle'),
+      tooltip: [props.version ? `PacketFence ${props.version}` : 'PacketFence', management && i18n.t('tunnels on {name} (management)', { name: management.name })].filter(Boolean).join(' · '),
+      to: { path: '/status/about' }
+    }
+    nodes.push(packetfence)
+    const pfTrunk = packetfence.x + packetfence.w + gap / 2
+
+    connectors.forEach(connector => {
+      const bandStart = row
+      const remote = props.remoteInfo[connector.id]
+      const { system } = remote || {}
+      const version = system && system.version
+      const ha = connectorHa(remote)
+      const status = connector.status || 'unknown'
+      const connected = status === 'up'
+      const statusLabel = { up: i18n.t('connected'), down: i18n.t('unreachable') }[status] || i18n.t('unknown')
+      const badgeLabel = ha ? i18n.t('master').toUpperCase() : null
+      const badge = ha ? { label: badgeLabel, w: Math.max(46, badgeLabel.length * 7 + 14), color: colors.success } : null
+      // interfaces of the connector host, when it reports them, else its
+      // default route IPs (remote_ips)
+      const hostInterfaces = connectorInterfaces(remote)
+      const mainInterface = hostInterfaces.find(({ main }) => main)
+      const [uplinkIp] = (remote && remote.remote_ips) || []
+      const uplink = [mainInterface && mainInterface.name, uplinkIp].filter(Boolean).join(' ')
+      const dnsDomains = dnsInfo.issues[connector.id] || []
+      const dnsIssues = dnsDomains.filter(issue => issue.state !== 'ok')
+      const issuesLabel = `! ${dnsIssues.length}`
+      const issues = (dnsIssues.length)
+        ? { label: issuesLabel, w: chipWidth(issuesLabel), tooltip: i18n.t('{count} DNS domain issue(s), see the actions menu', { count: dnsIssues.length }) }
+        : null
+      const head = {
+        key: `connector-${connector.id}`, kind: 'connector', id: connector.id,
+        x: connX, y: rowY(bandStart), w: boxW,
+        fill: connected ? colors.white : colors.light, border: colors.gray, accent: connected ? colors.success : colors.secondary,
+        icon: iconData(ICONS.connector), iconColor: connected ? colors.dark : colors.secondary, dot: statusColor(status),
+        titleColor: connected ? colors.dark : colors.secondary, subtitleColor: colors.secondary, badge,
+        badgeRight: 32,
+        title: fit(connector.id, boxW - TEXT_X - 32 - (badge ? badge.w + 8 : 0)),
+        subtitle: fit([statusLabel, ha ? `VIP ${ha.vip}` : null, uplink, version, connector.description].filter(Boolean).join(' · '), boxW - TEXT_X - 32 - (issues ? issues.w + 4 : 0), 'subtitle'),
+        tooltip: [connector.id, connector.description, statusLabel, version, ha && `VIP ${ha.vip}`, ha && `${ha.hostname || ''} ${ha.address || ''}`.trim(), uplink && i18n.t('uplink {uplink}', { uplink })].filter(Boolean).join(' · '),
+        to: { name: 'connectorsConnector', params: { id: connector.id } },
+        status, connected, networks: connector.networks || [], issues, dnsDomains
+      }
+      nodes.push(head)
+      edges.push({
+        key: `edge-pf-${head.key}`, from: packetfence.key, to: head.key, color: connected ? colors.success : colors.secondary, opacity: connected ? 0.7 : 0.6,
+        dashed: !connected,
+        d: route(packetfence.x + packetfence.w, mid(packetfence), head.x, mid(head), pfTrunk)
+      })
+      const bandTrunk = head.x + head.w + gap / 2
+
+      // standby hosts of an HA connector, joined to the master's trunk
+      const standby = (ha ? ha.peers : []).map((peer, index) => {
+        const label = peer.hostname || peer.address
+        const node = {
+          key: `standby-${connector.id}-${peer.address || index}`, kind: 'standby',
+          x: connX, y: rowY(bandStart + 1 + index), w: boxW,
+          fill: peer.alive ? colors.white : colors.light, border: colors.gray, accent: peer.alive ? colors.secondary : colors.secondary,
+          icon: iconData(ICONS.connector), iconColor: colors.secondary, dot: peer.alive ? colors.success : colors.danger,
+          titleColor: peer.alive ? colors.dark : colors.secondary, subtitleColor: colors.secondary,
+          badge: { label: i18n.t('standby').toUpperCase(), w: Math.max(56, i18n.t('standby').length * 7 + 14), color: colors.secondary },
+          badgeRight: 8,
+          title: fit(label, boxW - TEXT_X - 72),
+          subtitle: fit([peer.alive ? i18n.t('reporting') : i18n.t('not reporting'), peer.address, peer.version].filter(Boolean).join(' · '), boxW - TEXT_X - 8, 'subtitle'),
+          tooltip: [label, peer.address, peer.version, peer.alive ? i18n.t('standby, reporting to the master') : i18n.t('standby, not reporting')].filter(Boolean).join(' · '),
+          to: { name: 'connectorsConnector', params: { id: connector.id } }
+        }
+        nodes.push(node)
+        edges.push({
+          key: `edge-standby-${node.key}`, from: head.key, to: node.key, color: colors.secondary, opacity: 0.6, dashed: true,
+          // a bracket back to the master, inside the network trunk
+          d: route(node.x + node.w, mid(node), head.x + head.w, mid(head) + 8, head.x + head.w + gap * 0.25)
+        })
+        return node
+      })
+
+      // networks of the connector, address order, each followed by its devices
+      const { [connector.id]: { equipment, networks: equipmentNetworks } = {} } = props.equipment
+      const devices = equipmentRows(equipment, equipmentNetworks || head.networks)
+      const networks = sortNetworks(head.networks)
+      const unrouted = devices.filter(device => !device.routed_via || !networks.includes(device.routed_via))
+      const networkRows = [
+        ...networks.map(network => ({ network, devices: devices.filter(device => device.routed_via === network) })),
+        ...(unrouted.length ? [{ network: null, devices: unrouted }] : [])
+      ]
+      let networkRow = bandStart
+      const serverNodes = {}
+      networkRows.forEach(({ network, devices: networkDevices }) => {
+        const via = (network) ? viaInterface(interfaceFor(network, hostInterfaces)) : null
+        const node = {
+          key: `network-${connector.id}-${network || 'other'}`, kind: 'network',
+          x: netX, y: rowY(networkRow), w: boxW,
+          fill: connected ? colors.white : colors.light, border: colors.gray, accent: network ? colors.teal : colors.secondary,
+          icon: iconData(ICONS.network), iconColor: connected ? colors.dark : colors.secondary, mono: !!network,
+          titleColor: connected ? colors.dark : colors.secondary, subtitleColor: colors.secondary,
+          title: fit(network || i18n.t('other networks'), boxW - TEXT_X - 8),
+          subtitle: fit([i18n.t('network · {count} device(s)', { count: networkDevices.length }), via].filter(Boolean).join(' · '), boxW - TEXT_X - 8, 'subtitle'),
+          tooltip: network ? [network, connector.id, via].filter(Boolean).join(' · ') : i18n.t('Devices outside the connector networks'),
+          to: { name: 'connectorsConnector', params: { id: connector.id }, query: { tab: 'devices' } }
+        }
+        nodes.push(node)
+        edges.push({
+          key: `edge-${head.key}-${node.key}`, from: head.key, to: node.key,
+          color: connected ? colors.success : colors.secondary, opacity: connected ? 0.7 : 0.6, dashed: !connected,
+          d: route(head.x + head.w, mid(head), node.x, mid(node), bandTrunk)
+        })
+
+        networkDevices.forEach((device, index) => {
+          const endpoint = equipmentEndpoints(device, connected ? remote : null).join(', ')
+          // the equipment lists a DNS server as ip:port, the topology keys it by connector too
+          const server = (device.group === 'dns_connectors') ? dnsInfo.servers[`${connector.id}:${device.id}`] : null
+          const tunnel = (server && connected) ? staticState(remote, { port: server.pfconnector_port, host: server.ip }) : null
+          const deviceNode = {
+            key: `device-${node.key}-${device.group}-${device.id}`, kind: 'device',
+            x: devX, y: rowY(networkRow + index), w: boxW,
+            fill: connected ? colors.white : colors.light, border: colors.gray,
+            accent: connected ? (colors[deviceAccent[device.group]] || colors.secondary) : colors.secondary,
+            icon: iconData(ICONS[device.group]), iconColor: connected ? colors.dark : colors.secondary,
+            titleColor: connected ? colors.dark : colors.secondary, subtitleColor: colors.secondary,
+            title: fit(device.id, boxW - TEXT_X - 8),
+            titleExtra: fit((server) ? `${server.ip}:${server.port}` : ((device.description && device.description !== device.id) ? device.description : ''),
+              Math.max(boxW - TEXT_X - 8 - ((device.id.length + 1) * CHAR_WIDTH.title), 0), 'subtitle'),
+            dot: tunnelColor[tunnel],
+            subtitle: fit([device.category, (server) ? i18n.t('{count} domain(s)', { count: server.chips.length }) : endpoint].filter(Boolean).join(' · '), boxW - TEXT_X - 8, 'subtitle'),
+            tooltip: [device.category, device.id, device.description, device.type, endpoint, device.routed_via, tunnel && i18n.t('tunnel {state}', { state: tunnel.replace('_', ' ') })].filter(Boolean).join(' · '),
+            to: device.routeName
+              ? { name: device.routeName, params: { id: device.id } }
+              : { name: 'connectorsConnector', params: { id: connector.id }, query: { tab: 'devices' } }
+          }
+          nodes.push(deviceNode)
+          if (server)
+            serverNodes[server.id] = deviceNode
+          edges.push({
+            key: `edge-${deviceNode.key}`, from: node.key, to: deviceNode.key,
+            color: connected ? colors.success : colors.secondary, opacity: connected ? 0.7 : 0.6, dashed: !connected,
+            d: route(node.x + node.w, mid(node), deviceNode.x, mid(deviceNode), node.x + node.w + gap / 2)
+          })
+        })
+        networkRow += Math.max(networkDevices.length, 1)
+      })
+
+      networkRow += dnsBlock({
+        key: connector.id, owner: connector.id, source: head, trunkX: bandTrunk, startRow: networkRow, serverNodes, remote, connected,
+        edgeStyle: { color: connected ? colors.success : colors.secondary, opacity: connected ? 0.7 : 0.6, dashed: !connected }
+      })
+
+      row = Math.max(networkRow, bandStart + 1 + standby.length)
     })
-  }
 
-  let interval = null
-  const start = () => {
-    if (interval) clearInterval(interval)
-    interval = setInterval(() => { if (!paused.value) refresh() }, pollSeconds * 1000)
-  }
-  onMounted(() => { refresh(); start() })
-  onBeforeUnmount(() => { if (interval) clearInterval(interval) })
-  watch(paused, value => { if (!value) refresh() })
-
-  const select = id => { selectedId.value = (selectedId.value === id) ? null : id }
-
-  // Traffic history (rates recorded by the pfconnector servers).
-  const trafficWindow = ref(900)
-  const traffic = ref({}) // connector id -> series {t, in, out, services}
-  const trafficRef = ref(null)
-  const servicesRef = ref(null)
-  const hasTraffic = computed(() => Object.values(traffic.value).some(s => s && s.t && s.t.length))
-
-  const refreshTraffic = () => {
-    return api.traffic(trafficWindow.value).then(reply => {
-      traffic.value = reply.connectors || {}
-    }).catch(() => {
-      traffic.value = {}
-    }).then(() => nextTick(renderCharts))
-  }
-
-  // Series to chart: the selected connector's, or all connectors summed per
-  // 5 s bucket (the pods sample at slightly different instants).
-  const chartedSeries = () => {
-    const all = traffic.value
-    if (selectedId.value && all[selectedId.value])
-      return all[selectedId.value]
-    const buckets = new Map()
-    const services = {}
-    Object.values(all).forEach(s => {
-      if (!s || !s.t) return
-      const step = s.interval_s || 5
-      s.t.forEach((t, i) => {
-        const b = Math.floor(t / step) * step
-        const cur = buckets.get(b) || { in: 0, out: 0 }
-        cur.in += s.in[i] || 0
-        cur.out += s.out[i] || 0
-        buckets.set(b, cur)
+    // DNS servers outside every connector network: PacketFence queries
+    // them directly (local_connector), no tunnel
+    if (dnsInfo.direct.length) {
+      // without a known default route, an interface is only named when its subnet holds the server
+      const directVia = server => (props.saas) ? null : (viaInterface(interfaceFor(server.ip, pfInterfaces)) || i18n.t('via the default route'))
+      const directVias = [...new Set(dnsInfo.direct.map(directVia).filter(Boolean))]
+        .sort((a, b) => (a === i18n.t('via the default route')) - (b === i18n.t('via the default route')))
+      const direct = {
+        key: 'direct', kind: 'direct',
+        x: connX, y: rowY(row), w: boxW,
+        fill: colors.white, border: colors.gray, accent: colors.secondary,
+        icon: iconData(ICONS.packetfence), iconColor: colors.secondary,
+        titleColor: colors.dark, subtitleColor: colors.secondary,
+        title: fit(i18n.t('PacketFence (direct)'), boxW - TEXT_X - 8),
+        subtitle: fit([i18n.t('no tunnel'), ...directVias].join(' · '), boxW - TEXT_X - 8, 'subtitle'),
+        tooltip: i18n.t('DNS servers outside the connector networks, queried by PacketFence directly'),
+        to: { name: 'connectorsConnectors' }
+      }
+      const outside = {
+        key: 'direct-network', kind: 'network',
+        x: netX, y: rowY(row), w: boxW,
+        fill: colors.white, border: colors.gray, accent: colors.secondary,
+        icon: iconData(ICONS.network), iconColor: colors.secondary,
+        titleColor: colors.dark, subtitleColor: colors.secondary,
+        title: fit(i18n.t('outside connector networks'), boxW - TEXT_X - 8),
+        subtitle: fit(i18n.t('network · {count} device(s)', { count: dnsInfo.direct.length }), boxW - TEXT_X - 8, 'subtitle'),
+        tooltip: i18n.t('DNS servers outside the connector networks, queried by PacketFence directly'),
+        to: { name: 'connectorsConnectors' }
+      }
+      nodes.push(direct, outside)
+      edges.push(
+        { key: 'edge-pf-direct', from: packetfence.key, to: direct.key, color: colors.secondary, opacity: 0.6, d: route(packetfence.x + packetfence.w, mid(packetfence), direct.x, mid(direct), pfTrunk) },
+        { key: 'edge-direct-network', from: direct.key, to: outside.key, color: colors.secondary, opacity: 0.6, d: route(direct.x + direct.w, mid(direct), outside.x, mid(outside), direct.x + direct.w + gap / 2) }
+      )
+      const serverNodes = {}
+      dnsInfo.direct.forEach((server, index) => {
+        const node = {
+          key: `direct-dns-${server.id}`, kind: 'device',
+          x: devX, y: rowY(row + index), w: boxW,
+          fill: colors.white, border: colors.gray, accent: colors[deviceAccent.dns_connectors],
+          icon: iconData(ICONS.dns_connectors), iconColor: colors.dark,
+          titleColor: colors.dark, subtitleColor: colors.secondary,
+          title: fit(server.id, boxW - TEXT_X - 8),
+          titleExtra: fit(`${server.ip}:${server.port}`, Math.max(boxW - TEXT_X - 8 - ((server.id.length + 1) * CHAR_WIDTH.title), 0), 'subtitle'),
+          subtitle: fit([i18n.t('DNS server'), i18n.t('{count} domain(s)', { count: server.chips.length })].join(' · '), boxW - TEXT_X - 8, 'subtitle'),
+          tooltip: [i18n.t('DNS server'), server.id, `${server.ip}:${server.port}`, i18n.t('no tunnel'), directVia(server)].filter(Boolean).join(' · '),
+          to: dnsSettings(server.connector)
+        }
+        nodes.push(node)
+        serverNodes[server.id] = node
+        edges.push({
+          key: `edge-${node.key}`, from: outside.key, to: node.key, color: colors.secondary, opacity: 0.6,
+          d: route(outside.x + outside.w, mid(outside), node.x, mid(node), outside.x + outside.w + gap / 2)
+        })
       })
-      Object.entries(s.services || {}).forEach(([dest, ss]) => {
-        const key = `${ss.reverse ? '<' : ''}${dest}`
-        const acc = services[key] || (services[key] = { reverse: !!ss.reverse, bytes: 0 })
-        ss.in.forEach((v, i) => { acc.bytes += ((v || 0) + (ss.out[i] || 0)) * step })
+      const directRows = dnsInfo.direct.length + dnsBlock({
+        key: 'direct', owner: null, source: direct, trunkX: direct.x + direct.w + gap / 2, startRow: row + dnsInfo.direct.length, serverNodes, remote: null, connected: false,
+        edgeStyle: { color: colors.secondary, opacity: 0.6 }
       })
+      row += directRows
+    }
+
+    return {
+      width: W,
+      height: rowY(Math.max(row, 1)) + PAD - (ROW_HEIGHT - NODE_HEIGHT),
+      nodes,
+      edges
+    }
+  })
+
+  // hovered box: its path up to PacketFence, everything below it, and the
+  // DNS servers / domains it is bracketed to (with their own path up)
+  const related = computed(() => {
+    const key = hovered.value
+    if (!key)
+      return null
+    const { edges } = layout.value
+    const links = edges.filter(edge => edge.from && !edge.bracket)
+    const relatedNodes = new Set([key])
+    const relatedEdges = new Set()
+    const walk = (start, next) => {
+      const queue = [start]
+      while (queue.length) {
+        const current = queue.shift()
+        next(current).forEach(edge => {
+          relatedEdges.add(edge.key)
+          const other = (edge.from === current) ? edge.to : edge.from
+          if (!relatedNodes.has(other)) {
+            relatedNodes.add(other)
+            queue.push(other)
+          }
+        })
+      }
+    }
+    const up = start => walk(start, current => links.filter(edge => edge.to === current))
+    up(key)
+    walk(key, current => links.filter(edge => edge.from === current))
+    edges.filter(edge => edge.bracket && (edge.from === key || edge.to === key)).forEach(edge => {
+      relatedEdges.add(edge.key)
+      const other = (edge.from === key) ? edge.to : edge.from
+      relatedNodes.add(other)
+      up(other)
     })
-    const t = [...buckets.keys()].sort((a, b) => a - b)
-    return { t, in: t.map(b => buckets.get(b).in), out: t.map(b => buckets.get(b).out), interval_s: 5, aggregatedServices: services }
-  }
+    return { nodes: relatedNodes, edges: relatedEdges }
+  })
 
-  const servicesTotals = series => {
-    if (series.aggregatedServices)
-      return Object.entries(series.aggregatedServices).map(([key, v]) => ({ dest: key.replace(/^</, ''), reverse: v.reverse, bytes: v.bytes }))
-    const step = series.interval_s || 5
-    return Object.entries(series.services || {}).map(([dest, ss]) => ({
-      dest, reverse: !!ss.reverse,
-      bytes: ss.in.reduce((sum, v, i) => sum + ((v || 0) + (ss.out[i] || 0)) * step, 0)
-    }))
-  }
-
-  const chartLayout = {
-    margin: { l: 60, r: 10, t: 10, b: 40 },
-    height: 260,
-    paper_bgcolor: 'rgba(0,0,0,0)',
-    plot_bgcolor: 'rgba(0,0,0,0)',
-    legend: { orientation: 'h', y: 1.12 },
-    hovermode: 'x unified'
-  }
-
-  const renderCharts = () => {
-    if (!hasTraffic.value || !trafficRef.value || !servicesRef.value)
+  // actions menu of a connector: each item opens the connector view on the
+  // matching tab; terminal and restart are confirmed there (TOTP / typed)
+  const menu = ref(null)
+  const menuRef = ref(null)
+  const menuIcon = iconData('ellipsis-v')
+  const canUpdate = computed(() => acl.$can('update', 'connectors'))
+  const openMenu = node => {
+    if (menu.value && menu.value.key === node.key) {
+      menu.value = null
       return
-    const series = chartedSeries()
-    const x = series.t.map(t => new Date(t * 1000))
-    const { locale } = i18n
-    plotly.react(trafficRef.value, [
-      { x, y: series.in, name: i18n.t('From site'), type: 'scatter', mode: 'lines', fill: 'tozeroy', line: { color: '#0d6efd', width: 1.5 }, hovertemplate: '%{y:.3~s}B/s' },
-      { x, y: series.out, name: i18n.t('To site'), type: 'scatter', mode: 'lines', fill: 'tozeroy', line: { color: '#28a745', width: 1.5 }, hovertemplate: '%{y:.3~s}B/s' }
-    ], {
-      ...chartLayout,
-      xaxis: { type: 'date', tickformat: '%H:%M' },
-      yaxis: { rangemode: 'tozero', tickformat: '~s', ticksuffix: 'B/s', fixedrange: true }
-    }, { ...plotlyConfig, displayModeBar: false, scrollZoom: false, locale })
-
-    const top = servicesTotals(series).filter(s => s.bytes > 0).sort((a, b) => a.bytes - b.bytes).slice(-10)
-    plotly.react(servicesRef.value, [{
-      type: 'bar', orientation: 'h',
-      x: top.map(s => s.bytes),
-      y: top.map(s => `${serviceName(s.dest, s.reverse)}${s.reverse ? ' ⟵' : ''}`),
-      text: top.map(s => `${bytes.toHuman(s.bytes, 1, true)}B`),
-      textposition: 'auto',
-      hovertext: top.map(s => s.dest),
-      hoverinfo: 'text+x',
-      marker: { color: '#6c757d' }
-    }], {
-      ...chartLayout,
-      margin: { l: 170, r: 10, t: 10, b: 40 },
-      showlegend: false,
-      xaxis: { tickformat: '~s', ticksuffix: 'B', fixedrange: true },
-      yaxis: { automargin: true, fixedrange: true }
-    }, { ...plotlyConfig, displayModeBar: false, scrollZoom: false, locale })
+    }
+    const connected = node.status === 'up'
+    const notConnected = i18n.t('The tunnel is not connected.')
+    const at = (tab, action) => ({ name: 'connectorsConnector', params: { id: node.id }, query: { tab, ...(action ? { action } : {}) } })
+    const items = [
+      { key: 'open', icon: 'external-link-alt', label: i18n.t('Open connector'), to: at('overview') },
+      ...(canUpdate.value ? [{ key: 'terminal', icon: 'terminal', label: i18n.t('Open remote terminal...'), to: at('troubleshooting', 'terminal'), disabled: !connected, reason: notConnected }] : []),
+      { key: 'logs', icon: 'scroll', label: i18n.t('View logs'), to: at('troubleshooting'), disabled: !connected, reason: notConnected },
+      { key: 'dns', icon: 'stethoscope', label: i18n.t('DNS lookup'), to: at('networking', 'dns') },
+      ...(canUpdate.value ? [{ key: 'restart', icon: 'redo', label: i18n.t('Restart connector...'), to: at('troubleshooting', 'restart'), disabled: !connected, reason: notConnected, danger: true }] : []),
+      ...((node.dnsDomains || []).length ? [{ key: 'dns-header', header: i18n.t('DNS domains') }] : []),
+      ...(node.dnsDomains || []).map(issue => ({
+        key: `dns-${issue.domain}`,
+        icon: (issue.state === 'ok') ? 'check' : 'exclamation-triangle',
+        label: issue.domain,
+        detail: issue.label,
+        warning: issue.state !== 'ok',
+        to: issue.to
+      }))
+    ]
+    menu.value = {
+      key: node.key,
+      id: node.id,
+      left: Math.max(0, node.x + node.w - 220),
+      top: node.y + NODE_HEIGHT + 2,
+      items
+    }
   }
-
-  let trafficInterval = null
+  const closeMenu = () => { menu.value = null }
+  const onDocumentClick = event => {
+    if (menu.value && menuRef.value && !menuRef.value.contains(event.target))
+      closeMenu()
+  }
+  const onDocumentKeydown = event => {
+    if (event.key === 'Escape')
+      closeMenu()
+  }
   onMounted(() => {
-    refreshTraffic()
-    trafficInterval = setInterval(() => { if (!paused.value) refreshTraffic() }, trafficPollSeconds * 1000)
+    document.addEventListener('click', onDocumentClick)
+    document.addEventListener('keydown', onDocumentKeydown)
   })
   onBeforeUnmount(() => {
-    if (trafficInterval) clearInterval(trafficInterval)
-    if (trafficRef.value) plotly.purge(trafficRef.value)
-    if (servicesRef.value) plotly.purge(servicesRef.value)
+    document.removeEventListener('click', onDocumentClick)
+    document.removeEventListener('keydown', onDocumentKeydown)
   })
-  watch(trafficWindow, () => refreshTraffic())
-  watch(selectedId, () => nextTick(renderCharts))
-
-  const connectedCount = computed(() => connectors.value.filter(c => c.connected).length)
-
-  const rateLabel = r => `${bytes.toHuman(r, 1, true)}B/s`
-  const totalLabel = b => `${bytes.toHuman(b, 1, true)}B`
-  const truncate = (text, n) => (text && text.length > n) ? `${text.slice(0, n - 1)}…` : (text || '')
-  // Characters that fit in `px` for the text styles (approximate glyph
-  // widths of the 14px bold title, the 11px sub label and the 10px satellite).
-  const fitTitle = px => Math.floor(px / 8)
-  const fitSub = px => Math.floor(px / 6.2)
-  const fitSat = px => Math.floor(px / 5.6)
-  // Addresses shown in the box: IPv4 first, link-local IPv6 left to the
-  // tooltip; the full list stays in the title.
-  const displayAddresses = ips => {
-    const v4 = ips.filter(ip => ip.indexOf(':') === -1)
-    const v6 = ips.filter(ip => ip.indexOf(':') !== -1 && !/^fe[89ab]/i.test(ip))
-    return [...v4, ...v6]
+  const onMenuItem = item => {
+    closeMenu()
+    goTo(item.to)
   }
 
-  // Standby hosts of an HA connector, from the active host's "ha" block.
-  const standbysOf = c => ((c.ha && c.ha.peers) || []).filter(p => p.address)
-
-  const nodes = computed(() => {
-    const cy = heightFor(connectors.value) / 2
-    let y = NODE.top
-    return connectors.value.map(c => {
-      const standbys = standbysOf(c)
-      const h = Math.max(NODE.minH, 12 + standbys.length * (SAT.h + SAT.gap))
-      const nodeY = y
-      y += h + NODE.gap
-      const my = nodeY + h / 2
-      const r = rates.value[c.id] || null
-      const total = r ? r.in + r.out : 0
-      // Width and animation speed grow with the log of the throughput:
-      // 1 kB/s is barely visible, 1 MB/s is a thick fast link.
-      const magnitude = Math.log10(1 + total / 1000)
-      const color = c.connected ? '#28a745' : (c.stats ? '#dc3545' : '#adb5bd')
-      const flowing = c.connected && total > 0
-      const stats = c.stats || {}
-      const ips = (c.remote_ips || []).join(', ')
-      const shownIps = displayAddresses(c.remote_ips || []).join(', ')
-      const rtt = c.connected && stats.rtt_ms ? `${Math.round(stats.rtt_ms * 10) / 10} ms` : ''
-      const haVip = c.ha_vip ? c.ha_vip.split('/')[0] : ''
-      // Text area: box width minus the left padding (28) and right margin
-      // (10); the title shares its line with the HA label when there is one.
-      const textWidth = NODE.w - 38
-      const titleWidth = haVip ? textWidth - (haVip.length + 3) * 6.2 - 8 : textWidth
-      const satellites = standbys.map((p, i) => {
-        const satColor = !p.alive ? '#dc3545' : (p.radius_ok === false ? '#fd7e14' : '#28a745')
-        return {
-          address: p.address,
-          x: SAT.x,
-          y: nodeY + 6 + i * (SAT.h + SAT.gap),
-          w: SAT.w, h: SAT.h,
-          color: satColor,
-          label: truncate(`${p.hostname || p.address} ${p.hostname ? p.address : ''}`.trim(), fitSat(SAT.w - 24)),
-          title: [
-            `${i18n.t('Standby host')} ${p.hostname || ''} ${p.address}`,
-            p.alive ? i18n.t('reporting') : i18n.t('not reporting'),
-            p.radius_ok === false ? i18n.t('FreeRADIUS down') : i18n.t('FreeRADIUS ok'),
-            p.version ? `${i18n.t('Version')} ${p.version}` : null
-          ].filter(Boolean).join('\n')
-        }
-      })
-      return {
-        id: c.id,
-        connected: c.connected,
-        haVip,
-        x: NODE.x, y: nodeY, w: NODE.w, h,
-        label: truncate(c.description || c.id, fitTitle(titleWidth)),
-        subLabel: truncate(c.connected ? (shownIps || i18n.t('connected')) : (c.stats ? i18n.t('tunnel down') : i18n.t('never connected')), fitSub(textWidth)),
-        color,
-        path: `M ${PF.x + PF.w} ${cy} C ${PF.x + PF.w + 170} ${cy}, ${NODE.x - 170} ${my}, ${NODE.x} ${my}`,
-        strokeWidth: c.connected ? 2 + Math.min(12, magnitude * 3) : 1.5,
-        dash: c.connected ? (flowing ? '10 8' : null) : '4 6',
-        flowing,
-        flowDuration: `${Math.max(0.25, 2.5 / (1 + magnitude))}s`,
-        labelX: (PF.x + PF.w + NODE.x) / 2,
-        labelY: (cy + my) / 2,
-        rttLabel: rtt || i18n.t('no keepalive yet'),
-        rateLabel: r ? `↓ ${rateLabel(r.in)}  ↑ ${rateLabel(r.out)}` : '…',
-        satellites,
-        title: [
-          c.id,
-          c.description,
-          ips ? `${i18n.t('Addresses')}: ${ips}` : null,
-          stats.connected_at ? `${i18n.t('Connected since')} ${new Date(stats.connected_at).toLocaleString()}` : null,
-          stats.channels !== undefined ? `${i18n.t('Open channels')}: ${stats.channels}` : null,
-          stats.bytes_in !== undefined ? `${i18n.t('Total')}: ↓ ${totalLabel(stats.bytes_in)} ↑ ${totalLabel(stats.bytes_out)}` : null
-        ].filter(Boolean).join('\n')
-      }
-    })
-  })
-
-  // Height of the whole drawing for a list of connectors (node heights vary
-  // with their number of standby hosts).
-  const heightFor = list => {
-    const total = list.reduce((sum, c) => sum + Math.max(NODE.minH, 12 + standbysOf(c).length * (SAT.h + SAT.gap)) + NODE.gap, 0)
-    return Math.max(300, NODE.top * 2 + total)
+  const goTo = to => {
+    if (to)
+      $router.push(to).catch(e => { if (e.name !== 'NavigationDuplicated') throw e })
   }
-  const height = computed(() => heightFor(connectors.value))
-  const pf = computed(() => ({ ...PF, y: height.value / 2 - PF.h / 2 }))
-
-  // Details panel of the selected connector.
-  const selected = computed(() => {
-    const c = connectors.value.find(c => c.id === selectedId.value)
-    if (!c)
-      return null
-    const node = nodes.value.find(n => n.id === c.id) || {}
-    const svcRates = serviceRates.value[c.id] || {}
-    const services = ((c.stats && c.stats.services) || []).map(s => {
-      const key = `${s.reverse ? '<' : ''}${s.destination}`
-      const r = svcRates[key]
-      return {
-        key,
-        name: serviceName(s.destination, s.reverse),
-        destination: s.destination,
-        reverse: !!s.reverse,
-        rateIn: r ? rateLabel(r.in) : '…',
-        rateOut: r ? rateLabel(r.out) : '…',
-        active: s.active,
-        totalIn: totalLabel(s.bytes_in),
-        totalOut: totalLabel(s.bytes_out),
-        total: s.bytes_in + s.bytes_out
-      }
-    }).sort((a, b) => b.total - a.total)
-    const ha = c.ha || null
-    const haRows = ha ? [
-      { hostname: ha.hostname, address: ha.address, role: i18n.t('active'), radiusOk: ha.radius_ok !== false, alive: true },
-      ...standbysOf(c).map(p => ({ hostname: p.hostname, address: p.address, role: i18n.t('standby'), radiusOk: p.radius_ok !== false, alive: !!p.alive }))
-    ] : []
-    return { id: c.id, label: c.description || c.id, haVip: node.haVip, services, haRows }
-  })
 
   return {
-    pollSeconds,
-    width: WIDTH,
-    height,
-    pf,
-    nodes,
-    connectedCount,
-    loaded,
-    error,
-    paused,
-    updatedAt,
-    selectedId,
-    selected,
-    select,
-    trafficWindows,
-    trafficWindow,
-    trafficRef,
-    servicesRef,
-    hasTraffic,
-    goToCollection,
-    goToItem
+    wrapperRef,
+    menu,
+    menuRef,
+    menuIcon,
+    openMenu,
+    onMenuItem,
+    layout,
+    colors,
+    hovered,
+    related,
+    FADED,
+    nodeHeight: NODE_HEIGHT,
+    iconSize: ICON_SIZE,
+    textX: TEXT_X,
+    monoFont: MONO_FONT,
+    goTo
   }
 }
 
 // @vue/component
 export default {
   name: 'the-topology',
-  inheritAttrs: false,
+  components,
+  props,
   setup
 }
 </script>
-<style lang="scss">
-.connectors-topology {
-  svg {
-    font-family: inherit;
-    .node-title { font-size: 14px; font-weight: 600; fill: #212529; }
-    .node-sub { font-size: 11px; }
-    .sat-label { font-size: 10px; fill: #495057; }
-    .connector-node, .link { cursor: pointer; }
-    .connector-node:hover rect { fill: #f8f9fa; }
-    .connector-node.selected rect { fill: #f1f8ff; }
-    .link-label text { font-size: 11px; fill: #495057; paint-order: stroke; stroke: #fff; stroke-width: 3px; }
-    .link-label .text-rate { fill: #6c757d; }
-    path.flowing { animation: topology-flow 1s linear infinite; }
-  }
-  .legend-swatch { display: inline-block; width: 12px; height: 12px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
-  .topology-chart { width: 100%; min-height: 260px; }
-}
-@keyframes topology-flow {
-  from { stroke-dashoffset: 36; }
-  to { stroke-dashoffset: 0; }
-}
-</style>
