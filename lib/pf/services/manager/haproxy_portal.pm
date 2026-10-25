@@ -165,38 +165,9 @@ EOT
             # Remote connectors (captive portal on a connector VLAN) tunnel the
             # portal ports to these listeners with a PROXY protocol header so
             # that src is the device behind the connector, not the tunnel exit.
-            # Same rules as the plain frontends; only the bind differs.
             if (!$connector_frontends_emitted && isenabled($Config{captive_portal}{connector_proxy_protocol})) {
                 $connector_frontends_emitted = 1;
-                for my $scheme (qw(http https)) {
-                    my $port = $scheme eq 'http' ? $CONNECTOR_PROXY_PROTOCOL_HTTP_PORT : $CONNECTOR_PROXY_PROTOCOL_HTTPS_PORT;
-                    my $ssl = $scheme eq 'https' ? ' ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem' : '';
-                    $tags{'http'} .= <<"EOT";
-frontend portal-$scheme-connector-$cluster_ip
-        bind *:$port$ssl accept-proxy
-        capture request header Host len 40
-        stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
-        tcp-request connection track-sc1 src
-        http-request lua.change_host
-        acl host_exist var(req.host) -m found
-        http-request set-header Host %[var(req.host)] if host_exist
-        http-request lua.select
-        acl action var(req.action) -m found
-EOT
-                    if($rate_limiting) {
-                    $tags{'http'} .= <<"EOT";
-        acl unflag_abuser src_clr_gpc0 --
-        http-request allow if action unflag_abuser
-        http-request deny if { src_get_gpc0 gt 0 }
-EOT
-                    }
-                    $tags{'http'} .= <<"EOT";
-        http-request add-header X-Forwarded-Proto $scheme
-        use_backend %[var(req.action)]
-        default_backend $cluster_ip-backend
-
-EOT
-                }
+                $tags{'http'} .= _connector_frontends($cluster_ip, $rate_limiting);
             }
 
             $tags{'http'} .= <<"EOT";
@@ -277,6 +248,17 @@ EOT
         }
     }
 
+    # No portal or internal interface (a server with only its management
+    # interface, e.g. in the cloud): the connector VLANs still need their
+    # captive portal, so the connector frontends are emitted on their own,
+    # with a backend of their own on httpd.portal.
+    if (!$connector_frontends_emitted && isenabled($Config{captive_portal}{connector_proxy_protocol})) {
+        my $key = (defined($management_network) && $management_network->{Tip}) ? $management_network->{Tip} : 'connector';
+        push @portal_ip, $key if $key ne 'connector';
+        $tags{'http'} .= _connector_frontends($key, $rate_limiting);
+        $tags{'http'} .= _connector_backend($key, $rate_limiting, $rate_limiting_threshold, $tags{backend_portal});
+    }
+
     $tags{captiveportal_templates_path} = $captiveportal_templates_path;
     parse_template( \%tags, $self->haproxy_config_template, "$generated_conf_dir/".$self->name.".conf" );
 
@@ -304,6 +286,86 @@ EOT
     $tt->process("$conf_dir/$config_file.tt", $vars, "$generated_conf_dir/$config_file") or die $tt->error();
 
     return 1;
+}
+
+
+=head2 _connector_frontends
+
+The haproxy-portal frontends of the remote connectors: the PROXY protocol
+listeners (CONNECTOR_PROXY_PROTOCOL_HTTP_PORT/HTTPS_PORT) the connectors tunnel
+the portal ports to. Same rules as the plain portal frontends; only the bind
+differs. Their default backend is "<key>-backend".
+
+=cut
+
+sub _connector_frontends {
+    my ($key, $rate_limiting) = @_;
+    my $config = '';
+    for my $scheme (qw(http https)) {
+        my $port = $scheme eq 'http' ? $CONNECTOR_PROXY_PROTOCOL_HTTP_PORT : $CONNECTOR_PROXY_PROTOCOL_HTTPS_PORT;
+        my $ssl = $scheme eq 'https' ? ' ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem' : '';
+        $config .= <<"EOT";
+frontend portal-$scheme-connector-$key
+        bind *:$port$ssl accept-proxy
+        capture request header Host len 40
+        stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
+        tcp-request connection track-sc1 src
+        http-request lua.change_host
+        acl host_exist var(req.host) -m found
+        http-request set-header Host %[var(req.host)] if host_exist
+        http-request lua.select
+        acl action var(req.action) -m found
+EOT
+        if ($rate_limiting) {
+            $config .= <<"EOT";
+        acl unflag_abuser src_clr_gpc0 --
+        http-request allow if action unflag_abuser
+        http-request deny if { src_get_gpc0 gt 0 }
+EOT
+        }
+        $config .= <<"EOT";
+        http-request add-header X-Forwarded-Proto $scheme
+        use_backend %[var(req.action)]
+        default_backend $key-backend
+
+EOT
+    }
+    return $config;
+}
+
+=head2 _connector_backend
+
+The portal backend of the connector frontends when there is no portal
+interface: the local httpd.portal ($portal_backend, host:port), with the rate
+limiting of the connector frontends.
+
+=cut
+
+sub _connector_backend {
+    my ($key, $rate_limiting, $rate_limiting_threshold, $portal_backend) = @_;
+    my $config = <<"EOT";
+backend $key-backend
+        balance source
+        option httpchk GET /captive-portal HTTP/1.0\\r\\nUser-agent:\\ HAPROXY-load-balancing-check\\r\\nHost:\\ $Config{'general'}{'hostname'}.$Config{'general'}{'domain'}
+        default-server inter 5s fall 3 rise 2
+        option httpclose
+        option forwardfor
+EOT
+    if ($rate_limiting) {
+        $config .= <<"EOT";
+        acl status_501 status 501
+        acl abuse  src_http_req_rate(portal-http-connector-$key) ge $rate_limiting_threshold
+        acl flag_abuser src_inc_gpc0(portal-http-connector-$key) --
+        acl abuse  src_http_req_rate(portal-https-connector-$key) ge $rate_limiting_threshold
+        acl flag_abuser src_inc_gpc0(portal-https-connector-$key) --
+        http-response deny if abuse status_501 flag_abuser
+EOT
+    }
+    $config .= <<"EOT";
+        server $portal_backend $portal_backend check inter 10s fastinter 2s
+
+EOT
+    return $config;
 }
 
 

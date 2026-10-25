@@ -1370,6 +1370,16 @@ Each DNS server goes under the connector its first domain was mapped to;
 domain mappings without a DNS server had no effect and are dropped with a
 notice. The old files are kept with a `.migrated` suffix.
 
+=== Connectors: captive portal through the PROXY protocol by default
+
+`captive_portal.connector_proxy_protocol` is now enabled by default: the
+connectors tunnel their ports 80/443 to the haproxy-portal listeners on ports
+8880/8843 with the address of the device, and these listeners exist even on a
+server without a portal interface. Restart haproxy-portal, the iptables and
+pfconnector-server services after the upgrade. To keep the previous behavior
+(ports 80/443 of the management address), set it to `disabled` in
+_Configuration -> System Configuration -> Captive Portal_.
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]

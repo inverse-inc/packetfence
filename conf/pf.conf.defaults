@@ -883,8 +883,9 @@ network_detection=enabled
 #
 # Expose the captive portal to the remote connectors through PROXY protocol
 # listeners (haproxy-portal on ports 8880/8843) so that the portal sees the
-# device behind the connector. Required for the portal on a connector VLAN.
-connector_proxy_protocol=disabled
+# device behind the connector. Required for the portal on a connector VLAN,
+# also on a server without a portal interface.
+connector_proxy_protocol=enabled
 #
 # captive_portal.network_detection_ip
 #
