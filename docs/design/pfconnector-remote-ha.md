@@ -182,6 +182,39 @@ their material through the tunnel. A backup host has no tunnel by design, so:
   failover to a never-bootstrapped host therefore costs a few extra seconds.
   Copying `raddb/`, `conf/ssl/` from the first host at install time avoids it.
 
+### 3.2.2 Keeping a backup's configuration current
+
+Without help a backup only learns a configuration change (site network, RADIUS
+certificate, NAS list, collector settings) when it takes the VIP, and a host
+that never held the VIP has none at all. So the master relays, for its backups,
+the tunnel API calls the sync scripts make (`clientapi/haconfig.go`):
+
+- `GET /api/v1/ha/config-relay?name=<name>&ts=<unix>` on the master's side-car
+  API (VIP:8081), answered by the master only, signed like the heartbeat
+  (HMAC of the name and timestamp, bounded skew), body sealed with the cache
+  snapshot key (it carries the RADIUS secret and private key). `name` is one
+  of a fixed list (`radius-secret`, `remote-radius-conf`, `remote-radius-nas`,
+  `remote-fingerbank-collector-nba-conf`, `remote-fingerbank-collector-env`,
+  `site-network`); the master adds its own connector id and signs the
+  upstream call (connauth), the group sharing one connector.
+- While backup, the client serves the same calls on a loopback relay
+  (`127.0.0.1:22227`, `PFCONNECTOR_HA_CONFIG_RELAY_PORT`) and, every
+  `PFCONNECTOR_HA_CACHE_SYNC_INTERVAL` (1 min): caches the master's
+  site-network payload, re-rendering `keepalived.conf` and reloading
+  keepalived when it changed, then runs `ha-refresh-config.sh --start` with
+  `PFCONNECTOR_API=http://127.0.0.1:22227`. That script re-runs
+  `configure-raddb`, `sync-radius-certs`, `sync-radius-nas` and
+  `load-fingerbank-config` (each renders host-specific values such as the
+  RADIUS source address itself), restarts radiusd-auth or the collector when
+  their files changed, and runs `s6-rc -u change user` so a host whose boot
+  oneshots failed (never held the VIP) starts its services as soon as it has
+  the files. `PFCONNECTOR_HA_CONFIG_SYNC=false` disables the sync.
+- `ha-notify.sh` runs the same script (without the relay) once the tunnel is
+  up on a new master.
+
+Not covered: an HA block change (VIP removed or changed) still reaches a
+backup only when it takes over.
+
 ### 3.3 The client only holds the tunnel while it owns the VIP
 
 `pfconnector client` gains an HA gate driven by `PFCONNECTOR_HA_VIP`:

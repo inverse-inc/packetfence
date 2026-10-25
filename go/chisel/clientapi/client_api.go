@@ -295,6 +295,7 @@ func (api *API) setupRoutes() {
 		r.Post("/ha/boost", haBoost(api))
 		r.Get("/ha/cache-snapshot", haCacheSnapshot(api))
 		r.Get("/ha/totp-seed", haTOTPSeed(api))
+		r.Get("/ha/config-relay", haConfigRelay(api))
 	})
 }
 

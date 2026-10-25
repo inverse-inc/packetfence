@@ -791,21 +791,46 @@ func (c *Client) notifyHAConfig(ha HAConfig) {
 
 // cacheSiteNetwork writes the payload to siteNetworkCachePath (atomically).
 func (c *Client) cacheSiteNetwork(reply siteNetworkReply) {
+	if _, err := writeSiteNetworkCache(reply); err != nil {
+		c.Debugf("Unable to cache the site network config: %s", err)
+	}
+}
+
+// writeSiteNetworkCache writes the payload to siteNetworkCachePath
+// (atomically) unless the cache already holds it. Returns whether it changed.
+func writeSiteNetworkCache(reply siteNetworkReply) (bool, error) {
 	data, err := json.MarshalIndent(reply, "", "  ")
 	if err != nil {
-		return
+		return false, err
 	}
 	if current, err := os.ReadFile(siteNetworkCachePath); err == nil && bytes.Equal(current, data) {
-		return
+		return false, nil
 	}
 	tmp := siteNetworkCachePath + ".tmp"
 	if err := os.WriteFile(tmp, data, 0o644); err != nil {
-		c.Debugf("Unable to cache the site network config: %s", err)
-		return
+		return false, err
 	}
 	if err := os.Rename(tmp, siteNetworkCachePath); err != nil {
-		c.Debugf("Unable to cache the site network config: %s", err)
+		return false, err
 	}
+	return true, nil
+}
+
+// UpdateSiteNetworkCache caches a site-network payload obtained by an HA
+// backup from the master (the backup has no tunnel of its own), so that
+// configure-keepalived.sh declares the current site addresses before this
+// host takes over. Returns whether the cache changed and the HA block of the
+// payload.
+func UpdateSiteNetworkCache(payload []byte) (bool, HAConfig, error) {
+	reply := siteNetworkReply{}
+	if err := json.Unmarshal(payload, &reply); err != nil {
+		return false, HAConfig{}, fmt.Errorf("invalid site network config: %w", err)
+	}
+	if reply.Version == "" {
+		return false, HAConfig{}, errors.New("invalid site network config: no version")
+	}
+	changed, err := writeSiteNetworkCache(reply)
+	return changed, reply.HA, err
 }
 
 // keepalived integration points inside the connector-remote container.

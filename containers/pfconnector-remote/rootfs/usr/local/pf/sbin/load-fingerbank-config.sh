@@ -41,5 +41,5 @@ fetch() {
     return 1
 }
 
-fetch "http://localhost:22226/api/v1/pfconnector/remote-fingerbank-collector-nba-conf" "$CONF_DIR/network_behavior_policies.conf"
-fetch "http://localhost:22226/api/v1/pfconnector/remote-fingerbank-collector-env?CONNECTOR_ID=$CONNECTOR_ID" "$CONF_DIR/collector.env"
+fetch "${PFCONNECTOR_API:-http://localhost:22226}/api/v1/pfconnector/remote-fingerbank-collector-nba-conf" "$CONF_DIR/network_behavior_policies.conf"
+fetch "${PFCONNECTOR_API:-http://localhost:22226}/api/v1/pfconnector/remote-fingerbank-collector-env?CONNECTOR_ID=$CONNECTOR_ID" "$CONF_DIR/collector.env"

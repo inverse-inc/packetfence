@@ -10,7 +10,7 @@ CRT_FILE="$RADIUS_SSL"/radius_default_tls-common.crt
 CA_FILE="$RADIUS_SSL"/radius_default_tls-common.pem
 KEY_FILE="$RADIUS_SSL"/radius_default_tls-common.key
 
-if ! RET=$(curl -s -f "http://localhost:22226/api/v1/pfconnector/remote-radius-conf"); then
+if ! RET=$(curl -s -f "${PFCONNECTOR_API:-http://localhost:22226}/api/v1/pfconnector/remote-radius-conf"); then
     # HA backup host: no tunnel until it takes the VIP; the certs synced by a
     # previous run (or copied from the peer) stay valid.
     if [ -n "${PFCONNECTOR_HA_VIP:-}" ] && [ -s "$CRT_FILE" ] && [ -s "$KEY_FILE" ] && [ -s "$CA_FILE" ]; then

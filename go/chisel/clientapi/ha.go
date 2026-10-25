@@ -154,6 +154,7 @@ func SetHASecret(secret string) {
 	haStatusMu.Lock()
 	defer haStatusMu.Unlock()
 	haKey = HAKey(secret)
+	haConnectorSecret = secret
 	setHACacheKey(secret)
 	setHATOTPKey(secret)
 }

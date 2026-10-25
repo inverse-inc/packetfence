@@ -6,8 +6,10 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os"
+	"os/exec"
 	"runtime"
 	"strconv"
 	"strings"
@@ -735,12 +737,58 @@ func runHAClient(ctx context.Context, config *chclient.Config, api *clientapi.AP
 		}
 	}
 
+	// While backup, keep the configuration current through the master, which
+	// relays the tunnel API calls for us (clientapi/haconfig.go): the cached
+	// site-network payload (so keepalived declares the current site
+	// addresses) and the RADIUS, NAS and collector files rendered by the sync
+	// scripts, run against a loopback relay. A host that never held the VIP
+	// thereby gets a configuration, and its services, before it takes over.
+	configSync := func(ctx context.Context) {
+		if v := os.Getenv("PFCONNECTOR_HA_CONFIG_SYNC"); v == "false" || v == "disabled" || v == "0" {
+			return
+		}
+		relayAddr := net.JoinHostPort("127.0.0.1", sharedutils.EnvOrDefault("PFCONNECTOR_HA_CONFIG_RELAY_PORT", "22227"))
+		go func() {
+			if err := clientapi.ServeConfigRelay(ctx, relayAddr, vip.String(), secret); err != nil {
+				log.Printf("HA: config relay on %s: %v", relayAddr, err)
+			}
+		}()
+		ticker := time.NewTicker(clientapi.HACacheSyncInterval)
+		defer ticker.Stop()
+		failures := 0
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-time.After(5 * time.Second):
+			}
+			err := syncConfigFromMaster(ctx, vip.String(), secret, relayAddr)
+			if err != nil {
+				failures++
+				if failures == 1 || failures%30 == 0 {
+					log.Printf("HA: configuration sync from the master on %s failed (%d times): %v", vip, failures, err)
+				}
+			} else {
+				if failures > 0 {
+					log.Printf("HA: configuration sync from the master on %s restored", vip)
+				}
+				failures = 0
+			}
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+			}
+		}
+	}
+
 	for {
 		clientapi.SetHAState(vip.String(), "backup")
 		hbCtx, stopHeartbeat := context.WithCancel(ctx)
 		go heartbeat(hbCtx)
 		go cacheSync(hbCtx)
 		go totpSync(hbCtx)
+		go configSync(hbCtx)
 		acquired := waitFor(true)
 		stopHeartbeat()
 		if !acquired {
@@ -800,4 +848,48 @@ func runHAClient(ctx context.Context, config *chclient.Config, api *clientapi.AP
 		}
 		api.SetTunnel(nil)
 	}
+}
+
+// haRefreshConfigScript re-runs the cloud sync scripts and restarts what
+// changed; a backup runs it against the loopback relay to the master.
+const haRefreshConfigScript = "/usr/local/pf/sbin/ha-refresh-config.sh"
+
+// syncConfigFromMaster is one configuration sync pass of an HA backup: cache
+// the master's site-network payload (re-rendering keepalived.conf when it
+// changed), then run the sync scripts through the relay at relayAddr.
+func syncConfigFromMaster(ctx context.Context, vip, secret, relayAddr string) error {
+	payload, err := clientapi.FetchConfigFromMaster(ctx, vip, secret, "site-network")
+	if err != nil {
+		return fmt.Errorf("site network config: %w", err)
+	}
+	changed, _, err := chclient.UpdateSiteNetworkCache(payload)
+	if err != nil {
+		return err
+	}
+	if changed {
+		log.Printf("HA: site network config updated from the master, refreshing keepalived")
+		chclient.ApplyKeepalived(log.Printf)
+	}
+	if _, err := os.Stat(haRefreshConfigScript); err != nil {
+		return nil // outside the connector-remote container
+	}
+	cmd := exec.CommandContext(ctx, haRefreshConfigScript, "--start")
+	cmd.Env = append(os.Environ(), "PFCONNECTOR_API=http://"+relayAddr)
+	out, err := cmd.CombinedOutput()
+	for _, line := range strings.Split(strings.TrimSpace(string(out)), "\n") {
+		// The script stamps its lines for keepalived.log (ha-notify.sh); log
+		// adds its own.
+		if len(line) > 20 {
+			if _, err := time.Parse("2006/01/02 15:04:05", line[:19]); err == nil {
+				line = line[20:]
+			}
+		}
+		if line != "" {
+			log.Printf("HA: %s", line)
+		}
+	}
+	if err != nil {
+		return fmt.Errorf("%s: %w", haRefreshConfigScript, err)
+	}
+	return nil
 }

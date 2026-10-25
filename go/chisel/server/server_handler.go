@@ -1714,9 +1714,16 @@ func (s *Server) handleRemoteFingerbankCollectorEnv(w http.ResponseWriter, req *
 			}
 		}
 	}
+	// Sorted, so the same settings always render the same file: the
+	// connector compares it to decide whether to restart the collector.
+	keys := make([]string, 0, len(env))
+	for k := range env {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
 	envFile := ""
-	for k, v := range env {
-		envFile += fmt.Sprintf("export %s=%s\n", k, v)
+	for _, k := range keys {
+		envFile += fmt.Sprintf("export %s=%s\n", k, env[k])
 	}
 
 	w.Write([]byte(envFile))

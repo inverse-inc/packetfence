@@ -16,12 +16,12 @@ if [ -z "$CONNECTOR_ID" ]; then
     exit 1
 fi
 
-PFCONNECTOR_API="http://localhost:22226/api/v1/pfconnector/remote-radius-nas?CONNECTOR_ID=$CONNECTOR_ID"
+NAS_URL="${PFCONNECTOR_API:-http://localhost:22226}/api/v1/pfconnector/remote-radius-nas?CONNECTOR_ID=$CONNECTOR_ID"
 
 mkdir -p "$CLIENTS_DIR"
 
 # Fetch NAS entries from pfconnector API
-if ! NAS_JSON=$(curl -sf "$PFCONNECTOR_API"); then
+if ! NAS_JSON=$(curl -sf "$NAS_URL"); then
     # HA backup host: no tunnel until it takes the VIP; keep the client files
     # of a previous run so FreeRADIUS starts with the known switches.
     if [ -n "${PFCONNECTOR_HA_VIP:-}" ] && [ -n "$(ls -A "$CLIENTS_DIR" 2>/dev/null)" ]; then
