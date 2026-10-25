@@ -253,11 +253,11 @@ too, in the same `vrrp_instance` as the main VIP:
 - A backup that never held the VIP has no cache: its VLAN links are created
   by the reconciler on its first activation, then cached for later boots.
 - Interface rows without a VLAN id (address on an existing secondary NIC)
-  are virtual IPs too: `configure-keepalived.sh` lists `<cidr> dev <name>
-  label <name>:pf` (the label the Go reconciler uses to mark its addresses)
-  after checking the link exists and is not the VIP/default-route interface;
-  `ha-notify.sh` flushes the `<name>:pf` labelled addresses of every link on
-  a non-master host, leaving the operator's addresses alone.
+  are virtual IPs too: `configure-keepalived.sh` lists `<cidr> dev <name>`
+  after checking the link exists and is not the VIP/default-route interface,
+  and adds it to `site-network-addresses` (the record the Go reconciler keeps
+  of the addresses it assigns); `ha-notify.sh` removes the recorded addresses
+  on a non-master host, leaving the operator's addresses alone.
 
 Static routes stay with the master's reconciler (they need the VLAN
 address as source).

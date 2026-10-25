@@ -176,9 +176,9 @@ type HostInterface struct {
 	Main bool `json:"main"`
 	// Managed is set on a VLAN link the connector created (alias
 	// pf-connector); ManagedAddresses are the IPv4 addresses the connector
-	// assigned (all of them on a managed link, the "<name>:pf" labelled ones
-	// elsewhere). Everything else was configured by the operating system or
-	// the operator and is never touched by the connector.
+	// assigned (all of them on a managed link, elsewhere the ones recorded in
+	// sitenetwork.OwnedAddressesPath). Everything else was configured by the
+	// operating system or the operator and is never touched by the connector.
 	Managed          bool     `json:"managed"`
 	ManagedAddresses []string `json:"managed_addresses"`
 }

@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"os"
+	"path/filepath"
 	"strings"
 	"syscall"
 	"testing"
@@ -480,9 +482,9 @@ func withMain(r *Reconciler, name string) *Reconciler {
 }
 
 // A row without a VLAN id addresses an existing link: the address is added
-// with our label, the link is brought up, nothing is created, and a second
-// pass writes nothing.
-func TestPlainInterfaceAssignsLabelledAddressAndIsIdempotent(t *testing.T) {
+// unlabelled and recorded as ours, the link is brought up, nothing is
+// created, and a second pass writes nothing.
+func TestPlainInterfaceAssignsRecordedAddressAndIsIdempotent(t *testing.T) {
 	f := newFake()
 	f.addDevice("ens192", false)
 	r := withMain(NewWithNetlink(f), "eth0")
@@ -500,8 +502,11 @@ func TestPlainInterfaceAssignsLabelledAddressAndIsIdempotent(t *testing.T) {
 		t.Errorf("a plain interface must not create links: %d links", len(f.links))
 	}
 	addrs := f.addrs["ens192"]
-	if len(addrs) != 1 || addrs[0].IPNet.String() != "192.168.50.1/24" || addrs[0].Label != "ens192:pf" {
+	if len(addrs) != 1 || addrs[0].IPNet.String() != "192.168.50.1/24" || addrs[0].Label != "" {
 		t.Fatalf("addresses on ens192: %+v", addrs)
+	}
+	if !r.owned.has("ens192", "192.168.50.1/24") {
+		t.Errorf("address not recorded as ours: %v", r.owned)
 	}
 	if f.links["ens192"].Attrs().Flags&net.FlagUp == 0 {
 		t.Errorf("ens192 not brought up")
@@ -543,15 +548,15 @@ func TestPlainInterfaceRefusesMainMissingAndOwnedLinks(t *testing.T) {
 	}
 }
 
-// Only our labelled addresses are replaced or removed; the operator's stay.
+// Only our recorded addresses are replaced or removed; the operator's stay.
 func TestPlainInterfaceReplacesOwnAddressAndKeepsForeign(t *testing.T) {
 	f := newFake()
 	f.addDevice("ens192", true)
 	foreign := mustAddr("10.9.9.9/24")
 	old := mustAddr("192.168.50.1/24")
-	old.Label = "ens192:pf"
 	f.addrs["ens192"] = []netlink.Addr{*foreign, *old}
 	r := withMain(NewWithNetlink(f), "eth0")
+	r.owned = ownedAddresses{"ens192": {"192.168.50.1/24": true}}
 	ctx := context.Background()
 
 	st := r.Reconcile(ctx, "v1", Desired{Interfaces: []pfconfigdriver.ConnectorInterface{{Parent: "ens192", CIDR: "192.168.60.1/24"}}})
@@ -570,25 +575,62 @@ func TestPlainInterfaceReplacesOwnAddressAndKeepsForeign(t *testing.T) {
 	if got := addrSet(f.addrs["ens192"]); !got["10.9.9.9/24"] || len(got) != 1 {
 		t.Errorf("addresses after removal: %v", got)
 	}
+	if len(r.owned) != 0 {
+		t.Errorf("record not emptied: %v", r.owned)
+	}
 }
 
-// A name too long for the "<name>:pf" label is assigned unlabelled and left
-// alone afterwards (documented limitation).
-func TestPlainInterfaceLongNameHasNoLabel(t *testing.T) {
-	if AddressLabel("ens192") != "ens192:pf" || AddressLabel("enxaabbccddeeff") != "" || AddressLabel("enx123456789") != "enx123456789:pf" {
-		t.Fatalf("AddressLabel")
-	}
+// The desired address already configured by the operator is used as is but
+// not claimed: removing the row leaves it in place.
+func TestPlainInterfaceDoesNotClaimOperatorAddress(t *testing.T) {
 	f := newFake()
-	f.addDevice("enxaabbccddeeff", true)
+	f.addDevice("ens192", true)
+	f.addrs["ens192"] = []netlink.Addr{*mustAddr("10.5.0.1/24")}
 	r := withMain(NewWithNetlink(f), "eth0")
 	ctx := context.Background()
-	st := r.Reconcile(ctx, "v1", Desired{Interfaces: []pfconfigdriver.ConnectorInterface{{Parent: "enxaabbccddeeff", CIDR: "10.5.0.1/24"}}})
-	if st.Errors != 0 || len(f.addrs["enxaabbccddeeff"]) != 1 || f.addrs["enxaabbccddeeff"][0].Label != "" {
-		t.Fatalf("long name: %+v %+v", st, f.addrs["enxaabbccddeeff"])
+	st := r.Reconcile(ctx, "v1", Desired{Interfaces: []pfconfigdriver.ConnectorInterface{{Parent: "ens192", CIDR: "10.5.0.1/24"}}})
+	if st.Errors != 0 || len(f.writes) != 0 || len(r.owned) != 0 {
+		t.Fatalf("operator address: %+v writes=%v owned=%v", st, f.writes, r.owned)
 	}
 	r.Reconcile(ctx, "v2", Desired{})
-	if len(f.addrs["enxaabbccddeeff"]) != 1 {
-		t.Errorf("an unlabelled address must never be removed")
+	if len(f.addrs["ens192"]) != 1 {
+		t.Errorf("the operator's address must never be removed")
+	}
+}
+
+// The record persists across reconcilers through OwnedPath (a restart), so
+// an address assigned before is still removed once unconfigured; records of
+// vanished links or addresses are dropped.
+func TestOwnedAddressesPersisted(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "site-network-addresses")
+	if err := os.WriteFile(path, []byte("# comment\nens224 10.7.0.1/24\nbogus\nens192 not-a-cidr\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	f := newFake()
+	f.addDevice("ens192", true)
+	ctx := context.Background()
+	d := Desired{Interfaces: []pfconfigdriver.ConnectorInterface{{Parent: "ens192", CIDR: "192.168.50.1/24"}}}
+
+	r := withMain(NewWithNetlink(f), "eth0")
+	r.OwnedPath = path
+	if st := r.Reconcile(ctx, "v1", d); st.Errors != 0 {
+		t.Fatalf("errors: %+v", st)
+	}
+	owned, err := loadOwnedAddresses(path)
+	if err != nil || !owned.equal(ownedAddresses{"ens192": {"192.168.50.1/24": true}}) {
+		t.Fatalf("record after assign: %v %v", owned, err)
+	}
+
+	r = withMain(NewWithNetlink(f), "eth0")
+	r.OwnedPath = path
+	if st := r.Reconcile(ctx, "v2", Desired{}); st.Errors != 0 {
+		t.Fatalf("errors: %+v", st)
+	}
+	if len(f.addrs["ens192"]) != 0 {
+		t.Errorf("recorded address not removed after restart: %+v", f.addrs["ens192"])
+	}
+	if owned, _ := loadOwnedAddresses(path); len(owned) != 0 {
+		t.Errorf("record after removal: %v", owned)
 	}
 }
 

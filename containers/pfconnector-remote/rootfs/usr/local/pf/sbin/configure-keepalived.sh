@@ -78,12 +78,16 @@ done
 # does (alias pf-connector). A row without a VLAN id addresses an existing
 # host interface: it must exist and must not be the interface carrying the
 # VIP/default route (the Go reconciler refuses the main interface as well);
-# its address gets the "<name>:pf" label the reconciler uses so ha-notify.sh
-# can tell it from the operator's addresses. Each address is declared as a
-# virtual IP of the same VRRP instance.
+# its address is added to OWNED_ADDRESSES, the record the reconciler keeps of
+# the addresses it assigns, so ha-notify.sh can tell it from the operator's
+# addresses (no "<name>:pf" label: libpcap lists a labelled address as a
+# device of its own and the fingerbank-collector panics on it). Each address
+# is declared as a virtual IP of the same VRRP instance.
 SITE_NETWORK_CACHE="${PFCONNECTOR_SITE_NETWORK_CACHE:-/usr/local/pf/var/conf/site-network.json}"
+OWNED_ADDRESSES="${PFCONNECTOR_SITE_NETWORK_ADDRESSES:-/usr/local/pf/var/conf/site-network-addresses}"
 MAIN_IFACE=$(ip route get 1.1.1.1 2>/dev/null | awk '/dev/ {for(i=1;i<=NF;i++) if($i=="dev") print $(i+1)}')
 VLAN_VIPS=()
+OWNED_VIPS=()
 if [ -s "$SITE_NETWORK_CACHE" ] && command -v jq >/dev/null; then
     if ENTRIES=$(jq -r '.interfaces[]? | select(.parent != null and .cidr != null) | "\(.parent) \(.vlan // 0) \(.cidr)"' "$SITE_NETWORK_CACHE" 2>/dev/null); then
         while read -r parent vlan cidr; do
@@ -99,12 +103,8 @@ if [ -s "$SITE_NETWORK_CACHE" ] && command -v jq >/dev/null; then
                     continue
                 fi
                 ip link set "$parent" up 2>/dev/null || true
-                label="$parent:pf"
-                if [ "${#label}" -le 15 ]; then
-                    VLAN_VIPS+=("$cidr dev $parent label $label")
-                else
-                    VLAN_VIPS+=("$cidr dev $parent")
-                fi
+                VLAN_VIPS+=("$cidr dev $parent")
+                OWNED_VIPS+=("$parent $cidr")
                 continue
             fi
             name="$parent.$vlan"
@@ -124,6 +124,18 @@ if [ -s "$SITE_NETWORK_CACHE" ] && command -v jq >/dev/null; then
     else
         echo "configure-keepalived: $SITE_NETWORK_CACHE is not valid JSON, ignoring it" >&2
     fi
+fi
+
+# Record the plain interface addresses (union with what is already recorded;
+# the reconciler drops the ones that are no longer configured).
+if [ "${#OWNED_VIPS[@]}" -gt 0 ]; then
+    mkdir -p "$(dirname "$OWNED_ADDRESSES")"
+    owned_tmp=$(mktemp "$(dirname "$OWNED_ADDRESSES")/.site-network-addresses-XXXXXX")
+    {
+        echo "# Addresses assigned by the PacketFence connector on host interfaces (<link> <cidr>); managed automatically."
+        { grep -v '^#' "$OWNED_ADDRESSES" 2>/dev/null || true; printf '%s\n' "${OWNED_VIPS[@]}"; } | awk 'NF == 2' | sort -u
+    } > "$owned_tmp" && chmod 644 "$owned_tmp" && mv -f "$owned_tmp" "$OWNED_ADDRESSES" \
+        || { rm -f "$owned_tmp"; echo "configure-keepalived: unable to update $OWNED_ADDRESSES" >&2; }
 fi
 
 BOOST_FILE=/usr/local/pfconnector-remote/var/run/ha_boost

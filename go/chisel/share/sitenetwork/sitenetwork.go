@@ -15,8 +15,8 @@
 // Ownership rules, so we never touch what the operator configured by hand:
 //   - every link we create carries the alias LinkAlias; only aliased links are
 //     ever deleted or re-addressed;
-//   - every address we put on a plain interface carries the label
-//     AddressLabel(name); only labelled addresses are ever removed from a link
+//   - every address we put on a plain interface is recorded in
+//     OwnedAddressesPath; only recorded addresses are ever removed from a link
 //     we did not create;
 //   - every route we install carries the routing protocol RouteProtocol; only
 //     routes with that protocol are ever deleted.
@@ -46,23 +46,6 @@ const LinkAlias = "pf-connector"
 // above RTPROT_STATIC (4) and outside the range used by routing daemons are
 // free for local use; 201 is not registered in /etc/iproute2/rt_protos.
 const RouteProtocol = 201
-
-// addressLabelSuffix is appended to the link name to label the addresses the
-// connector assigns on plain (not connector-created) interfaces.
-const addressLabelSuffix = ":pf"
-
-// AddressLabel is the IFA_LABEL the connector puts on the addresses it
-// assigns on the plain interface name ("<name>:pf", the classic alias form
-// that ip(8) and keepalived accept). Empty when the label would not fit in
-// IFNAMSIZ; such an address is still assigned but cannot be told apart from
-// the operator's, so it is never removed automatically.
-func AddressLabel(name string) string {
-	label := name + addressLabelSuffix
-	if len(label) > syscall.IFNAMSIZ-1 {
-		return ""
-	}
-	return label
-}
 
 // DefaultRouteInterface returns the name of the interface holding the IPv4
 // default route (/proc/net/route, destination 0.0.0.0), or "" when none. That
@@ -178,16 +161,50 @@ type Reconciler struct {
 	// MainInterface names the host's main interface, which plain interface
 	// entries may never address. Defaults to DefaultRouteInterface.
 	MainInterface func() string
+	// OwnedPath is the record of the addresses we assigned on plain
+	// interfaces (OwnedAddressesPath). Empty keeps the record in memory only.
+	OwnedPath string
+	owned     ownedAddresses
 }
 
 // New returns a Reconciler backed by the real netlink socket.
 func New() *Reconciler {
-	return &Reconciler{nl: realNetlink{}, MainInterface: DefaultRouteInterface}
+	return &Reconciler{nl: realNetlink{}, MainInterface: DefaultRouteInterface, OwnedPath: OwnedAddressesPath}
 }
 
 // NewWithNetlink returns a Reconciler backed by the given Netlink (tests).
 func NewWithNetlink(nl Netlink) *Reconciler {
 	return &Reconciler{nl: nl, MainInterface: DefaultRouteInterface}
+}
+
+// loadOwned returns the record of our plain interface addresses: re-read from
+// OwnedPath on every pass, since configure-keepalived.sh adds to it too.
+func (r *Reconciler) loadOwned(ctx context.Context) ownedAddresses {
+	if r.OwnedPath == "" {
+		if r.owned == nil {
+			r.owned = ownedAddresses{}
+		}
+		return r.owned
+	}
+	owned, err := loadOwnedAddresses(r.OwnedPath)
+	if err != nil {
+		log.LoggerWContext(ctx).Warn(fmt.Sprintf("site-network: unable to read %s: %s", r.OwnedPath, err))
+	}
+	return owned
+}
+
+// saveOwned persists the record when it changed during the pass.
+func (r *Reconciler) saveOwned(ctx context.Context, before, after ownedAddresses) {
+	if r.OwnedPath == "" {
+		r.owned = after
+		return
+	}
+	if before.equal(after) {
+		return
+	}
+	if err := saveOwnedAddresses(r.OwnedPath, after); err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("site-network: unable to record the connector addresses in %s: %s", r.OwnedPath, err))
+	}
 }
 
 // Reconcile applies desired to the host. It is idempotent: running it twice
@@ -196,6 +213,8 @@ func NewWithNetlink(nl Netlink) *Reconciler {
 func (r *Reconciler) Reconcile(ctx context.Context, version string, desired Desired) Status {
 	status := Status{Version: version, Interfaces: []InterfaceStatus{}, Routes: []RouteStatus{}}
 
+	ownedBefore := r.loadOwned(ctx)
+	owned := ownedBefore.clone()
 	wanted := map[string]bool{}
 	plainAddrs := map[string]*netlink.Addr{} // link name -> address we want on a plain interface
 	for _, iface := range desired.Interfaces {
@@ -205,7 +224,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, version string, desired Desi
 			st = r.reconcileInterface(ctx, iface)
 		} else {
 			var addr *netlink.Addr
-			st, addr = r.reconcilePlainInterface(ctx, iface)
+			st, addr = r.reconcilePlainInterface(ctx, iface, owned)
 			if addr != nil {
 				plainAddrs[iface.Name()] = addr
 			}
@@ -216,9 +235,10 @@ func (r *Reconciler) Reconcile(ctx context.Context, version string, desired Desi
 		status.Interfaces = append(status.Interfaces, st)
 	}
 
-	// Remove the labelled addresses we put on plain interfaces that are no
-	// longer desired.
-	status.Errors += r.cleanupPlainAddresses(ctx, plainAddrs)
+	// Remove the addresses we put on plain interfaces that are no longer
+	// desired.
+	status.Errors += r.cleanupPlainAddresses(ctx, plainAddrs, owned)
+	r.saveOwned(ctx, ownedBefore, owned)
 
 	// Remove the VLAN links we created that are no longer desired.
 	for _, name := range r.ownedLinks(ctx) {
@@ -361,13 +381,13 @@ func (r *Reconciler) reconcileInterface(ctx context.Context, iface pfconfigdrive
 	return st
 }
 
-// reconcilePlainInterface puts the desired IPv4 address, labelled as ours, on
-// an existing link of the host and brings the link up. The link is never
-// created or deleted, other addresses on it are never touched, and the host's
-// main interface (default route, tunnel), loopback, container and
-// connector-created links are refused. Returns the address it wants on the
-// link (nil when refused) so the caller can clean up stale labelled ones.
-func (r *Reconciler) reconcilePlainInterface(ctx context.Context, iface pfconfigdriver.ConnectorInterface) (InterfaceStatus, *netlink.Addr) {
+// reconcilePlainInterface puts the desired IPv4 address on an existing link of
+// the host, records it in owned, and brings the link up. The link is never
+// created or deleted, addresses on it that are not recorded as ours are never
+// touched, and the host's main interface (default route, tunnel), loopback,
+// container and connector-created links are refused. Returns the address it
+// wants on the link (nil when refused) so the caller can clean up stale ones.
+func (r *Reconciler) reconcilePlainInterface(ctx context.Context, iface pfconfigdriver.ConnectorInterface, owned ownedAddresses) (InterfaceStatus, *netlink.Addr) {
 	name := iface.Name()
 	st := InterfaceStatus{Name: name, Parent: iface.Parent, CIDR: iface.CIDR, State: "error"}
 	logger := log.LoggerWContext(ctx)
@@ -381,7 +401,6 @@ func (r *Reconciler) reconcilePlainInterface(ctx context.Context, iface pfconfig
 		st.Error = fmt.Sprintf("invalid IPv4 address %q", iface.CIDR)
 		return st, nil
 	}
-	addr.Label = AddressLabel(name)
 
 	main := ""
 	if r.MainInterface != nil {
@@ -425,12 +444,13 @@ func (r *Reconciler) reconcilePlainInterface(ctx context.Context, iface pfconfig
 			have = true
 			continue
 		}
-		// A previous address of ours on this link (label match) is replaced;
+		// A previous address of ours on this link (recorded) is replaced;
 		// anything else on the link is the operator's and stays.
-		if addr.Label != "" && a.Label == addr.Label {
+		if a.IPNet != nil && owned.has(name, a.IPNet.String()) {
 			if err := r.nl.AddrDel(link, &netlink.Addr{IPNet: a.IPNet}); err != nil {
 				logger.Warn(fmt.Sprintf("site-network: unable to remove stale address %s from %s: %s", a.IPNet, name, err))
 			} else {
+				owned.remove(name, a.IPNet.String())
 				logger.Info(fmt.Sprintf("site-network: removed address %s from %s", a.IPNet, name))
 			}
 		}
@@ -440,11 +460,8 @@ func (r *Reconciler) reconcilePlainInterface(ctx context.Context, iface pfconfig
 			st.Error = fmt.Sprintf("unable to assign %s to %s: %s", iface.CIDR, name, err)
 			return st, addr
 		}
-		if addr.Label == "" {
-			logger.Warn(fmt.Sprintf("site-network: assigned %s to %s without a label (name too long): it will not be removed automatically when unconfigured", iface.CIDR, name))
-		} else {
-			logger.Info(fmt.Sprintf("site-network: assigned %s to %s", iface.CIDR, name))
-		}
+		owned.add(name, addr.IPNet.String())
+		logger.Info(fmt.Sprintf("site-network: assigned %s to %s", iface.CIDR, name))
 	}
 
 	if link.Attrs().Flags&net.FlagUp == 0 {
@@ -468,43 +485,52 @@ func (r *Reconciler) reconcilePlainInterface(ctx context.Context, iface pfconfig
 }
 
 // cleanupPlainAddresses removes, from every link the connector did not
-// create, the IPv4 addresses labelled as ours that are not the one wanted on
-// that link. Returns the number of failures.
-func (r *Reconciler) cleanupPlainAddresses(ctx context.Context, wanted map[string]*netlink.Addr) int {
+// create, the IPv4 addresses recorded as ours that are not the one wanted on
+// that link, and forgets them. Records of addresses already gone (or of a
+// link that no longer exists) are dropped. Returns the number of failures.
+func (r *Reconciler) cleanupPlainAddresses(ctx context.Context, wanted map[string]*netlink.Addr, owned ownedAddresses) int {
 	logger := log.LoggerWContext(ctx)
-	links, err := r.nl.LinkList()
-	if err != nil {
-		logger.Error(fmt.Sprintf("site-network: unable to list links: %s", err))
-		return 1
-	}
 	failures := 0
-	for _, link := range links {
-		name := link.Attrs().Name
-		if link.Attrs().Alias == LinkAlias {
-			continue // connector-created VLAN links are handled by reconcileInterface
+	for name, cidrs := range owned.clone() {
+		link, err := r.nl.LinkByName(name)
+		if isNotFound(err) {
+			delete(owned, name)
+			continue
 		}
-		label := AddressLabel(name)
-		if label == "" {
+		if err != nil {
+			continue
+		}
+		if link.Attrs().Alias == LinkAlias {
+			delete(owned, name) // connector-created VLAN links are handled by reconcileInterface
 			continue
 		}
 		addrs, err := r.nl.AddrList(link, netlink.FAMILY_V4)
 		if err != nil {
 			continue
 		}
-		want := wanted[name]
+		present := map[string]netlink.Addr{}
 		for _, a := range addrs {
-			if a.Label != label || a.IPNet == nil {
+			if a.IPNet != nil {
+				present[a.IPNet.String()] = a
+			}
+		}
+		want := wanted[name]
+		for cidr := range cidrs {
+			if want != nil && want.IPNet.String() == cidr {
 				continue
 			}
-			if want != nil && a.IP.Equal(want.IP) && maskEqual(a.Mask, want.Mask) {
+			a, ok := present[cidr]
+			if !ok {
+				owned.remove(name, cidr)
 				continue
 			}
 			if err := r.nl.AddrDel(link, &netlink.Addr{IPNet: a.IPNet}); err != nil {
-				logger.Error(fmt.Sprintf("site-network: unable to remove stale address %s from %s: %s", a.IPNet, name, err))
+				logger.Error(fmt.Sprintf("site-network: unable to remove stale address %s from %s: %s", cidr, name, err))
 				failures++
 				continue
 			}
-			logger.Info(fmt.Sprintf("site-network: removed address %s from %s (no longer configured)", a.IPNet, name))
+			owned.remove(name, cidr)
+			logger.Info(fmt.Sprintf("site-network: removed address %s from %s (no longer configured)", cidr, name))
 		}
 	}
 	return failures
@@ -704,8 +730,8 @@ func isNotFound(err error) bool {
 
 // LinkOwnership reports what the connector owns on the host link name: whether
 // the link itself was created by the connector (alias LinkAlias; every IPv4
-// address on such a link is the connector's) and, otherwise, which IPv4
-// addresses carry the connector's label (AddressLabel). Used by the
+// address on such a link is the connector's) and, otherwise, which of its IPv4
+// addresses are recorded in OwnedAddressesPath. Used by the
 // connector's system info so the admin UI can tell the operator's
 // configuration from the connector's. Errors yield false and no addresses.
 func LinkOwnership(name string) (managedLink bool, managedAddrs []string) {
@@ -718,12 +744,15 @@ func LinkOwnership(name string) (managedLink bool, managedAddrs []string) {
 	if err != nil {
 		return managedLink, nil
 	}
-	label := AddressLabel(name)
+	owned := ownedAddresses{}
+	if !managedLink {
+		owned, _ = loadOwnedAddresses(OwnedAddressesPath)
+	}
 	for _, a := range addrs {
 		if a.IPNet == nil {
 			continue
 		}
-		if managedLink || (label != "" && a.Label == label) {
+		if managedLink || owned.has(name, a.IPNet.String()) {
 			managedAddrs = append(managedAddrs, a.IPNet.String())
 		}
 	}

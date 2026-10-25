@@ -152,12 +152,17 @@ cabled to an access VLAN. The reconciler (`reconcilePlainInterface`):
   keeps the main interface in the choices (a VLAN on it is the common case)
   but labels it "VLAN only" and shows a note when the VLAN id is empty;
 - never creates or deletes the link; brings it up (`LinkSetUp`);
-- assigns the address with `IFA_LABEL` = `AddressLabel(name)` = `<name>:pf`
-  and only ever removes addresses carrying that label (a previous address of
-  ours on the link, or every labelled address of a link that is no longer
-  configured, `cleanupPlainAddresses`). The operator's addresses on the same
-  link are untouched. A name longer than 12 characters cannot be labelled:
-  the address is assigned but never removed automatically (logged).
+- assigns the address (no `IFA_LABEL`) and records it as `<link> <cidr>` in
+  `site-network-addresses` (`OwnedAddressesPath`, var/conf next to the
+  site-network cache, bind-mounted so it survives restarts); it only ever
+  removes recorded addresses (a previous address of ours on the link, or every
+  recorded address of a link that is no longer configured,
+  `cleanupPlainAddresses`). The operator's addresses on the same link are
+  untouched, including the desired address when the operator had already
+  configured it (used, not claimed). No `<name>:pf` label: libpcap lists a
+  labelled IPv4 address as a device of its own, and the fingerbank-collector
+  panicked resolving it as an interface (`route ip+net: no such network
+  interface`).
 - state `down` = link has no carrier.
 
 `HostInterface` in system/info carries `managed` (link alias pf-connector)
@@ -167,8 +172,9 @@ what the host already carries and which of it is the connector's.
 
 DHCP relay, captive DNS, pfdhcp scopes and the giaddr check work on
 `Name()`/`CIDR` and are unchanged. Under HA the address is a keepalived
-virtual IP like the VLAN ones (`<cidr> dev <name> label <name>:pf`) and
-`ha-notify.sh` flushes the labelled addresses on non-master hosts.
+virtual IP like the VLAN ones (`<cidr> dev <name>`, also added to the
+record) and `ha-notify.sh` removes the recorded addresses on non-master
+hosts.
 
 ### 3.4 What we deliberately do not do
 
