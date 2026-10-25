@@ -143,8 +143,12 @@ func main() {
 	// detect: it always serves.
 	VIP[ConnectorInterfaceName] = true
 
-	// Start VIP detection in background
-	go detectVIPLoop(ctx, dbConnPool)
+	// Start VIP detection in background. Not in DoH-only mode (the cloud):
+	// there is no local DHCP interface to hold a VIP, only the connector
+	// scopes, which always serve.
+	if !dohOnly() {
+		go detectVIPLoop(ctx, dbConnPool)
+	}
 
 	// Initialize StatsD client
 	go initStatsD(ctx)
