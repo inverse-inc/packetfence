@@ -33,6 +33,8 @@ type Proxy struct {
 	tcp        *net.TCPListener
 	udp        *udpListener
 	aliveConns int64
+	// cancel closes this proxy alone (Tunnel.UnbindRemotes)
+	cancel context.CancelFunc
 }
 
 // NewProxy creates a Proxy

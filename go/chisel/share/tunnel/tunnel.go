@@ -119,6 +119,25 @@ func (t *Tunnel) BoundRemotes() []BoundRemoteInfo {
 	return out
 }
 
+// UnbindRemotes closes the bound inbound proxies of the given remotes (same
+// remote string), leaving the others bound. Returns how many were closed.
+func (t *Tunnel) UnbindRemotes(remotes []*settings.Remote) int {
+	wanted := map[string]bool{}
+	for _, r := range remotes {
+		wanted[r.String()] = true
+	}
+	t.boundProxiesMut.Lock()
+	defer t.boundProxiesMut.Unlock()
+	closed := 0
+	for p := range t.boundProxies {
+		if p.cancel != nil && wanted[p.remote.String()] {
+			p.cancel()
+			closed++
+		}
+	}
+	return closed
+}
+
 // handlerOf hides the default "raw" handler.
 func handlerOf(h string) string {
 	if h == "raw" {
@@ -281,10 +300,20 @@ func (t *Tunnel) BindRemotes(ctx context.Context, remotes []*settings.Remote) er
 	eg, ctx := errgroup.WithContext(ctx)
 	for _, proxy := range proxies {
 		p := proxy
+		// each proxy can be closed alone (UnbindRemotes) without its group
+		pctx, cancel := context.WithCancel(ctx)
+		p.cancel = cancel
 		t.registerProxy(p)
 		eg.Go(func() error {
+			defer cancel()
 			defer t.unregisterProxy(p)
-			return p.Run(ctx)
+			err := p.Run(pctx)
+			if err != nil && ctx.Err() == nil && pctx.Err() != nil {
+				// unbound on its own: not an error of the group, whose other
+				// proxies keep running
+				return nil
+			}
+			return err
 		})
 	}
 	t.Debugf("Bound proxies")

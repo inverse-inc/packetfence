@@ -1009,6 +1009,30 @@ func (s *Server) handleReprovisionStaticConnections(w http.ResponseWriter, req *
 		}
 	}
 
+	// Close what is bound but no longer configured (a DNS server or RADIUS
+	// source removed or moved): its port would otherwise forward to the old
+	// destination, and refuse a new tunnel given the same port, until the
+	// connector reconnects.
+	configured := map[string]bool{}
+	for _, remoteDef := range pfconnectorStaticConnections.Element[connectorId] {
+		configured[remoteDef] = true
+	}
+	staleRemotes := []*settings.Remote{}
+	for remoteDef := range bound {
+		if configured[remoteDef] {
+			continue
+		}
+		delete(bound, remoteDef)
+		if remote, err := settings.DecodeRemote(remoteDef); err == nil {
+			staleRemotes = append(staleRemotes, remote)
+		}
+	}
+	unbound := 0
+	if len(staleRemotes) > 0 {
+		unbound = tun.UnbindRemotes(staleRemotes)
+		l.Info(fmt.Sprintf("reprovision: closed %d static connection(s) no longer configured for connector %s", unbound, connectorId))
+	}
+
 	newRemotes := chshare.Remotes{}
 	for _, remoteDef := range pfconnectorStaticConnections.Element[connectorId] {
 		if bound[remoteDef] {
@@ -1024,8 +1048,9 @@ func (s *Server) handleReprovisionStaticConnections(w http.ResponseWriter, req *
 	}
 
 	if len(newRemotes) == 0 {
+		connectorBoundRemotes.Store(connectorId, bound)
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(gin.H{"message": "static connections already provisioned", "bound": 0})
+		json.NewEncoder(w).Encode(gin.H{"message": "static connections already provisioned", "bound": 0, "unbound": unbound})
 		return
 	}
 
@@ -1049,7 +1074,7 @@ func (s *Server) handleReprovisionStaticConnections(w http.ResponseWriter, req *
 	connectorBoundRemotes.Store(connectorId, bound)
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(gin.H{"message": fmt.Sprintf("Provisioned %d static connection(s) for connector %s", len(newRemotes), connectorId), "bound": len(newRemotes)})
+	json.NewEncoder(w).Encode(gin.H{"message": fmt.Sprintf("Provisioned %d static connection(s) for connector %s", len(newRemotes), connectorId), "bound": len(newRemotes), "unbound": unbound})
 }
 
 // addStaticServicePorts adds the given reverse-remote local ports to the

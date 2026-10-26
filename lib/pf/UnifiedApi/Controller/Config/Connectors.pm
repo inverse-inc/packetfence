@@ -41,6 +41,32 @@ use pf::log;
 
 tie our %ConfigDnsConnectors, 'pfconfig::cached_hash', 'config::DnsConnectors';
 
+=head2 post_create / post_update
+
+Bind the static tunnels added by the change (a new DNS server's tunnel
+port, a RADIUS source now routed through this connector...) on the live
+tunnel, as they are otherwise only bound when the connector next connects,
+and close the ones it no longer has. Only the differences are applied.
+
+=cut
+
+sub post_create {
+    my ($self, $id) = @_;
+    $self->reprovision_static($id);
+}
+
+sub post_update {
+    my ($self, $id) = @_;
+    $self->reprovision_static($id);
+}
+
+sub reprovision_static {
+    my ($self, $id) = @_;
+    my $connector = pf::factory::connector->new($id);
+    $connector->reprovision_static() if $connector;
+    return;
+}
+
 sub status {
     my ($self) = @_;
     my $logger = get_logger();
