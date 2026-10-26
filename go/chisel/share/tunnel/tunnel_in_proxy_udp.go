@@ -80,6 +80,17 @@ func (u *udpListener) run(ctx context.Context) error {
 	eg.Go(func() error {
 		return u.runOutbound(ctx)
 	})
+	//runOutbound blocks reading the ssh channel: close it once the
+	//listener is cancelled (by its owner's context, not only by the
+	//inactivity check), or run never returns and the port stays bound
+	go func() {
+		<-ctx.Done()
+		u.outboundMut.Lock()
+		if u.outbound != nil && u.outbound.c != nil {
+			u.outbound.c.Close()
+		}
+		u.outboundMut.Unlock()
+	}()
 	if u.remote.Dynamic {
 		eg.Go(func() error {
 			return u.monitorInactivity(ctx, cancel)
@@ -229,7 +240,11 @@ func (u *udpListener) monitorInactivity(ctx context.Context, cancel func()) erro
 	previousRecv := atomic.LoadInt64(&u.recv)
 	previousSent := atomic.LoadInt64(&u.sent)
 	for {
-		time.Sleep(INACTIVITY_CHECK_INTERVAL)
+		select {
+		case <-ctx.Done():
+			return nil
+		case <-time.After(INACTIVITY_CHECK_INTERVAL):
+		}
 		shouldReturn := func() bool {
 			u.remote.Lock()
 			defer u.remote.Unlock()

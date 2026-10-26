@@ -721,8 +721,13 @@ func dynReverseGatewayHost() string {
 // bindDynReverseGatewayCompanion binds the dynreverse remote a second time on
 // the containers gateway (same port, same destination) when the primary is
 // bound on a specific address that the classic containers do not use. The
-// companion is touched with the primary (Remote.Companion) and closes on its
-// own once idle. Failures are logged: the advertised address keeps working.
+// companion lives exactly as long as the primary: it is bound on the
+// primary's context (cancelled once the primary closes), and has no
+// inactivity check of its own (its port is explicit, so it is not dynamic).
+// Closing it on its own would leave the containers without a listener while
+// the primary is still handed out from ActiveDynReverse, and never closing it
+// would leave one more listener behind each time the primary expires.
+// Failures are logged: the advertised address keeps working.
 func bindDynReverseGatewayCompanion(ctx context.Context, tun *tunnel.Tunnel, primary *settings.Remote, bindHost, port, to string) {
 	gateway := dynReverseGatewayHost()
 	if bindHost == "" || gateway == "" || bindHost == gateway+":" {
@@ -733,14 +738,9 @@ func bindDynReverseGatewayCompanion(ctx context.Context, tun *tunnel.Tunnel, pri
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Unable to build the containers gateway listener of dynreverse %s: %s", primary, err))
 		return
 	}
-	companion.LastTouched = time.Now()
-	primary.Lock()
-	primary.Companion = companion
-	primary.Unlock()
 	go func() {
-		bgCtx := context.Background()
-		if err := tun.BindRemotes(bgCtx, []*settings.Remote{companion}); err != nil {
-			log.LoggerWContext(bgCtx).Error(fmt.Sprintf("Error binding the containers gateway listener %s: %s", companion, err))
+		if err := tun.BindRemotes(ctx, []*settings.Remote{companion}); err != nil {
+			log.LoggerWContext(context.Background()).Error(fmt.Sprintf("Error binding the containers gateway listener %s: %s", companion, err))
 		}
 	}()
 }
@@ -769,11 +769,6 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 		remote.Lock()
 		defer remote.Unlock()
 		remote.LastTouched = time.Now()
-		if c := remote.Companion; c != nil {
-			c.Lock()
-			c.LastTouched = remote.LastTouched
-			c.Unlock()
-		}
 		json.NewEncoder(w).Encode(gin.H{"host": host, "port": remote.LocalPort, "message": fmt.Sprintf("Reusing existing port %s", remote.LocalPort)})
 		return
 	}
@@ -809,7 +804,11 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 			dynPort := remote.LocalPort
 			settings.ActiveDynReverse.Store(cacheKey, remote)
 			bindErrChan := make(chan error)
+			// bound is cancelled once the primary closes (inactivity or
+			// error), which closes its containers gateway companion
+			bound, unbind := context.WithCancel(context.Background())
 			go func() {
+				defer unbind()
 				ctx := context.Background()
 				if err := tun.BindRemotes(ctx, []*settings.Remote{remote}); err != nil {
 					log.LoggerWContext(ctx).Error(fmt.Sprintf("Error binding remote %s: %s", remote, err))
@@ -844,7 +843,7 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 			err = <-doneChan
 
 			if err == nil {
-				bindDynReverseGatewayCompanion(req.Context(), tun, remote, bindHost, dynPort, payload.To)
+				bindDynReverseGatewayCompanion(bound, tun, remote, bindHost, dynPort, payload.To)
 				json.NewEncoder(w).Encode(gin.H{"host": host, "port": dynPort, "message": fmt.Sprintf("Setup remote %s", remoteStr)})
 				return
 			} else {
