@@ -85,6 +85,10 @@ func TestComputeUptime(t *testing.T) {
 	if b := h.Buckets[0]; b.WorstAvailability == nil || math.Abs(*b.WorstAvailability-0.5) > 0.01 || math.Abs(*b.Availability-0.75) > 0.01 {
 		t.Errorf("worst hour: availability %v worst %v, want 0.75 and 0.5", *b.Availability, b.WorstAvailability)
 	}
+	// the downtime starts at 11:00 in that bucket
+	if b := h.Buckets[0]; b.FirstDown == nil || !b.FirstDown.Equal(start.Add(time.Hour)) {
+		t.Errorf("first down %v, want %s", b.FirstDown, start.Add(time.Hour))
+	}
 
 	// never recorded: everything is no data
 	h = computeUptime(start, end, 2*time.Minute, nil, nil, map[string][]byte{day0: serverDay})

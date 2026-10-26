@@ -67,7 +67,9 @@ export const setup = () => {
       return 'light'
     return availabilityVariant(worst !== null && worst !== undefined ? worst : a)
   }
-  const hasDowntime = ({ down_minutes: down }) => down >= 0.5
+  // every red or orange block opens the log, from its first minute down
+  const hasDowntime = bucket => ['warning', 'danger'].includes(bucketVariant(bucket))
+  const downtimeStart = ({ first_down: firstDown, start }) => firstDown || start
 
   const formatTime = value => formatBucketTime(value, uptimeWindow.value)
 
@@ -88,14 +90,14 @@ export const setup = () => {
       if (noData)
         lines.push(escape(i18n.t('No data {duration}', { duration: formatDuration(noData) })))
       if (hasDowntime(bucket))
-        lines.push(`<em>${escape(i18n.t('Click to open the connector log at that time.'))}</em>`)
+        lines.push(`<em>${escape(i18n.t('Click to open the connector log from {time}.', { time: formatTime(downtimeStart(bucket)) }))}</em>`)
     }
     return lines.join('<br>')
   }
 
   const onClick = bucket => {
     if (hasDowntime(bucket))
-      goToLogs('pfconnector-client', bucket.start)
+      goToLogs('pfconnector-client', downtimeStart(bucket))
   }
 
   return {

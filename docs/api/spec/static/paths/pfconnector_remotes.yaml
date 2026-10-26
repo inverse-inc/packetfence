@@ -131,6 +131,11 @@
                         type: number
                         nullable: true
                         description: Availability of the worst hour of a bucket longer than an hour (1 day buckets), the bucket availability otherwise.
+                      first_down:
+                        type: string
+                        format: date-time
+                        nullable: true
+                        description: The first minute of the bucket with downtime, null without any.
                 hosts:
                   type: array
                   description: |

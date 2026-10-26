@@ -189,6 +189,8 @@ type UptimeBucket struct {
 	// the availability of its worst hour, for a bucket longer than an hour
 	// (a day takes the colour of its worst hour); its availability otherwise
 	WorstAvailability *float64 `json:"worst_availability"`
+	// the first minute with downtime, nil without any
+	FirstDown *time.Time `json:"first_down"`
 }
 
 // HostBucket counts the minutes a host of an HA connector spent in each state
@@ -318,6 +320,10 @@ func computeUptime(start, end time.Time, bucket time.Duration, since *time.Time,
 			}
 			b.UpMinutes += up
 			b.DownMinutes += down
+			if down > 0 && b.FirstDown == nil {
+				first := m
+				b.FirstDown = &first
+			}
 			hour := int64(m.Sub(bStart) / time.Hour)
 			if hours[hour] == nil {
 				hours[hour] = &[2]float64{}
