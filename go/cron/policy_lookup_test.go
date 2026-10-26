@@ -435,6 +435,40 @@ func TestMatcher(t *testing.T) {
 			in:  "",
 			err: fmt.Errorf("Invalid Syntax: ''"),
 		},
+		{
+			in: "permit udp any any range 8000 9000",
+			out: Matcher{
+				Action:  "permit",
+				DstMac:  mac.Mac{},
+				Proto:   IpProtocol("udp"),
+				Port:    8000,
+				EndPort: 9000,
+				SrcNet:  AnyPrefix,
+				DstNet:  AnyPrefix,
+				Op:      "range",
+			},
+		},
+		{
+			in: "permit tcp any any range 8000 8000",
+			out: Matcher{
+				Action:  "permit",
+				DstMac:  mac.Mac{},
+				Proto:   IpProtocol("tcp"),
+				Port:    8000,
+				EndPort: 8000,
+				SrcNet:  AnyPrefix,
+				DstNet:  AnyPrefix,
+				Op:      "range",
+			},
+		},
+		{
+			in:  "permit udp any any range 9000 8000",
+			err: fmt.Errorf("Invalid port range '%s': start port is greater than end port", "permit udp any any range 9000 8000"),
+		},
+		{
+			in:  "permit udp any any range 8000",
+			err: fmt.Errorf("Invalid Syntax: 'permit udp any any range 8000'"),
+		},
 	}
 
 	for _, test := range tests {
@@ -580,6 +614,26 @@ func TestMatchNetworkEvent(t *testing.T) {
 				IpProtocol: IpProtocolTcp,
 			},
 			false,
+		},
+		{
+			"permit tcp any any range 8000 9000",
+			NetworkEvent{
+				DestPort:   22,
+				SourceIp:   netip.AddrFrom4([4]byte{10, 0, 0, 1}),
+				DestIp:     netip.AddrFrom4([4]byte{10, 0, 0, 3}),
+				IpProtocol: IpProtocolTcp,
+			},
+			false,
+		},
+		{
+			"permit tcp any any range 8000 9000",
+			NetworkEvent{
+				DestPort:   8000,
+				SourceIp:   netip.AddrFrom4([4]byte{10, 0, 0, 1}),
+				DestIp:     netip.AddrFrom4([4]byte{10, 0, 0, 3}),
+				IpProtocol: IpProtocolTcp,
+			},
+			true,
 		},
 	}
 
