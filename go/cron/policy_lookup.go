@@ -141,6 +141,25 @@ func ParseAcl(acl string) (Matcher, error) {
 				return Matcher{}, fmt.Errorf("Invalid port '%s': %w", acl, err)
 			}
 			matcher.Port = int(port)
+		case "range":
+			matcher.Op = parts[i]
+			i++
+			if i+1 >= len(parts) {
+				return Matcher{}, fmt.Errorf("Invalid Syntax: '%s'", acl)
+			}
+			port, err := strconv.ParseUint(parts[i], 10, 16)
+			if err != nil {
+				return Matcher{}, fmt.Errorf("Invalid start port '%s': %w", acl, err)
+			}
+			matcher.Port = int(port)
+			port, err = strconv.ParseUint(parts[i+1], 10, 16)
+			if err != nil {
+				return Matcher{}, fmt.Errorf("Invalid end port '%s': %w", acl, err)
+			}
+			matcher.EndPort = int(port)
+			if matcher.Port > matcher.EndPort {
+				return Matcher{}, fmt.Errorf("Invalid port range '%s': start port is greater than end port", acl)
+			}
 		}
 	}
 
@@ -148,18 +167,24 @@ func ParseAcl(acl string) (Matcher, error) {
 }
 
 type Matcher struct {
-	Action string
-	DstMac mac.Mac
-	Op     string
-	Proto  IpProtocol
-	Port   int
-	SrcNet netip.Prefix
-	DstNet netip.Prefix
+	Action  string
+	DstMac  mac.Mac
+	Op      string
+	Proto   IpProtocol
+	Port    int
+	EndPort int
+	SrcNet  netip.Prefix
+	DstNet  netip.Prefix
 }
 
 func (m *Matcher) Matches(ne *NetworkEvent) bool {
 	if m.Action == "deny" {
 		return false
+	}
+
+	if m.Op == "range" {
+		return m.Proto == ne.IpProtocol && m.SrcNet.Contains(ne.SourceIp) && m.matchDest(ne) &&
+			(m.Port <= ne.DestPort && ne.DestPort <= m.EndPort)
 	}
 
 	return (m.Op == "" || m.Port == ne.DestPort) && m.Proto == ne.IpProtocol && m.SrcNet.Contains(ne.SourceIp) && m.matchDest(ne)
