@@ -46,10 +46,9 @@ const setup = (props, context) => {
   const { query: { action } = {} } = root.$route || {}
   if (action) {
     const query = Object.fromEntries(Object.entries(root.$route.query).filter(([key]) => key !== 'action'))
-    root.$router.replace({ query }).catch(() => {})
-    if (action === 'dns')
-      tabs.networkingView.value = 'dns'
-    else if (action === 'restart' && remote.canUpdate.value)
+    // the DNS lookup is the DNS view of the Networking tab (?view=)
+    root.$router.replace({ query: (action === 'dns') ? { ...query, view: 'dns' } : query }).catch(() => {})
+    if (action === 'restart' && remote.canUpdate.value)
       remote.showRestartModal.value = true
     else if (action === 'terminal' && remote.canUpdate.value) {
       // the code prompt needs the connector's terminal settings; without TOTP

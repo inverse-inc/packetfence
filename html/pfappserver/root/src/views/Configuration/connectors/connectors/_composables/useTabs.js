@@ -5,6 +5,22 @@ const LIVE_TABS = ['overview', 'networking', 'devices', 'troubleshooting']
 // sub-tabs of the Settings tab, kept in ?section=
 const SETTINGS_SECTIONS = ['connector', 'fingerbank', 'networking', 'dns']
 
+// sub-views of the Networking tab, kept in ?view=
+const NETWORKING_VIEWS = ['tunnel', 'dns', 'site']
+
+// the query of a tab: the parameters of the other tabs' sub-tabs are dropped,
+// so that a copied link opens the sub-tab shown
+const tabQuery = (query, tab, extra = {}) => {
+  const { section, view, ...rest } = query || {} // eslint-disable-line no-unused-vars
+  return {
+    ...rest,
+    tab,
+    ...((tab === 'settings' && section) ? { section } : {}),
+    ...((tab === 'networking' && view) ? { view } : {}),
+    ...extra
+  }
+}
+
 // The selected tab of the connector view, kept in ?tab= (not a route prop:
 // a prop change would re-init the form and drop unsaved changes).
 export const useTabs = (props, context) => {
@@ -25,7 +41,7 @@ export const useTabs = (props, context) => {
       if (value === tab.value)
         return
       const { query } = root.$route
-      root.$router.replace({ query: { ...query, tab: value } })
+      root.$router.replace({ query: tabQuery(query, value) })
         .catch(e => { if (e.name !== 'NavigationDuplicated') throw e })
     }
   })
@@ -60,7 +76,7 @@ export const useTabs = (props, context) => {
   // a section of the Settings tab, as a link target (deep link) or a jump
   const settingsLocation = section => {
     const { query } = root.$route
-    return { query: { ...query, tab: 'settings', section } }
+    return { query: tabQuery(query, 'settings', { section }) }
   }
   const goToSettings = section => {
     root.$router.replace(settingsLocation(section))
@@ -68,15 +84,26 @@ export const useTabs = (props, context) => {
   }
 
   // sub-view of the Networking tab: 'tunnel', 'dns' or 'site'
-  const networkingView = ref('tunnel')
-  const goToDns = () => {
-    networkingView.value = 'dns'
-    goToTab('networking')
+  const networkingView = computed({
+    get: () => {
+      const { query: { view } = {} } = root.$route || {}
+      return NETWORKING_VIEWS.includes(view) ? view : NETWORKING_VIEWS[0]
+    },
+    set: view => {
+      const { query } = root.$route
+      if (query.view === view || (!query.view && view === NETWORKING_VIEWS[0]))
+        return
+      root.$router.replace({ query: { ...query, view } })
+        .catch(e => { if (e.name !== 'NavigationDuplicated') throw e })
+    }
+  })
+  const goToNetworking = view => {
+    const { query } = root.$route
+    root.$router.replace({ query: tabQuery(query, 'networking', { view }) })
+      .catch(e => { if (e.name !== 'NavigationDuplicated') throw e })
   }
-  const goToSiteNetwork = () => {
-    networkingView.value = 'site'
-    goToTab('networking')
-  }
+  const goToDns = () => goToNetworking('dns')
+  const goToSiteNetwork = () => goToNetworking('site')
 
   // log file the Live Logs of the Troubleshooting tab open and stream
   const logFile = ref(null)
