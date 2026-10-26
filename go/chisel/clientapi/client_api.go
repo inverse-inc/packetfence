@@ -280,6 +280,7 @@ func (api *API) setupRoutes() {
 			})
 			r.Get("/logs/{name}", tailLog(api))
 			r.Post("/ha/switch", haSwitch(api))
+			r.Get("/ha/status", haStatusHandler(api))
 			// Management of the local connector-cache service (see cache.go).
 			mountCacheRoutes(r, api)
 			// Terminal session recordings (see terminal_recordings.go).

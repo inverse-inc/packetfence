@@ -3,7 +3,9 @@ package chserver
 import (
 	"bufio"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"strconv"
@@ -178,6 +180,9 @@ func (t *ConnectorStatusTracker) recordUptime(ctx context.Context, rdb *redis.Cl
 				log.LoggerWContext(ctx).Warn(fmt.Sprintf("connector-status: unable to record the uptime of %s: %s", t.minute.Format(time.RFC3339), err))
 			}
 			cancel()
+			// the hosts of the HA connectors, asked through their tunnel: in
+			// the background, not to hold the prober
+			go recordHostsMinute(ctx, rdb, t.minute)
 		}
 		started := !t.minute.IsZero()
 		t.minute = minute
@@ -198,6 +203,89 @@ func (t *ConnectorStatusTracker) recordUptime(ctx context.Context, rdb *redis.Cl
 			sample.Up++
 		}
 		t.samples[id] = sample
+	}
+}
+
+// connectorHAStatusPath is the HA status of the connector-remote hosts
+// (clientapi haStatusHandler), absent on the connectors predating it.
+const connectorHAStatusPath = "/api/v1/ha/status"
+
+// recordHostsMinute records the state of the hosts of every HA connector
+// whose tunnel this server holds, for the per-host uptime history.
+func recordHostsMinute(ctx context.Context, rdb *redis.Client, minute time.Time) {
+	var wg sync.WaitGroup
+	sem := make(chan struct{}, connectorStatusProbeConcurrency)
+	activeTunnels.Range(func(k, v any) bool {
+		id, ok := k.(string)
+		tun, ok2 := v.(*tunnel.Tunnel)
+		if !ok || !ok2 || !tun.IsActive() {
+			return true
+		}
+		wg.Add(1)
+		sem <- struct{}{}
+		go func() {
+			defer wg.Done()
+			defer func() { <-sem }()
+			cctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+			defer cancel()
+			status, body, err := tunnelGet(cctx, tun, connectorHAStatusPath)
+			if err != nil || status != http.StatusOK {
+				return
+			}
+			report := connector.HAReport{}
+			if json.Unmarshal(body, &report) != nil {
+				return
+			}
+			if err := connector.RecordHostsMinute(cctx, rdb, minute, id, report.Samples()); err != nil {
+				log.LoggerWContext(ctx).Warn(fmt.Sprintf("connector-status: unable to record the hosts of %s: %s", id, err))
+			}
+		}()
+		return true
+	})
+	wg.Wait()
+}
+
+// tunnelGet sends a GET for path to the connector-remote API through the
+// tunnel, and returns the status and body of the reply.
+func tunnelGet(ctx context.Context, tun *tunnel.Tunnel, path string) (int, []byte, error) {
+	ch, err := tun.OpenChiselChannel(ctx, connectorStatusProbeTarget)
+	if err != nil {
+		return 0, nil, err
+	}
+	defer ch.Close()
+	type result struct {
+		status int
+		body   []byte
+		err    error
+	}
+	done := make(chan result, 1)
+	go func() {
+		req, err := http.NewRequest(http.MethodGet, "http://"+connectorStatusProbeTarget+path, nil)
+		if err != nil {
+			done <- result{err: err}
+			return
+		}
+		req.Host = connectorStatusProbeTarget
+		req.Close = true
+		req.Header.Set("User-Agent", "pfconnector-status-probe")
+		if err := req.Write(ch); err != nil {
+			done <- result{err: err}
+			return
+		}
+		resp, err := http.ReadResponse(bufio.NewReader(ch), req)
+		if err != nil {
+			done <- result{err: err}
+			return
+		}
+		defer resp.Body.Close()
+		body, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
+		done <- result{status: resp.StatusCode, body: body, err: err}
+	}()
+	select {
+	case r := <-done:
+		return r.status, r.body, r.err
+	case <-ctx.Done():
+		return 0, nil, ctx.Err()
 	}
 }
 

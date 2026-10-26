@@ -127,6 +127,48 @@
                       availability:
                         type: number
                         nullable: true
+                      worst_availability:
+                        type: number
+                        nullable: true
+                        description: Availability of the worst hour of a bucket longer than an hour (1 day buckets), the bucket availability otherwise.
+                hosts:
+                  type: array
+                  description: |
+                    The hosts of a connector in high availability, as reported
+                    every minute by the active host: the minutes each one
+                    spent active or standing by (with its FreeRADIUS answering
+                    or not), not reporting, or without data, in the same
+                    buckets. Empty for a single host connector.
+                  items:
+                    type: object
+                    properties:
+                      address:
+                        type: string
+                      hostname:
+                        type: string
+                      buckets:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            start:
+                              type: string
+                              format: date-time
+                            end:
+                              type: string
+                              format: date-time
+                            active_minutes:
+                              type: integer
+                            active_radius_down_minutes:
+                              type: integer
+                            standby_minutes:
+                              type: integer
+                            standby_radius_down_minutes:
+                              type: integer
+                            not_reporting_minutes:
+                              type: integer
+                            no_data_minutes:
+                              type: integer
       '400':
         description: Unknown window.
       '401':

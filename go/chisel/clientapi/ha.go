@@ -173,6 +173,21 @@ func ClearHAState() {
 	haPeers = map[string]HAPeer{}
 }
 
+// haStatusHandler serves GET /api/v1/ha/status: the HA status of this host
+// and its peers (the "ha" of /api/v1/system/info, without the rest), polled
+// every minute by the pfconnector server for the per-host uptime history.
+// {"enabled": false} when HA is off.
+func haStatusHandler(api *API) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if status := HAStatusSnapshot(); status != nil {
+			json.NewEncoder(w).Encode(status)
+			return
+		}
+		json.NewEncoder(w).Encode(HAStatus{})
+	})
+}
+
 // HAStatusSnapshot returns a copy of the HA status with the peers' liveness
 // evaluated now, or nil when HA is off.
 func HAStatusSnapshot() *HAStatus {
