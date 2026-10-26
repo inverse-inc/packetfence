@@ -2,35 +2,33 @@
   <div class="connector-uptime">
     <div class="d-flex align-items-center justify-content-between">
       <small class="text-muted"
-        v-b-tooltip.hover.top.d300 :title="$i18n.t('Share of the time the connector answered PacketFence through its tunnel. Grey: no data (the connector had never connected, or PacketFence was not running).')">
+        v-b-tooltip.hover.top.d300 :title="$i18n.t('Share of the measured time the connector answered PacketFence through its tunnel. Grey: no data (the connector had never connected, or PacketFence was not running).')">
         {{ $i18n.t('Availability') }}
-        <strong v-if="availability !== null" :class="`text-${availabilityVariant(availability)}`">{{ formatAvailability(availability) }}</strong>
-        <span v-else>-</span>
+        <template v-if="availability !== null">
+          <strong :class="`text-${availabilityVariant(availability)}`">{{ formatAvailability(availability) }}</strong>
+          · {{ $i18n.t('{measured} of {total} measured', { measured: formatDuration(measuredMinutes), total: formatDuration(windowMinutes) }) }}
+        </template>
+        <span v-else>{{ $i18n.t('no data') }}</span>
       </small>
       <b-button-group size="sm">
         <b-button v-for="w in windows" :key="w.value" class="py-0 px-1"
           :variant="w.value === uptimeWindow ? 'secondary' : 'outline-secondary'" @click="uptimeWindow = w.value">{{ w.text }}</b-button>
       </b-button-group>
     </div>
-    <div ref="chartRef" class="connector-uptime-chart mt-1" />
+    <div class="connector-uptime-strip mt-1">
+      <div v-for="(bucket, index) in buckets" :key="index"
+        :class="['connector-uptime-block', `bg-${bucketVariant(bucket)}`, { 'connector-uptime-block-link': hasDowntime(bucket) }]"
+        v-b-tooltip.hover.top.html.d100 :title="bucketTooltip(bucket)"
+        @click="onClick(bucket)" />
+    </div>
     <small v-if="error" class="text-muted">{{ error }}</small>
   </div>
 </template>
 <script>
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from '@vue/composition-api'
+import { computed, inject } from '@vue/composition-api'
+import escape from 'lodash/escape'
 import i18n from '@/utils/locale'
-import plotly, { config as plotlyConfig } from '@/utils/plotly'
-import api from '../_api'
-
-const POLL_INTERVAL = 60000
-
-// bootstrap success / warning / danger / gray-300
-const colors = {
-  success: '#28a745',
-  warning: '#ffc107',
-  danger: '#dc3545',
-  none: '#dee2e6'
-}
+import { formatBucketTime, formatDuration, uptimeWindows } from '../_composables/useUptime'
 
 // up, partially up (some downtime), down
 export const availabilityVariant = availability => {
@@ -46,109 +44,75 @@ export const formatAvailability = availability => {
   return `${(percent === 100 || percent < 99.9) ? percent.toFixed(1) : percent.toFixed(2)}%`
 }
 
-export const props = {
-  id: {
-    type: String
-  }
-}
+export const setup = () => {
+  const { goToLogs } = inject('connectorTabs')
+  // the history shared by the overview cards (useUptime)
+  const { uptimeWindow, windowMinutes, history, error } = inject('connectorUptime')
+  const windows = uptimeWindows
 
-export const setup = props => {
-  const windows = [
-    { value: '1h', text: i18n.t('1h') },
-    { value: '24h', text: i18n.t('24h') },
-    { value: '30d', text: i18n.t('30d') }
-  ]
-  const uptimeWindow = ref('24h')
-  const history = ref(null)
-  const error = ref(null)
-  const chartRef = ref(null)
-
+  const buckets = computed(() => (history.value && history.value.buckets) || [])
   const availability = computed(() => {
     const { availability: a = null } = history.value || {}
     return a
   })
+  const measuredMinutes = computed(() => {
+    const { up_minutes: up = 0, down_minutes: down = 0 } = history.value || {}
+    return up + down
+  })
 
-  const bucketLabel = ({ start, end }) => {
-    const [s, e] = [new Date(start), new Date(end)]
-    if (uptimeWindow.value === '30d')
-      return `${s.toLocaleDateString(i18n.locale)} ${s.toLocaleTimeString(i18n.locale, { hour: '2-digit', minute: '2-digit' })} – ${e.toLocaleDateString(i18n.locale)} ${e.toLocaleTimeString(i18n.locale, { hour: '2-digit', minute: '2-digit' })}`
-    return `${s.toLocaleTimeString(i18n.locale, { hour: '2-digit', minute: '2-digit' })} – ${e.toLocaleTimeString(i18n.locale, { hour: '2-digit', minute: '2-digit' })}`
-  }
-
-  const bucketText = bucket => {
-    const { availability: a, down_minutes: down, no_data_minutes: noData } = bucket
-    const lines = [bucketLabel(bucket)]
+  // a day takes the colour of its worst hour
+  const bucketVariant = bucket => {
+    const { availability: a, worst_availability: worst } = bucket
     if (a === null)
-      lines.push(i18n.t('No data'))
+      return 'light'
+    return availabilityVariant(worst !== null && worst !== undefined ? worst : a)
+  }
+  const hasDowntime = ({ down_minutes: down }) => down >= 0.5
+
+  const formatTime = value => formatBucketTime(value, uptimeWindow.value)
+
+  const bucketTooltip = bucket => {
+    const { start, end, availability: a, worst_availability: worst, up_minutes: up, down_minutes: down, no_data_minutes: noData } = bucket
+    const lines = [`<strong>${escape(formatTime(start))} – ${escape(formatTime(end))}</strong>`]
+    if (a === null)
+      lines.push(escape(i18n.t('No data: the connector had never connected, or PacketFence was not running.')))
     else {
-      lines.push(i18n.t('{availability} up', { availability: formatAvailability(a) }))
+      const state = { success: i18n.t('Up'), warning: i18n.t('Degraded'), danger: i18n.t('Down') }[bucketVariant(bucket)]
+      lines.push(escape(`${state} · ${i18n.t('{availability} up', { availability: formatAvailability(a) })}`))
+      if (worst !== null && worst !== undefined && worst < a)
+        lines.push(escape(i18n.t('Worst hour: {availability} up', { availability: formatAvailability(worst) })))
       if (down >= 0.5)
-        lines.push(i18n.t('Down {minutes} min', { minutes: Math.round(down) }))
+        lines.push(escape(i18n.t('Tunnel down {duration} (no answer through the tunnel)', { duration: formatDuration(down) })))
+      if (up >= 0.5 && down >= 0.5)
+        lines.push(escape(i18n.t('Up {duration}', { duration: formatDuration(up) })))
       if (noData)
-        lines.push(i18n.t('No data {minutes} min', { minutes: noData }))
+        lines.push(escape(i18n.t('No data {duration}', { duration: formatDuration(noData) })))
+      if (hasDowntime(bucket))
+        lines.push(`<em>${escape(i18n.t('Click to open the connector log at that time.'))}</em>`)
     }
     return lines.join('<br>')
   }
 
-  const render = () => {
-    if (!chartRef.value || !history.value)
-      return
-    const { buckets = [] } = history.value
-    plotly.react(chartRef.value, [{
-      type: 'bar',
-      x: buckets.map((_, index) => index),
-      y: buckets.map(() => 1),
-      marker: { color: buckets.map(({ availability: a }) => a === null ? colors.none : colors[availabilityVariant(a)]) },
-      hovertext: buckets.map(bucketText),
-      hoverinfo: 'text'
-    }], {
-      height: 28,
-      margin: { l: 0, r: 0, t: 0, b: 0 },
-      bargap: 0.15,
-      paper_bgcolor: 'rgba(0,0,0,0)',
-      plot_bgcolor: 'rgba(0,0,0,0)',
-      showlegend: false,
-      xaxis: { visible: false, fixedrange: true },
-      yaxis: { visible: false, fixedrange: true, range: [0, 1] }
-    }, { ...plotlyConfig, displayModeBar: false, scrollZoom: false, locale: i18n.locale })
+  const onClick = bucket => {
+    if (hasDowntime(bucket))
+      goToLogs('pfconnector-client', bucket.start)
   }
-
-  const refresh = () => {
-    if (!props.id)
-      return
-    const requested = uptimeWindow.value
-    api.remoteUptime(props.id, requested).then(data => {
-      if (requested !== uptimeWindow.value)
-        return
-      history.value = data
-      error.value = null
-      nextTick(render)
-    }).catch(() => {
-      error.value = i18n.t('Uptime history unavailable.')
-    })
-  }
-
-  let interval = null
-  onMounted(() => {
-    refresh()
-    interval = setInterval(refresh, POLL_INTERVAL)
-  })
-  onBeforeUnmount(() => {
-    if (interval)
-      clearInterval(interval)
-    if (chartRef.value)
-      plotly.purge(chartRef.value)
-  })
-  watch(uptimeWindow, refresh)
 
   return {
     windows,
     uptimeWindow,
     error,
-    chartRef,
+    buckets,
     availability,
+    measuredMinutes,
+    windowMinutes,
     availabilityVariant,
-    formatAvailability
+    formatAvailability,
+    formatDuration,
+    bucketVariant,
+    bucketTooltip,
+    hasDowntime,
+    onClick
   }
 }
 
@@ -156,12 +120,27 @@ export const setup = props => {
 export default {
   name: 'the-uptime',
   inheritAttrs: false,
-  props,
   setup
 }
 </script>
 <style lang="scss">
-.connector-uptime-chart {
-  height: 28px;
+.connector-uptime-strip {
+  display: flex;
+  height: 20px;
+  .connector-uptime-block {
+    flex: 1 1 0;
+    min-width: 1px;
+    margin-right: 1px;
+    border-radius: 1px;
+    &:last-child {
+      margin-right: 0;
+    }
+    &.bg-light {
+      background-color: var(--gray-300, #dee2e6) !important;
+    }
+    &.connector-uptime-block-link {
+      cursor: pointer;
+    }
+  }
 }
 </style>

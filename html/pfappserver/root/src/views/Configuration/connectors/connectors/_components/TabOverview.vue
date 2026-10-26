@@ -16,7 +16,7 @@
           <small class="text-muted">
             {{ $i18n.t('Host IP(s)') }}: <span class="text-monospace">{{ hostIps || '-' }}</span>
           </small>
-          <the-uptime :id="id" class="mt-2" />
+          <the-uptime class="mt-2" />
         </b-card>
       </b-col>
       <b-col md="4" class="mb-3">
@@ -122,7 +122,8 @@
   </b-tab>
 </template>
 <script>
-import { computed, inject } from '@vue/composition-api'
+import { computed, inject, provide } from '@vue/composition-api'
+import { useUptime } from '../_composables/useUptime'
 import TheHighAvailability from './TheHighAvailability'
 import TheNtlmServices from './TheNtlmServices'
 import TheUptime from './TheUptime'
@@ -145,8 +146,10 @@ export const props = {
   }
 }
 
-export const setup = () => {
+export const setup = props => {
   const remote = inject('connectorRemote')
+  // the uptime history shared by the Tunnel and High Availability cards
+  provide('connectorUptime', useUptime(computed(() => props.id)))
   const { goToTab, goToSiteNetwork, settingsLocation } = inject('connectorTabs')
   const { status } = remote
 
