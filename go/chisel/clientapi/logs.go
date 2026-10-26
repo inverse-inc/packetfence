@@ -16,6 +16,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
+	"github.com/inverse-inc/packetfence/go/chisel/share/logtime"
 	"github.com/nxadm/tail"
 )
 
@@ -206,6 +207,18 @@ func tailLog(api *API) http.HandlerFunc {
 		if lines > logsMaxBackfill {
 			lines = logsMaxBackfill
 		}
+		// ?since=<RFC 3339>: the backfill starts at that time instead (e.g. a
+		// segment of the uptime chart), the lines stamped in the connector's
+		// local time
+		var since time.Time
+		if raw := r.URL.Query().Get("since"); raw != "" {
+			t, err := time.Parse(time.RFC3339, raw)
+			if err != nil {
+				http.Error(w, "since must be an RFC 3339 time", http.StatusBadRequest)
+				return
+			}
+			since = t
+		}
 
 		ws, err := logsUpgrader.Upgrade(w, r, nil)
 		if err != nil {
@@ -228,7 +241,23 @@ func tailLog(api *API) http.HandlerFunc {
 			ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, reason))
 		}
 
-		if lines > 0 {
+		if !since.IsZero() {
+			backfill, found, err := logtime.LinesSince(path, since, logsMaxBackfill, time.Local)
+			if err != nil {
+				closeWith(websocket.CloseInternalServerErr, fmt.Sprintf("cannot read %s", name))
+				return
+			}
+			if !found {
+				backfill = []string{fmt.Sprintf("-- nothing logged in %s since %s, following --", name, since.In(time.Local).Format(time.RFC3339))}
+			} else if len(backfill) >= logsMaxBackfill {
+				backfill = append(backfill, fmt.Sprintf("-- first %d lines since %s; the later ones are skipped, following --", logsMaxBackfill, since.In(time.Local).Format(time.RFC3339)))
+			}
+			for _, line := range backfill {
+				if err := writeEvent(line); err != nil {
+					return
+				}
+			}
+		} else if lines > 0 {
 			backfill, err := readLastNLines(path, lines)
 			if err != nil {
 				closeWith(websocket.CloseInternalServerErr, fmt.Sprintf("cannot read %s", name))

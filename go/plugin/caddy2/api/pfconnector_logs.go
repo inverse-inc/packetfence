@@ -53,7 +53,8 @@ func (h APIHandler) proxyConnectorLogs() http.HandlerFunc {
 			return
 		}
 		w.Header().Del("Content-Type")
-		// RawQuery is left untouched: it carries the ?lines=N backfill size.
+		// RawQuery is left untouched: it carries the backfill (?lines=N or
+		// ?since=<RFC 3339>).
 		newRemoteWebsocketProxy(logsURL, "/api/v1/logs/"+url.PathEscape(name), nil).ServeHTTP(w, r)
 	})
 }

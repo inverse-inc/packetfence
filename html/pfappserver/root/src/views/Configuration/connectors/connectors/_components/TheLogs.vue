@@ -7,6 +7,11 @@
             {{ $i18n.t('Live Logs') }}
             <b-badge v-if="isRunning" variant="success" class="ml-2">{{ $i18n.t('Streaming') }}</b-badge>
             <b-badge v-else-if="wsError" variant="danger" class="ml-2">{{ wsError }}</b-badge>
+            <b-badge v-if="fromTime" variant="info" class="ml-2"
+              v-b-tooltip.hover.top.d300 :title="$i18n.t('The backfill starts at this time instead of the last lines.')">
+              {{ $i18n.t('from {time}', { time: formatFrom(fromTime) }) }}
+              <b-link class="text-white ml-1" :aria-label="$i18n.t('Back to the last lines')" @click="clearFrom">&times;</b-link>
+            </b-badge>
           </h6>
         </b-col>
         <b-col cols="auto" class="d-flex align-items-center">
@@ -122,6 +127,11 @@ export const props = {
   // streamed right away
   file: {
     type: String
+  },
+  // ...from that time (RFC 3339, e.g. a segment of the uptime chart) rather
+  // than the last lines
+  since: {
+    type: String
   }
 }
 
@@ -145,6 +155,8 @@ export const setup = (props, context) => {
 
   let ws = null
   let streamedFile = null
+  // backfill start time, null for the last lines
+  const fromTime = ref(null)
   let pending = []
   let flushTimer = null
 
@@ -219,7 +231,8 @@ export const setup = (props, context) => {
     isConnecting.value = true
     const lines = Math.min(Math.max(backfill.value || 0, 0), 1000)
     const proto = window.location.protocol === 'https:' ? 'wss://' : 'ws://'
-    const url = `${proto}${window.location.host}/api/v1/pfconnector-remotes/${encodeURIComponent(props.id)}/logs/${encodeURIComponent(selectedFile.value)}?lines=${lines}`
+    const query = (fromTime.value) ? `since=${encodeURIComponent(fromTime.value)}` : `lines=${lines}`
+    const url = `${proto}${window.location.host}/api/v1/pfconnector-remotes/${encodeURIComponent(props.id)}/logs/${encodeURIComponent(selectedFile.value)}?${query}`
     try {
       ws = new WebSocket(url)
     } catch (e) {
@@ -261,14 +274,30 @@ export const setup = (props, context) => {
       start()
   })
 
-  watch(() => [props.file, props.files], ([file, files]) => {
+  watch(() => [props.file, props.since, props.files], ([file, since, files]) => {
     if (!file || !(files || []).includes(file))
       return
-    if (file === streamedFile && (isRunning.value || isConnecting.value))
+    if (file === streamedFile && (since || null) === fromTime.value && (isRunning.value || isConnecting.value))
       return
+    const restart = (since || null) !== fromTime.value
+    fromTime.value = since || null
     selectedFile.value = file
+    if (restart) {
+      pending = []
+      buffer.value = []
+    }
     start()
   }, { immediate: true })
+
+  const formatFrom = value => new Date(value).toLocaleString(i18n.locale)
+  const clearFrom = () => {
+    fromTime.value = null
+    if (isRunning.value || isConnecting.value) {
+      pending = []
+      buffer.value = []
+      start()
+    }
+  }
 
   onBeforeUnmount(stop)
 
@@ -312,6 +341,9 @@ export const setup = (props, context) => {
 
   return {
     selectedFile,
+    fromTime,
+    formatFrom,
+    clearFrom,
     fileOptions,
     backfill,
     events,

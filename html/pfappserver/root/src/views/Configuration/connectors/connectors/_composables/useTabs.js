@@ -105,10 +105,13 @@ export const useTabs = (props, context) => {
   const goToDns = () => goToNetworking('dns')
   const goToSiteNetwork = () => goToNetworking('site')
 
-  // log file the Live Logs of the Troubleshooting tab open and stream
+  // log file the Live Logs of the Troubleshooting tab open and stream, from
+  // a time (RFC 3339) or its last lines (null)
   const logFile = ref(null)
-  const goToLogs = file => {
+  const logSince = ref(null)
+  const goToLogs = (file, since = null) => {
     logFile.value = file
+    logSince.value = since
     goToTab('troubleshooting')
   }
 
@@ -125,6 +128,7 @@ export const useTabs = (props, context) => {
     goToDns,
     goToSiteNetwork,
     logFile,
+    logSince,
     goToLogs
   }
 }

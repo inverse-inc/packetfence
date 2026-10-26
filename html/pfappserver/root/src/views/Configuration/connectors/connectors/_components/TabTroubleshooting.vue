@@ -32,7 +32,7 @@
     <b-card class="mb-3" no-body>
       <!-- the log inputs live inside the connector form: Enter must not submit it -->
       <div @keydown.enter="onLogsEnter">
-        <the-logs v-if="isConnected && logFiles.length" :id="id" :files="logFiles" :file="logFile" />
+        <the-logs v-if="isConnected && logFiles.length" :id="id" :files="logFiles" :file="logFile" :since="logSince" />
         <b-card-body v-else class="text-muted">
           {{ isConnected ? $i18n.t('This connector does not advertise any log file.') : $i18n.t('Logs are streamed while the tunnel is connected.') }}
         </b-card-body>
@@ -80,7 +80,7 @@ export const props = {
 
 export const setup = () => {
   const remote = inject('connectorRemote')
-  const { goToDns, logFile } = inject('connectorTabs')
+  const { goToDns, logFile, logSince } = inject('connectorTabs')
 
   const onLogsEnter = event => {
     if (event.target && event.target.tagName === 'INPUT')
@@ -91,6 +91,7 @@ export const setup = () => {
     ...remote,
     goToDns,
     logFile,
+    logSince,
     onLogsEnter
   }
 }
