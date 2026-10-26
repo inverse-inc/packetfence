@@ -10,8 +10,8 @@ func TestVersionLess(t *testing.T) {
 		{"15.2.0", "16.0", true},
 		{"16.0.0", "16.0", false},
 		{"16.1.0", "16.0", false},
-		{"15.2.0", "15.10", true}, // numeric, not lexical
-		{"0.0.0-src", "16.0", true},
+		{"15.2.0", "15.10", true},    // numeric, not lexical
+		{"0.0.0-src", "16.0", false}, // no version stamp: unknown, not older
 		{"PacketFence 15.2.0", "PacketFence 16.0.0", true},
 		{"garbage", "16.0", false},
 		{"15.2.0", "garbage", false},

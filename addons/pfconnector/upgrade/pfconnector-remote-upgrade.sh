@@ -129,9 +129,15 @@ if ! apt-cache policy "$PACKAGE" 2>/dev/null | grep -qE "downloads/PacketFence/d
   revert
   exit 1
 fi
+before=$(dpkg-query -W -f '${Version}' "$PACKAGE" 2>/dev/null)
 if apt-get install -y -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold "$PACKAGE" >&3 2>&1; then
   rm -rf "$backup"
-  log "Upgrade to $target completed"
+  after=$(dpkg-query -W -f '${Version}' "$PACKAGE" 2>/dev/null)
+  if [ "$before" = "$after" ]; then
+    log "Nothing to upgrade: $PACKAGE $after is already the newest version available for $target"
+  else
+    log "Upgrade to $target completed: $PACKAGE ${before:-not installed} -> $after"
+  fi
 else
   log "Upgrade to $target FAILED, see apt output above"
   revert

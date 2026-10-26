@@ -11,6 +11,7 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -106,9 +107,13 @@ func centralPFVersion() (string, bool) {
 }
 
 // versionLess reports whether the MAJOR.MINOR in a is lower than in b.
-// Unparsable versions (e.g. a dev build's "0.0.0-src" still parses; garbage
-// does not) never report an upgrade.
+// Unparsable versions and a build without a version stamp (chshare's default
+// "0.0.0-src") never report an upgrade: the version of the installed package
+// is unknown, and the upgrade would find nothing newer when it is current.
 func versionLess(a, b string) bool {
+	if strings.HasPrefix(a, "0.0.0") {
+		return false
+	}
 	am := majorMinorRe.FindStringSubmatch(a)
 	bm := majorMinorRe.FindStringSubmatch(b)
 	if am == nil || bm == nil {
