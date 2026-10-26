@@ -16,8 +16,21 @@ function base_args {
   args="$args -v /usr/local/fingerbank/conf:/usr/local/fingerbank/conf"
   args="$args -v /usr/local/fingerbank/db:/usr/local/fingerbank/db"
   args="$args -v /usr/local/pf/var/run:/usr/local/pf/var/run"
-  args="$args -ePF_UID=`id -u pf` -e PF_GID=`id -g pf`"
-  args="$args -eFINGERBANK_UID=`id -u fingerbank` -e FINGERBANK_GID=`id -g fingerbank`"
+  # Gate the host-side UID/GID lookups on the user actually existing.
+  # Full PacketFence server installs provision `pf` and `fingerbank`
+  # users via the server-package postinst; connector-remote installs
+  # don't (the connector containers are self-sufficient with their
+  # internal baked-in UIDs). Running `id -u pf` unconditionally on a
+  # connector-remote host leaks `id: 'pf': no such user` to stderr,
+  # which systemd captures as a journal entry attached to the service
+  # and surfaces in diagnostic output. The resulting empty
+  # `-ePF_UID= -e PF_GID=` passed to docker is harmless but noisy.
+  if getent passwd pf >/dev/null 2>&1; then
+    args="$args -ePF_UID=`id -u pf` -e PF_GID=`id -g pf`"
+  fi
+  if getent passwd fingerbank >/dev/null 2>&1; then
+    args="$args -eFINGERBANK_UID=`id -u fingerbank` -e FINGERBANK_GID=`id -g fingerbank`"
+  fi
   args="$args -eIS_A_CLASSIC_PF_CONTAINER=yes"
   args="$args -eTZ=`timedatectl | grep Time | awk '{print $3}'`"
 
