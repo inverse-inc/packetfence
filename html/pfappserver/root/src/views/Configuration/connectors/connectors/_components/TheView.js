@@ -65,17 +65,20 @@ const setup = (props, context) => {
     }
   }
 
-  // the form buttons only apply to the Settings tab
+  // the form buttons only apply to the Settings tab, the other tabs are
+  // read-only: no footer at all
   const { isSettings } = tabs
   const isSaveable = computed(() => isSettings.value && _isSaveable.value)
   const isCloneable = computed(() => isSettings.value && _isCloneable.value)
   const isDeletable = computed(() => isSettings.value && _isDeletable.value)
+  const isFooterHidden = computed(() => !isSettings.value)
 
   return {
     ...viewCollectionItem,
     isSaveable,
     isCloneable,
-    isDeletable
+    isDeletable,
+    isFooterHidden
   }
 }
 
