@@ -984,7 +984,10 @@ func (s *Server) handleReprovisionStaticConnections(w http.ResponseWriter, req *
 	o, ok := activeTunnels.Load(connectorId)
 	if !ok {
 		// Not connected right now: the static connections will be provisioned when
-		// the connector next handshakes, so this isn't an error.
+		// the connector next handshakes, so this isn't an error. The ports of
+		// those removed meanwhile still leave the k8s Service: the next
+		// handshake only adds ports.
+		s.forgetStaticConnections(req.Context(), connectorId)
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(gin.H{"message": fmt.Sprintf("No active tunnel for connector %s; will provision on next connect", connectorId), "bound": 0})
 		return
@@ -1031,6 +1034,8 @@ func (s *Server) handleReprovisionStaticConnections(w http.ResponseWriter, req *
 	if len(staleRemotes) > 0 {
 		unbound = tun.UnbindRemotes(staleRemotes)
 		l.Info(fmt.Sprintf("reprovision: closed %d static connection(s) no longer configured for connector %s", unbound, connectorId))
+		// ...and drop their ports from the k8s Service (no-op off-k8s)
+		s.removeStaticServicePorts(req.Context(), staleRemotes, pfconnectorStaticConnections.Element)
 	}
 
 	newRemotes := chshare.Remotes{}
@@ -1075,6 +1080,102 @@ func (s *Server) handleReprovisionStaticConnections(w http.ResponseWriter, req *
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(gin.H{"message": fmt.Sprintf("Provisioned %d static connection(s) for connector %s", len(newRemotes), connectorId), "bound": len(newRemotes), "unbound": unbound})
+}
+
+// forgetStaticConnections drops, from what a disconnected connector had bound
+// (connectorBoundRemotes), the static remotes no longer configured, and
+// their k8s Service ports.
+func (s *Server) forgetStaticConnections(ctx context.Context, connectorId string) {
+	boundIface, found := connectorBoundRemotes.Load(connectorId)
+	if !found {
+		return
+	}
+	pfconnectorStaticConnections := pfconfigdriver.PfconnectorStaticConnections{}
+	if err := pfconfigdriver.FetchDecodeSocket(ctx, &pfconnectorStaticConnections); err != nil {
+		return
+	}
+	configured := map[string]bool{}
+	for _, remoteDef := range pfconnectorStaticConnections.Element[connectorId] {
+		configured[remoteDef] = true
+	}
+	bound := map[string]bool{}
+	stale := []*settings.Remote{}
+	for remoteDef, v := range boundIface.(map[string]bool) {
+		if configured[remoteDef] {
+			bound[remoteDef] = v
+		} else if remote, err := settings.DecodeRemote(remoteDef); err == nil {
+			stale = append(stale, remote)
+		}
+	}
+	if len(stale) == 0 {
+		return
+	}
+	connectorBoundRemotes.Store(connectorId, bound)
+	s.removeStaticServicePorts(ctx, stale, pfconnectorStaticConnections.Element)
+}
+
+// staticServicePortName is the name of the k8s Service port publishing a
+// static reverse remote.
+func staticServicePortName(remote *settings.Remote) string {
+	return "port-" + strings.ToLower(remote.LocalProto) + "-" + remote.LocalPort
+}
+
+// staticServicePortsRemoval builds the JSON patch removing the Service ports
+// of the given closed remotes, but the ones another connector still has
+// configured (configured: every connector's static remote definitions).
+// Each removal tests the name at its index first, so the whole patch is
+// refused when the Service changed since it was read, and the removals go
+// from the highest index down so that each index stays valid.
+func staticServicePortsRemoval(ports []pfk8s.Port, closed []*settings.Remote, configured map[string][]string) []pfk8s.PatchPorts {
+	keep := map[string]bool{}
+	for _, defs := range configured {
+		for _, def := range defs {
+			if remote, err := settings.DecodeRemote(def); err == nil {
+				keep[staticServicePortName(remote)] = true
+			}
+		}
+	}
+	drop := map[string]bool{}
+	for _, remote := range closed {
+		if name := staticServicePortName(remote); !keep[name] {
+			drop[name] = true
+		}
+	}
+	patch := []pfk8s.PatchPorts{}
+	for index := len(ports) - 1; index >= 0; index-- {
+		if !drop[ports[index].Name] {
+			continue
+		}
+		path := "/spec/ports/" + strconv.Itoa(index)
+		patch = append(patch,
+			pfk8s.PatchPorts{Op: "test", Path: path + "/name", Value: ports[index].Name},
+			pfk8s.PatchPorts{Op: "remove", Path: path},
+		)
+	}
+	return patch
+}
+
+// removeStaticServicePorts removes from the pfconnector k8s Service the ports
+// of static remotes that were closed (see staticServicePortsRemoval). No-op
+// off-k8s; best-effort, a port left behind only answers nothing.
+func (s *Server) removeStaticServicePorts(ctx context.Context, closed []*settings.Remote, configured map[string][]string) {
+	client := pfk8s.NewAdminClientFromEnv()
+	if client == nil {
+		return
+	}
+	l := log.LoggerWContext(ctx)
+	services, err := client.GetService("pfconnector")
+	if err != nil {
+		l.Error(fmt.Sprintf("Unable to get pfconnector service to remove static ports: %s", err))
+		return
+	}
+	patch := staticServicePortsRemoval(services.Spec.Ports, closed, configured)
+	if len(patch) == 0 {
+		return
+	}
+	if err := client.PatchPorts(patch); err != nil {
+		l.Error(fmt.Sprintf("Unable to remove static ports from pfconnector service: %s", err))
+	}
 }
 
 // addStaticServicePorts adds the given reverse-remote local ports to the
