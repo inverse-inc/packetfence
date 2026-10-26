@@ -12,6 +12,8 @@ import (
 
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel"
+	"github.com/inverse-inc/packetfence/go/connector"
+	"github.com/redis/go-redis/v9"
 )
 
 // connectorStatusProbeTarget is the address we ask the chisel-client to
@@ -37,6 +39,15 @@ const (
 type ConnectorStatusTracker struct {
 	mu     sync.RWMutex
 	status map[string]bool
+
+	// the server starts once per listening address: one prober only
+	start sync.Once
+
+	// probe counts of the current minute, written to the uptime history
+	// (connector/uptime.go) when the minute is over
+	minute  time.Time
+	ticks   int
+	samples map[string]connector.UptimeSample
 }
 
 // NewConnectorStatusTracker returns an empty tracker.
@@ -69,8 +80,13 @@ func (t *ConnectorStatusTracker) replace(next map[string]bool) {
 	t.mu.Unlock()
 }
 
-// Start kicks off the background prober. It exits when ctx is done.
-func (t *ConnectorStatusTracker) Start(ctx context.Context) {
+// Start kicks off the background prober, on the first call only. It exits
+// when ctx is done. rdb receives the uptime history, nil to keep none.
+func (t *ConnectorStatusTracker) Start(ctx context.Context, rdb *redis.Client) {
+	t.start.Do(func() { t.run(ctx, rdb) })
+}
+
+func (t *ConnectorStatusTracker) run(ctx context.Context, rdb *redis.Client) {
 	interval := envDuration("PFCONNECTOR_STATUS_PROBE_INTERVAL", defaultConnectorStatusInterval)
 	timeout := envDuration("PFCONNECTOR_STATUS_PROBE_TIMEOUT", defaultConnectorStatusTimeout)
 
@@ -85,6 +101,9 @@ func (t *ConnectorStatusTracker) Start(ctx context.Context) {
 				return
 			case <-ticker.C:
 				t.tick(ctx, timeout)
+				if rdb != nil {
+					t.recordUptime(ctx, rdb, time.Now())
+				}
 			}
 		}
 	}()
@@ -137,6 +156,49 @@ func (t *ConnectorStatusTracker) tick(ctx context.Context, timeout time.Duration
 	}
 	wg.Wait()
 	t.replace(results)
+}
+
+// recordUptime adds the last probe results to the counts of the current
+// minute and, on the first tick of a new minute, writes the previous one.
+// The minute the prober started in is partial and not written. The ticks a
+// connector missed in a minute (tunnel down or held by another server) count
+// as failed probes.
+func (t *ConnectorStatusTracker) recordUptime(ctx context.Context, rdb *redis.Client, now time.Time) {
+	minute := now.Truncate(time.Minute)
+	if !minute.Equal(t.minute) {
+		if !t.minute.IsZero() && t.samples != nil {
+			for id, sample := range t.samples {
+				if sample.Total < t.ticks {
+					sample.Total = t.ticks
+					t.samples[id] = sample
+				}
+			}
+			wctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+			if err := connector.RecordUptimeMinute(wctx, rdb, t.minute, t.samples); err != nil {
+				log.LoggerWContext(ctx).Warn(fmt.Sprintf("connector-status: unable to record the uptime of %s: %s", t.minute.Format(time.RFC3339), err))
+			}
+			cancel()
+		}
+		started := !t.minute.IsZero()
+		t.minute = minute
+		t.ticks = 0
+		t.samples = nil
+		if started {
+			t.samples = map[string]connector.UptimeSample{}
+		}
+	}
+	if t.samples == nil {
+		return
+	}
+	t.ticks++
+	for id, up := range t.Snapshot() {
+		sample := t.samples[id]
+		sample.Total++
+		if up {
+			sample.Up++
+		}
+		t.samples[id] = sample
+	}
 }
 
 // probeConnector opens a chisel SSH channel to the client's local API,

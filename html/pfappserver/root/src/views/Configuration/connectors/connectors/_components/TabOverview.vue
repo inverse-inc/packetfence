@@ -16,6 +16,7 @@
           <small class="text-muted">
             {{ $i18n.t('Host IP(s)') }}: <span class="text-monospace">{{ hostIps || '-' }}</span>
           </small>
+          <the-uptime :id="id" class="mt-2" />
         </b-card>
       </b-col>
       <b-col md="4" class="mb-3">
@@ -124,6 +125,7 @@
 import { computed, inject } from '@vue/composition-api'
 import TheHighAvailability from './TheHighAvailability'
 import TheNtlmServices from './TheNtlmServices'
+import TheUptime from './TheUptime'
 import {
   formatBytes,
   formatLoad,
@@ -133,7 +135,14 @@ import {
 
 const components = {
   TheHighAvailability,
-  TheNtlmServices
+  TheNtlmServices,
+  TheUptime
+}
+
+export const props = {
+  id: {
+    type: String
+  }
 }
 
 export const setup = () => {
@@ -164,6 +173,7 @@ export default {
   name: 'tab-overview',
   inheritAttrs: false,
   components,
+  props,
   setup
 }
 </script>

@@ -111,6 +111,7 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 			r.Get("/topology", m.pfconnectorTopology())
 			r.Get("/traffic", m.pfconnectorTraffic())
 			r.Get("/{connectorID}/status", m.pfconnectorRemoteStatus())
+			r.Get("/{connectorID}/uptime", m.pfconnectorRemoteUptime())
 			r.Post("/{connectorID}/restart", m.pfconnectorRemoteRestart())
 			r.Post("/{connectorID}/upgrade", m.pfconnectorRemoteUpgrade())
 			r.Post("/{connectorID}/install", m.pfconnectorRemoteInstall())

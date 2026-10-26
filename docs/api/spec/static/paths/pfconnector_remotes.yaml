@@ -57,6 +57,87 @@
     tags:
       - PFconnector remotes
 
+/api/v1/pfconnector-remotes/{connector_id}/uptime:
+  get:
+    summary: Tunnel uptime history of a connector-remote.
+    description: |
+      Share of the time the connector answered the pfconnector server through
+      its tunnel, over the window, in buckets ending at the last full minute:
+      1 minute buckets for `1h`, 1 hour for `24h`, 1 day for `30d`. The
+      pfconnector server probes the tunnel every few seconds and keeps one
+      sample per minute for 32 days. A minute without a sample is down when a
+      pfconnector server was running, and no data otherwise or before the
+      first sample of the connector (`since`).
+
+      Requires `CONNECTORS_READ`.
+    parameters:
+      - $ref: "#/components/parameters/pfconnector_remote_id"
+      - name: window
+        in: query
+        required: false
+        schema:
+          type: string
+          enum: [1h, 24h, 30d]
+          default: 24h
+    responses:
+      '200':
+        description: Uptime history of the connector.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                connector_id:
+                  type: string
+                window:
+                  type: string
+                since:
+                  type: string
+                  format: date-time
+                  nullable: true
+                  description: First minute recorded for this connector.
+                generated_at:
+                  type: string
+                  format: date-time
+                up_minutes:
+                  type: number
+                down_minutes:
+                  type: number
+                availability:
+                  type: number
+                  nullable: true
+                  description: Between 0 and 1, null when the window has no data.
+                buckets:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      start:
+                        type: string
+                        format: date-time
+                      end:
+                        type: string
+                        format: date-time
+                      up_minutes:
+                        type: number
+                      down_minutes:
+                        type: number
+                      no_data_minutes:
+                        type: integer
+                      availability:
+                        type: number
+                        nullable: true
+      '400':
+        description: Unknown window.
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+      '403':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        description: Unknown connector.
+    tags:
+      - PFconnector remotes
+
 /api/v1/pfconnector-remotes/{connector_id}/restart:
   post:
     summary: Restart a connector-remote.

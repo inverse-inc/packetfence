@@ -67,6 +67,12 @@ export default {
       return response.data
     })
   },
+  // polled: errors are reported in the UI, not as notifications
+  remoteUptime: (id, window) => {
+    return apiCall.getQuiet(['pfconnector-remotes', id, 'uptime'], { params: { window } }).then(response => {
+      return response.data
+    })
+  },
   topology: () => {
     return apiCall.get(['pfconnector-remotes', 'topology']).then(response => {
       return response.data

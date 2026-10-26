@@ -368,6 +368,7 @@ func TestPfconnectorRemotesAdminRoleMapping(t *testing.T) {
 		{"POST", "/api/v1/pfconnector-remotes/connector1/restart", "CONNECTORS_UPDATE"},
 		{"POST", "/api/v1/pfconnector-remotes/connector1/upgrade", "CONNECTORS_UPDATE"},
 		{"GET", "/api/v1/pfconnector-remotes/connector1/status", "CONNECTORS_READ"},
+		{"GET", "/api/v1/pfconnector-remotes/connector1/uptime", "CONNECTORS_READ"},
 		{"GET", "/api/v1/pfconnector-remotes/connector1/logs/pfconnector-client", "CONNECTORS_READ"},
 		{"POST", "/api/v1/pfconnector-remotes/dns-lookup", "CONNECTORS_READ"},
 	}

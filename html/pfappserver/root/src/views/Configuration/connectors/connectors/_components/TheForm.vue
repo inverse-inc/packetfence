@@ -7,7 +7,7 @@
   >
     <b-tabs card nav-wrapper-class="mb-3" v-model="tabIndex">
       <template v-if="isLive">
-        <tab-overview />
+        <tab-overview :id="id" />
         <tab-networking :id="id" />
         <tab-devices />
         <tab-troubleshooting :id="id" />
