@@ -3,6 +3,9 @@ import acl from '@/utils/acl'
 import i18n from '@/utils/locale'
 import api from '../_api'
 import { dnsServersOf } from './useDnsTopology'
+import { connectorHealth, siteNetworkIssues, siteNetworkVariant } from './useConnectorHealth'
+
+export { siteNetworkVariant }
 
 const POLL_INTERVAL = 30000
 const UPGRADE_POLL_INTERVAL = 10000
@@ -50,17 +53,6 @@ export const formatDate = value => {
 }
 
 // badge of a site networking interface or route state
-export const siteNetworkVariant = state => {
-  switch (state) {
-    case 'up':
-    case 'applied':
-      return 'success'
-    case 'down':
-      return 'warning'
-    default:
-      return 'danger'
-  }
-}
 
 // Notifications render HTML: text coming from the remote must be escaped
 const escapeHtml = text => String(text).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
@@ -253,19 +245,9 @@ export const useRemoteStatus = (props, context) => {
     const { dns_server: servers } = system.value || {}
     return Array.isArray(servers) ? servers : []
   })
-  const siteNetworkErrors = computed(() => {
-    const { interfaces = [], routes = [] } = siteNetwork.value || {}
-    return [
-      ...(interfaces || []).filter(({ state }) => siteNetworkVariant(state) === 'danger')
-        .map(({ name, cidr, error }) => i18n.t('Interface {name} ({cidr}): {error}', { name, cidr, error: error || i18n.t('failed') })),
-      ...(routes || []).filter(({ state }) => siteNetworkVariant(state) === 'danger')
-        .map(({ destination, error }) => i18n.t('Route to {destination}: {error}', { destination, error: error || i18n.t('failed') })),
-      ...dhcpRelay.value.filter(({ state }) => state !== 'listening')
-        .map(({ interface: name, error, last_error: lastError }) => i18n.t('DHCP relay on {name}: {error}', { name, error: error || lastError || i18n.t('not listening') })),
-      ...captiveDns.value.filter(({ state }) => state !== 'listening')
-        .map(({ interface: name, error }) => i18n.t('Captive DNS on {name}: {error}', { name, error: error || i18n.t('not listening') }))
-    ]
-  })
+  const siteNetworkErrors = computed(() => siteNetworkIssues(system.value))
+  // tunnel and site services rolled up (useConnectorHealth)
+  const health = computed(() => connectorHealth(isConnected.value ? 'up' : (status.value ? 'down' : 'unknown'), status.value))
 
   // Listeners the connector opened on its host (local_binds).
   const localBinds = computed(() => {
@@ -430,6 +412,7 @@ export const useRemoteStatus = (props, context) => {
     dhcpRelay,
     captiveDns,
     siteNetworkErrors,
+    health,
     localBinds,
     hostPackages,
     ntlmInstalled,

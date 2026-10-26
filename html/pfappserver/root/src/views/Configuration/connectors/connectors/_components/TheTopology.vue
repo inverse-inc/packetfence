@@ -115,6 +115,7 @@ const COLOR_VARS = {
   primary: ['--primary', '#007bff'],
   success: ['--success', '#28a745'],
   danger: ['--danger', '#dc3545'],
+  warning: ['--warning', '#ffc107'],
   secondary: ['--secondary', '#6c757d'],
   dark: ['--dark', '#343a40'],
   white: ['--white', '#ffffff'],
@@ -385,7 +386,9 @@ const setup = (props, context) => {
       const ha = connectorHa(remote)
       const status = connector.status || 'unknown'
       const connected = status === 'up'
-      const statusLabel = { up: i18n.t('connected'), down: i18n.t('unreachable') }[status] || i18n.t('unknown')
+      const { level = connected ? 'healthy' : 'unknown', reasons = [] } = connector.health || {}
+      const degraded = level === 'degraded'
+      const statusLabel = (degraded) ? i18n.t('degraded') : ({ up: i18n.t('connected'), down: i18n.t('unreachable') }[status] || i18n.t('unknown'))
       const badgeLabel = ha ? i18n.t('master').toUpperCase() : null
       const badge = ha ? { label: badgeLabel, w: Math.max(46, badgeLabel.length * 7 + 14), color: colors.success } : null
       // interfaces of the connector host, when it reports them, else its
@@ -409,14 +412,14 @@ const setup = (props, context) => {
       const head = {
         key: `connector-${connector.id}`, kind: 'connector', id: connector.id, name,
         x: connX, y: rowY(bandStart), w: boxW,
-        fill: connected ? colors.white : colors.light, border: colors.gray, accent: connected ? colors.success : colors.secondary,
-        icon: iconData(ICONS.connector), iconColor: connected ? colors.dark : colors.secondary, dot: statusColor(status),
+        fill: connected ? colors.white : colors.light, border: colors.gray, accent: degraded ? colors.warning : (connected ? colors.success : colors.secondary),
+        icon: iconData(ICONS.connector), iconColor: connected ? colors.dark : colors.secondary, dot: degraded ? colors.warning : statusColor(status),
         titleColor: connected ? colors.dark : colors.secondary, subtitleColor: colors.secondary, badge,
         badgeRight: 32,
         title: fit(name, titleWidth),
         titleExtra: (hostname && hostnameWidth >= 6 * CHAR_WIDTH.subtitle) ? fit(hostname, hostnameWidth, 'subtitle') : '',
         subtitle: fit([statusLabel, ha ? `VIP ${ha.vip}` : null, uplink, version].filter(Boolean).join(' · '), boxW - TEXT_X - 32 - (issues ? issues.w + 4 : 0), 'subtitle'),
-        tooltip: [connector.description, connector.id, !ha && hostname, statusLabel, version, ha && `VIP ${ha.vip}`, ha && `${ha.hostname || ''} ${ha.address || ''}`.trim(), uplink && i18n.t('uplink {uplink}', { uplink })].filter(Boolean).join(' · '),
+        tooltip: [connector.description, connector.id, !ha && hostname, statusLabel, ...(degraded ? reasons : []), version, ha && `VIP ${ha.vip}`, ha && `${ha.hostname || ''} ${ha.address || ''}`.trim(), uplink && i18n.t('uplink {uplink}', { uplink })].filter(Boolean).join(' · '),
         to: { name: 'connectorsConnector', params: { id: connector.id } },
         status, connected, networks: connector.networks || [], issues, dnsDomains
       }

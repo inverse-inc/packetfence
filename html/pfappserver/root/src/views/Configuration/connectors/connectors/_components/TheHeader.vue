@@ -1,6 +1,6 @@
 <template>
   <span v-if="isLive" class="connector-header">
-    <b-badge class="ml-2" :variant="isConnected ? 'success' : (status ? 'danger' : 'secondary')"
+    <b-badge class="ml-2" :variant="isDegraded ? 'warning' : (isConnected ? 'success' : (status ? 'danger' : 'secondary'))"
       v-b-tooltip.hover.bottom.d300 :title="tunnelTooltip">
       <icon name="circle" scale="0.5" class="mr-1" />{{ tunnelLabel }}
     </b-badge>
@@ -73,20 +73,28 @@ export const setup = props => {
   const { goToTab, goToDns } = inject('connectorTabs')
   const {
     status,
-    isConnected
+    isConnected,
+    health
   } = remote
+
+  // connected, but a site service fails (useConnectorHealth)
+  const isDegraded = computed(() => isConnected.value && health.value.level === 'degraded')
 
   const isLive = computed(() => !!props.id && !props.isNew && !props.isClone)
 
   const tunnelLabel = computed(() => {
     if (!status.value)
       return i18n.t('Status unavailable')
+    if (isDegraded.value)
+      return i18n.t('Degraded')
     return isConnected.value ? i18n.t('Tunnel connected') : i18n.t('Tunnel disconnected')
   })
 
   const tunnelTooltip = computed(() => {
     if (!status.value)
       return i18n.t('The remote connector status could not be fetched.')
+    if (isDegraded.value)
+      return [i18n.t('The tunnel is connected, but:'), ...health.value.reasons].join(' ')
     return isConnected.value
       ? i18n.t('The connector tunnel to the pfconnector server is active.')
       : i18n.t('No active tunnel from this connector to the pfconnector server.')
@@ -100,6 +108,7 @@ export const setup = props => {
   return {
     ...remote,
     isLive,
+    isDegraded,
     tunnelLabel,
     tunnelTooltip,
     hostIps,

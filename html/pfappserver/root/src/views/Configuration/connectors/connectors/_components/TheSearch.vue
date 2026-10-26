@@ -21,9 +21,10 @@
         </b-col>
         <b-col md="4">
           <b-card class="h-100">
-            <small class="text-muted">{{ $t('Tunnel') }}</small>
+            <small class="text-muted">{{ $t('Health') }}</small>
             <h4 class="mb-0">
-              <b-badge variant="success" class="mr-1">{{ $t('{count} connected', { count: summary.up }) }}</b-badge>
+              <b-badge variant="success" class="mr-1">{{ $t('{count} healthy', { count: summary.healthy }) }}</b-badge>
+              <b-badge v-if="summary.degraded" variant="warning" class="mr-1">{{ $t('{count} degraded', { count: summary.degraded }) }}</b-badge>
               <b-badge v-if="summary.down" variant="danger" class="mr-1">{{ $t('{count} unreachable', { count: summary.down }) }}</b-badge>
               <b-badge v-if="summary.unknown" variant="secondary">{{ $t('{count} unknown', { count: summary.unknown }) }}</b-badge>
             </h4>
@@ -89,8 +90,8 @@
           <span class="text-monospace small">{{ (item.fingerbank_environment || []).join(', ') }}</span>
         </template>
         <template v-slot:cell(connected)="{ item }">
-          <icon name="circle" :class="`text-${statusVariant(item.status)}`"
-            v-b-tooltip.hover.top.d300 :title="`${statusLabel(item.status)}: ${statusTooltip(item.status)}`" />
+          <icon name="circle" :class="`text-${healthVariant(item.health.level)}`"
+            v-b-tooltip.hover.top.d300 :title="`${healthLabel(item.health.level)}: ${item.health.reasons.join(' · ') || $t('the tunnel is active and every site service works.')}`" />
         </template>
         <template v-slot:cell(role)="{ item }">
           <template v-if="ha(item.id)">
@@ -240,6 +241,7 @@ import {
   formatUptime
 } from '../_composables/useRemoteStatus'
 import { connectorHa } from '../_composables/useConnectorRows'
+import { connectorHealth, healthLabel, healthVariant } from '../_composables/useConnectorHealth'
 
 const REMOTE_CONCURRENCY = 3 // each remote status call takes 1s or more
 
@@ -380,10 +382,14 @@ const setup = (props, context) => {
   })
 
   const itemsWithStatus = computed(() => {
-    return items.value.map(item => ({
-      ...item,
-      status: connectorStatuses.value[item.id] || 'unknown'
-    }))
+    return items.value.map(item => {
+      const status = connectorStatuses.value[item.id] || 'unknown'
+      return {
+        ...item,
+        status,
+        health: connectorHealth(status, remoteInfo.value[item.id])
+      }
+    })
   })
 
   const packetfenceVersion = computed(() => $store.getters['system/version'])
@@ -414,13 +420,14 @@ const setup = (props, context) => {
   }
 
   const summary = computed(() => {
-    const statuses = itemsWithStatus.value.map(item => item.status)
+    const levels = itemsWithStatus.value.map(item => item.health.level)
     const reporting = Object.values(remoteInfo.value).filter(info => info && info.system)
     const central = (reporting.find(info => info.central_version) || {}).central_version
     return {
-      up: statuses.filter(status => status === 'up').length,
-      down: statuses.filter(status => status === 'down').length,
-      unknown: statuses.filter(status => status !== 'up' && status !== 'down').length,
+      healthy: levels.filter(level => level === 'healthy').length,
+      degraded: levels.filter(level => level === 'degraded').length,
+      down: levels.filter(level => level === 'down').length,
+      unknown: levels.filter(level => level === 'unknown').length,
       reporting: reporting.length,
       behind: reporting.filter(info => info.upgrade_available).length,
       central
@@ -514,6 +521,8 @@ const setup = (props, context) => {
     statusLabel,
     statusVariant,
     statusTooltip,
+    healthLabel,
+    healthVariant,
     formatBytes,
     formatLoad,
     formatPercent,

@@ -77,6 +77,10 @@ type Status struct {
 	Replies   uint64 `json:"replies"`
 	Dropped   uint64 `json:"dropped"`
 	LastError string `json:"last_error,omitempty"`
+	// When the last error and the last reply happened: the relay is failing
+	// while the last error is the more recent.
+	LastErrorAt *time.Time `json:"last_error_at,omitempty"`
+	LastReplyAt *time.Time `json:"last_reply_at,omitempty"`
 }
 
 // Relay owns one listener per interface.
@@ -180,12 +184,14 @@ type listener struct {
 	cancel context.CancelFunc
 	done   chan struct{}
 
-	mu        sync.Mutex
-	err       error
-	lastError string
-	requests  atomic.Uint64
-	replies   atomic.Uint64
-	dropped   atomic.Uint64
+	mu          sync.Mutex
+	err         error
+	lastError   string
+	lastErrorAt time.Time
+	lastReplyAt time.Time
+	requests    atomic.Uint64
+	replies     atomic.Uint64
+	dropped     atomic.Uint64
 }
 
 func newListener(r *Relay, iface Interface) *listener {
@@ -234,6 +240,7 @@ func (l *listener) noteError(err error) {
 	l.dropped.Add(1)
 	l.mu.Lock()
 	l.lastError = err.Error()
+	l.lastErrorAt = time.Now()
 	l.mu.Unlock()
 }
 
@@ -248,6 +255,14 @@ func (l *listener) status() Status {
 		Replies:   l.replies.Load(),
 		Dropped:   l.dropped.Load(),
 		LastError: l.lastError,
+	}
+	if !l.lastErrorAt.IsZero() {
+		at := l.lastErrorAt
+		st.LastErrorAt = &at
+	}
+	if !l.lastReplyAt.IsZero() {
+		at := l.lastReplyAt
+		st.LastReplyAt = &at
 	}
 	if l.err != nil {
 		st.State = "error"
@@ -358,6 +373,9 @@ func (l *listener) relayOne(ctx context.Context, p dhcp.Packet, from net.Addr) {
 		return
 	}
 	l.replies.Add(1)
+	l.mu.Lock()
+	l.lastReplyAt = time.Now()
+	l.mu.Unlock()
 	logger("dhcp-relay: %s: %s %s -> %s %s", l.iface.Name, msgTypeOf(p), mac, msgTypeOf(reply), reply.YIAddr())
 }
 

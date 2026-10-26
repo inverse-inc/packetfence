@@ -79,7 +79,7 @@ export const useSearch = makeSearch('connectorsConnectors', {
     },
     {
       key: 'connected',
-      label: 'Connected', // i18n defer
+      label: 'Health', // i18n defer
       thClass: 'text-center', tdClass: 'text-center',
       thStyle: 'width: 90px;',
       visible: true

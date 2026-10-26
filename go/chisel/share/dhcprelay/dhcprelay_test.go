@@ -187,6 +187,9 @@ func TestRelayDiscoverUnicastOffer(t *testing.T) {
 	if len(st) != 1 || st[0].Requests != 1 || st[0].Replies != 1 || st[0].State != "listening" {
 		t.Errorf("status = %+v", st)
 	}
+	if st[0].LastReplyAt == nil || st[0].LastErrorAt != nil {
+		t.Errorf("last reply/error at = %v/%v, want a reply and no error", st[0].LastReplyAt, st[0].LastErrorAt)
+	}
 }
 
 func TestRelayBroadcastFlagAndNak(t *testing.T) {
@@ -251,7 +254,7 @@ func TestRelayDropsOnServerErrorsAndIgnoresReplies(t *testing.T) {
 	h.answer = func(req dhcp.Packet) (int, []byte) { return 403, []byte("giaddr not yours") }
 	h.conn.inject(discover(false), &net.UDPAddr{IP: net.IPv4zero, Port: 68})
 	waitFor(t, func() bool { return h.relay.Status()[0].Dropped == 1 })
-	if st := h.relay.Status()[0]; st.LastError == "" || st.State != "listening" {
+	if st := h.relay.Status()[0]; st.LastError == "" || st.State != "listening" || st.LastErrorAt == nil {
 		t.Errorf("status after 403: %+v", st)
 	}
 

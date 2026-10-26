@@ -89,8 +89,10 @@
             <b-tr v-for="relay in dhcpRelay" :key="relay.interface">
               <b-td class="text-monospace">{{ relay.interface }} ({{ relay.ip }})</b-td>
               <b-td>
-                <b-badge :variant="relay.state === 'listening' ? 'success' : 'danger'" :title="relay.error || relay.last_error || ''">{{ relay.state }}</b-badge>
-                <small v-if="relay.error || relay.last_error" class="d-block text-danger">{{ relay.error || relay.last_error }}<b-link v-if="canViewLogs" class="ml-1 text-nowrap" @click="goToLogs('pfconnector-client')">{{ $i18n.t('View log') }}</b-link></small>
+                <b-badge :variant="relayVariant(relay)" :title="relay.error || relay.last_error || ''">{{ relayFailing(relay) && relay.state === 'listening' ? $i18n.t('failing') : relay.state }}</b-badge>
+                <small v-if="relay.error || relay.last_error" class="d-block" :class="(relay.error || relayFailing(relay)) ? 'text-danger' : 'text-muted'">
+                  <template v-if="!relay.error && relay.last_error_at">{{ $i18n.t('Last error {time}:', { time: formatDate(relay.last_error_at) }) }}</template>
+                  {{ relay.error || relay.last_error }}<b-link v-if="canViewLogs" class="ml-1 text-nowrap" @click="goToLogs('pfconnector-client')">{{ $i18n.t('View log') }}</b-link></small>
               </b-td>
               <b-td>{{ relay.requests }}</b-td>
               <b-td>{{ relay.replies }}</b-td>
@@ -124,7 +126,15 @@
 </template>
 <script>
 import { computed, inject } from '@vue/composition-api'
-import { siteNetworkVariant } from '../_composables/useRemoteStatus'
+import { formatDate, siteNetworkVariant } from '../_composables/useRemoteStatus'
+import { relayFailing } from '../_composables/useConnectorHealth'
+
+// listening and answering, listening but failing (useConnectorHealth), down
+const relayVariant = relay => {
+  if (relay.state !== 'listening')
+    return 'danger'
+  return relayFailing(relay) ? 'warning' : 'success'
+}
 
 export const setup = () => {
   const remote = inject('connectorRemote')
@@ -135,6 +145,9 @@ export const setup = () => {
   return {
     ...remote,
     siteNetworkVariant,
+    relayFailing,
+    relayVariant,
+    formatDate,
     settingsLocation,
     goToLogs,
     canViewLogs
