@@ -242,11 +242,15 @@ routing information pfdhcp needs.
    former inline "plain network" branch so both paths build identical scopes.
 
 3. **Synthetic interface** `Interface{Name: "connector", InterfaceType: "api"}`
-   owns those scopes. It is registered in `intNametoInterface` (so the stats
-   API works) but `startNetworkListeners` opens no socket for it,
+   owns those scopes. It is kept apart from the local interfaces
+   (`connectorIface`, an atomic pointer, looked up through `lookupInterface`
+   so the stats API works) and no socket is opened for it,
    `VIP["connector"]` is set to true at start-up, and the duplicate-address
    ping in `handleDiscover` is skipped for it (`sharedutils.Ping` fatals on an
-   unknown interface).
+   unknown interface). `watchConnectorScopes` rebuilds it as a whole when a
+   fingerprint of the DHCP-enabled connector interfaces changes (checked
+   every 5 s), so adding a VLAN or changing a range needs no pfdhcp restart
+   (`connector_scopes.go`).
 
 4. **Server identifier = giaddr.** `ServeDHCP` already takes a `srvIP`
    parameter that `setOptionServerIdentifier` prefers over the scope IP; the
@@ -255,9 +259,26 @@ routing information pfdhcp needs.
    the interface address, so the option-54 check in `handleRequest` passes.
 
 5. **`PFDHCP_DOH_ONLY=true`** (cloud): no scope is built for the local
-   interfaces and no UDP listener starts; pfdhcp serves only over HTTP.
-   `PFDHCP_CONNECTOR_POOL_BACKEND=mysql` shares connector leases between
-   replicas.
+   interfaces, no UDP listener starts and the VIP detection loop does not run;
+   pfdhcp serves only over HTTP. `PFDHCP_CONNECTOR_POOL_BACKEND=mysql` shares
+   connector leases between replicas.
+
+6. **Deployment.**
+   - Standalone or cluster: one pfdhcp per server serves both, its local
+     DHCP interfaces (sockets, broadcast, VIP detection) and the connector
+     scopes over HTTP. It runs as the host binary, or as the `pfdhcp` image
+     with the host network (`feature/pfdhcp-container`).
+     pfconnector-server reaches it through `services_url.pfdhcp`, default
+     `http://containers-gateway.internal:22222`. In a cluster the relayed
+     requests go to the pfdhcp of the node that holds the connector tunnel;
+     set `PFDHCP_CONNECTOR_POOL_BACKEND=mysql` so a tunnel moving to another
+     node keeps the same connector pools.
+   - Kubernetes: the `pfdhcp` image with `PFDHCP_DOH_ONLY=true` (and
+     `PFDHCP_CONNECTOR_POOL_BACKEND=mysql` for several replicas) behind a
+     Service on port 22222, and `PF_SERVICES_URL_PFDHCP` set to that Service
+     (`services_url.pfdhcp`) in the environment of pfconnector-server. The
+     image does not set `PFDHCP_DOH_ONLY` itself, the same image runs on
+     standalone servers and clusters.
 
 ### 4.4 pfconnector-server change (`go/chisel/server/server_handler.go`)
 
