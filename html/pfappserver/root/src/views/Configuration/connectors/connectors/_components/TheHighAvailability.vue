@@ -6,7 +6,8 @@
     </b-card-header>
     <b-card-body class="pb-0">
       <p class="small text-muted mb-2">
-        {{ $i18n.t('The host holding the virtual IP runs the tunnel; the others report to it over the site network and mirror its credential cache. Configure switches, portal redirection and DHCP relays with the virtual IP.') }}
+        {{ $i18n.t('Point switches, portal redirection and DHCP relays at the virtual IP.') }}
+        <b-link :to="settingsLocation('networking')" replace class="text-nowrap">{{ $i18n.t('Settings > Networking') }}</b-link>
       </p>
     </b-card-body>
     <b-table-simple small responsive class="mb-0">
@@ -69,9 +70,11 @@ import { formatDate } from '../_composables/useRemoteStatus'
 
 export const setup = () => {
   const remote = inject('connectorRemote')
+  const { settingsLocation } = inject('connectorTabs')
   return {
     ...remote,
-    formatDate
+    formatDate,
+    settingsLocation
   }
 }
 

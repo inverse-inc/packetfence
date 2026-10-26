@@ -35,7 +35,9 @@
       <b-col md="4" class="mb-3">
         <b-card class="h-100">
           <small class="text-muted">{{ $i18n.t('Site DNS') }}</small>
-          <h5 class="mt-1 mb-1">{{ $i18n.t('{count} server(s)', { count: dnsConnectors.length }) }}</h5>
+          <h5 class="mt-1 mb-1">
+            <b-link :to="settingsLocation('dns')" replace>{{ $i18n.t('{count} server(s)', { count: dnsConnectors.length }) }}</b-link>
+          </h5>
           <small v-for="dns in dnsConnectors" :key="dns.id" class="d-block text-muted">
             {{ (dns.domains || []).join(', ') }} {{ $i18n.t('via') }} <span class="text-monospace">{{ dns.ip }}</span>
           </small>
@@ -136,7 +138,7 @@ const components = {
 
 export const setup = () => {
   const remote = inject('connectorRemote')
-  const { goToTab, goToSiteNetwork } = inject('connectorTabs')
+  const { goToTab, goToSiteNetwork, settingsLocation } = inject('connectorTabs')
   const { status } = remote
 
   const hostIps = computed(() => {
@@ -148,6 +150,7 @@ export const setup = () => {
     ...remote,
     goToTab,
     goToSiteNetwork,
+    settingsLocation,
     hostIps,
     formatBytes,
     formatLoad,

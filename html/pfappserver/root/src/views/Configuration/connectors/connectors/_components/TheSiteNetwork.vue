@@ -1,7 +1,8 @@
 <template>
   <div>
     <p class="small text-muted">
-      {{ $i18n.t('State of the interfaces, static routes, captive DNS responders and DHCP relays the connector applies on its host (Settings > Networking), as of its last pass, and the listeners it opened for the tunnel.') }}
+      {{ $i18n.t('State of the interfaces, static routes, captive DNS responders and DHCP relays the connector applies on its host, as of its last pass, and the listeners it opened for the tunnel.') }}
+      <b-link :to="settingsLocation('networking')" replace class="text-nowrap">{{ $i18n.t('Settings > Networking') }}</b-link>
     </p>
     <b-row>
       <b-col lg="6" class="mb-3">
@@ -20,7 +21,7 @@
               <b-td class="text-monospace">{{ iface.cidr }}</b-td>
               <b-td>
                 <b-badge :variant="siteNetworkVariant(iface.state)" :title="iface.error || ''">{{ iface.state }}</b-badge>
-                <small v-if="iface.error" class="d-block text-danger">{{ iface.error }}</small>
+                <small v-if="iface.error" class="d-block text-danger">{{ iface.error }}<b-link v-if="canViewLogs" class="ml-1 text-nowrap" @click="goToLogs('pfconnector-client')">{{ $i18n.t('View log') }}</b-link></small>
               </b-td>
             </b-tr>
           </b-tbody>
@@ -43,7 +44,7 @@
               <b-td class="text-monospace">{{ [route.gateway, route.interface].filter(v => v).join(' dev ') }}</b-td>
               <b-td>
                 <b-badge :variant="siteNetworkVariant(route.state)" :title="route.error || ''">{{ route.state }}</b-badge>
-                <small v-if="route.error" class="d-block text-danger">{{ route.error }}</small>
+                <small v-if="route.error" class="d-block text-danger">{{ route.error }}<b-link v-if="canViewLogs" class="ml-1 text-nowrap" @click="goToLogs('pfconnector-client')">{{ $i18n.t('View log') }}</b-link></small>
               </b-td>
             </b-tr>
           </b-tbody>
@@ -65,7 +66,7 @@
               <b-td class="text-monospace">{{ srv.interface }} ({{ srv.ip }})</b-td>
               <b-td>
                 <b-badge :variant="srv.state === 'listening' ? 'success' : 'danger'" :title="srv.error || ''">{{ srv.state }}</b-badge>
-                <small v-if="srv.error" class="d-block text-danger">{{ srv.error }}</small>
+                <small v-if="srv.error" class="d-block text-danger">{{ srv.error }}<b-link v-if="canViewLogs" class="ml-1 text-nowrap" @click="goToLogs('pfconnector-client')">{{ $i18n.t('View log') }}</b-link></small>
               </b-td>
               <b-td>{{ srv.queries }}</b-td>
             </b-tr>
@@ -89,7 +90,7 @@
               <b-td class="text-monospace">{{ relay.interface }} ({{ relay.ip }})</b-td>
               <b-td>
                 <b-badge :variant="relay.state === 'listening' ? 'success' : 'danger'" :title="relay.error || relay.last_error || ''">{{ relay.state }}</b-badge>
-                <small v-if="relay.error || relay.last_error" class="d-block text-danger">{{ relay.error || relay.last_error }}</small>
+                <small v-if="relay.error || relay.last_error" class="d-block text-danger">{{ relay.error || relay.last_error }}<b-link v-if="canViewLogs" class="ml-1 text-nowrap" @click="goToLogs('pfconnector-client')">{{ $i18n.t('View log') }}</b-link></small>
               </b-td>
               <b-td>{{ relay.requests }}</b-td>
               <b-td>{{ relay.replies }}</b-td>
@@ -122,14 +123,21 @@
   </div>
 </template>
 <script>
-import { inject } from '@vue/composition-api'
+import { computed, inject } from '@vue/composition-api'
 import { siteNetworkVariant } from '../_composables/useRemoteStatus'
 
 export const setup = () => {
   const remote = inject('connectorRemote')
+  const { settingsLocation, goToLogs } = inject('connectorTabs')
+  // site networking is applied by the connector client: its errors are in
+  // that log, when the connector streams it
+  const canViewLogs = computed(() => remote.isConnected.value && remote.logFiles.value.includes('pfconnector-client'))
   return {
     ...remote,
-    siteNetworkVariant
+    siteNetworkVariant,
+    settingsLocation,
+    goToLogs,
+    canViewLogs
   }
 }
 

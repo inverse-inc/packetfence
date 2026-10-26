@@ -36,7 +36,8 @@
 
     <template v-else>
       <p class="small text-muted">
-        {{ $i18n.t('DNS servers configured on this connector (Settings > DNS). PacketFence forwards queries for their domains through the tunnel.') }}
+        {{ $i18n.t('DNS servers configured on this connector. PacketFence forwards queries for their domains through the tunnel.') }}
+        <b-link :to="settingsLocation('dns')" replace class="text-nowrap">{{ $i18n.t('Settings > DNS') }}</b-link>
       </p>
       <b-table :items="dnsItems" :fields="dnsColumns.visibleColumns" :busy="isEquipmentLoading && !equipment"
         small striped show-empty sort-icon-left>
@@ -47,7 +48,7 @@
           <base-search-input-columns :value="dnsColumns.columns" @input="dnsColumns.setColumns" />
         </template>
         <template #cell(id)="{ item }">
-          <a href="#" @click.prevent="goToSettings('dns')">{{ item.ip }}:{{ item.port }}</a>
+          <b-link :to="settingsLocation('dns')" replace>{{ item.ip }}:{{ item.port }}</b-link>
         </template>
         <template #cell(domains)="{ value }">
           {{ (value || []).join(', ') }}
@@ -116,7 +117,7 @@ export const props = {
 
 export const setup = () => {
   const remote = inject('connectorRemote')
-  const { networkingView, goToSettings } = inject('connectorTabs')
+  const { networkingView, settingsLocation } = inject('connectorTabs')
   const { status, equipment, networks, dnsConnectors } = remote
 
   const rows = computed(() => equipmentRows(equipment.value, networks.value))
@@ -140,7 +141,7 @@ export const setup = () => {
     tunnelColumns,
     dnsColumns,
     dnsForm,
-    goToSettings,
+    settingsLocation,
     stateBadge
   }
 }

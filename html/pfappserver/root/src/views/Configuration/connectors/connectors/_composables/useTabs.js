@@ -57,10 +57,13 @@ export const useTabs = (props, context) => {
     }
   })
 
-  // a section of the Settings tab
-  const goToSettings = section => {
+  // a section of the Settings tab, as a link target (deep link) or a jump
+  const settingsLocation = section => {
     const { query } = root.$route
-    root.$router.replace({ query: { ...query, tab: 'settings', section } })
+    return { query: { ...query, tab: 'settings', section } }
+  }
+  const goToSettings = section => {
+    root.$router.replace(settingsLocation(section))
       .catch(e => { if (e.name !== 'NavigationDuplicated') throw e })
   }
 
@@ -75,6 +78,13 @@ export const useTabs = (props, context) => {
     goToTab('networking')
   }
 
+  // log file the Live Logs of the Troubleshooting tab open and stream
+  const logFile = ref(null)
+  const goToLogs = file => {
+    logFile.value = file
+    goToTab('troubleshooting')
+  }
+
   return {
     tabs,
     tab,
@@ -82,9 +92,12 @@ export const useTabs = (props, context) => {
     isSettings,
     goToTab,
     settingsTabIndex,
+    settingsLocation,
     goToSettings,
     networkingView,
     goToDns,
-    goToSiteNetwork
+    goToSiteNetwork,
+    logFile,
+    goToLogs
   }
 }

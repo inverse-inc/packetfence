@@ -117,6 +117,11 @@ export const props = {
   files: {
     type: Array,
     default: () => []
+  },
+  // asked from another tab (e.g. a site networking error): selected and
+  // streamed right away
+  file: {
+    type: String
   }
 }
 
@@ -139,6 +144,7 @@ export const setup = (props, context) => {
   }, { immediate: true })
 
   let ws = null
+  let streamedFile = null
   let pending = []
   let flushTimer = null
 
@@ -208,6 +214,7 @@ export const setup = (props, context) => {
     if (!props.id || !selectedFile.value)
       return
     stop()
+    streamedFile = selectedFile.value
     wsError.value = null
     isConnecting.value = true
     const lines = Math.min(Math.max(backfill.value || 0, 0), 1000)
@@ -249,10 +256,19 @@ export const setup = (props, context) => {
   }
 
   // Switching files mid-stream restarts the stream on the new file.
-  watch(selectedFile, () => {
-    if (isRunning.value || isConnecting.value)
+  watch(selectedFile, file => {
+    if ((isRunning.value || isConnecting.value) && file !== streamedFile)
       start()
   })
+
+  watch(() => [props.file, props.files], ([file, files]) => {
+    if (!file || !(files || []).includes(file))
+      return
+    if (file === streamedFile && (isRunning.value || isConnecting.value))
+      return
+    selectedFile.value = file
+    start()
+  }, { immediate: true })
 
   onBeforeUnmount(stop)
 
