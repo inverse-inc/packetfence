@@ -1,4 +1,4 @@
-import { computed, toRefs } from '@vue/composition-api'
+import { computed, ref, toRefs, watch } from '@vue/composition-api'
 import escape from 'lodash/escape'
 import i18n from '@/utils/locale'
 
@@ -42,6 +42,28 @@ export const fingerbankEnvironmentDefaults = [
 import { useDefaultsFromMeta } from '@/composables/useMeta'
 export const useItemDefaults = (meta) => {
   return { ...useDefaultsFromMeta(meta), fingerbank_environment: fingerbankEnvironmentDefaults.map(e => ({ ...e })) }
+}
+
+// pfdns-connector renders the DNS servers of the connectors (one forwarder
+// per domain) when it starts: offer to restart it once they changed.
+const dnsServersKey = form => JSON.stringify(((form && form.dns_servers) || [])
+  .map(({ ip, port, domains, tunnel_port }) => [ip, `${port || ''}`, [...(domains || [])].sort(), `${tunnel_port || ''}`]))
+
+export const useServices = (props, context, form) => {
+  // the DNS servers as loaded (none for a new connector)
+  const loaded = ref(null)
+  watch(form, value => {
+    if (loaded.value === null && value && (props.isNew || props.isClone || 'dns_servers' in value))
+      loaded.value = (props.isNew || props.isClone) ? dnsServersKey({}) : dnsServersKey(value)
+  }, { immediate: true })
+  return computed(() => {
+    if (loaded.value === null || dnsServersKey(form.value) === loaded.value)
+      return {}
+    return {
+      message: i18n.t('pfdns-connector must be restarted to forward the queries of the DNS servers of this connector.'),
+      services: ['pfdns-connector']
+    }
+  })
 }
 
 export { useRouter } from '../_router'
