@@ -43,12 +43,13 @@
 
           <base-form-tab :title="$i18n.t('Networking')">
             <b-alert show variant="info">
-              {{ $i18n.t('The remote connector creates these VLAN interfaces on its host or addresses its secondary interfaces, assigns them the given IP address and installs the static routes. Changes are applied within a few seconds and re-applied every time the connector starts. The main interface of the host (the one carrying the tunnel) is never reconfigured.') }}
+              {{ $i18n.t('The connector creates these interfaces and routes on its host and keeps them applied; the interface carrying the tunnel is never reconfigured.') }}
+              <base-doc-link anchor="pfconnector-site-networking" />
             </b-alert>
             <the-host-interfaces v-if="isLive" :interfaces="hostInterfaces" class="mb-3" />
             <form-group-interfaces namespace="interfaces"
               :column-label="$i18n.t('Interfaces')"
-              :text="$i18n.t('One interface per row. With a VLAN ID, an 802.1Q VLAN interface is created on top of the chosen interface of the connector host and named &quot;interface.vlan&quot; (e.g. eth0.100); without one, the address is assigned to the chosen interface itself (a secondary network card of the host, e.g. ens192; the main interface accepts VLANs only). The IP address is written with its prefix length (e.g. 10.10.100.1/24). Enable DHCP to serve addresses on that network: the connector relays the requests to the PacketFence DHCP server through its tunnel, and the server hands out the range configured here (the network is the one of the interface address). Enable DNS to make the connector answer every DNS query received on that interface with the interface address (captive-portal DNS).')"
+              :text="$i18n.t('A VLAN on top of an interface of the host, or a secondary interface without VLAN ID, with its address and prefix length (e.g. 10.10.100.1/24). DHCP serves the network from PacketFence, DNS answers every query with the interface address (captive portal).')"
             />
             <form-group-routes namespace="routes"
               :column-label="$i18n.t('Static Routes')"
@@ -56,7 +57,9 @@
             />
 
             <b-alert show variant="info" class="mt-3">
-              {{ $i18n.t('High availability: install this connector on two or more hosts with the same ID and secret and set a virtual IP here. The hosts form a VRRP group; the one holding the virtual IP runs the tunnel and the others stand by, mirror its credential cache and take over within seconds. Configure switches, portal redirection and DHCP relays with the virtual IP. Leave it empty for a single host.') }}
+              {{ $i18n.t('High availability: install the connector on two or more hosts with the same ID and secret, and set the virtual IP they share here (empty for a single host).') }}
+              <b-link v-if="isLive && form && form.ha_vip" class="text-nowrap" @click="goToTab('overview')">{{ $i18n.t('See the hosts') }}</b-link>
+              <base-doc-link anchor="pfconnector-high-availability" class="ml-1" />
             </b-alert>
             <form-group-ha-vip namespace="ha_vip"
               :column-label="$i18n.t('Virtual IP')"
@@ -244,10 +247,12 @@ import {
   TheDnsTest,
   TheHostInterfaces
 } from './'
+import BaseDocLink from './BaseDocLink'
 
 const components = {
   BaseForm,
   BaseFormTab,
+  BaseDocLink,
 
   FormGroupIdentifier,
   FormGroupDescription,
@@ -300,7 +305,7 @@ export const setup = (props, context) => {
   const { root: { $store } = {} } = context
 
   const remote = inject('connectorRemote')
-  const { tabIndex, tabs, settingsTabIndex } = inject('connectorTabs')
+  const { tabIndex, tabs, settingsTabIndex, goToTab } = inject('connectorTabs')
   const { onRestart } = remote
 
   const isLive = computed(() => tabs.value.length > 1)
@@ -396,6 +401,7 @@ export const setup = (props, context) => {
     schema,
     tabIndex,
     settingsTabIndex,
+    goToTab,
     isLive,
     hostInterfaces,
     haInterfaceOptions,

@@ -8,6 +8,7 @@
       <p class="small text-muted mb-2">
         {{ $i18n.t('Point switches, portal redirection and DHCP relays at the virtual IP.') }}
         <b-link :to="settingsLocation('networking')" replace class="text-nowrap">{{ $i18n.t('Settings > Networking') }}</b-link>
+        <base-doc-link anchor="pfconnector-high-availability" class="ml-1" />
       </p>
     </b-card-body>
     <b-table-simple small responsive class="mb-0">
@@ -67,6 +68,11 @@
 <script>
 import { inject } from '@vue/composition-api'
 import { formatDate } from '../_composables/useRemoteStatus'
+import BaseDocLink from './BaseDocLink'
+
+const components = {
+  BaseDocLink
+}
 
 export const setup = () => {
   const remote = inject('connectorRemote')
@@ -82,6 +88,7 @@ export const setup = () => {
 export default {
   name: 'the-high-availability',
   inheritAttrs: false,
+  components,
   setup
 }
 </script>

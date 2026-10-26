@@ -16,6 +16,7 @@ endif::[]
 
 ////
 
+[[pfconnector]]
 ==== PacketFence Connector
 
 NOTE:  The PacketFence Connector (pfconnector) is currently in the ‘Technical Preview’ phase. It can safely be used in production but has not yet been field proven for large scale and/or complex deployments
@@ -129,6 +130,7 @@ Every package installed this way is still signature-verified against the PacketF
 
 NOTE: Connectors installed before the collector moved into the connector container ran fingerbank-collector-remote on the host. The upgrade removes that package and stops its `packetfence-fingerbank-collector` service, which would otherwise keep the collector replication port (UDP 1192) busy; run `apt purge fingerbank-collector-remote` afterwards to drop its leftover unit file.
 
+[[pfconnector-high-availability]]
 ===== High Availability
 
 Two (or more) connector hosts can serve the same site as an active/passive pair. They are installed with the *same* connector ID and secret and share a virtual IP (VIP) moved between them with VRRP (keepalived runs inside the connector container). Only the host holding the VIP opens the tunnel to PacketFence; the others stand by, and the switches, the captive portal redirection and the DHCP relays are configured with the VIP so nothing on the site refers to a particular host.
@@ -196,6 +198,7 @@ Both services are `PartOf` the pfconnector systemd unit and will start and stop 
 
 Once your pfconnector is started, you can now point your network equipment to use the pfconnector's IP address for RADIUS and the captive portal like you would do with a typical on-premise PacketFence server. When defining the RADIUS secret in PacketFence and in your network equipment, always use the value inside `/usr/local/pf/conf/local_secret`.
 
+[[pfconnector-admin-configuration]]
 ===== Admin Configuration
 
 The pfconnector configuration in the admin interface is located under _Configuration -> Network Configuration -> Cloud Connectors_. The list shows every connector with its tunnel status, version and host addresses, and a topology diagram of the connectors and the equipment behind them. Opening a connector shows its _Overview_, _Networking_, _Devices_, _Troubleshooting_ and _Settings_ tabs; its configuration is in the _Settings_ tab:
@@ -235,6 +238,7 @@ Below the map, _Tunnel traffic_ charts the throughput over the last 5, 15 or 60 
 
 The rates measure the tunnel only: RADIUS, portal, DNS and the other services PacketFence exchanges with the site. Traffic the connector handles locally (degraded-mode answers, the collector's direct Fingerbank queries unless routed through the tunnel) is not part of it.
 
+[[pfconnector-site-networking]]
 ====== Site Networking: Interfaces and Static Routes
 
 The _Networking_ section of a connector's _Settings_ tab lets the remote connector host terminate VLANs at the site and address its secondary network interfaces. It opens with a live *Host interfaces* table (name, state, addresses) of the connector host as reported by the connector, with the main interface and everything the connector itself created or assigned marked _connector_; addresses without that mark were configured by the operating system or by hand and are never touched. The same addresses are shown next to each interface in the choices of the rows below, so an interface that already carries an address can be told from a spare one. The table is empty while the connector is disconnected and, with high availability, shows the active host. Everything configured here is applied by the connector itself, within a few seconds of saving, and re-applied every time the connector starts, so it survives a reboot of the host without any manual network configuration.
@@ -244,7 +248,7 @@ The _Networking_ section of a connector's _Settings_ tab lets the remote connect
 
 The connector tags the VLAN interfaces it creates (interface alias `pf-connector`), the addresses it assigns to existing interfaces (address label `interface:pf`, e.g. `ens192:pf`) and the routes it installs (routing protocol 201), and only ever modifies or removes objects carrying those tags. Interfaces, addresses or routes configured by hand on the host are never touched, and a VLAN interface name that already exists without the tag is reported as an error instead of being taken over. The label cannot be applied to an interface whose name is longer than 12 characters; its address is still assigned but is then not removed automatically when the row is deleted.
 
-The observed state (interface up/down, address, per-item errors such as a missing parent interface) is shown in the _Remote Connector Status_ card of the connector, under _Site networking_.
+The observed state (interface up/down, address, per-item errors such as a missing parent interface) is shown in the _Networking_ tab of the connector, under _Site networking_, where each error links to the connector log.
 
 ====== DHCP-over-HTTPS
 
@@ -258,13 +262,15 @@ The relay never queues: a request that pfdhcp cannot answer within 1.5 seconds i
 
 Ports 80 and 443 of the connector host are already tunnelled to the PacketFence captive portal, on every address of the host, so the VLAN interfaces answer HTTP and HTTPS as soon as they exist and the captive DNS sends every name there. What the tunnel loses is the address of the device: the portal would see every device as the tunnel exit and could not map the request to a MAC. Enable _Configuration -> System Configuration -> Captive Portal -> Connector PROXY protocol_ (`captive_portal.connector_proxy_protocol`) and restart `haproxy-portal`: haproxy-portal then listens on `8880` (HTTP) and `8843` (HTTPS) with `accept-proxy`, the connectors tunnel their ports 80/443 to these listeners with a PROXY protocol v2 header carrying the device address, and the portal identifies the device through `X-Forwarded-For` as usual. With a cloud deployment, `PFCONNECTOR_BINDS_HOST_PORT_80` / `_443` on the pfconnector server must point to the accept-proxy listeners with the `/tcp|proxyproto` suffix (e.g. `haproxy-portal:8880/tcp|proxyproto`).
 
+[[pfconnector-captive-dns]]
 ====== Captive DNS
 
-The *DNS* toggle of a VLAN interface makes the connector itself answer DNS on that interface (UDP and TCP port 53 bound to the interface address): every `A` query gets the interface address with a 60 second TTL, `AAAA` queries get an empty answer so dual-stack devices fall back to IPv4, and other types are refused. There is no recursion and no upstream. This is the captive-portal DNS of the VLAN: whatever a device resolves lands on the connector, where the portal answers. When DHCP is enabled on the same interface and no DNS server is configured in the scope, the clients receive the interface address as DNS server. `PFCONNECTOR_DNS_RESPONDER=false` disables it on a host. The query counters are shown in the _Remote Connector Status_ card.
+The *DNS* toggle of a VLAN interface makes the connector itself answer DNS on that interface (UDP and TCP port 53 bound to the interface address): every `A` query gets the interface address with a 60 second TTL, `AAAA` queries get an empty answer so dual-stack devices fall back to IPv4, and other types are refused. There is no recursion and no upstream. This is the captive-portal DNS of the VLAN: whatever a device resolves lands on the connector, where the portal answers. When DHCP is enabled on the same interface and no DNS server is configured in the scope, the clients receive the interface address as DNS server. `PFCONNECTOR_DNS_RESPONDER=false` disables it on a host. The query counters are shown in the _Networking_ tab of the connector, under _Site networking_.
 
 [NOTE]
 The connector container needs the `NET_ADMIN` capability for this feature. It is granted by the `packetfence-pfconnector-remote` package; on a host where the container is started differently, add `--cap-add=NET_ADMIN` to the `docker run` arguments. Without it, the connector logs the netlink permission error and the interfaces are reported in error.
 
+[[pfconnector-dns-servers]]
 ====== DNS Servers Behind a Connector
 
 Resources defined by hostname (LDAP sources, Active Directory servers) and DNS names of the remote site are resolved through the connector when the site's DNS servers are declared on it. Edit the connector (_Configuration->Network Configuration->Cloud Connectors_), _Settings_ tab, _DNS_, and add one row per DNS server:
