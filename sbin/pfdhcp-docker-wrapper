@@ -5,7 +5,9 @@ source /usr/local/pf/containers/systemd-service
 name=pfdhcp
 
 args=`base_args $name`
-args="$args -v /usr/local/pf/conf:/usr/local/pf/conf"
+args="$args -v /usr/local/pf/conf/system_init_key:/usr/local/pf/conf/system_init_key"
+# Tuning variables from conf/pfdhcp.conf (passed only when set)
+args="$args -e PFDHCP_WORKERS -e PFDHCP_QUEUE -e PFDHCP_RCVBUF"
 # DHCP on the local interfaces: sockets bound to the interface, broadcast,
 # raw sockets, ARP table, VIP detection. NET_ADMIN lets it force the size of
 # its receive buffers (SO_RCVBUFFORCE) like the host daemon did.
