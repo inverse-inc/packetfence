@@ -44,6 +44,9 @@ type Remote struct {
 	ReusedTcpListener                   *net.TCPListener
 	ReusedUdpConn                       *net.UDPConn
 	Dynamic, Socks, Reverse, Stdio      bool
+	// Companion marks the second listener of a dynamic reverse on the
+	// containers gateway: the same forward, not reported on its own.
+	Companion bool
 }
 
 const revPrefix = "R:"

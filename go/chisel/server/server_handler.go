@@ -738,6 +738,7 @@ func bindDynReverseGatewayCompanion(ctx context.Context, tun *tunnel.Tunnel, pri
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Unable to build the containers gateway listener of dynreverse %s: %s", primary, err))
 		return
 	}
+	companion.Companion = true
 	go func() {
 		if err := tun.BindRemotes(ctx, []*settings.Remote{companion}); err != nil {
 			log.LoggerWContext(context.Background()).Error(fmt.Sprintf("Error binding the containers gateway listener %s: %s", companion, err))

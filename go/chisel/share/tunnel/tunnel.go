@@ -96,12 +96,17 @@ func (t *Tunnel) unregisterProxy(p *Proxy) {
 	t.boundProxiesMut.Unlock()
 }
 
-// BoundRemotes returns the remotes of every currently bound inbound proxy.
+// BoundRemotes returns the remotes of every currently bound inbound proxy,
+// but the containers gateway companions of the dynamic reverses (the same
+// forward on a second address, listed twice otherwise).
 func (t *Tunnel) BoundRemotes() []BoundRemoteInfo {
 	t.boundProxiesMut.Lock()
 	defer t.boundProxiesMut.Unlock()
 	out := make([]BoundRemoteInfo, 0, len(t.boundProxies))
 	for p := range t.boundProxies {
+		if p.remote.Companion {
+			continue
+		}
 		out = append(out, BoundRemoteInfo{
 			LocalHost:  p.remote.LocalHost,
 			LocalPort:  p.remote.LocalPort,

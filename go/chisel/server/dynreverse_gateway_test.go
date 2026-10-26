@@ -75,7 +75,8 @@ func TestDynReverseGatewayCompanionLifetime(t *testing.T) {
 	if !waitFor(true) {
 		t.Fatalf("the companion is not bound on 127.0.0.1:%s", port)
 	}
-	if remotes := tun.BoundRemotes(); len(remotes) != 1 || remotes[0].LocalHost != "127.0.0.1" || remotes[0].LocalPort != port {
+	// the companion is the primary's forward: not reported on its own
+	if remotes := tun.BoundRemotes(); len(remotes) != 0 {
 		t.Fatalf("bound remotes: %+v", remotes)
 	}
 	time.Sleep(200 * time.Millisecond)
