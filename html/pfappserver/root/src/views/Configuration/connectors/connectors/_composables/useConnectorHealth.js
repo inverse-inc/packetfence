@@ -62,11 +62,18 @@ export const connectorHealth = (tunnel, remote, now = Date.now()) => {
     return { level: 'unknown', reasons: [i18n.t('Not seen by the pfconnector server since it started, or the status is unavailable.')] }
   const { system } = remote || {}
   const { ha } = system || {}
+  const peers = (ha && ha.enabled && ha.peers) || []
   const reasons = [
     ...siteNetworkIssues(system, now),
-    ...((ha && ha.enabled && !(ha.peers || []).some(peer => peer.alive))
+    ...((ha && ha.enabled && !peers.some(peer => peer.alive))
       ? [i18n.t('High availability: no standby host is reporting.')]
-      : [])
+      : []),
+    ...((ha && ha.enabled && ha.radius_ok === false)
+      ? [i18n.t('Active host {host}: FreeRADIUS does not answer.', { host: ha.hostname || ha.address })]
+      : []),
+    // a standby host that could not take over
+    ...peers.filter(peer => peer.alive && peer.radius_ok === false)
+      .map(peer => i18n.t('Standby host {host}: FreeRADIUS does not answer.', { host: [peer.hostname, peer.address].filter(Boolean).join(' ') }))
   ]
   return { level: reasons.length ? 'degraded' : 'healthy', reasons }
 }

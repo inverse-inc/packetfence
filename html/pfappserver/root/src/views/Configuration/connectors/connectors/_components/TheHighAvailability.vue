@@ -48,6 +48,8 @@
           </b-td>
           <b-td class="text-nowrap">
             <b-badge :variant="peer.alive ? 'success' : 'danger'">{{ peer.alive ? $i18n.t('alive') : $i18n.t('not reporting') }}</b-badge>
+            <b-badge v-if="peer.alive && peer.radius_ok === false" variant="warning" class="ml-1"
+              :title="$i18n.t('FreeRADIUS does not answer on this host: it could not take over.')">{{ $i18n.t('FreeRADIUS down') }}</b-badge>
             <b-button v-if="peer.alive && canUpdate" size="sm" variant="outline-primary" class="ml-2 py-0"
               :disabled="!isConnected || isSwitching"
               :title="$i18n.t('Move the virtual IP and the tunnel to this host. Host-level actions (install, terminal, logs, upgrade) then apply to it.')"

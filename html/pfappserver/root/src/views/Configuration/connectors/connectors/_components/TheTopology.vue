@@ -434,17 +434,19 @@ const setup = (props, context) => {
       // standby hosts of an HA connector, joined to the master's trunk
       const standby = (ha ? ha.peers : []).map((peer, index) => {
         const label = peer.hostname || peer.address
+        // reporting, but its FreeRADIUS does not answer: it could not take over
+        const radiusDown = peer.alive && peer.radius_ok === false
         const node = {
           key: `standby-${connector.id}-${peer.address || index}`, kind: 'standby',
           x: connX, y: rowY(bandStart + 1 + index), w: boxW,
-          fill: peer.alive ? colors.white : colors.light, border: colors.gray, accent: peer.alive ? colors.secondary : colors.secondary,
-          icon: iconData(ICONS.connector), iconColor: colors.secondary, dot: peer.alive ? colors.success : colors.danger,
+          fill: peer.alive ? colors.white : colors.light, border: colors.gray, accent: radiusDown ? colors.warning : colors.secondary,
+          icon: iconData(ICONS.connector), iconColor: colors.secondary, dot: !peer.alive ? colors.danger : (radiusDown ? colors.warning : colors.success),
           titleColor: peer.alive ? colors.dark : colors.secondary, subtitleColor: colors.secondary,
           badge: { label: i18n.t('standby').toUpperCase(), w: Math.max(56, i18n.t('standby').length * 7 + 14), color: colors.secondary },
           badgeRight: 8,
           title: fit(label, boxW - TEXT_X - 72),
-          subtitle: fit([peer.alive ? i18n.t('reporting') : i18n.t('not reporting'), peer.address, peer.version].filter(Boolean).join(' · '), boxW - TEXT_X - 8, 'subtitle'),
-          tooltip: [label, peer.address, peer.version, peer.alive ? i18n.t('standby, reporting to the master') : i18n.t('standby, not reporting')].filter(Boolean).join(' · '),
+          subtitle: fit([peer.alive ? i18n.t('reporting') : i18n.t('not reporting'), radiusDown && i18n.t('FreeRADIUS down'), peer.address, peer.version].filter(Boolean).join(' · '), boxW - TEXT_X - 8, 'subtitle'),
+          tooltip: [label, peer.address, peer.version, peer.alive ? i18n.t('standby, reporting to the master') : i18n.t('standby, not reporting'), radiusDown && i18n.t('FreeRADIUS does not answer: this host could not take over')].filter(Boolean).join(' · '),
           to: { name: 'connectorsConnector', params: { id: connector.id } }
         }
         nodes.push(node)
