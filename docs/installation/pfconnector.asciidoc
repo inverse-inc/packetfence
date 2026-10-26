@@ -169,7 +169,7 @@ How it behaves:
 
 The active host's keepalived log is available in the admin interface log viewer and on the host in [filename]`/usr/local/pfconnector-remote/logs/keepalived.log`; the VRRP state is in [filename]`/usr/local/pfconnector-remote/var/run/ha_state`.
 
-NOTE: A standby host that never held the VIP cannot fetch the RADIUS configuration from PacketFence at boot (it has no tunnel), so its FreeRADIUS starts only when it first becomes active, a few seconds after taking the VIP. Once it has been active once, the configuration is cached on the host and later boots start FreeRADIUS immediately.
+NOTE: A standby host has no tunnel: it fetches the RADIUS configuration (certificates, NAS list, collector configuration) through the active host over the local network, within a minute of starting and then every minute, and starts its FreeRADIUS once it has it. The configuration is cached on the host, so later boots start FreeRADIUS immediately, even when the active host is unreachable. The _High Availability_ table of the _Overview_ tab flags a standby host whose FreeRADIUS does not answer, as it could not take over.
 
 ===== NTLM Authentication Behind a Connector
 

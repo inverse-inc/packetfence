@@ -6,6 +6,9 @@ set -e
 . /usr/local/pf/sbin/pfconnector-env.sh
 
 CLIENTS_DIR=/usr/local/pf/raddb/dynamic-clients
+# Written after each successful sync, outside CLIENTS_DIR (which FreeRADIUS
+# includes): an empty NAS list is a valid result to keep on an HA backup.
+SYNCED_STAMP="$CLIENTS_DIR.synced"
 ENV_FILE="/usr/local/pf/conf/pfconnector-client.env"
 
 # Extract connector_id
@@ -23,8 +26,9 @@ mkdir -p "$CLIENTS_DIR"
 # Fetch NAS entries from pfconnector API
 if ! NAS_JSON=$(curl -sf "$NAS_URL"); then
     # HA backup host: no tunnel until it takes the VIP; keep the client files
-    # of a previous run so FreeRADIUS starts with the known switches.
-    if [ -n "${PFCONNECTOR_HA_VIP:-}" ] && [ -n "$(ls -A "$CLIENTS_DIR" 2>/dev/null)" ]; then
+    # of a previous run so FreeRADIUS starts with the known switches, none
+    # when the connector has no switch.
+    if [ -n "${PFCONNECTOR_HA_VIP:-}" ] && { [ -e "$SYNCED_STAMP" ] || [ -n "$(ls -A "$CLIENTS_DIR" 2>/dev/null)" ]; }; then
         echo "WARNING: pfconnector API unreachable, keeping the existing NAS client files"
         exit 0
     fi
@@ -33,6 +37,7 @@ if ! NAS_JSON=$(curl -sf "$NAS_URL"); then
 fi
 if [ -z "$NAS_JSON" ]; then
     echo "No NAS entries received"
+    touch "$SYNCED_STAMP"
     exit 0
 fi
 
@@ -97,4 +102,5 @@ EOF
     echo "Added NAS client: $nasname"
 done < <(printf '%s\n' "$ENTRIES")
 
+touch "$SYNCED_STAMP"
 echo "Radius NAS sync completed"
