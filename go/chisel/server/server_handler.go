@@ -50,6 +50,36 @@ var connectorBoundRemotes = sync.Map{}
 
 var apiPrefix = "/api/v1/pfconnector"
 
+// pfReleaseFile is the on-disk source of truth for the running
+// PacketFence version. Content is "PacketFence X.Y.Z\n" (same file
+// pf::version::version_get_release() reads). Package var so tests
+// can override with a scratch path.
+var pfReleaseFile = "/usr/local/pf/conf/pf-release"
+
+var (
+	pfVersionOnce sync.Once
+	pfVersion     string
+)
+
+// readPFVersion returns the running PacketFence X.Y.Z string from
+// pfReleaseFile. Cached for the lifetime of the process (version
+// doesn't change without a restart). Returns the empty string on
+// any error — callers (handleClientHandler) treat empty as "don't
+// emit the header" rather than failing the request. The log line
+// surfaces the error so a misconfigured deploy is diagnosable.
+func readPFVersion() string {
+	pfVersionOnce.Do(func() {
+		b, err := os.ReadFile(pfReleaseFile)
+		if err != nil {
+			log.LogError(context.Background(), fmt.Sprintf("read %s: %s", pfReleaseFile, err))
+			return
+		}
+		s := strings.TrimSpace(string(b))
+		pfVersion = strings.TrimPrefix(s, "PacketFence ")
+	})
+	return pfVersion
+}
+
 const (
 	DYNREVERSE_BIND_ATTEMPTS = 10
 	DYNREVERSE_ERR_WAIT      = 50 * time.Millisecond
@@ -57,6 +87,16 @@ const (
 
 // handleClientHandler is the main http websocket handler for the chisel server
 func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
+	// Advertise the running PacketFence version on every response.
+	// External tooling (e.g. the pf-cloudnac-proxy connector-remote-install.sh
+	// pre-uninstall version-compat check) HEADs /api/v1/pfconnector/tunnel
+	// and reads this header rather than hitting authenticated
+	// /api/v1/system_summary. Empty = pf-release unreadable; header is
+	// simply omitted and the caller falls back to its env override.
+	if v := readPFVersion(); v != "" {
+		w.Header().Set("X-PacketFence-Version", v)
+	}
+
 	// Transfer the logger from baseCtx to the request context to preserve log level settings
 	ctx := log.TranferLogContext(s.baseCtx, r.Context())
 	// Create a new request with the modified context so all handlers use proper logging
