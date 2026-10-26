@@ -13,6 +13,15 @@
 STATE="${3:-UNKNOWN}"
 STATE_FILE=/usr/local/pfconnector-remote/var/run/ha_state
 
+# keepalived discards what its notify scripts print: append it to its log
+# instead (keepalived.log, shown in the admin interface), including the
+# start-up completion running in the background below. A failed redirection
+# would end the script, hence the check.
+LOG_FILE=/usr/local/pf/logs/keepalived.log
+if [ -w "$(dirname "$LOG_FILE")" ]; then
+    exec >>"$LOG_FILE" 2>&1
+fi
+
 mkdir -p "$(dirname "$STATE_FILE")"
 echo "$STATE" > "$STATE_FILE"
 echo "$(date '+%Y/%m/%d %H:%M:%S') ha-notify: VRRP state $STATE (priority ${4:-?})"
