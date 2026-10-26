@@ -1,14 +1,19 @@
 import { computed, toRefs } from '@vue/composition-api'
+import escape from 'lodash/escape'
 import i18n from '@/utils/locale'
 
-export const useItemTitle = (props) => {
+// the title is HTML: the description is free text
+export const useItemTitle = (props, context, form) => {
   const {
     id,
     isClone,
     isNew
   } = toRefs(props)
   return computed(() => {
+    const { description } = form.value || {}
     switch (true) {
+      case !isNew.value && !isClone.value && !!description:
+        return i18n.t('Cloud Connector {description} <small class="text-muted text-monospace">{id}</small>', { description: escape(description), id: escape(id.value) })
       case !isNew.value && !isClone.value:
         return i18n.t('Cloud Connector <code>{id}</code>', { id: id.value })
       case isClone.value:
@@ -59,6 +64,20 @@ export const useSearch = makeSearch('connectorsConnectors', {
       locked: true
     },
     {
+      key: 'description',
+      label: 'Description', // i18n defer
+      // the identifier is shown on a second line, see TheSearch
+      searchable: true,
+      visible: true
+    },
+    {
+      key: 'id',
+      label: 'Identifier', // i18n defer
+      required: true,
+      searchable: true,
+      visible: false
+    },
+    {
       key: 'connected',
       label: 'Connected', // i18n defer
       thClass: 'text-center', tdClass: 'text-center',
@@ -70,19 +89,6 @@ export const useSearch = makeSearch('connectorsConnectors', {
       label: 'Tunnel', // i18n defer
       thStyle: 'width: 110px;',
       visible: false
-    },
-    {
-      key: 'id',
-      label: 'Identifier', // i18n defer
-      required: true,
-      searchable: true,
-      visible: true
-    },
-    {
-      key: 'description',
-      label: 'Description', // i18n defer
-      searchable: true,
-      visible: true
     },
     {
       key: 'role',

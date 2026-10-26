@@ -78,6 +78,10 @@
             </template>
           </span>
         </template>
+        <template v-slot:cell(description)="{ item }">
+          <div>{{ item.description || item.id }}</div>
+          <div v-if="item.description" class="text-monospace small text-muted">{{ item.id }}</div>
+        </template>
         <template v-slot:cell(networks)="item">
           <b-badge v-for="(network, index) in item.item.networks" :key="index" class="mr-1" variant="secondary">{{ network }}</b-badge>
         </template>

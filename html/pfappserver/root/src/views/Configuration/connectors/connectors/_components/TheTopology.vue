@@ -56,7 +56,7 @@
     </svg>
     <div v-if="menu" ref="menuRef" class="dropdown-menu show" role="menu"
       :style="{ position: 'absolute', left: `${menu.left}px`, top: `${menu.top}px`, right: 'auto' }">
-      <h6 class="dropdown-header">{{ menu.id }}</h6>
+      <h6 class="dropdown-header">{{ menu.name }}</h6>
       <template v-for="item in menu.items">
         <h6 v-if="item.header" :key="item.key" class="dropdown-header">{{ item.header }}</h6>
         <a v-else :key="item.key" href="javascript:void(0)" role="menuitem"
@@ -400,16 +400,23 @@ const setup = (props, context) => {
       const issues = (dnsIssues.length)
         ? { label: issuesLabel, w: chipWidth(issuesLabel), tooltip: i18n.t('{count} DNS domain issue(s), see the actions menu', { count: dnsIssues.length }) }
         : null
+      // named by its description, the identifier when it has none, next to
+      // the hostname of the host running the tunnel
+      const name = connector.description || connector.id
+      const hostname = (ha && ha.hostname) || (system && system.hostname)
+      const titleWidth = boxW - TEXT_X - 32 - (badge ? badge.w + 8 : 0)
+      const hostnameWidth = titleWidth - ((name.length + 1) * CHAR_WIDTH.title)
       const head = {
-        key: `connector-${connector.id}`, kind: 'connector', id: connector.id,
+        key: `connector-${connector.id}`, kind: 'connector', id: connector.id, name,
         x: connX, y: rowY(bandStart), w: boxW,
         fill: connected ? colors.white : colors.light, border: colors.gray, accent: connected ? colors.success : colors.secondary,
         icon: iconData(ICONS.connector), iconColor: connected ? colors.dark : colors.secondary, dot: statusColor(status),
         titleColor: connected ? colors.dark : colors.secondary, subtitleColor: colors.secondary, badge,
         badgeRight: 32,
-        title: fit(connector.id, boxW - TEXT_X - 32 - (badge ? badge.w + 8 : 0)),
-        subtitle: fit([statusLabel, ha ? `VIP ${ha.vip}` : null, uplink, version, connector.description].filter(Boolean).join(' · '), boxW - TEXT_X - 32 - (issues ? issues.w + 4 : 0), 'subtitle'),
-        tooltip: [connector.id, connector.description, statusLabel, version, ha && `VIP ${ha.vip}`, ha && `${ha.hostname || ''} ${ha.address || ''}`.trim(), uplink && i18n.t('uplink {uplink}', { uplink })].filter(Boolean).join(' · '),
+        title: fit(name, titleWidth),
+        titleExtra: (hostname && hostnameWidth >= 6 * CHAR_WIDTH.subtitle) ? fit(hostname, hostnameWidth, 'subtitle') : '',
+        subtitle: fit([statusLabel, ha ? `VIP ${ha.vip}` : null, uplink, version].filter(Boolean).join(' · '), boxW - TEXT_X - 32 - (issues ? issues.w + 4 : 0), 'subtitle'),
+        tooltip: [connector.description, connector.id, !ha && hostname, statusLabel, version, ha && `VIP ${ha.vip}`, ha && `${ha.hostname || ''} ${ha.address || ''}`.trim(), uplink && i18n.t('uplink {uplink}', { uplink })].filter(Boolean).join(' · '),
         to: { name: 'connectorsConnector', params: { id: connector.id } },
         status, connected, networks: connector.networks || [], issues, dnsDomains
       }
@@ -658,6 +665,7 @@ const setup = (props, context) => {
     menu.value = {
       key: node.key,
       id: node.id,
+      name: node.name || node.id,
       left: Math.max(0, node.x + node.w - 220),
       top: node.y + NODE_HEIGHT + 2,
       items
