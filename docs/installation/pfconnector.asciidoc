@@ -37,6 +37,8 @@ Here are the use-cases the pfconnector supports:
 
 To deploy the PacketFence Connector, first provision on your local network (where NAS devices reside) a x86_64 Debian 12 virtual machine with minimal resources (2GB of RAM, 1 CPU core and 10GB of disk space). Then, perform the following commands as root:
 
+IMPORTANT: Install the connector on a fresh, dedicated machine. The connector listens on ports 80 and 443 (captive portal), 1812 and 1813/UDP (RADIUS), 1815/UDP, 9096 and 127.0.0.1:8443 (Fingerbank API), and takes them all at startup: another service already using one of them (a web server, a wireless controller, Tomcat...) prevents the connector from starting its tunnels.
+
 [source,bash]
 ----
 apt-get update

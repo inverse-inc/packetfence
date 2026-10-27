@@ -1380,6 +1380,14 @@ pfconnector-server services after the upgrade. To keep the previous behavior
 (ports 80/443 of the management address), set it to `disabled` in
 _Configuration -> System Configuration -> Captive Portal_.
 
+WARNING: Upgrade `packetfence-pfconnector-remote` on every connector right
+after the PacketFence server. A connector running an older version forwards
+ports 80/443 without the PROXY header, and haproxy-portal rejects these
+connections: the captive portal can't be reached through that connector until
+it is upgraded. If the connectors can't be upgraded at the same time, set
+`captive_portal.connector_proxy_protocol` to `disabled` before upgrading the
+server, and enable it once all the connectors are upgraded.
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]
