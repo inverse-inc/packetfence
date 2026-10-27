@@ -64,6 +64,9 @@ BEGIN {
         bypass_role_id
         last_seen
         bypass_acls
+        source
+        source_type
+        source_base_type
     );
 
     %DEFAULTS = (
@@ -98,6 +101,9 @@ BEGIN {
         bypass_role_id => undef,
         last_seen => '0000-00-00 00:00:00',
         bypass_acls => undef,
+        source => undef,
+        source_type => '',
+        source_base_type => '',
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -132,6 +138,9 @@ BEGIN {
         bypass_role_id
         last_seen
         bypass_acls
+        source
+        source_type
+        source_base_type
     );
 
     %FIELDS_META = (
@@ -329,6 +338,24 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        source => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        source_type => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        source_base_type => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -367,6 +394,9 @@ BEGIN {
         node.bypass_role_id
         node.last_seen
         node.bypass_acls
+        node.source
+        node.source_type
+        node.source_base_type
     );
 
 }
