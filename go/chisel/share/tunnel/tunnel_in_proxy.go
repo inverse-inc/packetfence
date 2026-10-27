@@ -35,6 +35,8 @@ type Proxy struct {
 	aliveConns int64
 	// cancel closes this proxy alone (Tunnel.UnbindRemotes)
 	cancel context.CancelFunc
+	// done is closed once the proxy has stopped and released its listener
+	done chan struct{}
 }
 
 // NewProxy creates a Proxy
@@ -79,6 +81,16 @@ func (p *Proxy) listen() error {
 		return p.Errorf("unknown local proto")
 	}
 	return nil
+}
+
+// closeListener releases the listener of a proxy that will never run.
+func (p *Proxy) closeListener() {
+	if p.tcp != nil {
+		p.tcp.Close()
+	}
+	if p.udp != nil {
+		p.udp.inbound.Close()
+	}
 }
 
 // Run enables the proxy and blocks while its active,

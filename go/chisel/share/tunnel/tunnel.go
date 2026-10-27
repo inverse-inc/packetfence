@@ -86,14 +86,45 @@ func (t *Tunnel) registerProxy(p *Proxy) {
 	if t.boundProxies == nil {
 		t.boundProxies = map[*Proxy]struct{}{}
 	}
+	p.done = make(chan struct{})
 	t.boundProxies[p] = struct{}{}
 	t.boundProxiesMut.Unlock()
 }
 
+// unregisterProxy forgets a proxy that has stopped: its listener is closed.
 func (t *Tunnel) unregisterProxy(p *Proxy) {
 	t.boundProxiesMut.Lock()
 	delete(t.boundProxies, p)
 	t.boundProxiesMut.Unlock()
+	close(p.done)
+}
+
+// waitDone waits for the proxies to have released their listeners, at most
+// until the deadline. Returns whether they all did.
+func waitDone(dones []chan struct{}, timeout time.Duration) bool {
+	timer := time.NewTimer(timeout)
+	defer timer.Stop()
+	for _, done := range dones {
+		select {
+		case <-done:
+		case <-timer.C:
+			return false
+		}
+	}
+	return true
+}
+
+// WaitUnbound waits, at most timeout, for every inbound proxy of the tunnel
+// to have released its listener, e.g. after Close. Returns whether they all
+// did.
+func (t *Tunnel) WaitUnbound(timeout time.Duration) bool {
+	t.boundProxiesMut.Lock()
+	dones := make([]chan struct{}, 0, len(t.boundProxies))
+	for p := range t.boundProxies {
+		dones = append(dones, p.done)
+	}
+	t.boundProxiesMut.Unlock()
+	return waitDone(dones, timeout)
 }
 
 // BoundRemotes returns the remotes of every currently bound inbound proxy,
@@ -120,22 +151,24 @@ func (t *Tunnel) BoundRemotes() []BoundRemoteInfo {
 }
 
 // UnbindRemotes closes the bound inbound proxies of the given remotes (same
-// remote string), leaving the others bound. Returns how many were closed.
-func (t *Tunnel) UnbindRemotes(remotes []*settings.Remote) int {
+// remote string), leaving the others bound, and waits at most timeout for
+// their listeners to be released (a port can be bound again right after).
+// Returns how many were closed, and whether they were all released in time.
+func (t *Tunnel) UnbindRemotes(remotes []*settings.Remote, timeout time.Duration) (int, bool) {
 	wanted := map[string]bool{}
 	for _, r := range remotes {
 		wanted[r.String()] = true
 	}
+	dones := []chan struct{}{}
 	t.boundProxiesMut.Lock()
-	defer t.boundProxiesMut.Unlock()
-	closed := 0
 	for p := range t.boundProxies {
 		if p.cancel != nil && wanted[p.remote.String()] {
 			p.cancel()
-			closed++
+			dones = append(dones, p.done)
 		}
 	}
-	return closed
+	t.boundProxiesMut.Unlock()
+	return len(dones), waitDone(dones, timeout)
 }
 
 // handlerOf hides the default "raw" handler.
@@ -278,20 +311,51 @@ func (t *Tunnel) BindDynamicRemotes(remotes []*settings.Remote) error {
 	return t.BindRemotes(t.connectionCtx, remotes)
 }
 
+// StartDynamicRemotes binds the given remotes for the lifetime of the
+// connection like BindDynamicRemotes, but returns once they listen: a listen
+// error (port in use...) is returned, and then no listener of the batch is
+// left open. Errors of the running proxies are only logged.
+func (t *Tunnel) StartDynamicRemotes(remotes []*settings.Remote) error {
+	wait, err := t.startRemotes(t.connectionCtx, remotes)
+	if err != nil {
+		return err
+	}
+	go func() {
+		if err := wait(); err != nil {
+			t.Infof("Bound remotes stopped: %s", err)
+		}
+	}()
+	return nil
+}
+
 // BindRemotes converts the given remotes into proxies, and blocks
 // until the caller cancels the context or there is a proxy error.
 func (t *Tunnel) BindRemotes(ctx context.Context, remotes []*settings.Remote) error {
+	wait, err := t.startRemotes(ctx, remotes)
+	if err != nil {
+		return err
+	}
+	return wait()
+}
+
+// startRemotes listens on the given remotes and runs their proxies until ctx
+// is cancelled or one of them fails, which the returned function waits for.
+// When one of them cannot listen, the listeners already opened are closed.
+func (t *Tunnel) startRemotes(ctx context.Context, remotes []*settings.Remote) (func() error, error) {
 	if len(remotes) == 0 {
-		return errors.New("no remotes")
+		return nil, errors.New("no remotes")
 	}
 	if !t.Inbound {
-		return errors.New("inbound connections blocked")
+		return nil, errors.New("inbound connections blocked")
 	}
 	proxies := make([]*Proxy, len(remotes))
 	for i, remote := range remotes {
 		p, err := NewProxy(t.Logger, t, t.proxyCount, remote)
 		if err != nil {
-			return err
+			for _, opened := range proxies[:i] {
+				opened.closeListener()
+			}
+			return nil, err
 		}
 		proxies[i] = p
 		t.proxyCount++
@@ -317,9 +381,11 @@ func (t *Tunnel) BindRemotes(ctx context.Context, remotes []*settings.Remote) er
 		})
 	}
 	t.Debugf("Bound proxies")
-	err := eg.Wait()
-	t.Debugf("Unbound proxies")
-	return err
+	return func() error {
+		err := eg.Wait()
+		t.Debugf("Unbound proxies")
+		return err
+	}, nil
 }
 
 func (t *Tunnel) keepAliveLoop(sshConn ssh.Conn) {

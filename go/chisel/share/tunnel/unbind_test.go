@@ -61,11 +61,16 @@ func TestUnbindRemotes(t *testing.T) {
 
 	// same remote, decoded again (as the server does from its configuration)
 	again, _ := settings.DecodeRemote("R:127.0.0.1:" + udpPort + ":192.0.2.53:53/udp")
-	if n := tun.UnbindRemotes([]*settings.Remote{again}); n != 1 {
-		t.Fatalf("UnbindRemotes closed %d proxies, want 1", n)
+	if n, released := tun.UnbindRemotes([]*settings.Remote{again}, 3*time.Second); n != 1 || !released {
+		t.Fatalf("UnbindRemotes closed %d proxies (released: %v), want 1", n, released)
 	}
-	waitFor(t, "the unbound UDP port to be released", func() bool { return udpFree(udpPort) })
-	waitFor(t, "a single bound proxy", func() bool { return len(tun.BoundRemotes()) == 1 })
+	// released on return: the port can be bound again right away
+	if !udpFree(udpPort) {
+		t.Fatalf("the unbound UDP port is still in use when UnbindRemotes returns")
+	}
+	if n := len(tun.BoundRemotes()); n != 1 {
+		t.Fatalf("%d bound proxies, want 1", n)
+	}
 
 	remotes := tun.BoundRemotes()
 	if remotes[0].LocalPort != tcpPort || remotes[0].LocalProto != "tcp" {
@@ -82,7 +87,62 @@ func TestUnbindRemotes(t *testing.T) {
 	default:
 	}
 
-	if n := tun.UnbindRemotes([]*settings.Remote{again}); n != 0 {
+	if n, _ := tun.UnbindRemotes([]*settings.Remote{again}, time.Second); n != 0 {
 		t.Errorf("unbinding an unbound remote closed %d proxies", n)
+	}
+}
+
+func tcpFree(port string) bool {
+	l, err := net.Listen("tcp", "127.0.0.1:"+port)
+	if err != nil {
+		return false
+	}
+	l.Close()
+	return true
+}
+
+// A remote that can't listen fails the batch without leaving the listeners
+// opened before it bound.
+func TestStartRemotesListenError(t *testing.T) {
+	tun := New(Config{Logger: cio.NewLogger("test"), Inbound: true})
+	freeTCP := freePort(t)
+	busy, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer busy.Close()
+	busyPort := strconv.Itoa(busy.Addr().(*net.TCPAddr).Port)
+	first, _ := settings.DecodeRemote("R:127.0.0.1:" + freeTCP + ":192.0.2.53:53")
+	second, _ := settings.DecodeRemote("R:127.0.0.1:" + busyPort + ":192.0.2.53:53")
+
+	if _, err := tun.startRemotes(context.Background(), []*settings.Remote{first, second}); err == nil {
+		t.Fatal("startRemotes succeeded on a port in use")
+	}
+	if !tcpFree(freeTCP) {
+		t.Errorf("the listener opened before the failing one was left open")
+	}
+	if n := len(tun.BoundRemotes()); n != 0 {
+		t.Errorf("%d bound proxies after a failed start", n)
+	}
+}
+
+// WaitUnbound returns once the listeners of a stopped tunnel are released.
+func TestWaitUnbound(t *testing.T) {
+	tun := New(Config{Logger: cio.NewLogger("test"), Inbound: true})
+	tcpPort, udpPort := freePort(t), freePort(t)
+	r1, _ := settings.DecodeRemote("R:127.0.0.1:" + tcpPort + ":192.0.2.53:53")
+	r2, _ := settings.DecodeRemote("R:127.0.0.1:" + udpPort + ":192.0.2.53:53/udp")
+	ctx, cancel := context.WithCancel(context.Background())
+	wait, err := tun.startRemotes(ctx, []*settings.Remote{r1, r2})
+	if err != nil {
+		t.Fatal(err)
+	}
+	go wait()
+	cancel()
+	if !tun.WaitUnbound(3 * time.Second) {
+		t.Fatal("the listeners were not released")
+	}
+	if !tcpFree(tcpPort) || !udpFree(udpPort) {
+		t.Errorf("a port is still in use after WaitUnbound")
 	}
 }

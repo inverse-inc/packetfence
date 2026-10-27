@@ -1055,13 +1055,20 @@ func (s *Server) handleReprovisionStaticConnections(w http.ResponseWriter, req *
 
 	unbound := 0
 	if len(staleRemotes) > 0 {
-		unbound = tun.UnbindRemotes(staleRemotes)
+		// Wait for the ports to be released: a remote whose destination
+		// changed keeps its port, and is bound again below.
+		var released bool
+		unbound, released = tun.UnbindRemotes(staleRemotes, unbindTimeout)
+		if !released {
+			l.Warn(fmt.Sprintf("reprovision: the static connections of connector %s no longer configured were not all released within %s", connectorId, unbindTimeout))
+		}
 		l.Info(fmt.Sprintf("reprovision: closed %d static connection(s) no longer configured for connector %s", unbound, connectorId))
 		// ...and drop their ports from the k8s Service (no-op off-k8s)
 		s.removeStaticServicePorts(req.Context(), staleRemotes, pfconnectorStaticConnections.Element)
 	}
 
 	newRemotes := chshare.Remotes{}
+	newRemoteDefs := []string{}
 	for _, remoteDef := range pfconnectorStaticConnections.Element[connectorId] {
 		if bound[remoteDef] {
 			continue
@@ -1072,7 +1079,7 @@ func (s *Server) handleReprovisionStaticConnections(w http.ResponseWriter, req *
 			continue
 		}
 		newRemotes = append(newRemotes, remote)
-		bound[remoteDef] = true
+		newRemoteDefs = append(newRemoteDefs, remoteDef)
 	}
 
 	if len(newRemotes) == 0 {
@@ -1087,23 +1094,33 @@ func (s *Server) handleReprovisionStaticConnections(w http.ResponseWriter, req *
 	s.addStaticServicePorts(req.Context(), newRemotes)
 
 	// Bind each new reverse listener on the live tunnel, tied to the connection
-	// lifetime (cleaned up on disconnect). One remote per BindDynamicRemotes call
-	// so an already-in-use port (stale bound-set) fails only itself, not the batch.
-	// BindRemotes blocks for the listener's lifetime, so run each in the background.
-	for _, remote := range newRemotes {
-		r := remote
-		go func() {
-			if err := tun.BindDynamicRemotes([]*settings.Remote{r}); err != nil {
-				log.LoggerWContext(context.Background()).Error(fmt.Sprintf("reprovision: failed binding %s for connector %s: %s", r.String(), connectorId, err))
-			}
-		}()
+	// lifetime (cleaned up on disconnect). One remote per call so an
+	// already-in-use port fails only itself, not the batch. Only what listens
+	// is recorded as bound: a failed one is tried again by the next
+	// reprovision or connect.
+	bindErrors := []string{}
+	for i, remote := range newRemotes {
+		if err := tun.StartDynamicRemotes([]*settings.Remote{remote}); err != nil {
+			l.Error(fmt.Sprintf("reprovision: failed binding %s for connector %s: %s", remote.String(), connectorId, err))
+			bindErrors = append(bindErrors, fmt.Sprintf("%s: %s", remote.String(), err))
+			continue
+		}
+		bound[newRemoteDefs[i]] = true
 	}
 
 	connectorBoundRemotes.Store(connectorId, bound)
 
+	reply := gin.H{"message": fmt.Sprintf("Provisioned %d static connection(s) for connector %s", len(newRemotes)-len(bindErrors), connectorId), "bound": len(newRemotes) - len(bindErrors), "unbound": unbound}
+	if len(bindErrors) > 0 {
+		reply["errors"] = bindErrors
+	}
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(gin.H{"message": fmt.Sprintf("Provisioned %d static connection(s) for connector %s", len(newRemotes), connectorId), "bound": len(newRemotes), "unbound": unbound})
+	json.NewEncoder(w).Encode(reply)
 }
+
+// unbindTimeout is how long the server waits for listeners being closed to
+// release their ports before binding them again.
+const unbindTimeout = 3 * time.Second
 
 // forgetStaticConnections drops, from what a disconnected connector had bound
 // (connectorBoundRemotes), the static remotes no longer configured, and
