@@ -1030,6 +1030,26 @@ func (s *Server) handleReprovisionStaticConnections(w http.ResponseWriter, req *
 			staleRemotes = append(staleRemotes, remote)
 		}
 	}
+	// A deleted connector: close its tunnel, which releases every listener
+	// it holds (static and dynamic), so that its ports can be given to
+	// another connector. Its secret is gone, it can't reconnect.
+	connectors := pfconfigdriver.Connectors{}
+	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &connectors); err == nil {
+		if _, found := connectors.Element[connectorId]; !found {
+			l.Info(fmt.Sprintf("reprovision: connector %s no longer exists, closing its tunnel", connectorId))
+			if len(staleRemotes) > 0 {
+				s.removeStaticServicePorts(req.Context(), staleRemotes, pfconnectorStaticConnections.Element)
+			}
+			connectorBoundRemotes.Delete(connectorId)
+			if err := tun.Close(); err != nil {
+				l.Info(fmt.Sprintf("reprovision: unable to close the tunnel of connector %s: %s", connectorId, err))
+			}
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode(gin.H{"message": fmt.Sprintf("Connector %s no longer exists, its tunnel was closed", connectorId), "bound": 0, "unbound": len(staleRemotes)})
+			return
+		}
+	}
+
 	unbound := 0
 	if len(staleRemotes) > 0 {
 		unbound = tun.UnbindRemotes(staleRemotes)

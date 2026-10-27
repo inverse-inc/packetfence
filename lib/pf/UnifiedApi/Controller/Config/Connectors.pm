@@ -33,6 +33,7 @@ use pf::config qw(
     %ConfigFirewallSSO
     %ConfigSwitchesList
 );
+use pf::connector;
 use pf::factory::connector;
 use pf::SwitchFactory;
 use pf::util qw(listify valid_ip isenabled);
@@ -58,6 +59,21 @@ sub post_create {
 sub post_update {
     my ($self, $id) = @_;
     $self->reprovision_static($id);
+}
+
+=head2 post_remove
+
+Release what a deleted connector still holds on pfconnector-server: its
+tunnel is closed, and the tunnel ports of its DNS servers can be given to
+another connector right away.
+
+=cut
+
+sub post_remove {
+    my ($self, $id) = @_;
+    # no longer in the configuration, pf::factory::connector can't build it
+    pf::connector->new(id => $id)->reprovision_static();
+    return;
 }
 
 sub reprovision_static {
