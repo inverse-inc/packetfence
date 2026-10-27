@@ -121,13 +121,20 @@ and the following one authorizes it as soon as at least one device matched:
 
   .devices | length > 0
 
-The device being checked is available to the query as two jq variables, the
-same two the request templates get:
+The device being checked is available to the query as three jq variables,
+the first two being the same two the request templates get:
 
  * `$mac`: the MAC address of the device
  * `$node`: the attributes of the node, as an object (ex: `$node.pid`,
    `$node.category`, `$node.computername`, ...). It is `null` when the device
    is not a known node.
+ * `$tls`: the TLS certificate data PacketFence last recorded for the device
+   from the RADIUS audit log of its TLS-based EAP authentications, as an
+   object. The client certificate is under the `TLSClientCert*` keys (ex:
+   `$tls.TLSClientCertSerial`, `$tls.TLSClientCertCommonName`,
+   `$tls.TLSClientCertIssuer`, `$tls.TLSClientCertSubjectAltNameEmail`,
+   `$tls.TLSClientCertExpiration`) and the server certificate under the
+   `TLSCert*` keys. It is `null` when nothing is recorded for the device.
 
 This is what you want when the server answers about more than the one device
 asked about, or when the answer has to be checked against what PacketFence
@@ -140,6 +147,11 @@ or to require that the owner the server reports is the one the node is
 registered to:
 
   .assigned_user == $node.pid
+
+or to require that the certificate the device authenticated with is the one
+the server issued to it:
+
+  .certificate.serial == $tls.TLSClientCertSerial
 
 NOTE: The query is evaluated with jq (through the JQ::XS Perl library), so the
 full jq language is available, with two restrictions. The query cannot pull
@@ -161,13 +173,13 @@ without contacting the server: paste a sample JSON response in the field and
 click 'Test'. The result of the evaluation (pass or fail along with the raw
 results of the query) is displayed under the field.
 
-A query using `$mac` or `$node` can be tested against a real device: enter its
-MAC address in the *Test node* field above. The node is looked up in the
-database and handed to the query exactly as it would be during an
-authorization, and the attributes it holds are displayed with the result of
-the test, so the ones the query reads can be checked against what the node
-actually carries. Leaving the field empty runs the query with `$mac` and
-`$node` both `null`.
+A query using `$mac`, `$node` or `$tls` can be tested against a real device:
+enter its MAC address in the *Test node* field above. The node and its TLS
+data are looked up in the database and handed to the query exactly as they
+would be during an authorization, and what they hold is displayed with the
+result of the test, so the attributes the query reads can be checked against
+what the node actually carries. Leaving the field empty runs the query with
+`$mac`, `$node` and `$tls` all `null`.
 
 ==== Enforcement
 

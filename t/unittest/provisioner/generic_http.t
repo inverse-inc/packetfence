@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 86;
+use Test::More tests => 92;
 use Test::NoWarnings;
 use Test::MockModule;
 use HTTP::Response;
@@ -32,6 +32,7 @@ use JSON::MaybeXS qw(decode_json);
 use JQ::XS;
 
 use pf::constants;
+use pf::error;
 # Do not `use pf::provisioner;` here: loading the base class before the
 # subclass prevents Moo from inheriting the base attribute defaults
 # (access_filter, ...) in the subclass constructor.
@@ -197,6 +198,39 @@ my $provisioner = new_ok(
 
     (undef, $results) = $C->evaluate_jq('{}', '$node.pid', $C->jq_vars('11:22:33:44:55:66', { pid => 'alice' }));
     is($results->[0], 'alice', "and for the next device rather than keeping the first");
+
+    # the TLS data of the device is handed to the query as $tls
+    (undef, $results, $err) = $C->evaluate_jq('{}', '$tls.TLSClientCertSerial',
+        $C->jq_vars($TEST_MAC, $TEST_NODE_INFO, { TLSClientCertSerial => '0A1B' }));
+    is($results->[0], '0A1B', "an attribute of \$tls is readable");
+
+    (undef, $results) = $C->evaluate_jq('{}', '$tls', $vars);
+    is($results->[0], undef, "\$tls is null when the device has no TLS data");
+}
+
+{
+    # authorize looks the TLS data of the device up and gives it to the query
+    my $mock = Test::MockModule->new('LWP::UserAgent');
+    $mock->mock(request => sub {
+        HTTP::Response->new(200, 'OK', ['Content-Type' => 'application/json'], '{"serial":"0A1B"}')
+    });
+    my $dal = Test::MockModule->new('pf::dal::node_tls');
+    my %tls = ($TEST_MAC => { mac => $TEST_MAC, TLSClientCertSerial => '0A1B' });
+    $dal->mock(find => sub {
+        my ($proto, $ids) = @_;
+        my $row = $tls{$ids->{mac}} or return ($STATUS::NOT_FOUND, undef);
+        return ($STATUS::OK, pf::dal::node_tls->new_from_row($row));
+    });
+
+    my $C = "pf::provisioner::generic_http";
+    is($C->node_tls($TEST_MAC)->{TLSClientCertSerial}, '0A1B', "node_tls returns the TLS data of the device");
+    is($C->node_tls('11:22:33:44:55:66'), undef, "node_tls returns undef when the device has none");
+
+    my $query = '.serial == $tls.TLSClientCertSerial';
+    is(make_provisioner(jq_query => $query)->authorize($TEST_MAC, $TEST_NODE_INFO), $TRUE,
+        "authorize gives the TLS data of the device to the query as \$tls");
+    is(make_provisioner(jq_query => $query)->authorize('11:22:33:44:55:66', $TEST_NODE_INFO), $FALSE,
+        "a device without TLS data has a null \$tls");
 }
 
 {

@@ -26,7 +26,7 @@ use pf::ConfigStore::Provisioning;
 use Utils;
 my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Provisioning");
 
-use Test::More tests => 117;
+use Test::More tests => 124;
 use Test::Mojo;
 
 #This test will running last
@@ -285,13 +285,30 @@ $t->post_ok("$collection_base_url/test_jq" => json => {
 })->status_is(200)
   ->json_is('/mac' => 'aa:bb:cc:dd:ee:ff');
 
-# and without either, both variables are null
+# and without either, the variables are null
 $t->post_ok("$collection_base_url/test_jq" => json => {
-    jq_query => '[$mac, $node]',
+    jq_query => '[$mac, $node, $tls]',
     json     => '{}',
 })->status_is(200)
-  ->json_is('/results/0' => [undef, undef])
-  ->json_is('/node' => undef);
+  ->json_is('/results/0' => [undef, undef, undef])
+  ->json_is('/node' => undef)
+  ->json_is('/tls' => undef);
+
+# TLS data given outright is handed to the query as $tls and comes back too
+$t->post_ok("$collection_base_url/test_jq" => json => {
+    jq_query => '.serial == $tls.TLSClientCertSerial',
+    json     => '{"serial":"0A1B"}',
+    mac      => 'aa:bb:cc:dd:ee:ff',
+    tls      => { TLSClientCertSerial => '0A1B' },
+})->status_is(200)
+  ->json_is('/passes' => Mojo::JSON->true)
+  ->json_is('/tls/TLSClientCertSerial' => '0A1B');
+
+$t->post_ok("$collection_base_url/test_jq" => json => {
+    jq_query => '.status',
+    json     => '{"status":"enrolled"}',
+    tls      => 'not an object',
+})->status_is(422);
 
 $t->post_ok("$collection_base_url/test_jq" => json => {
     jq_query => '.status',

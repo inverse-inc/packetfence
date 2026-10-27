@@ -21,7 +21,7 @@ export const props = {
     default: (value, form) => {
       const { jq_query, test_mac } = form
       return store.dispatch('$_provisionings/testJq', { jq_query, json: value, mac: test_mac || undefined }).then(response => {
-        const { passes, results, mac, node } = response
+        const { passes, results, mac, node, tls } = response
         let html = []
         html.push('<pre style="color: inherit;">')
         html.push(`<strong>${escapeHtml(passes ? i18n.t('Passes') : i18n.t('Does not pass'))}</strong><br/>`)
@@ -32,6 +32,9 @@ export const props = {
           html.push(`$node: <code>${node
             ? escapeHtml(JSON.stringify(node))
             : escapeHtml(i18n.t('null - no node matches this MAC address'))}</code><br/>`)
+          html.push(`$tls: <code>${tls
+            ? escapeHtml(JSON.stringify(tls))
+            : escapeHtml(i18n.t('null - no TLS data is recorded for this MAC address'))}</code><br/>`)
         }
         html.push(`${escapeHtml(i18n.t('Results'))}: <code>${escapeHtml(JSON.stringify(results))}</code>`)
         html.push('</pre>')
