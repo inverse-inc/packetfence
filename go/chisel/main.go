@@ -630,14 +630,20 @@ func runHAClient(ctx context.Context, config *chclient.Config, api *clientapi.AP
 		}
 		return present
 	}
-	waitFor := func(want bool) bool {
+	// waitForVIPOrChange waits, as a backup, for this host to hold the VIP
+	// (acquired), or for the HA configuration to change (changed, next is
+	// the new one, nil when HA is off): keepalived is then re-rendered with
+	// the new VIP, which the loop must follow, or stopped.
+	waitForVIPOrChange := func() (acquired bool, next *chclient.HAConfig, changed bool) {
 		for {
-			if vipPresent() == want {
-				return true
+			if vipPresent() {
+				return true, nil, false
 			}
 			select {
 			case <-ctx.Done():
-				return false
+				return false, nil, false
+			case next := <-haCh:
+				return false, next, true
 			case <-time.After(haVIPPollInterval):
 			}
 		}
@@ -762,7 +768,12 @@ func runHAClient(ctx context.Context, config *chclient.Config, api *clientapi.AP
 				return
 			case <-time.After(5 * time.Second):
 			}
-			err := syncConfigFromMaster(ctx, vip.String(), secret, relayAddr)
+			ha, err := syncConfigFromMaster(ctx, vip.String(), secret, relayAddr)
+			if ha != nil && config.OnHAConfig != nil {
+				// The master's HA block: a backup learns a VIP change or HA
+				// turned off from it, it has no tunnel of its own.
+				config.OnHAConfig(*ha)
+			}
 			if err != nil {
 				failures++
 				if failures == 1 || failures%30 == 0 {
@@ -789,8 +800,11 @@ func runHAClient(ctx context.Context, config *chclient.Config, api *clientapi.AP
 		go cacheSync(hbCtx)
 		go totpSync(hbCtx)
 		go configSync(hbCtx)
-		acquired := waitFor(true)
+		acquired, next, changed := waitForVIPOrChange()
 		stopHeartbeat()
+		if changed {
+			return next
+		}
 		if !acquired {
 			return nil
 		}
@@ -856,22 +870,23 @@ const haRefreshConfigScript = "/usr/local/pf/sbin/ha-refresh-config.sh"
 
 // syncConfigFromMaster is one configuration sync pass of an HA backup: cache
 // the master's site-network payload (re-rendering keepalived.conf when it
-// changed), then run the sync scripts through the relay at relayAddr.
-func syncConfigFromMaster(ctx context.Context, vip, secret, relayAddr string) error {
+// changed), then run the sync scripts through the relay at relayAddr. Returns
+// the HA block of the payload, nil when it could not be obtained.
+func syncConfigFromMaster(ctx context.Context, vip, secret, relayAddr string) (*chclient.HAConfig, error) {
 	payload, err := clientapi.FetchConfigFromMaster(ctx, vip, secret, "site-network")
 	if err != nil {
-		return fmt.Errorf("site network config: %w", err)
+		return nil, fmt.Errorf("site network config: %w", err)
 	}
-	changed, _, err := chclient.UpdateSiteNetworkCache(payload)
+	changed, ha, err := chclient.UpdateSiteNetworkCache(payload)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if changed {
 		log.Printf("HA: site network config updated from the master, refreshing keepalived")
 		chclient.ApplyKeepalived(log.Printf)
 	}
 	if _, err := os.Stat(haRefreshConfigScript); err != nil {
-		return nil // outside the connector-remote container
+		return &ha, nil // outside the connector-remote container
 	}
 	cmd := exec.CommandContext(ctx, haRefreshConfigScript, "--start")
 	cmd.Env = append(os.Environ(), "PFCONNECTOR_API=http://"+relayAddr)
@@ -889,7 +904,7 @@ func syncConfigFromMaster(ctx context.Context, vip, secret, relayAddr string) er
 		}
 	}
 	if err != nil {
-		return fmt.Errorf("%s: %w", haRefreshConfigScript, err)
+		return &ha, fmt.Errorf("%s: %w", haRefreshConfigScript, err)
 	}
-	return nil
+	return &ha, nil
 }
