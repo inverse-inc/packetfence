@@ -10,7 +10,8 @@ import {
   BaseFormGroupInputPassword,
   BaseFormGroupTextarea,
   BaseFormGroupSwitch,
-  BaseInput
+  BaseInput,
+  BaseInputToggleDisabledEnabled
 } from '@/components/new/'
 import BaseFormGroupInlineTrigger from '../../switches/_components/BaseFormGroupInlineTrigger'
 import BaseFormGroupToggleStaticDynamicDefault from '../../switches/_components/BaseFormGroupToggleStaticDynamicDefault'
@@ -98,9 +99,11 @@ export {
   BaseFormGroupChosenOne                  as FormGroupWebServicesTransport,
   BaseFormGroupInput                      as FormGroupWebServicesUser,
   BaseFormGroupToggleNYDefault            as FormGroupWebServicesVerifyCertificate,
+  BaseFormGroupInput                      as FormGroupWebServicesPath,
 
   BaseInput                               as InputRoleMapNetwork,
   BaseInputToggleNetworkFrom              as InputToggleNetworkFrom,
+  BaseInputToggleDisabledEnabled          as InputToggleEnableDisable,
 
   BaseViewCollectionItem                  as BaseView,
   TheForm,

@@ -1382,9 +1382,12 @@ fi
                         /usr/local/pf/conf/pfsetacls/ansible.cfg
                         /usr/local/pf/conf/pfsetacls/inventory.cfg
                         /usr/local/pf/conf/pfsetacls/switch_acls.yml
+                        /usr/local/pf/conf/pfsetacls/del-acl.cfg
 %dir                    /usr/local/pf/conf/pfsetacls/collections
                         /usr/local/pf/conf/pfsetacls/collections/requirements.yml
                         /usr/local/pf/conf/pfsetacls/ansible_collections
+%dir                    /usr/local/pf/conf/pfsetacls/roles
+                        /usr/local/pf/conf/pfsetacls/roles/requirements.yml
 %doc                    /usr/local/pf/COPYING
 %dir                    /usr/local/pf/db
                         /usr/local/pf/db/*

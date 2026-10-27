@@ -63,6 +63,7 @@ import BaseInputPassword from './BaseInputPassword'
 import BaseInputRange from './BaseInputRange'
 import BaseInputToggle, { props as BaseInputToggleProps } from './BaseInputToggle'
 import BaseInputToggleAdvancedMode from './BaseInputToggleAdvancedMode'
+import BaseInputToggleDisabledEnabled from './BaseInputToggleDisabledEnabled'
 import BaseInputToggleFalseTrue from './BaseInputToggleFalseTrue'
 import BaseLabel from './BaseLabel';
 import BaseSearch from './BaseSearch'
@@ -141,6 +142,7 @@ export {
   BaseInputRange,
   BaseInputToggle, BaseInputToggleProps,
   BaseInputToggleAdvancedMode,
+  BaseInputToggleDisabledEnabled,
   BaseInputToggleFalseTrue,
   BaseLabel,
 

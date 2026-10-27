@@ -20,7 +20,6 @@ inlineTrigger =
 normalRole =
 registrationRole =
 isolationRole =
-macDetectionRole =
 voiceRole = voice
 inlineRole = inline
 VoIPEnabled = N
@@ -83,6 +82,7 @@ wsUser =
 wsPwd =
 # Verify the certificate of the web services peer when wsTransport is https
 wsVerifyCertificate = N
+wsPath =
 #
 # RADIUS NAS Client config
 #
