@@ -35,7 +35,7 @@ func (h APIHandler) pfconnectorTraffic() http.HandlerFunc {
 			}
 			since = n
 		}
-		container := connector.NewConnectorsContainer(h.ctx)
+		container := h.pfconnectors(h.ctx)
 		targets := map[string]*connector.Connector{}
 		if id := r.URL.Query().Get("connector"); id != "" {
 			conn := container.Get(r.Context(), id)

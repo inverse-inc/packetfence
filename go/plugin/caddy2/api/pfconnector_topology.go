@@ -88,7 +88,7 @@ func (h APIHandler) pfconnectorTopology() http.HandlerFunc {
 			http.Error(w, "Unable to fetch the connectors configuration", http.StatusInternalServerError)
 			return
 		}
-		container := connector.NewConnectorsContainer(h.ctx)
+		container := h.pfconnectors(h.ctx)
 		all := container.All(r.Context())
 
 		ids := make([]string, 0, len(all))

@@ -11,7 +11,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/inverse-inc/go-utils/log"
-	"github.com/inverse-inc/packetfence/go/connector"
 )
 
 // Terminal session recordings of a connector-remote (asciicast v2 files the
@@ -43,7 +42,7 @@ func (h APIHandler) pfconnectorTerminalRecordings() http.HandlerFunc {
 			writeJSONMessage(w, http.StatusBadRequest, "PFconnector ID is required")
 			return
 		}
-		conn := connector.NewConnectorsContainer(h.ctx).Get(h.ctx, connectorID)
+		conn := h.pfconnector(h.ctx, connectorID)
 		if conn == nil {
 			writeJSONMessage(w, http.StatusNotFound, "Unknown PFconnector ID")
 			return
@@ -81,7 +80,7 @@ func (h APIHandler) proxyTerminalRecording() http.HandlerFunc {
 			writeJSONMessage(w, http.StatusBadRequest, "PFconnector ID and a valid recording name are required")
 			return
 		}
-		conn := connector.NewConnectorsContainer(h.ctx).Get(h.ctx, connectorID)
+		conn := h.pfconnector(h.ctx, connectorID)
 		if conn == nil {
 			writeJSONMessage(w, http.StatusNotFound, "Unknown PFconnector ID")
 			return

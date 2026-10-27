@@ -190,7 +190,7 @@ func (h APIHandler) pfconnectorRemoteInstall() http.HandlerFunc {
 			}
 		}
 
-		conn := connector.NewConnectorsContainer(h.ctx).Get(h.ctx, connectorID)
+		conn := h.pfconnector(h.ctx, connectorID)
 		if conn == nil {
 			http.Error(w, "Unknown PFconnector ID", http.StatusNotFound)
 			return
@@ -220,7 +220,7 @@ func (h APIHandler) pfconnectorRemoteHaSwitch() http.HandlerFunc {
 			http.Error(w, "The address of the host to make active is required", http.StatusBadRequest)
 			return
 		}
-		conn := connector.NewConnectorsContainer(h.ctx).Get(h.ctx, connectorID)
+		conn := h.pfconnector(h.ctx, connectorID)
 		if conn == nil {
 			http.Error(w, "Unknown PFconnector ID", http.StatusNotFound)
 			return
@@ -241,7 +241,7 @@ func (h APIHandler) pfconnectorForIPHandler() http.HandlerFunc {
 			http.Error(w, "A valid IP address is required", http.StatusBadRequest)
 			return
 		}
-		conn := connector.NewConnectorsContainer(h.ctx).ForIP(h.ctx, ip)
+		conn := h.pfconnectorForIP(h.ctx, ip)
 		w.Header().Set("Content-Type", "application/json")
 		if conn == nil || conn.PfconfigHashNS == "local_connector" {
 			w.WriteHeader(http.StatusNotFound)

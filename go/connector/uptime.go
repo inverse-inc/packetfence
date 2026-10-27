@@ -127,6 +127,23 @@ func uptimeDayKey(prefix string, t time.Time) string {
 	return prefix + t.UTC().Format(uptimeDayLayout)
 }
 
+// uptimeDayOf returns the samples of the UTC day of a minute among the
+// per-day samples, formatting the day key once per day: the minutes are
+// walked in order.
+type uptimeDayOf struct {
+	days map[string][]byte
+	day  int64
+	b    []byte
+	set  bool
+}
+
+func (d *uptimeDayOf) at(m time.Time) []byte {
+	if day := m.Unix() / 86400; !d.set || day != d.day {
+		d.day, d.b, d.set = day, d.days[m.UTC().Format(uptimeDayLayout)], true
+	}
+	return d.b
+}
+
 func uptimeMinuteOffset(t time.Time) int64 {
 	t = t.UTC()
 	return int64(t.Hour()*60 + t.Minute())
@@ -289,8 +306,9 @@ func ReadUptime(ctx context.Context, connectorID, window string, now time.Time) 
 
 // computeUptime buckets the minutes [start, end) from the per-day samples.
 func computeUptime(start, end time.Time, bucket time.Duration, since *time.Time, connectorDays, serverDays map[string][]byte) *UptimeHistory {
-	at := func(days map[string][]byte, m time.Time) byte {
-		b := days[m.Format(uptimeDayLayout)]
+	connector, server := &uptimeDayOf{days: connectorDays}, &uptimeDayOf{days: serverDays}
+	at := func(days *uptimeDayOf, m time.Time) byte {
+		b := days.at(m)
 		offset := uptimeMinuteOffset(m)
 		if offset < int64(len(b)) {
 			return b[offset]
@@ -309,10 +327,10 @@ func computeUptime(start, end time.Time, bucket time.Duration, since *time.Time,
 				continue
 			}
 			up, down := 0.0, 0.0
-			if c := at(connectorDays, m); c != 0 {
+			if c := at(connector, m); c != 0 {
 				up = decodeUptime(c)
 				down = 1 - up
-			} else if at(serverDays, m) != 0 {
+			} else if at(server, m) != 0 {
 				down = 1
 			} else {
 				b.NoDataMinutes++
@@ -387,10 +405,11 @@ func readHostsUptime(ctx context.Context, connectorID string, start, end time.Ti
 // computeHostBuckets counts the minutes [start, end) of each host state.
 func computeHostBuckets(start, end time.Time, bucket time.Duration, hostDays map[string][]byte) []HostBucket {
 	buckets := []HostBucket{}
+	days := &uptimeDayOf{days: hostDays}
 	for bStart := start; bStart.Before(end); bStart = bStart.Add(bucket) {
 		b := HostBucket{Start: bStart, End: bStart.Add(bucket)}
 		for m := bStart; m.Before(b.End); m = m.Add(time.Minute) {
-			day := hostDays[m.Format(uptimeDayLayout)]
+			day := days.at(m)
 			state := byte(0)
 			if offset := uptimeMinuteOffset(m); offset < int64(len(day)) {
 				state = day[offset]

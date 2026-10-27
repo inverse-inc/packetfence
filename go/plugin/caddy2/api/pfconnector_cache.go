@@ -57,7 +57,7 @@ func (h APIHandler) pfconnectorRemoteCacheRelay(method, endpoint string) http.Ha
 			writeJSONMessage(w, http.StatusBadRequest, "PFconnector ID is required")
 			return
 		}
-		conn := connector.NewConnectorsContainer(h.ctx).Get(h.ctx, connectorID)
+		conn := h.pfconnector(h.ctx, connectorID)
 		if conn == nil {
 			writeJSONMessage(w, http.StatusNotFound, "Unknown PFconnector ID")
 			return
