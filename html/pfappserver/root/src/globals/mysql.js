@@ -41,6 +41,10 @@ export const MysqlLimits = {
   }
 }
 
+// 32-bit epoch range enforced by pf::util::validate_date
+export const MysqlDatetimeMin = '1970-01-01'
+export const MysqlDatetimeMax = '2038-01-18'
+
 class MysqlColumn {}
 export class MysqlString extends MysqlColumn {}
 export class MysqlNumber extends MysqlColumn {}
