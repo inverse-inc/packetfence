@@ -301,7 +301,9 @@ sub _valid_host_cidr {
 =head2 validate_interfaces
 
 No duplicate interface within a connector, the resulting interface name must
-fit in IFNAMSIZ, and when DHCP is enabled the scope must be consistent
+fit in IFNAMSIZ, the subnet of an interface overlaps no other interface's,
+this connector's or another connector's (pfdhcp picks a connector DHCP scope
+by the relay address), and when DHCP is enabled the scope must be consistent
 with the interface address: range inside the interface's network, start
 before end, interface address outside the range, gateway inside the network,
 default lease not longer than the maximum.
@@ -310,7 +312,17 @@ default lease not longer than the maximum.
 
 sub validate_interfaces {
     my ($self, $field) = @_;
+    my $id = $self->field('id')->value // '';
     my %seen;
+    # subnets already used: [network, where]
+    my @subnets;
+    for my $other_id (sort grep { $_ ne $id && $_ ne 'local_connector' } keys %ConnectorConfig) {
+        for my $other_if (@{ $ConnectorConfig{$other_id}{interfaces} // [] }) {
+            next unless ref($other_if) eq 'HASH';
+            my $addr = NetAddr::IP->new($other_if->{cidr} // '') or next;
+            push @subnets, [$addr->network, "connector '$other_id'"];
+        }
+    }
     for my $if_field ($field->fields) {
         my $if = $if_field->value;
         next unless ref($if) eq 'HASH' && defined $if->{parent};
@@ -320,6 +332,17 @@ sub validate_interfaces {
         }
         if ($seen{$name}++) {
             $if_field->field('vlan')->add_error("Interface '$name' is defined multiple times");
+        }
+        if (my $addr = NetAddr::IP->new($if->{cidr} // '')) {
+            my $subnet = $addr->network;
+            for my $used (@subnets) {
+                my ($other, $where) = @$used;
+                if ($subnet->contains($other) || $other->contains($subnet)) {
+                    $if_field->field('cidr')->add_error("Subnet " . $subnet->cidr . " overlaps " . $other->cidr . " of $where");
+                    last;
+                }
+            }
+            push @subnets, [$subnet, "interface '$name'"];
         }
         next unless isenabled($if->{dhcp});
         my $addr = NetAddr::IP->new($if->{cidr} // '') or next;
