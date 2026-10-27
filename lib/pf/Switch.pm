@@ -98,6 +98,7 @@ use pf::SwitchSupports qw(
 use pf::api::queue_cluster;
 use pf::util::wpa;
 use File::Find;
+use File::Copy::Recursive qw(dircopy);
 use Digest::SHA qw(sha512_hex);
 use CHI;
 use pf::dal::switch_observability;
@@ -4969,6 +4970,13 @@ sub generateAnsibleConfiguration {
     if (! -e "$var_dir/conf/pfsetacls/$switch_id/collections") {
         mkdir("$var_dir/conf/pfsetacls/$switch_id/collections") or die "Can't create $var_dir/conf/pfsetacls/$switch_id/collections:$!";
     }
+    # Ship PacketFence-maintained Ansible collections (e.g. packetfence.comware
+    # for H3C/Comware / NEC QX-S) alongside the Galaxy-installed ones so the push
+    # does not depend on a fixed upstream collection being correct/available.
+    if (-d "$conf_dir/pfsetacls/ansible_collections") {
+        dircopy("$conf_dir/pfsetacls/ansible_collections", "$var_dir/conf/pfsetacls/$switch_id/pf_collections/ansible_collections")
+            or $self->logger->warn("Can't copy bundled ansible_collections: $!");
+    }
     $vars{'switches'}{$switch_id}{'cliEnablePwd'} = $self->{'_cliEnablePwd'};
     $vars{'switches'}{$switch_id}{'cliTransport'} = $self->{'_cliTransport'};
     $vars{'switches'}{$switch_id}{'cliUser'} = $self->{'_cliUser'};
@@ -4982,6 +4990,7 @@ sub generateAnsibleConfiguration {
             case /Cisco::/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "cisco.ios.ios" }
             case /Aruba::CX/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "arubanetworks.aoscx.aoscx" }
             case /Arista::AristaSwitch/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "arista.eos.eos" }
+            case /NEC::/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "packetfence.comware.comware" }
     }
 
     foreach my $role (keys %ConfigRoles) {
@@ -5032,15 +5041,12 @@ sub generateAnsibleConfiguration {
                 }
             }
             my $implicit_acl = $self->implicit_acl();
-            if ((!defined($in_acls) || $in_acls eq "") && $implicit_acl) {
-                $vars{'switches'}{$switch_id}{'acls'}{$role} = $implicit_acl;
-            } elsif (defined($in_acls)) {
-                $vars{'switches'}{$switch_id}{'acls'}{$role} = $in_acls;
-            }
-            if ((!defined($out_acls) || $out_acls eq "") && $implicit_acl) {
-                $vars{'switches'}{$switch_id}{'acls'}{$role."out"} = $implicit_acl;
-            } elsif (defined($out_acls)) {
-                $vars{'switches'}{$switch_id}{'acls'}{$role."out"} = $out_acls;
+            foreach my $direction (['in', $in_acls], ['out', $out_acls]) {
+                my ($dir, $dir_acls) = @$direction;
+                $dir_acls = $implicit_acl if (!defined($dir_acls) || $dir_acls eq "") && $implicit_acl;
+                next if !defined($dir_acls);
+                my $name = $self->pushAclsName($role, $dir);
+                $vars{'switches'}{$switch_id}{'acls'}{$name} = $dir_acls if defined($name);
             }
         }
     }
@@ -5063,6 +5069,18 @@ sub generateAnsibleConfiguration {
             timeout_ms => 500,
         }
     )->notify('push_acls', %args);
+}
+
+=head2 pushAclsName
+
+The name of the ACL PushACLs creates on the switch for the in or out ACLs of a
+role, or undef to not push them. Only called for ACLs there are to push.
+
+=cut
+
+sub pushAclsName {
+    my ($self, $role, $direction) = @_;
+    return $direction eq 'out' ? $role."out" : $role;
 }
 
 =head2 implicit_acl

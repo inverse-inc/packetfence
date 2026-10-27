@@ -47,6 +47,15 @@
         state: replaced[% END %]
       when: ansible_network_os == 'arista.eos.eos'
 
+    - name: Load new acl into NEC/Comware switch
+      # Comware config push goes through cli_command line-by-line: cli_config's
+      # privilege/config-mode logic does not fit Comware (no enable mode, config
+      # prompt is [..] not ..#).
+      ansible.netcommon.cli_command:
+        command: "{{ item }}"
+      loop: "{{ ['system-view'] + lookup('file', acl_config).splitlines() }}"
+      when: ansible_network_os == 'packetfence.comware.comware'
+
 [% FOREACH role IN interfaces_delete.keys %]
 [% FOREACH interface IN interfaces_delete.$role %]
     - name: remove acl on interface
