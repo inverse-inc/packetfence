@@ -53,7 +53,6 @@ use pf::SwitchSupports qw(
     RoleBasedEnforcement
     FloatingDevice
     MABFloatingDevices
-    ~AccessListBasedEnforcement
     Flow
 );
 # special features
