@@ -24,7 +24,7 @@ func connectorTestScope(t *testing.T) (pfconfigdriver.ConnectorInterface, net.IP
 	t.Helper()
 	ctx = context.Background()
 	initializeCaches()
-	VIP = map[string]bool{ConnectorInterfaceName: true}
+	VIP = map[string]bool{}
 	VIPIp = map[string]net.IP{}
 	intNametoInterface = map[string]*Interface{}
 
@@ -201,5 +201,21 @@ func TestConnectorScopeConfDefaultsAndErrors(t *testing.T) {
 	ci.CIDR = "not-an-address"
 	if _, _, _, err := connectorScopeConf(ci); err == nil {
 		t.Errorf("invalid cidr accepted")
+	}
+}
+
+// A cluster member without the management VIP doesn't answer the connector
+// scopes: their pool (memory backend) is only consistent on one member.
+func TestHandleMessageWithoutManagementVIP(t *testing.T) {
+	_, vlanIP := connectorTestScope(t)
+	connectorServes.Store(false)
+	t.Cleanup(func() { connectorServes.Store(true) })
+
+	discover := dhcp.RequestPacket(dhcp.Discover, net.HardwareAddr{0x00, 0x11, 0x22, 0x33, 0x44, 0x56}, nil, []byte{1, 2, 3, 5}, false, nil)
+	discover.SetGIAddr(vlanIP.To4())
+	discover.SetHops(1)
+
+	if rec := postMessage(t, discover); rec.Code != http.StatusNoContent {
+		t.Fatalf("status %d, want %d: %s", rec.Code, http.StatusNoContent, rec.Body.String())
 	}
 }

@@ -139,9 +139,9 @@ func main() {
 	// Initialize VIP maps
 	VIP = make(map[string]bool)
 	VIPIp = make(map[string]net.IP)
-	// The synthetic connector interface (DHCP-over-HTTPS) has no VIP to
-	// detect: it always serves.
-	VIP[ConnectorInterfaceName] = true
+	// The synthetic connector interface (DHCP-over-HTTPS) has no interface of
+	// its own: in a cluster it follows the management VIP (watchConnectorScopes),
+	// see connectorServes.
 
 	// Start VIP detection in background. Not in DoH-only mode (the cloud):
 	// there is no local DHCP interface to hold a VIP, only the connector
@@ -159,6 +159,7 @@ func main() {
 	// Initialize DHCP configuration
 	DHCPConfig = newDHCPConfig()
 	DHCPConfig.readConfig(ctx, dbConnPool)
+	connectorServes.Store(holdsManagementVIP(ctx))
 	go watchConnectorScopes(ctx, dbConnPool)
 	webservices = pfconfigdriver.GetType[pfconfigdriver.PfConfWebservices](ctx)
 
@@ -247,7 +248,7 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 	}
 
 	// Check if we have the VIP or if the backend supports cluster mode
-	if !VIP[I.Name] && !handler.available.Listen() {
+	if !servesVIP(I.Name) && !handler.available.Listen() {
 		log.LoggerWContext(ctx).Info(fmt.Sprintf(
 			"Ignored DHCP request: MAC=%s giaddr=%s ciaddr=%s msgType=%s (VIP/cluster not available)",
 			answer.MAC.String(), p.GIAddr().String(), p.CIAddr().String(), msgType.String()))

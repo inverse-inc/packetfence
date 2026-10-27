@@ -2374,9 +2374,12 @@ const dhcpMessageContentType = "application/dhcp-message"
 // pfdhcpMessagePath is pfdhcp's DHCP-over-HTTP endpoint.
 const pfdhcpMessagePath = "/api/v1/dhcp/message"
 
+// pfdhcpAPIPort is the port of pfdhcp's API.
+const pfdhcpAPIPort = "22222"
+
 // pfdhcpAPIURL is where pfdhcp's API listens when services_url.pfdhcp is not
 // configured (a PacketFence server: pfdhcp on the same host).
-const pfdhcpAPIURL = "http://127.0.0.1:22222"
+const pfdhcpAPIURL = "http://127.0.0.1:" + pfdhcpAPIPort
 
 var dhcpMessageClient = &http.Client{Timeout: 1500 * time.Millisecond}
 
@@ -2431,12 +2434,7 @@ func (s *Server) handleDhcpMessage(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	base := pfdhcpAPIURL
-	servicesURL := pfconfigdriver.PfConfServicesURL{}
-	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &servicesURL); err == nil && servicesURL.Pfdhcp != "" {
-		base = strings.TrimRight(servicesURL.Pfdhcp, "/")
-	}
-	upstream, err := http.NewRequestWithContext(req.Context(), http.MethodPost, base+pfdhcpMessagePath, bytes.NewReader(body))
+	upstream, err := http.NewRequestWithContext(req.Context(), http.MethodPost, pfdhcpBaseURL(req.Context())+pfdhcpMessagePath, bytes.NewReader(body))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -2461,6 +2459,22 @@ func (s *Server) handleDhcpMessage(w http.ResponseWriter, req *http.Request) {
 	}
 	w.WriteHeader(res.StatusCode)
 	w.Write(reply)
+}
+
+// pfdhcpBaseURL is the pfdhcp API serving the connector DHCP scopes. In a
+// cluster only the member holding the management VIP answers them (one pool
+// per scope), whichever member holds the connector's tunnel: the management
+// VIP's pfdhcp. Otherwise the local one (services_url.pfdhcp).
+func pfdhcpBaseURL(ctx context.Context) string {
+	managementNetwork := pfconfigdriver.GetType[pfconfigdriver.ManagementNetwork](ctx)
+	if managementNetwork.Vip != "" {
+		return "http://" + net.JoinHostPort(managementNetwork.Vip, pfdhcpAPIPort)
+	}
+	servicesURL := pfconfigdriver.PfConfServicesURL{}
+	if err := pfconfigdriver.FetchDecodeSocket(ctx, &servicesURL); err == nil && servicesURL.Pfdhcp != "" {
+		return strings.TrimRight(servicesURL.Pfdhcp, "/")
+	}
+	return pfdhcpAPIURL
 }
 
 // connectorRelaysFrom reports whether ip is the address of one of the

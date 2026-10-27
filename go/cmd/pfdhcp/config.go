@@ -346,8 +346,8 @@ func (d *Interfaces) readConfig(ctx context.Context, MyDB *sql.DB) {
 // ConnectorInterfaceName is the name of the synthetic interface that owns the
 // DHCP scopes of the pfconnector-remote VLAN interfaces (DHCP-over-HTTPS). It
 // has no socket: requests reach it through POST /api/v1/dhcp/message and the
-// replies go back in the HTTP response. VIP[ConnectorInterfaceName] is always
-// true.
+// replies go back in the HTTP response. It answers on the cluster member that
+// holds the management VIP only (connectorServes).
 const ConnectorInterfaceName = "connector"
 
 // ConnectorInterfaceType marks the synthetic interface so that listeners,

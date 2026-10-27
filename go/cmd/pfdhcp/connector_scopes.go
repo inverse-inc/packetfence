@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"net"
 	"sort"
 	"strings"
 	"sync/atomic"
@@ -37,6 +38,50 @@ var connectorScopesKey string
 // connectorScopesRefreshInterval is how often the connector configuration is
 // checked for changes.
 var connectorScopesRefreshInterval = 5 * time.Second
+
+// connectorServes tells whether this pfdhcp answers on the connector
+// interface. A connector's DHCP scopes have a single pool, which is only
+// consistent when one cluster member answers: the member holding the
+// management VIP, to which pfconnector-server forwards the DHCP-over-HTTPS
+// requests. Outside a cluster (no management VIP) it always serves.
+var connectorServes atomic.Bool
+
+func init() {
+	connectorServes.Store(true)
+}
+
+// servesVIP reports whether the interface named name answers DHCP requests
+// as the VIP holder.
+func servesVIP(name string) bool {
+	if name == ConnectorInterfaceName {
+		return connectorServes.Load()
+	}
+	return VIP[name]
+}
+
+// holdsManagementVIP reports whether this host serves the connector scopes:
+// it has the management VIP, or there is no management VIP (no cluster,
+// DoH-only deployment).
+func holdsManagementVIP(ctx context.Context) bool {
+	if dohOnly() {
+		return true
+	}
+	vip := net.ParseIP(pfconfigdriver.GetType[pfconfigdriver.ManagementNetwork](ctx).Vip)
+	if vip == nil {
+		return true
+	}
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		log.LoggerWContext(ctx).Error("Unable to list the interface addresses: " + err.Error())
+		return connectorServes.Load()
+	}
+	for _, addr := range addrs {
+		if ip, _, err := net.ParseCIDR(addr.String()); err == nil && ip.Equal(vip) {
+			return true
+		}
+	}
+	return false
+}
 
 func setConnectorInterface(i *Interface) {
 	connectorIface.Store(i)
@@ -108,21 +153,39 @@ func watchConnectorScopes(ctx context.Context, MyDB *sql.DB) {
 			return
 		case <-ticker.C:
 		}
+		// Taking over the management VIP: the pools of this member are as old
+		// as its last rebuild, reload them from the current leases.
+		serves := holdsManagementVIP(ctx)
+		takeover := serves && !connectorServes.Load()
+		if serves != connectorServes.Load() {
+			if serves {
+				log.LoggerWContext(ctx).Info("Management VIP acquired: serving the connector DHCP scopes")
+			} else {
+				log.LoggerWContext(ctx).Info("Management VIP released: no longer serving the connector DHCP scopes")
+			}
+		}
 		connectors, err := fetchConnectors(ctx)
 		if err != nil {
 			log.LoggerWContext(ctx).Warn("Unable to fetch connectors config from pfconfig: " + err.Error())
+			connectorServes.Store(serves)
 			continue
 		}
-		if connectorScopesFingerprint(connectors) == connectorScopesKey {
+		if !takeover && connectorScopesFingerprint(connectors) == connectorScopesKey {
+			connectorServes.Store(serves)
 			continue
 		}
 		portal := pfconfigdriver.GetType[pfconfigdriver.PfConfCaptivePortal](ctx)
 		general := pfconfigdriver.GetType[pfconfigdriver.PfConfGeneral](ctx)
 		iface := loadConnectorInterface(ctx, connectors, MyDB, general, portal)
+		connectorServes.Store(serves)
 		scopes := 0
 		if iface != nil {
 			scopes = len(iface.network)
 		}
-		log.LoggerWContext(ctx).Info(fmt.Sprintf("Connector configuration changed: %d connector DHCP scope(s) now served", scopes))
+		if takeover {
+			log.LoggerWContext(ctx).Info(fmt.Sprintf("Connector DHCP scopes reloaded from the current leases: %d scope(s) served", scopes))
+		} else {
+			log.LoggerWContext(ctx).Info(fmt.Sprintf("Connector configuration changed: %d connector DHCP scope(s) now served", scopes))
+		}
 	}
 }

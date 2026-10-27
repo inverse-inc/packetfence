@@ -269,10 +269,13 @@ routing information pfdhcp needs.
      scopes over HTTP. It runs as the host binary, or as the `pfdhcp` image
      with the host network (`feature/pfdhcp-container`).
      pfconnector-server reaches it through `services_url.pfdhcp`, default
-     `http://containers-gateway.internal:22222`. In a cluster the relayed
-     requests go to the pfdhcp of the node that holds the connector tunnel;
-     set `PFDHCP_CONNECTOR_POOL_BACKEND=mysql` so a tunnel moving to another
-     node keeps the same connector pools.
+     `http://containers-gateway.internal:22222`. In a cluster only the node
+     holding the management VIP answers the connector scopes (one pool per
+     scope): pfconnector-server, whichever node holds the connector tunnel,
+     forwards the relayed requests to the pfdhcp of the management VIP
+     (port 22222, opened to the cluster members by the pfdhcp iptables
+     rules), and a node taking the VIP over reloads the connector pools from
+     the current leases.
    - Kubernetes: the `pfdhcp` image with `PFDHCP_DOH_ONLY=true` (and
      `PFDHCP_CONNECTOR_POOL_BACKEND=mysql` for several replicas) behind a
      Service on port 22222, and `PF_SERVICES_URL_PFDHCP` set to that Service

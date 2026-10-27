@@ -1267,6 +1267,16 @@ sub iptables_pfdhcp_rules {
             }
         }
     }
+    # The connector DHCP scopes are answered by the cluster member holding the
+    # management VIP: pfconnector-server on the other members forwards the
+    # DHCP-over-HTTPS requests of its connectors to that member's pfdhcp API.
+    if ($cluster_enabled && util_management_network_is_set($service_name)) {
+        $chains->{name} = $service_name;
+        my $tint = $management_network->{Tint};
+        foreach my $mgmt_back (uniq(map { $_->{management_ip} } pf::cluster::config_enabled_servers())) {
+            util_safe_push( "-i $tint -p tcp -m tcp -s $mgmt_back --dport 22222 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+        }
+    }
     if ($chains->{name} ne "") {
         # Convert to JSON and save to file
         util_create_service_rules($chains);
