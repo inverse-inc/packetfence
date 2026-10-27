@@ -91,7 +91,7 @@ sub acl_chewer {
                 $new_acl->{'src'} = $acl->{'source'}->{'ipv4_addr'};
             }
         }
-        if ($self->usePushACLs && (whowasi() eq "pf::Switch::getRoleAccessListByName")) {
+        if ($self->aclsForPush) {
             $new_acl->{'dir_prefix'} = (defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] . "|" : "";
             $new_acl->{'src'}    = ($self->usePushACLs) ? $new_acl->{'src'} : "any";
             $new_acl->{'dst_port'} = defined($new_acl->{'dst_port'}) ? $new_acl->{'dst_port'} : '';

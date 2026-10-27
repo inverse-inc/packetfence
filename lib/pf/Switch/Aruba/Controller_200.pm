@@ -78,7 +78,7 @@ sub acl_chewer {
                 $src = $acl->{'source'}->{'ipv4_addr'};
             }
         }
-        if ($self->usePushACLs && (whowasi() eq "pf::Switch::getRoleAccessListByName")) {
+        if ($self->aclsForPush) {
             my $dir_prefix = (defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] . "|" : "";
             my $src_val    = ($self->usePushACLs) ? $src : "any";
             my $dest_port_val = defined($dest_port) ? $dest_port : '';
@@ -114,6 +114,17 @@ Return implicit acl
 sub implicit_acl {
     my ($self) = @_;
     return "permit any";
+}
+
+=head2 pushAclsName
+
+Only the in ACLs of a role are pushed, as a session ACL attached to the user-role
+
+=cut
+
+sub pushAclsName {
+    my ($self, $role, $direction) = @_;
+    return $direction eq 'out' ? undef : $role;
 }
 
 =head1 AUTHOR
