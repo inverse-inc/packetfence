@@ -9,8 +9,11 @@ to-16.0-connectors-dns-servers.pl
 Fold dns_connectors.conf (DNS servers behind the connectors, with a hand-picked
 tunnel port and the domains they serve) and domains_connectors.conf (domain ->
 connector) into the connectors' own dns_servers list in connectors.conf (see
-pf::connector::dns). Each DNS server goes under the connector its first domain
-was mapped to. Domain mappings without a DNS server had no effect and are
+pf::connector::dns). A DNS server goes under the connector each of its domains
+was mapped to, with the domains of that connector: a server whose domains were
+mapped to two connectors is added to both. Its tunnel port is kept when free,
+otherwise (or when it had none) a free one is allocated. Domains mapped to no
+connector, and domain mappings without a DNS server, had no effect and are
 dropped with a notice. The two old files are renamed with a .migrated suffix.
 
 =cut
@@ -19,8 +22,8 @@ use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::IniFiles;
-use pf::file_paths qw($connectors_config_file $dns_connectors_config_file $domains_connectors_config_file);
-use pf::connector::dns qw(parse_dns_server_line format_dns_server);
+use pf::file_paths qw($connectors_config_file $dns_connectors_config_file $domains_connectors_config_file $authentication_config_file);
+use pf::connector::dns qw(parse_dns_server_line format_dns_server $TUNNEL_PORT_MIN $TUNNEL_PORT_MAX);
 use pf::util;
 
 run_as_pf();
@@ -44,27 +47,74 @@ if (-f $domains_file) {
     }
 }
 
+# Tunnel ports already taken: the connectors' DNS servers and the RADIUS
+# sources reached through a connector (pf::ConfigStore::Connector).
+my %port_used;
+for my $connector ($connectors->Sections) {
+    for my $line (split(/\n/, $connectors->val($connector, 'dns_servers') // '')) {
+        my $s = parse_dns_server_line($line);
+        $port_used{ $s->{tunnel_port} } = 1 if $s && length $s->{tunnel_port};
+    }
+}
+if (-f $authentication_config_file) {
+    my $auth = pf::IniFiles->new(-file => $authentication_config_file, -allowempty => 1);
+    for my $source ($auth ? $auth->Sections : ()) {
+        my $p = $auth->val($source, 'pfconnector_port');
+        $port_used{$p} = 1 if defined $p && length $p;
+    }
+}
+
+# the old port when it is still free, otherwise the first free one
+sub tunnel_port {
+    my ($wanted) = @_;
+    if (defined $wanted && $wanted =~ /^\d+$/ && !$port_used{$wanted}) {
+        $port_used{$wanted} = 1;
+        return $wanted;
+    }
+    for my $port ($TUNNEL_PORT_MIN .. $TUNNEL_PORT_MAX) {
+        next if $port_used{$port};
+        $port_used{$port} = 1;
+        return $port;
+    }
+    die "No free tunnel port left in $TUNNEL_PORT_MIN-$TUNNEL_PORT_MAX\n";
+}
+
 my (%servers_of, %domains_used);
 if (-f $dns_file) {
     my $dns = pf::IniFiles->new(-file => $dns_file, -allowempty => 1);
     for my $id ($dns ? $dns->Sections : ()) {
         my @domains = grep { length } map { s/^\s+|\s+$//gr } split(/,|\n/, $dns->val($id, 'domains') // '');
-        my ($connector) = grep { defined } map { $domain_to_connector{$_} } @domains;
-        if (!defined $connector) {
+        # the domains of the server, by the connector they were mapped to
+        my (@connectors, %domains_of);
+        for my $domain (@domains) {
+            my $connector = $domain_to_connector{$domain};
+            if (!defined $connector) {
+                print "DNS server '$id': domain '$domain' is not mapped to a connector, dropped\n";
+                next;
+            }
+            push @connectors, $connector unless $domains_of{$connector};
+            push @{ $domains_of{$connector} }, $domain;
+        }
+        if (!@connectors) {
             print "Skipping DNS server '$id': none of its domains (@domains) is mapped to a connector\n";
             next;
         }
-        unless ($connectors->SectionExists($connector)) {
-            print "Skipping DNS server '$id': connector '$connector' does not exist\n";
-            next;
+        my $old_port = $dns->val($id, 'pfconnector_port');
+        for my $connector (@connectors) {
+            unless ($connectors->SectionExists($connector)) {
+                print "DNS server '$id': connector '$connector' does not exist, its domains (@{ $domains_of{$connector} }) are dropped\n";
+                next;
+            }
+            my $port = tunnel_port($old_port);
+            undef $old_port;
+            push @{ $servers_of{$connector} }, format_dns_server({
+                ip          => $dns->val($id, 'ip'),
+                port        => $dns->val($id, 'port') // 53,
+                tunnel_port => $port,
+                domains     => $domains_of{$connector},
+            });
+            $domains_used{$_} = 1 for @{ $domains_of{$connector} };
         }
-        push @{ $servers_of{$connector} }, format_dns_server({
-            ip          => $dns->val($id, 'ip'),
-            port        => $dns->val($id, 'port') // 53,
-            tunnel_port => $dns->val($id, 'pfconnector_port') // '',
-            domains     => \@domains,
-        });
-        $domains_used{$_} = 1 for @domains;
     }
 }
 
