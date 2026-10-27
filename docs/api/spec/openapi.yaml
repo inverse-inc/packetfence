@@ -5541,7 +5541,7 @@ components:
           type: string
         ha_vip:
           description: High availability - virtual IP with prefix length shared
-            by the connector-remote hosts (e.g. 10.0.0.250/24); empty disables HA
+            by the connector-remote hosts (e.g. 192.0.2.250/24); empty disables HA
           type: string
         ha_vrid:
           description: High availability - VRRP virtual router id (1-255,

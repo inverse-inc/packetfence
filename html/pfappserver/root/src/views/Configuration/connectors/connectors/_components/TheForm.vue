@@ -63,7 +63,7 @@
             </b-alert>
             <form-group-ha-vip namespace="ha_vip"
               :column-label="$i18n.t('Virtual IP')"
-              :text="$i18n.t('IPv4 address with prefix length, on the network the connector hosts share (e.g. 10.0.0.250/24). The interface addresses above move with it.')"
+              :text="$i18n.t('IPv4 address with prefix length, on the network the connector hosts share (e.g. 192.0.2.250/24). The interface addresses above move with it.')"
             />
             <form-group-ha-vrid namespace="ha_vrid"
               :column-label="$i18n.t('VRRP virtual router id')"

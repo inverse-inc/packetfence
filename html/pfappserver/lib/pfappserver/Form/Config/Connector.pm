@@ -69,7 +69,7 @@ has_field 'ha_vip' => (
    apply => [
        {
            check => \&_valid_host_cidr,
-           message => 'The virtual IP must be an IPv4 host address with its prefix length, e.g. 10.0.0.250/24',
+           message => 'The virtual IP must be an IPv4 host address with its prefix length, e.g. 192.0.2.250/24',
        },
    ],
 );

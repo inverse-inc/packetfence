@@ -208,7 +208,7 @@ export const sortNetworks = (networks = []) => [...networks].sort((a, b) => {
 // Interface reaching an IP or a network: the one with an address in a subnet
 // containing or overlapping it (local: true), else the default route one
 // (main), or null.
-// interfaces: [{ name, cidrs: ['10.0.0.237/24'], main }]
+// interfaces: [{ name, cidrs: ['192.0.2.237/24'], main }]
 const overlaps = (a, b) => a && b && a[0] <= b[1] && b[0] <= a[1]
 export const interfaceFor = (ipOrNetwork, interfaces = []) => {
   const range = toRange(ipOrNetwork)

@@ -57,7 +57,7 @@ Connector host (`addons/pfconnector`, `containers/pfconnector-remote`):
 ### 3.1 Topology
 
 ```
-   switches / APs / DHCP relay / portal redirect ──▶ VIP 10.0.0.250
+   switches / APs / DHCP relay / portal redirect ──▶ VIP 192.0.2.250
                                                        │ VRRP (keepalived)
                           ┌────────────────────────────┴───────────────────┐
                  host A (MASTER, holds VIP)                       host B (BACKUP)
@@ -114,7 +114,7 @@ the env file:
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `PFCONNECTOR_HA_VIP` | unset = HA off | VIP with prefix, e.g. `10.0.0.250/24` |
+| `PFCONNECTOR_HA_VIP` | unset = HA off | VIP with prefix, e.g. `192.0.2.250/24` |
 | `PFCONNECTOR_HA_INTERFACE` | default-route interface | interface carrying the VIP and VRRP |
 | `PFCONNECTOR_HA_VRID` | `51` | VRRP virtual router id, same on both hosts |
 | `PFCONNECTOR_HA_PRIORITY` | `100` | set `90` on the second host |
@@ -380,10 +380,7 @@ Phase 2 – connector host:
 - `go/chisel/client` + `main.go`: HA gate (3.3), `ha` in system info. Done:
   `runHAClient` in `main.go`, `client/ha.go` (VIP parsing and presence),
   `clientapi/ha.go` (swappable tunnel, `HAStatus`), the remote-binds poll loop
-  now stops with the client context. Verified on 10.0.0.251 by adding and
-  removing the VIP by hand: backup → master with the binds up 5 s after the
-  address appeared, tunnel closed within 1 s of its removal, second activation
-  identical.
+  now stops with the client context.
 - `containers/pfconnector-remote`: `apt-get install keepalived`; s6 services
   `configure-keepalived` (oneshot) and `keepalived` (longrun, exits 0 and marks
   itself once when HA is off) with a log pipeline; `sbin/configure-keepalived.sh`,
@@ -414,81 +411,35 @@ connector-cache keeps running. The outcome (`cache_synced_at`,
 panel shows it per peer. Cloud-side push to every tunnel of the id remains
 the option-3 alternative.
 
-## 5. Test results
+## 5. Implementation notes
 
-Single host, 2026-09-05, image built from this branch on 10.0.0.251 with the
-clouddevel base images (`packetfence/pfconnector-remote-combined:ha-test`,
-kept on the host), `PFCONNECTOR_HA_VIP=10.0.0.250/24`:
+Lessons from the failover tests:
 
-- keepalived starts from the generated config, becomes MASTER, adds the VIP
-  and sends gratuitous ARPs; `ha_state` = MASTER; the client connects the
-  tunnel within a second of the VIP and the binds follow 5 s later.
-- All services up on a host that booted without tunnel, i.e. the cached
-  fallbacks and the MASTER notify hook work.
-- `ha-check.sh` healthy after adding the Message-Authenticator to the
-  Status-Server probe (radclient sends nothing on an empty body).
-- Heartbeat: a valid signed heartbeat is accepted and shows in `ha.peers`
-  (alive, then not alive 15 s later); a bad signature is refused with 403.
-  The admin status API on akadev relays `system.ha` with the peers.
-- `s6-svc -d keepalived`: VIP removed, tunnel stopped within 1 s;
-  `s6-svc -u`: MASTER again, tunnel and binds back within 6 s.
-
-Lesson: s6 oneshot `up` scripts run without the container environment, so
-every script that needs `PFCONNECTOR_HA_*` sources
-`/usr/local/pf/sbin/pfconnector-env.sh`, which loads pfconnector-client.env.
-
-Two hosts, 2026-09-05, 10.0.0.251 (priority 100) and 10.0.0.237 (priority
-90), VIP 10.0.0.250/24, site VLAN `ens18.22 10.22.0.1/24` configured on the
-connector, images built from this branch on both hosts:
-
-- Fresh start of the pair: one master, one backup; the backup boots without
-  tunnel and still has FreeRADIUS up from the cached files, keepalived up,
-  heartbeat alive on the master, `ha.peers` relayed by the admin status API
-  on the cloud side.
-- Restart of the master: the backup is MASTER within 1 s (graceful VRRP
-  release), tunnel connected at t+2 s, VLAN address 10.22.0.1 and portal
-  binds 80/443 at t+6 s; the site-network reconcile re-applies and
-  keepalived is reloaded with the VLAN virtual IP. The returning host is
-  BACKUP (nopreempt) with no VLAN address and FreeRADIUS running; its cached
-  keepalived.conf lists the VLAN virtual IP.
-- Same in the other direction.
-
-Bugs found by this test: a backup that had been master before HA kept its
-VLAN address (keepalived did not know it) → `ha-notify.sh` now flushes the
-IPv4 addresses of connector-owned VLAN links whenever the host is not
-master; `configure-raddb.sh` exited under `set -e` on the failed curl before
-its HA fallback → `|| true`.
-
-Phase 4 on the same pair: a credential inserted in the master's `pfcc.db`
-appeared on the backup 56 s later, its deletion was mirrored 49 s later; the
-peer's `cache_rows`/`cache_synced_at` are relayed by the cloud status API.
-
-Admin-configured VIP (3.1.1), same pair, hosts with no `PFCONNECTOR_HA_*` in
-their env file, `ha_vip=10.0.0.250/24` set on the connector (connectors.conf
-edited on akadev; the cloud's Perl API predates the form fields), the
-pfconnector-server binary of this branch swapped into akadev's container:
-both hosts start plain, connect, learn the VIP within a second of connecting
-and switch to the gated mode; keepalived elects a master (VIP + VLAN
-address), the other stands by and heartbeats. Two lessons: (1) two plain
-hosts with one id flap about once a second (the server replaces the previous
-tunnel on every handshake), so the site-network fetch is triggered from the
-connection path itself (`siteNetworkKick`), not from a periodic sample that
-misses sub-second connections; (2) a host that takes the VIP before its
-client notices posts a heartbeat to itself, now ignored (`isLocalAddress`).
-Disabling HA: the master learns it at its next poll and returns to plain
-(keepalived stopped, VIP released, VLAN address re-assigned by the plain
-reconciler); the backup, which has no tunnel, takes the VIP first, connects,
-learns the removal at once and returns to plain too.
-
-Not exercised: hard host failure (VRRP timeout adds ~3 s), the server-side
-"close the previous tunnel" path (graceful failovers close the old tunnel
-first; the cloud used for the test still ran a pfconnector-server without
-phase 1).
+- s6 oneshot `up` scripts run without the container environment, so every
+  script that needs `PFCONNECTOR_HA_*` sources
+  `/usr/local/pf/sbin/pfconnector-env.sh`, which loads pfconnector-client.env.
+- `ha-check.sh` needs the Message-Authenticator in its Status-Server probe
+  (radclient sends nothing on an empty body).
+- A backup that had been master before HA kept its VLAN address (keepalived
+  did not know it): `ha-notify.sh` flushes the IPv4 addresses of
+  connector-owned VLAN links whenever the host is not master.
+- `configure-raddb.sh` must not exit under `set -e` on the failed curl before
+  its HA fallback (`|| true`).
+- Two plain hosts with one id flap about once a second (the server replaces
+  the previous tunnel on every handshake), so the site-network fetch is
+  triggered from the connection path itself (`siteNetworkKick`), not from a
+  periodic sample that misses sub-second connections.
+- A host that takes the VIP before its client notices posts a heartbeat to
+  itself, which is ignored (`isLocalAddress`).
+- Disabling HA: the master learns it at its next poll and returns to plain
+  (keepalived stopped, VIP released, VLAN address re-assigned by the plain
+  reconciler); the backup, which has no tunnel, takes the VIP first,
+  connects, learns the removal at once and returns to plain too.
 
 ## 5.1 Test plan (two hosts)
 
-- Two VMs on one L2 (e.g. the existing 10.0.0.251 plus a clone), VIP
-  10.0.0.250, a switch or `radclient` pointed at the VIP.
+- Two VMs on one L2, a VIP (e.g. 192.0.2.250), a switch or `radclient`
+  pointed at the VIP.
 - Stop the master container: VIP moves, tunnel re-established from the
   backup within ~5 s, admin UI status stays green, RADIUS auth through the VIP
   succeeds after the home_server revives; degraded answers in between.

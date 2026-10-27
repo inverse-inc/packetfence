@@ -57,7 +57,7 @@ func ResolveHAConfig() *HAConfig {
 }
 
 // ParseVIP parses the PFCONNECTOR_HA_VIP value, an IPv4 address with or
-// without a prefix length (10.0.0.250 or 10.0.0.250/24), and returns the
+// without a prefix length (192.0.2.250 or 192.0.2.250/24), and returns the
 // address.
 func ParseVIP(value string) (net.IP, error) {
 	value = strings.TrimSpace(value)

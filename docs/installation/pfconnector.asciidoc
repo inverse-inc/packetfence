@@ -147,7 +147,7 @@ Install the package on every host as described in the Installation section above
 
 Then, in the admin interface, edit the connector (_Configuration->Network Configuration->Cloud Connectors_), _Settings_ tab, _Networking_, _High availability_ block, and set:
 
- * the _Virtual IP_ with its prefix length, for example `10.0.0.250/24`, on the network the hosts share;
+ * the _Virtual IP_ with its prefix length, for example `192.0.2.250/24`, on the network the hosts share;
  * optionally the _VRRP virtual router id_ (default `51`; change it only when another VRRP group uses that id on the same network) and the _Interface_ carrying the virtual IP (default: the interface of the default route on each host).
 
 Each host learns these settings through its tunnel and keeps them in [filename]`/usr/local/pfconnector-remote/var/conf/site-network.json`, so a standby host, which has no tunnel, still knows them after a reboot. Within a few seconds of saving, the hosts form the VRRP group, one of them takes the virtual IP and keeps the tunnel, the others close theirs. Leaving the virtual IP empty returns every host to standalone operation.

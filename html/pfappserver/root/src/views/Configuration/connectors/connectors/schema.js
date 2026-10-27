@@ -178,7 +178,7 @@ export default (props) => {
     routes: schemaRoutes,
     dns_servers: schemaDnsServers,
     ha_vip: yup.string().nullable()
-      .isHostCidr(i18n.t('The virtual IP must be an IPv4 host address with its prefix length, e.g. 10.0.0.250/24.')),
+      .isHostCidr(i18n.t('The virtual IP must be an IPv4 host address with its prefix length, e.g. 192.0.2.250/24.')),
     ha_vrid: yup.string().nullable()
       .test('vrid-range', i18n.t('The VRRP virtual router id must be between 1 and 255.'), value => ['', null, undefined].includes(value) || (+value === parseInt(value) && +value >= 1 && +value <= 255)),
     ha_interface: yup.string().nullable()
