@@ -43,6 +43,9 @@ type trafficSample struct {
 type trafficHistory struct {
 	mu          sync.Mutex
 	byConnector map[string][]trafficSample
+	// the server listens on several hosts, StartContext runs once per host:
+	// a single sampler
+	running sync.Once
 }
 
 var trafficHist = &trafficHistory{byConnector: map[string][]trafficSample{}}
@@ -86,6 +89,11 @@ func (h *trafficHistory) sampleAll(now time.Time) {
 			delete(h.byConnector, id)
 		}
 	}
+}
+
+// start runs the sampler, once whatever the number of calls.
+func (h *trafficHistory) start(ctx context.Context) {
+	h.running.Do(func() { go h.run(ctx) })
 }
 
 // run samples until ctx is done.
