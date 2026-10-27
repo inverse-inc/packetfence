@@ -42,6 +42,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - PushACLs: `conf/pfsetacls/ansible.cfg` now uses the `collections_path` key (the deprecated `collections_paths` key kept the collections bundled with PacketFence from loading), and `ansible.netcommon` is pinned to 8.2.0 in `conf/pfsetacls/collections/requirements.yml`
   - Juniper EX switches running Junos 18.x or later (`Juniper::Junos_v18_x`) can now enforce role ACLs. PacketFence translates the ACLs of the role into `Juniper-Switching-Filter` attributes and sends them inline in the Access-Accept, so no filter has to be pre-provisioned on the switch. Set `AccessListMap` to `Y` on the switch to enable it (#9297)
   - Huawei CloudEngine S5735 (YunShan/V600) dynamic ACLs — the new `Huawei::S5735` switch type pushes the access list of a role inline in the Access-Accept with the `HW-Data-Filter` RADIUS attribute, so no ACL has to be pre-configured on the switch. Access re-evaluation disconnects the endpoint by MAC address (`Calling-Station-Id`) only: the switch silently ignored the Disconnect-Request PacketFence sent for Huawei switches, which carried no `Calling-Station-Id` and an `Acct-Session-Id` that is empty or stale
+  - Email authentication sources have a new `Wait for activation` option (`wait_for_activation`). When enabled, the device is not granted temporary network access after registering: it stays on the captive portal and is registered automatically once the activation link is clicked, typically from another device such as a phone. The email activation timeout then only bounds the validity of the link
 
 === Enhancements
 
@@ -76,6 +77,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Bug Fixes
 
+  - Email authentication sources now check that their rules can register the device before sending the activation email. A source without a matching role and access duration used to grant temporary access and then fail when the link was clicked
   - Authentication rule conditions on switch, switch group, MAC and computer name now apply to 802.1X and MAB — review these rules before upgrading (#9363)
   - RADIUS: a failed post-auth call to httpd.aaa leaves MAB/PAP requests unanswered instead of rejecting them, and authorize answers 503 instead of 401 when the request can't be evaluated (#9288)
   - CoA and Disconnect use the switch's `coaPort` and `disconnectPort` on every switch module (#9378)
