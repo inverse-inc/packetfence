@@ -383,14 +383,6 @@ sub validate_interfaces {
     }
 }
 
-=head2 validate_routes
-
-A route needs a gateway or an interface, may not replace the default route,
-and an interface it names must exist on the connector (one of its VLAN
-interfaces) or be a plain host interface name.
-
-=cut
-
 =head2 validate_dns_servers
 
 Each DNS server needs at least one domain; a domain is served through one
@@ -447,6 +439,14 @@ sub validate_dns_servers {
     }
 }
 
+=head2 validate_routes
+
+A route needs a gateway or an interface, may not replace the default route,
+and an interface it names must exist on the connector (one of its VLAN
+interfaces) or be a plain host interface name.
+
+=cut
+
 sub validate_routes {
     my ($self, $field) = @_;
     my %vlan_ifs = map { interface_name($_) => 1 }
@@ -460,6 +460,10 @@ sub validate_routes {
         my $dev = $route->{interface} // '';
         if ($gw eq '' && $dev eq '') {
             $route_field->field('gateway')->add_error("A route needs a gateway, an interface, or both");
+        }
+        # <parent>.<vlan> is a VLAN interface: one of this connector's
+        if ($dev =~ /\./ && !$vlan_ifs{$dev}) {
+            $route_field->field('interface')->add_error("Interface '$dev' is not a VLAN interface of this connector");
         }
         my $dst = NetAddr::IP->new($route->{destination});
         if ($dst && $dst->masklen == 0) {
