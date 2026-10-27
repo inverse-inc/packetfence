@@ -14,7 +14,8 @@ evaluated with a jq query (JQ::XS, with jq compiled into it); the device is
 authorized when the query returns a truthy value: it passes unless every
 result is C<null> or C<false> (jq semantics), and a query producing no result
 at all fails. The query is given the device as the jq named
-arguments C<$mac> and C<$node>, the same two the request templates get.
+arguments C<$mac> and C<$node>, the same two the request templates get, and
+C<$tls>, the TLS certificate data last seen for it.
 
 The query comes from the configuration rather than from the code, so it is
 compiled with what it may reach cut down: see L</compile_jq>.
@@ -32,6 +33,8 @@ use pf::constants;
 use pf::util qw(isdisabled);
 use pf::mini_template;
 use pf::node;
+use pf::dal::node_tls;
+use pf::error qw(is_error);
 use LWP::UserAgent;
 use HTTP::Request;
 use JQ::XS;
@@ -201,16 +204,41 @@ our $JQ_PROLOGUE = 'def env: {}; {} as $ENV | (';
 
 =head2 jq_vars
 
-The variables a jq query is given for a device: C<$mac>, its MAC address, and
-C<$node>, its node attributes (C<undef> when the node is not known, which the
-query sees as C<null>). The same two the request templates get. Callable as a
-class method, so the admin tester builds them the same way.
+The variables a jq query is given for a device: C<$mac>, its MAC address,
+C<$node>, its node attributes, and C<$tls>, the TLS certificate data recorded
+for it (see L</node_tls>). C<$node> and C<$tls> are C<undef> when there is
+nothing known about the device, which the query sees as C<null>. C<$mac> and
+C<$node> are the same two the request templates get. Callable as a class
+method, so the admin tester builds them the same way.
 
 =cut
 
 sub jq_vars {
-    my ($proto, $mac, $node_info) = @_;
-    return { mac => $mac, node => $node_info };
+    my ($proto, $mac, $node_info, $tls) = @_;
+    return { mac => $mac, node => $node_info, tls => $tls };
+}
+
+=head2 node_tls
+
+The TLS certificate data recorded for a MAC in the node_tls table, filled in
+from the RADIUS audit log of its TLS-based EAP authentications: the
+server certificate (C<TLSCertSerial>, C<TLSCertIssuer>, ...) and the client
+certificate (C<TLSClientCertSerial>, C<TLSClientCertCommonName>, ...) the
+device last presented. Returns a hash of the columns, or C<undef> when the
+device has none or the lookup fails. Callable as a class method.
+
+=cut
+
+sub node_tls {
+    my ($proto, $mac) = @_;
+    return undef if !defined $mac;
+    my ($status, $obj) = pf::dal::node_tls->find({ mac => $mac });
+    if (is_error($status)) {
+        get_logger(ref($proto) || $proto)->warn("Cannot look up the TLS data of $mac: $status") if $status != $STATUS::NOT_FOUND;
+        return undef;
+    }
+
+    return $obj->to_hash;
 }
 
 =head2 compile_jq
@@ -226,12 +254,12 @@ run time:
 out of reach;
 
 =item * $vars, the L</jq_vars> of the device, are passed as jq named
-arguments, the way C<jq --arg> passes them, which is what makes C<$mac> and
-C<$node> (and C<$ARGS.named>) the device the query is being run for. jq binds
-named arguments while a program is compiled, so a program is compiled for one
-device rather than once per provisioner. Without $vars both are null, which
-is enough to compile a query that names them and is what the form validating
-one passes;
+arguments, the way C<jq --arg> passes them, which is what makes C<$mac>,
+C<$node> and C<$tls> (and C<$ARGS.named>) the device the query is being run
+for. jq binds named arguments while a program is compiled, so a program is
+compiled for one device rather than once per provisioner. Without $vars all
+three are null, which is enough to compile a query that names them and is what
+the form validating one passes;
 
 =item * C<allow_includes> is off, so the query cannot pull definitions in from
 C<.jq> files on disk;
@@ -483,7 +511,7 @@ Returns ($pass, \@results, undef, undef) on success and
 $ERR_QUERY or $ERR_JQ so the caller can tell a configuration error from a bad
 payload.
 $query is compiled with L</compile_jq> for the L</jq_vars> in $vars, which it
-reads as C<$mac> and C<$node>; both are null when $vars is not given. A query
+reads as C<$mac>, C<$node> and C<$tls>; all are null when $vars is not given. A query
 loading a C<.jq> file from disk is refused by that compile and reported as
 $ERR_QUERY, and one reaching for the process environment finds an empty
 object rather than the environment.
@@ -642,7 +670,7 @@ sub _jq_truthy {
 =head2 authorize
 
 Send the templated request and evaluate the response with the jq query, which
-is given the device as C<$mac> and C<$node>. jq binds those while a program is
+is given the device as C<$mac>, C<$node> and C<$tls>. jq binds those while a program is
 compiled (see L</compile_jq>), so the query is compiled here for the device
 being checked rather than once for the provisioner.
 
@@ -670,7 +698,8 @@ sub authorize {
     my ($pass, $results, $jq_err, $err_kind) = $self->evaluate_jq(
         # undo any Content-Encoding but keep the bytes: evaluate_jq wants UTF-8
         # bytes, which a text/* response decoded to characters is not
-        scalar $res->decoded_content(charset => 'none'), $self->jq_query, $self->jq_vars($mac, $node_info),
+        scalar $res->decoded_content(charset => 'none'), $self->jq_query,
+        $self->jq_vars($mac, $node_info, $self->node_tls($mac)),
     );
     if (defined $jq_err) {
         # Only a query that does not compile is a configuration error. An

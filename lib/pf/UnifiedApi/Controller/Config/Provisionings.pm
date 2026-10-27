@@ -127,6 +127,7 @@ sub test_jq {
             results => $results,
             mac     => $vars->{mac},
             node    => $vars->{node},
+            tls     => $vars->{tls},
         }
     );
 }
@@ -135,12 +136,14 @@ sub test_jq {
 
 Build the jq variables of a test from the request body: a node given as a JSON
 object in C<node>, or the node of the MAC address in C<mac> looked up in the
-database. Neither is required -- without them C<$mac> and C<$node> are null,
-which is what a query that does not use them has always seen.
+database, and likewise its TLS data given in C<tls> or looked up in node_tls.
+None is required -- without them C<$mac>, C<$node> and C<$tls> are null, which
+is what a query that does not use them has always seen.
 
 A MAC that no node matches is not an error: the query runs with C<$node> null
 and the caller sees a null node in the answer, which is also what the
-provisioner would do for an unknown device.
+provisioner would do for an unknown device. The same goes for C<$tls> when the
+device has no TLS data recorded.
 
 Returns (\%vars, undef), or (undef, $error) when the request describes a node
 it cannot build.
@@ -173,7 +176,16 @@ sub test_jq_vars {
         $node = node_view($mac);
     }
 
-    return (pf::provisioner::generic_http->jq_vars($mac, $node), undef);
+    my $tls = $data->{tls};
+    if (defined $tls) {
+        if (ref($tls) ne 'HASH') {
+            return (undef, "tls must be a JSON object");
+        }
+    } elsif (defined $mac) {
+        $tls = pf::provisioner::generic_http->node_tls($mac);
+    }
+
+    return (pf::provisioner::generic_http->jq_vars($mac, $node, $tls), undef);
 }
 
 =head1 AUTHOR
