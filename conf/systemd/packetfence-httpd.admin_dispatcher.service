@@ -20,4 +20,4 @@ Slice=packetfence.slice
 PIDFile=/usr/local/pf/var/run/httpd.admin_dispatcher-systemd-notify.sock.pid
 
 [Install]
-WantedBy=packetfence.target
+WantedBy=packetfence-base.target

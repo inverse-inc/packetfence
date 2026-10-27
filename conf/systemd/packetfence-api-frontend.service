@@ -22,4 +22,4 @@ ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -
 ExecStopPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_api_frontend_rules("REMOVE")'
 
 [Install]
-WantedBy=packetfence.target
+WantedBy=packetfence-base.target

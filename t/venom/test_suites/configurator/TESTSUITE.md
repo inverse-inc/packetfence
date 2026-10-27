@@ -27,6 +27,53 @@ As a workaround, we start `dhclient` as a daemon only for this interface with
 a specific config to **not** override `/etc/resolv.conf`: PacketFence server
 will have two IP addresses one static and another one dynamic.
 
+### Before management is configured
+
+`05_check_unset_management_config.yml` checks Netdata and RADIUS configuration
+generation before step 1, using the real unset management network and standalone
+configuration. It writes only to temporary directories and does not start services.
+
+Step 1 is what creates the management interface, so before it runs
+`pf::config::management_network` is `''` rather than an interface object. Note
+that `''` is defined, which is why the guards use `ref()`.
+
+Installation used to leave `packetfence.target` as the boot target, so a reboot
+before the wizard started these services with no management interface and they
+failed. The installer now boots `packetfence-base.target` until the wizard
+completes. These checks remain useful because the generators are still reached
+by `pfcmd service pf generateconfig` and by starting a service by hand.
+
+The checks cover the Netdata management lookup, RADIUS main/proxy generation,
+omission of an empty pfacct proxy source address, and the standalone cluster
+helper invoked by RADIUS generation. They do not force cluster/slave modes or
+exercise HAProxy DB, Kafka, or pfacct container port mappings.
+
+`06_check_iptables_without_management.yml` starts the firewall unit and checks
+that it stops successfully without automatic restarts while management is unset.
+It also checks that the shutdown hook restores ACCEPT policies and Docker NAT.
+The existing step 80 checks that wizard completion starts iptables normally and
+installs the management SSH rule.
+
+Boot-target failure handling also has focused regression tests:
+`t/unittest/services-systemd.t` checks API/CLI unit-update failures and CLI
+dispatch; `t/unittest/configurator-completion.t` checks readiness, save failures,
+and recovery when promotion fails. `t/unittest/packaging-systemd-target.t`
+exercises the real installer and full-upgrade update commands with a stub.
+Upgrades pass
+`PF_SKIP_SYSTEMD_TARGET_PROMOTION=1` so updating unit links cannot override an
+administrator's base target. Fresh configured installs and explicit CLI setup
+retain promotion after successful updates.
+
+Run `node --test t/html/pfappserver/configurator-completion.test.js` to check
+that each failed wizard step stops completion before later service actions,
+the final `/configurator/complete` operation, or redirection. Completion checks
+the management interface and required services, saves `configurator=disabled`,
+and then promotes the boot target. If saving or promotion fails, it attempts to
+restore the configurator setting so completion can be retried. Ordinary unit
+updates cannot bypass the saved configurator setting.
+These isolated checks complement the
+live install, upgrade, and reboot checks on a PacketFence VM.
+
 ### Step 1
 1. Configure second interface as management with portal daemon (to test other
    feature later)
@@ -70,8 +117,7 @@ Can certainly be done during step4
 2. Update systemd: /configurator/service/pf/update_systemd POST
 1. Restart haproxy-admin: configurator/service/haproxy-admin/restart POST
 1. Start PacketFence and Fingerbank services: configurator/service/pf/start POST
-1. Disable configurator, PATCH: configurator/config/base/advanced + custom
-   changes
+1. Complete configuration, POST: configurator/complete
 2. [ ] Validate that default page is not configurator anymore
 
 ### Validation step
