@@ -613,6 +613,40 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 		//connected, handover ssh connection for tunnel to use, and block
 		return tunnel.BindSSH(ctx, sshConn, reqs, chans)
 	})
+	instanceAddr := fmt.Sprintf("%s://%s", s.listenProto, req.Context().Value(http.LocalAddrContextKey).(net.Addr).String())
+	if user != nil {
+		l.Infof("Connector %s has just connected to this server", user.Name)
+		settings.ClearActiveDynReverseConnector(ctx, user.Name)
+		tunnel.ConnectorID = user.Name
+		// The newest tunnel for a connector id is authoritative. With an HA
+		// pair (docs/design/pfconnector-remote-ha.md) the host that just took
+		// the VIP connects while the old master may still hold its tunnel:
+		// close it so its listeners (fingerbank reverse port, static remotes)
+		// are released and every lookup path follows the new tunnel. This is
+		// done before binding the static remotes of the new tunnel, which use
+		// the same ports.
+		// (the local variable "tunnel" shadows the package, hence the
+		// interface assertion)
+		if prev, loaded := activeTunnels.Swap(user.Name, tunnel); loaded && prev != any(tunnel) {
+			if prevTun, ok := prev.(interface {
+				IsActive() bool
+				Close() error
+				WaitUnbound(time.Duration) bool
+			}); ok && prevTun.IsActive() {
+				l.Infof("Connector %s reconnected while a previous tunnel was active; closing the previous one", user.Name)
+				if err := prevTun.Close(); err != nil {
+					l.Infof("Unable to close the previous tunnel of connector %s: %s", user.Name, err)
+				}
+				if !prevTun.WaitUnbound(unbindTimeout) {
+					l.Infof("The previous tunnel of connector %s did not release all its listeners within %s", user.Name, unbindTimeout)
+				}
+			}
+		}
+		res := s.redis.Set(ctx, s.redisTunnelsNamespace+user.Name, instanceAddr, 0)
+		if res.Err() != nil {
+			l.Infof("Unable to write tunnel info to Redis: %s", res.Err())
+		}
+	}
 	//connected, setup reversed-remotes?
 	serverInbound := c.Remotes.Reversed(true)
 	serverInbound = append(serverInbound, additionalRemotes...)
@@ -623,34 +657,6 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 		//block
 		return tunnel.BindRemotes(ctx, serverInbound)
 	})
-	instanceAddr := fmt.Sprintf("%s://%s", s.listenProto, req.Context().Value(http.LocalAddrContextKey).(net.Addr).String())
-	if user != nil {
-		l.Infof("Connector %s has just connected to this server", user.Name)
-		settings.ClearActiveDynReverseConnector(ctx, user.Name)
-		tunnel.ConnectorID = user.Name
-		// The newest tunnel for a connector id is authoritative. With an HA
-		// pair (docs/design/pfconnector-remote-ha.md) the host that just took
-		// the VIP connects while the old master may still hold its tunnel:
-		// close it so its listeners (fingerbank reverse port, static remotes)
-		// are released and every lookup path follows the new tunnel.
-		// (the local variable "tunnel" shadows the package, hence the
-		// interface assertion)
-		if prev, loaded := activeTunnels.Swap(user.Name, tunnel); loaded && prev != any(tunnel) {
-			if prevTun, ok := prev.(interface {
-				IsActive() bool
-				Close() error
-			}); ok && prevTun.IsActive() {
-				l.Infof("Connector %s reconnected while a previous tunnel was active; closing the previous one", user.Name)
-				if err := prevTun.Close(); err != nil {
-					l.Infof("Unable to close the previous tunnel of connector %s: %s", user.Name, err)
-				}
-			}
-		}
-		res := s.redis.Set(ctx, s.redisTunnelsNamespace+user.Name, instanceAddr, 0)
-		if res.Err() != nil {
-			l.Infof("Unable to write tunnel info to Redis: %s", res.Err())
-		}
-	}
 	err = eg.Wait()
 	if err != nil && !strings.HasSuffix(err.Error(), "EOF") {
 		l.Debugf("Closed connection (%s)", err)
