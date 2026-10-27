@@ -774,12 +774,15 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// Listen only on the address the dynreverse is advertised on (the
-	// management IP, see PFCONNECTOR_SERVER_DYN_REVERSE_HOST), not on all the
-	// interfaces of the server. The consumers (the other containers, the
-	// other cluster members) connect to that address.
+	// Listen only on the address the dynreverse is advertised on when it is
+	// fixed (the management IP, PFCONNECTOR_SERVER_DYN_REVERSE_HOST), not on
+	// all the interfaces of the server: the consumers (the other containers,
+	// the other cluster members) connect to that address. Otherwise each
+	// caller is answered with the address it reached this server on, which
+	// differs between callers (100.64.0.1, 127.0.0.1...) while they share the
+	// port: listen on all of them.
 	bindHost := ""
-	if ip := net.ParseIP(host); ip != nil && ip.To4() != nil && !ip.IsUnspecified() {
+	if ip := net.ParseIP(os.Getenv("PFCONNECTOR_SERVER_DYN_REVERSE_HOST")); ip != nil && ip.To4() != nil && !ip.IsUnspecified() {
 		bindHost = ip.String() + ":"
 	}
 
