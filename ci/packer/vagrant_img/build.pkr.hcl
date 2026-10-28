@@ -2,12 +2,12 @@ build {
   name = "dev"
   sources = [
     "source.qemu.el-8",
-    "source.qemu.debian-12"
+    "source.qemu.debian-13"
   ]
 
   # Fix DHCP/DNS for QEMU user-mode networking.
   provisioner "shell" {
-    only = ["qemu.debian-12"]
+    only = ["qemu.debian-13"]
     execute_command = "echo 'vagrant' | sudo -S -E bash '{{.Path}}'"
     inline = [
       "set -eux",
@@ -63,7 +63,7 @@ build {
   }
 
   provisioner "shell" {
-    only = ["qemu.debian-12"]
+    only = ["qemu.debian-13"]
     execute_command = "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
     script = "${var.pfroot_dir}/addons/dev-helpers/debian/install-pf-dependencies.sh"
   }
@@ -199,11 +199,11 @@ build {
   name = "stable"
   sources = [
     "source.qemu.el-8",
-    "source.qemu.debian-12"
+    "source.qemu.debian-13"
   ]
 
   provisioner "shell" {
-    only = ["qemu.debian-12"]
+    only = ["qemu.debian-13"]
     execute_command = "echo 'vagrant' | sudo -S -E bash '{{.Path}}'"
     inline = [
       "set -eux",
