@@ -34,6 +34,43 @@
               :column-label="$i18n.t('Networks')"
               :text="$i18n.t('Outbound networks for which this connector should be used. When a network matches multiple connectors, a top-down match is performed based on their order in the configuration. This filtering only applies when PacketFence performs outbound traffic to a server or equipment via the connector, not when receiving inbound traffic.')"
             />
+
+            <template v-if="!isNew && !isClone">
+              <b-card class="mt-3" bg-variant="light" no-body>
+                <b-card-body>
+                  <b-row align-v="center">
+                    <b-col>
+                      <h6 class="mb-0">{{ $i18n.t('Remote Connector Installation') }}</h6>
+                      <small class="text-muted">{{ $i18n.t('Use this command to install and configure the remote connector on a target host.') }}</small>
+                    </b-col>
+                    <b-col cols="auto">
+                      <b-button variant="outline-primary" @click="showInstallModal = true">
+                        {{ $i18n.t('Show Install Command') }}
+                      </b-button>
+                    </b-col>
+                  </b-row>
+                </b-card-body>
+              </b-card>
+
+              <b-card v-if="isLive" class="mt-3" bg-variant="light" no-body>
+                <b-card-body>
+                  <b-row align-v="center">
+                    <b-col>
+                      <h6 class="mb-0">{{ $i18n.t('Version') }}</h6>
+                      <small v-if="system" class="text-muted">
+                        {{ $i18n.t('PacketFence is {central}; this connector runs {version}.', { central: (status && status.central_version) || '-', version: system.version }) }}
+                      </small>
+                      <small v-else class="text-muted">{{ $i18n.t('The version is reported while the tunnel is connected.') }}</small>
+                    </b-col>
+                    <b-col cols="auto" v-if="canUpdate && status && status.upgrade_available">
+                      <b-button variant="primary" :disabled="!isConnected || isUpgrading" @click="showUpgradeModal = true">
+                        <icon name="arrow-circle-up" class="mr-1" />{{ $i18n.t('Update to {version}', { version: status.central_version }) }}
+                      </b-button>
+                    </b-col>
+                  </b-row>
+                </b-card-body>
+              </b-card>
+            </template>
           </base-form-tab>
 
           <base-form-tab :title="$i18n.t('Fingerbank')">
@@ -92,43 +129,6 @@
             <the-dns-test v-if="isLive" :id="id" :form="form" class="mt-3" />
           </base-form-tab>
         </b-tabs>
-
-        <template v-if="!isNew && !isClone">
-          <b-card class="mt-3" bg-variant="light" no-body>
-            <b-card-body>
-              <b-row align-v="center">
-                <b-col>
-                  <h6 class="mb-0">{{ $i18n.t('Remote Connector Installation') }}</h6>
-                  <small class="text-muted">{{ $i18n.t('Use this command to install and configure the remote connector on a target host.') }}</small>
-                </b-col>
-                <b-col cols="auto">
-                  <b-button variant="outline-primary" @click="showInstallModal = true">
-                    {{ $i18n.t('Show Install Command') }}
-                  </b-button>
-                </b-col>
-              </b-row>
-            </b-card-body>
-          </b-card>
-
-          <b-card v-if="isLive" class="mt-3" bg-variant="light" no-body>
-            <b-card-body>
-              <b-row align-v="center">
-                <b-col>
-                  <h6 class="mb-0">{{ $i18n.t('Version') }}</h6>
-                  <small v-if="system" class="text-muted">
-                    {{ $i18n.t('PacketFence is {central}; this connector runs {version}.', { central: (status && status.central_version) || '-', version: system.version }) }}
-                  </small>
-                  <small v-else class="text-muted">{{ $i18n.t('The version is reported while the tunnel is connected.') }}</small>
-                </b-col>
-                <b-col cols="auto" v-if="canUpdate && status && status.upgrade_available">
-                  <b-button variant="primary" :disabled="!isConnected || isUpgrading" @click="showUpgradeModal = true">
-                    <icon name="arrow-circle-up" class="mr-1" />{{ $i18n.t('Update to {version}', { version: status.central_version }) }}
-                  </b-button>
-                </b-col>
-              </b-row>
-            </b-card-body>
-          </b-card>
-        </template>
       </base-form-tab>
     </b-tabs>
 
