@@ -12,7 +12,7 @@ NAME		= pf
 PREFIX		= /usr/local
 INSTALL		= /usr/bin/install -c -D -m0644
 
-# DIST = jessie or stretch or ..
+# DIST = trixie
 DIST = $(shell lsb_release -c -s)
 
 configure: configure-stamp
@@ -416,18 +416,6 @@ binary-arch: build install
 	dh_makeshlibs
 	dh_installdeb
 	dh_shlibdeps
-ifeq ($(DIST),jessie)
-	dh_gencontrol -- '-Vpacketfence:dist=openssl-blacklist,openssl-blacklist-extra,libapache2-mod-proxy-html,apache2-mpm-prefork'
-endif
-ifeq ($(DIST),stretch)
-	dh_gencontrol -- '-Vpacketfence:dist=libclass-xsaccessor-perl,acl'
-endif
-ifeq ($(DIST),bullseye)
-	dh_gencontrol -- '-Vpacketfence:dist=libclass-xsaccessor-perl,acl,python3.9-venv'
-endif
-ifeq ($(DIST),bookworm)
-	dh_gencontrol -- '-Vpacketfence:dist=libclass-xsaccessor-perl,acl,python3.11-venv'
-endif
 ifeq ($(DIST),trixie)
 	dh_gencontrol -- '-Vpacketfence:dist=libclass-xsaccessor-perl,acl,python3.13-venv'
 endif
