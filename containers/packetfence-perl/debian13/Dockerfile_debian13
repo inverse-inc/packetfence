@@ -10,7 +10,7 @@ ENV WORKDIR=${workdir} \
 
 # CPAN_VERSION: trixie ships perl 5.40.1, whose bundled CPAN is already 2.36,
 # so installing it explicitly is not a downgrade -- it keeps the client version
-# frozen the way debian12/ does, so install_cpan.py's resolution of the exact
+# frozen, so install_cpan.py's resolution of the exact
 # dists pinned in dependencies.csv does not drift with the base image.
 ENV PERL5LIB=/root/perl5/lib/perl5:${BASE_DIR}/lib/perl5/ \
     PKG_CONFIG_PATH=/usr/lib/pkgconfig/ \
