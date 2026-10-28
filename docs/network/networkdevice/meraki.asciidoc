@@ -138,6 +138,73 @@ your VLANs are properly configured on PacketFence.
 
 image::Meraki-switch-port.png[scaledwidth="100%",alt="Switch Ports"]
 
+====== Group Policy ACLs (Push ACLs)
+
+A Meraki switch applies to an authenticated client the group policy of the
+network named by the `Filter-Id` of the RADIUS Access-Accept, and the _Layer 3
+firewall_ rules of that group policy filter the traffic the client sends. With
+_Push ACLs_, PacketFence creates a group policy named after each role that has
+ACLs, holding the ACLs of the role (_Policies and Access Control -> Roles_, _ACL
+in Cisco format_) as L3 firewall rules, updates it when the ACLs change, and
+returns the name of the role in `Filter-Id`. The group policies are created
+through the Meraki Dashboard API, with the pfsetacls service (Ansible).
+
+In the Meraki dashboard:
+
+* generate a Dashboard API key for an administrator of the organization
+  ('Organization->Settings', 'Dashboard API access', then the API key in the
+  profile of the administrator), with write access to the network,
+* in the access policy of the ports ('Switching->Access policies'), set
+  'RADIUS attribute specifying group policy name' to `Filter-Id`.
+
+On the switch in PacketFence (_Policies and Access Control -> Switches_):
+
+* 'Role by Switch Role' (RADIUS tab) enabled, with no role mapping: the name of
+  the role is returned as the name of its group policy,
+* 'Use Push ACLs' (ACLs tab) enabled,
+* 'Web Services' (the ACLs are pushed through the API, not the CLI): any
+  'Username' (for example `api`) and the Dashboard API key as 'Password',
+* optionally the network ID (`L_...` or `N_...`) as 'Path': without it, the
+  network is the one of the Meraki switch whose LAN IP is the IP of the switch
+  in PacketFence, in the organizations the API key can read.
+
+Each time the switch or a role is saved, PacketFence pushes the ACLs of every
+role (`Switch_ACLS_<switch IP>` in the pfsetacls Semaphore, its log in
+[filename]`/usr/local/pf/var/conf/pfsetacls/<switch IP>/`). A group policy with
+the name of the role is created, or its L3 firewall rules are replaced (its
+other settings are kept). The group policy of a role is deleted when the ACLs
+of the role are disabled on the switch, or when the switch is deleted.
+
+The L3 firewall rules of a group policy match the protocol (`tcp`, `udp`,
+`icmp` or `ip`), the destination address and the destination port (`eq` or
+`range`, of tcp and udp) of an ACL. The source is always the client:
+
+* an ACL with a source address, a source port, TCP flags (`established`), an
+  ICMP type, another protocol, or another port operator (`gt`, `lt`, `neq`)
+  cannot be a rule. A `permit` is skipped, which only narrows the role; a
+  `deny` ends the rules with a deny of all the traffic, and so does a role
+  whose ACLs were all skipped or cannot be parsed. [filename]`packetfence.log`
+  names the skipped lines,
+* `out|` ACLs are not pushed, the rules only filter the traffic the client
+  sends,
+* the role ACLs follow the Cisco format, where what no line permits is denied,
+  while the rules of a group policy allow what no rule matches: PacketFence
+  ends the rules with a deny of everything unless the last ACL already matches
+  everything (`permit ip any any`, `deny ip any any`).
+
+The switch drops all the traffic of a client whose `Filter-Id` matches no
+group policy of the network. A role without ACLs gets no group policy, so no
+`Filter-Id` is returned for it: the client is unrestricted, as with the other
+switches. Do not map such a role to a switch role unless that group policy
+exists in the dashboard.
+
+NOTE: A Catalyst 9300 managed from the Meraki dashboard (C9300-M, or converted
+to Meraki management) works with the `Meraki MS v15` type, group policy ACLs
+included. It answers the RADIUS Disconnect on port 1700, not 3799: set
+'Disconnect Port' to `1700` and disable 'Use CoA' on the switch, it does not
+answer the Cisco CoA reauthentication request. The switch only authenticates
+the client again when it sends traffic.
+
 ====== VoIP phones detection
 
 PacketFence can detect a Cisco IP phone plugged on an MS switch through the CDP
