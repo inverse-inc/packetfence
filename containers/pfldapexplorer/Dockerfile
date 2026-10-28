@@ -1,6 +1,6 @@
 ARG KNK_REGISTRY_URL
 ARG IMAGE_TAG
-FROM ${KNK_REGISTRY_URL}/pfbuild-debian-bookworm:${IMAGE_TAG}
+FROM ${KNK_REGISTRY_URL}/pfbuild-debian-trixie:${IMAGE_TAG}
 RUN mkdir -p /usr/local/pf/
 WORKDIR /usr/local/pf/
 
@@ -15,7 +15,7 @@ ARG GO_CHECK=no
 RUN if [ "$GO_CHECK" = "yes" ]; then make -C /usr/local/pf/go check; fi
 RUN cd /usr/local/pf/go/ &&  make pfhttpd
 
-FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
+FROM ${KNK_REGISTRY_URL}/pfdebian-trixie:${IMAGE_TAG}
 WORKDIR /usr/local/pf/
 COPY ./config.mk /usr/local/pf/config.mk
 COPY --from=0 /usr/local/pf/go/pfhttpd /usr/local/pf/sbin/pfhttpd
