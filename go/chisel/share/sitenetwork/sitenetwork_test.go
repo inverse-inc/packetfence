@@ -333,6 +333,32 @@ func TestReconcileReplacesAddressAndRecreatesOnTagChange(t *testing.T) {
 	}
 }
 
+func TestReconcileKeepsHAVirtualIP(t *testing.T) {
+	f := newFake()
+	r := NewWithNetlink(f)
+	vip := net.ParseIP("10.10.100.250")
+	r.KeepAddresses = func() []net.IP { return []net.IP{vip} }
+	ctx := context.Background()
+	r.Reconcile(ctx, "v1", desired())
+
+	// keepalived put the VIP on eth0.100 (ha_interface).
+	vipAddr, _ := netlink.ParseAddr("10.10.100.250/32")
+	f.addrs["eth0.100"] = append(f.addrs["eth0.100"], *vipAddr)
+
+	d := desired()
+	d.Interfaces[0].CIDR = "10.10.100.2/24"
+	if st := r.Reconcile(ctx, "v2", d); st.Errors != 0 {
+		t.Fatalf("errors: %+v", st)
+	}
+	got := map[string]bool{}
+	for _, a := range f.addrs["eth0.100"] {
+		got[a.IPNet.String()] = true
+	}
+	if !got["10.10.100.250/32"] || !got["10.10.100.2/24"] || got["10.10.100.1/24"] || len(got) != 2 {
+		t.Errorf("eth0.100 addrs = %v, want the new address and the VIP", f.addrs["eth0.100"])
+	}
+}
+
 func TestReconcileReportsPerItemErrors(t *testing.T) {
 	f := newFake()
 	r := NewWithNetlink(f)

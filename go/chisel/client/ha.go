@@ -56,6 +56,20 @@ func ResolveHAConfig() *HAConfig {
 	return HAConfigFromCache()
 }
 
+// haVirtualIPs returns the HA virtual IP when HA is configured: keepalived
+// owns it, the site-network reconciler leaves it on the link it is on.
+func haVirtualIPs() []net.IP {
+	ha := ResolveHAConfig()
+	if ha == nil {
+		return nil
+	}
+	ip, err := ParseVIP(ha.VIP)
+	if err != nil {
+		return nil
+	}
+	return []net.IP{ip}
+}
+
 // ParseVIP parses the PFCONNECTOR_HA_VIP value, an IPv4 address with or
 // without a prefix length (192.0.2.250 or 192.0.2.250/24), and returns the
 // address.

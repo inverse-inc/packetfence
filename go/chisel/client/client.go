@@ -658,6 +658,7 @@ func (c *Client) reconcileSiteNetwork(ctx context.Context) {
 
 	if c.siteNetwork == nil {
 		c.siteNetwork = sitenetwork.New()
+		c.siteNetwork.KeepAddresses = haVirtualIPs
 	}
 	status := c.siteNetwork.Reconcile(ctx, reply.Version, sitenetwork.Desired{Interfaces: reply.Interfaces, Routes: reply.Routes})
 	sitenetwork.SetLastStatus(status)

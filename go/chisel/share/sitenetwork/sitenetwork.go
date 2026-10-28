@@ -161,6 +161,10 @@ type Reconciler struct {
 	// MainInterface names the host's main interface, which plain interface
 	// entries may never address. Defaults to DefaultRouteInterface.
 	MainInterface func() string
+	// KeepAddresses lists the addresses never removed from a VLAN link we
+	// own although the config does not list them: the HA virtual IP, which
+	// keepalived adds to the link when ha_interface is one of them.
+	KeepAddresses func() []net.IP
 	// OwnedPath is the record of the addresses we assigned on plain
 	// interfaces (OwnedAddressesPath). Empty keeps the record in memory only.
 	OwnedPath string
@@ -340,16 +344,24 @@ func (r *Reconciler) reconcileInterface(ctx context.Context, iface pfconfigdrive
 	}
 
 	// Addresses: exactly the desired IPv4 address. Other IPv4 addresses on a
-	// link we own were put there by an earlier config; drop them.
+	// link we own were put there by an earlier config; drop them, except the
+	// ones keepalived manages (KeepAddresses).
 	addrs, err := r.nl.AddrList(link, netlink.FAMILY_V4)
 	if err != nil {
 		st.Error = fmt.Sprintf("unable to list addresses of %s: %s", name, err)
 		return st
 	}
+	var keep []net.IP
+	if r.KeepAddresses != nil {
+		keep = r.KeepAddresses()
+	}
 	have := false
 	for _, a := range addrs {
 		if a.IPNet != nil && a.IP.Equal(addr.IP) && maskEqual(a.Mask, addr.Mask) {
 			have = true
+			continue
+		}
+		if a.IPNet != nil && containsIP(keep, a.IP) {
 			continue
 		}
 		if err := r.nl.AddrDel(link, &netlink.Addr{IPNet: a.IPNet}); err != nil {
@@ -379,6 +391,15 @@ func (r *Reconciler) reconcileInterface(ctx context.Context, iface pfconfigdrive
 		st.Error = fmt.Sprintf("parent interface %s is down", iface.Parent)
 	}
 	return st
+}
+
+func containsIP(ips []net.IP, ip net.IP) bool {
+	for _, i := range ips {
+		if i.Equal(ip) {
+			return true
+		}
+	}
+	return false
 }
 
 // reconcilePlainInterface puts the desired IPv4 address on an existing link of
