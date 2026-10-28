@@ -59,9 +59,8 @@ Depends: ${misc:Depends}, vlan,
  tdb-tools,
  python3-impacket (>= 0.9.23),
  python-is-python3,
-# The interpreter-versioned venv package is distribution specific and comes
-# from ${packetfence:dist} below: bullseye python3.9, bookworm python3.11,
-# trixie python3.13.
+# The interpreter-versioned venv package (python3.13-venv on trixie) comes
+# from ${packetfence:dist} below.
  krb5-user,
  iproute2,
  ipset,
