@@ -193,22 +193,35 @@ sub get_memberOf {
     my ($self, $username) = @_;
     my $logger = get_logger;
     my $ua = $self->get_ua;
+    my $id = $self->id;
 
     my $token = $self->get_admin_token();
-    my $r = $ua->get(
-        $self->build_user_groups_url($username) . '?$select=id,displayName', 
-        Authorization => "Bearer $token", 
-        "Content-Type" => "application/json", 
-    );
-    if($r->is_success) {
+    # Graph pages memberOf results (100 objects per page by default). Ask for
+    # the largest page size allowed and follow @odata.nextLink so users with
+    # many memberships still get their full group list.
+    my $url = $self->build_user_groups_url($username) . '?$select=id,displayName&$top=999';
+    my @groups;
+    my $page = 0;
+    while (defined $url) {
+        $page++;
+        my $r = $ua->get(
+            $url,
+            Authorization => "Bearer $token",
+            "Content-Type" => "application/json",
+        );
+        unless ($r->is_success) {
+            $logger->error("Failed to obtain groups for $username (source[$id], page $page): " . $r->status_line);
+            # Only retry the admin token on the first page: a 401 on the first
+            # page is an expired token; on later pages, return what we have.
+            return $self->handle_failed_admin_call($r, sub{$self->get_memberOf($username)}) if $page == 1;
+            last;
+        }
         my $response = decode_json($r->decoded_content);
-        return map{ $_->{displayName} } @{$response->{value}};
+        push @groups, map { $_->{displayName} } grep { defined $_->{displayName} } @{$response->{value} // []};
+        $url = $response->{'@odata.nextLink'};
     }
-    else {
-        my $id = $self->id;
-        $logger->error("Failed to obtain groups for $username (source[$id]): " . $r->status_line);
-        return $self->handle_failed_admin_call($r, sub{$self->get_memberOf($username)});
-    }
+    $logger->debug("Found " . scalar(@groups) . " groups for $username (source[$id]) over $page page(s)");
+    return @groups;
 }
 
 sub get_cached_memberOf {
