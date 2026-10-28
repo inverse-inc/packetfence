@@ -1,4 +1,4 @@
-FROM debian:12 as builder
+FROM debian:13 as builder
 RUN apt update && apt -y install git-crypt gpg gpg-agent
 
 
