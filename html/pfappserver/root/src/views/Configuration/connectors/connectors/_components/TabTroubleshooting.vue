@@ -43,8 +43,6 @@
       <the-terminal-recordings :id="id" />
     </b-card>
 
-    <the-cache v-if="isConnected" :id="id" />
-
     <b-card v-if="canUpdate" border-variant="danger">
       <b-row align-v="center">
         <b-col>
@@ -62,12 +60,10 @@
 </template>
 <script>
 import { inject } from '@vue/composition-api'
-import TheCache from './TheCache'
 import TheLogs from './TheLogs'
 import TheTerminalRecordings from './TheTerminalRecordings'
 
 const components = {
-  TheCache,
   TheLogs,
   TheTerminalRecordings
 }

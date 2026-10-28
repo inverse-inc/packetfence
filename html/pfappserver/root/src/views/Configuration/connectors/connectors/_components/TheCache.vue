@@ -39,7 +39,7 @@
       </b-row>
 
       <b-alert v-if="unsupported" show variant="warning" class="mb-2">
-        {{ $i18n.t('This remote connector does not expose the cache management API. Upgrade it from the Status tab to manage its cache from here.') }}
+        {{ $i18n.t('This remote connector does not expose the cache management API. Upgrade it from the Settings tab to manage its cache from here.') }}
       </b-alert>
       <b-alert v-else-if="statsError" show variant="danger" class="mb-2">{{ statsError }}</b-alert>
 

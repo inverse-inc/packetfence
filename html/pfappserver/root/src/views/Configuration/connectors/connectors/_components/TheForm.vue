@@ -10,6 +10,7 @@
         <tab-overview :id="id" />
         <tab-networking :id="id" />
         <tab-devices />
+        <tab-cache :id="id" />
         <tab-troubleshooting :id="id" />
       </template>
 
@@ -240,6 +241,7 @@ import {
   FormGroupHaVrid,
   FormGroupHaInterface,
   FormGroupDnsServers,
+  TabCache,
   TabDevices,
   TabNetworking,
   TabOverview,
@@ -265,6 +267,7 @@ const components = {
   FormGroupHaVrid,
   FormGroupHaInterface,
   FormGroupDnsServers,
+  TabCache,
   TabDevices,
   TabNetworking,
   TabOverview,

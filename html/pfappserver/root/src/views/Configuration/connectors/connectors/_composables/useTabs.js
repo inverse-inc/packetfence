@@ -1,6 +1,6 @@
 import { computed, ref } from '@vue/composition-api'
 
-const LIVE_TABS = ['overview', 'networking', 'devices', 'troubleshooting']
+const LIVE_TABS = ['overview', 'networking', 'devices', 'cache', 'troubleshooting']
 
 // sub-tabs of the Settings tab, kept in ?section=
 const SETTINGS_SECTIONS = ['connector', 'fingerbank', 'networking', 'dns']

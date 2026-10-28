@@ -12,6 +12,7 @@ import BaseFormGroupInterfaces from './BaseFormGroupInterfaces'
 import BaseFormGroupRoutes from './BaseFormGroupRoutes'
 import BaseFormGroupDnsServers from './BaseFormGroupDnsServers'
 // before TheForm/TheView: they read these bindings at module-eval time
+import TabCache from './TabCache'
 import TabDevices from './TabDevices'
 import TabNetworking from './TabNetworking'
 import TabOverview from './TabOverview'
@@ -38,6 +39,7 @@ export {
   BaseFormGroupInputNumber            as FormGroupHaVrid,
   BaseFormGroupChosenOne              as FormGroupHaInterface,
 
+  TabCache,
   TabDevices,
   TabNetworking,
   TabOverview,
