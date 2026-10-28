@@ -70,18 +70,18 @@ On the CI shell runner (never the workstation). Fast re-run against an
 already-built cluster:
 
 ```
-make -C t/venom MAKE_TARGET=run_tests cluster_recovery_deb12
+make -C t/venom MAKE_TARGET=run_tests cluster_recovery_deb13
 ```
 
 Full build + recovery from scratch (what CI does):
 
 ```
-make -C t/venom cluster_recovery_deb12
+make -C t/venom cluster_recovery_deb13
 ```
 
 ### Why C is skipped in the combined job
 
-`cluster_recovery_deb12`/`_el8` run `cluster_configurator` first, and it ends
+`cluster_recovery_deb13`/`_el8` run `cluster_configurator` first, and it ends
 with the same rolling reboot as C (one node at a time, re-Sync before the next)
 on the same cluster. Running C again only adds ~15 min and a
 `cluster_verify_all` pass, which the job's 3 h limit can't spare. The one thing
@@ -101,7 +101,7 @@ ansible-playbook scenarios/cluster_recovery/site.yml -l <pf1,pf2,pf3> \
 
 (The `recovery_scenarios` list defaults to `['A','B','C','D','E','F']`.)
 
-CI: jobs `cluster_recovery_deb12` / `_el8` run in the `test_cluster` stage under
+CI: jobs `cluster_recovery_deb13` / `_el8` run in the `test_cluster` stage under
 the same `TEST_CLUSTER=yes` gate as the configurator jobs (or a `test_cluster=yes`
 commit message).
 
@@ -145,7 +145,7 @@ This is an experiment size, not an established minimum. For comparison with the 
 Assign that runner a distinct tag, then launch a pipeline with:
 
 - `TEST_CLUSTER=yes`
-- `TEST_ONLY=^cluster_recovery_deb12$`
+- `TEST_ONLY=^cluster_recovery_deb13$`
 - `CLUSTER_RUNNER_TAG=<the larger runner's actual tag>`
 
 The tag defaults to `test-cluster-shell-v7`; setting a new value does not create
@@ -170,7 +170,7 @@ startup; waiting for the first node to become fully healthy before booting peers
 can block recovery. Do not change this scheduling in the capacity comparison.
 
 The next experiment on the existing runner uses **3 vCPUs / 8 GiB per cluster
-node** (Debian 12 and EL8 dev inventory). Leave `CLUSTER_RUNNER_TAG` at its default
+node** (Debian 13 and EL8 dev inventory). Leave `CLUSTER_RUNNER_TAG` at its default
 for this run. Standalone/bake VM allocations are unchanged. Compare guest steal,
 startup timeouts and scenario A completion before trying the larger runner.
 
