@@ -4,7 +4,7 @@
       <b-row align-v="center" class="mb-2">
         <b-col>
           <h6 class="mb-0">
-            {{ $i18n.t('Connector Cache') }}
+            {{ $i18n.t('RADIUS Cache') }}
             <b-badge v-if="stats" variant="success" class="ml-2">{{ $i18n.t('Running') }}</b-badge>
             <b-badge v-else-if="statsError" variant="danger" class="ml-2">{{ $i18n.t('Unavailable') }}</b-badge>
           </h6>
@@ -139,7 +139,7 @@
       </template>
     </b-modal>
 
-    <b-modal v-model="showCleanModal" :title="$i18n.t('Wipe Connector Caches')" centered>
+    <b-modal v-model="showCleanModal" :title="$i18n.t('Wipe RADIUS Caches')" centered>
       <p>{{ $i18n.t('Every cached RADIUS authorization, cached credential and rate-limit key on this connector will be deleted. Until PacketFence has authorized them again, devices cannot be served from the cache while PacketFence is unreachable. Continue?') }}</p>
       <template #modal-footer="{ hide }">
         <b-button variant="secondary" @click="hide()">{{ $i18n.t('Cancel') }}</b-button>

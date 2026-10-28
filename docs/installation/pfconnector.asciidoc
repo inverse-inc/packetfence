@@ -203,7 +203,7 @@ Once your pfconnector is started, you can now point your network equipment to us
 [[pfconnector-admin-configuration]]
 ===== Admin Configuration
 
-The pfconnector configuration in the admin interface is located under _Configuration -> Network Configuration -> Cloud Connectors_. The list shows every connector with its tunnel status, version and host addresses, and a topology diagram of the connectors and the equipment behind them. Opening a connector shows its _Overview_, _Networking_, _Devices_, _Cache_ (the statistics and options of the connector's local cache service: the RADIUS authorizations and credentials replayed when PacketFence is unreachable, and the RADIUS rate limiter), _Troubleshooting_ and _Settings_ tabs; its configuration is in the _Settings_ tab:
+The pfconnector configuration in the admin interface is located under _Configuration -> Network Configuration -> Cloud Connectors_. The list shows every connector with its tunnel status, version and host addresses, and a topology diagram of the connectors and the equipment behind them. Opening a connector shows its _Overview_, _Networking_, _Devices_, _RADIUS Cache_ (the statistics and options of the connector's local cache service: the RADIUS authorizations and credentials replayed when PacketFence is unreachable, and the RADIUS rate limiter), _Troubleshooting_ and _Settings_ tabs; its configuration is in the _Settings_ tab:
 
 * *Connector* -- The connector instance and its network ranges.
 * *Fingerbank* -- The environment of the Fingerbank collector running on the connector host.

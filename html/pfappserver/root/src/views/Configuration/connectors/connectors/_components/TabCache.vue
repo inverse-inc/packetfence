@@ -1,8 +1,8 @@
 <template>
-  <b-tab :title="$i18n.t('Cache')" lazy>
+  <b-tab :title="$i18n.t('RADIUS Cache')" lazy>
     <the-cache v-if="isConnected" :id="id" />
     <b-card v-else class="mb-3" bg-variant="light">
-      <h6 class="mb-0">{{ $i18n.t('Connector Cache') }}</h6>
+      <h6 class="mb-0">{{ $i18n.t('RADIUS Cache') }}</h6>
       <small class="text-muted">{{ $i18n.t('The cache of the remote connector is managed while the tunnel is connected.') }}</small>
     </b-card>
   </b-tab>
