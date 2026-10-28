@@ -2,6 +2,8 @@
 apt_preferences__list:
   - filename: 'fingerbank-local.pref'
     package: 'fingerbank'
-    pin: 'release a=bookworm-gitlab,n=bookworm,c=main,b=amd64'
+    # Templated from the target host: the PPA publishes one suite per
+    # codename, so a literal stops matching when the base OS moves.
+    pin: 'release a={{ ansible_distribution_release }}-gitlab,n={{ ansible_distribution_release }},c=main,b=amd64'
     priority: '900'
     reason: 'always install fingerbank package from fingerbank-local repository'
