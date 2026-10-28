@@ -11,14 +11,16 @@ gitlab_buildpkg_tools__ppa_url_deb: '{{ gitlab_buildpkg_tools__ppa_url }}/debian
 # redefine this variables to avoid confusion with official "packetfence" repositories
 gitlab_buildpkg_tools__deb_ppa:
   - name: 'packetfence-ppa'
-    baseurl: "{{ gitlab_buildpkg_tools__ppa_url_deb }} bookworm main"
+    baseurl: "{{ gitlab_buildpkg_tools__ppa_url_deb }} {{ ansible_distribution_release }} main"
     gpgkey: 'http://inverse.ca/downloads/GPG_PUBLIC_KEY'
 
 # added for local dev environment where we only want devel packages
 gitlab_buildpkg_tools__deb_deps_repos:
   - name: 'packetfence'
-    baseurl: 'http://inverse.ca/downloads/PacketFence/debian/{{ pf_minor_release }} bookworm bookworm'
+    baseurl: 'http://inverse.ca/downloads/PacketFence/debian/{{ pf_minor_release }} {{ ansible_distribution_release }} {{ ansible_distribution_release }}'
   - name: 'other-tools'
+    # 13.2 is a PacketFence release, not Debian 13; this repo is pinned on
+    # purpose and is not part of the Debian 13 migration.
     baseurl: 'http://inverse.ca/downloads/PacketFence/debian/13.2 bullseye bullseye'
 
 # added for local dev environment where we only want devel packages

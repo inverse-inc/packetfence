@@ -72,7 +72,7 @@ venom_local_vars:
     value: "{{ users_vars[dict_name]['vars']['fingerbank_api_key']['email'] }}"
 
   # cluster VIPs — derived from inventory clusters key matching the host's
-  # OS/flavor suffix (e.g. pf1deb12localdev → cluster_deb12localdev)
+  # OS/flavor suffix (e.g. pf1deb13localdev → cluster_deb13localdev)
   - name: 'cluster_ip_mgmt'
     value: "{{ users_vars[dict_name]['clusters'][('cluster_' ~ (inventory_hostname | regex_replace('^pf[123]', '')))]['ip_mgmt'] }}"
 
