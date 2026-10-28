@@ -28,7 +28,7 @@ chmod +x "$WORK/bin/make"
 run_case() {
     local name=$1 keep=$2 job_status=$3 expected_status=$4
     local teardown_sleep=${5:-0} clean_status=${6:-0} teardown_status=${7:-0}
-    local test_only=${8-unit_tests_deb12} expected_keep=${9:-$keep}
+    local test_only=${8-unit_tests_deb13} expected_keep=${9:-$keep}
     local test_only_env=()
     if [ "$test_only" != __UNSET__ ]; then
         test_only_env=("TEST_ONLY=$test_only")
@@ -45,7 +45,7 @@ run_case() {
             FAKE_TEARDOWN_SLEEP="$teardown_sleep" \
             FAKE_CLEAN_STATUS="$clean_status" \
             FAKE_TEARDOWN_STATUS="$teardown_status" \
-            JOB_STATUS="$job_status" CI_JOB_NAME=unit_tests_deb12 \
+            JOB_STATUS="$job_status" CI_JOB_NAME=unit_tests_deb13 \
             KEEP_VMS="$keep" CI_PIPELINE_SOURCE=push \
             bash "$TARGET" >"$output" 2>&1 || status=$?
 

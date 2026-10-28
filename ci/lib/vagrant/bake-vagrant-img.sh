@@ -6,7 +6,7 @@
 # all downstream test jobs in the same pipeline (setup-vagrant-box.sh), so
 # they skip site.yml and the configurator wizard.
 #
-# Required env: BAKE_ARCH (el8|deb12), PF_VM_NAME (pfel8dev|pfdeb12dev),
+# Required env: BAKE_ARCH (el8|deb13), PF_VM_NAME (pfel8dev|pfdeb13dev),
 #               CI_PIPELINE_ID.
 # Optional env: RESULT_DIR, VAGRANT_PF_DOTFILE_PATH.
 # `local` registers the box in the local vagrant store instead of uploading it.
@@ -20,8 +20,8 @@ source "${PF_SRC_DIR}/ci/lib/common/functions.sh"
 source "${PF_SRC_DIR}/ci/lib/ansible-galaxy-cache.sh"
 
 configure_and_check() {
-    BAKE_ARCH=${BAKE_ARCH:?BAKE_ARCH must be set (e.g. el8, deb12)}
-    PF_VM_NAME=${PF_VM_NAME:?PF_VM_NAME must be set (e.g. pfel8dev, pfdeb12dev)}
+    BAKE_ARCH=${BAKE_ARCH:?BAKE_ARCH must be set (e.g. el8, deb13)}
+    PF_VM_NAME=${PF_VM_NAME:?PF_VM_NAME must be set (e.g. pfel8dev, pfdeb13dev)}
     CI_PIPELINE_ID=${CI_PIPELINE_ID:?CI_PIPELINE_ID must be set}
 
     RESULT_DIR=${RESULT_DIR:-/var/local/gitlab-runner/vagrant_img/${CI_PIPELINE_ID}}

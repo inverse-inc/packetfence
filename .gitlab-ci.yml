@@ -705,14 +705,14 @@ variables:
     SKIP_CONFIGURATOR_BAKED: "yes"
     BOX_NAME: pfel8dev
 
-.test_job_vagrant_deb12:
+.test_job_vagrant_deb13:
   needs:
-    - bake_img_vagrant_deb12
+    - bake_img_vagrant_deb13
   variables:
     USE_VAGRANT_BOX: "yes"
     VAGRANT_BOX_VERSION: "0.0.${CI_PIPELINE_ID}"
     SKIP_CONFIGURATOR_BAKED: "yes"
-    BOX_NAME: pfdeb12dev
+    BOX_NAME: pfdeb13dev
 
 .test_script_job:
   variables:
@@ -1011,7 +1011,7 @@ build_img_vagrant_devel_and_branches_debian_trixie:
 # One bake job per arch. Produces the per-pipeline baked vagrant box that
 # test jobs (which extend .test_job_vagrant_<arch>) consume to skip site.yml
 # and the configurator wizard. Disabled for cluster/stable variants; only
-# the pfel8dev / pfdeb12dev standalones are baked. Bake fires whenever any
+# the pfel8dev / pfdeb13dev standalones are baked. Bake fires whenever any
 # baked-box-opted test job would run — reusing .test_rules.
 #
 # Bake jobs depend on publish_ppa because site.yml installs PF packages from
@@ -1036,7 +1036,7 @@ bake_img_vagrant_el8:
     BAKE_ARCH: el8
     PF_VM_NAME: pfel8dev
 
-bake_img_vagrant_deb12:
+bake_img_vagrant_deb13:
   extends:
     - .bake_img_vagrant_job
     - .bake_img_rules
@@ -1045,8 +1045,8 @@ bake_img_vagrant_deb12:
     - job: publish_ppa
       artifacts: false
   variables:
-    BAKE_ARCH: deb12
-    PF_VM_NAME: pfdeb12dev
+    BAKE_ARCH: deb13
+    PF_VM_NAME: pfdeb13dev
 
 ########################################
 #  BUILD_ARTIFACTS JOBS
@@ -1299,10 +1299,10 @@ publish_ppa:
 ### development and maintenance
 # Job definition order below = runner dispatch order (GitLab assigns pending jobs
 # FIFO to free runners). It is optimized to minimize total pipeline wall-clock on
-# 10 runners, robust to ±10% duration variation, with deb12/el8 pairs kept
+# 10 runners, robust to ±10% duration variation, with deb13/el8 pairs kept
 # adjacent for readability. Long jobs are front-loaded and staggered; the tail is
 # short jobs only, so runners finish together. Re-balance if durations shift a lot.
-pfappserver_deb12:
+pfappserver_deb13:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
@@ -1318,14 +1318,14 @@ pfappserver_el8:
     - .test_script_job
     - .test_rules
 
-inline_deb12:
+inline_deb13:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
     - .test_rules
-    - .test_job_vagrant_deb12
+    - .test_job_vagrant_deb13
 
 inline_el8:
   variables:
@@ -1336,14 +1336,14 @@ inline_el8:
     - .test_rules
     - .test_job_vagrant_el8
 
-mac_auth_virtualswitch_deb12:
+mac_auth_virtualswitch_deb13:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
     - .test_rules
-    - .test_job_vagrant_deb12
+    - .test_job_vagrant_deb13
 
 mac_auth_virtualswitch_el8:
   variables:
@@ -1354,14 +1354,14 @@ mac_auth_virtualswitch_el8:
     - .test_rules
     - .test_job_vagrant_el8
 
-security_event_virtualswitch_deb12:
+security_event_virtualswitch_deb13:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
     - .test_rules
-    - .test_job_vagrant_deb12
+    - .test_job_vagrant_deb13
 
 security_event_virtualswitch_el8:
   variables:
@@ -1372,14 +1372,14 @@ security_event_virtualswitch_el8:
     - .test_rules
     - .test_job_vagrant_el8
 
-unit_tests_deb12:
+unit_tests_deb13:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
     - .test_rules
-    - .test_job_vagrant_deb12
+    - .test_job_vagrant_deb13
 
 unit_tests_el8:
   variables:
@@ -1390,14 +1390,14 @@ unit_tests_el8:
     - .test_rules
     - .test_job_vagrant_el8
 
-cli_login_deb12:
+cli_login_deb13:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
     - .test_rules
-    - .test_job_vagrant_deb12
+    - .test_job_vagrant_deb13
 
 cli_login_el8:
   variables:
@@ -1408,14 +1408,14 @@ cli_login_el8:
     - .test_rules
     - .test_job_vagrant_el8
 
-dot1x_eap_peap_deb12:
+dot1x_eap_peap_deb13:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
     - .test_rules
-    - .test_job_vagrant_deb12
+    - .test_job_vagrant_deb13
 
 dot1x_eap_peap_el8:
   variables:
@@ -1426,14 +1426,14 @@ dot1x_eap_peap_el8:
     - .test_rules
     - .test_job_vagrant_el8
 
-dot1x_eap_tls_deb12:
+dot1x_eap_tls_deb13:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
     - .test_rules
-    - .test_job_vagrant_deb12
+    - .test_job_vagrant_deb13
 
 dot1x_eap_tls_el8:
   variables:
@@ -1444,23 +1444,23 @@ dot1x_eap_tls_el8:
     - .test_rules
     - .test_job_vagrant_el8
 
-fingerbank_invalid_db_deb12:
+fingerbank_invalid_db_deb13:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
     - .test_rules
-    - .test_job_vagrant_deb12
+    - .test_job_vagrant_deb13
 
-mac_auth_deb12:
+mac_auth_deb13:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
     - .test_rules
-    - .test_job_vagrant_deb12
+    - .test_job_vagrant_deb13
 
 mac_auth_el8:
   variables:
@@ -1471,14 +1471,14 @@ mac_auth_el8:
     - .test_rules
     - .test_job_vagrant_el8
 
-device_profiling_virtualswitch_deb12:
+device_profiling_virtualswitch_deb13:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
     - .test_rules
-    - .test_job_vagrant_deb12
+    - .test_job_vagrant_deb13
 
 device_profiling_virtualswitch_el8:
   variables:
@@ -1489,14 +1489,14 @@ device_profiling_virtualswitch_el8:
     - .test_rules
     - .test_job_vagrant_el8
 
-pfacct_bandwidth_virtualswitch_deb12:
+pfacct_bandwidth_virtualswitch_deb13:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
     - .test_rules
-    - .test_job_vagrant_deb12
+    - .test_job_vagrant_deb13
 
 pfacct_bandwidth_virtualswitch_el8:
   variables:
@@ -1507,14 +1507,14 @@ pfacct_bandwidth_virtualswitch_el8:
     - .test_rules
     - .test_job_vagrant_el8
 
-dot1x_wired_computer_auth_virtualswitch_deb12:
+dot1x_wired_computer_auth_virtualswitch_deb13:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
     - .test_rules
-    - .test_job_vagrant_deb12
+    - .test_job_vagrant_deb13
 
 dot1x_wired_computer_auth_virtualswitch_el8:
   variables:
@@ -1525,23 +1525,23 @@ dot1x_wired_computer_auth_virtualswitch_el8:
     - .test_rules
     - .test_job_vagrant_el8
 
-security_events_deb12:
+security_events_deb13:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
     - .test_rules
-    - .test_job_vagrant_deb12
+    - .test_job_vagrant_deb13
 
-captive_portal_deb12:
+captive_portal_deb13:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
     - .test_rules
-    - .test_job_vagrant_deb12
+    - .test_job_vagrant_deb13
 
 captive_portal_el8:
   variables:
@@ -1552,25 +1552,25 @@ captive_portal_el8:
     - .test_rules
     - .test_job_vagrant_el8
 
-external_integrations_deb12:
+external_integrations_deb13:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
     - .test_rules
-    - .test_job_vagrant_deb12
+    - .test_job_vagrant_deb13
 
 # Cluster test family (heavy 3-VM jobs) — test_cluster stage, opt-in via TEST_CLUSTER.
 # cluster_configurator = the cluster analog of the configurator setup; more to follow.
-cluster_configurator_deb12:
+cluster_configurator_deb13:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_cluster_job
     - .test_script_job
     - .cluster_test_rules
-    - .test_job_vagrant_deb12
+    - .test_job_vagrant_deb13
 
 cluster_configurator_el8:
   variables:
@@ -1583,7 +1583,7 @@ cluster_configurator_el8:
 
 # Recovery family (A-F): builds the cluster then runs cluster_recovery in the
 # same job/VMs. Slow (~1h+); same TEST_CLUSTER gate as the configurator jobs.
-cluster_recovery_deb12:
+cluster_recovery_deb13:
   timeout: 5h
   variables:
     CLUSTER_SETUP_TIMEOUT: 120m
@@ -1594,7 +1594,7 @@ cluster_recovery_deb12:
     - .test_cluster_job
     - .test_script_job
     - .cluster_test_rules
-    - .test_job_vagrant_deb12
+    - .test_job_vagrant_deb13
 
 cluster_recovery_el8:
   timeout: 5h
@@ -1618,7 +1618,7 @@ configurator_el8_pristine:
     - .test_script_job
     - .release_only_rules
 
-configurator_deb12_pristine:
+configurator_deb13_pristine:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}-${CI_JOB_ID}
   extends:
