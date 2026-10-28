@@ -43,11 +43,11 @@ variable box_description {
   type = string
 }
 
-# Path to the extracted QCOW2 from a debian/bookworm64 libvirt base box.
+# Path to the extracted QCOW2 from a debian/trixie64 libvirt base box.
 # The Makefile download-base-image target produces this file.
 variable disk_image_url {
   type    = string
-  default = "file:///tmp/packer-iso/bookworm64.img"
+  default = "file:///tmp/packer-iso/trixie64.img"
 }
 
 variable disk_image_checksum {

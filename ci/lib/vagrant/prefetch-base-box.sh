@@ -10,7 +10,7 @@ set -o nounset -o pipefail -o errexit
 # This is distinct from setup-vagrant-box.sh, which handles the per-pipeline
 # CI bake artifact at packetfence-vagrant-box/prebaked/<BOX>_<PIPELINE>.box.
 #
-# Required: BOX_NAME (e.g. pfdeb12branch),
+# Required: BOX_NAME (e.g. pfdeb13branch),
 #           RCLONE_{ACCESS_KEY_ID,SECRET_ACCESS_KEY,LINODE_URL}.
 # Optional: BOX_VERSION (default: latest from metadata.json),
 #           BUCKET (default: packetfence-vagrant-box),

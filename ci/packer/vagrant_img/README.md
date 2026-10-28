@@ -8,7 +8,7 @@ with authenticated rclone before `vagrant up`.
 
 | Box | Base | Bakes | Build (`make`) |
 |-----|------|-------|----------------|
-| `pfdeb12{dev,stable,branch}` | bookworm | PacketFence server | `pfdeb12dev` / `…_generic` |
+| `pfdeb13{dev,stable,branch}` | trixie | PacketFence server | `pfdeb13dev` / `…_generic` |
 | `pfel8{dev,stable,branch}` | generic/rhel8 | PacketFence server | `pfel8dev` / `…_generic` |
 | `pfad11{dev,stable,branch}` | bullseye | Samba4 AD | `pfad11dev` / `…_generic` |
 | `pfnode11{dev,stable,branch}` | bullseye | node + wireless client layer | `pfnode11dev` / `…_generic` |
@@ -18,8 +18,8 @@ with authenticated rclone before `vagrant up`.
 The AD maintenance job uses `pfad11dev_generic` with `BOX_NAME=pfad11stable`.
 
 Maintenance CI jobs build dependencies only, like devel. They set
-`VAGRANT_BUILD_TARGET` to `pfdebian12_dependencies` or `pfel8_dependencies` while
-retaining the `pfdeb12stable` / `pfel8stable` output names. Release-tag jobs
+`VAGRANT_BUILD_TARGET` to `pfdebian13_dependencies` or `pfel8_dependencies` while
+retaining the `pfdeb13stable` / `pfel8stable` output names. Release-tag jobs
 still use the stable Make targets, which install PacketFence in the box.
 
 After publishing a new maintenance box, update the corresponding `box_version`
