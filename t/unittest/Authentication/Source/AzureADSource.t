@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 14;
+use Test::More tests => 22;
 use Test::NoWarnings;
 use Test::MockModule;
 use HTTP::Response;
@@ -37,7 +37,7 @@ my $source = pf::Authentication::Source::AzureADSource->new({
     tenant_id     => 'tenant-id',
 });
 
-# Never talk to login.microsoftonline.com or touch the shared token cache
+# Never talk to login.microsoftonline.com or touch the shared CHI cache
 my $src_mock = Test::MockModule->new('pf::Authentication::Source::AzureADSource');
 $src_mock->mock(get_admin_token => sub { 'admin-token' });
 $src_mock->mock(cache => sub { FakeCache->new });
@@ -55,8 +55,7 @@ $lwp->mock(get => sub {
 
 sub json_response {
     my ($data) = @_;
-    my $r = HTTP::Response->new(200, 'OK', [ 'Content-Type' => 'application/json' ], encode_json($data));
-    return $r;
+    return HTTP::Response->new(200, 'OK', [ 'Content-Type' => 'application/json' ], encode_json($data));
 }
 
 sub page1 {
@@ -75,7 +74,7 @@ sub page2 {
 sub lookup {
     @calls = ();
     @script = @_;
-    return [ $source->get_memberOf('user@example.com') ];
+    return [ $source->get_cached_memberOf('user@example.com', {}) ];
 }
 
 # 1. Both pages are fetched and merged; entries without a displayName are skipped
@@ -96,9 +95,11 @@ sub lookup {
 
 # 3. A 401 on a later page refreshes the token and restarts from the first page
 {
+    @FakeCache::removed = ();
     my $groups = lookup(page1(), HTTP::Response->new(401, 'Unauthorized'), page1(), page2());
     is_deeply($groups, [ 'Group One', 'App_Azure_PacketFenceSAML_Admins' ], "the lookup is retried from the first page after a 401");
     is(scalar @calls, 4, "two pages, a 401, then two pages again");
+    is_deeply(\@FakeCache::removed, [ 'get_admin_token' ], "the cached admin token is dropped before the retry");
 }
 
 # 4. The retry happens only once
@@ -122,10 +123,43 @@ sub lookup {
     is(scalar @calls, 2, "no request is made past the page cap");
 }
 
+# 7. get_memberOf itself throws on failure, so CHI::compute never stores a failed lookup
+{
+    @calls = ();
+    @script = (HTTP::Response->new(500, 'Internal Server Error'));
+    my $ok = eval { $source->get_memberOf('user@example.com'); 1 };
+    ok(!$ok, "get_memberOf throws on a failed page");
+    like($@, qr/^Failed to obtain groups for user\@example\.com/, "the error names the user");
+}
+
+# 8. With user_groups_cache set, a failure is not cached but a success is
+{
+    local $source->{user_groups_cache} = 60;
+    %FakeCache::store = ();
+
+    my $groups = lookup(page1(), HTTP::Response->new(429, 'Too Many Requests'));
+    is_deeply($groups, [], "a failed lookup returns an empty list");
+
+    $groups = lookup(page1(), page2());
+    is_deeply($groups, [ 'Group One', 'App_Azure_PacketFenceSAML_Admins' ], "the failure was not cached: the next lookup fetches again");
+    is(scalar @calls, 2, "the next lookup went to Graph");
+
+    $groups = lookup();
+    is_deeply($groups, [ 'Group One', 'App_Azure_PacketFenceSAML_Admins' ], "a successful lookup is served from the cache");
+    is(scalar @calls, 0, "no Graph call when the cache has the groups");
+}
+
 package FakeCache;
+our (%store, @removed);
 sub new { bless {}, shift }
-sub remove { }
-sub compute { my ($self, $key, $opts, $cb) = @_; return $cb->() }
+sub remove { my ($self, $key) = @_; push @removed, $key; delete $store{$key} }
+sub compute {
+    my ($self, $key, $opts, $cb) = @_;
+    return @{ $store{$key} } if exists $store{$key};
+    my @value = $cb->();
+    $store{$key} = \@value;
+    return @value;
+}
 
 package main;
 
