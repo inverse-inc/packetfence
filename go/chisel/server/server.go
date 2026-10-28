@@ -40,8 +40,13 @@ type Config struct {
 // Server respresent a chisel service
 type Server struct {
 	*cio.Logger
-	config                *Config
-	connectors            *connector.ConnectorsContainer
+	config     *Config
+	connectors *connector.ConnectorsContainer
+	// connectorsConfig is the config::Connector namespace kept for the
+	// tunnel-local API (connectorConfig): refreshed through pfconfig's
+	// cache validity rather than fetched on every request.
+	connectorsConfig      pfconfigdriver.Connectors
+	connectorsConfigMu    sync.Mutex
 	fingerprint           string
 	httpServer            *cnet.HTTPServer
 	reverseProxy          *httputil.ReverseProxy

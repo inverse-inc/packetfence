@@ -1543,12 +1543,11 @@ func (s *Server) authenticateConnector(w http.ResponseWriter, req *http.Request,
 // authenticatedConnector is authenticateConnector returning the connector's
 // configuration, for the handlers that need it after the check.
 func (s *Server) authenticatedConnector(w http.ResponseWriter, req *http.Request, connectorId string) (pfconfigdriver.ConnectorConfig, bool) {
-	connectors := pfconfigdriver.Connectors{}
-	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &connectors); err != nil {
+	connector, found, err := s.connectorConfig(req.Context(), connectorId)
+	if err != nil {
 		http.Error(w, "Unable to fetch the connectors configuration", http.StatusInternalServerError)
 		return pfconfigdriver.ConnectorConfig{}, false
 	}
-	connector, found := connectors.Element[connectorId]
 	if !found {
 		http.Error(w, fmt.Sprintf("Unknown connector %s", connectorId), http.StatusNotFound)
 		return pfconfigdriver.ConnectorConfig{}, false
@@ -1559,6 +1558,21 @@ func (s *Server) authenticatedConnector(w http.ResponseWriter, req *http.Request
 		return pfconfigdriver.ConnectorConfig{}, false
 	}
 	return connector, true
+}
+
+// connectorConfig returns the configuration of connectorId from the cached
+// config::Connector namespace, refetched only when pfconfig invalidated it.
+// The tunnel-local API is on the DHCP relay path (one call per relayed
+// packet) and the site-network poll of every connector: an uncached fetch
+// there is a pfconfig socket round trip per packet.
+func (s *Server) connectorConfig(ctx context.Context, connectorId string) (pfconfigdriver.ConnectorConfig, bool, error) {
+	s.connectorsConfigMu.Lock()
+	defer s.connectorsConfigMu.Unlock()
+	if _, err := pfconfigdriver.FetchDecodeSocketCache(ctx, &s.connectorsConfig); err != nil {
+		return pfconfigdriver.ConnectorConfig{}, false, err
+	}
+	connector, found := s.connectorsConfig.Element[connectorId]
+	return connector, found, nil
 }
 
 // connectorOwnsStaticPort reports whether port is the server-side port of one
