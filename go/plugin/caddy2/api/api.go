@@ -105,6 +105,7 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 		// static segment wins over the terminal catch-all below.
 		r.Get("/terminal/{connectorID}/recordings", m.pfconnectorTerminalRecordings())
 		r.Get("/terminal/{connectorID}/recordings/{name}", m.proxyTerminalRecording())
+		r.Get("/terminal/{connectorID}", m.redirectTerminal())
 		r.HandleFunc("/terminal/{connectorID}/", m.proxyTerminal())
 		r.HandleFunc("/terminal/{connectorID}/*", m.proxyTerminal())
 		r.Route("/pfconnector-remotes", func(r chi.Router) {

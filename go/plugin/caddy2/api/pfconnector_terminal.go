@@ -197,7 +197,9 @@ func terminalPageHeaders(w http.ResponseWriter, r *http.Request) {
 func (h APIHandler) proxyTerminal() http.HandlerFunc {
 	staticFiles := http.FileServer(http.FS(gottyAssets))
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		connectorID := chi.URLParam(r, "connectorID")
+		// chi routes on the escaped path: unescape the id, and take the rest
+		// of the path from the route's wildcard rather than r.URL.Path.
+		connectorID, _ := url.PathUnescape(chi.URLParam(r, "connectorID"))
 		if connectorID == "" {
 			http.Error(w, "PFconnector ID is required", http.StatusBadRequest)
 			return
@@ -211,15 +213,11 @@ func (h APIHandler) proxyTerminal() http.HandlerFunc {
 
 		// The plugin's default JSON content type doesn't apply here
 		w.Header().Del("Content-Type")
-		path := strings.TrimPrefix(r.URL.Path, "/api/v1/terminal/"+connectorID)
+		path := "/" + chi.URLParam(r, "*")
 		switch {
 		case path == "/ws":
 			h.proxyTerminalWebsocket(w, r, connectorID)
-		case path == "" || path == "/":
-			if path == "" {
-				http.Redirect(w, r, terminalPath(connectorID), http.StatusMovedPermanently)
-				return
-			}
+		case path == "/":
 			terminalPageHeaders(w, r)
 			w.Header().Set("Content-Type", "text/html; charset=utf-8")
 			gottyIndexTemplate.Execute(w, map[string]interface{}{"title": terminalTitle})
@@ -295,13 +293,22 @@ var terminalAuthorizeClient = &http.Client{Timeout: 30 * time.Second}
 // logs of every hop.
 const TOTPCodeHeader = "X-PF-TOTP-Code"
 
+// redirectTerminal sends /api/v1/terminal/{connectorID} to the terminal page,
+// whose relative asset URLs need the trailing slash.
+func (h APIHandler) redirectTerminal() http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		connectorID, _ := url.PathUnescape(chi.URLParam(r, "connectorID"))
+		http.Redirect(w, r, terminalPath(connectorID), http.StatusMovedPermanently)
+	})
+}
+
 // proxyTerminalAuthorize activates a terminal session on the
 // connector-remote through a dynreverse tunnel, so the admin's browser never
 // needs direct network access to the remote. The remote answers with the
 // secret of the session, kept server side next to the access token.
 func (h APIHandler) proxyTerminalAuthorize() http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		connectorID := chi.URLParam(r, "connectorID")
+		connectorID, _ := url.PathUnescape(chi.URLParam(r, "connectorID"))
 		sessionUUID := chi.URLParam(r, "uuid")
 		if connectorID == "" || sessionUUID == "" {
 			http.Error(w, "PFconnector ID and session uuid are required", http.StatusBadRequest)
