@@ -118,7 +118,7 @@ Checks finish before compilation starts, including with `make -j`. A failed
 blocking check stops the build.
 
 In CI, `GO_CHECK` defaults to `"no"`. Set `GO_CHECK=yes` in GitLab CI/CD variables
-or when starting a pipeline to enable `pre_ci_go_check_debian_bookworm` and
+or when starting a pipeline to enable `pre_ci_go_check_debian_trixie` and
 `pre_ci_go_check_centos_8`, including on feature branches. Both jobs run
 [command]`make -C go check-build` using their respective build images.
 Artifact jobs wait for these checks when enabled and are blocked if they fail.
