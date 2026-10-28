@@ -20,13 +20,13 @@ Container image used by the CI vagrant box build jobs. Ships packer, qemu-system
 The Makefile entry targets wrap the container run (`vagrant-in-docker.sh`):
 
 ```bash
-make -C ci/packer/vagrant_img pfdeb12dev
+make -C ci/packer/vagrant_img pfdeb13dev
 # use a specific image instead of vagrant-build:local-test:
 VAGRANT_BUILD_IMAGE=ghcr.io/inverse-inc/packetfence/vagrant-build:devel \
-  make -e -C ci/packer/vagrant_img pfdeb12dev
+  make -e -C ci/packer/vagrant_img pfdeb13dev
 ```
 
-Output box: `ci/packer/vagrant_img/results/pfdeb12dev/pfdeb12dev-libvirt.box`
+Output box: `ci/packer/vagrant_img/results/pfdeb13dev/pfdeb13dev-libvirt.box`
 
 To also upload to Linode Object Storage (what CI does), export `UPLOAD_BOX=yes`
 plus the `RCLONE_*` credentials before calling make.

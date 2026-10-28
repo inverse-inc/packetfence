@@ -31,9 +31,9 @@ source "qemu" "el-8" {
   format = "qcow2"
 }
 
-# QEMU Debian 12 builds — boots from existing debian/bookworm64 base box (disk_image=true)
+# QEMU Debian 13 builds — boots from existing debian/trixie64 base box (disk_image=true)
 # No installer, no preseed. The base box already has vagrant/vagrant credentials.
-source "qemu" "debian-12" {
+source "qemu" "debian-13" {
   disk_image   = true
   iso_url      = var.disk_image_url
   iso_checksum = var.disk_image_checksum
@@ -55,7 +55,7 @@ source "qemu" "debian-12" {
 
   headless         = true
   output_directory = "${var.output_dir}/tmp"
-  vm_name          = "debian-12.qcow2"
+  vm_name          = "debian-13.qcow2"
 
   shutdown_command = "echo 'vagrant' | sudo -S shutdown -P now"
 

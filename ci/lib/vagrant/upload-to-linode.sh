@@ -6,7 +6,7 @@ set -o nounset -o pipefail -o errexit
 # Private (box embeds CI secrets); test runners pull it with rclone creds.
 #
 # Required env vars:
-#   BOX_NAME                  e.g. pfdeb12dev
+#   BOX_NAME                  e.g. pfdeb13dev
 #   CI_PIPELINE_ID
 #   RESULT_DIR                directory where the .box was packaged
 #   RCLONE_ACCESS_KEY_ID
