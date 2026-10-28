@@ -23,12 +23,16 @@ has 'form_class' => 'pfappserver::Form::Config::Provisioning';
 has 'primary_key' => 'provisioning_id';
 
 use pf::ConfigStore::Provisioning;
+use pf::node qw(node_view);
+use pf::provisioner::generic_http;
+use pf::util qw(clean_mac);
 use pfappserver::Form::Config::Provisioning;
 use pfappserver::Form::Config::Provisioning::accept;
 use pfappserver::Form::Config::Provisioning::airwatch;
 use pfappserver::Form::Config::Provisioning::android;
 use pfappserver::Form::Config::Provisioning::deny;
 use pfappserver::Form::Config::Provisioning::dpsk;
+use pfappserver::Form::Config::Provisioning::generic_http;
 use pfappserver::Form::Config::Provisioning::google_workspace_chromebook;
 use pfappserver::Form::Config::Provisioning::intune;
 use pfappserver::Form::Config::Provisioning::jamf;
@@ -46,6 +50,7 @@ our %TYPES_TO_FORMS = (
       android
       deny
       dpsk
+      generic_http
       google_workspace_chromebook
       intune
       jamf
@@ -61,14 +66,127 @@ our %TYPES_TO_FORMS = (
 sub type_lookup {
     return \%TYPES_TO_FORMS;
 }
- 
+
 =head2 fields_to_mask
 
-fields_to_mask
+The fields masked in the audit record. headers and body are included because
+they are templates that commonly carry an API token, such as an
+C<Authorization: Bearer> header.
 
 =cut
 
-sub fields_to_mask { qw(access_token refresh_token password passcode private_key applicationSecret access_token) }
+sub fields_to_mask { qw(access_token refresh_token password passcode private_key applicationSecret headers body) }
+
+=head2 test_jq
+
+Evaluate a jq query against a sample JSON payload.
+Used by the admin GUI to test the jq query of a generic_http provisioner.
+
+The query can be tested against a node, the way the provisioner runs one: see
+L</test_jq_vars>. The node it was given back is returned with the result, so
+the admin can see which attributes C<$node> held.
+
+=cut
+
+sub test_jq {
+    my ($self) = @_;
+    my ($error, $data) = $self->get_json;
+    if (defined $error) {
+        return $self->render_error(400, "Bad Request : $error");
+    }
+
+    if (ref($data) ne 'HASH') {
+        return $self->render_error(400, "Bad Request : a JSON object is expected");
+    }
+
+    my $query = $data->{jq_query} // '';
+    my $json  = $data->{json} // '';
+    if ($query eq '' || $json eq '') {
+        return $self->render_error(422, "Both jq_query and json must be provided");
+    }
+
+    my ($vars, $vars_err) = $self->test_jq_vars($data);
+    if (defined $vars_err) {
+        return $self->render_error(422, $vars_err);
+    }
+
+    # the payload came in as characters inside the request JSON, and
+    # evaluate_jq takes the UTF-8 bytes a server would have sent
+    utf8::encode($json);
+
+    # the query is arbitrary here, so bound how long it may run
+    my ($pass, $results, $err) = pf::provisioner::generic_http->evaluate_jq_guarded($json, $query, undef, $vars);
+    if (defined $err) {
+        return $self->render_error(422, "jq evaluation failed: $err");
+    }
+
+    return $self->render(
+        status => 200,
+        json => {
+            passes  => ($pass ? $self->json_true : $self->json_false),
+            results => $results,
+            mac     => $vars->{mac},
+            node    => $vars->{node},
+            tls     => $vars->{tls},
+        }
+    );
+}
+
+=head2 test_jq_vars
+
+Build the jq variables of a test from the request body: a node given as a JSON
+object in C<node>, or the node of the MAC address in C<mac> looked up in the
+database, and likewise its TLS data given in C<tls> or looked up in node_tls.
+None is required -- without them C<$mac>, C<$node> and C<$tls> are null, which
+is what a query that does not use them has always seen.
+
+A MAC that no node matches is not an error: the query runs with C<$node> null
+and the caller sees a null node in the answer, which is also what the
+provisioner would do for an unknown device. The same goes for C<$tls> when the
+device has no TLS data recorded.
+
+Returns (\%vars, undef), or (undef, $error) when the request describes a node
+it cannot build.
+
+=cut
+
+sub test_jq_vars {
+    my ($self, $data) = @_;
+    my $mac = $data->{mac};
+    undef $mac if defined $mac && $mac eq '';
+    if (defined $mac) {
+        my $cleaned = clean_mac($mac);
+        if (!$cleaned) {
+            return (undef, "'$mac' is not a valid MAC address");
+        }
+
+        $mac = $cleaned;
+    }
+
+    my $node = $data->{node};
+    if (defined $node) {
+        if (ref($node) ne 'HASH') {
+            return (undef, "node must be a JSON object");
+        }
+
+        # a node given outright stands in for the lookup, so a query can be
+        # tested against attributes no node carries yet
+        $mac //= $node->{mac};
+    } elsif (defined $mac) {
+        $node = node_view($mac);
+    }
+
+    my $tls = $data->{tls};
+    if (defined $tls) {
+        if (ref($tls) ne 'HASH') {
+            return (undef, "tls must be a JSON object");
+        }
+    } elsif (defined $mac) {
+        $tls = pf::provisioner::generic_http->node_tls($mac);
+    }
+
+    return (pf::provisioner::generic_http->jq_vars($mac, $node, $tls), undef);
+}
 
 =head1 AUTHOR
 
