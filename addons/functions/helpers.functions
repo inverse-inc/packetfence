@@ -123,7 +123,7 @@ function output_all_container_images {
   # find all directories with Dockerfile
   # excluding non necessary images
   DOCKERFILE_DIRS=$(find containers/ -type f -name "Dockerfile" \
-                         -not -path "*/pfdebian/*" \
+                         -not -path "*/pfdebian-trixie/*" \
                          -not -path "*/radiusd/*" \
                          -not -path "*/pfconnector-*/*" \
                          -printf "%P\n")
