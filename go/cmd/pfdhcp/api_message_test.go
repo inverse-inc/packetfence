@@ -42,7 +42,8 @@ func connectorTestScope(t *testing.T) (pfconfigdriver.ConnectorInterface, net.IP
 		t.Fatalf("connectorScopeConf: key=%s mask=%s ip=%s", key, ConfNet.Netmask, scopeIP)
 	}
 
-	// Scope built by hand (buildPlainScope needs a DB for initiaLease).
+	// Scope built by hand (buildPlainScope needs a DB for initiaLease);
+	// layer2 as buildPlainScope sets it for a connector scope (no next hop).
 	_, ipnet, _ := net.ParseCIDR("10.10.100.0/24")
 	available, err := pool.Create(ctx, "memory", uint64(dhcp.IPRange(net.ParseIP(ConfNet.DhcpStart), net.ParseIP(ConfNet.DhcpEnd))), key, 1, nil, nil)
 	if err != nil {
@@ -56,7 +57,7 @@ func connectorTestScope(t *testing.T) (pfconfigdriver.ConnectorInterface, net.IP
 		hwcache:       cache.New(300*time.Second, 2*time.Second),
 		xid:           cache.New(4*time.Second, 2*time.Second),
 		available:     available,
-		layer2:        false,
+		layer2:        true,
 		role:          "none",
 		ipAssigned:    map[string]uint32{},
 		dstIp:         ConfNet.DhcpReplyIp,
