@@ -16,7 +16,7 @@ gitlab_buildpkg_tools__ppa_url_deb: '{{ gitlab_buildpkg_tools__ppa_url }}/debian
 # redefine this variables to avoid confusion with official "packetfence" repositories
 gitlab_buildpkg_tools__deb_ppa:
   - name: 'packetfence-ppa'
-    # force to "bookworm" because we don't build anymore for stretch
+    # The PPA publishes one suite per codename, so take it from the host.
     baseurl: "{{ gitlab_buildpkg_tools__ppa_url_deb }} {{ ansible_distribution_release }} main"
     gpgkey: 'http://inverse.ca/downloads/GPG_PUBLIC_KEY'
 

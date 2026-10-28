@@ -93,9 +93,9 @@ configurator_el8_pristine:
 	SCENARIOS_TO_RUN=configurator \
 	$(MAKE_TARGET)
 
-configurator_deb12_pristine:
+configurator_deb13_pristine:
 	make \
-	PF_VM_NAMES=deb12$(DEV_ENV) \
+	PF_VM_NAMES=deb13$(DEV_ENV) \
 	SCENARIOS_TO_RUN=configurator \
 	$(MAKE_TARGET)
 
@@ -107,9 +107,9 @@ unit_tests_el8:
 	SCENARIOS_TO_RUN=unit_tests \
 	$(MAKE_TARGET)
 
-unit_tests_deb12:
+unit_tests_deb13:
 	make \
-	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb13$(DEV_ENV) \
 	SCENARIOS_TO_RUN=unit_tests \
 	$(MAKE_TARGET)
 
@@ -119,9 +119,9 @@ configurator_el8:
 	SCENARIOS_TO_RUN=configurator \
 	$(MAKE_TARGET)
 
-configurator_deb12:
+configurator_deb13:
 	make \
-	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb13$(DEV_ENV) \
 	SCENARIOS_TO_RUN=configurator \
 	$(MAKE_TARGET)
 
@@ -132,9 +132,9 @@ dot1x_eap_peap_el8:
 	SCENARIOS_TO_RUN=dot1x_eap_peap \
 	$(MAKE_TARGET)
 
-dot1x_eap_peap_deb12:
+dot1x_eap_peap_deb13:
 	make \
-	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb13$(DEV_ENV) \
 	INT_TEST_VM_NAMES="ad switch01 node01 node03 wireless01" \
 	SCENARIOS_TO_RUN=dot1x_eap_peap \
 	$(MAKE_TARGET)
@@ -146,9 +146,9 @@ mac_auth_el8:
 	SCENARIOS_TO_RUN=mac_auth \
 	$(MAKE_TARGET)
 
-mac_auth_deb12:
+mac_auth_deb13:
 	make \
-	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb13$(DEV_ENV) \
 	INT_TEST_VM_NAMES="switch01 node01 wireless01" \
 	SCENARIOS_TO_RUN=mac_auth \
 	$(MAKE_TARGET)
@@ -160,16 +160,16 @@ dot1x_eap_tls_el8:
         SCENARIOS_TO_RUN=dot1x_eap_tls \
         $(MAKE_TARGET)
 
-dot1x_eap_tls_deb12:
+dot1x_eap_tls_deb13:
 	make \
-        PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+        PF_VM_NAMES=pfdeb13$(DEV_ENV) \
 	INT_TEST_VM_NAMES="ad" \
         SCENARIOS_TO_RUN=dot1x_eap_tls \
         $(MAKE_TARGET)
 
-inline_deb12:
+inline_deb13:
 	make \
-	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb13$(DEV_ENV) \
 	SCENARIOS_TO_RUN=inline \
 	$(MAKE_TARGET)
 
@@ -179,23 +179,23 @@ inline_el8:
 	SCENARIOS_TO_RUN=inline \
 	$(MAKE_TARGET)
 
-fingerbank_invalid_db_deb12:
+fingerbank_invalid_db_deb13:
 	make \
-	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb13$(DEV_ENV) \
 	INT_TEST_VM_NAMES="ad switch01 node01 wireless01" \
 	SCENARIOS_TO_RUN=fingerbank_invalid_db \
 	$(MAKE_TARGET)
 
-external_integrations_deb12:
+external_integrations_deb13:
 	make \
-	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb13$(DEV_ENV) \
 	INT_TEST_VM_NAMES="linux02" \
 	SCENARIOS_TO_RUN=external_integrations \
 	$(MAKE_TARGET)
 
-security_events_deb12:
+security_events_deb13:
 	make \
-	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb13$(DEV_ENV) \
 	INT_TEST_VM_NAMES="switch01 node01" \
 	SCENARIOS_TO_RUN=security_events \
 	$(MAKE_TARGET)
@@ -206,9 +206,9 @@ cli_login_el8:
         SCENARIOS_TO_RUN=cli_login \
         $(MAKE_TARGET)
 
-cli_login_deb12:
+cli_login_deb13:
 	make \
-	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb13$(DEV_ENV) \
 	SCENARIOS_TO_RUN=cli_login \
 	$(MAKE_TARGET)
 
@@ -219,9 +219,9 @@ captive_portal_el8:
 	SCENARIOS_TO_RUN=captive_portal \
 	$(MAKE_TARGET)
 
-captive_portal_deb12:
+captive_portal_deb13:
 	make \
-	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb13$(DEV_ENV) \
 	INT_TEST_VM_NAMES="switch01 node01" \
 	SCENARIOS_TO_RUN=captive_portal \
 	$(MAKE_TARGET)
@@ -233,9 +233,9 @@ inline_l2_and_radius_el8:
 	SCENARIOS_TO_RUN=inline_l2_and_radius \
 	$(MAKE_TARGET)
 
-inline_l2_and_radius_deb12:
+inline_l2_and_radius_deb13:
 	make \
-	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb13$(DEV_ENV) \
 	INT_TEST_VM_NAMES="switch01 node01 node03" \
 	SCENARIOS_TO_RUN=inline_l2_and_radius \
 	$(MAKE_TARGET)
@@ -246,9 +246,9 @@ pfappserver_el8:
 	SCENARIOS_TO_RUN=pfappserver \
 	$(MAKE_TARGET)
 
-pfappserver_deb12:
+pfappserver_deb13:
 	make \
-	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb13$(DEV_ENV) \
 	SCENARIOS_TO_RUN=pfappserver \
 	$(MAKE_TARGET)
 
@@ -261,25 +261,25 @@ example_el8:
 	$(MAKE_TARGET)
 
 # can be overriden like this:
-# make -C t/venom/ INT_TEST_VM_NAMES=switch01 SCENARIOS_TO_RUN=configurator example_deb12
-example_deb12: SCENARIOS_TO_RUN=example
-example_deb12:
+# make -C t/venom/ INT_TEST_VM_NAMES=switch01 SCENARIOS_TO_RUN=configurator example_deb13
+example_deb13: SCENARIOS_TO_RUN=example
+example_deb13:
 	make \
-	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb13$(DEV_ENV) \
 	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
 	SCENARIOS_TO_RUN="$(SCENARIOS_TO_RUN)" \
 	$(MAKE_TARGET)
 
-test_deb12:
+test_deb13:
 	make \
-        PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+        PF_VM_NAMES=pfdeb13$(DEV_ENV) \
         SCENARIOS_TO_RUN=test_venom\
         $(MAKE_TARGET)
 
-cluster_configurator_deb12:
+cluster_configurator_deb13:
 	make \
-	PF_VM_NAMES="pf1deb12$(DEV_ENV) pf2deb12$(DEV_ENV) pf3deb12$(DEV_ENV)" \
-	CLUSTER_NAME="cluster_deb12$(DEV_ENV)" \
+	PF_VM_NAMES="pf1deb13$(DEV_ENV) pf2deb13$(DEV_ENV) pf3deb13$(DEV_ENV)" \
+	CLUSTER_NAME="cluster_deb13$(DEV_ENV)" \
 	SCENARIOS_TO_RUN="cluster_configurator cluster_failover" \
 	$(MAKE_TARGET)
 
@@ -294,10 +294,10 @@ cluster_configurator_el8:
 # a healthy cluster, then cluster_recovery. In CI (MAKE_TARGET=run) this builds
 # the cluster from scratch; locally (MAKE_TARGET=run_tests) cluster_configurator's
 # cluster_already_healthy gate skips the rebuild and just re-verifies.
-cluster_recovery_deb12:
+cluster_recovery_deb13:
 	make \
-	PF_VM_NAMES="pf1deb12$(DEV_ENV) pf2deb12$(DEV_ENV) pf3deb12$(DEV_ENV)" \
-	CLUSTER_NAME="cluster_deb12$(DEV_ENV)" \
+	PF_VM_NAMES="pf1deb13$(DEV_ENV) pf2deb13$(DEV_ENV) pf3deb13$(DEV_ENV)" \
+	CLUSTER_NAME="cluster_deb13$(DEV_ENV)" \
 	SCENARIOS_TO_RUN="cluster_configurator cluster_recovery" \
 	$(MAKE_TARGET)
 
@@ -314,9 +314,9 @@ mac_auth_virtualswitch_el8:
 	SCENARIOS_TO_RUN=mac_auth_virtualswitch \
 	$(MAKE_TARGET)
 
-mac_auth_virtualswitch_deb12:
+mac_auth_virtualswitch_deb13:
 	make \
-	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb13$(DEV_ENV) \
 	SCENARIOS_TO_RUN=mac_auth_virtualswitch \
 	$(MAKE_TARGET)
 
@@ -326,9 +326,9 @@ device_profiling_virtualswitch_el8:
 	SCENARIOS_TO_RUN=device_profiling_virtualswitch \
 	$(MAKE_TARGET)
 
-device_profiling_virtualswitch_deb12:
+device_profiling_virtualswitch_deb13:
 	make \
-	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb13$(DEV_ENV) \
 	SCENARIOS_TO_RUN=device_profiling_virtualswitch \
 	$(MAKE_TARGET)
 
@@ -338,9 +338,9 @@ dot1x_wired_computer_auth_virtualswitch_el8:
 	SCENARIOS_TO_RUN=dot1x_wired_computer_auth_virtualswitch \
 	$(MAKE_TARGET)
 
-dot1x_wired_computer_auth_virtualswitch_deb12:
+dot1x_wired_computer_auth_virtualswitch_deb13:
 	make \
-	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb13$(DEV_ENV) \
 	SCENARIOS_TO_RUN=dot1x_wired_computer_auth_virtualswitch \
 	$(MAKE_TARGET)
 
@@ -350,9 +350,9 @@ pfacct_bandwidth_virtualswitch_el8:
 	SCENARIOS_TO_RUN=pfacct_bandwidth_virtualswitch \
 	$(MAKE_TARGET)
 
-pfacct_bandwidth_virtualswitch_deb12:
+pfacct_bandwidth_virtualswitch_deb13:
 	make \
-	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb13$(DEV_ENV) \
 	SCENARIOS_TO_RUN=pfacct_bandwidth_virtualswitch \
 	$(MAKE_TARGET)
 
@@ -362,41 +362,41 @@ security_event_virtualswitch_el8:
 	SCENARIOS_TO_RUN=security_event_virtualswitch \
 	$(MAKE_TARGET)
 
-security_event_virtualswitch_deb12:
+security_event_virtualswitch_deb13:
 	make \
-	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb13$(DEV_ENV) \
 	SCENARIOS_TO_RUN=security_event_virtualswitch \
 	$(MAKE_TARGET)
 
 ### alias to run tests on other branches
 # it's a hack to simplify definition of jobs in .gitlab-ci.yml
-captive_portal_deb12_branches: captive_portal_deb12
+captive_portal_deb13_branches: captive_portal_deb13
 captive_portal_el8_branches: captive_portal_el8
-cli_login_deb12_branches: cli_login_deb12
+cli_login_deb13_branches: cli_login_deb13
 cli_login_el8_branches: cli_login_el8
-configurator_deb12_branches: configurator_deb12
+configurator_deb13_branches: configurator_deb13
 configurator_el8_branches: configurator_el8
-dot1x_eap_peap_deb12_branches: dot1x_eap_peap_deb12
+dot1x_eap_peap_deb13_branches: dot1x_eap_peap_deb13
 dot1x_eap_peap_el8_branches: dot1x_eap_peap_el8
-dot1x_eap_tls_deb12_branches: dot1x_eap_tls_deb12
+dot1x_eap_tls_deb13_branches: dot1x_eap_tls_deb13
 dot1x_eap_tls_el8_branches: dot1x_eap_tls_el8
-external_integrations_deb12_branches: external_integrations_deb12
-fingerbank_invalid_db_deb12_branches: fingerbank_invalid_db_deb12
-inline_deb12_branches: inline_deb12
+external_integrations_deb13_branches: external_integrations_deb13
+fingerbank_invalid_db_deb13_branches: fingerbank_invalid_db_deb13
+inline_deb13_branches: inline_deb13
 inline_el8_branches: inline_el8
-mac_auth_deb12_branches: mac_auth_deb12
+mac_auth_deb13_branches: mac_auth_deb13
 mac_auth_el8_branches: mac_auth_el8
-security_events_deb12_branches: security_events_deb12
+security_events_deb13_branches: security_events_deb13
 unit_tests_el8_branches: unit_tests_el8
 pfappserver_el8_branches: pfappserver_el8
-pfappserver_deb12_branches: pfappserver_deb12
+pfappserver_deb13_branches: pfappserver_deb13
 mac_auth_virtualswitch_el8_branches: mac_auth_virtualswitch_el8
-mac_auth_virtualswitch_deb12_branches: mac_auth_virtualswitch_deb12
+mac_auth_virtualswitch_deb13_branches: mac_auth_virtualswitch_deb13
 device_profiling_virtualswitch_el8_branches: device_profiling_virtualswitch_el8
-device_profiling_virtualswitch_deb12_branches: device_profiling_virtualswitch_deb12
+device_profiling_virtualswitch_deb13_branches: device_profiling_virtualswitch_deb13
 dot1x_wired_computer_auth_virtualswitch_el8_branches: dot1x_wired_computer_auth_virtualswitch_el8
-dot1x_wired_computer_auth_virtualswitch_deb12_branches: dot1x_wired_computer_auth_virtualswitch_deb12
+dot1x_wired_computer_auth_virtualswitch_deb13_branches: dot1x_wired_computer_auth_virtualswitch_deb13
 pfacct_bandwidth_virtualswitch_el8_branches: pfacct_bandwidth_virtualswitch_el8
-pfacct_bandwidth_virtualswitch_deb12_branches: pfacct_bandwidth_virtualswitch_deb12
+pfacct_bandwidth_virtualswitch_deb13_branches: pfacct_bandwidth_virtualswitch_deb13
 security_event_virtualswitch_el8_branches: security_event_virtualswitch_el8
-security_event_virtualswitch_deb12_branches: security_event_virtualswitch_deb12
+security_event_virtualswitch_deb13_branches: security_event_virtualswitch_deb13
