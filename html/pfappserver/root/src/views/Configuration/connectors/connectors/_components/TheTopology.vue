@@ -314,7 +314,7 @@ const setup = (props, context) => {
       const domainNodes = {}
       shown.forEach((domain, index) => {
         const tunnel = (connected && remote) ? tunnelOf(domain.servers, remote) : null
-        const via = i18n.t('via {servers}', { servers: domain.servers.map(({ id }) => id).join(', ') })
+        const via = i18n.t('via {servers}', { servers: domain.servers.map(({ label }) => label).join(', ') })
         const declared = (dnsInfo.declared || {})[domain.id]
         const node = {
           key: `dns-${key}-${domain.id}`, kind: 'device',
@@ -573,10 +573,9 @@ const setup = (props, context) => {
           fill: colors.white, border: colors.gray, accent: colors[deviceAccent.dns_connectors],
           icon: iconData(ICONS.dns_connectors), iconColor: colors.dark,
           titleColor: colors.dark, subtitleColor: colors.secondary,
-          title: fit(server.id, boxW - TEXT_X - 8),
-          titleExtra: fit(`${server.ip}:${server.port}`, Math.max(boxW - TEXT_X - 8 - ((server.id.length + 1) * CHAR_WIDTH.title), 0), 'subtitle'),
+          title: fit(server.label, boxW - TEXT_X - 8),
           subtitle: fit([i18n.t('DNS server'), i18n.t('{count} domain(s)', { count: server.chips.length })].join(' · '), boxW - TEXT_X - 8, 'subtitle'),
-          tooltip: [i18n.t('DNS server'), server.id, `${server.ip}:${server.port}`, i18n.t('no tunnel'), directVia(server)].filter(Boolean).join(' · '),
+          tooltip: [i18n.t('DNS server'), server.label, i18n.t('no tunnel'), directVia(server)].filter(Boolean).join(' · '),
           to: dnsSettings(server.connector)
         }
         nodes.push(node)

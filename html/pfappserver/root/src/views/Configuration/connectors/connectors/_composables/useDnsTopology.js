@@ -23,7 +23,9 @@ export const dnsOwner = (ip, connectors = []) => {
 }
 
 // { servers: { [id]: server }, issues: { [connector id]: [issue] }, direct: [server], declared: { [domain]: connector } }
-// server: { id, ip, port, pfconnector_port, owner, domains, chips: [{ domain, state, tooltip }] }
+// server: { id, label, ip, port, pfconnector_port, owner, domains, chips: [{ domain, state, tooltip }] }
+// id is the configuration key ("<connector>:<ip>:<port>"), label the server
+// as shown ("<ip>:<port>"): the diagram already ties it to its connector
 // Only the forwarded domains are shown. chip state: 'ok', or 'elsewhere'
 // (declared on another connector than the one reaching the server,
 // forwarded anyway)
@@ -42,16 +44,17 @@ export const dnsTopology = (connectors = [], dnsServers = [], dnsDomains = []) =
     // the connector the server is configured on, the IP lookup is only the
     // fallback of the backend for entries without one
     const owner = dns.connector || dnsOwner(dns.ip, connectors)
+    const label = `${dns.ip}:${dns.port || 53}`
     // a domain without a connector declaration is not forwarded
     const domains = listify(dns.domains).filter(domain => known.has(declared[domain]))
     const chips = domains.map(domain => {
-      listedBy[domain] = [...(listedBy[domain] || []), { id: dns.id, owner }]
+      listedBy[domain] = [...(listedBy[domain] || []), { id: dns.id, label, owner }]
       const on = declared[domain]
       if (owner && on !== owner)
         return { domain, state: 'elsewhere', tooltip: i18n.t('{domain}: declared on {declared}, forwarded through {owner} ({ip})', { domain, declared: on, owner, ip: dns.ip }) }
-      return { domain, state: 'ok', tooltip: i18n.t('{domain}: forwarded to {id} ({ip})', { domain, id: dns.id, ip: dns.ip }) }
+      return { domain, state: 'ok', tooltip: i18n.t('{domain}: forwarded to {server}', { domain, server: label }) }
     })
-    const server = { ...dns, owner, domains, chips }
+    const server = { ...dns, label, owner, domains, chips }
     servers[dns.id] = server
     if (!owner)
       direct.push(server)
@@ -67,7 +70,7 @@ export const dnsTopology = (connectors = [], dnsServers = [], dnsDomains = []) =
     if (through.length)
       addIssue(on, { domain, state: 'elsewhere', label: i18n.t('declared here, forwarded through {owners}', { owners: through.join(', ') }), to })
     else
-      addIssue(on, { domain, state: 'ok', label: i18n.t('forwarded to {servers}', { servers: by.map(({ id }) => id).join(', ') }), to })
+      addIssue(on, { domain, state: 'ok', label: i18n.t('forwarded to {servers}', { servers: by.map(({ label }) => label).join(', ') }), to })
   })
 
   return { servers, issues, direct, declared }
