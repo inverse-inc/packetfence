@@ -1054,6 +1054,38 @@ Then restart the API to load the catalogs again:
 /usr/local/pf/bin/pfcmd service pfperl-api restart
 ----
 
+=== Connectors have their own admin actions
+
+The connectors (_Configuration > Network Configuration > Connectors_, and the
+status, logs, DNS test and remote terminal of the connector-remotes) were
+covered by the `SYSTEM` admin actions. They now have their own
+`CONNECTORS_CREATE`, `CONNECTORS_READ`, `CONNECTORS_UPDATE` and
+`CONNECTORS_DELETE` actions, which an admin role with `SYSTEM_...` only does
+not have: its administrators would lose the connectors after the upgrade. The
+following script adds `CONNECTORS_<action>` to every role of
+[filename]`/usr/local/pf/conf/adminroles.conf` that has `SYSTEM_<action>`. Roles
+with the `ALL` action are not concerned.
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-16.0-connectors-admin-roles.pl
+/usr/local/pf/bin/pfcmd configreload hard
+----
+
+In a cluster, run the script on one server only and send the configuration to
+the other members before reloading it:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-16.0-connectors-admin-roles.pl
+/usr/local/pf/bin/cluster/sync --as-master
+/usr/local/pf/bin/pfcmd configreload hard
+----
+
+Administrators of the domains (`DOMAINS_READ`) can still see which connector
+serves a domain controller and the state of its NTLM services in the domain
+form; installing them on the connector requires `CONNECTORS_UPDATE`.
+
 === NTLM auth API host of domains joined before 15.1
 
 Domains joined before 15.1 are saved with `ntlm_auth_host=127.0.0.1` in
