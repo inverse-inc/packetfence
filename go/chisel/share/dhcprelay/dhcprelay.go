@@ -323,10 +323,24 @@ func (l *listener) relayOne(ctx context.Context, p dhcp.Packet, from net.Addr) {
 	logger := l.relay.cfg.Logger
 	mac := p.CHAddr().String()
 
-	// giaddr: always our address on this VLAN. This is a first-hop relay on a
-	// directly attached network, so a request already carrying a giaddr was
-	// forged by a host on the VLAN (to be served from another scope of this
-	// connector); the server selects the scope from giaddr, so overwrite it.
+	// This is a first-hop relay: the connector only serves the networks of
+	// its own VLAN interfaces. A request another relay agent already relayed
+	// (giaddr set, sent from the BOOTP server port) is for that relay's
+	// subnet, which has no scope here: drop it rather than serve it from this
+	// VLAN's scope and send the reply to the agent's client port (RFC 2131
+	// 4.1 forbids rewriting its giaddr).
+	if gi := p.GIAddr(); !gi.Equal(net.IPv4zero) {
+		if ua, ok := from.(*net.UDPAddr); ok && ua.Port == bootpServerPort {
+			err := fmt.Errorf("request relayed by the agent %s (giaddr %s) dropped: only the clients of this VLAN are served", ua.IP, gi)
+			l.noteError(err)
+			logger("dhcp-relay: %s: %s from %s: %s", l.iface.Name, msgTypeOf(p), mac, err)
+			return
+		}
+	}
+	// giaddr: always our address on this VLAN. A client-sent request
+	// carrying a giaddr was forged by a host on the VLAN (to be served from
+	// another scope of this connector); the server selects the scope from
+	// giaddr, so overwrite it.
 	p.SetGIAddr(l.iface.IP.To4())
 	p.SetHops(p.Hops() + 1)
 

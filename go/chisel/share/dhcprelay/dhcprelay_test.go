@@ -237,6 +237,33 @@ func TestRelayRenewIsPlainUnicast(t *testing.T) {
 	}
 }
 
+func TestRelayGIAddr(t *testing.T) {
+	h := newHarness(t)
+	h.answer = func(req dhcp.Packet) (int, []byte) { return 200, offerFor(req) }
+	ctx := context.Background()
+	h.relay.Sync(ctx, []Interface{{Name: "eth0.100", IP: vlanIP}})
+	defer h.relay.Stop()
+
+	// Relayed by a downstream agent: not ours, dropped untouched.
+	agent := net.IPv4(10, 20, 0, 1)
+	relayed := discover(false)
+	relayed.SetGIAddr(agent.To4())
+	h.conn.inject(relayed, &net.UDPAddr{IP: agent, Port: 67})
+	waitFor(t, func() bool { return h.relay.Status()[0].Dropped == 1 })
+	if len(h.seen) != 0 {
+		t.Fatalf("a request relayed by another agent was forwarded upstream")
+	}
+
+	// Sent by a client with a forged giaddr: relayed with ours.
+	forged := discover(false)
+	forged.SetGIAddr(agent.To4())
+	h.conn.inject(forged, &net.UDPAddr{IP: net.IPv4zero, Port: 68})
+	waitFor(t, func() bool { return len(h.seen) == 1 })
+	if gi := dhcp.Packet(h.seen[0]).GIAddr(); !gi.Equal(vlanIP) {
+		t.Errorf("forged giaddr not replaced: %s", gi)
+	}
+}
+
 func TestRelayDropsOnServerErrorsAndIgnoresReplies(t *testing.T) {
 	h := newHarness(t)
 	h.answer = func(req dhcp.Packet) (int, []byte) { return 204, nil }
