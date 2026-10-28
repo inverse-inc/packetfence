@@ -6,8 +6,16 @@ name=pfdhcp
 
 args=`base_args $name`
 args="$args -v /usr/local/pf/conf/system_init_key:/usr/local/pf/conf/system_init_key"
-# Tuning variables from conf/pfdhcp.conf (passed only when set)
-args="$args -e PFDHCP_WORKERS -e PFDHCP_QUEUE -e PFDHCP_RCVBUF"
+# Every variable of conf/pfdhcp.conf (the unit's EnvironmentFile) reaches
+# the daemon, as it did when it ran on the host: the names are read from the
+# file and the values come from this environment, parsed by systemd (docker's
+# --env-file would read the file with its own syntax).
+pfdhcp_conf=/usr/local/pf/conf/pfdhcp.conf
+if [ -f "$pfdhcp_conf" ]; then
+  for var in $(sed -nE 's/^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)=.*/\1/p' "$pfdhcp_conf"); do
+    args="$args -e $var"
+  done
+fi
 # DHCP on the local interfaces: sockets bound to the interface, broadcast,
 # raw sockets, ARP table, VIP detection. NET_ADMIN lets it force the size of
 # its receive buffers (SO_RCVBUFFORCE) like the host daemon did.
