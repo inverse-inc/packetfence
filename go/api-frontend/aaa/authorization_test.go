@@ -355,6 +355,36 @@ func TestTerminalAdminRoleMapping(t *testing.T) {
 	}
 }
 
+// The domain form reads the connector serving a domain controller and the
+// state of its NTLM services with the DOMAINS rights alone; everything else
+// on the connector-remotes stays with CONNECTORS.
+func TestPfconnectorRemotesDomainsAdminRoleMapping(t *testing.T) {
+	ctx := log.LoggerNewContext(context.Background())
+	m := NewTokenAuthorizationMiddleware(NewMemTokenBackend(1*time.Second, 1*time.Second, []string{}))
+
+	for _, path := range []string{"/api/v1/pfconnector-remotes/for-ip/192.0.2.10", "/api/v1/pfconnector-remotes/connector1/status"} {
+		for _, role := range []string{"DOMAINS_READ", "CONNECTORS_READ"} {
+			if res, err := m.isAuthorizedAdminActions(ctx, "GET", path, map[string]bool{role: true}); !res {
+				t.Errorf("GET %s was not authorized with %s, error: %v", path, role, err)
+			}
+		}
+		for _, role := range []string{"DOMAINS_CREATE", "NODES_READ"} {
+			if res, _ := m.isAuthorizedAdminActions(ctx, "GET", path, map[string]bool{role: true}); res {
+				t.Errorf("GET %s was authorized with %s", path, role)
+			}
+		}
+	}
+	for _, test := range []struct{ method, path string }{
+		{"GET", "/api/v1/pfconnector-remotes/connector1/uptime"},
+		{"GET", "/api/v1/pfconnector-remotes/connector1/logs/pfconnector-client"},
+		{"POST", "/api/v1/pfconnector-remotes/connector1/install"},
+	} {
+		if res, _ := m.isAuthorizedAdminActions(ctx, test.method, test.path, map[string]bool{"DOMAINS_READ": true, "DOMAINS_UPDATE": true}); res {
+			t.Errorf("%s %s was authorized with the DOMAINS rights", test.method, test.path)
+		}
+	}
+}
+
 // Restarting or upgrading a connector-remote modifies an existing connector:
 // it requires CONNECTORS_UPDATE, while reading its status, its logs or doing
 // a DNS lookup only requires CONNECTORS_READ.
