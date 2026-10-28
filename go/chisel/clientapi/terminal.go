@@ -248,13 +248,17 @@ func (api *API) terminal() (bool, error) {
 					if msg.IdleTimeout > 0 {
 						api.terminalIdleTimeout.Store(int64(msg.IdleTimeout))
 					}
+					// The slaves opened from now on belong to this
+					// activation, whether the server was already running
+					// (an activation within the idle timeout of the previous
+					// one) or not: its recordings carry this admin.
+					factory.setSession(msg.Session, msg.AdminUser)
 					if atomic.LoadInt32(&api.serverRunning) == 1 {
 						log.Println("GoTTY server is already running")
 						break
 					}
 
 					atomic.StoreInt32(&api.serverRunning, 1)
-					factory.setSession(msg.Session, msg.AdminUser)
 
 					serverCtx, serverCancel = context.WithCancel(api.ctx)
 					// One idle watcher per running terminal, gone with it:
