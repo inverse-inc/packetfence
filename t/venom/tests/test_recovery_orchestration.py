@@ -74,26 +74,26 @@ run
 
     def test_cluster_clone_box_mapping_excludes_local_and_release(self):
         result = self.bash('''
-for vm in pfdeb12dev pf1deb12dev pf3el8dev pf1deb12localdev pfdeb12; do
+for vm in pfdeb13dev pf1deb13dev pf3el8dev pf1deb13localdev pfdeb13; do
     echo "$vm=$(baked_box_for_pf_vm "$vm")"
 done
 ''')
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(result.stdout.splitlines(), [
-            'pfdeb12dev=pfdeb12dev', 'pf1deb12dev=pfdeb12dev',
-            'pf3el8dev=pfel8dev', 'pf1deb12localdev=', 'pfdeb12='])
+            'pfdeb13dev=pfdeb13dev', 'pf1deb13dev=pfdeb13dev',
+            'pf3el8dev=pfel8dev', 'pf1deb13localdev=', 'pfdeb13='])
 
     def test_local_baked_box_opt_in_maps_localdev(self):
         result = self.bash('''
 LOCAL_BAKED_BOX=yes
-for vm in pf1deb12localdev pfdeb12localdev pf3el8localdev pf1deb12dev pfdeb12; do
+for vm in pf1deb13localdev pfdeb13localdev pf3el8localdev pf1deb13dev pfdeb13; do
     echo "$vm=$(baked_box_for_pf_vm "$vm")"
 done
 ''')
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(result.stdout.splitlines(), [
-            'pf1deb12localdev=pfdeb12localdev', 'pfdeb12localdev=pfdeb12localdev',
-            'pf3el8localdev=pfel8localdev', 'pf1deb12dev=pfdeb12dev', 'pfdeb12='])
+            'pf1deb13localdev=pfdeb13localdev', 'pfdeb13localdev=pfdeb13localdev',
+            'pf3el8localdev=pfel8localdev', 'pf1deb13dev=pfdeb13dev', 'pfdeb13='])
 
     def baked_import_calls(self, vms):
         return self.bash(f'''
@@ -108,23 +108,23 @@ echo END
 ''')
 
     def test_baked_import_boots_together_and_runs_playbooks_once(self):
-        result = self.baked_import_calls('pf1deb12localdev pf2deb12localdev pf3deb12localdev')
+        result = self.baked_import_calls('pf1deb13localdev pf2deb13localdev pf3deb13localdev')
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(result.stdout.splitlines(), [
-            'VAGRANT up pf1deb12localdev pf2deb12localdev pf3deb12localdev',
-            'PLAY playbooks/cluster_prep_baked.yml -l pf1deb12localdev,pf2deb12localdev,pf3deb12localdev',
-            'PLAY playbooks/refresh_network_post_import.yml -l pf1deb12localdev,pf2deb12localdev,pf3deb12localdev',
-            'PLAY playbooks/cluster_readdress_baked.yml -l pf1deb12localdev,pf2deb12localdev,pf3deb12localdev',
-            'PLAY playbooks/register_rhel_subscription.yml -l pf1deb12localdev,pf2deb12localdev,pf3deb12localdev',
+            'VAGRANT up pf1deb13localdev pf2deb13localdev pf3deb13localdev',
+            'PLAY playbooks/cluster_prep_baked.yml -l pf1deb13localdev,pf2deb13localdev,pf3deb13localdev',
+            'PLAY playbooks/refresh_network_post_import.yml -l pf1deb13localdev,pf2deb13localdev,pf3deb13localdev',
+            'PLAY playbooks/cluster_readdress_baked.yml -l pf1deb13localdev,pf2deb13localdev,pf3deb13localdev',
+            'PLAY playbooks/register_rhel_subscription.yml -l pf1deb13localdev,pf2deb13localdev,pf3deb13localdev',
             'END'])
 
     def test_baked_import_of_a_standalone_skips_cluster_playbooks(self):
-        result = self.baked_import_calls('pfdeb12dev')
+        result = self.baked_import_calls('pfdeb13dev')
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(result.stdout.splitlines(), [
-            'VAGRANT up pfdeb12dev',
-            'PLAY playbooks/refresh_network_post_import.yml -l pfdeb12dev',
-            'PLAY playbooks/register_rhel_subscription.yml -l pfdeb12dev',
+            'VAGRANT up pfdeb13dev',
+            'PLAY playbooks/refresh_network_post_import.yml -l pfdeb13dev',
+            'PLAY playbooks/register_rhel_subscription.yml -l pfdeb13dev',
             'END'])
 
     def guarded_baked_startup(self, vms, fallback='no', local='no', fail_vm=''):
@@ -148,16 +148,16 @@ start_and_provision_pf_vm {vms}
 ''')
 
     def test_batch_start_validates_every_box_before_import(self):
-        result = self.guarded_baked_startup('pf1deb12dev pf2deb12dev pf3deb12dev')
+        result = self.guarded_baked_startup('pf1deb13dev pf2deb13dev pf3deb13dev')
         self.assertEqual(result.returncode, 0, result.stderr)
         calls = [line for line in result.stdout.splitlines()
                  if line.startswith(('REGISTER ', 'BAKED '))]
-        self.assertEqual(calls, ['REGISTER pf1deb12dev', 'REGISTER pf2deb12dev',
-                                 'REGISTER pf3deb12dev',
-                                 'BAKED pf1deb12dev pf2deb12dev pf3deb12dev'])
+        self.assertEqual(calls, ['REGISTER pf1deb13dev', 'REGISTER pf2deb13dev',
+                                 'REGISTER pf3deb13dev',
+                                 'BAKED pf1deb13dev pf2deb13dev pf3deb13dev'])
 
     def test_unmapped_node_prevents_any_batch_import(self):
-        for vms in ['pfdeb12 pf1deb12dev', 'pf1deb12dev pfdeb12']:
+        for vms in ['pfdeb13 pf1deb13dev', 'pf1deb13dev pfdeb13']:
             with self.subTest(vms=vms):
                 result = self.guarded_baked_startup(vms)
                 self.assertNotEqual(result.returncode, 0)
@@ -167,33 +167,33 @@ start_and_provision_pf_vm {vms}
                 self.assertNotIn('VAGRANT ', result.stdout)
 
     def test_unmapped_node_falls_back_for_the_entire_batch(self):
-        result = self.guarded_baked_startup('pf1deb12dev pfdeb12', fallback='yes')
+        result = self.guarded_baked_startup('pf1deb13dev pfdeb13', fallback='yes')
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertNotIn('BAKED ', result.stdout)
-        self.assertIn('PROVISION site.yml -l pf1deb12dev,pfdeb12 USE=no CONFIGURATOR=no',
+        self.assertIn('PROVISION site.yml -l pf1deb13dev,pfdeb13 USE=no CONFIGURATOR=no',
                       result.stdout)
 
     def test_local_opt_in_keeps_batch_import(self):
-        result = self.guarded_baked_startup('pf1deb12localdev pf2deb12localdev', local='yes')
+        result = self.guarded_baked_startup('pf1deb13localdev pf2deb13localdev', local='yes')
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn('BAKED pf1deb12localdev pf2deb12localdev', result.stdout)
+        self.assertIn('BAKED pf1deb13localdev pf2deb13localdev', result.stdout)
 
     def test_later_registration_failure_happens_before_any_batch_import(self):
         for fallback in ['yes', 'no']:
             with self.subTest(fallback=fallback):
-                result = self.guarded_baked_startup('pf1deb12dev pf2el8dev',
+                result = self.guarded_baked_startup('pf1deb13dev pf2el8dev',
                                                    fallback=fallback, fail_vm='pf2el8dev')
                 self.assertEqual(result.returncode == 0, fallback == 'yes', result.stderr)
                 self.assertNotIn('BAKED ', result.stdout)
                 if fallback == 'yes':
-                    self.assertIn('PROVISION site.yml -l pf1deb12dev,pf2el8dev USE=no CONFIGURATOR=no',
+                    self.assertIn('PROVISION site.yml -l pf1deb13dev,pf2el8dev USE=no CONFIGURATOR=no',
                                   result.stdout)
                 else:
                     self.assertNotIn('VAGRANT ', result.stdout)
 
     def test_ordinary_runs_keep_existing_scenario_path(self):
         result = self.bash('''
-SCENARIOS_TO_RUN=configurator PF_VM_NAMES=pfdeb12dev INT_TEST_VM_NAMES=''
+SCENARIOS_TO_RUN=configurator PF_VM_NAMES=pfdeb13dev INT_TEST_VM_NAMES=''
 check_free_space() { :; }
 start_and_provision_pf_vm() { echo "PROVISION $*"; }
 run_tests() { echo "SCENARIO $SCENARIOS_TO_RUN"; }
@@ -201,7 +201,7 @@ timeout() { echo UNEXPECTED; return 99; }
 run
 ''')
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn('PROVISION pfdeb12dev', result.stdout)
+        self.assertIn('PROVISION pfdeb13dev', result.stdout)
         self.assertIn('SCENARIO configurator', result.stdout)
         self.assertNotIn('UNEXPECTED', result.stdout)
 

@@ -2,7 +2,7 @@
 # Clean shutdown that lets galera close properly (writes grastate.dat with a
 # valid seqno; the LAST node to leave the primary component gets
 # safe_to_bootstrap: 1). `pfcmd service pf stop` closes galera cleanly; then a
-# forced poweroff avoids the deb12 graceful-shutdown/systemd deadlock, but only
+# forced poweroff avoids the Debian 12 graceful-shutdown/systemd deadlock, but only
 # once mariadb is confirmed down, otherwise the power cut dirties grastate.
 - import_tasks: read_uuid.yml
 

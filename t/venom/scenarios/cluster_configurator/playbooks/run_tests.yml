@@ -210,7 +210,7 @@
 
   tasks:
     # Stop PF first so galera closes cleanly (rejoin without SST); the graceful
-    # shutdown otherwise deadlocks systemd's reboot. Observed on deb12; kept for
+    # shutdown otherwise deadlocks systemd's reboot. Observed on Debian 12; kept for
     # deb13 because it is harmless either way, but worth re-checking against
     # trixie's much newer systemd before relying on it.
     - name: Stop PacketFence before reboot
@@ -221,7 +221,7 @@
       reboot:
         reboot_timeout: 600
         post_reboot_delay: 30
-        # force bypasses the graceful-shutdown deadlock seen on deb12 (see above)
+        # force bypasses the graceful-shutdown deadlock seen on Debian 12 (see above)
         reboot_command: "systemctl reboot --force"
       when: not (cluster_already_healthy | default(false))
 
