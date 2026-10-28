@@ -14,6 +14,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/inverse-inc/go-utils/log"
@@ -47,6 +48,10 @@ var (
 	// haBoostTTL clears a boost that never led to a takeover.
 	haBoostTTL = 60 * time.Second
 )
+
+// haBoostGeneration counts the boosts applied; the expiry goroutine of a
+// boost only clears it while it is still the latest.
+var haBoostGeneration atomic.Int64
 
 // SetHABoost writes the tracked priority boost (0 clears it).
 func SetHABoost(value int) error {
@@ -103,9 +108,14 @@ func haBoost(api *API) http.HandlerFunc {
 		log.LoggerWContext(api.ctx).Info(fmt.Sprintf("HA: VRRP priority boost %d applied at the master's request (%s)", req.Boost, r.RemoteAddr))
 		if req.Boost > 0 {
 			// Safety net: a takeover that never happens must not leave this
-			// host boosted forever.
+			// host boosted forever. Each boost has its own generation so
+			// the expiry of an earlier one leaves a later retry alone.
+			generation := haBoostGeneration.Add(1)
 			go func() {
 				time.Sleep(haBoostTTL)
+				if haBoostGeneration.Load() != generation {
+					return
+				}
 				haStatusMu.RLock()
 				state := ""
 				if haStatus != nil {
