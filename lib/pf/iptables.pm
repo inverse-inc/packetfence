@@ -459,6 +459,9 @@ sub iptables_haproxy_portal_rules {
                 foreach my $source (@proxy_sources) {
                     util_safe_push( "-i $tint -p tcp -m tcp -s $source --dport $port -j ACCEPT", $chains->{'filter'}{'INPUT'} );
                 }
+                # The listeners trust the PROXY header for the client IP: no
+                # other host of the management network may reach them.
+                util_safe_push( "-i $tint -p tcp -m tcp --dport $port -j DROP", $chains->{'filter'}{'INPUT'} );
             }
         }
     }
