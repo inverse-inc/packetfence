@@ -1,7 +1,6 @@
 package chclient
 
 import (
-	"bufio"
 	"bytes"
 	"context"
 	"crypto/md5"
@@ -445,40 +444,28 @@ func (c *Client) reportConnectorInfo() {
 // getDefaultInterfaceIPs returns the IP addresses of the interface holding
 // the default route.
 func getDefaultInterfaceIPs() ([]net.IP, error) {
-	file, err := os.Open("/proc/net/route")
-	if err != nil {
-		return nil, err
+	name := sitenetwork.DefaultRouteInterface()
+	if name == "" {
+		return nil, fmt.Errorf("no default route found")
 	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		fields := strings.Fields(scanner.Text())
-		if len(fields) >= 2 && fields[1] == "00000000" { // Destination 0.0.0.0
-			iface, err := net.InterfaceByName(fields[0])
-			if err != nil {
-				return nil, fmt.Errorf("failed to get interface %s: %w", fields[0], err)
-			}
-			ifaceIPs, err := iface.Addrs()
-			if err != nil {
-				return nil, fmt.Errorf("failed to get addresses for interface %s: %w", fields[0], err)
-			}
-			ips := make([]net.IP, 0, len(ifaceIPs))
-			for _, addr := range ifaceIPs {
-				if ipnet, ok := addr.(*net.IPNet); ok {
-					ips = append(ips, ipnet.IP)
-				}
-			}
-			if len(ips) == 0 {
-				return nil, fmt.Errorf("no IP addresses found for interface %s", fields[0])
-			}
-			return ips, nil
+	iface, err := net.InterfaceByName(name)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get interface %s: %w", name, err)
+	}
+	ifaceIPs, err := iface.Addrs()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get addresses for interface %s: %w", name, err)
+	}
+	ips := make([]net.IP, 0, len(ifaceIPs))
+	for _, addr := range ifaceIPs {
+		if ipnet, ok := addr.(*net.IPNet); ok {
+			ips = append(ips, ipnet.IP)
 		}
 	}
-	if err := scanner.Err(); err != nil {
-		return nil, err
+	if len(ips) == 0 {
+		return nil, fmt.Errorf("no IP addresses found for interface %s", name)
 	}
-	return nil, fmt.Errorf("no default route found")
+	return ips, nil
 }
 
 func (c *Client) setProxy(u *url.URL, d *websocket.Dialer) error {
@@ -656,11 +643,10 @@ func (c *Client) reconcileSiteNetwork(ctx context.Context) {
 		return
 	}
 
-	if c.siteNetwork == nil {
-		c.siteNetwork = sitenetwork.New()
-		c.siteNetwork.KeepAddresses = haVirtualIPs
+	status, ok := c.applySiteNetwork(ctx, reply)
+	if !ok {
+		return
 	}
-	status := c.siteNetwork.Reconcile(ctx, reply.Version, sitenetwork.Desired{Interfaces: reply.Interfaces, Routes: reply.Routes})
 	sitenetwork.SetLastStatus(status)
 	if reply.Version != c.siteNetworkVersion {
 		c.Infof("Applied site network config %s: %d interface(s), %d route(s), %d error(s)", reply.Version, len(status.Interfaces), len(status.Routes), status.Errors)
@@ -682,6 +668,33 @@ func (c *Client) reconcileSiteNetwork(ctx context.Context) {
 	}
 	c.syncDhcpRelay(ctx, connectorID, reply.Interfaces, &status)
 	c.syncDnsResponder(ctx, reply.Interfaces, &status)
+}
+
+// applySiteNetwork runs the reconciler under siteServicesMu: Close waits for a
+// pass in flight and no pass starts after it. In HA mode a pass only runs
+// while the host holds the VIP: when it is released, ha-notify.sh flushes the
+// site addresses and a pass landing before the HA loop closes this client
+// (it polls the VIP once a second) would put them back next to the new
+// master's.
+func (c *Client) applySiteNetwork(ctx context.Context, reply siteNetworkReply) (sitenetwork.Status, bool) {
+	c.siteServicesMu.Lock()
+	defer c.siteServicesMu.Unlock()
+	if c.closing {
+		return sitenetwork.Status{}, false
+	}
+	if c.config.HA {
+		if vips := haVirtualIPs(); len(vips) > 0 {
+			if present, err := VIPPresent(vips[0]); err == nil && !present {
+				c.Debugf("site-network: VIP %s not on this host, pass skipped", vips[0])
+				return sitenetwork.Status{}, false
+			}
+		}
+	}
+	if c.siteNetwork == nil {
+		c.siteNetwork = sitenetwork.New()
+		c.siteNetwork.KeepAddresses = haVirtualIPs
+	}
+	return c.siteNetwork.Reconcile(ctx, reply.Version, sitenetwork.Desired{Interfaces: reply.Interfaces, Routes: reply.Routes}), true
 }
 
 // syncDnsResponder keeps one captive DNS responder per VLAN interface that is
