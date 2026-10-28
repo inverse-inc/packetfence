@@ -79,7 +79,7 @@ def main():
     parser.add_argument('--source', required=True, help='Pipeline tag, e.g. devel-p123')
     parser.add_argument('--tags', required=True, help='Comma-separated branch tags, e.g. devel,latest')
     parser.add_argument('--containers', default='containers')
-    parser.add_argument('--require', default='pfdebian,radiusd,pfcmd', help='Images that must be promoted')
+    parser.add_argument('--require', default='pfdebian-trixie,radiusd,pfcmd', help='Images that must be promoted')
     parser.add_argument('--apply', action='store_true', help='Without it, only check the pipeline tags exist')
     args = parser.parse_args()
     targets = [t for t in args.tags.split(',') if t]

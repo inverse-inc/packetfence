@@ -50,7 +50,7 @@ class ConfigurationTest(unittest.TestCase):
     def test_service_images_are_promoted_only_after_tests(self):
         config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
         service = config['.build_img_service_rules']['rules']
-        for name in ('pfdebian', 'pfdebian_related', 'radiusd', 'radiusd_related'):
+        for name in ('pfdebian_trixie', 'pfdebian_related', 'radiusd', 'radiusd_related'):
             self.assertIn({'reference': ['.build_img_service_rules', 'rules']}, config[name]['rules'])
         for rule in service:
             if rule['if'] in ('$CI_COMMIT_REF_NAME == "devel"',) or rule['if'].startswith('$CI_COMMIT_REF_NAME =~ /^maintenance'):

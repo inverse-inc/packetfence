@@ -35,6 +35,7 @@
     "pfconnector-remote",
     "pfcron",
     "pfdebian",
+    "pfdebian-trixie",
     "pfdns-connector",
     "pfldapexplorer",
     "pfperl-api",
