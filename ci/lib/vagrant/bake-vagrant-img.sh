@@ -149,7 +149,7 @@ convert_box_volume() {
     docker run --rm \
         -v "${vol_dir}:${vol_dir}:ro" \
         -v "${BOX_STAGING_DIR}:/out" \
-        debian:bookworm-slim \
+        debian:trixie-slim \
         sh -c "export DEBIAN_FRONTEND=noninteractive \
             && apt-get update -qq \
             && apt-get install -qq -y --no-install-recommends qemu-utils >/dev/null \
