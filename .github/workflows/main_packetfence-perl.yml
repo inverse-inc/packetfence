@@ -67,7 +67,7 @@ jobs:
               - '.github/workflows/reusable_sign_packages.yml'
               - '.github/workflows/reusable_upload_packages.yml'
               # containers/packetfence-perl/** rather than per-distro entries:
-              # the dirs are debian11/ debian12/ debian13/ rhel8/, and the old
+              # the dirs are debian13/ rhel8/, and the old
               # 'debian/**' entry matched none of them, so Dockerfile-only
               # changes never triggered this pipeline.
               - 'containers/packetfence-perl/**'

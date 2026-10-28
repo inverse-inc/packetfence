@@ -40,12 +40,9 @@ jobs:
     if: startsWith(inputs._IMAGE_TYPE, 'debian')
     runs-on: packetfence-perl-package-build
     container:
-      # A .deb has to be installed on the release it was built for, so the
-      # container tracks _IMAGE_TYPE rather than being one fixed image. These
-      # are the stock public Debian images, so no registry credentials are
-      # needed -- and nothing here depends on the private signing image, which
-      # is a trixie base and could only ever validate Debian 13 packages.
-      image: ${{ inputs._IMAGE_TYPE == 'debian11' && 'debian:11' || inputs._IMAGE_TYPE == 'debian12' && 'debian:12' || 'debian:13' }}
+      # The stock public Debian image, so no registry credentials are needed
+      # and nothing here depends on the private signing image.
+      image: debian:13
     steps:
       - name: Download artifactory ${{ inputs._IMAGE_TYPE }}
         uses: actions/download-artifact@v4.1.7
@@ -53,7 +50,7 @@ jobs:
           name: ${{ env.ARTIFACTORY_NAME }}
           path: /mnt
         env:
-          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'debian11' && 'package-deb11' || inputs._IMAGE_TYPE == 'debian12' && 'package-deb12' || 'package-deb13' }}
+          ARTIFACTORY_NAME: package-deb13
 
       - name: Install the package ${{ inputs._PACKAGE_NAME }} debian
         run: |
@@ -63,8 +60,7 @@ jobs:
           PF_RELEASE_PATH=https://raw.githubusercontent.com/inverse-inc/packetfence/devel/conf/pf-release
           PF_MINOR_RELEASE=$(curl -s ${PF_RELEASE_PATH}  | grep -oE '[0-9]+\.[0-9]+')
           # Take the suite from the container instead of hardcoding it: the
-          # repo publishes one suite per codename, and hardcoding meant the
-          # debian11 arm pointed at bookworm.
+          # repo publishes one suite per codename.
           . /etc/os-release
           # apt-key is gone in trixie; use a signed-by keyring, the way the
           # pfbuild-trixie and pfdebian-trixie images do.

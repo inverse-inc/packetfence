@@ -122,7 +122,7 @@ the runner root and the helper resolves the same paths inside the container:
 
 ```bash
 docker run --rm -v /home/github_runner/actions-runner:/runner \
-    debian:12 /runner/hooks/reclaim-workspace-ownership.sh
+    debian:13 /runner/hooks/reclaim-workspace-ownership.sh
 ```
 
 Swap that in for the `sudo -n` line in `job-completed.sh`, and prefer an image

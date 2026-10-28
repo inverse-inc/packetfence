@@ -39,8 +39,7 @@ variables:
   # Opt in to Go analysis and full builds on both build images.
   GO_CHECK: "no"
   PFBUILD_RHEL_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-centos-8
-  PFBUILD_DEB_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-debian-bookworm
-  PFBUILD_DEB_TRIXIE_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-debian-trixie
+  PFBUILD_DEB_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-debian-trixie
   KANIKO_DEBUG_IMG: ghcr.io/inverse-inc/packetfence/kaniko-executor:debug
   KANIKOBUILD_IMG: ghcr.io/inverse-inc/packetfence/kaniko-build
   KNK_REGISTRY: ghcr.io
@@ -153,13 +152,6 @@ variables:
     - if: '$BUILD_ARTIFACTS_PKG == "no"'
       when: never
 
-# Debian 13 is the default Debian target; the Debian 12 package job is retained
-# for maintenance work but only runs on explicit request.
-.gated_by_build_artifacts_pkg_deb12:
-  rules:
-    - if: '$BUILD_ARTIFACTS_PKG_DEB12 != "yes" && $CI_COMMIT_MESSAGE !~ /build_artifacts_pkg_deb12=yes/'
-      when: never
-
 .gated_by_build_img_container:
   rules:
     - if: '$BUILD_IMG_CONTAINER == "no"'
@@ -227,7 +219,7 @@ variables:
       when: never
 
 # === SHARED CONTAINER-BUILD RULES ===
-# Container-build jobs (kaniko, pfdebian, pfdebian_trixie, pfdebian_related,
+# Container-build jobs (kaniko, pfdebian_trixie, pfdebian_related,
 # radiusd, radiusd_related) share the same per-context filter + IMAGE_TAGS
 # override pattern. pfdebian_related uses a parallel-matrix anchor and
 # reuses this same rule set (release context included — all service images
@@ -484,13 +476,11 @@ variables:
 .needs_all_build_images:
   needs:
     - job: pre_ci_lint_yaml
-    - job: pre_ci_go_check_debian_bookworm
+    - job: pre_ci_go_check_debian_trixie
       optional: true
     - job: pre_ci_go_check_centos_8
       optional: true
     - job: kaniko
-      optional: true
-    - job: pfdebian
       optional: true
     - job: pfdebian_trixie
       optional: true
@@ -777,7 +767,7 @@ variables:
 # CHECK JOBS
 ########################################
 run_pipeline_if_necessary:
-  image: ${PFBUILD_DEB_TRIXIE_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+  image: ${PFBUILD_DEB_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
   extends:
     - .check_job
   rules:
@@ -811,7 +801,7 @@ pre_ci_test_cleanup:
   needs:
     - job: run_pipeline_if_necessary
       optional: true
-  image: ${PFBUILD_DEB_TRIXIE_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+  image: ${PFBUILD_DEB_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
   rules:
     - when: always
   script:
@@ -833,7 +823,7 @@ pre_ci_test_cleanup:
     - make -C go check-build
   allow_failure: false
 
-pre_ci_go_check_debian_bookworm:
+pre_ci_go_check_debian_trixie:
   extends:
     - .go_check_job
   image: ${PFBUILD_DEB_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
@@ -844,7 +834,7 @@ pre_ci_go_check_centos_8:
   image: ${PFBUILD_RHEL_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
 
 ########################################
-# BUILD_IMG_CONTAINER JOBS (kaniko / pfdebian / pfdebian_trixie /
+# BUILD_IMG_CONTAINER JOBS (kaniko / pfdebian_trixie /
 # pfdebian_related / radiusd / radiusd_related)
 ########################################
 kaniko:
@@ -862,20 +852,7 @@ kaniko:
   rules:
     - !reference [.build_img_container_rules, rules]
 
-pfdebian:
-  extends:
-    - .build_img_container_job
-  needs: ["kaniko"]
-  variables:
-    IMAGE_NAME: "pfdebian"
-    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
-  rules:
-    - !reference [.gated_by_build_img_container, rules]
-    - !reference [.build_img_container_rules, rules]
-
-# The runtime base for the service images. pfdebian (bookworm) is still built
-# above so maintenance branches have a base to pull, but every derived image's
-# FROM clause now resolves this one.
+# The runtime base for the service images.
 pfdebian_trixie:
   extends:
     - .build_img_container_job
@@ -956,8 +933,6 @@ ci_related:
           - "signing-packages"
           - "publish-ppa"
           - "pfconfig-material-builder"
-      - IMAGE_NAME: "pfbuild-debian-bookworm"
-        DOCKFILE_PATH: "${CI_PROJECT_DIR}/containers/pfbuild-bookworm/Dockerfile"
       - IMAGE_NAME: "pfbuild-debian-trixie"
         DOCKFILE_PATH: "${CI_PROJECT_DIR}/containers/pfbuild-trixie/Dockerfile"
   rules:
@@ -1068,28 +1043,12 @@ build_artifacts_pkg_centos_8:
     - !reference [.context_rules, rules]
 
 build_artifacts_pkg_debian_trixie:
-  image: ${PFBUILD_DEB_TRIXIE_IMG}:${IMAGE_TAG}
-  extends:
-    - .build_artifacts_pkg_job
-    - .deb_script_job
-  rules:
-    - !reference [.gated_by_build_artifacts_pkg, rules]
-    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && ($CI_PIPELINE_SOURCE != "web" && $CI_PIPELINE_SOURCE != "api" && $CI_PIPELINE_SOURCE != "schedule")'
-      when: never
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE != "web" && $CI_PIPELINE_SOURCE != "api" && $CI_PIPELINE_SOURCE != "schedule")'
-      when: never
-    - !reference [.context_rules, rules]
-
-# Retained for maintenance work; opt in with BUILD_ARTIFACTS_PKG_DEB12=yes or a
-# build_artifacts_pkg_deb12=yes commit message.
-build_artifacts_pkg_debian_bookworm:
   image: ${PFBUILD_DEB_IMG}:${IMAGE_TAG}
   extends:
     - .build_artifacts_pkg_job
     - .deb_script_job
   rules:
     - !reference [.gated_by_build_artifacts_pkg, rules]
-    - !reference [.gated_by_build_artifacts_pkg_deb12, rules]
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && ($CI_PIPELINE_SOURCE != "web" && $CI_PIPELINE_SOURCE != "api" && $CI_PIPELINE_SOURCE != "schedule")'
       when: never
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE != "web" && $CI_PIPELINE_SOURCE != "api" && $CI_PIPELINE_SOURCE != "schedule")'
@@ -1098,7 +1057,7 @@ build_artifacts_pkg_debian_bookworm:
 
 # build_artifacts_website (devel/branches/release)
 build_artifacts_website:
-  image: ${PFBUILD_DEB_TRIXIE_IMG}:${IMAGE_TAG}
+  image: ${PFBUILD_DEB_IMG}:${IMAGE_TAG}
   extends:
     - .build_artifacts_website_job
   rules:
@@ -1121,7 +1080,7 @@ build_artifacts_material:
 
 # build_artifacts_doc (devel/branches/maintenance/release)
 build_artifacts_doc:
-  image: ${PFBUILD_DEB_TRIXIE_IMG}:${IMAGE_TAG}
+  image: ${PFBUILD_DEB_IMG}:${IMAGE_TAG}
   extends:
     - .build_artifacts_doc_job
   rules:
@@ -1150,8 +1109,6 @@ sign_packages:
       optional: true
     - job: build_artifacts_pkg_centos_8
     - job: build_artifacts_pkg_debian_trixie
-    - job: build_artifacts_pkg_debian_bookworm
-      optional: true
   variables:
     # GPG_KEY_FINGERPRINT, GPG_USER_ID, PSONO_API_KEY_ID,
     # PSONO_API_KEY_SECRET_KEY, PSONO_GPG_PRIVATE_KEY_SECRET_ID:
@@ -1712,7 +1669,7 @@ build_pf_img_dvd_usb_iso:
     - .build_pf_img_job
   # The ISO bundles the service Docker images (step1 pulls them from GHCR), so
   # it must wait for those image builds, not just publish_ppa. Naming the two
-  # leaf jobs is enough: they transitively require kaniko -> pfdebian -> radiusd.
+  # leaf jobs is enough: they transitively require kaniko -> pfdebian_trixie -> radiusd.
   # A flat list is mandatory here, !reference only builds arrays for
   # rules/script/stages.
   needs:
