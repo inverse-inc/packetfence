@@ -2,7 +2,7 @@
   <div>
     <p class="small text-muted">
       {{ $i18n.t('State of the interfaces, static routes, captive DNS responders and DHCP relays the connector applies on its host, as of its last pass, and the listeners it opened for the tunnel.') }}
-      <b-link :to="settingsLocation('networking')" replace class="text-nowrap">{{ $i18n.t('Settings > Networking') }}</b-link>
+      <b-link :to="settingsLocation('networking')" replace class="text-nowrap">{{ $i18n.t('Settings > Site networking') }}</b-link>
     </p>
     <b-row>
       <b-col lg="6" class="mb-3">

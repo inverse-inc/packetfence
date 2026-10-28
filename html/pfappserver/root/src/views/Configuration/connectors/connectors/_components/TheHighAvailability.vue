@@ -7,7 +7,7 @@
     <b-card-body class="pb-0">
       <p class="small text-muted mb-2">
         {{ $i18n.t('Point switches, portal redirection and DHCP relays at the virtual IP.') }}
-        <b-link :to="settingsLocation('networking')" replace class="text-nowrap">{{ $i18n.t('Settings > Networking') }}</b-link>
+        <b-link :to="settingsLocation('networking')" replace class="text-nowrap">{{ $i18n.t('Settings > Site networking') }}</b-link>
         <base-doc-link anchor="pfconnector-high-availability" class="ml-1" />
       </p>
     </b-card-body>

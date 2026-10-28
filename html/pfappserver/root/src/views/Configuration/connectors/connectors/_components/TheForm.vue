@@ -42,7 +42,7 @@
             />
           </base-form-tab>
 
-          <base-form-tab :title="$i18n.t('Networking')">
+          <base-form-tab :title="$i18n.t('Site networking')">
             <b-alert show variant="info">
               {{ $i18n.t('The connector creates these interfaces and routes on its host and keeps them applied; the interface carrying the tunnel is never reconfigured.') }}
               <base-doc-link anchor="pfconnector-site-networking" />
