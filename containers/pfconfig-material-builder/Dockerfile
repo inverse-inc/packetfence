@@ -1,4 +1,4 @@
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 
 # CI-only wrapper image for ci/lib/build/generate-material.sh.
 # pfconfig daemon stays in its own sidecar, spawned by the script.
@@ -15,7 +15,7 @@ RUN apt-get update -qq && \
     curl -fsSL https://download.docker.com/linux/debian/gpg \
         -o /etc/apt/keyrings/docker.asc && \
     chmod a+r /etc/apt/keyrings/docker.asc && \
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian bookworm stable" \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian trixie stable" \
         > /etc/apt/sources.list.d/docker.list && \
     \
     curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \

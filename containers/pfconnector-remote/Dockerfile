@@ -3,7 +3,7 @@ ARG IMAGE_TAG
 ARG BUILDER_TAG
 
 # Stage 0: Build pfconnector Go binary
-FROM ${KNK_REGISTRY_URL}/pfbuild-debian-bookworm:${BUILDER_TAG} AS go-builder
+FROM ${KNK_REGISTRY_URL}/pfbuild-debian-trixie:${BUILDER_TAG} AS go-builder
 RUN mkdir -p /usr/local/pf/
 WORKDIR /usr/local/pf/
 
