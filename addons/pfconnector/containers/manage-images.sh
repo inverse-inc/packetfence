@@ -87,7 +87,7 @@ configure_and_check() {
     # find all directories with Dockerfile
     # excluding non necessary images
     DOCKERFILE_DIRS=$(find ${SCRIPT_DIR} -type f -name "Dockerfile" \
-                           -not -path "*/pfdebian/*" \
+                           -not -path "*/pfdebian-trixie/*" \
                            -not -path "*/radiusd/*" \
                            -not -path "*/kaniko-build/*" \
                            -not -path "*/packetfence-perl/*" \
