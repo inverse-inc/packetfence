@@ -1525,8 +1525,6 @@ func (s *Server) handleRemoteTerm(w http.ResponseWriter, req *http.Request) {
 // the IPs of a connector that went away expire on their own.
 const connectorIPsTTL = 5 * time.Minute
 
-// handlePfconnectorInfo stores the IPs a connector-remote reports about
-// itself (POSTed through the tunnel after its remote binds are up) under
 // authenticateConnector checks that a request on the tunnel-local API really
 // comes from connectorId: the connauth header must be signed with that
 // connector's secret (see chisel/share/connauth). Every connector's requests
@@ -1538,22 +1536,29 @@ const connectorIPsTTL = 5 * time.Minute
 // it holds in the configuration: the check is "knows this connector's
 // secret", which is the connector or PacketFence, never another connector.
 func (s *Server) authenticateConnector(w http.ResponseWriter, req *http.Request, connectorId string) bool {
+	_, ok := s.authenticatedConnector(w, req, connectorId)
+	return ok
+}
+
+// authenticatedConnector is authenticateConnector returning the connector's
+// configuration, for the handlers that need it after the check.
+func (s *Server) authenticatedConnector(w http.ResponseWriter, req *http.Request, connectorId string) (pfconfigdriver.ConnectorConfig, bool) {
 	connectors := pfconfigdriver.Connectors{}
 	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &connectors); err != nil {
 		http.Error(w, "Unable to fetch the connectors configuration", http.StatusInternalServerError)
-		return false
+		return pfconfigdriver.ConnectorConfig{}, false
 	}
 	connector, found := connectors.Element[connectorId]
 	if !found {
 		http.Error(w, fmt.Sprintf("Unknown connector %s", connectorId), http.StatusNotFound)
-		return false
+		return pfconfigdriver.ConnectorConfig{}, false
 	}
 	if err := connauth.Verify(connectorId, connector.Secret, req.Header.Get(connauth.Header), time.Now()); err != nil {
 		log.LoggerWContext(req.Context()).Warn(fmt.Sprintf("Request for connector %s to %s refused: %s", connectorId, req.URL.Path, err))
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return false
+		return pfconfigdriver.ConnectorConfig{}, false
 	}
-	return true
+	return connector, true
 }
 
 // connectorOwnsStaticPort reports whether port is the server-side port of one
@@ -2378,21 +2383,8 @@ func (s *Server) handleSiteNetwork(w http.ResponseWriter, req *http.Request) {
 		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: "Missing connector-id"})
 		return
 	}
-	if !s.authenticateConnector(w, req, connectorId) {
-		return
-	}
-
-	connectors := pfconfigdriver.Connectors{}
-	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &connectors); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: fmt.Sprintf("Unable to fetch connectors config from pfconfig: %s", err)})
-		return
-	}
-
-	connector, found := connectors.Element[connectorId]
-	if !found {
-		w.WriteHeader(http.StatusNotFound)
-		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusNotFound, Message: fmt.Sprintf("Unknown connector %s", connectorId)})
+	connector, ok := s.authenticatedConnector(w, req, connectorId)
+	if !ok {
 		return
 	}
 
@@ -2456,7 +2448,8 @@ func (s *Server) handleDhcpMessage(w http.ResponseWriter, req *http.Request) {
 	}
 	// The giaddr check below only proves the relay address belongs to the
 	// named connector; prove the caller is that connector.
-	if !s.authenticateConnector(w, req, connectorId) {
+	connector, ok := s.authenticatedConnector(w, req, connectorId)
+	if !ok {
 		return
 	}
 	body, err := io.ReadAll(io.LimitReader(req.Body, 1501))
@@ -2470,16 +2463,6 @@ func (s *Server) handleDhcpMessage(w http.ResponseWriter, req *http.Request) {
 	}
 	giaddr := net.IP(body[24:28])
 
-	connectors := pfconfigdriver.Connectors{}
-	if err := pfconfigdriver.FetchDecodeSocket(req.Context(), &connectors); err != nil {
-		http.Error(w, fmt.Sprintf("Unable to fetch connectors config from pfconfig: %s", err), http.StatusInternalServerError)
-		return
-	}
-	connector, found := connectors.Element[connectorId]
-	if !found {
-		http.Error(w, fmt.Sprintf("Unknown connector %s", connectorId), http.StatusNotFound)
-		return
-	}
 	if !connectorRelaysFrom(connector, giaddr) {
 		log.LoggerWContext(req.Context()).Warn(fmt.Sprintf("dhcp-message: connector %s sent a DHCP request with giaddr %s which is not one of its DHCP relay interfaces; dropped", connectorId, giaddr))
 		http.Error(w, fmt.Sprintf("giaddr %s is not a DHCP relay interface of connector %s", giaddr, connectorId), http.StatusForbidden)
