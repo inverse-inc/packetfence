@@ -64,6 +64,11 @@ if (-f $authentication_config_file) {
     }
 }
 
+# The ports the dns_connectors.conf entries already have: a server that
+# needs a new port must not take one of them, so each entry keeps its own
+# whatever the order the entries are migrated in.
+my %port_reserved;
+
 # the old port when it is still free, otherwise the first free one
 sub tunnel_port {
     my ($wanted) = @_;
@@ -72,7 +77,7 @@ sub tunnel_port {
         return $wanted;
     }
     for my $port ($TUNNEL_PORT_MIN .. $TUNNEL_PORT_MAX) {
-        next if $port_used{$port};
+        next if $port_used{$port} || $port_reserved{$port};
         $port_used{$port} = 1;
         return $port;
     }
@@ -82,6 +87,10 @@ sub tunnel_port {
 my (%servers_of, %domains_used);
 if (-f $dns_file) {
     my $dns = pf::IniFiles->new(-file => $dns_file, -allowempty => 1);
+    for my $id ($dns ? $dns->Sections : ()) {
+        my $p = $dns->val($id, 'pfconnector_port');
+        $port_reserved{$p} = 1 if defined $p && $p =~ /^\d+$/;
+    }
     for my $id ($dns ? $dns->Sections : ()) {
         my @domains = grep { length } map { s/^\s+|\s+$//gr } split(/,|\n/, $dns->val($id, 'domains') // '');
         # the domains of the server, by the connector they were mapped to
