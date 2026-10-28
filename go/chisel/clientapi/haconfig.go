@@ -188,6 +188,7 @@ func ServeConfigRelay(ctx context.Context, addr, vip, secret string) error {
 	if host, _, err := net.SplitHostPort(addr); err != nil || !net.ParseIP(host).IsLoopback() {
 		return fmt.Errorf("the HA config relay only listens on a loopback address, not %q", addr)
 	}
+	start := time.Now()
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/v1/pfconnector/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
@@ -207,11 +208,30 @@ func ServeConfigRelay(ctx context.Context, addr, vip, secret string) error {
 		w.Write(data)
 	})
 	srv := &http.Server{Addr: addr, Handler: mux, ReadHeaderTimeout: 5 * time.Second}
+	// The relay of the previous backup phase closes with its context, after
+	// this one may already be starting (a failed master phase comes back
+	// here within a second): wait for the address rather than giving up.
+	var ln net.Listener
+	for {
+		var err error
+		ln, err = net.Listen("tcp", addr)
+		if err == nil {
+			break
+		}
+		select {
+		case <-ctx.Done():
+			return nil
+		case <-time.After(200 * time.Millisecond):
+		}
+		if time.Since(start) > 10*time.Second {
+			return err
+		}
+	}
 	go func() {
 		<-ctx.Done()
 		srv.Close()
 	}()
-	if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+	if err := srv.Serve(ln); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}
 	return nil
