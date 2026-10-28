@@ -51,6 +51,8 @@ type API struct {
 	statusCache   *connectorStatusCache
 	commandChan   chan Message
 	serverRunning int32
+	// cacheHistory is the sampled connector-cache statistics (cache_history.go).
+	cacheHistory *cacheHistory
 	// terminalActivity is the unix-nano timestamp of the last terminal
 	// activity (user input to the pty). Pointer so it survives API being copied.
 	terminalActivity *atomic.Int64
@@ -159,6 +161,8 @@ func NewApi(ctx context.Context, ConnectorID string, tun *tunnel.Tunnel) *API {
 	tunState := &apiTunnelState{api: &Api}
 	Api.mdCache.startRefresher(ctx, tunState)
 	Api.statusCache.startRefresher(ctx, tunState)
+	Api.cacheHistory = newCacheHistory(time.Now())
+	Api.cacheHistory.startSampler(ctx)
 
 	Api.commandChan = make(chan Message)
 	Api.terminalActivity = &atomic.Int64{}

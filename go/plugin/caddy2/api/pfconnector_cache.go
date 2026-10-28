@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -18,6 +19,7 @@ import (
 // the remote's /api/v1/cache routes over a dynreverse tunnel:
 //
 //	GET  /pfconnector-remotes/{id}/cache/stats
+//	GET  /pfconnector-remotes/{id}/cache/stats/history?window=5m|15m|1h|24h
 //	GET  /pfconnector-remotes/{id}/cache/config
 //	PUT  /pfconnector-remotes/{id}/cache/config   {"to_update": [{"field": "app.rate_limit_rate", "value": 10}, ...]}
 //	POST /pfconnector-remotes/{id}/cache/optimize-db
@@ -39,6 +41,7 @@ const cacheConfigUpdateMaxBody = 64 * 1024
 func (h APIHandler) mountPfconnectorCacheRoutes(r chi.Router) {
 	r.Route("/{connectorID}/cache", func(r chi.Router) {
 		r.Get("/stats", h.pfconnectorRemoteCacheRelay("GET", "stats"))
+		r.Get("/stats/history", h.pfconnectorRemoteCacheRelay("GET", "stats/history"))
 		r.Get("/config", h.pfconnectorRemoteCacheRelay("GET", "config"))
 		r.Put("/config", h.pfconnectorRemoteCacheRelay("PUT", "config"))
 		r.Post("/optimize-db", h.pfconnectorRemoteCacheRelay("POST", "optimize-db"))
@@ -49,7 +52,8 @@ func (h APIHandler) mountPfconnectorCacheRoutes(r chi.Router) {
 
 // pfconnectorRemoteCacheRelay forwards one cache management call to the
 // connector-remote (method and /api/v1/cache/{endpoint}), body included for
-// PUT, and relays its JSON reply and status code.
+// PUT and the window query parameter for GET, and relays its JSON reply and
+// status code.
 func (h APIHandler) pfconnectorRemoteCacheRelay(method, endpoint string) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		connectorID := chi.URLParam(r, "connectorID")
@@ -83,7 +87,11 @@ func (h APIHandler) pfconnectorRemoteCacheRelay(method, endpoint string) http.Ha
 			log.LoggerWContext(r.Context()).Info(fmt.Sprintf("connector-cache %s requested on %s", endpoint, connectorID))
 		}
 
-		status, reply, err := h.callConnectorRemoteAPIRaw(conn, method, "/api/v1/cache/"+endpoint, body, 40*time.Second)
+		path := "/api/v1/cache/" + endpoint
+		if window := r.URL.Query().Get("window"); method == "GET" && window != "" {
+			path += "?window=" + url.QueryEscape(window)
+		}
+		status, reply, err := h.callConnectorRemoteAPIRaw(conn, method, path, body, 40*time.Second)
 		if err != nil {
 			log.LoggerWContext(r.Context()).Error(fmt.Sprintf("Unable to reach the cache API of connector-remote %s (%s %s): %s", connectorID, method, endpoint, err))
 			writeJSONMessage(w, http.StatusBadGateway, "Unable to reach the connector-remote")

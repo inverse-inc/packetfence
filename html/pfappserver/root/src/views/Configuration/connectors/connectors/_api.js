@@ -113,6 +113,11 @@ export default {
       return response.data
     })
   },
+  remoteCacheHistory: (id, window) => {
+    return apiCall.getQuiet(['pfconnector-remotes', id, 'cache', 'stats', 'history'], { params: { window } }).then(response => {
+      return response.data
+    })
+  },
   remoteCacheConfig: id => {
     return apiCall.getQuiet(['pfconnector-remotes', id, 'cache', 'config']).then(response => {
       return response.data

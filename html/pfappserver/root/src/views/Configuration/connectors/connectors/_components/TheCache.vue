@@ -129,6 +129,8 @@
           <p v-else class="text-muted mb-0">{{ $i18n.t('Configuration unavailable.') }}</p>
         </b-col>
       </b-row>
+
+      <the-cache-history v-if="!unsupported" :id="id" class="mt-3" />
     </div>
 
     <b-modal v-model="showOptimizeModal" :title="$i18n.t('Optimize Cache Database')" centered>
@@ -160,6 +162,11 @@
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import api from '../_api'
+import TheCacheHistory from './TheCacheHistory'
+
+const components = {
+  TheCacheHistory
+}
 
 export const props = {
   id: {
@@ -470,6 +477,7 @@ export const setup = (props, context) => {
 export default {
   name: 'the-cache',
   inheritAttrs: false,
+  components,
   props,
   setup
 }

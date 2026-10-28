@@ -20,6 +20,7 @@ import (
 // can operate it through the tunnel:
 //
 //	GET  /cache/stats        -> GET  /manage/stats (keys normalized to snake_case)
+//	GET  /cache/stats/history  the sampled statistics of the last 24 hours (cache_history.go)
 //	GET  /cache/config       -> GET  /manage/config
 //	PUT  /cache/config       -> PUT  /manage/config (editable fields only)
 //	POST /cache/optimize-db  -> POST /manage/optimize-db
@@ -72,6 +73,7 @@ type cacheConfigUpdate struct {
 func mountCacheRoutes(r chi.Router, api *API) {
 	r.Route("/cache", func(r chi.Router) {
 		r.Get("/stats", cacheStats(api))
+		r.Get("/stats/history", cacheStatsHistory(api))
 		r.Get("/config", cacheConfig(api))
 		r.Put("/config", cacheConfigUpdateHandler(api))
 		r.Post("/optimize-db", cacheAction(api, "optimize-db", "Expired cache entries deleted and database optimized"))

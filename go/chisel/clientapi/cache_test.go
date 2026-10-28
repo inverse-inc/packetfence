@@ -9,6 +9,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -29,7 +30,8 @@ func (f *fakeConnectorCache) handler() http.Handler {
 		f.mu.Lock()
 		f.calls = append(f.calls, strings.TrimSpace(r.Method+" "+r.URL.Path+" "+string(body)))
 		f.mu.Unlock()
-		if r.Header.Get("Content-Type") != "application/json" {
+		// chi's AllowContentType only checks requests with a body
+		if r.ContentLength != 0 && r.Header.Get("Content-Type") != "application/json" {
 			http.Error(w, "unsupported content type", http.StatusUnsupportedMediaType)
 			return
 		}
@@ -74,7 +76,7 @@ func newCacheTestServer(t *testing.T) (*httptest.Server, *fakeConnectorCache) {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	t.Cleanup(cancel)
-	api := &API{ctx: ctx}
+	api := &API{ctx: ctx, cacheHistory: newCacheHistory(time.Now())}
 
 	router := chi.NewRouter()
 	mountCacheRoutes(router, api)
