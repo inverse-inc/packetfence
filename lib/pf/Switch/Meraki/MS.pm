@@ -31,10 +31,12 @@ use base ('pf::Switch::Meraki');
 use pf::config qw(
     $WIRED_802_1X
     $WIRED_MAC_AUTH
+    %ConfigRoles
 );
 use pf::constants;
 use pf::util;
 use pf::node;
+use NetAddr::IP;
 use pf::Switch::Meraki::MR_v2;
 use pf::access_filter::radius;
 use pf::radius::constants;
@@ -64,9 +66,14 @@ use pf::SwitchSupports qw(
     WiredDot1x
     RadiusVoip
     RoleBasedEnforcement
+    PushACLs
     Flow
     Cdp
 );
+
+# What a Layer 3 firewall rule of a group policy matches: the protocol of a
+# role ACL and the one of the rule
+use constant MERAKI_RULE_PROTOCOLS => { ip => 'any', tcp => 'tcp', udp => 'udp', icmp => 'icmp' };
 
 sub isVoIPEnabled {
     my ($self) = @_;
@@ -324,6 +331,188 @@ sub returnRoleAttribute {
     my ($self) = @_;
 
     return 'Filter-Id';
+}
+
+=head2 Group Policy ACLs (Push ACLs)
+
+The switch applies to an authenticated client the group policy of the network
+named by the Filter-Id of the Access-Accept, and the Layer 3 firewall rules of
+that group policy filter the traffic the client sends. With Push ACLs,
+PacketFence creates in the Meraki dashboard (through the Dashboard API, see
+conf/pfsetacls/switch_acls.yml) a group policy named after each role that has
+ACLs, holding the ACLs of the role as L3 firewall rules, updates it when the
+ACLs change, and returns the name of the role in Filter-Id.
+
+A rule matches the protocol (tcp, udp, icmp or any), the destination address
+and the destination port only: the source is always the client. The role ACLs
+follow the Cisco format, where what no line permits is denied, while the rules
+of a group policy allow what no rule matches, so the pushed rules end with a
+deny of everything unless the last ACL already matches everything.
+
+=head2 returnRoleAttributes
+
+The switch drops all the traffic of a client whose Filter-Id matches no group
+policy of the network. With Push ACLs, a role without ACLs gets no group policy,
+so no Filter-Id is returned for it: the client is unrestricted, as a role
+without ACLs is.
+
+=cut
+
+sub returnRoleAttributes {
+    my ($self, $role) = @_;
+    if ($self->usePushACLs && defined($role) && exists $ConfigRoles{$role} && !defined($self->_getRoleAccessListByName($role))) {
+        $self->logger->info("(".$self->{'_id'}.") Not returning Filter-Id for role $role: no group policy is pushed for a role without ACLs, and the switch drops the traffic of a client whose Filter-Id matches no group policy");
+        return ();
+    }
+    return $self->SUPER::returnRoleAttributes($role);
+}
+
+=head2 pushAclsName
+
+Only the in ACLs of a role are pushed: the rules of a group policy filter the
+traffic the client sends.
+
+=cut
+
+sub pushAclsName {
+    my ($self, $role, $direction) = @_;
+    return $direction eq 'out' ? undef : $role;
+}
+
+=head2 acl_chewer
+
+For the push (L<pf::Switch/getRoleAccessListByName>), the L3 firewall rules of
+the group policy of the role, as a list of hashes with the fields of the
+Dashboard API (comment, policy, protocol, destPort, destCidr). The ACLs this
+format cannot express are handled by L<pf::Switch/filterUntranslatableAcls>:
+a permit is skipped, a deny ends the rules with a deny of everything.
+
+Outside of the push, the ACLs are returned as they are: the switch does not
+take ACLs in the RADIUS reply.
+
+=cut
+
+sub acl_chewer {
+    my ($self, $acl, $role) = @_;
+    return $acl if !$self->aclsForPush;
+    my $logger = $self->logger;
+
+    my ($acl_ref, @direction) = $self->format_acl($acl);
+    my $entries = $acl_ref->{'packetfence'}->{'entries'} // [];
+    if (@$entries == @direction) {
+        my (@in, @in_direction);
+        my $out = 0;
+        for my $i (0 .. $#direction) {
+            if (($direction[$i] // 'in') eq 'out') {
+                $out++;
+                next;
+            }
+            push @in, $entries->[$i];
+            push @in_direction, $direction[$i];
+        }
+        $logger->warn("(".$self->{'_id'}.") Skipping the out ACLs of role '$role' ($out): the rules of a group policy only filter the traffic the client sends") if $out;
+        $acl_ref = { packetfence => { entries => \@in } };
+        @direction = @in_direction;
+    }
+    ($entries) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, sub { $self->untranslatableMerakiAcl($_[0]) });
+
+    my @rules = map { $self->merakiL3FirewallRule($_, $role) } @$entries;
+    if (!@rules) {
+        # no in ACL: the role does not restrict the traffic the client sends
+        push @rules, { comment => "PacketFence role $role: no in ACL", policy => 'allow', protocol => 'any', destPort => 'any', destCidr => 'any' };
+    }
+    my $last = $rules[-1];
+    if (!($last->{'protocol'} eq 'any' && $last->{'destCidr'} eq 'any' && $last->{'destPort'} eq 'any')) {
+        push @rules, { comment => "PacketFence role $role: implicit deny", policy => 'deny', protocol => 'any', destPort => 'any', destCidr => 'any' };
+    }
+    return \@rules;
+}
+
+=head2 untranslatableMerakiAcl
+
+Why a parsed ACL entry cannot be an L3 firewall rule of a group policy, or
+undef when it can. A rule matches tcp, udp, icmp or any protocol, the
+destination address (a prefix) and the destination port (one port or a range of
+tcp or udp): not the source address or port, TCP flags, ICMP types, other
+protocols, or the other port operators.
+
+=cut
+
+sub untranslatableMerakiAcl {
+    my ($self, $entry) = @_;
+    my $protocol = $self->_merakiProtocol($entry);
+    return "a group policy rule matches tcp, udp, icmp or ip, not the protocol '".($entry->{'protocol'} // '')."'" if !defined $protocol;
+    return "a group policy rule matches the destination only, not the source address" if ($entry->{'source'}->{'ipv4_addr'} // '0.0.0.0') ne '0.0.0.0';
+    return "a group policy rule has no source port match" if defined $entry->{'source'}->{'port'};
+    return "a group policy rule has no TCP flags match ('".$entry->{'tcp_flags'}."')" if defined $entry->{'tcp_flags'};
+    return "a group policy rule has no ICMP type match ('".$entry->{'icmp_qualifier'}."')" if defined $entry->{'icmp_qualifier'};
+    return "the destination mask '".$entry->{'destination'}->{'wildcard'}."' is not contiguous" if !$self->aclWildcardIsContiguous($entry->{'destination'}->{'wildcard'});
+    my $port = $entry->{'destination'}->{'port'};
+    if (defined $port) {
+        my @ports = $port =~ /^eq\s+(\S+)$/ ? ($1) : $port =~ /^range\s+(\S+)\s+(\S+)$/ ? ($1, $2) : ();
+        return "the port operator '$port' cannot be represented" if !@ports;
+        foreach my $p (@ports) {
+            return "the port '$p' has no number" if !defined $self->_merakiPortNumber($p, $protocol);
+        }
+    }
+    return undef;
+}
+
+=head2 merakiL3FirewallRule
+
+The L3 firewall rule of a parsed ACL entry L</untranslatableMerakiAcl> accepts.
+
+=cut
+
+sub merakiL3FirewallRule {
+    my ($self, $entry, $role) = @_;
+    my $protocol = $self->_merakiProtocol($entry);
+    my $destination = $entry->{'destination'};
+    my $cidr = 'any';
+    if (($destination->{'ipv4_addr'} // '0.0.0.0') ne '0.0.0.0') {
+        if (($destination->{'wildcard'} // '0.0.0.0') eq '0.0.0.0') {
+            $cidr = $destination->{'ipv4_addr'} . '/32';
+        } else {
+            $cidr = NetAddr::IP->new($destination->{'ipv4_addr'}, norm_net_mask($destination->{'wildcard'}))->network->cidr;
+        }
+    }
+    my $port = 'any';
+    if (defined $destination->{'port'}) {
+        if ($destination->{'port'} =~ /^eq\s+(\S+)$/) {
+            $port = $self->_merakiPortNumber($1, $protocol);
+        } elsif ($destination->{'port'} =~ /^range\s+(\S+)\s+(\S+)$/) {
+            $port = $self->_merakiPortNumber($1, $protocol) . '-' . $self->_merakiPortNumber($2, $protocol);
+        }
+    }
+    (my $acl_protocol = $entry->{'protocol'} // 'ip') =~ s/\(\d*\)//;
+    my $line = $entry->{'acl_line'} // join(' ', $entry->{'action'}, $acl_protocol, 'any', 'any');
+    # the comment is written in a YAML double quoted string of the playbook
+    $line =~ s/["\\]/'/g;
+    $line =~ s/\s+/ /g;
+    return {
+        comment  => "PacketFence role $role: $line",
+        policy   => $entry->{'action'} eq 'permit' ? 'allow' : 'deny',
+        protocol => MERAKI_RULE_PROTOCOLS->{$protocol},
+        destPort => $port,
+        destCidr => $cidr,
+    };
+}
+
+sub _merakiProtocol {
+    my ($self, $entry) = @_;
+    my $protocol = $entry->{'protocol'};
+    return undef if !defined($protocol) || ref($protocol);
+    $protocol =~ s/\(\d*\)//;
+    return exists MERAKI_RULE_PROTOCOLS->{$protocol} ? $protocol : undef;
+}
+
+# The number of a destination port of a role ACL, written as a number or as a
+# service name (eq www), 1 to 65535 as the rule takes it, or undef
+sub _merakiPortNumber {
+    my ($self, $port, $protocol) = @_;
+    return undef if !defined $port;
+    my $number = $port =~ /^\d+$/ ? $port : scalar getservbyname($port, $protocol);
+    return defined($number) && $number =~ /^\d+$/ && $number >= 1 && $number <= 65535 ? $number : undef;
 }
 
 =head1 AUTHOR
