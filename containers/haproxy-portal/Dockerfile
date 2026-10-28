@@ -1,6 +1,6 @@
 ARG KNK_REGISTRY_URL
 ARG IMAGE_TAG
-FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
+FROM ${KNK_REGISTRY_URL}/pfdebian-trixie:${IMAGE_TAG}
 WORKDIR /usr/local/pf/
 RUN mkdir -p /usr/local/pf/html/captive-portal/templates/
 RUN mkdir -p /usr/local/pf/var/run/
