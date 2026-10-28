@@ -87,7 +87,7 @@ configure_and_check() {
     PF_MINOR_RELEASE=${PF_MINOR_RELEASE:-}
 
     # Baked vagrant box (set by bake_img_vagrant_* CI jobs). When
-    # USE_VAGRANT_BOX=yes, PF VMs (pfel8dev/pfdeb12dev) boot from the
+    # USE_VAGRANT_BOX=yes, PF VMs (pfel8dev/pfdeb13dev) boot from the
     # per-pipeline pre-baked box inverse-inc/<vm> registered by
     # ci/lib/vagrant/setup-vagrant-box.sh, skipping site.yml and the
     # configurator wizard. Defaults preserve the original behavior.
@@ -118,8 +118,8 @@ configure_and_check() {
 baked_box_for_pf_vm() {
     case "$1" in
         pfel8dev|pf[123]el8dev) echo pfel8dev ;;
-        pfdeb12dev|pf[123]deb12dev) echo pfdeb12dev ;;
-        pfel8localdev|pf[123]el8localdev|pfdeb12localdev|pf[123]deb12localdev)
+        pfdeb13dev|pf[123]deb13dev) echo pfdeb13dev ;;
+        pfel8localdev|pf[123]el8localdev|pfdeb13localdev|pf[123]deb13localdev)
             if [ "${LOCAL_BAKED_BOX:-no}" = yes ]; then
                 echo "${1/#pf[123]/pf}"
             else
@@ -353,7 +353,7 @@ wait_for_ssh() {
 # Prep/readdress playbooks for baked cluster clones (no-op for standalone VMs).
 baked_cluster_playbook() {
     local playbook=$1 vm=$2
-    [[ "${vm}" =~ ^pf[123](deb12|el8)(local)?dev$ ]] || return 0
+    [[ "${vm}" =~ ^pf[123](deb13|el8)(local)?dev$ ]] || return 0
     ( cd "${VAGRANT_DIR}"; ansible-playbook "playbooks/${playbook}" -l "${vm}" )
 }
 
@@ -435,7 +435,7 @@ start_baked_pf_vms() {
     local vm_names=$* vm cluster_vms=""
     local vm_list=${vm_names// /,}
     for vm in ${vm_names}; do
-        [[ "${vm}" =~ ^pf[123](deb12|el8)(local)?dev$ ]] && cluster_vms="${cluster_vms},${vm}"
+        [[ "${vm}" =~ ^pf[123](deb13|el8)(local)?dev$ ]] && cluster_vms="${cluster_vms},${vm}"
     done
     cluster_vms=${cluster_vms#,}
     ( cd "${VAGRANT_DIR}"
