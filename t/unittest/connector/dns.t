@@ -20,10 +20,10 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 12;
+use Test::More tests => 13;
 use Test::NoWarnings;
 
-use pf::connector::dns qw(parse_dns_server_line format_dns_server expand_dns_servers flatten_dns_servers dns_server_id);
+use pf::connector::dns qw(parse_dns_server_line format_dns_server expand_dns_servers flatten_dns_servers dns_server_id radius_tunnel_ports);
 
 is_deeply(
     parse_dns_server_line("10.5.1.53 port=53 tunnel_port=30001 domains=inverse.local,corp.local"),
@@ -62,6 +62,8 @@ is_deeply($cfg->{dns_servers}, ["10.5.1.53 port=53 domains=a.local", "10.5.1.54 
 
 flatten_dns_servers(my $empty = { dns_servers => [] });
 ok(!defined $empty->{dns_servers}, "empty list flattens to undef so the key is removed");
+
+is(radius_tunnel_ports()->{30000}, "RADIUS source RADIUS_CONNECT_THROUGH_TEST", "the tunnel port of a RADIUS source is reported as used");
 
 =head1 AUTHOR
 

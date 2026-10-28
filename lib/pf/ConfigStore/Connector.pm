@@ -16,8 +16,7 @@ use warnings;
 use Moo;
 use pf::file_paths qw($connectors_config_file);
 use pf::connector::site_network qw(expand_site_network flatten_site_network);
-use pf::connector::dns qw(expand_dns_servers flatten_dns_servers $TUNNEL_PORT_MIN $TUNNEL_PORT_MAX);
-use pfconfig::cached_hash;
+use pf::connector::dns qw(expand_dns_servers flatten_dns_servers radius_tunnel_ports $TUNNEL_PORT_MIN $TUNNEL_PORT_MAX);
 extends 'pf::ConfigStore';
 
 sub configFile { $connectors_config_file };
@@ -72,11 +71,7 @@ sub allocate_dns_tunnel_ports {
             $used{ $s->{tunnel_port} } = 1 if ref($s) eq 'HASH' && defined $s->{tunnel_port} && length $s->{tunnel_port};
         }
     }
-    tie my %auth, 'pfconfig::cached_hash', 'config::Authentication';
-    for my $source (values %auth) {
-        my $p = ref($source) eq 'HASH' ? $source->{pfconnector_port} : undef;
-        $used{$p} = 1 if defined $p && length $p;
-    }
+    $used{$_} = 1 for keys %{ radius_tunnel_ports() };
     for my $s (@servers) {
         $used{ $s->{tunnel_port} } = 1 if defined $s->{tunnel_port} && length $s->{tunnel_port};
     }

@@ -14,7 +14,7 @@ use HTML::FormHandler::Moose;
 use pfconfig::cached_hash;
 use pf::util qw(valid_ip isenabled);
 use pf::connector::site_network qw(interface_name $IFNAMSIZ);
-use pf::connector::dns qw($TUNNEL_PORT_MIN $TUNNEL_PORT_MAX);
+use pf::connector::dns qw(radius_tunnel_ports $TUNNEL_PORT_MIN $TUNNEL_PORT_MAX);
 use NetAddr::IP;
 
 tie my %ConnectorConfig, "pfconfig::cached_hash" , "config::Connector";
@@ -405,11 +405,8 @@ sub validate_dns_servers {
             $port_seen{ $s->{tunnel_port} } = $other_id if defined $s->{tunnel_port} && length $s->{tunnel_port};
         }
     }
-    tie my %auth, 'pfconfig::cached_hash', 'config::Authentication';
-    for my $source_id (keys %auth) {
-        my $p = ref($auth{$source_id}) eq 'HASH' ? $auth{$source_id}{pfconnector_port} : undef;
-        $port_seen{$p} = "RADIUS source $source_id" if defined $p && length $p;
-    }
+    my $radius_ports = radius_tunnel_ports();
+    $port_seen{$_} = $radius_ports->{$_} for keys %$radius_ports;
     my %server_seen;
     for my $s_field ($field->fields) {
         my $s = $s_field->value;

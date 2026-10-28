@@ -39,7 +39,7 @@ use Exporter qw(import);
 our @EXPORT_OK = qw(
     parse_dns_server_line format_dns_server
     expand_dns_servers flatten_dns_servers
-    dns_server_id
+    dns_server_id radius_tunnel_ports
     $TUNNEL_PORT_MIN $TUNNEL_PORT_MAX
 );
 
@@ -103,6 +103,28 @@ namespace: "<connector>:<ip>:<port>".
 sub dns_server_id {
     my ($connector_id, $s) = @_;
     return join(':', $connector_id, $s->{ip} // '', ($s->{port} // $DEFAULT_PORT));
+}
+
+=head2 radius_tunnel_ports
+
+The tunnel ports (pfconnector_port) set on the RADIUS sources, as
+{ port => "RADIUS source <id>" }. A DNS server's tunnel port and a RADIUS
+source's share the pfconnector server's 30000-30999 range, so each side
+checks the other's.
+
+=cut
+
+sub radius_tunnel_ports {
+    require pfconfig::cached_hash;
+    tie my %auth, 'pfconfig::cached_hash', 'resource::authentication_config_hash';
+    my %ports;
+    for my $source_id (sort keys %auth) {
+        my $source = $auth{$source_id};
+        next unless ref($source) eq 'HASH' && ($source->{type} // '') eq 'RADIUS';
+        my $p = $source->{pfconnector_port};
+        $ports{$p} //= "RADIUS source $source_id" if defined $p && length $p;
+    }
+    return \%ports;
 }
 
 =head2 expand_dns_servers
