@@ -34,6 +34,8 @@ has 'timeout' => (isa => 'Int', is => 'rw', default => 10);
 my $GET_ADMIN_TOKEN_KEY = "get_admin_token";
 
 my %AZURE_AD_UA = ();
+# Safety net for the memberOf pagination loop (999 objects per page)
+our $MAX_MEMBEROF_PAGES = 50;
 
 sub get_ua {
     my ($self) = @_;
@@ -177,7 +179,7 @@ sub handle_failed_admin_call {
     my $caller2 = (caller(2))[3];
     my $caller3 = (caller(3))[3];
     if($caller2 eq "pf::Authentication::Source::AzureADSource::handle_failed_admin_call" || $caller3 eq "pf::Authentication::Source::AzureADSource::handle_failed_admin_call") {
-        return undef;
+        return;
     }
 
     if($response->code eq 401 || $response->code eq 403) {
@@ -185,7 +187,7 @@ sub handle_failed_admin_call {
         $retry_call->();
     }
     else {
-        return undef;
+        return;
     }
 }
 
@@ -204,6 +206,10 @@ sub get_memberOf {
     my $page = 0;
     while (defined $url) {
         $page++;
+        if ($page > $MAX_MEMBEROF_PAGES) {
+            $logger->warn("Group lookup for $username (source[$id]) exceeded $MAX_MEMBEROF_PAGES pages; giving up");
+            return;
+        }
         my $r = $ua->get(
             $url,
             Authorization => "Bearer $token",
@@ -211,12 +217,17 @@ sub get_memberOf {
         );
         unless ($r->is_success) {
             $logger->error("Failed to obtain groups for $username (source[$id], page $page): " . $r->status_line);
-            # Only retry the admin token on the first page: a 401 on the first
-            # page is an expired token; on later pages, return what we have.
-            return $self->handle_failed_admin_call($r, sub{$self->get_memberOf($username)}) if $page == 1;
-            last;
+            # A 401/403 refreshes the admin token and restarts the whole lookup
+            # (handle_failed_admin_call guards against doing this twice). Any
+            # other failure returns nothing: a partial list would look valid,
+            # fail to match rules and, with user_groups_cache, be cached.
+            return $self->handle_failed_admin_call($r, sub{$self->get_memberOf($username)});
         }
-        my $response = decode_json($r->decoded_content);
+        my $response = eval { decode_json($r->decoded_content) };
+        if ($@ || ref($response) ne 'HASH') {
+            $logger->error("Failed to decode groups for $username (source[$id], page $page): " . ($@ || "unexpected response"));
+            return;
+        }
         push @groups, map { $_->{displayName} } grep { defined $_->{displayName} } @{$response->{value} // []};
         $url = $response->{'@odata.nextLink'};
     }
