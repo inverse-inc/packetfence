@@ -100,13 +100,15 @@ func (h APIHandler) proxyTerminalRecording() http.HandlerFunc {
 		r.URL.Path = "/api/v1/terminal-recordings/" + name
 		r.URL.RawPath = ""
 		r.Host = target.Host
-		r.Header.Set("X-Forwarded-For", "127.0.0.1")
 		w.Header().Del("Content-Type")
 		proxy := httputil.NewSingleHostReverseProxy(target)
 		director := proxy.Director
 		proxy.Director = func(req *http.Request) {
 			director(req)
 			stripAdminCredentials(req)
+			// nil, not deleted: ReverseProxy appends the admin browser's
+			// address to an absent X-Forwarded-For (see newRemoteWebsocketProxy).
+			req.Header["X-Forwarded-For"] = nil
 		}
 		proxy.ModifyResponse = func(res *http.Response) error {
 			// The remote is only semi-trusted: never let its reply render
