@@ -69,10 +69,6 @@ with minimal effort. Instead of manually installing Debian 13 and installing
 PacketFence after, this will perform both tasks and select the optimal
 parameters and best practices for installing the operating system.
 
-NOTE: To run PacketFence on Debian 12 instead, install it from the
-repositories on an existing Debian 12 system as described in the next
-section; the ISO edition only installs Debian 13.
-
 Download the ISO here:
 https://www.packetfence.com/download/#packages
 
@@ -102,14 +98,14 @@ screen to complete the installation.
 
 === Installing PacketFence on existing Linux
 
-PacketFence provides repositories for *RHEL 8*, *Debian 13* (trixie) and
-*Debian 12* (bookworm) with all required dependencies.
+PacketFence provides repositories for *RHEL 8* and *Debian 13* (trixie) with
+all required dependencies.
 
 *Repository Benefits:*
 
 [options="compact"]
  * Streamlined installation with dependency management
- * Pre-built RPM (EL8) and DEB (Debian 13, Debian 12) packages  
+ * Pre-built RPM (EL8) and DEB (Debian 13) packages  
  * Simplified upgrade process
 
 ==== Common Prerequisites
@@ -207,7 +203,7 @@ Regarding resolvconf, remove the symlink to that file and create the
 *Prerequisites:*
 
 [options="compact"]
- * Fresh Debian 13 (trixie) or Debian 12 (bookworm) installation
+ * Fresh Debian 13 (trixie) installation
  * Latest kernel running
 
 [source,bash]
@@ -228,7 +224,6 @@ apt install gnupg sudo curl
 curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
 
 # Add PacketFence repository (Debian 13 trixie)
-# On Debian 12, substitute "bookworm bookworm" for "trixie trixie".
 echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] https://inverse.ca/downloads/PacketFence/debian/{release_minor} trixie trixie" > /etc/apt/sources.list.d/packetfence.list
 
 # Install PacketFence with all dependencies  

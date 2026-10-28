@@ -43,11 +43,11 @@ supported when changing operating systems.
 |===
 |PacketFence Version |Supported Operating Systems |Migration Required
 
-|15.2 and later
-|Debian 13 (trixie), Debian 12 (bookworm), RHEL 8
-|No - Debian 12 remains supported
+|16.0 and later
+|Debian 13 (trixie), RHEL 8
+|**Yes** - from Debian 12 to Debian 13
 
-|14.0 - 15.1
+|14.0 - 15.2
 |Debian 12 (bookworm), RHEL 8
 |**Yes** - from Debian 11 to Debian 12
 
@@ -909,22 +909,6 @@ Run the following upgrade scripts:
 
 == Upgrading from a version prior to 15.2.0
 
-=== Debian 13 (trixie) support
-
-PacketFence 15.2 adds Debian 13 (trixie) alongside Debian 12 (bookworm). Debian
-12 continues to receive packages, so **no operating system migration is
-required** by this release.
-
-If you do want to move to Debian 13, it is not an in-place `apt` release
-upgrade: install PacketFence on a fresh Debian 13 machine and move your data
-across with
-<<PacketFence_Installation_Guide.asciidoc#_exportimport_mechanism,export/import>>,
-the same procedure documented for the Debian 11 to Debian 12 move.
-
-Upgrade PacketFence to 15.2 on your existing Debian 12 installation first, then
-migrate: exporting from one PacketFence version and importing into another is
-not supported.
-
 === TLS hardening on HAProxy and Apache listeners
 
 The TLS configuration of the captive portal (port 443), the admin interface
@@ -960,6 +944,21 @@ Internet Explorer 11 on Windows 7 when an RSA certificate is in use.
 ====
 
 == Upgrading from a version prior to X.Y.Z
+
+=== Debian 13 (trixie) replaces Debian 12 (bookworm)
+
+This release supports Debian 13 (trixie) and RHEL 8 only. Debian 12 no longer
+receives packages, so systems running Debian 12 **must migrate to Debian 13**.
+
+The migration is not an in-place `apt` release upgrade: install PacketFence on
+a fresh Debian 13 machine and move your data across with
+<<PacketFence_Installation_Guide.asciidoc#_exportimport_mechanism,export/import>>,
+the same procedure documented for the Debian 11 to Debian 12 move.
+
+Debian 13 ships MariaDB 11.8 (Debian 12 shipped 10.11). The import runs
+`mysql_upgrade` on the restored database.
+
+RHEL 8 systems upgrade in place as usual.
 
 === advanced.multihost replaced by the per-switch host_mode
 
