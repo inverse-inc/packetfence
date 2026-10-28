@@ -1489,6 +1489,12 @@ func (s *Server) handleRemoteTerm(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "Missing connectorid query parameter", http.StatusBadRequest)
 		return
 	}
+	// Prove the caller is the connector before consuming the session: an
+	// unsigned connectorid would let any connector burn another one's
+	// one-time session.
+	if !s.authenticateConnector(w, req, connectorID) {
+		return
+	}
 
 	// One-time use: GETDEL reads and removes the session in a single step, so
 	// two concurrent activations cannot both use it.

@@ -23,6 +23,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/packetfence/go/chisel/share/connauth"
 	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel"
 	systemdmanager "github.com/inverse-inc/packetfence/go/systemdmanager"
 )
@@ -332,7 +333,16 @@ func enableTerminal(api *API) http.HandlerFunc {
 		}
 
 		query := url.Values{"connectorid": {api.ConnectorId}, "id": {id}}
-		r, err := terminalActivationClient.Get("http://127.0.0.1:22226/api/v1/pfconnector/remote-terminal?" + query.Encode())
+		check, err := http.NewRequestWithContext(req.Context(), http.MethodGet, "http://127.0.0.1:22226/api/v1/pfconnector/remote-terminal?"+query.Encode(), nil)
+		if err != nil {
+			http.Error(res, fmt.Sprintf("Failed to enable terminal: %v", err), http.StatusInternalServerError)
+			return
+		}
+		haStatusMu.RLock()
+		connectorSecret := haConnectorSecret
+		haStatusMu.RUnlock()
+		check.Header.Set(connauth.Header, connauth.Sign(api.ConnectorId, connectorSecret, time.Now()))
+		r, err := terminalActivationClient.Do(check)
 		if err != nil {
 			http.Error(res, fmt.Sprintf("Failed to enable terminal: %v", err), http.StatusInternalServerError)
 			return
