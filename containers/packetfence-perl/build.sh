@@ -57,7 +57,6 @@ Available distros: $(cd "${SCRIPT_DIR}" && ls -d */ 2>/dev/null | tr -d / | tr '
 
 Examples:
   ${0##*/}                          # build for Debian 13 (trixie)
-  ${0##*/} -d debian12              # build for Debian 12 (bookworm)
   ${0##*/} -s -o /tmp/out           # repackage from an image built earlier
 EOF
 }
