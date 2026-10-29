@@ -190,6 +190,9 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 	case apiPrefix + "/remote-radius-nas":
 		s.handleRemoteRadiusNas(w, r)
 		return
+	case apiPrefix + "/radius-cache-invalidate":
+		s.handleRadiusCacheInvalidate(w, r)
+		return
 	case apiPrefix + "/local-secret":
 		s.handleLocalSecret(w, r)
 		return
@@ -646,6 +649,9 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 		if res.Err() != nil {
 			l.Infof("Unable to write tunnel info to Redis: %s", res.Err())
 		}
+		// RADIUS cache invalidations that could not be delivered while the
+		// connector was away (see radius_cache_invalidate.go)
+		go radiusCacheInvalidator.FlushPending(user.Name)
 	}
 	//connected, setup reversed-remotes?
 	serverInbound := c.Remotes.Reversed(true)

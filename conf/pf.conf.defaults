@@ -1588,6 +1588,10 @@ triggers=
 [pfconnector]
 redis_server=[% ENV.env_or_default("REDIS_CACHE_HOST_PORT", "containers-gateway.internal:6379") %]
 redis_tunnels_namespace=pfconnector:activeTunnels:
+#
+# pfconnector.radius_cache_invalidation
+# Tell the remote connectors to drop the cached RADIUS replies of a device whose access changed
+radius_cache_invalidation=enabled
 
 [lets_encrypt]
 #

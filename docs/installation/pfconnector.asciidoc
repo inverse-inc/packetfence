@@ -238,6 +238,17 @@ Clicking a connector (or its link) opens a details panel: the traffic broken dow
 
 Below the map, _Tunnel traffic_ charts the throughput over the last 5, 15 or 60 minutes, for all connectors together or for the selected one, and _Top services_ ranks the services by the bytes they carried over the same window. The history is recorded in memory by the pfconnector servers (one sample every 5 seconds, kept for an hour) and starts over when a server restarts or a connector reconnects to another server.
 
+===== Cache-First RADIUS Answers
+
+By default a connector-remote sends every RADIUS request to PacketFence and only replays the authorizations it cached when PacketFence is unreachable (degraded mode). With _Cache-first answers_ enabled in the _RADIUS Cache_ tab of the connector, the connector answers the MAB requests of a device it already knows without asking PacketFence:
+
+* An unknown device is proxied to PacketFence and its Access-Accept is cached, keyed by device, switch (NAS-IP-Address) and SSID: the same device on another switch or another SSID is unknown again and proxied.
+* The device reconnecting on the same switch and SSID is answered from the cache, as long as the entry is younger than the _Cache-first freshness_ (one day by default) and PacketFence did not invalidate it.
+* When the device's access changes in PacketFence (registration, role, status, security event, bypass settings, deletion, access re-evaluation), PacketFence tells every connector to drop the device's cached replies, right before the CoA or Disconnect it sends, so the re-authentication reaches PacketFence and the new reply is cached. A connector that is not connected at that moment receives the invalidation when it connects again (kept for fifteen minutes); the freshness limit bounds the staleness past that. `pfconnector.radius_cache_invalidation` in [filename]`pf.conf` disables these notifications.
+* Access-Rejects are never cached, 802.1X (EAP) requests and accounting are always sent to PacketFence, and a reply carrying a Session-Timeout is cached for degraded mode only.
+
+Consequences to keep in mind: a request answered from the cache does not reach PacketFence, so it produces no RADIUS audit log entry, does not update the device's last seen time from the authentication and is not evaluated against the authentication rules again; accounting still reaches PacketFence, so the location log and bandwidth stay current. The setting and the freshness are per connector host (the _RADIUS Cache_ tab shows the active host; a standby host keeps its own), and the counters of the tab (answered from the cache, sent to PacketFence, invalidated by PacketFence) restart with the cache service. Each cache-first answer is logged by the connector's RADIUS server as `cache-first HIT` with the device, switch, SSID and age of the entry.
+
 The rates measure the tunnel only: RADIUS, portal, DNS and the other services PacketFence exchanges with the site. Traffic the connector handles locally (degraded-mode answers, the collector's direct Fingerbank queries unless routed through the tunnel) is not part of it.
 
 [[pfconnector-site-networking]]

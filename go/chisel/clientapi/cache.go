@@ -55,6 +55,8 @@ var cacheEditableFields = map[string]bool{
 	"app.rate_limit_rate":          true,
 	"app.rate_limit_reject":        true,
 	"app.rate_limit_key_max_age":   true,
+	"app.cache_first":              true,
+	"app.cache_first_ttl":          true,
 }
 
 // cacheConfigField is one field/value pair of a configuration update, the
@@ -237,16 +239,27 @@ func decodeConnectorCacheStats(raw []byte) (*ConnectorCacheStats, error) {
 		DevicesInDB     int
 		CredentialInDB  int
 		KeysInRatelimit int
+		// cache-first counters, absent (zero) on a connector-cache older than 0.1.8
+		CacheFirstHits       int64
+		CacheFirstMisses     int64
+		CacheFirstStale      int64
+		CacheFirstIneligible int64
+		Invalidations        int64
 	}
 	if err := json.Unmarshal(raw, &in); err != nil {
 		return nil, err
 	}
 	return &ConnectorCacheStats{
-		MemAlloc:        in.MemAlloc,
-		MemSys:          in.MemSys,
-		DBSize:          in.DBSize,
-		DevicesInDB:     in.DevicesInDB,
-		CredentialInDB:  in.CredentialInDB,
-		KeysInRatelimit: in.KeysInRatelimit,
+		MemAlloc:             in.MemAlloc,
+		MemSys:               in.MemSys,
+		DBSize:               in.DBSize,
+		DevicesInDB:          in.DevicesInDB,
+		CredentialInDB:       in.CredentialInDB,
+		KeysInRatelimit:      in.KeysInRatelimit,
+		CacheFirstHits:       in.CacheFirstHits,
+		CacheFirstMisses:     in.CacheFirstMisses,
+		CacheFirstStale:      in.CacheFirstStale,
+		CacheFirstIneligible: in.CacheFirstIneligible,
+		Invalidations:        in.Invalidations,
 	}, nil
 }

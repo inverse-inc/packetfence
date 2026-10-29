@@ -49,6 +49,10 @@ type cacheHistory struct {
 	mu      sync.Mutex
 	since   time.Time // when the sampler started: the history has no data before
 	samples []cacheSample
+	// last is the previous raw reading: the cache-first counters are
+	// monotonic since connector-cache started, the samples keep their
+	// increments so the buckets chart answers per interval.
+	last *ConnectorCacheStats
 }
 
 func newCacheHistory(since time.Time) *cacheHistory {
@@ -60,6 +64,19 @@ func newCacheHistory(since time.Time) *cacheHistory {
 func (h *cacheHistory) add(at time.Time, stats ConnectorCacheStats) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
+	raw := stats
+	if h.last != nil {
+		// a counter below its previous value means the service restarted:
+		// count nothing for that interval rather than a negative number
+		stats.CacheFirstHits = counterDelta(raw.CacheFirstHits, h.last.CacheFirstHits)
+		stats.CacheFirstMisses = counterDelta(raw.CacheFirstMisses, h.last.CacheFirstMisses)
+		stats.CacheFirstStale = counterDelta(raw.CacheFirstStale, h.last.CacheFirstStale)
+		stats.CacheFirstIneligible = counterDelta(raw.CacheFirstIneligible, h.last.CacheFirstIneligible)
+		stats.Invalidations = counterDelta(raw.Invalidations, h.last.Invalidations)
+	} else {
+		stats.CacheFirstHits, stats.CacheFirstMisses, stats.CacheFirstStale, stats.CacheFirstIneligible, stats.Invalidations = 0, 0, 0, 0, 0
+	}
+	h.last = &raw
 	h.samples = append(h.samples, cacheSample{At: at, Stats: stats})
 	cutoff := at.Add(-cacheHistoryRetention)
 	keep := sort.Search(len(h.samples), func(i int) bool { return !h.samples[i].At.Before(cutoff) })
@@ -67,6 +84,15 @@ func (h *cacheHistory) add(at time.Time, stats ConnectorCacheStats) {
 		// reallocate so the dropped head does not pin the backing array
 		h.samples = append([]cacheSample(nil), h.samples[keep:]...)
 	}
+}
+
+// counterDelta is the increment of a monotonic counter between two readings,
+// 0 when it went backwards (service restarted).
+func counterDelta(now, before int64) int64 {
+	if now < before {
+		return 0
+	}
+	return now - before
 }
 
 // sample takes one reading from connector-cache; false when the service did
@@ -125,6 +151,7 @@ func (h *cacheHistory) read(window string, now time.Time) *CacheHistory {
 	type acc struct {
 		n                                                   int
 		memAlloc, memSys, dbSize, devices, creds, ratelimit float64
+		hits, misses, stale, ineligible, invalidations      int64 // summed, not averaged
 	}
 	accs := make([]acc, count)
 
@@ -143,6 +170,11 @@ func (h *cacheHistory) read(window string, now time.Time) *CacheHistory {
 		a.devices += float64(s.Stats.DevicesInDB)
 		a.creds += float64(s.Stats.CredentialInDB)
 		a.ratelimit += float64(s.Stats.KeysInRatelimit)
+		a.hits += s.Stats.CacheFirstHits
+		a.misses += s.Stats.CacheFirstMisses
+		a.stale += s.Stats.CacheFirstStale
+		a.ineligible += s.Stats.CacheFirstIneligible
+		a.invalidations += s.Stats.Invalidations
 	}
 	since := h.since
 	h.mu.Unlock()
@@ -166,6 +198,12 @@ func (h *cacheHistory) read(window string, now time.Time) *CacheHistory {
 				DevicesInDB:     int(a.devices/n + 0.5),
 				CredentialInDB:  int(a.creds/n + 0.5),
 				KeysInRatelimit: int(a.ratelimit/n + 0.5),
+				// per-bucket increments (see add)
+				CacheFirstHits:       a.hits,
+				CacheFirstMisses:     a.misses,
+				CacheFirstStale:      a.stale,
+				CacheFirstIneligible: a.ineligible,
+				Invalidations:        a.invalidations,
 			}
 		}
 		out.Buckets[i] = b

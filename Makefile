@@ -383,6 +383,7 @@ pfconnector_remote_install:
 	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/radiusd.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/radiusd.conf
 	install -v -d -m0755 $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-enabled
 	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/rest.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-enabled/rest
+	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/linelog-cache-first.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-enabled/linelog_cache_first
 	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/mschap.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-enabled/mschap
 	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/eap.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-enabled/eap
 	rm -f $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-enabled/perl

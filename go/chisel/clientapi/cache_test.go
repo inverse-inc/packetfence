@@ -42,7 +42,9 @@ func (f *fakeConnectorCache) handler() http.Handler {
 		}
 		switch r.Method + " " + r.URL.Path {
 		case "GET /api/v1/manage/stats":
-			w.Write([]byte(`{"MemAlloc":1024,"MemSys":4096,"DBSize":65536,"DevicesInDB":12,"CredentialInDB":3,"KeysInRatelimit":7}`))
+			w.Write([]byte(`{"MemAlloc":1024,"MemSys":4096,"DBSize":65536,"DevicesInDB":12,"CredentialInDB":3,"KeysInRatelimit":7,"CacheFirstHits":40,"CacheFirstMisses":5,"CacheFirstStale":2,"CacheFirstIneligible":1,"Invalidations":9}`))
+		case "POST /api/v1/radcache/delete":
+			// connector-cache answers 200 with an empty body, whether or not an entry existed
 		case "GET /api/v1/manage/config", "PUT /api/v1/manage/config":
 			w.Write([]byte(`{"database": {"cache_ram_size": 256, "startup_clean": true}, "server": {"port": 12142}, "app": {"radius_attribute_ttl": 30, "credential_ttl": 30, "radius_attribute_filters": ["control:"], "rate_limit_rate": 6, "rate_limit_reject": false, "rate_limit_key_max_age": 4}}`))
 		case "POST /api/v1/manage/optimize-db", "POST /api/v1/manage/clean", "POST /api/v1/manage/restart":
@@ -234,5 +236,73 @@ func TestCacheServiceDown(t *testing.T) {
 	status, out = doJSON(t, "POST", server2.URL+"/cache/optimize-db", "")
 	if status != http.StatusInternalServerError || !strings.Contains(out["message"].(string), "database is locked") {
 		t.Fatalf("status %d %v, want 500 with the service message", status, out)
+	}
+}
+
+func TestCacheStatsCacheFirstCounters(t *testing.T) {
+	server, _ := newCacheTestServer(t)
+	status, out := doJSON(t, "GET", server.URL+"/cache/stats", "")
+	if status != http.StatusOK || out["cache_first_hits"] != 40.0 || out["invalidations"] != 9.0 || out["cache_first_ineligible"] != 1.0 {
+		t.Fatalf("stats: %d %v", status, out)
+	}
+	// a connector-cache older than 0.1.8 has no counters: zeros, not an error
+	stats, err := decodeConnectorCacheStats([]byte(`{"MemAlloc":1,"MemSys":2,"DBSize":3,"DevicesInDB":4,"CredentialInDB":5,"KeysInRatelimit":6}`))
+	if err != nil || stats.CacheFirstHits != 0 || stats.DevicesInDB != 4 {
+		t.Fatalf("old stats: %+v %v", stats, err)
+	}
+}
+
+func TestCacheConfigUpdateCacheFirst(t *testing.T) {
+	server, fake := newCacheTestServer(t)
+	status, _ := doJSON(t, "PUT", server.URL+"/cache/config", `{"to_update":[{"field":"app.cache_first","value":true},{"field":"app.cache_first_ttl","value":3600}]}`)
+	if status != http.StatusOK {
+		t.Fatalf("status %d", status)
+	}
+	if call := fake.lastCall(); !strings.Contains(call, `"app.cache_first"`) || !strings.Contains(call, `3600`) {
+		t.Fatalf("cache-first fields must be forwarded: %s", call)
+	}
+}
+
+func TestRadiusCacheInvalidate(t *testing.T) {
+	fake := &fakeConnectorCache{}
+	backend := httptest.NewServer(fake.handler())
+	t.Cleanup(backend.Close)
+	saved := connectorCacheURL
+	connectorCacheURL = backend.URL + "/api/v1"
+	t.Cleanup(func() { connectorCacheURL = saved })
+	api := &API{ctx: context.Background()}
+	router := chi.NewRouter()
+	router.Post("/radius/cache/invalidate", radiusCacheInvalidate(api))
+	server := httptest.NewServer(router)
+	t.Cleanup(server.Close)
+
+	// two devices in NAS formats, one duplicate, one garbage: two deletes, normalised
+	status, out := doJSON(t, "POST", server.URL+"/radius/cache/invalidate", `{"macs":["AA-BB-CC-DD-EE-01","aabb.ccdd.ee02","aa:bb:cc:dd:ee:01","not-a-mac"]}`)
+	if status != http.StatusOK || out["deleted"] != 2.0 {
+		t.Fatalf("invalidate: %d %v", status, out)
+	}
+	fake.mu.Lock()
+	calls := append([]string(nil), fake.calls...)
+	fake.mu.Unlock()
+	if len(calls) != 2 || calls[0] != `POST /api/v1/radcache/delete {"mac":"aa:bb:cc:dd:ee:01"}` || calls[1] != `POST /api/v1/radcache/delete {"mac":"aa:bb:cc:dd:ee:02"}` {
+		t.Fatalf("deletes sent to the cache: %q", calls)
+	}
+	// bad requests
+	for _, body := range []string{`not json`, `{"macs":[]}`, `{"macs":["zz"]}`} {
+		if status, _ := doJSON(t, "POST", server.URL+"/radius/cache/invalidate", body); status != http.StatusBadRequest {
+			t.Fatalf("%s: expected 400, got %d", body, status)
+		}
+	}
+	// the cache refuses one: reported, still 200
+	fake.status, fake.message = http.StatusInternalServerError, "boom"
+	status, out = doJSON(t, "POST", server.URL+"/radius/cache/invalidate", `{"macs":["aa:bb:cc:dd:ee:03"]}`)
+	if status != http.StatusOK || out["deleted"] != 0.0 || len(out["failed"].([]interface{})) != 1 {
+		t.Fatalf("refused delete: %d %v", status, out)
+	}
+	// the cache is down: 502
+	backend.Close()
+	status, _ = doJSON(t, "POST", server.URL+"/radius/cache/invalidate", `{"macs":["aa:bb:cc:dd:ee:03"]}`)
+	if status != http.StatusBadGateway {
+		t.Fatalf("cache down: expected 502, got %d", status)
 	}
 }

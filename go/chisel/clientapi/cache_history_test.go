@@ -105,3 +105,34 @@ func TestCacheHistorySampleAndHandler(t *testing.T) {
 		t.Errorf("%d buckets, want 90", len(buckets))
 	}
 }
+
+// The cache-first counters are monotonic in connector-cache: the history
+// keeps per-sample increments and sums them per bucket; a counter that went
+// backwards (service restarted) counts nothing for that interval.
+func TestCacheHistoryCounterIncrements(t *testing.T) {
+	now := time.Date(2026, 10, 29, 15, 0, 9, 0, time.UTC)
+	h := newCacheHistory(now.Add(-time.Hour))
+	counters := func(hits int64) ConnectorCacheStats {
+		return ConnectorCacheStats{CacheFirstHits: hits, Invalidations: hits / 10}
+	}
+	// first sample: no previous reading, nothing counted
+	h.add(now.Add(-33*time.Second), counters(10))
+	h.add(now.Add(-23*time.Second), counters(13))
+	h.add(now.Add(-13*time.Second), counters(13))
+	h.add(now.Add(-3*time.Second), counters(20))
+	h.add(now, counters(2)) // restarted
+	out := h.read("5m", now)
+	last := out.Buckets[29]
+	if last.Samples != 2 || last.CacheFirstHits != 7 || last.Invalidations != 1 {
+		t.Fatalf("last bucket: %+v %+v", last, last.ConnectorCacheStats)
+	}
+	if b := out.Buckets[28]; b.CacheFirstHits != 0 {
+		t.Fatalf("unchanged counter: %+v", b.ConnectorCacheStats)
+	}
+	if b := out.Buckets[27]; b.CacheFirstHits != 3 {
+		t.Fatalf("increment: %+v", b.ConnectorCacheStats)
+	}
+	if b := out.Buckets[26]; b.CacheFirstHits != 0 {
+		t.Fatalf("first reading must count nothing: %+v", b.ConnectorCacheStats)
+	}
+}
