@@ -156,7 +156,7 @@ Depends: ${misc:Depends}, vlan,
 # used by dev-helpers scripts
  libtypes-serialiser-perl,
 # cluster
- haproxy (>= 2.2), keepalived (>= 2.0), arping,
+ haproxy (>= 3.0), keepalived (>= 2.0), arping,
 # monitoring
  fping, python3-mysqldb,
 # EAP TLS
