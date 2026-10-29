@@ -1,0 +1,20 @@
+Source: libparse-eyapp-perl
+Section: perl
+Priority: optional
+Maintainer: Inverse inc. <support@inverse.ca>
+Build-Depends: debhelper-compat (= 13),
+               perl,
+               libparse-yapp-perl
+Standards-Version: 4.7.0
+Homepage: https://metacpan.org/release/Parse-Eyapp
+Rules-Requires-Root: no
+
+Package: libparse-eyapp-perl
+Architecture: all
+Depends: ${misc:Depends}, ${perl:Depends},
+         libparse-yapp-perl
+Description: extensions for Parse::Yapp
+ Parse::Eyapp is a collection of modules that extends Parse::Yapp: a
+ bottom-up parser generator with named attributes, tree construction
+ and tree transformations. It provides the eyapp and treereg commands.
+ PacketFence uses it through Cisco::AccessList::Parser.

@@ -1,0 +1,5 @@
+libparse-eyapp-perl (1.21-2) trixie; urgency=medium
+
+  * Rebuild for Debian 13 (trixie).
+
+ -- Inverse inc. <support@inverse.ca>  Wed, 29 Oct 2026 12:00:00 +0000
