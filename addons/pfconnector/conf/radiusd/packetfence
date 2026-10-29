@@ -223,10 +223,12 @@ server pf.degraded {
 
 	post-auth {
 		attr_filter.packetfence_post_auth
-		linelog
 		if (reply:Packet-Type != Access-Challenge) {
 			rest
 		}
+		# after the cached authorization was replayed, so the line shows
+		# the VLAN actually returned
+		linelog
 		Post-Auth-Type REJECT {
 			attr_filter.access_reject
 			attr_filter.packetfence_post_auth
