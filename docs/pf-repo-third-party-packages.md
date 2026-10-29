@@ -38,9 +38,9 @@ libjq-xs-perl, libnet-nessus-xmlrpc-perl, libparse-eyapp-perl, sscep.
 | freeradius-yubikey | 4:3.2.11+git | 3.2.7+dfsg-1+deb13u2 | Recipe `freeradius` | inverse-inc/freeradius-server fork, its own debian/; radiusd container pins 4:3.2.11+git |
 | galera-4 | 26.4.16-deb12 | 26.4.23-0+deb13u1 | Use Debian | Trixie has the same or a newer version |
 | galera-arbitrator-4 | 26.4.16-deb12 | 26.4.23-0+deb13u1 | Use Debian | Trixie has the same or a newer version |
-| haproxy | 2.2.15-1 | 3.0.11-1+deb13u4 | Decide later | PF 2.2 vs trixie 3.0; haproxy-* containers install it unpinned |
-| haproxy-dbgsym | 2.2.15-1 | (none) | Debug symbols | Follows its parent package |
-| haproxy-doc | 2.2.15-1 | 3.0.11-1+deb13u4 | Decide later | PF 2.2 vs trixie 3.0; haproxy-* containers install it unpinned |
+| haproxy | 2.2.15-1 | 3.0.11-1+deb13u4 | Use Debian | Configs updated for 3.0; packetfence requires >= 3.0 |
+| haproxy-dbgsym | 2.2.15-1 | (none) | Drop | Follows its parent package |
+| haproxy-doc | 2.2.15-1 | 3.0.11-1+deb13u4 | Use Debian | Configs updated for 3.0; packetfence requires >= 3.0 |
 | keepalived | 1:2.3.4-1 | 1:2.3.3-1 | Probably use Debian | Patch-level difference only |
 | keepalived-dbgsym | 1:2.3.4-1 | (none) | Debug symbols | Follows its parent package |
 | libapache2-mod-apreq2 | 2.17-3~bpo12+1 | 2.17-7+b2 | Use Debian | Trixie has the same or a newer version |
@@ -76,12 +76,9 @@ libjq-xs-perl, libnet-nessus-xmlrpc-perl, libparse-eyapp-perl, sscep.
 | snmp-mibs-downloader | 1.5 | (none) | Decide later | Debian 1.7 is in non-free; packetfence depends on it |
 | sscep | 0.9.0-1 | (none) | Rebuild | Not in Debian; required by packetfence or a container |
 | sscep-dbgsym | 0.9.0-1 | (none) | Debug symbols | Follows its parent package |
-| vim-haproxy | 2.2.15-1 | 3.0.11-1+deb13u4 | Decide later | PF 2.2 vs trixie 3.0; haproxy-* containers install it unpinned |
+| vim-haproxy | 2.2.15-1 | 3.0.11-1+deb13u4 | Use Debian | Configs updated for 3.0; packetfence requires >= 3.0 |
 
 ## Decide later
 
-- **haproxy**: PF ships 2.2.15 (end of life), trixie has 3.0.11 (LTS).
-  `debian/control` only needs >= 2.2; using Debian's needs the generated
-  haproxy configs checked on 3.0.
 - **snmp-mibs-downloader**: packetfence depends on it. Debian 1.7 is in trixie
   non-free; either enable non-free on installs or rebuild it into the PF repo.
