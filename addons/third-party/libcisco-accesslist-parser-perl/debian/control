@@ -1,0 +1,30 @@
+Source: libcisco-accesslist-parser-perl
+Section: perl
+Priority: optional
+Maintainer: Inverse inc. <support@inverse.ca>
+Build-Depends: debhelper-compat (= 13),
+               perl,
+               libmodule-build-perl,
+               libparse-eyapp-perl (>= 1.21),
+               libhash-merge-perl,
+               libregexp-common-perl,
+               libyaml-perl,
+               libyaml-libyaml-perl,
+               libtest-base-perl,
+               libtest-perl-critic-perl,
+               libpath-class-perl,
+               libtest-warn-perl
+Standards-Version: 4.7.0
+Homepage: https://github.com/inverse-inc/Cisco-AccessList-Parser
+Rules-Requires-Root: no
+
+Package: libcisco-accesslist-parser-perl
+Architecture: all
+Depends: ${misc:Depends}, ${perl:Depends},
+         libparse-eyapp-perl (>= 1.21),
+         libhash-merge-perl,
+         libregexp-common-perl
+Description: Cisco IOS access list parser
+ Cisco::AccessList::Parser parses numbered, named, standard and extended
+ Cisco IOS access lists and network/service object groups. This is the
+ Inverse fork used by PacketFence's switch modules.
