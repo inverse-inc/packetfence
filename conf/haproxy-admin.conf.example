@@ -6,7 +6,7 @@ global
 	daemon
 	pidfile %%var_dir%%/run/haproxy-admin.pid
 	log stdout local0
-	stats socket %%var_dir%%/run/haproxy-admin.stats level admin process 1
+	stats socket %%var_dir%%/run/haproxy-admin.stats level admin
 	maxconn 4000
 	tune.ssl.default-dh-param 2048
 	ssl-default-bind-ciphers ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256
