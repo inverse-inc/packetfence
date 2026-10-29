@@ -1,0 +1,24 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+%:
+	dh $@
+
+# only modules/arch/unix/mod_systemd.c is built, not the rest of httpd;
+# HAVE_SYSTEMD declares its optional functions in ap_listen.h
+override_dh_autoreconf override_dh_auto_configure override_dh_auto_test override_dh_auto_clean:
+
+override_dh_auto_build:
+	apxs -c -DHAVE_SYSTEMD -Wc,"$(CFLAGS) $(CPPFLAGS)" -Wl,"$(LDFLAGS)" -lsystemd \
+		modules/arch/unix/mod_systemd.c
+
+override_dh_auto_install:
+	install -D -m 0644 modules/arch/unix/.libs/mod_systemd.so \
+		debian/libapache2-mod-systemd/usr/lib/apache2/modules/mod_systemd.so
+	install -D -m 0644 debian/systemd.load \
+		debian/libapache2-mod-systemd/etc/apache2/mods-available/systemd.load
+
+override_dh_clean:
+	dh_clean
+	rm -rf modules/arch/unix/.libs modules/arch/unix/*.la modules/arch/unix/*.lo modules/arch/unix/*.slo modules/arch/unix/*.o
