@@ -56,6 +56,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - OpenID attributes from the provider response are passed to rule matching (#9426)
   - Switch controllers — a FQDN is accepted as the Controller IP Address, and the UniFi controller API port is configurable (`controllerPort`) (#9523, #9246)
   - pfdhcp sets the BOOTP next-server and boot file from options 66/67 (#9474)
+  - pfdhcp runs as a container (host network) on standalone servers and clusters, and the same image can run in Kubernetes (#9590)
   - External portal URLs of Cisco IOS 15.5, ArubaOS-Switch 16.x and Dell N1500 are accepted (#9472)
   - API: the Go services answer unknown paths with a JSON 404 and unsupported methods with a JSON 405 (#9501)
   - ProxySQL query rules are only reloaded when their state changes (#9443)

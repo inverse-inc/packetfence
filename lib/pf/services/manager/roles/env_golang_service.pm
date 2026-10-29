@@ -15,6 +15,7 @@ use strict;
 use warnings;
 
 use Moo::Role;
+use Template;
 use pf::config qw(%Config $management_network);
 use pfconfig::config;
 
