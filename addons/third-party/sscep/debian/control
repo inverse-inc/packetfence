@@ -1,0 +1,18 @@
+Source: sscep
+Section: net
+Priority: optional
+Maintainer: Inverse inc. <support@inverse.ca>
+Build-Depends: debhelper-compat (= 13),
+               libssl-dev,
+               pkgconf
+Standards-Version: 4.7.0
+Homepage: https://github.com/certnanny/sscep
+Rules-Requires-Root: no
+
+Package: sscep
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Simple Certificate Enrollment Protocol client
+ sscep is a command line client for the SCEP protocol (RFC 8894).
+ It can request, renew and fetch certificates and CRLs from a SCEP
+ server. PacketFence uses it to test SCEP enrollment.
