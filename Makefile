@@ -385,6 +385,7 @@ pfconnector_remote_install:
 	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/rest.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-enabled/rest
 	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/mschap.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-enabled/mschap
 	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/eap.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-enabled/eap
+	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/linelog.conf $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-enabled/linelog
 	rm -f $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-enabled/perl
 	install -v -m 0644 $(SRC_PFCONNECTORDIR)/conf/radiusd/packetfence-pre-proxy $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/mods-config/attr_filter/packetfence-pre-proxy
 	install -v -d -m0755 $(DESTDIR)$(PFCONNECTOR_PREFIX)/raddb/sites-available
