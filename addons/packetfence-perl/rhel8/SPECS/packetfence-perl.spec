@@ -1,5 +1,5 @@
 Name:           packetfence-perl
-Version:        1.2.7
+Version:        1.2.8
 Release:        1%{?dist}
 Summary:        All modules loaded with cpan
 BuildArch:      x86_64
@@ -33,6 +33,11 @@ export PKG_CONFIG_PATH=/usr/lib/pkgconfig/
         /usr/local/pf/lib_perl/*
 
 %changelog
+* Wed Oct 28 2026 Inverse <info@inverse.ca> 1.2.8-1
+- Upgrade IO::Socket::SSL 2.071 -> 2.089
+- Upgrade Crypt::OpenSSL::PKCS10 0.16 -> 0.37
+- Add Crypt::OpenSSL::Guess 0.15 (configure dependency of PKCS10 0.37)
+
 * Fri Aug 21 2026 Inverse <info@inverse.ca> 1.2.7-1
 - Upgrade Specio 0.47 -> 0.53
 

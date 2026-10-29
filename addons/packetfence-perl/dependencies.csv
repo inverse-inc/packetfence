@@ -73,7 +73,7 @@ HTTP::Message,6.36,OALDERS/HTTP-Message-6.36.tar.gz,True,O/OA/OALDERS/HTTP-Messa
 Test::Pod::Coverage,1.10,NEILB/Test-Pod-Coverage-1.10.tar.gz,True,N/NE/NEILB/Test-Pod-Coverage-1.10.tar.gz,6
 Hash::MoreUtils,0.06,REHSACK/Hash-MoreUtils-0.06.tar.gz,True,R/RE/REHSACK/Hash-MoreUtils-0.06.tar.gz,6
 Cache::Cache,1.08,RJBS/Cache-Cache-1.08.tar.gz,True,R/RJ/RJBS/Cache-Cache-1.08.tar.gz,6
-IO::Socket::SSL,2.071,SULLR/IO-Socket-SSL-2.071.tar.gz,True,S/SU/SULLR/IO-Socket-SSL-2.071.tar.gz,6
+IO::Socket::SSL,2.089,SULLR/IO-Socket-SSL-2.089.tar.gz,True,S/SU/SULLR/IO-Socket-SSL-2.089.tar.gz,6
 Readonly,2.05,SANKO/Readonly-2.05.tar.gz,True,S/SA/SANKO/Readonly-2.05.tar.gz,6
 Regexp::Common,2017060201,ABIGAIL/Regexp-Common-2017060201.tar.gz,True,A/AB/ABIGAIL/Regexp-Common-2017060201.tar.gz,6
 Catalyst::Plugin::Session::State::Cookie,0.18,HAARG/Catalyst-Plugin-Session-State-Cookie-0.18.tar.gz,True,H/HA/HAARG/Catalyst-Plugin-Session-State-Cookie-0.18.tar.gz,6
@@ -142,7 +142,8 @@ Net::Appliance::Session,4.300005,OLIVER/Net-Appliance-Session-4.300005.tar.gz,Tr
 Perl::Version,1.013,BDFOY/Perl-Version-1.013.tar.gz,True,B/BD/BDFOY/Perl-Version-1.013.tar.gz,2
 Crypt::Rijndael,1.16,LEONT/Crypt-Rijndael-1.16.tar.gz,True,L/LE/LEONT/Crypt-Rijndael-1.16.tar.gz,2
 IO::Interface,1.09,LDS/IO-Interface-1.09.tar.gz,True,L/LD/LDS/IO-Interface-1.09.tar.gz,2
-Crypt::OpenSSL::PKCS10,0.16,JONOZZZ/Crypt-OpenSSL-PKCS10-0.16.tar.gz,True,J/JO/JONOZZZ/Crypt-OpenSSL-PKCS10-0.16.tar.gz,2
+Crypt::OpenSSL::Guess,0.15,AKIYM/Crypt-OpenSSL-Guess-0.15.tar.gz,True,A/AK/AKIYM/Crypt-OpenSSL-Guess-0.15.tar.gz,2
+Crypt::OpenSSL::PKCS10,0.37,TIMLEGGE/Crypt-OpenSSL-PKCS10-0.37.tar.gz,True,T/TI/TIMLEGGE/Crypt-OpenSSL-PKCS10-0.37.tar.gz,2
 Crypt::OpenSSL::PKCS12,1.9,JONASBN/Crypt-OpenSSL-PKCS12-1.9.tar.gz,True,J/JO/JONASBN/Crypt-OpenSSL-PKCS12-1.9.tar.gz,2
 Catalyst::Authentication::Credential::HTTP,1.018,ETHER/Catalyst-Authentication-Credential-HTTP-1.018.tar.gz,True,E/ET/ETHER/Catalyst-Authentication-Credential-HTTP-1.018.tar.gz,2
 Data::Serializer::Sereal,1.05,ROUZIER/Data-Serializer-Sereal-1.05.tar.gz,True,R/RO/ROUZIER/Data-Serializer-Sereal-1.05.tar.gz,2
