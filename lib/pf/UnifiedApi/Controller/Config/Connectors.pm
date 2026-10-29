@@ -54,11 +54,27 @@ and close the ones it no longer has. Only the differences are applied.
 sub post_create {
     my ($self, $id) = @_;
     $self->reprovision_static($id);
+    $self->refresh_radius_nas($id);
 }
 
 sub post_update {
     my ($self, $id) = @_;
     $self->reprovision_static($id);
+    $self->refresh_radius_nas($id);
+}
+
+=head2 refresh_radius_nas
+
+The networks of a connector decide which switches are its RADIUS clients:
+make the connector-remote reload them (pf::connector::refresh_radius_nas).
+
+=cut
+
+sub refresh_radius_nas {
+    my ($self, $id) = @_;
+    my $connector = pf::factory::connector->new($id);
+    $connector->refresh_radius_nas() if $connector;
+    return;
 }
 
 =head2 post_remove

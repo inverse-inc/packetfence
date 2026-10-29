@@ -2,6 +2,7 @@ package chserver
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -30,8 +31,8 @@ const connectorStatusProbePath = "/api/v1/service/ping"
 // Default cadence and timeouts for the connector status prober. Both are
 // overridable via env vars so deployments can tune without a rebuild.
 const (
-	defaultConnectorStatusInterval = 2 * time.Second
-	defaultConnectorStatusTimeout  = 1 * time.Second
+	defaultConnectorStatusInterval  = 2 * time.Second
+	defaultConnectorStatusTimeout   = 1 * time.Second
 	connectorStatusProbeConcurrency = 32
 )
 
@@ -248,6 +249,13 @@ func recordHostsMinute(ctx context.Context, rdb *redis.Client, minute time.Time)
 // tunnelGet sends a GET for path to the connector-remote API through the
 // tunnel, and returns the status and body of the reply.
 func tunnelGet(ctx context.Context, tun *tunnel.Tunnel, path string) (int, []byte, error) {
+	return tunnelRequest(ctx, tun, http.MethodGet, path, nil)
+}
+
+// tunnelRequest sends one HTTP request (a JSON body when body is not nil) to
+// the connector-remote API through the tunnel, and returns the status and
+// body of the reply.
+func tunnelRequest(ctx context.Context, tun *tunnel.Tunnel, method, path string, body []byte) (int, []byte, error) {
 	ch, err := tun.OpenChiselChannel(ctx, connectorStatusProbeTarget)
 	if err != nil {
 		return 0, nil, err
@@ -260,7 +268,11 @@ func tunnelGet(ctx context.Context, tun *tunnel.Tunnel, path string) (int, []byt
 	}
 	done := make(chan result, 1)
 	go func() {
-		req, err := http.NewRequest(http.MethodGet, "http://"+connectorStatusProbeTarget+path, nil)
+		var reader io.Reader
+		if body != nil {
+			reader = bytes.NewReader(body)
+		}
+		req, err := http.NewRequest(method, "http://"+connectorStatusProbeTarget+path, reader)
 		if err != nil {
 			done <- result{err: err}
 			return
@@ -268,6 +280,9 @@ func tunnelGet(ctx context.Context, tun *tunnel.Tunnel, path string) (int, []byt
 		req.Host = connectorStatusProbeTarget
 		req.Close = true
 		req.Header.Set("User-Agent", "pfconnector-status-probe")
+		if body != nil {
+			req.Header.Set("Content-Type", "application/json")
+		}
 		if err := req.Write(ch); err != nil {
 			done <- result{err: err}
 			return
