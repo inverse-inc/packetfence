@@ -1055,6 +1055,28 @@ build_artifacts_pkg_debian_trixie:
       when: never
     - !reference [.context_rules, rules]
 
+# Third-party Debian packages (addons/third-party/), on demand only: run this
+# manual job with THIRD_PARTY_PKG=<recipe>. Signing follows automatically,
+# upload to the repo is a second manual job (deploy_third_party_pkg).
+# Images use the latest tag: branch pipelines don't always build their own.
+build_third_party_pkg:
+  image: ${PFBUILD_DEB_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+  stage: build_artifacts
+  needs: []
+  script:
+    - addons/third-party/build.sh "${THIRD_PARTY_PKG:-}"
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - result/*
+  tags:
+    - docker
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - when: manual
+      allow_failure: true
+
 # build_artifacts_website (devel/branches/release)
 build_artifacts_website:
   image: ${PFBUILD_DEB_IMG}:${IMAGE_TAG}
@@ -1139,6 +1161,27 @@ sign_packages:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       variables:
         IMAGE_TAG: $CI_COMMIT_REF_SLUG
+
+sign_third_party_pkg:
+  image: ghcr.io/inverse-inc/packetfence/signing-packages:${PFBUILD_DEFAULT_DEV_TAG}
+  stage: sign
+  needs:
+    - job: build_third_party_pkg
+  variables:
+    RESULT_DIR: result
+    SIGN_RPM: "no"
+  script:
+    - ci/lib/sign/sign-packages.sh
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - result/*
+  tags:
+    - docker
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - when: on_success
 
 ########################################
 # PUBLISH JOBS
@@ -1554,6 +1597,43 @@ deploy_packages:
   rules:
     - !reference [.gated_by_deploy_pkg, rules]
     - !reference [.deploy_pkg_rules, rules]
+
+# Uploads the signed third-party package to the repo of the current context
+# (debian/ for devel, maintenance and tags, debian-branches/ otherwise).
+deploy_third_party_pkg:
+  extends:
+    - .deploy_packages_job
+  image: ghcr.io/inverse-inc/packetfence/publish-ppa:${PFBUILD_DEFAULT_DEV_TAG}
+  needs:
+    - job: sign_third_party_pkg
+  dependencies:
+    - sign_third_party_pkg
+  environment:
+    name: $DEPLOY_ENV_NAME
+  variables:
+    DEPLOY_TYPE: deb
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_TAG'
+      when: manual
+      variables:
+        DEPLOY_ENV_NAME: pf-stable
+        DEB_DEPLOY_DIR: debian
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/'
+      when: manual
+      variables:
+        DEPLOY_ENV_NAME: maintenance
+        DEB_DEPLOY_DIR: debian
+    - if: '$CI_COMMIT_REF_NAME == "devel"'
+      when: manual
+      variables:
+        DEPLOY_ENV_NAME: pf-devel
+        DEB_DEPLOY_DIR: debian
+    - when: manual
+      variables:
+        DEPLOY_ENV_NAME: pf-branches
+        DEB_DEPLOY_DIR: debian-branches
 
 # website artifacts
 deploy_website_artifacts:
