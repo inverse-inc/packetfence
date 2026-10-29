@@ -175,8 +175,8 @@ frontend admin-https-$mgmt_cluster_ip
         #acl url_api  path_beg /api
         #use_backend api if url_api
         http-request lua.admin
-        use_backend %[var(req.action)]
         http-request redirect location /admin if { lua.redirect 1 }
+        use_backend %[var(req.action)]
 EOT
             if (isenabled($Config{services}{httpd_admin})) {
         $tags{'http_admin'} .= <<"EOT";
@@ -258,8 +258,8 @@ frontend admin-https-all
         acl host_exist var(req.host) -m found
         http-request set-header Host %[var(req.host)] if host_exist
         http-request lua.admin
-        use_backend %[var(req.action)]
         http-request redirect location /admin if { lua.redirect 1 }
+        use_backend %[var(req.action)]
 
 EOT
     }
