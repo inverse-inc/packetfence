@@ -76,6 +76,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Bug Fixes
 
+  - Wired single-host ports no longer accumulate open locationlog entries: an endpoint swapped on a port closes the previous one's entry, and the authorization path reads only the newest entry of the port through a new index, so RADIUS authorizations don't slow down as entries pile up (#9606)
   - Authentication rule conditions on switch, switch group, MAC and computer name now apply to 802.1X and MAB — review these rules before upgrading (#9363)
   - RADIUS: a failed post-auth call to httpd.aaa leaves MAB/PAP requests unanswered instead of rejecting them, and authorize answers 503 instead of 401 when the request can't be evaluated (#9288)
   - CoA and Disconnect use the switch's `coaPort` and `disconnectPort` on every switch module (#9378)
