@@ -399,10 +399,10 @@ CREATE TABLE `locationlog` (
   `voip` enum('no','yes') NOT NULL DEFAULT 'no',
   PRIMARY KEY (`mac`),
   KEY `locationlog_end_time` ( `end_time`),
-  KEY `locationlog_view_switchport` (`switch`,`port`,`vlan`),
   KEY `locationlog_ssid` (`ssid`),
   KEY `locationlog_session_id_end_time` (`session_id`, `end_time`),
-  KEY `locationlog_switch_ip_int` (`switch_ip_int`)
+  KEY `locationlog_switch_ip_int` (`switch_ip_int`),
+  KEY `locationlog_open_switchport` (`switch`,`port`,`end_time`,`start_time`)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 CREATE TABLE `locationlog_history` (
