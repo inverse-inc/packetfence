@@ -1,0 +1,5 @@
+libapache2-mod-systemd (2.4.69-1) trixie; urgency=medium
+
+  * Build for Debian 13 (trixie) from Apache httpd's own mod_systemd.c.
+
+ -- Inverse inc. <support@inverse.ca>  Wed, 29 Oct 2026 12:00:00 +0000
