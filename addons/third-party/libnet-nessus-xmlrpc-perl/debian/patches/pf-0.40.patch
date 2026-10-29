@@ -1,0 +1,97 @@
+Description: PacketFence changes, previously shipped as 0.40
+ - nessus_http_request: new LWP::UserAgent without hostname verification,
+   GET when there is no POST data
+ - report_filenbe_download: download a report as NBE (used by
+   lib/pf/scan/nessus.pm)
+ - $VERSION 0.40
+Author: Inverse inc. <support@inverse.ca>
+Forwarded: not-needed
+Last-Update: 2026-10-29
+
+--- a/lib/Net/Nessus/XMLRPC.pm
++++ b/lib/Net/Nessus/XMLRPC.pm
+@@ -13,11 +13,11 @@
+ 
+ =head1 VERSION
+ 
+-Version 0.30
++Version 0.40
+ 
+ =cut
+ 
+-our $VERSION = '0.30';
++our $VERSION = '0.40';
+ 
+ 
+ =head1 SYNOPSIS
+@@ -126,10 +126,16 @@
+ =cut
+ sub nessus_http_request {
+ 	my ( $self, $uri, $post_data ) = @_;
+-	my $ua = $self->{_ua};
+-	# my $ua = LWP::UserAgent->new;
++	#my $ua = $self->{_ua};
++	my $ua = LWP::UserAgent->new(ssl_opts => { verify_hostname => 0 });
+ 	my $furl = $self->nurl.$uri;
+-	my $r = POST $furl, $post_data;
++	my $r ='';
++	if (not defined($post_data)) {
++		$r = GET $furl;
++	}
++	else {
++		$r = POST $furl, $post_data;
++	}
+ 	my $result = $ua->request($r);
+ 	# my $filename="n-".time; open (FILE,">$filename"); 
+ 	# print FILE $result->as_string; close (FILE);
+@@ -941,6 +947,50 @@
+ 	return $file;
+ }	
+ 
++=head2 report_filenbe_download ($report_id)
++
++returns NBE report identified by $report_id (Nessus NBE)
++=cut
++sub report_filenbe_download {
++        my ( $self, $uuid ) = @_;
++        
++	my $post=[
++                "token" => $self->token,
++                "report" => $uuid,
++                 ];
++
++	my $get = $self->nessus_http_request("file/xslt/?report=".$uuid."&xslt=nbe.xsl&token=".$self->token);
++	sleep 10;
++	if($get =~ /<meta http-equiv="refresh" content="5;url=\/(.*)"/) {
++		my $file = $self->nessus_http_request($1."&token=".$self->token."&step=2");
++		return $file;
++	}
++	
++        return $get;
++}
++
++=head2 report_filecsv_download ($report_id)
++
++returns CSV report identified by $report_id (Nessus CSV)
++=cut
++sub report_filecsv_download {
++        my ( $self, $uuid ) = @_;
++
++        my $post=[
++                "token" => $self->token,
++                "report" => $uuid,
++                 ];
++
++        my $get = $self->nessus_http_request("file/xslt/?report=".$uuid."&xslt=csv.xsl&token=".$self->token);
++        sleep 10;
++        if($get =~ /<meta http-equiv="refresh" content="5;url=\/(.*)"/) {
++                my $file = $self->nessus_http_request($1."&token=".$self->token."&step=2");
++                return $file;
++        }
++
++        return $get;
++}
++
+ =head2 report_delete ($report_id)
+ 
+ delete report identified by $report_id

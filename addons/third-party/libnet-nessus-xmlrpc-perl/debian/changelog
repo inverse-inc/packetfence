@@ -1,0 +1,7 @@
+libnet-nessus-xmlrpc-perl (0.30+pf1-1) trixie; urgency=medium
+
+  * Rebuild for Debian 13 (trixie) from CPAN 0.30, with the PacketFence
+    changes (previously shipped as 0.40) as a quilt patch. The version
+    sorts above Debian's unpatched 0.30-3.
+
+ -- Inverse inc. <support@inverse.ca>  Wed, 29 Oct 2026 12:00:00 +0000
