@@ -69,7 +69,7 @@ libjq-xs-perl, libnet-nessus-xmlrpc-perl, libparse-eyapp-perl, sscep.
 | libsereal-perl | 5.004-1 | 5.004-1 | Use Debian | Trixie has the same or a newer version |
 | netdata | 1:1.10.0-1 | (none) | Probably drop | Removed from Debian after bookworm; PF runs netdata in Docker; not in debian/control |
 | netdata-data | 1:1.10.0-1 | (none) | Probably drop | Removed from Debian after bookworm; PF runs netdata in Docker; not in debian/control |
-| proxysql | 2.6.0 | (none) | Decide later | Not in Debian; required by packetfence or a container |
+| proxysql | 2.6.0 | (none) | Container build | Built in `containers/proxysql/Dockerfile` from inverse-inc/proxysql (feature/packetfence_systemd_notify: 3.0.5 + sd_notify) |
 | python3-impacket | 0.10.0-4 | 0.12.0-3 | Use Debian | Trixie has the same or a newer version |
 | python3-slip | 0.6.5-2 | (none) | Probably drop | Dropped from Debian after bullseye; nothing in debian/control uses it |
 | python3-slip-dbus | 0.6.5-2 | (none) | Probably drop | Dropped from Debian after bullseye; nothing in debian/control uses it |
@@ -80,10 +80,6 @@ libjq-xs-perl, libnet-nessus-xmlrpc-perl, libparse-eyapp-perl, sscep.
 
 ## Decide later
 
-- **proxysql**: PF ships 2.6.0, and ProxySQL publishes no trixie build of any
-  2.x release. Either switch to 3.0.x from ProxySQL's own repo
-  (`repo.proxysql.com/ProxySQL/proxysql-3.0.x/trixie`, 3.0.3 to 3.0.11; needs
-  `proxysql.conf` and the read-only handler re-tested), or build 2.x from source.
 - **haproxy**: PF ships 2.2.15 (end of life), trixie has 3.0.11 (LTS).
   `debian/control` only needs >= 2.2; using Debian's needs the generated
   haproxy configs checked on 3.0.
