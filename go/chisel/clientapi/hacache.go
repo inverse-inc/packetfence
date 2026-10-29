@@ -133,13 +133,16 @@ func ImportCacheSnapshot(dbPath string, snapshot []byte) (int, error) {
 
 	var sqlb strings.Builder
 	fmt.Fprintf(&sqlb, "ATTACH DATABASE '%s' AS src;\nPRAGMA busy_timeout = 5000;\nBEGIN IMMEDIATE;\n", tmpPath)
-	pk := map[string]string{"device": "mac", "credential": "user"}
+	// device is keyed by (mac, nas_ip, ssid) since connector-cache 0.1.8; the
+	// row-value NOT IN needs sqlite3 >= 3.15, bookworm ships 3.40.
+	pk := map[string][]string{"device": {"mac", "nas_ip", "ssid"}, "credential": {"user"}}
 	mirrored := []string{}
 	for _, t := range cacheTables {
 		if !live[t] || !src[t] {
 			continue
 		}
-		fmt.Fprintf(&sqlb, "DELETE FROM main.%s WHERE %s NOT IN (SELECT %s FROM src.%s);\n", t, pk[t], pk[t], t)
+		cols := strings.Join(pk[t], ", ")
+		fmt.Fprintf(&sqlb, "DELETE FROM main.%s WHERE (%s) NOT IN (SELECT %s FROM src.%s);\n", t, cols, cols, t)
 		fmt.Fprintf(&sqlb, "INSERT OR REPLACE INTO main.%s SELECT * FROM src.%s;\n", t, t)
 		mirrored = append(mirrored, t)
 	}

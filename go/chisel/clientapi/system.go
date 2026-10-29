@@ -107,6 +107,15 @@ type ConnectorCacheStats struct {
 	CredentialInDB int `json:"credential_in_db"`
 	// KeysInRatelimit is the number of live keys in the in-memory rate limiter.
 	KeysInRatelimit int `json:"keys_in_ratelimit"`
+	// Cache-first counters since connector-cache started (0.1.8+): requests
+	// answered from the cache, sent to PacketFence because the device was
+	// unknown there / its entry too old / not replayable, and entries dropped
+	// on PacketFence's request. In the history they are per-bucket increments.
+	CacheFirstHits       int64 `json:"cache_first_hits"`
+	CacheFirstMisses     int64 `json:"cache_first_misses"`
+	CacheFirstStale      int64 `json:"cache_first_stale"`
+	CacheFirstIneligible int64 `json:"cache_first_ineligible"`
+	Invalidations        int64 `json:"invalidations"`
 }
 
 // connectorCacheStatsURL is where connector-cache answers on the host

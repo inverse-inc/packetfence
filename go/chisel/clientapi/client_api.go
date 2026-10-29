@@ -274,6 +274,9 @@ func (api *API) setupRoutes() {
 				r.Post("/restart", manageService(api, "restart"))
 			})
 			r.Post("/radius/authorize", radiusAuthorize(api))
+			// PacketFence drops the cached RADIUS replies of devices whose
+			// access changed (see radius_cache_invalidate.go).
+			r.Post("/radius/cache/invalidate", radiusCacheInvalidate(api))
 			r.Post("/radius/multi-domain/authorize", multiDomainAuthorize(api))
 			r.Handle("/credcache/*", credcacheProxy())
 			r.Handle("/credcache", credcacheProxy())

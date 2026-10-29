@@ -197,6 +197,9 @@ sub node_delete {
     if (is_error($status)) {
         return ($FALSE, "Unable to delete '$mac' internal error");
     }
+    # a deleted device must be re-created by PacketFence at its next request
+    require pf::connector::radius_cache;
+    pf::connector::radius_cache::invalidate([$mac], reason => 'node_delete');
 
     node_clear_portal_session($mac) unless $opts{keep_portal_session};
     $logger->info("node $mac deleted");
@@ -212,6 +215,11 @@ doesn't answer can't hold the caller (an API worker deleting nodes, the node cle
 doesn't keep the others from being notified.
 
 =cut
+
+# The node fields the RADIUS reply of PacketFence depends on: a change makes
+# the remote connectors drop the device's cached replies (see node_modify; the
+# hot-path updates of last_* never touch them).
+our @RADIUS_CACHE_FIELDS = qw(status category_id bypass_role_id bypass_vlan bypass_acls voip unregdate);
 
 our $PORTAL_SESSION_CONNECT_TIMEOUT_MS = 3_000;
 our $PORTAL_SESSION_TIMEOUT_MS = 10_000;
@@ -669,13 +677,30 @@ sub node_modify {
         pf::ipset::iptables_update_set($mac, $obj->{'category_id'}, $data{'category_id'});
     }
 
+    # what the RADIUS reply depends on, before the change
+    my %before = map { $_ => $obj->{$_} } @RADIUS_CACHE_FIELDS;
+
     $obj->merge(\%data);
     $status = $obj->save();
     if (is_error($status)) {
         $logger->error("Unable to modify node '" . $mac // 'undef' . "'");
         return (0);
     }
+    if (_radius_cache_fields_changed(\%before, $obj)) {
+        require pf::connector::radius_cache;
+        pf::connector::radius_cache::invalidate([$mac], reason => 'node_modify');
+    }
     return (1);
+}
+
+sub _radius_cache_fields_changed {
+    my ($before, $after) = @_;
+    for my $field (@RADIUS_CACHE_FIELDS) {
+        my ($b, $a) = ($before->{$field}, $after->{$field});
+        next if !defined $b && !defined $a;
+        return 1 if !defined $b || !defined $a || $b ne $a;
+    }
+    return 0;
 }
 
 sub node_register {

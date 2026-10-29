@@ -88,6 +88,11 @@ sub reevaluate_access {
     $mac = clean_mac($mac);
 
     $logger->info("re-evaluating access ($function called)");
+    # Whatever happens below (no open locationlog, no VLAN change...), the
+    # device's access may have changed: the remote connectors must not answer
+    # its next request from their cache (pf::connector::radius_cache).
+    require pf::connector::radius_cache;
+    pf::connector::radius_cache::invalidate([$mac], reason => $function);
     $opts{'force'} = '1' if ($function eq 'admin_modify');
     my $ip = pf::ip4log::mac2ip($mac);
     my $sync = $opts{sync};

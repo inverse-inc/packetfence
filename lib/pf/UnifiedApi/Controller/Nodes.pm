@@ -372,6 +372,14 @@ post_update
 sub post_update {
     my ($self, $updated_data) = @_;
     my $old_node = $self->item;
+    # the generic update bypasses pf::node::node_modify: tell the remote
+    # connectors when a field the RADIUS reply depends on changed
+    my %before = map { $_ => $old_node->{$_} } @pf::node::RADIUS_CACHE_FIELDS;
+    my %after = (%before, map { $_ => $updated_data->{$_} } grep { exists $updated_data->{$_} } @pf::node::RADIUS_CACHE_FIELDS);
+    if (pf::node::_radius_cache_fields_changed(\%before, \%after)) {
+        require pf::connector::radius_cache;
+        pf::connector::radius_cache::invalidate([$self->id], reason => 'admin_modify');
+    }
     if (!exists $updated_data->{category_id} && !exists $updated_data->{status}) {
         return;
     }
@@ -679,6 +687,9 @@ sub do_bulk_update_field2 {
     if (is_error($status)) {
         return $self->render_error($status, "Error finding nodes");
     }
+    # bypass_vlan / bypass_acls change the RADIUS reply of these devices
+    require pf::connector::radius_cache;
+    pf::connector::radius_cache::invalidate($items, reason => "bulk_update_$field");
 
     my ($indexes, $results) = bulk_init_results($items, 'success');
 
@@ -1354,6 +1365,10 @@ sub _do_remove {
     my ($status, @rest) = $self->dal->remove_by_id($lookup);
     if (is_success($status) && !$opts{keep_portal_session}) {
         pf::node::node_clear_portal_session($mac);
+    }
+    if (is_success($status)) {
+        require pf::connector::radius_cache;
+        pf::connector::radius_cache::invalidate([$mac], reason => 'node_delete');
     }
     return ($status, @rest);
 }

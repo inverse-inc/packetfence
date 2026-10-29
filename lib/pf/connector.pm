@@ -193,5 +193,27 @@ sub reprovision_static {
     return;
 }
 
-1;
+=head2 radius_cache_invalidate
 
+Ask the pfconnector server holding this connector's tunnel to make the
+connector-remote drop the cached RADIUS replies of the given devices (see
+pf::connector::radius_cache for the broadcast every hook uses).
+
+=cut
+
+sub radius_cache_invalidate {
+    my ($self, $macs, %opts) = @_;
+    eval {
+        $self->connectorServerApiClient->call("POST", "/api/v1/pfconnector/radius-cache-invalidate", {
+            connector_ids => [$self->id],
+            macs          => $macs,
+            sync          => $opts{sync} ? \1 : \0,
+        });
+    };
+    if ($@) {
+        get_logger->warn("Failed to ask connector '".$self->id."' to drop cached RADIUS replies: $@");
+    }
+    return;
+}
+
+1;

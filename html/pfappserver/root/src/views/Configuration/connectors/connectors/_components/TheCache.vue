@@ -61,6 +61,25 @@
                 <b-td>{{ stats.keys_in_ratelimit }}</b-td>
               </b-tr>
               <b-tr>
+                <b-td class="text-muted">{{ $i18n.t('Cache-first') }}</b-td>
+                <b-td>
+                  <b-badge v-if="config && config.app && config.app.cache_first" variant="success">{{ $i18n.t('enabled') }}</b-badge>
+                  <b-badge v-else variant="light" class="border">{{ $i18n.t('disabled') }}</b-badge>
+                </b-td>
+              </b-tr>
+              <b-tr>
+                <b-td class="text-muted">{{ $i18n.t('Answered from the cache') }}</b-td>
+                <b-td>{{ stats.cache_first_hits || 0 }} <small v-if="cacheFirstRatio !== null" class="text-muted">({{ cacheFirstRatio }}%)</small></b-td>
+              </b-tr>
+              <b-tr>
+                <b-td class="text-muted">{{ $i18n.t('Sent to PacketFence') }}</b-td>
+                <b-td>{{ (stats.cache_first_misses || 0) + (stats.cache_first_stale || 0) + (stats.cache_first_ineligible || 0) }} <small class="text-muted">{{ $i18n.t('unknown {misses}, too old {stale}, not replayable {ineligible}', { misses: stats.cache_first_misses || 0, stale: stats.cache_first_stale || 0, ineligible: stats.cache_first_ineligible || 0 }) }}</small></b-td>
+              </b-tr>
+              <b-tr>
+                <b-td class="text-muted">{{ $i18n.t('Invalidated by PacketFence') }}</b-td>
+                <b-td>{{ stats.invalidations || 0 }}</b-td>
+              </b-tr>
+              <b-tr>
                 <b-td class="text-muted">{{ $i18n.t('Database size') }}</b-td>
                 <b-td>{{ formatBytes(stats.db_size) }}</b-td>
               </b-tr>
@@ -179,6 +198,17 @@ export const props = {
 // Ranges mirror connector-cache's validation tags.
 const fields = [
   {
+    key: 'app.cache_first', type: 'boolean',
+    label: i18n.t('Cache-first answers'),
+    trueLabel: i18n.t('Answer known devices from the cache'), falseLabel: i18n.t('Send every request to PacketFence'),
+    help: i18n.t('The MAB requests of a device whose last authorization is cached for the same switch and SSID are answered by the connector without asking PacketFence, until PacketFence invalidates the entry (the device\'s access changed) or it reaches the freshness limit. 802.1X and accounting always go to PacketFence.')
+  },
+  {
+    key: 'app.cache_first_ttl', type: 'number', min: 60, max: 604800,
+    label: i18n.t('Cache-first freshness'), unit: i18n.t('seconds'),
+    help: i18n.t('A cached authorization older than this is no longer answered from the cache: PacketFence is asked and the entry refreshed. It stays usable when PacketFence is unreachable.')
+  },
+  {
     key: 'app.rate_limit_rate', type: 'number', min: 0, max: 180,
     label: i18n.t('RADIUS rate limit'), unit: i18n.t('req/min'),
     help: i18n.t('Maximum RADIUS requests per minute for a single device before the rate limiter kicks in (0 = unlimited).')
@@ -279,6 +309,15 @@ export const setup = (props, context) => {
   const loaded = reactive({})
 
   const isBusy = computed(() => isSaving.value || isActing.value)
+  // share of the cache-first decisions answered from the cache, null before any
+  const cacheFirstRatio = computed(() => {
+    const s = stats.value
+    if (!s)
+      return null
+    const hits = s.cache_first_hits || 0
+    const total = hits + (s.cache_first_misses || 0) + (s.cache_first_stale || 0) + (s.cache_first_ineligible || 0)
+    return total > 0 ? Math.round(100 * hits / total) : null
+  })
 
   const errorMessage = (error, fallback) => {
     const { response: { status, data } = {} } = error || {}
@@ -446,6 +485,7 @@ export const setup = (props, context) => {
     fields,
     form,
     stats,
+    cacheFirstRatio,
     statsError,
     config,
     configError,

@@ -95,6 +95,37 @@ server pf-remote {
 	}
 
 	authorize {
+		# Normalise the MACs first so the cache-first key, the rate limiter
+		# key and Load-Balance-Key all see aa:bb:cc:dd:ee:ff (post-proxy
+		# did it only for /radcache/set until now).
+		rewrite_calling_station_id
+		rewrite_called_station_id
+		if(!NAS-IP-Address){
+			update request {
+				NAS-IP-Address := "%{Packet-Src-IP-Address}"
+			}
+		}
+
+		# Cache-first (MAB only): the first packet of a non-EAP conversation
+		# is looked up in connector-cache for this device, switch and SSID.
+		# 200 = answer with the cached Access-Accept, without PacketFence;
+		# 404 (mode off, unknown device, stale or not replayable entry) or
+		# a cache failure = proxy as usual. PacketFence drops the entry when
+		# the device's access changes, so the next request reaches it.
+		if (!EAP-Message && !State) {
+			rest-cachefirst {
+				fail = 1
+				invalid = 1
+			}
+			if (updated && (&control:Tmp-String-1 == "cache-first")) {
+				update control {
+					&Auth-Type := Accept
+					&Proxy-To-Realm !* ANY
+				}
+				return
+			}
+		}
+
 		rest-remote
 		# Always rate-limit-check so a 403 hard-reject wins even when
 		# rest-remote already said degraded. Stash rest-remote's verdict
@@ -119,10 +150,14 @@ server pf-remote {
 		update control {
 			Load-Balance-Key := "%{Calling-Station-Id}"
 		}
-		if(!NAS-IP-Address){
-			update request {
-				NAS-IP-Address := "%{Packet-Src-IP-Address}"
-			}
+	}
+
+	post-auth {
+		# Also runs after a proxied reply (already filtered and logged in
+		# post-proxy): only act on the answers served from the cache.
+		if (&control:Tmp-String-1 == "cache-first") {
+			attr_filter.packetfence_post_auth
+			linelog_cache_first
 		}
 	}
 

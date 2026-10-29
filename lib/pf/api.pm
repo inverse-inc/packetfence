@@ -362,6 +362,19 @@ sub firewallsso : Public {
     return pf::firewallsso::do_sso(%postdata);
 }
 
+=head2 pfconnector_radius_cache_invalidate
+
+Drop the cached RADIUS replies of devices whose access changed on every
+remote connector (see pf::connector::radius_cache).
+
+=cut
+
+sub pfconnector_radius_cache_invalidate : Public {
+    my ($class, %args) = @_;
+    require pf::connector::radius_cache;
+    return pf::connector::radius_cache::invalidate_now($args{macs} // [], reason => $args{reason});
+}
+
 sub ReAssignVlan : Public : Fork {
     my ($class, $postdata )  = @_;
     my @require = qw(connection_type switch mac ifIndex);
@@ -384,6 +397,11 @@ sub ReAssignVlan : Public : Fork {
     $filter->filterSwitch('reevaluate',\$switch, $postdata);
 
     sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
+
+    # The connectors must not answer the re-authentication this triggers from
+    # their cache: drop the device's cached replies first, synchronously.
+    require pf::connector::radius_cache;
+    pf::connector::radius_cache::invalidate([$postdata->{'mac'}], sync => 1, reason => 'ReAssignVlan');
 
     # SNMP traps connections need to be handled specially to account for port-security etc.
     if ( ($postdata->{'connection_type'} & $pf::config::WIRED_SNMP_TRAPS) == $pf::config::WIRED_SNMP_TRAPS ) {
@@ -449,6 +467,11 @@ sub desAssociate : Public : Fork {
 
     # sleep long enough to give the device enough time to fetch the redirection page.
     sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
+
+    # The connectors must not answer the re-authentication this triggers from
+    # their cache: drop the device's cached replies first, synchronously.
+    require pf::connector::radius_cache;
+    pf::connector::radius_cache::invalidate([$postdata->{'mac'}], sync => 1, reason => 'desAssociate');
 
     $logger->info("[$postdata->{'mac'}] DesAssociating mac on switch (".$switch->{'_id'}.")");
     $switch->$deauthTechniques($postdata->{'mac'});
