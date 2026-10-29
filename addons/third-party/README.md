@@ -24,7 +24,7 @@ addons/third-party/
 ```sh
 UPSTREAM_VERSION=0.9.0
 SOURCE_URL=https://example.org/foo-${UPSTREAM_VERSION}.tar.gz
-SOURCE_SHA256=<sha256 of the tarball>
+SOURCE_SHA256=<sha256 of the tarball>  # .tar.gz, .tar.xz or .tar.bz2
 ```
 
 or a git ref (for forks):

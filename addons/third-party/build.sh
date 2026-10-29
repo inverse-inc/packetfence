@@ -73,7 +73,13 @@ if [ -n "${missing_tools}" ]; then
         build-essential devscripts equivs lintian curl ca-certificates git
 fi
 
-ORIG_TARBALL=${WORK_DIR}/${PKG}_${UPSTREAM_VERSION}.orig.tar.gz
+# keep the tarball's compression (.tar.gz, .tar.xz, ...); git sources are .tar.gz
+SOURCE_EXT=tar.gz
+if [ -n "${SOURCE_URL}" ]; then
+    SOURCE_EXT=${SOURCE_URL##*.tar.}
+    SOURCE_EXT=tar.${SOURCE_EXT}
+fi
+ORIG_TARBALL=${WORK_DIR}/${PKG}_${UPSTREAM_VERSION}.orig.${SOURCE_EXT}
 SRC_DIR=${WORK_DIR}/${PKG}-${UPSTREAM_VERSION}
 
 rm -rf ${WORK_DIR}
@@ -101,7 +107,7 @@ fi
 
 log_section "Prepare source tree"
 mkdir -p ${SRC_DIR}
-tar -xzf ${ORIG_TARBALL} -C ${SRC_DIR} --strip-components=1
+tar -xf ${ORIG_TARBALL} -C ${SRC_DIR} --strip-components=1
 if [ -d "${RECIPE_DIR}/debian" ]; then
     rm -rf ${SRC_DIR}/debian
     cp -a ${RECIPE_DIR}/debian ${SRC_DIR}/debian
