@@ -45,8 +45,11 @@ WORKDIR /opt/proxysql
 RUN git checkout -q ${COMMIT_ID}
 
 # Build the server and its .deb into binaries/
+# GIT_VERSION: the fork's v3.0.5 tag is lightweight, so the Makefile's plain
+# "git describe" would report v2.4.2 (the nearest annotated tag)
 RUN mkdir -p /root/ctl && \
     cp -r docker/images/proxysql/deb-compliant/ctl/* /root/ctl/ && \
+    GIT_VERSION=$(git describe --tags --long --abbrev=7) \
     MAKEOPT="-j$(nproc)" docker/images/proxysql/deb-compliant/entrypoint/entrypoint.bash
 
 #
