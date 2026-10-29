@@ -6,7 +6,7 @@ Trixie column: candidate version in Debian 13 `main` (trixie, trixie-updates, tr
 
 Packages marked "Rebuild" are built from recipes in `addons/third-party/` (see its README).
 Recipes so far: freeradius, libapache2-mod-systemd, libcisco-accesslist-parser-perl,
-libnet-nessus-xmlrpc-perl, libparse-eyapp-perl, sscep.
+libjq-xs-perl, libnet-nessus-xmlrpc-perl, libparse-eyapp-perl, sscep.
 
 | Package | PF repo (bookworm) | Debian trixie | Recommendation | Notes |
 |---|---|---|---|---|
@@ -58,7 +58,7 @@ libnet-nessus-xmlrpc-perl, libparse-eyapp-perl, sscep.
 | libdbd-mysql-perl-dbgsym | 4.052-1.1 | (none) | Debug symbols | Follows its parent package |
 | libfreeradius3 | 4:3.2.11+git | 3.2.7+dfsg-1+deb13u2 | Recipe `freeradius` | inverse-inc/freeradius-server fork, its own debian/; radiusd container pins 4:3.2.11+git |
 | libfreeradius-dev | 4:3.2.11+git | 3.2.7+dfsg-1+deb13u2 | Recipe `freeradius` | inverse-inc/freeradius-server fork, its own debian/; radiusd container pins 4:3.2.11+git |
-| libjq-xs-perl | 2.02-1+deb12u1 | (none) | Drop | Not used by PacketFence |
+| libjq-xs-perl | 2.02-1+deb12u1 | (none) | Recipe `libjq-xs-perl` | CPAN 2.04 with upstream debian/; jq vendored and linked statically; upcoming PacketFence dependency |
 | libnet-nessus-rest-perl | 0.7-1 | 0.7.0-3 | Use Debian | Trixie has the same or a newer version |
 | libnet-nessus-xmlrpc-perl | 0.40-1 | 0.30-3 | Recipe `libnet-nessus-xmlrpc-perl` | PF 0.40 is CPAN 0.30 + PF patches (report_filenbe_download); rebuilt as 0.30+pf1, above Debian 0.30-3 |
 | libparse-eyapp-perl | 1.21-1 | (none) | Recipe `libparse-eyapp-perl` | CPAN 1.21; build and runtime dependency of the Cisco parser |
