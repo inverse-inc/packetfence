@@ -112,7 +112,9 @@ func TestCacheHistorySampleAndHandler(t *testing.T) {
 func TestCacheHistoryCounterIncrements(t *testing.T) {
 	now := time.Date(2026, 10, 29, 15, 0, 9, 0, time.UTC)
 	h := newCacheHistory(now.Add(-time.Hour))
-	counters := func(hits int64) ConnectorCacheStats { return ConnectorCacheStats{CacheFirstHits: hits, Invalidations: hits / 10} }
+	counters := func(hits int64) ConnectorCacheStats {
+		return ConnectorCacheStats{CacheFirstHits: hits, Invalidations: hits / 10}
+	}
 	// first sample: no previous reading, nothing counted
 	h.add(now.Add(-33*time.Second), counters(10))
 	h.add(now.Add(-23*time.Second), counters(13))
