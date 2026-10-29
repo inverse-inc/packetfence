@@ -1,3 +1,14 @@
+packetfence-perl (1.2.8) unstable; urgency=medium
+
+  * Upgrade IO::Socket::SSL 2.071 -> 2.089
+    2.071 refuses to build when Net::SSLeay was compiled against a different
+    OpenSSL 3 minor version than the one linked (trixie: 3.4 vs 3.5).
+  * Upgrade Crypt::OpenSSL::PKCS10 0.16 -> 0.37
+    0.16 does not compile with GCC 14 (incompatible-pointer-types errors).
+  * Add Crypt::OpenSSL::Guess 0.15 (configure dependency of PKCS10 0.37)
+
+ -- Inverse <info@inverse.ca>  Wed, 28 Oct 2026 21:30:00 +0000
+
 packetfence-perl (1.2.7) unstable; urgency=medium
 
   * Upgrade Specio 0.47 -> 0.53

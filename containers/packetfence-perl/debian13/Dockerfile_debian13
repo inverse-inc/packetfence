@@ -44,7 +44,9 @@ RUN PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'CPAN::HandleConfig->load(doit => 1, au
 
 # 1. configure CPAN with defaults (answer yes)
 # 2. override default conf to UNINST cpan after upgrade (seems mandatory for EL8)
-RUN (echo o conf make_install_arg 'UNINST=1'; echo o conf commit)|PERL_MM_USE_DEFAULT=1 ${CPAN_BIN_PATH} > /dev/null 2>&1 && \
+# 3. allow outdated dists before pinning CPAN-${CPAN_VERSION}: once a newer CPAN
+#    is indexed, the pinned install is refused without it
+RUN (echo o conf make_install_arg 'UNINST=1'; echo o conf allow_installing_outdated_dists 'yes'; echo o conf commit)|PERL_MM_USE_DEFAULT=1 ${CPAN_BIN_PATH} > /dev/null 2>&1 && \
 # pin the CPAN client and echo the version the image was built with
     ${CPAN_BIN_PATH} -i ANDK/CPAN-${CPAN_VERSION}.tar.gz > /dev/null 2>&1 && ${CPAN_BIN_PATH} -D CPAN && \
 # install modules in a specific directory
