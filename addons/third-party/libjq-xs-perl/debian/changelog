@@ -1,0 +1,7 @@
+libjq-xs-perl (2.04-1+deb13u1) trixie; urgency=medium
+
+  * Build for Debian 13 (trixie) from the CPAN 2.04 release, with the
+    upstream debian/ (tag v2.04). "+deb13u1" follows upstream's release
+    builds; the PF bookworm repo had 2.02-1+deb12u1.
+
+ -- Inverse inc. <support@inverse.ca>  Thu, 29 Oct 2026 15:00:00 +0000
