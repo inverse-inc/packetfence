@@ -13,9 +13,10 @@ Every recipe is built the same way by `build.sh`, locally or in CI.
 addons/third-party/
   build.sh          generic builder: ./build.sh <pkg>
   Makefile          list / build / docker-build / clean
-  <pkg>/
+  <pkg>/            named after the source package
     recipe.conf     where to get the upstream sources
-    debian/         packaging (control, rules, changelog, copyright, source/format)
+    debian/         packaging (control, rules, changelog, copyright, source/format);
+                    leave it out to use the debian/ shipped in the sources
 ```
 
 `recipe.conf` is sourced by `build.sh` and sets either a tarball:
@@ -32,6 +33,19 @@ or a git ref (for forks):
 UPSTREAM_VERSION=1.2.3
 SOURCE_GIT=https://example.org/foo.git
 SOURCE_REF=<tag or commit>
+```
+
+`recipe.conf` can also set:
+
+```sh
+# recipes to build and install before this one, for build dependencies that
+# only exist as recipes (their packages don't go to result/)
+RECIPE_BUILD_DEPS="libparse-eyapp-perl"
+
+# run in the source tree before the build dependencies are installed
+prepare_source() {
+    make -f debian/rules debian/control
+}
 ```
 
 `debian/changelog` sets the exact package version: no CI suffix is added, so
@@ -58,8 +72,8 @@ make -C addons/third-party build PKG=sscep         # on a Debian trixie host or 
 ```
 
 Build dependencies are installed with `mk-build-deps`, so `build` needs root.
-The sources are unpacked and built in `build/third-party/<pkg>/`. Results are
-copied to `result/debian/trixie/`.
+The sources are unpacked and built in `build/third-party/<pkg>/`. The files
+listed in the `.changes` are copied to `result/debian/trixie/`.
 
 ## Build and publish from CI
 
