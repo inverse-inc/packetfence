@@ -48,9 +48,23 @@
                 {{ serviceLabel(svc) }}
               </b-badge>
               <small v-if="svc.restarts" class="ml-1" :class="svc.restarts > 3 ? 'text-danger' : 'text-muted'">{{ $i18n.t('{count} restart(s)', { count: svc.restarts }) }}</small>
+              <small v-if="isFixed(svc) && svc.unit_file_state && !isEnabled(svc)" class="ml-1 text-warning">{{ $i18n.t('disabled at boot') }}</small>
             </b-td>
             <b-td class="text-right text-nowrap">
               <template v-if="canUpdate && svc.installed">
+                <b-button v-if="isController(svc)" size="sm" variant="outline-primary" class="py-0 mr-1"
+                  :disabled="!isConnected || !!actingService"
+                  :title="$i18n.t('Reload the domains from PacketFence: the instances of new domains are started and those of removed domains stopped, the others are not touched.')"
+                  @click="onServiceAction(svc.name, 'reload')">
+                  <icon v-if="isActing(svc, 'reload')" name="circle-notch" spin /><icon v-else name="sync" />
+                </b-button>
+                <b-button v-if="isFixed(svc) && svc.unit_file_state" size="sm" class="py-0 mr-1"
+                  :variant="isEnabled(svc) ? 'outline-secondary' : 'outline-warning'"
+                  :disabled="!isConnected || !!actingService"
+                  :title="isEnabled(svc) ? $i18n.t('Enabled at boot. Click to disable.') : $i18n.t('Disabled at boot. Click to enable.')"
+                  @click="onServiceAction(svc.name, isEnabled(svc) ? 'disable' : 'enable')">
+                  <icon v-if="isActing(svc, 'enable') || isActing(svc, 'disable')" name="circle-notch" spin /><icon v-else :name="isEnabled(svc) ? 'toggle-on' : 'toggle-off'" />
+                </b-button>
                 <b-button v-if="!isServiceActive(svc)" size="sm" variant="outline-success" class="py-0"
                   :disabled="!isConnected || !!actingService" :title="$i18n.t('Start')"
                   @click="onServiceAction(svc.name, 'start')">
@@ -92,6 +106,8 @@ import i18n from '@/utils/locale'
 // systemd ActiveState values during which a unit counts as running (stop and
 // restart offered) rather than stopped (start offered).
 const ACTIVE_STATES = ['active', 'activating', 'reloading']
+// the NTLM API controller: starts one instance per domain, can reload the domain list
+const CONTROLLER_UNIT = 'packetfence-ntlm-auth-api-remote.service'
 
 export const setup = () => {
   const remote = inject('connectorRemote')
@@ -107,6 +123,11 @@ export const setup = () => {
   })
 
   const isServiceActive = svc => ACTIVE_STATES.includes(svc.active_state)
+  const isEnabled = svc => ['enabled', 'enabled-runtime', 'static', 'alias', 'indirect'].includes(svc.unit_file_state)
+  // the two units of the host; the per-domain instances are started and
+  // stopped by the controller, so their boot state is not offered
+  const isController = svc => svc.name === CONTROLLER_UNIT
+  const isFixed = svc => !svc.name.includes('@')
   const isActing = (svc, action) => {
     const acting = actingService.value
     return !!acting && acting.service === svc.name && acting.action === action
@@ -140,6 +161,9 @@ export const setup = () => {
     ...remote,
     installStateClass,
     isServiceActive,
+    isEnabled,
+    isController,
+    isFixed,
     isActing,
     serviceVariant,
     serviceLabel,

@@ -145,8 +145,22 @@ func TestHostServiceActionHandler(t *testing.T) {
 	if rec := do("stop", `{"service":"docker.service"}`); rec.Code != http.StatusForbidden {
 		t.Fatalf("a unit outside the allowlist must be refused: %d", rec.Code)
 	}
-	if rec := do("enable", `{"service":"packetfence-ntlm-auth-api-remote.service"}`); rec.Code != http.StatusBadRequest {
+	if rec := do("mask", `{"service":"packetfence-ntlm-auth-api-remote.service"}`); rec.Code != http.StatusBadRequest {
 		t.Fatalf("an unknown action must be refused: %d", rec.Code)
+	}
+	for _, action := range []string{"enable", "disable"} {
+		if rec := do(action, `{"service":"packetfence-ntlm-auth-join-remote.service"}`); rec.Code != http.StatusAccepted {
+			t.Fatalf("%s: %d %s", action, rec.Code, rec.Body.String())
+		}
+	}
+	if rec := do("reload", `{"service":"packetfence-ntlm-auth-api-remote.service"}`); rec.Code != http.StatusAccepted {
+		t.Fatalf("reload of the controller: %d %s", rec.Code, rec.Body.String())
+	}
+	if data, _ := os.ReadFile(servicesTriggerFile); string(data) != "reload packetfence-ntlm-auth-api-remote.service\n" {
+		t.Fatalf("reload trigger: %q", data)
+	}
+	if rec := do("reload", `{"service":"packetfence-ntlm-auth-join-remote.service"}`); rec.Code != http.StatusBadRequest {
+		t.Fatalf("reload of another unit must be refused: %d", rec.Code)
 	}
 	if rec := do("start", `{}`); rec.Code != http.StatusBadRequest {
 		t.Fatalf("a missing name must be refused: %d", rec.Code)

@@ -1,8 +1,9 @@
 #!/bin/bash
 # Consumes conf/services_requested (written by the pfconnector-client when an
 # admin acts on the NTLM authentication services of this host from the
-# PacketFence admin interface): starts, stops or restarts the requested
-# systemd unit, then writes the state of every managed unit to
+# PacketFence admin interface): starts, stops, restarts, enables or disables
+# the requested systemd unit, or reloads the domains of the NTLM API
+# controller, then writes the state of every managed unit to
 # conf/services_state for the connector to report. A "status" request only
 # refreshes that state.
 #
@@ -25,7 +26,8 @@ MIN_INTERVAL=2
 # Units the admin may act on: the NTLM authentication services, plus the
 # per-domain instances of the NTLM API, whose instance name is the domain's
 # identifier in PacketFence (one unit per domain behind the connector).
-FIXED_UNITS="packetfence-ntlm-auth-api-remote.service packetfence-ntlm-auth-join-remote.service"
+CONTROLLER_UNIT="packetfence-ntlm-auth-api-remote.service"
+FIXED_UNITS="$CONTROLLER_UNIT packetfence-ntlm-auth-join-remote.service"
 DOMAIN_TEMPLATE="packetfence-ntlm-auth-api-domain-remote"
 DOMAIN_UNIT_RE="^${DOMAIN_TEMPLATE}@[A-Za-z0-9][A-Za-z0-9._-]{0,63}\.service$"
 
@@ -128,6 +130,74 @@ write_state() {
   } | publish "$STATE"
 }
 
+# reload: apply the domain list of PacketFence to this host without
+# restarting the NTLM API controller (which would stop every domain's API for
+# a few seconds). pfconnector-remote-load.sh re-fetches the list through the
+# tunnel (on a standby host, or without a tunnel, it keeps the current list)
+# and renders one <domain>.env per domain; the instances of the domains that
+# are gone are stopped and their .env removed, the ones of the new domains
+# started. With no domain left the controller has nothing to run and is
+# stopped; with domains and a stopped controller, the controller is started
+# (it starts every instance itself).
+LOAD_SCRIPT=/usr/local/ntlm-auth-api/bin/pfconnector-remote-load.sh
+DOMAINS_FILE=/usr/local/ntlm-auth-api/conf/ntlm_auth_api.env
+reload_domains() {
+  local out domains d f started="" stopped="" state
+  if [ ! -x "$LOAD_SCRIPT" ]; then
+    log "reload: $LOAD_SCRIPT is missing, is packetfence-ntlm-auth-api-remote installed?"
+    record_action reload "$CONTROLLER_UNIT" failed "the NTLM API package is not installed on this host"
+    return 1
+  fi
+  log "reload the NTLM domains (requested from the admin interface)"
+  if ! out=$("$LOAD_SCRIPT" 2>&1); then
+    log "reload: $LOAD_SCRIPT failed: $out"
+    record_action reload "$CONTROLLER_UNIT" failed "unable to load the domains: $(echo "$out" | tail -1)"
+    return 1
+  fi
+  domains=$(jq -r 'keys[]' "$DOMAINS_FILE" 2>/dev/null | grep -E '^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$' | sort)
+  # instances of domains no longer served by this connector
+  for f in "$DOMAIN_ENV_DIR"/*.env; do
+    [ -f "$f" ] || continue
+    d=$(basename "$f" .env)
+    echo "$domains" | grep -qx "$d" && continue
+    systemctl stop "${DOMAIN_TEMPLATE}@${d}.service" >/dev/null 2>&1
+    systemctl reset-failed "${DOMAIN_TEMPLATE}@${d}.service" >/dev/null 2>&1
+    rm -f "$f"
+    stopped="$stopped $d"
+  done
+  state=$(systemctl show -p ActiveState --value "$CONTROLLER_UNIT" 2>/dev/null)
+  if [ -z "$domains" ]; then
+    if [ "$state" != "inactive" ]; then
+      systemctl stop "$CONTROLLER_UNIT" >/dev/null 2>&1
+      systemctl reset-failed "$CONTROLLER_UNIT" >/dev/null 2>&1
+      stopped="$stopped $CONTROLLER_UNIT"
+    fi
+    log "reload: no domain behind this connector; stopped:${stopped:- nothing}"
+    record_action reload "$CONTROLLER_UNIT" ok "no domain uses this connector; stopped:${stopped:- nothing}"
+    return 0
+  fi
+  if [ "$state" != "active" ] && [ "$state" != "activating" ]; then
+    systemctl reset-failed "$CONTROLLER_UNIT" >/dev/null 2>&1
+    if systemctl start "$CONTROLLER_UNIT" >/dev/null 2>&1; then
+      started="$started $CONTROLLER_UNIT"
+    else
+      log "reload: unable to start $CONTROLLER_UNIT"
+      record_action reload "$CONTROLLER_UNIT" failed "domains: $(echo $domains); unable to start the controller"
+      return 1
+    fi
+  else
+    for d in $domains; do
+      if [ "$(systemctl show -p ActiveState --value "${DOMAIN_TEMPLATE}@${d}.service" 2>/dev/null)" != "active" ]; then
+        systemctl reset-failed "${DOMAIN_TEMPLATE}@${d}.service" >/dev/null 2>&1
+        systemctl start "${DOMAIN_TEMPLATE}@${d}.service" >/dev/null 2>&1 && started="$started $d"
+      fi
+    done
+  fi
+  log "reload: domains: $(echo $domains); started:${started:- nothing}; stopped:${stopped:- nothing}"
+  record_action reload "$CONTROLLER_UNIT" ok "domains: $(echo $domains); started:${started:- nothing}; stopped:${stopped:- nothing}"
+  return 0
+}
+
 record_action() {
   local action=$1 unit=$2 result=$3 message=$4
   printf '{"action":%s,"unit":%s,"at":%s,"result":%s,"message":%s}' \
@@ -163,7 +233,19 @@ case "$action" in
     write_state
     exit 0
     ;;
-  start|stop|restart)
+  start|stop|restart|enable|disable)
+    ;;
+  reload)
+    # Only the NTLM API controller: apply the domain list of PacketFence
+    if [ "$unit" != "$CONTROLLER_UNIT" ]; then
+      log "Refusing to reload $unit: only $CONTROLLER_UNIT reloads its domains"
+      record_action "$action" "" "failed" "only the NTLM API controller can reload its domains"
+      write_state
+      exit 1
+    fi
+    reload_domains
+    write_state
+    exit 0
     ;;
   *)
     log "Refusing service request: unknown action"

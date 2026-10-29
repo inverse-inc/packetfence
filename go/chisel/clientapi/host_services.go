@@ -43,11 +43,18 @@ var (
 )
 
 // hostServiceActions are the actions the admin may request on a unit.
-var hostServiceActions = map[string]bool{"start": true, "stop": true, "restart": true}
+// "reload" applies the domain list of PacketFence to the NTLM API controller
+// (new domains started, removed ones stopped, the others untouched) and is
+// only valid on hostServiceController.
+var hostServiceActions = map[string]bool{"start": true, "stop": true, "restart": true, "enable": true, "disable": true, "reload": true}
+
+// hostServiceController is the NTLM API controller unit, which starts one
+// instance per domain.
+const hostServiceController = "packetfence-ntlm-auth-api-remote.service"
 
 // fixedHostServices are the NTLM authentication units of the host.
 var fixedHostServices = []string{
-	"packetfence-ntlm-auth-api-remote.service",
+	hostServiceController,
 	"packetfence-ntlm-auth-join-remote.service",
 }
 
@@ -204,6 +211,10 @@ func hostServiceAction(api *API, action string) http.HandlerFunc {
 		}
 		if !hostServiceAllowed(srv.Name) {
 			http.Error(w, fmt.Sprintf("Service %s is not an NTLM authentication service of the connector host", srv.Name), http.StatusForbidden)
+			return
+		}
+		if action == "reload" && srv.Name != hostServiceController {
+			http.Error(w, fmt.Sprintf("Only %s reloads its domains", hostServiceController), http.StatusBadRequest)
 			return
 		}
 		if err := writeHostServiceTrigger(action, srv.Name); err != nil {

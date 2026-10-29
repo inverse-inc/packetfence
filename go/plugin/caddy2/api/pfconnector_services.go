@@ -17,8 +17,13 @@ import (
 // the status endpoint ("host_services" of the system info), as the host
 // writes it back.
 
-// hostServiceActions are the actions the admin may request.
-var hostServiceActions = map[string]bool{"start": true, "stop": true, "restart": true}
+// hostServiceActions are the actions the admin may request. "reload" makes
+// the NTLM API controller apply the domain list of PacketFence (new domains
+// started, removed ones stopped) and is only valid on that unit.
+var hostServiceActions = map[string]bool{"start": true, "stop": true, "restart": true, "enable": true, "disable": true, "reload": true}
+
+// hostServiceController is the NTLM API controller unit.
+const hostServiceController = "packetfence-ntlm-auth-api-remote.service"
 
 // hostServiceRe mirrors the allowlist of the connector-remote's
 // /api/v1/service/{action} and of its host script: the two NTLM units and
@@ -48,6 +53,10 @@ func (h APIHandler) pfconnectorRemoteService() http.HandlerFunc {
 		}
 		if !hostServiceRe.MatchString(req.Service) {
 			http.Error(w, fmt.Sprintf("Service %q is not an NTLM authentication service of a connector-remote host", req.Service), http.StatusBadRequest)
+			return
+		}
+		if action == "reload" && req.Service != hostServiceController {
+			http.Error(w, fmt.Sprintf("Only %s reloads its domains", hostServiceController), http.StatusBadRequest)
 			return
 		}
 
