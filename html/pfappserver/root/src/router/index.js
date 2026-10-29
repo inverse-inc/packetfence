@@ -18,6 +18,7 @@ import PreferencesRoute from '@/views/Preferences/_router'
 import ResetRoute from '@/views/Reset/_router'
 import LiveLogsRoutes from '@/views/LiveLogs/_router'
 import HistoricalLogsRoutes from '@/views/HistoricalLogs/_router'
+import AssistantRoute from '@/views/Assistant/_router'
 
 Vue.use(Loading)
 
@@ -68,6 +69,7 @@ let router = new Router({
     ResetRoute,
     ...LiveLogsRoutes,
     ...HistoricalLogsRoutes,
+    AssistantRoute,
     DefaultRoute
   ]
 })

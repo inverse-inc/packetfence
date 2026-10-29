@@ -14,6 +14,8 @@
             <dd v-t="'Firewall SSO informs the firewall which user is behind a particular IP address on the network, allowing the firewall to apply per-user or per-role policies.'"></dd>
             <dt class="no-saas" v-t="'FleetDM:'"></dt>
             <dd class="no-saas" v-t="'FleetDM integration allows PacketFence to query endpoint posture and compliance data from FleetDM.'"></dd>
+            <dt class="no-saas" v-t="'NACBot:'"></dt>
+            <dd class="no-saas" v-t="'NACBot answers questions about live data and the documentation using the LLM provider you configure.'"></dd>
             <dt v-t="'Web Services:'"></dt>
             <dd v-t="'Web Services expose PacketFence APIs for external consumption. See the PacketFence Developers Guide for API documentation.'"></dd>
             <dt v-t="'Switch Templates:'"></dt>
