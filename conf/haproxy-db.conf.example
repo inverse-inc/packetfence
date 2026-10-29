@@ -47,7 +47,6 @@ frontend  main
 
 backend mysql
     mode tcp
-    option tcplog
 %%mysql_probe%%
     timeout connect 3s
 %%mysql_backend%%
