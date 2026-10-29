@@ -117,6 +117,8 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 			r.Post("/{connectorID}/upgrade", m.pfconnectorRemoteUpgrade())
 			r.Post("/{connectorID}/install", m.pfconnectorRemoteInstall())
 			r.Post("/{connectorID}/ha/switch", m.pfconnectorRemoteHaSwitch())
+			// NTLM authentication services of the remote's host (see pfconnector_services.go)
+			r.Post("/{connectorID}/services/{action}", m.pfconnectorRemoteService())
 			// connector-cache management (see pfconnector_cache.go)
 			m.mountPfconnectorCacheRoutes(r)
 			r.Get("/for-ip/{ip}", m.pfconnectorForIPHandler())

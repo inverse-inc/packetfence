@@ -101,6 +101,11 @@ export default {
       return response.data
     })
   },
+  remoteService: (id, action, service) => {
+    return apiCall.post(['pfconnector-remotes', id, 'services', action], { service }).then(response => {
+      return response.data
+    })
+  },
   remoteHaSwitch: (id, to) => {
     return apiCall.post(['pfconnector-remotes', id, 'ha', 'switch'], { to }).then(response => {
       return response.data

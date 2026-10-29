@@ -25,7 +25,6 @@ import (
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/chisel/share/connauth"
 	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel"
-	systemdmanager "github.com/inverse-inc/packetfence/go/systemdmanager"
 )
 
 const credcacheRoutePrefix = "/api/v1/credcache"
@@ -265,13 +264,16 @@ func (api *API) setupRoutes() {
 				gottyProxy.ServeHTTP(w, r)
 			})
 
+			// NTLM authentication services of the host (see host_services.go):
+			// the state comes from the host, the actions go to it through the
+			// trigger file, hence the 202 answers.
 			r.Route("/service", func(r chi.Router) {
-				r.Post("/all", statusAll(api))
-				r.Post("/status", status(api))
+				r.Get("/status", hostServicesStatus(api))
+				r.Post("/status", hostServicesStatus(api))
 				r.Get("/ping", ping(api))
-				r.Post("/start", manageService(api, "start"))
-				r.Post("/stop", manageService(api, "stop"))
-				r.Post("/restart", manageService(api, "restart"))
+				r.Post("/start", hostServiceAction(api, "start"))
+				r.Post("/stop", hostServiceAction(api, "stop"))
+				r.Post("/restart", hostServiceAction(api, "restart"))
 			})
 			r.Post("/radius/authorize", radiusAuthorize(api))
 			r.Post("/radius/multi-domain/authorize", multiDomainAuthorize(api))
@@ -514,143 +516,6 @@ func ping(_ *API) http.HandlerFunc {
 		res.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		res.WriteHeader(http.StatusOK)
 		res.Write([]byte("pong"))
-	})
-}
-
-// status handles the status endpoint
-func status(api *API) http.HandlerFunc {
-	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		var srv Service
-		if err := json.NewDecoder(req.Body).Decode(&srv); err != nil {
-			http.Error(res, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		if srv.Name == "" {
-			http.Error(res, "Service name is required (packetfence-fingerbank-collector.service, packetfence-ntlm-auth-api-remote.service, packetfence-ntlm-join-remote.service, packetfence-pfconnector-remote-combined.service)", http.StatusBadRequest)
-			return
-		}
-
-		systemd, err := systemdmanager.NewSystemdManager()
-		if err != nil {
-			http.Error(res, fmt.Sprintf("Failed to create systemd manager: %v", err), http.StatusInternalServerError)
-			return
-		}
-		defer systemd.Close()
-		allowed := []string{"packetfence-fingerbank-collector.service", "packetfence-ntlm-auth-api-remote.service", "packetfence-ntlm-join-remote.service", "packetfence-pfconnector-remote-combined.service"}
-		for _, service := range allowed {
-			if srv.Name == service {
-				status, substatus, err := systemd.Status(service)
-				if err != nil {
-					http.Error(res, fmt.Sprintf("Failed to get service status: %v", err), http.StatusNotFound)
-					return
-				}
-				res.Header().Set("Content-Type", "application/json")
-				res.WriteHeader(http.StatusOK)
-				json.NewEncoder(res).Encode(map[string]string{
-					"service":   srv.Name,
-					"status":    status,
-					"substatus": substatus,
-				})
-				return
-
-			}
-		}
-		http.Error(res, fmt.Sprintf("Service %s is not allowed", srv.Name), http.StatusForbidden)
-	})
-}
-
-func statusAll(api *API) http.HandlerFunc {
-	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		systemd, err := systemdmanager.NewSystemdManager()
-		if err != nil {
-			http.Error(res, fmt.Sprintf("Failed to create systemd manager: %v", err), http.StatusInternalServerError)
-			return
-		}
-		defer systemd.Close()
-
-		services, err := systemd.ListSystemdServices()
-		if err != nil {
-			http.Error(res, fmt.Sprintf("Failed to list services: %v", err), http.StatusInternalServerError)
-			return
-		}
-		res.Header().Set("Content-Type", "application/json")
-		res.WriteHeader(http.StatusOK)
-		response := make([]map[string]string, len(services))
-		for i, service := range services {
-			response[i] = map[string]string{
-				"name":         service.Name,
-				"description":  service.Description,
-				"load_state":   service.LoadState,
-				"active_state": service.ActiveState,
-				"sub_state":    service.SubState,
-			}
-		}
-		jsonResponse, err := json.Marshal(response)
-		if err != nil {
-			http.Error(res, fmt.Sprintf("Failed to marshal response: %v", err), http.StatusInternalServerError)
-			return
-		}
-		res.Write(jsonResponse)
-	})
-}
-
-// start handles the start endpoint
-func manageService(api *API, action string) http.HandlerFunc {
-	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		var srv Service
-		if err := json.NewDecoder(req.Body).Decode(&srv); err != nil {
-			http.Error(res, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		if srv.Name == "" {
-			http.Error(res, "Service name is required (packetfence-fingerbank-collector.service, packetfence-ntlm-auth-api-remote.service, packetfence-ntlm-join-remote.service, packetfence-pfconnector-remote-combined.service)", http.StatusBadRequest)
-			return
-		}
-
-		systemd, err := systemdmanager.NewSystemdManager()
-		if err != nil {
-			http.Error(res, fmt.Sprintf("Failed to create systemd manager: %v", err), http.StatusInternalServerError)
-			return
-		}
-		defer systemd.Close()
-		allowed := []string{"packetfence-fingerbank-collector.service", "packetfence-ntlm-auth-api-remote.service", "packetfence-ntlm-join-remote.service", "packetfence-pfconnector-remote-combined.service"}
-		for _, service := range allowed {
-			if srv.Name == service {
-				switch action {
-				case "start":
-					if err := systemd.Start(srv.Name); err != nil {
-						http.Error(res, fmt.Sprintf("Failed to start service %s: %v", srv.Name, err), http.StatusInternalServerError)
-						return
-					}
-					res.WriteHeader(http.StatusOK)
-					res.Write([]byte(fmt.Sprintf("Service %s started successfully", srv.Name)))
-					return
-				case "stop":
-					if err := systemd.Stop(srv.Name); err != nil {
-						http.Error(res, fmt.Sprintf("Failed to stop service %s: %v", srv.Name, err), http.StatusInternalServerError)
-						return
-					}
-					res.WriteHeader(http.StatusOK)
-					res.Write([]byte(fmt.Sprintf("Service %s stopped successfully", srv.Name)))
-					return
-				case "restart":
-					if err := systemd.Restart(srv.Name); err != nil {
-						http.Error(res, fmt.Sprintf("Failed to restart service %s: %v", srv.Name, err), http.StatusInternalServerError)
-						return
-					}
-					res.WriteHeader(http.StatusOK)
-					res.Write([]byte(fmt.Sprintf("Service %s restarted successfully", srv.Name)))
-					return
-				default:
-					http.Error(res, "Invalid action specified", http.StatusBadRequest)
-					return
-
-				}
-			}
-		}
-		http.Error(res, fmt.Sprintf("Service %s is not allowed", srv.Name), http.StatusForbidden)
 	})
 }
 
