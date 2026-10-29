@@ -1,0 +1,5 @@
+sscep (0.9.0-2) trixie; urgency=medium
+
+  * Rebuild for Debian 13 (trixie).
+
+ -- Inverse inc. <support@inverse.ca>  Wed, 28 Oct 2026 16:00:00 +0000

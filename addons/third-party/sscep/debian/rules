@@ -1,0 +1,16 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+%:
+	dh $@
+
+# configure.ac uses ACLOCAL_AMFLAGS = -I m4 but upstream doesn't ship m4/
+override_dh_autoreconf:
+	mkdir -p m4
+	dh_autoreconf
+
+# upstream installs COPYING next to README.md in the doc dir
+override_dh_auto_install:
+	dh_auto_install
+	rm -f debian/sscep/usr/share/doc/sscep/COPYING

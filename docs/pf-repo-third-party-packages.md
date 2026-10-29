@@ -4,6 +4,9 @@ Source: `http://inverse.ca/downloads/PacketFence/debian/16.0/dists/bookworm` (am
 Trixie column: candidate version in Debian 13 `main` (trixie, trixie-updates, trixie-security), from `apt-cache policy`.
 `(none)` means not in trixie `main`; snmp-mibs-downloader is in trixie non-free.
 
+Packages marked "Rebuild" are built from recipes in `addons/third-party/` (see its README).
+Recipes so far: sscep.
+
 | Package | PF repo (bookworm) | Debian trixie | Recommendation | Notes |
 |---|---|---|---|---|
 | containerd.io | 1.6.31-1 | 2.4.2-3~debian.13~trixie | Use upstream | Docker publishes trixie builds in its own repo |
