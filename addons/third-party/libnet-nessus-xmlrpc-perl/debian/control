@@ -1,0 +1,22 @@
+Source: libnet-nessus-xmlrpc-perl
+Section: perl
+Priority: optional
+Maintainer: Inverse inc. <support@inverse.ca>
+Build-Depends: debhelper-compat (= 13),
+               perl,
+               libwww-perl,
+               libxml-simple-perl
+Standards-Version: 4.7.0
+Homepage: https://metacpan.org/release/Net-Nessus-XMLRPC
+Rules-Requires-Root: no
+
+Package: libnet-nessus-xmlrpc-perl
+Architecture: all
+Depends: ${misc:Depends}, ${perl:Depends},
+         libwww-perl,
+         libxml-simple-perl
+Description: communicate with Nessus scanner via XMLRPC
+ Net::Nessus::XMLRPC talks to a Nessus 4.2+ scanner over its XMLRPC
+ interface. This build carries PacketFence's patches: NBE report
+ download (report_filenbe_download) and GET requests when there is no
+ POST data.
