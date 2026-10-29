@@ -6,7 +6,7 @@ Trixie column: candidate version in Debian 13 `main` (trixie, trixie-updates, tr
 
 Packages marked "Rebuild" are built from recipes in `addons/third-party/` (see its README).
 Recipes so far: freeradius, libapache2-mod-systemd, libcisco-accesslist-parser-perl,
-libjq-xs-perl, libnet-nessus-xmlrpc-perl, libparse-eyapp-perl, sscep.
+libjq-xs-perl, libnet-nessus-xmlrpc-perl, libparse-eyapp-perl, snmp-mibs-downloader, sscep.
 
 | Package | PF repo (bookworm) | Debian trixie | Recommendation | Notes |
 |---|---|---|---|---|
@@ -73,12 +73,7 @@ libjq-xs-perl, libnet-nessus-xmlrpc-perl, libparse-eyapp-perl, sscep.
 | python3-impacket | 0.10.0-4 | 0.12.0-3 | Use Debian | Trixie has the same or a newer version |
 | python3-slip | 0.6.5-2 | (none) | Probably drop | Dropped from Debian after bullseye; nothing in debian/control uses it |
 | python3-slip-dbus | 0.6.5-2 | (none) | Probably drop | Dropped from Debian after bullseye; nothing in debian/control uses it |
-| snmp-mibs-downloader | 1.5 | (none) | Decide later | Debian 1.7 is in non-free; packetfence depends on it |
+| snmp-mibs-downloader | 1.5 | (none) | Rebuild | Debian's 1.7 source (non-free) rebuilt unchanged, so installs don't need non-free; packetfence depends on it |
 | sscep | 0.9.0-1 | (none) | Rebuild | Not in Debian; required by packetfence or a container |
 | sscep-dbgsym | 0.9.0-1 | (none) | Debug symbols | Follows its parent package |
 | vim-haproxy | 2.2.15-1 | 3.0.11-1+deb13u4 | Use Debian | Configs updated for 3.0; packetfence requires >= 3.0 |
-
-## Decide later
-
-- **snmp-mibs-downloader**: packetfence depends on it. Debian 1.7 is in trixie
-  non-free; either enable non-free on installs or rebuild it into the PF repo.
