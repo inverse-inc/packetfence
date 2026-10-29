@@ -1,0 +1,34 @@
+Source: libjq-xs-perl
+Section: perl
+Priority: optional
+Maintainer: Inverse inc. <support@inverse.ca>
+# No libjq-dev: the jq vendored in the upstream tarball is compiled in and
+# linked statically, so the build needs only the C toolchain that
+# debhelper-compat and perl-xs-dev already pull in.  Archive::Tar and
+# Digest::SHA, used to unpack and verify that tarball, come with perl:native.
+Build-Depends: debhelper-compat (= 13),
+               libjson-pp-perl,
+               perl-xs-dev,
+               perl:native
+Standards-Version: 4.6.2
+Homepage: https://metacpan.org/release/JQ-XS
+Rules-Requires-Root: no
+
+Package: libjq-xs-perl
+Architecture: any
+Multi-Arch: same
+Depends: ${misc:Depends},
+         ${perl:Depends},
+         ${shlibs:Depends},
+         libjson-pp-perl
+Description: Perl object-oriented wrapper for libjq
+ JQ::XS provides a clean object-oriented wrapper around libjq, the C library
+ behind the jq command-line JSON query language.
+ .
+ Features:
+  * compile and execute jq filter programs;
+  * process Perl data structures (hashes, arrays, numbers, strings);
+  * process JSON text directly;
+  * UTF-8 string support;
+  * error handling through Perl exceptions;
+  * multiple output values per input.

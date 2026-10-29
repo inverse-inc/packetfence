@@ -1,0 +1,8 @@
+#!/usr/bin/make -f
+
+# Build with the full set of Debian hardening flags; MakeMaker picks these up
+# through the perl_makemaker buildsystem (OPTIMIZE/LDDLFLAGS).
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+%:
+	dh $@
