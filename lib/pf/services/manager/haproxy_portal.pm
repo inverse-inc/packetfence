@@ -154,7 +154,8 @@ EOT
 
 backend $cluster_ip-backend
         balance source
-        option httpchk GET /captive-portal HTTP/1.0\\r\\nUser-agent:\\ HAPROXY-load-balancing-check\\r\\nHost:\\ $Config{'general'}{'hostname'}.$Config{'general'}{'domain'}
+        option httpchk GET /captive-portal HTTP/1.0
+        http-check send hdr User-Agent HAPROXY-load-balancing-check hdr Host $Config{'general'}{'hostname'}.$Config{'general'}{'domain'}
         default-server inter 5s fall 3 rise 2
         option httpclose
         option forwardfor
