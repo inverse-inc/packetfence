@@ -1,0 +1,21 @@
+Source: libapache2-mod-systemd
+Section: httpd
+Priority: optional
+Maintainer: Inverse inc. <support@inverse.ca>
+Build-Depends: debhelper-compat (= 13),
+               apache2-dev,
+               libsystemd-dev,
+               pkgconf
+Standards-Version: 4.7.0
+Homepage: https://httpd.apache.org/docs/2.4/mod/mod_systemd.html
+Rules-Requires-Root: no
+
+Package: libapache2-mod-systemd
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends},
+         apache2-api-20120211,
+         apache2-bin (>= 2.4.42)
+Description: systemd integration for Apache HTTP Server
+ mod_systemd lets httpd run as a Type=notify systemd service: it reports
+ readiness and status to systemd with sd_notify. PacketFence's httpd
+ services load it from /usr/lib/apache2/modules/mod_systemd.so.
