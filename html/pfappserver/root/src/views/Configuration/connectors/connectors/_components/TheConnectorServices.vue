@@ -2,7 +2,7 @@
   <b-card>
     <h6>{{ $i18n.t('Connector Services') }}</h6>
     <p class="small text-muted">
-      {{ $i18n.t('The services running in the connector itself. A restart takes effect within a few seconds and does not interrupt the tunnel; RADIUS requests received while FreeRADIUS restarts are retried by the equipment.') }}
+      {{ $i18n.t('The services running in the connector itself. A restart takes effect within a few seconds and does not interrupt the tunnel; RADIUS requests received while FreeRADIUS restarts are retried by the equipment, and the DHCP packets captured while the Fingerbank collector restarts are not forwarded.') }}
     </p>
     <b-table-simple small class="mb-0">
       <b-tbody>
@@ -42,7 +42,8 @@ import i18n from '@/utils/locale'
 // the services of the connector container, by s6 service name
 const LABELS = {
   'radiusd-auth': 'FreeRADIUS',
-  'connector-cache': 'RADIUS Cache'
+  'connector-cache': 'RADIUS Cache',
+  'fingerbank-collector': 'Fingerbank Collector'
 }
 
 export const setup = () => {

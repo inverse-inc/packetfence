@@ -49,7 +49,7 @@ func withFakeS6(t *testing.T, status map[string]string) (svcLog string) {
 }
 
 func TestContainerServiceAllowed(t *testing.T) {
-	for _, name := range []string{"radiusd-auth", "connector-cache"} {
+	for _, name := range []string{"radiusd-auth", "connector-cache", "fingerbank-collector"} {
 		if !containerServiceAllowed(name) {
 			t.Errorf("%s must be allowed", name)
 		}
@@ -90,18 +90,22 @@ func TestParseS6Svstat(t *testing.T) {
 
 func TestContainerServicesStatus(t *testing.T) {
 	withFakeS6(t, map[string]string{
-		"radiusd-auth": "true true 4242 -1 NA 100",
+		"radiusd-auth":         "true true 4242 -1 NA 100",
+		"fingerbank-collector": "true true 4343 -1 NA 50",
 		// connector-cache is not supervised: s6-svstat fails
 	})
 	state := containerServices()
-	if state == nil || len(state.Services) != 2 {
-		t.Fatalf("expected both services, got %+v", state)
+	if state == nil || len(state.Services) != 3 {
+		t.Fatalf("expected the three services, got %+v", state)
 	}
 	if state.Services[0].Name != "radiusd-auth" || !state.Services[0].Up || state.Services[0].PID != 4242 || state.Services[0].Description == "" {
 		t.Errorf("unexpected radiusd-auth: %+v", state.Services[0])
 	}
 	if state.Services[1].Name != "connector-cache" || state.Services[1].Up || state.Services[1].Error == "" {
 		t.Errorf("unexpected connector-cache: %+v", state.Services[1])
+	}
+	if state.Services[2].Name != "fingerbank-collector" || !state.Services[2].Up || state.Services[2].PID != 4343 || state.Services[2].SinceSeconds != 50 {
+		t.Errorf("unexpected fingerbank-collector: %+v", state.Services[2])
 	}
 
 	// without s6-svstat (outside the container) nothing is reported

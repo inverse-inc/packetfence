@@ -15,8 +15,9 @@ import (
 
 // Services of the connector-remote container itself, restarted from the
 // admin interface: FreeRADIUS (the RADIUS server the equipment of the site
-// talks to, proxied to PacketFence through the tunnel) and connector-cache
-// (the RADIUS cache). Both are s6-overlay longruns supervised under
+// talks to, proxied to PacketFence through the tunnel), connector-cache
+// (the RADIUS cache) and the Fingerbank collector (device fingerprinting
+// and DHCP forwarding). All are s6-overlay longruns supervised under
 // /run/service in this very container, so unlike the NTLM units of the host
 // (host_services.go) they are reached directly with s6-svc, synchronously:
 // the state is read with s6-svstat and reported in /api/v1/system/info as
@@ -36,6 +37,7 @@ var (
 var containerServiceDefs = []ContainerService{
 	{Name: "radiusd-auth", Description: "FreeRADIUS: the RADIUS server of the site, proxied to PacketFence through the tunnel"},
 	{Name: "connector-cache", Description: "RADIUS cache: the RADIUS authorizations and credentials replayed when PacketFence is unreachable, and the rate limiter"},
+	{Name: "fingerbank-collector", Description: "Fingerbank collector: fingerprints the devices of the site and forwards their DHCP traffic to PacketFence"},
 }
 
 // containerServiceAllowed tells whether name is a service the admin may act on.
