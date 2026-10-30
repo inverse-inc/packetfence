@@ -123,8 +123,11 @@
         <template v-slot:cell(version)="{ item }">
           <template v-if="system(item.id)">
             {{ system(item.id).version }}
-            <icon v-if="remote(item.id).upgrade_available" name="arrow-circle-up" class="text-warning ml-1"
-              v-b-tooltip.hover.top.d300 :title="$t('Update available: PacketFence is {central}, this connector runs {version}. Open the connector to update it.', { central: remote(item.id).central_version, version: system(item.id).version })" />
+            <router-link v-if="remote(item.id).upgrade_available" class="ml-1"
+              :to="{ name: 'connectorsConnector', params: { id: item.id }, query: { tab: 'settings' } }" @click.native.stop
+              v-b-tooltip.hover.top.d300 :title="$t('Update available: PacketFence is {central}, this connector runs {version}. Click to open the connector settings and update it.', { central: remote(item.id).central_version, version: system(item.id).version })">
+              <icon name="arrow-circle-up" class="text-warning" />
+            </router-link>
           </template>
           <span v-else class="text-muted">-</span>
         </template>
