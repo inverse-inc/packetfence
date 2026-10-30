@@ -941,6 +941,32 @@ Internet Explorer 11 on Windows 7 when an RSA certificate is in use.
 
 == Upgrading from a version prior to X.Y.Z
 
+=== Bypass ACLs and switch access lists are translated like role ACLs
+
+The _Bypass ACLs_ of a node and the access lists defined on a switch or switch
+group (`<role>AccessList` in [filename]`switches.conf`) were sent to the switch
+as written, while the ACLs of a role are translated to the syntax of the switch
+type (Aruba CX, Arista, Juniper, Huawei, Dell, FortiSwitch, ...). They are now
+translated the same way, so they must be written in the Cisco extended ACL
+syntax used for role ACLs. On a Cisco switch they are also normalized like a
+role's ACLs: the source of a per-user ACL is the endpoint, so a `permit` with a
+source address, a source port or an ICMP type is skipped and a `deny` with one
+ends the ACLs with a deny of everything. A line the parser cannot read (for
+example an `object-group`) is dropped the same way.
+
+Before upgrading, review the bypass ACLs of the nodes and the access lists of
+the switches:
+
+[source,bash]
+----
+mysql pf -e "SELECT mac, bypass_acls FROM node WHERE bypass_acls IS NOT NULL AND bypass_acls <> ''"
+grep -E '^[A-Za-z0-9_-]+AccessList=' /usr/local/pf/conf/switches.conf
+----
+
+Rewrite the ones in the native syntax of the switch, and remove the source
+addresses: the source of a per-user ACL is the endpoint, PacketFence does not
+send them.
+
 === advanced.multihost replaced by the per-switch host_mode
 
 The `advanced.multihost` parameter had no effect and is removed. Remove it from

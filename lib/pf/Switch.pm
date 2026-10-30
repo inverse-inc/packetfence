@@ -4767,7 +4767,9 @@ it can.
 Cisco::AccessList::Parser reads the dscp, precedence, tos, fragments,
 time-range and option qualifiers of a line without returning them, so the entry
 of "permit ip any any dscp ef" is the one of "permit ip any any". Translating
-it would widen the ACL. An "evaluate" line gives an entry with no action.
+it would widen the ACL. An "evaluate" line gives an entry with no action. An
+object group (a service or network object defined on the switch) is given as a
+hash in place of the protocol or the address: no module can send it.
 
 =cut
 
@@ -4775,6 +4777,17 @@ sub untranslatableAclQualifier {
     my ($self, $entry) = @_;
     return "the ACL is not a permit or a deny" if ($entry->{'action'} // '') !~ /^(?:permit|deny)$/;
     return "the '".lc($1)."' qualifier is not sent" if ($entry->{'acl_line'} // '') =~ /\s(dscp|precedence|tos|fragments|time-range|option)(?:\s|$)/i;
+    # An object group names an object defined on the switch: the parser gives a
+    # hash in place of the protocol (object-group service) or of the address
+    # (object-group network), which no module can send
+    if (ref($entry->{'protocol'}) eq 'HASH') {
+        return "the protocol object group '".join(',', values %{$entry->{'protocol'}})."' is not sent";
+    }
+    foreach my $side ('source', 'destination') {
+        my $address = $entry->{$side};
+        next if ref($address) ne 'HASH' || defined($address->{'ipv4_addr'});
+        return "the $side is not an IPv4 address (".join(', ', map { "$_ $address->{$_}" } sort keys %$address).")";
+    }
     # The modules tell "any" by the address 0.0.0.0 alone: an address 0.0.0.0 with
     # another mask (host 0.0.0.0) would be sent as any
     foreach my $side ('source', 'destination') {
