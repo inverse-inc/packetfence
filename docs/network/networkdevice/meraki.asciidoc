@@ -230,6 +230,44 @@ PacketFence asks the switch to authenticate it again 5 minutes later
 up). A phone gets the voice VSA once its CDP entry is there; other devices get the
 regular answer after these 15 minutes.
 
+====== Flow export (IPFIX)
+
+The Catalyst-based Meraki switches (MS390, Catalyst 9300 managed from the
+dashboard, 9200 and 9350 series) can export their traffic to the Fingerbank
+collector of PacketFence as IPFIX (NetFlow v10, UDP 4739) with the NBAR
+application of each flow. The other MS models have no flow export. Meraki
+requires CS 15 or cloud-native IOS XE 17.15 and later, an Advanced licence,
+and a Layer 3 interface (SVI) on the switch that reaches the collector. The
+dashboard allows one collector per network, shared with the MX appliances of
+the network.
+
+In the dashboard, 'Network-wide -> General':
+
+[options="compact"]
+* 'Reporting': enable 'NetFlow traffic reporting', with the IP address of
+  PacketFence as the collector and `4739` as the port. Leave 'Encrypted
+  Traffic Analytics' disabled, the collector does not use it,
+* 'Traffic analysis': select 'Detailed', the cloud-native IOS XE switches only
+  export flows in this mode.
+
+The same through the Dashboard API:
+
+  PUT /api/v1/networks/<networkId>/netflow
+  {"reportingEnabled": true, "collectorIp": "192.168.1.5", "collectorPort": 4739, "etaEnabled": false}
+
+  PUT /api/v1/networks/<networkId>/trafficAnalysis
+  {"mode": "detailed"}
+
+Every port exports in both directions, and the records carry the source and
+destination MAC addresses, the VLAN and the application of the flow. The switch
+first sends its application and interface tables, the flows follow a few
+minutes later. To check the export, capture on PacketFence:
+
+  tcpdump -ni eth0 udp port 4739 and host 192.168.1.2
+
+Here 192.168.1.2 is the switch. Verified on a Catalyst 9300 managed from the
+dashboard (IOS XE 17.18).
+
 ===== RADSEC
 
 It is possible to use RADSEC between Meraki and PacketFence in order to perform
