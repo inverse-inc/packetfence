@@ -946,7 +946,8 @@ sub getRoleAccessListByName {
             port => undef,
             role_id => $access_list_name,
             acl_type => 'role',
-            acls => $acls,
+            # a module pushing through an API gives the ACLs as a list of structures
+            acls => ref($acls) eq 'ARRAY' ? encode_json($acls) : $acls,
             enforcement_timestamp => \"NOW()",
         });
         $dal->upsert();
@@ -5046,6 +5047,7 @@ sub generateAnsibleConfiguration {
             case /Aruba::CX/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "arubanetworks.aoscx.aoscx" }
             case /Arista::AristaSwitch/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "arista.eos.eos" }
             case /NEC::/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "packetfence.comware.comware" }
+            case /Meraki::/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "meraki" }
             case /Aruba::Controller_200/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "aruba" }
             case /Aruba::Mobility_Master/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "aos" }
     }

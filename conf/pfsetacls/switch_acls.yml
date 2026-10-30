@@ -224,6 +224,145 @@
 [% END %]
 [% END %]
 
+[% IF type.match('Meraki::') %]
+# Meraki: the ACLs of a role are the Layer 3 firewall rules of a group policy
+# named after the role, created or updated through the Dashboard API. The
+# access policy of the ports returns the group policy named by Filter-Id.
+
+    - name: Meraki Dashboard API
+      ansible.builtin.set_fact:
+        meraki_api_url: "{{ meraki_api_url | default('https://api.meraki.com/api/v1') }}"
+        meraki_headers:
+          X-Cisco-Meraki-API-Key: "{{ meraki_api_key }}"
+          Content-Type: application/json
+          Accept: application/json
+
+    - name: Find the Meraki network of the switch
+      when: meraki_network_id | default('') | length == 0
+      block:
+        - name: Fetch the organizations
+          ansible.builtin.uri:
+            url: "{{ meraki_api_url }}/organizations"
+            headers: "{{ meraki_headers }}"
+            follow_redirects: all
+          register: meraki_organizations
+
+        - name: Fetch the switches of the organizations
+          ansible.builtin.uri:
+            url: "{{ meraki_api_url }}/organizations/{{ item.id }}/devices?productTypes[]=switch"
+            headers: "{{ meraki_headers }}"
+            follow_redirects: all
+          loop: "{{ meraki_organizations.json }}"
+          loop_control:
+            label: "{{ item.name }}"
+          register: meraki_devices
+
+        - name: Keep the network of the switch
+          ansible.builtin.set_fact:
+            meraki_switch_networks: "{{ meraki_devices.results | map(attribute='json') | flatten | selectattr('lanIp', 'defined') | selectattr('lanIp', 'equalto', meraki_switch_ip) | map(attribute='networkId') | list }}"
+
+        - name: Check that the switch is in the organizations
+          ansible.builtin.assert:
+            that: meraki_switch_networks | length > 0
+            fail_msg: "No Meraki switch has the LAN IP {{ meraki_switch_ip }} in the organizations this API key can read: set the network ID of the switch in its Web Services Path"
+
+        - name: Set the network of the switch
+          ansible.builtin.set_fact:
+            meraki_network_id: "{{ meraki_switch_networks | first }}"
+
+    - name: Fetch the group policies of the network
+      ansible.builtin.uri:
+        url: "{{ meraki_api_url }}/networks/{{ meraki_network_id }}/groupPolicies"
+        headers: "{{ meraki_headers }}"
+        follow_redirects: all
+      register: meraki_group_policies
+
+    - name: Index the group policies by name
+      ansible.builtin.set_fact:
+        meraki_group_policy_ids: "{{ dict(meraki_group_policies.json | map(attribute='name') | zip(meraki_group_policies.json | map(attribute='groupPolicyId'))) }}"
+
+[% FOREACH key IN acls_array.keys %]
+[% IF delete >= 1 %]
+    - name: Delete the group policy [% key %]
+      ansible.builtin.uri:
+        method: DELETE
+        url: "{{ meraki_api_url }}/networks/{{ meraki_network_id }}/groupPolicies/{{ meraki_group_policy_ids['[% key %]'] }}"
+        headers: "{{ meraki_headers }}"
+        follow_redirects: all
+        status_code: [200, 204]
+      changed_when: true
+      when: "'[% key %]' in meraki_group_policy_ids"
+[% ELSE %]
+    - name: Update the group policy [% key %]
+      ansible.builtin.uri:
+        method: PUT
+        url: "{{ meraki_api_url }}/networks/{{ meraki_network_id }}/groupPolicies/{{ meraki_group_policy_ids['[% key %]'] }}"
+        headers: "{{ meraki_headers }}"
+        follow_redirects: all
+        body_format: json
+        body:
+          name: "[% key %]"
+          firewallAndTrafficShaping:
+            settings: custom
+            l3FirewallRules:
+[% FOREACH rule IN acls_array.$key %]
+              - comment: "[% rule.comment %]"
+                policy: [% rule.policy %]
+                protocol: [% rule.protocol %]
+                destPort: "[% rule.destPort %]"
+                destCidr: "[% rule.destCidr %]"
+[% END %]
+      changed_when: true
+      when: "'[% key %]' in meraki_group_policy_ids"
+
+    - name: Create the group policy [% key %]
+      ansible.builtin.uri:
+        method: POST
+        url: "{{ meraki_api_url }}/networks/{{ meraki_network_id }}/groupPolicies"
+        headers: "{{ meraki_headers }}"
+        follow_redirects: all
+        status_code: [200, 201]
+        body_format: json
+        body:
+          name: "[% key %]"
+          scheduling:
+            enabled: false
+          bandwidth:
+            settings: network default
+          firewallAndTrafficShaping:
+            settings: custom
+            trafficShapingRules: []
+            l7FirewallRules: []
+            l3FirewallRules:
+[% FOREACH rule IN acls_array.$key %]
+              - comment: "[% rule.comment %]"
+                policy: [% rule.policy %]
+                protocol: [% rule.protocol %]
+                destPort: "[% rule.destPort %]"
+                destCidr: "[% rule.destCidr %]"
+[% END %]
+          vlanTagging:
+            settings: network default
+          splashAuthSettings: network default
+      changed_when: true
+      when: "'[% key %]' not in meraki_group_policy_ids"
+[% END %]
+
+[% END %]
+[% FOREACH role IN AccessListEnabled.keys %]
+    - name: Delete the group policy [% role %], the ACLs of the role were disabled on the switch
+      ansible.builtin.uri:
+        method: DELETE
+        url: "{{ meraki_api_url }}/networks/{{ meraki_network_id }}/groupPolicies/{{ meraki_group_policy_ids['[% role %]'] }}"
+        headers: "{{ meraki_headers }}"
+        follow_redirects: all
+        status_code: [200, 204]
+      changed_when: true
+      when: "'[% role %]' in meraki_group_policy_ids"
+
+[% END %]
+[% END %]
+
 [% FOREACH role IN interfaces_delete.keys %]
 [% FOREACH interface IN interfaces_delete.$role %]
     - name: remove acl on interface
