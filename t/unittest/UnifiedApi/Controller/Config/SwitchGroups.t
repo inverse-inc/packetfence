@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 11;
+use Test::More tests => 15;
 use Test::Mojo;
 use Utils;
 
@@ -47,6 +47,16 @@ $t->post_ok($collection_base_url => json => {
     type => 'Hostapd_template'
 })
   ->status_is(201);
+
+$t->post_ok($collection_base_url => json => {
+    id => 'radius_attributes_group',
+    type => 'Cisco::Cisco_IOS_15_5',
+    RadiusAttributesMap => 'Y',
+    guestRadiusAttributes => "Tunnel-Type = Lab-VLAN",
+})
+  ->status_is(422)
+  ->json_is('/errors/0/field', 'guestRadiusAttributes')
+  ->json_like('/errors/0/message', qr/of the role guest.*'Lab-VLAN' is not a valid value of Tunnel-Type/);
 
 $t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
   ->status_is(400);

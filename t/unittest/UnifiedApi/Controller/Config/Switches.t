@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 80;
+use Test::More tests => 91;
 use List::Util qw(first);
 use Test::Mojo;
 use Utils;
@@ -152,6 +152,27 @@ Test2::Tools::Compare::is(
     },
     "Placeholders for VlanMapping is correct"
 );
+
+# The errors of the role mappings are returned for the parameter of the role, the field of the admin UI
+$t->post_ok($collection_base_url => json => {
+    id => "172.16.9.3", type => 'Cisco::Cisco_IOS_15_5', RadiusAttributesMap => 'Y',
+    guestRadiusAttributes => "Session-Timeout = 60", r1RadiusAttributes => "Session-Timeout = abc",
+})
+  ->status_is(422)
+  ->json_is('/errors/0/field', 'r1RadiusAttributes')
+  ->json_like('/errors/0/message', qr/of the role r1.*Session-Timeout = abc: 'abc' is not a valid integer for Session-Timeout/)
+  ->json_hasnt('/errors/1');
+
+$t->patch_ok("$base_url/172.16.8.21" => json => { r2RadiusAttributes => "Lab-Unknown-Attribute = 1" })
+  ->status_is(422)
+  ->json_is('/errors/0/field', 'r2RadiusAttributes')
+  ->json_like('/errors/0/message', qr/Lab-Unknown-Attribute is not in the RADIUS dictionary/);
+
+$t->post_ok($collection_base_url => json => {
+    id => "172.16.9.4", type => 'Cisco::Cisco_IOS_15_5', RadiusAttributesMap => 'Y',
+    guestRadiusAttributes => qq{Tunnel-Type = VLAN\nFilter-Id = "guest"},
+})
+  ->status_is(201);
 
 $t->post_ok($collection_base_url => json => { id => "172.16.9.1", type => 'Cisco::ASA', description => "ss"})
   ->status_is(201)

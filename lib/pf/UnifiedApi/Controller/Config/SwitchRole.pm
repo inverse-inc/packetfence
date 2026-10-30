@@ -63,7 +63,7 @@ sub makeMappings {
     my %mapping;
 
     while (my ($k, $v) = each %$patch) {
-        next unless ($k =~ /(.*)(AccessList|Vlan|Url|Role|Vpn|Interface|Network|NetworkFrom)$/);
+        next unless ($k =~ /(.*)(AccessList|Vlan|Url|Role|Vpn|Interface|Network|NetworkFrom|RadiusAttributes)$/);
         my $type = $2;
         my $role = $1;
         if ($type eq 'Role') {
@@ -109,6 +109,28 @@ sub mergeMappings {
 
         $item->{$n} = \@array;
     }
+}
+
+=head2 format_form_errors
+
+The errors of a role mapping (RadiusAttributesMapping.0.radiusattributes) are
+returned for the parameter of the role (staffRadiusAttributes), the parameter
+the admin UI sends and shows the error at
+
+=cut
+
+sub format_form_errors {
+    my ($self, $form) = @_;
+    my $errors = pf::UnifiedApi::Controller::Config::format_form_errors($self, $form);
+    for my $error (@$errors) {
+        my ($namespace, $index, $key) = $error->{field} =~ /^(\w+Mapping)\.(\d+)\.(\w+)$/;
+        next if !defined $namespace || ($pf::ConfigStore::Switch::MappingKey{$namespace} // '') ne $key;
+        my $role_field = $form->field("$namespace.$index.role");
+        my $role = $role_field ? $role_field->value : undef;
+        $error->{field} = $role . $pf::ConfigStore::Switch::MappingKey2{$namespace} if defined $role && $role ne '';
+    }
+
+    return $errors;
 }
 
 sub defaultSearchInfo {
