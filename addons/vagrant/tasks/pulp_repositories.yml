@@ -1,0 +1,44 @@
+---
+# Runs before gitlab_buildpkg_tools on the disposable test VMs.
+- name: Validate the pipeline repository inputs
+  ansible.builtin.assert:
+    that:
+      - lookup('env', 'PF_PACKAGE_ORIGIN') is match('^https://[a-zA-Z0-9.-]+(:[0-9]+)?$')
+      - lookup('env', 'CI_PIPELINE_ID') is match('^[1-9][0-9]*$')
+      - ansible_os_family in ['Debian', 'RedHat']
+
+- name: Select the complete pipeline repository
+  ansible.builtin.set_fact:
+    pf_pulp_pipeline_url: "{{ lookup('env', 'PF_PACKAGE_ORIGIN') }}/downloads/PacketFence/gitlab/{{ lookup('env', 'CI_PIPELINE_ID') }}"
+
+- name: Disable previous PacketFence sources in the test VM
+  ansible.builtin.script:
+    cmd: "{{ pf_pulp_source_helper }} {{ 'deb' if ansible_os_family == 'Debian' else 'rpm' }}"
+    executable: /usr/bin/python3
+
+- name: Use pipeline packages and dependencies together
+  ansible.builtin.set_fact:
+    gitlab_buildpkg_tools__ppa_enabled: true
+    gitlab_buildpkg_tools__ppa_url: "{{ pf_pulp_pipeline_url }}"
+    gitlab_buildpkg_tools__deb_ppa:
+      - name: packetfence-ppa
+        baseurl: "{{ pf_pulp_pipeline_url }}/debian bookworm main"
+        gpgkey: "{{ pf_pulp_pipeline_url }}/GPG_PUBLIC_KEY"
+    gitlab_buildpkg_tools__rpm_ppa:
+      - name: packetfence-ppa
+        baseurl: "{{ pf_pulp_pipeline_url }}/centos/8/$basearch"
+        gpgkey: "{{ pf_pulp_pipeline_url }}/GPG_PUBLIC_KEY"
+        priority: 1
+        gpgcheck: 1
+        repo_gpgcheck: 1
+        module_hotfixes: 1
+    gitlab_buildpkg_tools__deb_deps_repos: "{{ gitlab_buildpkg_tools__deb_deps_repos | default([]) | rejectattr('baseurl', 'search', '/downloads/PacketFence/') | list }}"
+    gitlab_buildpkg_tools__rpm_deps_repos: "{{ gitlab_buildpkg_tools__rpm_deps_repos | default([]) | rejectattr('baseurl', 'search', '/downloads/PacketFence/') | list }}"
+    # packetfence-release would re-enable the separate release repositories.
+    gitlab_buildpkg_tools__rpm_pkgs: "{{ gitlab_buildpkg_tools__rpm_pkgs | default([]) | difference(['packetfence-release']) }}"
+    apt_preferences__list:
+      - filename: packetfence-ppa.pref
+        package: '*'
+        pin: 'release a=bookworm-gitlab,n=bookworm,c=main'
+        priority: '1001'
+        reason: 'Use this pipeline snapshot, including intentional dependency overrides'

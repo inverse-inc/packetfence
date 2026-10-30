@@ -18,7 +18,8 @@ RUN apt-get update -qq \
         gnupg \
         reprepro \
         createrepo-c \
-        python3 python3-nacl python3-requests \
+        python3 python3-nacl python3-requests python3-requests-toolbelt python3-rpm python3-boto3 \
+        rpm dnf dnf-plugins-core curl ca-certificates \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

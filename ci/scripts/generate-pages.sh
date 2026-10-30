@@ -124,9 +124,11 @@ export_public_key() {
 # Emits "<id>/<name>" for every depth-2 directory under RESULT_DIR,
 # e.g. "debian/bookworm", "centos/8". Hidden dirs are ignored.
 find_releases() {
-    [ -d "$RESULT_DIR" ] || return 0
-    (cd "$RESULT_DIR" && find . -mindepth 2 -maxdepth 2 -type d \
-        | sed 's,^\./,,' | grep -v '^\.' | sort -u)
+    for base in "$RESULT_DIR" "${PPA_DEPENDENCIES_DIR:-}"; do
+        [ -d "$base" ] || continue
+        (cd "$base" && find . -mindepth 2 -maxdepth 2 -type d \
+            | sed 's,^\./,,' | grep -v '^\.')
+    done | sort -u
 }
 
 # --- APT repository (reprepro) ----------------------------------------------
@@ -169,6 +171,17 @@ EOF
         codename="${release##*/}"
         log_subsection "include $RESULT_DIR/$release -> $PUBLIC_DIR/$release_id"
 
+        # The Pulp path supplies a verified, filtered dependency snapshot.
+        # Add these before the freshly built .changes (including source packages).
+        local dependency
+        if [ -n "${PPA_DEPENDENCIES_DIR:-}" ] && [ -d "$PPA_DEPENDENCIES_DIR/$release" ]; then
+            while IFS= read -r -d '' dependency; do
+                reprepro --basedir "$apt_db/$release_id" --outdir "$pub_dir/$release_id" \
+                         includedeb "$codename" "$dependency" \
+                    || die "dependency inclusion failed: $dependency"
+            done < <(find "$PPA_DEPENDENCIES_DIR/$release" -name '*.deb' -print0 | sort -z)
+        fi
+        mkdir -p "$RESULT_DIR/$release"
         local changes found=0
         while IFS= read -r changes; do
             found=1
@@ -208,6 +221,11 @@ yum_repo() {
         # Split binary (noarch/x86_64) and source rpms into arch subtrees.
         mkdir -p "$PUBLIC_DIR/$release/x86_64" "$PUBLIC_DIR/$release/Source"
 
+        mkdir -p "$RESULT_DIR/$release"
+        if [ -n "${PPA_DEPENDENCIES_DIR:-}" ] && [ -d "$PPA_DEPENDENCIES_DIR/$release" ]; then
+            find "$PPA_DEPENDENCIES_DIR/$release" -name '*.rpm' -print0 \
+                | xargs -0 --no-run-if-empty cp --target-directory "$PUBLIC_DIR/$release/x86_64"
+        fi
         find "$RESULT_DIR/$release" \( -name '*.noarch.rpm' -o -name '*.x86_64.rpm' \) -print0 \
             | xargs -0 --no-run-if-empty cp -fv --target-directory "$PUBLIC_DIR/$release/x86_64" \
             || die "cp of binary rpms failed: $release"

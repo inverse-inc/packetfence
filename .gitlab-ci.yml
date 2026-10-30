@@ -30,6 +30,12 @@ stages:
 variables:
   # synced with Pipeline timeout in GitLab UI
   PIPELINE_TIMEOUT_SCRIPT: 160m
+  # Opt-in only after provisioning and acceptance described in ci/pulp/README.md.
+  PF_PULP_ENABLED: "no"
+  PF_PULP_CONTAINER_SYNC_ENABLED: "no"
+  PF_PULP_CONTAINER_ALLOW_TAG_UPDATE: "no"
+  PF_PACKAGE_ORIGIN: "https://www.packetfence.org"
+  PF_PPA_IMAGE: "ghcr.io/inverse-inc/packetfence/publish-ppa:${IMAGE_TAG}"
   PIPELINE_TIMEOUT_CLEANUP: 10m
   # sub-budgets of PIPELINE_TIMEOUT_CLEANUP; sum must stay below it
   PIPELINE_TIMEOUT_TEARDOWN: 6m
@@ -214,6 +220,9 @@ variables:
 
 .gated_by_deploy_pkg:
   rules:
+    # The initial Pulp rollout publishes isolated pipeline repositories only.
+    - if: '$PF_PULP_ENABLED == "yes"'
+      when: never
     - if: '$DEPLOY_PKG == "no"'
       when: never
 
@@ -473,6 +482,9 @@ variables:
 # block — only jobs that actually ran and failed will skip the dependents.
 .needs_all_build_images:
   needs:
+    - job: prepare_pulp_dependencies
+      optional: true
+      artifacts: true
     - job: pre_ci_lint_yaml
     - job: pre_ci_go_check_debian_bookworm
       optional: true
@@ -669,10 +681,12 @@ variables:
 
 .rpm_script_job:
   script:
+    - bash ci/pulp/build-dependencies.sh rpm
     - make -e build_rpm
 
 .deb_script_job:
   script:
+    - bash ci/pulp/build-dependencies.sh deb
     - make -e build_deb
 
 # Test jobs that opt INTO the per-pipeline baked vagrant box append one of
@@ -1188,17 +1202,55 @@ sign_packages:
 ########################################
 # PUBLISH JOBS
 ########################################
+# Requires a prebuilt publish-ppa image pinned by digest in PF_PULP_IMAGE.
+# One lock for every writer of the shared CI repository, including both phases.
+prepare_pulp_dependencies:
+  stage: check
+  image: $PF_PULP_IMAGE
+  resource_group: pulp-packetfence-pipelines
+  before_script: []
+  script:
+    - bash ci/pulp/pipeline.sh prepare
+  artifacts:
+    access: developer
+    when: always
+    expire_in: 7 days
+    paths: [pipeline-lock.json, pulp-publication.json, package-backup-*.json]
+    reports:
+      dotenv: pulp.env
+  tags: [docker]
+  rules:
+    - !reference [.gated_by_build_artifacts_pkg, rules]
+    - if: '$PF_PULP_ENABLED == "yes" && ($CI_COMMIT_REF_NAME == "devel" || $CI_COMMIT_TAG || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule")'
+
 publish_ppa:
   stage: publish
-  image: ghcr.io/inverse-inc/packetfence/publish-ppa:${IMAGE_TAG}
+  image: $PF_PPA_IMAGE
+  resource_group: pulp-packetfence-pipelines
+  artifacts:
+    access: developer
+    when: always
+    expire_in: 7 days
+    paths: [pipeline-lock.json, pulp-publication.json, package-backup-*.json]
+    reports:
+      dotenv: pulp.env
   needs:
     - job: sign_packages
+    - job: prepare_pulp_dependencies
+      optional: true
+      artifacts: true
   environment:
     name: PPA
-    url: http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}
+    url: ${PF_PACKAGE_ORIGIN}/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}
   script:
-    - generate-pages
-    - ./${UPLOAD_DIR}/deploy-artifacts.sh ppa
+    - |
+      if [ "$PF_PULP_ENABLED" = yes ]; then
+        bash ci/pulp/pipeline.sh publish
+      else
+        generate-pages
+        ./${UPLOAD_DIR}/deploy-artifacts.sh ppa
+        printf 'PF_PPA_URL=%s/downloads/PacketFence/gitlab/%s\n' "$PF_PACKAGE_ORIGIN" "$CI_PIPELINE_ID" > pulp.env
+      fi
   tags:
     - docker
   variables:
@@ -1210,6 +1262,7 @@ publish_ppa:
   before_script:
     - |
       set -euo pipefail
+      if [ "$PF_PULP_ENABLED" != yes ]; then
       echo "=== Import GPG key for repo signing ==="
       python3 addons/packetfence-perl/psono.py \
         --api_key_id="$PSONO_API_KEY_ID" \
@@ -1229,8 +1282,14 @@ publish_ppa:
       > ~/.ssh/id_rsa
       chmod 600 ~/.ssh/id_rsa
       echo "SSH deploy key imported successfully"
+      fi
   rules:
     - !reference [.gated_by_build_artifacts_pkg, rules]
+    - if: '$PF_PULP_ENABLED == "yes" && ($CI_COMMIT_REF_NAME == "devel" || $CI_COMMIT_TAG || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule")'
+      variables:
+        PF_PPA_IMAGE: $PF_PULP_IMAGE
+    - if: '$PF_PULP_ENABLED == "yes"'
+      when: never
     - if: '$CI_COMMIT_REF_NAME == "devel"'
       variables:
         IMAGE_TAG: latest
@@ -1697,3 +1756,23 @@ build_pf_img_vagrant_release_debian_bookworm:
     - if: '$CI_COMMIT_TAG'
       when: manual
       allow_failure: true
+
+# Copies public GHCR maintenance/devel images after successful earlier stages.
+# This remains independent of the opt-in Debian/RPM publication switch.
+sync_pulp_branch_images:
+  stage: publish
+  image: $PF_PULP_IMAGE
+  resource_group: pulp-packetfence-containers
+  before_script: []
+  dependencies: []
+  script:
+    - bash ci/pulp/container-sync.sh
+  artifacts:
+    access: developer
+    when: always
+    expire_in: 30 days
+    paths: [container-plan.json, container-publication.json]
+  tags: [docker]
+  rules:
+    - if: '$PF_PULP_CONTAINER_SYNC_ENABLED == "yes" && $CI_COMMIT_REF_PROTECTED == "true" && $CI_COMMIT_BRANCH == "devel" && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule")'
+    - if: '$PF_PULP_CONTAINER_SYNC_ENABLED == "yes" && $CI_COMMIT_REF_PROTECTED == "true" && $CI_COMMIT_BRANCH =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_BRANCH != "maintenance/99.9" && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule")'
