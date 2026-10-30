@@ -32,7 +32,7 @@ It is tested and known to work on
  3. some Cisco Devices running ISE 2.7 Patch2+
  4. some versions of eapol_test (currently, latest devel build)
 
-It is know not to work with:
+It is known not to work with:
  1. some versions of eapol_test (2.11 or earlier)
  2. some versions of wpa_supplicant (2.11 or earlier)
  3. iOS / MacOS (not supported yet)
