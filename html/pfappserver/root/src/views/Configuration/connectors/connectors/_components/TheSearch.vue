@@ -123,7 +123,8 @@
         <template v-slot:cell(version)="{ item }">
           <template v-if="system(item.id)">
             {{ system(item.id).version }}
-            <b-badge v-if="remote(item.id).upgrade_available" variant="warning" class="ml-1">{{ $t('{version} available', { version: remote(item.id).central_version }) }}</b-badge>
+            <icon v-if="remote(item.id).upgrade_available" name="arrow-circle-up" class="text-warning ml-1"
+              v-b-tooltip.hover.top.d300 :title="$t('Update available: PacketFence is {central}, this connector runs {version}. Open the connector to update it.', { central: remote(item.id).central_version, version: system(item.id).version })" />
           </template>
           <span v-else class="text-muted">-</span>
         </template>
