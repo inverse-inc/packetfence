@@ -294,6 +294,7 @@ func (api *API) setupRoutes() {
 				r.Post("/restart", systemRestart(api))
 				r.Post("/upgrade", systemUpgrade(api))
 				r.Post("/install", systemInstall(api))
+				r.Post("/refresh-config", systemRefreshConfig(api))
 			})
 			r.Get("/logs/{name}", tailLog(api))
 			r.Post("/ha/switch", haSwitch(api))

@@ -190,6 +190,9 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 	case apiPrefix + "/remote-radius-nas":
 		s.handleRemoteRadiusNas(w, r)
 		return
+	case apiPrefix + "/refresh-radius-nas":
+		s.handleRefreshRadiusNas(w, r)
+		return
 	case apiPrefix + "/local-secret":
 		s.handleLocalSecret(w, r)
 		return

@@ -9,7 +9,6 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"os/exec"
 	"runtime"
 	"strconv"
 	"strings"
@@ -864,10 +863,6 @@ func runHAClient(ctx context.Context, config *chclient.Config, api *clientapi.AP
 	}
 }
 
-// haRefreshConfigScript re-runs the cloud sync scripts and restarts what
-// changed; a backup runs it against the loopback relay to the master.
-const haRefreshConfigScript = "/usr/local/pf/sbin/ha-refresh-config.sh"
-
 // syncConfigFromMaster is one configuration sync pass of an HA backup: cache
 // the master's site-network payload (re-rendering keepalived.conf when it
 // changed), then run the sync scripts through the relay at relayAddr. Returns
@@ -885,26 +880,17 @@ func syncConfigFromMaster(ctx context.Context, vip, secret, relayAddr string) (*
 		log.Printf("HA: site network config updated from the master, refreshing keepalived")
 		chclient.ApplyKeepalived(log.Printf)
 	}
-	if _, err := os.Stat(haRefreshConfigScript); err != nil {
+	if _, err := os.Stat(clientapi.RefreshConfigScript); err != nil {
 		return &ha, nil // outside the connector-remote container
 	}
-	cmd := exec.CommandContext(ctx, haRefreshConfigScript, "--start")
-	cmd.Env = append(os.Environ(), "PFCONNECTOR_API=http://"+relayAddr)
-	out, err := cmd.CombinedOutput()
-	for _, line := range strings.Split(strings.TrimSpace(string(out)), "\n") {
-		// The script stamps its lines for keepalived.log (ha-notify.sh); log
-		// adds its own.
-		if len(line) > 20 {
-			if _, err := time.Parse("2006/01/02 15:04:05", line[:19]); err == nil {
-				line = line[20:]
-			}
-		}
-		if line != "" {
-			log.Printf("HA: %s", line)
-		}
+	// ha-refresh-config.sh re-runs the cloud sync scripts and restarts what
+	// changed; a backup runs it against the loopback relay to the master.
+	lines, err := clientapi.RunRefreshConfigScript(ctx, []string{"PFCONNECTOR_API=http://" + relayAddr}, "--start")
+	for _, line := range lines {
+		log.Printf("HA: %s", line)
 	}
 	if err != nil {
-		return &ha, fmt.Errorf("%s: %w", haRefreshConfigScript, err)
+		return &ha, fmt.Errorf("%s: %w", clientapi.RefreshConfigScript, err)
 	}
 	return &ha, nil
 }
