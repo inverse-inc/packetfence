@@ -254,10 +254,16 @@ sub locationlog_insert_start {
     # callers (pfsnmp, VoIP, inline DHCP) that don't carry the TEAP attributes
     # in their args. Without this, a vlan/role/conn_type change would silently
     # blank the audit-trail teap_username/teap_machinename on the new row.
-    if ($teap_username eq '' && defined($locationlog_mac->{'teap_username'})) {
+    # Only carry them over when the connection type and the dot1x username are
+    # unchanged: a new authentication (PEAP as another user, MAB, ...) must not
+    # inherit the identity of a previous TEAP session.
+    my $same_session = defined($locationlog_mac)
+        && ($locationlog_mac->{'connection_type'} // '') eq ($conn_type // '')
+        && ($locationlog_mac->{'dot1x_username'} // '') eq $user_name;
+    if ($same_session && $teap_username eq '' && defined($locationlog_mac->{'teap_username'})) {
         $teap_username = $locationlog_mac->{'teap_username'};
     }
-    if ($teap_machinename eq '' && defined($locationlog_mac->{'teap_machinename'})) {
+    if ($same_session && $teap_machinename eq '' && defined($locationlog_mac->{'teap_machinename'})) {
         $teap_machinename = $locationlog_mac->{'teap_machinename'};
     }
     my %values = (
