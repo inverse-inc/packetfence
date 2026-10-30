@@ -63,7 +63,7 @@ has_field 'default_eap_type' =>
         required => 1,
         options => [
             map { { value => lc($_), label => $_ } }
-              qw(MSCHAPv2 TLS GTC MD5)
+              qw(MSCHAPv2 TLS)
         ],
     );
 
@@ -74,7 +74,7 @@ has_field 'user_eap_type' =>
         required => 1,
         options => [
             map { { value => lc($_), label => $_ } }
-              qw(MSCHAPv2 TLS GTC MD5)
+              qw(MSCHAPv2 TLS)
         ],
     );
 
@@ -85,7 +85,7 @@ has_field 'machine_eap_type' =>
         required => 1,
         options => [
             map { { value => lc($_), label => $_ } }
-              qw(MSCHAPv2 TLS GTC MD5)
+              qw(MSCHAPv2 TLS)
         ],
     );
 

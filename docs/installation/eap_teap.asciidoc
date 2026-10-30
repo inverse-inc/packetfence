@@ -23,7 +23,7 @@ endif::[]
 
 ==== Context and Objectives of the Documentation
 
-Since PacketFence v15.1, we introduced EAP-TEAP support, EAP-TEAP is considered as a faster and next generation of EAP-PEAP.
+Since PacketFence v16.0, we introduced EAP-TEAP support, EAP-TEAP is considered as a faster and next generation of EAP-PEAP.
 As EAP-TEAP is still being developed rapidly, it may not be fully supported on all your network devices or platforms.
 
 It is tested and known to work on
@@ -39,7 +39,6 @@ It is known not to work with:
 
 ==== Supported inner methods
 
-TEAP supports EAP-MSCHAPv2, EAP-TLS and PAP as inner methods, but it's always better to use secure and mature inner methods.
 Windows by default supports EAP-MSCHAPv2 and EAP-TLS when you configure 802.1x client and TEAP.
 PacketFence supports EAP-MSCHAPv2 and EAP-TLS as inner methods. Each TEAP profile uses one inner method per
 identity type (see *User EAP Type* and *Machine EAP Type* below): the shipped "Default" profile uses EAP-TLS
@@ -71,7 +70,8 @@ devices joined to Windows domain with correct user credentials.
 By default, PacketFence is configured only verifying user identities.
 
 ==== Enable TEAP in PacketFence
-Enable TEAP in EAP profiles.
+TEAP is not enabled by default, enable it in the EAP profiles that should offer it.
+Change the *Authority Identity* of the TEAP profile first (see below).
 
 1. Go to *Configuration* -> *System Configuration* -> *RADIUS* -> *EAP Profiles*
 2. In *EAP Authentication types*, adds "TEAP" and click save.
