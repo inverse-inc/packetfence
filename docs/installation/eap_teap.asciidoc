@@ -85,7 +85,7 @@ Config TEAP Profiles
 2. You will see a "Default" Profile in the page, create a new one or clone from the default config if you need to change the settings.
 3. In the teap profile you are editing, you can change the TLS profile you previously created or updated, or change other settings or the *Identity Types*
 
-*Itentity Types* is a setting that telling Radius Server which identities should be authenticated. Supported values are "machine", "machine,user", "user", "user,machine".
+*Identity Types* is a setting that tells the RADIUS server which identities should be authenticated. Supported values are "machine", "machine,user", "user", "user,machine".
 If you want to authenticate both machine identity and user identity, select "machine,user" or "user,machine".
 
 *User EAP Type* and *Machine EAP Type* set the inner method used to authenticate the user identity and the machine
