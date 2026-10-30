@@ -885,18 +885,22 @@ sub _getAccessListByName {
         return;
     }
     
+    # The bypass ACLs of the node and the access lists of the switch entry are
+    # written in Cisco syntax like the ACLs of a role: run them through
+    # acl_chewer too, so a switch that speaks another syntax gets them
+    # translated instead of verbatim
     my $node = node_view($mac);
     if ($node) {
         my $acls = $node->{bypass_acls};
         chomp($acls) if defined $acls;
         if (defined $acls && $acls ne '') {
-            return "asset", $acls;
+            return "asset", $self->acl_chewer($acls, $access_list_name);
         }
     }
 
     if (defined($self->{'_access_lists'}->{$access_list_name})) {
         $logger->debug("Using ACL from the switch entry instead of the one defined in the role");
-        return "role", $self->{'_access_lists'}->{$access_list_name};
+        return "role", $self->acl_chewer($self->{'_access_lists'}->{$access_list_name}, $access_list_name);
     }
 
     return undef, undef if !exists $ConfigRoles{$access_list_name};
@@ -4763,7 +4767,9 @@ it can.
 Cisco::AccessList::Parser reads the dscp, precedence, tos, fragments,
 time-range and option qualifiers of a line without returning them, so the entry
 of "permit ip any any dscp ef" is the one of "permit ip any any". Translating
-it would widen the ACL. An "evaluate" line gives an entry with no action.
+it would widen the ACL. An "evaluate" line gives an entry with no action. An
+object group (a service or network object defined on the switch) is given as a
+hash in place of the protocol or the address: no module can send it.
 
 =cut
 
@@ -4771,6 +4777,17 @@ sub untranslatableAclQualifier {
     my ($self, $entry) = @_;
     return "the ACL is not a permit or a deny" if ($entry->{'action'} // '') !~ /^(?:permit|deny)$/;
     return "the '".lc($1)."' qualifier is not sent" if ($entry->{'acl_line'} // '') =~ /\s(dscp|precedence|tos|fragments|time-range|option)(?:\s|$)/i;
+    # An object group names an object defined on the switch: the parser gives a
+    # hash in place of the protocol (object-group service) or of the address
+    # (object-group network), which no module can send
+    if (ref($entry->{'protocol'}) eq 'HASH') {
+        return "the protocol object group '".join(',', values %{$entry->{'protocol'}})."' is not sent";
+    }
+    foreach my $side ('source', 'destination') {
+        my $address = $entry->{$side};
+        next if ref($address) ne 'HASH' || defined($address->{'ipv4_addr'});
+        return "the $side is not an IPv4 address (".join(', ', map { "$_ $address->{$_}" } sort keys %$address).")";
+    }
     # The modules tell "any" by the address 0.0.0.0 alone: an address 0.0.0.0 with
     # another mask (host 0.0.0.0) would be sent as any
     foreach my $side ('source', 'destination') {

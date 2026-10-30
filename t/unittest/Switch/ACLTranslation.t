@@ -23,8 +23,9 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 100;
+use Test::More tests => 123;
 use Test::MockModule;
+use pf::node qw(node_add node_delete);
 use pf::Switch;
 use pf::Switch::Aruba::ArubaOS_CX_10_x;
 use pf::Switch::Arista::AristaSwitch;
@@ -232,6 +233,16 @@ is_deeply(
 is_deeply($entries, [], "a role without ACLs gets none");
 
 # Qualifiers the parser reads without returning them: the entry of
+# Object groups: the parser gives a hash in place of the protocol or of an
+# address, which cannot be sent as is
+foreach my $switch ($aruba, $cisco) {
+    is(chew($switch, "permit object-group foo any any"), deny_all($switch), ref($switch).": a permit on a service object group is skipped, not sent as a broken line");
+    is(chew($switch, "permit tcp object-group SRC any eq 80\npermit ip any any"), chew($switch, "permit ip any any"), ref($switch).": a permit from a network object group is skipped");
+    is(chew($switch, "deny tcp any object-group DST\npermit ip any any"), deny_all($switch), ref($switch).": a deny to a network object group ends the ACLs with a deny all");
+}
+like(pf::Switch::untranslatableAclQualifier($aruba, { action => 'permit', protocol => { object_group_service => 'foo' }, source => {}, destination => {} }) // '', qr/object group 'foo'/, "the protocol object group is named in the reason");
+like(pf::Switch::untranslatableAclQualifier($aruba, { action => 'permit', protocol => 'tcp(6)', source => { object_group_network => 'SRC' }, destination => { ipv4_addr => '0.0.0.0', wildcard => '255.255.255.255' } }) // '', qr/source is not an IPv4 address/, "the address object group is named in the reason");
+
 # "permit ip any any dscp ef" is the one of "permit ip any any"
 
 foreach my $switch ($aruba, $arista, $aos, $cisco, $forti, $dell) {
@@ -310,6 +321,43 @@ foreach my $switch ($aruba, $arista, $aos, $forti) {
         like($s->getRoleAccessListByName('r4') // '', $push_format, "$name: getRoleAccessListByName gives the push format");
         like($s->acl_chewer("permit tcp any any", 'r4') // '', qr/permit in/, "$name: outside of the push, the RADIUS format");
     }
+}
+
+# The bypass ACLs of a node and the access lists of the switch entry are
+# written in Cisco syntax like the ACLs of a role: they go through acl_chewer
+# too, so a switch that speaks another syntax never gets them verbatim
+{
+    my $mac = '02:00:5e:ac:1b:01';
+    my $bypass = "permit tcp any any eq 80\ndeny ip any any";
+    node_delete($mac);
+    ok(node_add($mac, pid => 'default', bypass_acls => $bypass), "node with bypass ACLs");
+    is($aruba->getAccessListByName('r4', $mac), chew($aruba, $bypass), "Aruba CX: the bypass ACLs of the node are translated like the ACLs of a role");
+    like($aruba->getAccessListByName('r4', $mac), qr/^(?:in\|)?permit in tcp from any to any 80$/m, "Aruba CX: the bypass ACLs are in the NAS-Filter-Rule syntax, not in Cisco syntax");
+    is($cisco->getAccessListByName('r4', $mac), chew($cisco, $bypass), "Cisco: the bypass ACLs of the node are translated like the ACLs of a role");
+    node_delete($mac);
+    is($aruba->getAccessListByName('r4', $mac), chew($aruba, "permit tcp any any"), "without bypass ACLs the ACLs of the role are sent");
+
+    # The source of a per-user ACL is the endpoint itself: a source address in
+    # the bypass ACLs is as untranslatable as in the ACLs of a role. A permit
+    # with one is skipped, a deny with one ends the ACLs with a deny all
+    ok(node_add($mac, pid => 'default', bypass_acls => "deny ip host 10.1.1.1 any\npermit ip any any"), "node with a deny on a source address");
+    is($cisco->getAccessListByName('r4', $mac), deny_all($cisco), "Cisco: a bypass deny with a source address denies everything rather than letting the permit after it through");
+    is($aruba->getAccessListByName('r4', $mac), deny_all($aruba), "Aruba CX: a bypass deny with a source address denies everything");
+    node_delete($mac);
+    ok(node_add($mac, pid => 'default', bypass_acls => "permit ip 10.0.0.0 0.0.0.255 any\npermit ip any any"), "node with a permit on a source network");
+    is($cisco->getAccessListByName('r4', $mac), chew($cisco, "permit ip any any"), "Cisco: a bypass permit with a source address is skipped, the other lines are sent");
+    node_delete($mac);
+
+    # An object group names an object of the switch that the parser cannot
+    # resolve: never sent as a broken line
+    ok(node_add($mac, pid => 'default', bypass_acls => "permit object-group foo any any"), "node with an object group in the bypass ACLs");
+    is($cisco->getAccessListByName('r4', $mac), deny_all($cisco), "Cisco: a bypass ACL on an object group denies everything rather than sending a broken line");
+    unlike($cisco->getAccessListByName('r4', $mac), qr/HASH\(/, "Cisco: no stringified reference in the bypass ACLs");
+    node_delete($mac);
+
+    my $entry = pf::Switch::Aruba::ArubaOS_CX_10_x->new({%args, access_lists => { r4 => "permit udp any any eq 53" }});
+    is($entry->getAccessListByName('r4', $mac), chew($entry, "permit udp any any eq 53"), "Aruba CX: the access list of the switch entry is translated like the ACLs of a role");
+    like($entry->getAccessListByName('r4', $mac), qr/^(?:in\|)?permit in udp from any to any 53$/m, "Aruba CX: the access list of the switch entry is in the NAS-Filter-Rule syntax");
 }
 
 =head1 AUTHOR
