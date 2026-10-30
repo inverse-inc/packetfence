@@ -71,7 +71,7 @@
         <base-form-group class="text-nowrap" :column-label="$t('Last TEAP Username')">
           {{ node.last_teap_username }}
         </base-form-group>
-        <base-form-group class="text-nowrap" :column-label="$t('Last TEAP Machine name')">
+        <base-form-group class="text-nowrap" :column-label="$t('Last TEAP Machine Name')">
           {{ node.last_teap_machinename }}
         </base-form-group>
       </b-col>
