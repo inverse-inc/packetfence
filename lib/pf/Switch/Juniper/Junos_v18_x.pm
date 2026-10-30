@@ -397,11 +397,12 @@ sub _switchingFilterConditionCount {
 
 Return the list of C<Juniper-Switching-Filter> terms for an access list.
 
-Only the role path of L<pf::Switch/_getAccessListByName> runs the access list
-through L</acl_chewer>: a node's bypass_acls and the access lists defined on the
-switch entry itself are returned untouched, so they arrive here in Cisco syntax
-and are translated. Anything that is still not a term is dropped, because the
-switch refuses the whole Access-Accept over a single malformed attribute.
+L<pf::Switch/_getAccessListByName> runs the role ACLs, a node's bypass_acls and
+the access lists defined on the switch entry through L</acl_chewer>, so the
+lines normally arrive here as terms; a line still in Cisco syntax (a RADIUS
+filter or an older caller) is translated here. Anything that is still not a
+term is dropped, because the switch refuses the whole Access-Accept over a
+single malformed attribute.
 
 The list stops at L</SWITCHING_FILTER_DENY_ALL>: nothing after it can match.
 

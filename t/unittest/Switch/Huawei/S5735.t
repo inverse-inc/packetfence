@@ -261,8 +261,8 @@ is_deeply(
     "a role whose ACLs are all dropped reaches the switch as the catch all only"
 );
 
-# _getAccessListByName returns bypass_acls and switch entry ACLs untouched, so
-# they are translated line by line here and the cut has to happen here too.
+# A line that did not go through acl_chewer arrives here in Cisco syntax: it is
+# translated line by line and the cut has to happen here too.
 is_deeply(
     [$switch->_dataFilterRules("permit udp any any eq 53\ndeny tcp any any gt 1024\npermit ip any any\n", 'testrole')],
     ['$1 permit udp dst any 53', '$2 deny'],

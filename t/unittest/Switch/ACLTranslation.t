@@ -23,8 +23,9 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 100;
+use Test::More tests => 107;
 use Test::MockModule;
+use pf::node qw(node_add node_delete);
 use pf::Switch;
 use pf::Switch::Aruba::ArubaOS_CX_10_x;
 use pf::Switch::Arista::AristaSwitch;
@@ -310,6 +311,25 @@ foreach my $switch ($aruba, $arista, $aos, $forti) {
         like($s->getRoleAccessListByName('r4') // '', $push_format, "$name: getRoleAccessListByName gives the push format");
         like($s->acl_chewer("permit tcp any any", 'r4') // '', qr/permit in/, "$name: outside of the push, the RADIUS format");
     }
+}
+
+# The bypass ACLs of a node and the access lists of the switch entry are
+# written in Cisco syntax like the ACLs of a role: they go through acl_chewer
+# too, so a switch that speaks another syntax never gets them verbatim
+{
+    my $mac = '02:00:5e:ac:1b:01';
+    my $bypass = "permit tcp any any eq 80\ndeny ip any any";
+    node_delete($mac);
+    ok(node_add($mac, pid => 'default', bypass_acls => $bypass), "node with bypass ACLs");
+    is($aruba->getAccessListByName('r4', $mac), chew($aruba, $bypass), "Aruba CX: the bypass ACLs of the node are translated like the ACLs of a role");
+    like($aruba->getAccessListByName('r4', $mac), qr/^(?:in\|)?permit in tcp from any to any 80$/m, "Aruba CX: the bypass ACLs are in the NAS-Filter-Rule syntax, not in Cisco syntax");
+    is($cisco->getAccessListByName('r4', $mac), chew($cisco, $bypass), "Cisco: the bypass ACLs of the node are translated like the ACLs of a role");
+    node_delete($mac);
+    is($aruba->getAccessListByName('r4', $mac), chew($aruba, "permit tcp any any"), "without bypass ACLs the ACLs of the role are sent");
+
+    my $entry = pf::Switch::Aruba::ArubaOS_CX_10_x->new({%args, access_lists => { r4 => "permit udp any any eq 53" }});
+    is($entry->getAccessListByName('r4', $mac), chew($entry, "permit udp any any eq 53"), "Aruba CX: the access list of the switch entry is translated like the ACLs of a role");
+    like($entry->getAccessListByName('r4', $mac), qr/^(?:in\|)?permit in udp from any to any 53$/m, "Aruba CX: the access list of the switch entry is in the NAS-Filter-Rule syntax");
 }
 
 =head1 AUTHOR
