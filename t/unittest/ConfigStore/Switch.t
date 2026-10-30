@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 14;
+use Test::More tests => 17;
 use Utils;
 use pf::ConfigStore::Switch;
 my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Switch");
@@ -317,6 +317,40 @@ is($new->{voiceVlan}, $oldVoiceVlan, "delete inherited values");
                 'vlan' => '10'
             }
         ]
+    );
+}
+
+{
+    # Config::IniFiles reads a multi-line value as an array
+    my $switch = {
+        staffRadiusAttributes => ['Egress-VLANID = 822083614', 'Egress-VLANID = 822083624'],
+        guestRadiusAttributes => 'Session-Timeout = 3600',
+    };
+    pf::ConfigStore::Switch::_expandMapping($switch);
+    is_deeply(
+        $switch->{RadiusAttributesMapping},
+        [
+            { role => 'guest', radiusattributes => 'Session-Timeout = 3600' },
+            { role => 'staff', radiusattributes => "Egress-VLANID = 822083614\nEgress-VLANID = 822083624" },
+        ],
+        "the RADIUS attributes of the roles are expanded in RadiusAttributesMapping, one line per attribute"
+    );
+
+    my $toggle = { guestRadiusAttributes => 'Session-Timeout = 3600', guestRadiusAttributesEnabled => 'disabled' };
+    pf::ConfigStore::Switch::_expandMapping($toggle);
+    is($toggle->{guestRadiusAttributesEnabled}, 'disabled',
+        "the RadiusAttributesEnabled state of a role is kept for the admin UI");
+
+    my $data = { RadiusAttributesMapping => $switch->{RadiusAttributesMapping} };
+    pf::ConfigStore::Switch::_flattenRoleMappings($data);
+    pf::ConfigStore::Switch::_deleteRoleMappings($data);
+    is_deeply(
+        $data,
+        {
+            guestRadiusAttributes => 'Session-Timeout = 3600',
+            staffRadiusAttributes => "Egress-VLANID = 822083614\nEgress-VLANID = 822083624",
+        },
+        "RadiusAttributesMapping is flattened in \${role}RadiusAttributes"
     );
 }
 

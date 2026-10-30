@@ -328,7 +328,7 @@ sub migrate_role_in_switches {
     my $i = 0;
     my $cachedConfig = $cs->cachedConfig;
     for my $sect ($cachedConfig->Sections()) {
-        for my $suffix (qw(Role Url Vlan AccessList Vpn Interface Network NetworkFrom)) {
+        for my $suffix (values %pf::ConfigStore::Switch::MappingKey2) {
             my $old_key = "${old}${suffix}";
             next if !$cachedConfig->exists($sect, $old_key);
             my $value = $cachedConfig->val($sect, $old_key);
@@ -361,7 +361,7 @@ sub prune_role_from_switches {
     my $i = 0;
     my $cachedConfig = $cs->cachedConfig;
     for my $sect ($cachedConfig->Sections()) {
-        for my $f (map { "${role}${_}" } qw(Role Url Vlan AccessList Vpn Interface Network NetworkFrom) ) {
+        for my $f (map { "${role}${_}" } values %pf::ConfigStore::Switch::MappingKey2) {
             next if !$cachedConfig->exists($sect, $f);
             $cachedConfig->delval($sect, $f);
             $i |= 1;
