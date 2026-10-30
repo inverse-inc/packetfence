@@ -442,6 +442,7 @@ $connectors_config_file = catdir($conf_dir,"connectors.conf");
     $ocsp_config_file,
     $eap_config_file,
     $fast_config_file,
+    $teap_config_file,
     $fingerbank_collector_env_defaults_file,
     $portal_modules_config_file,
     $template_switches_config_file,
