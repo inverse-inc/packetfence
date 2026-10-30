@@ -435,6 +435,107 @@ This can also be configured with the admin interface in _Configuration -> Polici
 
 CAUTION: Ensure the roles are defined in the network devices prior to configuring role-based assignment.
 
+==== RADIUS Attributes per Role
+
+Besides the VLAN, the role and the access lists of a role, a switch can return
+any other RADIUS attribute of a role in its Access-Accept. Enable _Role by RADIUS
+Attributes_ in the _RADIUS Attributes_ tab of the switch, of its switch group or
+of the default switch, and add the attributes of each role: choose the attribute
+in the list of the attributes of the RADIUS dictionaries, then enter its value or
+choose one of its named values (`Tunnel-Type`, ...). A switch inherits the
+attributes of a role from its switch group and from the default switch when it
+doesn't define them, the inherited attributes are shown under the role. As for
+the other role mappings, the toggle next to a role (`<role_name>RadiusAttributesEnabled`
+in [filename]`switches.conf`) disables its attributes on a switch, including the
+ones it inherits.
+
+Add an attribute several times to return it several times, for the attributes
+that take one value each. Example that returns the VLANs 30 and 40 tagged (RFC 4675
+`Egress-VLANID`, 0x31000000 plus the VLAN) and a session timeout to the endpoints
+of the role `staff`:
+
+  Egress-VLANID = 822083614
+  Egress-VLANID = 822083624
+  Session-Timeout = 3600
+
+In [filename]`/usr/local/pf/conf/switches.conf`, the attributes of a role are the
+`<role_name>RadiusAttributes` parameter, one `Attribute-Name = value` per line:
+
+  RadiusAttributesMap=Y
+  staffRadiusAttributes=<<EOT
+  Egress-VLANID = 822083614
+  Egress-VLANID = 822083624
+  Session-Timeout = 3600
+  EOT
+
+The attributes are added to the ones of the switch type (VLAN, role, access lists,
+...): an attribute already in the reply gets the new values in addition to its
+own. Empty lines and lines starting with `#` are ignored (the admin interface
+doesn't keep them when it saves the attributes of a role). One pair of double
+quotes around a value is removed, as in the FreeRADIUS and vendor
+documentations: `Filter-Id = "staff"` returns `staff`. The double quotes inside
+the value are kept. The values are returned as written: they are not computed
+from the VLAN or the endpoint.
+
+The attribute names must exist in the RADIUS dictionaries and the values must be
+valid for the type of the attribute: a number for the integer types (or a value
+named in the dictionary, such as `Tunnel-Type = VLAN`), an IPv4 or IPv6 address
+for the address types, a number of seconds since the epoch or a date like
+`Jan 1 2027 08:00:00 UTC` for the dates. The values of the string and octets
+types are not checked, except that an octets value starting with `0x` must be
+hexadecimal. The admin interface refuses the other lines, and PacketFence ignores
+them, with a warning in its logs, when they come from
+[filename]`switches.conf`. The internal attributes of FreeRADIUS (such as
+`Auth-Type` or `Cleartext-Password`) are refused too: FreeRADIUS never sends
+them to the switch. PacketFence doesn't check that the switch supports the
+attribute or its value. The values of the attributes that carry a secret (such
+as `Tunnel-Password`) are hidden in the logs.
+
+The RADIUS filters (_Configuration -> Policies and Access Control -> Filters
+engines -> RADIUS filters_) are applied after: they can still add attributes,
+replace the answer, or depend on other conditions than the role.
+
+===== Attributes missing from the RADIUS dictionaries
+
+An attribute that is not in the dictionaries shipped with PacketFence must first
+be defined in [filename]`/usr/local/pf/conf/radiusd/dictionary.local` (see
+[filename]`dictionary.local.example` in the same directory), in the FreeRADIUS
+dictionary format. Then restart the RADIUS services (`radiusd`), `pfconfig`,
+`pfqueue` (`pfqueue-backend` and `pfqueue-go`), `httpd.aaa` and `pfperl-api`, so
+that FreeRADIUS, the admin interface and the RADIUS authorization know the
+attribute. A syntax error in the
+file prevents FreeRADIUS from starting, so check that it starts after the
+restart.
+
+For example, Extreme Networks Fabric Engine (VOSS) switches enable DHCP snooping,
+Dynamic ARP Inspection and IP Source Guard on the port of the endpoint with the
+`Extreme-Dynamic-Config` attribute (vendor 1916, attribute 252), one keyword per
+attribute, and accept `Extreme-Dynamic-Client-Assignments` (vendor 1916,
+attribute 253). Define them in
+[filename]`/usr/local/pf/conf/radiusd/dictionary.local`:
+
+  BEGIN-VENDOR    Extreme
+  ATTRIBUTE       Extreme-Dynamic-Config                  252     string
+  ATTRIBUTE       Extreme-Dynamic-Client-Assignments      253     string
+  END-VENDOR      Extreme
+
+and restart the services:
+
+  /usr/local/pf/bin/pfcmd service radiusd restart
+  systemctl restart packetfence-config
+  /usr/local/pf/bin/pfcmd service pfqueue-backend restart
+  /usr/local/pf/bin/pfcmd service pfqueue-go restart
+  /usr/local/pf/bin/pfcmd service httpd.aaa restart
+  /usr/local/pf/bin/pfcmd service pfperl-api restart
+
+Then the role `staff` of the switch can put the endpoint in the VLAN 200 and the
+I-SID 2000200 of the fabric and enable the three features on its port:
+
+  Fabric-Attach-VLAN-ISID = "200:2000200"
+  Extreme-Dynamic-Config = "DHCPSNOOP"
+  Extreme-Dynamic-Config = "DAI"
+  Extreme-Dynamic-Config = "IPSG"
+
 ==== Port host mode
 
 The _Port host mode_ of a switch or switch group (`host_mode`) tells
