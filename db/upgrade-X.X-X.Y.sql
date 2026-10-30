@@ -391,7 +391,6 @@ DROP PROCEDURE IF EXISTS DropColumnIfExists;
 DROP PROCEDURE IF EXISTS AddIndexUnlessExists;
 DROP PROCEDURE IF EXISTS DropIndexIfExists;
 
-
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
 
