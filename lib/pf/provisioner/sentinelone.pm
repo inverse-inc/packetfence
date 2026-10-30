@@ -348,7 +348,7 @@ sub _build_api_version {
 
 Get the uninstalled agents in the last X minutes and put them in pending to force them back into the provisioner
 
-  curl "https://packetfence.sentinelone.net/web/api/v1.6/activities?activity_type__in=51&created_at__gt=`perl -e 'print time*1000 - (3600*1000)'`&token=e015ac434d83f0de2f33839c214c2e542d3913f70d1bf965ed21d975365711b739ba44a6b54973b7"
+  curl "https://sentinelone.example.invalid/web/api/v1.6/activities?activity_type__in=51&created_at__gt=`perl -e 'print time*1000 - (3600*1000)'`&token=${SENTINELONE_API_TOKEN}"
 
 =cut
 
