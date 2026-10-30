@@ -19,6 +19,17 @@ BEGIN {
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
     use setup_test_config;
+
+    # Stub Apache2 modules so the test can load pf::web::externalportal
+    # on systems where the mod_perl2 XS libraries are not available (EL8).
+    for my $mod (qw(Apache2::Const Apache2::Request Apache2::RequestRec Apache2::Connection)) {
+        eval "require $mod; 1" or do {
+            my $pkg = "package $mod; sub import {} 1;";
+            eval $pkg;
+            (my $file = "$mod.pm") =~ s|::|/|g;
+            $INC{$file} = __FILE__;
+        };
+    }
 }
 
 use pf::web::externalportal;
