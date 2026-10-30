@@ -1,30 +1,31 @@
 package main
 
 import (
-	"bufio"
 	"context"
-	"encoding/binary"
 	"encoding/json"
+	"errors"
+	"io"
 	"log/slog"
 	"net"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
+	"unsafe"
 
 	"github.com/Sereal/Sereal/Go/sereal"
 )
 
 type Request struct {
-	Method           string `json:"method"`
-	Key              string `json:"key"`
-	NoLastTouchCache string `json:"no_last_touch_cache"`
-	Encoding         string `json:"encoding"`
-	LastKey          string `json:"last_key"`
-	Search           string `json:"search"`
-	Namespace        string `json:"namespace"`
-	Light            string `json:"light"`
-	Index            int    `json:"index"`
+	Method           string `json:"method,omitempty"`
+	Key              string `json:"key,omitempty"`
+	NoLastTouchCache string `json:"no_last_touch_cache,omitempty"`
+	Encoding         string `json:"encoding,omitempty"`
+	LastKey          string `json:"last_key,omitempty"`
+	Search           string `json:"search,omitempty"`
+	Namespace        string `json:"namespace,omitempty"`
+	Light            string `json:"light,omitempty"`
+	Index            int    `json:"index,omitempty"`
 }
 
 const (
@@ -32,118 +33,130 @@ const (
 	perlPfconfigSocketPath = "/usr/local/pf/var/run/pfconfig.sock"
 )
 
+var (
+	ErrNone       = errors.New("none")
+	ErrTerminated = errors.New("terminated")
+	ErrNetwork    = errors.New("network")
+)
+
 func main() {
-	var err error
 	ctx := context.Background()
 	logger := slog.Default()
 	slog.SetLogLoggerLevel(slog.LevelDebug)
 
 	// Manage graceful shutdown
 	stopSig := make(chan os.Signal, 1)
-	signal.Notify(stopSig, os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGABRT)
+	signal.Notify(stopSig, os.Interrupt,
+		syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGABRT, syscall.SIGINT)
 
-	logger.InfoContext(ctx, "Starting server on UNIX socket...")
-	_ = os.Remove(goPfconfigSocketPath)
-	l, err := net.Listen("unix", goPfconfigSocketPath)
-	if err != nil {
-		logger.ErrorContext(ctx, err.Error())
+	{
+		logger.InfoContext(ctx, "Starting server on UNIX socket...")
+		_ = os.Remove(goPfconfigSocketPath)
+		l, err := net.Listen("unix", goPfconfigSocketPath)
+		if err != nil {
+			logger.ErrorContext(ctx, err.Error())
+			os.Exit(1)
+		}
+		defer l.Close() //nolint:errcheck
+		go func() {
+			<-stopSig
+			logger.InfoContext(ctx, "interrupted")
+			l.Close() //nolint:errcheck
+		}()
+		logger.InfoContext(ctx, "... now listenning on socket "+goPfconfigSocketPath)
+		_ = runServer(ctx, logger, l)
 	}
-	defer l.Close() //nolint:errcheck
-	logger.InfoContext(ctx, "... started!")
-	runServer(ctx, logger, stopSig, l)
-	logger.InfoContext(ctx, "Closing, waiting for connection to close...")
-	logger.InfoContext(ctx, "... closed!")
+
+	logger.InfoContext(ctx, "Server stopped!")
 }
 
-func runServer(ctx context.Context, logger *slog.Logger, stopSig chan os.Signal, l net.Listener) {
+func runServer(ctx context.Context, logger *slog.Logger, l net.Listener) error {
 	var wg sync.WaitGroup
-	for loop := true; loop; {
+	defer wg.Wait()
+	for {
 		reqConn, err := l.Accept()
 		if err != nil {
 			logger.ErrorContext(ctx, err.Error())
-			continue
+			return err
 		}
 		logger.InfoContext(ctx, "connection", "addr", reqConn.RemoteAddr())
 		wg.Go(func() {
 			defer reqConn.Close() //nolint:errcheck
-			scanner := bufio.NewScanner(reqConn)
-			var wgProxy sync.WaitGroup
-			for scanner.Scan() {
-				data := scanner.Text()
-				var request Request
-				err := json.Unmarshal([]byte(data), &request)
-				if err != nil {
-					logger.ErrorContext(ctx, err.Error())
-					continue
-				}
-				logger.InfoContext(ctx, "got a request")
-				wgProxy.Go(func() {
-					proxyRequest(ctx, logger, reqConn, request)
-				})
-			}
-			if err := scanner.Err(); err != nil {
+			if err := proxyRequest(ctx, logger, reqConn); err != nil {
 				logger.ErrorContext(ctx, err.Error())
+				return
 			}
-			wgProxy.Wait()
 		})
-		select {
-		case <-stopSig:
-			logger.InfoContext(ctx, "stopping signal")
-			loop = false
-		default:
-		}
 	}
-	wg.Wait()
 }
 
-func proxyRequest(ctx context.Context, logger *slog.Logger, reqConn net.Conn, request Request) {
-	var header [4]byte
-	// Not used now but we intercept the request
-	output, err := json.Marshal(request)
-	if err != nil {
-		logger.InfoContext(ctx, "jsonmarshal", "err", err.Error())
-		return
+func proxyRequest(ctx context.Context, logger *slog.Logger, reqConn net.Conn) error {
+	const bufSize = 1024
+	data := make([]byte, 0, bufSize)
+	buf := make([]byte, bufSize)
+	for {
+		n, err := reqConn.Read(buf[:])
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			logger.ErrorContext(ctx, err.Error())
+			return err
+		}
+		data = append(data, buf[:n]...)
+		if n < bufSize {
+			break
+		}
 	}
-	output = append(output, '\n')
+	var request Request
+	err := json.Unmarshal(data, &request)
+	if err != nil {
+		logger.ErrorContext(ctx, err.Error())
+		return err
+	}
+	// TODO: check request weither we treat it here or proxy
+	//if request.Namespace == "BLABLA:HERE" {
+	//	manageHere(ctx, logger, reqConn, request)
+	//} else {
+	//	proxy(ctx, logger, reqConn, data)
+	//}
+
 	// Proxy the request to pfconfig Perl
 	c, err := net.Dial("unix", perlPfconfigSocketPath)
 	if err != nil {
 		logger.InfoContext(ctx, "dial", "err", err.Error())
-		return
+		return err
 	}
 	defer c.Close() //nolint:errcheck
-	logger.InfoContext(ctx, "dial ok")
-	binary.LittleEndian.PutUint32(header[:], uint32(len(output)))
-	n, err := c.Write(header[:])
-	if n != len(header) || err != nil {
-		logger.InfoContext(ctx, "write header 1", "err", err.Error())
-		return
-	}
-	n, err = c.Write(output)
-	if n != len(output) || err != nil {
-		logger.InfoContext(ctx, "write output 1", "err", err.Error())
-		return
-	}
-	// Read config from pfconfig Perl
-	response := make([]byte, 0, 1024*32)
-	n, err = c.Read(response)
+	n, err := c.Write(data)
 	if err != nil {
-		logger.InfoContext(ctx, "read response", "err", err.Error())
-		return
+		logger.ErrorContext(ctx, "proxy request to perl pfconfig", "err", err.Error())
+		return err
 	}
-	logger.InfoContext(ctx, "read response", "len(response)", n)
-	// Send response back to service
-	binary.LittleEndian.PutUint32(header[:], uint32(len(response)))
-	n, err = reqConn.Write(header[:])
-	if n != len(header) || err != nil {
-		logger.InfoContext(ctx, "write back header", "err", err.Error())
-		return
+	if n != len(data) {
+		logger.ErrorContext(ctx, "proxy request toperl  pfconfig", "err", "wrote less bytes than request size")
+		return err
 	}
-	n, err = reqConn.Write(response)
-	if n != len(response) || err != nil {
-		logger.InfoContext(ctx, "write back respo se", "err", err.Error())
-		return
+	// fast proxy
+	_, err = io.Copy(reqConn, c)
+	if err != nil {
+		logger.ErrorContext(ctx, "proxy direct copy perl pfconfig to service", "err", err.Error())
+		return err
 	}
+	return nil
+	/*
+		var header [4]byte
+		binary.LittleEndian.PutUint32(header[:], uint32(len(output)))
+		n, err := c.Write(header[:])
+		if n != len(header) || err != nil {
+			logger.InfoContext(ctx, "write header 1", "err", err.Error())
+			return
+		}
+	*/
+}
+
+func StringToByte(s string) []byte {
+	return unsafe.Slice(unsafe.StringData(s), len(s))
 }
 
 func test() {
