@@ -15,7 +15,7 @@ export const defaultScopes = () => ({
 // Count an event's meta values into the scopes; new values are inserted in
 // sorted order so the sidebar lists stay stable while streaming.
 export const addMeta = (scopes, event) => {
-  const { data: { meta: { timestamp, log_without_prefix, syslog_name, ...meta } = {} } = {} } = event // eslint-disable-line no-unused-vars
+  const { data: { meta: { timestamp, log_without_prefix, syslog_name, ...meta } = {} } = {} } = event
   for (const key of Object.keys(meta)) {
     if (!(key in scopes)) {
       Vue.set(scopes, key, { label: key, values: { [meta[key]]: { count: 1 } } })
@@ -39,7 +39,7 @@ export const addMeta = (scopes, event) => {
 }
 
 export const delMeta = (scopes, event) => {
-  const { data: { meta: { timestamp, log_without_prefix, syslog_name, ...meta } = {} } = {} } = event // eslint-disable-line no-unused-vars
+  const { data: { meta: { timestamp, log_without_prefix, syslog_name, ...meta } = {} } = {} } = event
   for (const key of Object.keys(meta)) {
     Vue.set(scopes[key].values[meta[key]], 'count', scopes[key].values[meta[key]].count - 1)
   }
@@ -71,7 +71,7 @@ export const eventsFilteredGetter = state => {
     return state.events
   }
   return state.events.filter(event => {
-    const { data: { meta: { timestamp, log_without_prefix, ...meta } = {} } = {} } = event // eslint-disable-line no-unused-vars
+    const { data: { meta: { timestamp, log_without_prefix, ...meta } = {} } = {} } = event
     for (const k of fk) {
       if (!state.filters[k].includes(meta[k])) {
         return false
