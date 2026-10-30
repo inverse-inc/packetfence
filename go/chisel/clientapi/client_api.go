@@ -2,7 +2,11 @@ package clientapi
 
 import (
 	"context"
+	"crypto/rand"
+	"crypto/subtle"
+	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -12,13 +16,15 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/packetfence/go/chisel/share/connauth"
 	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel"
-	systemdmanager "github.com/inverse-inc/packetfence/go/systemdmanager"
 )
 
 const credcacheRoutePrefix = "/api/v1/credcache"
@@ -26,37 +32,164 @@ const defaultCredcacheTarget = "http://127.0.0.1:12142/api/v1/credcache/"
 
 // Handler struct
 type API struct {
-	Router      *chi.Mux
-	ConnectorId string
+	Router          *chi.Mux
+	ConnectorId     string
+	TerminalEnabled bool
+	// LogsEnabled mirrors PFCONNECTOR_LOGS (default true): whether the
+	// live log streaming endpoint is available.
+	LogsEnabled bool
 	ctx         context.Context
 	cancel      context.CancelFunc
-	tunnel      *tunnel.Tunnel
-	mdCache     *multiDomainCache
-	statusCache *connectorStatusCache
+	// tunnel is the chisel tunnel of the running client; nil while there is
+	// none. Guarded by tunnelMu because HA mode swaps it whenever the VIP
+	// moves (SetTunnel). Pointer to the mutex so it survives API being
+	// copied by value.
+	tunnel        *tunnel.Tunnel
+	tunnelMu      *sync.RWMutex
+	mdCache       *multiDomainCache
+	statusCache   *connectorStatusCache
+	commandChan   chan Message
+	serverRunning int32
+	// cacheHistory is the sampled connector-cache statistics (cache_history.go).
+	cacheHistory *cacheHistory
+	// terminalActivity is the unix-nano timestamp of the last terminal
+	// activity (user input to the pty). Pointer so it survives API being copied.
+	terminalActivity *atomic.Int64
+	// terminalIdleTimeout is the idle timeout (nanoseconds) of the current
+	// activation, read by the idle watcher of the running terminal.
+	terminalIdleTimeout atomic.Int64
+	// terminalTOTPRequired mirrors PFCONNECTOR_TERMINAL_TOTP (default true):
+	// whether activating the terminal requires the TOTP second factor.
+	terminalTOTPRequired bool
+	// terminalTOTP is the connector-local second factor required to activate
+	// the terminal. nil while terminalTOTPRequired means activation is
+	// refused (fail closed). Guarded by terminalTOTPMu: a standby host of an
+	// HA group replaces it when it adopts the active host's seed (hatotp.go).
+	terminalTOTP   *terminalTOTP
+	terminalTOTPMu sync.RWMutex
+	// terminalRecording is the session recording policy (environment),
+	// shared by the gotty slave factory and the recordings routes.
+	terminalRecording terminalRecordingConfig
+	// terminalSecret is the secret of the current terminal session. Pointer
+	// so it survives API being copied.
+	terminalSecret *terminalSessionSecret
+}
+
+// terminalRunning reports whether a terminal session is currently active.
+func (api *API) terminalRunning() bool {
+	return atomic.LoadInt32(&api.serverRunning) == 1
+}
+
+// terminalSessionSecret is the secret generated when a terminal session is
+// authorized and handed to the pfconnector server's API, which sends it with
+// the terminal websocket. The terminal is only reachable with it: being able
+// to reach this API (the tunnel bind on the server) is not enough.
+type terminalSessionSecret struct {
+	mu     sync.Mutex
+	secret string
+}
+
+// renew replaces the secret of the session and returns the new one.
+func (t *terminalSessionSecret) renew() (string, error) {
+	b := make([]byte, 32)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	t.secret = hex.EncodeToString(b)
+	return t.secret, nil
+}
+
+// clear ends the session: no secret matches anymore.
+func (t *terminalSessionSecret) clear() {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	t.secret = ""
+}
+
+// valid reports whether secret is the one of the current session.
+func (t *terminalSessionSecret) valid(secret string) bool {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	return t.secret != "" && subtle.ConstantTimeCompare([]byte(t.secret), []byte(secret)) == 1
+}
+
+// terminalSecretHeader carries the session secret, set by the pfconnector
+// server's API.
+const terminalSecretHeader = "X-PacketFence-Terminal-Secret"
+
+// MessageType is a command for the gotty terminal lifecycle goroutine.
+type MessageType int
+
+const (
+	StartProcessing MessageType = iota
+	StopProcessing
+)
+
+// Message carries a command for the terminal lifecycle goroutine.
+type Message struct {
+	Type MessageType
+	// Session is the activation uuid (StartProcessing only); it names the
+	// session's recordings. AdminUser is the PacketFence admin who
+	// activated it (may be empty), stored in the recordings' header.
+	Session   string
+	AdminUser string
+	// IdleTimeout (StartProcessing only) stops the terminal once it has seen
+	// no activity for that long; it re-arms the watcher of a running one.
+	IdleTimeout time.Duration
 }
 
 type Service struct {
 	Name string `json:"service"`
 }
 
-func NewApi(ctx context.Context, ConnectorID string, tun *tunnel.Tunnel) API {
+// NewApi returns a pointer: the route closures, the cache refreshers and the
+// callers (SetTunnel from the HA loop) must all see the same instance.
+func NewApi(ctx context.Context, ConnectorID string, tun *tunnel.Tunnel) *API {
 	Api := API{}
 	Api.Router = chi.NewRouter()
 	Api.ctx = ctx
 	Api.ConnectorId = strings.Split(ConnectorID, ":")[0]
+	Api.tunnelMu = &sync.RWMutex{}
 	Api.tunnel = tun
 	Api.mdCache = newMultiDomainCache("")
 	Api.statusCache = newConnectorStatusCache("")
-	var tunState tunnelState
-	if Api.tunnel != nil {
-		tunState = Api.tunnel
-	}
+	// The refreshers look the tunnel up on every tick (not the value captured
+	// here) so they follow SetTunnel in HA mode.
+	tunState := &apiTunnelState{api: &Api}
 	Api.mdCache.startRefresher(ctx, tunState)
 	Api.statusCache.startRefresher(ctx, tunState)
+	Api.cacheHistory = newCacheHistory(time.Now())
+	Api.cacheHistory.startSampler(ctx)
+
+	Api.commandChan = make(chan Message)
+	Api.terminalActivity = &atomic.Int64{}
+	Api.terminalSecret = &terminalSessionSecret{}
+	Api.LogsEnabled = logsEnabled()
+	Api.terminalRecording = terminalRecordingConfigFromEnv()
+	var err error
+	Api.TerminalEnabled, err = Api.terminal()
+	if err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error initializing terminal: %v", err))
+	}
+	if Api.TerminalEnabled {
+		Api.terminalTOTPRequired = terminalTOTPRequired()
+		if Api.terminalTOTPRequired {
+			Api.terminalTOTP, err = newTerminalTOTP(ctx, Api.ConnectorId)
+			if err != nil {
+				// No usable seed means no terminal at all
+				log.LoggerWContext(ctx).Error(fmt.Sprintf("Disabling the remote terminal: %v", err))
+				Api.TerminalEnabled = false
+			}
+		} else {
+			log.LoggerWContext(ctx).Warn("PFCONNECTOR_TERMINAL_TOTP is disabled: terminal activation only requires the one-time session uuid")
+		}
+	}
 
 	Api.setupRoutes()
 
-	return Api
+	return &Api
 }
 
 func (api *API) setupRoutes() {
@@ -84,23 +217,231 @@ func (api *API) setupRoutes() {
 		})
 	})
 
+	// Reverse proxy in front of the local gotty terminal server
+	gottyURL, err := url.Parse("http://localhost:8022")
+	if err != nil {
+		log.LoggerWContext(api.ctx).Error(fmt.Sprintf("Error parsing gotty URL: %v", err))
+	}
+
+	gottyProxy := httputil.NewSingleHostReverseProxy(gottyURL)
+	originalDirector := gottyProxy.Director
+	gottyProxy.Director = func(req *http.Request) {
+		originalDirector(req)
+		req.Host = gottyURL.Host
+
+		if strings.ToLower(req.Header.Get("Upgrade")) == "websocket" {
+			req.Header.Set("X-Forwarded-Proto", "http")
+			req.Header.Set("X-Forwarded-Host", req.Host)
+			req.Header.Set("Origin", "http://"+gottyURL.Host)
+		}
+	}
+	gottyProxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
+		log.LoggerWContext(api.ctx).Error(fmt.Sprintf("Terminal proxy error: %v", err))
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusBadGateway)
+		w.Write([]byte("The terminal is temporarily unavailable. Please try again in a few moments."))
+	}
+
 	api.Router.Route("/api/v1", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Use(localhostOnly)
 
+			// Only the websocket of the terminal: the page and its assets
+			// are served by the pfconnector server's API. It requires the
+			// secret of the current session, generated by enableTerminal.
+			r.HandleFunc("/terminal/ws", func(w http.ResponseWriter, r *http.Request) {
+				if !api.terminalSecret.valid(r.Header.Get(terminalSecretHeader)) {
+					http.Error(w, "No authorized terminal session", http.StatusForbidden)
+					return
+				}
+				if !strings.EqualFold(r.Header.Get("Upgrade"), "websocket") {
+					http.Error(w, "Only websocket requests are accepted", http.StatusBadRequest)
+					return
+				}
+				r.Header.Del(terminalSecretHeader)
+				r.URL.Path = "/ws"
+				r.URL.RawPath = ""
+				gottyProxy.ServeHTTP(w, r)
+			})
+
+			// NTLM authentication services of the host (see host_services.go):
+			// the state comes from the host, the actions go to it through the
+			// trigger file, hence the 202 answers.
 			r.Route("/service", func(r chi.Router) {
-				r.Post("/all", statusAll(api))
-				r.Post("/status", status(api))
+				r.Get("/status", hostServicesStatus(api))
+				r.Post("/status", hostServicesStatus(api))
 				r.Get("/ping", ping(api))
-				r.Post("/start", manageService(api, "start"))
-				r.Post("/stop", manageService(api, "stop"))
-				r.Post("/restart", manageService(api, "restart"))
+				r.Post("/start", hostServiceAction(api, "start"))
+				r.Post("/stop", hostServiceAction(api, "stop"))
+				r.Post("/restart", hostServiceAction(api, "restart"))
+				r.Post("/enable", hostServiceAction(api, "enable"))
+				r.Post("/disable", hostServiceAction(api, "disable"))
+				r.Post("/reload", hostServiceAction(api, "reload"))
+			})
+			// Services of the connector container itself, FreeRADIUS and the
+			// RADIUS cache (see container_services.go): supervised here, so
+			// restarted in place with s6-svc.
+			r.Route("/container-service", func(r chi.Router) {
+				r.Get("/status", containerServicesStatus(api))
+				r.Post("/restart", containerServiceRestart(api))
 			})
 			r.Post("/radius/authorize", radiusAuthorize(api))
 			r.Post("/radius/multi-domain/authorize", multiDomainAuthorize(api))
 			r.Handle("/credcache/*", credcacheProxy())
 			r.Handle("/credcache", credcacheProxy())
+			r.Route("/system", func(r chi.Router) {
+				r.Get("/info", systemInfo(api))
+				r.Post("/restart", systemRestart(api))
+				r.Post("/upgrade", systemUpgrade(api))
+				r.Post("/install", systemInstall(api))
+				r.Post("/refresh-config", systemRefreshConfig(api))
+			})
+			r.Get("/logs/{name}", tailLog(api))
+			r.Post("/ha/switch", haSwitch(api))
+			r.Get("/ha/status", haStatusHandler(api))
+			// Management of the local connector-cache service (see cache.go).
+			mountCacheRoutes(r, api)
+			// Terminal session recordings (see terminal_recordings.go).
+			mountTerminalRecordingRoutes(r, api)
+			// Terminal activation, called by the pfconnector server's API
+			// through the tunnel (one-time uuid check via remote-terminal,
+			// then the TOTP code).
+			r.Get("/authorize/{id}", enableTerminal(api))
 		})
+		// Not localhost-only: the backup hosts of an HA group post their
+		// heartbeat to the master on the VIP (HMAC-authenticated, see ha.go).
+		r.Post("/ha/heartbeat", haHeartbeat(api))
+		r.Post("/ha/boost", haBoost(api))
+		r.Get("/ha/cache-snapshot", haCacheSnapshot(api))
+		r.Get("/ha/totp-seed", haTOTPSeed(api))
+		r.Get("/ha/config-relay", haConfigRelay(api))
+	})
+}
+
+// totpCodeHeader carries the TOTP code (mirrors the pfconnector-server's
+// TOTPCodeHeader).
+const totpCodeHeader = "X-PF-TOTP-Code"
+
+// adminUserHeader carries the PacketFence admin username activating a
+// terminal session (mirrors the server's AdminUserHeader); it labels the
+// session's recordings.
+const adminUserHeader = "X-PF-Admin-User"
+
+// terminalActivationClient bounds the session check through the tunnel: the
+// activation endpoint is reachable on the LAN, so a stalled tunnel must not
+// let callers pile up hung handlers.
+var terminalActivationClient = &http.Client{Timeout: 10 * time.Second}
+
+// enableTerminal validates the one-time terminal session id against the
+// pfconnector server (through the tunnel-local 22226 bind) and starts the
+// gotty terminal. The authorized duration is an idle timeout: the terminal
+// stays up as long as the user types and stops once it has been idle for
+// that long.
+func enableTerminal(api *API) http.HandlerFunc {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		if !api.TerminalEnabled {
+			http.Error(res, "The remote terminal is not enabled on this connector", http.StatusForbidden)
+			return
+		}
+		id := chi.URLParam(req, "id")
+		if id == "" {
+			http.Error(res, "Missing terminal ID", http.StatusBadRequest)
+			return
+		}
+
+		query := url.Values{"connectorid": {api.ConnectorId}, "id": {id}}
+		check, err := http.NewRequestWithContext(req.Context(), http.MethodGet, "http://127.0.0.1:22226/api/v1/pfconnector/remote-terminal?"+query.Encode(), nil)
+		if err != nil {
+			http.Error(res, fmt.Sprintf("Failed to enable terminal: %v", err), http.StatusInternalServerError)
+			return
+		}
+		haStatusMu.RLock()
+		connectorSecret := haConnectorSecret
+		haStatusMu.RUnlock()
+		check.Header.Set(connauth.Header, connauth.Sign(api.ConnectorId, connectorSecret, time.Now()))
+		r, err := terminalActivationClient.Do(check)
+		if err != nil {
+			http.Error(res, fmt.Sprintf("Failed to enable terminal: %v", err), http.StatusInternalServerError)
+			return
+		}
+		defer r.Body.Close()
+		if r.StatusCode != http.StatusOK {
+			http.Error(res, fmt.Sprintf("Failed to enable terminal: %s", r.Status), http.StatusInternalServerError)
+			return
+		}
+		var j map[string]interface{}
+		json.NewDecoder(r.Body).Decode(&j)
+		if j["authorized"] != true {
+			http.Error(res, "Terminal not authorized", http.StatusForbidden)
+			return
+		}
+
+		// Second factor: the 6-digit TOTP code, validated against the seed
+		// stored on this box. The one-time session uuid was already consumed
+		// above, so every code guess costs a fresh session on the server.
+		// Skipped only when PFCONNECTOR_TERMINAL_TOTP is explicitly disabled.
+		if api.terminalTOTPRequired {
+			second := api.currentTerminalTOTP()
+			if second == nil {
+				http.Error(res, "Terminal TOTP is not initialized", http.StatusForbidden)
+				return
+			}
+			// The code comes in a header (query strings end up in access
+			// logs); the query is accepted from older servers.
+			code := req.Header.Get(totpCodeHeader)
+			if code == "" {
+				code = req.URL.Query().Get("code")
+			}
+			if err := second.validate(code); err != nil {
+				status := http.StatusForbidden
+				if errors.Is(err, errTOTPLocked) {
+					status = http.StatusTooManyRequests
+				}
+				log.LoggerWContext(api.ctx).Warn(fmt.Sprintf("Refused terminal activation for session %s: %v", id, err))
+				http.Error(res, err.Error(), status)
+				return
+			}
+		}
+
+		timeout := 360 * time.Second
+		if t, ok := j["timeout"].(string); ok && t != "" {
+			if d, err := time.ParseDuration(t); err == nil {
+				timeout = d
+			} else if secs, err := strconv.Atoi(t); err == nil {
+				timeout = time.Duration(secs) * time.Second
+			}
+		}
+		// Idle timeout: only the user's input resets the clock; the terminal
+		// is stopped after `timeout` without any. Start the clock now so an
+		// untouched session still expires. The lifecycle goroutine
+		// (terminal.go) runs the one idle watcher of the running terminal; an
+		// activation while it runs only re-arms it.
+		api.terminalActivity.Store(time.Now().UnixNano())
+
+		// The admin who activates the session, relayed by the PacketFence
+		// server (never trusted for anything but labelling the recording).
+		adminUser := strings.TrimSpace(req.Header.Get(adminUserHeader))
+
+		// A new secret per authorized session: the previous session, if
+		// any, can't reach the terminal anymore.
+		secret, err := api.terminalSecret.renew()
+		if err != nil {
+			http.Error(res, "Failed to create the terminal session", http.StatusInternalServerError)
+			return
+		}
+
+		select {
+		case api.commandChan <- Message{Type: StartProcessing, Session: id, AdminUser: adminUser, IdleTimeout: timeout}:
+			log.LoggerWContext(api.ctx).Info("Terminal start command sent successfully")
+		case <-time.After(time.Second * 5):
+			api.terminalSecret.clear()
+			http.Error(res, "Timeout sending start command", http.StatusInternalServerError)
+			return
+		}
+
+		res.Header().Set("Content-Type", "application/json")
+		res.WriteHeader(http.StatusOK)
+		json.NewEncoder(res).Encode(map[string]string{"message": "Terminal is enabled", "secret": secret})
 	})
 }
 
@@ -186,143 +527,6 @@ func ping(_ *API) http.HandlerFunc {
 		res.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		res.WriteHeader(http.StatusOK)
 		res.Write([]byte("pong"))
-	})
-}
-
-// status handles the status endpoint
-func status(api *API) http.HandlerFunc {
-	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		var srv Service
-		if err := json.NewDecoder(req.Body).Decode(&srv); err != nil {
-			http.Error(res, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		if srv.Name == "" {
-			http.Error(res, "Service name is required (packetfence-fingerbank-collector.service, packetfence-ntlm-auth-api-remote.service, packetfence-ntlm-join-remote.service, packetfence-pfconnector-remote-combined.service)", http.StatusBadRequest)
-			return
-		}
-
-		systemd, err := systemdmanager.NewSystemdManager()
-		if err != nil {
-			http.Error(res, fmt.Sprintf("Failed to create systemd manager: %v", err), http.StatusInternalServerError)
-			return
-		}
-		defer systemd.Close()
-		allowed := []string{"packetfence-fingerbank-collector.service", "packetfence-ntlm-auth-api-remote.service", "packetfence-ntlm-join-remote.service", "packetfence-pfconnector-remote-combined.service"}
-		for _, service := range allowed {
-			if srv.Name == service {
-				status, substatus, err := systemd.Status(service)
-				if err != nil {
-					http.Error(res, fmt.Sprintf("Failed to get service status: %v", err), http.StatusNotFound)
-					return
-				}
-				res.Header().Set("Content-Type", "application/json")
-				res.WriteHeader(http.StatusOK)
-				json.NewEncoder(res).Encode(map[string]string{
-					"service":   srv.Name,
-					"status":    status,
-					"substatus": substatus,
-				})
-				return
-
-			}
-		}
-		http.Error(res, fmt.Sprintf("Service %s is not allowed", srv.Name), http.StatusForbidden)
-	})
-}
-
-func statusAll(api *API) http.HandlerFunc {
-	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		systemd, err := systemdmanager.NewSystemdManager()
-		if err != nil {
-			http.Error(res, fmt.Sprintf("Failed to create systemd manager: %v", err), http.StatusInternalServerError)
-			return
-		}
-		defer systemd.Close()
-
-		services, err := systemd.ListSystemdServices()
-		if err != nil {
-			http.Error(res, fmt.Sprintf("Failed to list services: %v", err), http.StatusInternalServerError)
-			return
-		}
-		res.Header().Set("Content-Type", "application/json")
-		res.WriteHeader(http.StatusOK)
-		response := make([]map[string]string, len(services))
-		for i, service := range services {
-			response[i] = map[string]string{
-				"name":         service.Name,
-				"description":  service.Description,
-				"load_state":   service.LoadState,
-				"active_state": service.ActiveState,
-				"sub_state":    service.SubState,
-			}
-		}
-		jsonResponse, err := json.Marshal(response)
-		if err != nil {
-			http.Error(res, fmt.Sprintf("Failed to marshal response: %v", err), http.StatusInternalServerError)
-			return
-		}
-		res.Write(jsonResponse)
-	})
-}
-
-// start handles the start endpoint
-func manageService(api *API, action string) http.HandlerFunc {
-	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		var srv Service
-		if err := json.NewDecoder(req.Body).Decode(&srv); err != nil {
-			http.Error(res, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		if srv.Name == "" {
-			http.Error(res, "Service name is required (packetfence-fingerbank-collector.service, packetfence-ntlm-auth-api-remote.service, packetfence-ntlm-join-remote.service, packetfence-pfconnector-remote-combined.service)", http.StatusBadRequest)
-			return
-		}
-
-		systemd, err := systemdmanager.NewSystemdManager()
-		if err != nil {
-			http.Error(res, fmt.Sprintf("Failed to create systemd manager: %v", err), http.StatusInternalServerError)
-			return
-		}
-		defer systemd.Close()
-		allowed := []string{"packetfence-fingerbank-collector.service", "packetfence-ntlm-auth-api-remote.service", "packetfence-ntlm-join-remote.service", "packetfence-pfconnector-remote-combined.service"}
-		for _, service := range allowed {
-			if srv.Name == service {
-				switch action {
-				case "start":
-					if err := systemd.Start(srv.Name); err != nil {
-						http.Error(res, fmt.Sprintf("Failed to start service %s: %v", srv.Name, err), http.StatusInternalServerError)
-						return
-					}
-					res.WriteHeader(http.StatusOK)
-					res.Write([]byte(fmt.Sprintf("Service %s started successfully", srv.Name)))
-					return
-				case "stop":
-					if err := systemd.Stop(srv.Name); err != nil {
-						http.Error(res, fmt.Sprintf("Failed to stop service %s: %v", srv.Name, err), http.StatusInternalServerError)
-						return
-					}
-					res.WriteHeader(http.StatusOK)
-					res.Write([]byte(fmt.Sprintf("Service %s stopped successfully", srv.Name)))
-					return
-				case "restart":
-					if err := systemd.Restart(srv.Name); err != nil {
-						http.Error(res, fmt.Sprintf("Failed to restart service %s: %v", srv.Name, err), http.StatusInternalServerError)
-						return
-					}
-					res.WriteHeader(http.StatusOK)
-					res.Write([]byte(fmt.Sprintf("Service %s restarted successfully", srv.Name)))
-					return
-				default:
-					http.Error(res, "Invalid action specified", http.StatusBadRequest)
-					return
-
-				}
-			}
-		}
-		http.Error(res, fmt.Sprintf("Service %s is not allowed", srv.Name), http.StatusForbidden)
 	})
 }
 
@@ -593,7 +797,7 @@ func radiusAuthorize(api *API) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 
 		realm := "degraded"
-		if api.tunnel != nil && api.tunnel.IsActive() {
+		if api.TunnelActive() {
 			realm = "remote"
 			if api.statusCache != nil {
 				if connectorID, ok := connectorForRequest(api, r); ok {

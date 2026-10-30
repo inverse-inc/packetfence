@@ -54,6 +54,10 @@ type Client struct {
 
 	// When set to true, the URI log will be made in debug instead of info
 	URILogDebug bool
+
+	// Headers are added to every request (a caller-specific signature, for
+	// instance); the Authorization bearer is set separately.
+	Headers map[string]string
 }
 
 type DummyReply struct{}
@@ -245,6 +249,9 @@ func (c *Client) buildRequest(ctx context.Context, method, path, body string) *h
 
 	if c.token != "" {
 		r.Header.Set("Authorization", "Bearer "+c.token)
+	}
+	for k, v := range c.Headers {
+		r.Header.Set(k, v)
 	}
 
 	return r

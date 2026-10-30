@@ -42,6 +42,12 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - PushACLs: `conf/pfsetacls/ansible.cfg` now uses the `collections_path` key (the deprecated `collections_paths` key kept the collections bundled with PacketFence from loading), and `ansible.netcommon` is pinned to 8.2.0 in `conf/pfsetacls/collections/requirements.yml`
   - Juniper EX switches running Junos 18.x or later (`Juniper::Junos_v18_x`) can now enforce role ACLs. PacketFence translates the ACLs of the role into `Juniper-Switching-Filter` attributes and sends them inline in the Access-Accept, so no filter has to be pre-provisioned on the switch. Set `AccessListMap` to `Y` on the switch to enable it (#9297)
   - Huawei CloudEngine S5735 (YunShan/V600) dynamic ACLs — the new `Huawei::S5735` switch type pushes the access list of a role inline in the Access-Accept with the `HW-Data-Filter` RADIUS attribute, so no ACL has to be pre-configured on the switch. Access re-evaluation disconnects the endpoint by MAC address (`Calling-Station-Id`) only: the switch silently ignored the Disconnect-Request PacketFence sent for Huawei switches, which carried no `Calling-Station-Id` and an `Acct-Session-Id` that is empty or stale
+  - Cloud Connectors in the admin UI — fleet list with a topology diagram, status panel (tunnel, connections, system information, restart and upgrade), live logs, a DNS test through the connector's tunnel, the equipment located behind each connector, and an opt-in remote terminal protected by a TOTP second factor (#8810)
+  - Cloud Connectors: VLAN interfaces and static routes applied on the connector host, with DHCP relay to PacketFence through the tunnel, a captive-portal DNS responder and the PROXY protocol for the captive portal (#9587)
+  - Cloud Connectors: active/passive high availability of a connector over a VRRP virtual IP, with credential cache mirroring and a "Make active" switch in the admin UI (#9587)
+  - Cloud Connectors: the site DNS servers and their domains are configured on the connector itself (#9587)
+  - Cloud Connectors: install the NTLM authentication services on the connector host, terminal session recordings, connector-cache management, Fingerbank API through the tunnel and a live traffic map (#9587)
+  - Cloud Connectors: a Services tab in the connector form to manage the NTLM authentication services of the host and to restart FreeRADIUS, the RADIUS cache and the Fingerbank collector of the connector in place
 
 === Enhancements
 
@@ -66,6 +72,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - Created users: the AUP is included when printing or sending them, and the email uses the admin UI language (#9468, #9494)
   - The admin UI no longer suggests restarting disabled services (#9434)
   - Upgrades log their full output to a file (#9422)
+  - Connectors: the on-demand connections (dynreverse) only listen on the management IP they are advertised on, and the admin API plugin uses chi/v5 for routing (#8810)
   - Update to Caddy 2.11.7 (#9568)
   - Bump Fingerbank package to 4.3.5 (#9251)
   - Documentation: Cisco Nexus 9000, Cisco IE3400 and FortiSwitch sections; Cisco IOS XE, Aruba CX and Arista configs validated in the lab (#9290, #9539, #9377, #9327)
@@ -142,6 +149,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - Admin UI — MAC column not truncated, readable status chart colors, single condition kept when switching filter modes, server time for report date ranges, scrollable portal module palette, portal module delete and Save fixed (#9437, #9438, #9439, #9442, #9451, #9502)
   - i18n: admin strings extracted as looked up at runtime (en.po passes `msgfmt -c`) (#9547)
   - Connectors: saving an existing DNS server with a pfconnector port no longer fails with "Port should be unique" (#9584)
+  - Connectors — the CONNECTORS admin actions can be granted to admin roles (`addons/upgrade/to-16.0-connectors-admin-roles.pl` grants them to the roles that have the SYSTEM actions, see the Upgrade Guide), and the connector-remote image build fails when its package installation fails (#8810)
 
 === Security Fixes
 

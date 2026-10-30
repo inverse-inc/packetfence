@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"io/ioutil"
+	"io"
 	"log"
 	"net"
 	"os"
@@ -29,6 +29,9 @@ type Config struct {
 	RadiusSecret string
 	RadiusProxy  *radius_proxy.Proxy
 	KeepAlive    time.Duration
+	// Stats, optional: counters shared with a transport metered before the
+	// tunnel existed (see Stats.MeterConn). Created when nil.
+	Stats *Stats
 	// The source IP for the packets that come into the remote
 	SrcIP net.IP
 }
@@ -50,6 +53,7 @@ type Tunnel struct {
 	proxyCount int
 	//internals
 	connStats   cnet.ConnCount
+	stats       *Stats
 	socksServer *socks5.Server
 
 	connectionCtx context.Context
@@ -58,13 +62,132 @@ type Tunnel struct {
 	ConnectorID       string
 	radiusProxy       *radius_proxy.Proxy
 	k8ControllerDrop  chan struct{}
+
+	//registry of currently bound inbound proxies, used to report which
+	//static/dynamic ports are effectively listening for this tunnel
+	boundProxiesMut sync.Mutex
+	boundProxies    map[*Proxy]struct{}
+}
+
+// BoundRemoteInfo describes one currently bound inbound proxy.
+type BoundRemoteInfo struct {
+	LocalHost  string `json:"local_host"`
+	LocalPort  string `json:"local_port"`
+	LocalProto string `json:"local_proto"`
+	RemoteHost string `json:"remote_host"`
+	RemotePort string `json:"remote_port"`
+	// Handler is the "|<handler>" suffix of the bind (radius, proxyproto),
+	// empty for a raw forward.
+	Handler string `json:"handler,omitempty"`
+}
+
+func (t *Tunnel) registerProxy(p *Proxy) {
+	t.boundProxiesMut.Lock()
+	if t.boundProxies == nil {
+		t.boundProxies = map[*Proxy]struct{}{}
+	}
+	p.done = make(chan struct{})
+	t.boundProxies[p] = struct{}{}
+	t.boundProxiesMut.Unlock()
+}
+
+// unregisterProxy forgets a proxy that has stopped: its listener is closed.
+func (t *Tunnel) unregisterProxy(p *Proxy) {
+	t.boundProxiesMut.Lock()
+	delete(t.boundProxies, p)
+	t.boundProxiesMut.Unlock()
+	close(p.done)
+}
+
+// waitDone waits for the proxies to have released their listeners, at most
+// until the deadline. Returns whether they all did.
+func waitDone(dones []chan struct{}, timeout time.Duration) bool {
+	timer := time.NewTimer(timeout)
+	defer timer.Stop()
+	for _, done := range dones {
+		select {
+		case <-done:
+		case <-timer.C:
+			return false
+		}
+	}
+	return true
+}
+
+// WaitUnbound waits, at most timeout, for every inbound proxy of the tunnel
+// to have released its listener, e.g. after Close. Returns whether they all
+// did.
+func (t *Tunnel) WaitUnbound(timeout time.Duration) bool {
+	t.boundProxiesMut.Lock()
+	dones := make([]chan struct{}, 0, len(t.boundProxies))
+	for p := range t.boundProxies {
+		dones = append(dones, p.done)
+	}
+	t.boundProxiesMut.Unlock()
+	return waitDone(dones, timeout)
+}
+
+// BoundRemotes returns the remotes of every currently bound inbound proxy,
+// but the containers gateway companions of the dynamic reverses (the same
+// forward on a second address, listed twice otherwise).
+func (t *Tunnel) BoundRemotes() []BoundRemoteInfo {
+	t.boundProxiesMut.Lock()
+	defer t.boundProxiesMut.Unlock()
+	out := make([]BoundRemoteInfo, 0, len(t.boundProxies))
+	for p := range t.boundProxies {
+		if p.remote.Companion {
+			continue
+		}
+		out = append(out, BoundRemoteInfo{
+			LocalHost:  p.remote.LocalHost,
+			LocalPort:  p.remote.LocalPort,
+			LocalProto: p.remote.LocalProto,
+			RemoteHost: p.remote.RemoteHost,
+			RemotePort: p.remote.RemotePort,
+			Handler:    handlerOf(p.remote.Handler),
+		})
+	}
+	return out
+}
+
+// UnbindRemotes closes the bound inbound proxies of the given remotes (same
+// remote string), leaving the others bound, and waits at most timeout for
+// their listeners to be released (a port can be bound again right after).
+// Returns how many were closed, and whether they were all released in time.
+func (t *Tunnel) UnbindRemotes(remotes []*settings.Remote, timeout time.Duration) (int, bool) {
+	wanted := map[string]bool{}
+	for _, r := range remotes {
+		wanted[r.String()] = true
+	}
+	dones := []chan struct{}{}
+	t.boundProxiesMut.Lock()
+	for p := range t.boundProxies {
+		if p.cancel != nil && wanted[p.remote.String()] {
+			p.cancel()
+			dones = append(dones, p.done)
+		}
+	}
+	t.boundProxiesMut.Unlock()
+	return len(dones), waitDone(dones, timeout)
+}
+
+// handlerOf hides the default "raw" handler.
+func handlerOf(h string) string {
+	if h == "raw" {
+		return ""
+	}
+	return h
 }
 
 // New Tunnel from the given Config
 func New(c Config) *Tunnel {
+	if c.Stats == nil {
+		c.Stats = NewStats()
+	}
 	c.Logger = c.Logger.Fork("tun")
 	t := &Tunnel{
 		Config: c,
+		stats:  c.Stats,
 	}
 	radiusProxy, stop, err := radius_proxy.NewRadiusProxyFromKubernetes(c.Logger, c.RadiusSecret)
 
@@ -81,7 +204,7 @@ func New(c Config) *Tunnel {
 	//setup socks server (not listening on any port!)
 	extra := ""
 	if c.Socks {
-		sl := log.New(ioutil.Discard, "", 0)
+		sl := log.New(io.Discard, "", 0)
 		if t.Logger.Debug {
 			sl = log.New(os.Stdout, "[socks]", log.Ldate|log.Ltime)
 		}
@@ -110,6 +233,7 @@ func (t *Tunnel) BindSSH(ctx context.Context, c ssh.Conn, reqs <-chan *ssh.Reque
 	}
 	t.activeConn = c
 	t.activeConnMut.Unlock()
+	t.stats.connected(time.Now())
 	t.activatingConn.Done()
 	//optional keepalive loop against this connection
 	if t.Config.KeepAlive > 0 {
@@ -187,20 +311,51 @@ func (t *Tunnel) BindDynamicRemotes(remotes []*settings.Remote) error {
 	return t.BindRemotes(t.connectionCtx, remotes)
 }
 
+// StartDynamicRemotes binds the given remotes for the lifetime of the
+// connection like BindDynamicRemotes, but returns once they listen: a listen
+// error (port in use...) is returned, and then no listener of the batch is
+// left open. Errors of the running proxies are only logged.
+func (t *Tunnel) StartDynamicRemotes(remotes []*settings.Remote) error {
+	wait, err := t.startRemotes(t.connectionCtx, remotes)
+	if err != nil {
+		return err
+	}
+	go func() {
+		if err := wait(); err != nil {
+			t.Infof("Bound remotes stopped: %s", err)
+		}
+	}()
+	return nil
+}
+
 // BindRemotes converts the given remotes into proxies, and blocks
 // until the caller cancels the context or there is a proxy error.
 func (t *Tunnel) BindRemotes(ctx context.Context, remotes []*settings.Remote) error {
+	wait, err := t.startRemotes(ctx, remotes)
+	if err != nil {
+		return err
+	}
+	return wait()
+}
+
+// startRemotes listens on the given remotes and runs their proxies until ctx
+// is cancelled or one of them fails, which the returned function waits for.
+// When one of them cannot listen, the listeners already opened are closed.
+func (t *Tunnel) startRemotes(ctx context.Context, remotes []*settings.Remote) (func() error, error) {
 	if len(remotes) == 0 {
-		return errors.New("no remotes")
+		return nil, errors.New("no remotes")
 	}
 	if !t.Inbound {
-		return errors.New("inbound connections blocked")
+		return nil, errors.New("inbound connections blocked")
 	}
 	proxies := make([]*Proxy, len(remotes))
 	for i, remote := range remotes {
 		p, err := NewProxy(t.Logger, t, t.proxyCount, remote)
 		if err != nil {
-			return err
+			for _, opened := range proxies[:i] {
+				opened.closeListener()
+			}
+			return nil, err
 		}
 		proxies[i] = p
 		t.proxyCount++
@@ -209,24 +364,40 @@ func (t *Tunnel) BindRemotes(ctx context.Context, remotes []*settings.Remote) er
 	eg, ctx := errgroup.WithContext(ctx)
 	for _, proxy := range proxies {
 		p := proxy
+		// each proxy can be closed alone (UnbindRemotes) without its group
+		pctx, cancel := context.WithCancel(ctx)
+		p.cancel = cancel
+		t.registerProxy(p)
 		eg.Go(func() error {
-			return p.Run(ctx)
+			defer cancel()
+			defer t.unregisterProxy(p)
+			err := p.Run(pctx)
+			if err != nil && ctx.Err() == nil && pctx.Err() != nil {
+				// unbound on its own: not an error of the group, whose other
+				// proxies keep running
+				return nil
+			}
+			return err
 		})
 	}
 	t.Debugf("Bound proxies")
-	err := eg.Wait()
-	t.Debugf("Unbound proxies")
-	return err
+	return func() error {
+		err := eg.Wait()
+		t.Debugf("Unbound proxies")
+		return err
+	}, nil
 }
 
 func (t *Tunnel) keepAliveLoop(sshConn ssh.Conn) {
 	//ping forever
 	for {
 		time.Sleep(t.Config.KeepAlive)
+		start := time.Now()
 		_, b, err := sshConn.SendRequest("ping", true, nil)
 		if err != nil {
 			break
 		}
+		t.stats.recordRTT(time.Since(start))
 		if len(b) > 0 && !bytes.Equal(b, []byte("pong")) {
 			t.Debugf("strange ping response")
 			break
@@ -237,5 +408,22 @@ func (t *Tunnel) keepAliveLoop(sshConn ssh.Conn) {
 }
 
 func (t *Tunnel) IsActive() bool {
+	t.activeConnMut.RLock()
+	defer t.activeConnMut.RUnlock()
 	return t.activeConn != nil
+}
+
+// Close terminates the active SSH connection, if any. BindSSH then returns,
+// the caller's errgroup cancels and every listener bound for this tunnel is
+// released. Used by the server when a connector reconnects while a previous
+// tunnel for the same id is still up (HA failover, see
+// docs/design/pfconnector-remote-ha.md).
+func (t *Tunnel) Close() error {
+	t.activeConnMut.RLock()
+	c := t.activeConn
+	t.activeConnMut.RUnlock()
+	if c == nil {
+		return nil
+	}
+	return c.Close()
 }

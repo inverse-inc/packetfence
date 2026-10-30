@@ -38,7 +38,7 @@ sub validate_connect_port {
         my $p = $source->{pfconnector_port};
         if ( defined $p && length($p) && $p == $port ) {
             return $self->field('pfconnector_port')
-              ->add_error('Port should be unique');
+              ->add_error("Port $port is already used by the RADIUS source $source->{id}");
         }
     }
 
@@ -47,8 +47,9 @@ sub validate_connect_port {
         next if $kind eq 'dns' && $id eq $dns_id;
         my $p = $DnsConnectors{$dns_id}{pfconnector_port};
         if ( defined $p && length($p) && $p == $port ) {
+            my $dns = $DnsConnectors{$dns_id};
             return $self->field('pfconnector_port')
-              ->add_error('Port should be unique');
+              ->add_error("Port $port is already used by the DNS server $dns->{ip} of the connector $dns->{connector}");
         }
     }
 }

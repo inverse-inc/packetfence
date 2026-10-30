@@ -2,8 +2,9 @@ import store from '@/store'
 import StoreModule from '../_store'
 import FingerbankStoreModule from '../../fingerbank/_store'
 
-const TheTabs = () => import(/* webpackChunkName: "ConfigurationSystem" */ '../../_components/TheTabsConnectors')
-const TheView = () => import(/* webpackChunkName: "ConfigurationSystem" */ './_components/TheView')
+const TheSearch = () => import(/* webpackChunkName: "ConfigurationNetwork" */ './_components/TheSearch')
+const TheView = () => import(/* webpackChunkName: "ConfigurationNetwork" */ './_components/TheView')
+const TheTopologyMap = () => import(/* webpackChunkName: "ConfigurationNetwork" */ './_components/TheTopologyMap')
 
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_connectors)
@@ -19,20 +20,28 @@ export const useRouter = $router => {
   return {
     goToCollection: () => $router.push({ name: 'connectorsConnectors' }),
     goToItem: params => $router
-      .push({ name: 'connectorsConnector', params })
+      .push({ name: 'connectorsConnector', params, query: $router.currentRoute.query }) // keep ?tab=
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
     goToClone: params => $router.push({ name: 'cloneConnectorsConnector', params }),
-    goToNew: params => $router.push({ name: 'newConnectorsConnector', params })
+    goToNew: params => $router.push({ name: 'newConnectorsConnector', params }),
+    goToTopology: () => $router.push({ name: 'connectorsTopology' })
   }
 }
 
 
 export default [
+  // Historical path of the list, kept for existing links; same page as
+  // the 'connectors' section route.
   {
     path: 'connectors/connectors',
     name: 'connectorsConnectors',
-    component: TheTabs,
-    props: () => ({ tab: 'connectorsConnectors' }),
+    component: TheSearch,
+    beforeEnter
+  },
+  {
+    path: 'connectors/topology',
+    name: 'connectorsTopology',
+    component: TheTopologyMap,
     beforeEnter
   },
   {

@@ -202,6 +202,7 @@ require (
 	github.com/caddyserver/caddy/v2 v2.11.7
 	github.com/caddyserver/forwardproxy v0.0.0-20240314124830-ec0619230bc0
 	github.com/caddyserver/transform-encoder v0.0.0-20240312163748-f627fc4f7633
+	github.com/creack/pty v1.1.24
 	github.com/fatih/structtag v1.2.0
 	github.com/go-json-experiment/json v0.0.0-20250626171732-1a886bd29d1b
 	github.com/godbus/dbus/v5 v5.2.2
@@ -209,9 +210,14 @@ require (
 	github.com/huandu/go-clone/generic v1.6.0
 	github.com/onsi/ginkgo/v2 v2.27.2
 	github.com/onsi/gomega v1.38.2
+	github.com/pires/go-proxyproto v0.15.0
+	github.com/pquerna/otp v1.4.0
 	github.com/redis/go-redis/v9 v9.3.0
 	github.com/segmentio/kafka-go v0.4.47
+	github.com/shirou/gopsutil/v4 v4.26.2
 	github.com/smallstep/nosql v0.8.0
+	github.com/sorenisanerd/gotty v1.5.0
+	github.com/vishvananda/netlink v1.3.1
 	go.uber.org/zap v1.28.0
 	gorm.io/driver/mysql v1.5.2
 	gorm.io/gorm v1.25.5
@@ -249,6 +255,7 @@ require (
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.5.0 // indirect
 	github.com/Masterminds/sprig/v3 v3.3.0 // indirect
+	github.com/NYTimes/gziphandler v1.1.1 // indirect
 	github.com/alecthomas/chroma/v2 v2.27.0 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/aryann/difflib v0.0.0-20210328193216-ff5ff6dc229b // indirect
@@ -269,6 +276,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sts v1.50.0 // indirect
 	github.com/aws/smithy-go v1.28.1 // indirect
 	github.com/bits-and-blooms/bitset v1.25.0 // indirect
+	github.com/boombuler/barcode v1.0.1-0.20190219062509-6c824513bacc // indirect
 	github.com/buger/jsonparser v1.1.2 // indirect
 	github.com/caddyserver/certmagic v0.25.6 // indirect
 	github.com/caddyserver/zerossl v0.1.6 // indirect
@@ -342,7 +350,6 @@ require (
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58 // indirect
 	github.com/petermattis/goid v0.0.0-20260226131333-17d1149c6ac6 // indirect
 	github.com/pierrec/lz4/v4 v4.1.21 // indirect
-	github.com/pires/go-proxyproto v0.15.0 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 // indirect
@@ -352,7 +359,6 @@ require (
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/rs/xid v1.6.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
-	github.com/shirou/gopsutil/v4 v4.26.2 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.10.2 // indirect
@@ -372,6 +378,7 @@ require (
 	github.com/tklauser/numcpus v0.11.0 // indirect
 	github.com/trailofbits/go-mutexasserts v0.0.0-20250514102930-c1f3d2e37561 // indirect
 	github.com/urfave/cli v1.22.17 // indirect
+	github.com/vishvananda/netns v0.0.5 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/yuin/goldmark v1.8.6 // indirect
 	github.com/yuin/goldmark-highlighting/v2 v2.0.0-20230729083705-37449abec8cc // indirect

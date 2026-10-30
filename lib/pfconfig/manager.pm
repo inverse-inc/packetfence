@@ -445,18 +445,74 @@ To fully expire a namespace with it's child resources and overlayed namespaces, 
 =cut
 
 sub expire {
-    my ( $self, $what, $light, $seen ) = @_;
-    $what = normalize_namespace_query($what);
+    my ( $self, $what, $light ) = @_;
+    $self->expire_namespaces([$what], $light);
+}
 
-    # Deduplicate within a single expiry run. A resource is a child of many
-    # namespaces (e.g. resource::RolesReverseLookup is declared under 13 of
-    # them), so without this guard expire_all rebuilds the same expensive
-    # resources dozens of times. Rebuilding once per run is sufficient since
-    # the configuration is static for the duration of the run.
-    $seen //= {};
-    return if $seen->{$what};
-    $seen->{$what} = 1;
+=head2 expire_namespaces
 
+Expire the given namespaces and everything that derives from them (child
+resources, overlayed namespaces), each once, a namespace only after all the
+namespaces it derives from in this run: a resource with several parents (e.g.
+resource::connectors_config, built from config::DnsConnectors and
+config::DomainsConnectors) is otherwise rebuilt as soon as its first parent
+is, from the previous value of the others, and skipped when they are rebuilt.
+
+=cut
+
+sub expire_namespaces {
+    my ( $self, $namespaces, $light ) = @_;
+
+    # What the expiry reaches, in discovery order, and the derived namespaces
+    # of each
+    my ( @order, %seen, %children );
+    my $visit;
+    $visit = sub {
+        my ($what) = @_;
+        return if $seen{$what}++;
+        push @order, $what;
+        # An overlayed namespace is final: its base namespace expires the rest
+        return if $self->is_overlayed_namespace($what);
+        my $namespace = $self->get_namespace($what);
+        my @derived = (
+            # prevent deep recursion on namespace itself
+            ( grep { $_ ne $what } $self->overlayed_namespaces($what) ),
+            @{ ( $namespace && $namespace->{child_resources} ) // [] },
+        );
+        for my $derived ( map { normalize_namespace_query($_) } @derived ) {
+            push @{ $children{$what} }, $derived;
+            $visit->($derived);
+        }
+    };
+    $visit->( normalize_namespace_query($_) ) for @$namespaces;
+    undef $visit;
+
+    # Topological order (Kahn), discovery order among the ready namespaces
+    my %parents = map { $_ => 0 } @order;
+    for my $what (@order) {
+        $parents{$_}++ for @{ $children{$what} // [] };
+    }
+    my @ready = grep { !$parents{$_} } @order;
+    my %done;
+    while (@ready) {
+        my $what = shift @ready;
+        $self->_expire_namespace( $what, $light );
+        $done{$what} = 1;
+        for my $child ( @{ $children{$what} // [] } ) {
+            push @ready, $child unless --$parents{$child};
+        }
+    }
+
+    # A dependency cycle leaves namespaces behind: expire them anyway
+    my @left = grep { !$done{$_} } @order;
+    if (@left) {
+        get_logger->warn("Dependency cycle between the namespaces @left, expiring them in discovery order");
+        $self->_expire_namespace( $_, $light ) for @left;
+    }
+}
+
+sub _expire_namespace {
+    my ( $self, $what, $light ) = @_;
     my $logger = get_logger;
     if(defined($light) && $light){
         $logger->info("Light expiring resource : $what");
@@ -469,26 +525,6 @@ sub expire {
     }
 
     delete $self->{memory}->{"$ordered_prefix$what"};
-
-    unless($self->is_overlayed_namespace($what)){
-        my $namespace = $self->get_namespace($what);
-        # expire overlayed namespaces
-        my @overlayed_namespaces = $self->overlayed_namespaces($what);
-        foreach my $namespace (@overlayed_namespaces){
-            # prevent deep recursion on namespace itself
-            next if $namespace eq $what;
-
-            $logger->info("Expiring overlayed resource from base resource $what.");
-            $self->expire($namespace, $light, $seen);
-        }
-
-        if ( $namespace->{child_resources} ) {
-            foreach my $child_resource ( @{ $namespace->{child_resources} } ) {
-                $logger->info("Expiring child resource $child_resource. Master resource is $what");
-                $self->expire($child_resource, $light, $seen);
-            }
-        }
-    }
 }
 
 =head2 list_namespaces
@@ -585,11 +621,7 @@ Method that expires all the namespaces defined by list_namespaces
 sub expire_all {
     my ($self, $light) = @_;
     my $logger = get_logger;
-    my @namespaces = $self->list_top_namespaces;
-    my %seen;
-    foreach my $namespace (@namespaces) {
-        $self->expire($namespace, $light, \%seen);
-    }
+    $self->expire_namespaces([$self->list_top_namespaces], $light);
 }
 
 =head1 AUTHOR

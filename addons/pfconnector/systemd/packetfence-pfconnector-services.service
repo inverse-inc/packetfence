@@ -1,0 +1,8 @@
+[Unit]
+Description=Start, stop or restart the NTLM authentication services requested from the admin interface on the connector host
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/pfconnector-remote/upgrade/pfconnector-remote-services.sh
+# a stop of the NTLM API waits for its containers (TimeoutStopSec=60 each)
+TimeoutStartSec=300

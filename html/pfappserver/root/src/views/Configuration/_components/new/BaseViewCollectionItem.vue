@@ -21,7 +21,7 @@
         v-bind="$props"
       />
     </b-form>
-    <b-card-footer>
+    <b-card-footer v-if="!isFooterHidden">
       <slot name="buttonsPrepend" v-if="$scopedSlots.buttonsPrepend" v-bind="scopedSlotProps" />
       <form-button-bar
         :actionKey="actionKey"
@@ -79,6 +79,7 @@ export default {
     isSaveable: undefined,
     isDeletable: undefined,
     isValid: undefined,
+    isFooterHidden: undefined, // e.g. read-only tabs of the form
     actionKey: undefined,
     onClone: undefined,
     onClose: undefined,

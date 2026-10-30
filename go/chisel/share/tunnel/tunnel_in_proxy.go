@@ -18,6 +18,7 @@ const LAST_TOUCHED_TIMEOUT = 10 * time.Second
 
 // sshTunnel exposes a subset of Tunnel to subtypes
 type sshTunnel interface {
+	serviceStats(key string) *serviceCounters
 	getSSH(ctx context.Context) ssh.Conn
 }
 
@@ -32,6 +33,10 @@ type Proxy struct {
 	tcp        *net.TCPListener
 	udp        *udpListener
 	aliveConns int64
+	// cancel closes this proxy alone (Tunnel.UnbindRemotes)
+	cancel context.CancelFunc
+	// done is closed once the proxy has stopped and released its listener
+	done chan struct{}
 }
 
 // NewProxy creates a Proxy
@@ -76,6 +81,16 @@ func (p *Proxy) listen() error {
 		return p.Errorf("unknown local proto")
 	}
 	return nil
+}
+
+// closeListener releases the listener of a proxy that will never run.
+func (p *Proxy) closeListener() {
+	if p.tcp != nil {
+		p.tcp.Close()
+	}
+	if p.udp != nil {
+		p.udp.inbound.Close()
+	}
 }
 
 // Run enables the proxy and blocks while its active,
@@ -195,7 +210,23 @@ func (p *Proxy) pipeRemote(ctx context.Context, src io.ReadWriteCloser) {
 		return
 	}
 	go ssh.DiscardRequests(reqs)
+	// Per-destination counters (stats.go): the far end of this channel is
+	// the connector's side, so bytes read from it are "in".
+	svc := p.sshTun.serviceStats(reverseKey + p.remote.Remote())
+	svc.open()
+	defer svc.close()
+	stream := svc.meter(dst)
+	// PROXY protocol handler: tell the far end who the real client is before
+	// piping. Used for the captive portal reached through a connector VLAN,
+	// where the portal maps the client address to a MAC.
+	if p.remote.Handler == ProxyProtocolHandler {
+		if err := writeProxyProtocolHeader(stream, src); err != nil {
+			l.Infof("PROXY header error: %s", err)
+			stream.Close()
+			return
+		}
+	}
 	//then pipe
-	s, r := cio.Pipe(src, dst)
+	s, r := cio.Pipe(src, stream)
 	l.Debugf("Close (sent %s received %s)", sizestr.ToString(s), sizestr.ToString(r))
 }

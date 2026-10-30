@@ -40,8 +40,13 @@ type Config struct {
 // Server respresent a chisel service
 type Server struct {
 	*cio.Logger
-	config                *Config
-	connectors            *connector.ConnectorsContainer
+	config     *Config
+	connectors *connector.ConnectorsContainer
+	// connectorsConfig is the config::Connector namespace kept for the
+	// tunnel-local API (connectorConfig): refreshed through pfconfig's
+	// cache validity rather than fetched on every request.
+	connectorsConfig      pfconfigdriver.Connectors
+	connectorsConfigMu    sync.Mutex
 	fingerprint           string
 	httpServer            *cnet.HTTPServer
 	reverseProxy          *httputil.ReverseProxy
@@ -177,7 +182,9 @@ func (s *Server) StartContext(ctx context.Context, host, port string) error {
 	}
 
 	s.setupRedisClient(ctx)
-	s.connectorStatus.Start(ctx)
+	s.connectorStatus.Start(ctx, s.redis)
+	// Tunnel traffic history for the topology charts (traffic_history.go).
+	trafficHist.start(ctx)
 
 	return s.httpServer.GoServe(ctx, l, h)
 }

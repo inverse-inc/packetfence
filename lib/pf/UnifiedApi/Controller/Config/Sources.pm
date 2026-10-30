@@ -23,6 +23,8 @@ has 'form_class' => 'pfappserver::Form::Config::Source';
 has 'primary_key' => 'source_id';
 
 use pf::ConfigStore::Source;
+use pf::factory::connector;
+use pf::util qw(listify);
 use pfappserver::Form::Config::Source;
 use pfappserver::Form::Config::Source::AdminProxy;
 use pfappserver::Form::Config::Source::AD;
@@ -93,6 +95,45 @@ our %TYPES_TO_FORMS = (
       WindowsLive
       )
 );
+
+=head2 post_create / post_update
+
+A RADIUS source reached through a connector is forwarded by a static tunnel
+of that connector: bind it on the live tunnel, as it is otherwise only bound
+when the connector next connects, and close it when the source is removed or
+no longer goes there (see reprovision_static in pf::connector).
+
+=cut
+
+sub post_create {
+    my ($self, $id) = @_;
+    $self->reprovision_connector_static($id);
+}
+
+sub post_update {
+    my ($self, $id, $old) = @_;
+    $self->reprovision_connector_static($id);
+    # the hosts it no longer has: their connectors close the tunnel
+    $self->reprovision_connector_static($id, $old) if $old;
+}
+
+sub post_remove {
+    my ($self, $id, $old) = @_;
+    $self->reprovision_connector_static($id, $old) if $old;
+}
+
+sub reprovision_connector_static {
+    my ($self, $id, $source) = @_;
+    $source //= $self->config_store->read($id, 'id') // {};
+    return unless ($source->{type} // '') eq 'RADIUS' && pf::util::isenabled($source->{use_connector});
+    my %seen;
+    for my $host (@{ listify($source->{host}) }) {
+        my $connector = pf::factory::connector->for_ip($host);
+        next unless defined($connector) && defined($connector->id) && $connector->id ne 'local_connector';
+        $connector->reprovision_static() unless $seen{$connector->id}++;
+    }
+    return;
+}
 
 sub type_lookup {
     return \%TYPES_TO_FORMS;
