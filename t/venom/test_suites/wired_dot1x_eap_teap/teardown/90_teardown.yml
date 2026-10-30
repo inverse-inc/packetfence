@@ -125,7 +125,7 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "eap_authentication_types":["GTC", "MD5", "MSCHAPv2", "PEAP", "TLS", "TTLS", "TEAP"],
+        "eap_authentication_types":["GTC", "MD5", "MSCHAPv2", "PEAP", "TLS", "TTLS"],
         "teap_config":"default"
       }
     headers:
