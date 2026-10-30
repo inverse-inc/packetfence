@@ -17607,6 +17607,74 @@ components:
               $ref: '#/components/schemas/ConfigRadiusdTLSProfile'
             type: array
         type: object
+    ConfigRadiusdTeapProfile:
+      properties:
+        authority_identity:
+          description: Authority identity
+          type: string
+        default_eap_type:
+          description: Default EAP Type
+          type: string
+        id:
+          description: Profile Name
+          type: string
+        identity_types:
+          description: Identity types
+          type: string
+        machine_eap_type:
+          description: Machine EAP Type
+          type: string
+        tls:
+          description: Tls
+          type: string
+        user_eap_type:
+          description: User EAP Type
+          type: string
+      required:
+      - id
+      - tls
+      - identity_types
+      - authority_identity
+      - default_eap_type
+      - user_eap_type
+      - machine_eap_type
+      type: object
+    ConfigRadiusdTeapProfileMeta:
+      properties:
+        meta:
+          properties:
+            authority_identity:
+              $ref: '#/components/schemas/Meta'
+            default_eap_type:
+              $ref: '#/components/schemas/Meta'
+            id:
+              $ref: '#/components/schemas/Meta'
+            identity_types:
+              $ref: '#/components/schemas/Meta'
+            machine_eap_type:
+              $ref: '#/components/schemas/Meta'
+            tls:
+              $ref: '#/components/schemas/Meta'
+            user_eap_type:
+              $ref: '#/components/schemas/Meta'
+          type: object
+      type: object
+    ConfigRadiusdTeapProfileWrapped:
+      properties:
+        item:
+          $ref: '#/components/schemas/ConfigRadiusdTeapProfile'
+        status:
+          type: integer
+      type: object
+    ConfigRadiusdTeapProfilesList:
+      allOf:
+      - $ref: '#/components/schemas/Iterable'
+      - properties:
+          items:
+            items:
+              $ref: '#/components/schemas/ConfigRadiusdTeapProfile'
+            type: array
+        type: object
     ConfigRealm:
       properties:
         admin_strip_username:
@@ -45304,6 +45372,347 @@ paths:
           $ref: '#/components/responses/NotFound'
       tags:
       - Config/Radiusd/OCSPProfiles
+  /api/v1/config/radiusd/teap_profile/{teap_profile_id}:
+    delete:
+      description: Delete an item.
+      operationId: api.v1.Config.Radiusd.TeapProfiles.resource.remove
+      parameters:
+      - description: '`PRIMARY KEY`'
+        in: path
+        name: teap_profile_id
+        required: true
+        schema:
+          enum:
+          - default
+          type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Deleted'
+        '401':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+      - Config/Radiusd/TeapProfiles
+    description: configuration for EAP TEAP profile.
+    get:
+      description: Get an item.
+      operationId: api.v1.Config.Radiusd.TeapProfiles.resource.get
+      parameters:
+      - description: '`PRIMARY KEY`'
+        in: path
+        name: teap_profile_id
+        required: true
+        schema:
+          enum:
+          - default
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigRadiusdTeapProfileWrapped'
+          description: Request successful. Response contains a specific resource.
+        '401':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+      - Config/Radiusd/TeapProfiles
+    options:
+      description: Get meta for an item.
+      operationId: api.v1.Config.Radiusd.TeapProfiles.resource.resource_options
+      parameters:
+      - description: '`PRIMARY KEY`'
+        in: path
+        name: teap_profile_id
+        required: true
+        schema:
+          enum:
+          - default
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigRadiusdTeapProfileMeta'
+          description: Request successful. Response contains meta for a resource.
+        '401':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+      - Config/Radiusd/TeapProfiles
+    patch:
+      description: Update an item.
+      operationId: api.v1.Config.Radiusd.TeapProfiles.resource.update
+      parameters:
+      - description: '`PRIMARY KEY`'
+        in: path
+        name: teap_profile_id
+        required: true
+        schema:
+          enum:
+          - default
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigRadiusdTeapProfile'
+      responses:
+        '201':
+          $ref: '#/components/responses/Updated'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      tags:
+      - Config/Radiusd/TeapProfiles
+    put:
+      description: Replace an item.
+      operationId: api.v1.Config.Radiusd.TeapProfiles.resource.replace
+      parameters:
+      - description: '`PRIMARY KEY`'
+        in: path
+        name: teap_profile_id
+        required: true
+        schema:
+          enum:
+          - default
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigRadiusdTeapProfile'
+      responses:
+        '201':
+          $ref: '#/components/responses/Created'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      tags:
+      - Config/Radiusd/TeapProfiles
+  /api/v1/config/radiusd/teap_profiles:
+    description: configuration for EAP TEAP profile.
+    get:
+      description: List all items.
+      operationId: api.v1.Config.Radiusd.TeapProfiles.list
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigRadiusdTeapProfilesList'
+          description: Request successful. Response contains a list of resources.
+        '401':
+          $ref: '#/components/responses/Forbidden'
+      tags:
+      - Config/Radiusd/TeapProfiles
+    options:
+      description: Get meta for a new item.
+      operationId: api.v1.Config.Radiusd.TeapProfiles.options
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigRadiusdTeapProfileMeta'
+          description: Request successful. Response contains meta for a resource.
+        '401':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+      - Config/Radiusd/TeapProfiles
+    post:
+      description: Create a new item.
+      operationId: api.v1.Config.Radiusd.TeapProfiles.create
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigRadiusdTeapProfile'
+      responses:
+        '201':
+          $ref: '#/components/responses/Created'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Duplicate'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      tags:
+      - Config/Radiusd/TeapProfiles
+  /api/v1/config/radiusd/teap_profiles/bulk_delete:
+    description: configuration for EAP TEAP profile.
+    post:
+      description: Delete one or more items.
+      operationId: api.v1.Config.Radiusd.TeapProfiles.bulk_delete
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                items:
+                  items:
+                    description: '`PRIMARY KEY`'
+                    type: string
+                  type: array
+              type: object
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigRadiusdTeapProfileWrapped'
+          description: Request successful. Response contains a specific resource.
+        '401':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+      - Config/Radiusd/TeapProfiles
+  /api/v1/config/radiusd/teap_profiles/bulk_import:
+    description: configuration for EAP TEAP profile.
+    post:
+      description: Create one or more items.
+      operationId: api.v1.Config.Radiusd.TeapProfiles.bulk_import
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                items:
+                  items:
+                    $ref: '#/components/schemas/ConfigRadiusdTeapProfile'
+                  type: array
+              type: object
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigRadiusdTeapProfileWrapped'
+          description: Request successful. Response contains a specific resource.
+        '401':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+      - Config/Radiusd/TeapProfiles
+  /api/v1/config/radiusd/teap_profiles/bulk_update:
+    description: configuration for EAP TEAP profile.
+    patch:
+      description: Update one or more items.
+      operationId: api.v1.Config.Radiusd.TeapProfiles.bulk_update
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                items:
+                  items:
+                    $ref: '#/components/schemas/ConfigRadiusdTeapProfile'
+                  type: array
+              type: object
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigRadiusdTeapProfileWrapped'
+          description: Request successful. Response contains a specific resource.
+        '401':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+      - Config/Radiusd/TeapProfiles
+  /api/v1/config/radiusd/teap_profiles/search:
+    description: configuration for EAP TEAP profile.
+    post:
+      description: Search all items.
+      operationId: api.v1.Config.Radiusd.TeapProfiles.search
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            example:
+              cursor: 0
+              limit: 25
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/Search'
+              - properties:
+                  cursor:
+                    type: string
+                  fields:
+                    items:
+                      type: string
+                    type: array
+                  limit:
+                    maximum: 1000
+                    minimum: 1
+                    type: integer
+                  sort:
+                    items:
+                      type: string
+                    type: array
+                required:
+                - fields
+                - sort
+        description: Search for items.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigRadiusdTeapProfilesList'
+          description: Request successful. Response contains a list of resources.
+        '401':
+          $ref: '#/components/responses/Forbidden'
+      tags:
+      - Config/Radiusd/TeapProfiles
+  /api/v1/config/radiusd/teap_profiles/sort_items:
+    description: configuration for EAP TEAP profile.
+    patch:
+      description: Sort items.
+      operationId: api.v1.Config.Radiusd.TeapProfiles.sort_items
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigRadiusdTeapProfileWrapped'
+          description: Request successful. Response contains a specific resource.
+        '401':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+      - Config/Radiusd/TeapProfiles
   /api/v1/config/radiusd/tls_profile/{tls_profile_id}:
     delete:
       description: Delete an item.
