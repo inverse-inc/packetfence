@@ -219,6 +219,35 @@ func (t *Tunnel) BindRemotes(ctx context.Context, remotes []*settings.Remote) er
 	return err
 }
 
+func (t *Tunnel) RemapRemoteBinds(ctx context.Context, remotes []*settings.Remote) []*settings.Remote {
+	/* RemapRemoteBinds rewrites the local port of remotes fetched from the pfconnector server according to
+	   PFCONNECTOR_BIND_PORT_MAP, e.g. "443=8443,80=-" ("-" drops the bind), so they don't collide with host services. */
+
+	portMap := map[string]string{}
+	for _, entry := range strings.Split(os.Getenv("PFCONNECTOR_BIND_PORT_MAP"), ",") {
+		if from, to, ok := strings.Cut(strings.TrimSpace(entry), "="); ok {
+			portMap[from] = to
+		}
+	}
+	if len(portMap) == 0 {
+		return remotes
+	}
+	remapped := make([]*settings.Remote, 0, len(remotes))
+	for _, remote := range remotes {
+		to, ok := portMap[remote.LocalPort]
+		switch {
+		case !ok:
+			remapped = append(remapped, remote)
+		case to == "-":
+			fmt.Printf("Skipping remote bind on local port %s (PFCONNECTOR_BIND_PORT_MAP)\n", remote.LocalPort)
+		default:
+			remote.LocalPort = to
+			remapped = append(remapped, remote)
+		}
+	}
+	return remapped
+}
+
 func (t *Tunnel) keepAliveLoop(sshConn ssh.Conn) {
 	//ping forever
 	for {

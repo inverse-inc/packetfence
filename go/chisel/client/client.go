@@ -297,7 +297,8 @@ func (c *Client) Start(ctx context.Context) error {
 							remotes = append(remotes, remote)
 						}
 					}
-					err = c.tunnel.BindRemotes(ctx, remotes)
+					remappedRemotes = c.tunnel.RemapRemoteBinds(ctx, remotes)
+					err = c.tunnel.BindRemotes(ctx, remappedRemotes)
 					if err != nil {
 						fmt.Println("Error binding remotes obtained from the pfconnector server", err)
 					}
