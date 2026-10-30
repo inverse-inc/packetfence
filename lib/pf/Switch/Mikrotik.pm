@@ -434,7 +434,7 @@ sub deauthenticateMacSSHDHCP {
     }
 
     $mac = uc($mac);
-    my $command = "/ip dhcp-server lease remove [find dynamic and mac-address=$mac]";
+    my $command = ":local myMac \"$mac\"; :local myIface \"\"; :foreach i in=[/interface bridge host find mac-address=\$myMac] do={:set myIface [/interface bridge host get \$i on-interface]}; :if (\$myIface != \"\") do={/interface disable \$myIface; :delay 2; /interface enable \$myIface}";
 
     $logger->info("Deauthenticating mac $mac");
     $logger->warn("sending CLI command '$command'");
