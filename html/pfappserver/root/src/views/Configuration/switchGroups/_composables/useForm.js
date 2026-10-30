@@ -101,6 +101,17 @@ export const useForm = (props, context) => {
     return placeholder === 'Y'
   })
 
+  const isRadiusAttributesMap = computed(() => {
+    // inspect form value for `RadiusAttributesMap`
+    const { RadiusAttributesMap } = form.value
+    if (RadiusAttributesMap !== null)
+      return RadiusAttributesMap === 'Y'
+
+    // inspect meta placeholder for `RadiusAttributesMap`
+    const { RadiusAttributesMap: { placeholder } = {} } =  meta.value
+    return placeholder === 'Y'
+  })
+
   const isRoleMap = computed(() => {
     // inspect form value for `RoleMap`
     const { RoleMap } = form.value
@@ -160,6 +171,7 @@ export const useForm = (props, context) => {
     filteredSwitches,
 
     isAccessListMap,
+    isRadiusAttributesMap,
     isRoleMap,
     isVpnMap,
     isUrlMap,

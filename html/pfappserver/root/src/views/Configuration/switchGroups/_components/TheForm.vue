@@ -324,6 +324,50 @@
             </b-card>
           </base-form-tab>
 
+          <base-form-tab
+            :title="$i18n.t('RADIUS Attributes')">
+            <b-card class="mb-3 pb-0" no-body>
+              <b-card-header>
+                <h4 class="mb-0" v-t="'Role mapping by RADIUS Attributes'"></h4>
+              </b-card-header>
+              <div class="card-body pb-0">
+                <form-group-toggle-radius-attributes-map namespace="RadiusAttributesMap"
+                  :column-label="$i18n.t('Role by RADIUS Attributes')"
+                  :text="$i18n.t('RADIUS attributes added to the Access-Accept of the role. Add an attribute several times to return several values.')"
+                />
+
+                <template v-if="isRadiusAttributesMap">
+                  <div class="text-right mb-2">
+                    <b-button size="sm" variant="outline-primary" @click="toggleAllRadiusAttributesEnabled(true)" class="mr-1">
+                      {{ $i18n.t('Enable All') }}
+                    </b-button>
+                    <b-button size="sm" variant="outline-secondary" @click="toggleAllRadiusAttributesEnabled(false)">
+                      {{ $i18n.t('Disable All') }}
+                    </b-button>
+                  </div>
+                  <base-role-map-list :roles="filteredRoles" v-slot="{ role }">
+                    <b-form-group :key="`${role}RadiusAttributes`"
+                      :label="role" label-cols="3"
+                      class="base-form-group"
+                    >
+                      <b-input-group>
+                        <b-row class="w-100 mx-0 mb-1 px-0" align-v="start" no-gutters>
+                          <b-col sm="9" align-self="start">
+                            <form-group-role-map-radius-attributes :namespace="`${role}RadiusAttributes`"
+                              :disabled="form[`${role}RadiusAttributesEnabled`] === 'disabled'" />
+                          </b-col>
+                          <b-col sm="3" align-self="start" class="pl-1">
+                            <input-toggle-enable-disable :namespace="`${role}RadiusAttributesEnabled`" />
+                          </b-col>
+                        </b-row>
+                      </b-input-group>
+                    </b-form-group>
+                  </base-role-map-list>
+                </template>
+              </div>
+            </b-card>
+          </base-form-tab>
+
           <base-form-tab v-if="supports(['ExternalPortal'])"
             :title="$i18n.t('Web Auth URL')">
             <b-card class="mb-3 pb-0" no-body>
@@ -744,6 +788,7 @@ import {
   FormGroupRadiusDeauthUseConnector,
   FormGroupRadiusSecret,
   FormGroupRoleMapAccessList,
+  FormGroupRoleMapRadiusAttributes,
   FormGroupRoleMapRole,
   FormGroupRoleMapVpn,
   FormGroupRoleMapUrl,
@@ -773,6 +818,7 @@ import {
   FormGroupSnmpVersionTrap,
   FormGroupUseSnmp,
   FormGroupToggleAccessListMap,
+  FormGroupToggleRadiusAttributesMap,
   FormGroupToggleRoleMap,
   FormGroupToggleVpnMap,
   FormGroupToggleUrlMap,
@@ -836,6 +882,7 @@ const components = {
   FormGroupRadiusDeauthUseConnector,
   FormGroupRadiusSecret,
   FormGroupRoleMapAccessList,
+  FormGroupRoleMapRadiusAttributes,
   FormGroupRoleMapRole,
   FormGroupRoleMapVpn,
   FormGroupRoleMapUrl,
@@ -865,6 +912,7 @@ const components = {
   FormGroupSnmpVersionTrap,
   FormGroupUseSnmp,
   FormGroupToggleAccessListMap,
+  FormGroupToggleRadiusAttributesMap,
   FormGroupToggleRoleMap,
   FormGroupToggleVpnMap,
   FormGroupToggleUrlMap,

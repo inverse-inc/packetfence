@@ -109,12 +109,14 @@ const actions = {
           roleDefaults[`${role}Url`] = null
           roleDefaults[`${role}Vpn`] = null
           roleDefaults[`${role}Interface`] = null
+          roleDefaults[`${role}RadiusAttributes`] = null
           roleDefaults[`${role}VlanEnabled`] = 'enabled'
           roleDefaults[`${role}RoleEnabled`] = 'enabled'
           roleDefaults[`${role}AccessListEnabled`] = 'enabled'
           roleDefaults[`${role}UrlEnabled`] = 'enabled'
           roleDefaults[`${role}VpnEnabled`] = 'enabled'
           roleDefaults[`${role}InterfaceEnabled`] = 'enabled'
+          roleDefaults[`${role}RadiusAttributesEnabled`] = 'enabled'
         })
         item = { ...roleDefaults, ...item }
         // Ensure Enabled fields default to 'enabled' if null/undefined

@@ -93,12 +93,14 @@ const actions = {
             [`${role}Url`]: null,
             [`${role}Vpn`]: null,
             [`${role}Interface`]: null,
+            [`${role}RadiusAttributes`]: null,
             [`${role}VlanEnabled`]: 'enabled',
             [`${role}RoleEnabled`]: 'enabled',
             [`${role}AccessListEnabled`]: 'enabled',
             [`${role}UrlEnabled`]: 'enabled',
             [`${role}VpnEnabled`]: 'enabled',
-            [`${role}InterfaceEnabled`]: 'enabled'
+            [`${role}InterfaceEnabled`]: 'enabled',
+            [`${role}RadiusAttributesEnabled`]: 'enabled'
           }
           // Merge with existing item, but use defaults for null/undefined Enabled fields
           item = {

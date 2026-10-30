@@ -15,6 +15,7 @@ import {
 } from '@/components/new/'
 import BaseFormGroupInlineTrigger from '../../switches/_components/BaseFormGroupInlineTrigger'
 import BaseFormGroupToggleStaticDynamicDefault from '../../switches/_components/BaseFormGroupToggleStaticDynamicDefault'
+import BaseFormGroupRoleRadiusAttributes from '../../switches/_components/BaseFormGroupRoleRadiusAttributes'
 import BaseFormGroupType from '../../switches/_components/BaseFormGroupType'
 import BaseInputToggleNetworkFrom from '../../switches/_components/BaseInputToggleNetworkFrom'
 import TheForm from './TheForm'
@@ -44,6 +45,7 @@ export {
   BaseFormGroupToggleNYDefault            as FormGroupRadiusDeauthUseConnector,
   BaseFormGroupInputPassword              as FormGroupRadiusSecret,
   BaseFormGroupTextarea                   as FormGroupRoleMapAccessList,
+  BaseFormGroupRoleRadiusAttributes       as FormGroupRoleMapRadiusAttributes,
   BaseFormGroupInput                      as FormGroupRoleMapRole,
   BaseFormGroupInput                      as FormGroupRoleMapVpn,
   BaseFormGroupInput                      as FormGroupRoleMapUrl,
@@ -83,6 +85,7 @@ export {
   BaseFormGroupSwitch                     as FormGroupDeauthOnPrevious,
   BaseFormGroupChosenOne                  as FormGroupHostMode,
   BaseFormGroupToggleNYDefault            as FormGroupToggleAccessListMap,
+  BaseFormGroupToggleNYDefault            as FormGroupToggleRadiusAttributesMap,
   BaseFormGroupToggleNYDefault            as FormGroupToggleRoleMap,
   BaseFormGroupToggleNYDefault            as FormGroupToggleVpnMap,
   BaseFormGroupToggleNYDefault            as FormGroupToggleUrlMap,

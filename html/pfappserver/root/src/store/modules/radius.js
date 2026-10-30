@@ -53,7 +53,7 @@ const mutations = {
     const { items = {} } = data
     Vue.set(state, 'attributes', items.reduce((items, item) => {
       const { name = null } = item
-      items[name] = item
+      items[name] = Object.freeze(item) // the dictionary is read-only, skip making thousands of items reactive
       return items
     }, {}))
     state.requestStatus = types.SUCCESS

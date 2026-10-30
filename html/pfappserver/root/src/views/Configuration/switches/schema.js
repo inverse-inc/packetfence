@@ -1,6 +1,7 @@
 import store from '@/store'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
+import { parse } from './radiusAttributes'
 
 yup.addMethod(yup.string, 'switchIdNotExistsExcept', function (exceptId = '', message) {
   return this.test({
@@ -28,6 +29,21 @@ const schemaInlineTrigger = yup.object({
 
 export const schemaInlineTriggers = yup.array().ensure().unique(i18n.t('Duplicate condition.')).of(schemaInlineTrigger)
 
+// the RADIUS attributes of a role, one "Attribute-Name = value" per line
+export const schemaRoleRadiusAttributes = yup.string().nullable()
+  .test({
+    name: 'radiusAttributes',
+    test: function (value) {
+      const rows = parse(value)
+      if (!rows.every(({ value }) => value))
+        return this.createError({ message: i18n.t('Value required.') })
+      const lines = rows.map(({ type, value }) => `${type} = ${value}`)
+      if (lines.length !== new Set(lines).size)
+        return this.createError({ message: i18n.t('Duplicate attribute.') })
+      return true
+    }
+  })
+
 export const schema = (props, roles) => {
   const {
     isNew,
@@ -38,6 +54,7 @@ export const schema = (props, roles) => {
   const rolesSchema = {}
   for (const role of (roles.value || [])) {
     rolesSchema[`${role}Network`] = yup.string().nullable().isCIDR()
+    rolesSchema[`${role}RadiusAttributes`] = schemaRoleRadiusAttributes
   }
 
   return yup.object({

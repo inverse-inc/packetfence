@@ -1,4 +1,4 @@
-import { computed, ref, toRefs, unref } from '@vue/composition-api'
+import { computed, onMounted, provide, ref, toRefs, unref } from '@vue/composition-api'
 import { useFormMetaSchema } from '@/composables/useMeta'
 import i18n from '@/utils/locale'
 import { baseRoles } from '../config'
@@ -47,6 +47,15 @@ const useForm = (props, context) => {
       ...roles.value,
       ...allRoles.map(role => role.id)
     ]
+  })
+
+  // provide RADIUS attributes to all child nodes
+  const radiusAttributes = ref({})
+  provide('radiusAttributes', radiusAttributes)
+  onMounted(() => {
+    $store.dispatch('radius/getAttributes').then(_radiusAttributes => {
+      radiusAttributes.value = _radiusAttributes
+    })
   })
 
   const roleFilter = ref('')
@@ -109,6 +118,17 @@ const useForm = (props, context) => {
 
     // inspect meta placeholder for `AccessListMap`
     const { AccessListMap: { placeholder } = {} } =  meta.value
+    return placeholder === 'Y'
+  })
+
+  const isRadiusAttributesMap = computed(() => {
+    // inspect form value for `RadiusAttributesMap`
+    const { RadiusAttributesMap } = form.value
+    if (RadiusAttributesMap !== null)
+      return RadiusAttributesMap === 'Y'
+
+    // inspect meta placeholder for `RadiusAttributesMap`
+    const { RadiusAttributesMap: { placeholder } = {} } =  meta.value
     return placeholder === 'Y'
   })
 
@@ -246,6 +266,12 @@ const useForm = (props, context) => {
     })
   }
 
+  const toggleAllRadiusAttributesEnabled = (enabled) => {
+    roles.value.forEach(role => {
+      form.value[`${role}RadiusAttributesEnabled`] = enabled ? 'enabled' : 'disabled'
+    })
+  }
+
   return {
     advancedMode,
     schema: metaSchema,
@@ -254,6 +280,7 @@ const useForm = (props, context) => {
     supports,
     isUplinkDynamic,
     isAccessListMap,
+    isRadiusAttributesMap,
     isRoleMap,
     isVpnMap,
     isUrlMap,
@@ -273,7 +300,8 @@ const useForm = (props, context) => {
     toggleAllAccessListEnabled,
     toggleAllUrlEnabled,
     toggleAllVpnEnabled,
-    toggleAllInterfaceEnabled
+    toggleAllInterfaceEnabled,
+    toggleAllRadiusAttributesEnabled
   }
 }
 
