@@ -655,7 +655,7 @@ const setup = (props, context) => {
       ...(canUpdate.value ? [{ key: 'terminal', icon: 'terminal', label: i18n.t('Open remote terminal...'), to: at('troubleshooting', 'terminal'), disabled: !connected, reason: notConnected }] : []),
       { key: 'logs', icon: 'scroll', label: i18n.t('View logs'), to: at('troubleshooting'), disabled: !connected, reason: notConnected },
       { key: 'dns', icon: 'stethoscope', label: i18n.t('DNS lookup'), to: at('networking', 'dns') },
-      ...(canUpdate.value ? [{ key: 'restart', icon: 'redo', label: i18n.t('Restart connector...'), to: at('troubleshooting', 'restart'), disabled: !connected, reason: notConnected, danger: true }] : []),
+      ...(canUpdate.value ? [{ key: 'restart', icon: 'redo', label: i18n.t('Restart connector...'), to: at('services', 'restart'), disabled: !connected, reason: notConnected, danger: true }] : []),
       ...((node.dnsDomains || []).length ? [{ key: 'dns-header', header: i18n.t('DNS domains') }] : []),
       ...(node.dnsDomains || []).map(issue => ({
         key: `dns-${issue.domain}`,

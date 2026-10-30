@@ -16,6 +16,7 @@ import TabCache from './TabCache'
 import TabDevices from './TabDevices'
 import TabNetworking from './TabNetworking'
 import TabOverview from './TabOverview'
+import TabServices from './TabServices'
 import TabTroubleshooting from './TabTroubleshooting'
 import TheDnsTest from './TheDnsTest'
 import TheHostInterfaces from './TheHostInterfaces'
@@ -43,6 +44,7 @@ export {
   TabDevices,
   TabNetworking,
   TabOverview,
+  TabServices,
   TabTroubleshooting,
   TheDnsTest,
   TheHostInterfaces,

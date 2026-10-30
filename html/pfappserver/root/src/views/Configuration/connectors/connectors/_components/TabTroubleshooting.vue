@@ -39,22 +39,8 @@
       </div>
     </b-card>
 
-    <b-card v-if="recordingsAvailable" class="mb-3" no-body>
+    <b-card v-if="recordingsAvailable" no-body>
       <the-terminal-recordings :id="id" />
-    </b-card>
-
-    <b-card v-if="canUpdate" border-variant="danger">
-      <b-row align-v="center">
-        <b-col>
-          <h6 class="mb-0">{{ $i18n.t('Restart connector') }}</h6>
-          <small class="text-muted">{{ $i18n.t('The whole remote connector will be restarted (RADIUS, Fingerbank collector and tunnel included). Network activity through this connector will be interrupted for a short period.') }}</small>
-        </b-col>
-        <b-col cols="auto">
-          <b-button variant="outline-danger" :disabled="!isConnected || isRestarting" @click="showRestartModal = true">
-            <icon name="redo" class="mr-1" />{{ $i18n.t('Restart...') }}
-          </b-button>
-        </b-col>
-      </b-row>
     </b-card>
   </b-tab>
 </template>

@@ -10,7 +10,7 @@
       <template v-else-if="connectorId">
         <p class="mb-1">
           <strong>{{ $i18n.t('Connector') }}</strong>
-          <router-link :to="{ name: 'connectorsConnector', params: { id: connectorId } }" class="text-monospace ml-1">{{ connectorId }}</router-link>
+          <router-link :to="{ name: 'connectorsConnector', params: { id: connectorId }, query: { tab: 'services' } }" class="text-monospace ml-1">{{ connectorId }}</router-link>
           {{ $i18n.t('serves {ip}.', { ip: adServer }) }}
           <b-badge v-if="remote" :variant="remote.connected ? 'success' : 'danger'" class="ml-1">{{ remote.connected ? $i18n.t('Connected') : $i18n.t('Disconnected') }}</b-badge>
         </p>

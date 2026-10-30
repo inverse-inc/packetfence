@@ -11,6 +11,7 @@
         <tab-networking :id="id" />
         <tab-devices />
         <tab-cache :id="id" />
+        <tab-services :id="id" />
         <tab-troubleshooting :id="id" />
       </template>
 
@@ -245,6 +246,7 @@ import {
   TabDevices,
   TabNetworking,
   TabOverview,
+  TabServices,
   TabTroubleshooting,
   TheDnsTest,
   TheHostInterfaces
@@ -271,6 +273,7 @@ const components = {
   TabDevices,
   TabNetworking,
   TabOverview,
+  TabServices,
   TabTroubleshooting,
   TheDnsTest,
   TheHostInterfaces

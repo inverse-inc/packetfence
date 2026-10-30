@@ -82,12 +82,6 @@
 
     <the-high-availability v-if="ha" class="mb-3" />
 
-    <b-row v-if="hostPackages">
-      <b-col md="6" class="mb-3">
-        <the-ntlm-services />
-      </b-col>
-    </b-row>
-
     <b-card no-body>
       <b-card-header>
         <h6 class="mb-0">{{ $i18n.t('Needs attention') }}</h6>
@@ -125,7 +119,6 @@
 import { computed, inject, provide } from '@vue/composition-api'
 import { useUptime } from '../_composables/useUptime'
 import TheHighAvailability from './TheHighAvailability'
-import TheNtlmServices from './TheNtlmServices'
 import TheUptime from './TheUptime'
 import {
   formatBytes,
@@ -136,7 +129,6 @@ import {
 
 const components = {
   TheHighAvailability,
-  TheNtlmServices,
   TheUptime
 }
 
