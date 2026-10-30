@@ -21,6 +21,7 @@ use pfconfig::namespaces::config::TLS;
 use pfconfig::namespaces::config::Ssl;
 use pfconfig::namespaces::config::Ocsp;
 use pfconfig::namespaces::config::Fast;
+use pfconfig::namespaces::config::Teap;
 use pfconfig::namespaces::config::EAP;
 
 sub init {
@@ -28,6 +29,7 @@ sub init {
 
     $self->{eap} = $self->{cache}->get_cache("config::EAP");
     $self->{fast} = $self->{cache}->get_cache("config::Fast");
+    $self->{teap} = $self->{cache}->get_cache("config::Teap");
     $self->{ssl} = $self->{cache}->get_cache("config::Ssl");
     $self->{ocsp} = $self->{cache}->get_cache("config::Ocsp");
     $self->{tls} = $self->{cache}->get_cache("config::TLS");
@@ -57,6 +59,8 @@ sub build {
         foreach my $eapkey ( keys %{$self->{eap}{$eap}} ) {
             if ($eapkey eq "fast_config") {
                 $ConfigEAP{$eap}{$eapkey} = $self->{fast}{$self->{eap}{$eap}{$eapkey}};
+            } elsif ($eapkey eq "teap_config") {
+                $ConfigEAP{$eap}{$eapkey} = $self->{teap}{$self->{eap}{$eap}{$eapkey}};
             } elsif ($eapkey eq "eap_authentication_types") {
                 $ConfigEAP{$eap}{$eapkey} = [map { $_ } split /,/, $self->{eap}{$eap}{$eapkey}];
             } else {

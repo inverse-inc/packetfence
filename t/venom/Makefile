@@ -167,6 +167,20 @@ dot1x_eap_tls_deb12:
         SCENARIOS_TO_RUN=dot1x_eap_tls \
         $(MAKE_TARGET)
 
+dot1x_eap_teap_el8:
+	make \
+	PF_VM_NAMES=pfel8$(DEV_ENV) \
+	INT_TEST_VM_NAMES="ad switch01 node01 wireless01" \
+	SCENARIOS_TO_RUN=dot1x_eap_teap \
+	$(MAKE_TARGET)
+
+dot1x_eap_teap_deb12:
+	make \
+	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	INT_TEST_VM_NAMES="ad switch01 node01 wireless01" \
+	SCENARIOS_TO_RUN=dot1x_eap_teap \
+	$(MAKE_TARGET)
+
 inline_deb12:
 	make \
 	PF_VM_NAMES=pfdeb12$(DEV_ENV) \

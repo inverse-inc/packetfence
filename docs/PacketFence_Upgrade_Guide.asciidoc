@@ -1332,6 +1332,38 @@ Before upgrading, check the `sticky_dc` value of each domain in
 [filename]`/usr/local/pf/conf/domain.conf`, and set it back to `*` if you don't
 want to pin a domain controller.
 
+=== EAP-TEAP support in the RADIUS configuration
+
+EAP-TEAP changes the following package configuration files:
+
+* [filename]`/usr/local/pf/conf/radiusd/eap.conf`
+* [filename]`/usr/local/pf/conf/radiusd/mschap.conf`
+* [filename]`/usr/local/pf/conf/radiusd/packetfence`
+* [filename]`/usr/local/pf/conf/radiusd/packetfence-tunnel`
+* [filename]`/usr/local/pf/raddb/policy.d/packetfence`
+
+They are updated automatically unless you modified them (see the general
+procedure above); on Debian, [filename]`policy.d/packetfence` is always
+replaced. If you kept a customized [filename]`eap.conf` or
+[filename]`mschap.conf`, the following script adds the TEAP block and the
+`chrooted_mschap_mppe` module to them:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-16.0-radiusd-teap.pl
+----
+
+If you kept a customized [filename]`packetfence`, [filename]`packetfence-tunnel`
+or [filename]`policy.d/packetfence`, merge the TEAP sections of the new
+version (`.rpmnew` on RHEL, `.dpkg-dist` on Debian) into your file. Without
+them, RADIUS keeps working but the TEAP machine and user identities are not
+passed to PacketFence. Then restart all RADIUS instances:
+
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service radiusd restart
+----
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]

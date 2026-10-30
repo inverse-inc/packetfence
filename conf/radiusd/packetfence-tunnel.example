@@ -42,6 +42,24 @@ authorize {
 		&request:PacketFence-Outer-User := "%{outer.request:User-Name}"
 	}
 
+	# Capture the inner TEAP identity into outer.session-state so it
+	# survives until the last EAP round; the outer post-auth copies it
+	# into the request for pf::radius::authorize.
+	# rlm_eap_teap adds FreeRADIUS-EAP-TEAP-Identity-Type (User=1 /
+	# Machine=2) to the inner request for each round; %{User-Name} is the
+	# round's identity.
+	if (&FreeRADIUS-EAP-TEAP-Identity-Type) {
+		if (&FreeRADIUS-EAP-TEAP-Identity-Type == Machine) {
+			update outer.session-state {
+				&PacketFence-TEAP-Machine-Name := "%{User-Name}"
+			}
+		}
+		elsif (&FreeRADIUS-EAP-TEAP-Identity-Type == User) {
+			update outer.session-state {
+				&PacketFence-TEAP-User-Name := "%{User-Name}"
+			}
+		}
+	}
 
 	#
 	#  If the users are logging in with an MS-CHAP-Challenge
@@ -420,6 +438,24 @@ authorize {
 	#
 	filter_username
 
+	# Capture the inner TEAP identity into outer.session-state so it
+	# survives until the last EAP round; the outer post-auth copies it
+	# into the request for pf::radius::authorize.
+	# rlm_eap_teap adds FreeRADIUS-EAP-TEAP-Identity-Type (User=1 /
+	# Machine=2) to the inner request for each round; %{User-Name} is the
+	# round's identity.
+	if (&FreeRADIUS-EAP-TEAP-Identity-Type) {
+		if (&FreeRADIUS-EAP-TEAP-Identity-Type == Machine) {
+			update outer.session-state {
+				&PacketFence-TEAP-Machine-Name := "%{User-Name}"
+			}
+		}
+		elsif (&FreeRADIUS-EAP-TEAP-Identity-Type == User) {
+			update outer.session-state {
+				&PacketFence-TEAP-User-Name := "%{User-Name}"
+			}
+		}
+	}
 
 	#
 	#  If the users are logging in with an MS-CHAP-Challenge

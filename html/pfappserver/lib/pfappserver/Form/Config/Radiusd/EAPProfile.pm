@@ -15,6 +15,7 @@ use warnings;
 use HTML::FormHandler::Moose;
 use pf::ConfigStore::Radiusd::TLSProfile;
 use pf::ConfigStore::Radiusd::FastProfile;
+use pf::ConfigStore::Radiusd::TeapProfile;
 extends 'pfappserver::Base::Form';
 with qw(pfappserver::Base::Form::Role::Help);
 ## Definition
@@ -30,7 +31,7 @@ has_field default_eap_type => (
     label    => 'Default EAP Type',
     options  => [
         map { { value => lc($_), label => $_ } }
-          qw(GTC MD5 MSCHAPv2 LEAP PEAP FAST TLS TTLS)
+          qw(GTC MD5 MSCHAPv2 LEAP PEAP FAST TLS TTLS TEAP)
     ],
 );
 
@@ -56,7 +57,7 @@ has_field eap_authentication_types => (
     multiple => 1,
     options  => [
         map { { value => $_, label => $_ } }
-          qw(GTC MD5 MSCHAPv2 LEAP PEAP FAST TLS TTLS)
+          qw(GTC MD5 MSCHAPv2 LEAP PEAP FAST TLS TTLS TEAP)
     ]
 );
 
@@ -72,12 +73,21 @@ has_field fast_config => (
     options_method => \&options_fast,
 );
 
+has_field teap_config => (
+    type => 'Select',
+    options_method => \&options_teap,
+);
+
 sub options_tls {
     return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Radiusd::TLSProfile->new->readAllIds};
 }
 
 sub options_fast {
     return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Radiusd::FastProfile->new->readAllIds};
+}
+
+sub options_teap {
+    return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Radiusd::TeapProfile->new->readAllIds};
 }
 
 =head1 AUTHOR
