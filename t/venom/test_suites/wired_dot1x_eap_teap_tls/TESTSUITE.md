@@ -17,6 +17,7 @@ N/A
 1. Install Root CA + RADIUS server certificates (public certificate and
    private key) on PacketFence
 1. Configure OCSP to check certificate revocation against pfpki
+1. Enable TEAP with the Default TEAP profile in the default EAP profile
 1. Restart radiusd services
 1. Install Root CA + Web server certificates (public certificate and private key) on PacketFence
 1. Restart web services (only haproxy-portal and haproxy-admin)
@@ -67,6 +68,7 @@ TODO:
 1. Disable `node_cleanup` task
 1. Restart `pfcron` to take change into account
 1. Delete connection profile, EAPTLS source, OCSP profile and configuration
+1. Remove TEAP from the default EAP profile
 1. Restart RADIUS services (common test suite)
 
 ## Additional notes

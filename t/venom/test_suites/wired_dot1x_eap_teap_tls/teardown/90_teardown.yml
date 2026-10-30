@@ -57,3 +57,20 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
+
+- name: restore_default_eap_profile
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/radiusd/eap_profile/default'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "eap_authentication_types":["GTC", "MD5", "MSCHAPv2", "PEAP", "TLS", "TTLS"],
+        "teap_config":"default"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
