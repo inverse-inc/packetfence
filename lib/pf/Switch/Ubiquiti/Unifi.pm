@@ -177,19 +177,52 @@ Return the reference to the deauth technique or the default deauth technique.
 sub deauthTechniques {
     my ($self, $method, $connection_type) = @_;
     my $logger = $self->logger;
-    my $default = $SNMP::HTTP;
-    my %tech = (
-        $SNMP::HTTP  => '_deauthenticateMacWithHTTP',
-        $SNMP::RADIUS => 'deauthenticateMacRadius',
-    );
 
-    if ($connection_type == $WEBAUTH_WIRELESS) {
-        $method = $SNMP::HTTP;
+    $logger->info("Bypassing UniFi Controller - using SSH script for Standalone AP");
+
+    # Route every deauthentication attempt to our custom SSH script
+    return $SNMP::SSH, 'deauthenticateMacSSH';
+}
+
+sub deauthenticateMacSSH {
+    my ( $self, $mac ) = @_;
+    my $logger = $self->logger;
+    my $ssh;
+
+    if ( length($mac) != 17 ) {
+        $logger->error("MAC format is incorrect ($mac). Should be xx:xx:xx:xx:xx:xx");
+        return 1;
     }
-    if (!defined($method) || !defined($tech{$method})) {
-        $method = $default;
+
+    eval {
+        require Net::SSH2;
+        $ssh = Net::SSH2->new();
+        $ssh->connect($self->{'_ip'});
+        $ssh->auth_password($self->{_cliUser}, $self->{_cliPwd});
+    };
+
+    if ($@) {
+        $logger->error("Unable to connect via SSH to UniFi AP: $self->{_ip}");
+        return;
     }
-    return $method,$tech{$method};
+
+    # Format MAC address to lowercase with colons (Ubiquiti system requirement)
+    $mac = lc($mac);
+    $mac =~ s/-/:/g;
+
+    # Final command: execute ubus call to drop client and hostapd_cli to flush PMKSA cache
+    my $command = "for iface in \$(ubus list 2>/dev/null | grep hostapd\\. | cut -d'.' -f2); do " .
+                  "ubus call hostapd.\$iface del_client '{\"addr\":\"$mac\"}' >/dev/null 2>&1; " .
+                  "hostapd_cli -p /var/run/hostapd -i \$iface pmksa_flush >/dev/null 2>&1; " .
+                  "done";
+
+    $logger->info("Kicking MAC $mac from Ubiquiti and clearing PMK Cache via SSH");
+
+    my $chan = $ssh->channel();
+    $chan->exec($command);
+    $ssh->disconnect();
+
+    return 1;
 }
 
 =head2 _connect
