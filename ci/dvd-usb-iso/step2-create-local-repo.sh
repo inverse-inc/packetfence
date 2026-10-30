@@ -36,6 +36,8 @@ docker run --rm \
     -v "${PF_ROOT}:/pf-root:ro" \
     -v "${REPO_DIR}:/repo" \
     -e PF_REPO_TYPE \
+    -e PF_PULP_ENABLED \
+    -e PF_PACKAGE_ORIGIN \
     -e PF_RELEASE_VERSION \
     -w /pf-root/ci/dvd-usb-iso \
     "${BUILDER_IMAGE}" \

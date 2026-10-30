@@ -62,6 +62,12 @@
 
   - import_tasks: ../../tasks/apt_accept_eol_release.yml
 
+  - name: Configure the complete Pulp pipeline repository
+    ansible.builtin.include_tasks: ../../../tasks/pulp_repositories.yml
+    vars:
+      pf_pulp_source_helper: "{{ playbook_dir }}/../../../../../ci/pulp/configure-sources.py"
+    when: lookup('env', 'PF_PULP_ENABLED') == 'yes'
+
   roles:
     - role: apt_preferences
 

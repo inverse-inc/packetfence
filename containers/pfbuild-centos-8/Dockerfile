@@ -11,7 +11,7 @@ RUN sed -i 's/mirrorlist/#mirrorlist/g; s|#baseurl=http://mirror.centos.org|base
 
 # python3-requests (baseos) pairs with python3-pynacl (EPEL, installed below):
 # addons/packetfence-perl/psono.py needs both to fetch build secrets.
-RUN dnf install -y python3 python3-requests dnf-plugins-core rpm-build make git && \
+RUN dnf install -y python3 python3-requests python3-rpm gnupg2 curl dnf-plugins-core rpm-build make git && \
     alternatives --set python /usr/bin/python3
 
 RUN dnf -y module install ruby:3.0

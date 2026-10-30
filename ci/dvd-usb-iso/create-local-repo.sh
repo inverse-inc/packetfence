@@ -52,6 +52,14 @@ fi
 
 # URL for dependency packages (fingerbank, docker, freeradius are in debian/VERSION repo)
 PF_DEPS_BASE_URL="http://inverse.ca/downloads/PacketFence/debian/${PF_RELEASE_VERSION}"
+PF_SIGNING_KEY_URL=https://inverse.ca/downloads/GPG_PUBLIC_KEY
+if [[ "${PF_PULP_ENABLED:-no}" == yes ]]; then
+    : "${PF_PACKAGE_ORIGIN:?Set the HTTPS Pulp package origin}"
+    [[ "$PF_REPO_TYPE" == gitlab/* && "$PF_PACKAGE_ORIGIN" =~ ^https://[a-zA-Z0-9.-]+(:[0-9]+)?$ ]] || exit 2
+    PF_REPO_BASE_URL="$PF_PACKAGE_ORIGIN/downloads/PacketFence/$PF_REPO_TYPE/debian"
+    PF_DEPS_BASE_URL="$PF_REPO_BASE_URL"
+    PF_SIGNING_KEY_URL="$PF_PACKAGE_ORIGIN/downloads/PacketFence/$PF_REPO_TYPE/GPG_PUBLIC_KEY"
+fi
 
 echo "=============================================="
 echo "Creating PacketFence Package Repository"
@@ -93,7 +101,7 @@ fi
 # Add PacketFence repository only (we'll use DVD for Debian packages)
 echo "===> Configuring PacketFence repository in chroot"
 ${SUDO} mkdir -p ${CHROOT_DIR}/etc/apt/keyrings
-curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor | ${SUDO} tee ${CHROOT_DIR}/etc/apt/keyrings/packetfence.gpg > /dev/null
+curl -fsS "$PF_SIGNING_KEY_URL" | gpg --dearmor | ${SUDO} tee ${CHROOT_DIR}/etc/apt/keyrings/packetfence.gpg > /dev/null
 ${SUDO} tee ${CHROOT_DIR}/etc/apt/sources.list.d/packetfence.list > /dev/null << EOF
 deb [signed-by=/etc/apt/keyrings/packetfence.gpg] ${PF_REPO_BASE_URL} bookworm ${PF_REPO_COMPONENT}
 EOF

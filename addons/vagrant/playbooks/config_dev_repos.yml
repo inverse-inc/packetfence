@@ -28,6 +28,12 @@
         state: absent
       when: ansible_os_family == 'RedHat'
 
+    - name: Configure the complete Pulp pipeline repository
+      ansible.builtin.include_tasks: ../tasks/pulp_repositories.yml
+      vars:
+        pf_pulp_source_helper: "{{ playbook_dir }}/../../../ci/pulp/configure-sources.py"
+      when: lookup('env', 'PF_PULP_ENABLED') == 'yes'
+
   roles:
     - role: inverse_inc.gitlab_buildpkg_tools
       tags: ci
