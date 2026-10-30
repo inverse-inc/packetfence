@@ -91,29 +91,44 @@
 
             <!-- inside the connector form: the submit must not reach it -->
             <b-form @submit.prevent.stop="save">
-              <b-form-group v-for="field in fields" :key="field.key"
-                :label="field.label" :description="field.help"
-                label-cols-md="5" label-size="sm" class="mb-2"
-                :state="fieldState(field)" :invalid-feedback="fieldFeedback(field)">
-                <template v-if="field.type === 'number'">
-                  <b-input-group size="sm" :append="field.unit">
-                    <b-form-input v-model="form[field.key]" type="number" :min="field.min" :max="field.max" step="1"
-                      :state="fieldState(field)" :disabled="isSaving" />
-                  </b-input-group>
-                </template>
-                <template v-else-if="field.type === 'boolean'">
-                  <b-form-checkbox v-model="form[field.key]" switch size="sm" class="pt-1" :disabled="isSaving">
-                    {{ form[field.key] ? field.trueLabel : field.falseLabel }}
-                  </b-form-checkbox>
-                </template>
-                <template v-else-if="field.type === 'list'">
-                  <b-form-textarea v-model="form[field.key]" size="sm" rows="3" max-rows="8" class="text-monospace"
-                    :placeholder="$i18n.t('One prefix per line')" :state="fieldState(field)" :disabled="isSaving" />
-                </template>
-                <small v-if="field.restart" class="text-muted d-block">
-                  <icon name="info-circle" class="mr-1" />{{ $i18n.t('Applied at the next restart of the cache service.') }}
-                </small>
-              </b-form-group>
+              <template v-for="field in fields">
+                <base-form-group-input-number v-if="field.type === 'number'" :key="field.key"
+                  :column-label="field.label"
+                  :text="fieldText(field)"
+                  :value="form[field.key]"
+                  :state="fieldState(field)"
+                  :invalid-feedback="fieldFeedback(field)"
+                  :disabled="isSaving"
+                  label-cols="5" label-cols-sm="5" label-cols-md="5" label-cols-lg="5" label-cols-xl="5"
+                  @input="form[field.key] = $event"
+                >
+                  <template #append>
+                    <b-input-group-text>{{ field.unit }}</b-input-group-text>
+                  </template>
+                </base-form-group-input-number>
+                <base-form-group-toggle v-else-if="field.type === 'boolean'" :key="field.key"
+                  :column-label="field.label"
+                  :text="fieldText(field)"
+                  :value="form[field.key]"
+                  :options="field.options"
+                  :disabled="isSaving"
+                  label-right
+                  label-cols="5" label-cols-sm="5" label-cols-md="5" label-cols-lg="5" label-cols-xl="5"
+                  @input="form[field.key] = $event"
+                />
+                <base-form-group-textarea v-else-if="field.type === 'list'" :key="field.key"
+                  :column-label="field.label"
+                  :text="fieldText(field)"
+                  :value="form[field.key]"
+                  :state="fieldState(field)"
+                  :invalid-feedback="fieldFeedback(field)"
+                  :placeholder="$i18n.t('One prefix per line')"
+                  :rows="3" :max-rows="8"
+                  :disabled="isSaving"
+                  label-cols="5" label-cols-sm="5" label-cols-md="5" label-cols-lg="5" label-cols-xl="5"
+                  @input="form[field.key] = $event"
+                />
+              </template>
               <div class="text-right">
                 <b-button size="sm" variant="outline-secondary" class="mr-1" :disabled="!dirtyFields.length || isSaving" @click="reset">
                   {{ $i18n.t('Reset') }}
@@ -162,9 +177,17 @@
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import api from '../_api'
+import {
+  BaseFormGroupInputNumber,
+  BaseFormGroupTextarea,
+  BaseFormGroupToggle
+} from '@/components/new/'
 import TheCacheHistory from './TheCacheHistory'
 
 const components = {
+  BaseFormGroupInputNumber,
+  BaseFormGroupTextarea,
+  BaseFormGroupToggle,
   TheCacheHistory
 }
 
@@ -186,7 +209,10 @@ const fields = [
   {
     key: 'app.rate_limit_reject', type: 'boolean',
     label: i18n.t('Above the rate limit'),
-    trueLabel: i18n.t('Reject the request'), falseLabel: i18n.t('Answer from the cache'),
+    options: [
+      { value: false, label: i18n.t('Answer from the cache') },
+      { value: true, label: i18n.t('Reject the request'), color: 'var(--primary)' }
+    ],
     help: i18n.t('What to do with the requests of a device exceeding its rate limit.')
   },
   {
@@ -217,7 +243,10 @@ const fields = [
   {
     key: 'database.startup_clean', type: 'boolean', restart: true,
     label: i18n.t('Optimize at startup'),
-    trueLabel: i18n.t('Enabled'), falseLabel: i18n.t('Disabled'),
+    options: [
+      { value: false, label: i18n.t('Disabled') },
+      { value: true, label: i18n.t('Enabled'), color: 'var(--primary)' }
+    ],
     help: i18n.t('Delete the expired entries and compact the database each time the cache service starts.')
   }
 ]
@@ -302,16 +331,16 @@ export const setup = (props, context) => {
   const dirtyFields = computed(() => fields.filter(field => !sameValue(fromForm(field, form[field.key]), fromForm(field, loaded[field.key]))))
   const isValid = computed(() => fields.every(field => fromForm(field, form[field.key]) !== undefined))
 
-  const fieldState = field => {
-    if (fromForm(field, form[field.key]) === undefined)
-      return false
-    return dirtyFields.value.includes(field) ? true : null
-  }
+  const fieldState = field => (fromForm(field, form[field.key]) === undefined) ? false : null
   const fieldFeedback = field => {
     if (field.type === 'number')
       return i18n.t('An integer between {min} and {max} is expected.', { min: field.min, max: field.max })
     return i18n.t('Invalid value.')
   }
+  // The description of a field, with the restart notice for the database options.
+  const fieldText = field => field.restart
+    ? `${field.help}<br/>${i18n.t('Applied at the next restart of the cache service.')}`
+    : field.help
 
   const ttl = key => {
     const value = fromForm(fields.find(field => field.key === key), loaded[key])
@@ -459,6 +488,7 @@ export const setup = (props, context) => {
     isValid,
     fieldState,
     fieldFeedback,
+    fieldText,
     ttl,
     refresh,
     reset,
