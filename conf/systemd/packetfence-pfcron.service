@@ -3,6 +3,9 @@
 Description=PacketFence pfcron Service
 Wants=packetfence-base.target packetfence-config.service
 After=packetfence-base.target packetfence-config.service
+# Start after Kafka when both are started together (pfflow consumes from it);
+# no Wants=, Kafka is not enabled on every install.
+After=packetfence-kafka.service
 # Retry forever: at boot pfcron may start before pfconfig is ready to serve.
 StartLimitIntervalSec=0
 

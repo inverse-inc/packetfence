@@ -3,6 +3,8 @@ package maint
 import (
 	"context"
 	"testing"
+
+	"github.com/segmentio/kafka-go"
 )
 
 func TestKafkaSubmitter(t *testing.T) {
@@ -34,6 +36,36 @@ func TestIsStrandedOffset(t *testing.T) {
 	for _, c := range cases {
 		if got := isStrandedOffset(c.committed, c.last, c.brokerConfirmed); got != c.want {
 			t.Errorf("%s: isStrandedOffset(%d, %d, %v) = %v, want %v", c.name, c.committed, c.last, c.brokerConfirmed, got, c.want)
+		}
+	}
+}
+
+func TestNoPartitionAssigned(t *testing.T) {
+	const topic = "pfflows_events"
+	member := func(topics ...kafka.GroupMemberTopic) kafka.DescribeGroupsResponseMember {
+		return kafka.DescribeGroupsResponseMember{
+			MemberAssignments: kafka.DescribeGroupsResponseAssignments{Topics: topics},
+		}
+	}
+
+	cases := []struct {
+		name  string
+		group kafka.DescribeGroupsResponseGroup
+		want  bool
+	}{
+		{"stable, single member without assignment", kafka.DescribeGroupsResponseGroup{GroupState: "Stable", Members: []kafka.DescribeGroupsResponseMember{member()}}, true},
+		{"stable, assigned an empty partition list", kafka.DescribeGroupsResponseGroup{GroupState: "Stable", Members: []kafka.DescribeGroupsResponseMember{member(kafka.GroupMemberTopic{Topic: topic})}}, true},
+		{"stable, only another topic assigned", kafka.DescribeGroupsResponseGroup{GroupState: "Stable", Members: []kafka.DescribeGroupsResponseMember{member(kafka.GroupMemberTopic{Topic: "other", Partitions: []int{0}})}}, true},
+		{"stable, partition assigned", kafka.DescribeGroupsResponseGroup{GroupState: "Stable", Members: []kafka.DescribeGroupsResponseMember{member(kafka.GroupMemberTopic{Topic: topic, Partitions: []int{0}})}}, false},
+		{"stable, another member owns the partition", kafka.DescribeGroupsResponseGroup{GroupState: "Stable", Members: []kafka.DescribeGroupsResponseMember{member(), member(kafka.GroupMemberTopic{Topic: topic, Partitions: []int{0}})}}, false},
+		{"stable, no member", kafka.DescribeGroupsResponseGroup{GroupState: "Stable"}, false},
+		{"empty group", kafka.DescribeGroupsResponseGroup{GroupState: "Empty"}, false},
+		{"rebalancing", kafka.DescribeGroupsResponseGroup{GroupState: "CompletingRebalance", Members: []kafka.DescribeGroupsResponseMember{member()}}, false},
+	}
+
+	for _, c := range cases {
+		if got := noPartitionAssigned(c.group, topic); got != c.want {
+			t.Errorf("%s: noPartitionAssigned() = %v, want %v", c.name, got, c.want)
 		}
 	}
 }

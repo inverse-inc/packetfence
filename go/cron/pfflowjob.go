@@ -245,6 +245,90 @@ func WaitForTopic(dialer *kafka.Dialer, ctx context.Context, brokerAddr string, 
 	}
 }
 
+// maxTopicWaitDelay caps the backoff between two waitForTopic attempts.
+const maxTopicWaitDelay = 30 * time.Second
+
+// topicWaitTimeout bounds one WaitForTopic attempt, so a broker that accepted
+// the connection but stopped answering is redialled.
+const topicWaitTimeout = 30 * time.Second
+
+// waitForTopic blocks until a broker answers and the read topic exists. The
+// reader must not join the consumer group before that: kafka-go assigns no
+// partition for a topic that does not exist yet (UnknownTopicOrPartition is
+// treated as an empty assignment), and with pfflow as the only member of the
+// group no rebalance ever follows, so the reader would stay idle forever.
+// WaitForTopic returns at once when the broker cannot be dialled (pfcron
+// usually starts before Kafka), so it is retried here with a backoff, cycling
+// through the brokers.
+func (j *PfFlowJob) waitForTopic(ctx context.Context, dialer *kafka.Dialer) {
+	delay := time.Second
+	for attempt := 0; ; attempt++ {
+		broker := j.Brokers[attempt%len(j.Brokers)]
+		wctx, cancel := context.WithTimeout(ctx, topicWaitTimeout)
+		err := WaitForTopic(dialer, wctx, broker, j.ReadTopic)
+		cancel()
+		if err == nil {
+			if attempt > 0 {
+				log.LogInfof(ctx, "Kafka topic %s is available", j.ReadTopic)
+			}
+
+			return
+		}
+
+		log.LogInfof(ctx, "waiting for Kafka topic %s on %s: %s, retrying in %v", j.ReadTopic, broker, err.Error(), delay)
+		time.Sleep(delay)
+		delay = min(delay*2, maxTopicWaitDelay)
+	}
+}
+
+// idleAssignmentChecks is the number of consecutive idle reads (readTimeout
+// each) after which the consumer group assignment is checked.
+const idleAssignmentChecks = 2
+
+// noPartitionAssigned reports whether a stable consumer group has members but
+// none of them owns a partition of topic. A reader that joined the group while
+// the topic did not exist ends up there and kafka-go never recovers on its own
+// (see waitForTopic). A group without members, or one that is rebalancing, is
+// not reported: the reader may simply not have joined yet.
+func noPartitionAssigned(group kafka.DescribeGroupsResponseGroup, topic string) bool {
+	if group.GroupState != "Stable" || len(group.Members) == 0 {
+		return false
+	}
+
+	for _, m := range group.Members {
+		for _, t := range m.MemberAssignments.Topics {
+			if t.Topic == topic && len(t.Partitions) > 0 {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
+// groupHasNoAssignment asks the group coordinator whether the consumer group
+// is stuck without any partition of the read topic (see noPartitionAssigned).
+func (j *PfFlowJob) groupHasNoAssignment(ctx context.Context, client *kafka.Client) (bool, error) {
+	resp, err := client.DescribeGroups(ctx, &kafka.DescribeGroupsRequest{GroupIDs: []string{j.GroupID}})
+	if err != nil {
+		return false, err
+	}
+
+	for _, g := range resp.Groups {
+		if g.GroupID != j.GroupID {
+			continue
+		}
+
+		if g.Error != nil {
+			return false, g.Error
+		}
+
+		return noPartitionAssigned(g, j.ReadTopic), nil
+	}
+
+	return false, nil
+}
+
 // staleGroupOffsets returns, for every partition of the read topic whose
 // committed group offset is past the partition's last offset, the commit that
 // moves it back to the partition's first offset (everything on a recreated
@@ -407,8 +491,8 @@ func (j *PfFlowJob) Run() {
 	}()
 
 	dialer := j.kafkaDialer()
-	WaitForTopic(dialer, ctx, j.Brokers[0], j.ReadTopic)
 	client := j.kafkaClient()
+	idleReads := 0
 
 	nextStrandedCheck := time.Now().Add(strandedCheckInterval)
 	var repairBlockedUntil time.Time
@@ -462,8 +546,10 @@ func (j *PfFlowJob) Run() {
 	for {
 		// Create or recreate the reader
 		if r == nil {
+			j.waitForTopic(ctx, dialer)
 			log.LogInfof(ctx, "Connecting to Kafka brokers: %v, topic: %s, group: %s", j.Brokers, j.ReadTopic, j.GroupID)
 			r = j.newReader(ctx, dialer)
+			idleReads = 0
 		}
 
 		// Use a timeout context to avoid blocking forever if Kafka is unresponsive
@@ -478,8 +564,23 @@ func (j *PfFlowJob) Run() {
 				// No message for a whole readTimeout: either the topic is idle
 				// or the group offset is stranded past the end of a recreated
 				// topic, which kafka-go never recovers from on its own.
-				if !repairStrandedOffsets("idle topic", false) {
-					log.LogDebugf(ctx, "no message on %s for %s", j.ReadTopic, readTimeout)
+				if repairStrandedOffsets("idle topic", false) {
+					continue
+				}
+
+				log.LogDebugf(ctx, "no message on %s for %s", j.ReadTopic, readTimeout)
+
+				// An idle read is also what a reader without any assigned
+				// partition looks like: check the group assignment.
+				idleReads++
+				if r != nil && idleReads%idleAssignmentChecks == 0 {
+					stuck, err := j.groupHasNoAssignment(ctx, client)
+					if err != nil {
+						log.LogWarnf(ctx, "unable to check consumer group %s assignment: %s", j.GroupID, err.Error())
+					} else if stuck {
+						log.LogErrorf(ctx, "consumer group %s has no partition of %s assigned, recreating the reader", j.GroupID, j.ReadTopic)
+						closeReader()
+					}
 				}
 
 				continue
@@ -510,6 +611,8 @@ func (j *PfFlowJob) Run() {
 			reconnectBackoff()
 			continue
 		}
+
+		idleReads = 0
 
 		// Reset error counter and delay on successful read
 		if consecutiveErrors > 0 {
