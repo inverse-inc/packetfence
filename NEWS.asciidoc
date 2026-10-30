@@ -123,6 +123,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - SAML: an empty attribute value no longer breaks the login; the ACS URL is in the request (#9388, #9432)
   - Email: SMTP authentication picks a mechanism the server offers (#9492)
   - Fingerbank — device parents for local combinations, profiling retried after a failed lookup, recreated nodes profiled, the API key tested with the submitted settings, and the packetfence package conflicts with fingerbank-collector-remote (#9464, #9465, #9526, #9525, #9257)
+  - A node deleted then reconnecting with the same DHCP fingerprint is profiled again: the DHCP processor's per-worker signature cache now follows the node's `detect_date`, so the recreated node gets its device type and the security events it triggers
   - Git storage: local Fingerbank entries are saved and restored (#9407)
   - Domains: "Force LDAP" kept on creation (#9349)
   - User and Machine roles are seeded in the database (#9397)
