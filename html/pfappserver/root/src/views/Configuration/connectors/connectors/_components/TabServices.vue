@@ -1,16 +1,18 @@
 <template>
   <b-tab :title="$i18n.t('Services')" lazy>
-    <b-row>
-      <b-col md="6" class="mb-3">
-        <the-ntlm-services v-if="hostPackages" />
-        <b-card v-else class="h-100">
-          <h6>{{ $i18n.t('NTLM Authentication Services') }}</h6>
-          <p class="small text-muted mb-0">
-            {{ isConnected ? $i18n.t('This connector does not report the state of its host packages (older connector package).') : $i18n.t('The state of the host packages is reported while the tunnel is connected.') }}
-          </p>
-        </b-card>
-      </b-col>
-    </b-row>
+    <!-- full width: the cards list the services with their actions -->
+    <the-connector-services v-if="containerServices" class="mb-3" />
+    <b-card v-else-if="isConnected" class="mb-3">
+      <h6>{{ $i18n.t('Connector Services') }}</h6>
+      <p class="small text-muted mb-0">{{ $i18n.t('This connector does not report the state of its services (older connector package).') }}</p>
+    </b-card>
+    <the-ntlm-services v-if="hostPackages" class="mb-3" />
+    <b-card v-else class="mb-3">
+      <h6>{{ $i18n.t('NTLM Authentication Services') }}</h6>
+      <p class="small text-muted mb-0">
+        {{ isConnected ? $i18n.t('This connector does not report the state of its host packages (older connector package).') : $i18n.t('The state of the host packages is reported while the tunnel is connected.') }}
+      </p>
+    </b-card>
 
     <b-card v-if="canUpdate" border-variant="danger">
       <b-row align-v="center">
@@ -29,9 +31,11 @@
 </template>
 <script>
 import { inject } from '@vue/composition-api'
+import TheConnectorServices from './TheConnectorServices'
 import TheNtlmServices from './TheNtlmServices'
 
 const components = {
+  TheConnectorServices,
   TheNtlmServices
 }
 

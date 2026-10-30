@@ -63,6 +63,13 @@ type SystemInfo struct {
 	// HostPackages is the state of the PacketFence packages the admin can
 	// install on the connector host (NTLM authentication services).
 	HostPackages HostPackages `json:"host_packages"`
+	// HostServices is the state of the NTLM authentication units of the
+	// connector host, as last written by the host (see host_services.go).
+	HostServices HostServices `json:"host_services"`
+	// ContainerServices is the state of the services of the connector
+	// container itself, FreeRADIUS and the RADIUS cache (see
+	// container_services.go). Omitted when they are not supervised here.
+	ContainerServices *ContainerServices `json:"container_services,omitempty"`
 	// SiteNetwork is the result of the last VLAN interface / static route
 	// reconcile pass (see chisel/share/sitenetwork). Omitted until the first
 	// pass ran; the admin UI shows it in the connector's Networking tab.
@@ -229,6 +236,8 @@ func systemInfo(api *API) http.HandlerFunc {
 			TerminalTOTP:       api.TerminalEnabled && api.terminalTOTPRequired,
 			LogFiles:           availableLogFiles(api),
 			HostPackages:       hostPackages(),
+			HostServices:       hostServices(),
+			ContainerServices:  containerServices(),
 			SiteNetwork:        sitenetwork.LastStatus(),
 			DhcpRelay:          dhcprelay.LastStatus(),
 			DnsServer:          dnsresponder.LastStatus(),

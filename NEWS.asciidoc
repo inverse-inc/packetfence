@@ -47,6 +47,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - Cloud Connectors: active/passive high availability of a connector over a VRRP virtual IP, with credential cache mirroring and a "Make active" switch in the admin UI (#9587)
   - Cloud Connectors: the site DNS servers and their domains are configured on the connector itself (#9587)
   - Cloud Connectors: install the NTLM authentication services on the connector host, terminal session recordings, connector-cache management, Fingerbank API through the tunnel and a live traffic map (#9587)
+  - Cloud Connectors: a Services tab in the connector form to manage the NTLM authentication services of the host and to restart FreeRADIUS and the RADIUS cache of the connector in place
 
 === Enhancements
 

@@ -43,8 +43,8 @@ const (
 // logFiles is the allowlist of streamable logs: UI key -> in-container path.
 // The service logs are produced by the s6 tee pipelines
 // (containers/pfconnector-remote/rootfs/etc/s6-overlay/s6-rc.d/<svc>-log);
-// upgrade.log is written by the host-side upgrade script through the conf
-// bind mount.
+// upgrade.log, install.log and services.log are written by the host-side
+// scripts through the conf bind mount.
 var logFiles = map[string]string{
 	"pfconnector-client":   "/usr/local/pf/logs/pfconnector-client.log",
 	"radiusd-auth":         "/usr/local/pf/logs/radiusd-auth.log",
@@ -53,6 +53,7 @@ var logFiles = map[string]string{
 	"keepalived":           "/usr/local/pf/logs/keepalived.log",
 	"upgrade":              "/usr/local/pf/conf/upgrade.log",
 	"install":              "/usr/local/pf/conf/install.log",
+	"services":             "/usr/local/pf/conf/services.log",
 }
 
 // logsEnabled mirrors PFCONNECTOR_LOGS (default true): whether the log

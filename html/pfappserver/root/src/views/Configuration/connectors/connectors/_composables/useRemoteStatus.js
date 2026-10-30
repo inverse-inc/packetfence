@@ -283,6 +283,44 @@ export const useRemoteStatus = (props, context) => {
     })
   }
 
+  // NTLM authentication units of the connector host (host_services, written
+  // by the host). An action goes to the host through its trigger file and
+  // the state follows on the next polls.
+  const hostServices = computed(() => {
+    const { host_services: hs } = system.value || {}
+    return (hs && hs.available && Array.isArray(hs.services)) ? hs : null
+  })
+  const actingService = ref(null) // { service, action } while a request is relayed and followed
+  const onServiceAction = (service, action) => {
+    actingService.value = { service, action }
+    api.remoteService(props.id, action, service).then(() => {
+      $store.dispatch('notification/info', { message: i18n.t('{action} of {service} requested on the connector host. Its state updates within a few seconds.', { action, service }) })
+      follow(3000, 5, () => false, () => { actingService.value = null })
+    }).catch(error => {
+      $store.dispatch('notification/danger', { message: i18n.t('Unable to {action} {service} on the connector host.', { action, service }) + errorDetail(error) })
+      actingService.value = null
+    })
+  }
+
+  // Services of the connector container itself, FreeRADIUS and the RADIUS
+  // cache (container_services): restarted in place by the connector, the new
+  // state follows on the next polls.
+  const containerServices = computed(() => {
+    const { container_services: cs } = system.value || {}
+    return (cs && Array.isArray(cs.services)) ? cs.services : null
+  })
+  const actingContainerService = ref(null) // service name while a restart is relayed and followed
+  const onContainerServiceRestart = service => {
+    actingContainerService.value = service
+    api.remoteContainerServiceRestart(props.id, service).then(() => {
+      $store.dispatch('notification/info', { message: i18n.t('{service} restarted on the connector. Its state updates within a few seconds.', { service }) })
+      follow(2000, 3, () => false, () => { actingContainerService.value = null })
+    }).catch(error => {
+      $store.dispatch('notification/danger', { message: i18n.t('Unable to restart {service} on the connector.', { service }) + errorDetail(error) })
+      actingContainerService.value = null
+    })
+  }
+
   // HA state reported by the master (the only host with a tunnel); peers are
   // the backups heard through their LAN heartbeats.
   const ha = computed(() => {
@@ -420,6 +458,12 @@ export const useRemoteStatus = (props, context) => {
     isInstalling,
     showNtlmInstallModal,
     onInstallNtlm,
+    hostServices,
+    actingService,
+    onServiceAction,
+    containerServices,
+    actingContainerService,
+    onContainerServiceRestart,
     ha,
     haPeersAlive,
     isSwitching,
