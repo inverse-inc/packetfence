@@ -322,6 +322,7 @@ sub returnRadiusAccessAccept {
                 $self->logger->info("Setting Session-Timeout to $session_timeout");
                 $radius_reply_ref->{"Session-Timeout"} = $session_timeout;
             }
+            $self->addRoleRadiusAttributes($args, $radius_reply_ref);
             $logger->info("Returning ACCEPT");
             ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
             return [$status, %$radius_reply_ref];

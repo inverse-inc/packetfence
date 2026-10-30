@@ -58,6 +58,10 @@ use pf::roles::custom $ROLES_API_LEVEL;
 use pf::error::switch;
 use pf::util;
 use pf::util::radius qw(perform_disconnect perform_coa perform_rsso);
+use pf::util::radius_attributes qw(
+    radius_attribute_entries
+    radius_attribute_log_value
+);
 use List::MoreUtils qw(any all uniq);
 use List::Util qw(first);
 use Scalar::Util qw(looks_like_number);
@@ -202,6 +206,7 @@ sub new {
         '_VpnMap'                       => 'enabled',
         '_NetworkMap'                   => 'enabled',
         '_NetworkFromMap'               => 'disabled',
+        '_RadiusAttributesMap'          => 'disabled',
         '_InterfaceMap'                 => 'enabled',
         '_UsePushACLs'                  => 'disabled',
         '_UseDownloadableACLs'          => 'disabled',
@@ -211,6 +216,7 @@ sub new {
         '_networks'                     => undef,
         '_networks_from'                => undef,
         '_interfaces'                   => undef,
+        '_radius_attributes'            => undef,
         '_useSNMP'                      => 'enabled',
         map { "_".$_ => $argv->{$_} } keys %$argv,
     }, $class;
@@ -1203,6 +1209,73 @@ sub _parentRoleForNetworkFrom {
     my ($name) = @_;
     # not yet supported
     return undef;
+}
+
+=item getRadiusAttributesByName
+
+Get the RADIUS attributes of a role in switches.conf (${role}RadiusAttributes),
+one "Attribute-Name = value" per line
+
+=cut
+
+sub getRadiusAttributesByName {
+    my ($self, $roleName) = @_;
+    return undef if !defined $roleName;
+
+    # Check if RadiusAttributesEnabled parameter exists and is disabled for this role
+    my $enabled_param = '_' . $roleName . 'RadiusAttributesEnabled';
+    if (exists $self->{$enabled_param} && isdisabled($self->{$enabled_param})) {
+        $self->logger->debug("RADIUS attributes mapping for role $roleName is disabled");
+        return;
+    }
+
+    return undef if !defined $self->{'_radius_attributes'};
+    return $self->{'_radius_attributes'}{$roleName};
+}
+
+=item addRoleRadiusAttributes
+
+Add the RADIUS attributes of the role of the endpoint to the reply when the switch
+has Role by RADIUS attributes enabled. The values are added to the ones already in
+the reply, an attribute can be returned several times. The lines with an attribute
+that is not in the RADIUS dictionary or a value that is not valid for its type are
+skipped with a warning. The values of the attributes that carry a secret are
+hidden in the logs.
+
+=cut
+
+sub addRoleRadiusAttributes {
+    my ($self, $args, $radius_reply_ref) = @_;
+    return if !isenabled($self->{_RadiusAttributesMap});
+    my $role = $args->{'user_role'};
+    my $logger = $self->logger;
+    # The names already in the reply, by their name in lower case
+    my %reply_keys = map { lc($_) => $_ } keys %$radius_reply_ref;
+    my $number = 0;
+    for my $entry (radius_attribute_entries($self->getRadiusAttributesByName($role))) {
+        $number++;
+        my ($name, $value, $error) = @{$entry}{qw(name value error)};
+        if (!defined $name) {
+            # The line is not logged, it can be a value of an attribute that carries a secret
+            $logger->warn("(" . $self->{'_id'} . ") Ignoring the RADIUS attribute $number of the role $role: $error");
+            next;
+        }
+        my $log_value = radius_attribute_log_value($name, $value);
+        if (defined $error) {
+            $error =~ s/\Q$value\E/$log_value/g;
+            $logger->warn("(" . $self->{'_id'} . ") Ignoring the RADIUS attribute $name = $log_value "
+                . "of the role $role: $error");
+            next;
+        }
+        # The name already in the reply, written with another case, gets the value
+        my $key = $reply_keys{lc($name)} //= $name;
+        # Always an array: the switch modules add their own values to some attributes as arrays
+        my $current = $radius_reply_ref->{$key};
+        my @values = ref($current) eq 'ARRAY' ? @$current : defined($current) ? ($current) : ();
+        $radius_reply_ref->{$key} = [ @values, $value ];
+        $logger->info("(" . $self->{'_id'} . ") Added $name = $log_value of the role $role "
+            . "to the returned RADIUS Access-Accept");
+    }
 }
 
 =item setVlanByName - set the ifIndex VLAN to the VLAN identified by given name in switches.conf
@@ -3368,6 +3441,8 @@ sub returnRadiusAccessAccept {
             $logger->debug("(".$self->{'_id'}.") Received undefined role. No Role added to RADIUS Access-Accept");
         }
     }
+
+    $self->addRoleRadiusAttributes($args, $radius_reply_ref);
 
     my $status = $RADIUS::RLM_MODULE_OK;
     if (!isenabled($args->{'unfiltered'})) {

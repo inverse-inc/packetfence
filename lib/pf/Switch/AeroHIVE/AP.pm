@@ -100,6 +100,7 @@ sub returnRadiusAccessAccept {
             # Only this branch answers without the parent, which applies the filter itself
             my $filter = pf::access_filter::radius->new;
             my $rule = $filter->test('returnRadiusAccessAccept', $args);
+            $self->addRoleRadiusAttributes($args, $radius_reply_ref);
             $logger->info("Returning ACCEPT");
             ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
             return [$status, %$radius_reply_ref];

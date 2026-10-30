@@ -185,6 +185,8 @@ sub returnRadiusAccessAccept {
         }
     }
 
+    $self->addRoleRadiusAttributes($args, $radius_reply_ref);
+
     my $status = $RADIUS::RLM_MODULE_OK;
     if (!isenabled($args->{'unfiltered'})) {
         my $filter = pf::access_filter::radius->new;

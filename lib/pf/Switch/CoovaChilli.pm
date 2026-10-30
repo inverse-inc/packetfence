@@ -141,6 +141,7 @@ sub returnRadiusAccessAccept {
         $self->handleRadiusDeny();
     }
     else {
+        $self->addRoleRadiusAttributes($args, $radius_reply_ref);
         ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
         return [$status, %$radius_reply_ref];
     }
