@@ -80,6 +80,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - RADIUS: a failed post-auth call to httpd.aaa leaves MAB/PAP requests unanswered instead of rejecting them, and authorize answers 503 instead of 401 when the request can't be evaluated (#9288)
   - CoA and Disconnect use the switch's `coaPort` and `disconnectPort` on every switch module (#9378)
   - Dell N1500 and Cisco ASA now send role ACLs in the Access-Accept (#9347)
+  - Reassigning a role (`PATCH /api/v1/config/role/<role>/reassign`) moves the switch mappings of the role (`<role>Vlan`, `<role>Role`, `<role>AccessList`, ...) to the new role instead of deleting them
   - PacketFence PKI — revoking a certificate deregisters the devices that last used it, OCSP answers "unknown" instead of 500 for an unknown serial, the most recent certificate is returned by CN, and the Renewal Email switch of PKI templates works (#9367, #9436, #9520, #9536)
   - RADIUS: a per-profile certificate no longer overwrites the default RADIUS certificate — see the Upgrade Guide (#9450)
   - Cluster: an interface not defined for a server in cluster.conf is ignored on that server (#9506)
