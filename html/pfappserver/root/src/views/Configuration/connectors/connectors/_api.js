@@ -106,6 +106,11 @@ export default {
       return response.data
     })
   },
+  remoteContainerServiceRestart: (id, service) => {
+    return apiCall.post(['pfconnector-remotes', id, 'container-services', 'restart'], { service }).then(response => {
+      return response.data
+    })
+  },
   remoteHaSwitch: (id, to) => {
     return apiCall.post(['pfconnector-remotes', id, 'ha', 'switch'], { to }).then(response => {
       return response.data

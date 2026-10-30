@@ -1,6 +1,11 @@
 <template>
   <b-tab :title="$i18n.t('Services')" lazy>
-    <!-- full width: the card lists the host services with their actions -->
+    <!-- full width: the cards list the services with their actions -->
+    <the-connector-services v-if="containerServices" class="mb-3" />
+    <b-card v-else-if="isConnected" class="mb-3">
+      <h6>{{ $i18n.t('Connector Services') }}</h6>
+      <p class="small text-muted mb-0">{{ $i18n.t('This connector does not report the state of its services (older connector package).') }}</p>
+    </b-card>
     <the-ntlm-services v-if="hostPackages" class="mb-3" />
     <b-card v-else class="mb-3">
       <h6>{{ $i18n.t('NTLM Authentication Services') }}</h6>
@@ -26,9 +31,11 @@
 </template>
 <script>
 import { inject } from '@vue/composition-api'
+import TheConnectorServices from './TheConnectorServices'
 import TheNtlmServices from './TheNtlmServices'
 
 const components = {
+  TheConnectorServices,
   TheNtlmServices
 }
 

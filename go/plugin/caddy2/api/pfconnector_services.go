@@ -71,3 +71,44 @@ func (h APIHandler) pfconnectorRemoteService() http.HandlerFunc {
 			fmt.Sprintf("%s %s on connector-remote %s", action, req.Service, connectorID), "Unable to reach the connector-remote to act on the service")
 	})
 }
+
+// Restart of the services of the connector container itself, FreeRADIUS and
+// the RADIUS cache: supervised in the container, the connector-remote restarts
+// them in place (its /api/v1/container-service/restart), so the answer is a
+// 200 and the new state follows in "container_services" of the system info.
+
+// containerServiceNames mirrors the allowlist of the connector-remote.
+var containerServiceNames = map[string]bool{"radiusd-auth": true, "connector-cache": true}
+
+// pfconnectorRemoteContainerServiceRestart relays {"service": "<name>"} as a
+// restart request to the connector-remote.
+func (h APIHandler) pfconnectorRemoteContainerServiceRestart() http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		connectorID := chi.URLParam(r, "connectorID")
+		if connectorID == "" {
+			http.Error(w, "PFconnector ID is required", http.StatusBadRequest)
+			return
+		}
+		var req struct {
+			Service string `json:"service"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Service == "" {
+			http.Error(w, "The service name is required", http.StatusBadRequest)
+			return
+		}
+		if !containerServiceNames[req.Service] {
+			http.Error(w, fmt.Sprintf("Service %q is not a service of the connector", req.Service), http.StatusBadRequest)
+			return
+		}
+
+		conn := h.pfconnector(h.ctx, connectorID)
+		if conn == nil {
+			http.Error(w, "Unknown PFconnector ID", http.StatusNotFound)
+			return
+		}
+
+		body, _ := json.Marshal(map[string]string{"service": req.Service})
+		h.relayConnectorRemoteAPI(w, r, conn, "POST", "/api/v1/container-service/restart", bytes.NewReader(body),
+			fmt.Sprintf("restart %s on connector-remote %s", req.Service, connectorID), "Unable to reach the connector-remote to restart the service")
+	})
+}

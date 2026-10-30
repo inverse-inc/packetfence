@@ -302,6 +302,25 @@ export const useRemoteStatus = (props, context) => {
     })
   }
 
+  // Services of the connector container itself, FreeRADIUS and the RADIUS
+  // cache (container_services): restarted in place by the connector, the new
+  // state follows on the next polls.
+  const containerServices = computed(() => {
+    const { container_services: cs } = system.value || {}
+    return (cs && Array.isArray(cs.services)) ? cs.services : null
+  })
+  const actingContainerService = ref(null) // service name while a restart is relayed and followed
+  const onContainerServiceRestart = service => {
+    actingContainerService.value = service
+    api.remoteContainerServiceRestart(props.id, service).then(() => {
+      $store.dispatch('notification/info', { message: i18n.t('{service} restarted on the connector. Its state updates within a few seconds.', { service }) })
+      follow(2000, 3, () => false, () => { actingContainerService.value = null })
+    }).catch(error => {
+      $store.dispatch('notification/danger', { message: i18n.t('Unable to restart {service} on the connector.', { service }) + errorDetail(error) })
+      actingContainerService.value = null
+    })
+  }
+
   // HA state reported by the master (the only host with a tunnel); peers are
   // the backups heard through their LAN heartbeats.
   const ha = computed(() => {
@@ -442,6 +461,9 @@ export const useRemoteStatus = (props, context) => {
     hostServices,
     actingService,
     onServiceAction,
+    containerServices,
+    actingContainerService,
+    onContainerServiceRestart,
     ha,
     haPeersAlive,
     isSwitching,

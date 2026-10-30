@@ -278,6 +278,13 @@ func (api *API) setupRoutes() {
 				r.Post("/disable", hostServiceAction(api, "disable"))
 				r.Post("/reload", hostServiceAction(api, "reload"))
 			})
+			// Services of the connector container itself, FreeRADIUS and the
+			// RADIUS cache (see container_services.go): supervised here, so
+			// restarted in place with s6-svc.
+			r.Route("/container-service", func(r chi.Router) {
+				r.Get("/status", containerServicesStatus(api))
+				r.Post("/restart", containerServiceRestart(api))
+			})
 			r.Post("/radius/authorize", radiusAuthorize(api))
 			r.Post("/radius/multi-domain/authorize", multiDomainAuthorize(api))
 			r.Handle("/credcache/*", credcacheProxy())
