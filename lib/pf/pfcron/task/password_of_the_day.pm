@@ -68,6 +68,14 @@ sub run {
             next;
         }
         if(defined($password)){
+            # Only rotate the password of the person the task created for the
+            # source: a local user created later with the same pid must keep
+            # its own password (and not have the new one e-mailed to the source)
+            my $person = pf::person::person_view($source->{id});
+            unless ($person && ($person->{potd} // '') eq 'yes') {
+                $logger->warn("The pid $source->{id} of the Password Of The Day source is used by a person that is not a POTD person: not rotating its password");
+                next;
+            }
             my $expiration = $password->{expiration};
             $expiration = DateTime::Format::MySQL->parse_datetime($expiration);
             $expiration->set_time_zone($tz);
