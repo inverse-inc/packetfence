@@ -13,6 +13,7 @@ import (
 type SpyLdapClient struct {
 	DialCallCount    int
 	DialTLSCallCount int
+	LastTLSConfig    *tls.Config
 }
 
 var DialResponse ldapClient.ILdapConnection
@@ -20,6 +21,7 @@ var DialError error
 
 func (c *SpyLdapClient) DialTLS(config *tls.Config) (ldapClient.ILdapConnection, error) {
 	c.DialTLSCallCount++
+	c.LastTLSConfig = config
 	return DialResponse, DialError
 }
 
@@ -44,11 +46,12 @@ func (f *MockLdapClientFactory) NewLdapClient(protocol string, socketAddress str
 }
 
 type ConnectionSpy struct {
-	CloseCalled bool
-	response    ldap.SearchResult
-	err         error
-	startTlsErr error
-	bindErr     error
+	CloseCalled    bool
+	StartTLSConfig *tls.Config
+	response       ldap.SearchResult
+	err            error
+	startTlsErr    error
+	bindErr        error
 }
 
 func (c *ConnectionSpy) Close() {
@@ -56,6 +59,7 @@ func (c *ConnectionSpy) Close() {
 }
 
 func (c *ConnectionSpy) StartTLS(config *tls.Config) error {
+	c.StartTLSConfig = config
 	return c.startTlsErr
 }
 

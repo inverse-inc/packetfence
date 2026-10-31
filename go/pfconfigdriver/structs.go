@@ -528,6 +528,10 @@ type AuthenticationSourceLdap struct {
 	UseConnector      BoolString          `json:"use_connector"`
 	BindDN            string              `json:"binddn"`
 	Encryption        string              `json:"encryption"`
+	Verify            string              `json:"verify"`
+	ClientCertFile    string              `json:"client_cert_file"`
+	ClientKeyFile     string              `json:"client_key_file"`
+	CAFile            string              `json:"ca_file"`
 	Monitor           string              `json:"monitor"`
 	Type              string              `json:"type"`
 }
