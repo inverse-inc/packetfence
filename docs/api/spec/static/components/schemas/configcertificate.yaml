@@ -93,6 +93,68 @@ ConfigCertificateCSR:
       type: string
   type: object
 
+ConfigCertificatePkiImport:
+  properties:
+    mode:
+      description: "cert to export an existing PacketFence PKI certificate with its private key, csr to have a PacketFence PKI template sign a CSR built from private_key"
+      type: string
+      enum:
+        - cert
+        - csr
+    cert_id:
+      description: The PacketFence PKI certificate id (mode cert)
+      type: string
+    profile_id:
+      description: The PacketFence PKI template id (mode csr)
+      type: string
+    private_key:
+      description: The RSA private key in PEM format the CSR is built from (mode csr)
+      type: string
+    country:
+      description: The country for the certificate (mode csr)
+      type: string
+    state:
+      description: The state for the certificate (mode csr)
+      type: string
+    locality:
+      description: The locality for the certificate (mode csr)
+      type: string
+    organization_name:
+      description: The organization name for the certificate (mode csr)
+      type: string
+    common_name:
+      description: The common name for the certificate (mode csr)
+      type: string
+    subject_alt_names:
+      description: Comma-delimited list of DNS Subject Alternative Names (mode csr)
+      type: string
+  required:
+    - mode
+  type: object
+
+ConfigCertificatePkiImportReturnValue:
+  properties:
+    certificate:
+      description: The certificate in PEM format
+      type: string
+    private_key:
+      description: The private key in PEM format
+      type: string
+    intermediate_cas:
+      description: The intermediate certificates in PEM format
+      type: array
+      items:
+        type: string
+    ca:
+      description: The issuing CA certificate in PEM format
+      type: string
+    warnings:
+      description: Non blocking issues, e.g. a template without the server authentication extended key usage
+      type: array
+      items:
+        type: string
+  type: object
+
 ConfigCertificateLetsEncrypt:
   properties:
     common_name:

@@ -100,12 +100,26 @@
                                         namespace="server_certificate_path"
     />
 
+    <b-form-group v-if="wantsServerCertificatePath" label-cols="3">
+      <button-pki-import :modes="['public']"
+                         :modal-title="$i18n.t('Import RADIUS server certificate from PacketFence PKI')"
+                         @import="onPkiImportServerCertificate"
+      />
+    </b-form-group>
+
     <form-group-ca-cert-path v-if="wantsServerRadiusCaPath"
                              :column-label="$i18n.t('RADIUS server CA file')"
                              :text="$i18n.t('The path to the RADIUS server CA which signed the RADIUS server certificate.')"
                              :title="$i18n.t('Upload RADIUS server CA file')"
                              namespace="ca_cert_path"
     />
+
+    <b-form-group v-if="wantsServerRadiusCaPath" label-cols="3">
+      <button-pki-import :modes="['ca']"
+                         :modal-title="$i18n.t('Import RADIUS server CA from PacketFence PKI')"
+                         @import="onPkiImportCa"
+      />
+    </b-form-group>
 
     <form-group-pki-provider v-if="wantsPkiProvider"
                              :column-label="$i18n.t('PKI Provider')"
@@ -135,9 +149,11 @@ import {
   FormGroupServerCertificatePath,
   FormGroupSsid
 } from './'
+import ButtonPkiImport from '../../pki/_components/ButtonPkiImport'
 import {useForm as setup, useFormProps as props} from '../_composables/useForm'
 
 const components = {
+  ButtonPkiImport,
   BaseForm,
 
   FormGroupApplyRole,

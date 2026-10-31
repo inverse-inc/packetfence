@@ -29,6 +29,30 @@
     tags:
       - Config/Certificates
 
+/api/v1/config/certificates/pki/import:
+  description: pf::UnifiedApi::Controller::Config::Certificates
+  post:
+    description: Get a certificate, its private key and its CA from the PacketFence PKI. Nothing is installed, the result is meant to be saved through the certificate APIs.
+    operationId: api.v1.Config::Certificates.pki_import
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfigCertificatePkiImport'
+    responses:
+      '200':
+        description: Request successful.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigCertificatePkiImportReturnValue'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+      - Config/Certificates
+
 /api/v1/config/certificates/lets_encrypt/test:
   description: pf::UnifiedApi::Controller::Config::Certificates
   get:
