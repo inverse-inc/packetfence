@@ -32,6 +32,9 @@ use pf::person;
 use pf::util qw(isenabled);
 
 use Encode qw(encode);
+use CHI;
+
+our $CHI_CACHE = CHI->new(driver => 'RawMemory', datastore => {});
 
 
 Readonly our $JAMF_COMPUTERS_INVENTORY => 'computers';
@@ -111,6 +114,65 @@ Option to sync PID from provisioner
 =cut
 
 has sync_pid => (is => 'rw', required => 1);
+
+=head2 expires_jitter
+
+Seconds removed from the lifetime of the cached API token
+
+=cut
+
+has expires_jitter => (is => 'rw', default => sub { 10 } );
+
+=head2 access_token
+
+The Jamf Pro API bearer token, or undef when the server doesn't issue one
+
+=cut
+
+sub access_token {
+    my ($self) = @_;
+    my $id = $self->{id};
+    my $token = $CHI_CACHE->get($id);
+    return $token->{token} if defined $token;
+    $token = $self->get_access_token;
+    if (defined $token) {
+        $CHI_CACHE->set($id, $token, $token->{expires_in} - $self->expires_jitter);
+        return $token->{token};
+    }
+    return undef;
+}
+
+=head2 get_access_token
+
+Get a bearer token from the Jamf Pro API (/api/v1/auth/token) with the API
+credentials. Jamf Pro 10.42 and later no longer accept basic authentication
+on the API itself.
+
+=cut
+
+sub get_access_token {
+    my ($self) = @_;
+    my $logger = get_logger;
+
+    my $ua = LWP::UserAgent->new();
+    my $request = POST $self->protocol . "://" . $self->host . "/api/v1/auth/token";
+    $request->authorization_basic($self->api_username, $self->api_password);
+    $request->header( 'Accept' => 'application/json' );
+
+    my $response = $ua->request($request);
+    unless ($response->is_success) {
+        $logger->warn("Unable to get an API token from the Jamf server " . $self->host . " (" . $response->status_line . "): falling back to basic authentication, which Jamf Pro 10.42 and later reject");
+        return undef;
+    }
+    my $data = eval { decode_json($response->decoded_content) };
+    unless (ref($data) eq 'HASH' && $data->{token}) {
+        $logger->warn("Invalid API token answer from the Jamf server " . $self->host . ": falling back to basic authentication");
+        return undef;
+    }
+    # The answer carries the expiration date, not a lifetime: the token lasts 30 minutes
+    $data->{expires_in} = 30 * 60;
+    return $data;
+}
 
 
 =head1 Methods
@@ -240,7 +302,12 @@ sub execute_request {
 
     my $ua = LWP::UserAgent->new();
     my $request = GET $self->build_request_uri($mac, $realm);
-    $request->authorization_basic($self->api_username, $self->api_password);
+    my $token = $self->access_token;
+    if (defined $token) {
+        $request->header( 'Authorization' => "Bearer $token" );
+    } else {
+        $request->authorization_basic($self->api_username, $self->api_password);
+    }
     $request->header( 'content-type' => 'application/json' );
     $request->header( 'Accept'       => 'application/json' );
 
