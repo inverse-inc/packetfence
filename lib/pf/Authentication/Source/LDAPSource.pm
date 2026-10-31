@@ -293,7 +293,7 @@ sub _connect {
             my $connector_conn = pf::factory::connector->for_ip($dest_ip)->dynreverse("$dest_ip:$LDAPServerPort");
             $connection = pf::LDAP->new(
                 $connector_conn->{host},
-                %LDAPArgs,
+                $self->_connectorTLSArgs($LDAPServer, %LDAPArgs),
                 port => $connector_conn->{port},
             );
         } 
@@ -366,6 +366,26 @@ sub _LDAPArgs {
         $args{start_tls_options} = \%start_tls_options;
     }
 
+    return %args;
+}
+
+=head2 _connectorTLSArgs
+
+The TLS session goes to the connector's local endpoint, whose name is not
+the one in the server's certificate: with "SSL Verify Mode: Required",
+verify the certificate against the configured server instead
+
+=cut
+
+sub _connectorTLSArgs {
+    my ($self, $server, %args) = @_;
+    return %args if ($self->{'verify'} // '') ne 'require';
+    my $encryption = $self->{'encryption'} // '';
+    if ($encryption eq SSL) {
+        $args{sslserver} = $server;
+    } elsif ($encryption eq TLS) {
+        $args{start_tls_options} = { %{ $args{start_tls_options} // {} }, sslserver => $server };
+    }
     return %args;
 }
 
