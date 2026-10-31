@@ -1758,7 +1758,11 @@ sub setAdminStatus {
     my $result = $self->{_sessionWrite}->set_request(
         -varbindlist => [ "$OID_ifAdminStatus.$ifIndex", Net::SNMP::INTEGER, $status ]
     );
-    return ( defined($result) );
+    if ( !defined($result) ) {
+        $logger->error( "SNMP set of ifAdminStatus for ifIndex $ifIndex to $status on $self->{_id} failed: " . $self->{_sessionWrite}->error() );
+        return 0;
+    }
+    return 1;
 }
 
 =item bouncePort
@@ -1782,10 +1786,17 @@ Usually used to force the operating system to do a new DHCP Request after a VLAN
 
 sub bouncePortSNMP {
     my ($self, $ifIndex) = @_;
+    my $logger = $self->logger;
 
-    $self->setAdminStatus( $ifIndex, $SNMP::DOWN );
+    if ( !$self->setAdminStatus( $ifIndex, $SNMP::DOWN ) ) {
+        $logger->error("Unable to shut down ifIndex $ifIndex on $self->{_id}: the port was not bounced");
+        return $FALSE;
+    }
     sleep($Config{'snmp_traps'}{'bounce_duration'});
-    $self->setAdminStatus( $ifIndex, $SNMP::UP );
+    if ( !$self->setAdminStatus( $ifIndex, $SNMP::UP ) ) {
+        $logger->error("Unable to bring ifIndex $ifIndex back up on $self->{_id} after shutting it down: the port is left down");
+        return $FALSE;
+    }
 
     return $TRUE;
 }
