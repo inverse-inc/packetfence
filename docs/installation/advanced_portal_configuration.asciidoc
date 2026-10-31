@@ -569,6 +569,37 @@ forward the unaltered DNS record for the FQDN instead of a response for the
 Captive Portal. An [command]`ipset` entry will be added to permit the device to
 access the real external IP address for the FQDN via iptables routing.
 
+==== Access lists for the registration and isolation networks
+
+Devices parked in the registration or isolation network share a VLAN, so they
+can reach each other. On switches that map roles to access lists (_Role by
+Access List_ in the switch configuration), PacketFence can confine them to the
+captive portal. In _Configuration -> Network Configuration -> Networks ->
+Fencing_, enable _"Registration access list"_ and/or _"Isolation access
+list"_, then click Save.
+
+A device in the registration (or isolation) role then gets an access list that
+only permits:
+
+[options="compact"]
+ * DHCP (UDP 67 and 68) to any destination, since the server can be a relay;
+ * DNS (UDP and TCP 53) and the portal (TCP 80 and 443) to the addresses of
+   PacketFence: the IP and virtual IP of the internal interfaces and of the
+   interfaces running the portal, plus the DNS servers of the registration
+   (or isolation) networks;
+ * the passthroughs of that network type (the _Passthroughs_ above, the
+   domains of the OAuth and billing sources and of the provisioners for
+   registration, the _Isolation Passthroughs_ for isolation), resolved when
+   the device connects. Wildcard passthroughs (`*.example.com`) can't be
+   expressed in an access list and are left out;
+
+and denies everything else.
+
+An access list set for the `registration` or `isolation` role on the switch or
+switch group replaces the generated one. Mind the number of entries a switch
+accepts in a downloadable access list: every PacketFence address adds four
+entries and every passthrough one per resolved address and port.
+
 ==== Apache mod_proxy passthroughs
 
 NOTE: `mod_proxy` does not support non-HTTP (including HTTPS) protocols.

@@ -29,7 +29,8 @@ our $VERSION = 2.10;
 
 use pf::CHI;
 use pf::constants;
-use pf::constants::role qw($VOICE_ROLE $REGISTRATION_ROLE $REJECT_ROLE);
+use pf::constants::role qw($VOICE_ROLE $REGISTRATION_ROLE $ISOLATION_ROLE $REJECT_ROLE);
+use pf::captive_portal_acl;
 use pf::config qw(
     $ROLES_API_LEVEL
     $management_network
@@ -897,6 +898,17 @@ sub _getAccessListByName {
     if (defined($self->{'_access_lists'}->{$access_list_name})) {
         $logger->debug("Using ACL from the switch entry instead of the one defined in the role");
         return "role", $self->{'_access_lists'}->{$access_list_name};
+    }
+
+    # The registration and isolation roles have no entry in roles.conf: their
+    # access list is generated (fencing.registration_access_list and
+    # fencing.isolation_access_list) to confine the device to the captive portal
+    if ($access_list_name eq $REGISTRATION_ROLE || $access_list_name eq $ISOLATION_ROLE) {
+        my $acls = pf::captive_portal_acl::acls($self, $access_list_name);
+        if ($acls) {
+            $logger->debug("Using the generated captive portal access list for role $access_list_name");
+            return "role", $self->acl_chewer(join("\n", @$acls), $access_list_name);
+        }
     }
 
     return undef, undef if !exists $ConfigRoles{$access_list_name};
