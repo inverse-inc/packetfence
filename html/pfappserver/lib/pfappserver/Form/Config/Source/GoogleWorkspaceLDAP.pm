@@ -40,14 +40,6 @@ has_field '+encryption' => (
     ],
 );
 
-has_field '+client_cert_file' => (
-    required => 1,
-);
-
-has_field '+client_key_file' => (
-    required => 1,
-);
-
 sub default_value {
     my ($name) = @_;
     my $val = $META->get_attribute($name)->default;
@@ -56,6 +48,25 @@ sub default_value {
     }
 
     return $val
+}
+
+=head2 validate
+
+Google Secure LDAP needs a client certificate and key. They can be given as a
+path or uploaded (the upload field writes the file and sets the path), so the
+path fields can't be required themselves: the admin UI sends the path as null
+when a file is uploaded.
+
+=cut
+
+sub validate {
+    my ($self) = @_;
+    $self->SUPER::validate();
+    my $value = $self->value;
+    for my $name (qw(client_cert_file client_key_file)) {
+        next if defined $value->{$name} && length $value->{$name};
+        $self->field($name)->add_error('A client certificate and key are required for Google Secure LDAP: upload a file or give its path.');
+    }
 }
 
 =head1 AUTHOR
