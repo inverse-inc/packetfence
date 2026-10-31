@@ -33,6 +33,14 @@ RUN /usr/local/pf/addons/dev-helpers/debian/install-pf-dependencies.sh && \
     rm -f /usr/local/fingerbank/db/fingerbank_*.db && \
     apt-get -qq --no-install-recommends install -y freeradius-common python3-venv git-crypt
 
+# Current Debian revisions (security updates) of the installed packages.
+# BUILD_DATE changes the cache key of this layer once a day, so a rebuild
+# picks them up even when the dependencies above didn't change.
+ARG BUILD_DATE
+RUN echo "Upgrading the Debian packages on ${BUILD_DATE}" && \
+    apt-get -qq update && \
+    apt-get -qq -y upgrade
+
 # Clean
 RUN find /usr/share/doc -depth -type f ! -name copyright -exec rm {} \; && \
     find /usr/share/doc -type d -empty -delete && \
