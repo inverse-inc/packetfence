@@ -100,6 +100,7 @@ BEGIN {
         security_event_run_delayed
         security_event_count_security_event_id
         security_event_count_open_security_event_id
+        security_event_siblings
     );
 }
 use pf::action;
@@ -109,6 +110,7 @@ use pf::constants qw(
     $TRUE
     $FALSE
     $ZERO_DATE
+    $default_pid
 );
 use pf::enforcement;
 use pf::db;
@@ -466,6 +468,7 @@ sub security_event_add {
             pf::action::action_execute( $mac, $security_event_id, $data{notes} , $extra);
             security_event_post_open_action($mac, $security_event_id);
         }
+        _security_event_propagate_open($mac, $security_event_id, %data) unless $data{propagated};
         return ($last_id);
     } else {
         my $msg = "unknown error adding security event $security_event_id for $mac";
@@ -750,7 +753,7 @@ sub security_event_scaning {
 #return -1 on failure, because grace=0 is unlimited
 #
 sub security_event_close {
-    my ( $mac, $security_event_id ) = @_;
+    my ( $mac, $security_event_id, $propagated ) = @_;
     my $logger = get_logger();
     require pf::class;
     my $class_info = pf::class::class_view($security_event_id);
@@ -784,6 +787,7 @@ sub security_event_close {
         );
         $logger->info("security_event $security_event_id closed for $mac");
         security_event_post_close_action($mac, $security_event_id);
+        _security_event_propagate_close($mac, $security_event_id, $FALSE) if $rows && !$propagated;
         return ($grace);
     }
     return (-1);
@@ -793,7 +797,7 @@ sub security_event_close {
 # used for non-trap security_event and to close scan security_events
 #
 sub security_event_force_close {
-    my ( $mac, $security_event_id ) = @_;
+    my ( $mac, $security_event_id, $propagated ) = @_;
     my $logger = get_logger();
 
     my $should_run_actions = security_event_exist_open($mac, $security_event_id);
@@ -811,6 +815,7 @@ sub security_event_force_close {
     $logger->info("security_event $security_event_id force-closed for $mac");
     if($should_run_actions) {
         security_event_post_close_action($mac, $security_event_id);
+        _security_event_propagate_close($mac, $security_event_id, $TRUE) unless $propagated;
     }
     return (1);
 }
@@ -1029,6 +1034,99 @@ sub security_event_post_close_action {
     }
 }
 
+
+=item security_event_siblings
+
+The other nodes of the same device as a node, for a security event: the nodes
+sharing the values of the node fields listed in the same_device_fields setting
+of the security event (pid, computername, ...), minus the nodes whose role is
+whitelisted for the security event.
+
+A node with an empty value in one of these fields, or owned by the default
+owner, has no sibling.
+
+=cut
+
+sub security_event_siblings {
+    my ($mac, $security_event_id) = @_;
+    my $logger = get_logger();
+    my $class = $pf::security_event_config::SecurityEvent_Config{$security_event_id};
+    my $fields = $class ? $class->{same_device_fields} : undef;
+    return () unless defined $fields && ref($fields) eq 'ARRAY' && @$fields;
+
+    my $node = node_attributes($mac);
+    return () unless defined $node;
+    my %where = (mac => { '!=' => $mac });
+    foreach my $field (@$fields) {
+        if (!grep { $_ eq $field } @pf::security_event_config::SAME_DEVICE_FIELDS) {
+            $logger->warn("$field is not a field security event $security_event_id can use to find the nodes of the same device, ignoring it");
+            next;
+        }
+        my $value = $node->{$field};
+        if (!defined $value || $value eq '' || ($field eq 'pid' && $value eq $default_pid)) {
+            $logger->debug("$mac has no $field, not looking for the nodes of the same device for security event $security_event_id");
+            return ();
+        }
+        $where{$field} = $value;
+    }
+    return () if keys %where == 1;
+
+    my ($status, $iter) = pf::dal::node->search(
+        -where => \%where,
+        -columns => [qw(mac)],
+    );
+    if (is_error($status)) {
+        $logger->error("error looking for the nodes of the same device as $mac for security event $security_event_id");
+        return ();
+    }
+    my @siblings = map { $_->{mac} } @{$iter->all(undef) // []};
+    return grep { !_is_node_category_whitelisted($security_event_id, $_) } @siblings;
+}
+
+=item _security_event_propagate_open
+
+Open the security event just opened for a node on the other nodes of the same device
+
+=cut
+
+sub _security_event_propagate_open {
+    my ($mac, $security_event_id, %data) = @_;
+    my $logger = get_logger();
+    # keep the warnings and errors of the security event of the node itself
+    local @WARNINGS = @WARNINGS;
+    local @ERRORS = @ERRORS;
+    foreach my $sibling (security_event_siblings($mac, $security_event_id)) {
+        $logger->info("security event $security_event_id added for $mac, adding it for $sibling (same device)");
+        security_event_add($sibling, $security_event_id, %data, propagated => $TRUE);
+    }
+}
+
+=item _security_event_propagate_close
+
+Close the security event just closed for a node on the other nodes of the same
+device, and reevaluate their access when they have no other open security event
+
+=cut
+
+sub _security_event_propagate_close {
+    my ($mac, $security_event_id, $force) = @_;
+    my $logger = get_logger();
+    foreach my $sibling (security_event_siblings($mac, $security_event_id)) {
+        next unless security_event_exist_open_or_delayed($sibling, $security_event_id);
+        $logger->info("security event $security_event_id closed for $mac, closing it for $sibling (same device)");
+        my $result = $force
+          ? security_event_force_close($sibling, $security_event_id, $TRUE)
+          : security_event_close($sibling, $security_event_id, $TRUE);
+        # security_event_close returns the grace period, which can be 0
+        if ($force ? !$result : $result == -1) {
+            $logger->warn("security event $security_event_id could not be closed for $sibling");
+            next;
+        }
+        if (security_event_count($sibling) == 0) {
+            pf::enforcement::reevaluate_access($sibling, "manage_vclose");
+        }
+    }
+}
 
 =head2 _db_item
 

@@ -136,7 +136,7 @@ Clean up security_event
 
 sub cleanupAfterRead {
     my ($self, $id, $security_event) = @_;
-    $self->expand_list($security_event, qw(actions whitelisted_roles));
+    $self->expand_list($security_event, qw(actions whitelisted_roles same_device_fields));
     if($security_event->{user_mail_message} && ref($security_event->{user_mail_message}) eq 'ARRAY'){
         $security_event->{user_mail_message} = join("\n", @{$security_event->{user_mail_message}});
     }
@@ -157,7 +157,7 @@ sub cleanupBeforeCommit {
        $security_event->{actions} = [uniq @{$security_event->{actions}}];
     }
 
-    $self->flatten_list($security_event, qw(actions trigger whitelisted_roles));
+    $self->flatten_list($security_event, qw(actions trigger whitelisted_roles same_device_fields));
     if ($security_event->{'window_dynamic'}) {
         $security_event->{'window'} = 'dynamic';
     }
