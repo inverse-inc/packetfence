@@ -54,6 +54,20 @@
                                        :text="$i18n.t('Comma-separated list of domains to allow access from the isolation VLAN. If no port is specified for the domain (ex: example.com), it opens TCP 80 and 443.You can specify a specific port to open (ex: example.com:tcp:25) which opens port 25 in TCP. When no protocol is specified (ex: example.com:25), this opens the port for both the UDP and TCP protocol. You can specify the same domain with a different port multiple times and they will be combined. The configuration parameter isolation_passthrough must be enabled for passthroughs to be effective.')"
     />
 
+    <form-group-registration-access-list namespace="registration_access_list"
+                                         :column-label="$i18n.t('Registration access list')"
+                                         :text="$i18n.t('When enabled, a device in the registration role gets, from the switches that map roles to access lists (Role by Access List), an access list that only allows DHCP, DNS and HTTP/HTTPS to PacketFence and the passthroughs, and denies everything else, so devices in the registration network can not reach each other. Wildcard passthroughs can not be expressed in an access list. An access list set for the registration role on the switch takes precedence.')"
+                                         enabled-value="enabled"
+                                         disabled-value="disabled"
+    />
+
+    <form-group-isolation-access-list namespace="isolation_access_list"
+                                      :column-label="$i18n.t('Isolation access list')"
+                                      :text="$i18n.t('Same as the registration access list for the isolation role, with the isolation passthroughs.')"
+                                      enabled-value="enabled"
+                                      disabled-value="disabled"
+    />
+
     <form-group-interception-proxy namespace="interception_proxy"
                                    :column-label="$i18n.t('Proxy Interception')"
                                    :text="$i18n.t('If enabled, we will intercept proxy request on the specified ports to forward to the captive portal.')"
@@ -75,6 +89,8 @@ import {
   FormGroupInterceptionProxyPort,
   FormGroupIsolationPassthrough,
   FormGroupIsolationPassthroughs,
+  FormGroupRegistrationAccessList,
+  FormGroupIsolationAccessList,
   FormGroupPassthrough,
   FormGroupPassthroughs,
   FormGroupProxyPassthroughs,
@@ -94,6 +110,8 @@ const components = {
   FormGroupProxyPassthroughs,
   FormGroupIsolationPassthrough,
   FormGroupIsolationPassthroughs,
+  FormGroupRegistrationAccessList,
+  FormGroupIsolationAccessList,
   FormGroupInterceptionProxy,
   FormGroupInterceptionProxyPort
 }
