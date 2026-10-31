@@ -23,6 +23,7 @@ import (
 	radius "github.com/inverse-inc/go-radius"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
+	"github.com/inverse-inc/packetfence/go/common/ldapClient"
 	"github.com/inverse-inc/packetfence/go/connector"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -165,10 +166,20 @@ func (s ldaptype) Test(source interface{}, ctx context.Context) {
 			continue
 		}
 		var l *ldap.Conn
+		var tlsConfig *tls.Config
+		if source.(pfconfigdriver.AuthenticationSourceLdap).Encryption == "ssl" || source.(pfconfigdriver.AuthenticationSourceLdap).Encryption == "starttls" {
+			// verify against the configured host: dst is the connector's endpoint when one is used
+			tlsConfig, err = ldapClient.TLSConfig(source.(pfconfigdriver.AuthenticationSourceLdap), src)
+			if err != nil {
+				StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceLdap).Type+"."+source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS+strconv.Itoa(num), 0)
+				log.LoggerWContext(ctx).Error("Invalid TLS settings for the LDAP source " + source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS + ": " + err.Error())
+				continue
+			}
+		}
 		if source.(pfconfigdriver.AuthenticationSourceLdap).Encryption != "ssl" {
 			l, err = ldap.Dial("tcp", dst)
 		} else {
-			l, err = ldap.DialTLS("tcp", dst, &tls.Config{InsecureSkipVerify: true})
+			l, err = ldap.DialTLS("tcp", dst, tlsConfig)
 		}
 		if err != nil {
 			StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceLdap).Type+"."+source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS+strconv.Itoa(num), 0)
@@ -177,7 +188,7 @@ func (s ldaptype) Test(source interface{}, ctx context.Context) {
 			defer l.Close()
 			// Reconnect with TLS
 			if source.(pfconfigdriver.AuthenticationSourceLdap).Encryption == "starttls" {
-				err = l.StartTLS(&tls.Config{InsecureSkipVerify: true})
+				err = l.StartTLS(tlsConfig)
 
 				if err != nil {
 					log.LoggerWContext(ctx).Crit("Error connecting to LDAP source using TLS: " + err.Error())
