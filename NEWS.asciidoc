@@ -86,6 +86,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - pfconfig — restarts even when a client grabbed its port (now reserved), the git pull child no longer restarts packetfence-config, and log signal handlers survive (#9510, #9335, #9340)
   - `www.gstatic.com` is no longer a portal detection URL, which broke Google sign-in (#9511)
   - Isolation passthroughs go to the isolation passthrough set instead of the registration one (#9504)
+  - pfstats no longer logs "Unhandled type: tail_file" and "Could not parse duration" for the log tailing metrics (#7104)
   - Inline: pfipset starts again on layer 2 networks with registered or isolated nodes (#9350)
   - iptables — `services.iptables` / `services.ip6tables` disabled is now honoured, and the admin UI shows the right ip6tables status (#9466, #9322)
   - pfconnector — switches defined by subnet reach the remote connectors, LDAP sources with a hostname work through the connector, and in Kubernetes dynreverse dials the right instance and connector env vars reach mod_perl (#9409, #9394, #9301, #9334)
