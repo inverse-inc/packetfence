@@ -107,8 +107,17 @@ func (sc LdapSearchClient) connect() ldapClient.ILdapConnection {
 
 	for _, src := range sources {
 		serverSocketAddress := fmt.Sprintf("%s:%s", src, sc.LdapServer.Port)
+		var tlsConfig *tls.Config
+		if sslEnabled || tlsEnabled {
+			var err error
+			tlsConfig, err = ldapClient.TLSConfig(sc.LdapServer.AuthenticationSourceLdap, src)
+			if err != nil {
+				log.LogInfo(ctx, "Invalid TLS settings for the LDAP source: "+err.Error())
+				continue
+			}
+		}
 		ldapClient := sc.LdapClientFactory.NewLdapClient("tcp", serverSocketAddress, sc.Timeout)
-		conn, err := sc.checkConnection(serverSocketAddress, sslEnabled, ldapClient)
+		conn, err := sc.checkConnection(serverSocketAddress, sslEnabled, ldapClient, tlsConfig)
 
 		if err != nil {
 			log.LogInfo(ctx, "Failed to connect to the LDAP server: "+err.Error())
@@ -117,7 +126,7 @@ func (sc LdapSearchClient) connect() ldapClient.ILdapConnection {
 
 		if tlsEnabled {
 			//TODO this uses the exact same port. what about negotiation? we need 2 ports? 389 and 636? was this tested?
-			err = conn.StartTLS(&tls.Config{InsecureSkipVerify: true})
+			err = conn.StartTLS(tlsConfig)
 		}
 
 		if err != nil {
@@ -138,11 +147,9 @@ func (sc LdapSearchClient) connect() ldapClient.ILdapConnection {
 	return nil
 }
 
-func (sc LdapSearchClient) checkConnection(serverSocketAddress string, sslEnabled bool, ldapClient ldapClient.ILdapClient) (conn ldapClient.ILdapConnection, err error) {
+func (sc LdapSearchClient) checkConnection(serverSocketAddress string, sslEnabled bool, ldapClient ldapClient.ILdapClient, tlsConfig *tls.Config) (conn ldapClient.ILdapConnection, err error) {
 	if sslEnabled {
-		conn, err = ldapClient.DialTLS(&tls.Config{
-			InsecureSkipVerify: true,
-		})
+		conn, err = ldapClient.DialTLS(tlsConfig)
 	} else {
 		conn, err = ldapClient.Dial()
 	}
