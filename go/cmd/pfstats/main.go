@@ -388,6 +388,11 @@ func main() {
 		pfconfigdriver.FetchDecodeSocket(ctx, &ConfStat)
 
 		if RegExpMetric.MatchString(key) {
+			// tail_file metrics are handled by tailFile() above; ProcessMetricConfig
+			// has no case for them and would only log "Unhandled type: tail_file"
+			if ConfStat.Type == "tail_file" {
+				continue
+			}
 			run := func() bool {
 				return (VIP[Management.Int] && ConfStat.Management == "true") || (ConfStat.Management == "false" || ConfStat.Management == "")
 			}
