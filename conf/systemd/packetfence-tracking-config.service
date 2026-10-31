@@ -6,7 +6,9 @@ Documentation=http://packetfence.org
 [Service]
 Type=oneshot
 WorkingDirectory=/usr/local/pf/conf
-ExecStartPre=/bin/sh -c "if [ ! -d \"/usr/local/pf/conf/.git\" ]; then /usr/bin/git init /usr/local/pf/conf/;git config --system --add safe.directory /usr/local/pf/conf;cd /usr/local/pf/conf/;/usr/bin/git add .gitignore .gitignore.example /usr/local/pf/conf/*;fi"
+# The unit runs as root on the pf-owned conf directory: git refuses it ("dubious ownership") unless it is a safe.directory, also on installs that created conf/.git before this was added
+ExecStartPre=/bin/sh -c "/usr/bin/git config --system --get-all safe.directory | /bin/grep -qx /usr/local/pf/conf || /usr/bin/git config --system --add safe.directory /usr/local/pf/conf"
+ExecStartPre=/bin/sh -c "if [ ! -d \"/usr/local/pf/conf/.git\" ]; then /usr/bin/git init /usr/local/pf/conf/;cd /usr/local/pf/conf/;/usr/bin/git add .gitignore .gitignore.example /usr/local/pf/conf/*;fi"
 ExecStart=/bin/bash -c "cd /usr/local/pf/conf/ && /usr/bin/git add -A && /usr/bin/git -c user.name=\'PacketFence Tracking\' -c user.email=\'tracking@packetfence.org\' diff-index --quiet HEAD && echo 'No changes to commit' || /usr/bin/git -c user.name=\'PacketFence Tracking\' -c user.email=\'tracking@packetfence.org\' commit -m \"Commit `date +%%F-%%T`\""
 
 
