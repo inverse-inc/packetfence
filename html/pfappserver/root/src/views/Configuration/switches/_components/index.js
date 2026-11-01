@@ -18,6 +18,7 @@ import BaseFormGroupInlineTrigger from './BaseFormGroupInlineTrigger'
 import BaseFormGroupToggleStaticDynamicDefault from './BaseFormGroupToggleStaticDynamicDefault'
 import BaseFormGroupType from './BaseFormGroupType'
 import BaseInputToggleNetworkFrom from './BaseInputToggleNetworkFrom'
+import BaseFormGroupRadiusAttributes from '../../switchTemplates/_components/BaseFormGroupRadiusAttributes'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -45,6 +46,7 @@ export {
   BaseFormGroupToggleNYDefault            as FormGroupRadiusDeauthUseConnector,
   BaseFormGroupInputPassword              as FormGroupRadiusSecret,
   BaseFormGroupTextarea                   as FormGroupRoleMapAccessList,
+  BaseFormGroupRadiusAttributes           as FormGroupRoleMapRadiusAttributes,
   BaseFormGroupInput                      as FormGroupRoleMapRole,
   BaseFormGroupInput                      as FormGroupRoleMapVpn,
   BaseFormGroupInput                      as FormGroupRoleMapUrl,
@@ -82,6 +84,7 @@ export {
   BaseFormGroupInput                      as FormGroupDownloadableAclsLimit,
   BaseFormGroupInput                      as FormGroupAclsLimit,
   BaseFormGroupToggleNYDefault            as FormGroupToggleAccessListMap,
+  BaseFormGroupToggleNYDefault            as FormGroupToggleRadiusAttributesMap,
   BaseFormGroupToggleNYDefault            as FormGroupToggleInterfaceMap,
   BaseFormGroupSwitch                     as FormGroupDeauthOnPrevious,
   BaseFormGroupChosenOne                  as FormGroupHostMode,

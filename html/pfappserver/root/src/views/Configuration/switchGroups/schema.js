@@ -18,6 +18,7 @@ yup.addMethod(yup.string, 'switchGroupIdNotExistsExcept', function (exceptId = '
 })
 
 import { schemaInlineTriggers } from '../switches/schema'
+import { schemaRadiusAttributes } from '../switchTemplates/schema'
 
 export const schema = (props, roles) => {
   const {
@@ -27,7 +28,7 @@ export const schema = (props, roles) => {
   } = props
 
   const rolesSchema = roles.value.reduce((schema, role) => {
-    return { ...schema, [`${role}Network`]: yup.string().nullable().isCIDR() }
+    return { ...schema, [`${role}Network`]: yup.string().nullable().isCIDR(), [`${role}RadiusAttributes`]: schemaRadiusAttributes }
   }, {});
 
   return yup.object({

@@ -6,6 +6,7 @@ import { computed } from '@vue/composition-api'
 import store, { types } from '@/store'
 import apiCall from '@/utils/api-perl'
 import api from './_api'
+import { radiusAttributesToRows, radiusAttributesToText } from '../switches/radiusAttributes'
 
 export const useStore = $store => {
   return {
@@ -77,7 +78,7 @@ const actions = {
       // Initialize role mapping enabled defaults
       return Promise.all([
         store.dispatch('$_roles/all'),
-        Promise.resolve(item)
+        Promise.resolve(radiusAttributesToRows(item))
       ]).then(([roles, item]) => {
         const baseRoles = ['registration', 'isolation', 'inline', 'voice', 'guest']
         roles = [
@@ -93,6 +94,7 @@ const actions = {
             [`${role}Url`]: null,
             [`${role}Vpn`]: null,
             [`${role}Interface`]: null,
+            [`${role}RadiusAttributes`]: null,
             [`${role}VlanEnabled`]: 'enabled',
             [`${role}RoleEnabled`]: 'enabled',
             [`${role}AccessListEnabled`]: 'enabled',
@@ -135,7 +137,7 @@ const actions = {
   },
   createSwitchGroup: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.create(data).then(response => {
+    return api.create(radiusAttributesToText(data)).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -145,7 +147,7 @@ const actions = {
   },
   updateSwitchGroup: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.update(data).then(response => {
+    return api.update(radiusAttributesToText(data)).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {

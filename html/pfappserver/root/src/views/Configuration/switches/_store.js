@@ -7,6 +7,7 @@ import { computed } from '@vue/composition-api'
 import apiCall from '@/utils/api-perl'
 import api from './_api'
 import { baseRoles } from './config'
+import { radiusAttributesToRows, radiusAttributesToText } from './radiusAttributes'
 
 export const useStore = $store => {
   return {
@@ -109,6 +110,7 @@ const actions = {
           roleDefaults[`${role}Url`] = null
           roleDefaults[`${role}Vpn`] = null
           roleDefaults[`${role}Interface`] = null
+          roleDefaults[`${role}RadiusAttributes`] = null
           roleDefaults[`${role}VlanEnabled`] = 'enabled'
           roleDefaults[`${role}RoleEnabled`] = 'enabled'
           roleDefaults[`${role}AccessListEnabled`] = 'enabled'
@@ -116,7 +118,7 @@ const actions = {
           roleDefaults[`${role}VpnEnabled`] = 'enabled'
           roleDefaults[`${role}InterfaceEnabled`] = 'enabled'
         })
-        item = { ...roleDefaults, ...item }
+        item = { ...roleDefaults, ...radiusAttributesToRows(item) }
         // Ensure Enabled fields default to 'enabled' if null/undefined
         Object.keys(roleDefaults).forEach(key => {
           if (key.endsWith('Enabled') && (item[key] === null || item[key] === undefined)) {
@@ -133,7 +135,7 @@ const actions = {
   },
   createSwitch: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.create(data).then(response => {
+    return api.create(radiusAttributesToText(data)).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -143,7 +145,7 @@ const actions = {
   },
   updateSwitch: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.update(data).then(response => {
+    return api.update(radiusAttributesToText(data)).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {

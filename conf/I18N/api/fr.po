@@ -14981,6 +14981,11 @@ msgstr "RADIUS AUTH"
 msgid "RADIUS Accounting"
 msgstr "Comptabilisation RADIUS"
 
+#: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheForm.vue:328
+#: html/pfappserver/root/src/views/Configuration/switches/_components/TheForm.vue:336
+msgid "RADIUS Attributes"
+msgstr "Attributs RADIUS"
+
 #: html/pfappserver/root/src/views/Auditing/radiusLogs/_components/TheView.vue:6
 msgid "RADIUS Audit Log Entry"
 msgstr "Entrée du journal d'audit RADIUS"
@@ -15061,6 +15066,11 @@ msgstr "Attribut RADIUS requis."
 #: html/pfappserver/root/src/views/Configuration/radius/general/_components/TheForm.vue:120
 msgid "RADIUS attributes"
 msgstr "Attributs RADIUS"
+
+#: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheForm.vue:336
+#: html/pfappserver/root/src/views/Configuration/switches/_components/TheForm.vue:344
+msgid "RADIUS attributes added to the Access-Accept of the role. Add an attribute several times to return several values."
+msgstr "Attributs RADIUS ajoutés à l'Access-Accept du rôle. Ajoutez un attribut plusieurs fois pour renvoyer plusieurs valeurs."
 
 #: html/pfappserver/root/src/views/Status/monitoring/_config/radius.js:46
 msgid "RADIUS auth"
@@ -15934,6 +15944,11 @@ msgstr "Rôle par liste d'accès"
 msgid "Role by Network CIDR"
 msgstr "Rôle par réseau CIDR"
 
+#: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheForm.vue:335
+#: html/pfappserver/root/src/views/Configuration/switches/_components/TheForm.vue:343
+msgid "Role by RADIUS Attributes"
+msgstr "Rôle par attributs RADIUS"
+
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheForm.vue:147
 #: html/pfappserver/root/src/views/Configuration/switches/_components/TheForm.vue:149
 msgid "Role by Switch Role"
@@ -15981,6 +15996,11 @@ msgstr "Mappage de rôle par liste d'accès"
 #: html/pfappserver/root/src/views/Configuration/switches/_components/TheForm.vue:251
 msgid "Role mapping by Network CIDR"
 msgstr "Mappage des rôles par réseau CIDR"
+
+#: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheForm.vue:331
+#: html/pfappserver/root/src/views/Configuration/switches/_components/TheForm.vue:339
+msgid "Role mapping by RADIUS Attributes"
+msgstr "Mappage de rôle par attributs RADIUS"
 
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheForm.vue:143
 #: html/pfappserver/root/src/views/Configuration/switches/_components/TheForm.vue:145

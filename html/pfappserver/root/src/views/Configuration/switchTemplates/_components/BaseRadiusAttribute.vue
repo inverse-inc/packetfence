@@ -4,6 +4,7 @@
     <base-input-chosen-one-searchable ref="typeComponentRef"
       :namespace="`${namespace}.type`"
       :placeholder="$i18n.t('Search RADIUS attributes')"
+      :lookup="lookup"
     />
 
     <component :is="valueComponent" ref="valueComponentRef"
@@ -35,6 +36,9 @@ const props = {
   ...useInputMetaProps,
   ...useInputValueProps
 }
+
+// search the attributes of the RADIUS dictionaries, also where the form meta does not tell
+const lookup = { base_url: '', search_path: '/api/v1/radius_attributes', field_name: 'name', value_name: 'name' }
 
 const setup = (props, context) => {
 
@@ -96,6 +100,7 @@ const setup = (props, context) => {
   })
 
   return {
+    lookup,
     typeComponentRef,
 
     valueComponentRef,
