@@ -3993,6 +3993,10 @@ msgid "Role Name"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Role by RADIUS attributes"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Role by Switch Role"
 msgstr ""
 

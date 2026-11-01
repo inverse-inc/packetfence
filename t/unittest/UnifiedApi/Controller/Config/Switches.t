@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 80;
+use Test::More tests => 101;
 use List::Util qw(first);
 use Test::Mojo;
 use Utils;
@@ -152,6 +152,56 @@ Test2::Tools::Compare::is(
     },
     "Placeholders for VlanMapping is correct"
 );
+
+$t->post_ok($collection_base_url => json => {
+    id => "172.16.9.3", type => 'Cisco::Cisco_IOS_15_5', RadiusAttributesMap => 'Y',
+    r1RadiusAttributes => [ { type => 'Session-Timeout', value => '60' }, { type => 'Lab-Unknown-Attribute' } ],
+})
+  ->status_is(422)
+  ->json_like('/errors/0/message', qr/required/i);
+
+$t->post_ok($collection_base_url => json => {
+    id => "172.16.9.3", type => 'Cisco::Cisco_IOS_15_5', RadiusAttributesMap => 'Y',
+    r1RadiusAttributes => [ { value => '60' } ],
+})
+  ->status_is(422)
+  ->json_like('/errors/0/message', qr/required/i);
+
+# as the RADIUS attributes of the switch templates, the names are not checked
+$t->post_ok($collection_base_url => json => {
+    id => "172.16.9.5", type => 'Cisco::Cisco_IOS_15_5', RadiusAttributesMap => 'Y',
+    r1RadiusAttributes => [ { type => 'Lab-Unknown-Attribute', value => '1' } ],
+})
+  ->status_is(201);
+
+my $guest_radius_attributes = [ { type => 'Tunnel-Type', value => 'VLAN' }, { type => 'Filter-Id', value => 'guest' } ];
+$t->post_ok($collection_base_url => json => {
+    id => "172.16.9.4", type => 'Cisco::Cisco_IOS_15_5', RadiusAttributesMap => 'Y',
+    guestRadiusAttributes => $guest_radius_attributes,
+})
+  ->status_is(201);
+
+$t->get_ok("$base_url/172.16.9.4")
+  ->status_is(200)
+  ->json_is('/item/guestRadiusAttributes', $guest_radius_attributes);
+
+# PUT must expand flat ${role}RadiusAttributes into RadiusAttributesMapping
+# before validation, same as POST (cleanupItemForReplace → cleanupItemForCreate)
+$t->put_ok("$base_url/172.16.9.4" => json => {
+    id => "172.16.9.4", type => 'Cisco::Cisco_IOS_15_5', description => 'ss',
+    RadiusAttributesMap => 'Y',
+    guestRadiusAttributes => [ { type => 'Lab-Unknown-Attribute' } ],
+})
+  ->status_is(422)
+  ->json_like('/errors/0/message', qr/required/i);
+
+# without attributes of its own, the role inherits them again
+$t->patch_ok("$base_url/172.16.9.4" => json => { guestRadiusAttributes => [] })
+  ->status_is(200);
+
+$t->get_ok("$base_url/172.16.9.4")
+  ->status_is(200)
+  ->json_is('/item/guestRadiusAttributes', undef);
 
 $t->post_ok($collection_base_url => json => { id => "172.16.9.1", type => 'Cisco::ASA', description => "ss"})
   ->status_is(201)

@@ -25179,6 +25179,32 @@ components:
         PostMfaValidation:
           description: PostMfaValidation
           type: string
+        RadiusAttributesMap:
+          description: Role by RADIUS attributes
+          type: string
+        RadiusAttributesMapping:
+          description: RadiusAttributesMapping
+          items:
+            description: RadiusAttributesMapping
+            properties:
+              radiusattributes:
+                description: Radiusattributes
+                items:
+                  description: Radiusattribute
+                  properties:
+                    type:
+                      description: Type
+                      type: string
+                    value:
+                      description: Value
+                      type: string
+                  type: object
+                type: array
+              role:
+                description: Role
+                type: string
+            type: object
+          type: array
         RoleMap:
           description: Role by Switch Role
           type: string
@@ -25523,6 +25549,32 @@ components:
         PostMfaValidation:
           description: PostMfaValidation
           type: string
+        RadiusAttributesMap:
+          description: Role by RADIUS attributes
+          type: string
+        RadiusAttributesMapping:
+          description: RadiusAttributesMapping
+          items:
+            description: RadiusAttributesMapping
+            properties:
+              radiusattributes:
+                description: Radiusattributes
+                items:
+                  description: Radiusattribute
+                  properties:
+                    type:
+                      description: Type
+                      type: string
+                    value:
+                      description: Value
+                      type: string
+                  type: object
+                type: array
+              role:
+                description: Role
+                type: string
+            type: object
+          type: array
         RoleMap:
           description: Role by Switch Role
           type: string
@@ -25812,6 +25864,10 @@ components:
               $ref: '#/components/schemas/Meta'
             PostMfaValidation:
               $ref: '#/components/schemas/Meta'
+            RadiusAttributesMap:
+              $ref: '#/components/schemas/Meta'
+            RadiusAttributesMapping:
+              $ref: '#/components/schemas/Meta'
             RoleMap:
               $ref: '#/components/schemas/Meta'
             SNMPAuthPasswordRead:
@@ -25991,6 +26047,10 @@ components:
             NetworkMapping:
               $ref: '#/components/schemas/Meta'
             PostMfaValidation:
+              $ref: '#/components/schemas/Meta'
+            RadiusAttributesMap:
+              $ref: '#/components/schemas/Meta'
+            RadiusAttributesMapping:
               $ref: '#/components/schemas/Meta'
             RoleMap:
               $ref: '#/components/schemas/Meta'
