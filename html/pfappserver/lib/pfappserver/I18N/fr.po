@@ -4396,6 +4396,10 @@ msgid "Role Name"
 msgstr "Nom du rôle"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Role by RADIUS attributes"
+msgstr "Rôle par attributs RADIUS"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Role by Switch Role"
 msgstr "Rôle par rôle de commutateur"
 

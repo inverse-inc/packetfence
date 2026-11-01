@@ -140,6 +140,12 @@ has_field 'AccessListMap' =>
    label => 'Role by access list',
    default => undef,
   );
+has_field 'RadiusAttributesMap' =>
+  (
+   type => 'Toggle',
+   label => 'Role by RADIUS attributes',
+   default => undef,
+  );
 has_field 'UrlMap' =>
   (
    type => 'Toggle',
@@ -594,6 +600,7 @@ addRoleMapping("VpnMapping", "vpn");
 addRoleMapping("NetworkMapping", "network");
 addRoleMapping("NetworkFromMapping", "networkfrom");
 addRoleMapping("InterfaceMapping", "interface");
+addRoleMapping("RadiusAttributesMapping", "radiusattributes");
 
 # Add mappings for Enabled parameters
 addRoleMapping("VlanEnabledMapping", "vlan_enabled");
@@ -611,7 +618,7 @@ my %seen;
 
 foreach my $role (@all_roles) {
     # Define the mapping fields
-    foreach my $type (qw(Vlan Role AccessList Url Vpn Network NetworkFrom Interface)) {
+    foreach my $type (qw(Vlan Role AccessList Url Vpn Network NetworkFrom Interface RadiusAttributes)) {
         my $field_name = "${role}${type}";
         has_field $field_name => (
             type => 'Text',
@@ -645,7 +652,7 @@ after 'BUILD' => sub {
         # Find all role-specific fields in the init data
         foreach my $key (keys %$init_object) {
             # Check for role mapping fields including Enabled parameters
-            if ($key =~ /^(.+?)(Vlan|Role|AccessList|Url|Vpn|Network|NetworkFrom|Interface|VlanEnabled|RoleEnabled|AccessListEnabled|UrlEnabled|VpnEnabled|InterfaceEnabled)$/) {
+            if ($key =~ /^(.+?)($pf::ConfigStore::Switch::MappingSuffixRe|VlanEnabled|RoleEnabled|AccessListEnabled|UrlEnabled|VpnEnabled|InterfaceEnabled)$/) {
                 my $role = $1;
                 my $type = $2;
                 
@@ -880,6 +887,8 @@ Validate the MAC address format of the inline triggers.
 
 Validate the list of uplink ports.
 
+Validate the RADIUS attributes of the roles.
+
 =cut
 
 sub validate {
@@ -937,6 +946,8 @@ sub validate {
         $self->validateFqdnId($value->{id}, $type);
     }
 
+    $self->validateRadiusAttributesMapping();
+
     unless ($self->has_errors) {
         # Valide the MAC address format of the inline triggers.
         @triggers = grep { $_->{type} eq $MAC } @{$value->{inlineTrigger}};
@@ -978,6 +989,19 @@ sub validateAccessListMapping {
            $accesslist_field->add_error($error->{message});
        }
    }
+}
+
+sub validateRadiusAttributesMapping {
+    my ($self) = @_;
+    for my $parent ($self->field('RadiusAttributesMapping')->fields()) {
+        my $field = $parent->field('radiusattributes');
+        for my $line (grep { /^\s*[^\s#]/ } split /\n/, $field->value // '') {
+            my ($name, $value) = split /\s*=\s*/, $line =~ s/^\s+|\s+$//gr, 2;
+            if (!length($name // '') || !length($value // '')) {
+                $field->add_error("'$line' is not in the format 'Attribute-Name = value'");
+            }
+        }
+    }
 }
 
 =head1 COPYRIGHT

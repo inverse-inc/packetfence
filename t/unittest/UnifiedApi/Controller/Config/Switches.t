@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 80;
+use Test::More tests => 96;
 use List::Util qw(first);
 use Test::Mojo;
 use Utils;
@@ -152,6 +152,47 @@ Test2::Tools::Compare::is(
     },
     "Placeholders for VlanMapping is correct"
 );
+
+$t->post_ok($collection_base_url => json => {
+    id => "172.16.9.3", type => 'Cisco::Cisco_IOS_15_5', RadiusAttributesMap => 'Y',
+    r1RadiusAttributes => "Session-Timeout = 60\nLab-Unknown-Attribute",
+})
+  ->status_is(422)
+  ->json_like('/errors/0/message', qr/'Lab-Unknown-Attribute' is not in the format 'Attribute-Name = value'/);
+
+$t->post_ok($collection_base_url => json => {
+    id => "172.16.9.3", type => 'Cisco::Cisco_IOS_15_5', RadiusAttributesMap => 'Y',
+    r1RadiusAttributes => "Session-Timeout =",
+})
+  ->status_is(422)
+  ->json_like('/errors/0/message', qr/'Session-Timeout =' is not in the format 'Attribute-Name = value'/);
+
+# as the RADIUS attributes of the switch templates, the names are not checked
+$t->post_ok($collection_base_url => json => {
+    id => "172.16.9.5", type => 'Cisco::Cisco_IOS_15_5', RadiusAttributesMap => 'Y',
+    r1RadiusAttributes => "Lab-Unknown-Attribute = 1",
+})
+  ->status_is(201);
+
+$t->post_ok($collection_base_url => json => {
+    id => "172.16.9.4", type => 'Cisco::Cisco_IOS_15_5', RadiusAttributesMap => 'Y',
+    guestRadiusAttributes => "Tunnel-Type = VLAN\nFilter-Id = guest",
+})
+  ->status_is(201);
+
+$t->get_ok("$base_url/172.16.9.4")
+  ->status_is(200)
+  ->json_is('/item/guestRadiusAttributes', "Tunnel-Type = VLAN\nFilter-Id = guest");
+
+# PUT must expand flat ${role}RadiusAttributes into RadiusAttributesMapping
+# before validation, same as POST (cleanupItemForReplace → cleanupItemForCreate)
+$t->put_ok("$base_url/172.16.9.4" => json => {
+    id => "172.16.9.4", type => 'Cisco::Cisco_IOS_15_5', description => 'ss',
+    RadiusAttributesMap => 'Y',
+    guestRadiusAttributes => "Lab-Unknown-Attribute",
+})
+  ->status_is(422)
+  ->json_like('/errors/0/message', qr/'Lab-Unknown-Attribute' is not in the format 'Attribute-Name = value'/);
 
 $t->post_ok($collection_base_url => json => { id => "172.16.9.1", type => 'Cisco::ASA', description => "ss"})
   ->status_is(201)

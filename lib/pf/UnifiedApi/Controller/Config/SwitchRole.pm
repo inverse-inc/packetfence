@@ -15,6 +15,9 @@ use warnings;
 use Mojo::Base -role;
 use pf::ConfigStore::Switch;
 
+# the suffix of a per-role parameter (Vlan, Role, ...) => its mapping (VlanMapping, ControllerRoleMapping, ...)
+my %MappingName = reverse %pf::ConfigStore::Switch::MappingKey2;
+
 sub form_parameters {
     [
         inactive => [ qw(always_trigger) ],
@@ -48,6 +51,14 @@ sub cleanupItemForCreate {
     return $item;
 }
 
+sub cleanupItemForReplace {
+    my ($self, $item) = @_;
+    # PUT replaces the switch with exactly this payload. Expand the flat
+    # ${role}RadiusAttributes (and other role mappings) into the compound
+    # *Mapping fields so form validation sees them — same as create.
+    return $self->cleanupItemForCreate($item);
+}
+
 sub mergeUpdate {
     my ($self, $patch, $old_item) = @_;
     my $mappings = makeMappings($patch);
@@ -63,13 +74,10 @@ sub makeMappings {
     my %mapping;
 
     while (my ($k, $v) = each %$patch) {
-        next unless ($k =~ /(.*)(AccessList|Vlan|Url|Role|Vpn|Interface|Network|NetworkFrom)$/);
+        next unless ($k =~ /(.*)($pf::ConfigStore::Switch::MappingSuffixRe)$/);
         my $type = $2;
         my $role = $1;
-        if ($type eq 'Role') {
-            $type = 'ControllerRole';
-        }
-        $mapping{"${type}Mapping"}{$role} = $v;
+        $mapping{$MappingName{$type}}{$role} = $v;
         #delete $patch->{$k};
     }
     return \%mapping;
