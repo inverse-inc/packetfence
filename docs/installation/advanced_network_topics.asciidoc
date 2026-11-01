@@ -435,6 +435,46 @@ This can also be configured with the admin interface in _Configuration -> Polici
 
 CAUTION: Ensure the roles are defined in the network devices prior to configuring role-based assignment.
 
+==== RADIUS Attributes per Role
+
+Besides the VLAN, the role and the access lists of a role, a switch can return
+any other RADIUS attribute of a role in its Access-Accept. Enable _Role by RADIUS
+Attributes_ in the _RADIUS Attributes_ tab of the switch, of its switch group or
+of the default switch, and enter the attributes of each role, one
+`Attribute-Name = value` per line. A switch inherits the attributes of a role from
+its switch group and from the default switch when it doesn't define them.
+
+Add an attribute several times to return it several times. Example that returns
+the VLANs 30 and 40 tagged (RFC 4675 `Egress-VLANID`, 0x31000000 plus the VLAN)
+and a session timeout to the endpoints of the role `staff`:
+
+  Egress-VLANID = 822083614
+  Egress-VLANID = 822083624
+  Session-Timeout = 3600
+
+In [filename]`/usr/local/pf/conf/switches.conf`, the attributes of a role are the
+`<role_name>RadiusAttributes` parameter:
+
+  RadiusAttributesMap=Y
+  staffRadiusAttributes=<<EOT
+  Egress-VLANID = 822083614
+  Egress-VLANID = 822083624
+  Session-Timeout = 3600
+  EOT
+
+The attributes are added to the ones already in the reply of an Access-Accept
+(not to a reject, nor to a VPN authorization), after the RADIUS filters. The
+values are returned as written. As for the RADIUS attributes of the switch
+templates, PacketFence only checks that each line is `name = value`: a role with
+an invalid line gets no attributes and the line is logged.
+
+===== Attributes missing from the RADIUS dictionaries
+
+An attribute that is not in the dictionaries shipped with PacketFence must first
+be defined in [filename]`/usr/local/pf/conf/radiusd/dictionary.local` (see
+[filename]`dictionary.local.example` in the same directory), then `radiusd`,
+`pfconfig`, `pfqueue`, `httpd.aaa` and `pfperl-api` must be restarted.
+
 ==== Port host mode
 
 The _Port host mode_ of a switch or switch group (`host_mode`) tells
