@@ -202,6 +202,7 @@ sub new {
         '_VpnMap'                       => 'enabled',
         '_NetworkMap'                   => 'enabled',
         '_NetworkFromMap'               => 'disabled',
+        '_RadiusAttributesMap'          => 'disabled',
         '_InterfaceMap'                 => 'enabled',
         '_UsePushACLs'                  => 'disabled',
         '_UseDownloadableACLs'          => 'disabled',
@@ -211,6 +212,7 @@ sub new {
         '_networks'                     => undef,
         '_networks_from'                => undef,
         '_interfaces'                   => undef,
+        '_radius_attributes'            => undef,
         '_useSNMP'                      => 'enabled',
         map { "_".$_ => $argv->{$_} } keys %$argv,
     }, $class;
@@ -1203,6 +1205,24 @@ sub _parentRoleForNetworkFrom {
     my ($name) = @_;
     # not yet supported
     return undef;
+}
+
+=item getRadiusAttributesByName
+
+The RADIUS attributes of a role in switches.conf as a list of name and value
+pairs, one "Attribute-Name = value" per line, split at the first equal sign as
+the RADIUS attributes of the switch templates.
+
+=cut
+
+sub getRadiusAttributesByName {
+    my ($self, $roleName) = @_;
+    return if !isenabled($self->{_RadiusAttributesMap});
+    my $lines = $self->{_radius_attributes}{$roleName // ''} // return;
+    return map {
+        my ($name, $value) = split /\s*=\s*/, s/^\s+|\s+$//gr, 2;
+        (defined $value && length $name) ? ($name, $value) : ()
+    } grep { /^\s*[^\s#]/ } map { split /\n/ } ref($lines) ? @$lines : $lines;
 }
 
 =item setVlanByName - set the ifIndex VLAN to the VLAN identified by given name in switches.conf

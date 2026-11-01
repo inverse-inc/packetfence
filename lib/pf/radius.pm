@@ -462,6 +462,13 @@ sub authorize {
 
     $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($args);
 
+    # Add the RADIUS attributes of the role in switches.conf to the Access-Accept
+    if (ref($RAD_REPLY_REF) eq 'ARRAY' && @$RAD_REPLY_REF >= 1
+        && (my @role_attrs = $switch->getRadiusAttributesByName($args->{'user_role'}))) {
+        my ($status, @reply) = @$RAD_REPLY_REF;
+        $RAD_REPLY_REF = [ $status, _merge_radius_attrs(@reply, @role_attrs) ];
+    }
+
     # If we are in VoIPFullAuthorization mode, merge the previously captured Voice VSA
     # on top of the regular Access-Accept (VLAN tunnel attributes, role
     # attributes, push/downloadable ACLs, access-filter rules).
