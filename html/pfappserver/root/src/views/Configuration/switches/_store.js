@@ -109,6 +109,7 @@ const actions = {
           roleDefaults[`${role}Url`] = null
           roleDefaults[`${role}Vpn`] = null
           roleDefaults[`${role}Interface`] = null
+          roleDefaults[`${role}RadiusAttributes`] = null
           roleDefaults[`${role}VlanEnabled`] = 'enabled'
           roleDefaults[`${role}RoleEnabled`] = 'enabled'
           roleDefaults[`${role}AccessListEnabled`] = 'enabled'

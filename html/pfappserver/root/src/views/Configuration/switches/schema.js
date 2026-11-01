@@ -1,6 +1,7 @@
 import store from '@/store'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
+import { schemaRadiusAttributes } from '../switchTemplates/schema'
 
 yup.addMethod(yup.string, 'switchIdNotExistsExcept', function (exceptId = '', message) {
   return this.test({
@@ -38,6 +39,7 @@ export const schema = (props, roles) => {
   const rolesSchema = {}
   for (const role of (roles.value || [])) {
     rolesSchema[`${role}Network`] = yup.string().nullable().isCIDR()
+    rolesSchema[`${role}RadiusAttributes`] = schemaRadiusAttributes
   }
 
   return yup.object({
