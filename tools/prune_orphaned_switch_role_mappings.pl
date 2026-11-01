@@ -8,9 +8,10 @@ prune_orphaned_switch_role_mappings.pl - remove per-role switch mapping keys tha
 
 Over repeated create/delete cycles of roles, switches.conf accumulates per-role
 mapping keys (<role>Vlan, <role>Url, <role>Role, <role>AccessList, <role>Vpn,
-<role>Interface, <role>Network, <role>NetworkFrom) for roles that have since been
-deleted. These orphaned keys are never pruned, bloating switches.conf and making
-the switch config API (GET /api/v1/config/switch/:id) very slow.
+<role>Interface, <role>Network, <role>NetworkFrom, <role>RadiusAttributes) for
+roles that have since been deleted. These orphaned keys are never pruned, bloating
+switches.conf and making the switch config API (GET /api/v1/config/switch/:id)
+very slow.
 
 This script removes those orphaned keys. A role is considered valid if it is
 defined in roles.conf or is one of the reserved/built-in roles.
@@ -39,7 +40,7 @@ my $COMMIT = grep { $_ eq '--commit' } @ARGV;
 
 # Per-role mapping suffixes, matching pf::ConfigStore::Switch::_expandMapping and
 # Config/Roles.pm::reassign_role_config_store_switch.
-my @SUFFIXES = qw(Role Url Vlan AccessList Vpn Interface Network NetworkFrom);
+my @SUFFIXES = qw(Role Url Vlan AccessList Vpn Interface Network NetworkFrom RadiusAttributes);
 my $SUFFIX_RE = join('|', @SUFFIXES);
 
 # Reserved/built-in switch role names. These are legitimate switch attributes
