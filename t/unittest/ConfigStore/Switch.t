@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 14;
+use Test::More tests => 16;
 use Utils;
 use pf::ConfigStore::Switch;
 my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Switch");
@@ -317,6 +317,32 @@ is($new->{voiceVlan}, $oldVoiceVlan, "delete inherited values");
                 'vlan' => '10'
             }
         ]
+    );
+}
+
+{
+    # Config::IniFiles reads a multi-line value as an array
+    my $switch = {
+        staffRadiusAttributes => ['Egress-VLANID = 822083614', 'Egress-VLANID = 822083624'],
+        guestRadiusAttributes => 'Session-Timeout = 3600',
+    };
+    pf::ConfigStore::Switch::_expandMapping($switch);
+    my @mapping = (
+        { role => 'guest', radiusattributes => 'Session-Timeout = 3600' },
+        { role => 'staff', radiusattributes => "Egress-VLANID = 822083614\nEgress-VLANID = 822083624" },
+    );
+    is_deeply($switch->{RadiusAttributesMapping}, \@mapping, "the RADIUS attributes of the roles are expanded in RadiusAttributesMapping");
+
+    my $data = { RadiusAttributesMapping => \@mapping };
+    pf::ConfigStore::Switch::_flattenRoleMappings($data);
+    pf::ConfigStore::Switch::_deleteRoleMappings($data);
+    is_deeply(
+        $data,
+        {
+            guestRadiusAttributes => 'Session-Timeout = 3600',
+            staffRadiusAttributes => "Egress-VLANID = 822083614\nEgress-VLANID = 822083624",
+        },
+        "RadiusAttributesMapping is saved in \${role}RadiusAttributes"
     );
 }
 
