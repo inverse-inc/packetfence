@@ -139,9 +139,16 @@ func main() {
 	// Initialize VIP maps
 	VIP = make(map[string]bool)
 	VIPIp = make(map[string]net.IP)
+	// The synthetic connector interface (DHCP-over-HTTPS) has no interface of
+	// its own: in a cluster it follows the management VIP (watchConnectorScopes),
+	// see connectorServes.
 
-	// Start VIP detection in background
-	go detectVIPLoop(ctx, dbConnPool)
+	// Start VIP detection in background. Not in DoH-only mode (the cloud):
+	// there is no local DHCP interface to hold a VIP, only the connector
+	// scopes, which always serve.
+	if !dohOnly() {
+		go detectVIPLoop(ctx, dbConnPool)
+	}
 
 	// Initialize StatsD client
 	go initStatsD(ctx)
@@ -152,6 +159,8 @@ func main() {
 	// Initialize DHCP configuration
 	DHCPConfig = newDHCPConfig()
 	DHCPConfig.readConfig(ctx, dbConnPool)
+	connectorServes.Store(holdsManagementVIP(ctx))
+	go watchConnectorScopes(ctx, dbConnPool)
 	webservices = pfconfigdriver.GetType[pfconfigdriver.PfConfWebservices](ctx)
 
 	// Initialize worker pool for DHCP requests
@@ -239,7 +248,7 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 	}
 
 	// Check if we have the VIP or if the backend supports cluster mode
-	if !VIP[I.Name] && !handler.available.Listen() {
+	if !servesVIP(I.Name) && !handler.available.Listen() {
 		log.LoggerWContext(ctx).Info(fmt.Sprintf(
 			"Ignored DHCP request: MAC=%s giaddr=%s ciaddr=%s msgType=%s (VIP/cluster not available)",
 			answer.MAC.String(), p.GIAddr().String(), p.CIAddr().String(), msgType.String()))
@@ -690,8 +699,13 @@ retry:
 				}
 			}
 		}
-		// Layer 3 Test
-		pingreply := sharedutils.Ping(setOptionServerIdentifier(srvIP, handler.ip).To4(), dhcp.IPAdd(handler.start, free), I.Name, 1)
+		// Layer 3 Test. Not on the synthetic connector interface: there is no
+		// local NIC to ping from (and Ping fatals on an unknown interface); the
+		// relayed clients are on a remote site anyway.
+		pingreply := false
+		if I.InterfaceType != ConnectorInterfaceType {
+			pingreply = sharedutils.Ping(setOptionServerIdentifier(srvIP, handler.ip).To4(), dhcp.IPAdd(handler.start, free), I.Name, 1)
+		}
 		if pingreply || inarp {
 			// Found in the arp cache or able to ping it
 			ipaddr := dhcp.IPAdd(handler.start, free)
@@ -1022,6 +1036,10 @@ func startNetworkListeners(ctx context.Context, jobs chan job) {
 	for _, v := range DHCPConfig.intsNet {
 		v := v
 		intNametoInterface[v.Name] = &v
+		if v.InterfaceType == ConnectorInterfaceType {
+			// Served through POST /api/v1/dhcp/message, no socket.
+			continue
+		}
 
 		wg.Add(1)
 		go func() {
@@ -1033,6 +1051,9 @@ func startNetworkListeners(ctx context.Context, jobs chan job) {
 	// Start broadcast listeners
 	for _, v := range DHCPConfig.intsNet {
 		v := v
+		if v.InterfaceType == ConnectorInterfaceType {
+			continue
+		}
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -1049,6 +1070,8 @@ func setupAPIRoutes(ctx context.Context, db *sql.DB) *mux.Router {
 	router.MethodNotAllowedHandler = http.HandlerFunc(unifiedapierrors.MethodNotAllowed)
 
 	// API endpoints
+	// DHCP-over-HTTPS: raw DHCP message in, raw DHCP reply out (RFC 8484 style).
+	router.HandleFunc("/api/v1/dhcp/message", api.handleMessage).Methods("POST")
 	router.HandleFunc("/api/v1/dhcp/mac/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", api.handleMac2Ip).Methods("GET")
 	router.HandleFunc("/api/v1/dhcp/mac/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", api.handleReleaseIP).Methods("DELETE")
 	router.HandleFunc("/api/v1/dhcp/ip/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}", api.handleIP2Mac).Methods("GET")

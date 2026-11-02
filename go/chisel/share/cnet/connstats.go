@@ -5,7 +5,7 @@ import (
 	"sync/atomic"
 )
 
-//ConnCount is a connection counter
+// ConnCount is a connection counter
 type ConnCount struct {
 	count int32
 	open  int32
@@ -25,4 +25,9 @@ func (c *ConnCount) Close() {
 
 func (c *ConnCount) String() string {
 	return fmt.Sprintf("[%d/%d]", atomic.LoadInt32(&c.open), atomic.LoadInt32(&c.count))
+}
+
+// Active returns the number of connections currently open.
+func (c *ConnCount) Active() int32 {
+	return atomic.LoadInt32(&c.open)
 }

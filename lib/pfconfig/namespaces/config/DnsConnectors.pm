@@ -4,42 +4,50 @@ package pfconfig::namespaces::config::DnsConnectors;
 
 pfconfig::namespaces::config::DnsConnectors
 
-=cut
-
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::DnsConnectors
-
-This module creates the configuration hash associated to dns_connectors.conf
+The DNS servers behind the connectors, one entry per server, derived from the
+C<dns_servers> lists of connectors.conf (see pf::connector::dns). Kept under
+its historical name for its consumers (pfdns-connector's
+resource::connectors_config, resource::pfconnector_static_connections, the
+DNS lookup test): entries carry C<ip>, C<port>, C<pfconnector_port> (the
+tunnel port), C<domains> (comma separated) and C<connector>, and are keyed
+"<connector>:<ip>:<port>". dns_connectors.conf is no longer read.
 
 =cut
 
 use strict;
 use warnings;
-
-use pfconfig::namespaces::config;
-use pf::file_paths qw($dns_connectors_config_file);
-use pf::util;
-
-use base 'pfconfig::namespaces::config';
+use pfconfig::namespaces::resource;
+use pf::connector::dns qw(dns_server_id);
+use base 'pfconfig::namespaces::resource';
 
 sub init {
     my ($self) = @_;
-    $self->{file} = $dns_connectors_config_file;
-
+    $self->{connectors} = $self->{cache}->get_cache('config::Connector');
     $self->{child_resources} = [
         'resource::connectors_config',
         'resource::pfconnector_static_connections'
     ];
 }
 
-sub build_child {
+sub build {
     my ($self) = @_;
-
-    my %tmp_cfg = %{ $self->{cfg} };
-
-    return \%tmp_cfg;
-
+    my %entries;
+    for my $connector_id (sort keys %{ $self->{connectors} // {} }) {
+        my $connector = $self->{connectors}{$connector_id};
+        for my $s (@{ $connector->{dns_servers} // [] }) {
+            next unless ref($s) eq 'HASH' && defined $s->{ip} && length $s->{ip};
+            $entries{ dns_server_id($connector_id, $s) } = {
+                ip               => $s->{ip},
+                port             => $s->{port},
+                pfconnector_port => $s->{tunnel_port},
+                domains          => join(',', @{ $s->{domains} // [] }),
+                connector        => $connector_id,
+            };
+        }
+    }
+    return \%entries;
 }
 
 =head1 AUTHOR
@@ -70,8 +78,3 @@ USA.
 =cut
 
 1;
-
-# vim: set shiftwidth=4:
-# vim: set expandtab:
-# vim: set backspace=indent,eol,start:
-

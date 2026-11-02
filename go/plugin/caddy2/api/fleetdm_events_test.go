@@ -3,7 +3,7 @@ package api
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -51,9 +51,9 @@ func TestFleetDMPolicy(t *testing.T) {
 		bytes.NewBufferString(testPayload),
 	)
 	w := httptest.NewRecorder()
-	h.Policy(w, req, nil)
+	h.Policy()(w, req)
 	resp := w.Result()
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, _ := io.ReadAll(resp.Body)
 
 	if w.Code != http.StatusAccepted {
 		t.Error("FleetDM API responsed with non-202 code: ", w.Code)
@@ -104,9 +104,9 @@ func TestFleetDMCVE(t *testing.T) {
 		bytes.NewBufferString(testPayload),
 	)
 	w := httptest.NewRecorder()
-	h.CVE(w, req, nil)
+	h.CVE()(w, req)
 	resp := w.Result()
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, _ := io.ReadAll(resp.Body)
 
 	if w.Code != http.StatusAccepted {
 		t.Error("FleetDM API responsed with non-202 code: ", w.Code)

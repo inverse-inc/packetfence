@@ -446,6 +446,24 @@ sub iptables_haproxy_portal_rules {
             }
         }
         util_safe_push( "-i $tint -p tcp -m tcp --dport 1025 -j DROP", $chains->{'filter'}{'INPUT'} );
+        # haproxy-portal's PROXY protocol listeners for the remote connectors
+        # (captive_portal.connector_proxy_protocol, ports 8880/8843 as in
+        # pf::services::manager::haproxy_portal): dialed by pfconnector-server
+        # on the management address, from this host or a cluster member.
+        if (isenabled($Config{captive_portal}{connector_proxy_protocol})) {
+            my @proxy_sources = ('127.0.0.1');
+            if ($cluster_enabled) {
+                push @proxy_sources, uniq(map { $_->{management_ip} } pf::cluster::config_enabled_servers());
+            }
+            foreach my $port (8880, 8843) {
+                foreach my $source (@proxy_sources) {
+                    util_safe_push( "-i $tint -p tcp -m tcp -s $source --dport $port -j ACCEPT", $chains->{'filter'}{'INPUT'} );
+                }
+                # The listeners trust the PROXY header for the client IP: no
+                # other host of the management network may reach them.
+                util_safe_push( "-i $tint -p tcp -m tcp --dport $port -j DROP", $chains->{'filter'}{'INPUT'} );
+            }
+        }
     }
 
     if ( @portal_ints ) {
@@ -1250,6 +1268,16 @@ sub iptables_pfdhcp_rules {
                     }
                 }
             }
+        }
+    }
+    # The connector DHCP scopes are answered by the cluster member holding the
+    # management VIP: pfconnector-server on the other members forwards the
+    # DHCP-over-HTTPS requests of its connectors to that member's pfdhcp API.
+    if ($cluster_enabled && util_management_network_is_set($service_name)) {
+        $chains->{name} = $service_name;
+        my $tint = $management_network->{Tint};
+        foreach my $mgmt_back (uniq(map { $_->{management_ip} } pf::cluster::config_enabled_servers())) {
+            util_safe_push( "-i $tint -p tcp -m tcp -s $mgmt_back --dport 22222 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         }
     }
     if ($chains->{name} ne "") {

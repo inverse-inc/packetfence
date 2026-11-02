@@ -1,0 +1,357 @@
+/api/v1/pfconnector-remotes/{connector_id}/status:
+  get:
+    summary: Status of a connector-remote.
+    description: |
+      Tunnel state and connections of the connector as seen by the
+      pfconnector server, and the system information reported by the
+      connector-remote itself (version, addresses, services, whether its
+      terminal is enabled). `errors` lists what could not be fetched.
+
+      Requires `CONNECTORS_READ`.
+    parameters:
+      - $ref: "#/components/parameters/pfconnector_remote_id"
+    responses:
+      '200':
+        description: Status of the connector-remote.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                connector_id:
+                  type: string
+                connected:
+                  type: boolean
+                  description: Whether the connector has an active tunnel.
+                remote_ips:
+                  type: array
+                  items:
+                    type: string
+                  description: The addresses the connector-remote reports for itself.
+                static_connections:
+                  type: array
+                  items:
+                    type: object
+                bound_remotes:
+                  type: array
+                  items:
+                    type: object
+                  description: The on-demand (dynreverse) connections and whether they are bound.
+                system:
+                  type: object
+                  description: System information reported by the connector-remote (version, services, `terminal_enabled`, ...).
+                central_version:
+                  type: string
+                upgrade_available:
+                  type: boolean
+                errors:
+                  type: array
+                  items:
+                    type: string
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+      '403':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        description: Unknown connector.
+    tags:
+      - PFconnector remotes
+
+/api/v1/pfconnector-remotes/{connector_id}/uptime:
+  get:
+    summary: Tunnel uptime history of a connector-remote.
+    description: |
+      Share of the time the connector answered the pfconnector server through
+      its tunnel, over the window, in buckets ending at the last full minute:
+      1 minute buckets for `1h`, 1 hour for `24h`, 1 day for `30d`. The
+      pfconnector server probes the tunnel every few seconds and keeps one
+      sample per minute for 32 days. A minute without a sample is down when a
+      pfconnector server was running, and no data otherwise or before the
+      first sample of the connector (`since`).
+
+      Requires `CONNECTORS_READ`.
+    parameters:
+      - $ref: "#/components/parameters/pfconnector_remote_id"
+      - name: window
+        in: query
+        required: false
+        schema:
+          type: string
+          enum: [1h, 24h, 30d]
+          default: 24h
+    responses:
+      '200':
+        description: Uptime history of the connector.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                connector_id:
+                  type: string
+                window:
+                  type: string
+                since:
+                  type: string
+                  format: date-time
+                  nullable: true
+                  description: First minute recorded for this connector.
+                generated_at:
+                  type: string
+                  format: date-time
+                up_minutes:
+                  type: number
+                down_minutes:
+                  type: number
+                availability:
+                  type: number
+                  nullable: true
+                  description: Between 0 and 1, null when the window has no data.
+                buckets:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      start:
+                        type: string
+                        format: date-time
+                      end:
+                        type: string
+                        format: date-time
+                      up_minutes:
+                        type: number
+                      down_minutes:
+                        type: number
+                      no_data_minutes:
+                        type: integer
+                      availability:
+                        type: number
+                        nullable: true
+                      worst_availability:
+                        type: number
+                        nullable: true
+                        description: Availability of the worst hour of a bucket longer than an hour (1 day buckets), the bucket availability otherwise.
+                      first_down:
+                        type: string
+                        format: date-time
+                        nullable: true
+                        description: The first minute of the bucket with downtime, null without any.
+                hosts:
+                  type: array
+                  description: |
+                    The hosts of a connector in high availability, as reported
+                    every minute by the active host: the minutes each one
+                    spent active or standing by (with its FreeRADIUS answering
+                    or not), not reporting, or without data, in the same
+                    buckets. Empty for a single host connector.
+                  items:
+                    type: object
+                    properties:
+                      address:
+                        type: string
+                      hostname:
+                        type: string
+                      buckets:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            start:
+                              type: string
+                              format: date-time
+                            end:
+                              type: string
+                              format: date-time
+                            active_minutes:
+                              type: integer
+                            active_radius_down_minutes:
+                              type: integer
+                            standby_minutes:
+                              type: integer
+                            standby_radius_down_minutes:
+                              type: integer
+                            not_reporting_minutes:
+                              type: integer
+                            no_data_minutes:
+                              type: integer
+      '400':
+        description: Unknown window.
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+      '403':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        description: Unknown connector.
+    tags:
+      - PFconnector remotes
+
+/api/v1/pfconnector-remotes/{connector_id}/restart:
+  post:
+    summary: Restart a connector-remote.
+    description: |
+      Restarts the services of the connector-remote through its tunnel.
+
+      Requires `CONNECTORS_UPDATE`.
+    parameters:
+      - $ref: "#/components/parameters/pfconnector_remote_id"
+    responses:
+      '200':
+        description: The restart was requested, the answer of the connector-remote.
+        content:
+          application/json:
+            schema:
+              type: object
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+      '403':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        description: Unknown connector.
+      '502':
+        description: The connector-remote could not be reached.
+    tags:
+      - PFconnector remotes
+
+/api/v1/pfconnector-remotes/{connector_id}/upgrade:
+  post:
+    summary: Upgrade a connector-remote to the version of this server.
+    description: |
+      Asks the connector-remote to upgrade its packetfence-pfconnector-remote
+      package to the PacketFence version of this server. The upgrade runs on
+      the remote host from the PacketFence repository (signed packages only),
+      its output is available in the `upgrade` log of the connector.
+
+      Requires `CONNECTORS_UPDATE`.
+    parameters:
+      - $ref: "#/components/parameters/pfconnector_remote_id"
+    responses:
+      '200':
+        description: The upgrade was requested, the answer of the connector-remote.
+        content:
+          application/json:
+            schema:
+              type: object
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+      '403':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        description: Unknown connector.
+      '502':
+        description: The connector-remote could not be reached.
+    tags:
+      - PFconnector remotes
+
+/api/v1/pfconnector-remotes/{connector_id}/logs/{name}:
+  get:
+    summary: Stream a log of a connector-remote (websocket).
+    description: |
+      Websocket only: the request must be a same-origin websocket upgrade,
+      anything else is refused with 400 or 403. The connection streams the
+      last `lines` lines of the log, then the new ones as they are written.
+      The API token of the admin is not forwarded to the connector-remote.
+
+      Requires `CONNECTORS_READ`.
+    parameters:
+      - $ref: "#/components/parameters/pfconnector_remote_id"
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+          enum:
+            - pfconnector-client
+            - radiusd-auth
+            - fingerbank-collector
+            - connector-cache
+            - upgrade
+      - name: lines
+        in: query
+        required: false
+        description: Number of lines to send first.
+        schema:
+          type: integer
+    responses:
+      '101':
+        description: Switching to the websocket stream of the log.
+      '400':
+        description: Not a websocket upgrade.
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+      '403':
+        description: Not allowed, or not a same-origin request.
+      '404':
+        description: Unknown connector.
+    tags:
+      - PFconnector remotes
+
+/api/v1/pfconnector-remotes/dns-lookup:
+  post:
+    summary: Resolve a name through a DNS connector.
+    description: |
+      Resolves a name with the DNS server of a DNS connector, through the
+      connector that reaches it (or the pfdns-connector front-end).
+
+      Requires `CONNECTORS_READ`.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+            properties:
+              dns_connector_id:
+                type: string
+              name:
+                type: string
+              type:
+                type: string
+                description: The DNS record type, A by default.
+              mode:
+                type: string
+    responses:
+      '200':
+        description: The answer of the DNS server.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                connector_id:
+                  type: string
+                dns_connector_id:
+                  type: string
+                dns_server:
+                  type: string
+                pfconnector_port:
+                  type: string
+                name:
+                  type: string
+                type:
+                  type: string
+                mode:
+                  type: string
+                rcode:
+                  type: string
+                answers:
+                  type: array
+                  items:
+                    type: string
+                error:
+                  type: string
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: "#/components/responses/Unauthorized"
+      '403':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        description: Unknown DNS connector.
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+      '502':
+        description: The DNS connector could not be reached.
+    tags:
+      - PFconnector remotes

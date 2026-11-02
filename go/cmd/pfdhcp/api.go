@@ -137,7 +137,7 @@ func (a *API) handleAllStats(res http.ResponseWriter, req *http.Request) {
 		result.Items = append(result.Items, Stats{})
 	}
 	for _, i := range interfaces.Element {
-		if h, ok := intNametoInterface[i]; ok {
+		if h, ok := lookupInterface(i); ok {
 			stat := h.handleAPIReq(a.Ctx, APIReq{Req: "stats", NetInterface: i, NetWork: ""}, a.DB)
 			for _, s := range stat.([]Stats) {
 				result.Items = append(result.Items, s)
@@ -160,7 +160,7 @@ func (a *API) handleAllStats(res http.ResponseWriter, req *http.Request) {
 func (a *API) handleStats(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
-	if h, ok := intNametoInterface[vars["int"]]; ok {
+	if h, ok := lookupInterface(vars["int"]); ok {
 		stat := h.handleAPIReq(a.Ctx, APIReq{Req: "stats", NetInterface: vars["int"], NetWork: vars["network"]}, a.DB)
 
 		outgoingJSON, err := json.Marshal(stat)
@@ -181,7 +181,7 @@ func (a *API) handleStats(res http.ResponseWriter, req *http.Request) {
 func (a *API) handleDuplicates(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
-	if h, ok := intNametoInterface[vars["int"]]; ok {
+	if h, ok := lookupInterface(vars["int"]); ok {
 		stat := h.handleAPIReq(a.Ctx, APIReq{Req: "duplicates", NetInterface: vars["int"], NetWork: vars["network"]}, a.DB)
 
 		outgoingJSON, err := json.Marshal(stat)
@@ -202,7 +202,7 @@ func (a *API) handleDuplicates(res http.ResponseWriter, req *http.Request) {
 func (a *API) handleDebug(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
-	if h, ok := intNametoInterface[vars["int"]]; ok {
+	if h, ok := lookupInterface(vars["int"]); ok {
 		stat := h.handleAPIReq(a.Ctx, APIReq{Req: "debug", NetInterface: vars["int"], Role: vars["role"]}, a.DB)
 
 		outgoingJSON, err := json.Marshal(stat)
@@ -462,4 +462,63 @@ func (h *Interface) handleAPIReq(ctx context.Context, Request APIReq, db *sql.DB
 	}
 
 	return nil
+}
+
+// dhcpMessageContentType is the media type of a raw DHCP message body,
+// mirroring application/dns-message (RFC 8484).
+const dhcpMessageContentType = "application/dhcp-message"
+
+// handleMessage serves DHCP over HTTP: POST /api/v1/dhcp/message with the raw
+// DHCP request as body returns the raw DHCP reply as body (200), or 204 when
+// pfdhcp has nothing to answer (unknown scope, duplicate transaction...).
+//
+// The request must be relayed (giaddr set): it is answered by the synthetic
+// connector interface, whose scopes are the pfconnector-remote VLAN
+// interfaces with DHCP enabled, and giaddr is what selects the scope. giaddr
+// is also used as server identifier so that clients renew against the relay.
+// pfconnector-server is the only caller and has already checked that giaddr
+// belongs to the connector that sent the message.
+func (a *API) handleMessage(res http.ResponseWriter, req *http.Request) {
+	body, err := io.ReadAll(io.LimitReader(req.Body, 1501))
+	if err != nil || len(body) < 240 || len(body) > 1500 {
+		unifiedapierrors.Error(res, "Body must be a DHCP message (240..1500 bytes)", http.StatusBadRequest)
+		return
+	}
+	p := dhcp.Packet(body)
+	if p.OpCode() != dhcp.BootRequest || p.HLen() > 16 {
+		unifiedapierrors.Error(res, "Not a BOOTREQUEST", http.StatusBadRequest)
+		return
+	}
+	options := p.ParseOptions()
+	t := options[dhcp.OptionDHCPMessageType]
+	if len(t) != 1 {
+		unifiedapierrors.Error(res, "Missing DHCP message type", http.StatusBadRequest)
+		return
+	}
+	msgType := dhcp.MessageType(t[0])
+	if msgType < dhcp.Discover || msgType > dhcp.Inform {
+		unifiedapierrors.Error(res, "Unsupported DHCP message type", http.StatusBadRequest)
+		return
+	}
+	giaddr := p.GIAddr()
+	if giaddr.Equal(net.IPv4zero) {
+		unifiedapierrors.Error(res, "giaddr must be set (relayed request)", http.StatusBadRequest)
+		return
+	}
+	iface, ok := lookupInterface(ConnectorInterfaceName)
+	if !ok {
+		unifiedapierrors.Error(res, "No connector DHCP scope configured", http.StatusNotFound)
+		return
+	}
+
+	// The relay is the "client address" pfdhcp would otherwise have read from
+	// the socket; giaddr is the server identifier advertised to the client.
+	answer := iface.ServeDHCP(a.Ctx, p, msgType, &net.UDPAddr{IP: giaddr, Port: bootpServer}, giaddr.To4(), a.DB)
+	if answer.D == nil {
+		res.WriteHeader(http.StatusNoContent)
+		return
+	}
+	res.Header().Set("Content-Type", dhcpMessageContentType)
+	res.WriteHeader(http.StatusOK)
+	res.Write(answer.D)
 }

@@ -51,8 +51,11 @@ func (t *Tunnel) handleSSHChannel(ch ssh.NewChannel) {
 		t.Debugf("Failed to accept stream: %s", err)
 		return
 	}
-	stream := io.ReadWriteCloser(sshChan)
-	//cnet.MeterRWC(t.Logger.Fork("sshchan"), sshChan)
+	// Per-destination counters for the topology view (stats.go).
+	svc := t.stats.service(serviceKey(hostPort, proto, handler))
+	svc.open()
+	defer svc.close()
+	stream := svc.meter(sshChan)
 	defer stream.Close()
 	go ssh.DiscardRequests(reqs)
 	l := t.Logger.Fork("conn#%d", t.connStats.New())
@@ -72,6 +75,18 @@ func (t *Tunnel) handleSSHChannel(ch ssh.NewChannel) {
 		errmsg = fmt.Sprintf(" (error %s)", err)
 	}
 	l.Debugf("Close %s%s", t.connStats.String(), errmsg)
+}
+
+// serviceKey names a destination the way the topology shows it.
+func serviceKey(hostPort, proto, handler string) string {
+	key := hostPort
+	if proto != "" {
+		key += "/" + proto
+	}
+	if handler != "" {
+		key += "|" + handler
+	}
+	return key
 }
 
 func (t *Tunnel) handleSocks(src io.ReadWriteCloser) error {

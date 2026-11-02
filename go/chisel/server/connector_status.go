@@ -2,8 +2,11 @@ package chserver
 
 import (
 	"bufio"
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"strconv"
@@ -12,6 +15,8 @@ import (
 
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel"
+	"github.com/inverse-inc/packetfence/go/connector"
+	"github.com/redis/go-redis/v9"
 )
 
 // connectorStatusProbeTarget is the address we ask the chisel-client to
@@ -26,8 +31,8 @@ const connectorStatusProbePath = "/api/v1/service/ping"
 // Default cadence and timeouts for the connector status prober. Both are
 // overridable via env vars so deployments can tune without a rebuild.
 const (
-	defaultConnectorStatusInterval = 2 * time.Second
-	defaultConnectorStatusTimeout  = 1 * time.Second
+	defaultConnectorStatusInterval  = 2 * time.Second
+	defaultConnectorStatusTimeout   = 1 * time.Second
 	connectorStatusProbeConcurrency = 32
 )
 
@@ -37,6 +42,15 @@ const (
 type ConnectorStatusTracker struct {
 	mu     sync.RWMutex
 	status map[string]bool
+
+	// the server starts once per listening address: one prober only
+	start sync.Once
+
+	// probe counts of the current minute, written to the uptime history
+	// (connector/uptime.go) when the minute is over
+	minute  time.Time
+	ticks   int
+	samples map[string]connector.UptimeSample
 }
 
 // NewConnectorStatusTracker returns an empty tracker.
@@ -69,8 +83,13 @@ func (t *ConnectorStatusTracker) replace(next map[string]bool) {
 	t.mu.Unlock()
 }
 
-// Start kicks off the background prober. It exits when ctx is done.
-func (t *ConnectorStatusTracker) Start(ctx context.Context) {
+// Start kicks off the background prober, on the first call only. It exits
+// when ctx is done. rdb receives the uptime history, nil to keep none.
+func (t *ConnectorStatusTracker) Start(ctx context.Context, rdb *redis.Client) {
+	t.start.Do(func() { t.run(ctx, rdb) })
+}
+
+func (t *ConnectorStatusTracker) run(ctx context.Context, rdb *redis.Client) {
 	interval := envDuration("PFCONNECTOR_STATUS_PROBE_INTERVAL", defaultConnectorStatusInterval)
 	timeout := envDuration("PFCONNECTOR_STATUS_PROBE_TIMEOUT", defaultConnectorStatusTimeout)
 
@@ -85,6 +104,9 @@ func (t *ConnectorStatusTracker) Start(ctx context.Context) {
 				return
 			case <-ticker.C:
 				t.tick(ctx, timeout)
+				if rdb != nil {
+					t.recordUptime(ctx, rdb, time.Now())
+				}
 			}
 		}
 	}()
@@ -137,6 +159,149 @@ func (t *ConnectorStatusTracker) tick(ctx context.Context, timeout time.Duration
 	}
 	wg.Wait()
 	t.replace(results)
+}
+
+// recordUptime adds the last probe results to the counts of the current
+// minute and, on the first tick of a new minute, writes the previous one.
+// The minute the prober started in is partial and not written. The ticks a
+// connector missed in a minute (tunnel down or held by another server) count
+// as failed probes.
+func (t *ConnectorStatusTracker) recordUptime(ctx context.Context, rdb *redis.Client, now time.Time) {
+	minute := now.Truncate(time.Minute)
+	if !minute.Equal(t.minute) {
+		if !t.minute.IsZero() && t.samples != nil {
+			for id, sample := range t.samples {
+				if sample.Total < t.ticks {
+					sample.Total = t.ticks
+					t.samples[id] = sample
+				}
+			}
+			wctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+			if err := connector.RecordUptimeMinute(wctx, rdb, t.minute, t.samples); err != nil {
+				log.LoggerWContext(ctx).Warn(fmt.Sprintf("connector-status: unable to record the uptime of %s: %s", t.minute.Format(time.RFC3339), err))
+			}
+			cancel()
+			// the hosts of the HA connectors, asked through their tunnel: in
+			// the background, not to hold the prober
+			go recordHostsMinute(ctx, rdb, t.minute)
+		}
+		started := !t.minute.IsZero()
+		t.minute = minute
+		t.ticks = 0
+		t.samples = nil
+		if started {
+			t.samples = map[string]connector.UptimeSample{}
+		}
+	}
+	if t.samples == nil {
+		return
+	}
+	t.ticks++
+	for id, up := range t.Snapshot() {
+		sample := t.samples[id]
+		sample.Total++
+		if up {
+			sample.Up++
+		}
+		t.samples[id] = sample
+	}
+}
+
+// connectorHAStatusPath is the HA status of the connector-remote hosts
+// (clientapi haStatusHandler), absent on the connectors predating it.
+const connectorHAStatusPath = "/api/v1/ha/status"
+
+// recordHostsMinute records the state of the hosts of every HA connector
+// whose tunnel this server holds, for the per-host uptime history.
+func recordHostsMinute(ctx context.Context, rdb *redis.Client, minute time.Time) {
+	var wg sync.WaitGroup
+	sem := make(chan struct{}, connectorStatusProbeConcurrency)
+	activeTunnels.Range(func(k, v any) bool {
+		id, ok := k.(string)
+		tun, ok2 := v.(*tunnel.Tunnel)
+		if !ok || !ok2 || !tun.IsActive() {
+			return true
+		}
+		wg.Add(1)
+		sem <- struct{}{}
+		go func() {
+			defer wg.Done()
+			defer func() { <-sem }()
+			cctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+			defer cancel()
+			status, body, err := tunnelGet(cctx, tun, connectorHAStatusPath)
+			if err != nil || status != http.StatusOK {
+				return
+			}
+			report := connector.HAReport{}
+			if json.Unmarshal(body, &report) != nil {
+				return
+			}
+			if err := connector.RecordHostsMinute(cctx, rdb, minute, id, report.Samples()); err != nil {
+				log.LoggerWContext(ctx).Warn(fmt.Sprintf("connector-status: unable to record the hosts of %s: %s", id, err))
+			}
+		}()
+		return true
+	})
+	wg.Wait()
+}
+
+// tunnelGet sends a GET for path to the connector-remote API through the
+// tunnel, and returns the status and body of the reply.
+func tunnelGet(ctx context.Context, tun *tunnel.Tunnel, path string) (int, []byte, error) {
+	return tunnelRequest(ctx, tun, http.MethodGet, path, nil)
+}
+
+// tunnelRequest sends one HTTP request (a JSON body when body is not nil) to
+// the connector-remote API through the tunnel, and returns the status and
+// body of the reply.
+func tunnelRequest(ctx context.Context, tun *tunnel.Tunnel, method, path string, body []byte) (int, []byte, error) {
+	ch, err := tun.OpenChiselChannel(ctx, connectorStatusProbeTarget)
+	if err != nil {
+		return 0, nil, err
+	}
+	defer ch.Close()
+	type result struct {
+		status int
+		body   []byte
+		err    error
+	}
+	done := make(chan result, 1)
+	go func() {
+		var reader io.Reader
+		if body != nil {
+			reader = bytes.NewReader(body)
+		}
+		req, err := http.NewRequest(method, "http://"+connectorStatusProbeTarget+path, reader)
+		if err != nil {
+			done <- result{err: err}
+			return
+		}
+		req.Host = connectorStatusProbeTarget
+		req.Close = true
+		req.Header.Set("User-Agent", "pfconnector-status-probe")
+		if body != nil {
+			req.Header.Set("Content-Type", "application/json")
+		}
+		if err := req.Write(ch); err != nil {
+			done <- result{err: err}
+			return
+		}
+		resp, err := http.ReadResponse(bufio.NewReader(ch), req)
+		if err != nil {
+			done <- result{err: err}
+			return
+		}
+		defer resp.Body.Close()
+		body, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
+		done <- result{status: resp.StatusCode, body: body, err: err}
+	}()
+	select {
+	case r := <-done:
+		return r.status, r.body, r.err
+	case <-ctx.Done():
+		return 0, nil, ctx.Err()
+	}
 }
 
 // probeConnector opens a chisel SSH channel to the client's local API,

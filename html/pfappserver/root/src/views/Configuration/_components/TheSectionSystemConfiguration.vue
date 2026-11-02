@@ -12,8 +12,6 @@
             <dd v-t="'PacketFence uses a MySQL/MariaDB database. Configure general and advanced database settings, as well as ProxySQL, from this module.'"></dd>
             <dt class="no-saas" v-t="'Cluster:'"></dt>
             <dd class="no-saas" v-t="'PacketFence supports clustering of 3 or more members. Configure the clustering solution from this module.'"></dd>
-            <dt v-t="'Connectors:'"></dt>
-            <dd v-t="'Connectors extend PacketFence capabilities to remote sites, providing domain join and DNS resolution services.'"></dd>
             <dt v-t="'RADIUS:'"></dt>
             <dd v-t="'Configure RADIUS settings including EAP, TLS, FAST, and OCSP profiles, as well as PKI SSL certificates used by the RADIUS service.'"></dd>
             <dt v-t="'Admin Access:'"></dt>

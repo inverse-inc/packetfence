@@ -100,9 +100,9 @@ export const useSections = () => {
       path: '/configuration/network_configuration',
       icon: 'project-diagram',
       collapsable: true,
-      class: 'no-saas',
       items: [
         { name: i18n.t('Networks'),
+          class: 'no-saas',
           items: [
             { name: i18n.t('Network Settings'), path: '/configuration/network' },
             { name: i18n.t('Interfaces'), path: '/configuration/interfaces' },
@@ -111,8 +111,9 @@ export const useSections = () => {
             { name: i18n.t('Device Parking'), path: '/configuration/parking' }
           ]
         },
-        { name: i18n.t('SNMP'), path: '/configuration/snmp_traps' },
-        { name: i18n.t('Floating Devices'), path: '/configuration/floating_devices', saveSearchNamespace: 'floatingDevices' }
+        { name: i18n.t('Cloud Connectors'), path: '/configuration/connectors', saveSearchNamespace: 'connectorsConnectors' },
+        { name: i18n.t('SNMP'), path: '/configuration/snmp_traps', class: 'no-saas' },
+        { name: i18n.t('Floating Devices'), path: '/configuration/floating_devices', class: 'no-saas', saveSearchNamespace: 'floatingDevices' }
       ]
     },
     {
@@ -139,13 +140,6 @@ export const useSections = () => {
           ]
         },
         { name: i18n.t('Cluster'), path: '/configuration/active_active', class: 'no-saas' },
-        { name: i18n.t('Connectors'),
-          items: [
-            { name: i18n.t('Connectors'), path: '/configuration/connectors/connectors', saveSearchNamespace: 'connectorsConnectors' },
-            { name: i18n.t('Domains'), path: '/configuration/connectors/domains', saveSearchNamespace: 'connectorsDomains' },
-            { name: i18n.t('DNS'), path: '/configuration/connectors/dns', saveSearchNamespace: 'connectorsDns' }
-          ]
-        },
         { name: i18n.t('RADIUS'),
           items: [
             { name: i18n.t('General'), path: '/configuration/radius/general' },

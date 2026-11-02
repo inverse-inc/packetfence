@@ -192,7 +192,10 @@ rest {
 		attr_num = 'true'
 		raw_value ='true'
 		chunk = '8192'
-		timeout = 6.000000
+		# Must stay below the response_window of whoever proxies to this
+		# server (the pfconnector waits 5 s, a NAS retransmits after 5 s), so
+		# httpd.aaa never finishes an authorization nobody is waiting for.
+		timeout = 5.000000
 	}
 	pre-proxy {
 		uri = "${..connect_uri}/radius/rest/filter"

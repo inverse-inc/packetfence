@@ -1,0 +1,2 @@
+#!/command/execlineb -P
+tee -a /usr/local/pf/logs/radiusd-auth.log

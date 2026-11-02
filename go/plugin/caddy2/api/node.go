@@ -18,7 +18,6 @@ import (
 	"github.com/inverse-inc/packetfence/go/connector"
 	"github.com/inverse-inc/packetfence/go/fbcollectorclient"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/julienschmidt/httprouter"
 )
 
 // collectorCaller abstracts the fingerbank collector clients so we can transparently
@@ -27,55 +26,58 @@ type collectorCaller interface {
 	Call(ctx context.Context, method, path string, payload, decodeResponseIn interface{}) error
 }
 
-func (h *APIHandler) nodeFingerbankCommunications(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	ctx := r.Context()
-	defaultClient := pfconfigdriver.GetRefresh(ctx, "fbcollectorclient").(*fbcollectorclient.ClientFromConfig)
-	requestPayload := struct {
-		Nodes []string
-	}{}
+func (h *APIHandler) nodeFingerbankCommunications() http.HandlerFunc {
 
-	defer r.Body.Close()
-	err := json.NewDecoder(r.Body).Decode(&requestPayload)
-	sharedutils.CheckError(err)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		defaultClient := pfconfigdriver.GetRefresh(ctx, "fbcollectorclient").(*fbcollectorclient.ClientFromConfig)
+		requestPayload := struct {
+			Nodes []string
+		}{}
 
-	// Resolve the collector client to use for each MAC. Devices behind a pfconnector are
-	// queried only on the collector co-located with that connector instead of fanning out
-	// across all collectors. Anything that can't be resolved falls back to the configured
-	// (clustered) collector. Clients are cached per connector id to avoid redundant lookups.
-	connectors := connector.NewConnectorsContainer(ctx)
-	switchIPs := map[string]string{}
-	if connectors.HasRemoteConnectors(ctx) {
-		switchIPs = h.switchIPsForMacs(ctx, requestPayload.Nodes)
-	}
+		defer r.Body.Close()
+		err := json.NewDecoder(r.Body).Decode(&requestPayload)
+		sharedutils.CheckError(err)
 
-	clientCache := map[string]collectorCaller{}
-	clientForMac := map[string]collectorCaller{}
-	for _, mac := range requestPayload.Nodes {
-		clientForMac[mac] = collectorClientForSwitchIP(ctx, switchIPs[normalizeMac(mac)], defaultClient, connectors, clientCache)
-	}
+		// Resolve the collector client to use for each MAC. Devices behind a pfconnector are
+		// queried only on the collector co-located with that connector instead of fanning out
+		// across all collectors. Anything that can't be resolved falls back to the configured
+		// (clustered) collector. Clients are cached per connector id to avoid redundant lookups.
+		connectors := connector.NewConnectorsContainer(ctx)
+		switchIPs := map[string]string{}
+		if connectors.HasRemoteConnectors(ctx) {
+			switchIPs = h.switchIPsForMacs(ctx, requestPayload.Nodes)
+		}
 
-	endpoints := map[string]common.CollectorEndpointCommunications{}
+		clientCache := map[string]collectorCaller{}
+		clientForMac := map[string]collectorCaller{}
+		for _, mac := range requestPayload.Nodes {
+			clientForMac[mac] = collectorClientForSwitchIP(ctx, switchIPs[normalizeMac(mac)], defaultClient, connectors, clientCache)
+		}
 
-	wg := sync.WaitGroup{}
-	l := sync.Mutex{}
-	for _, mac := range requestPayload.Nodes {
-		wg.Add(1)
-		go func(mac string) {
-			defer wg.Done()
-			ed, err := fetchEndpointData(ctx, mac, clientForMac[mac], defaultClient)
-			if err != nil {
-				log.LoggerWContext(ctx).Error(fmt.Sprintf("Error calling the fingerbank client: %s", err.Error()))
-			}
-			l.Lock()
-			defer l.Unlock()
-			endpoints[mac] = ed
-		}(mac)
-	}
+		endpoints := map[string]common.CollectorEndpointCommunications{}
 
-	wg.Wait()
+		wg := sync.WaitGroup{}
+		l := sync.Mutex{}
+		for _, mac := range requestPayload.Nodes {
+			wg.Add(1)
+			go func(mac string) {
+				defer wg.Done()
+				ed, err := fetchEndpointData(ctx, mac, clientForMac[mac], defaultClient)
+				if err != nil {
+					log.LoggerWContext(ctx).Error(fmt.Sprintf("Error calling the fingerbank client: %s", err.Error()))
+				}
+				l.Lock()
+				defer l.Unlock()
+				endpoints[mac] = ed
+			}(mac)
+		}
 
-	err = json.NewEncoder(w).Encode(gin.H{"items": endpoints})
-	sharedutils.CheckError(err)
+		wg.Wait()
+
+		err = json.NewEncoder(w).Encode(gin.H{"items": endpoints})
+		sharedutils.CheckError(err)
+	})
 }
 
 // fetchEndpointData queries the endpoint data of a MAC on its resolved collector. A

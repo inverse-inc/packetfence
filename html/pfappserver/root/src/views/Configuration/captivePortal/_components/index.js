@@ -24,6 +24,7 @@ export {
   BaseFormGroupInputNumber            as FormGroupRequestTimeout,
   BaseFormGroupTextarea               as FormGroupLoadbalancersIp,
   BaseFormGroupSwitch                 as FormGroupSecureRedirect,
+  BaseFormGroupSwitch                 as FormGroupConnectorProxyProtocol,
   BaseFormGroupSwitch                 as FormGroupStatusOnlyOnProduction,
   BaseFormGroupSwitch                 as FormGroupDetectionMecanismBypass,
   BaseFormGroupTextarea               as FormGroupDetectionMecanismUrls,

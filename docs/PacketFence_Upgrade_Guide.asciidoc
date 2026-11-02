@@ -1054,6 +1054,38 @@ Then restart the API to load the catalogs again:
 /usr/local/pf/bin/pfcmd service pfperl-api restart
 ----
 
+=== Connectors have their own admin actions
+
+The connectors (_Configuration > Network Configuration > Connectors_, and the
+status, logs, DNS test and remote terminal of the connector-remotes) were
+covered by the `SYSTEM` admin actions. They now have their own
+`CONNECTORS_CREATE`, `CONNECTORS_READ`, `CONNECTORS_UPDATE` and
+`CONNECTORS_DELETE` actions, which an admin role with `SYSTEM_...` only does
+not have: its administrators would lose the connectors after the upgrade. The
+following script adds `CONNECTORS_<action>` to every role of
+[filename]`/usr/local/pf/conf/adminroles.conf` that has `SYSTEM_<action>`. Roles
+with the `ALL` action are not concerned.
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-16.0-connectors-admin-roles.pl
+/usr/local/pf/bin/pfcmd configreload hard
+----
+
+In a cluster, run the script on one server only and send the configuration to
+the other members before reloading it:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-16.0-connectors-admin-roles.pl
+/usr/local/pf/bin/cluster/sync --as-master
+/usr/local/pf/bin/pfcmd configreload hard
+----
+
+Administrators of the domains (`DOMAINS_READ`) can still see which connector
+serves a domain controller and the state of its NTLM services in the domain
+form; installing them on the connector requires `CONNECTORS_UPDATE`.
+
 === NTLM auth API host of domains joined before 15.1
 
 Domains joined before 15.1 are saved with `ntlm_auth_host=127.0.0.1` in
@@ -1331,6 +1363,65 @@ back to any available domain controller when none of the listed ones is reachabl
 Before upgrading, check the `sticky_dc` value of each domain in
 [filename]`/usr/local/pf/conf/domain.conf`, and set it back to `*` if you don't
 want to pin a domain controller.
+
+=== Connectors: CONNECTORS admin actions and the remote terminal
+
+The configuration of the connectors (_Configuration -> System Configuration ->
+Connectors_) and the new connector-remote features (status, logs, DNS test,
+restart, upgrade, terminal) require the `CONNECTORS_*` admin actions instead
+of `SYSTEM_*`. The `ALL` role includes them; grant custom admin roles
+`CONNECTORS_READ` (view the connectors, their status and logs, DNS test),
+`CONNECTORS_CREATE` and `CONNECTORS_DELETE` (manage the connectors) and
+`CONNECTORS_UPDATE` (modify them, restart, upgrade, terminal).
+
+Upgrading `packetfence-pfconnector-remote` on a connector adds
+`PFCONNECTOR_TERMINAL=false` and `PFCONNECTOR_TERMINAL_TOTP=true` to
+[filename]`/usr/local/pfconnector-remote/conf/pfconnector-client.env` when they
+are absent (values already set are kept): the remote terminal stays off. To
+allow it, set `PFCONNECTOR_TERMINAL=true`, enroll the TOTP seed displayed by
+`/usr/local/pfconnector-remote/bin/pfconnector-totp-qrcode` and restart the
+packetfence-pfconnector-remote service. Connectors must be upgraded to this
+version for the terminal to work: the terminal session is now enforced on the
+connector itself.
+
+=== Connectors: DNS servers configured on the connectors
+
+The _Connectors -> DNS_ and _Connectors -> Domains_ sections are replaced by
+the _DNS_ section of each connector's _Settings_ tab (_Configuration -> Network
+Configuration -> Cloud Connectors_): a DNS server and the domains it serves are
+configured on the connector that reaches it. Migrate the existing
+[filename]`/usr/local/pf/conf/dns_connectors.conf` and
+[filename]`/usr/local/pf/conf/domains_connectors.conf` with:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-16.0-connectors-dns-servers.pl
+----
+
+A DNS server goes under the connector each of its domains was mapped to, with
+the domains of that connector (a server whose domains were mapped to two
+connectors is added to both). It keeps its tunnel port when it is free and
+gets a free one otherwise. Domains mapped to no connector, and domain mappings
+without a DNS server, had no effect and are dropped with a notice. The old
+files are kept with a `.migrated` suffix.
+
+=== Connectors: captive portal through the PROXY protocol by default
+
+`captive_portal.connector_proxy_protocol` is now enabled by default: the
+connectors tunnel their ports 80/443 to the haproxy-portal listeners on ports
+8880/8843 with the address of the device, and these listeners exist even on a
+server without a portal interface. Restart haproxy-portal, the iptables and
+pfconnector-server services after the upgrade. To keep the previous behavior
+(ports 80/443 of the management address), set it to `disabled` in
+_Configuration -> System Configuration -> Captive Portal_.
+
+WARNING: Upgrade `packetfence-pfconnector-remote` on every connector right
+after the PacketFence server. A connector running an older version forwards
+ports 80/443 without the PROXY header, and haproxy-portal rejects these
+connections: the captive portal can't be reached through that connector until
+it is upgraded. If the connectors can't be upgraded at the same time, set
+`captive_portal.connector_proxy_protocol` to `disabled` before upgrading the
+server, and enable it once all the connectors are upgraded.
 
 == Troubleshooting Upgrades
 

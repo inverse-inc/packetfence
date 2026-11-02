@@ -4,42 +4,42 @@ package pfconfig::namespaces::config::DomainsConnectors;
 
 pfconfig::namespaces::config::DomainsConnectors
 
-=cut
-
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::DomainsConnectors
-
-This module creates the configuration hash associated to domains_connectors.conf
+Domain name -> connector, derived from the domains listed under the
+connectors' DNS servers (connectors.conf C<dns_servers>, see
+pf::connector::dns). Kept under its historical name for its consumer
+(resource::connectors_config). domains_connectors.conf is no longer read.
 
 =cut
 
 use strict;
 use warnings;
-
-use pfconfig::namespaces::config;
-use pf::file_paths qw($domains_connectors_config_file);
-use pf::util;
-
-use base 'pfconfig::namespaces::config';
+use pfconfig::namespaces::resource;
+use base 'pfconfig::namespaces::resource';
 
 sub init {
     my ($self) = @_;
-    $self->{file} = $domains_connectors_config_file;
-
+    $self->{connectors} = $self->{cache}->get_cache('config::Connector');
     $self->{child_resources} = [
         'resource::connectors_config'
     ];
-
 }
 
-sub build_child {
+sub build {
     my ($self) = @_;
-
-    my %tmp_cfg = %{ $self->{cfg} };
-
-    return \%tmp_cfg;
-
+    my %domains;
+    for my $connector_id (sort keys %{ $self->{connectors} // {} }) {
+        my $connector = $self->{connectors}{$connector_id};
+        for my $s (@{ $connector->{dns_servers} // [] }) {
+            next unless ref($s) eq 'HASH';
+            for my $domain (@{ $s->{domains} // [] }) {
+                next unless defined $domain && length $domain;
+                $domains{$domain} //= { connector => $connector_id };
+            }
+        }
+    }
+    return \%domains;
 }
 
 =head1 AUTHOR
@@ -70,8 +70,3 @@ USA.
 =cut
 
 1;
-
-# vim: set shiftwidth=4:
-# vim: set expandtab:
-# vim: set backspace=indent,eol,start:
-

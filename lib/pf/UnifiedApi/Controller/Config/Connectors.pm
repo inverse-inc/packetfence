@@ -24,8 +24,80 @@ has 'primary_key' => 'connector_id';
 use pf::ConfigStore::Connector;
 use pfappserver::Form::Config::Connector;
 use Mojo::UserAgent;
-use pf::config qw(%Config);
+use NetAddr::IP;
+use pf::config qw(
+    %Config
+    %ConfigConnector
+    %ConfigAuthentication
+    %ConfigDomains
+    %ConfigFirewallSSO
+    %ConfigSwitchesList
+);
+use pf::connector;
+use pf::factory::connector;
+use pf::SwitchFactory;
+use pf::util qw(listify valid_ip isenabled);
+use pfconfig::cached_hash;
 use pf::log;
+
+tie our %ConfigDnsConnectors, 'pfconfig::cached_hash', 'config::DnsConnectors';
+
+=head2 post_create / post_update
+
+Bind the static tunnels added by the change (a new DNS server's tunnel
+port, a RADIUS source now routed through this connector...) on the live
+tunnel, as they are otherwise only bound when the connector next connects,
+and close the ones it no longer has. Only the differences are applied.
+
+=cut
+
+sub post_create {
+    my ($self, $id) = @_;
+    $self->reprovision_static($id);
+    $self->refresh_radius_nas($id);
+}
+
+sub post_update {
+    my ($self, $id) = @_;
+    $self->reprovision_static($id);
+    $self->refresh_radius_nas($id);
+}
+
+=head2 refresh_radius_nas
+
+The networks of a connector decide which switches are its RADIUS clients:
+make the connector-remote reload them (pf::connector::refresh_radius_nas).
+
+=cut
+
+sub refresh_radius_nas {
+    my ($self, $id) = @_;
+    my $connector = pf::factory::connector->new($id);
+    $connector->refresh_radius_nas() if $connector;
+    return;
+}
+
+=head2 post_remove
+
+Release what a deleted connector still holds on pfconnector-server: its
+tunnel is closed, and the tunnel ports of its DNS servers can be given to
+another connector right away.
+
+=cut
+
+sub post_remove {
+    my ($self, $id) = @_;
+    # no longer in the configuration, pf::factory::connector can't build it
+    pf::connector->new(id => $id)->reprovision_static();
+    return;
+}
+
+sub reprovision_static {
+    my ($self, $id) = @_;
+    my $connector = pf::factory::connector->new($id);
+    $connector->reprovision_static() if $connector;
+    return;
+}
 
 sub status {
     my ($self) = @_;
@@ -67,6 +139,126 @@ sub status {
     }
 
     return $self->render(json => { items => \@items });
+}
+
+=head2 equipment
+
+List the equipment (switches, authentication sources, domains, firewalls, DNS
+connectors) whose configured IP addresses are routed through this connector.
+An IP belongs to this connector when pf::factory::connector->for_ip resolves
+to it, so overlapping networks across connectors are attributed with the same
+precedence the runtime uses.
+
+=cut
+
+sub equipment {
+    my ($self) = @_;
+    my $connector_id = $self->id;
+
+    my @connector_networks =
+      grep { defined }
+      map  { NetAddr::IP->new($_) } @{ $ConfigConnector{$connector_id}{networks} // [] };
+
+    my %ip_match_cache;
+    my $matches = sub {
+        my ($ip) = @_;
+        return 0 unless defined $ip && valid_ip($ip);
+        return $ip_match_cache{$ip} //= do {
+            my $connector = pf::factory::connector->for_ip($ip);
+            ($connector && $connector->id eq $connector_id) ? 1 : 0;
+        };
+    };
+
+    my @switches;
+    for my $switch_id (sort keys %ConfigSwitchesList) {
+        # Only IP or CIDR switch ids can be located; hostname ids would need a
+        # DNS lookup in the request path.
+        next unless $switch_id =~ m{^\d{1,3}(?:\.\d{1,3}){3}(?:/\d{1,2})?$};
+        my $net = NetAddr::IP->new($switch_id) or next;
+        if ($net->num <= 1) {
+            next unless $matches->($net->addr);
+        } else {
+            # A switch range matches when it overlaps one of this connector's networks
+            next unless grep { $_->contains($net) || $net->contains($_) } @connector_networks;
+        }
+        my $data = $pf::SwitchFactory::SwitchConfig{$switch_id} // {};
+        push @switches, {
+            id          => $switch_id,
+            description => $data->{description} // '',
+            type        => $data->{type} // '',
+            ips         => [$switch_id],
+        };
+    }
+
+    my @sources;
+    for my $source_id (sort keys %ConfigAuthentication) {
+        my $data = $ConfigAuthentication{$source_id};
+        my @matched =
+          grep { $matches->($_) }
+          grep { defined && length }
+          map  { split /\s*,\s*/ } @{ listify($data->{host} // '') };
+        next unless @matched;
+        push @sources, {
+            id          => $source_id,
+            description => $data->{description} // '',
+            type        => $data->{type} // '',
+            ips         => \@matched,
+        };
+    }
+
+    my @domains;
+    for my $domain_id (sort keys %ConfigDomains) {
+        my $data = $ConfigDomains{$domain_id};
+        my @matched =
+          grep { $matches->($_) }
+          grep { defined && length }
+          ($data->{ad_server}, split(/\s*,\s*/, $data->{dns_servers} // ''));
+        next unless @matched;
+        push @domains, {
+            id          => $domain_id,
+            description => $data->{ad_fqdn} // '',
+            type        => 'AD',
+            ips         => \@matched,
+        };
+    }
+
+    my @firewalls;
+    for my $firewall_id (sort keys %ConfigFirewallSSO) {
+        next unless $matches->($firewall_id);
+        my $data = $ConfigFirewallSSO{$firewall_id};
+        push @firewalls, {
+            id          => $firewall_id,
+            description => '',
+            type        => $data->{type} // '',
+            ips         => [$firewall_id],
+        };
+    }
+
+    my @dns_connectors;
+    for my $dns_id (sort keys %ConfigDnsConnectors) {
+        my $data = $ConfigDnsConnectors{$dns_id};
+        # DNS servers are configured on a connector: list the ones of this
+        # connector, wherever their IP falls (the key is
+        # "<connector>:<ip>:<port>", so show the server as "<ip>:<port>")
+        next unless ( $data->{connector} // '' ) eq $connector_id;
+        push @dns_connectors, {
+            id          => join(':', $data->{ip}, ($data->{port} // 53)),
+            description => join(', ', grep { length } split(/\s*,\s*/, $data->{domains} // '')),
+            type        => 'DNS',
+            ips         => [$data->{ip}],
+        };
+    }
+
+    return $self->render(json => {
+        networks  => [ map { "$_" } @{ $ConfigConnector{$connector_id}{networks} // [] } ],
+        equipment => {
+            switches               => \@switches,
+            authentication_sources => \@sources,
+            domains                => \@domains,
+            firewalls              => \@firewalls,
+            dns_connectors         => \@dns_connectors,
+        },
+    });
 }
 
 =head1 AUTHOR

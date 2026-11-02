@@ -1,0 +1,51 @@
+#!/bin/sh
+# postrm script for packetfence-ntlm-auth-api-remote
+#
+# see: dh_installdeb(1)
+
+set -e
+
+remove_containers_and_images() {
+    command -v docker >/dev/null 2>&1 || return 0
+    # One container per domain: ntlm-auth-api-<domain>
+    containers=$(docker ps -a --format '{{.Names}}' 2>/dev/null | grep -E '^ntlm-auth-api(-|$)' || true)
+    if [ -n "$containers" ]; then
+        # shellcheck disable=SC2086
+        docker rm -f $containers >/dev/null 2>&1 || true
+    fi
+    # By image ID: covers the pulled and local tags and untagged (<none>) leftovers
+    images=$(docker images --format '{{.Repository}} {{.ID}}' 2>/dev/null \
+        | awk '$1 ~ /^(packetfence|ghcr\.io\/inverse-inc\/packetfence)\/ntlm-auth-api$/ {print $2}' | sort -u || true)
+    if [ -n "$images" ]; then
+        # shellcheck disable=SC2086
+        docker rmi -f $images >/dev/null 2>&1 || true
+        echo "Removed the ntlm-auth-api container images"
+    fi
+}
+
+# /usr/local/ntlm-auth-api is shared with packetfence-ntlm-auth-join-remote.
+other_installed() {
+    dpkg-query -W -f '${Status}' packetfence-ntlm-auth-join-remote 2>/dev/null | grep -q 'install ok installed'
+}
+
+case "$1" in
+    remove)
+        remove_containers_and_images
+        /bin/systemctl daemon-reload 2>/dev/null || true
+    ;;
+    purge)
+        remove_containers_and_images
+        if ! other_installed; then
+            rm -rf /usr/local/ntlm-auth-api
+        fi
+        /bin/systemctl daemon-reload 2>/dev/null || true
+    ;;
+    upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+    ;;
+    *)
+        echo "postrm called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+exit 0

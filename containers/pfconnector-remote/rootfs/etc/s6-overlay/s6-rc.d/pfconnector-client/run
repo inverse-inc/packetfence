@@ -1,3 +1,4 @@
 #!/command/execlineb -P
 with-contenv
+fdmove -c 2 1
 /usr/local/pf/sbin/pfconnector client ENV 127.0.0.1:22226:127.0.0.1:22226 100.64.0.1:22226:127.0.0.1:22226

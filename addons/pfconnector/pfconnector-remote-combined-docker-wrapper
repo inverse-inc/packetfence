@@ -4,6 +4,21 @@ source /usr/local/pfconnector-remote/containers/systemd-service
 
 name=pfconnector-remote-combined
 
+# The package ships an empty pfconnector-client.env; pfconnector-configure (or
+# the admin-interface install command) fills it in. Without AUTH/HOST the
+# container would start and the connector would crash-loop with a misleading
+# "Unable to setup the PF_SYSTEM_INIT secret" panic (PFCONNECTOR_REMOTE unset),
+# so refuse early with a message that says what to do.
+ENV_FILE=/usr/local/pfconnector-remote/conf/pfconnector-client.env
+if ! grep -qE '^AUTH=.+:.+' "$ENV_FILE" 2>/dev/null || ! grep -qE '^HOST=.+' "$ENV_FILE" 2>/dev/null; then
+  echo "pfconnector-remote is not configured: $ENV_FILE has no AUTH/HOST. Run /usr/local/pfconnector-remote/bin/pfconnector-configure (or the install command shown in the PacketFence admin interface) and start the service again." >&2
+  exit 1
+fi
+if ! grep -qE '^PFCONNECTOR_REMOTE=' "$ENV_FILE"; then
+  # Configs written by hand or by older tooling: the connector needs this flag
+  echo "PFCONNECTOR_REMOTE=true" >> "$ENV_FILE"
+fi
+
 args=`base_args $name`
 
 # pfconnector-client env vars
@@ -27,9 +42,20 @@ args="$args -v /usr/local/pfconnector-remote/raddb/:/usr/local/pf/raddb/"
 # fingerbank-collector mounts
 args="$args -v /usr/local/pfconnector-remote/db:/usr/local/collector-remote/db"
 
+# Host package database, read-only: the pfconnector-client reports the
+# PacketFence packages installed on the host (NTLM authentication services)
+# to the admin interface. The directory, not the status file: dpkg rewrites
+# the file (write + rename) and a bind-mounted file would keep the old inode.
+args="$args -v /var/lib/dpkg:/usr/local/pf/var/host/dpkg:ro"
+
 # connector-cache sqlite DB (persist across container restarts)
 args="$args -v /usr/local/pfconnector-remote/var/lib/packetfence-connector-cache:/usr/local/packetfence-connector-cache"
 
 args="$args --network=host"
+# Site networking (VLAN interfaces, addresses, static routes) is applied by
+# pfconnector-client with netlink in the host network namespace; NET_BROADCAST
+# and NET_RAW let keepalived manage the HA virtual IP and exchange VRRP
+# advertisements (docs/design/pfconnector-remote-ha.md).
+args="$args --cap-add=NET_ADMIN --cap-add=NET_BROADCAST --cap-add=NET_RAW"
 
 run $name "$args"

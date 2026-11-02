@@ -85,6 +85,9 @@ sub commit {
     my $switches = $manager->get_cache($self->pfconfigNamespace);
     my $client = pf::api::queue->new(queue => 'priority');
     $client->notify( 'switch_freeradius_populate_nas_config', $switches, $timestamp);
+    # The remote connectors render their own RADIUS clients from this
+    # configuration: make them reload it (pf::connector::refresh_radius_nas).
+    $client->notify( 'pfconnector_refresh_radius_nas' );
     return ($result, $error);
 }
 

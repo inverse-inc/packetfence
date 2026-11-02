@@ -150,6 +150,27 @@ sub echo : Public {
     return @args;
 }
 
+=head2 pfconnector_refresh_radius_nas
+
+Make every remote connector reload its RADIUS clients, after the switches or
+the connectors changed. Each connector is asked through the pfconnector
+server instance holding its tunnel (see pf::connector::refresh_radius_nas);
+the local connector has no remote RADIUS server and is skipped.
+
+=cut
+
+sub pfconnector_refresh_radius_nas : Public {
+    my ($class) = @_;
+    require pf::factory::connector;
+    require pf::ConfigStore::Connector;
+    for my $id (@{ pf::ConfigStore::Connector->new->readAllIds // [] }) {
+        next if $id eq 'local_connector';
+        my $connector = pf::factory::connector->new($id) or next;
+        $connector->refresh_radius_nas();
+    }
+    return;
+}
+
 sub switch_freeradius_populate_nas_config : Public {
     my ($class, $switches, $timestamp) = @_;
     if (ref($switches) eq 'HASH') {

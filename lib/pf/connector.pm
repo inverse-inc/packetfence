@@ -193,5 +193,29 @@ sub reprovision_static {
     return;
 }
 
-1;
+=head2 refresh_radius_nas
 
+Ask the pfconnector server holding this connector's tunnel to make the
+connector-remote reload its RADIUS clients (the NAS list it renders from the
+switches behind the connector): the remote re-runs its sync scripts and
+restarts its RADIUS server only when the list changed. Called after a switch
+or a connector is saved. Best-effort: logs and swallows errors (a connector
+without a tunnel syncs when it connects, and an HA standby follows its master
+within a minute anyway).
+
+=cut
+
+sub refresh_radius_nas {
+    my ($self) = @_;
+    eval {
+        $self->connectorServerApiClient->call("POST", "/api/v1/pfconnector/refresh-radius-nas", {
+            connector_id => $self->id,
+        });
+    };
+    if ($@) {
+        get_logger->warn("Failed to ask connector '".$self->id."' to refresh its RADIUS clients: $@");
+    }
+    return;
+}
+
+1;

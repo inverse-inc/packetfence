@@ -5,7 +5,16 @@ home_server pf.remote {
         src_ipaddr = %mgmt_ip%
         port = 18122
         secret = '%password%'
-        response_window = 3                  # seconds to wait for ANY reply
+        # Timeouts along the chain, longest first: the NAS retransmits after 5 s
+        # (Cisco default), so the connector waits up to 5 s for PacketFence,
+        # whose rest post-auth call to httpd.aaa times out at 5 s as well
+        # (conf/radiusd/rest.conf), so PacketFence never works on a request the
+        # connector has already given up on.
+        response_window = 5                  # seconds to wait for ANY reply
+        # One slow answer must not take PacketFence out of the pool: while it is
+        # zombie the fail-over sends the requests to pf.degraded, which accepts
+        # them locally. Only 3 unanswered requests in a row start the zombie period.
+        response_timeouts = 3
         zombie_period = 10                   # mark server dead after this
         revive_interval = 60                 # auto revive if it’s been dead that long
 
@@ -32,7 +41,8 @@ home_server pf.remote.acct {
         src_ipaddr = %mgmt_ip%
         port = 18132
         secret = '%password%'
-        response_window = 3
+        response_window = 5                  # same chain as pf.remote above
+        response_timeouts = 3
         zombie_period = 10
         revive_interval = 60
 

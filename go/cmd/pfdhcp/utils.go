@@ -119,7 +119,7 @@ func initiaLease(ctx context.Context, dhcpHandler *DHCPHandler, ConfNet pfconfig
 func InterfaceScopeFromMac(ctx context.Context, MAC string) string {
 	var NetWork string
 	if index, found := GlobalMacCache.Get(MAC); found {
-		for _, v := range DHCPConfig.intsNet {
+		for _, v := range servedInterfaces() {
 			v := v
 			for network := range v.network {
 				if v.network[network].network.Contains(net.ParseIP(index.(string))) {

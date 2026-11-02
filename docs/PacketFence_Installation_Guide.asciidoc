@@ -125,6 +125,9 @@ include::installation/performance_optimizations.asciidoc[]
 
 include::installation/advanced_network_topics.asciidoc[]
 
+// the chapter heading is the first section of the file
+include::installation/pfconnector.asciidoc[leveloffset=-2]
+
 == Additional Integration
 
 include::installation/additional_integration.asciidoc[]
