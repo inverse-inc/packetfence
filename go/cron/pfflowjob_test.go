@@ -2,7 +2,9 @@ package maint
 
 import (
 	"context"
+	"net"
 	"testing"
+	"time"
 
 	"github.com/segmentio/kafka-go"
 )
@@ -67,5 +69,33 @@ func TestNoPartitionAssigned(t *testing.T) {
 		if got := noPartitionAssigned(c.group, topic); got != c.want {
 			t.Errorf("%s: noPartitionAssigned() = %v, want %v", c.name, got, c.want)
 		}
+	}
+}
+
+func TestPfFlowRunStopsWhileWaitingForKafka(t *testing.T) {
+	// Nothing listens on the port: run() keeps waiting for the broker and
+	// must still return once ctx is done.
+	l, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	broker := l.Addr().String()
+	l.Close()
+
+	j := &PfFlowJob{Brokers: []string{broker}, ReadTopic: "pfflows_events", GroupID: "network_group"}
+	ctx, cancel := context.WithCancel(context.Background())
+	done := make(chan struct{})
+	go func() {
+		j.run(ctx)
+		close(done)
+	}()
+
+	time.Sleep(3 * time.Second)
+	cancel()
+	select {
+	case <-done:
+	case <-time.After(5 * time.Second):
+		t.Fatal("run() did not return after its context was cancelled")
 	}
 }

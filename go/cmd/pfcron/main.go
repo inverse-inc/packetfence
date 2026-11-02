@@ -204,6 +204,7 @@ func main() {
 	c.Start()
 	w.Wait()
 	doneCtx := c.Stop()
+	maint.Shutdown()
 	<-doneCtx.Done()
 	NotifySystemd("STOPPING=1")
 }

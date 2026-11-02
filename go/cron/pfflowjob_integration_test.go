@@ -296,4 +296,87 @@ func TestPfFlowKafka(t *testing.T) {
 			t.Fatal("groupHasNoAssignment flagged a reader that owns the partition")
 		}
 	})
+
+	t.Run("shutdown commits and leaves the group", func(t *testing.T) {
+		// On shutdown run() must return, commit what it read and leave the
+		// group, so the next pfcron gets the partition right away instead of
+		// after the session timeout of this member, without reading again.
+		const seq, count = 4, 5
+		j := k.job("pfflows_it_shutdown", "network_group_it_shutdown")
+		client := j.kafkaClient()
+
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		done := make(chan struct{})
+		go func() {
+			j.run(ctx)
+			close(done)
+		}()
+
+		w := &kafka.Writer{
+			Addr:                   kafka.TCP(k.broker),
+			Topic:                  j.ReadTopic,
+			AllowAutoTopicCreation: true,
+			BatchTimeout:           10 * time.Millisecond,
+		}
+		defer w.Close()
+		value, _ := json.Marshal(&PfFlows{Header: PfFlowHeader{FlowSeq: seq}})
+		for i := 0; i < count; i++ {
+			var err error
+			for attempt := 0; attempt < 10; attempt++ {
+				wctx, wcancel := context.WithTimeout(context.Background(), 10*time.Second)
+				err = w.WriteMessages(wctx, kafka.Message{Value: value})
+				wcancel()
+				if err == nil {
+					break
+				}
+
+				time.Sleep(time.Second)
+			}
+
+			if err != nil {
+				t.Fatalf("produce: %v", err)
+			}
+		}
+
+		for i := 0; i < count; i++ {
+			waitForFlow(t, seq, 2*time.Minute)
+		}
+
+		waitForStableGroup(t, client, j.GroupID, time.Minute)
+		cancel()
+		select {
+		case <-done:
+		case <-time.After(10 * time.Second):
+			t.Fatal("run() did not return within 10s of shutdown")
+		}
+
+		// The member left: the group is empty at once, not after its
+		// session timeout (30s).
+		qctx, qcancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer qcancel()
+		resp, err := client.DescribeGroups(qctx, &kafka.DescribeGroupsRequest{GroupIDs: []string{j.GroupID}})
+		if err != nil {
+			t.Fatalf("DescribeGroups: %v", err)
+		}
+
+		for _, g := range resp.Groups {
+			if g.GroupID == j.GroupID && (g.GroupState != "Empty" || len(g.Members) != 0) {
+				t.Fatalf("group %s still %s with %d member(s) after shutdown", j.GroupID, g.GroupState, len(g.Members))
+			}
+		}
+
+		// Everything read was committed.
+		fetched, err := client.OffsetFetch(qctx, &kafka.OffsetFetchRequest{
+			GroupID: j.GroupID,
+			Topics:  map[string][]int{j.ReadTopic: {0}},
+		})
+		if err != nil {
+			t.Fatalf("OffsetFetch: %v", err)
+		}
+
+		if got := fetched.Topics[j.ReadTopic][0].CommittedOffset; got != count {
+			t.Fatalf("committed offset %d after shutdown, want %d (all %d flows read)", got, count, count)
+		}
+	})
 }

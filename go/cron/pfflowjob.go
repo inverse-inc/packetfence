@@ -208,7 +208,7 @@ func isStrandedOffset(committed, lastOffset int64, brokerConfirmed bool) bool {
 func WaitForTopic(dialer *kafka.Dialer, ctx context.Context, brokerAddr string, topic string) error {
 	// 1. Establish a connection to the broker
 	// We dial inside the function, but in a real app you might reuse an existing connection.
-	conn, err := dialer.Dial("tcp", brokerAddr)
+	conn, err := dialer.DialContext(ctx, "tcp", brokerAddr)
 	if err != nil {
 		return fmt.Errorf("failed to dial broker: %w", err)
 	}
@@ -221,7 +221,7 @@ func WaitForTopic(dialer *kafka.Dialer, ctx context.Context, brokerAddr string, 
 	for {
 		select {
 		case <-ctx.Done():
-			return errors.New("timed out waiting for topic creation")
+			return fmt.Errorf("waiting for topic creation: %w", ctx.Err())
 		case <-ticker.C:
 			// 3. Fetch list of all partitions (metadata)
 			partitions, err := conn.ReadPartitions()
@@ -259,8 +259,8 @@ const topicWaitTimeout = 30 * time.Second
 // group no rebalance ever follows, so the reader would stay idle forever.
 // WaitForTopic returns at once when the broker cannot be dialled (pfcron
 // usually starts before Kafka), so it is retried here with a backoff, cycling
-// through the brokers.
-func (j *PfFlowJob) waitForTopic(ctx context.Context, dialer *kafka.Dialer) {
+// through the brokers. It returns false if ctx is done first.
+func (j *PfFlowJob) waitForTopic(ctx context.Context, dialer *kafka.Dialer) bool {
 	delay := time.Second
 	for attempt := 0; ; attempt++ {
 		broker := j.Brokers[attempt%len(j.Brokers)]
@@ -272,12 +272,32 @@ func (j *PfFlowJob) waitForTopic(ctx context.Context, dialer *kafka.Dialer) {
 				log.LogInfof(ctx, "Kafka topic %s is available", j.ReadTopic)
 			}
 
-			return
+			return true
+		}
+
+		if ctx.Err() != nil {
+			return false
 		}
 
 		log.LogInfof(ctx, "waiting for Kafka topic %s on %s: %s, retrying in %v", j.ReadTopic, broker, err.Error(), delay)
-		time.Sleep(delay)
+		if !sleepCtx(ctx, delay) {
+			return false
+		}
+
 		delay = min(delay*2, maxTopicWaitDelay)
+	}
+}
+
+// sleepCtx sleeps for d or until ctx is done, and reports whether it slept
+// for the whole of d.
+func sleepCtx(ctx context.Context, d time.Duration) bool {
+	t := time.NewTimer(d)
+	defer t.Stop()
+	select {
+	case <-ctx.Done():
+		return false
+	case <-t.C:
+		return true
 	}
 }
 
@@ -435,7 +455,9 @@ func (j *PfFlowJob) commitGroupOffsets(ctx context.Context, client *kafka.Client
 	var err error
 	for attempt := 0; attempt < 5; attempt++ {
 		if attempt > 0 {
-			time.Sleep(2 * time.Second)
+			if !sleepCtx(ctx, 2*time.Second) {
+				return ctx.Err()
+			}
 		}
 
 		var resp *kafka.OffsetCommitResponse
@@ -463,11 +485,20 @@ func (j *PfFlowJob) commitGroupOffsets(ctx context.Context, client *kafka.Client
 	return err
 }
 
+// Run consumes the read topic until pfcron stops (see Shutdown).
 func (j *PfFlowJob) Run() {
+	j.run(shutdownCtx)
+}
+
+// run consumes the read topic until ctx is done. On return the reader is
+// closed, which commits the pending offsets and leaves the consumer group, so
+// the next consumer gets the partitions without waiting for the session of
+// this one to time out.
+func (j *PfFlowJob) run(ctx context.Context) {
 	// A context carrying a logger: with a bare context every Log*f call (and
 	// the kafka-go Logger/ErrorLogger closures, invoked on every 1s commit)
 	// rebuilds a logger, syslog dial included, before filtering the line.
-	ctx := log.LoggerNewContext(context.Background())
+	ctx = log.LoggerNewContext(ctx)
 	var r *kafka.Reader
 	maxReconnectDelay := 60 * time.Second
 	reconnectDelay := 1 * time.Second
@@ -488,6 +519,7 @@ func (j *PfFlowJob) Run() {
 	defer func() {
 		closeReader()
 		j.schedule.ran.Store(false)
+		log.LogInfof(ctx, "pfflow stopped")
 	}()
 
 	dialer := j.kafkaDialer()
@@ -507,7 +539,7 @@ func (j *PfFlowJob) Run() {
 		}
 
 		log.LogWarnf(ctx, "Reconnecting to Kafka in %v...", reconnectDelay)
-		time.Sleep(reconnectDelay)
+		sleepCtx(ctx, reconnectDelay)
 	}
 
 	// repairStrandedOffsets looks for group offsets past their partition's log
@@ -543,10 +575,13 @@ func (j *PfFlowJob) Run() {
 		return true
 	}
 
-	for {
+	for ctx.Err() == nil {
 		// Create or recreate the reader
 		if r == nil {
-			j.waitForTopic(ctx, dialer)
+			if !j.waitForTopic(ctx, dialer) {
+				return
+			}
+
 			log.LogInfof(ctx, "Connecting to Kafka brokers: %v, topic: %s, group: %s", j.Brokers, j.ReadTopic, j.GroupID)
 			r = j.newReader(ctx, dialer)
 			idleReads = 0
@@ -557,6 +592,11 @@ func (j *PfFlowJob) Run() {
 		m, err := r.ReadMessage(readCtx)
 		cancel()
 		if err != nil {
+			// Shutting down: the read was cancelled, not a Kafka error.
+			if ctx.Err() != nil {
+				return
+			}
+
 			// Check if it's just a timeout (no messages available) vs a real error.
 			// kafka-go's ReadMessage wraps the error ("fetching message: %w"), so a
 			// plain == comparison never matches — use errors.Is to unwrap.
@@ -635,10 +675,21 @@ func (j *PfFlowJob) Run() {
 			continue
 		}
 
-		ChanPfFlow <- []*PfFlows{pfFlows}
+		// Both channels are buffered but can fill up when their consumer falls
+		// behind; do not block shutdown on them.
+		select {
+		case ChanPfFlow <- []*PfFlows{pfFlows}:
+		case <-ctx.Done():
+			return
+		}
+
 		if j.fingerprintChan != nil {
 			// Send the flows to the fingerprint channel
-			j.fingerprintChan <- []*PfFlows{pfFlows}
+			select {
+			case j.fingerprintChan <- []*PfFlows{pfFlows}:
+			case <-ctx.Done():
+				return
+			}
 		}
 	}
 }
