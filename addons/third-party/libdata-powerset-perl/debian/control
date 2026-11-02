@@ -1,0 +1,17 @@
+Source: libdata-powerset-perl
+Section: perl
+Priority: optional
+Maintainer: Inverse inc. <support@inverse.ca>
+Build-Depends: debhelper-compat (= 13),
+               perl
+Standards-Version: 4.7.0
+Homepage: https://metacpan.org/release/Data-PowerSet
+Rules-Requires-Root: no
+
+Package: libdata-powerset-perl
+Architecture: all
+Depends: ${misc:Depends}, ${perl:Depends}
+Description: generate all subsets of a list of elements
+ Data::PowerSet takes a list and returns all possible combinations of the
+ elements appearing in the list without replacement.
+ PacketFence uses it through fingerbank.
