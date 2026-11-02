@@ -6,7 +6,8 @@ Trixie column: candidate version in Debian 13 `main` (trixie, trixie-updates, tr
 
 Packages marked "Rebuild" are built from recipes in `addons/third-party/` (see its README).
 Recipes so far: freeradius, libapache2-mod-systemd, libcisco-accesslist-parser-perl,
-libjq-xs-perl, libnet-nessus-xmlrpc-perl, libparse-eyapp-perl, snmp-mibs-downloader, sscep.
+libdata-powerset-perl, libjq-xs-perl, libnet-nessus-xmlrpc-perl, libparse-eyapp-perl,
+snmp-mibs-downloader, sscep.
 
 | Package | PF repo (bookworm) | Debian trixie | Recommendation | Notes |
 |---|---|---|---|---|
@@ -53,7 +54,7 @@ libjq-xs-perl, libnet-nessus-xmlrpc-perl, libparse-eyapp-perl, snmp-mibs-downloa
 | libcrypt-openssl-pkcs12-perl | 1.9-3 | 1.94-1+b1 | Use Debian | Trixie has the same or a newer version |
 | libcrypt-openssl-pkcs12-perl-dbgsym | 1.9-3 | (none) | Debug symbols | Follows its parent package |
 | libcrypt-smime-perl | 1:0.28-2 | 0.31-1 | Use Debian | Trixie has the same or a newer version |
-| libdata-powerset-perl | 0.05-1 | (none) | Drop | Not used by PacketFence |
+| libdata-powerset-perl | 0.05-1 | (none) | Recipe `libdata-powerset-perl` | CPAN 0.05; fingerbank depends on it (PacketFence itself doesn't use it) |
 | libdbd-mysql-perl | 4.052-1.1 | 4.053-1 | Use Debian | Trixie has the same or a newer version |
 | libdbd-mysql-perl-dbgsym | 4.052-1.1 | (none) | Debug symbols | Follows its parent package |
 | libfreeradius3 | 4:3.2.11+git | 3.2.7+dfsg-1+deb13u2 | Recipe `freeradius` | inverse-inc/freeradius-server fork, its own debian/; radiusd container pins 4:3.2.11+git |
