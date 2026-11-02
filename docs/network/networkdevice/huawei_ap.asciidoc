@@ -194,3 +194,186 @@ Configure VAPs and deliver configurations to the APs:
 	[AC-wlan-radio-1/0] service-set name PacketFence-WEP
 	[AC-wlan-radio-1/0] quit
 	[AC-wlan-view] commit ap 1
+
+==== S6700 Switch
+
+PacketFence supports this switch with the following technologies:
+
+[options="compact"]
+* Wireless 802.1X
+* Wireless MAC Authentication
+* Wired MAC Authentication
+* Wired 802.1X
+* Web Authentication (External Captive Portal)
+
+===== Web Authentication
+
+The Web Authentication feature uses an ACL-based approach to redirect
+unregistered devices to the PacketFence captive portal. When a device is
+in an unregistered state, the switch intercepts HTTP traffic and
+redirects the device to the external portal. Once the device is
+registered, PacketFence returns a different ACL that grants normal
+network access.
+
+This workflow is functionally equivalent to the Cisco WLC Web Auth
+approach.
+
+[NOTE]
+===============================
+In this configuration we use the following IP addresses:
+PacketFence management (VIP): 192.168.1.2;
+Registration VLAN: 145; Isolation VLAN: 146;
+PacketFence portal URL: http://192.168.1.2/Huawei::S6700
+===============================
+
+===== RADIUS server configuration
+
+Setup the RADIUS server (PacketFence IP) for authentication and accounting:
+
+	<S6700>system-view
+	[S6700] radius-server template radius_packetfence
+	[S6700-radius-radius_packetfence] radius-server authentication 192.168.1.2 1812
+	weight 80
+	[S6700-radius-radius_packetfence] radius-server accounting 192.168.1.2 1813 weight
+	80
+	[S6700-radius-radius_packetfence] radius-server shared-key cipher s3cr3t
+	[S6700-radius-radius_packetfence] undo radius-server user-name domain-included
+	[S6700-radius-radius_packetfence] quit
+	[S6700] radius-server authorization 192.168.1.2 shared-key cipher s3cr3t
+	server-group radius_packetfence
+
+Configure the AAA scheme:
+
+	[S6700] aaa
+	[S6700-aaa] authentication-scheme radius_packetfence
+	[S6700-aaa-authen-radius_packetfence] authentication-mode radius
+	[S6700-aaa-authen-radius_packetfence] quit
+	[S6700-aaa] accounting-scheme radius_packetfence
+	[S6700-aaa-accounting-radius_packetfence] accounting-mode radius
+	[S6700-aaa-accounting-radius_packetfence] quit
+
+	[S6700-aaa] domain your.domain.com
+	[S6700-aaa-domain-your.domain.com] authentication-scheme radius_packetfence
+	[S6700-aaa-domain-your.domain.com] accounting-scheme radius_packetfence
+	[S6700-aaa-domain-your.domain.com] radius-server radius_packetfence
+	[S6700-aaa-domain-your.domain.com] quit
+	[S6700-aaa] quit
+
+===== Create ACLs for Web Authentication
+
+Create a pre-authentication ACL that allows only DHCP, DNS, and traffic
+to the PacketFence server. This ACL name will be used as the
+registration role in PacketFence:
+
+	[S6700] acl name Pre-Auth-WebRedirect 3000
+	[S6700-acl-adv-Pre-Auth-WebRedirect] rule permit udp destination-port eq 67
+	[S6700-acl-adv-Pre-Auth-WebRedirect] rule permit udp destination-port eq 68
+	[S6700-acl-adv-Pre-Auth-WebRedirect] rule permit udp destination-port eq 53
+	[S6700-acl-adv-Pre-Auth-WebRedirect] rule permit ip destination 192.168.1.2 0
+	[S6700-acl-adv-Pre-Auth-WebRedirect] rule deny ip
+	[S6700-acl-adv-Pre-Auth-WebRedirect] quit
+
+Create a post-authentication ACL that allows all traffic:
+
+	[S6700] acl name Authorize_any 3001
+	[S6700-acl-adv-Authorize_any] rule permit ip
+	[S6700-acl-adv-Authorize_any] quit
+
+===== Create the Web Authentication SSID
+
+Enable MAC authentication globally:
+
+	<S6700>system-view
+	[S6700] mac-authen
+	[S6700] mac-authen username macaddress format with-hyphen
+	[S6700] mac-authen domain your.domain.com
+
+Configure a WLAN-ESS interface with MAC authentication for web
+authentication:
+
+	[S6700] interface Wlan-Ess 2
+	[S6700-Wlan-Ess2] port hybrid untagged vlan 145 to 146
+	[S6700-Wlan-Ess2] mac-authen
+	[S6700-Wlan-Ess2] mac-authen username macaddress format without-hyphen
+	[S6700-Wlan-Ess2] permit-domain name your.domain.com
+	[S6700-Wlan-Ess2] force-domain name your.domain.com
+	[S6700-Wlan-Ess2] default-domain your.domain.com
+	[S6700-Wlan-Ess2] quit
+
+Configure a security profile with an open security policy for the
+captive portal SSID:
+
+	[S6700] wlan
+	[S6700-wlan-view] security-profile name huawei-webauth
+	[S6700-wlan-sec-prof-huawei-webauth] security-policy open
+	[S6700-wlan-sec-prof-huawei-webauth] quit
+
+Configure the service set for web authentication:
+
+	[S6700-wlan-view] service-set name PacketFence-WebAuth
+	[S6700-wlan-service-set-PacketFence-WebAuth] ssid PacketFence-WebAuth
+	[S6700-wlan-service-set-PacketFence-WebAuth] wlan-ess 2
+	[S6700-wlan-service-set-PacketFence-WebAuth] service-vlan 1
+	[S6700-wlan-service-set-PacketFence-WebAuth] security-profile name huawei-webauth
+	[S6700-wlan-service-set-PacketFence-WebAuth] traffic-profile name huawei-ap
+	[S6700-wlan-service-set-PacketFence-WebAuth] forward-mode tunnel
+	[S6700-wlan-service-set-PacketFence-WebAuth] quit
+
+Bind the service set to the AP radio and commit:
+
+	[S6700-wlan-view] ap 1 radio 0
+	[S6700-wlan-radio-1/0] service-set name PacketFence-WebAuth
+	[S6700-wlan-radio-1/0] quit
+	[S6700-wlan-view] commit ap 1
+
+===== PacketFence configuration
+
+Add the Huawei S6700 switch in the PacketFence administration interface:
+
+[options="compact"]
+* Navigate to *Configuration -> Policies and Access Control -> Switches*
+* Click *New Switch*
+* Enter the IP address of the S6700
+* Set the *Type* to `Huawei::S6700`
+* Set the *Mode* to `production`
+* In the *RADIUS* tab, enter the RADIUS shared secret matching
+  the one configured on the switch
+
+Configure the external portal enforcement:
+
+[options="compact"]
+* In the *Roles* tab, enable *Role by Web Auth URL*
+* Set the *registration* URL to:
+  `http://<your_packetfence_hostname>/Huawei::S6700`
+* This URL must match the external portal URL pattern used by
+  PacketFence to identify Huawei S6700 requests
+
+Configure the roles to match the ACL names defined on the switch:
+
+[options="compact"]
+* In the *Roles* tab, configure the following role mappings:
+** *registration* role: `Pre-Auth-WebRedirect`
+** *default* role: `Authorize_any`
+
+These role values correspond to the ACL names on the switch and will be
+sent in the `Huawei-Redirect-ACL` RADIUS attribute in the
+Access-Accept response. When a device is unregistered, PacketFence
+returns the `Pre-Auth-WebRedirect` ACL along with the portal redirect
+URL (via `Huawei-Portal-UR`) and a URL redirect flag
+(`Huawei-URL-Flag` set to 1). Once the device completes registration
+through the captive portal, PacketFence sends a Change of Authorization
+(CoA) to the switch, triggering re-authentication. The subsequent
+Access-Accept will include the `Authorize_any` ACL, granting the
+device full network access.
+
+[NOTE]
+===============================
+The default CoA and disconnect port for the Huawei S6700 is 3799. If
+you need to change this, update the *CoA Port* and *Disconnect Port*
+settings in the switch configuration in PacketFence.
+
+The S6700 module uses RADIUS CoA with the vendor-specific attribute
+`HW-Ext-Specific = "user-command=1"` for re-authentication, or RADIUS
+Disconnect-Request for deauthentication when there are open security
+events.
+===============================
