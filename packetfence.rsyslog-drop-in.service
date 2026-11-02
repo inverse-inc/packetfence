@@ -1,2 +1,5 @@
 [Service]
 ExecStartPre=/usr/local/pf/bin/pfcmd generatesyslogconfig
+# rsyslog.service has ProtectSystem=full (read-only /etc and /usr): allow the
+# generated config and the PacketFence log files
+ReadWritePaths=-/etc/rsyslog.d -/usr/local/pf/logs
