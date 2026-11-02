@@ -166,6 +166,62 @@ only of `deny` lines blocks all the IPv4 traffic of the device, DHCP included,
 so always permit at least DHCP and DNS (or end the ACL with `permit ip any any`
 when the role must keep network access).
 
+===== Web authentication (captive portal redirection)
+
+EOS can hold a device authenticated by MAB (or 802.1X) in a captive portal
+state and redirect its web requests to PacketFence, instead of moving it to the
+registration VLAN. PacketFence returns the `Arista-WebAuth = start` and
+`Arista-Captive-Portal = <url>` attributes, the switch answers the device's
+HTTP (and HTTPS) requests with a redirection to that URL and, once the device
+is registered, PacketFence disconnects the session so that it authenticates
+again with its final role.
+
+The pre-authentication ACL is what makes the switch intercept the web traffic:
+its `deny ... copy captive-portal` entries send a copy of the matching packets
+to the redirector. Define it on the switch, allowing DHCP, DNS and the
+PacketFence portal:
+
+  ip access-list PF-WEBAUTH
+     10 permit udp any any eq bootps
+     20 permit udp any any eq domain
+     30 permit tcp any any eq domain
+     40 permit ip any host 192.168.1.5
+     50 deny tcp any any eq www copy captive-portal
+     60 deny tcp any any eq https copy captive-portal
+     70 deny ip any any
+
+Then enable the captive portal under `dot1x`. The `url` is the fallback when
+the RADIUS reply carries none, and the ACL is used when the reply does not name
+one in `Filter-Id`:
+
+  dot1x
+     captive-portal url http://192.168.1.5 ssl profile PF-WEBAUTH
+     captive-portal access-list ipv4 PF-WEBAUTH
+     captive-portal start limit infinite
+
+The `ssl profile` is only needed to intercept HTTPS requests (TCP port 443
+only). Generate a key and a certificate on the switch, then reference them in
+a profile:
+
+  security pki key generate rsa 2048 webauth.key
+  security pki certificate generate self-signed webauth.crt key webauth.key validity 3650 parameters common-name 192.168.1.16
+  management security
+     ssl profile PF-WEBAUTH
+        certificate webauth.crt key webauth.key
+
+In PacketFence, edit the switch and:
+
+* enable *External Portal Enforcement*,
+* in the *Roles* tab, enable *Role by Web Auth URL* and set the registration
+  URL to `http://<your_captive_portal_ip>/Arista::AristaSwitch`,
+* keep the registration VLAN set to the VLAN where the device gets an IP
+  address while it is redirected (it is sent along with the captive portal
+  attributes).
+
+NOTE: EOS supports one device per port in the captive portal state (`dot1x
+host-mode single-host`). A device without any pre-authentication ACL goes to
+the `WEB-AUTH-FAILED` state.
+
 ===== Flow export (sFlow or IPFIX)
 
 The switch can export sampled traffic to the Fingerbank collector of
@@ -215,7 +271,12 @@ increase.
 ===== Troubleshooting
 
 `show dot1x hosts interface Ethernet1 detail` shows the authentication method,
-the VLAN and the NAS-Filter-Rule returned by PacketFence for each host.
+the VLAN and the NAS-Filter-Rule returned by PacketFence for each host. With
+web authentication, it also shows the captive portal URL and the
+`WEB-AUTH-START` state; `show dot1x captive-portal counters` counts the web
+requests redirected on each port. Counters staying at zero while the device
+can't browse mean that the pre-authentication ACL lacks the
+`copy captive-portal` entries.
 
 `show radius` shows the messages sent and received for each RADIUS server.
 Requests that time out without any message received mean that the RADIUS server

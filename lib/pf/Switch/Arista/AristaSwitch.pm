@@ -61,6 +61,7 @@ use pf::config qw(
     $PORT
     $WIRED_802_1X
     $WIRED_MAC_AUTH
+    $WEBAUTH_WIRED
     %ConfigRoles
 );
 use pf::locationlog;
@@ -291,7 +292,6 @@ sub returnRadiusAccessAccept {
         }
     }
 
-    my $role = $self->getRoleByName($args->{'user_role'});
     if ( isenabled($self->{_UrlMap}) && $self->externalPortalEnforcement ) {
         if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getUrlByName($args->{'user_role'}))){
             my $mac = $args->{'mac'};
@@ -299,16 +299,14 @@ sub returnRadiusAccessAccept {
             my $redirect_url = $self->getUrlByName($args->{'user_role'});
             $redirect_url .= '/' unless $redirect_url =~ m(\/$);
             $redirect_url .= $args->{'session_id'};
-            #override role if a role in role map is defined
-            if (isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
-                my $role_map = $self->getRoleByName($args->{'user_role'});
-                $role = $role_map if (defined($role_map));
-                # remove the role if any as we push the redirection ACL along with it's role
-                delete $radius_reply_ref->{$self->returnRoleAttribute()};
-            }
-            $logger->info("Adding web authentication redirection to reply using role: '$role' and URL: '$redirect_url'");
-            push @av_pairs, "url-redirect-acl=$role";
-            push @av_pairs, "url-redirect=".$redirect_url;
+            # EOS 802.1X web authentication: the host is held in the WEB-AUTH-START state and
+            # its web requests are redirected to the captive portal URL. The pre-authentication
+            # ACL is the one named by Filter-Id (role map) or, failing that, the
+            # "dot1x captive-portal access-list" configured on the switch; it must trap the
+            # web traffic with "deny tcp ... copy captive-portal" entries.
+            $logger->info("Adding web authentication redirection to reply using URL: '$redirect_url'");
+            $radius_reply_ref->{'Arista-WebAuth'} = 'start';
+            $radius_reply_ref->{'Arista-Captive-Portal'} = $redirect_url;
 
         }
     }
@@ -320,6 +318,53 @@ sub returnRadiusAccessAccept {
     my $rule = $filter->test('returnRadiusAccessAccept', $args);
     ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
     return [$status, %$radius_reply_ref];
+}
+
+=head2 parseExternalPortalRequest
+
+Parse the request the switch redirected the host to (EOS answers the host's
+web request with a 302 to the Arista-Captive-Portal URL as is, so the
+PacketFence session id is the last component of the URI).
+
+=cut
+
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
+    my $logger = $self->logger;
+
+    # Using a hash to contain external portal parameters
+    my %params = ();
+
+    my $uri = $r->uri;
+    return unless ($uri =~ /.*sid(\w+[^\/\&])/);
+    my $session_id = $1;
+
+    my $locationlog = pf::locationlog::locationlog_get_session($session_id);
+    my $switch_id = $locationlog->{switch};
+    my $client_mac = $locationlog->{mac};
+    my $client_ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
+    my @proxied_ip = split(',', $client_ip);
+    $client_ip = $proxied_ip[0];
+
+    my $redirect_url;
+    if ( defined($req->param('redirect')) ) {
+        $redirect_url = $req->param('redirect');
+    }
+    elsif ( defined($r->headers_in->{'Referer'}) ) {
+        $redirect_url = $r->headers_in->{'Referer'};
+    }
+
+    %params = (
+        session_id              => $session_id,
+        switch_id               => $switch_id,
+        client_mac              => $client_mac,
+        client_ip               => $client_ip,
+        redirect_url            => $redirect_url,
+        synchronize_locationlog => $FALSE,
+        connection_type         => $WEBAUTH_WIRED,
+    );
+
+    return \%params;
 }
 
 =head2 wiredeauthTechniques
