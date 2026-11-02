@@ -78,6 +78,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - Improved VM (Virtual Machine) handling in paused state and test runner cleanup (#8655)
   - Increased Cypress test timeout to 10 minutes (#8558)
   - Updated VirtualBox version in test environment (#8568)
+  - Container images: the pfdebian base image upgrades its Debian packages at build time, so the images carry the current Debian security revisions (#9585)
 
 === Security Fixes
 
