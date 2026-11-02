@@ -38,9 +38,13 @@ sub acl_chewer {
     my $logger = $self->logger;
     my ($acl_ref , @direction) = $self->format_acl($acl);
 
+    # Drop what no module can send (an object group, a DSCP match, ...)
+    my $entries;
+    ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, sub { undef });
+
     my $i = 0;
     my $acl_chewed;
-    foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
+    foreach my $acl (@$entries) {
         #Bypass acl that contain tcp_flag, it doesnt apply correctly on the switch
         next if (defined($acl->{'tcp_flags'}));
         $acl->{'protocol'} =~ s/\(\d*\)//;

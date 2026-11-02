@@ -697,11 +697,15 @@ sub acl_chewer {
 
     my ($acl_ref , @direction) = $self->format_acl($acl);
 
+    # Drop what no module can send (an object group, a DSCP match, ...)
+    my $entries;
+    ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, sub { undef });
+
     my $i = 0;
     my $j = 1;
     my $acl_chewed;
     $acl_chewed .= "acl create $role\n";
-    foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
+    foreach my $acl (@$entries) {
         $acl_chewed .= "acl rule add $role $j\n";
         $acl_chewed .= "acl rule action $role $j $acl->{'action'}\n";
         $acl->{'protocol'} =~ s/\(\d*\)//;
