@@ -23,10 +23,16 @@ const schemaRules = yup.array().ensure().of(schemaRule)
 
 export const schema = (props) => {
   const {
+    form,
     id,
     isNew,
     isClone
   } = props
+
+  const {
+    ca_cert_path_upload,
+    server_certificate_path_upload
+  } = form || {}
 
   return yup.object({
     id: yup.string()
@@ -48,7 +54,12 @@ export const schema = (props) => {
     boarding_host: yup.string().nullable().label(i18n.t('Host')),
     boarding_port: yup.string().nullable().label(i18n.t('Port')),
     broadcast: yup.string().nullable(),
-    ca_cert_path: yup.string().nullable().required(i18n.t('Certificate required.')),
+    ca_cert_path: yup.string().nullable()
+      .when('ca_cert_path_upload', () => {
+        return (!ca_cert_path_upload)
+          ? yup.string().nullable().required(i18n.t('Certificate required.'))
+          : yup.string().nullable()
+      }),
     can_sign_profile: yup.string().nullable(),
     category: yup.array().ensure().of(yup.string().nullable()),
     cert_chain: yup.string().nullable(),
@@ -84,7 +95,12 @@ export const schema = (props) => {
     role_to_apply: yup.string().nullable(),
     rules: schemaRules,
     security_type: yup.string().nullable(),
-    server_certificate_path: yup.string().nullable().required(i18n.t('Certificate required.')),
+    server_certificate_path: yup.string().nullable()
+      .when('server_certificate_path_upload', () => {
+        return (!server_certificate_path_upload)
+          ? yup.string().nullable().required(i18n.t('Certificate required.'))
+          : yup.string().nullable()
+      }),
     service_account: yup.string().nullable().label(i18n.t('Data')),
     ssid: yup.string().nullable().label('SSID'),
     sync_pid: yup.string().nullable(),

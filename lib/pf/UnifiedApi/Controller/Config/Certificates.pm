@@ -18,6 +18,7 @@ use strict;
 use warnings;
 use pf::ssl;
 use pf::ssl::lets_encrypt;
+use pf::pfpki_client;
 use pf::util;
 use File::Slurp qw(read_file);
 use pf::error qw(is_error);
@@ -358,6 +359,56 @@ sub generate_csr {
     else {
         $self->render_error(422, $csr);
     }
+}
+
+=head2 pki_import
+
+Get a certificate, its private key and its CA from the PacketFence PKI.
+With mode 'cert' an existing pfpki certificate is exported.
+With mode 'csr' a CSR is built from the provided private key and signed by a pfpki profile.
+Nothing is installed, the result is meant to be saved through the regular certificate APIs.
+
+=cut
+
+sub pki_import {
+    my ($self) = @_;
+    my $data = $self->parse_json() // {};
+    my $mode = $data->{mode} // '';
+
+    if ($mode eq 'cert') {
+        return $self->render_error(422, "Missing cert_id parameter") unless $data->{cert_id};
+        my ($res, $bundle) = pf::pfpki_client::cert_bundle($data->{cert_id});
+        return $self->render_error(422, $bundle) unless $res;
+        return $self->render(json => {
+            certificate => $bundle->{certificate},
+            private_key => $bundle->{private_key},
+            intermediate_cas => [],
+            ca => $bundle->{ca},
+            warnings => [],
+        }, status => 200);
+    }
+
+    if ($mode eq 'csr') {
+        return $self->render_error(422, "Missing profile_id parameter") unless $data->{profile_id};
+        return $self->render_error(422, "Missing private_key parameter") unless $data->{private_key};
+        my $rsa = eval { pf::ssl::rsa_from_string($data->{private_key}) };
+        return $self->render_error(422, "Failed to parse the private key, only RSA keys are supported") unless $rsa;
+
+        my ($res, $csr) = pf::ssl::generate_csr($rsa, $data);
+        return $self->render_error(422, $csr) unless $res;
+
+        ($res, my $signed) = pf::pfpki_client::sign_csr($data->{profile_id}, $csr->get_pem_req());
+        return $self->render_error(422, $signed) unless $res;
+        return $self->render(json => {
+            certificate => $signed->{certificate},
+            private_key => $data->{private_key},
+            intermediate_cas => [],
+            ca => $signed->{ca},
+            warnings => $signed->{warnings},
+        }, status => 200);
+    }
+
+    return $self->render_error(422, "Invalid mode, must be one of: cert, csr");
 }
 
 =head2 lets_encrypt_test

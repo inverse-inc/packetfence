@@ -1710,6 +1710,7 @@ sub setup_api_v1_config_certificates_routes {
     my ($self, $root) = @_;
     my $root_name = $root->name;
     $root->any(["GET"] => "/certificates/lets_encrypt/test")->to("Config::Certificates#lets_encrypt_test")->name("${root_name}.Certificates.lets_encrypt_test");
+    $root->any(["POST"] => "/certificates/pki/import")->to("Config::Certificates#pki_import")->name("${root_name}.Certificates.pki_import");
 
     my $resource_route = $root->under("/certificate/#certificate_id")->to(controller => "Config::Certificates", action => 'resource')->name("${root_name}.Certificates.resource");
     my $resource_name = $resource_route->name;
