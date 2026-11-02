@@ -112,6 +112,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - Fix table view when reloading in the middle of a page (#8807)
   - Ensure /usr/local/pf/conf/system_init_key is created in package preinst (#8571)
   - Fixes for OpenAPI spec — missing $ref, ConfigInterfaceVlan (#8840)
+  - Container images: the pfdebian base image upgrades its Debian packages at build time, so the images carry the current Debian security revisions (#9585)
 
 === Security Fixes
 
