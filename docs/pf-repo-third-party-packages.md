@@ -6,8 +6,8 @@ Trixie column: candidate version in Debian 13 `main` (trixie, trixie-updates, tr
 
 Packages marked "Rebuild" are built from recipes in `addons/third-party/` (see its README).
 Recipes so far: freeradius, libapache2-mod-systemd, libcisco-accesslist-parser-perl,
-libdata-powerset-perl, libjq-xs-perl, libnet-nessus-xmlrpc-perl, libparse-eyapp-perl,
-snmp-mibs-downloader, sscep.
+keepalived, libdata-powerset-perl, libjq-xs-perl, libnet-nessus-xmlrpc-perl,
+libparse-eyapp-perl, snmp-mibs-downloader, sscep.
 
 | Package | PF repo (bookworm) | Debian trixie | Recommendation | Notes |
 |---|---|---|---|---|
@@ -42,7 +42,7 @@ snmp-mibs-downloader, sscep.
 | haproxy | 2.2.15-1 | 3.0.11-1+deb13u4 | Use Debian | Configs updated for 3.0; packetfence requires >= 3.0 |
 | haproxy-dbgsym | 2.2.15-1 | (none) | Drop | Follows its parent package |
 | haproxy-doc | 2.2.15-1 | 3.0.11-1+deb13u4 | Use Debian | Configs updated for 3.0; packetfence requires >= 3.0 |
-| keepalived | 1:2.3.4-1 | 1:2.3.3-1 | Probably use Debian | Patch-level difference only |
+| keepalived | 1:2.3.4-1 | 1:2.3.3-1 | Recipe `keepalived` | Debian sid 1:2.3.4-1 rebuilt as 1:2.3.4-1+deb13u1: trixie's 2.3.3 would be a downgrade, and the bookworm build needs libsnmp40 (gone in trixie) |
 | keepalived-dbgsym | 1:2.3.4-1 | (none) | Debug symbols | Follows its parent package |
 | libapache2-mod-apreq2 | 2.17-3~bpo12+1 | 2.17-7+b2 | Use Debian | Trixie has the same or a newer version |
 | libapache2-mod-systemd | 0.1-1 | (none) | Recipe `libapache2-mod-systemd` | Built from httpd 2.4.69's mod_systemd.c; trixie's apache2-bin doesn't include it |
