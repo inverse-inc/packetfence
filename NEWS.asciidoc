@@ -80,6 +80,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - httpd.aaa: fix a Fingerbank config memory leak and make mod_perl child recycling effective (#9217)
   - Fingerbank: restore the rate-limited query cache and fix cache hygiene (#9216)
   - Non-SQL (abstract) reports work again through the v1.1 report API — searching one returned a 400; those requests are now proxied to the Perl dynamic_report endpoint (#9207)
+  - Container images: the pfdebian base image upgrades its Debian packages at build time, so the images carry the current Debian security revisions (#9585)
 
 === Security Fixes
 
