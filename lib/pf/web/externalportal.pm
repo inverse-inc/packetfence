@@ -17,7 +17,6 @@ use warnings;
 
 use Readonly;
 use Apache2::Const -compile => qw(:http);
-use Apache2::Request;
 use Apache2::RequestRec;
 use Apache2::Connection;
 use Hash::Merge qw(merge);
@@ -78,6 +77,8 @@ sub handle {
 
     my $switch_type;
 
+    # Not loaded at compile time: it needs mod_apreq2 symbols that only exist inside httpd
+    require Apache2::Request;
     my $req = Apache2::Request->new($r);
     my $uri = $r->uri;
 

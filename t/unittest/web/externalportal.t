@@ -19,10 +19,6 @@ BEGIN {
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
     use setup_test_config;
-
-    # Apache2::Request needs mod_apreq2 symbols only httpd provides, so it can't load here on EL8.
-    # Only the rewrite map is tested, so mark it loaded instead of trying it (a failed require can't be undone).
-    $INC{'Apache2/Request.pm'} = __FILE__;
 }
 
 use pf::web::externalportal;
