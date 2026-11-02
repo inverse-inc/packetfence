@@ -1,0 +1,42 @@
+Source: keepalived
+Section: admin
+Priority: optional
+Maintainer: Vincent Bernat <bernat@debian.org>
+Build-Depends: autoconf,
+               debhelper-compat (=13),
+               libglib2.0-dev,
+               libip4tc-dev,
+               libipset-dev,
+               libjson-c-dev,
+               libnfnetlink-dev,
+               libnftnl-dev,
+               libnl-3-dev,
+               libnl-genl-3-dev,
+               libnl-nf-3-dev,
+               libpcre2-dev,
+               libpopt-dev,
+               libsnmp-dev,
+               libssl-dev,
+               libsystemd-dev,
+               linux-libc-dev,
+               pkgconf
+Standards-Version: 4.6.0.1
+Vcs-Browser: https://salsa.debian.org/debian/pkg-keepalived
+Vcs-Git: https://salsa.debian.org/debian/pkg-keepalived.git
+Homepage: https://keepalived.org
+
+Package: keepalived
+Architecture: any
+Depends: iproute2, ${misc:Depends}, ${shlibs:Depends}
+Pre-Depends: ${misc:Pre-Depends}
+Recommends: ipvsadm
+Description: Failover and monitoring daemon for LVS clusters
+ keepalived is used for monitoring real servers within a Linux
+ Virtual Server (LVS) cluster.  keepalived can be configured to
+ remove real servers from the cluster pool if it stops responding,
+ as well as send a notification email to make the admin aware of
+ the service failure.
+ .
+ In addition, keepalived implements an independent Virtual Router
+ Redundancy Protocol (VRRPv2; see RFC 2338 for additional info)
+ framework for director failover.

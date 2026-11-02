@@ -1,0 +1,4 @@
+etc/keepalived
+usr/bin
+usr/sbin
+usr/share/doc/keepalived/samples
