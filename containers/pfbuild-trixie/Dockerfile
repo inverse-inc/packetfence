@@ -11,7 +11,7 @@ ARG PF_MINOR_RELEASE
 # trixie suite yet, and every Build-Depends in debian/control is in Debian
 # trixie or NodeSource. Add it back (GPG_PUBLIC_KEY into
 # /etc/apt/keyrings/packetfence.gpg + packetfence.list) once the third-party
-# packages (addons/third-party/) are published for trixie.
+# packages (packetfence-thirdparty-dependencies repo) are published for trixie.
 RUN apt-get update && \
     apt-get install -y --no-install-recommends ca-certificates curl gnupg devscripts equivs make git \
         python3 python3-nacl python3-requests && \
