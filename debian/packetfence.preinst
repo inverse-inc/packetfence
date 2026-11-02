@@ -52,11 +52,13 @@ rm_conffile() {
 }
 
 setup_system_init_key() {
-    if [ ! -f /usr/local/pf/conf/system_init_key ]; then
+    # -s: also regenerate an empty key left by an earlier failed install
+    if [ ! -s /usr/local/pf/conf/system_init_key ]; then
         if [ ! -d /usr/local/pf/conf ]; then
             mkdir -p /usr/local/pf/conf
         fi
-        hexdump -e '/1 "%x"' < /dev/urandom | head -c 32 > /usr/local/pf/conf/system_init_key
+        # od (coreutils) is always there; hexdump may not be unpacked yet
+        od -An -tx1 -N16 /dev/urandom | tr -d ' \n' > /usr/local/pf/conf/system_init_key
         chmod 600 /usr/local/pf/conf/system_init_key
     fi
 }
