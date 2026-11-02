@@ -1831,6 +1831,15 @@ sub returnOutAccessListAttribute {
     return "ip:outacl#";
 }
 
+=head2 aclsAreCiscoSyntax
+
+The bypass ACLs and the access lists of the switch entry are already in the
+syntax of the switch: they are sent as written.
+
+=cut
+
+sub aclsAreCiscoSyntax { return $TRUE }
+
 =head2 acl_chewer
 
 Format ACL to match with the expected switch format.
