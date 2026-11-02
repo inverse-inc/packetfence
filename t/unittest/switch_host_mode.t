@@ -23,7 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 49;
+use Test::More tests => 60;
 use Test::NoWarnings;
 
 use pf::SwitchFactory;
@@ -223,6 +223,32 @@ use Utils;
     @open = pf::locationlog::locationlog_view_open_switchport_no_VoIP('172.16.8.42', $ifIndex);
     is_deeply([map { $_->{mac} } @open], [$mac5],
         'only the last endpoint keeps an open locationlog entry on the multi-host port');
+
+    # single-host: another endpoint with the SAME vlan and role replaces the previous one
+    # too (a swapped device), instead of piling up open entries on the port, and the
+    # entries of the other type (voice) are left alone
+    my $mac6 = Utils::test_mac();
+    my $mac7 = Utils::test_mac();
+    my $phone = Utils::test_mac();
+    ok($sync->('172.16.8.42', $phone, 'voice', $VOIP, 0), "synchronized the phone $phone on the single-host port");
+    ok($sync->('172.16.8.42', $mac6, 'default', $NO_VOIP, 0), "synchronized $mac6 on the single-host port");
+    ok($sync->('172.16.8.42', $mac6, 'default', $NO_VOIP, 0), "synchronized $mac6 again");
+    @open = pf::locationlog::locationlog_view_open_switchport_no_VoIP('172.16.8.42', $ifIndex);
+    is_deeply([map { $_->{mac} } @open], [$mac6],
+        'an endpoint authenticating again keeps its single open entry');
+    ok($sync->('172.16.8.42', $mac7, 'default', $NO_VOIP, 0), "synchronized $mac7 with the same vlan and role");
+    @open = pf::locationlog::locationlog_view_open_switchport_no_VoIP('172.16.8.42', $ifIndex);
+    is_deeply([map { $_->{mac} } @open], [$mac7],
+        'the previous endpoint of the single-host port is closed when another one takes it');
+    is(pf::locationlog::locationlog_view_latest_open_switchport('172.16.8.42', $ifIndex, $NO_VOIP)->{mac}, $mac7,
+        'locationlog_view_latest_open_switchport returns the newest open data entry');
+    is(pf::locationlog::locationlog_view_latest_open_switchport('172.16.8.42', $ifIndex, $VOIP)->{mac}, $phone,
+        'the phone entry survives the data endpoints being swapped');
+    @open = pf::locationlog::locationlog_view_open_switchport_only_VoIP('172.16.8.42', $ifIndex);
+    is(scalar @open, 1, 'one open voice entry on the port');
+    ok($sync->('172.16.8.42', $mac6, 'default', $NO_VOIP, 0), "synchronized $mac6 back on the port");
+    @open = pf::locationlog::locationlog_view_open_switchport_no_VoIP('172.16.8.42', $ifIndex);
+    is_deeply([map { $_->{mac} } @open], [$mac6], 'the returning endpoint replaces the other one in turn');
 }
 
 # AOS v16 has its own radiusDisconnect: an empty shared secret skips it like on

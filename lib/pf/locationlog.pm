@@ -38,6 +38,7 @@ BEGIN {
 
         locationlog_view_open_mac
         locationlog_view_open_switchport
+        locationlog_view_latest_open_switchport
         locationlog_view_open_switchport_no_VoIP
         locationlog_view_open_switchport_only_VoIP
 
@@ -190,6 +191,33 @@ sub locationlog_view_open_switchport {
             voip => $voip,
             end_time => $ZERO_DATE,
         },
+        -order_by => { -desc => 'start_time' },
+    });
+}
+
+=item locationlog_view_latest_open_switchport
+
+Returns the newest open locationlog entry of the given VoIP status on a
+switchport, or undef when the port has none.
+
+This is the lookup of the authorization path: C<locationlog_synchronize> only
+needs the entry that currently describes the port, and the ORDER BY ... LIMIT 1
+is served by the C<locationlog_open_switchport> index, so the cost does not grow
+with the number of entries the port accumulated. C<locationlog_view_open_switchport>
+loads them all and is for the callers that walk the list.
+
+=cut
+
+sub locationlog_view_latest_open_switchport {
+    my ( $switch, $ifIndex, $voip ) = @_;
+    return _db_item({
+        -where => {
+            switch => $switch,
+            port => $ifIndex,
+            voip => $voip,
+            end_time => $ZERO_DATE,
+        },
+        -limit => 1,
         -order_by => { -desc => 'start_time' },
     });
 }
@@ -411,16 +439,21 @@ sub locationlog_synchronize {
             }
         }
         else {
-            my @locationlog_switchport = locationlog_view_open_switchport($switch, $ifIndex, $voip_status);
-            if (!(@locationlog_switchport && scalar(@locationlog_switchport) > 0)) {
+            # Only the newest entry describes the port: one endpoint of each type (data, voice)
+            # is connected at a time, so anything older is a leftover of a previous endpoint.
+            my $locationlog_switchport = locationlog_view_latest_open_switchport($switch, $ifIndex, $voip_status);
+            if (!defined($locationlog_switchport)) {
                 # there was no locationlog open we must insert a new one
                 $mustInsert = 1;
 
-            } elsif ( (defined($vlan) && ($locationlog_switchport[0]->{vlan} ne $vlan)) # vlan changed
-                || (defined($mac) && (!defined($locationlog_switchport[0]->{mac})))
-                || (defined($locationlog_switchport[0]->{role}) && ($locationlog_switchport[0]->{role} ne $role) ) ) { # or Role changed
+            } elsif ( (defined($vlan) && ($locationlog_switchport->{vlan} ne $vlan)) # vlan changed
+                || (defined($mac) && (!defined($locationlog_switchport->{mac})))
+                || (defined($mac) && defined($locationlog_switchport->{mac}) && ($locationlog_switchport->{mac} ne $mac)) # or another endpoint took the port
+                || (defined($locationlog_switchport->{role}) && ($locationlog_switchport->{role} ne $role) ) ) { # or Role changed
 
-                # close entries of same voip status
+                # close entries of same voip status: the previous endpoint's entry and any
+                # older one still open (a port without RADIUS accounting leaves one behind
+                # for every endpoint that was ever swapped on it)
                 if ($voip_status eq $NO_VOIP) {
                     locationlog_update_end_switchport_no_VoIP($switch, $ifIndex);
                 } else {
