@@ -199,7 +199,8 @@ restart service `radiusd-auth`.
 ===== Push ACLs
 
 Push ACLs is a method to write directly the ACLs on the equipment if compatible
-(needs ssh credentials and admin privileges on the switch).
+(needs ssh credentials and admin privileges on the switch, or an API key for the
+equipment managed through an API: Aruba Mobility Master, Meraki switches).
 In this senario if the PushACLs is enable on the switch then PacketFence will
 take the ACL defined in each role configuration (_Policies and Access Control ->
 Roles_, and `ACL in Cisco format`), format it to be compatible with the equipment
