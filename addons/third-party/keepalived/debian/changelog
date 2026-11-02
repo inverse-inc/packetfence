@@ -1,0 +1,570 @@
+keepalived (1:2.3.4-1+deb13u1) trixie; urgency=medium
+
+  * Rebuild for Debian 13 (trixie), from Debian's 1:2.3.4-1.
+
+ -- Inverse inc. <support@inverse.ca>  Mon, 02 Nov 2026 12:00:00 +0000
+
+keepalived (1:2.3.4-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Vincent Bernat <bernat@debian.org>  Wed, 20 Aug 2025 21:44:27 +0200
+
+keepalived (1:2.3.3-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Vincent Bernat <bernat@debian.org>  Sat, 12 Apr 2025 10:32:42 +0200
+
+keepalived (1:2.3.2-1) unstable; urgency=medium
+
+  * New upstream release.
+    - Fix CVE-2024-41184. Closes: #1077370.
+
+ -- Vincent Bernat <bernat@debian.org>  Sat, 14 Dec 2024 08:28:59 +0100
+
+keepalived (1:2.3.1-1) unstable; urgency=medium
+
+  * New upstream release.
+  * d/rules: enable log-file option. Closes: #1071446.
+  * d/control: build-depends on pkgconf.
+  * d/maintscript: move /etc/dbus-1/system.d/org.keepalived.Vrrp1.conf
+
+ -- Vincent Bernat <bernat@debian.org>  Tue, 28 May 2024 21:57:05 +0200
+
+keepalived (1:2.2.8-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Vincent Bernat <bernat@debian.org>  Wed, 21 Jun 2023 08:49:39 +0200
+
+keepalived (1:2.2.7-1) unstable; urgency=medium
+
+  * New upstream release. Closes: #1006427.
+  * d/control: put myself as a maintainer
+  * d/control: update Vcs-* fields
+  * d/watch: update URL
+  * d/control: remove duplicate section
+  * d/control: bump Standards-Version
+  * d/control: use debhelper-compat 13
+  * d/control: remove outdated information from long description
+  * d/service: add Documentation= key in systemd file
+  * d/patches: drop patch around DBus policy, applied upstream
+
+ -- Vincent Bernat <bernat@debian.org>  Sat, 12 Mar 2022 16:06:46 +0100
+
+keepalived (1:2.2.4-0.2) unstable; urgency=high
+
+  * Non-maintainer upload.
+  * d/patches: tighten DBus policy to not allow unrestricted read/write
+    access to all object properties.
+
+ -- Vincent Bernat <bernat@debian.org>  Tue, 23 Nov 2021 06:27:53 +0100
+
+keepalived (1:2.2.4-0.1) unstable; urgency=medium
+
+  [ Alexander Wirt ]
+  * [61cbc18] New upstream version 2.2.1
+  * [ecf662d] Keepalived has now support for systemd notify
+
+  [ Vincent Bernat ]
+  * Non-maintainer upload.
+  * New upstream version 2.2.4. Closes: #980563.
+    - Fix FTFBS. Closes: #997218.
+  * d/rules: enable systemd as an init to get systemd features.
+  * d/rules: remove use of custom-specified include directory for kernel.
+
+ -- Vincent Bernat <bernat@debian.org>  Sun, 07 Nov 2021 17:57:44 +0100
+
+keepalived (1:2.1.5-0.2) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * [17cfc9a] d/control:
+    - Add B-depends: libpcre2-dev
+
+ -- Michal Arbet <michal.arbet@ultimum.io>  Mon, 12 Oct 2020 17:45:14 +0200
+
+keepalived (1:2.1.5-0.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * [efada46] New upstream version 2.1.5 (Closes: #964855)
+    - fixes segfault when SMTP notifications are enabled (Closes: #958898)
+  * [0f2ffa3] Fix d/watch: 403 Forbidden
+
+ -- Michal Arbet <michal.arbet@ultimum.io>  Wed, 07 Oct 2020 16:54:33 +0200
+
+keepalived (1:2.0.19-2) unstable; urgency=medium
+
+  [ Thomas Goirand ]
+  * Drop build-depends on iptables-dev (Closes: #946150).
+
+ -- Alexander Wirt <formorer@debian.org>  Thu, 20 Feb 2020 12:16:19 +0100
+
+keepalived (1:2.0.19-1) unstable; urgency=medium
+
+  * [3e69686] New upstream version 2.0.19 (Closes: #947472)
+    - fixes execution of scripts with /bin/sh (Closes: #931617)
+    - fixes configuration parsing for SMTP sections (Closes: #859142)
+    - fixes stuck in receive queue (Closes: #942182)
+    - close netlink in checker (Closes: #775868)
+    - fix infinite loop when tracker script times out (Closes: #940036)
+    - fix loading of libipset (Closes: #878241)
+  * [6a81734] Move to debhelper(-compat) 12
+  * [02d9f5d] Bump standards version
+  * [239c70f] Fix location of the ip_vs header file
+  * [495b6e5] Disable dbus create instance feature
+  * [ec5c22c] Enable iptc support
+
+ -- Alexander Wirt <formorer@debian.org>  Sun, 05 Jan 2020 18:45:43 +0100
+
+keepalived (1:2.0.10-1) unstable; urgency=medium
+
+  * [3b99bf9] Update vcs headers to salsa
+  * [f697779] New upstream version 2.0.2
+  * [c97cc19] Enable dbus instance and json output support
+  * [27c6d55] syslog is now socket activated
+  * [7e2267b] Move to dh11
+  * [d0bf9db] there is not systemd sequence in dh11
+  * [903a5a0] dh-autoreconf dep is not needed anymore with dh11
+  * [c4996bd] Priority extra got replaced by optional
+  * [822da17] Remove obsolete patches
+  * [1c36cdc] New upstream version 2.0.10
+    - Fix overflow in extract_status_code (CVE-2018-19115)
+      Closes: #914393, #900260
+    - Improve garp refresh handling (Closes: #810347)
+    - Improve config parser (Closes: #909697)
+  * [990c014] Improve keepalived service (Closes: #902978, #830196)
+
+
+ -- Alexander Wirt <formorer@debian.org>  Sun, 05 Jan 2020 18:21:34 +0100
+
+keepalived (1:1.3.9-1) unstable; urgency=medium
+
+  * [e95b710] New upstream version 1.3.9
+    - Fix netlink error message truncated problems
+      (Closes: #846292)
+  * [0547153] New upstream version 1.3.5
+  * [4cf471c] Bump standards version
+  * [2dfa271] New upstream version 1.3.6 (Closes: #872331)
+    - Fix strange pid handling on restart
+      (Closes: #860527)
+  * [d1ddcaf] Enable dbus interface (Closes: #873803)
+  * [9a969d1] Adapt some changes from the upstream service file
+    (Closes: #857618)
+
+ -- Alexander Wirt <alexander.wirt@credativ.de>  Thu, 16 Nov 2017 09:23:16 +0100
+
+keepalived (1:1.3.2-1) unstable; urgency=medium
+
+  * [488ee92] New upstream version 1.3.2
+
+ -- Alexander Wirt <formorer@debian.org>  Sat, 03 Dec 2016 22:25:31 +0100
+
+keepalived (1:1.2.24-1) unstable; urgency=medium
+
+  * [d378a6f] New upstream version 1.2.24
+
+ -- Alexander Wirt <formorer@debian.org>  Sat, 19 Nov 2016 08:20:39 +0100
+
+keepalived (1:1.2.23-1) unstable; urgency=medium
+
+  * [94beb84] Imported Upstream version 1.2.23
+    (Closes: #821941)
+    - fix some segfaults (Closes: #830955)
+
+ -- Alexander Wirt <formorer@debian.org>  Thu, 21 Jul 2016 10:12:06 +0200
+
+keepalived (1:1.2.20-1) unstable; urgency=medium
+
+  * [2a22d69] Imported Upstream version 1.2.20
+    enable support for:
+     - nfnetlink
+     - ipset
+     - iptc
+     - snmp rfcv2 and rfcv3
+
+ -- Alexander Wirt <alexander.wirt@credativ.de>  Tue, 17 May 2016 13:25:05 +0200
+
+keepalived (1:1.2.19-1) unstable; urgency=medium
+
+  * [3594525] Imported Upstream version 1.2.19
+
+ -- Alexander Wirt <formorer@debian.org>  Sat, 15 Aug 2015 15:18:41 +0200
+
+keepalived (1:1.2.16-1) experimental; urgency=medium
+
+  * [3cc1f17] Depend on ipvsadm2 instead of ipvsadm
+  * [e09b760] Move ipvsadm to recommends
+              (Closes: #755771)
+  * [afa7293] Imported Upstream version 1.2.16
+  * [e86c672] Add systemd unitfile (Closes: #779347)
+  * [81fac5f] Remove syslog dependency in service file
+  * [40a44f0] Bump standards version
+
+ -- Alexander Wirt <formorer@debian.org>  Tue, 31 Mar 2015 17:52:42 +0200
+
+keepalived (1:1.2.13-1) unstable; urgency=medium
+
+  * [1e9c32b] Imported Upstream version 1.2.11
+  * [bac64d6] Imported Upstream version 1.2.13
+    - keep retry in case of early TCP failures in checks
+      (Closes: #626466 #504069)
+    - Add To header for SMTP alerts.
+      (Closes: #627169)
+    - handle passwords up to 8 characters
+      (Closes: #614562)
+    - modprobe handling fixed
+      (Closes: #714377)
+    - Support more than 31 interfaces
+      (Closes: #723106)
+    - Fix ipv6 realserver handling
+      (Closes: #740258)
+    - extend ip parser to support default and default6
+      (Closes: #740573)
+
+  * [65d5b11] Add pkg-config to build-deps
+  * [af497e7] Disable obsolete patches
+  * [4761254] Bump standards version (no changes)
+
+ -- Alexander Wirt <formorer@debian.org>  Wed, 28 May 2014 09:01:38 +0200
+
+keepalived (1:1.2.9-1) unstable; urgency=low
+
+  * [8cd7bad] Imported Upstream version 1.2.9
+
+ -- Alexander Wirt <formorer@debian.org>  Mon, 11 Nov 2013 22:45:58 +0100
+
+keepalived (1:1.2.8-1) unstable; urgency=low
+
+  * [b25f231] Patch configure.in instead of configure
+  * [aa70432] Fix configure
+  * [3a728cd] Enable sha1 support
+  * [e257779] Add Homepage field
+  * Allow providing of daemon args via /etc/defaul/keepalived
+    Closes: #693877
+  * Import upstream version 1.2.8 (Closes: #721966)
+    - Fix reload handling (Closes: #652260)
+
+ -- Alexander Wirt <formorer@debian.org>  Fri, 13 Sep 2013 08:54:19 +0200
+
+keepalived (1:1.2.7-1) unstable; urgency=low
+
+  * [b46efb0] Imported Upstream version 1.2.7
+    - Don't use bind() with AF_UNSPEC
+      (Closes: #699540)
+    - new upstream version (Closes: #703085)
+  * [6058efd] wrap-and-sort
+  * [a128718] Build with snmp support
+  * [d9783f9] Remove obsolete patches
+  * [2deaa4e] Move to dh and 3.0(quilt)
+  * [cd5a314] Use libnl3 (Closes: #688164)
+  * [d6493e1] Convert package to dh and quilt(3.0)
+  * [e7f5489] Bump dh compat to dh9
+  * [f6ca92d] Bump standards version
+  * [525415b] Fix errors in manpage
+  * [35dbfe3] Remove unneeded files
+
+ -- Alexander Wirt <formorer@debian.org>  Mon, 01 Jul 2013 22:02:02 +0200
+
+keepalived (1:1.2.6-1) experimental; urgency=low
+
+  * [b72cd7a] Remove obsolete patches
+  * [0cadef0] Enable snmp support
+  * [7442e85] Build-depend against libsnmp-dev
+  * [b84e381] Imported Upstream version 1.2.4
+  * [9f29e62] Imported Upstream version 1.2.6
+
+ -- Alexander Wirt <formorer@debian.org>  Tue, 21 Aug 2012 18:14:42 +0200
+
+keepalived (1:1.2.2-3) unstable; urgency=low
+
+  * [c28d5f0] Readd ip_vs.h - this reenables ipvs (Closes: #649778)
+
+ -- Alexander Wirt <formorer@debian.org>  Sun, 18 Dec 2011 16:18:06 +0100
+
+keepalived (1:1.2.2-2) unstable; urgency=low
+
+  * [9db4134] Fix override disparity
+  * [8f0c721] Remove obsolete patch
+  * [897c0a0] Set correct permissions on pid file.
+    This is a fix for CVE-2011-1784.
+    (Closes: #626281)
+  * [5ab4b8d] Don't use modprobe -k.
+    Thanks to Sven Ulland for the patch
+  * [c87fe40] Add vcs headers to control file
+  * [8107104] Bump standards version - no changes
+
+ -- Alexander Wirt <formorer@debian.org>  Thu, 10 Nov 2011 08:38:47 +0100
+
+keepalived (1:1.2.2-1) unstable; urgency=low
+
+  * New upstream version
+  * Don't remove configure in clean target
+  * Refresh 95_use_linux_ip_vs_h.patch for 1.2
+  * Build depend on libnl-dev
+
+ -- Alexander Wirt <formorer@debian.org>  Sun, 06 Mar 2011 17:43:35 +0100
+
+keepalived (1:1.1.20-1) unstable; urgency=low
+
+  * Go back to 1.1.20 since 1.2.0 is not ready for release
+  * Bump standards version (no changes)
+
+ -- Alexander Wirt <formorer@debian.org>  Sat, 14 Aug 2010 10:17:10 +0200
+
+keepalived (1.2.0-1) unstable; urgency=low
+
+  * New upstream release (Closes: #580607)
+  * Bump standards version (no changes)
+
+ -- Alexander Wirt <formorer@debian.org>  Sun, 04 Jul 2010 11:02:13 +0200
+
+keepalived (1.1.20-1) unstable; urgency=low
+
+  * New upstream release (Closes: #580607)
+  * Bump standards version (no changes)
+  * Raise debhelper dep to v5
+  * Refresh 95_use_linux_ip_vs_h.patch
+  * Fix typo in description
+  * Declare debsource v1.0
+  * Fix restart if daemon doesn't run (Closes: #561357)
+
+ -- Alexander Wirt <formorer@debian.org>  Sat, 08 May 2010 20:56:58 +0200
+
+keepalived (1.1.19-1) unstable; urgency=low
+
+  * New upstream version (Closes: #557814, #548254)
+    - Fix gigabit status interface support (Closes: #555634)
+  * Fix error reporting and manpage of genhash (Closes: #575399)
+
+ -- Alexander Wirt <formorer@debian.org>  Fri, 23 Apr 2010 13:17:53 +0200
+
+keepalived (1.1.17-2) unstable; urgency=low
+
+  * Reenable ipvs support thanks to Vincent Bernat for the hint
+    (Closes: #530738)
+
+ -- Alexander Wirt <formorer@debian.org>  Thu, 28 May 2009 09:55:52 +0200
+
+keepalived (1.1.17-1) unstable; urgency=low
+
+  * New upstream release (Closes: #516102).
+    Thanks to Vincent Bernat for the help
+  * Bump standards version (no changes)
+  * Remove outdated README.Debian (Closes: #470626)
+  * support nostrip option (Closes: #478261)
+    Thanks to Vincent Bernat for the patch
+  * Extract the patch for 336885 into debian/patches (Closes: #510092)
+
+ -- Alexander Wirt <formorer@debian.org>  Sun, 26 Apr 2009 19:41:12 +0200
+
+keepalived (1.1.15-1) unstable; urgency=low
+
+  * New upstream release (Closes: #401827)
+  * Remove 00_fix-manpagepath.patch and
+    01_fix-genhash-manpagepath.patch(obsolete)
+  * Bump standards version
+
+ -- Alexander Wirt <formorer@debian.org>  Tue, 18 Dec 2007 18:44:55 +0100
+
+keepalived (1.1.13-1) unstable; urgency=low
+
+  * New upstream release (Closes: #401827)
+  * Add patch to compile with libc6-dev. Thanks to Cyril Brulebois
+    for the original patch (Closes: #428927)
+
+ -- Alexander Wirt <formorer@debian.org>  Tue, 24 Jul 2007 22:24:08 +0200
+
+keepalived (1.1.12-1) unstable; urgency=low
+
+  * New upstream release (Closes: #365220)
+  * Call notification for every failure. Thanks to Len Sorenson for
+    the patch (Closes: #336885)
+  * delete /tmp/.vrrp and /tmp/.healthcheckers if they exists before
+    starting keepalived (Closes: #333102)
+  * bumped standard version
+
+ -- Alexander Wirt <formorer@debian.org>  Wed, 28 Jun 2006 20:01:56 +0200
+
+keepalived (1.1.11-3) unstable; urgency=low
+
+  * Added a warning about sarge kernels to README.Debian and
+    the package description
+
+ -- Alexander Wirt <formorer@debian.org>  Fri, 29 Apr 2005 23:22:40 +0200
+
+keepalived (1.1.11-2) unstable; urgency=low
+
+  * Added iproute to dependency (Closes: #303421)
+
+ -- Alexander Wirt <formorer@debian.org>  Fri,  8 Apr 2005 21:45:33 +0200
+
+keepalived (1.1.11-1) unstable; urgency=low
+
+  * New upstream release (Closes: #297067)
+    - Fixes several bugs with his childs which
+      should fix restart und fork bugs
+      (Closes: #296516)
+  * Updated to iv_vs.h 0x010201 (2.6.11)
+
+ -- Alexander Wirt <formorer@debian.org>  Wed,  2 Mar 2005 21:41:29 +0100
+
+keepalived (1.1.7-3) unstable; urgency=low
+
+  * No longer install the config per default (Closes: #261615)
+
+ -- Alexander Wirt <formorer@debian.org>  Sat, 14 Aug 2004 20:36:43 +0200
+
+keepalived (1.1.7-2) unstable; urgency=low
+
+  * New Maintainer: Alexander Wirt <formorer@debian.org>
+    No Bugs, no problems with this package. Thanks for the good
+    work Andres, I'm happy to take this package
+
+ -- Alexander Wirt <formorer@debian.org>  Wed, 19 May 2004 20:32:03 +0200
+
+keepalived (1.1.7-1) unstable; urgency=low
+
+  * New upstream release.
+  * 003-genhash_8.patch: drop genhash manpage, as it's been merged upstream.
+  * 001-genhash_1.patch: add new manpage location fix; should be genhash(1).
+
+ -- Andres Salomon <dilinger@voxel.net>  Sun, 02 May 2004 23:44:39 -0400
+
+keepalived (1.1.6-1) unstable; urgency=low
+
+  * New upstream release.
+  * Drop 001-really_distclean.patch and 002-use_destdir.patch; merged
+    upstream.
+  * 003-genhash_8.patch: add genhash manpage.
+  * Update ip_vs.h to version from 2.6.4-1.  Keepalived now compiles
+    using 2.6 headers.  Update description accordingly.
+  * Update copyright file.
+  * Make init script not check if kernel has IPVS support (closes: #237141).
+
+ -- Andres Salomon <dilinger@voxel.net>  Tue, 30 Mar 2004 22:05:24 -0500
+
+keepalived (1.1.5-2) unstable; urgency=low
+
+  * Can't use kernel-headers package, not all arch have it.  Revert
+    back to storing headers in debian/ subdir.
+
+ -- Andres Salomon <dilinger@voxel.net>  Tue, 10 Feb 2004 02:38:14 -0500
+
+keepalived (1.1.5-1) unstable; urgency=low
+
+  * New upstream release.  (Closes: #231418)
+  * Now that ipvs is in 2.4, use kernel-headers package instead of storing
+    kernel headers in debian/ subdir.  Add appropriate build-dep.
+  * Convert buildsys to cdbs and update standards-version.
+  * 001-really_distclean.patch: clean binaries out of ./bin.
+  * 002-use_destdir.patch: add DESTDIR to makefiles.
+  * Upstream now has manpages for keepalived and keepalived.conf.
+
+ -- Andres Salomon <dilinger@voxel.net>  Fri, 30 Jan 2004 02:51:47 -0500
+
+keepalived (1.0.3-1) unstable; urgency=low
+
+  * New upstream release; I'm going to wait for this release to enter
+    testing before allowing the 1.1.x series into unstable.  (Closes: #199437)
+  * Update maintainer email address.
+  * Update standards-version.
+  * Update kernel headers and scripts.
+
+ -- Andres Salomon <dilinger@voxel.net>  Sat, 26 Jul 2003 01:03:19 -0400
+
+keepalived (1.0.2-1) unstable; urgency=low
+
+  * New upstream release.
+  * Fixed previous changelog entry's year (2002 -> 2003), so it doesn's appear
+    that I time travel.  At the very least, I wouldn't want people discovering
+    my secret, and risk my time machine falling into the wrong hands.
+  * Upstream docs changed location; updated.
+  * Dropped dh_undocumented usage.
+  * Added reload support to the init script.
+
+ -- Andres Salomon <dilinger@mp3revolution.net>  Thu, 17 Apr 2003 00:38:48 -0500
+
+keepalived (1.0.0-1) unstable; urgency=low
+
+  * New upstream release.
+  * Update standards-version to 3.5.8.0.
+  * Update kernel headers for ipvs-1.0.7.
+
+ -- Andres Salomon <dilinger@mp3revolution.net>  Fri, 17 Jan 2003 15:26:38 -0400
+
+keepalived (0.7.6-1) unstable; urgency=low
+
+  * New upstream release.
+  * Several minor description/copyright changes to make new lintian happy.
+  * Add removal of config.log to clean target in debian/rules.
+
+ -- Andres Salomon <dilinger@mp3revolution.net>  Sun,  8 Dec 2002 23:59:17 -0400
+
+keepalived (0.7.1-1) unstable; urgency=low
+
+  * New upstream release.
+  * Update kernel headers for ipvs-1.0.6.
+  * Remove dependance upon gcc-3.0; upstream says 2.95 works fine now,
+    and we should be transitioning to gcc-3.2 soon, anyways (hopefully).
+
+ -- Andres Salomon <dilinger@mp3revolution.net>  Sat, 21 Sep 2002 16:05:52 -0400
+
+keepalived (0.6.10-2) unstable; urgency=low
+
+  * Add OpenSSL exception clause to the copyright file.
+
+ -- Andres Salomon <dilinger@mp3revolution.net>  Thu, 22 Aug 2002 11:48:16 -0400
+
+keepalived (0.6.10-1) unstable; urgency=low
+
+  * New upstream release.
+  * Update kernel headers to 2.4.19 and ipvs-1.0.4.
+
+ -- Andres Salomon <dilinger@mp3revolution.net>  Wed, 14 Aug 2002 23:42:48 -0400
+
+keepalived (0.6.8-1) unstable; urgency=low
+
+  * New upstream release.
+  * Updated description to mention VRRPv2.
+  * Depend upon gcc-3.0, since gcc-2.95 and keepalived have, uh, issues.
+  * Updated various paths to reflect changed build system/layout.
+
+ -- Andres Salomon <dilinger@mp3revolution.net>  Thu, 18 Jul 2002 01:47:42 -0500
+
+keepalived (0.6.2-1) unstable; urgency=low
+
+  * New upstream release, upload to archive.  (Closes: #144100)
+  * Autoconf sanity upstream, remove configure.in/Makefile.in patches.
+  * Fix typo in top level Makefile.in.
+  * Updated URL for keepalived (keepalived.sf.net -> www.keepalived.org).
+  * For easier maintenance of kernel header files, grab scripts from my
+    devmapper package.
+
+ -- Andres Salomon <dilinger@mp3revolution.net>  Sun, 16 Jun 2002 15:47:39 -0500
+
+keepalived (0.5.8-1) unstable; urgency=low
+
+  * New upstream release.
+  * Note the OpenSSL exception clause in the README.
+
+ -- Andres Salomon <dilinger@mp3revolution.net>  Tue, 21 May 2002 15:18:02 -0500
+
+keepalived (0.5.7-1) unstable; urgency=low
+
+  * New upstream release (w/ SSL_GET fixes!).
+  * Moved sample configs to doc directory.
+
+ -- Andres Salomon <dilinger@mp3revolution.net>  Thu,  2 May 2002 20:14:38 -0500
+
+keepalived (0.5.6-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Andres Salomon <dilinger@mp3revolution.net>  Thu, 11 Apr 2002 01:38:19 -0500
+
+keepalived (0.5.5-1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Andres Salomon <dilinger@mp3revolution.net>  Thu, 11 Apr 2002 01:38:19 -0500

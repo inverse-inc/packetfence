@@ -1,0 +1,18 @@
+[Unit]
+Description=Keepalive Daemon (LVS and VRRP)
+After=network-online.target
+Wants=network-online.target
+Documentation=man:keepalived(8)
+Documentation=man:keepalived.conf(5)
+Documentation=man:genhash(1)
+Documentation=https://keepalived.org
+ConditionFileNotEmpty=/etc/keepalived/keepalived.conf
+
+[Service]
+Type=notify
+EnvironmentFile=-/etc/default/keepalived
+ExecStart=/usr/sbin/keepalived --dont-fork $DAEMON_ARGS
+ExecReload=/bin/kill -HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target

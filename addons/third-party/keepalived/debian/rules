@@ -1,0 +1,32 @@
+#!/usr/bin/make -f
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+#export DH_OPTIONS=-v
+
+%:
+	dh  $@
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		--enable-snmp \
+		--enable-sha1 \
+		--enable-snmp-rfcv2 \
+		--enable-snmp-rfcv3 \
+		--enable-dbus \
+		--enable-json \
+		--enable-bfd \
+		--enable-regex \
+		--enable-log-file \
+	    --enable-reproducible-build \
+		--with-init=systemd
+
+
+override_dh_auto_install:
+	dh_auto_install
+	mv debian/keepalived/etc/dbus-1/system.d debian/keepalived/usr/share/dbus-1/.
+	rmdir debian/keepalived/etc/dbus-1
+	rm -rf debian/keepalived/etc/keepalived/samples/
+	rm -rf debian/keepalived/etc/rc.d
+	rm -rf debian/keepalived/etc/keepalived/keepalived.conf
+	rm -rf debian/keepalived/etc/sysconfig
+	rm -rf debian/keepalived/usr/man
