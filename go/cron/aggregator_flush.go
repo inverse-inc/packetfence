@@ -104,6 +104,8 @@ func buildNetworkEvents(events map[EventKey][]PfFlow) []*NetworkEvent {
 		ports := map[AggregatorSession]struct{}{}
 		for i := range flows {
 			e := &flows[i]
+			networkEvent.tcpFlags |= e.TCPFlags
+			networkEvent.sampled = networkEvent.sampled || e.Sampled
 			startTime = min(startTime, e.StartTime)
 			endTime = max(endTime, e.EndTime)
 			sessionKey := e.SessionKey()
@@ -125,6 +127,10 @@ func buildNetworkEvents(events map[EventKey][]PfFlow) []*NetworkEvent {
 
 		if networkEvent.EndTime == 0 {
 			networkEvent.EndTime = networkEvent.StartTime
+		}
+
+		if networkEvent.unansweredTCP() {
+			networkEvent.EventType = NetworkEventTypeFailed
 		}
 
 		networkEvents = append(networkEvents, networkEvent)
@@ -245,6 +251,23 @@ func lookupIp4logMacs(ctx context.Context, dbh *sql.DB, ips []string) (map[strin
 // cut short, so callers can tell "no row" from "unknown".
 func queryStringPairs(ctx context.Context, dbh *sql.DB, name, sqlPrefix string, keys []string, chunkSize int) (map[string]string, bool) {
 	result := make(map[string]string, len(keys))
+	complete := queryChunks(ctx, dbh, name, sqlPrefix, keys, chunkSize, func(rows *sql.Rows) error {
+		var k, v string
+		if err := rows.Scan(&k, &v); err != nil {
+			return err
+		}
+
+		result[k] = v
+		return nil
+	})
+
+	return result, complete
+}
+
+// queryChunks runs sqlPrefix + "?, ?, ..." + ")" for each chunk of keys and
+// hands every row to scan. Errors are logged under name; the boolean is false
+// when any chunk failed or its iteration was cut short.
+func queryChunks(ctx context.Context, dbh *sql.DB, name, sqlPrefix string, keys []string, chunkSize int, scan func(*sql.Rows) error) bool {
 	complete := true
 	for start := 0; start < len(keys); start += chunkSize {
 		chunk := keys[start:min(start+chunkSize, len(keys))]
@@ -262,14 +285,11 @@ func queryStringPairs(ctx context.Context, dbh *sql.DB, name, sqlPrefix string, 
 		}
 
 		for rows.Next() {
-			var k, v string
-			if err := rows.Scan(&k, &v); err != nil {
+			if err := scan(rows); err != nil {
 				log.LogErrorf(ctx, "%s Scan Error: %s", name, err.Error())
 				complete = false
 				break
 			}
-
-			result[k] = v
 		}
 
 		// rows.Next() returns false on a mid-stream failure too (connection
@@ -283,5 +303,5 @@ func queryStringPairs(ctx context.Context, dbh *sql.DB, name, sqlPrefix string, 
 		rows.Close()
 	}
 
-	return result, complete
+	return complete
 }

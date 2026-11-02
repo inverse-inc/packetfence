@@ -51,6 +51,19 @@ type PfFlow struct {
 	SrcMask         uint8      `json:"src_mask,omitempty"`
 	DstMask         uint8      `json:"dst_mask,omitempty"`
 	ToS             uint8      `json:"tos,omitempty"`
+	// Sampled is set from the header of the message carrying the flow (see
+	// PfFlowHeader.Sampled); a sampled flow may miss packets of the
+	// connection, so its TCP flags tell nothing about how it ended.
+	Sampled bool `json:"-"`
+}
+
+// Sampled reports whether the flows of this message come from packet
+// sampling. sFlow always samples. NetFlow v5 carries the interval in its
+// header; NetFlow v9 and IPFIX report it in options records, which the
+// collector does not forward, so their interval stays 0 and they are taken as
+// unsampled.
+func (h *PfFlowHeader) Sampled() bool {
+	return h.FlowType == 65535 || h.SampleInterval > 1
 }
 
 func (f *PfFlow) Key(h *PfFlowHeader) EventKey {
