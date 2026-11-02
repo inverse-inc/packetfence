@@ -38,7 +38,8 @@ following variables are available:
 
  * `$mac`: the MAC address of the device being checked
  * `$node.<attribute>`: any attribute of the node (ex: `$node.pid`,
-   `$node.category`, `$node.computername`, ...)
+   `$node.category`, `$node.computername`, ...), see <<generic_http_available_fields>>
+   for the complete list
 
 For example:
 
@@ -133,8 +134,10 @@ the first two being the same two the request templates get:
    object. The client certificate is under the `TLSClientCert*` keys (ex:
    `$tls.TLSClientCertSerial`, `$tls.TLSClientCertCommonName`,
    `$tls.TLSClientCertIssuer`, `$tls.TLSClientCertSubjectAltNameEmail`,
-   `$tls.TLSClientCertExpiration`) and the server certificate under the
+   `$tls.TLSClientCertExpiration`) and the certificate that issued it under the
    `TLSCert*` keys. It is `null` when nothing is recorded for the device.
+
+See <<generic_http_available_fields>> for every attribute of `$node` and `$tls`.
 
 This is what you want when the server answers about more than the one device
 asked about, or when the answer has to be checked against what PacketFence
@@ -165,6 +168,98 @@ NOTE: A query that does not compile is logged and treated as a failed check. A
 response that is not valid JSON and a jq runtime error are logged as a
 communication failure instead, so a server answering something unexpected does
 not deauthorize the device.
+
+[[generic_http_available_fields]]
+===== Available fields
+
+The attributes below are available as `$node.<attribute>` in the request
+templates and in the jq query, and as `$tls.<attribute>` in the jq query only.
+An attribute that is not set for the device is empty in a template and `null`
+in the jq query.
+
+*Node attributes* (`$node`)
+
+[options="header",cols="1,3"]
+|===
+|Attribute |Description
+|`mac` |MAC address of the device
+|`pid` |Owner (username) the device is registered to
+|`status` |Registration status (`reg`, `unreg`, `pending`)
+|`category` |Name of the role of the device
+|`category_id` |ID of the role of the device
+|`bypass_role` |Name of the bypass role
+|`bypass_role_id` |ID of the bypass role
+|`bypass_vlan` |Bypass VLAN
+|`bypass_acls` |Bypass ACLs
+|`detect_date` |Date the device was first seen
+|`regdate` |Registration date
+|`unregdate` |Unregistration (expiration) date
+|`last_seen` |Date the device was last seen
+|`last_arp` |Date of the last ARP seen for the device
+|`last_dhcp` |Date of the last DHCP request seen for the device
+|`time_balance` |Remaining access time
+|`bandwidth_balance` |Remaining bandwidth
+|`autoreg` |Whether the device was auto-registered (`yes`, `no`)
+|`voip` |Whether the device is a VoIP device (`yes`, `no`)
+|`computername` |Computer name of the device (from DHCP)
+|`machine_account` |Machine account of the device
+|`user_agent` |Last HTTP user agent seen for the device
+|`notes` |Notes
+|`sessionid` |Session ID
+|`dhcp_fingerprint` |DHCP fingerprint
+|`dhcp6_fingerprint` |DHCPv6 fingerprint
+|`dhcp_vendor` |DHCP vendor
+|`dhcp6_enterprise` |DHCPv6 enterprise
+|`device_type` |Device type (from Fingerbank)
+|`device_class` |Device class (from Fingerbank)
+|`device_version` |Device version (from Fingerbank)
+|`device_manufacturer` |Device manufacturer (from Fingerbank)
+|`device_score` |Fingerbank score
+|`last_switch` |Switch of the last connection
+|`last_switch_mac` |MAC address of the switch of the last connection
+|`last_port` |Switch port of the last connection
+|`last_ifDesc` |Interface description of the last connection
+|`last_vlan` |VLAN of the last connection
+|`last_role` |Role of the last connection
+|`last_ssid` |SSID of the last connection
+|`last_connection_type` |Connection type of the last connection
+|`last_connection_sub_type` |Connection sub type (EAP type) of the last connection
+|`last_dot1x_username` |802.1X username of the last connection
+|`stripped_user_name` |Username of the last connection, without its realm
+|`realm` |Realm of the last connection
+|`last_start_time` |Start time of the last connection
+|`last_start_timestamp` |Start time of the last connection, as a UNIX timestamp
+|`last_end_time` |End time of the last connection
+|===
+
+The `last_*`, `stripped_user_name` and `realm` attributes come from the
+current (or latest) location log entry of the device.
+
+*TLS attributes* (`$tls`, jq query only)
+
+[options="header",cols="1,3"]
+|===
+|Attribute |Description
+|`mac` |MAC address of the device
+|`TLSClientCertSerial` |Serial number of the client certificate
+|`TLSClientCertSubject` |Subject of the client certificate
+|`TLSClientCertCommonName` |Common name of the client certificate
+|`TLSClientCertIssuer` |Issuer of the client certificate
+|`TLSClientCertSubjectAltNameEmail` |E-mail subject alternative name of the client certificate
+|`TLSClientCertValidSince` |Start of validity of the client certificate
+|`TLSClientCertExpiration` |Expiration of the client certificate
+|`TLSClientCertX509v3ExtendedKeyUsage` |Extended key usage of the client certificate
+|`TLSClientCertX509v3ExtendedKeyUsageOID` |Extended key usage OIDs of the client certificate
+|`TLSClientCertX509v3SubjectKeyIdentifier` |Subject key identifier of the client certificate
+|`TLSClientCertX509v3AuthorityKeyIdentifier` |Authority key identifier of the client certificate
+|`TLSCertSerial` |Serial number of the issuing CA certificate seen during the authentication
+|`TLSCertSubject` |Subject of the issuing CA certificate
+|`TLSCertCommonName` |Common name of the issuing CA certificate
+|`TLSCertIssuer` |Issuer of the issuing CA certificate
+|`TLSCertSubjectAltNameEmail` |E-mail subject alternative name of the issuing CA certificate
+|`TLSCertValidSince` |Start of validity of the issuing CA certificate
+|`TLSCertExpiration` |Expiration of the issuing CA certificate
+|===
 
 ===== Testing the jq query
 

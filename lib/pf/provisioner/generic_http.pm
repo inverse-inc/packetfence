@@ -222,7 +222,7 @@ sub jq_vars {
 
 The TLS certificate data recorded for a MAC in the node_tls table, filled in
 from the RADIUS audit log of its TLS-based EAP authentications: the
-server certificate (C<TLSCertSerial>, C<TLSCertIssuer>, ...) and the client
+issuing (CA) certificate (C<TLSCertSerial>, C<TLSCertIssuer>, ...) and the client
 certificate (C<TLSClientCertSerial>, C<TLSClientCertCommonName>, ...) the
 device last presented. Returns a hash of the columns, or C<undef> when the
 device has none or the lookup fails. Callable as a class method.
