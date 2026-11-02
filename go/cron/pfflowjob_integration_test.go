@@ -171,16 +171,17 @@ func waitForStableGroup(t *testing.T, client *kafka.Client, group string, timeou
 
 // giveReaderTimeToJoin holds the flow exporter back, as in INV-948 where no
 // flow is exported while PacketFence restarts: the topic must not exist
-// before pfflow had a chance to join the group. Without the fix the reader
-// joins (and gets an empty assignment) within that time; with it the reader
-// waits for the topic and the group stays empty for the whole timeout.
+// before pfflow had a chance to join the group. Without the topic wait the
+// reader joins (and gets an empty assignment) within that time, which fails
+// the test even though the watchdog would later repair it: the guard must
+// hold on its own. With it the group stays empty for the whole timeout.
 func giveReaderTimeToJoin(t *testing.T, j *PfFlowJob, timeout time.Duration) {
 	t.Helper()
 	if g, ok := stableGroup(j.kafkaClient(), j.GroupID, timeout); ok {
-		t.Logf("reader joined %s before the topic existed, assignment empty: %v", j.GroupID, noPartitionAssigned(g, j.ReadTopic))
-	} else {
-		t.Logf("reader did not join %s within %v (waiting for the topic)", j.GroupID, timeout)
+		t.Fatalf("reader joined %s before the topic existed (assignment empty: %v)", j.GroupID, noPartitionAssigned(g, j.ReadTopic))
 	}
+
+	t.Logf("reader did not join %s within %v (waiting for the topic)", j.GroupID, timeout)
 }
 
 func TestPfFlowKafka(t *testing.T) {

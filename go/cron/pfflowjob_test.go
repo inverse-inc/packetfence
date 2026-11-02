@@ -99,3 +99,40 @@ func TestPfFlowRunStopsWhileWaitingForKafka(t *testing.T) {
 		t.Fatal("run() did not return after its context was cancelled")
 	}
 }
+
+func TestWaitForTopicSilentBroker(t *testing.T) {
+	// A broker that accepts the connection and never answers: WaitForTopic
+	// must still return when its context expires.
+	l, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer l.Close()
+	go func() {
+		for {
+			c, err := l.Accept()
+			if err != nil {
+				return
+			}
+
+			defer c.Close()
+		}
+	}()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	done := make(chan error, 1)
+	go func() {
+		done <- WaitForTopic(&kafka.Dialer{Timeout: 10 * time.Second}, ctx, l.Addr().String(), "pfflows_events")
+	}()
+
+	select {
+	case err := <-done:
+		if err == nil {
+			t.Fatal("WaitForTopic found a topic on a broker that never answers")
+		}
+	case <-time.After(10 * time.Second):
+		t.Fatal("WaitForTopic did not return after its context expired")
+	}
+}

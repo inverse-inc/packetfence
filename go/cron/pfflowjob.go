@@ -214,6 +214,12 @@ func WaitForTopic(dialer *kafka.Dialer, ctx context.Context, brokerAddr string, 
 	}
 	defer conn.Close()
 
+	// ReadPartitions has no deadline of its own: a broker that accepted the
+	// connection but stopped answering would block it forever. Expire the
+	// connection when ctx is done (deadline or shutdown) so it returns.
+	stop := context.AfterFunc(ctx, func() { conn.SetDeadline(time.Now()) })
+	defer stop()
+
 	// 2. Create a ticker for the polling interval (e.g., check every 1 second)
 	ticker := time.NewTicker(1 * time.Second)
 	defer ticker.Stop()
