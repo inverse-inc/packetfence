@@ -4873,7 +4873,16 @@ sub format_acl {
     # for untranslatableAclQualifier
     my $entries = $acl_ref->{'packetfence'}->{'entries'} // [];
     if (@$entries == @lines) {
-        $entries->[$_]->{'acl_line'} = $lines[$_] for 0 .. $#lines;
+        foreach my $index (0 .. $#lines) {
+            my $entry = $entries->[$index];
+            $entry->{'acl_line'} = $lines[$index];
+            # The parser keeps the type of a numeric ICMP qualifier and drops its
+            # code: "3 1" is given as "3", which would match every code of the type
+            my $icmp = $entry->{'icmp_qualifier'};
+            if (defined $icmp && $icmp =~ /^\d+$/ && $lines[$index] =~ /\s\Q$icmp\E\s+(\d+)(?:\s+log(?:-input)?\b.*)?\s*$/) {
+                $entry->{'icmp_qualifier'} = "$icmp $1";
+            }
+        }
     } else {
         get_logger->error("Cannot parse the ACLs: " . join(' ', map { s/\s+$//r } @{$err // []}));
     }
@@ -4888,9 +4897,7 @@ it can.
 Cisco::AccessList::Parser reads the dscp, precedence, tos, fragments,
 time-range and option qualifiers of a line without returning them, so the entry
 of "permit ip any any dscp ef" is the one of "permit ip any any". Translating
-it would widen the ACL. It also drops the code of a numeric ICMP type: the entry
-of "permit icmp any any 3 1" is the one of "permit icmp any any 3", every
-destination unreachable. An "evaluate" line gives an entry with no action. An
+it would widen the ACL. An "evaluate" line gives an entry with no action. An
 object group (a service or network object defined on the switch) is given as a
 hash in place of the protocol or the address: no module can send it.
 
@@ -4923,11 +4930,13 @@ sub untranslatableAclQualifier {
 
 =head2 untranslatableIcmpTrailer
 
-Why the words after the ICMP type of an ACL line cannot be translated, or undef
-when there are none but a log keyword. Cisco::AccessList::Parser returns the
-type and drops what follows it: the code of a numeric type ("permit icmp any any
-3 1" would be every destination unreachable) and any other qualifier. A line
-whose type cannot be found where it is expected is refused rather than guessed.
+Why the words after the ICMP qualifier of an ACL line cannot be translated, or
+undef when there are none but a log keyword. Cisco::AccessList::Parser returns
+the type and drops what follows it: format_acl restores the code of a numeric
+type ("3 1"), any other qualifier is refused. A numeric type whose code was not
+restored would be every code of the type ("permit icmp any any 3 1" would be
+every destination unreachable). A line whose qualifier cannot be found where it
+is expected is refused rather than guessed.
 
 =cut
 
@@ -4944,8 +4953,10 @@ sub untranslatableIcmpTrailer {
         return "the ICMP type '$type' cannot be found in the line" if $i >= @tokens;
         $i += (lc($tokens[$i]) eq 'any') ? 1 : 2;
     }
-    return "the ICMP type '$type' cannot be found in the line" if $i >= @tokens || lc($tokens[$i]) ne lc($type);
-    my @trailer = grep { $_ !~ m{^log(?:-input)?$}i } @tokens[$i + 1 .. $#tokens];
+    # the qualifier: a message name, a type, or a type and its code
+    my @qualifier = split(' ', $type);
+    return "the ICMP type '$type' cannot be found in the line" if $i + @qualifier > @tokens || lc(join(' ', @tokens[$i .. $i + $#qualifier])) ne lc(join(' ', @qualifier));
+    my @trailer = grep { $_ !~ m{^log(?:-input)?$}i } @tokens[$i + @qualifier .. $#tokens];
     return undef if !@trailer;
     return "the code of the ICMP type $type is not sent" if $type =~ m{^\d+$} && $trailer[0] =~ m{^\d+$};
     return "the ICMP qualifier '@trailer' is not sent";
@@ -5099,6 +5110,70 @@ sub _denyAllAclEntry {
     };
 }
 
+=head2 aclIcmpType
+
+The ICMP type and code of the ICMP qualifier of a Cisco ACL line ("echo",
+"8", "3 1"), as numbers. The code is undef when the qualifier matches every
+code of the type. Returns an empty list for a message name it does not know.
+
+=cut
+
+our %ACL_ICMP_MESSAGES = (
+    'echo-reply'                  => [0],
+    'unreachable'                 => [3],
+    'net-unreachable'             => [3, 0],
+    'host-unreachable'            => [3, 1],
+    'protocol-unreachable'        => [3, 2],
+    'port-unreachable'            => [3, 3],
+    'packet-too-big'              => [3, 4],
+    'source-route-failed'         => [3, 5],
+    'network-unknown'             => [3, 6],
+    'host-unknown'                => [3, 7],
+    'host-isolated'               => [3, 8],
+    'dod-net-prohibited'          => [3, 9],
+    'dod-host-prohibited'         => [3, 10],
+    'net-tos-unreachable'         => [3, 11],
+    'host-tos-unreachable'        => [3, 12],
+    'administratively-prohibited' => [3, 13],
+    'host-precedence-unreachable' => [3, 14],
+    'precedence-unreachable'      => [3, 15],
+    'source-quench'               => [4],
+    'redirect'                    => [5],
+    'net-redirect'                => [5, 0],
+    'host-redirect'               => [5, 1],
+    'net-tos-redirect'            => [5, 2],
+    'host-tos-redirect'           => [5, 3],
+    'alternate-address'           => [6],
+    'echo'                        => [8],
+    'router-advertisement'        => [9],
+    'router-solicitation'         => [10],
+    'time-exceeded'               => [11],
+    'ttl-exceeded'                => [11, 0],
+    'reassembly-timeout'          => [11, 1],
+    'parameter-problem'           => [12],
+    'general-parameter-problem'   => [12, 0],
+    'option-missing'              => [12, 1],
+    'no-room-for-option'          => [12, 2],
+    'timestamp-request'           => [13],
+    'timestamp-reply'             => [14],
+    'information-request'         => [15],
+    'information-reply'           => [16],
+    'mask-request'                => [17],
+    'mask-reply'                  => [18],
+    'traceroute'                  => [30],
+    'conversion-error'            => [31],
+    'mobile-redirect'             => [32],
+);
+
+sub aclIcmpType {
+    my ($self, $qualifier) = @_;
+    return () if !defined $qualifier;
+    $qualifier =~ s/^\s+|\s+$//g;
+    return ($1, $2) if $qualifier =~ /^(\d+)(?:\s+(\d+))?$/;
+    my $message = $ACL_ICMP_MESSAGES{lc $qualifier} or return ();
+    return @$message;
+}
+
 =head2 untranslatableFilterRule
 
 Why a parsed ACL entry cannot be sent as a C<NAS-Filter-Rule> in the
@@ -5109,7 +5184,8 @@ number, so only C<eq> keeps its meaning, and the protocol is sent as its
 number, so a protocol without one is refused.
 
 Options: C<ranges> when the module turns C<range> into a port range, C<source>
-when it sends the source address (the others always send "from any").
+when it sends the source address (the others always send "from any"),
+C<icmptypes> when it sends the ICMP type as "icmptypes", which has no ICMP code.
 
 =cut
 
@@ -5126,7 +5202,12 @@ sub untranslatableFilterRule {
     return "the destination mask '".$entry->{'destination'}->{'wildcard'}."' is not contiguous" if !$self->aclWildcardIsContiguous($entry->{'destination'}->{'wildcard'});
     return "the rule has no source port match" if defined $entry->{'source'}->{'port'};
     return "the rule has no TCP flags match ('".$entry->{'tcp_flags'}."')" if defined $entry->{'tcp_flags'};
-    return "the rule has no ICMP type match ('".$entry->{'icmp_qualifier'}."')" if defined $entry->{'icmp_qualifier'};
+    if (defined $entry->{'icmp_qualifier'}) {
+        return "the rule has no ICMP type match ('".$entry->{'icmp_qualifier'}."')" if !$options{'icmptypes'};
+        my ($type, $code) = $self->aclIcmpType($entry->{'icmp_qualifier'});
+        return "the ICMP message '".$entry->{'icmp_qualifier'}."' is unknown" if !defined $type;
+        return "the rule has no ICMP code match ('".$entry->{'icmp_qualifier'}."')" if defined $code;
+    }
     my $port = $entry->{'destination'}->{'port'};
     if (defined $port && $port !~ /^eq\s+\S+$/ && !($options{'ranges'} && $port =~ /^range\s+\S+\s+\S+$/)) {
         return "the port operator '$port' cannot be represented";

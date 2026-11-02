@@ -394,7 +394,7 @@ sub acl_chewer {
     my $entries;
     ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, $push
         ? sub { $self->untranslatablePushAcl($_[0]) }
-        : sub { $self->untranslatableFilterRule($_[0], ranges => 1) });
+        : sub { $self->untranslatableFilterRule($_[0], ranges => 1, icmptypes => 1) });
 
     my $i = 0;
     my $acl_chewed;
@@ -438,7 +438,7 @@ sub acl_chewer {
         if ($push) {
             $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$j." ".$acl->{'action'}." ".$acl->{'protocol'}." ".$src." $dest " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' )."\n";
         } else {
-            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$acl->{'action'}." ".((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] : "in")." ".$acl->{'protocol'}." from any to ".$dest." ".( defined($dest_port) ? $dest_port : '' )."\n";
+            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$acl->{'action'}." ".((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] : "in")." ".$acl->{'protocol'}." from any to ".$dest." ".( defined($dest_port) ? $dest_port : '' ).( defined($acl->{'icmp_qualifier'}) ? "icmptypes ".($self->aclIcmpType($acl->{'icmp_qualifier'}))[0] : '' )."\n";
         }
         $i++;
     }
