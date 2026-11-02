@@ -10,6 +10,9 @@ Type=simple
 TimeoutStopSec=60
 ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::kafka' -e 'pf::services::manager::kafka->new()->generateConfig()'
 ExecStart=/usr/local/pf/sbin/kafka-docker-wrapper
+# Create pfflows_events before pfcron (ordered After= this unit) can join its
+# consumer group; "-": never fail Kafka because of it.
+ExecStartPost=-/usr/local/pf/sbin/kafka-create-topics
 ExecStop=/bin/bash -c "docker stop kafka ; echo Stopped"
 Restart=on-failure
 Slice=packetfence.slice
