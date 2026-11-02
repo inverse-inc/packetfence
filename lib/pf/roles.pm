@@ -135,7 +135,12 @@ sub performRoleLookup {
     my $globalRoleName = $self->_assignRoleFromCategory($node_attributes);
     return if (!defined($globalRoleName));
 
-    my $switchRoleName = $switch->getRoleByName($globalRoleName);
+    # Pass the node context so that a switch role pool (e.g. "role_a,role_b,role_c")
+    # is resolved to a concrete role here as well. node_attributes carries the pid,
+    # so the username hash picks the same member as the RADIUS Access-Accept path,
+    # keeping CoA / deauth role enforcement consistent with the initial assignment.
+    my $args = { node_info => $node_attributes, user_role => $globalRoleName, mac => $mac };
+    my $switchRoleName = $switch->getRoleByName($globalRoleName, $args);
     return if (!defined($switchRoleName));
 
     $logger->debug("MAC: $mac is assigned the $switchRoleName role.");
