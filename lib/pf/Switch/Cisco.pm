@@ -1807,7 +1807,8 @@ Why a parsed ACL entry cannot be sent by L</acl_chewer>, or undef when it can.
 
 The source port and the ICMP type are not sent. Without push ACLs the source is
 always sent as "any", which the switch replaces with the address of the
-endpoint, so an ACL on another source cannot be sent either.
+endpoint: the switch does not apply an ACL with another source, so it cannot be
+sent either.
 
 =cut
 
@@ -1830,15 +1831,6 @@ sub returnOutAccessListAttribute {
     my ($self) = @_;
     return "ip:outacl#";
 }
-
-=head2 aclsAreCiscoSyntax
-
-The bypass ACLs and the access lists of the switch entry are already in the
-syntax of the switch: they are sent as written.
-
-=cut
-
-sub aclsAreCiscoSyntax { return $TRUE }
 
 =head2 acl_chewer
 

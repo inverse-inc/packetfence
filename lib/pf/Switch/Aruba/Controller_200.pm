@@ -38,15 +38,12 @@ sub acl_chewer {
     my $logger = $self->logger;
     my ($acl_ref , @direction) = $self->format_acl($acl);
 
-    # Drop what no module can send (an object group, a DSCP match, ...)
     my $entries;
-    ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, sub { undef });
+    ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, sub { $self->_untranslatableAcl($_[0]) });
 
     my $i = 0;
     my $acl_chewed;
     foreach my $acl (@$entries) {
-        #Bypass acl that contain tcp_flag, it doesnt apply correctly on the switch
-        next if (defined($acl->{'tcp_flags'}));
         $acl->{'protocol'} =~ s/\(\d*\)//;
         my $dest;
         my $dest_port;
@@ -107,6 +104,20 @@ sub acl_chewer {
         $i++;
     }
     return $acl_chewed;
+}
+
+=head2 _untranslatableAcl
+
+Why a parsed ACL entry cannot be sent by L</acl_chewer>, or undef when it can.
+TCP flags do not apply correctly on the controller: dropping them would widen
+the ACL, so the entry is not sent.
+
+=cut
+
+sub _untranslatableAcl {
+    my ($self, $entry) = @_;
+    return "TCP flags do not apply correctly on the controller ('".$entry->{'tcp_flags'}."')" if defined $entry->{'tcp_flags'};
+    return undef;
 }
 
 =head2 implicit_acl

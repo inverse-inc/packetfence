@@ -697,9 +697,8 @@ sub acl_chewer {
 
     my ($acl_ref , @direction) = $self->format_acl($acl);
 
-    # Drop what no module can send (an object group, a DSCP match, ...)
     my $entries;
-    ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, sub { undef });
+    ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, sub { $self->_untranslatablePushAcl($_[0]) });
 
     my $i = 0;
     my $j = 1;
@@ -750,6 +749,20 @@ sub acl_chewer {
         $j++;
     }
     return $acl_chewed;
+}
+
+=head2 _untranslatablePushAcl
+
+Why a parsed ACL entry cannot be pushed as the "acl rule" commands built by
+L</acl_chewer>, or undef when it can. A rule has no TCP flags: dropping them
+would widen the ACL, so the entry is not sent.
+
+=cut
+
+sub _untranslatablePushAcl {
+    my ($self, $entry) = @_;
+    return "the rule has no TCP flags ('".$entry->{'tcp_flags'}."')" if defined $entry->{'tcp_flags'};
+    return undef;
 }
 
 =head2 implicit_acl

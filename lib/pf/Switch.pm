@@ -885,18 +885,21 @@ sub _getAccessListByName {
         return;
     }
     
+    # The bypass ACLs of the node and the access lists of the switch entry are
+    # written in Cisco syntax like the ACLs of a role: run them through
+    # acl_chewer too, so they are translated for the switch like the role ACLs
     my $node = node_view($mac);
     if ($node) {
         my $acls = $node->{bypass_acls};
         chomp($acls) if defined $acls;
         if (defined $acls && $acls ne '') {
-            return "asset", $self->_chewWrittenAcls($acls, $access_list_name, "the bypass ACLs of $mac");
+            return "asset", $self->acl_chewer($acls, $access_list_name);
         }
     }
 
     if (defined($self->{'_access_lists'}->{$access_list_name})) {
         $logger->debug("Using ACL from the switch entry instead of the one defined in the role");
-        return "role", $self->_chewWrittenAcls($self->{'_access_lists'}->{$access_list_name}, $access_list_name, "the ${access_list_name}AccessList of the switch entry");
+        return "role", $self->acl_chewer($self->{'_access_lists'}->{$access_list_name}, $access_list_name);
     }
 
     return undef, undef if !exists $ConfigRoles{$access_list_name};
@@ -925,28 +928,6 @@ sub _getAccessListByName {
     $logger->trace("No parameter ${access_list_name}AccessList found in conf/switches.conf for the switch " . $self->{_id});
     return undef, undef;
 }
-
-# Translate the ACLs an administrator wrote for a node (bypass_acls) or a
-# switch entry (<role>AccessList) for the switch. They used to be sent as
-# written, so some are in the native syntax of the switch: they are translated
-# like the ACLs of a role only when the switch does not take the Cisco syntax
-# (aclsAreCiscoSyntax) and the parser reads every line. An ACL it cannot read
-# is sent as written, rather than replaced by a deny of everything.
-sub _chewWrittenAcls {
-    my ($self, $acls, $access_list_name, $what) = @_;
-    return $acls if $self->aclsAreCiscoSyntax;
-    my ($acl_ref, @direction) = $self->format_acl($acls);
-    my $entries = $acl_ref->{'packetfence'}->{'entries'} // [];
-    if (@$entries != @direction) {
-        $self->logger->warn("(".$self->{'_id'}.") Sending $what as written: they are not in the Cisco ACL syntax that is translated for the switch");
-        return $acls;
-    }
-    return $self->acl_chewer($acls, $access_list_name);
-}
-
-# Whether the switch takes ACLs in the Cisco syntax they are written in, so the
-# bypass ACLs and the access lists of the switch entry are sent as written.
-sub aclsAreCiscoSyntax { return $FALSE }
 
 sub getRoleAccessListByName {
     my ($self, $access_list_name) = @_;

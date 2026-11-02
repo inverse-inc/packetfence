@@ -946,23 +946,22 @@ Internet Explorer 11 on Windows 7 when an RSA certificate is in use.
 The _Bypass ACLs_ of a node and the access lists defined on a switch or switch
 group (`<role>AccessList` in [filename]`switches.conf`) were sent to the switch
 as written, while the ACLs of a role are translated to the syntax of the switch
-type (Aruba CX, Arista, Juniper, Huawei, Dell, FortiSwitch, ...). On a switch
-that does not take the Cisco syntax, they are now translated the same way when
-they are written in the Cisco extended ACL syntax used for role ACLs. The
-switches of the Cisco family (IOS, ASA, WLC) still get them as written.
+type (Aruba CX, Arista, Juniper, Huawei, Dell, FortiSwitch, ...). They are now
+translated the same way on every switch type, Cisco included, so they must be
+written in the Cisco extended ACL syntax used for role ACLs.
 
-Once translated, they follow the rules of role ACLs:
+They follow the rules of role ACLs:
 
-* A line the switch type cannot express (for example a source address, a
-source port or an ICMP type in a `NAS-Filter-Rule`, a DSCP match or an
-`object-group`) is skipped when it is a `permit`. When it is a `deny`, the
-ACLs end there with a deny of everything, because skipping it would let the
-lines after it through.
-* When none of the lines can be sent, the device is denied everything.
-
-When the parser cannot read the ACLs at all, for example ACLs already written
-in the native syntax of the switch, they are still sent as written and
-PacketFence logs a warning. Mixing both syntaxes in one list is not supported.
+* A line the switch type cannot express is skipped when it is a `permit`. When
+it is a `deny`, the ACLs end there with a deny of everything, because skipping
+it would let the lines after it through. This covers a DSCP match, an
+`object-group`, and a source address: the source of a per-user ACL is the
+endpoint, and a Cisco switch does not apply an ACL with another source. It also
+covers what the `NAS-Filter-Rule` of the switch type cannot express, such as a
+source port or an ICMP type.
+* When none of the lines can be sent, or when the parser cannot read them (for
+example ACLs written in the native syntax of the switch), the device is denied
+everything.
 
 Before upgrading, review the bypass ACLs of the nodes and the access lists of
 the switches:
@@ -973,9 +972,13 @@ mysql pf -e "SELECT mac, bypass_acls FROM node WHERE bypass_acls IS NOT NULL AND
 grep -E '^[A-Za-z0-9_-]+AccessList=' /usr/local/pf/conf/switches.conf
 ----
 
-Rewrite the ones in the native syntax of a non-Cisco switch in the Cisco
-syntax, and check that the ones in the Cisco syntax only use what the switch
-type can express.
+Rewrite the ones in the native syntax of the switch in the Cisco syntax, and
+remove the source addresses.
+
+The role ACLs pushed to an Aruba Controller, an Aruba Mobility Master or a
+Cisco WLC (AireOS) follow the same rules: a line with TCP flags used to be sent
+without them, which allowed more than the line did. It is now skipped when it is
+a `permit`, and ends the ACLs with a deny of everything when it is a `deny`.
 
 === advanced.multihost replaced by the per-switch host_mode
 
