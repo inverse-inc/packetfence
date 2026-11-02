@@ -34,7 +34,8 @@ Depends: ${misc:Depends}, vlan,
 # ssh binary for the SSH transport of the switch CLI (Net::CLI::Interact)
  openssh-client,
  packetfence-archive-keyring (>= ${source:Version}),
- gpg,
+# gpg-agent: the postinst imports the monitoring scripts key (gpg only recommends it)
+ gpg, gpg-agent,
  jq,
  mariadb-server,
  mariadb-client,
