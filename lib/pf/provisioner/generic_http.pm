@@ -14,8 +14,8 @@ evaluated with a jq query (JQ::XS, with jq compiled into it); the device is
 authorized when the query returns a truthy value: it passes unless every
 result is C<null> or C<false> (jq semantics), and a query producing no result
 at all fails. The query is given the device as the jq named
-arguments C<$mac> and C<$node>, the same two the request templates get, and
-C<$tls>, the TLS certificate data last seen for it.
+arguments C<$mac>, C<$node> and C<$tls>, the TLS certificate data last seen
+for it, the same three the request templates get.
 
 The query comes from the configuration rather than from the code, so it is
 compiled with what it may reach cut down: see L</compile_jq>.
@@ -207,8 +207,8 @@ our $JQ_PROLOGUE = 'def env: {}; {} as $ENV | (';
 The variables a jq query is given for a device: C<$mac>, its MAC address,
 C<$node>, its node attributes, and C<$tls>, the TLS certificate data recorded
 for it (see L</node_tls>). C<$node> and C<$tls> are C<undef> when there is
-nothing known about the device, which the query sees as C<null>. C<$mac> and
-C<$node> are the same two the request templates get. Callable as a class
+nothing known about the device, which the query sees as C<null>. They are
+the same three the request templates get. Callable as a class
 method, so the admin tester builds them the same way.
 
 =cut
@@ -363,18 +363,26 @@ our %LOOKUP = (
         my ($self, $mac, $node_info) = @_;
         return $node_info // node_view($mac);
     },
+    tls => sub {
+        my ($self, $mac, $node_info) = @_;
+        return $self->node_tls($mac);
+    },
 );
 
 =head2 make_vars
 
 Build the template variables for a MAC.
-$mac is always available, $node.* is looked up lazily only when a template references it.
+$mac is always available, $node.* and $tls.* are looked up lazily only when a
+template references them. $tls, when given, is the TLS data already looked up
+for the device (see L</node_tls>) and is used as is, even when C<undef>,
+rather than looked up again.
 
 =cut
 
 sub make_vars {
-    my ($self, $mac, $node_info) = @_;
+    my ($self, $mac, $node_info, @tls) = @_;
     my $vars = { mac => $mac };
+    $vars->{tls} = $tls[0] if @tls;
     my @set = map { { tmpl => $_ } } grep { defined } (
         $self->url_tmpl,
         $self->body_tmpl,
@@ -411,15 +419,16 @@ sub valid_header_value {
 
 =head2 make_request
 
-Build the HTTP::Request from the configured templates.
+Build the HTTP::Request from the configured templates. $node_info and $tls
+are passed on to L</make_vars>.
 Returns ($request, undef) on success, (undef, $error) on template failure.
 
 =cut
 
 sub make_request {
-    my ($self, $mac, $node_info) = @_;
+    my ($self, $mac, $node_info, @tls) = @_;
     my $req = eval {
-        my $vars = $self->make_vars($mac, $node_info);
+        my $vars = $self->make_vars($mac, $node_info, @tls);
         my $method = uc($self->method || 'GET');
         my $r = HTTP::Request->new($method => $self->url_tmpl->process($vars));
         if (defined $self->username && $self->username ne '') {
@@ -683,7 +692,9 @@ sub authorize {
     # rather than only when a request template happens to reference it -- a
     # successful check needs it for the enforcement below anyway
     $node_info //= node_view($mac);
-    my ($req, $err) = $self->make_request($mac, $node_info);
+    # likewise for the TLS data, given to the query as $tls
+    my $tls = $self->node_tls($mac);
+    my ($req, $err) = $self->make_request($mac, $node_info, $tls);
     if (defined $err) {
         $logger->error("Cannot build the request of provisioner " . $self->id . " for $mac: $err");
         return $pf::provisioner::COMMUNICATION_FAILED;
@@ -699,7 +710,7 @@ sub authorize {
         # undo any Content-Encoding but keep the bytes: evaluate_jq wants UTF-8
         # bytes, which a text/* response decoded to characters is not
         scalar $res->decoded_content(charset => 'none'), $self->jq_query,
-        $self->jq_vars($mac, $node_info, $self->node_tls($mac)),
+        $self->jq_vars($mac, $node_info, $tls),
     );
     if (defined $jq_err) {
         # Only a query that does not compile is a configuration error. An

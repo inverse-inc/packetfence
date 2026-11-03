@@ -120,7 +120,8 @@ sub new {
 
 sub process {
     my ($self, $vars, $funcs) = @_;
-    return join('', $self->pre_process($vars, $funcs));
+    # an unset variable or attribute renders as an empty string
+    return join('', map { $_ // '' } $self->pre_process($vars, $funcs));
 }
 
 sub pre_process {
@@ -156,7 +157,7 @@ sub process_simple_tmpl {
             }
 
             my $t = $v->{$k};
-            if (reftype ($t) ne 'HASH') {
+            if ((reftype($t) // '') ne 'HASH') {
                 return '';
             }
 

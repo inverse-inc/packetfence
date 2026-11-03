@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 92;
+use Test::More tests => 103;
 use Test::NoWarnings;
 use Test::MockModule;
 use HTTP::Response;
@@ -122,6 +122,38 @@ my $provisioner = new_ok(
     ($req, $err) = $p2->make_request($TEST_MAC, { hname => "X-A\r\nX-Injected" });
     is($req, undef, "a header name with a line break is refused");
     like($err // '', qr/invalid header name/, "the header name is reported as invalid");
+}
+
+{
+    # the TLS data of the device is available to the templates as $tls
+    my $p = make_provisioner(
+        method  => 'POST',
+        url     => 'https://mdm.example.com/certs/${url_quote($tls.TLSClientCertSerial)}',
+        headers => 'X-Cert-CN: $tls.TLSClientCertCommonName',
+        body    => '{"cn": ${json_quote($tls.TLSClientCertCommonName)}}',
+    );
+    my $tls = { TLSClientCertSerial => '0A 1B', TLSClientCertCommonName => 'bob "laptop"' };
+    my ($req, $err) = $p->make_request($TEST_MAC, $TEST_NODE_INFO, $tls);
+    is($err, undef, "no error when the templates use \$tls");
+    is($req->uri, 'https://mdm.example.com/certs/0A%201B', "url template is rendered with a \$tls attribute");
+    is($req->header('X-Cert-CN'), 'bob "laptop"', "header template is rendered with a \$tls attribute");
+    is_deeply(decode_json($req->content), { cn => 'bob "laptop"' }, "body template is rendered with a \$tls attribute");
+
+    ($req, $err) = $p->make_request($TEST_MAC, $TEST_NODE_INFO, undef);
+    is($err, undef, "no error when the device has no TLS data");
+    is($req->uri, 'https://mdm.example.com/certs/', "a \$tls attribute is empty when the device has no TLS data");
+
+    # without the TLS data handed in, it is looked up only when a template uses it
+    my $dal = Test::MockModule->new('pf::dal::node_tls');
+    my $lookups = 0;
+    $dal->mock(find => sub {
+        $lookups++;
+        return ($STATUS::OK, pf::dal::node_tls->new_from_row({ mac => $TEST_MAC, TLSClientCertSerial => 'CAFE' }));
+    });
+    ($req, $err) = $p->make_request($TEST_MAC, $TEST_NODE_INFO);
+    is($req->uri, 'https://mdm.example.com/certs/CAFE', "\$tls is looked up when a template uses it");
+    make_provisioner()->make_request($TEST_MAC, $TEST_NODE_INFO);
+    is($lookups, 1, "\$tls is not looked up when no template uses it");
 }
 
 {
@@ -231,6 +263,19 @@ my $provisioner = new_ok(
         "authorize gives the TLS data of the device to the query as \$tls");
     is(make_provisioner(jq_query => $query)->authorize('11:22:33:44:55:66', $TEST_NODE_INFO), $FALSE,
         "a device without TLS data has a null \$tls");
+
+    # the TLS data is looked up once for both the request templates and the query
+    my ($uri, $lookups) = (undef, 0);
+    $mock->mock(request => sub {
+        $uri = $_[1]->uri;
+        HTTP::Response->new(200, 'OK', ['Content-Type' => 'application/json'], '{"serial":"0A1B"}')
+    });
+    my $counting = Test::MockModule->new('pf::provisioner::generic_http');
+    $counting->mock(node_tls => sub { $lookups++; $counting->original('node_tls')->(@_) });
+    is(make_provisioner(url => 'https://mdm.example.com/certs/$tls.TLSClientCertSerial', jq_query => $query)
+        ->authorize($TEST_MAC, $TEST_NODE_INFO), $TRUE, "authorize renders \$tls in the request templates");
+    is("$uri", 'https://mdm.example.com/certs/0A1B', "the request carries the TLS data of the device");
+    is($lookups, 1, "the TLS data is looked up once per authorization");
 }
 
 {

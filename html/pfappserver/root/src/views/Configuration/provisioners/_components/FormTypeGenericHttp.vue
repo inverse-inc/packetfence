@@ -61,7 +61,7 @@
     />
 
     <form-group-url :column-label="$i18n.t('URL')"
-                    :text="$i18n.t('The URL of the request. This is a template: $mac is the MAC address of the device and $node.attribute (ex: $node.pid, $node.category) are the attributes of the node. Use the url_quote() template function for values that may contain URL-significant characters (for example, url_quote($node.pid)).')"
+                    :text="$i18n.t('The URL of the request. This is a template: $mac is the MAC address of the device and $node.attribute (ex: $node.pid, $node.category) are the attributes of the node and $tls.attribute (ex: $tls.TLSClientCertSerial) the TLS certificate data last seen for it. Use the url_quote() template function for values that may contain URL-significant characters (for example, url_quote($node.pid)).')"
                     namespace="url"
     />
 
