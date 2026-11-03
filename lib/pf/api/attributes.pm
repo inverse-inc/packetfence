@@ -21,6 +21,7 @@ use List::MoreUtils qw(any);
 our %ALLOWED_ATTRIBUTES = (
     Public => 1,
     Queue => 1,
+    NoQueue => 1,
     Fork => 1,
     AllowedAsAction => 1,
     ActionParams => 1,
@@ -98,6 +99,19 @@ sub isPublic {
 sub isQueue {
     my ($class, $method) = @_;
     return _hasAnyTags($class, $method, 'Public', 'Queue');
+}
+
+=head2 isAllowedInQueue
+
+Check if a method can be run from the queue.
+Only methods tagged Queue or AllowedAsAction are allowed, unless they are tagged NoQueue.
+
+=cut
+
+sub isAllowedInQueue {
+    my ($class, $method) = @_;
+    return 0 if _hasTag($class, $method, 'NoQueue');
+    return _hasAnyTags($class, $method, 'Queue', 'AllowedAsAction') ? 1 : 0;
 }
 
 sub _hasAnyTags {

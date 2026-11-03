@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 14;
+use Test::More tests => 16;
 use pf::factory::task;
 use pf::task::api;
 
@@ -36,14 +36,16 @@ ok(!pf::factory::task->isValidType(['api']), "reference is not a valid task type
 
 my $task = pf::task::api->new;
 ok($task->isAllowedMethod('send_email'), "Queue method is allowed");
-ok($task->isAllowedMethod('trigger_security_event'), "Public method is allowed");
+ok($task->isAllowedMethod('trigger_security_event'), "AllowedAsAction method is allowed");
+ok($task->isAllowedMethod('process_dhcpv4'), "queued dhcp method is allowed");
+ok(!$task->isAllowedMethod('echo'), "Public method not tagged for the queue is refused");
 ok($task->isAllowedMethod('cache_user_ntlm'), "queued ntlm cache method is allowed");
 ok(!$task->isAllowedMethod('rebless_switch'), "untagged method is refused");
-ok(!$task->isAllowedMethod('distant_download_configfile'), "denied method is refused");
-ok(!$task->isAllowedMethod('copy_directory'), "denied method is refused");
+ok(!$task->isAllowedMethod('distant_download_configfile'), "NoQueue method is refused");
+ok(!$task->isAllowedMethod('copy_directory'), "NoQueue method is refused");
 
 my ($err) = $task->doTask(['notify_configfile_changed', conf_file => '/tmp/x', server => '127.0.0.1']);
-is($err->{status}, 403, "doTask refuses a denied method");
+is($err->{status}, 403, "doTask refuses a NoQueue method");
 
 =head1 AUTHOR
 
