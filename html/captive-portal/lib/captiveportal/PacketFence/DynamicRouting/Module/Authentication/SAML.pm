@@ -56,10 +56,14 @@ SAML index
 
 sub index {
     my ($self) = @_;
-    if($self->with_aup) {
+    # Without AUP the user is sent to the IDP directly. When they come back to the portal without completing the
+    # authentication, show the landing page so that they can retry or choose another way to register instead of
+    # sending them back to the IDP. The admin single sign-on always goes to the IDP.
+    if($self->with_aup || ($self->session->{provider_visited} && !$self->app->isRootSSO)) {
         $self->render($self->landing_template, {
             title => "SAML authentication",
             source => $self->source, 
+            with_aup => $self->with_aup,
             form => $self->form,
         });
     }
@@ -78,12 +82,13 @@ sub redirect {
     my ($self) = @_;
     if(!$self->with_aup || $self->request_fields->{aup}){
         pf::auth_log::record_oauth_attempt($self->source->id, $self->source->type, $self->current_mac, $self->app->profile->name);
+        $self->session->{provider_visited} = 1;
         my $relayState = $self->app->isRootSSO ? $self->app->request->cookie("CGISESSION")->value : undef;
         $self->app->redirect($self->source->sso_url($relayState));
     }
     else {
         $self->app->flash->{error} = "You must accept the terms and conditions";
-        $self->landing();
+        $self->index();
     }
 }
 

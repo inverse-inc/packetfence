@@ -8,6 +8,7 @@ import (
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/schema"
+	"github.com/inverse-inc/packetfence/go/api-frontend/unifiedapierrors"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/sql"
 	"gorm.io/gorm"
@@ -95,6 +96,15 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyht
 		h.Router.ServeHTTP(w, r)
 
 		// TODO change me and wrap actions into something that handles server errors
+		return nil
+	}
+
+	if strings.HasPrefix(r.URL.Path, "/api/v1/pki/") {
+		if unifiedapierrors.OtherMethodMatches(r, func(method string) bool { return h.Router.Match(chi.NewRouteContext(), method, r.URL.Path) }) {
+			unifiedapierrors.MethodNotAllowed(w, r)
+		} else {
+			unifiedapierrors.UnknownPath(w, r)
+		}
 		return nil
 	}
 

@@ -1,0 +1,15 @@
+---
+# pfcmd can return success even when a service operation failed. Verify the
+# loaded unit's state; missing units and status-query errors must fail the test.
+- name: "Wait for {{ unit_name }} to be {{ unit_state }} on {{ unit_host }}"
+  ansible.builtin.command: "systemctl show --property=LoadState,ActiveState,Result {{ unit_name }}"
+  delegate_to: "{{ unit_host }}"
+  register: _unit_state
+  changed_when: false
+  until:
+    - _unit_state.rc == 0
+    - "'LoadState=loaded' in _unit_state.stdout_lines"
+    - "('ActiveState=' ~ unit_state) in _unit_state.stdout_lines"
+    - "'Result=success' in _unit_state.stdout_lines"
+  retries: "{{ unit_retries | default(12) | int }}"
+  delay: 5

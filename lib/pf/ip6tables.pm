@@ -39,6 +39,7 @@ use pf::util;
 use pf::config qw(
     $management_network
     @portal_ints
+    %Config
 );
 use pf::file_paths qw(
     $generated_conf_dir
@@ -65,6 +66,18 @@ BEGIN {
   );
 }
 
+=item ip6tables_is_managed
+
+Returns true if PacketFence manages ip6tables (services.ip6tables), when disabled no rule is applied or flushed
+
+=cut
+
+sub ip6tables_is_managed {
+    return 1 if isenabled($Config{'services'}{'ip6tables'});
+    get_logger->info("ip6tables is not managed by PacketFence (services.ip6tables is disabled), not touching the rules");
+    return 0;
+}
+
 =item iptables_configreload
 
 Reload the config
@@ -74,6 +87,7 @@ Reload the config
 sub ip6tables_configreload {
     my ($force) = @_;
     my $logger = get_logger();
+    return 0 unless ip6tables_is_managed();
     $logger->info( "Start config reload" );
     if ($force eq 1) {
         ip6tables_flush_to_default();
@@ -85,6 +99,7 @@ sub ip6tables_configreload {
 
 sub ip6tables_flush_to_default {
     my $logger = get_logger();
+    return 0 unless ip6tables_is_managed();
     safe_pf_run(qw(sudo ip6tables -F));
     safe_pf_run(qw(sudo ip6tables -X));
     safe_pf_run(qw(sudo ip6tables -t raw -F));
@@ -122,6 +137,7 @@ Generate the iptable config from iptables service config.
 sub ip6tables_generate_config {
     my ($self) = @_;
     my $logger = get_logger();
+    return 0 unless ip6tables_is_managed();
 
     # Check for and load content from custom specific file if it exists
     my $custom = util_add_custom_config_from_file( $ip6table_custom_config_file );

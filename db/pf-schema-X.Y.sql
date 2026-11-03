@@ -133,6 +133,18 @@ INSERT INTO `node_category` (name,notes) VALUES ("voice","VoIP devices");
 INSERT INTO `node_category` (name,notes) VALUES ("REJECT","Reject role (Used to block access)");
 
 --
+-- Insert 'User' category
+--
+
+INSERT INTO `node_category` (name,notes) VALUES ("User","User role");
+
+--
+-- Insert 'Machine' category
+--
+
+INSERT INTO `node_category` (name,notes) VALUES ("Machine","Machine role");
+
+--
 -- Table structure for table `node`
 --
 
@@ -168,6 +180,9 @@ CREATE TABLE node (
   `bypass_role_id` int default NULL,
   `last_seen` DATETIME NOT NULL DEFAULT "0000-00-00 00:00:00",
   `bypass_acls` MEDIUMTEXT DEFAULT NULL,
+  `source` varchar(255) default NULL,
+  `source_type` varchar(255) NOT NULL default "",
+  `source_base_type` varchar(255) NOT NULL default "",
   PRIMARY KEY (mac),
   KEY pid (pid),
   KEY category_id (category_id),
@@ -175,6 +190,7 @@ CREATE TABLE node (
   KEY `node_dhcpfingerprint` (`dhcp_fingerprint`),
   KEY `node_last_seen` (`last_seen`),
   KEY `node_bypass_role_id` (`bypass_role_id`),
+  KEY `node_status_last_seen` (`status`, `last_seen`, `pid`),
   CONSTRAINT `0_57` FOREIGN KEY (`pid`) REFERENCES `person` ( `pid`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `node_category_key` FOREIGN KEY (`category_id`) REFERENCES `node_category` (`category_id`)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
@@ -1240,10 +1256,13 @@ CREATE TABLE auth_log (
   `completed_at` datetime,
   `source` varchar(255) NOT NULL,
   `source_type` varchar(255) NOT NULL default "",
+  `source_base_type` varchar(255) NOT NULL default "",
   `profile` VARCHAR(255) DEFAULT NULL,
   KEY pid (pid),
   KEY attempted_at (attempted_at),
-  KEY completed_at (completed_at)
+  KEY completed_at (completed_at),
+  KEY auth_log_completion (mac, source, process_name, attempted_at),
+  KEY auth_log_billing (status, completed_at, source_base_type, mac)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
@@ -1266,17 +1285,22 @@ DELIMITER ;;
 CREATE FUNCTION `FREERADIUS_DECODE`(str text) RETURNS MEDIUMTEXT CHARSET utf8mb4
     DETERMINISTIC
 BEGIN
-    DECLARE result text;
+    -- Decode byte-wise: MySQL 8 refuses to mix CHAR(128..255) into a utf8mb4 string.
+    DECLARE result MEDIUMBLOB;
     DECLARE ind INT DEFAULT 0;
 
-    SET result = str;
+    SET result = CONVERT(str USING binary);
     WHILE ind <= 255 DO
-       SET result = REPLACE(result, CONCAT('=', LPAD(LOWER(HEX(ind)), 2, 0)), CHAR(ind));
-       SET result = REPLACE(result, CONCAT('=', LPAD(HEX(ind), 2, 0)), CHAR(ind));
+       SET result = REPLACE(result, CONVERT(CONCAT('=', LPAD(LOWER(HEX(ind)), 2, 0)) USING binary), CHAR(ind));
+       SET result = REPLACE(result, CONVERT(CONCAT('=', LPAD(HEX(ind), 2, 0)) USING binary), CHAR(ind));
        SET ind = ind + 1;
     END WHILE;
 
-    RETURN result;
+    -- Bytes that do not form valid utf8mb4 cannot be returned; keep the input as-is.
+    IF NOT (CONVERT(CONVERT(result USING utf8mb4) USING binary) <=> result) THEN
+        RETURN str;
+    END IF;
+    RETURN CONVERT(result USING utf8mb4);
 END ;;
 DELIMITER ;
 

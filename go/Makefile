@@ -6,8 +6,29 @@ CGO_ENABLED=1
 GOARCH=
 build_cmd = CGO_ENABLED=$(CGO_ENABLED) $(if $(GOARCH),GOARCH=$(GOARCH),) $(GO) build $(ARGS)
 
+# Pin analyzers independently of the application's module dependencies.
+STATICCHECK_VERSION = v0.8.1
+GOVULNCHECK_VERSION = v1.8.0
+GOSEC_VERSION = v2.28.0
+# Check the whole module on the build host, including packages requiring cgo.
+# Do not inherit pfconnector's CGO_ENABLED=0 or cross-compilation settings.
+check_cmd = CGO_ENABLED=1 GOOS= GOARCH= $(GO)
+
 .PHONY: all
 all: $(PF_BINARIES) $(PF_GO_CMDS)
+
+# vet gates check-build. The other three are advisory: they report a known backlog
+# (see docs) that must be triaged before their leading `-` can be dropped.
+.PHONY: check
+check:
+	$(check_cmd) vet ./...
+	-$(check_cmd) run honnef.co/go/tools/cmd/staticcheck@$(STATICCHECK_VERSION) -tests -show-ignored ./...
+	-$(check_cmd) run golang.org/x/vuln/cmd/govulncheck@$(GOVULNCHECK_VERSION) ./...
+	-$(check_cmd) run github.com/securego/gosec/v2/cmd/gosec@$(GOSEC_VERSION) ./...
+
+.PHONY: check-build
+check-build: check
+	$(MAKE) all
 
 .PHONY: go-env
 go-env:
@@ -29,6 +50,7 @@ $(ALL_BINARIES):
 	$(build_cmd) -C cmd/$@ -o ../../$@
 
 ALL_BINARIES_RACE = $(patsubst cmd/%, %-race, $(CMDS))
+.PHONY: $(ALL_BINARIES_RACE)
 $(ALL_BINARIES_RACE):
 	$(build_cmd) -C cmd/$(@:-race=) -o ../../$@ -race
 

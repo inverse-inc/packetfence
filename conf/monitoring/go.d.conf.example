@@ -67,7 +67,7 @@ mysql: yes
 #  powerdns: yes
 #  powerdns_recursor: yes
 #  prometheus: yes
-proxysql: yes
+proxysql: %%proxysql_enabled%%
 #  pulsar: yes
 #  rabbitmq: yes
 redis: yes

@@ -367,7 +367,7 @@ RADIUS integration only. By default the management interface will be the RADIUS
 interface. If needed, it is possible to add another interface from
 _Configuration -> Network Configuration -> Networks -> Interface_. When doing
 so, you must select `Other` as the type of interface. Moreover, you must select
-`radius` as an additionnal listening daemon.
+`radius` as an additional listening daemon.
 
 Using RADIUS enforcement, everytime a device connects to the network, a matching
 production VLAN will be assigned, depending on the rules in _Configuration ->

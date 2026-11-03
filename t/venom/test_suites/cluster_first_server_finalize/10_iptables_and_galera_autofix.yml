@@ -31,3 +31,11 @@ testcases:
     assertions:
       - result.systemout ShouldEqual 200
       - result.code ShouldEqual 0
+
+# enabled is the default: the override line is dropped
+- name: galera_autofix_not_disabled
+  steps:
+  - type: exec
+    script: '! grep -q "^galera-autofix=disabled" /usr/local/pf/conf/pf.conf'
+    assertions:
+      - result.code ShouldEqual 0

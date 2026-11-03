@@ -22,7 +22,21 @@ const setup = () => {
     {
       name: i18n.t('Search'),
       path: '/users/search',
-      saveSearchNamespace: 'users'
+      saveSearchNamespace: 'users',
+      standardSearches: [
+        {
+          name: i18n.t('Local Users'),
+          conditionAdvanced: { op: 'and', values: [{ op: 'or', values: [{ field: 'account_type', op: 'equals', value: 'local' }] }] },
+          sortBy: 'pid',
+          sortDesc: false
+        },
+        {
+          name: i18n.t('Remote Users'),
+          conditionAdvanced: { op: 'and', values: [{ op: 'or', values: [{ field: 'account_type', op: 'equals', value: 'remote' }] }] },
+          sortBy: 'pid',
+          sortDesc: false
+        }
+      ]
     },
     {
       name: i18n.t('Create'),

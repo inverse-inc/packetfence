@@ -1,0 +1,15 @@
+# Managed by PacketFence - ports reserved for PacketFence services
+#
+# pfconfig listens on 44444, inside the ephemeral port range. While pfconfig is
+# down, the kernel could pick that port as the local port of a pfconfig client
+# and connect the client to itself, which then keeps pfconfig from binding its
+# port (#8576). A reserved port is never picked automatically as a local port.
+#
+# net.ipv4.ip_local_reserved_ports is a single list: the file read last in
+# sysctl.d replaces the reservations of the others. To reserve other ports,
+# add them to this list (comma-separated, ranges allowed) instead of setting
+# the parameter in another file.
+#
+# Apply immediately with: sysctl -p /etc/sysctl.d/99-packetfence-reserved-ports.conf
+
+net.ipv4.ip_local_reserved_ports = 44444

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/caddyserver/caddy/v2"
@@ -15,6 +16,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
+	"github.com/inverse-inc/packetfence/go/api-frontend/unifiedapierrors"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -173,6 +175,20 @@ func (h *PfipsetHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next 
 		h.router.ServeHTTP(w, r)
 
 		// TODO change me and wrap actions into something that handles server errors
+		return nil
+	}
+
+	if strings.HasPrefix(r.URL.Path, "/api/v1/ipset/") {
+		// The route match error isn't reliable to detect a method mismatch with several routes on a sub-router
+		if unifiedapierrors.OtherMethodMatches(r, func(method string) bool {
+			other := r.Clone(r.Context())
+			other.Method = method
+			return h.router.Match(other, &mux.RouteMatch{})
+		}) {
+			unifiedapierrors.MethodNotAllowed(w, r)
+		} else {
+			unifiedapierrors.UnknownPath(w, r)
+		}
 		return nil
 	}
 

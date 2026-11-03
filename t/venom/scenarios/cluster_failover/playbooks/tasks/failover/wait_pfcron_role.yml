@@ -1,0 +1,18 @@
+---
+# StatusText comes from pfcron's actual non-local-job processing flag, not
+# from systemd activity or VIP placement. Allow two one-minute role refreshes.
+# Requires a pfcron image built with scheduling-role STATUS notifications;
+# missing status must fail instead of falling back to a service-health check.
+- name: "Wait for pfcron processing={{ cron_processing }} on {{ cron_host }}"
+  ansible.builtin.command: "systemctl show --property=LoadState,ActiveState,Result,StatusText packetfence-pfcron"
+  delegate_to: "{{ cron_host }}"
+  register: _cron_role
+  changed_when: false
+  until:
+    - _cron_role.rc == 0
+    - "'LoadState=loaded' in _cron_role.stdout_lines"
+    - "'ActiveState=active' in _cron_role.stdout_lines"
+    - "'Result=success' in _cron_role.stdout_lines"
+    - "('StatusText=' ~ ('Processing non-local jobs' if cron_processing | bool else 'Not processing non-local jobs')) in _cron_role.stdout_lines"
+  retries: 30
+  delay: 5

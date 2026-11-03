@@ -26,6 +26,10 @@
     password: '{{ reg_rhel_sub_register_password.stdout | d(rhel_subscription_password) }}'
     auto_attach: true
   register: reg_rhel_sub_register_el
-  retries: 3
-  delay: 10
+  # Ride out transient RH 503s; an already-registered box is fine (repos work).
+  retries: 10
+  delay: 30
   until: reg_rhel_sub_register_el is successful
+  failed_when:
+    - reg_rhel_sub_register_el is failed
+    - "'already registered' not in (reg_rhel_sub_register_el.msg | default(''))"

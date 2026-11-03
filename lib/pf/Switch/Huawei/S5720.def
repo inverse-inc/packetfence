@@ -33,5 +33,11 @@ Calling-Station-Id = ${macToEUI48($mac)}
 NAS-IP-Address = $disconnectIp
 EOT
 
+bounce = <<EOT
+Calling-Station-Id = ${macToEUI48($mac)}
+NAS-IP-Address = $disconnectIp
+Huawei-Ext-Specific = user-command=2
+EOT
+
 cliAuthorizeRead=Huawei-Exec-Privilege = 1
 cliAuthorizeWrite=Huawei-Exec-Privilege = 15

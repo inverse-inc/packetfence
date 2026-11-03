@@ -50,6 +50,9 @@
             </template>
           </span>
         </template>
+        <template #cell(account_type)="{ value }">
+          <b-badge pill :variant="(value === 'local') ? 'success' : 'secondary'">{{ (value === 'local') ? $t('Local') : $t('Remote') }}</b-badge>
+        </template>
         <template #head(buttons)>
           <base-search-input-columns
             :disabled="isLoading"

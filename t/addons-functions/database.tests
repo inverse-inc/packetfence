@@ -1,0 +1,38 @@
+#!/bin/bash
+
+set -o nounset -o pipefail -o errexit
+
+source /usr/local/pf/t/addons-functions/vars.tests
+
+source /usr/local/pf/addons/functions/helpers.functions
+source /usr/local/pf/addons/functions/database.functions
+
+# The password read back from the option file written by setup_mycnf, the way
+# the MariaDB clients parse it
+function mycnf_password() {
+  my_print_defaults --defaults-file=./setup_mycnf client | sed -n 's/^--password=//p'
+}
+
+function test_setup_mycnf() {
+  local dir
+  dir=$(mktemp -d)
+  pushd "$dir" > /dev/null
+
+  local password
+  for password in 'simple' 'my pass' 'with "quotes"' 'back\slash' 'trailing\' 'my pass "q" b\s end'; do
+    setup_mycnf "$password"
+    [[ "$(mycnf_password)" == "$password" ]] || failed_test "setup_mycnf keeps the password '$password'"
+  done
+
+  popd > /dev/null
+  rm -rf "$dir"
+}
+
+function run_database_tests() {
+  echo "==> Starting database tests"
+  test_setup_mycnf
+  echo "==> Completed database tests"
+}
+
+
+run_database_tests

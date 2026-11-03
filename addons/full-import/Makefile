@@ -1,4 +1,5 @@
 # This Makefile is only used to build packetfence-export package
+ADDONS_DIR = /usr/local/pf/addons
 FULL_IMPORT_DIR = /usr/local/pf/addons/full-import
 FUNCTIONS_DIR = /usr/local/pf/addons/functions
 SRC_ADDONS_DIR=$(shell dirname $(CURDIR))
@@ -8,8 +9,12 @@ EXPORT_FILES_LIST = 'export.sh find-extra-files.pl'
 
 install:
 	@echo "create directories"
+	install -d -m0755 $(DESTDIR)$(ADDONS_DIR)
 	install -d -m0755 $(DESTDIR)$(FULL_IMPORT_DIR)
 	install -d -m0755 $(DESTDIR)$(FUNCTIONS_DIR)
+
+	@echo "install exportable-backup script"
+	install -v -m 0644 $(SRC_ADDONS_DIR)/exportable-backup.sh -D $(DESTDIR)$(ADDONS_DIR)
 
 	@echo "install full import files"
 	for file in $(EXPORT_FILES_LIST); do \

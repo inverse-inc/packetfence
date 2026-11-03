@@ -35,7 +35,7 @@
 
         <form-group-sticky-dc namespace="sticky_dc"
                               :column-label="$i18n.t('Sticky DC')"
-                              :text="$i18n.t(`This is used to specify a sticky domain controller to connect to. If not specified, default '*' will be used to connect to any available domain controller.`)"
+                              :text="$i18n.t(`Domain controller(s) the NTLM auth API must use, as a comma-separated list of hostnames or IPs tried in order. Use '*' to connect to any available domain controller, or end the list with '*' to fall back to any available domain controller when none of the listed ones is reachable.`)"
         />
 
         <form-group-ad-fqdn namespace="ad_fqdn"

@@ -131,7 +131,7 @@ has_field 'sticky_dc' => (
     message     => { required => 'Please specify a DC to connect to. Use \'*\' to connect to any available DC' },
     tags       => {
         after_element   => \&help,
-        help            => 'This is used to specify a sticky domain controller to connect to. If not specified, default \'*\' will be used to connect to any available domain controller',
+        help            => 'Domain controller(s) the NTLM auth API must use, as a comma-separated list of hostnames or IPs tried in order. Use \'*\' to connect to any available domain controller, or end the list with \'*\' to fall back to any available domain controller when none of the listed ones is reachable',
     },
 );
 
@@ -353,6 +353,21 @@ has_field 'channel_binding' => (
     checkbox_value  => 'enabled',
     unchecked_value => 'disabled',
     default => 'disabled',
+);
+
+# Join the domain over LDAPS even when the machine account goes to the default
+# Computers container (impacket-addcomputer -method=LDAPS instead of SAMR).
+# The admin UI has shown this toggle since "Add force LDAP" (b4d5b7912a) but the
+# field was never declared here, so the validated item handed to create() lost
+# it and the join always used SAMR (#9092).
+has_field 'force_ldap' => (
+    type            => 'Toggle',
+    label           => 'Force LDAP',
+    checkbox_value  => 'enabled',
+    unchecked_value => 'disabled',
+    default => 'disabled',
+    tags => { after_element => \&help,
+        help => 'Always use LDAPS to create the machine account, even when the OU is the default Computers container.' },
 );
 
 

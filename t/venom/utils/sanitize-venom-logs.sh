@@ -31,7 +31,10 @@ escape_secret () {
 # to simplify export of logs later
 create_archive() {
     local result_dir=$1
-    all_path="${result_dir}"
+    all_path=""
+    if [[ -e ${result_dir} ]]; then
+         all_path="${result_dir}"
+    fi
     if [[ -d ${pf_logs_root} ]]; then
          # add pf logs if available
 	 all_path="${all_path} ${pf_logs_root}"
@@ -39,6 +42,10 @@ create_archive() {
     if [[ -d ${var_logs_root} ]]; then
          # add system logs if available
 	 all_path="${all_path} ${var_logs_root}"
+    fi
+    if [[ -z "${all_path}" ]]; then
+        log "Nothing to archive (no Venom results, no PF logs, no system logs)"
+        return 0
     fi
     log "Creating archive ${venom_result_archive} from: ${all_path}"
     # Allow tar exit code 1 (warnings like "file changed as we read it"), fail only on 2+
@@ -147,18 +154,21 @@ else
     log "No secrets to remove"
 fi
 
-if [[ -d ${venom_result_dir} ]] || [[ -f ${venom_result_dir} ]]; then
-    if ! create_archive ${venom_result_dir}; then
-        log_err "Failed to create archive"
-        exit 1
-    fi
-    if [[ $sanitization_required -eq 1 ]]; then
-        log "SUCCESS: Logs sanitized and archived"
-    else
-        log "SUCCESS: Logs archived (no sanitization required)"
-    fi
+# Archive whatever exists: a run that failed before Venom started has no
+# results dir, and its PF and system logs are then the only diagnostics.
+if [[ ! -e ${venom_result_dir} ]]; then
+    log "No venom result dir at ${venom_result_dir}, archiving system logs only"
+fi
+
+if ! create_archive ${venom_result_dir}; then
+    log_err "Failed to create archive"
+    exit 1
+fi
+
+if [[ $sanitization_required -eq 1 ]]; then
+    log "SUCCESS: Logs sanitized and archived"
 else
-    log "No venom result dir at ${venom_result_dir}, skipping archive"
+    log "SUCCESS: Logs archived (no sanitization required)"
 fi
 
 log "=== sanitize-venom-logs done ==="

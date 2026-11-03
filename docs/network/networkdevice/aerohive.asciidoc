@@ -283,7 +283,7 @@ Configure the _Production_ interface to send the _Portal_:
 [options="compact"]
 * go to *Configuration -> Network Configuration -> Interfaces*
 * under _Logical Name_, click on your interface name,
-* _Additionnal listening daemon(s)_, Add *portal*
+* _Additional listening daemon(s)_, Add *portal*
 * click on *SAVE*
 
 image::pfaerohive13.png[scaledwidth="100%",alt="Captive Portal SSID configuration"]

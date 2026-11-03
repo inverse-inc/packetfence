@@ -7,7 +7,7 @@ export const schema = () => yup.object({
   passthroughs: yup.string().nullable().label(i18n.t('Domains')),
   proxy_passthroughs: yup.string().nullable().label(i18n.t('Domains')),
   isolation_passthroughs: yup.string().nullable().label(i18n.t('Domains')),
-  interception_proxy_port: yup.string().nullable().label(i18n.t('Ports'))
+  interception_proxy_port: yup.string().nullable().label(i18n.t('Ports')).isPortCsv()
 })
 
 export default schema

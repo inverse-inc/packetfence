@@ -17,7 +17,6 @@ use warnings;
 
 use Readonly;
 use Apache2::Const -compile => qw(:http);
-use Apache2::Request;
 use Apache2::RequestRec;
 use Apache2::Connection;
 use Hash::Merge qw(merge);
@@ -46,9 +45,7 @@ Readonly our $SWITCH_REWRITE_MAP => {
     'AeroHIVE' => 'AeroHIVE::AP',
     'Cisco::Catalyst_2960' => 'Cisco::Cisco_IOS_15_0',
     'Cisco::WLC' => 'Cisco::Cisco_WLC_AireOS',
-    'Aruba::CX' => 'Aruba::ArubaOS_CX_10.x',
-    'Aruba::2930M' => 'Aruba::ArubaOS_Switch_16.x',
-    'Meraki::MS220_8' => 'Meraki::MS_v15',
+    'Aruba::2930M' => 'Aruba::ArubaOS_Switch_16_x',
 };
 
 =head1 SUBROUTINES
@@ -80,6 +77,8 @@ sub handle {
 
     my $switch_type;
 
+    # Not loaded at compile time: it needs mod_apreq2 symbols that only exist inside httpd
+    require Apache2::Request;
     my $req = Apache2::Request->new($r);
     my $uri = $r->uri;
 

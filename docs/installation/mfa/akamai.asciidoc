@@ -21,7 +21,7 @@ endif::[]
 
 This section provides quick overview for configuring Akamai MFA in PacketFence.
 
-==== Assumptions
+===== Assumptions
 
 You have Akamai MFA information required for PacketFence configuration.
 

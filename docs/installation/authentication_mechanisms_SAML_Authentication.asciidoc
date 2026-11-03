@@ -41,18 +41,19 @@ Where :
  * *Path to Identity Provider CA cert* is the path to the CA certificate of the identity provider you transferred on the server above (should be in [filename]`/usr/local/pf/conf/ssl/idp-ca.crt`). If the certificate above is self-signed, put the same path as above in this field.
  * *Attribute of the username in the SAML response* is the attribute that contains the username in the SAML assertion returned by the Identity Provider. The default should fit at least SimpleSAMLphp.
  * *Authorization source* is the source that will be used to match the username against the rules defined in it. This allows to set the role and access duration of the user. The `Authentication` section of this document contains explanations on how to configure an LDAP source which can then be used here.
+ * *Send Assertion Consumer Service URL* (disabled by default) makes PacketFence send the URL where the Identity Provider must post its response in each authentication request. This allows one Identity Provider application to serve several PacketFence servers or clusters. Identity Providers that check this URL (for example Entra ID, ADFS, Okta) only accept it if it is registered exactly as sent, so register the URL of each server or cluster as a reply URL before enabling it: `https://HOSTNAME.DOMAIN/saml/assertion`, with the `general.hostname` and `general.domain` of the server (`http://` when `captive_portal.secure_redirect` is disabled, for example with a self-signed portal certificate, which Entra ID doesn't accept). It is the `AssertionConsumerService` URL of the Service Provider metadata of that server. When this option is disabled, the Identity Provider uses the reply URL it has registered.
 
 Once this is done, save the source and you will be able to download the Service Provider metadata for PacketFence using the link `Download Service Provider metadata` on the page.
 
 Configure the identity provider according to the generated metadata to complete the Trust between PacketFence and the Identity Provider.
 
-In the case of SimpleSAMLPHP, the following configuration was used in `metadata/saml20-sp-remote.php` :
+In the case of SimpleSAMLPHP, the following configuration was used in `metadata/saml20-sp-remote.php` (the scheme follows `captive_portal.secure_redirect`: use the exact URLs of the downloaded Service Provider metadata):
 
 [source,bash]
 ----
   $metadata['PF_ENTITY_ID'] = array(
-    `AssertionConsumerService` => `http://PORTAL_HOSTNAME/saml/assertion',
-    `SingleLogoutService` => `http://PORTAL_HOSTNAME/saml/logoff',
+    `AssertionConsumerService` => `https://PORTAL_HOSTNAME/saml/assertion',
+    `SingleLogoutService` => `https://PORTAL_HOSTNAME/saml/logoff',
   );
 ----
 

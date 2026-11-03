@@ -26,7 +26,9 @@ fi
 
 # Validate the JSON up-front so a malformed payload aborts the unit (a bare
 # pipe into `while` would hide jq's failure under set -e).
-if ! ENTRIES=$(echo "$NAS_JSON" | jq -c '.[]'); then
+# A server older than the connector answers null when no switch qualifies:
+# read it as an empty list.
+if ! ENTRIES=$(echo "$NAS_JSON" | jq -c '(. // [])[]'); then
     echo "Error: malformed NAS JSON received from pfconnector API"
     exit 1
 fi
@@ -47,10 +49,11 @@ while read -r entry; do
     secret=$(echo "$entry" | jq -r '.secret')
     nastype=$(echo "$entry" | jq -r '.type // "other"')
 
-    # nasname is used both as the client IP and as the output filename, so it
-    # must be a bare IPv4 address. Reject anything else to prevent a malformed
-    # entry from corrupting the config or escaping CLIENTS_DIR via path chars.
-    if ! [[ "$nasname" =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}$ ]]; then
+    # nasname is used both as the client IP and (slash-mangled) as the output
+    # filename, so it must be a bare IPv4 address or an IPv4 CIDR subnet.
+    # Reject anything else to prevent a malformed entry from corrupting the
+    # config or escaping CLIENTS_DIR via path chars.
+    if ! [[ "$nasname" =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}(/([0-9]|[12][0-9]|3[0-2]))?$ ]]; then
         echo "Skipping NAS entry with invalid nasname: '$nasname'"
         continue
     fi
@@ -64,11 +67,18 @@ while read -r entry; do
         nastype="other"
     fi
 
-    cat > "$CLIENTS_DIR/$nasname" <<EOF
-client $nasname {
-    ipaddr = $nasname/32
+    # The client name doubles as the filename, so a subnet's '/' becomes '-'
+    # (192.168.1.0/24 -> 192.168.1.0-24). FreeRADIUS matches overlapping
+    # clients by longest prefix, so a /32 entry still wins over its subnet.
+    clientname=${nasname//\//-}
+    ipaddr=$nasname
+    [[ "$nasname" == */* ]] || ipaddr="$nasname/32"
+
+    cat > "$CLIENTS_DIR/$clientname" <<EOF
+client $clientname {
+    ipaddr = $ipaddr
     secret = "$(radius_escape "$secret")"
-    shortname = $nasname
+    shortname = $clientname
     nas_type = $nastype
 }
 EOF

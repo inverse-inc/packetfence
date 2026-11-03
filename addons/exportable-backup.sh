@@ -15,7 +15,9 @@
 
 source /usr/local/pf/addons/functions/helpers.functions
 
+PF_DIRECTORY='/usr/local/pf/'
 BACKUP_DIRECTORY=${BACKUP_DIRECTORY:-/root/backup/}
+export BACKUP_DIRECTORY
 BACKUP_DB_FILENAME='packetfence-db-dump'
 BACKUP_CONF_FILENAME='packetfence-conf-dump'
 BACKUP_OLD_CONF_FILENAME='packetfence-files-dump'

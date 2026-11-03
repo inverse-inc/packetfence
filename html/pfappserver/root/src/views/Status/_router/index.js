@@ -5,6 +5,7 @@ import StatusStore from '../_store'
 
 import AboutRoutes from '../about/_router'
 import AssetsRoutes from '../assets/_router'
+import ClusterRoutes from '../cluster/_router'
 import DashboardRoutes from '../dashboard/_router'
 import DashboardSaasRoutes from '../dashboard_saas/_router'
 import MonitoringRoutes from '../monitoring/_router'
@@ -36,6 +37,7 @@ const children = [
   ...NetworkThreatsRoutes,
   ...ServicesRoutes,
   ...ServicesSaasRoutes,
+  ...ClusterRoutes,
 ]
 
 const path = '/status'

@@ -1,0 +1,8 @@
+---
+# Cluster failover tests. Assumes a healthy 3-node cluster already exists (run
+# the cluster_configurator scenario first); this scenario only stops services
+# and asserts VIP/role failover, then restores. See playbooks/failover.yml.
+- import_playbook: ../common/dev.yml
+  when: lookup("env", "CI") != 'true'
+
+- import_playbook: playbooks/failover.yml

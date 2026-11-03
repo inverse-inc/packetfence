@@ -26,6 +26,45 @@ export const useSearch = makeSearch('users', {
       visible: true
     },
     {
+      key: 'account_type',
+      label: 'Account Type', // i18n defer
+      searchable: false,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'password.access_level',
+      label: 'Access Level', // i18n defer
+      searchable: false,
+      sortable: true
+    },
+    {
+      key: 'password.sponsor',
+      label: 'Local Account Sponsor', // i18n defer
+      searchable: false,
+      sortable: true
+    },
+    {
+      key: 'password.valid_from',
+      label: 'Valid From', // i18n defer
+      searchable: false,
+      sortable: true,
+      class: 'text-nowrap'
+    },
+    {
+      key: 'password.expiration',
+      label: 'Expiration', // i18n defer
+      searchable: false,
+      sortable: true,
+      class: 'text-nowrap'
+    },
+    {
+      key: 'password.login_remaining',
+      label: 'Login Remaining', // i18n defer
+      searchable: false,
+      sortable: true
+    },
+    {
       key: 'title',
       label: 'Title', // i18n defer
       searchable: false,
@@ -331,6 +370,36 @@ export const useSearch = makeSearch('users', {
       value: 'source',
       text: 'Source', // i18n defer
       types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'account_type',
+      text: 'Account Type', // i18n defer
+      types: [conditionType.ACCOUNT_TYPE]
+    },
+    {
+      value: 'password.access_level',
+      text: 'Access Level', // i18n defer
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'password.sponsor',
+      text: 'Local Account Sponsor', // i18n defer
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'password.valid_from',
+      text: 'Valid From', // i18n defer
+      types: [conditionType.DATETIME]
+    },
+    {
+      value: 'password.expiration',
+      text: 'Expiration', // i18n defer
+      types: [conditionType.DATETIME]
+    },
+    {
+      value: 'password.login_remaining',
+      text: 'Login Remaining', // i18n defer
+      types: [conditionType.INTEGER]
     },
     {
       value: 'cell_phone',

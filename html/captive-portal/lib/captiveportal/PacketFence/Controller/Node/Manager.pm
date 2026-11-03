@@ -23,6 +23,22 @@ Catalyst Controller.
 =cut
 
 
+=head2 auto
+
+The device management of the status page is not available when the status page
+is disabled on the connection profile
+
+=cut
+
+sub auto :Private {
+    my ( $self, $c ) = @_;
+    unless ($c->profile->selfServiceStatusEnabled) {
+        $self->showError($c, "This feature is currently disabled. Please contact your network administrator for more details.");
+        $c->detach();
+    }
+    return 1;
+}
+
 =head2 unreg
 
 =cut

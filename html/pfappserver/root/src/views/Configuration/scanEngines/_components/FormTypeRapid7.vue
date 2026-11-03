@@ -51,7 +51,7 @@
 
     <form-group-categories namespace="categories"
                            :column-label="$i18n.t('Roles')"
-                           :text="$i18n.t('Nodes with the selected roles will be affected.')"
+                           :text="$i18n.t('Nodes with the selected roles will be affected. A node without a role (ex: unregistered) is considered to have the default role.')"
     />
 
     <form-group-oses namespace="oses"

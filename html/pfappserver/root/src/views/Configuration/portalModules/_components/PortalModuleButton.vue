@@ -11,7 +11,7 @@
         <b-button variant="link" class="m-auto text-primary" :to="{ name: 'portal_module', params: { id: module.id } }" @click="hideButtons()">
           <icon name="edit" />
         </b-button>
-        <b-button variant="link" class="m-auto text-danger" @click="onRemove">
+        <b-button v-if="removable" variant="link" class="m-auto text-danger" @click="onRemove">
           <icon :name="isRoot? 'trash-alt' : 'unlink'" />
         </b-button>
       </div>
@@ -30,6 +30,11 @@ const props = {
   },
   isRoot: {
     type: Boolean
+  },
+  // the root of the tree has its own Delete button and can't be unlinked
+  removable: {
+    type: Boolean,
+    default: true
   },
   disabled: {
     type: Boolean

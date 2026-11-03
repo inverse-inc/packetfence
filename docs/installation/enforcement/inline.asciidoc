@@ -112,9 +112,12 @@ information:
     IP Address: 192.168.2.1
     Netmask: 255.255.255.0
     Type: Inline Layer 2
-    Additionnal listening daemon(s): portal
     DNS Servers: 10.0.0.10
 ----
+
+NOTE: An inline interface already serves the captive portal, DHCP and DNS, so
+you don't need to add `portal` in _Additional listening daemon(s)_; it isn't
+kept when the interface is saved.
 
 Click on `Save` and toggle the new interface to `On`.
 

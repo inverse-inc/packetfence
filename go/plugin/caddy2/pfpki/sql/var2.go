@@ -34,8 +34,11 @@ func (vars *Vars2) Sql(class interface{}) (Sql, error) {
 	if sql.Limit, err = vars.SqlLimit(); err != nil {
 		return Sql{}, err
 	}
-	if sql.Where, err = vars.Query.SqlWhere(class); err != nil {
-		return Sql{}, err
+	// No query in the request: no condition, like an empty search of Vars
+	if vars.Query != nil {
+		if sql.Where, err = vars.Query.SqlWhere(class); err != nil {
+			return Sql{}, err
+		}
 	}
 
 	return sql, nil

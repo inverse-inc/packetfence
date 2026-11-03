@@ -28,6 +28,8 @@
         button-variant="light"
         menu-class="my-2"
         :locale="$i18n.locale"
+        :max="max"
+        :min="min"
         :state="inputState"
         :value="inputValue"
         @input="onInput"

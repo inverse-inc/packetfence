@@ -23,8 +23,39 @@ Profiles_ and create new connection profile:
  * Filter: URI with value '/admin-sso'
  * Sources: The authentication sources that should be used for the login.
 
+The sources of this connection profile must have an *Administration rule*
+that sets an access level ('Access level' action) for the administrators. A
+user who authenticates but matches no administration rule with an access
+level is refused: the admin interface login page shows "Single sign-on
+succeeded but you do not have access to the administration interface."
+
+Every SSO login authenticates the user and evaluates the administration rules
+again, so disabling a rule or a user takes effect on the next login.
+
 Restart `api-frontend` and `httpd.portal`. Admin interface login page shows new
 'Single Sign On' option (text changeable in 'Admin Login' configuration).
+
+===== SSO Allowed Admin Hosts
+
+After the SSO login, the portal sends the admin token back to the admin
+interface URL the login started from, only if it's an HTTPS URL under `/admin`
+whose host is:
+
+ * the 'Hostname' and 'Domain' of 'General Configuration', or the system host name,
+ * an IP address of the management interface (IPv4 or VIP), or of an internal
+   interface (registration, isolation, inline or DNS enforcement: IPv4, VIP or
+   IPv6). The addresses of the other interface types (portal, other) are not
+   included: add them to 'SSO Allowed Admin Hosts' if administrators use them.
+   An IPv6 address must be written as in the interface configuration,
+ * in a cluster, the IP addresses and host names of the members,
+ * the host of 'SSO Base URL',
+ * one of the hosts of 'SSO Allowed Admin Hosts' (comma-separated).
+
+If administrators reach the admin interface with another name, for example a
+DNS alias or a reverse proxy, add it to 'SSO Allowed Admin Hosts' in
+_Configuration -> System Configuration -> Admin Login_. Otherwise the SSO login
+completes but no token is sent back, and `packetfence.log` shows `Ignoring admin
+SSO callback '...': it isn't an HTTPS admin URL of this server`.
 
 Any portal authentication mechanism (SAML, Akamai MFA, TOTP, etc) can
 authenticate administrators. Refer to appropriate sections in this guide to

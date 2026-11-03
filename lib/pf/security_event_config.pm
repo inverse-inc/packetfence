@@ -56,6 +56,13 @@ sub _loadSecurityEventsIntoDb {
         return;
     }
 
+    # An empty config (e.g. pfconfig not ready) would delete every class and,
+    # through the foreign key, every security event of the nodes
+    if (!defined $config || !%{$config}) {
+        $logger->error("No security events configuration found, not reloading the security events");
+        return;
+    }
+
     my @keys;
     while(my ($security_event,$data) = each %{$config}) {
         # parse grace, try to understand trailing signs, and convert back to seconds
@@ -99,6 +106,8 @@ sub _loadSecurityEventsIntoDb {
 
 sub remove_deleted_security_events {
     my ($ids) = @_;
+    # An empty NOT IN matches every row
+    return unless $ids && @$ids;
     my ($status, $rows) = pf::dal::class->remove_items(
         -where => {
             security_event_id => { -not_in => $ids }

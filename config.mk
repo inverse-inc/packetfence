@@ -181,6 +181,7 @@ pf_test_files_to_include = $(shell find $(SRC_TESTDIR) \
 # reflect source tree layout
 pf_export_files_to_include = $(shell find $(SRC_FULL_IMPORTDIR)/ \
 	$(SRC_FUNCTIONSDIR)/ \
+	$(SRC_ADDONSDIR)/exportable-backup.sh \
 	-maxdepth 0)
 
 # all directories and files to include in packetfence-upgrade package

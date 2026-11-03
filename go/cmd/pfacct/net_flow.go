@@ -139,6 +139,11 @@ func (h *PfAcct) NetFlowV5ToBandwidthAccounting(header *netflow5.Header, flows [
 }
 
 func (h *PfAcct) netflowProcessor() (*processor.Processor, error) {
+	if !h.NetFlowProcessorEnabled {
+		log.LoggerWContext(context.Background()).Info("The netflow processor is disabled (services.netflow_processor)")
+		return nil, nil
+	}
+
 	addr := h.netFlowAddress() + ":" + h.NetFlowPort
 	conn, err := net.ListenPacket("udp", addr)
 	if err != nil {

@@ -40009,6 +40009,15 @@ our $RADIUS_DICTIONARY = bless(
     "Net::Radius::Dictionary",
 );
 
+# Attributes added by the administrator in conf/radiusd/dictionary.local
+{
+    require pf::util::radius_dictionary_local;
+    require pf::log;
+    pf::log->import;
+    my @warnings = pf::util::radius_dictionary_local::merge($RADIUS_DICTIONARY);
+    pf::log::get_logger()->warn("RADIUS local dictionary: $_") for @warnings;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

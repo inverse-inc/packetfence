@@ -42,7 +42,7 @@ const api = {
           .then(() => ({ id, value: { meta, ...value } }))
       })
       .catch(() => {
-        apiCall.putQuiet(['preference', id], { id, value: JSON.stringify({ meta, ...value }) }) // not exists
+        return apiCall.putQuiet(['preference', id], { id, value: JSON.stringify({ meta, ...value }) }) // not exists
           .then(() => ({ id, value: { meta, ...value } }))
       })
   }

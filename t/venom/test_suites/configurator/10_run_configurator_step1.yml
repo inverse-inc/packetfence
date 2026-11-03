@@ -1,6 +1,21 @@
 name: Run configurator step 1
 testcases:
-# get_name_of: one-liner to get name (ex: eth0) based on index (ex: 1, 2)  
+# The configurator API (haproxy-admin -> pfperl-api) takes a while to warm up on
+# a freshly booted server and returns 504 until it does. Poll it once here so
+# the interface PATCHes below run against an already-warm API; same gate as
+# cluster_joiner_interfaces/00_configure_reg_iso_interfaces.yml.
+- name: wait_for_configurator_api
+  steps:
+  - type: http
+    method: GET
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/interfaces'
+    ignore_verify_ssl: true
+    retry: 30
+    delay: 10
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+# get_name_of: one-liner to get name (ex: eth0) based on index (ex: 1, 2)
 - name: get_name_of_mgmt_int
   steps:
   - type: exec
@@ -24,6 +39,12 @@ testcases:
       }
     headers:
       "Content-Type": "application/json"
+    # A 504 here leaves the server with no mgmt interface, which cascades:
+    # iptables restart-loops ("Management Interface is not set"), the API never
+    # comes back, and every later step fails. Retry so it self-heals; the PATCH
+    # is idempotent.
+    retry: 6
+    delay: 10
     assertions:
       - result.statuscode ShouldEqual 200
 
@@ -56,6 +77,8 @@ testcases:
       }
     headers:
       "Content-Type": "application/json"
+    retry: 6
+    delay: 10
     assertions:
       - result.statuscode ShouldEqual 200
 
@@ -88,6 +111,8 @@ testcases:
       }
     headers:
       "Content-Type": "application/json"
+    retry: 6
+    delay: 10
     assertions:
       - result.statuscode ShouldEqual 200
 
@@ -111,5 +136,7 @@ testcases:
       }
     headers:
       "Content-Type": "application/json"
+    retry: 6
+    delay: 10
     assertions:
       - result.statuscode ShouldEqual 200

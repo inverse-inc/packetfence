@@ -17,22 +17,83 @@ with 'pfappserver::Base::Form::Role::Defaults';
 use pfconfig::cached_hash;
 use pf::log;
 use fingerbank::API;
+use fingerbank::Config;
+use fingerbank::Constant;
+use LWP::UserAgent;
 use pf::error qw(is_error);
+use pf::util qw(isenabled);
 tie our %Doc_Config, 'pfconfig::cached_hash', 'config::FingerbankDoc';
 tie our %Defaults, 'pfconfig::cached_hash', 'config::FingerbankSettingsDefaults';
 
 has 'section' => ( is => 'rw' );
 
+# The proxy section submitted in the same request (bulk update of the general settings)
+has 'submitted_proxy' => ( is => 'rw' );
+
 my %FIELD_VALIDATORS = (
-    'upstream.api_key' => sub {
-      my (undef, $field) = @_;
-      my $key = $field->value;
-      my ($result, $msg) = fingerbank::API->new_from_config->test_key($key);
-      if(is_error($result)) {
-        $field->add_error($msg);
-      }
-    },
 );
+
+=head2 validate
+
+Test the upstream API key with the submitted upstream (and proxy) settings,
+not the saved ones, so wrong saved settings can be fixed.
+It runs once all the fields are validated.
+
+=cut
+
+sub validate {
+    my ($self) = @_;
+    return if ($self->section // '') ne 'upstream';
+    my $key_field = $self->field('api_key');
+    return unless $key_field;
+    my $key = $key_field->value;
+    return if !defined($key) || $key eq '';
+    # A key test with invalid upstream settings would only repeat their errors
+    return if grep { my $f = $self->field($_); $f && $f->has_errors } qw(api_key host port use_https);
+
+    my $api;
+    if ($self->submitted_proxy) {
+        $api = pfappserver::Form::Config::FingerbankSetting::KeyTestAPI->new_from_config;
+        $api->lwp_client(_lwp_client($self->submitted_proxy));
+    }
+    else {
+        $api = fingerbank::API->new_from_config;
+    }
+    for my $name (qw(host port use_https)) {
+        my $field = $self->field($name);
+        next unless $field;
+        my $value = $field->value;
+        # An emptied field goes back to the default
+        $value = $Defaults{upstream}{$name} if !defined($value) || $value eq '';
+        $api->$name($value);
+    }
+    my ($result, $msg) = $api->test_key($key);
+    if (is_error($result)) {
+        $key_field->add_error($msg);
+    }
+}
+
+# The LWP client of fingerbank::Util::get_lwp_client, with the submitted proxy settings over the saved ones
+sub _lwp_client {
+    my ($submitted) = @_;
+    my %proxy = %{ fingerbank::Config::get_config()->{proxy} // {} };
+    for my $name (qw(use_proxy host port verify_ssl)) {
+        $proxy{$name} = $submitted->{$name} if exists $submitted->{$name};
+    }
+    my %args = (keep_alive => 1);
+    my $ua;
+    if (isenabled($proxy{use_proxy}) && $proxy{host} && $proxy{port}) {
+        $ua = LWP::UserAgent->new(%args, ssl_opts => { verify_hostname => isenabled($proxy{verify_ssl}) ? 1 : 0 });
+        $ua->proxy(['https', 'http', 'ftp'] => "connect://$proxy{host}:$proxy{port}");
+    }
+    else {
+        $ua = LWP::UserAgent->new(%args);
+    }
+    $ua->default_header('Accept-Encoding' => 'gzip, x-gzip');
+    $ua->agent("Fingerbank-Perl-Library/" . $fingerbank::Constant::VERSION);
+    $ua->timeout(2);
+    return $ua;
+}
 
 =head2 validator_for_field
 
@@ -178,4 +239,16 @@ USA.
 =cut
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+
+package pfappserver::Form::Config::FingerbankSetting::KeyTestAPI;
+
+# fingerbank::API using a given LWP client, to test a key through submitted proxy settings
+
+use Moose;
+extends 'fingerbank::API';
+
+has 'lwp_client' => ( is => 'rw' );
+
+sub get_lwp_client { $_[0]->lwp_client }
+
 1;

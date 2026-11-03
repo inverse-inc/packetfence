@@ -135,6 +135,25 @@ func TestReportOptions(t *testing.T) {
 		utils_test.IsEqBool(t, "HasLimit", body.ReportMeta.HasLimit, true)
 		utils_test.IsEqBool(t, "HasCursor", body.ReportMeta.HasCursor, true)
 	})
+	t.Run("No UTC offset without a date range", func(t *testing.T) {
+		var body reportOptionsResponse
+		execReq(t, http.MethodOptions, "/api/v1.1/report/Node::Report::Test::Nothing", nil, http.StatusOK, &body)
+		if body.ReportMeta.UtcOffset != nil {
+			t.Errorf("Expected no utc_offset, got %d", *body.ReportMeta.UtcOffset)
+		}
+	})
+	t.Run("UTC offset of the database with a date range", func(t *testing.T) {
+		var body reportOptionsResponse
+		execReq(t, http.MethodOptions, "/api/v1.1/report/Node::Report::Test::DateRange", nil, http.StatusOK, &body)
+		if body.ReportMeta.UtcOffset == nil {
+			t.Fatalf("Expected a utc_offset")
+		}
+		offset := *body.ReportMeta.UtcOffset
+		// time zones are between UTC-12 and UTC+14, in quarters of an hour
+		if offset < -12*3600 || offset > 14*3600 || offset%900 != 0 {
+			t.Errorf("Unexpected utc_offset %d", offset)
+		}
+	})
 }
 
 func TestReporSearch(t *testing.T) {

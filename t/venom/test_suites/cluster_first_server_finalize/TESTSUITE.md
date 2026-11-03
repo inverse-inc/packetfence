@@ -21,3 +21,4 @@ integrated pf2/pf3. Brings pf1 out of the bootstrap state. Maps to
 
 - galera-autofix was disabled during bootstrap (cluster_first_server pf.conf
   `[services]`); this re-enables it once the cluster is healthy.
+- This only reaches pf1; `cluster_joiners_resync` copies it to the joiners.

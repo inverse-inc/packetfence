@@ -80,20 +80,71 @@ sub format_response {
 
 =head2 format_request
 
-Format a FreeRADIUS REST RADIUS request to the format PacketFence expects it
+Format a FreeRADIUS REST RADIUS request to the format PacketFence expects it.
+Two body layouts are accepted:
+
+The flat layout, one attribute per key:
+
+    { "User-Name" => { attr_num => 1, type => "string", value => ["bob"] }, ... }
+
+The rlm_rest C<body_lists> layout, one attribute list per key:
+
+    { "request" => { "User-Name" => {...}, ... }, "proxy-reply" => { "Tunnel-Type" => {...}, ... } }
+
+The C<request> list is flattened to the top level so the callers see the same
+hash as with the flat layout; every other list is kept under its own key
+(C<proxy-request>, C<proxy-reply>, C<control>, ...) so the RADIUS filters can
+match on them, e.g. C<radius_request.proxy-reply.Tunnel-Private-Group-Id>.
 
 =cut
 
 sub format_request {
     my ($request) = @_;
-    # transform the request according to what radius_authorize expects
-    keys(my %remapped_radius_request) = scalar keys %$request;
-    while (my ($k, $v) = each %$request) {
-        my @values = map { rindex($_, "base64:", 0) == 0 ? decode_base64(substr($_, 7)) : $_ } @{$v->{value}};
-        $remapped_radius_request{$k} = (@values > 1) ? \@values : $values[0];
+    if (_is_body_lists($request)) {
+        my %lists = %$request;
+        my $flat = _format_list(delete $lists{request});
+        while (my ($list, $attrs) = each %lists) {
+            next unless ref($attrs) eq 'HASH';
+            $flat->{$list} = _format_list($attrs);
+        }
+        return $flat;
     }
 
-    return \%remapped_radius_request;
+    return _format_list($request);
+}
+
+=head2 _is_body_lists
+
+Whether the body uses the rlm_rest body_lists layout: a "request" key whose
+value is a hash of attributes rather than an attribute itself (an attribute
+always carries a "value" key).
+
+=cut
+
+sub _is_body_lists {
+    my ($request) = @_;
+    return
+         ref($request) eq 'HASH'
+      && ref($request->{request}) eq 'HASH'
+      && !exists $request->{request}{value};
+}
+
+=head2 _format_list
+
+Transform one attribute list according to what radius_authorize expects
+
+=cut
+
+sub _format_list {
+    my ($list) = @_;
+    $list //= {};
+    keys(my %remapped) = scalar keys %$list;
+    while (my ($k, $v) = each %$list) {
+        my @values = map { rindex($_, "base64:", 0) == 0 ? decode_base64(substr($_, 7)) : $_ } @{$v->{value}};
+        $remapped{$k} = (@values > 1) ? \@values : $values[0];
+    }
+
+    return \%remapped;
 }
 
 =head1 AUTHOR

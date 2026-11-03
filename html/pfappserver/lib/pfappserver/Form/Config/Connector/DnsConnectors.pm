@@ -60,7 +60,7 @@ sub options_domains {
 
 sub validate {
     my ($self) = @_;
-    $self->validate_connect_port();
+    $self->validate_connect_port('dns');
 }
 
 =head1 AUTHOR

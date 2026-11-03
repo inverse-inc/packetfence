@@ -11,6 +11,8 @@ RUN cd /usr/local/pf/go/ && go mod download
 COPY ./go /usr/local/pf/go
 COPY ./lib /usr/local/pf/lib
 COPY ./config.mk /usr/local/pf/config.mk
+ARG GO_CHECK=no
+RUN if [ "$GO_CHECK" = "yes" ]; then make -C /usr/local/pf/go check; fi
 RUN cd /usr/local/pf/go/ &&  make pfcron
 
 FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}

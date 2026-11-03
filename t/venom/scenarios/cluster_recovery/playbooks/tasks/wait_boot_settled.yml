@@ -1,0 +1,19 @@
+---
+# Wait for systemd to finish the boot transaction on this node.
+#
+# SSH answers ~20s into a boot, but PacketFence's transaction takes minutes
+# (~50 docker-wrapped units; measured 110s to reach packetfence.target on an
+# idle node, and radiusd-load_balancer is the last one in). Asserting on
+# services before this point fails on a healthy cluster.
+#
+# degraded = startup finished with some failed units; the verify suite judges
+# those. Poll rather than `is-system-running --wait`: --wait landed in systemd
+# 240, but el8 ships 239 where it is ignored and returns immediately.
+- name: "Wait for the boot transaction to settle on {{ inventory_hostname }}"
+  ansible.builtin.command: systemctl is-system-running
+  register: _boot_settled
+  changed_when: false
+  until: _boot_settled.stdout in ['running', 'degraded']
+  retries: 60
+  delay: 10
+  failed_when: _boot_settled.stdout not in ['running', 'degraded']

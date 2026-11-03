@@ -8,7 +8,8 @@ use lib '/usr/local/pf/lib_perl/lib/perl5';
 use pf::file_paths qw($generated_ip6tables_conf_dir $conf_dir);
 use pf::log;
 use pf::ip6tables qw(ip6tables_generate_config);
-use pf::config qw($management_network);
+use pf::config qw($management_network %Config);
+use pf::util qw(isenabled);
 use File::Path qw(make_path);
 use Linux::Inotify2;
 
@@ -45,6 +46,15 @@ sub is_ipv6_management_network_set {
 sub is_any_management_network_set {
     # Service should run if IPv4 OR IPv6 management is configured
     return is_management_network_set() || is_ipv6_management_network_set();
+}
+
+# services.ip6tables is disabled: stay up without touching ip6tables (the
+# services that want packetfence-ip6tables would otherwise restart it in a
+# loop) and start managing the rules once it is enabled again, the initial
+# configuration is generated below
+unless ( pf::ip6tables::ip6tables_is_managed() ) {
+    sleep(30) until isenabled($Config{'services'}{'ip6tables'});
+    $logger->info("services.ip6tables was enabled, PacketFence manages ip6tables again");
 }
 
 my $ipv6_managed = is_ipv6_management_network_set();

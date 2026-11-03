@@ -378,15 +378,7 @@ sub person_cleanup {
         }
         my $password = pf::password::view($pid);
         if(defined($password)){
-            my $expiration = $password->{expiration};
-            if ($expiration eq $ZERO_DATE) {
-                get_logger->debug("Not deleting $pid because the password is set not to expire");
-                next;
-            }
-            $expiration = DateTime::Format::MySQL->parse_datetime($expiration);
-            $expiration->set_time_zone('local');
-            my $cmp = DateTime->compare($now, $expiration);
-            if($cmp < 0){
+            if (_local_account_still_valid($password->{expiration}, $now)) {
                 get_logger->debug("Not deleting $pid because the local account is still valid.");
                 next;
             }
@@ -396,6 +388,22 @@ sub person_cleanup {
         # We're all good for deletion
         person_delete($pid);
     }
+}
+
+=head2 _local_account_still_valid
+
+Whether a local account with this password expiration can still log in.
+A zero or missing expiration is expired, as pf::password::validate_password
+refuses it.
+
+=cut
+
+sub _local_account_still_valid {
+    my ($expiration, $now) = @_;
+    return $FALSE if !defined($expiration) || $expiration eq '' || $expiration eq $ZERO_DATE;
+    $expiration = DateTime::Format::MySQL->parse_datetime($expiration);
+    $expiration->set_time_zone('local');
+    return DateTime->compare($now, $expiration) < 0 ? $TRUE : $FALSE;
 }
 
 =head2 single_person_cleanup
@@ -414,15 +422,7 @@ sub single_person_cleanup {
     }
     my $password = pf::password::view($pid);
     if(defined($password)){
-        my $expiration = $password->{expiration};
-        if ($expiration eq $ZERO_DATE) {
-            get_logger->debug("Not deleting $pid because the password is set not to expire");
-            return $FALSE;
-        }
-        $expiration = DateTime::Format::MySQL->parse_datetime($expiration);
-        $expiration->set_time_zone('local');
-        my $cmp = DateTime->compare($now, $expiration);
-        if($cmp < 0){
+        if (_local_account_still_valid($password->{expiration}, $now)) {
             get_logger->debug("Not deleting $pid because the local account is still valid.");
             return $FALSE;
         }

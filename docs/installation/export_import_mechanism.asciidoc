@@ -75,7 +75,7 @@ running version. Review them after a cross-version import.
 
 [options="compact"]
 * Here is a short list of the configuration files that will not be restored. Changes to these files need to be migrated manually. This list is not meant to be complete:
-** [filename]`/usr/local/pf/conf/radiusd/*`
+** [filename]`/usr/local/pf/conf/radiusd/*`, except the EAP, TLS, OCSP and FAST profiles ([filename]`eap_profiles.conf`, [filename]`tls.conf`, [filename]`ocsp.conf` and [filename]`fast.conf`), which are restored
 ** [filename]`/usr/local/pf/conf/log.conf.d/*`
 ** [filename]`/usr/local/pf/conf/iptables.conf.tt`
 

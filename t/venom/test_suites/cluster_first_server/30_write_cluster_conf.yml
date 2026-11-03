@@ -78,7 +78,23 @@ testcases:
     script: '/usr/local/pf/bin/pfcmd configreload hard || true'
     assertions:
       - result.code ShouldEqual 0
+  # checkup exits 255 on any FATAL and proxysql isn't up yet, so `|| true` has
+  # to stay — but `|| true` plus `code ShouldEqual 0` asserts nothing, which is
+  # how eth0-missing-from-cluster.conf and pfconfig mysql.host=localhost stayed
+  # green here and only surfaced two scenarios later as a dead radiusd. Ignore
+  # exactly the two expected DB-connectivity FATALs and fail on any other one:
+  # at this point every remaining FATAL is a cluster.conf/pf.conf problem, which
+  # is what this step exists to catch.
   - type: exec
-    script: '/usr/local/pf/bin/pfcmd checkup || true'
+    script: |
+      out=$(/usr/local/pf/bin/pfcmd checkup || true)
+      echo "$out"
+      unexpected=$(echo "$out" | grep '^FATAL' \
+        | grep -vE '^FATAL - (Unable to connect to your database|Cannot connect to database)' || true)
+      if [ -n "$unexpected" ]; then
+        echo "unexpected cluster-config FATAL(s) after writing cluster.conf:"
+        echo "$unexpected"
+        exit 1
+      fi
     assertions:
       - result.code ShouldEqual 0
