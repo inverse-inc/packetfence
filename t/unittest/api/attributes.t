@@ -25,7 +25,6 @@ sub isaRest : Public :RestPath(/path) {}
 sub isAPrivateFunction {}
 sub isAQueueFunction :Queue {}
 sub isAnActionFunction :Public :AllowedAsAction(mac, $mac) {}
-sub isANoQueueFunction :Public :Queue :NoQueue {}
 sub anotherFunction {}
 }
 
@@ -37,10 +36,16 @@ sub isAPublicFunction2 {}
 sub isAForkFunction2 {}
 }
 
+{
+package api::other;
+use base qw(pf::api::attributes);
+sub queued :Queue {}
+}
+
 use strict;
 use warnings;
 
-use Test::More tests => 22;                      # last test to print
+use Test::More tests => 25;                      # last test to print
 
 use Test::NoWarnings;
 
@@ -63,7 +68,10 @@ sub full_tests {
     ok(api::test->isAllowedInQueue("isAnActionFunction"),   "isAnActionFunction is allowed in the queue");
     ok(!api::test->isAllowedInQueue("isAPublicFunction"),   "isAPublicFunction is not allowed in the queue");
     ok(!api::test->isAllowedInQueue("isAPrivateFunction"),  "isAPrivateFunction is not allowed in the queue");
-    ok(!api::test->isAllowedInQueue("isANoQueueFunction"),  "isANoQueueFunction is not allowed in the queue");
+    ok(!api::test->isAllowedInQueue("api::other::queued"),  "a fully-qualified method of another package is not allowed in the queue");
+    ok(!api::test->isAllowedInQueue("api::test::isAQueueFunction"), "a fully-qualified method is not allowed in the queue");
+    ok(!api::test->isAllowedInQueue("isAQueueFunction\n"),   "a method name with a trailing newline is not allowed in the queue");
+    ok(!api::test->isAllowedInQueue(""),                    "an empty method name is not allowed in the queue");
     ok(!api::test->isAllowedInQueue(undef),                 "undef is not allowed in the queue");
     ok(!api::test->isAllowedInQueue(["isAQueueFunction"]),  "a reference is not allowed in the queue");
 }

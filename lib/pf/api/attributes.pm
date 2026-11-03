@@ -21,7 +21,6 @@ use List::MoreUtils qw(any);
 our %ALLOWED_ATTRIBUTES = (
     Public => 1,
     Queue => 1,
-    NoQueue => 1,
     Fork => 1,
     AllowedAsAction => 1,
     ActionParams => 1,
@@ -99,14 +98,15 @@ sub isPublic {
 =head2 isAllowedInQueue
 
 Check if a method can be run from the queue.
-Only methods tagged Queue or AllowedAsAction are allowed, unless they are tagged NoQueue.
+Only methods tagged Queue or AllowedAsAction are allowed.
+The method must be a bare name: a fully-qualified name like Other::Package::method
+would be resolved by can() and dispatched outside of the class.
 
 =cut
 
 sub isAllowedInQueue {
     my ($class, $method) = @_;
-    return 0 if !defined($method) || ref($method);
-    return 0 if _hasTag($class, $method, 'NoQueue');
+    return 0 if !defined($method) || ref($method) || $method !~ /\A[A-Za-z_]\w*\z/a;
     return _hasAnyTags($class, $method, 'Queue', 'AllowedAsAction') ? 1 : 0;
 }
 

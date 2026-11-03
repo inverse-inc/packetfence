@@ -17,12 +17,18 @@ use warnings;
 use pf::log;
 use pf::config::pfqueue;
 use pf::Redis;
+use pf::Sereal qw(sereal_decode_safe);
+use Module::Pluggable
+  search_path => 'pf::task',
+  sub_name    => '_task_modules',
+  inner       => 0,
+  require     => 0;
 
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
-    @EXPORT_OK = qw(task_counter_id consumer_redis_client);
+    @EXPORT_OK = qw(task_counter_id consumer_redis_client decode_task is_valid_task_type);
 }
 
 =head1 SUBROUTINES
@@ -53,6 +59,41 @@ sub task_counter_id {
 =head2 consumer_redis_client
 
 =cut
+
+=head2 is_valid_task_type
+
+Check if the type is the name of a pf::task module.
+The names are read from the file system the first time, the modules are not loaded.
+
+=cut
+
+our %TASK_TYPES;
+
+sub is_valid_task_type {
+    my ($type) = @_;
+    return 0 if !defined($type) || ref($type);
+    %TASK_TYPES = map { /^pf::task::(\w+)$/ ? ($1 => 1) : () } __PACKAGE__->_task_modules unless %TASK_TYPES;
+    return exists $TASK_TYPES{$type} ? 1 : 0;
+}
+
+=head2 decode_task
+
+Decode a task stored in the queue.
+Returns the task ([$type, $args]), or undef and an error message when the data can't be
+decoded or the task type isn't one of the pf::task modules.
+
+=cut
+
+sub decode_task {
+    my ($data) = @_;
+    my $item = eval { sereal_decode_safe($data) };
+    my $decode_error = $@;
+    if (ref($item) eq 'ARRAY' && is_valid_task_type($item->[0])) {
+        return ($item, undef);
+    }
+
+    return (undef, "Invalid task stored in queue" . ($decode_error ? ": $decode_error" : ""));
+}
 
 sub consumer_redis_client {
     my ($self) = @_;

@@ -92,6 +92,12 @@ sub call {
 sub notify {
     my ($self, $method, @args) = @_;
     pf::api::queue::check_method($method);
+    return $self->_notify($method, @args);
+}
+
+# notify without checking the method, for the callers that already checked it
+sub _notify {
+    my ($self, $method, @args) = @_;
     if ($cluster_enabled) {
         $self->cluster_notify($method, @args);
     } else {
@@ -150,7 +156,7 @@ sub notify_hashed {
     if ($queue_conf && isenabled($queue_conf->{hashed})) {
         $self->local_notify_hashed($hash_key, $method, @args);
     } else {
-        $self->notify($method, @args);
+        $self->_notify($method, @args);
     }
     return;
 }

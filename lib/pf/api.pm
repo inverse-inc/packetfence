@@ -714,7 +714,7 @@ sub node_information : Public {
     return $node_info;
 }
 
-sub notify_configfile_changed : Public :NoQueue {
+sub notify_configfile_changed : Public {
     my ($class, %postdata) = @_;
     my @require = qw(server conf_file);
     my @found = grep {exists $postdata{$_}} @require;
@@ -748,7 +748,7 @@ sub notify_configfile_changed : Public :NoQueue {
     return 1;
 }
 
-sub download_configfile : Public :NoQueue {
+sub download_configfile : Public {
     my ($class, %postdata) = @_;
     my @require = qw(conf_file);
     my @found = grep {exists $postdata{$_}} @require;
@@ -762,7 +762,7 @@ sub download_configfile : Public :NoQueue {
     return ($config, $mode);
 }
 
-sub distant_download_configfile : Public :NoQueue {
+sub distant_download_configfile : Public {
     my ($class, %postdata) = @_;
     my @require = qw(conf_file from);
     my @found = grep {exists $postdata{$_}} @require;
@@ -809,7 +809,7 @@ sub delete_files : Public {
     unlink(@$files);
 }
 
-sub expire_cluster : Public :NoQueue {
+sub expire_cluster : Public {
     my ($class, %postdata) = @_;
     my @require = qw(namespace conf_file);
     my @found = grep {exists $postdata{$_}} @require;
@@ -1505,7 +1505,7 @@ Copy a directory on this server
 
 =cut
 
-sub copy_directory : Public :NoQueue {
+sub copy_directory : Public {
     my ($class, $source_dir, $dest_dir) = @_;
     return dircopy($source_dir, $dest_dir);
 }
@@ -1919,7 +1919,7 @@ Sync the configuration to the cluster members using this server as the master
 
 =cut
 
-sub sync_config_as_master :Public :NoQueue {
+sub sync_config_as_master :Public {
     my ($class) = @_;
     pf::cluster::sync_config_as_master();
 }
@@ -2014,7 +2014,7 @@ Submit a job to the queue
 
 =cut
 
-sub queue_job : Public :NoQueue {
+sub queue_job : Public {
     my ($class, $queue, $job_name, @args) = @_;
     my $client = pf::api::queue->new(queue => $queue);
     $client->notify($job_name, @args );

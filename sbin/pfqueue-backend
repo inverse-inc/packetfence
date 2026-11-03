@@ -23,7 +23,7 @@ use pf::file_paths qw($pfqueue_backend_socket);
 use Errno qw(EINTR EAGAIN);
 use POSIX qw(:signal_h pause :sys_wait_h);
 use pf::util::networking qw(read_data_with_length send_data_with_length);
-use pf::Sereal qw(sereal_decode_safe);
+use pf::util::pfqueue qw(decode_task);
 use pf::config::pfqueue;
 use pf::factory::task;
 use pf::util;
@@ -155,8 +155,9 @@ sub handle_socket {
 
             $len = send_data_with_length($socket, 'true');
         } else {
-            my $results = process_data($data);
-            $results = $JSON->encode($results);
+            my ($err, $result) = process_data($data);
+            # pfqueue-go marks the task failed when the reply has an error, completed otherwise
+            my $results = $JSON->encode($err ? { error => $err } : { item => $result });
             $len = send_data_with_length($socket, $results);
         }
 
@@ -195,13 +196,18 @@ sub get_tasks_count {
     return add_jitter($tasks_count, $task_jitter);
 }
 
+=head2 process_data
+
+Run a task and return ($err, $result): $err is set when the task can't be decoded or failed
+
+=cut
+
 sub process_data {
     my ($data) = @_;
-    my $item = eval { sereal_decode_safe($data) };
-    unless ( ref($item) eq 'ARRAY' && pf::factory::task->isValidType($item->[0]) ) {
-        my $message = "Invalid task stored in queue" . ( $@ ? ": $@" : "" );
+    my ($item, $message) = decode_task($data);
+    unless ($item) {
         $logger->error($message);
-        return { message => $message, status => 500 };
+        return ({ message => $message, status => 500 }, undef);
     }
 
     my $type = $item->[0];
@@ -231,18 +237,18 @@ sub process_data {
             $err = { message => $err, status => 500 };
         }
 
-        return $err;
+        return ($err, undef);
     }
 
     if (!defined $result) {
-        return undef;
+        return (undef, undef);
     }
 
     unless ( ref $result ) {
         $result = { message => $result, status => 200 };
     }
 
-    return $result;
+    return (undef, $result);
 }
 
 
