@@ -106,7 +106,7 @@ acme/
 
 ```js
 export default {
-  apiVersion: 1,      // required, a literal: checked at build time
+  apiVersion: 1,      // required, a literal: checked at build time (comments ignored) and at runtime
 
   routes: [ ... ],    // vue-router 3 records
   sidebar: { ... },   // sidebar items, per area
@@ -138,6 +138,10 @@ routes: [
 
 - The areas are the routes named `status`, `reports`, `auditing`, `nodes`,
   `users`, `configuration` and `preferences`.
+- vue-router matches routes in order. A new route is inserted `before` or
+  `after` a sibling (name or path) when given, otherwise a static route goes
+  before the first dynamic sibling (for example Reports `:id(...)/`, which
+  would otherwise match `reports/acme`) and a dynamic route is appended.
 - An unknown parent is logged in the console and the route is ignored.
 - Extensions are applied in order, so a later extension overrides an earlier
   one. Every extension route gets `meta.extension` set to its id.

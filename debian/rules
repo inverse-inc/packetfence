@@ -46,7 +46,9 @@ install: build
 	dh_installdirs
 
 	#copying example files without example extension (.conf.example -> .conf)
-	for i in `find * -name "*.example" ! -path 'conf/pfconfig.conf*' ! -path 'conf/redis_cache.conf*'`; do \
+	# never the admin UI extensions (html/pfappserver/root/extensions/README.md), nor the extensions.example directory
+	for i in `find * -name "*.example" ! -type d ! -path 'conf/pfconfig.conf*' ! -path 'conf/redis_cache.conf*' \
+	-not -path "html/pfappserver/root/extensions/*" -not -path "html/pfappserver/root/extensions.example/*" -not -path "html/pfappserver/root/.pf-ui-extensions/*"`; do \
 		$(INSTALL) $$i "$(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$(dirname $$i)/$$(basename $$i .example)"; \
 	done
 
