@@ -23,7 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 178;
+use Test::More tests => 186;
 use Test::MockModule;
 use Data::Dumper;
 use pf::Switch;
@@ -290,6 +290,21 @@ is($cisco->aclPortNumber('443', 6), 443, "aclPortNumber: a number is kept");
     is(chew($aireos_push, "permit nos any any\npermit tcp any any eq 443"), chew($aireos_push, "permit tcp any any eq 443"), "AireOS push: a protocol the rule does not know is skipped, not pushed as any");
     like(chew($aireos_push, "permit tcp any any lt 1024"), qr/^acl rule destination port range testrole 1 1 1023$/m, "AireOS push: lt on the destination port is a computed range");
     like(chew($aireos_push, "permit tcp any any eq www"), qr/^acl rule destination port range testrole 1 80 80$/m, "AireOS push: a Cisco port name becomes its number");
+    # A gt or lt that leaves no port would be pushed as an empty range (65536
+    # 65535, 1 0) that the controller refuses or misapplies
+    my $port_entry = sub {
+        my ($action, $port) = @_;
+        my $any = { ipv4_addr => '0.0.0.0', wildcard => '255.255.255.255' };
+        return { action => $action, protocol => 'tcp(6)', source => {%$any}, destination => {%$any, port => $port} };
+    };
+    ok(defined $aireos_push->_untranslatablePushAcl($port_entry->('deny', 'gt 65535')), "AireOS push: gt 65535 leaves no port");
+    ok(defined $aireos_push->_untranslatablePushAcl($port_entry->('deny', 'lt 1')), "AireOS push: lt 1 leaves no port");
+    ok(defined $aireos_push->_untranslatablePushAcl($port_entry->('deny', 'lt 0')), "AireOS push: lt 0 leaves no port");
+    ok(defined $aireos_push->_untranslatablePushAcl($port_entry->('permit', 'eq 70000')), "AireOS push: a port above 65535 is refused");
+    ok(!defined $aireos_push->_untranslatablePushAcl($port_entry->('permit', 'gt 65534')), "AireOS push: gt 65534 is the port 65535");
+    ok(!defined $aireos_push->_untranslatablePushAcl($port_entry->('permit', 'lt 2')), "AireOS push: lt 2 is the port 1");
+    is(chew($aireos_push, "deny tcp any any gt 65535\npermit ip any any"), deny_all($aireos_push), "AireOS push: a deny on gt 65535 ends the ACLs with a deny all");
+    is(chew($aireos_push, "permit tcp any any lt 1\npermit tcp any any eq 443"), chew($aireos_push, "permit tcp any any eq 443"), "AireOS push: a permit on lt 1 is skipped, not pushed as the range 1 0");
 }
 
 {
@@ -440,6 +455,7 @@ $dal->mock(upsert => sub { 1 });
     $node_acls = $bypass;
     is($cisco_push->getAccessListByName('r4', $mac), chew($cisco, $bypass), "Cisco with Push ACLs: the bypass ACLs of the node are sent in the reply, from any");
     $node_acls = undef;
+
     my $cisco_push_entry = pf::Switch::Cisco::Cisco_IOS_15_5->new({%args, UsePushACLs => 'Y', access_lists => { r4 => "permit udp any eq 68 any" }});
     is($cisco_push_entry->getAccessListByName('r4', $mac), "permit udp any eq 68 any", "Cisco with Push ACLs: the access list of the switch entry is sent in the reply");
 

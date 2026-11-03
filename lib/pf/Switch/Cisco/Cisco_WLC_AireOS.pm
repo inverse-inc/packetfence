@@ -748,10 +748,11 @@ sub acl_chewer {
 Why a parsed ACL entry cannot be pushed as the "acl rule" commands built by
 L</acl_chewer>, or undef when it can. A rule has no TCP flags and no ICMP
 type, a port is a range built from eq, gt or lt: another operator (range, neq)
-is not printed, and a port name the protocol does not know has no number. An
-address mask has to be contiguous, and the protocol one of the rule (ip, icmp,
-igmp, tcp, udp, gre): another one would be pushed as any. Dropping any of them
-would widen the ACL.
+is not printed, a port name the protocol does not know has no number, and a
+gt or lt that leaves no port (gt 65535, lt 1) or a port above 65535 gives no
+range. An address mask has to be contiguous, and the protocol one of the rule
+(ip, icmp, igmp, tcp, udp, gre): another one would be pushed as any. Dropping
+any of them would widen the ACL.
 
 =cut
 
@@ -767,8 +768,13 @@ sub _untranslatablePushAcl {
         return "the $side mask '$wildcard' is not contiguous" if !$self->aclWildcardIsContiguous($wildcard);
         my $port = $entry->{$side}->{'port'};
         next if !defined $port;
-        return "the $side port operator '$port' cannot be represented" if $port !~ m{^(?:eq|gt|lt)\s+(\S+)$};
-        return "the $side port name '$1' has no number" if !defined $self->aclPortNumber($1, $entry->{'protocol'});
+        return "the $side port operator '$port' cannot be represented" if $port !~ m{^(eq|gt|lt)\s+(\S+)$};
+        my ($operator, $name) = ($1, $2);
+        my $number = $self->aclPortNumber($name, $entry->{'protocol'});
+        return "the $side port name '$name' has no number" if !defined $number;
+        # gt 65535 and lt 1 leave no port (the range built would be 65536-65535
+        # or 1-0), and the controller refuses a port above 65535
+        return "the $side port '$port' gives no port range" if $number > 65535 || ($operator eq 'gt' && $number >= 65535) || ($operator eq 'lt' && $number <= 1);
     }
     return undef;
 }
