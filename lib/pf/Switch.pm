@@ -4768,7 +4768,9 @@ it can.
 Cisco::AccessList::Parser reads the dscp, precedence, tos, fragments,
 time-range and option qualifiers of a line without returning them, so the entry
 of "permit ip any any dscp ef" is the one of "permit ip any any". Translating
-it would widen the ACL. An "evaluate" line gives an entry with no action. An
+it would widen the ACL. It also drops the code of a numeric ICMP type: the entry
+of "permit icmp any any 3 1" is the one of "permit icmp any any 3", every
+destination unreachable. An "evaluate" line gives an entry with no action. An
 object group (a service or network object defined on the switch) is given as a
 hash in place of the protocol or the address: no module can send it.
 
@@ -4778,6 +4780,9 @@ sub untranslatableAclQualifier {
     my ($self, $entry) = @_;
     return "the ACL is not a permit or a deny" if ($entry->{'action'} // '') !~ /^(?:permit|deny)$/;
     return "the '".lc($1)."' qualifier is not sent" if ($entry->{'acl_line'} // '') =~ /\s(dscp|precedence|tos|fragments|time-range|option)(?:\s|$)/i;
+    if (defined $entry->{'icmp_qualifier'} && $entry->{'icmp_qualifier'} =~ /^\d+$/ && ($entry->{'acl_line'} // '') =~ /\s$entry->{'icmp_qualifier'}\s+\d+(?:\s+log(?:-input)?)?\s*$/i) {
+        return "the code of the ICMP type $entry->{'icmp_qualifier'} is not sent";
+    }
     # An object group names an object defined on the switch: the parser gives a
     # hash in place of the protocol (object-group service) or of the address
     # (object-group network), which no module can send

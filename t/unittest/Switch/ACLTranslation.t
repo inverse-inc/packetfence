@@ -129,11 +129,15 @@ is($cisco->aclWildcardIsContiguous('0.255.0.255'), 0, "0.255.0.255 is not contig
 
 is(chew($cisco, "permit tcp any host 10.0.0.1 eq 443"), "in|permit tcp any host 10.0.0.1 eq 443\n", "Cisco: host and port");
 is(chew($cisco, "permit tcp any any gt 1024"), "in|permit tcp any any gt 1024\n", "Cisco: port operators are sent");
-is(chew($cisco, "permit tcp any any established"), "in|permit tcp any any  established\n", "Cisco: TCP flags are sent");
+is(chew($cisco, "permit tcp any any established"), "in|permit tcp any any established\n", "Cisco: TCP flags are sent");
 is(chew($cisco, "permit ip any 10.0.0.0 0.255.0.255"), "in|permit ip any 10.0.0.0 0.255.0.255\n", "Cisco: a non contiguous wildcard is sent as is");
 is(chew($cisco, "permit ip host 10.1.1.1 any"), deny_all($cisco), "Cisco: a source address is not replaced by the endpoint");
 is(chew($cisco, "permit udp any eq 53 any"), deny_all($cisco), "Cisco: a source port is not dropped");
-is(chew($cisco, "permit icmp any any echo"), deny_all($cisco), "Cisco: an ICMP type is not dropped");
+is(chew($cisco, "permit icmp any any echo"), "in|permit icmp any any echo\n", "Cisco: the ICMP type is sent");
+is(chew($cisco, "deny icmp any any echo-reply\npermit ip any any"), "in|deny icmp any any echo-reply\nin|permit ip any any\n", "Cisco: a deny on an ICMP type is sent, the ACLs after it are kept");
+is(chew($cisco, "permit icmp any any 8"), "in|permit icmp any any 8\n", "Cisco: a numeric ICMP type is sent");
+is(chew($cisco, "permit icmp any any 3 1\npermit ip any any"), chew($cisco, "permit ip any any"), "Cisco: an ICMP type with a code is skipped, the parser drops the code");
+is(chew($cisco, "deny icmp any any 3 1\npermit ip any any"), deny_all($cisco), "Cisco: a deny on an ICMP type with a code ends the ACLs with a deny all");
 
 is(chew($cisco, "deny ip host 10.1.1.1 any\npermit ip any any"), "in|deny ip any any\n", "Cisco: a deny that cannot be sent ends the ACLs with a deny all");
 
