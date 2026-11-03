@@ -23,7 +23,20 @@ use List::MoreUtils qw(any);
 
 our @MODULES = __PACKAGE__->modules;
 
+our %TYPES = map { /^pf::task::(\w+)$/ ? ($1 => 1) : () } @MODULES;
+
 sub factory_for { 'pf::task' }
+
+=head2 isValidType
+
+Check if the type is one of the task modules
+
+=cut
+
+sub isValidType {
+    my ($class, $type) = @_;
+    return defined($type) && !ref($type) && exists $TYPES{$type};
+}
 
 =head1 AUTHOR
 

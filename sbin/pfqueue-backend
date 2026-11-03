@@ -23,8 +23,7 @@ use pf::file_paths qw($pfqueue_backend_socket);
 use Errno qw(EINTR EAGAIN);
 use POSIX qw(:signal_h pause :sys_wait_h);
 use pf::util::networking qw(read_data_with_length send_data_with_length);
-use Sereal::Decoder qw(sereal_decode_with_object);
-use pf::Sereal qw($DECODER);
+use pf::Sereal qw(sereal_decode_safe);
 use pf::config::pfqueue;
 use pf::factory::task;
 use pf::util;
@@ -198,12 +197,16 @@ sub get_tasks_count {
 
 sub process_data {
     my ($data) = @_;
-    sereal_decode_with_object( $DECODER, $data, my $item );
+    my $item = sereal_decode_safe($data);
     if ( ref($item) ne 'ARRAY' ) {
         die "Invalid object stored in queue";
     }
 
     my $type = $item->[0];
+    unless ( pf::factory::task->isValidType($type) ) {
+        die "Invalid task type stored in queue";
+    }
+
     my $args = $item->[1];
     my $task = "pf::task::$type"->new;
 
