@@ -1,11 +1,21 @@
 <script type="text/javascript" src="/content/waiting.js"></script>
 
-<div class="u-padding">
+<div class="u-padding" id="waiting" data-check-url="[% check_url || '/sponsor/check' %]">
   <div class="o-layout--center">
     <h2>[% i18n("Registration pending") %]</h2>
   </div>
 
-  [% IF register_on_activation %]
+  [% IF email_activation %]
+  <div class="o-media o-media--error u-padding u-margin-bottom">
+    <div class="o-media__img">[% flashIcon(level='error', size='tiny') %]</div>
+    <p class="o-media__body">[% i18n("Do not close this page until your access has been activated") %]</p>
+  </div>
+
+  <div class="o-media o-media--notice u-padding u-margin-bottom">
+    <div class="o-media__img">[% flashIcon(level='notice', size='tiny') %]</div>
+    <p class="o-media__body">[% i18n_format("An activation link has been sent to %s. Open that email from another device and click the link. Once activated, this page will be automatically redirected.", email) %]</p>
+  </div>
+  [% ELSIF register_on_activation %]
   <div class="o-media o-media--notice u-padding u-margin-bottom">
     <div class="o-media__img">[% flashIcon(level='notice', size='tiny') %]</div>
     <p class="o-media__body">[% i18n("Your registration is pending approval. You can safely close this page, your network access will be automatically enabled once the sponsor activates your access.") %]</p>
