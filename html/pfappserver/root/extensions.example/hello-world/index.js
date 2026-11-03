@@ -44,6 +44,8 @@ export default {
     { parent: 'configuration', path: 'hello_world/integration', name: 'helloWorldIntegration', component: TheConfigurationView, props: () => ({ title: i18n.t('Hello World Integration') }), beforeEnter },
     { parent: '/configuration', path: 'pki/hello', name: 'helloWorldPki', component: TheConfigurationView, props: () => ({ title: i18n.t('Hello World PKI') }), beforeEnter },
     { parent: 'status', path: 'hello', name: 'statusHelloWorld', component: TheView, meta: { can: 'read system' } },
+    // a static route goes before the dynamic siblings (Reports ':id(...)'), or use before/after a sibling
+    { parent: 'reports', path: 'hello', name: 'reportsHelloWorld', component: TheView },
     // the same name and path as a core route: replaces it
     ...((OVERRIDE_EXAMPLE)
       ? [{ parent: 'configuration', path: 'kafka', name: 'kafka', component: TheConfigurationView, props: () => ({ title: i18n.t('Kafka (overridden)') }), beforeEnter }]
@@ -78,6 +80,9 @@ export default {
     ]),
     status: ({ i18n }) => ([
       { item: { name: i18n.t('Hello World'), path: '/status/hello', can: 'read system' } }
+    ]),
+    reports: ({ i18n }) => ([
+      { item: { name: i18n.t('Hello World'), path: '/reports/hello' } }
     ])
   },
 

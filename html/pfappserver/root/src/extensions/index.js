@@ -12,17 +12,29 @@ import registry from '@/extensions/registry'
 
 const PREFIX = '[pf-ui-extensions]'
 
+// keep in sync with SUPPORTED_API_VERSIONS in build/ui-extensions.js
+const SUPPORTED_API_VERSIONS = [1]
+
 /* eslint-disable no-console */
 const logError = (...args) => console.error(PREFIX, ...args)
 const logWarning = (...args) => console.warn(PREFIX, ...args)
 const logInfo = (...args) => console.info(PREFIX, ...args)
 /* eslint-enable no-console */
 
-export const extensions = registry.map(({ id, definition, messages }) => ({
-  ...(definition || {}),
-  id,
-  messages: messages || {}
-}))
+// the build checks the literal apiVersion of index.js, check the exported value too
+export const extensions = registry
+  .filter(({ id, definition }) => {
+    const { apiVersion } = definition || {}
+    if (SUPPORTED_API_VERSIONS.includes(apiVersion))
+      return true
+    logError(`${id}: unsupported apiVersion ${JSON.stringify(apiVersion)}, supported: ${SUPPORTED_API_VERSIONS.join(', ')}, extension ignored`)
+    return false
+  })
+  .map(({ id, definition, messages }) => ({
+    ...definition,
+    id,
+    messages: messages || {}
+  }))
 
 const asArray = value => (Array.isArray(value) ? value : ((value) ? [value] : []))
 const resolve = (value, context) => ((typeof value === 'function') ? value(context) : value)
@@ -63,6 +75,28 @@ const findRoute = (routes, key, base = '') => {
  * The arrays are modified in place on purpose: the areas routers that iterate
  * their own `children` (eg: the Status redirect) see the extensions routes.
  */
+const isDynamic = path => /[:*(]/.test(path)
+
+// where to insert a new route among its siblings: vue-router matches the routes
+// in order, so `before`/`after` a sibling (name or path), or else a static
+// route goes before the first dynamic sibling (eg: Reports ':id(...)') that
+// could match it first
+const routeIndex = (id, siblings, base, route, before, after) => {
+  const anchor = before || after
+  if (anchor) {
+    const index = siblings.findIndex(sibling => sibling.name === anchor || fullPath(base, sibling.path) === fullPath(base, anchor))
+    if (index > -1)
+      return (before) ? index : index + 1
+    logWarning(`${id}: route "${anchor}" not found, route "${route.name || route.path}" positioned automatically`)
+  }
+  if (!isDynamic(route.path)) {
+    const index = siblings.findIndex(sibling => isDynamic(sibling.path || ''))
+    if (index > -1)
+      return index
+  }
+  return siblings.length
+}
+
 // all the route names, at any depth
 const routeNames = (routes, names = new Set()) => {
   for (const route of routes) {
@@ -76,7 +110,7 @@ const routeNames = (routes, names = new Set()) => {
 
 export const applyRoutes = routes => {
   for (const { id, routes: extensionRoutes } of extensions) {
-    for (const { parent, ...route } of asArray(extensionRoutes)) {
+    for (const { parent, before, after, ...route } of asArray(extensionRoutes)) {
       if (typeof route.path !== 'string') {
         logError(`${id}: route "${route.name}" without a path ignored`)
         continue
@@ -109,7 +143,7 @@ export const applyRoutes = routes => {
         // vue-router keeps the first route of a name, the extension route would not be reachable by name
         if (route.name && routeNames(routes).has(route.name))
           logError(`${id}: route name "${route.name}" is already used elsewhere, use a unique name or the same parent to override it`)
-        siblings.push(route)
+        siblings.splice(routeIndex(id, siblings, base, route, before, after), 0, route)
       }
     }
   }
@@ -171,11 +205,13 @@ export const areaSections = (area, sections, context = {}) => {
     return sections
   const { i18n } = context
   const tree = copySections(sections)
-  for (const { id, parent, group, item, before, after } of contributions) {
-    if (!item) {
+  for (const { id, parent, group, item: contribution, before, after } of contributions) {
+    if (!contribution) {
       logError(`${id}: sidebar contribution without an item ignored`)
       continue
     }
+    // copied: a later contribution may add items into this one, the extension definition must not change
+    const [ item ] = copySections([ contribution ])
     if (item.path) {
       const found = findItem(tree, item.path)
       if (found) {

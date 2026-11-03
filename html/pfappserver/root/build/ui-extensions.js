@@ -51,6 +51,9 @@ const isFile = p => {
 
 const readJson = file => JSON.parse(fs.readFileSync(file, 'utf8'))
 
+// remove the comments (not the strings) so a commented apiVersion is not used
+const stripComments = source => source.replace(/("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`)|\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, (match, string) => string || '')
+
 /**
  * List the candidate directories, drop-ins first then PF_UI_EXTENSIONS.
  */
@@ -143,7 +146,7 @@ const discoverExtensions = ({ root, env = process.env } = {}) => {
     const entry = path.join(realDir, 'index.js')
     if (!isFile(entry))
       throw new ExtensionError(`extension "${id}" has no index.js (${entry})`)
-    const match = API_VERSION_RE.exec(fs.readFileSync(entry, 'utf8'))
+    const match = API_VERSION_RE.exec(stripComments(fs.readFileSync(entry, 'utf8')))
     if (!match)
       throw new ExtensionError(`extension "${id}" does not declare a literal "apiVersion" in index.js, supported: ${SUPPORTED_API_VERSIONS.join(', ')}`)
     const apiVersion = +match[1]
@@ -259,6 +262,7 @@ module.exports = {
   ExtensionError,
   discoverExtensions,
   parsePo,
+  stripComments,
   writeRegistry
 }
 
