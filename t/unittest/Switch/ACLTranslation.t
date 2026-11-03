@@ -23,7 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 176;
+use Test::More tests => 178;
 use Test::MockModule;
 use Data::Dumper;
 use pf::Switch;
@@ -388,6 +388,14 @@ $dal->mock(upsert => sub { 1 });
         like($s->getRoleAccessListByName('r4') // '', $push_format, "$name: getRoleAccessListByName gives the push format");
         like($s->acl_chewer("permit tcp any any", 'r4') // '', qr/permit in/, "$name: outside of the push, the RADIUS format");
     }
+
+    # Mobility Master builds a structure for the push: the observability table
+    # stores its JSON, not a stringified reference (the upsert died on it)
+    my $stored;
+    $dal->mock(new => sub { my ($class, $args) = @_; $stored = $args->{acls}; return bless {}, $class });
+    ok(defined $mobility_push->getRoleAccessListByName('r4'), "Mobility Master: the role ACLs are built for the push");
+    ok(!ref $stored && $stored =~ /^\[\{/, "Mobility Master: the observability table gets the JSON of the pushed ACLs");
+    $dal->unmock('new');
 }
 
 # The Push ACLs setting alone does not make an ACL a pushed one: a RADIUS reply

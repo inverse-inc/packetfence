@@ -867,7 +867,7 @@ sub getAccessListByName {
         port => (defined $port && $port ne '') ? $port : undef,
         role_id => $access_list_name,
         acl_type => $type,
-        acls => $acls,
+        acls => $self->observabilityAcls($acls),
         enforcement_timestamp => \"NOW()",
     });
     $dal->upsert();
@@ -953,13 +953,26 @@ sub getRoleAccessListByName {
             port => undef,
             role_id => $access_list_name,
             acl_type => 'role',
-            acls => $acls,
+            acls => $self->observabilityAcls($acls),
             enforcement_timestamp => \"NOW()",
         });
         $dal->upsert();
     }
 
     return $acls;
+}
+
+=item observabilityAcls
+
+The ACLs as stored in switch_observability_acls: the text a chewer returns,
+or the JSON of the structure a chewer builds for the push (Aruba Mobility
+Master), which the table cannot take as is.
+
+=cut
+
+sub observabilityAcls {
+    my ($self, $acls) = @_;
+    return ref($acls) ? encode_json($acls) : $acls;
 }
 
 =item nodeBypassAcls
