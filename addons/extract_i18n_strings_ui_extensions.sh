@@ -32,11 +32,12 @@ fi
 for dir in "${extensions[@]}"; do
     mkdir -p "$dir/i18n"
     ./addons/extract_i18n_strings_api.pl --src "$dir" --po "$dir/i18n/en.po" > "$dir/i18n/en.po.tmp"
+    po=$(printf '%q' "$dir/i18n/en.po")
     cat <<EOT
 
 # $dir: review the strings, then commit them in the extension repository and push them to Transifex
-diff $dir/i18n/en.po{,.tmp}
-mv $dir/i18n/en.po{.tmp,}
-(cd $dir && tx push -s)
+diff $po $po.tmp
+mv $po.tmp $po
+(cd $(printf '%q' "$dir") && tx push -s)
 EOT
 done

@@ -35,7 +35,8 @@ core PO file are skipped.
 
 =item --po FILE
 
-The English PO file of the existing translations, default conf/I18N/api/en.po.
+The English PO file of the existing translations, default conf/I18N/api/en.po,
+or DIR/i18n/en.po with --src.
 
 =back
 
@@ -60,7 +61,7 @@ my %translations = ();
 my %core_strings = ();
 
 my $src;
-my $po_file = CONF.'/I18N/api/en.po';
+my $po_file;
 GetOptions(
     'src=s' => \$src,
     'po=s'  => \$po_file,
@@ -69,6 +70,7 @@ if (defined $src) {
     $src =~ s#/+$##;
     die "$src is not a directory\n" unless -d $src;
 }
+$po_file //= defined $src ? "$src/i18n/en.po" : CONF.'/I18N/api/en.po';
 
 =head1 SUBROUTINES
 

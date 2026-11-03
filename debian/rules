@@ -60,7 +60,8 @@ install: build
 	done
 	for i in `find * ! -path 'debian/*' ! -path 'debian' ! -path 't/*' ! -path 't' ! -path 'lib/pfconfig/*' ! -path 'lib/pfconfig' ! -path 'sbin/pfconfig*' \
 	-not -path "addons/full-upgrade/*" -not -path "html/parking/*" ! -path 'conf/pfconfig.conf*' ! -path 'conf/redis_cache.conf*' \
-	-not -path "html/pfappserver/root/extensions/*/*" -not -path "html/pfappserver/root/extensions.example*" -not -path "html/pfappserver/root/.pf-ui-extensions*" ! -type d`; do \
+	-not -path "html/pfappserver/root/extensions/*/*" -not -path "html/pfappserver/root/extensions.example*" -not -path "html/pfappserver/root/.pf-ui-extensions*" \
+	-not \( -type l -path "html/pfappserver/root/extensions/*" \) ! -type d`; do \
 		$(INSTALL) $$i $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$i; \
 	done
 

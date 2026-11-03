@@ -165,7 +165,8 @@ const discoverExtensions = ({ root, env = process.env } = {}) => {
 
 /**
  * Minimal PO parser: msgid/msgstr pairs, continuation lines and the usual
- * C escapes. Entries without a translation, plurals and the header are skipped.
+ * C escapes. Entries without a translation, fuzzy ones, plurals and the header
+ * are skipped.
  */
 const unescapePo = s => s.replace(/\\(["\\nrt])/g, (m, c) => ({ n: '\n', r: '\r', t: '\t' }[c] || c))
 
@@ -174,7 +175,7 @@ const parsePo = content => {
   let entry = {}
   let key = null
   const flush = () => {
-    if (entry.msgid && entry.msgstr && !('msgid_plural' in entry))
+    if (entry.msgid && entry.msgstr && !('msgid_plural' in entry) && !entry.fuzzy)
       messages[entry.msgid] = entry.msgstr
     entry = {}
     key = null
@@ -185,8 +186,14 @@ const parsePo = content => {
       flush()
       continue
     }
-    if (line.startsWith('#'))
+    if (line.startsWith('#')) {
+      if (/^#,.*\bfuzzy\b/.test(line)) {
+        if ('msgstr' in entry)
+          flush()
+        entry.fuzzy = true
+      }
       continue
+    }
     let match = /^(msgid|msgid_plural|msgstr|msgctxt)\s+"(.*)"$/.exec(line)
     if (match) {
       if (match[1] === 'msgid' && 'msgstr' in entry)
