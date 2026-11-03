@@ -390,6 +390,21 @@ foreach my $switch ($aruba, $arista, $aos, $forti) {
     $node_acls = undef;
     is($aruba->getAccessListByName('r4', $mac), chew($aruba, "permit tcp any any"), "without bypass ACLs the ACLs of the role are sent");
 
+    # With Push ACLs the ACLs of a role are in the switch configuration and the
+    # reply only names the role, but the bypass ACLs of a node and the access
+    # list of the switch entry are not pushed: they are still sent in the reply
+    my $cisco_push = pf::Switch::Cisco::Cisco_IOS_15_5->new({%args, UsePushACLs => 'Y'});
+    is($cisco_push->getAccessListByName('r4', $mac), undef, "Cisco with Push ACLs: the ACLs of a role are not sent in the reply, they are pushed");
+    $node_acls = $bypass;
+    is($cisco_push->getAccessListByName('r4', $mac), chew($cisco, $bypass), "Cisco with Push ACLs: the bypass ACLs of the node are sent in the reply, from any");
+    $node_acls = undef;
+    my $cisco_push_entry = pf::Switch::Cisco::Cisco_IOS_15_5->new({%args, UsePushACLs => 'Y', access_lists => { r4 => "permit udp any eq 68 any" }});
+    is($cisco_push_entry->getAccessListByName('r4', $mac), "permit udp any eq 68 any", "Cisco with Push ACLs: the access list of the switch entry is sent in the reply");
+    is($cisco->nodeBypassAcls({ bypass_acls => "permit ip any any\n" }), "permit ip any any", "nodeBypassAcls: the bypass ACLs of a node without their trailing newline");
+    is($cisco->nodeBypassAcls({ bypass_acls => " \n" }), undef, "nodeBypassAcls: blank bypass ACLs are none");
+    is($cisco->nodeBypassAcls(undef), undef, "nodeBypassAcls: no node is none");
+    is($cisco->nodeBypassAcls(bless({ bypass_acls => "permit ip any any" }, 'pf::dal::node')), "permit ip any any", "nodeBypassAcls: the node_info of a RADIUS request is a pf::dal::node object");
+
     # The source of a per-user ACL is the endpoint itself: a Cisco switch does
     # not apply an ACL with another source. A permit with one is skipped, a
     # deny with one ends the ACLs with a deny all

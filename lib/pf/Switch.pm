@@ -888,13 +888,8 @@ sub _getAccessListByName {
     # The bypass ACLs of the node are written in Cisco syntax like the ACLs of
     # a role: run them through acl_chewer too, so they are translated for the
     # switch like the role ACLs
-    my $node = node_view($mac);
-    if ($node) {
-        my $acls = $node->{bypass_acls};
-        chomp($acls) if defined $acls;
-        if (defined $acls && $acls ne '') {
-            return "asset", $self->acl_chewer($acls, $access_list_name);
-        }
+    if (defined(my $acls = $self->nodeBypassAcls(node_view($mac)))) {
+        return "asset", $self->acl_chewer($acls, $access_list_name);
     }
 
     # The access lists of the switch entry are sent as the administrator wrote
@@ -904,6 +899,11 @@ sub _getAccessListByName {
         return "role", $self->{'_access_lists'}->{$access_list_name};
     }
 
+    # With Push ACLs the ACLs of a role are in the switch configuration (see
+    # getRoleAccessListByName): the reply only names the role. The bypass ACLs
+    # and the access lists of the switch entry above are not pushed, which is
+    # why they are still sent
+    return undef, undef if $self->usePushACLs;
     return undef, undef if !exists $ConfigRoles{$access_list_name};
     my $role = $ConfigRoles{$access_list_name};
     # Skip role ACLs if the toggle is disabled
@@ -957,6 +957,22 @@ sub getRoleAccessListByName {
         $dal->upsert();
     }
 
+    return $acls;
+}
+
+=item nodeBypassAcls
+
+The bypass ACLs of a node (its node_view, or the node_info of a RADIUS
+request, a pf::dal::node object), or undef when it has none.
+
+=cut
+
+sub nodeBypassAcls {
+    my ($self, $node) = @_;
+    # node_info is a blessed hash (pf::dal::node), node_view a plain one
+    my $acls = (defined $node && (Scalar::Util::reftype($node) // '') eq 'HASH') ? $node->{'bypass_acls'} : undef;
+    return undef if !defined $acls || $acls !~ /\S/;
+    chomp($acls);
     return $acls;
 }
 
@@ -3357,10 +3373,14 @@ sub returnRadiusAccessAccept {
         if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" ) {
             $role = $self->getRoleByName($args->{'user_role'});
         }
-        if ( (defined($role) && $role ne "") || $self->usePushACLs ) {
-            if ($self->usePushACLs && exists $ConfigRoles{$args->{'user_role'}} && !exists $self->{'_access_lists'}->{$args->{'user_role'}}) {
-                $role = $args->{'user_role'};
-            }
+        # With Push ACLs the ACLs of the role are in the switch configuration
+        # under the name of the role, which the reply names, unless the access
+        # list of the switch entry or the bypass ACLs of the node replace them:
+        # those are sent in the reply like without Push ACLs
+        if ($self->usePushACLs && exists $ConfigRoles{$args->{'user_role'}} && !exists $self->{'_access_lists'}->{$args->{'user_role'}} && !defined $self->nodeBypassAcls($args->{'node_info'})) {
+            $role = $args->{'user_role'};
+        }
+        if ( defined($role) && $role ne "" ) {
             $radius_reply_ref = {
                 %$radius_reply_ref,
                 $self->returnRoleAttributes($role),
