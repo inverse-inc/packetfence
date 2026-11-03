@@ -39,8 +39,7 @@ sub acl_chewer {
     my ($acl_ref , @direction) = $self->format_acl($acl);
 
     my $entries;
-    # TCP flags do not apply correctly on the controller
-    ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, sub { $self->untranslatableTcpFlags($_[0]) });
+    ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, sub { $self->_untranslatableAcl($_[0]) });
 
     my $i = 0;
     my $acl_chewed;
@@ -106,6 +105,36 @@ sub acl_chewer {
     }
     return $acl_chewed;
 }
+
+=head2 _untranslatableAcl
+
+Why a parsed ACL entry cannot be sent by L</acl_chewer>, or undef when it can.
+TCP flags do not apply correctly on the controller; the source port and the
+ICMP type are not printed; a destination port is printed as one port or a
+range, so another operator (gt, lt, neq) cannot be represented. Dropping any
+of them would widen the ACL.
+
+=cut
+
+sub _untranslatableAcl {
+    my ($self, $entry) = @_;
+    my $reason = $self->untranslatableTcpFlags($entry);
+    return $reason if defined $reason;
+    return "the source port is not sent" if defined $entry->{'source'}->{'port'};
+    return "the ICMP type is not sent ('".$entry->{'icmp_qualifier'}."')" if defined $entry->{'icmp_qualifier'};
+    my $port = $entry->{'destination'}->{'port'};
+    return "the port operator '$port' cannot be represented" if defined $port && $port !~ /^(?:eq\s+\S+|range\s+\S+\s+\S+)$/;
+    return undef;
+}
+
+=head2 aclsInRadiusReply
+
+The ACLs are only pushed to the controller: the RADIUS reply never carries an
+access list.
+
+=cut
+
+sub aclsInRadiusReply { 0 }
 
 =head2 implicit_acl
 

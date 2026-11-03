@@ -875,7 +875,7 @@ sub getAccessListByName {
 }
 
 sub _getAccessListByName {
-    my ($self, $access_list_name, $mac) = @_;
+    my ($self, $access_list_name, $mac, $node) = @_;
     my $logger = $self->logger;
     
     # Check if AccessListEnabled parameter exists and is disabled for this role
@@ -888,7 +888,8 @@ sub _getAccessListByName {
     # The bypass ACLs of the node are written in Cisco syntax like the ACLs of
     # a role: run them through acl_chewer too, so they are translated for the
     # switch like the role ACLs
-    if (defined(my $acls = $self->nodeBypassAcls(node_view($mac)))) {
+    $node = node_view($mac) if !defined $node;
+    if (defined(my $acls = $self->nodeBypassAcls($node))) {
         return "asset", $self->acl_chewer($acls, $access_list_name);
     }
 
@@ -923,7 +924,7 @@ sub _getAccessListByName {
     # No ACLs on this role — walk up to parent_id if defined
     my $parent_id = $role->{parent_id};
     if (defined $parent_id && length $parent_id) {
-        return $self->_getAccessListByName($parent_id, $mac);
+        return $self->_getAccessListByName($parent_id, $mac, $node);
     }
 
     # otherwise log and return undef
@@ -974,6 +975,37 @@ sub nodeBypassAcls {
     return undef if !defined $acls || $acls !~ /\S/;
     chomp($acls);
     return $acls;
+}
+
+=item aclsInRadiusReply
+
+Whether this switch type sends access lists in its RADIUS replies (the Access
+List Map is enabled and the module reads it). The modules that only push the
+ACLs to the switch configuration answer no.
+
+=cut
+
+sub aclsInRadiusReply {
+    my ($self) = @_;
+    return (isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement) ? 1 : 0;
+}
+
+=item replyAccessListReplacesRole
+
+With Push ACLs, whether the reply to this request carries an access list that
+replaces the pushed ACLs of the role: the access list of the switch entry or
+the bypass ACLs of the node, when this switch type sends them in its replies
+and they translate to something to send.
+
+=cut
+
+sub replyAccessListReplacesRole {
+    my ($self, $args) = @_;
+    return 0 if !$self->aclsInRadiusReply;
+    # With Push ACLs, _getAccessListByName only returns the access list of the
+    # switch entry or the bypass ACLs of the node
+    my ($type, $acls) = $self->_getAccessListByName($args->{'user_role'}, $args->{'mac'}, $args->{'node_info'});
+    return (defined $acls && $acls ne '') ? 1 : 0;
 }
 
 =item aclsForPush
@@ -3374,10 +3406,10 @@ sub returnRadiusAccessAccept {
             $role = $self->getRoleByName($args->{'user_role'});
         }
         # With Push ACLs the ACLs of the role are in the switch configuration
-        # under the name of the role, which the reply names, unless the access
-        # list of the switch entry or the bypass ACLs of the node replace them:
-        # those are sent in the reply like without Push ACLs
-        if ($self->usePushACLs && exists $ConfigRoles{$args->{'user_role'}} && !exists $self->{'_access_lists'}->{$args->{'user_role'}} && !defined $self->nodeBypassAcls($args->{'node_info'})) {
+        # under the name of the role, which the reply names, unless the reply
+        # carries an access list that replaces them (the one of the switch
+        # entry, the bypass ACLs of the node)
+        if ($self->usePushACLs && exists $ConfigRoles{$args->{'user_role'}} && !$self->replyAccessListReplacesRole($args)) {
             $role = $args->{'user_role'};
         }
         if ( defined($role) && $role ne "" ) {
@@ -4750,7 +4782,7 @@ sub format_acl {
         if ($acl_line =~ /^(in\||out\|)(.*)/) {
             my $direction = $1;
             my $raw_acl = $2;
-            if (($self->supportsOutAcl || $self->usePushACLs) && $direction eq "out|") {
+            if (($self->supportsOutAcl || $self->aclsForPush) && $direction eq "out|") {
                 $acls .= $raw_acl."\n";
                 $direction[$i] = "out";
             } elsif ($direction eq "in|") {

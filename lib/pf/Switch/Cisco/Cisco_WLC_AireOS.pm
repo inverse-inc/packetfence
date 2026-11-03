@@ -700,8 +700,7 @@ sub acl_chewer {
     my ($acl_ref , @direction) = $self->format_acl($acl);
 
     my $entries;
-    # The "acl rule" commands have no TCP flags
-    ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, sub { $self->untranslatableTcpFlags($_[0]) });
+    ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, sub { $self->_untranslatablePushAcl($_[0]) });
 
     my $i = 0;
     my $j = 1;
@@ -734,8 +733,8 @@ sub acl_chewer {
             if ($acl->{'source'}->{'port'} =~ /(\w+)\s+(\d+)/) {
                 switch($1) {
                     case /eq/ {$acl_chewed .= "acl rule source port range $role $j $2 $2\n"}
-                    case /gt/ {$acl_chewed .= "acl rule source port range $role $j $2+1 65534\n"}
-                    case /lt/ {$acl_chewed .= "acl rule source port range $role $j 1 $2-1\n"}
+                    case /gt/ {my $port = $2+1; $acl_chewed .= "acl rule source port range $role $j $port 65534\n"}
+                    case /lt/ {my $port = $2-1; $acl_chewed .= "acl rule source port range $role $j 1 $port\n"}
                 }
             }
         }
@@ -752,6 +751,27 @@ sub acl_chewer {
         $j++;
     }
     return $acl_chewed;
+}
+
+=head2 _untranslatablePushAcl
+
+Why a parsed ACL entry cannot be pushed as the "acl rule" commands built by
+L</acl_chewer>, or undef when it can. A rule has no TCP flags and no ICMP
+type, and a port is a range built from eq, gt or lt: another operator (range,
+neq) is not printed. Dropping any of them would widen the ACL.
+
+=cut
+
+sub _untranslatablePushAcl {
+    my ($self, $entry) = @_;
+    my $reason = $self->untranslatableTcpFlags($entry);
+    return $reason if defined $reason;
+    return "the ICMP type is not sent ('".$entry->{'icmp_qualifier'}."')" if defined $entry->{'icmp_qualifier'};
+    foreach my $side ('source', 'destination') {
+        my $port = $entry->{$side}->{'port'};
+        return "the $side port operator '$port' cannot be represented" if defined $port && $port !~ /^(?:eq|gt|lt)\s+\d+$/;
+    }
+    return undef;
 }
 
 =head2 implicit_acl

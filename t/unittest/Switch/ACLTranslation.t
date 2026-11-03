@@ -23,7 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 147;
+use Test::More tests => 166;
 use Test::MockModule;
 use pf::Switch;
 use pf::Switch::Aruba::ArubaOS_CX_10_x;
@@ -262,6 +262,21 @@ foreach my $switch ($controller, $aireos_push) {
     is(chew($switch, "permit tcp any any established\npermit udp any any eq 53"), chew($switch, "permit udp any any eq 53"), ref($switch).": a permit with TCP flags is skipped");
     is(chew($switch, "deny tcp any any established\npermit ip any any"), deny_all($switch), ref($switch).": a deny with TCP flags ends the ACLs with a deny all");
 }
+foreach my $switch ($controller, $mobility) {
+    # Mobility Master gives an arrayref: compare structures
+    is_deeply(chew($switch, "permit udp any eq 53 any\npermit udp any any eq 53"), chew($switch, "permit udp any any eq 53"), ref($switch).": a permit with a source port is skipped, not sent without it");
+    is_deeply(chew($switch, "deny icmp any any echo\npermit ip any any"), deny_all($switch), ref($switch).": a deny on an ICMP type ends the ACLs with a deny all, not a deny of all ICMP");
+    is_deeply(chew($switch, "permit tcp any any gt 1024\npermit tcp any any eq 443"), chew($switch, "permit tcp any any eq 443"), ref($switch).": gt is not turned into one port");
+}
+like(chew($controller, "permit tcp any any range 100 200"), qr/100-200/, "Aruba Controller: a range is sent");
+{
+    local $aireos_push->{_aclsForPush} = 1;
+    is(chew($aireos_push, "permit tcp any any range 8000 8010\npermit tcp any any eq 443"), chew($aireos_push, "permit tcp any any eq 443"), "AireOS push: a port range is skipped, not pushed without a port");
+    is(chew($aireos_push, "deny icmp any any echo\npermit ip any any"), deny_all($aireos_push), "AireOS push: a deny on an ICMP type ends the ACLs with a deny all");
+    like(chew($aireos_push, "permit tcp any gt 1024 any"), qr/^acl rule source port range testrole 1 1025 65534$/m, "AireOS push: gt on the source port is a computed range, not '1024+1'");
+    like(chew($aireos_push, "permit tcp any any lt 1024"), qr/^acl rule destination port range testrole 1 1 1023$/m, "AireOS push: lt on the destination port is a computed range");
+}
+
 {
     my $mobility_push = pf::Switch::Aruba::Mobility_Master->new({%args, UsePushACLs => 'Y'});
     local $mobility_push->{_aclsForPush} = 1;
@@ -344,10 +359,12 @@ foreach my $switch ($aruba, $arista, $aos, $forti) {
 # in the switch configuration format, the same role in a RADIUS reply is not.
 # acl_chewer used to tell them apart by its caller and never saw the push one.
 
+# getAccessListByName records what it sends: keep the tests off the database
+my $dal = Test::MockModule->new('pf::dal::switch_observability_acls');
+$dal->mock(remove_items => sub { 1 });
+$dal->mock(upsert => sub { 1 });
+
 {
-    my $dal = Test::MockModule->new('pf::dal::switch_observability_acls');
-    $dal->mock(remove_items => sub { 1 });
-    $dal->mock(upsert => sub { 1 });
     my %push_args = (%args, UsePushACLs => 'enabled');
     foreach my $switch (
         [pf::Switch::Aruba::ArubaOS_CX_10_x->new({%push_args}), 'Aruba CX', qr/^in\|1 permit tcp any any/m],
@@ -403,6 +420,27 @@ foreach my $switch ($aruba, $arista, $aos, $forti) {
     $node_acls = undef;
     my $cisco_push_entry = pf::Switch::Cisco::Cisco_IOS_15_5->new({%args, UsePushACLs => 'Y', access_lists => { r4 => "permit udp any eq 68 any" }});
     is($cisco_push_entry->getAccessListByName('r4', $mac), "permit udp any eq 68 any", "Cisco with Push ACLs: the access list of the switch entry is sent in the reply");
+
+    # The reply names the pushed role unless it carries an access list that
+    # replaces its ACLs: the decision follows what _getAccessListByName sends
+    my $cisco_map = pf::Switch::Cisco::Cisco_IOS_15_5->new({%args, UsePushACLs => 'Y', AccessListMap => 'Y'});
+    my $req = sub { { user_role => 'r4', mac => $mac, node_info => bless({ bypass_acls => $_[0] }, 'pf::dal::node') } };
+    is($cisco_map->replyAccessListReplacesRole($req->($bypass)), 1, "Cisco with Push ACLs: the bypass ACLs of the node replace the pushed role");
+    is($cisco_map->replyAccessListReplacesRole($req->(undef)), 0, "Cisco with Push ACLs: without them the pushed role is named");
+    is($cisco_map->replyAccessListReplacesRole($req->("remark nothing to send")), 0, "Cisco with Push ACLs: bypass ACLs that translate to nothing leave the pushed role named");
+    is($cisco_push->replyAccessListReplacesRole($req->($bypass)), 0, "Cisco with Push ACLs and no Access List Map: no access list in the reply, the pushed role is named");
+    my $cisco_map_entry = pf::Switch::Cisco::Cisco_IOS_15_5->new({%args, UsePushACLs => 'Y', AccessListMap => 'Y', access_lists => { r4 => "permit udp any eq 68 any" }});
+    is($cisco_map_entry->replyAccessListReplacesRole($req->(undef)), 1, "Cisco with Push ACLs: the access list of the switch entry replaces the pushed role");
+    my $controller_push = pf::Switch::Aruba::Controller_200->new({%args, UsePushACLs => 'Y', AccessListMap => 'Y'});
+    is($controller_push->replyAccessListReplacesRole($req->($bypass)), 0, "Aruba Controller with Push ACLs: the ACLs are only pushed, the role stays named whatever the node has");
+
+    # An out| line is only kept for the push: in a RADIUS reply a switch
+    # without out ACLs skips it, Push ACLs enabled or not
+    is($cisco_push->acl_chewer("out|deny ip any host 10.0.0.1\npermit ip any any", 'r4'), chew($cisco, "permit ip any any"), "Cisco with Push ACLs: outside of the push an out| line is skipped like without Push ACLs");
+    {
+        local $cisco_push->{_aclsForPush} = 1;
+        like($cisco_push->acl_chewer("out|deny ip any host 10.0.0.1\npermit ip any any", 'r4'), qr/^out\|deny ip any host 10\.0\.0\.1$/m, "Cisco with Push ACLs: the push keeps the out| line");
+    }
     is($cisco->nodeBypassAcls({ bypass_acls => "permit ip any any\n" }), "permit ip any any", "nodeBypassAcls: the bypass ACLs of a node without their trailing newline");
     is($cisco->nodeBypassAcls({ bypass_acls => " \n" }), undef, "nodeBypassAcls: blank bypass ACLs are none");
     is($cisco->nodeBypassAcls(undef), undef, "nodeBypassAcls: no node is none");
