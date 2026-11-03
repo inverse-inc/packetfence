@@ -23,7 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 197;
+use Test::More tests => 204;
 use Test::MockModule;
 use Data::Dumper;
 use pf::Switch;
@@ -142,6 +142,14 @@ is(chew($cisco, "deny icmp any any echo-reply\npermit ip any any"), "in|deny icm
 is(chew($cisco, "permit icmp any any 8"), "in|permit icmp any any 8\n", "Cisco: a numeric ICMP type is sent");
 is(chew($cisco, "permit icmp any any 3 1\npermit ip any any"), chew($cisco, "permit ip any any"), "Cisco: an ICMP type with a code is skipped, the parser drops the code");
 is(chew($cisco, "deny icmp any any 3 1\npermit ip any any"), deny_all($cisco), "Cisco: a deny on an ICMP type with a code ends the ACLs with a deny all");
+is(chew($cisco, "permit icmp any any 3 1 log\npermit ip any any"), chew($cisco, "permit ip any any"), "Cisco: an ICMP code followed by log is still seen");
+# The parser drops whatever follows the ICMP type: only a log keyword may
+ok(!defined $cisco->untranslatableIcmpTrailer("permit icmp any any echo log", "echo"), "ICMP trailer: a log keyword after the type is accepted");
+ok(defined $cisco->untranslatableIcmpTrailer("permit icmp any any 3 1 ttl 5", "3"), "ICMP trailer: a code followed by another keyword is refused");
+ok(defined $cisco->untranslatableIcmpTrailer("permit icmp any any echo extra", "echo"), "ICMP trailer: an unknown word after the type is refused");
+ok(!defined $cisco->untranslatableIcmpTrailer("permit icmp host 10.0.0.3 any 3", "3"), "ICMP trailer: the type is found after the addresses, not in them");
+ok(!defined $cisco->untranslatableIcmpTrailer("permit icmp 10.0.0.0 0.0.0.255 any echo", "echo"), "ICMP trailer: an address with a wildcard is skipped");
+ok(defined $cisco->untranslatableIcmpTrailer("permit icmp any any", "echo"), "ICMP trailer: a type that is not where expected is refused");
 
 is(chew($cisco, "deny ip host 10.1.1.1 any\npermit ip any any"), "in|deny ip any any\n", "Cisco: a deny that cannot be sent ends the ACLs with a deny all");
 

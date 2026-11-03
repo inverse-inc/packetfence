@@ -4884,8 +4884,9 @@ sub untranslatableAclQualifier {
     my ($self, $entry) = @_;
     return "the ACL is not a permit or a deny" if ($entry->{'action'} // '') !~ /^(?:permit|deny)$/;
     return "the '".lc($1)."' qualifier is not sent" if ($entry->{'acl_line'} // '') =~ /\s(dscp|precedence|tos|fragments|time-range|option)(?:\s|$)/i;
-    if (defined $entry->{'icmp_qualifier'} && $entry->{'icmp_qualifier'} =~ /^\d+$/ && ($entry->{'acl_line'} // '') =~ /\s$entry->{'icmp_qualifier'}\s+\d+(?:\s+log(?:-input)?)?\s*$/i) {
-        return "the code of the ICMP type $entry->{'icmp_qualifier'} is not sent";
+    if (defined($entry->{'icmp_qualifier'}) && defined($entry->{'acl_line'})) {
+        my $reason = $self->untranslatableIcmpTrailer($entry->{'acl_line'}, $entry->{'icmp_qualifier'});
+        return $reason if defined $reason;
     }
     # An object group names an object defined on the switch: the parser gives a
     # hash in place of the protocol (object-group service) or of the address
@@ -4902,6 +4903,36 @@ sub untranslatableAclQualifier {
         return "the $side address 0.0.0.0 is only sent as any" if $address->{'ipv4_addr'} eq '0.0.0.0' && ($address->{'wildcard'} // '') ne '255.255.255.255';
     }
     return undef;
+}
+
+=head2 untranslatableIcmpTrailer
+
+Why the words after the ICMP type of an ACL line cannot be translated, or undef
+when there are none but a log keyword. Cisco::AccessList::Parser returns the
+type and drops what follows it: the code of a numeric type ("permit icmp any any
+3 1" would be every destination unreachable) and any other qualifier. A line
+whose type cannot be found where it is expected is refused rather than guessed.
+
+=cut
+
+sub untranslatableIcmpTrailer {
+    my ($self, $line, $type) = @_;
+    my @tokens = split(' ', $line);
+    my $i = 0;
+    $i++ while $i < @tokens && $tokens[$i] !~ m{^(?:permit|deny)$}i;
+    # the action and the protocol
+    $i += 2;
+    # the source and the destination: any, host <ip>, object-group <name> or
+    # <ip> <wildcard>
+    foreach my $side (1, 2) {
+        return "the ICMP type '$type' cannot be found in the line" if $i >= @tokens;
+        $i += (lc($tokens[$i]) eq 'any') ? 1 : 2;
+    }
+    return "the ICMP type '$type' cannot be found in the line" if $i >= @tokens || lc($tokens[$i]) ne lc($type);
+    my @trailer = grep { $_ !~ m{^log(?:-input)?$}i } @tokens[$i + 1 .. $#tokens];
+    return undef if !@trailer;
+    return "the code of the ICMP type $type is not sent" if $type =~ m{^\d+$} && $trailer[0] =~ m{^\d+$};
+    return "the ICMP qualifier '@trailer' is not sent";
 }
 
 # The Cisco port names Cisco::AccessList::Parser accepts, by IP protocol
