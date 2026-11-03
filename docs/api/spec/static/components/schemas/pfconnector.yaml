@@ -1,0 +1,27 @@
+PfConnectorHealth:
+  type: object
+  description: |
+    Aggregate liveness report for all pfconnector clients registered with
+    this pfconnector-server. Emitted by `GET /api/v1/pfconnector/health`.
+  required:
+    - overall
+    - connectors
+  properties:
+    overall:
+      type: string
+      enum: [ok, degraded]
+      description: |
+        Rollup across the per-connector map. `ok` when every observed
+        connector is up (or the map is empty); `degraded` when at least
+        one connector is down. The HTTP status code mirrors this field:
+        200 for `ok`, 503 for `degraded`.
+    connectors:
+      type: object
+      description: |
+        Per-connector up/down map keyed by connector ID. `true` = up,
+        `false` = down. Empty when no connectors have registered yet.
+      additionalProperties:
+        type: boolean
+      example:
+        connector-abc123: true
+        connector-def456: false
