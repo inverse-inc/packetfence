@@ -23,7 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 186;
+use Test::More tests => 190;
 use Test::MockModule;
 use Data::Dumper;
 use pf::Switch;
@@ -36,6 +36,7 @@ use pf::Switch::Dell::N1500;
 use pf::Switch::Aruba::Controller_200;
 use pf::Switch::Aruba::Mobility_Master;
 use pf::Switch::Cisco::Cisco_WLC_AireOS;
+use pf::Switch::Cisco::ASA;
 
 #This test will running last
 use Test::NoWarnings;
@@ -456,6 +457,17 @@ $dal->mock(upsert => sub { 1 });
     is($cisco_push->getAccessListByName('r4', $mac), chew($cisco, $bypass), "Cisco with Push ACLs: the bypass ACLs of the node are sent in the reply, from any");
     $node_acls = undef;
 
+    # The reply names the pushed role only with the Role Map: without it the
+    # reply carries the ACLs of the role, or the device would get no ACL at all.
+    # Cisco ASA never had the Push ACLs guard of the other Cisco modules and
+    # used to get them in its VPN reply
+    my $asa_push = pf::Switch::Cisco::ASA->new({%args, UsePushACLs => 'Y', RoleMap => 'N'});
+    is($asa_push->getAccessListByName('r4', $mac), chew($asa_push, "permit tcp any any"), "ASA with Push ACLs and no Role Map: the ACLs of the role are sent, nothing names the pushed role");
+    my $asa_push_role = pf::Switch::Cisco::ASA->new({%args, UsePushACLs => 'Y', RoleMap => 'Y'});
+    is($asa_push_role->getAccessListByName('r4', $mac), undef, "ASA with Push ACLs and the Role Map: the reply names the pushed role, its ACLs are not sent");
+    my $cisco_push_norole = pf::Switch::Cisco::Cisco_IOS_15_5->new({%args, UsePushACLs => 'Y', RoleMap => 'N', AccessListMap => 'Y'});
+    is($cisco_push_norole->getAccessListByName('r4', $mac), chew($cisco, "permit tcp any any"), "Cisco with Push ACLs and no Role Map: the ACLs of the role are sent");
+    is($cisco_push_norole->replyAccessListReplacesRole({ user_role => 'r4', mac => $mac, node_info => bless({ bypass_acls => $bypass }, 'pf::dal::node') }), 0, "Cisco with Push ACLs and no Role Map: no pushed role named, none to replace");
     my $cisco_push_entry = pf::Switch::Cisco::Cisco_IOS_15_5->new({%args, UsePushACLs => 'Y', access_lists => { r4 => "permit udp any eq 68 any" }});
     is($cisco_push_entry->getAccessListByName('r4', $mac), "permit udp any eq 68 any", "Cisco with Push ACLs: the access list of the switch entry is sent in the reply");
 

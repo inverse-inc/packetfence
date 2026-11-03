@@ -979,6 +979,9 @@ With _Push ACLs_ enabled on a switch, the bypass ACLs of a node and the access
 list of the switch entry were ignored for a role known to PacketFence, as only
 the ACLs of the roles are pushed to the switch configuration. They are now sent
 in the RADIUS reply and replace the pushed ACLs of the role for that device.
+With _Push ACLs_ enabled and the _Role Map_ disabled, no reply names the pushed
+role: the RADIUS reply now carries the ACLs of the role, as without _Push ACLs_,
+where most switch types used to send no ACL at all.
 
 A Cisco switch now receives the ICMP type of an ACL (`permit icmp any any
 echo`); such a line used to be skipped.
