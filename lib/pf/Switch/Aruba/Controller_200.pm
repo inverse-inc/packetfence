@@ -81,7 +81,7 @@ sub acl_chewer {
         }
         if ($self->aclsForPush) {
             my $dir_prefix = (defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] . "|" : "";
-            my $src_val    = ($self->usePushACLs) ? $src : "any";
+            my $src_val    = $src;
             my $dest_port_val = defined($dest_port) ? $dest_port : '';
             my $line = sprintf("%s %s %s %s %s %s\n",
                 $dir_prefix,

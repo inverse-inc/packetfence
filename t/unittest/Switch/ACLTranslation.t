@@ -246,6 +246,7 @@ foreach my $switch ($aruba, $cisco) {
     is(chew($switch, "deny tcp any object-group DST\npermit ip any any"), deny_all($switch), ref($switch).": a deny to a network object group ends the ACLs with a deny all");
 }
 foreach my $switch ($controller, $mobility, $aireos_push) {
+    local $aireos_push->{_aclsForPush} = 1;
     unlike(chew($switch, "permit object-group foo any any\npermit tcp any host 10.0.0.1 eq 443"), qr/HASH\(/, ref($switch).": an object group is never sent as a stringified reference");
 }
 
@@ -253,6 +254,7 @@ foreach my $switch ($controller, $mobility, $aireos_push) {
 # them would widen the ACL. A permit with them is skipped, a deny with them ends
 # the ACLs with a deny all instead of letting the ACLs after it through
 foreach my $switch ($controller, $aireos_push) {
+    local $aireos_push->{_aclsForPush} = 1;
     is(chew($switch, "permit tcp any any established\npermit udp any any eq 53"), chew($switch, "permit udp any any eq 53"), ref($switch).": a permit with TCP flags is skipped");
     is(chew($switch, "deny tcp any any established\npermit ip any any"), deny_all($switch), ref($switch).": a deny with TCP flags ends the ACLs with a deny all");
 }
@@ -347,6 +349,23 @@ foreach my $switch ($aruba, $arista, $aos, $forti) {
         my ($s, $name, $push_format) = @$switch;
         like($s->getRoleAccessListByName('r4') // '', $push_format, "$name: getRoleAccessListByName gives the push format");
         like($s->acl_chewer("permit tcp any any", 'r4') // '', qr/permit in/, "$name: outside of the push, the RADIUS format");
+    }
+}
+
+# The Push ACLs setting alone does not make an ACL a pushed one: a RADIUS reply
+# (the bypass ACLs of a node, a role the push does not know) still carries the
+# Cisco ACL from any that the switch applies to the endpoint
+{
+    my $cisco_push = pf::Switch::Cisco::Cisco_IOS_15_5->new({%args, UsePushACLs => 'Y'});
+    is($cisco_push->acl_chewer("permit ip host 10.1.1.1 any\npermit ip any any", 'r4'), chew($cisco, "permit ip any any"), "Cisco with Push ACLs: outside of the push, a source address is still skipped, not sent in a RADIUS reply");
+    {
+        local $cisco_push->{_aclsForPush} = 1;
+        is($cisco_push->acl_chewer("permit ip host 10.1.1.1 any", 'r4'), "in|permit ip host 10.1.1.1 any\n", "Cisco with Push ACLs: the push keeps the source address");
+    }
+    like($aireos_push->acl_chewer("permit tcp any host 10.0.0.1 eq 443", 'r4') // '', qr/^in\|permit tcp any host 10\.0\.0\.1 eq 443$/m, "AireOS with Push ACLs: outside of the push, the Cisco ACL of a RADIUS reply, not the acl commands");
+    {
+        local $aireos_push->{_aclsForPush} = 1;
+        like($aireos_push->acl_chewer("permit tcp any host 10.0.0.1 eq 443", 'r4') // '', qr/^acl create r4$/m, "AireOS with Push ACLs: the push gives the acl commands");
     }
 }
 

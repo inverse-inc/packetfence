@@ -685,7 +685,9 @@ sub parseExternalPortalRequest {
 
 =head2 acl_chewer
 
-Format ACL to match with the expected switch format.
+Format ACL to match with the expected switch format: the "acl" commands of the
+controller when the role ACLs are pushed to its configuration, the Cisco ACL of
+a RADIUS reply otherwise (see L<pf::Switch/aclsForPush>).
 
 =cut
 
@@ -693,7 +695,7 @@ sub acl_chewer {
     my ($self, $acl, $role) = @_;
     my $logger = $self->logger;
 
-    return $self->SUPER::acl_chewer($acl, $role) unless $self->usePushACLs;
+    return $self->SUPER::acl_chewer($acl, $role) unless $self->aclsForPush;
 
     my ($acl_ref , @direction) = $self->format_acl($acl);
 

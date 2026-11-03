@@ -94,7 +94,6 @@ sub acl_chewer {
         }
         if ($self->aclsForPush) {
             $new_acl->{'dir_prefix'} = (defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] . "|" : "";
-            $new_acl->{'src'}    = ($self->usePushACLs) ? $new_acl->{'src'} : "any";
             $new_acl->{'dst_port'} = defined($new_acl->{'dst_port'}) ? $new_acl->{'dst_port'} : '';
             $new_acl->{'action'} = $acl->{'action'};
             push @acl_chewed , $new_acl;

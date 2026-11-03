@@ -472,7 +472,7 @@ sub acl_chewer {
                 }
             }
 
-            $acl_chewed .= $acl_number." ".$acl->{'action'}." ".$acl->{'protocol'}." ".(($self->usePushACLs) ? $src : "any")." ".$dest ." ".(defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '')." ".( defined($acl->{'tcp_flags'}) ? $acl->{'tcp_flags'} : '' );
+            $acl_chewed .= $acl_number." ".$acl->{'action'}." ".$acl->{'protocol'}." ".$src." ".$dest ." ".(defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '')." ".( defined($acl->{'tcp_flags'}) ? $acl->{'tcp_flags'} : '' );
             $acl_number = $acl_number + 10;
             $acl_chewed =~ s/\s+$//;
             $acl_chewed .= "\n";
