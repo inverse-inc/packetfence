@@ -7,14 +7,24 @@ import apiCall from '@/utils/api'
 // handle them inline, hence the quiet variants.
 const unwrap = response => response.data
 
+// getQuiet's transformResponse does Object.assign({quiet:true}, parsed),
+// which flattens a JSON array into {quiet:true, 0:{…}, 1:{…}, …}.
+const unwrapArray = response => {
+  const d = response.data
+  if (Array.isArray(d)) return d
+  if (d && typeof d === 'object')
+    return Object.keys(d).filter(k => /^\d+$/.test(k)).sort((a, b) => a - b).map(k => d[k])
+  return []
+}
+
 export default {
   config: () => apiCall.getQuiet('pfchatbot/config').then(unwrap),
   settings: () => apiCall.getQuiet('pfchatbot/settings').then(unwrap),
   models: () => apiCall.getQuiet('pfchatbot/models').then(unwrap),
   testProvider: data => apiCall.postQuiet('pfchatbot/write/settings/test', data).then(unwrap),
 
-  threads: () => apiCall.getQuiet('pfchatbot/threads').then(unwrap),
-  searchThreads: q => apiCall.getQuiet('pfchatbot/threads/search', { params: { q } }).then(unwrap),
+  threads: () => apiCall.getQuiet('pfchatbot/threads').then(unwrapArray),
+  searchThreads: q => apiCall.getQuiet('pfchatbot/threads/search', { params: { q } }).then(unwrapArray),
   thread: id => apiCall.getQuiet(['pfchatbot', 'threads', id]).then(unwrap),
   deleteThread: id => apiCall.deleteQuiet(['pfchatbot', 'threads', id]).then(unwrap),
 
