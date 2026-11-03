@@ -56,8 +56,7 @@ setup_system_init_key() {
         if [ ! -d /usr/local/pf/conf ]; then
             mkdir -p /usr/local/pf/conf
         fi
-        hexdump -e '/1 "%x"' < /dev/urandom | head -c 32 > /usr/local/pf/conf/system_init_key
-        chmod 600 /usr/local/pf/conf/system_init_key
+        (umask 0077; hexdump -e '/1 "%x"' < /dev/urandom | head -c 32 > /usr/local/pf/conf/system_init_key)
     fi
 }
 

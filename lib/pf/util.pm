@@ -532,7 +532,9 @@ sub sort_ip {
 
 This safely modifies the contents of a file using a rename.
 Optional $binmode sets the layer used to write the content. Optional $mode is
-applied with chmod once the file is in place; a chmod failure is logged.
+applied with chmod once the file is in place, limited to the permissions that
+C<pfcmd fixpermissions file> gives to the file (see L</restrict_mode>); a chmod
+failure is logged.
 
 =cut
 
@@ -558,9 +560,26 @@ sub safe_file_update {
     fix_file_permissions($file);
     # fix_file_permissions resets the mode; restore the provided mode last and log if chmod fails
     if (defined $mode) {
-        chmod($mode, $file)
+        my $fixed_mode = (stat($file))[2];
+        chmod(restrict_mode($mode, $fixed_mode), $file)
           or pf::log::get_logger()->warn("cannot set mode on $file: $!");
     }
+}
+
+=item restrict_mode($mode, $fixed_mode)
+
+Limit $mode to the read and write permissions of $fixed_mode, the mode set by
+C<pfcmd fixpermissions file>. The execute permissions of $mode are kept.
+A mode coming from another server (cluster sync) can then be stricter than the
+local one, but not looser: a configuration file that is 0664 on the source
+becomes 0660 here.
+
+=cut
+
+sub restrict_mode {
+    my ($mode, $fixed_mode) = @_;
+    return $mode & 07777 unless defined $fixed_mode;
+    return $mode & ($fixed_mode | 0111) & 0777;
 }
 
 =item empty_dir

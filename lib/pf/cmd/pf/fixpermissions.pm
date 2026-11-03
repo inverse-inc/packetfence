@@ -37,16 +37,15 @@ use pf::file_paths qw(
     $html_dir
     $lib_dir
     $config_version_file
-    $local_secret_file
-    $unified_api_system_pass_file
-    $system_init_key_file
+    @secret_config_files
 );
 use pf::log;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
-use pf::constants qw($DIR_MODE $PFCMD_MODE $CONF_FILE_MODE $SECRET_FILE_MODE);
+use pf::constants qw($DIR_MODE $PFCMD_MODE $FILE_MODE $CONF_FILE_MODE $SECRET_FILE_MODE);
 use pf::constants::user;
 use pf::util;
 use File::Find;
+use Cwd qw(abs_path);
 
 use fingerbank::Util;
 
@@ -83,8 +82,9 @@ sub action_all {
         $pfcmd,
     );
     chmod($PFCMD_MODE, $pfcmd);
+    _removeOthersPermissions($conf_dir);
     chmod($CONF_FILE_MODE, @stored_config_files, $config_version_file);
-    my @secret_files = grep { -f $_ } ($local_secret_file, $unified_api_system_pass_file, $system_init_key_file);
+    my @secret_files = grep { -f $_ } @secret_config_files;
     _changeFilesToOwner('pf', @secret_files);
     chmod($SECRET_FILE_MODE, @secret_files);
     chmod($DIR_MODE, $conf_dir, $var_dir, "$var_dir/redis_cache", "$var_dir/redis_queue");
@@ -149,14 +149,50 @@ sub action_file {
 
 =head2 _file_mode
 
-The mode to apply to a single file: files in the configuration directory
-are not readable by others
+The mode to apply to a single file: files in the configuration directory and
+the configuration version file are not readable by others, and secret files are
+only readable by the pf group.
+The path is canonicalized first, so that a path like /usr/local/pf//conf/pf.conf
+gets the same mode as /usr/local/pf/conf/pf.conf
 
 =cut
 
 sub _file_mode {
     my ($file) = @_;
-    return index($file, "$conf_dir/") == 0 ? $CONF_FILE_MODE : 0664;
+    my $path = _canonical_path($file);
+    return $SECRET_FILE_MODE if grep { $path eq _canonical_path($_) } @secret_config_files;
+    return $CONF_FILE_MODE if $path eq _canonical_path($config_version_file);
+    return $CONF_FILE_MODE if index($path, _canonical_path($conf_dir) . "/") == 0;
+    return $FILE_MODE;
+}
+
+sub _canonical_path {
+    my ($path) = @_;
+    return abs_path($path) // $path;
+}
+
+=head2 _removeOthersPermissions
+
+Remove the permissions of others on the regular files under the given directories,
+as the Debian package does on the files in the configuration directory.
+Only the files owned by the pf user or the pf group are changed, so that pf can still read them.
+
+=cut
+
+sub _removeOthersPermissions {
+    my (@paths) = @_;
+    my ($pf_uid, $pf_gid) = ($pf::constants::user::PF_UID, $pf::constants::user::PF_GID);
+    return unless defined $pf_uid && defined $pf_gid;
+    finddepth({no_chdir => 1, untaint => 1, wanted => sub {
+        my $file = $File::Find::name;
+        return if -l $file;
+        my ($mode, $uid, $gid) = (lstat($file))[2, 4, 5];
+        return unless defined $mode && -f _;
+        return unless $mode & 07;
+        return unless $uid == $pf_uid || $gid == $pf_gid;
+        chmod($mode & 07770, untaint_chain($file))
+            or warn qq(Couldn't change the mode of "$file"\n);
+    }}, @paths);
 }
 
 sub _changeFilesToOwner {
