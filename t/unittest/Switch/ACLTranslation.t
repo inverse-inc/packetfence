@@ -23,8 +23,9 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 166;
+use Test::More tests => 172;
 use Test::MockModule;
+use Data::Dumper;
 use pf::Switch;
 use pf::Switch::Aruba::ArubaOS_CX_10_x;
 use pf::Switch::Arista::AristaSwitch;
@@ -49,6 +50,8 @@ my $dell = pf::Switch::Dell::N1500->new({%args});
 my $controller = pf::Switch::Aruba::Controller_200->new({%args});
 my $mobility = pf::Switch::Aruba::Mobility_Master->new({%args});
 my $aireos_push = pf::Switch::Cisco::Cisco_WLC_AireOS->new({%args, UsePushACLs => 'Y'});
+# Mobility Master only formats for the push: its chewer gives an arrayref
+my $mobility_push = pf::Switch::Aruba::Mobility_Master->new({%args, UsePushACLs => 'Y'});
 
 sub chew {
     my ($switch, $acl) = @_;
@@ -249,9 +252,10 @@ foreach my $switch ($aruba, $cisco) {
     is(chew($switch, "permit tcp object-group SRC any eq 80\npermit ip any any"), chew($switch, "permit ip any any"), ref($switch).": a permit from a network object group is skipped");
     is(chew($switch, "deny tcp any object-group DST\npermit ip any any"), deny_all($switch), ref($switch).": a deny to a network object group ends the ACLs with a deny all");
 }
-foreach my $switch ($controller, $mobility, $aireos_push) {
+foreach my $switch ($controller, $mobility_push, $aireos_push) {
     local $aireos_push->{_aclsForPush} = 1;
-    unlike(chew($switch, "permit object-group foo any any\npermit tcp any host 10.0.0.1 eq 443"), qr/HASH\(/, ref($switch).": an object group is never sent as a stringified reference");
+    local $mobility_push->{_aclsForPush} = 1;
+    unlike(Dumper(chew($switch, "permit object-group foo any any\npermit tcp any host 10.0.0.1 eq 443")), qr/HASH\(/, ref($switch).": an object group is never sent as a stringified reference");
 }
 
 # Aruba controllers and the AireOS push: TCP flags cannot be sent, and dropping
@@ -262,23 +266,29 @@ foreach my $switch ($controller, $aireos_push) {
     is(chew($switch, "permit tcp any any established\npermit udp any any eq 53"), chew($switch, "permit udp any any eq 53"), ref($switch).": a permit with TCP flags is skipped");
     is(chew($switch, "deny tcp any any established\npermit ip any any"), deny_all($switch), ref($switch).": a deny with TCP flags ends the ACLs with a deny all");
 }
-foreach my $switch ($controller, $mobility) {
+foreach my $switch ($controller, $mobility_push) {
     # Mobility Master gives an arrayref: compare structures
+    local $mobility_push->{_aclsForPush} = 1;
     is_deeply(chew($switch, "permit udp any eq 53 any\npermit udp any any eq 53"), chew($switch, "permit udp any any eq 53"), ref($switch).": a permit with a source port is skipped, not sent without it");
     is_deeply(chew($switch, "deny icmp any any echo\npermit ip any any"), deny_all($switch), ref($switch).": a deny on an ICMP type ends the ACLs with a deny all, not a deny of all ICMP");
     is_deeply(chew($switch, "permit tcp any any gt 1024\npermit tcp any any eq 443"), chew($switch, "permit tcp any any eq 443"), ref($switch).": gt is not turned into one port");
 }
 like(chew($controller, "permit tcp any any range 100 200"), qr/100-200/, "Aruba Controller: a range is sent");
+like(chew($controller, "permit tcp any any eq www"), qr/ 80\s*$/m, "Aruba Controller: a Cisco port name becomes its number");
+is(chew($controller, "deny udp any any eq www\npermit ip any any"), deny_all($controller), "Aruba Controller: a port name the protocol does not know ends the ACLs with a deny all");
+is($cisco->aclPortNumber('www', 'tcp(6)'), 80, "aclPortNumber: a name of the parsed protocol");
+is($cisco->aclPortNumber('www', 'udp'), undef, "aclPortNumber: a name the protocol does not know");
+is($cisco->aclPortNumber('443', 6), 443, "aclPortNumber: a number is kept");
 {
     local $aireos_push->{_aclsForPush} = 1;
     is(chew($aireos_push, "permit tcp any any range 8000 8010\npermit tcp any any eq 443"), chew($aireos_push, "permit tcp any any eq 443"), "AireOS push: a port range is skipped, not pushed without a port");
     is(chew($aireos_push, "deny icmp any any echo\npermit ip any any"), deny_all($aireos_push), "AireOS push: a deny on an ICMP type ends the ACLs with a deny all");
     like(chew($aireos_push, "permit tcp any gt 1024 any"), qr/^acl rule source port range testrole 1 1025 65534$/m, "AireOS push: gt on the source port is a computed range, not '1024+1'");
     like(chew($aireos_push, "permit tcp any any lt 1024"), qr/^acl rule destination port range testrole 1 1 1023$/m, "AireOS push: lt on the destination port is a computed range");
+    like(chew($aireos_push, "permit tcp any any eq www"), qr/^acl rule destination port range testrole 1 80 80$/m, "AireOS push: a Cisco port name becomes its number");
 }
 
 {
-    my $mobility_push = pf::Switch::Aruba::Mobility_Master->new({%args, UsePushACLs => 'Y'});
     local $mobility_push->{_aclsForPush} = 1;
     is_deeply(
         $mobility_push->acl_chewer("deny tcp any any established\npermit ip any any", 'testrole'),

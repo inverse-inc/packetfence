@@ -39,7 +39,7 @@ sub acl_chewer {
     my ($acl_ref , @direction) = $self->format_acl($acl);
 
     my $entries;
-    ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, sub { $self->_untranslatableAcl($_[0]) });
+    ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, sub { $self->untranslatableControllerAcl($_[0]) });
 
     my $i = 0;
     my @acl_chewed;
@@ -51,14 +51,15 @@ sub acl_chewer {
         my $dest_port;
         if (defined($acl->{'destination'}->{'port'})) {
             $new_acl->{'dst_port'} = $acl->{'destination'}->{'port'};
-            if ($new_acl->{'dst_port'} =~ /range\s+(.*)/) {
+            # One port or a range, as numbers (a Cisco port name is resolved)
+            if ($new_acl->{'dst_port'} =~ /range\s+(\S+)\s+(\S+)/) {
                 $new_acl->{'range'} = "true";
-                $new_acl->{'dst_port'} = $1;
-                $new_acl->{'dst_port'} =~ s/\s/-/;
-                ($new_acl->{'dst_port'}, $new_acl->{'dst_port2'}) = split(/-/, $new_acl->{'dst_port'});
+                $new_acl->{'dst_port'} = $self->aclPortNumber($1, $acl->{'protocol'});
+                $new_acl->{'dst_port2'} = $self->aclPortNumber($2, $acl->{'protocol'});
             } else {
                 $new_acl->{'range'} = "false";
                 $new_acl->{'dst_port'} =~ s/\w+\s+//;
+                $new_acl->{'dst_port'} = $self->aclPortNumber($new_acl->{'dst_port'}, $acl->{'protocol'});
             }
         } else {
             if ($new_acl->{'protocol'} =~ /^(tcp|udp)$/) {
@@ -101,27 +102,6 @@ sub acl_chewer {
         $i++;
     }
     return \@acl_chewed;
-}
-
-=head2 _untranslatableAcl
-
-Why a parsed ACL entry cannot be sent by L</acl_chewer>, or undef when it can.
-TCP flags do not apply correctly on the controller; the source port and the
-ICMP type are not printed; a destination port is printed as one port or a
-range, so another operator (gt, lt, neq) cannot be represented. Dropping any
-of them would widen the ACL.
-
-=cut
-
-sub _untranslatableAcl {
-    my ($self, $entry) = @_;
-    my $reason = $self->untranslatableTcpFlags($entry);
-    return $reason if defined $reason;
-    return "the source port is not sent" if defined $entry->{'source'}->{'port'};
-    return "the ICMP type is not sent ('".$entry->{'icmp_qualifier'}."')" if defined $entry->{'icmp_qualifier'};
-    my $port = $entry->{'destination'}->{'port'};
-    return "the port operator '$port' cannot be represented" if defined $port && $port !~ /^(?:eq\s+\S+|range\s+\S+\s+\S+)$/;
-    return undef;
 }
 
 =head2 aclsInRadiusReply

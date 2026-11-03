@@ -216,8 +216,8 @@ is($switch->_aclWildcardToPrefixLen('0.0.0.255'), 24, "a 0.0.0.255 wildcard is a
 is($switch->_aclWildcardToPrefixLen('0.255.0.255'), undef, "a non contiguous wildcard has no prefix length");
 is($switch->_aclProtocolNumber('tcp(6)'), 6, "the protocol number is taken from the parenthesis");
 is($switch->_aclProtocolNumber('ip()'), undef, "ip matches any protocol so it has no number");
-is($switch->_aclPortNumber('domain', 17), 53, "a port name is looked up for its protocol");
-is($switch->_aclPortNumber('www', 17), undef, "a port name the protocol does not know has no number");
+is($switch->aclPortNumber('domain', 17), 53, "a port name is looked up for its protocol");
+is($switch->aclPortNumber('www', 17), undef, "a port name the protocol does not know has no number");
 is($switch->_aclNetworkAddress('192.168.1.130', '0.0.0.63'), '192.168.1.128', "the network address clears the wildcard bits");
 
 # _switchingFilterTerms: what actually reaches the Access-Accept

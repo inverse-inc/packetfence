@@ -995,13 +995,14 @@ sub aclsInRadiusReply {
 With Push ACLs, whether the reply to this request carries an access list that
 replaces the pushed ACLs of the role: the access list of the switch entry or
 the bypass ACLs of the node, when this switch type sends them in its replies
-and they translate to something to send.
+and they translate to something to send. A role the switch entry maps is still
+sent next to them, like without Push ACLs.
 
 =cut
 
 sub replyAccessListReplacesRole {
     my ($self, $args) = @_;
-    return 0 if !$self->aclsInRadiusReply;
+    return 0 if !$self->usePushACLs || !$self->aclsInRadiusReply;
     # With Push ACLs, _getAccessListByName only returns the access list of the
     # switch entry or the bypass ACLs of the node
     my ($type, $acls) = $self->_getAccessListByName($args->{'user_role'}, $args->{'mac'}, $args->{'node_info'});
@@ -4850,6 +4851,51 @@ sub untranslatableAclQualifier {
         return "the $side address 0.0.0.0 is only sent as any" if $address->{'ipv4_addr'} eq '0.0.0.0' && ($address->{'wildcard'} // '') ne '255.255.255.255';
     }
     return undef;
+}
+
+# The Cisco port names Cisco::AccessList::Parser accepts, by IP protocol
+# number. The modules whose format only takes port numbers resolve them with
+# aclPortNumber.
+our %CISCO_PORT_NAMES = (
+    6 => {
+        'bgp' => 179, 'chargen' => 19, 'cmd' => 514, 'daytime' => 13,
+        'discard' => 9, 'domain' => 53, 'echo' => 7, 'exec' => 512,
+        'finger' => 79, 'ftp' => 21, 'ftp-data' => 20, 'gopher' => 70,
+        'hostname' => 101, 'ident' => 113, 'irc' => 194, 'klogin' => 543,
+        'kshell' => 544, 'login' => 513, 'lpd' => 515, 'nntp' => 119,
+        'pim-auto-rp' => 496, 'pop2' => 109, 'pop3' => 110, 'smtp' => 25,
+        'sunrpc' => 111, 'syslog' => 514, 'tacacs' => 49, 'talk' => 517,
+        'telnet' => 23, 'time' => 37, 'uucp' => 540, 'whois' => 43,
+        'www' => 80,
+    },
+    17 => {
+        'biff' => 512, 'bootpc' => 68, 'bootps' => 67, 'discard' => 9,
+        'dnsix' => 195, 'domain' => 53, 'echo' => 7, 'isakmp' => 500,
+        'mobile-ip' => 434, 'nameserver' => 42, 'netbios-dgm' => 138,
+        'netbios-ns' => 137, 'netbios-ss' => 139, 'non500-isakmp' => 4500,
+        'ntp' => 123, 'pim-auto-rp' => 496, 'rip' => 520, 'snmp' => 161,
+        'snmptrap' => 162, 'sunrpc' => 111, 'syslog' => 514, 'tacacs' => 49,
+        'talk' => 517, 'tftp' => 69, 'time' => 37, 'who' => 513,
+        'xdmcp' => 177,
+    },
+);
+
+=head2 aclPortNumber
+
+The number of a port given as a number or as a Cisco port name of the
+protocol, which is a number (6), the protocol of a parsed entry ("tcp(6)") or
+its name (tcp, udp). Returns undef for a name the protocol does not know.
+
+=cut
+
+sub aclPortNumber {
+    my ($self, $port, $protocol) = @_;
+    return $port if $port =~ m{^\d+$};
+    return if !defined $protocol;
+    $protocol = $1 if $protocol =~ m{\((\d+)\)};
+    $protocol = { tcp => 6, udp => 17 }->{lc($protocol)} if $protocol !~ m{^\d+$};
+    return if !defined $protocol || !exists $CISCO_PORT_NAMES{$protocol};
+    return $CISCO_PORT_NAMES{$protocol}{lc($port)};
 }
 
 =head2 untranslatableTcpFlags

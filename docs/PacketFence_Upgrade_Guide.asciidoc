@@ -956,10 +956,11 @@ The bypass ACLs follow the rules of role ACLs:
 * A line the switch type cannot express is skipped when it is a `permit`. When
 it is a `deny`, the ACLs end there with a deny of everything, because skipping
 it would let the lines after it through. This covers a DSCP match, an
-`object-group`, and a source address: the source of a per-user ACL is the
-endpoint, and a Cisco switch does not apply an ACL with another source. On
-Cisco it also covers a source port; on the other switch types, a source port or
-an ICMP type, which their `NAS-Filter-Rule` cannot express.
+`object-group`, and a source address on every switch type but FortiSwitch:
+the source of a per-user ACL is the endpoint, and a Cisco switch does not apply
+an ACL with another source. On Cisco it also covers a source port; on the other
+switch types, a source port or an ICMP type, which their `NAS-Filter-Rule`
+cannot express.
 * When none of the lines can be sent, or when the parser cannot read them (for
 example ACLs written in the native syntax of the switch), the device is denied
 everything.
@@ -972,7 +973,7 @@ mysql pf -e "SELECT mac, bypass_acls FROM node WHERE bypass_acls IS NOT NULL AND
 ----
 
 Rewrite the ones in the native syntax of the switch in the Cisco syntax, and
-remove the source addresses.
+remove the source addresses (except on FortiSwitch, which keeps them).
 
 With _Push ACLs_ enabled on a switch, the bypass ACLs of a node and the access
 list of the switch entry were ignored for a role known to PacketFence, as only

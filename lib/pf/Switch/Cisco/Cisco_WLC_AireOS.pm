@@ -729,23 +729,13 @@ sub acl_chewer {
         if ($acl->{'destination'}->{'ipv4_addr'} ne '0.0.0.0') {
             $acl_chewed .= "acl rule destination address $role $j $acl->{'destination'}->{'ipv4_addr'} ".norm_net_mask($acl->{'destination'}->{'wildcard'})."\n";
         }
-        if (defined($acl->{'source'}->{'port'}) ) {
-            if ($acl->{'source'}->{'port'} =~ /(\w+)\s+(\d+)/) {
-                switch($1) {
-                    case /eq/ {$acl_chewed .= "acl rule source port range $role $j $2 $2\n"}
-                    case /gt/ {my $port = $2+1; $acl_chewed .= "acl rule source port range $role $j $port 65534\n"}
-                    case /lt/ {my $port = $2-1; $acl_chewed .= "acl rule source port range $role $j 1 $port\n"}
-                }
-            }
-        }
-        if (defined($acl->{'destination'}->{'port'}) ) {
-            if ($acl->{'destination'}->{'port'} =~ /(\w+)\s+(\d+)/) {
-                switch($1) {
-                    case /eq/ {$acl_chewed .= "acl rule destination port range $role $j $2 $2\n"}
-                    case /gt/ {my $port = $2+1; $acl_chewed .= "acl rule destination port range $role $j $port 65534\n"}
-                    case /lt/ {my $port = $2-1; $acl_chewed .= "acl rule destination port range $role $j 1 $port\n"}
-                }
-            }
+        # A port is a range built from eq, gt or lt; a Cisco port name is resolved
+        foreach my $side ('source', 'destination') {
+            next if !defined $acl->{$side}->{'port'};
+            next if $acl->{$side}->{'port'} !~ m{^(eq|gt|lt)\s+(\S+)$};
+            my ($operator, $port) = ($1, $self->aclPortNumber($2, $acl->{'protocol'}));
+            my $range = $operator eq 'eq' ? "$port $port" : $operator eq 'gt' ? ($port + 1)." 65534" : "1 ".($port - 1);
+            $acl_chewed .= "acl rule $side port range $role $j $range\n";
         }
         $i++;
         $j++;
@@ -758,7 +748,7 @@ sub acl_chewer {
 Why a parsed ACL entry cannot be pushed as the "acl rule" commands built by
 L</acl_chewer>, or undef when it can. A rule has no TCP flags and no ICMP
 type, and a port is a range built from eq, gt or lt: another operator (range,
-neq) is not printed. Dropping any of them would widen the ACL.
+neq) is not printed, and a port name the protocol does not know has no number. Dropping any of them would widen the ACL.
 
 =cut
 
@@ -769,7 +759,9 @@ sub _untranslatablePushAcl {
     return "the ICMP type is not sent ('".$entry->{'icmp_qualifier'}."')" if defined $entry->{'icmp_qualifier'};
     foreach my $side ('source', 'destination') {
         my $port = $entry->{$side}->{'port'};
-        return "the $side port operator '$port' cannot be represented" if defined $port && $port !~ /^(?:eq|gt|lt)\s+\d+$/;
+        next if !defined $port;
+        return "the $side port operator '$port' cannot be represented" if $port !~ m{^(?:eq|gt|lt)\s+(\S+)$};
+        return "the $side port name '$1' has no number" if !defined $self->aclPortNumber($1, $entry->{'protocol'});
     }
     return undef;
 }
