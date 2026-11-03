@@ -23,6 +23,7 @@ use pf::dal::radacct;
 use pf::util qw(clean_mac ip2int valid_ip);
 use pf::constants qw($ZERO_DATE);
 use pf::UnifiedApi::Search;
+use pf::UnifiedApi::Search::Builder qw(map_dal_fields_to_join_spec make_join_column_spec);
 
 our @LOCATION_LOG_JOIN = (
     "=>{locationlog.mac=node.mac,locationlog.end_time='$ZERO_DATE'}",
@@ -277,28 +278,6 @@ sub rewrite_online_query {
     }
 
     return (200, \["( ($UNKNOWN_QUERY) OR ($ON_QUERY) )"]);
-}
-
-sub map_dal_fields_to_join_spec {
-    my ($dal, $join_spec, $where_spec, $exclude) = @_;
-    $exclude //= {};
-    my $table = $dal->table;
-    return map { map_dal_field_to_join_spec($table, $_, $join_spec, $where_spec) } grep {!exists $exclude->{$_}} @{$dal->table_field_names};
-}
-
-sub map_dal_field_to_join_spec {
-    my ($table, $field, $join_spec, $where_spec) = @_;
-    return "${table}.${field}" => {
-        join_spec => $join_spec,
-        namespace => $table,
-        (defined $where_spec ? (where_spec => $where_spec) : () ),
-        column_spec => make_join_column_spec($table, $field),
-   }
-}
-
-sub make_join_column_spec {
-    my ($t, $f) = @_;
-    return \"`${t}`.`${f}` AS `${t}.${f}`";
 }
 
 sub allowed_join_fields {

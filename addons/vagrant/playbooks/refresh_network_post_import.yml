@@ -39,6 +39,14 @@
       when: ansible_os_family == 'Debian'
       failed_when: False
 
+    # The restart takes every interface down but only brings `auto` ones back:
+    # eth0 (vagrant NAT, default route and DNS) is `allow-hotplug` and stays
+    # down, so the VM loses Internet access (e.g. psonoci at log sanitization).
+    - name: Bring up hotplug interfaces taken down by the networking restart
+      ansible.builtin.command: ifup -a --allow=hotplug
+      when: ansible_os_family == 'Debian'
+      changed_when: False
+
     # Box booted into multi-user (no PF) so vagrant could get eth0's lease. Now
     # reachable — bring PF up: base first (for pfcmd), clear the stale bake-time
     # cache, reload config, then start services. default stays multi-user.

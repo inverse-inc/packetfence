@@ -51,6 +51,20 @@ Whether or not the source should have authentication rules
 
 sub has_authentication_rules { $FALSE }
 
+=head2 base_url
+
+The URL of a path on the HTTP server
+
+=cut
+
+sub base_url {
+    my ($self, $path) = @_;
+    my $host = $self->host;
+    # An IPv6 address must be enclosed in brackets in a URL
+    $host = "[$host]" if $host =~ /:/ && $host !~ /^\[/;
+    return $self->protocol."://".$host.":".$self->port."/".$path;
+}
+
 =head2 _post_curl
 
 Method used to build a basic curl object
@@ -61,7 +75,7 @@ sub _post_curl {
     my ($self, $uri, $post_fields) = @_;
     my $logger = get_logger();
 
-    $uri = $self->protocol."://".$self->host.":".$self->port."/".$uri;
+    $uri = $self->base_url($uri);
 
     my $curl = pf::Curl::easy();
     my $request = $post_fields;

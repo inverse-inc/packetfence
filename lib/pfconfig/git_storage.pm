@@ -19,6 +19,7 @@ use pfconfig::config;
 use pf::util qw(isenabled safe_pf_run);
 use pf::log;
 use File::Basename;
+use File::Compare qw(compare);
 use List::MoreUtils qw(firstval);
 use pf::k8s;
 use pfconfig::util;
@@ -41,6 +42,11 @@ sub conf_directory {
 sub fingerbank_conf_directory {
     my ($proto) = @_;
     return $proto->config->{fingerbank_conf_directory};
+}
+
+sub fingerbank_db_directory {
+    my ($proto) = @_;
+    return $proto->config->{fingerbank_db_directory};
 }
 
 sub git_directory {
@@ -283,6 +289,32 @@ sub update {
             safe_pf_run("cp", "-a", @fb_conf_files, $proto->fingerbank_conf_directory . "/", { status_ref => \$status });
             if(!defined($status) || $status != 0) {
                 $last_error = "Unable to copy fingerbank/conf/ repository files";
+                sleep 3;
+                next;
+            }
+        }
+
+        # fingerbank_db_directory may be absent from older deployments
+        my $fb_db_directory = $proto->fingerbank_db_directory;
+        if($fb_db_directory) {
+            # The databases are SQLite files that other processes may have open: copy each one
+            # next to its destination and rename it in place, so a reader never sees a partially
+            # written file. cp -a keeps the mtime, which the fingerbank client uses to notice the change.
+            my $copy_error;
+            foreach my $fb_db_file (glob($proto->git_directory . "/fingerbank/db/*")) {
+                my $dst = $fb_db_directory . "/" . basename($fb_db_file);
+                # update runs on every deploy: leave a database that didn't change alone
+                next if -f $dst && compare($fb_db_file, $dst) == 0;
+                my $tmp = $fb_db_directory . "/." . basename($fb_db_file) . ".git_storage.$$";
+                safe_pf_run("cp", "-a", $fb_db_file, $tmp, { status_ref => \$status });
+                if(!defined($status) || $status != 0 || !rename($tmp, $dst)) {
+                    unlink($tmp);
+                    $copy_error = "Unable to copy fingerbank/db/ repository file " . basename($fb_db_file);
+                    last;
+                }
+            }
+            if($copy_error) {
+                $last_error = $copy_error;
                 sleep 3;
                 next;
             }

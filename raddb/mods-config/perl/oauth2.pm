@@ -321,17 +321,19 @@ sub authorize {
   my $username = $RAD_REQUEST{'User-Name'};
   my $realm = $RAD_REQUEST{'Realm'};
   return RLM_MODULE_INVALID unless (defined($username) && defined($realm));
+  # regex realms have their oauth2 settings outside of realm[$realm] (see policy.d/oauth2)
+  my $section = $RAD_CHECK{'OAuth2-Config-Section'} // "realm[$realm]";
 
   {
     lock(%realms);
     unless (exists($realms{$realm})) {
       # discovery has already been checked that it exists in policy
       #  * %{xlat:...} does not work :(
-      my $discovery_uri = &radiusd::xlat(&radiusd::xlat("%{config:realm[$realm].oauth2.discovery}"));
+      my $discovery_uri = &radiusd::xlat(&radiusd::xlat("%{config:$section.oauth2.discovery}"));
 
       # these should exist, if they do not...explode
-      my $client_id = &radiusd::xlat("%{config:realm[$realm].oauth2.client_id}");
-      my $client_secret = &radiusd::xlat("%{config:realm[$realm].oauth2.client_secret}");
+      my $client_id = &radiusd::xlat("%{config:$section.oauth2.client_id}");
+      my $client_secret = &radiusd::xlat("%{config:$section.oauth2.client_secret}");
       return RLM_MODULE_FAIL if ($client_id eq '' || $client_secret eq '');
 
       $realms{$realm} = shared_clone({});
@@ -368,14 +370,15 @@ sub authenticate {
 
   my $username = $RAD_REQUEST{'User-Name'};
   my $realm = $RAD_REQUEST{'Realm'};
+  my $section = $RAD_CHECK{'OAuth2-Config-Section'} // "realm[$realm]";
 
   my $state;
   {
     lock(%{$realms{$realm}});
     $state = $realms{$realm};
   }
-  my $client_id = &radiusd::xlat("%{config:realm[$realm].oauth2.client_id}");
-  my $client_secret = &radiusd::xlat("%{config:realm[$realm].oauth2.client_secret}");
+  my $client_id = &radiusd::xlat("%{config:$section.oauth2.client_id}");
+  my $client_secret = &radiusd::xlat("%{config:$section.oauth2.client_secret}");
 
   &radiusd::radlog(L_INFO, "oauth2 token");
 

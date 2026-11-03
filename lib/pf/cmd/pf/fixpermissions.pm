@@ -47,6 +47,7 @@ use pf::util;
 use File::Find;
 use Cwd qw(abs_path);
 
+use fingerbank::FilePath;
 use fingerbank::Util;
 
 use File::Spec::Functions qw(catfile);
@@ -149,9 +150,9 @@ sub action_file {
 
 =head2 _file_mode
 
-The mode to apply to a single file: files in the configuration directory and
-the configuration version file are not readable by others, and secret files are
-only readable by the pf group.
+The mode to apply to a single file: files in the configuration directory, the
+configuration version file and fingerbank.conf (it contains the Fingerbank API key)
+are not readable by others, and secret files are only readable by the pf group.
 The path is canonicalized first, so that a path like /usr/local/pf//conf/pf.conf
 gets the same mode as /usr/local/pf/conf/pf.conf
 
@@ -161,7 +162,7 @@ sub _file_mode {
     my ($file) = @_;
     my $path = _canonical_path($file);
     return $SECRET_FILE_MODE if grep { $path eq _canonical_path($_) } @secret_config_files;
-    return $CONF_FILE_MODE if $path eq _canonical_path($config_version_file);
+    return $CONF_FILE_MODE if grep { $path eq _canonical_path($_) } ($config_version_file, $fingerbank::FilePath::CONF_FILE);
     return $CONF_FILE_MODE if index($path, _canonical_path($conf_dir) . "/") == 0;
     return $FILE_MODE;
 }

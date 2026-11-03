@@ -13,7 +13,11 @@ can be localized.
 
 =cut
 
+# The repository's lib, after the installed one, for pf::I18N::extract
+use FindBin;
+use lib "$FindBin::Bin/../lib";
 use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
+use pf::I18N::extract qw(perl_unescape po_escape add_source);
 use File::Find;
 use pf::action;
 use pf::admin_roles;
@@ -53,15 +57,10 @@ Add a localizable sring to the list.
 sub add_string {
     my ($string, $source) = @_;
 
-    $string =~ s/\\'/'/g; # unescape single-quotes
-    $string =~ s/(?<!\\)\\/\\\\/g; # escape backslashes
-    $string =~ s/(?<!\\)\"/\\\"/g; # escape double-quotes
-    unless ($strings{$string}) {
-        $strings{$string} = [];
-    }
-    unless (grep(/\Q$source\E/, @{$strings{$string}})) {
-        push(@{$strings{$string}}, $source);
-    }
+    # A quoted string of a module or template: decode its escaped backslashes and
+    # quotes, then escape it for the PO file (the line breaks of the descriptions
+    # are kept and split in print_po)
+    add_source(\%strings, po_escape(perl_unescape($string)), $source);
 }
 
 =head2 add_translation

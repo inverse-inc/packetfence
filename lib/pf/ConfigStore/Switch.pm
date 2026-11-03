@@ -13,6 +13,7 @@ pf::ConfigStore::Switch;
 =cut
 
 use Moo;
+use Time::HiRes qw();
 use namespace::autoclean;
 use pf::log;
 use pf::api::queue;
@@ -76,11 +77,14 @@ sub commit {
     # job. In k8s the pfconfig replicas may still be syncing the change from git, so
     # the worker cannot reliably read it back itself; the producer already has the
     # authoritative copy from the switches.conf it just wrote.
+    # The timestamp is taken before reading the config so a job with a newer
+    # timestamp always carries a config at least as recent.
+    my $timestamp = int(Time::HiRes::time() * 1000000);
     my $manager = pfconfig::manager->new;
     $manager->expire($self->pfconfigNamespace);
     my $switches = $manager->get_cache($self->pfconfigNamespace);
     my $client = pf::api::queue->new(queue => 'priority');
-    $client->notify( 'switch_freeradius_populate_nas_config', $switches);
+    $client->notify( 'switch_freeradius_populate_nas_config', $switches, $timestamp);
     return ($result, $error);
 }
 
@@ -115,6 +119,7 @@ sub _expandMapping {
     # Config::Inifiles expands the access lists into an array
     # We put it back as a string so it works in the admin UI
     my $toset = {};
+    my $enabled = {};
     while (my ($attr, $val) = each %$switch) {
         if ($attr =~ /(.*)(AccessList|Vlan|Url|Role|Vpn|Interface|Network|NetworkFrom)$/) {
             my $type = $2;
@@ -133,11 +138,23 @@ sub _expandMapping {
             }
 
             push @{$toset->{"${type}Mapping"}}, { role => $role, $key => $val };
+        } elsif ($attr =~ /(.*)(VlanEnabled|RoleEnabled|AccessListEnabled|UrlEnabled|VpnEnabled|InterfaceEnabled)$/) {
+            # Store the enabled state for later use
+            my $type = $2;
+            my $role = $1;
+            $enabled->{$type}{$role} = $val;
         }
     }
 
     while(my ($attr, $val) = each %$toset) {
         $switch->{$attr} = $val;
+    }
+    
+    # Store enabled states in switch for UI
+    while(my ($type, $roles) = each %$enabled) {
+        while(my ($role, $val) = each %$roles) {
+            $switch->{"${role}${type}"} = $val;
+        }
     }
 
     for my $k (qw(AccessListMapping VlanMapping UrlMapping ControllerRoleMapping VpnMapping InterfaceMapping NetworkMapping NetworkFromMapping))  {
@@ -169,6 +186,7 @@ sub cleanupBeforeCommit {
 
 sub _flattenRoleMappings {
     my ( $switch ) = @_;
+    
     for my $namespace (qw(AccessListMapping VlanMapping UrlMapping ControllerRoleMapping VpnMapping InterfaceMapping NetworkMapping NetworkFromMapping))  {
         my $list = $switch->{$namespace} // [];
         for my $mapping (@$list) {
@@ -176,6 +194,9 @@ sub _flattenRoleMappings {
             $switch->{"${role}$MappingKey2{$namespace}"} = $mapping->{$MappingKey{$namespace}};
         }
     }
+    
+    # Don't delete Enabled parameters - they should be preserved
+    # They are separate from the mapping values and should always be kept
 }
 
 sub _deleteRoleMappings {

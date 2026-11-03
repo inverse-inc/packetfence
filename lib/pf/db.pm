@@ -20,6 +20,7 @@ Read the F<pf.conf> configuration file.
 use strict;
 use warnings;
 use DBI;
+use Scalar::Util qw(blessed);
 use File::Basename;
 use pf::log;
 use pf::config;
@@ -409,6 +410,12 @@ sub db_data {
     return (@array);
 }
 
+# Whether a value is a prepared statement handle and not the SQL of a statement
+sub _is_statement_handle {
+    my ($statement) = @_;
+    return blessed($statement) && $statement->isa('DBI::st') ? 1 : 0;
+}
+
 =item * db_query_execute - execute a given database statement (making sure it succeed) and retuns the statement handle
 
 =over 6
@@ -486,7 +493,8 @@ sub db_query_execute {
 
         # fetch statement, run query and catch errors
         $db_statement = $module_statements_ref->{$query};
-        my $valid_prepared_statement = (defined($db_statement) && (ref($db_statement) eq 'DBI::st'));
+        # the handles are of a subclass of DBI::st (RootClass pf::db::dbi)
+        my $valid_prepared_statement = _is_statement_handle($db_statement);
         # hack! for statements that we can't prepare, we have put the SQL statement in the statement ref
         # and we will prepare it now
         my $dbh = get_db_handle;
@@ -495,7 +503,7 @@ sub db_query_execute {
             $db_statement = $dbh->prepare($db_statement);
         }
 
-        my $valid_statement = (defined($db_statement) && (ref($db_statement) eq 'DBI::st'));
+        my $valid_statement = _is_statement_handle($db_statement);
         $logger->trace( sub { "SQL statement ($query): " . $db_statement->{Statement} } ) if ($valid_statement);
         $logger->trace( sub { "SQL params ($query): " . join(', ', map { defined $_ ? $_ : '<null>' } @params) } ) if (@params);
 

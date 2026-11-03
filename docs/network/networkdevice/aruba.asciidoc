@@ -326,6 +326,56 @@ recommended to isolate the management of the thin APs in a separate VLAN.
      virtual-ap "Inverse-Secure"
      ids-profile "ids-disabled"
 
+==== Aruba Mobility Master User Configuration
+
+To create a user account on the Aruba Mobility Master for PacketFence integration, follow these steps:
+
+[float]
+===== Creating an Admin User
+
+Navigate to the Mobility Master configuration interface:
+
+1. Go to *Mobility Master -> Configuration -> System -> Admin -> Manage Users*
+2. Click *Add* to create a new user account
+3. Configure the following settings:
+   * *Username*: Choose a descriptive name (e.g., `packetfence-admin`)
+   * *Password*: Set a strong password
+   * *Role*: Select `standard` for standard administrative access
+4. Click *Submit* to save the user configuration
+5. Apply the changes by clicking *Pending Changes* at the top of the interface
+
+This user account will be used by PacketFence to manage ACLs and roles on the Mobility Master through the API.
+
+[float]
+===== Automatic Role and ACL Creation
+
+When PacketFence has ACLs defined for a role, it will automatically create corresponding roles and policies in the Mobility Master with the following naming convention:
+
+* **Roles**: Created with the prefix `pf-role-` followed by the role name (e.g., if you have a "guest" role in PacketFence with ACLs, it will create `pf-role-guest` in Mobility Master)
+* **Policies**: Created with the prefix `pf-policy-` followed by the role name (e.g., `pf-policy-guest`)
+
+For example, if you have the following roles with ACLs in PacketFence:
+* guest
+* employee
+* contractor
+
+The Mobility Master will automatically have these roles created:
+* pf-role-guest (with associated pf-policy-guest)
+* pf-role-employee (with associated pf-policy-employee)
+* pf-role-contractor (with associated pf-policy-contractor)
+
+These roles and policies are managed automatically by PacketFence and will be updated whenever ACL changes are pushed from PacketFence to the Mobility Master.
+
+[float]
+===== PacketFence Integration
+
+In PacketFence, when configuring the Aruba Mobility Master switch type, use the created credentials for API authentication. This enables PacketFence to:
+
+* Push ACLs dynamically
+* Manage user roles automatically with the `pf-role-` prefix
+* Create and update policies with the `pf-policy-` prefix
+* Apply policies based on authentication results
+
 ==== All Aruba Instant OS
 
 Add your packetfence instance to your configuration:

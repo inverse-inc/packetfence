@@ -29,6 +29,7 @@ use pf::config qw(
 use Cisco::AccessList::Parser;
 use pf::Switch::constants;
 use pf::constants::role qw(@ROLES);
+use pf::constants::switch qw(@HOST_MODES);
 use pf::SwitchFactory;
 use pf::util;
 use pf::config qw(%ConfigRoles);
@@ -208,6 +209,36 @@ has_field 'PostMfaValidation' =>
    default => undef,
   );
 
+has_field 'host_mode' =>
+  (
+   type => 'Select',
+   label => 'Port host mode',
+   options_method => \&options_host_mode,
+   default => undef,
+   element_class => ['chzn-deselect'],
+   element_attr => { 'data-placeholder' => 'Click to select a host mode' },
+   tags => { after_element => \&help,
+             help => 'Host mode configured on the switch ports. In multi-auth, each endpoint authenticates '
+                   . 'independently: PacketFence keeps a separate locationlog entry per MAC and deauthenticates '
+                   . 'each endpoint with a per-session CoA/Disconnect instead of bouncing the port. Note that most '
+                   . 'switches apply a single data VLAN per port, so returning two different VLANs for two endpoints '
+                   . 'on the same port will not work; use role-based ACLs (push or downloadable) to differentiate them.' },
+  );
+
+=head2 options_host_mode
+
+The port host modes supported by PacketFence.
+
+=cut
+
+sub options_host_mode {
+    my $self = shift;
+
+    my @modes = map { $_ => $_ } @HOST_MODES;
+
+    return ('' => '', @modes);
+}
+
 has_field 'uplink_dynamic' =>
   (
    type => 'Checkbox',
@@ -296,7 +327,7 @@ has_field macSearchesSleepInterval  =>
 
 has_block definition =>
   (
-   render_list => [ qw(description type mode group deauthMethod useCoA deauthOnPrevious cliAccess ExternalPortalEnforcement VoIPEnabled VoIPLLDPDetect VoIPCDPDetect VoIPDHCPDetect VoIPFullAuthorization PostMfaValidation uplink_dynamic uplink controllerIp controllerPort disconnectPort coaPort) ],
+   render_list => [ qw(description type mode group deauthMethod useCoA deauthOnPrevious host_mode cliAccess ExternalPortalEnforcement VoIPEnabled VoIPLLDPDetect VoIPCDPDetect VoIPDHCPDetect VoIPFullAuthorization PostMfaValidation uplink_dynamic uplink controllerIp controllerPort disconnectPort coaPort) ],
   );
 
 has_field 'SNMPUseConnector' =>
@@ -460,15 +491,34 @@ has_field 'wsPwd' =>
    type => 'ObfuscatedText',
    label => 'Password',
   );
+has_field 'wsVerifyCertificate' =>
+  (
+   type => 'Toggle',
+   label => 'Verify Certificate',
+   default => undef,
+   tags => { after_element => \&help,
+             help => 'Verify the certificate of the controller when the transport is HTTPS. The certificate must be issued by a trusted certificate authority for the controller address. When disabled, the certificate is not checked, which allows self-signed certificates.' },
+  );
 
+has_field 'wsPath' =>
+  (
+   type => 'Text',
+   label => 'API Path',
+  );
 has_field controllerIp =>
   (
-    type => 'IPAddress',
+    type => 'Text',
     label => 'Controller IP Address',
     tags => {
         after_element => \&help,
-        help => 'Use instead this IP address for de-authentication requests. Normally used for Wi-Fi only'
+        help => 'Use instead this IP address or FQDN for de-authentication requests. Normally used for Wi-Fi only'
     },
+    apply => [
+        {
+            check => sub { valid_ip_fqdn($_[0]) },
+            message => 'Value must be an IPv4 address or a fully qualified domain name',
+        },
+    ],
   );
 
 has_field controllerPort =>
@@ -544,6 +594,77 @@ addRoleMapping("VpnMapping", "vpn");
 addRoleMapping("NetworkMapping", "network");
 addRoleMapping("NetworkFromMapping", "networkfrom");
 addRoleMapping("InterfaceMapping", "interface");
+
+# Add mappings for Enabled parameters
+addRoleMapping("VlanEnabledMapping", "vlan_enabled");
+addRoleMapping("RoleEnabledMapping", "role_enabled");
+addRoleMapping("AccessListEnabledMapping", "accesslist_enabled");
+addRoleMapping("UrlEnabledMapping", "url_enabled");
+addRoleMapping("VpnEnabledMapping", "vpn_enabled");
+addRoleMapping("InterfaceEnabledMapping", "interface_enabled");
+
+# Define static fields for base roles and all roles from %ConfigRoles and their Enabled parameters
+# Include both base roles from @ROLES and custom roles from %ConfigRoles
+my @all_roles = (@ROLES, keys %ConfigRoles);
+my %seen;
+@all_roles = grep { !$seen{$_}++ } @all_roles; # Remove duplicates
+
+foreach my $role (@all_roles) {
+    # Define the mapping fields
+    foreach my $type (qw(Vlan Role AccessList Url Vpn Network NetworkFrom Interface)) {
+        my $field_name = "${role}${type}";
+        has_field $field_name => (
+            type => 'Text',
+            required => 0,
+        );
+    }
+    
+    # Define the Enabled fields
+    foreach my $type (qw(VlanEnabled RoleEnabled AccessListEnabled UrlEnabled VpnEnabled InterfaceEnabled)) {
+        my $field_name = "${role}${type}";
+        has_field $field_name => (
+            type => 'Text',
+            required => 0,
+        );
+    }
+}
+
+=head2 after BUILD
+
+Handle dynamic role fields after form construction
+
+=cut
+
+after 'BUILD' => sub {
+    my $self = shift;
+    
+    my $init_object = $self->item || {};
+    
+    # Handle dynamic fields for custom roles
+    if (ref($init_object) eq 'HASH') {
+        # Find all role-specific fields in the init data
+        foreach my $key (keys %$init_object) {
+            # Check for role mapping fields including Enabled parameters
+            if ($key =~ /^(.+?)(Vlan|Role|AccessList|Url|Vpn|Network|NetworkFrom|Interface|VlanEnabled|RoleEnabled|AccessListEnabled|UrlEnabled|VpnEnabled|InterfaceEnabled)$/) {
+                my $role = $1;
+                my $type = $2;
+                
+                # Skip if it's already a defined field or if it's in ConfigRoles or @ROLES
+                next if $self->has_field($key);
+                next if exists $ConfigRoles{$role};
+                next if grep { $_ eq $role } @ROLES;
+                
+                # Create the field dynamically for custom roles not in @ROLES or %ConfigRoles
+                $self->add_field(
+                    $key => {
+                        type => 'Text',
+                        required => 0,
+                    }
+                );
+            }
+        }
+    }
+};
 
 sub _validate_acl_switch {
     my ($field) = @_;

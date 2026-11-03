@@ -22,6 +22,8 @@ COPY ./src /usr/local/pf/src
 COPY ./config.mk /usr/local/pf/config.mk
 COPY ./Makefile /usr/local/pf/Makefile
 COPY ./conf/pf-release /usr/local/pf/conf/pf-release
+ARG GO_CHECK=no
+RUN if [ "$GO_CHECK" = "yes" ]; then make -C /usr/local/pf/go check; fi
 RUN cd /usr/local/pf/go/ && \
     make pfhttpd
 

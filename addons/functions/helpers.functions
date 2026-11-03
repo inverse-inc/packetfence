@@ -36,6 +36,22 @@ function prompt() {
   fi
 }
 
+# Log the whole output of the upgrade to a file, in addition to the console.
+# STDIN stays on the terminal so the prompts still work. The script that runs
+# first (do-upgrade.sh, or run-upgrade.sh started on its own) owns the log and
+# exports PF_UPGRADE_LOG, so a single file covers the whole run.
+# The file goes to a subdirectory of the logs directory: packetfence.logrotate
+# rotates /usr/local/pf/logs/*log with copytruncate, which would empty it.
+function setup_upgrade_log() {
+  if [ -n "${PF_UPGRADE_LOG:-}" ]; then
+    return 0
+  fi
+  export PF_UPGRADE_LOG="/usr/local/pf/logs/upgrade/pf-upgrade-$(date +%Y%m%d_%H%M%S).log"
+  mkdir -p "$(dirname "$PF_UPGRADE_LOG")"
+  exec > >(tee -a "$PF_UPGRADE_LOG") 2>&1
+  echo "The output of this upgrade is logged to $PF_UPGRADE_LOG"
+}
+
 function main_splitter() {
   echo "================================================================================="
 }

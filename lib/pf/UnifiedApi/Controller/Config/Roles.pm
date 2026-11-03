@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use pf::dal::node_category;
 use pf::error qw(is_error is_success);
+use pf::log;
 
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
 

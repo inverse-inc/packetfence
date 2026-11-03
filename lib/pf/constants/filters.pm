@@ -108,7 +108,6 @@ our @NODE_INFO_FIELDS = qw(
   node_info.category
   node_info.category_id
   node_info.mac
-  node_info.last_arp
   node_info.last_dhcp
   node_info.user_agent
   node_info.computername
@@ -174,6 +173,7 @@ our @SWITCH_FIELDS = qw(
   switch._useCoA
   switch._vlans
   switch._wsPwd
+  switch._wsPath
   switch._wsTransport
   switch._wsUser
   switch._group

@@ -99,6 +99,9 @@
         <form-group-user-mail-message namespace="user_mail_message"
                                       :column-label="$t('Additional message')"
         />
+        <form-group-user-template-message namespace="user_template_email"
+                                          :column-label="$t('Template to use')"
+        />
 
       </b-collapse>
     </b-row>
@@ -187,7 +190,8 @@ import {
   BaseFormGroupTextarea as FormGroupUserMailMessage,
   BaseFormGroupInput as FormGroupRecipientEmail,
   BaseFormGroupTextarea as FormGroupRecipientMessage,
-  BaseFormGroupInput as FormGroupRecipientTemplateMessage,
+  BaseFormGroupChosenOne as FormGroupRecipientTemplateMessage,
+  BaseFormGroupChosenOne as FormGroupUserTemplateMessage,
   BaseFormGroupChosenOne as FormGroupVClose,
   BaseFormGroupChosenOne as FormGroupVlan, BaseLabel,
 } from '@/components/new'
@@ -206,6 +210,7 @@ const components = {
   FormGroupRecipientEmail,
   FormGroupRecipientMessage,
   FormGroupRecipientTemplateMessage,
+  FormGroupUserTemplateMessage,
   FormGroupVlan,
   BaseInputSwitch,
   BaseLabel,

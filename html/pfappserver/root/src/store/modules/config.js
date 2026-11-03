@@ -23,6 +23,10 @@ const encodeURL = (url) => {
 // Created lazily on first use so it can capture the store's `commit`.
 let roleByCategoryIdLoader = null
 
+// in-flight request of getBaseGuestsAdminRegistration, shared by the callers
+// that dispatch it while it is loading
+let baseGuestsAdminRegistrationRequest = null
+
 const api = {
   getAdminRoles () {
     return apiPerl.getAll('config/admin_roles')
@@ -916,16 +920,22 @@ const actions = {
     }
   },
   getBaseGuestsAdminRegistration: ({ state, getters, commit }) => {
-    if (getters.isLoadingBaseGuestsAdminRegistration) {
-      return Promise.resolve(state.baseGuestsAdminRegistration)
+    if (getters.isLoadingBaseGuestsAdminRegistration && baseGuestsAdminRegistrationRequest) {
+      // wait for the request in flight instead of resolving with the state that
+      // is not loaded yet (e.g. the access duration and time balance actions of
+      // a rule both dispatch this when the rule is rendered)
+      return baseGuestsAdminRegistrationRequest
     }
     if (acl.$can('read', 'configuration_main')) {
       if (!state.baseGuestsAdminRegistration) {
         commit('BASE_GUESTS_ADMIN_REGISTRATION_REQUEST')
-        return api.getBaseGuestsAdminRegistration().then(response => {
+        baseGuestsAdminRegistrationRequest = api.getBaseGuestsAdminRegistration().then(response => {
           commit('BASE_GUESTS_ADMIN_REGISTRATION_UPDATED', response.data.item)
           return state.baseGuestsAdminRegistration
+        }).finally(() => {
+          baseGuestsAdminRegistrationRequest = null
         })
+        return baseGuestsAdminRegistrationRequest
       } else {
         return Promise.resolve(state.baseGuestsAdminRegistration)
       }

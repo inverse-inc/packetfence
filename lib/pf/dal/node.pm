@@ -98,7 +98,41 @@ sub pre_save {
     if ($old_data && ($old_data->{status} // '') ne 'reg' && missing_regdate($self->{status}, $self->{regdate})) {
         $self->{regdate} = $self->now;
     }
+    $self->_update_source_types;
     return $self->_update_category_ids;
+}
+
+=head2 _update_source_types
+
+Keep source_type and source_base_type describing source. Callers only set
+source (node_register, RADIUS autoreg, import...), so the type columns are
+derived here whenever source changes rather than at every call site. An
+unchanged source keeps the types already recorded, even if that source has
+since been deleted.
+
+=cut
+
+sub _update_source_types {
+    my ($self) = @_;
+    my $old_data = $self->__old_data;
+    return if $old_data && ($old_data->{source} // '') eq ($self->{source} // '');
+    @{$self}{qw(source_type source_base_type)} = source_types($self->{source});
+    return;
+}
+
+=head2 source_types
+
+The (source_type, source_base_type) of the configured authentication source with
+this id, or ('', '') when there is none -- read as UNCLASSIFIED.
+
+=cut
+
+sub source_types {
+    my ($source_id) = @_;
+    return ('', '') unless defined $source_id && length $source_id;
+    require pf::authentication;
+    my $source = pf::authentication::getAuthenticationSource($source_id);
+    return $source ? ($source->type, $source->base_type) : ('', '');
 }
 
 =head2 missing_regdate

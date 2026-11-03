@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 16;
+use Test::More tests => 18;
 
 #This test will running last
 use Test::NoWarnings;
@@ -31,6 +31,7 @@ use pf::cmd::pf::fixpermissions;
 use pf::constants qw($FILE_MODE $CONF_FILE_MODE $SECRET_FILE_MODE);
 use pf::file_paths qw($install_dir $conf_dir $html_dir $config_version_file $local_secret_file);
 use pf::util;
+use fingerbank::FilePath;
 
 my $file_mode = \&pf::cmd::pf::fixpermissions::_file_mode;
 
@@ -40,6 +41,8 @@ is($file_mode->("$conf_dir/domain.conf"), $CONF_FILE_MODE, "file in the configur
 is($file_mode->("$html_dir/captive-portal/templates/layout.html"), $FILE_MODE, "file outside the configuration directory");
 is($file_mode->($local_secret_file), $SECRET_FILE_MODE, "secret file");
 is($file_mode->($config_version_file), $CONF_FILE_MODE, "configuration version file");
+is($file_mode->($fingerbank::FilePath::CONF_FILE), $CONF_FILE_MODE, "fingerbank.conf");
+is($file_mode->("$fingerbank::FilePath::INSTALL_PATH/db/upgrade.pl"), $FILE_MODE, "other fingerbank file");
 
 # Paths that are not canonical get the same mode as the canonical path
 is($file_mode->("$install_dir//conf/pf.conf.defaults"), $CONF_FILE_MODE, "double slash before the configuration directory");

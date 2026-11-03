@@ -15,18 +15,21 @@ export const search = {
     {
       key: 'status',
       label: 'Status', // i18n defer
+      thStyle: 'width: 90px;',
       sortable: true,
       visible: true
     },
     {
       key: 'online',
       label: 'Online', // i18n defer
+      thStyle: 'width: 90px;',
       sortable: true,
       visible: true
     },
     {
       key: 'mac',
       label: 'MAC Address', // i18n defer
+      thStyle: 'width: 160px;',
       searchable: true,
       required: true,
       sortable: true,
@@ -223,13 +226,6 @@ export const search = {
       sortable: true
     },
     {
-      key: 'last_arp',
-      label: 'Last ARP', // i18n defer
-      sortable: true,
-      formatter: formatter.datetimeIgnoreZero,
-      class: 'text-nowrap'
-    },
-    {
       key: 'last_dhcp',
       label: 'Last DHCP', // i18n defer
       sortable: true,
@@ -374,12 +370,6 @@ export const search = {
     {
       value: 'unregdate',
       text: 'Unregistered Date', // i18n defer
-      types: [conditionType.DATETIME],
-      icon: 'calendar-alt'
-    },
-    {
-      value: 'last_arp',
-      text: 'Last ARP Date', // i18n defer
       types: [conditionType.DATETIME],
       icon: 'calendar-alt'
     },

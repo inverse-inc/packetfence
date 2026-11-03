@@ -48,6 +48,10 @@ msgstr ""
 msgid "%s: Guest access request accepted"
 msgstr ""
 
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "---Choose a Provider---"
+msgstr "---בחר ספק---"
+
 # html/captive-portal/templates/ssl_inspection/windows.html
 msgid ""
 "A <i>Security Warning</i> will appear, asking if you're sure you'd like to "
@@ -364,11 +368,6 @@ msgstr ""
 msgid "Computer name "
 msgstr ""
 
-# html/captive-
-# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/SMS.pm
-msgid "Confirm Mobile Phone Number"
-msgstr ""
-
 # html/captive-portal/templates/status/reset_password_token.html
 msgid "Confirm Password"
 msgstr ""
@@ -625,6 +624,11 @@ msgstr ""
 msgid "Enter a valid telephone number"
 msgstr ""
 
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/SMS.pm
+msgid "Enter the PIN sent to your phone"
+msgstr ""
+
 # html/captive-portal/templates/security_events/bandwidth_expiration.html
 msgid "Expiration"
 msgstr ""
@@ -646,6 +650,10 @@ msgid ""
 "Failure to do so within %s minutes will result in a termination of your "
 "network access."
 msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "Female"
+msgstr "נקבה"
 
 # html/captive-portal/templates/ssl_inspection/firefox.html
 msgid "Firefox CA trust prompt"
@@ -963,6 +971,10 @@ msgid ""
 "Make sure <i>Trust</i> is expanded and select the dropdown next to <i>When "
 "using this certificate:</i> and change it to <i>Always Trust</i>."
 msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "Male"
+msgstr "זכר"
 
 # html/captive-portal/templates/stripe-customer-portal/select-account.html
 msgid "Manage"

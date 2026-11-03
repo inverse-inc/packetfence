@@ -1,6 +1,8 @@
 package filter_client
 
 import (
+	"fmt"
+	"net"
 	"os"
 	"os/exec"
 	"syscall"
@@ -91,15 +93,50 @@ func BenchmarkProfileFilterSimple(b *testing.B) {
 
 func TestMain(m *testing.M) {
 	cmd := exec.Command("perl", "-I", "/usr/local/pf/t", "-Mtest_paths", "/usr/local/pf/sbin/pffilter", "-s", SOCK_PATH, "-n", "pffilter-test")
+	cmd.Stdout = os.Stderr
+	cmd.Stderr = os.Stderr
 	err := cmd.Start()
 	if err != nil {
+		fmt.Fprintf(os.Stderr, "Cannot start pffilter: %s\n", err)
 		os.Exit(1)
 		return
 	}
-	time.Sleep(20000 * time.Millisecond)
+
+	exited := make(chan error, 1)
+	go func() { exited <- cmd.Wait() }()
+
+	// pffilter can take well over 20s to start when the machine is busy (go test ./... runs packages in parallel)
+	if err := waitForSocket(SOCK_PATH, exited, 120*time.Second); err != nil {
+		fmt.Fprintf(os.Stderr, "pffilter is not ready: %s\n", err)
+		cmd.Process.Kill()
+		os.Exit(1)
+		return
+	}
+
 	result := m.Run()
 
 	cmd.Process.Signal(syscall.SIGTERM)
-	cmd.Process.Wait()
+	<-exited
 	os.Exit(result)
+}
+
+func waitForSocket(path string, exited <-chan error, timeout time.Duration) error {
+	deadline := time.Now().Add(timeout)
+	for {
+		conn, err := net.Dial("unix", path)
+		if err == nil {
+			conn.Close()
+			return nil
+		}
+
+		if time.Now().After(deadline) {
+			return fmt.Errorf("%s not accepting connections after %s: %w", path, timeout, err)
+		}
+
+		select {
+		case err := <-exited:
+			return fmt.Errorf("pffilter exited before %s was ready: %v", path, err)
+		case <-time.After(500 * time.Millisecond):
+		}
+	}
 }

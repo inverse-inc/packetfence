@@ -23,13 +23,13 @@ install() {
 
     if [ -z "$GOVERSION" ]; then
         echo "Trying to detect Go version based on installed binaries"
-	GOVERSION=`strings /usr/local/pf/sbin/pfhttpd | egrep -o 'go[0-9]{1}\.[0-9]+(\.[0-9])*' | head -1`
+	GOVERSION=`strings /usr/local/pf/sbin/pfhttpd | egrep -o 'go[0-9]{1}\.[0-9]+(\.[0-9]+)?' | head -1`
     fi
     declare -p GOVERSION
     [ -z "$GOVERSION" ] && die "not set: GOVERSION"
 
     log_subsection "Downloading Golang from upstream"
-    curl -sL https://go.dev/dl/$GOVERSION.linux-amd64.tar.gz -o /tmp/$GOVERSION.linux-amd64.tar.gz
+    curl -fsSL --retry 5 --retry-delay 5 https://go.dev/dl/$GOVERSION.linux-amd64.tar.gz -o /tmp/$GOVERSION.linux-amd64.tar.gz
     log_subsection "Install Golang"
     tar -C /usr/local -xzf /tmp/$GOVERSION.linux-amd64.tar.gz
     # symlink to find go binaries when environment ignore .bashrc

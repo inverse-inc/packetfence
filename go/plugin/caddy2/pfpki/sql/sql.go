@@ -192,7 +192,7 @@ func (search Search) SqlWhere(class interface{}) (Where, error) {
 	if len(search.Values) > 0 {
 		if len(search.Values) == 1 {
 			where, err = search.Values[0].SqlWhere(class)
-			return where, nil
+			return where, err
 		} else if search.Op != "" {
 			if matched, _ := regexp.MatchString(`(?i)(and|or)`, search.Op); matched {
 				children := make([]string, 0)

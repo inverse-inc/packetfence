@@ -25,8 +25,13 @@ has '+route_map' => (default => sub {
 use pf::log;
 use pf::util;
 use pf::CHI;
-use pf::constants qw($TRUE);
+use pf::constants qw($TRUE $FALSE);
+use pf::config qw(%Config $fqdn $management_network);
+use pf::cluster;
+use pf::config::util ();
 use Bytes::Random::Secure;
+use Sys::Hostname ();
+use URI;
 
 sub cache { return pf::CHI->new(namespace => 'portaladmin'); }
 
@@ -44,8 +49,14 @@ around 'done' => sub {
         $self->release();
     }
     else {
+        my $callback = $self->app->session->{callback};
         $self->app->reset_session();
-        $self->redirect_root();
+        if (defined($callback)) {
+            $self->app->redirect($callback."?error=denied");
+        }
+        else {
+            $self->redirect_root();
+        }
     }
 };
 
@@ -59,6 +70,8 @@ sub logout {
     my ($self) = @_;
     my $callback = $self->app->session->{callback};
     $self->app->reset_session;
+    # No callback when it was missing or refused by is_valid_callback
+    return $self->redirect_root() unless defined($callback);
     $self->app->redirect($callback."?error=canceled");
 }
 
@@ -70,7 +83,14 @@ Reevaluate the access of the user and show the release page
 
 sub release {
     my ($self) = @_;
-    return $self->app->redirect($self->app->session->{callback}."?token=".$self->{root_session_token});
+    my $callback = $self->app->session->{callback};
+    # Start over on the next SSO so the user is authenticated (and the rules evaluated) again
+    $self->app->reset_session();
+    unless (defined($callback)) {
+        get_logger->error("Admin SSO completed without a valid callback, not sending the token");
+        return $self->redirect_root();
+    }
+    return $self->app->redirect($callback."?token=".$self->{root_session_token});
 }
 
 =head2 execute_child
@@ -81,11 +101,63 @@ Execute the flow for this module
 
 sub execute_child {
     my ($self) = @_;
-    if ($self->app->request->param('callback')) {
-        $self->app->session->{callback} = $self->app->request->param('callback');
+    my $callback = $self->app->request->param('callback');
+    if ($callback) {
+        if (is_valid_callback($callback)) {
+            $self->app->session->{callback} = $callback;
+        }
+        else {
+            get_logger->warn("Ignoring admin SSO callback '$callback': it isn't an HTTPS admin URL of this server. Add its host to admin_login.sso_allowed_callback_hosts if needed.");
+        }
     }
 
     $self->SUPER::execute_child();
+}
+
+=head2 allowed_callback_hosts
+
+The hosts the admin SSO token can be sent to: the addresses of this server
+(those of pf::config::util::portal_hosts: the fqdn and the IPs, VIPs and IPv6
+addresses of the management and internal interfaces, with those of the cluster
+members), the management
+IPv6 address, the host names, the cluster VIP and members names, the SSO base
+URL host and admin_login.sso_allowed_callback_hosts
+
+=cut
+
+sub allowed_callback_hosts {
+    my @hosts = (pf::config::util::portal_hosts(), $fqdn, $Config{general}{hostname}, Sys::Hostname::hostname());
+    if ($management_network) {
+        push @hosts, $management_network->tag('ipv6_address');
+    }
+    if ($pf::cluster::cluster_enabled) {
+        push @hosts, pf::cluster::management_cluster_ip();
+        push @hosts, map { ($_->{host}, $_->{management_ip}) } pf::cluster::config_enabled_servers();
+    }
+    if (my $sso_base_url = $Config{admin_login}{sso_base_url}) {
+        my $uri = eval { URI->new($sso_base_url) };
+        push @hosts, $uri->host if $uri && $uri->can('host');
+    }
+    push @hosts, split(/\s*,\s*/, $Config{admin_login}{sso_allowed_callback_hosts} // '');
+    return map { lc($_) } grep { defined($_) && $_ ne '' } @hosts;
+}
+
+=head2 is_valid_callback
+
+Whether the callback is an HTTPS admin URL of this server, the token is only sent there
+
+=cut
+
+sub is_valid_callback {
+    my ($callback) = @_;
+    my $uri = eval { URI->new($callback) };
+    # The admin interface is only served over HTTPS
+    return $FALSE unless $uri && $uri->scheme && $uri->scheme eq 'https';
+    return $FALSE if defined($uri->userinfo);
+    return $FALSE unless ($uri->path // '') =~ m{^/admin(?:/|$)};
+    my $host = lc($uri->host // '');
+    return $FALSE if $host eq '';
+    return (grep { $_ eq $host } allowed_callback_hosts()) ? $TRUE : $FALSE;
 }
 
 =head2 execute_actions
@@ -96,6 +168,11 @@ Register the device and apply the new node info
 
 sub execute_actions {
     my ($self) = @_;
+    my $access_level = $self->new_node_info->{access_level};
+    if (!defined($access_level) || $access_level eq '' || $access_level eq 'NONE') {
+        get_logger->warn("Admin SSO denied for " . ($self->username // 'unknown user') . ": no administration rule matched");
+        return $FALSE;
+    }
     my $rand = Bytes::Random::Secure->new(
             Bits        => 64,
             NonBlocking => 1,

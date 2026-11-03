@@ -356,7 +356,7 @@ sub make_pcap_filter {
         }
     }
     my $type_filter = join(" or ", @type_filters);
-    return "((port 67 or port 68) and ( $type_filter )) or (port 546 or port 547)";
+    return "((port 67 or port 68 or port 767) and ( $type_filter )) or (port 546 or port 547)";
 }
 
 =back

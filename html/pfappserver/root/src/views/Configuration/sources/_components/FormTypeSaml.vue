@@ -28,6 +28,13 @@
       :title="$i18n.t('Upload service provider cert (x509)')"
     />
 
+    <form-group-send-acs-url namespace="send_acs_url"
+      :column-label="$i18n.t('Send Assertion Consumer Service URL')"
+      :text="$i18n.t('Send the Assertion Consumer Service URL of this server (https://hostname.domain/saml/assertion, http when secure redirect is disabled) in the authentication request, so one Identity Provider application can serve several PacketFence servers. The Identity Provider must have this exact URL registered as a reply URL for each server or cluster.')"
+      enabled-value="enabled"
+      disabled-value="disabled"
+    />
+
     <form-group-identity-provider-entity-identifier namespace="idp_entity_id"
       :column-label="$i18n.t('Identity Provider entity ID')"
     />
@@ -72,6 +79,7 @@ import {
   FormGroupServiceProviderEntityIdentifier,
   FormGroupServiceProviderCertPath,
   FormGroupServiceProviderKeyPath,
+  FormGroupSendAcsUrl,
   FormGroupUsernameAttributeString
 } from './'
 
@@ -88,6 +96,7 @@ const components = {
   FormGroupServiceProviderEntityIdentifier,
   FormGroupServiceProviderCertPath,
   FormGroupServiceProviderKeyPath,
+  FormGroupSendAcsUrl,
   FormGroupUsernameAttributeString,
 }
 

@@ -120,6 +120,7 @@ storage=distributed
 #
 # Amount of time from the current time to expire an entry
 # Make sure to adjust according to pfcron switch_cache_lldpLocalPort_description.interval
+# and switch_cache_ifindex.schedule
 expires_in=48h
 
 [storage person_lookup]

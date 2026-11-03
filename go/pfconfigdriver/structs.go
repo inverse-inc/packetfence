@@ -158,6 +158,7 @@ type PfConfServices struct {
 	Keepalived           string `json:"keepalived"`
 	Netdata              string `json:"netdata"`
 	NetFlowAddress       string `json:"netflow_address"`
+	NetFlowProcessor     string `json:"netflow_processor"`
 	MysqlProbe           string `json:"mysql-probe"`
 	Pfacct               string `json:"pfacct"`
 	Pfdhcp               string `json:"pfdhcp"`
@@ -596,7 +597,6 @@ type PfConfAdvanced struct {
 	UpdateIplogWithAccounting        string   `json:"update_iplog_with_accounting"`
 	UpdateIplogWithAuthentication    string   `json:"update_iplog_with_authentication"`
 	AdminCspSecurityHeaders          string   `json:"admin_csp_security_headers"`
-	Multihost                        string   `json:"multihost"`
 	SsoOnAccessReevaluation          string   `json:"sso_on_access_reevaluation"`
 	DisablePfDomainAuth              string   `json:"disable_pf_domain_auth"`
 	TimingStatsLevel                 string   `json:"timing_stats_level"`
@@ -1149,9 +1149,10 @@ type PfConfSwitch struct {
 	CliTransport string              `json:"cliTransport"`
 
 	// Web Services
-	WsTransport string              `json:"wsTransport"`
-	WsUser      string              `json:"wsUser"`
-	WsPwd       pfcrypt.CryptString `json:"wsPwd"`
+	WsTransport         string              `json:"wsTransport"`
+	WsVerifyCertificate string              `json:"wsVerifyCertificate"`
+	WsUser              string              `json:"wsUser"`
+	WsPwd               pfcrypt.CryptString `json:"wsPwd"`
 
 	// VoIP Detection
 	VoIPEnabled           int    `json:"VoIPEnabled"`
@@ -1171,6 +1172,7 @@ type PfConfSwitch struct {
 	MacSearchesMaxNb         string        `json:"macSearchesMaxNb"`
 	MacSearchesSleepInterval string        `json:"macSearchesSleepInterval"`
 	DeauthOnPrevious         string        `json:"deauthOnPrevious"`
+	HostMode                 string        `json:"host_mode"`
 	Uplink                   []string      `json:"uplink"`
 }
 

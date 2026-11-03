@@ -2,7 +2,6 @@ package models
 
 import (
 	"context"
-	"errors"
 
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/sql"
 	"gorm.io/gorm"
@@ -94,15 +93,18 @@ func (a Wrix) Search(vars sql.Vars) (DBRes, error) {
 	res := DBRes{}
 	sqls, err := vars.Sql(a)
 	if err != nil {
-		return res, err
+		return res, invalidSearch(err)
 	}
 
 	var count int64
 	var items []Wrix
-	a.DB.Model(&Wrix{}).Where(sqls.Where.Query, sqls.Where.Values...).Count(&count)
+	if err := a.DB.Model(&Wrix{}).Where(sqls.Where.Query, sqls.Where.Values...).Count(&count).Error; err != nil {
+		return res, err
+	}
 
 	if count == 0 {
-		return res, errors.New("entries not found")
+		// No match isn't an error: return an empty page
+		return emptyPage[Wrix](), nil
 	}
 
 	counter := int(count)

@@ -58,10 +58,9 @@ Teardown runs in reverse order, cleaning up test artifacts first:
 
 | Range | Phase | Description |
 |-------|-------|-------------|
-| 0x | Unplug Devices | Unplug test devices from virtualswitch |
+| 0x | Disable Node Cleanup, Unplug Devices | Disable node cleanup task, unplug test devices from virtualswitch |
 | 1x | Delete Nodes | Delete test nodes |
 | 2x | Delete Entities | Delete connection profile |
-| 4x | Infrastructure Cleanup | Delete network, disable tasks |
 
 ## Requirements
 
@@ -113,23 +112,23 @@ Note: Roles (headless_device and printer) are created in `global_config_virtuals
 
 ## Teardown
 
-### 0x - Unplug Devices
-1. Unplug headless device
-2. Unplug printer device
-3. Unplug all interfaces (cleanup)
+### 0x - Disable Node Cleanup, Unplug Devices
+1. Disable node cleanup task
+2. Restart pfcron service
+3. Unplug headless device
+4. Unplug printer device
+5. Unplug all interfaces (cleanup)
+
+Node cleanup is disabled first: with its 1 minute delete window, pfcron could
+otherwise delete the nodes before the 1x steps do, making them fail with a 404.
 
 ### 1x - Delete Nodes and Filters
-Node unregistration is handled by the node cleanup cron task, so teardown only deletes:
-4. Delete headless device node
-5. Delete printer node
-6. Disable printer VLAN filter
+6. Delete headless device node
+7. Delete printer node
+8. Disable printer VLAN filter
 
 ### 2x - Delete Entities
-7. Delete connection profile
-
-### 4x - Infrastructure Cleanup
-8. Disable node cleanup task
-9. Restart pfcron service
+9. Delete connection profile
 
 Note: Registration interface, routed networks, and roles/VLAN filter deletion are handled in `global_config_virtualswitch` (the VLAN filter is disabled here first).
 

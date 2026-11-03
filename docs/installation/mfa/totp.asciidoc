@@ -22,7 +22,7 @@ endif::[]
 This section has been created to give a quick overview on how to configure TOTP
 MFA in PacketFence.
 
-==== Assumptions
+===== Assumptions
 
 You have a phone where you have an MFA application compatible with TOTP (Akamai
 MFA, Google Authenticator, Microsoft Authenticator, DUO).

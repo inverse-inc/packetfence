@@ -57,6 +57,7 @@ export const schema = (props) => {
     client_secret: yup.string().nullable().label(i18n.t('Secret')),
     critical_issues_threshold: yup.string().nullable(),
     description: yup.string().nullable(),
+    device_lookup: yup.array().ensure().of(yup.string().nullable()),
     device_type_detection: yup.string().nullable(),
     domains: yup.string().nullable().label(i18n.t('Domains')),
     dpsk: yup.string().nullable(),

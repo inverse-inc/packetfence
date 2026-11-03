@@ -141,6 +141,14 @@ image::certificate/1-HTTP.png[scaledwidth="100%",alt="HTTP"]
 
 image::certificate/2-HTTP-Certificate.png[scaledwidth="100%",alt="Certificate"]
 
+[NOTE]
+====
+The full chain can be pasted in the "HTTPs Server Certificate" field, for example the
+[filename]`fullchain.pem` of certbot: the server certificate first, then its
+intermediate CA(s). With "Find HTTPs Server intermediate CA(s) automatically"
+turned on, these intermediates are used instead of the automatic lookup.
+====
+
 - Turn on the options "Find HTTPs intermediate CA(s) automatically" and "Validate certificate chain".
 
 image::certificate/4-HTTP-intermediate-chain.png[scaledwidth="100%",alt="Intermediate chain"]
@@ -180,6 +188,14 @@ image::certificate/7-Radius-edit.png[scaledwidth="100%",alt="Radius edit"]
 - Import or open the certificate file (.crt) with a text editor, then copy and paste the key into the "RADIUS Server Certificate" field.
 
 image::certificate/8-Radius-certificate.png[scaledwidth="100%",alt="Radius certificate"]
+
+[NOTE]
+====
+The full chain can be pasted in the "RADIUS Server Certificate" field, for example the
+[filename]`fullchain.pem` of certbot: the server certificate first, then its
+intermediate CA(s). With "Find RADIUS Server intermediate CA(s) automatically"
+turned on, these intermediates are used instead of the automatic lookup.
+====
 
 - Turn on the "Find RADIUS Server intermediate CA(s) automatically" and "Validate certificate chain" option.
 

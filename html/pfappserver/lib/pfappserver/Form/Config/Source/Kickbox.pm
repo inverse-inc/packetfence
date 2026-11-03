@@ -27,7 +27,7 @@ has_field 'api_key' =>
    # Default value needed for creating dummy source
    default => '',
    tags => { after_element => \&help,
-             help => 'Kickbox.io API key.' },
+             help => 'Kickbox API key.' },
   );
 
 has_field 'email_required' =>

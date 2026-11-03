@@ -30,6 +30,8 @@ sub init {
     $self->{unified_api_system_user} = $self->{cache}->get_cache('resource::unified_api_system_user');
     $self->{child_resources} = [
         'resource::connectors_ordered',
+        'resource::connectors_config',
+        'resource::pfconnector_static_connections',
     ];
 }
 

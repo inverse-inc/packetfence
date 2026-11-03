@@ -78,6 +78,15 @@ const setup = (props, context) => {
       can: 'read services',
       class: 'is-saas'
     },
+    ...(($store.getters['cluster/isCluster'])
+      ? [{
+        name: i18n.t('Cluster'),
+        path: '/status/cluster',
+        can: 'read system',
+        class: 'no-saas'
+      }]
+      : []
+    ),
     {
       name: i18n.t('Local Queue'),
       path: '/status/queue'

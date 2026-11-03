@@ -435,6 +435,36 @@ This can also be configured with the admin interface in _Configuration -> Polici
 
 CAUTION: Ensure the roles are defined in the network devices prior to configuring role-based assignment.
 
+==== Port host mode
+
+The _Port host mode_ of a switch or switch group (`host_mode`) tells
+PacketFence how the switch ports authenticate endpoints: `single-host`,
+`multi-host`, `multi-auth` or `multi-domain`. Set it to the host mode
+configured on the switch ports, for example `authentication host-mode
+multi-auth` on Cisco IOS. Only `multi-auth` changes how PacketFence handles the
+port; the other values document the switch configuration.
+
+On a `multi-auth` port, several endpoints authenticate independently, each one
+with its own RADIUS session:
+
+* PacketFence keeps one open locationlog entry per endpoint. Without this
+  setting, an endpoint authenticating on the port closes the locationlog
+  entries of the other endpoints of the port.
+* When the access of an endpoint is re-evaluated, PacketFence sends a CoA or
+  Disconnect-Request for the session of that endpoint instead of bouncing the
+  port, which would disconnect every endpoint on it. This needs a RADIUS secret
+  on the switch, and a switch module with a RADIUS deauthentication technique
+  for the connection type. Otherwise PacketFence falls back on the
+  deauthentication method of the switch and logs a warning.
+* The locationlog entry of an endpoint is closed by the Accounting-Stop of its
+  session, or when the endpoint shows up on another port. Configure the switch
+  to send RADIUS accounting to PacketFence: without it, the entries of the
+  endpoints that left the port stay open.
+
+Most switches apply a single data VLAN to a port. Endpoints of the same
+`multi-auth` port therefore can't be placed in different VLANs: give their
+roles the same VLAN and tell them apart with ACLs (pushed or downloadable).
+
 ==== VoIP Integration with CDP, LLDP and LLDP-MED
 
 Cisco Discovery Protocol (CDP) is device-discovery protocol supported on all Cisco-manufactured equipment including routers, access servers, bridges, and switches. Using CDP, a device can advertise its existence to other devices and receive information about other devices on the same LAN or on the remote side of a WAN. CDP can determine if the connecting device is an IP Phone, and instruct the IP Phone to tag ethernet frames using the configured voice VLAN on the switchport.

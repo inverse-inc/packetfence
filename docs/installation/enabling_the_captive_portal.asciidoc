@@ -110,7 +110,7 @@ Click on `Save` to save all configuration changes.
 By default the PacketFence's captive portal does not listen on the management
 interface. To change this, go in _Configuration -> Network Configuration ->
 Interfaces_ and click on the logical name of the management interface to bring
-the configuration panel. In `Additionnal listening daemon(s)` - make sure you
+the configuration panel. In `Additional listening daemon(s)` - make sure you
 add `portal`.
 
 You must then restart the following services from _Status -> Services_:

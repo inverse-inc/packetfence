@@ -1,5 +1,7 @@
+import socket
 import time
 
+import config_generator
 import global_vars
 from samba import param, NTSTATUSError, ntstatus
 from samba.credentials import Credentials, DONT_USE_KERBEROS
@@ -13,41 +15,66 @@ import binascii
 from samba.net import Net
 
 
+def _finddc(lp, **kwargs):
+    error_code = -1
+    try:
+        net = Net(Credentials(), lp)
+        dc = net.finddc(flags=nbt.NBT_SERVER_LDAP | nbt.NBT_SERVER_DS, **kwargs)
+        return 0, "", dc.pdc_dns_name
+    except NTSTATUSError as e:
+        return e.args[0], e.args[1], None
+    except Exception as e:
+        try:
+            error_code = e.args[0]
+        except Exception:
+            pass
+        return error_code, str(e), None
+
+
+# the secure channel connects to the DC by name. When a sticky DC is given as an IP,
+# its name may not be resolvable (no DNS servers, or DNS without that DC), so pin it in /etc/hosts.
+def _ensure_resolvable(ip, name):
+    try:
+        socket.gethostbyname(name)
+    except Exception:
+        log.info(f"sticky DC name {name} is not resolvable, adding hosts entry: {ip} {name}")
+        config_generator.generate_hosts_entry(ip, name)
+
+
 def find_dc(lp):
     error_code = -1
     error_message = "unknown error"
 
+    sticky_dcs = [dc for dc in global_vars.c_sticky_dc if dc != "*"]
+    if sticky_dcs:
+        # sticky DCs are tried in order. The CLDAP ping validates the entry is a DC and
+        # returns its DNS name, so IPs are accepted as well.
+        for sticky_dc in sticky_dcs:
+            log.debug(f"find_dc using sticky DC: {sticky_dc}")
+            error_code, error_message, pdc_dns_name = _finddc(lp, address=sticky_dc)
+            if error_code == 0:
+                log.info(f"using sticky DC: {sticky_dc} ({pdc_dns_name})")
+                if utils.is_ipv4(sticky_dc):
+                    _ensure_resolvable(sticky_dc, pdc_dns_name)
+                return error_code, error_message, pdc_dns_name
+            log.warning(f"sticky DC {sticky_dc} unavailable: e = {error_code}, m = {error_message}")
+
+        if "*" not in global_vars.c_sticky_dc:
+            log.error(f"none of the sticky DCs ({','.join(sticky_dcs)}) is available. Add '*' to 'sticky_dc' to fall back to any DC.")
+            return error_code, error_message, None
+        log.warning("none of the sticky DCs is available, falling back to any available DC.")
+
     if global_vars.c_dns_servers.strip() != "":
         log.debug(f"find_dc using dns servers: {global_vars.c_dns_servers}")
-        try:
-            net = Net(Credentials(), lp)
-            dc = net.finddc(domain=lp.get('realm'), flags=nbt.NBT_SERVER_LDAP | nbt.NBT_SERVER_DS)
-            return 0, "", dc.pdc_dns_name
-        except NTSTATUSError as e:
-            error_code = e.args[0]
-            error_message = e.args[1]
-        except Exception as e:
-            try:
-                error_code = e.args[0]
-            except Exception:
-                pass
-            error_message = str(e)
+        error_code, error_message, pdc_dns_name = _finddc(lp, domain=lp.get('realm'))
+        if error_code == 0:
+            return error_code, error_message, pdc_dns_name
 
     if global_vars.c_server_name.strip() != "" and global_vars.c_ad_server.strip() != "":
         log.debug(f"find_dc using AD FQDN: {global_vars.c_server_name} (ad_server: {global_vars.c_ad_server})")
-        try:
-            net = Net(Credentials(), lp)
-            dc = net.finddc(address=global_vars.c_server_name, flags=nbt.NBT_SERVER_LDAP | nbt.NBT_SERVER_DS)
-            return 0, "", dc.pdc_dns_name
-        except NTSTATUSError as e:
-            error_code = e.args[0]
-            error_message = e.args[1]
-        except Exception as e:
-            try:
-                error_code = e.args[0]
-            except Exception:
-                pass
-            error_message = str(e)
+        error_code, error_message, pdc_dns_name = _finddc(lp, address=global_vars.c_server_name)
+        if error_code == 0:
+            return error_code, error_message, pdc_dns_name
 
     return error_code, error_message, None
 
@@ -122,6 +149,8 @@ def init_secure_connection():
             log.error("If you are in a cluster, did you re-used the machine account and reset with another password?")
         if error_code == 0xc0000122:
             log.error(f"This is usually due to a incorrect AD FQDN. The current AD FQDN you are using is: {server_name}")
+            if any(dc != "*" for dc in global_vars.c_sticky_dc):
+                log.error(f"'sticky_dc' is set to: {','.join(global_vars.c_sticky_dc)}. Make sure these are domain controllers of this domain.")
 
         log.debug("Parameter used in establish secure channel are:")
         log.debug(f"lp.netbios_name: {netbios_name}")

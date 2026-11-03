@@ -131,7 +131,7 @@ has_field 'sticky_dc' => (
     message     => { required => 'Please specify a DC to connect to. Use \'*\' to connect to any available DC' },
     tags       => {
         after_element   => \&help,
-        help            => 'This is used to specify a sticky domain controller to connect to. If not specified, default \'*\' will be used to connect to any available domain controller',
+        help            => 'Domain controller(s) the NTLM auth API must use, as a comma-separated list of hostnames or IPs tried in order. Use \'*\' to connect to any available domain controller, or end the list with \'*\' to fall back to any available domain controller when none of the listed ones is reachable',
     },
 );
 

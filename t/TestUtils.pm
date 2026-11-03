@@ -53,7 +53,7 @@ our @integration_tests = qw(
 );
 
 our @quality_tests = qw(
-    coding-style.t i18n.t
+    coding-style.t i18n.t trojan-source.t
 );
 
 our @quality_failing_tests = qw(

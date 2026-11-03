@@ -60,6 +60,9 @@
       no_log: True
       # to make Psono variables available
       environment: '{{ inventory__group_environment | d({}) }}'
+      register: sanitize_logs
+      # failure is reported after the sanitization log has been fetched
+      failed_when: false
 
     - name: Check if source file exists
       stat:
@@ -73,7 +76,8 @@
         dest: '{{ result_dir }}/'
         flat: True
       failed_when: false
-      when: venom_zip_file_stat.stat.exists
+      # a failed sanitization may leave an older archive (e.g. from the box bake)
+      when: venom_zip_file_stat.stat.exists and sanitize_logs.rc | d(1) == 0
 
     # sanitize-venom-logs.sh runs under no_log, so its own log is the only way
     # to see why an archive is missing
@@ -83,3 +87,8 @@
         dest: '{{ result_dir }}/sanitize-{{ inventory_hostname }}.log'
         flat: True
       failed_when: false
+
+    - name: Fail if logs sanitization failed
+      fail:
+        msg: 'sanitize-venom-logs.sh failed (rc={{ sanitize_logs.rc | d("unknown") }}), see sanitize-{{ inventory_hostname }}.log in job artifacts'
+      when: sanitize_logs.rc | d(1) != 0
