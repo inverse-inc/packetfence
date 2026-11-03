@@ -17,8 +17,9 @@ const components = {
 
 import { computed } from '@vue/composition-api'
 import i18n from '@/utils/locale'
+import { areaSections } from '@/extensions'
 const setup = () => {
-  const sections = computed(() => ([
+  const sections = computed(() => areaSections('preferences', [ // add the UI extensions items, see extensions/README.md
     {
       name: i18n.t('Settings'),
       path: '/preferences/settings'
@@ -27,7 +28,7 @@ const setup = () => {
       name: i18n.t('Permissions'),
       path: '/preferences/permissions'
     }
-  ]))
+  ], { i18n }))
 
   return {
     sections

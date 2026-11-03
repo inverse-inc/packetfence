@@ -18,6 +18,7 @@ import PreferencesRoute from '@/views/Preferences/_router'
 import ResetRoute from '@/views/Reset/_router'
 import LiveLogsRoutes from '@/views/LiveLogs/_router'
 import HistoricalLogsRoutes from '@/views/HistoricalLogs/_router'
+import { applyRoutes } from '@/extensions'
 
 Vue.use(Loading)
 
@@ -56,18 +57,20 @@ const DefaultRoute = {
 
 let router = new Router({
   routes: [
-    LoginRoute,
-    StatusRoute,
-    ReportsRoute,
-    AuditingRoute,
-    NodesRoute,
-    UsersRoute,
-    ConfigurationRoute,
-    ConfiguratorRoute,
-    PreferencesRoute,
-    ResetRoute,
-    ...LiveLogsRoutes,
-    ...HistoricalLogsRoutes,
+    ...applyRoutes([ // add the UI extensions routes, see extensions/README.md
+      LoginRoute,
+      StatusRoute,
+      ReportsRoute,
+      AuditingRoute,
+      NodesRoute,
+      UsersRoute,
+      ConfigurationRoute,
+      ConfiguratorRoute,
+      PreferencesRoute,
+      ResetRoute,
+      ...LiveLogsRoutes,
+      ...HistoricalLogsRoutes
+    ]),
     DefaultRoute
   ]
 })

@@ -1,0 +1,18 @@
+# French translations of the hello-world UI extension
+msgid ""
+msgstr ""
+"Language: fr\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "Hello World"
+msgstr "Bonjour le monde"
+
+msgid "This view is provided by the hello-world UI extension."
+msgstr "Cette vue est fournie par l'extension "
+"hello-world de l'interface."
+
+msgid "Hostname: {hostname}"
+msgstr "Nom d'hôte : {hostname}"
+
+msgid "Clicked {count} times"
+msgstr "Cliqué {count} fois"

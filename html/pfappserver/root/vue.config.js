@@ -1,4 +1,20 @@
+const fs = require('fs')
+const path = require('path')
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
+const { discoverExtensions, writeRegistry } = require('./build/ui-extensions')
+
+// UI extensions (see extensions/README.md). Without any extension nothing is
+// written and the webpack configuration below is unchanged.
+const extensionsOutDir = path.join(__dirname, '.pf-ui-extensions')
+const extensions = discoverExtensions({ root: __dirname })
+let extensionsRegistry = null
+if (extensions.length > 0) {
+  extensionsRegistry = writeRegistry(extensionsOutDir, extensions)
+  // eslint-disable-next-line no-console
+  console.log(`[pf-ui-extensions] building with: ${extensions.map(({ id, realDir }) => `${id} (${realDir})`).join(', ')}`)
+} else if (fs.existsSync(extensionsOutDir)) {
+  fs.rmSync(extensionsOutDir, { recursive: true, force: true }) // stale, from a previous build
+}
 
 module.exports = {
   publicPath: '/admin',
@@ -29,6 +45,12 @@ module.exports = {
     sourceMap: process.env.VUE_APP_DEBUG === 'true',
     extract: process.env.VUE_APP_DEBUG !== 'true',
     loaderOptions: {
+      ...((extensions.some(({ outsideRoot }) => outsideRoot))
+        // postcss-loader looks for its configuration from each file's directory,
+        // point extensions located outside of this directory to package.json
+        ? { postcss: { postcssOptions: { config: __dirname } } }
+        : {}
+      ),
       sass: {
         sassOptions: {
           includePaths: [
@@ -56,6 +78,15 @@ module.exports = {
     }
   },
   chainWebpack: config => {
+    if (extensionsRegistry) {
+      // the registry alias must come before '@', the first matching alias wins
+      const src = config.resolve.alias.get('@')
+      config.resolve.alias.delete('@')
+      config.resolve.alias.set('@/extensions/registry$', extensionsRegistry)
+      config.resolve.alias.set('@', src)
+      for (const { id, realDir } of extensions)
+        config.resolve.alias.set(`@pf-ext/${id}`, realDir)
+    }
     if (process.env.VUE_APP_DEBUG === 'true') {
       config.optimization.minimize(false)
       config.optimization.delete('minimizer')

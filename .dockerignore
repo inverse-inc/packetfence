@@ -1,5 +1,9 @@
 # Directories we don't need to send to the build context
 html/pfappserver/root/node_modules
+# UI extensions clones: keep the sources, not their git metadata or packages
+html/pfappserver/root/extensions/*/.git
+html/pfappserver/root/extensions/*/node_modules
+html/pfappserver/root/.pf-ui-extensions/
 lib_perl/
 logs/
 var/

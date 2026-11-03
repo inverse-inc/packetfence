@@ -3,6 +3,8 @@
 ./addons/extract_i18n_strings.pl > html/pfappserver/lib/pfappserver/I18N/en.po.tmp 
 ./addons/extract_i18n_strings_portal.pl > conf/locale/en/LC_MESSAGES/packetfence.po.tmp
 ./addons/extract_i18n_strings_api.pl > conf/I18N/api/en.po.tmp
+# the admin UI extensions have their own PO files and Transifex resources
+./addons/extract_i18n_strings_ui_extensions.sh
 cat <<EOF
 
 # diff between current po file and new po file

@@ -13,8 +13,17 @@ use JSON::MaybeXS qw();
 use YAML::XS qw(:all);
 use JSON::PP qw();
 use Hash::Merge qw(merge);
+use Getopt::Long;
 $YAML::XS::Boolean = "JSON::PP";
 my $base_path = "$install_dir/docs/api/spec";
+
+# The admin UI extensions (html/pfappserver/root/extensions/README.md) can
+# provide static paths and components in <extension>/docs/api/spec/static. They
+# are private, so they are only merged on demand: openapi.json and openapi.yaml
+# are committed in the public repository.
+my $with_extensions = $ENV{PF_API_SPEC_EXTENSIONS} ? 1 : 0;
+GetOptions('with-extensions!' => \$with_extensions)
+    or die "usage: $0 [--with-extensions]\n";
 
 my $spec = LoadFile("$base_path/openapi-base.yaml");
 
@@ -41,6 +50,8 @@ for my $comp_set ($components, $components_deprecated, $components_static) {
 
 $spec->{components} = merge($components, merge($components_deprecated, $components_static));
 
+merge_extensions($spec) if $with_extensions;
+
 insert_search_parameters($spec);
 fix_discriminator_mappings($spec);
 add_go_names_for_duplicates($spec);
@@ -61,11 +72,84 @@ YAML::XS::DumpFile("$base_path/openapi.yaml", $spec);
 
 write_file("$base_path/openapi.json", {binmode => ':utf8'}, JSON::MaybeXS->new->pretty(1)->canonical(1)->encode($spec));
 
+# a directory relative to $base_path, or an absolute one
+sub full_dir {
+    my ($dir) = @_;
+    return $dir =~ m#^/# ? $dir : "$base_path/$dir";
+}
+
 sub dir_yaml_files {
     my ($dir) = @_;
     my @files;
-    find({ wanted => sub { push @files, $_ if $_ =~ /\.yaml$/ }, follow => 1, no_chdir => 1}, "$base_path/$dir");
+    find({ wanted => sub { push @files, $_ if $_ =~ /\.yaml$/ }, follow => 1, no_chdir => 1}, full_dir($dir));
     return sort @files;
+}
+
+=head2 ui_extensions
+
+The admin UI extensions, found like the UI build does: the drop-ins of
+html/pfappserver/root/extensions/ sorted by name (skipping the names starting
+with . or _), then the absolute paths of PF_UI_EXTENSIONS (':' separated).
+
+=cut
+
+sub ui_extensions {
+    my @extensions;
+    my $dropin = "$install_dir/html/pfappserver/root/extensions";
+    if (opendir(my $dh, $dropin)) {
+        for my $name (sort grep { !/^[._]/ && -d "$dropin/$_" } readdir($dh)) {
+            push @extensions, [$name, "$dropin/$name"];
+        }
+        closedir($dh);
+    }
+    for my $dir (grep { length } split(/:/, $ENV{PF_UI_EXTENSIONS} // '')) {
+        die "PF_UI_EXTENSIONS entry $dir must be an absolute path to a directory\n" if $dir !~ m#^/# || !-d $dir;
+        $dir =~ s#/+$##;
+        my ($name) = $dir =~ m#([^/]+)$#;
+        push @extensions, [$name, $dir];
+    }
+    return @extensions;
+}
+
+=head2 merge_extensions
+
+Merge the static paths and components of the admin UI extensions, after the
+core ones: an extension replaces a core path or component with the same name.
+
+=cut
+
+sub merge_extensions {
+    my ($spec) = @_;
+    my @merged;
+    for my $extension (ui_extensions()) {
+        my ($id, $dir) = @$extension;
+        my $static = "$dir/docs/api/spec/static";
+        next unless -d $static;
+        push @merged, $id;
+        if (-d "$static/paths") {
+            my %paths;
+            merge_yaml_into_paths(\%paths, "$static/paths");
+            for my $path (sort keys %paths) {
+                warn "WARNING: extension '$id' replaces the path '$path'\n" if exists $spec->{paths}{$path};
+                $paths{$path}{'x-pf-extension'} = $id;
+                $spec->{paths}{$path} = $paths{$path};
+            }
+        }
+        if (-d "$static/components") {
+            my $components = hash_yaml_dir("$static/components");
+            for my $type (sort keys %$components) {
+                for my $name (sort keys %{$components->{$type}}) {
+                    warn "WARNING: extension '$id' replaces the component '$type/$name'\n" if exists $spec->{components}{$type}{$name};
+                }
+            }
+            # Hash::Merge is left precedent: the extension wins
+            $spec->{components} = merge($components, $spec->{components});
+        }
+    }
+    if (@merged) {
+        warn "Merged the API specifications of the UI extensions: " . join(', ', @merged) . "\n"
+           . "Do not commit openapi.json and openapi.yaml, restore them with git-unstage-generated.sh\n";
+    }
 }
 
 my %HTTP_METHODS = (
@@ -178,7 +262,7 @@ sub add_go_names_for_duplicates {
 sub hash_yaml_dir {
     my ($dir) = @_;
     my %all;
-    my $full_path = "$base_path/$dir";
+    my $full_path = full_dir($dir);
     for my $file (dir_yaml_files($dir)) {
         my $path_parts = $file;
         $path_parts =~ s#\Q$full_path\E/##;
