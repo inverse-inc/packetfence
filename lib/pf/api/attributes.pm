@@ -96,11 +96,6 @@ sub isPublic {
     return _hasTag($class, $method, 'Public');
 }
 
-sub isQueue {
-    my ($class, $method) = @_;
-    return _hasAnyTags($class, $method, 'Public', 'Queue');
-}
-
 =head2 isAllowedInQueue
 
 Check if a method can be run from the queue.
@@ -110,6 +105,7 @@ Only methods tagged Queue or AllowedAsAction are allowed, unless they are tagged
 
 sub isAllowedInQueue {
     my ($class, $method) = @_;
+    return 0 if !defined($method) || ref($method);
     return 0 if _hasTag($class, $method, 'NoQueue');
     return _hasAnyTags($class, $method, 'Queue', 'AllowedAsAction') ? 1 : 0;
 }

@@ -122,16 +122,18 @@ sub process_next_job {
         local $@;
         eval {
             local $@;
-            my $item = sereal_decode_safe($data);
-            if (ref($item) ne 'ARRAY') {
-                die "Invalid object stored in queue";
+            my $item = eval { sereal_decode_safe($data) };
+            unless (ref($item) eq 'ARRAY' && pf::factory::task->isValidType($item->[0])) {
+                my $error = "Invalid task stored in queue" . ($@ ? ": $@" : "");
+                $redis->del($task_id);
+                if ($task_data{status_update}) {
+                    $self->get_status_updater($task_id)->failed({message => $error, status => 500});
+                }
+
+                die $error;
             }
 
             my $type = $item->[0];
-            unless (pf::factory::task->isValidType($type)) {
-                die "Invalid task type stored in queue";
-            }
-
             my $args = $item->[1];
             my $task = "pf::task::$type"->new;
             if($task_data{status_update}) {
