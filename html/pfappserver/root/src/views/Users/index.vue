@@ -17,8 +17,9 @@ const components = {
 
 import { computed } from '@vue/composition-api'
 import i18n from '@/utils/locale'
+import { areaSections } from '@/extensions'
 const setup = () => {
-  const sections = computed(() => ([
+  const sections = computed(() => areaSections('users', [ // add the UI extensions items, see extensions/README.md
     {
       name: i18n.t('Search'),
       path: '/users/search',
@@ -48,7 +49,7 @@ const setup = () => {
       path: '/users/import',
       can: 'create users'
     }
-  ]))
+  ], { i18n }))
 
   return {
     sections

@@ -536,6 +536,9 @@ cp -r containers %{buildroot}/usr/local/pf
 
 # temp
 cp -r html/pfappserver %{buildroot}/usr/local/pf/html
+# never ship the source of the admin UI extensions (html/pfappserver/root/extensions/README.md)
+find %{buildroot}/usr/local/pf/html/pfappserver/root/extensions -mindepth 1 -maxdepth 1 ! -name README.md -exec rm -rf {} + 2>/dev/null || :
+rm -rf %{buildroot}/usr/local/pf/html/pfappserver/root/extensions.example %{buildroot}/usr/local/pf/html/pfappserver/root/.pf-ui-extensions
 cp -r html/captive-portal %{buildroot}/usr/local/pf/html
 cp -r html/common %{buildroot}/usr/local/pf/html
 

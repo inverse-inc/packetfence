@@ -1,0 +1,14 @@
+/api/v1/hello_world:
+  description: Hello World (example UI extension)
+  get:
+    summary: Get the hello world greeting
+    operationId: api.v1.HelloWorld.get
+    responses:
+      '200':
+        description: The greeting
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HelloWorld'
+    tags:
+      - HelloWorld

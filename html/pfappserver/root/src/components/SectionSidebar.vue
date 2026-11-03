@@ -184,6 +184,8 @@ const setup = (props, context) => {
 
   const can = item => {
     if ('can' in item) {
+      if (item.can.constructor === Function)
+        return item.can()
       return acl.$can.apply(null, item.can.split(' '))
     }
     return true

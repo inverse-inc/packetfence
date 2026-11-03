@@ -12,6 +12,33 @@ extract_i18n_strings_api.pl - extract localizable strings that are used by the A
 The script extracts the localized strings from the Javascript code and the default configuration
 files.
 
+It must be run from the root of the repository.
+
+=head1 SYNOPSIS
+
+  # core: html/pfappserver/root/src and conf/*.conf.defaults
+  addons/extract_i18n_strings_api.pl > conf/I18N/api/en.po.tmp
+
+  # an admin UI extension: only its own strings, the ones core already has are skipped
+  addons/extract_i18n_strings_api.pl --src <extension> --po <extension>/i18n/en.po > <extension>/i18n/en.po.tmp
+
+=head1 OPTIONS
+
+=over
+
+=item --src DIR
+
+Extract the strings of the Javascript code of an admin UI extension located in
+DIR (see html/pfappserver/root/extensions/README.md) instead of the core ones.
+The default configuration files are not parsed and the strings already in the
+core PO file are skipped.
+
+=item --po FILE
+
+The English PO file of the existing translations, default conf/I18N/api/en.po.
+
+=back
+
 =cut
 
 # The repository's lib, after the installed one, for pf::I18N::extract
@@ -21,6 +48,7 @@ use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::I18N::extract qw(js_unescape js_translated_strings po_escape add_source);
 use Config::IniFiles;
 use File::Find;
+use Getopt::Long;
 
 use constant {
     APP => 'html/pfappserver',
@@ -29,6 +57,18 @@ use constant {
 
 my %strings = ();
 my %translations = ();
+my %core_strings = ();
+
+my $src;
+my $po_file = CONF.'/I18N/api/en.po';
+GetOptions(
+    'src=s' => \$src,
+    'po=s'  => \$po_file,
+) or die "usage: $0 [--src DIR] [--po FILE]\n";
+if (defined $src) {
+    $src =~ s#/+$##;
+    die "$src is not a directory\n" unless -d $src;
+}
 
 =head1 SUBROUTINES
 
@@ -44,7 +84,10 @@ sub add_string {
     # A string from the JavaScript source is a literal, already decoded by
     # js_translated_strings or js_unescape: it is the string looked up at
     # runtime (e.g. 'domain\\username' is domain\username)
-    add_source(\%strings, po_escape($string, newlines => 1), $source);
+    my $escaped = po_escape($string, newlines => 1);
+    # An extension doesn't need the strings already translated by core
+    return if exists $core_strings{$escaped};
+    add_source(\%strings, $escaped, $source);
 }
 
 =head2 add_translation
@@ -56,6 +99,7 @@ Add an existing English translation.
 sub add_translation {
     my ($key, $value) = @_;
 
+    return unless length $value;
     $translations{$key} = $value;
 }
 
@@ -67,9 +111,11 @@ translated even for English.
 =cut
 
 sub parse_po {
-    my $file = CONF.'/I18N/api/en.po';
+    my ($file, $callback) = @_;
+    $file //= $po_file;
+    $callback //= \&add_translation;
     my ($key, %msg);
-    open(PO, $file);
+    open(PO, $file) or return;
     my $line;
     while (defined($line = <PO>)) {
         chomp $line;
@@ -78,8 +124,8 @@ sub parse_po {
                 $msg{$key} .= $1;
             }
         } elsif ($line =~ m/^(msgid|msgstr) \"(.*)\"$/) {
-            if ($msg{msgid} && $msg{msgstr}) {
-                add_translation($msg{msgid}, $msg{msgstr});
+            if ($msg{msgid} && defined $msg{msgstr}) {
+                $callback->($msg{msgid}, $msg{msgstr});
                 delete $msg{msgid};
                 delete $msg{msgstr};
             } elsif ($1 eq 'msgid') {
@@ -89,10 +135,20 @@ sub parse_po {
             $msg{$key} = $2;
         }
     }
-    if ($msg{msgid} && $msg{msgstr}) {
-        add_translation($msg{msgid}, $msg{msgstr});
+    if ($msg{msgid} && defined $msg{msgstr}) {
+        $callback->($msg{msgid}, $msg{msgstr});
     }
     close(PO);
+}
+
+=head2 parse_core_po
+
+Load the strings of the core PO file, skipped when extracting an extension.
+
+=cut
+
+sub parse_core_po {
+    parse_po(CONF.'/I18N/api/en.po', sub { $core_strings{$_[0]} = 1 });
 }
 
 =head2 parse_js
@@ -102,10 +158,15 @@ Extract localized strings from JavaScript code.
 =cut
 
 sub parse_js {
-    my $dir = APP.'/root/src';
+    my $dir = $src // APP.'/root/src';
     my @files = ();
 
     my $js = sub {
+        # skip the dependencies and the git metadata of an extension
+        if (-d && m/^(node_modules|\.git)$/) {
+            $File::Find::prune = 1;
+            return;
+        }
         return unless -f && m/\.(js|vue)$/;
         push(@files, $File::Find::name);
     };
@@ -113,21 +174,24 @@ sub parse_js {
     find($js, $dir);
 
     my $line;
-    foreach my $file (@files) {
+    foreach my $file (sort @files) {
         my $nb = 1;
+        # the sources of an extension are relative to its directory
+        my $source = $file;
+        $source =~ s#^\Q$src\E/## if defined $src;
         open(JS, $file);
         while (defined($line = <JS>)) {
             chomp $line;
             # $t() and v-t inside <template>, i18n.t() inside <script>
-            add_string($_, "$file:$nb") for js_translated_strings($line);
+            add_string($_, "$source:$nb") for js_translated_strings($line);
             # i18n defer inside <script>
             if ($line =~ m/['`](.+?(?<!\/\/))['`],?\s+\/\/ i18n defer$/g) {
-                add_string(js_unescape($1), "$file:$nb");
+                add_string(js_unescape($1), "$source:$nb");
             }
             # Report untranslatable strings
             while ($line =~ m/(\$t\(|v-t="|i18n\.t\()([^'`].+?)[\)"]/g) {
                 my $string = $2;
-                warn "Can't translate variable in $file:$nb: $string\n";
+                warn "Can't translate variable in $source:$nb: $string\n";
             }
             $nb++;
         }
@@ -233,11 +297,17 @@ sub verify {
 
 #### MAIN ####
 
-&parse_po;
-&parse_js;
-&parse_conf;
-&print_po;
-&verify;
+if (defined $src) {
+    parse_core_po();
+    parse_po();
+    parse_js();
+} else {
+    parse_po();
+    parse_js();
+    parse_conf();
+}
+print_po();
+verify();
 
 =head1 AUTHOR
 

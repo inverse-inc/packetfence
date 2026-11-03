@@ -1,8 +1,9 @@
 import { computed } from '@vue/composition-api'
 import i18n from '@/utils/locale'
+import { areaSections } from '@/extensions'
 
 export const useSections = () => {
-  const sections = computed(() => ([
+  const sections = computed(() => areaSections('configuration', [ // add the UI extensions items, see extensions/README.md
     {
       name: i18n.t('Policies and Access Control'),
       path: '/configuration/policies_access_control',
@@ -163,7 +164,7 @@ export const useSections = () => {
         { name: i18n.t('SSL Certificates'), path: '/configuration/certificates' },
       ]
     }
-  ]))
+  ], { i18n }))
 
   return {
     sections

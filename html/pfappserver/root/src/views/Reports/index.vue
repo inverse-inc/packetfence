@@ -15,6 +15,8 @@ const components = {
 
 import { computed, onMounted, ref } from '@vue/composition-api'
 import { delimiter } from './config'
+import i18n from '@/utils/locale'
+import { areaSections } from '@/extensions'
 const setup = (props, context) => {
 
 const { root: { $store } = {} } = context
@@ -88,8 +90,8 @@ const { root: { $store } = {} } = context
       }
       return associated
     }, {})
-    // return structured items
-    return _struct(associated)
+    // return structured items, add the UI extensions items (see extensions/README.md)
+    return areaSections('reports', _struct(associated), { i18n })
   })
 
   return {
