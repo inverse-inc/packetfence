@@ -233,10 +233,10 @@ sub deauthenticateWiredMacRadius {
 Return the numbered C<Huawei-Data-Filter> rules for an access list, catch all
 included.
 
-L<pf::Switch/_getAccessListByName> runs the role ACLs, a node's bypass_acls and
-the access lists defined on the switch entry through L</acl_chewer>, so the
-lines normally arrive here as rules; a line still in Cisco syntax is translated
-here. Rules are numbered here rather than in L</acl_chewer> so the
+L<pf::Switch/_getAccessListByName> runs the role ACLs and a node's bypass_acls
+through L</acl_chewer>, so they arrive here as rules. The access lists defined
+on the switch entry itself are sent as the administrator wrote them: a line
+still in Cisco syntax is translated here. Rules are numbered here rather than in L</acl_chewer> so the
 numbering stays contiguous and in the order the administrator wrote the access
 list, which is the order the switch evaluates them in.
 

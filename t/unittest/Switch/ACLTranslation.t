@@ -350,10 +350,9 @@ foreach my $switch ($aruba, $arista, $aos, $forti) {
     }
 }
 
-# The bypass ACLs of a node and the access lists of the switch entry are
-# written in Cisco syntax like the ACLs of a role: they go through acl_chewer
-# too, so every switch, Cisco included, gets them translated like the ACLs of a
-# role
+# The bypass ACLs of a node are written in Cisco syntax like the ACLs of a
+# role: they go through acl_chewer too, so every switch, Cisco included, gets
+# them translated like the ACLs of a role
 {
     my $mac = '02:00:5e:ac:1b:01';
     # The bypass ACLs of the node, read through node_view without a database
@@ -393,13 +392,12 @@ foreach my $switch ($aruba, $arista, $aos, $forti) {
     is($aruba->getAccessListByName('r4', $mac), deny_all($aruba), "Aruba CX: bypass ACLs the parser cannot read deny everything");
     $node_acls = undef;
 
-    my $entry = pf::Switch::Aruba::ArubaOS_CX_10_x->new({%args, access_lists => { r4 => "permit udp any any eq 53" }});
-    is($entry->getAccessListByName('r4', $mac), chew($entry, "permit udp any any eq 53"), "Aruba CX: the access list of the switch entry is translated like the ACLs of a role");
-    like($entry->getAccessListByName('r4', $mac), qr/^(?:in\|)?permit in udp from any to any 53$/m, "Aruba CX: the access list of the switch entry is in the NAS-Filter-Rule syntax");
-    my $native_entry = pf::Switch::Aruba::ArubaOS_CX_10_x->new({%args, access_lists => { r4 => $native }});
-    is($native_entry->getAccessListByName('r4', $mac), deny_all($native_entry), "Aruba CX: an access list of the switch entry the parser cannot read denies everything");
-    my $cisco_entry = pf::Switch::Cisco::Cisco_IOS_15_5->new({%args, access_lists => { r4 => "permit udp any any eq 53" }});
-    is($cisco_entry->getAccessListByName('r4', $mac), "in|permit udp any any eq 53\n", "Cisco: the access list of the switch entry is translated like the ACLs of a role");
+    # The access list of the switch entry is sent as the administrator wrote it,
+    # in the syntax of the switch: it does not go through acl_chewer
+    my $entry = pf::Switch::Aruba::ArubaOS_CX_10_x->new({%args, access_lists => { r4 => $native }});
+    is($entry->getAccessListByName('r4', $mac), $native, "Aruba CX: the access list of the switch entry is sent as written, in the syntax of the switch");
+    my $cisco_entry = pf::Switch::Cisco::Cisco_IOS_15_5->new({%args, access_lists => { r4 => "permit udp any eq 68 any" }});
+    is($cisco_entry->getAccessListByName('r4', $mac), "permit udp any eq 68 any", "Cisco: the access list of the switch entry is sent as written, not filtered like the ACLs of a role");
 }
 
 =head1 AUTHOR

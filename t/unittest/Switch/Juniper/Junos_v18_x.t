@@ -228,8 +228,8 @@ is_deeply(
     "an already chewed term is passed through untouched"
 );
 
-# A line that did not go through acl_chewer (a RADIUS filter, an older caller)
-# arrives here in Cisco syntax.
+# The access list of the switch entry does not go through acl_chewer: a line in
+# Cisco syntax is translated here.
 is_deeply(
     [$switch->_switchingFilterTerms("permit ip any host 8.8.8.8\ndeny ip any any", 'testrole')],
     ["Match Destination-ip 8.8.8.8 Action allow", "Match Destination-ip 0.0.0.0/0 Action deny"],
@@ -248,7 +248,8 @@ is_deeply(
     "blank lines are ignored"
 );
 
-# Raw lines are translated one at a time, so the stop has to happen here too.
+# The lines of the switch entry are translated one at a time, so the stop has
+# to happen here too.
 is_deeply(
     [$switch->_switchingFilterTerms("deny ip host 10.1.1.1 any\npermit ip any any", 'testrole')],
     ["Match Destination-ip 0.0.0.0/0 Action deny"],

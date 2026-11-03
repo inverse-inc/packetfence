@@ -885,9 +885,9 @@ sub _getAccessListByName {
         return;
     }
     
-    # The bypass ACLs of the node and the access lists of the switch entry are
-    # written in Cisco syntax like the ACLs of a role: run them through
-    # acl_chewer too, so they are translated for the switch like the role ACLs
+    # The bypass ACLs of the node are written in Cisco syntax like the ACLs of
+    # a role: run them through acl_chewer too, so they are translated for the
+    # switch like the role ACLs
     my $node = node_view($mac);
     if ($node) {
         my $acls = $node->{bypass_acls};
@@ -897,9 +897,11 @@ sub _getAccessListByName {
         }
     }
 
+    # The access lists of the switch entry are sent as the administrator wrote
+    # them, in the syntax of the switch: they do not go through acl_chewer
     if (defined($self->{'_access_lists'}->{$access_list_name})) {
         $logger->debug("Using ACL from the switch entry instead of the one defined in the role");
-        return "role", $self->acl_chewer($self->{'_access_lists'}->{$access_list_name}, $access_list_name);
+        return "role", $self->{'_access_lists'}->{$access_list_name};
     }
 
     return undef, undef if !exists $ConfigRoles{$access_list_name};
