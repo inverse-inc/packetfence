@@ -662,23 +662,21 @@ sub returnAuthorizeRead {
 =item untranslatableControllerAcl
 
 Why a parsed ACL entry cannot be sent to a controller (Controller 200,
-Mobility Master), or undef when it can. TCP flags do not apply correctly on
-the controller; the source port and the ICMP type are not printed; a
-destination port is printed as one port or a range, so another operator (gt,
-lt, neq) cannot be represented, and a port name the protocol does not know has
-no number. Dropping any of them would widen the ACL.
+Mobility Master), or undef when it can. The controller takes what a filter
+rule takes (L<pf::Switch/untranslatableFilterRule>, with the source address
+and port ranges): no TCP flags, no source port, no ICMP type, a destination
+port as one port or a range, a contiguous mask, a protocol with a number. A
+port name the protocol does not know has no number. Dropping any of them
+would widen the ACL.
 
 =cut
 
 sub untranslatableControllerAcl {
     my ($self, $entry) = @_;
-    my $reason = $self->untranslatableTcpFlags($entry);
+    my $reason = $self->untranslatableFilterRule($entry, ranges => 1, source => 1);
     return $reason if defined $reason;
-    return "the source port is not sent" if defined $entry->{'source'}->{'port'};
-    return "the ICMP type is not sent ('".$entry->{'icmp_qualifier'}."')" if defined $entry->{'icmp_qualifier'};
     my $port = $entry->{'destination'}->{'port'};
     return undef if !defined $port;
-    return "the port operator '$port' cannot be represented" if $port !~ m{^(?:eq\s+\S+|range\s+\S+\s+\S+)$};
     foreach my $name ($port =~ m{\s(\S+)}g) {
         return "the port name '$name' has no number" if !defined $self->aclPortNumber($name, $entry->{'protocol'});
     }

@@ -23,7 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 172;
+use Test::More tests => 176;
 use Test::MockModule;
 use Data::Dumper;
 use pf::Switch;
@@ -275,6 +275,8 @@ foreach my $switch ($controller, $mobility_push) {
 }
 like(chew($controller, "permit tcp any any range 100 200"), qr/100-200/, "Aruba Controller: a range is sent");
 like(chew($controller, "permit tcp any any eq www"), qr/ 80\s*$/m, "Aruba Controller: a Cisco port name becomes its number");
+is(chew($controller, "permit ip any 10.0.0.0 0.255.0.255\npermit tcp any any eq 443"), chew($controller, "permit tcp any any eq 443"), "Aruba Controller: a non contiguous mask is skipped instead of dying");
+is(chew($controller, "permit nos any any\npermit tcp any any eq 443"), chew($controller, "permit tcp any any eq 443"), "Aruba Controller: a protocol without a number is skipped");
 is(chew($controller, "deny udp any any eq www\npermit ip any any"), deny_all($controller), "Aruba Controller: a port name the protocol does not know ends the ACLs with a deny all");
 is($cisco->aclPortNumber('www', 'tcp(6)'), 80, "aclPortNumber: a name of the parsed protocol");
 is($cisco->aclPortNumber('www', 'udp'), undef, "aclPortNumber: a name the protocol does not know");
@@ -283,7 +285,9 @@ is($cisco->aclPortNumber('443', 6), 443, "aclPortNumber: a number is kept");
     local $aireos_push->{_aclsForPush} = 1;
     is(chew($aireos_push, "permit tcp any any range 8000 8010\npermit tcp any any eq 443"), chew($aireos_push, "permit tcp any any eq 443"), "AireOS push: a port range is skipped, not pushed without a port");
     is(chew($aireos_push, "deny icmp any any echo\npermit ip any any"), deny_all($aireos_push), "AireOS push: a deny on an ICMP type ends the ACLs with a deny all");
-    like(chew($aireos_push, "permit tcp any gt 1024 any"), qr/^acl rule source port range testrole 1 1025 65534$/m, "AireOS push: gt on the source port is a computed range, not '1024+1'");
+    like(chew($aireos_push, "permit tcp any gt 1024 any"), qr/^acl rule source port range testrole 1 1025 65535$/m, "AireOS push: gt on the source port is a computed range up to 65535, not '1024+1'");
+    is(chew($aireos_push, "permit ip any 10.0.0.0 0.255.0.255\npermit tcp any any eq 443"), chew($aireos_push, "permit tcp any any eq 443"), "AireOS push: a non contiguous mask is skipped, not pushed as a bogus mask");
+    is(chew($aireos_push, "permit nos any any\npermit tcp any any eq 443"), chew($aireos_push, "permit tcp any any eq 443"), "AireOS push: a protocol the rule does not know is skipped, not pushed as any");
     like(chew($aireos_push, "permit tcp any any lt 1024"), qr/^acl rule destination port range testrole 1 1 1023$/m, "AireOS push: lt on the destination port is a computed range");
     like(chew($aireos_push, "permit tcp any any eq www"), qr/^acl rule destination port range testrole 1 80 80$/m, "AireOS push: a Cisco port name becomes its number");
 }

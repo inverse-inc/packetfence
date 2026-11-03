@@ -890,7 +890,8 @@ sub _getAccessListByName {
     # switch like the role ACLs
     $node = node_view($mac) if !defined $node;
     if (defined(my $acls = $self->nodeBypassAcls($node))) {
-        return "asset", $self->acl_chewer($acls, $access_list_name);
+        # The label only names the ACLs in the logs of the translation
+        return "asset", $self->acl_chewer($acls, "$access_list_name (bypass ACLs of $mac)");
     }
 
     # The access lists of the switch entry are sent as the administrator wrote

@@ -734,7 +734,7 @@ sub acl_chewer {
             next if !defined $acl->{$side}->{'port'};
             next if $acl->{$side}->{'port'} !~ m{^(eq|gt|lt)\s+(\S+)$};
             my ($operator, $port) = ($1, $self->aclPortNumber($2, $acl->{'protocol'}));
-            my $range = $operator eq 'eq' ? "$port $port" : $operator eq 'gt' ? ($port + 1)." 65534" : "1 ".($port - 1);
+            my $range = $operator eq 'eq' ? "$port $port" : $operator eq 'gt' ? ($port + 1)." 65535" : "1 ".($port - 1);
             $acl_chewed .= "acl rule $side port range $role $j $range\n";
         }
         $i++;
@@ -747,8 +747,11 @@ sub acl_chewer {
 
 Why a parsed ACL entry cannot be pushed as the "acl rule" commands built by
 L</acl_chewer>, or undef when it can. A rule has no TCP flags and no ICMP
-type, and a port is a range built from eq, gt or lt: another operator (range,
-neq) is not printed, and a port name the protocol does not know has no number. Dropping any of them would widen the ACL.
+type, a port is a range built from eq, gt or lt: another operator (range, neq)
+is not printed, and a port name the protocol does not know has no number. An
+address mask has to be contiguous, and the protocol one of the rule (ip, icmp,
+igmp, tcp, udp, gre): another one would be pushed as any. Dropping any of them
+would widen the ACL.
 
 =cut
 
@@ -757,7 +760,11 @@ sub _untranslatablePushAcl {
     my $reason = $self->untranslatableTcpFlags($entry);
     return $reason if defined $reason;
     return "the ICMP type is not sent ('".$entry->{'icmp_qualifier'}."')" if defined $entry->{'icmp_qualifier'};
+    my $protocol = $entry->{'protocol'};
+    return "the protocol '".(ref $protocol ? 'object group' : $protocol)."' is not a rule protocol" if ref $protocol || $protocol !~ m{^(?:ip\(\)|(?:icmp|igmp|tcp|udp|gre)\(\d+\))$};
     foreach my $side ('source', 'destination') {
+        my $wildcard = $entry->{$side}->{'wildcard'};
+        return "the $side mask '$wildcard' is not contiguous" if !$self->aclWildcardIsContiguous($wildcard);
         my $port = $entry->{$side}->{'port'};
         next if !defined $port;
         return "the $side port operator '$port' cannot be represented" if $port !~ m{^(?:eq|gt|lt)\s+(\S+)$};

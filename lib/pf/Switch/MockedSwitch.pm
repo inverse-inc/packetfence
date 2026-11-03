@@ -3382,7 +3382,7 @@ sub format_acl {
         if ($acl_line =~ /^(in\||out\|)(.*)/) {
             my $direction = $1;
             my $raw_acl = $2;
-            if (($self->supportsOutAcl || $self->usePushACLs) && $direction eq "out|") {
+            if (($self->supportsOutAcl || $self->aclsForPush) && $direction eq "out|") {
                 $acls .= $raw_acl."\n";
                 $direction[$i] = "out";
             } elsif ($direction eq "in|") {
