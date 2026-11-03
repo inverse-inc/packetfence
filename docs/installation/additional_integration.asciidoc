@@ -37,7 +37,7 @@ source to the destination as well optionally mirroring DNS traffic for
 integration with the Fingerbank Collector
 
 Download the
-https://inverse.ca/downloads/PacketFence/windows-packetfence-forwarder/PacketFence-Forwarder-Installer.exe[DHCP Forwarder installer].
+https://inverse.ca/downloads/PacketFence/addons/windows/packetfence-forwarder/PacketFence-Forwarder-Installer.exe[PacketFence-Forwarder installer].
 
 This installs `nPCAP`, `nssm`, launches a configurator for the interface, IP and
 port, saves the configuration, and finally installs and launches the
