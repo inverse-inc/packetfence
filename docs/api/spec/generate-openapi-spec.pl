@@ -7,6 +7,7 @@ use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::file_paths qw($install_dir);
 use pf::services;
 use File::Find;
+use Cwd qw(realpath);
 use File::Slurp qw(read_file write_file);
 use Data::Dumper;
 use JSON::MaybeXS qw();
@@ -94,7 +95,7 @@ with . or _), then the absolute paths of PF_UI_EXTENSIONS (':' separated).
 =cut
 
 sub ui_extensions {
-    my @extensions;
+    my (@extensions, %ids);
     my $dropin = "$install_dir/html/pfappserver/root/extensions";
     if (opendir(my $dh, $dropin)) {
         for my $name (sort grep { !/^[._]/ && -d "$dropin/$_" } readdir($dh)) {
@@ -108,7 +109,21 @@ sub ui_extensions {
         my ($name) = $dir =~ m#([^/]+)$#;
         push @extensions, [$name, $dir];
     }
-    return @extensions;
+    my (@unique, %real_dirs);
+    for my $extension (@extensions) {
+        my ($id, $dir) = @$extension;
+        my $real_dir = realpath($dir);
+        if (exists $real_dirs{$real_dir}) {
+            warn "WARNING: UI extension $dir is the same directory as $real_dirs{$real_dir}, ignored\n";
+            next;
+        }
+        $real_dirs{$real_dir} = $dir;
+        die "UI extension $dir: the name '$id' must match ^[a-z0-9][a-z0-9-]*\$\n" if $id !~ /^[a-z0-9][a-z0-9-]*$/;
+        die "two UI extensions have the id '$id': $ids{$id} and $dir\n" if exists $ids{$id};
+        $ids{$id} = $dir;
+        push @unique, $extension;
+    }
+    return @unique;
 }
 
 =head2 merge_extensions
@@ -140,10 +155,10 @@ sub merge_extensions {
             for my $type (sort keys %$components) {
                 for my $name (sort keys %{$components->{$type}}) {
                     warn "WARNING: extension '$id' replaces the component '$type/$name'\n" if exists $spec->{components}{$type}{$name};
+                    # replaced whole, a deep merge would keep the core properties and concatenate the arrays
+                    $spec->{components}{$type}{$name} = $components->{$type}{$name};
                 }
             }
-            # Hash::Merge is left precedent: the extension wins
-            $spec->{components} = merge($components, $spec->{components});
         }
     }
     if (@merged) {

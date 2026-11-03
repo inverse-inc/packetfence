@@ -10,8 +10,7 @@ const extensions = discoverExtensions({ root: __dirname })
 let extensionsRegistry = null
 if (extensions.length > 0) {
   extensionsRegistry = writeRegistry(extensionsOutDir, extensions)
-  // eslint-disable-next-line no-console
-  console.log(`[pf-ui-extensions] building with: ${extensions.map(({ id, realDir }) => `${id} (${realDir})`).join(', ')}`)
+  process.stderr.write(`[pf-ui-extensions] building with: ${extensions.map(({ id, realDir }) => `${id} (${realDir})`).join(', ')}\n`)
 } else if (fs.existsSync(extensionsOutDir)) {
   fs.rmSync(extensionsOutDir, { recursive: true, force: true }) // stale, from a previous build
 }
@@ -20,6 +19,9 @@ module.exports = {
   publicPath: '/admin',
   outputDir: 'dist',
   indexPath: 'index.html',
+  // source maps only for the debug builds, they embed the original sources
+  // (of the UI extensions too)
+  productionSourceMap: process.env.VUE_APP_DEBUG === 'true',
   devServer: {
     port: 8081,
     server: 'https',

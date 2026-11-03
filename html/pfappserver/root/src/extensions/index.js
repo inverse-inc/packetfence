@@ -63,9 +63,24 @@ const findRoute = (routes, key, base = '') => {
  * The arrays are modified in place on purpose: the areas routers that iterate
  * their own `children` (eg: the Status redirect) see the extensions routes.
  */
+// all the route names, at any depth
+const routeNames = (routes, names = new Set()) => {
+  for (const route of routes) {
+    if (route.name)
+      names.add(route.name)
+    if (Array.isArray(route.children))
+      routeNames(route.children, names)
+  }
+  return names
+}
+
 export const applyRoutes = routes => {
   for (const { id, routes: extensionRoutes } of extensions) {
     for (const { parent, ...route } of asArray(extensionRoutes)) {
+      if (typeof route.path !== 'string') {
+        logError(`${id}: route "${route.name}" without a path ignored`)
+        continue
+      }
       let siblings = routes
       let base = ''
       if (parent) {
@@ -90,8 +105,12 @@ export const applyRoutes = routes => {
         logInfo(`${id}: route "${route.name || path}" overrides "${siblings[index].name || path}"`)
         siblings.splice(index, 1, route)
       }
-      else
+      else {
+        // vue-router keeps the first route of a name, the extension route would not be reachable by name
+        if (route.name && routeNames(routes).has(route.name))
+          logError(`${id}: route name "${route.name}" is already used elsewhere, use a unique name or the same parent to override it`)
         siblings.push(route)
+      }
     }
   }
   return routes
@@ -227,6 +246,12 @@ export const loadExtensionMessages = lang => {
   const loaders = extensions
     .map(({ messages }) => messages[lang] || messages[base])
     .filter(loader => loader)
-  return Promise.all(loaders.map(loader => loader().then(module => module.default || module)))
+  // a translation that fails to load must not prevent the language change
+  return Promise.all(loaders.map(loader => loader()
+    .then(module => module.default || module)
+    .catch(err => {
+      logError(`translations "${lang}" failed to load`, err)
+      return {}
+    })))
     .then(all => Object.assign({}, ...all))
 }
