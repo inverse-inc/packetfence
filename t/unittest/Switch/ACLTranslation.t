@@ -23,7 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 131;
+use Test::More tests => 147;
 use Test::MockModule;
 use pf::Switch;
 use pf::Switch::Aruba::ArubaOS_CX_10_x;
@@ -273,6 +273,9 @@ foreach my $switch ($controller, $aireos_push) {
 }
 
 like(pf::Switch::untranslatableAclQualifier($aruba, { action => 'permit', protocol => { object_group_service => 'foo' }, source => {}, destination => {} }) // '', qr/object group 'foo'/, "the protocol object group is named in the reason");
+is(pf::Switch::untranslatableAclQualifier($aruba, { action => 'permit', protocol => 'ip()', source => undef, destination => $any }), "the source has no address", "an entry without an address hash is rejected, not formatted as any");
+is($cisco->untranslatableTcpFlags({ tcp_flags => 'established' }), "the TCP flags are not sent ('established')", "untranslatableTcpFlags: the flags are named in the reason");
+ok(!defined $cisco->untranslatableTcpFlags({}), "untranslatableTcpFlags: no flags, no reason");
 like(pf::Switch::untranslatableAclQualifier($aruba, { action => 'permit', protocol => 'tcp(6)', source => { object_group_network => 'SRC' }, destination => { ipv4_addr => '0.0.0.0', wildcard => '255.255.255.255' } }) // '', qr/source is not an IPv4 address/, "the address object group is named in the reason");
 
 # Qualifiers the parser reads without returning them: the entry of

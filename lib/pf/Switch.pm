@@ -4811,12 +4811,25 @@ sub untranslatableAclQualifier {
     }
     foreach my $side ('source', 'destination') {
         my $address = $entry->{$side};
-        next if ref($address) ne 'HASH';
+        return "the $side has no address" if ref($address) ne 'HASH';
         return "the $side is not an IPv4 address (".join(', ', map { "$_ $address->{$_}" } sort keys %$address).")" if !defined($address->{'ipv4_addr'});
         # The modules tell "any" by the address 0.0.0.0 alone: an address 0.0.0.0
         # with another mask (host 0.0.0.0) would be sent as any
         return "the $side address 0.0.0.0 is only sent as any" if $address->{'ipv4_addr'} eq '0.0.0.0' && ($address->{'wildcard'} // '') ne '255.255.255.255';
     }
+    return undef;
+}
+
+=head2 untranslatableTcpFlags
+
+Why a parsed ACL entry cannot be sent by a module whose format has no TCP flags
+match, or undef when it has none: dropping the flags would widen the ACL.
+
+=cut
+
+sub untranslatableTcpFlags {
+    my ($self, $entry) = @_;
+    return "the TCP flags are not sent ('".$entry->{'tcp_flags'}."')" if defined $entry->{'tcp_flags'};
     return undef;
 }
 

@@ -39,7 +39,8 @@ sub acl_chewer {
     my ($acl_ref , @direction) = $self->format_acl($acl);
 
     my $entries;
-    ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, sub { $self->_untranslatableAcl($_[0]) });
+    # TCP flags do not apply correctly on the controller
+    ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, sub { $self->untranslatableTcpFlags($_[0]) });
 
     my $i = 0;
     my @acl_chewed;
@@ -101,20 +102,6 @@ sub acl_chewer {
         $i++;
     }
     return \@acl_chewed;
-}
-
-=head2 _untranslatableAcl
-
-Why a parsed ACL entry cannot be sent by L</acl_chewer>, or undef when it can.
-TCP flags do not apply correctly on the controller: dropping them would widen
-the ACL, so the entry is not sent.
-
-=cut
-
-sub _untranslatableAcl {
-    my ($self, $entry) = @_;
-    return "TCP flags do not apply correctly on the controller ('".$entry->{'tcp_flags'}."')" if defined $entry->{'tcp_flags'};
-    return undef;
 }
 
 =head2 implicit_acl
