@@ -26,7 +26,7 @@ use pf::ConfigStore::Provisioning;
 use Utils;
 my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Provisioning");
 
-use Test::More tests => 124;
+use Test::More tests => 130;
 use Test::Mojo;
 
 #This test will running last
@@ -183,6 +183,28 @@ $t->post_ok($collection_base_url => json => {
     id       => "id_generic_http_badfunc_$$",
     url      => 'https://mdm.example.com/api/v1/devices',
     body     => '{"owner": ${nope($node.pid)}}',
+    jq_query => '.status == "enrolled"',
+})->status_is(422);
+
+# the TLS data of the device is available to the templates as $tls
+my $tls_id = "id_generic_http_tls_$$";
+$t->post_ok($collection_base_url => json => {
+    type     => 'generic_http',
+    id       => $tls_id,
+    url      => 'https://mdm.example.com/api/v1/certs/${url_quote($tls.TLSClientCertSerial)}',
+    headers  => 'X-Cert-CN: $tls.TLSClientCertCommonName',
+    body     => '{"cn": ${json_quote($tls.TLSClientCertCommonName)}}',
+    jq_query => '.status == "enrolled"',
+})->status_is(201);
+
+$t->delete_ok("$base_url/$tls_id")
+  ->status_is(200);
+
+# a variable other than $mac, $node and $tls is rejected at save time
+$t->post_ok($collection_base_url => json => {
+    type     => 'generic_http',
+    id       => "id_generic_http_badvar_$$",
+    url      => 'https://mdm.example.com/api/v1/devices?x=$nope.attr',
     jq_query => '.status == "enrolled"',
 })->status_is(422);
 

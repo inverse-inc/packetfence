@@ -29,7 +29,7 @@ has_field 'url' =>
    required => 1,
    validate_method => \&validate_template,
    tags => { after_element => \&help,
-             help => 'The URL of the request. This is a template: $mac is the MAC address of the device and $node.&lt;attribute&gt; (ex: $node.pid, $node.category) are the attributes of the node. A literal &#39;$&#39; must be doubled (&#39;$$&#39;), otherwise it is read as a variable and dropped. Use the url_quote() template function for values that may contain URL-significant characters (for example, url_quote($node.pid)).' },
+             help => 'The URL of the request. This is a template: $mac is the MAC address of the device and $node.&lt;attribute&gt; (ex: $node.pid, $node.category) are the attributes of the node and $tls.&lt;attribute&gt; (ex: $tls.TLSClientCertSerial) the TLS certificate data last seen for it. A literal &#39;$&#39; must be doubled (&#39;$$&#39;), otherwise it is read as a variable and dropped. Use the url_quote() template function for values that may contain URL-significant characters (for example, url_quote($node.pid)).' },
   );
 
 has_field 'headers' =>
@@ -159,7 +159,7 @@ sent corrupted.
 
 =cut
 
-our %VALID_TMPL_VARS = (mac => 1, node => 1);
+our %VALID_TMPL_VARS = (mac => 1, node => 1, tls => 1);
 
 our %VALID_TMPL_FUNCS = map { $_ => 1 } qw(
   uc lc join split substr macToEUI48 replace if json_quote url_quote
@@ -225,7 +225,7 @@ sub check_template {
     if (@unknown) {
         my $names = join(', ', map { "\$$_" } @unknown);
         $names =~ s/([\[\]])/~$1/g;
-        $field->add_error("${prefix}unknown template variable(s): $names. Only \$mac and \$node.<attribute> are available; a literal '\$' must be written '\$\$'.");
+        $field->add_error("${prefix}unknown template variable(s): $names. Only \$mac, \$node.<attribute> and \$tls.<attribute> are available; a literal '\$' must be written '\$\$'.");
     }
 
     my @unknown_funcs = sort grep { !$VALID_TMPL_FUNCS{$_} } keys %{ $tmpl->{info}{funcs} // {} };

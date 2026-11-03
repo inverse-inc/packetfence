@@ -40,6 +40,11 @@ following variables are available:
  * `$node.<attribute>`: any attribute of the node (ex: `$node.pid`,
    `$node.category`, `$node.computername`, ...), see <<generic_http_available_fields>>
    for the complete list
+ * `$tls.<attribute>`: the TLS certificate data PacketFence last recorded for
+   the device (ex: `$tls.TLSClientCertSerial`, `$tls.TLSClientCertCommonName`),
+   the same data the jq query gets as `$tls`, see
+   <<generic_http_available_fields>>. An attribute is empty when nothing is
+   recorded for the device.
 
 For example:
 
@@ -52,12 +57,13 @@ for API tokens, which often contain one:
 
 written with a single `$`, the `$def` would be read as an (empty) variable and
 the token would be sent truncated. The provisioner refuses to save a URL,
-header or body that references a variable other than `$mac` and `$node.*`, or
+header or body that references a variable other than `$mac`, `$node.*` and
+`$tls.*`, or
 a template function it does not support.
 
 ===== Escaping values
 
-Node attributes are inserted as is. Two template functions are provided to
+Node and TLS attributes are inserted as is. Two template functions are provided to
 escape them where the surrounding syntax requires it. Function calls use the
 `${function(...)}` syntax.
 
@@ -123,7 +129,7 @@ and the following one authorizes it as soon as at least one device matched:
   .devices | length > 0
 
 The device being checked is available to the query as three jq variables,
-the first two being the same two the request templates get:
+the same three the request templates get:
 
  * `$mac`: the MAC address of the device
  * `$node`: the attributes of the node, as an object (ex: `$node.pid`,
@@ -172,8 +178,8 @@ not deauthorize the device.
 [[generic_http_available_fields]]
 ===== Available fields
 
-The attributes below are available as `$node.<attribute>` in the request
-templates and in the jq query, and as `$tls.<attribute>` in the jq query only.
+The attributes below are available as `$node.<attribute>` and
+`$tls.<attribute>` in the request templates and in the jq query.
 An attribute that is not set for the device is empty in a template and `null`
 in the jq query.
 
