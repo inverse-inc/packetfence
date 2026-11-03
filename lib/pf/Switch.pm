@@ -852,8 +852,8 @@ sub _parentRoleForVlan {
 }
 
 sub getAccessListByName {
-    my ($self, $access_list_name, $mac, $port) = @_;
-    my ($type, $acls) = $self->_getAccessListByName($access_list_name, $mac);
+    my ($self, $access_list_name, $mac, $port, $args) = @_;
+    my ($type, $acls) = $self->accessListForRequest($access_list_name, $mac, $args);
     return if !defined $type;
     my $status = pf::dal::switch_observability_acls->remove_items(
         -where => {
@@ -872,6 +872,26 @@ sub getAccessListByName {
     });
     $dal->upsert();
     return $acls;
+}
+
+=item accessListForRequest
+
+The access list of a RADIUS request, from L</_getAccessListByName>, computed once
+per request: the reply decides whether the access list replaces the pushed role
+(L</replyAccessListReplacesRole>) before the module sends it, and both get the
+same answer from the node of the request (its node_info) instead of a second
+parse, translation and node lookup. Without the arguments of a request, it is
+computed on each call from node_view.
+
+=cut
+
+sub accessListForRequest {
+    my ($self, $access_list_name, $mac, $args) = @_;
+    return $self->_getAccessListByName($access_list_name, $mac) if ref($args) ne 'HASH';
+    my $key = join("\0", map { defined($_) ? $_ : '' } $self->{_id}, $access_list_name, $mac);
+    my $cache = $args->{'_access_list_cache'} ||= {};
+    $cache->{$key} ||= [ $self->_getAccessListByName($access_list_name, $mac, $args->{'node_info'}) ];
+    return @{$cache->{$key}};
 }
 
 sub _getAccessListByName {
@@ -1036,7 +1056,7 @@ sub replyAccessListReplacesRole {
     return 0 if !$self->replyNamesPushedRole || !$self->aclsInRadiusReply;
     # With Push ACLs, _getAccessListByName only returns the access list of the
     # switch entry or the bypass ACLs of the node
-    my ($type, $acls) = $self->_getAccessListByName($args->{'user_role'}, $args->{'mac'}, $args->{'node_info'});
+    my ($type, $acls) = $self->accessListForRequest($args->{'user_role'}, $args->{'mac'}, $args);
     return (defined $acls && $acls ne '') ? 1 : 0;
 }
 

@@ -23,7 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 190;
+use Test::More tests => 197;
 use Test::MockModule;
 use Data::Dumper;
 use pf::Switch;
@@ -483,6 +483,34 @@ $dal->mock(upsert => sub { 1 });
     is($cisco_map_entry->replyAccessListReplacesRole($req->(undef)), 1, "Cisco with Push ACLs: the access list of the switch entry replaces the pushed role");
     my $controller_push = pf::Switch::Aruba::Controller_200->new({%args, UsePushACLs => 'Y', AccessListMap => 'Y'});
     is($controller_push->replyAccessListReplacesRole($req->($bypass)), 0, "Aruba Controller with Push ACLs: the ACLs are only pushed, the role stays named whatever the node has");
+
+    # The reply decides whether the bypass ACLs replace the pushed role before
+    # the module sends them: both get them from one translation of the node of
+    # the request, without a node_view
+    {
+        my ($calls, $views) = (0, 0);
+        my $orig = \&pf::Switch::_getAccessListByName;
+        $node_mock->mock('_getAccessListByName', sub { $calls++; $orig->(@_) });
+        $node_mock->mock('node_view', sub { $views++; undef });
+        my $request = $req->($bypass);
+        is($cisco_map->replyAccessListReplacesRole($request), 1, "one request: the bypass ACLs replace the pushed role");
+        is($cisco_map->getAccessListByName('r4', $mac, undef, $request), chew($cisco, $bypass), "one request: the module sends the same bypass ACLs");
+        is($calls, 1, "one request: the access list is translated once");
+        is($views, 0, "one request: the node of the request is used, no node_view");
+        $node_mock->unmock('_getAccessListByName');
+        $node_mock->mock('node_view', sub { defined($node_acls) ? { mac => $mac, bypass_acls => $node_acls } : undef });
+    }
+
+    # Bypass ACLs that translate to nothing (an out| line on a switch without
+    # out ACLs) send no access list, and the ACLs of the role are not used in
+    # their place: the bypass ACLs replace them
+    $node_acls = "out|permit ip any host 10.0.0.1";
+    my $nothing = $cisco->getAccessListByName('r4', $mac);
+    ok(!defined($nothing) || $nothing eq '', "Cisco: bypass ACLs that translate to nothing send no access list, not the ACLs of the role");
+    $nothing = $aruba->getAccessListByName('r4', $mac);
+    ok(!defined($nothing) || $nothing eq '', "Aruba CX: bypass ACLs that translate to nothing send no access list, not the ACLs of the role");
+    $node_acls = undef;
+    is($cisco_map->replyAccessListReplacesRole($req->("out|permit ip any host 10.0.0.1")), 0, "Cisco with Push ACLs: bypass ACLs that translate to nothing leave the pushed role named");
 
     # An out| line is only kept for the push: in a RADIUS reply a switch
     # without out ACLs skips it, Push ACLs enabled or not

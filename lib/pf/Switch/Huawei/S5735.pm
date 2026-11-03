@@ -149,7 +149,7 @@ sub returnRadiusAccessAccept {
     if (isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement) {
         my $role = $args->{'user_role'};
         if (defined($role) && $role ne "") {
-            my $access_list = $self->getAccessListByName($role, $args->{'mac'}, $args->{'ifIndex'});
+            my $access_list = $self->getAccessListByName($role, $args->{'mac'}, $args->{'ifIndex'}, $args);
             if ($access_list) {
                 my @rules = $self->_dataFilterRules($access_list, $role);
                 $radius_reply_ref->{'Huawei-Data-Filter'} = \@rules if @rules;

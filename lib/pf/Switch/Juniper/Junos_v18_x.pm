@@ -260,7 +260,7 @@ sub returnRadiusAccessAccept {
     if (isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement) {
         my $role = $args->{'user_role'};
         if (defined($role) && $role ne "") {
-            my $access_list = $self->getAccessListByName($role, $args->{'mac'}, $args->{'ifIndex'});
+            my $access_list = $self->getAccessListByName($role, $args->{'mac'}, $args->{'ifIndex'}, $args);
             if ($access_list) {
                 foreach my $term ($self->_switchingFilterBudget([$self->_switchingFilterTerms($access_list, $role)], $role)) {
                     push @filters, $term;

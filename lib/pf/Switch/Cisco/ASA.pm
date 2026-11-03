@@ -194,7 +194,7 @@ sub returnAuthorizeVPN {
         }
     }
     if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
-        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}, $args->{ifIndex}))){
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}, $args->{ifIndex}, $args))){
             if ($access_list) {
                 if ($self->useDownloadableACLs) {
                     my @acl = split("\n", $access_list);
