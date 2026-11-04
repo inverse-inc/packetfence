@@ -852,8 +852,8 @@ sub _parentRoleForVlan {
 }
 
 sub getAccessListByName {
-    my ($self, $access_list_name, $mac, $port) = @_;
-    my ($type, $acls) = $self->_getAccessListByName($access_list_name, $mac);
+    my ($self, $access_list_name, $mac, $port, $args) = @_;
+    my ($type, $acls) = $self->accessListForRequest($access_list_name, $mac, $args);
     return if !defined $type;
     my $status = pf::dal::switch_observability_acls->remove_items(
         -where => {
@@ -867,15 +867,35 @@ sub getAccessListByName {
         port => (defined $port && $port ne '') ? $port : undef,
         role_id => $access_list_name,
         acl_type => $type,
-        acls => $acls,
+        acls => $self->observabilityAcls($acls),
         enforcement_timestamp => \"NOW()",
     });
     $dal->upsert();
     return $acls;
 }
 
+=item accessListForRequest
+
+The access list of a RADIUS request, from L</_getAccessListByName>, computed once
+per request: the reply decides whether the access list replaces the pushed role
+(L</replyAccessListReplacesRole>) before the module sends it, and both get the
+same answer from the node of the request (its node_info) instead of a second
+parse, translation and node lookup. Without the arguments of a request, it is
+computed on each call from node_view.
+
+=cut
+
+sub accessListForRequest {
+    my ($self, $access_list_name, $mac, $args) = @_;
+    return $self->_getAccessListByName($access_list_name, $mac) if ref($args) ne 'HASH';
+    my $key = join("\0", map { defined($_) ? $_ : '' } $self->{_id}, $access_list_name, $mac);
+    my $cache = $args->{'_access_list_cache'} ||= {};
+    $cache->{$key} ||= [ $self->_getAccessListByName($access_list_name, $mac, $args->{'node_info'}) ];
+    return @{$cache->{$key}};
+}
+
 sub _getAccessListByName {
-    my ($self, $access_list_name, $mac) = @_;
+    my ($self, $access_list_name, $mac, $node) = @_;
     my $logger = $self->logger;
     
     # Check if AccessListEnabled parameter exists and is disabled for this role
@@ -885,20 +905,29 @@ sub _getAccessListByName {
         return;
     }
     
-    my $node = node_view($mac);
-    if ($node) {
-        my $acls = $node->{bypass_acls};
-        chomp($acls) if defined $acls;
-        if (defined $acls && $acls ne '') {
-            return "asset", $acls;
-        }
+    # The bypass ACLs of the node are written in Cisco syntax like the ACLs of
+    # a role: run them through acl_chewer too, so they are translated for the
+    # switch like the role ACLs
+    $node = node_view($mac) if !defined $node;
+    if (defined(my $acls = $self->nodeBypassAcls($node))) {
+        # The label only names the ACLs in the logs of the translation
+        return "asset", $self->acl_chewer($acls, "$access_list_name (bypass ACLs of $mac)");
     }
 
+    # The access lists of the switch entry are sent as the administrator wrote
+    # them, in the syntax of the switch: they do not go through acl_chewer
     if (defined($self->{'_access_lists'}->{$access_list_name})) {
         $logger->debug("Using ACL from the switch entry instead of the one defined in the role");
         return "role", $self->{'_access_lists'}->{$access_list_name};
     }
 
+    # With Push ACLs the ACLs of a role are in the switch configuration (see
+    # getRoleAccessListByName): the reply only names the role. The bypass ACLs
+    # and the access lists of the switch entry above are not pushed, which is
+    # why they are still sent. A reply that cannot name the role (Role Map
+    # disabled) carries the ACLs of the role instead: dropping both would leave
+    # the device unrestricted
+    return undef, undef if $self->replyNamesPushedRole;
     return undef, undef if !exists $ConfigRoles{$access_list_name};
     my $role = $ConfigRoles{$access_list_name};
     # Skip role ACLs if the toggle is disabled
@@ -918,7 +947,7 @@ sub _getAccessListByName {
     # No ACLs on this role — walk up to parent_id if defined
     my $parent_id = $role->{parent_id};
     if (defined $parent_id && length $parent_id) {
-        return $self->_getAccessListByName($parent_id, $mac);
+        return $self->_getAccessListByName($parent_id, $mac, $node);
     }
 
     # otherwise log and return undef
@@ -946,13 +975,105 @@ sub getRoleAccessListByName {
             port => undef,
             role_id => $access_list_name,
             acl_type => 'role',
-            acls => $acls,
+            acls => $self->observabilityAcls($acls),
             enforcement_timestamp => \"NOW()",
         });
         $dal->upsert();
     }
 
     return $acls;
+}
+
+=item observabilityAcls
+
+The ACLs as stored in switch_observability_acls: the text a chewer returns,
+or the JSON of the structure a chewer builds for the push (Aruba Mobility
+Master), which the table cannot take as is.
+
+=cut
+
+sub observabilityAcls {
+    my ($self, $acls) = @_;
+    return ref($acls) ? encode_json($acls) : $acls;
+}
+
+=item nodeBypassAcls
+
+The bypass ACLs of a node (its node_view, or the node_info of a RADIUS
+request, a pf::dal::node object), or undef when it has none.
+
+=cut
+
+sub nodeBypassAcls {
+    my ($self, $node) = @_;
+    # node_info is a blessed hash (pf::dal::node), node_view a plain one
+    my $acls = (defined $node && (Scalar::Util::reftype($node) // '') eq 'HASH') ? $node->{'bypass_acls'} : undef;
+    return undef if !defined $acls || $acls !~ /\S/;
+    chomp($acls);
+    return $acls;
+}
+
+=item aclsInRadiusReply
+
+Whether the reply to this request carries the access list of the role: the
+default returnRadiusAccessAccept never adds it, and neither do the modules
+that only push the ACLs to the switch configuration. A module whose reply adds
+it answers yes under the same condition as the code that adds it, so the
+pushed role is never dropped for an access list the reply does not carry.
+
+=cut
+
+sub aclsInRadiusReply {
+    my ($self, $args) = @_;
+    return 0;
+}
+
+=item accessListMapEnabled
+
+Whether the Access List Map is enabled on a switch type that reads it: the
+condition under which a module adds the access list of the role to its reply.
+
+=cut
+
+sub accessListMapEnabled {
+    my ($self) = @_;
+    return (isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement) ? 1 : 0;
+}
+
+=item replyNamesPushedRole
+
+With Push ACLs, whether a reply of this switch can name the pushed role, which
+applies the ACLs pushed under its name: the Role Map is enabled and the switch
+type supports roles. Otherwise the reply carries the ACLs of the role like
+without Push ACLs.
+
+=cut
+
+sub replyNamesPushedRole {
+    my ($self) = @_;
+    return ($self->usePushACLs && isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement) ? 1 : 0;
+}
+
+=item replyAccessListReplacesRole
+
+With Push ACLs, whether the reply to this request carries an access list that
+replaces the pushed ACLs of the role: the access list of the switch entry or
+the bypass ACLs of the node, when the module adds it to this reply
+(L</aclsInRadiusReply>) and it translates to something to send. A role the
+switch entry maps is still sent next to them, like without Push ACLs. A reply
+that cannot name the pushed role has no role to replace. A reply that cannot
+carry the access list keeps naming the pushed role: the bypass ACLs of a node
+are per device and cannot be pushed, so they are not supported there.
+
+=cut
+
+sub replyAccessListReplacesRole {
+    my ($self, $args) = @_;
+    return 0 if !$self->replyNamesPushedRole || !$self->aclsInRadiusReply($args);
+    # With Push ACLs, _getAccessListByName only returns the access list of the
+    # switch entry or the bypass ACLs of the node
+    my ($type, $acls) = $self->accessListForRequest($args->{'user_role'}, $args->{'mac'}, $args);
+    return (defined $acls && $acls ne '') ? 1 : 0;
 }
 
 =item aclsForPush
@@ -3352,10 +3473,14 @@ sub returnRadiusAccessAccept {
         if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" ) {
             $role = $self->getRoleByName($args->{'user_role'});
         }
-        if ( (defined($role) && $role ne "") || $self->usePushACLs ) {
-            if ($self->usePushACLs && exists $ConfigRoles{$args->{'user_role'}} && !exists $self->{'_access_lists'}->{$args->{'user_role'}}) {
-                $role = $args->{'user_role'};
-            }
+        # With Push ACLs the ACLs of the role are in the switch configuration
+        # under the name of the role, which the reply names, unless the reply
+        # carries an access list that replaces them (the one of the switch
+        # entry, the bypass ACLs of the node)
+        if ($self->usePushACLs && exists $ConfigRoles{$args->{'user_role'}} && !$self->replyAccessListReplacesRole($args)) {
+            $role = $args->{'user_role'};
+        }
+        if ( defined($role) && $role ne "" ) {
             $radius_reply_ref = {
                 %$radius_reply_ref,
                 $self->returnRoleAttributes($role),
@@ -4725,7 +4850,7 @@ sub format_acl {
         if ($acl_line =~ /^(in\||out\|)(.*)/) {
             my $direction = $1;
             my $raw_acl = $2;
-            if (($self->supportsOutAcl || $self->usePushACLs) && $direction eq "out|") {
+            if (($self->supportsOutAcl || $self->aclsForPush) && $direction eq "out|") {
                 $acls .= $raw_acl."\n";
                 $direction[$i] = "out";
             } elsif ($direction eq "in|") {
@@ -4763,7 +4888,11 @@ it can.
 Cisco::AccessList::Parser reads the dscp, precedence, tos, fragments,
 time-range and option qualifiers of a line without returning them, so the entry
 of "permit ip any any dscp ef" is the one of "permit ip any any". Translating
-it would widen the ACL. An "evaluate" line gives an entry with no action.
+it would widen the ACL. It also drops the code of a numeric ICMP type: the entry
+of "permit icmp any any 3 1" is the one of "permit icmp any any 3", every
+destination unreachable. An "evaluate" line gives an entry with no action. An
+object group (a service or network object defined on the switch) is given as a
+hash in place of the protocol or the address: no module can send it.
 
 =cut
 
@@ -4771,13 +4900,112 @@ sub untranslatableAclQualifier {
     my ($self, $entry) = @_;
     return "the ACL is not a permit or a deny" if ($entry->{'action'} // '') !~ /^(?:permit|deny)$/;
     return "the '".lc($1)."' qualifier is not sent" if ($entry->{'acl_line'} // '') =~ /\s(dscp|precedence|tos|fragments|time-range|option)(?:\s|$)/i;
-    # The modules tell "any" by the address 0.0.0.0 alone: an address 0.0.0.0 with
-    # another mask (host 0.0.0.0) would be sent as any
+    if (defined($entry->{'icmp_qualifier'}) && defined($entry->{'acl_line'})) {
+        my $reason = $self->untranslatableIcmpTrailer($entry->{'acl_line'}, $entry->{'icmp_qualifier'});
+        return $reason if defined $reason;
+    }
+    # An object group names an object defined on the switch: the parser gives a
+    # hash in place of the protocol (object-group service) or of the address
+    # (object-group network), which no module can send
+    if (ref($entry->{'protocol'}) eq 'HASH') {
+        return "the protocol object group '".join(',', values %{$entry->{'protocol'}})."' is not sent";
+    }
     foreach my $side ('source', 'destination') {
         my $address = $entry->{$side};
-        next if ref($address) ne 'HASH' || !defined($address->{'ipv4_addr'}) || $address->{'ipv4_addr'} ne '0.0.0.0';
-        return "the $side address 0.0.0.0 is only sent as any" if !defined($address->{'wildcard'}) || $address->{'wildcard'} ne '255.255.255.255';
+        return "the $side has no address" if ref($address) ne 'HASH';
+        return "the $side is not an IPv4 address (".join(', ', map { "$_ $address->{$_}" } sort keys %$address).")" if !defined($address->{'ipv4_addr'});
+        # The modules tell "any" by the address 0.0.0.0 alone: an address 0.0.0.0
+        # with another mask (host 0.0.0.0) would be sent as any
+        return "the $side address 0.0.0.0 is only sent as any" if $address->{'ipv4_addr'} eq '0.0.0.0' && ($address->{'wildcard'} // '') ne '255.255.255.255';
     }
+    return undef;
+}
+
+=head2 untranslatableIcmpTrailer
+
+Why the words after the ICMP type of an ACL line cannot be translated, or undef
+when there are none but a log keyword. Cisco::AccessList::Parser returns the
+type and drops what follows it: the code of a numeric type ("permit icmp any any
+3 1" would be every destination unreachable) and any other qualifier. A line
+whose type cannot be found where it is expected is refused rather than guessed.
+
+=cut
+
+sub untranslatableIcmpTrailer {
+    my ($self, $line, $type) = @_;
+    my @tokens = split(' ', $line);
+    my $i = 0;
+    $i++ while $i < @tokens && $tokens[$i] !~ m{^(?:permit|deny)$}i;
+    # the action and the protocol
+    $i += 2;
+    # the source and the destination: any, host <ip>, object-group <name> or
+    # <ip> <wildcard>
+    foreach my $side (1, 2) {
+        return "the ICMP type '$type' cannot be found in the line" if $i >= @tokens;
+        $i += (lc($tokens[$i]) eq 'any') ? 1 : 2;
+    }
+    return "the ICMP type '$type' cannot be found in the line" if $i >= @tokens || lc($tokens[$i]) ne lc($type);
+    my @trailer = grep { $_ !~ m{^log(?:-input)?$}i } @tokens[$i + 1 .. $#tokens];
+    return undef if !@trailer;
+    return "the code of the ICMP type $type is not sent" if $type =~ m{^\d+$} && $trailer[0] =~ m{^\d+$};
+    return "the ICMP qualifier '@trailer' is not sent";
+}
+
+# The Cisco port names Cisco::AccessList::Parser accepts, by IP protocol
+# number. The modules whose format only takes port numbers resolve them with
+# aclPortNumber.
+our %CISCO_PORT_NAMES = (
+    6 => {
+        'bgp' => 179, 'chargen' => 19, 'cmd' => 514, 'daytime' => 13,
+        'discard' => 9, 'domain' => 53, 'echo' => 7, 'exec' => 512,
+        'finger' => 79, 'ftp' => 21, 'ftp-data' => 20, 'gopher' => 70,
+        'hostname' => 101, 'ident' => 113, 'irc' => 194, 'klogin' => 543,
+        'kshell' => 544, 'login' => 513, 'lpd' => 515, 'nntp' => 119,
+        'pim-auto-rp' => 496, 'pop2' => 109, 'pop3' => 110, 'smtp' => 25,
+        'sunrpc' => 111, 'syslog' => 514, 'tacacs' => 49, 'talk' => 517,
+        'telnet' => 23, 'time' => 37, 'uucp' => 540, 'whois' => 43,
+        'www' => 80,
+    },
+    17 => {
+        'biff' => 512, 'bootpc' => 68, 'bootps' => 67, 'discard' => 9,
+        'dnsix' => 195, 'domain' => 53, 'echo' => 7, 'isakmp' => 500,
+        'mobile-ip' => 434, 'nameserver' => 42, 'netbios-dgm' => 138,
+        'netbios-ns' => 137, 'netbios-ss' => 139, 'non500-isakmp' => 4500,
+        'ntp' => 123, 'pim-auto-rp' => 496, 'rip' => 520, 'snmp' => 161,
+        'snmptrap' => 162, 'sunrpc' => 111, 'syslog' => 514, 'tacacs' => 49,
+        'talk' => 517, 'tftp' => 69, 'time' => 37, 'who' => 513,
+        'xdmcp' => 177,
+    },
+);
+
+=head2 aclPortNumber
+
+The number of a port given as a number or as a Cisco port name of the
+protocol, which is a number (6), the protocol of a parsed entry ("tcp(6)") or
+its name (tcp, udp). Returns undef for a name the protocol does not know.
+
+=cut
+
+sub aclPortNumber {
+    my ($self, $port, $protocol) = @_;
+    return $port if $port =~ m{^\d+$};
+    return if !defined $protocol;
+    $protocol = $1 if $protocol =~ m{\((\d+)\)};
+    $protocol = { tcp => 6, udp => 17 }->{lc($protocol)} if $protocol !~ m{^\d+$};
+    return if !defined $protocol || !exists $CISCO_PORT_NAMES{$protocol};
+    return $CISCO_PORT_NAMES{$protocol}{lc($port)};
+}
+
+=head2 untranslatableTcpFlags
+
+Why a parsed ACL entry cannot be sent by a module whose format has no TCP flags
+match, or undef when it has none: dropping the flags would widen the ACL.
+
+=cut
+
+sub untranslatableTcpFlags {
+    my ($self, $entry) = @_;
+    return "the TCP flags are not sent ('".$entry->{'tcp_flags'}."')" if defined $entry->{'tcp_flags'};
     return undef;
 }
 

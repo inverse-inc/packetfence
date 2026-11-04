@@ -244,6 +244,19 @@ sub ifIndexCacheTables {
     return ([-baseoid => '1.3.6.1.2.1.2.2.1.2']);
 }
 
+=head2 aclsInRadiusReply
+
+L</returnRadiusAccessAccept> adds the access list of the role to the reply
+when the Access List Map is enabled and the request computes the ACLs
+(C<compute_acl>, which a subclass that adds them itself turns off).
+
+=cut
+
+sub aclsInRadiusReply {
+    my ($self, $args) = @_;
+    return ($args->{'compute_acl'} && $self->accessListMapEnabled) ? 1 : 0;
+}
+
 =head2 returnRadiusAccessAccept
 
 Prepares the RADIUS Access-Accept response for the network device.
@@ -265,7 +278,7 @@ sub returnRadiusAccessAccept {
     my @av_pairs = defined($radius_reply_ref->{'Arista-AVPair'}) ? @{$radius_reply_ref->{'Arista-AVPair'}} : ();
 
     if ( $args->{'compute_acl'} && isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
-        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && !($self->usePushACLs && exists $ConfigRoles{$args->{'user_role'}} ) && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}, $args->{ifIndex}))){
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}, $args->{ifIndex}, $args))){
             if ($access_list) {
                 my $acl_num = 101;
                 my @acls;
@@ -472,7 +485,7 @@ sub acl_chewer {
                 }
             }
 
-            $acl_chewed .= $acl_number." ".$acl->{'action'}." ".$acl->{'protocol'}." ".(($self->usePushACLs) ? $src : "any")." ".$dest ." ".(defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '')." ".( defined($acl->{'tcp_flags'}) ? $acl->{'tcp_flags'} : '' );
+            $acl_chewed .= $acl_number." ".$acl->{'action'}." ".$acl->{'protocol'}." ".$src." ".$dest ." ".(defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '')." ".( defined($acl->{'tcp_flags'}) ? $acl->{'tcp_flags'} : '' );
             $acl_number = $acl_number + 10;
             $acl_chewed =~ s/\s+$//;
             $acl_chewed .= "\n";

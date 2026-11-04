@@ -941,6 +941,56 @@ Internet Explorer 11 on Windows 7 when an RSA certificate is in use.
 
 == Upgrading from a version prior to X.Y.Z
 
+=== Bypass ACLs are translated like role ACLs
+
+The _Bypass ACLs_ of a node (Node > Advanced) were sent to the switch as
+written, while the ACLs of a role are translated to the syntax of the switch
+type (Aruba CX, Arista, Juniper, Huawei, Dell, FortiSwitch, ...). They are now
+translated the same way on every switch type, Cisco included, so they must be
+written in the Cisco extended ACL syntax used for role ACLs. The access lists
+defined on a switch or switch group (`<role>AccessList` in
+[filename]`switches.conf`) are still sent as written.
+
+The bypass ACLs follow the rules of role ACLs:
+
+* A line the switch type cannot express is skipped when it is a `permit`. When
+it is a `deny`, the ACLs end there with a deny of everything, because skipping
+it would let the lines after it through. This covers a DSCP match, an
+`object-group`, and a source address on every switch type but FortiSwitch:
+the source of a per-user ACL is the endpoint, and a Cisco switch does not apply
+an ACL with another source. On Cisco it also covers a source port; on the other
+switch types, a source port or an ICMP type, which their `NAS-Filter-Rule`
+cannot express.
+* When none of the lines can be sent, or when the parser cannot read them (for
+example ACLs written in the native syntax of the switch), the device is denied
+everything.
+
+Before upgrading, review the bypass ACLs of the nodes:
+
+[source,bash]
+----
+mysql pf -e "SELECT mac, bypass_acls FROM node WHERE bypass_acls IS NOT NULL AND bypass_acls <> ''"
+----
+
+Rewrite the ones in the native syntax of the switch in the Cisco syntax, and
+remove the source addresses (except on FortiSwitch, which keeps them).
+
+With _Push ACLs_ enabled on a switch, the bypass ACLs of a node and the access
+list of the switch entry were ignored for a role known to PacketFence, as only
+the ACLs of the roles are pushed to the switch configuration. They are now sent
+in the RADIUS reply and replace the pushed ACLs of the role for that device.
+With _Push ACLs_ enabled and the _Role Map_ disabled, no reply names the pushed
+role: the RADIUS reply now carries the ACLs of the role, as without _Push ACLs_,
+where most switch types used to send no ACL at all.
+
+A Cisco switch now receives the ICMP type of an ACL (`permit icmp any any
+echo`); such a line used to be skipped.
+
+The role ACLs pushed to an Aruba Controller, an Aruba Mobility Master or a
+Cisco WLC (AireOS) follow the same rules: a line with TCP flags used to be sent
+without them, which allowed more than the line did. It is now skipped when it is
+a `permit`, and ends the ACLs with a deny of everything when it is a `deny`.
+
 === advanced.multihost replaced by the per-switch host_mode
 
 The `advanced.multihost` parameter had no effect and is removed. Remove it from

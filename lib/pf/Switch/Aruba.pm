@@ -659,6 +659,30 @@ sub returnAuthorizeRead {
    return [$status, %$radius_reply_ref];
 }
 
+=item untranslatableControllerAcl
+
+Why a parsed ACL entry cannot be sent to a controller (Controller 200,
+Mobility Master), or undef when it can. The controller takes what a filter
+rule takes (L<pf::Switch/untranslatableFilterRule>, with the source address
+and port ranges): no TCP flags, no source port, no ICMP type, a destination
+port as one port or a range, a contiguous mask, a protocol with a number. A
+port name the protocol does not know has no number. Dropping any of them
+would widen the ACL.
+
+=cut
+
+sub untranslatableControllerAcl {
+    my ($self, $entry) = @_;
+    my $reason = $self->untranslatableFilterRule($entry, ranges => 1, source => 1);
+    return $reason if defined $reason;
+    my $port = $entry->{'destination'}->{'port'};
+    return undef if !defined $port;
+    foreach my $name ($port =~ m{\s(\S+)}g) {
+        return "the port name '$name' has no number" if !defined $self->aclPortNumber($name, $entry->{'protocol'});
+    }
+    return undef;
+}
+
 =item returnRadiusAccessAccept
 
 Prepares the RADIUS Access-Accept response for the network device.

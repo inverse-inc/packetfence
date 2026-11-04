@@ -1805,17 +1805,17 @@ sub returnInAccessListAttribute {
 
 Why a parsed ACL entry cannot be sent by L</acl_chewer>, or undef when it can.
 
-The source port and the ICMP type are not sent. Without push ACLs the source is
-always sent as "any", which the switch replaces with the address of the
-endpoint, so an ACL on another source cannot be sent either.
+The source port is not sent. In a RADIUS reply (anything but
+the push of the role ACLs, see L<pf::Switch/aclsForPush>) the source is always
+sent as "any", which the switch replaces with the address of the endpoint: the
+switch does not apply an ACL with another source, so it cannot be sent either.
 
 =cut
 
 sub untranslatableCiscoAcl {
     my ($self, $entry) = @_;
-    return "the source address is replaced by the endpoint" if !$self->usePushACLs && $entry->{'source'}->{'ipv4_addr'} ne '0.0.0.0';
+    return "the source address is replaced by the endpoint" if !$self->aclsForPush && $entry->{'source'}->{'ipv4_addr'} ne '0.0.0.0';
     return "the source port is not sent" if defined $entry->{'source'}->{'port'};
-    return "the ICMP type is not sent ('".$entry->{'icmp_qualifier'}."')" if defined $entry->{'icmp_qualifier'};
     return undef;
 }
 
@@ -1870,9 +1870,13 @@ sub acl_chewer {
             }
 
         }
-        $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$acl->{'action'}." ".$acl->{'protocol'}." ".(($self->usePushACLs) ? $src : "any")." ".$dest ." ".(defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '')." ".( defined($acl->{'tcp_flags'}) ? $acl->{'tcp_flags'} : '' );
-        $acl_chewed =~ s/\s+$//;
-        $acl_chewed .= "\n";
+        my @line = ($acl->{'action'}, $acl->{'protocol'}, ($self->aclsForPush ? $src : "any"), $dest);
+        push @line, $acl->{'destination'}->{'port'} if defined $acl->{'destination'}->{'port'};
+        # The ICMP type (echo, echo-reply, 8, ...) and the TCP flags follow the
+        # destination, as in the line the administrator wrote
+        push @line, $acl->{'icmp_qualifier'} if defined $acl->{'icmp_qualifier'};
+        push @line, $acl->{'tcp_flags'} if defined $acl->{'tcp_flags'};
+        $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "") . join(' ', @line) . "\n";
         $i++;
     }
     return $acl_chewed;

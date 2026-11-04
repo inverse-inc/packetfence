@@ -38,21 +38,23 @@ sub acl_chewer {
     my $logger = $self->logger;
     my ($acl_ref , @direction) = $self->format_acl($acl);
 
+    my $entries;
+    ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, sub { $self->untranslatableControllerAcl($_[0]) });
+
     my $i = 0;
     my $acl_chewed;
-    foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
-        #Bypass acl that contain tcp_flag, it doesnt apply correctly on the switch
-        next if (defined($acl->{'tcp_flags'}));
+    foreach my $acl (@$entries) {
         $acl->{'protocol'} =~ s/\(\d*\)//;
         my $dest;
         my $dest_port;
         if (defined($acl->{'destination'}->{'port'})) {
             $dest_port = $acl->{'destination'}->{'port'};
-            if ($dest_port =~ /range\s+(.*)/) {
-                $dest_port = $1;
-                $dest_port =~ s/\s/-/;
+            # One port or a range, as numbers (a Cisco port name is resolved)
+            if ($dest_port =~ /range\s+(\S+)\s+(\S+)/) {
+                $dest_port = $self->aclPortNumber($1, $acl->{'protocol'})."-".$self->aclPortNumber($2, $acl->{'protocol'});
             } else {
                 $dest_port =~ s/\w+\s+//;
+                $dest_port = $self->aclPortNumber($dest_port, $acl->{'protocol'});
             }
         }
         if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
@@ -80,11 +82,10 @@ sub acl_chewer {
         }
         if ($self->aclsForPush) {
             my $dir_prefix = (defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] . "|" : "";
-            my $src_val    = ($self->usePushACLs) ? $src : "any";
             my $dest_port_val = defined($dest_port) ? $dest_port : '';
             my $line = sprintf("%s %s %s %s %s %s\n",
                 $dir_prefix,
-                $src_val,
+                $src,
                 $dest,
                 $acl->{'protocol'},
                 $dest_port_val,

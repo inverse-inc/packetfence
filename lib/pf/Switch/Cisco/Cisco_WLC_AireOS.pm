@@ -685,7 +685,9 @@ sub parseExternalPortalRequest {
 
 =head2 acl_chewer
 
-Format ACL to match with the expected switch format.
+Format ACL to match with the expected switch format: the "acl" commands of the
+controller when the role ACLs are pushed to its configuration, the Cisco ACL of
+a RADIUS reply otherwise (see L<pf::Switch/aclsForPush>).
 
 =cut
 
@@ -693,15 +695,18 @@ sub acl_chewer {
     my ($self, $acl, $role) = @_;
     my $logger = $self->logger;
 
-    return $self->SUPER::acl_chewer($acl, $role) unless $self->usePushACLs;
+    return $self->SUPER::acl_chewer($acl, $role) unless $self->aclsForPush;
 
     my ($acl_ref , @direction) = $self->format_acl($acl);
+
+    my $entries;
+    ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, sub { $self->_untranslatablePushAcl($_[0]) });
 
     my $i = 0;
     my $j = 1;
     my $acl_chewed;
     $acl_chewed .= "acl create $role\n";
-    foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
+    foreach my $acl (@$entries) {
         $acl_chewed .= "acl rule add $role $j\n";
         $acl_chewed .= "acl rule action $role $j $acl->{'action'}\n";
         $acl->{'protocol'} =~ s/\(\d*\)//;
@@ -724,28 +729,54 @@ sub acl_chewer {
         if ($acl->{'destination'}->{'ipv4_addr'} ne '0.0.0.0') {
             $acl_chewed .= "acl rule destination address $role $j $acl->{'destination'}->{'ipv4_addr'} ".norm_net_mask($acl->{'destination'}->{'wildcard'})."\n";
         }
-        if (defined($acl->{'source'}->{'port'}) ) {
-            if ($acl->{'source'}->{'port'} =~ /(\w+)\s+(\d+)/) {
-                switch($1) {
-                    case /eq/ {$acl_chewed .= "acl rule source port range $role $j $2 $2\n"}
-                    case /gt/ {$acl_chewed .= "acl rule source port range $role $j $2+1 65534\n"}
-                    case /lt/ {$acl_chewed .= "acl rule source port range $role $j 1 $2-1\n"}
-                }
-            }
-        }
-        if (defined($acl->{'destination'}->{'port'}) ) {
-            if ($acl->{'destination'}->{'port'} =~ /(\w+)\s+(\d+)/) {
-                switch($1) {
-                    case /eq/ {$acl_chewed .= "acl rule destination port range $role $j $2 $2\n"}
-                    case /gt/ {my $port = $2+1; $acl_chewed .= "acl rule destination port range $role $j $port 65534\n"}
-                    case /lt/ {my $port = $2-1; $acl_chewed .= "acl rule destination port range $role $j 1 $port\n"}
-                }
-            }
+        # A port is a range built from eq, gt or lt; a Cisco port name is resolved
+        foreach my $side ('source', 'destination') {
+            next if !defined $acl->{$side}->{'port'};
+            next if $acl->{$side}->{'port'} !~ m{^(eq|gt|lt)\s+(\S+)$};
+            my ($operator, $port) = ($1, $self->aclPortNumber($2, $acl->{'protocol'}));
+            my $range = $operator eq 'eq' ? "$port $port" : $operator eq 'gt' ? ($port + 1)." 65535" : "1 ".($port - 1);
+            $acl_chewed .= "acl rule $side port range $role $j $range\n";
         }
         $i++;
         $j++;
     }
     return $acl_chewed;
+}
+
+=head2 _untranslatablePushAcl
+
+Why a parsed ACL entry cannot be pushed as the "acl rule" commands built by
+L</acl_chewer>, or undef when it can. A rule has no TCP flags and no ICMP
+type, a port is a range built from eq, gt or lt: another operator (range, neq)
+is not printed, a port name the protocol does not know has no number, and a
+gt or lt that leaves no port (gt 65535, lt 1) or a port above 65535 gives no
+range. An address mask has to be contiguous, and the protocol one of the rule
+(ip, icmp, igmp, tcp, udp, gre): another one would be pushed as any. Dropping
+any of them would widen the ACL.
+
+=cut
+
+sub _untranslatablePushAcl {
+    my ($self, $entry) = @_;
+    my $reason = $self->untranslatableTcpFlags($entry);
+    return $reason if defined $reason;
+    return "the ICMP type is not sent ('".$entry->{'icmp_qualifier'}."')" if defined $entry->{'icmp_qualifier'};
+    my $protocol = $entry->{'protocol'};
+    return "the protocol '".(ref $protocol ? 'object group' : $protocol)."' is not a rule protocol" if ref $protocol || $protocol !~ m{^(?:ip\(\)|(?:icmp|igmp|tcp|udp|gre)\(\d+\))$};
+    foreach my $side ('source', 'destination') {
+        my $wildcard = $entry->{$side}->{'wildcard'};
+        return "the $side mask '$wildcard' is not contiguous" if !$self->aclWildcardIsContiguous($wildcard);
+        my $port = $entry->{$side}->{'port'};
+        next if !defined $port;
+        return "the $side port operator '$port' cannot be represented" if $port !~ m{^(eq|gt|lt)\s+(\S+)$};
+        my ($operator, $name) = ($1, $2);
+        my $number = $self->aclPortNumber($name, $entry->{'protocol'});
+        return "the $side port name '$name' has no number" if !defined $number;
+        # gt 65535 and lt 1 leave no port (the range built would be 65536-65535
+        # or 1-0), and the controller refuses a port above 65535
+        return "the $side port '$port' gives no port range" if $number > 65535 || ($operator eq 'gt' && $number >= 65535) || ($operator eq 'lt' && $number <= 1);
+    }
+    return undef;
 }
 
 =head2 implicit_acl

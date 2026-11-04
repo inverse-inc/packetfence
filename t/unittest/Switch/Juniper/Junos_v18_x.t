@@ -216,8 +216,8 @@ is($switch->_aclWildcardToPrefixLen('0.0.0.255'), 24, "a 0.0.0.255 wildcard is a
 is($switch->_aclWildcardToPrefixLen('0.255.0.255'), undef, "a non contiguous wildcard has no prefix length");
 is($switch->_aclProtocolNumber('tcp(6)'), 6, "the protocol number is taken from the parenthesis");
 is($switch->_aclProtocolNumber('ip()'), undef, "ip matches any protocol so it has no number");
-is($switch->_aclPortNumber('domain', 17), 53, "a port name is looked up for its protocol");
-is($switch->_aclPortNumber('www', 17), undef, "a port name the protocol does not know has no number");
+is($switch->aclPortNumber('domain', 17), 53, "a port name is looked up for its protocol");
+is($switch->aclPortNumber('www', 17), undef, "a port name the protocol does not know has no number");
 is($switch->_aclNetworkAddress('192.168.1.130', '0.0.0.63'), '192.168.1.128', "the network address clears the wildcard bits");
 
 # _switchingFilterTerms: what actually reaches the Access-Accept
@@ -228,8 +228,8 @@ is_deeply(
     "an already chewed term is passed through untouched"
 );
 
-# _getAccessListByName returns bypass_acls and switch entry ACLs without
-# running them through acl_chewer, so they arrive here in Cisco syntax.
+# The access list of the switch entry does not go through acl_chewer: a line in
+# Cisco syntax is translated here.
 is_deeply(
     [$switch->_switchingFilterTerms("permit ip any host 8.8.8.8\ndeny ip any any", 'testrole')],
     ["Match Destination-ip 8.8.8.8 Action allow", "Match Destination-ip 0.0.0.0/0 Action deny"],
@@ -248,8 +248,8 @@ is_deeply(
     "blank lines are ignored"
 );
 
-# The switch entry and bypass_acls path translates line by line, so the stop
-# has to happen here too.
+# The lines of the switch entry are translated one at a time, so the stop has
+# to happen here too.
 is_deeply(
     [$switch->_switchingFilterTerms("deny ip host 10.1.1.1 any\npermit ip any any", 'testrole')],
     ["Match Destination-ip 0.0.0.0/0 Action deny"],
