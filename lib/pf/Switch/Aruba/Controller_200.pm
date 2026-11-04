@@ -106,15 +106,6 @@ sub acl_chewer {
     return $acl_chewed;
 }
 
-=head2 aclsInRadiusReply
-
-The ACLs are only pushed to the controller: the RADIUS reply never carries an
-access list.
-
-=cut
-
-sub aclsInRadiusReply { 0 }
-
 =head2 implicit_acl
 
 Return implicit acl

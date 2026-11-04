@@ -126,6 +126,18 @@ our %DATA_FILTER_PROTOCOLS = (
     17 => 'udp',
 );
 
+=head2 aclsInRadiusReply
+
+L</returnRadiusAccessAccept> adds the access list of the role to the reply
+when the Access List Map is enabled.
+
+=cut
+
+sub aclsInRadiusReply {
+    my ($self, $args) = @_;
+    return $self->accessListMapEnabled;
+}
+
 =head2 returnRadiusAccessAccept
 
 Add the access list of the role to the Access-Accept as C<Huawei-Data-Filter>

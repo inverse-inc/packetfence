@@ -142,6 +142,19 @@ sub deauthTechniques {
     return $method,$tech{$method};
 }
 
+=item aclsInRadiusReply
+
+Only L</returnAuthorizeVPN> adds the access list of the role to the reply,
+when the Access List Map is enabled: the other replies are the default one,
+which never carries it.
+
+=cut
+
+sub aclsInRadiusReply {
+    my ($self, $args) = @_;
+    return ($self->{_authorizeVPN} && $self->accessListMapEnabled) ? 1 : 0;
+}
+
 =item returnAuthorizeVPN
 
 Return radius attributes to allow VPN access
@@ -153,6 +166,8 @@ sub returnAuthorizeVPN {
     my $logger = $self->logger;
 
     $args->{'unfiltered'} = $TRUE;
+    # This reply adds the access list of the role (see aclsInRadiusReply)
+    local $self->{_authorizeVPN} = $TRUE;
     my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
     my $status = shift @super_reply;
     my %radius_reply = @super_reply;

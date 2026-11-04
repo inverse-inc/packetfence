@@ -133,6 +133,19 @@ sub getPhonesLLDPAtIfIndex {
     return @phones;
 }
 
+=head2 aclsInRadiusReply
+
+L</returnRadiusAccessAccept> adds the access list of the role to the reply
+when the Access List Map is enabled and the request computes the ACLs
+(C<compute_acl>, which a subclass that adds them itself turns off).
+
+=cut
+
+sub aclsInRadiusReply {
+    my ($self, $args) = @_;
+    return ($args->{'compute_acl'} && $self->accessListMapEnabled) ? 1 : 0;
+}
+
 =head2 returnRadiusAccessAccept
 
 Prepares the RADIUS Access-Accept reponse for the network device.

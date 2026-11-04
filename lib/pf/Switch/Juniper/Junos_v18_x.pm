@@ -233,6 +233,18 @@ use constant SWITCHING_FILTER_DENY_ALL => 'Match Destination-ip 0.0.0.0/0 Action
 my $SWITCHING_FILTER_CONDITION = qr{(?:Ip-protocol\s+\d{1,3}|Destination-ip\s+\d{1,3}(?:\.\d{1,3}){3}(?:/\d{1,2})?|(?:Source|Destination)-port\s+\d{1,5})};
 my $SWITCHING_FILTER_TERM = qr{\AMatch\s+$SWITCHING_FILTER_CONDITION(?:\s*,\s*$SWITCHING_FILTER_CONDITION)*\s+Action\s+(?:allow|deny)\s*\z};
 
+=head2 aclsInRadiusReply
+
+L</returnRadiusAccessAccept> adds the access list of the role to the reply
+when the Access List Map is enabled.
+
+=cut
+
+sub aclsInRadiusReply {
+    my ($self, $args) = @_;
+    return $self->accessListMapEnabled;
+}
+
 =head2 returnRadiusAccessAccept
 
 Add the ACLs of the role to the Access-Accept as C<Juniper-Switching-Filter>

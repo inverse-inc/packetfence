@@ -23,13 +23,14 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 204;
+use Test::More tests => 208;
 use Test::MockModule;
 use Data::Dumper;
 use pf::Switch;
 use pf::Switch::Aruba::ArubaOS_CX_10_x;
 use pf::Switch::Arista::AristaSwitch;
 use pf::Switch::HP::AOS_Switch_v16_X;
+use pf::Switch::Cisco::Cisco_IOS_12_x;
 use pf::Switch::Cisco::Cisco_IOS_15_5;
 use pf::Switch::Fortinet::FortiSwitchOS_v7_x;
 use pf::Switch::Dell::N1500;
@@ -491,6 +492,19 @@ $dal->mock(upsert => sub { 1 });
     is($cisco_map_entry->replyAccessListReplacesRole($req->(undef)), 1, "Cisco with Push ACLs: the access list of the switch entry replaces the pushed role");
     my $controller_push = pf::Switch::Aruba::Controller_200->new({%args, UsePushACLs => 'Y', AccessListMap => 'Y'});
     is($controller_push->replyAccessListReplacesRole($req->($bypass)), 0, "Aruba Controller with Push ACLs: the ACLs are only pushed, the role stays named whatever the node has");
+
+    # The role is only dropped for an access list the module adds to this
+    # reply: where it cannot, the bypass ACLs of the node are not supported
+    # with Push ACLs (they cannot be pushed) and the pushed role stays named
+    my $asa_map = pf::Switch::Cisco::ASA->new({%args, UsePushACLs => 'Y', AccessListMap => 'Y'});
+    is($asa_map->replyAccessListReplacesRole($req->($bypass)), 0, "ASA with Push ACLs: the default reply carries no access list, the pushed role stays named");
+    {
+        local $asa_map->{_authorizeVPN} = 1;
+        is($asa_map->replyAccessListReplacesRole($req->($bypass)), 1, "ASA with Push ACLs: the VPN reply carries the bypass ACLs, they replace the pushed role");
+    }
+    my $ios12_map = pf::Switch::Cisco::Cisco_IOS_12_x->new({%args, UsePushACLs => 'Y', AccessListMap => 'Y'});
+    is($ios12_map->replyAccessListReplacesRole({ %{$req->($bypass)}, compute_acl => 1 }), 1, "Cisco_IOS_12_x with Push ACLs: the reply computing the ACLs carries the bypass ACLs");
+    is($ios12_map->replyAccessListReplacesRole({ %{$req->($bypass)}, compute_acl => 0 }), 0, "Cisco_IOS_12_x with Push ACLs: a reply not computing the ACLs keeps the pushed role named");
 
     # The reply decides whether the bypass ACLs replace the pushed role before
     # the module sends them: both get them from one translation of the node of

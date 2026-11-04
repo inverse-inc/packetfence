@@ -109,6 +109,18 @@ sub returnAuthorizeRead {
    return [$status, %$radius_reply_ref];
 }
 
+=head2 aclsInRadiusReply
+
+L</returnRadiusAccessAccept> adds the access list of the role to the reply
+when the Access List Map is enabled.
+
+=cut
+
+sub aclsInRadiusReply {
+    my ($self, $args) = @_;
+    return $self->accessListMapEnabled;
+}
+
 =head2 returnRadiusAccessAccept
 
 Prepares the RADIUS Access-Accept reponse for the network device.

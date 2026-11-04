@@ -1015,13 +1015,27 @@ sub nodeBypassAcls {
 
 =item aclsInRadiusReply
 
-Whether this switch type sends access lists in its RADIUS replies (the Access
-List Map is enabled and the module reads it). The modules that only push the
-ACLs to the switch configuration answer no.
+Whether the reply to this request carries the access list of the role: the
+default returnRadiusAccessAccept never adds it, and neither do the modules
+that only push the ACLs to the switch configuration. A module whose reply adds
+it answers yes under the same condition as the code that adds it, so the
+pushed role is never dropped for an access list the reply does not carry.
 
 =cut
 
 sub aclsInRadiusReply {
+    my ($self, $args) = @_;
+    return 0;
+}
+
+=item accessListMapEnabled
+
+Whether the Access List Map is enabled on a switch type that reads it: the
+condition under which a module adds the access list of the role to its reply.
+
+=cut
+
+sub accessListMapEnabled {
     my ($self) = @_;
     return (isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement) ? 1 : 0;
 }
@@ -1044,16 +1058,18 @@ sub replyNamesPushedRole {
 
 With Push ACLs, whether the reply to this request carries an access list that
 replaces the pushed ACLs of the role: the access list of the switch entry or
-the bypass ACLs of the node, when this switch type sends them in its replies
-and they translate to something to send. A role the switch entry maps is still
-sent next to them, like without Push ACLs. A reply that cannot name the pushed
-role has no role to replace.
+the bypass ACLs of the node, when the module adds it to this reply
+(L</aclsInRadiusReply>) and it translates to something to send. A role the
+switch entry maps is still sent next to them, like without Push ACLs. A reply
+that cannot name the pushed role has no role to replace. A reply that cannot
+carry the access list keeps naming the pushed role: the bypass ACLs of a node
+are per device and cannot be pushed, so they are not supported there.
 
 =cut
 
 sub replyAccessListReplacesRole {
     my ($self, $args) = @_;
-    return 0 if !$self->replyNamesPushedRole || !$self->aclsInRadiusReply;
+    return 0 if !$self->replyNamesPushedRole || !$self->aclsInRadiusReply($args);
     # With Push ACLs, _getAccessListByName only returns the access list of the
     # switch entry or the bypass ACLs of the node
     my ($type, $acls) = $self->accessListForRequest($args->{'user_role'}, $args->{'mac'}, $args);

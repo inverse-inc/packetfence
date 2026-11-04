@@ -34,6 +34,18 @@ use pf::SwitchSupports qw(
     Flow
 );
 
+=head2 aclsInRadiusReply
+
+L</returnRadiusAccessAccept> adds the access list of the role to the reply
+when the Access List Map is enabled.
+
+=cut
+
+sub aclsInRadiusReply {
+    my ($self, $args) = @_;
+    return $self->accessListMapEnabled;
+}
+
 sub returnRadiusAccessAccept {
     my ($self, $args) = @_;
     my $logger = $self->logger;
