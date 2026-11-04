@@ -415,13 +415,17 @@ sub extractSsid {
 
 Push ACLs creates the role of a PacketFence role on an Aruba controller as
 C<pf-role-E<lt>roleE<gt>> (conf/pfsetacls), with its ACLs in
-C<pf-policy-E<lt>roleE<gt>>: the reply names that role.
+C<pf-policy-E<lt>roleE<gt>>. The reply names the role the administrator maps
+the PacketFence role to in the Role Map of the switch (C<pf-role-E<lt>roleE<gt>>
+for the pushed one), and no role when there is no mapping.
 
 =cut
 
 sub returnPushAclsRoleAttributes {
     my ($self, $role) = @_;
-    return $self->returnRoleAttributes("pf-role-$role");
+    my $mapped = $self->getRoleByName($role);
+    return () if !defined($mapped) || $mapped eq '';
+    return $self->returnRoleAttributes($mapped);
 }
 
 =item returnRoleAttribute

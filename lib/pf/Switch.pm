@@ -3482,13 +3482,16 @@ sub returnRadiusAccessAccept {
             $role = $args->{'user_role'};
             $pushed = 1;
         }
-        if ( defined($role) && $role ne "" ) {
+        my %role_attributes = (defined($role) && $role ne "")
+            ? ($pushed ? $self->returnPushAclsRoleAttributes($role) : $self->returnRoleAttributes($role))
+            : ();
+        if (%role_attributes) {
             $radius_reply_ref = {
                 %$radius_reply_ref,
-                ($pushed ? $self->returnPushAclsRoleAttributes($role) : $self->returnRoleAttributes($role)),
+                %role_attributes,
             };
             $logger->info(
-                "(".$self->{'_id'}.") Added role $role to the returned RADIUS Access-Accept"
+                "(".$self->{'_id'}.") Added role $role (" . join(', ', map { "$_=$role_attributes{$_}" } sort keys %role_attributes) . ") to the returned RADIUS Access-Accept"
             );
         }
         else {
@@ -3521,9 +3524,8 @@ sub returnRoleAttributes {
 =item returnPushAclsRoleAttributes
 
 The role attributes that name a role whose ACLs Push ACLs put in the switch
-configuration: the role as the push created it on the switch. By default the
-push names it after the role, and the attributes are those of
-L</returnRoleAttributes>.
+configuration, or an empty list to name no role. By default the push names it
+after the role, and the attributes are those of L</returnRoleAttributes>.
 
 =cut
 

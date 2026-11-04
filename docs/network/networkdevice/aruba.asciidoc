@@ -366,6 +366,8 @@ The Mobility Master will automatically have these roles created:
 
 These roles and policies are managed automatically by PacketFence and will be updated whenever ACL changes are pushed from PacketFence to the Mobility Master.
 
+PacketFence does not name these roles in its RADIUS replies by itself: in the switch configuration, enable *Role by Switch Role* and map each PacketFence role to the role pushed for it (for example `guest` to `pf-role-guest`). A role without a mapping is not sent, and the controller applies its own default role.
+
 [float]
 ===== PacketFence Integration
 

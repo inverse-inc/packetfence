@@ -9,8 +9,8 @@ push_acls_vlan_role
 The Access-Accept of the Aruba modules carries the VLAN and the role together:
 a reply that returns a VLAN used to be rebuilt from the VLAN alone, which
 dropped the role, the pushed role with Push ACLs (#9648). With Push ACLs the
-reply names the role as the push creates it on the controller,
-pf-role-<role>.
+reply names the role of the Role Map (pf-role-<role>, as the push creates it on
+the controller), and no role without a mapping.
 
 =cut
 
@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 15;
+use Test::More tests => 17;
 use pf::access_filter::radius;
 use pf::Switch::Aruba;
 use pf::Switch::Aruba::Controller_200;
@@ -73,16 +73,21 @@ sub reply_of {
     return ($switch, \%attributes);
 }
 
+# With Push ACLs the reply names the role the Role Map maps the PacketFence role
+# to (pf-role-<role>, the role the push creates on the controller), and no
+# role without a mapping
+my %map = (roles => { r4 => 'pf-role-r4' });
 foreach my $class ('pf::Switch::Aruba::Controller_200', 'pf::Switch::Aruba::Mobility_Master') {
-    my ($switch, $reply) = reply_of($class, { UsePushACLs => 'Y' }, vlan => 10);
-    is($reply->{ $switch->returnRoleAttribute }, 'pf-role-r4', "$class with Push ACLs and a VLAN: the pushed role is named as on the controller");
+    my ($switch, $reply) = reply_of($class, { UsePushACLs => 'Y', %map }, vlan => 10);
+    is($reply->{ $switch->returnRoleAttribute }, 'pf-role-r4', "$class with Push ACLs and a VLAN: the mapped role is named");
     is($reply->{'Tunnel-Private-Group-ID'}, '10', "$class with Push ACLs and a VLAN: the VLAN is returned");
-    ($switch, $reply) = reply_of($class, { UsePushACLs => 'Y' });
-    is($reply->{ $switch->returnRoleAttribute }, 'pf-role-r4', "$class with Push ACLs and no VLAN: the pushed role is named as on the controller");
-    ($switch, $reply) = reply_of($class, { UsePushACLs => 'Y', roles => { r4 => 'pf-role-r4' } }, vlan => 10);
-    is($reply->{ $switch->returnRoleAttribute }, 'pf-role-r4', "$class with Push ACLs: a Role Map entry naming the pushed role still works");
-    ($switch, $reply) = reply_of($class, { UsePushACLs => 'Y' }, node_info => { mac => $mac, bypass_acls => 'permit ip any host 10.99.99.99' });
-    is($reply->{ $switch->returnRoleAttribute }, 'pf-role-r4', "$class with Push ACLs: the bypass ACLs cannot be sent, the pushed role stays named");
+    ($switch, $reply) = reply_of($class, { UsePushACLs => 'Y', %map });
+    is($reply->{ $switch->returnRoleAttribute }, 'pf-role-r4', "$class with Push ACLs and no VLAN: the mapped role is named");
+    ($switch, $reply) = reply_of($class, { UsePushACLs => 'Y' }, vlan => 10);
+    ok(!exists $reply->{ $switch->returnRoleAttribute }, "$class with Push ACLs and no Role Map entry: no role is named");
+    is($reply->{'Tunnel-Private-Group-ID'}, '10', "$class with Push ACLs and no Role Map entry: the VLAN is still returned");
+    ($switch, $reply) = reply_of($class, { UsePushACLs => 'Y', %map }, node_info => { mac => $mac, bypass_acls => 'permit ip any host 10.99.99.99' });
+    is($reply->{ $switch->returnRoleAttribute }, 'pf-role-r4', "$class with Push ACLs: the bypass ACLs cannot be sent, the mapped role stays named");
 }
 
 # Without Push ACLs the role of the Role Map is sent next to the VLAN, as before
