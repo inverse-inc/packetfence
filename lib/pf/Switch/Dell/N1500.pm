@@ -444,7 +444,8 @@ sub _untranslatableAcl {
     return "only a destination host is sent, not the network '".$destination->{'ipv4_addr'}." ".$destination->{'wildcard'}."'" if $destination->{'ipv4_addr'} ne '0.0.0.0' && $destination->{'wildcard'} ne '0.0.0.0';
     return "the source address is not sent" if $entry->{'source'}->{'ipv4_addr'} ne '0.0.0.0';
     return "the source port is not sent" if defined $entry->{'source'}->{'port'};
-    return "TCP flags are not sent ('".$entry->{'tcp_flags'}."')" if defined $entry->{'tcp_flags'};
+    my $tcp_flags = $self->untranslatableTcpFlags($entry);
+    return $tcp_flags if defined $tcp_flags;
     if (defined $entry->{'icmp_qualifier'}) {
         my ($type) = $self->aclIcmpType($entry->{'icmp_qualifier'});
         return "the ICMP message '".$entry->{'icmp_qualifier'}."' is unknown" if !defined $type;

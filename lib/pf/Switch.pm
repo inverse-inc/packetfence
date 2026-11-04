@@ -5218,7 +5218,8 @@ sub untranslatableFilterRule {
     }
     return "the destination mask '".$entry->{'destination'}->{'wildcard'}."' is not contiguous" if !$self->aclWildcardIsContiguous($entry->{'destination'}->{'wildcard'});
     return "the rule has no source port match" if defined $entry->{'source'}->{'port'};
-    return "the rule has no TCP flags match ('".$entry->{'tcp_flags'}."')" if defined $entry->{'tcp_flags'};
+    my $tcp_flags = $self->untranslatableTcpFlags($entry);
+    return $tcp_flags if defined $tcp_flags;
     if (defined $entry->{'icmp_qualifier'}) {
         return "the rule has no ICMP type match ('".$entry->{'icmp_qualifier'}."')" if !$options{'icmptypes'};
         my ($type, $code) = $self->aclIcmpType($entry->{'icmp_qualifier'});
