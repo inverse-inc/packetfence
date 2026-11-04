@@ -15,6 +15,7 @@ node_modules
 # Configuration not in git
 addons/stress-tester/plan.conf
 conf/connectors.conf
+conf/admin_ui_plugins.conf
 conf/admin.conf
 conf/domains_connectors.conf
 conf/dns_connectors.conf

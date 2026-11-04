@@ -1,0 +1,22 @@
+# Copyright (C) Inverse inc.
+#
+# Admin UI plugins
+#
+# Each section defines a plugin that adds its own section to the admin UI.
+# The plugin service owns the API of its section; the api-frontend proxies
+# /api/v1/plugins/<id>/* to the upstream below.
+#
+# [example]
+# enabled=enabled
+# description=Example plugin
+# # Base URL of the plugin API, as reachable from the api-frontend
+# upstream=http://127.0.0.1:8080/api/v1/example
+# # JSON manifest of the admin UI section. Leave empty to fetch it from
+# # <upstream>/admin-ui
+# manifest=
+# # Admin role actions required to use the plugin (<acl>_READ, <acl>_UPDATE, ...)
+# acl=SYSTEM
+# # Static admin UI section replaced by this plugin (optional)
+# replaces=
+# # Configuration files written by the plugin, with their pfconfig namespace
+# config_files=example.conf:config::Example

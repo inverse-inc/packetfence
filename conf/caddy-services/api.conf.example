@@ -64,6 +64,9 @@
 		# Job status access
 		job-status
 
+		# Admin UI plugins API access (/api/v1/plugins/<id>/*, see admin_ui_plugins.conf)
+		admin-ui-plugins
+
 		reverse_proxy /api/v1/pfconnector/* {$PF_SERVICES_URL_PFCONNECTOR_SERVER} {
 		}
 

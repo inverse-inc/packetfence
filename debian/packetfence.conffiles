@@ -8,6 +8,7 @@
 /usr/local/pf/conf/cloud.conf
 /usr/local/pf/conf/config.toml
 /usr/local/pf/conf/connectors.conf
+/usr/local/pf/conf/admin_ui_plugins.conf
 /usr/local/pf/conf/dns_connectors.conf
 /usr/local/pf/conf/domains_connectors.conf
 /usr/local/pf/conf/pfcron.conf

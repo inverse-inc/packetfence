@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
 var apiPrefix = "/api/v1"
@@ -85,6 +86,7 @@ var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: apiPrefix + "/fleetdm-events/policy", role: "FLEETDM_EVENTS", roleSuffix: "_READ"},
 	adminRoleMapping{prefix: apiPrefix + "/fleetdm-events/cve", role: "FLEETDM_EVENTS", roleSuffix: "_READ"},
 
+	adminRoleMapping{prefix: configApiPrefix + "/admin_ui_plugins/enabled", role: ALLOW_ANY},
 	adminRoleMapping{prefix: configApiPrefix + "/admin_role/", role: "ADMIN_ROLES"},
 	adminRoleMapping{prefix: configApiPrefix + "/admin_roles", role: "ADMIN_ROLES"},
 	adminRoleMapping{prefix: configApiPrefix + "/base/", role: "CONFIGURATION_MAIN"},
@@ -219,7 +221,15 @@ func (tam *TokenAuthorizationMiddleware) isAuthorizedAdminActions(ctx context.Co
 
 	var baseAdminRole string
 	var suffix string
+	if role, found := pluginAdminRole(ctx, path); found {
+		baseAdminRole = role
+	}
+
 	for _, o := range pathAdminRolesMap {
+		if baseAdminRole != "" {
+			break
+		}
+
 		base := o.prefix
 		role := o.role
 		if strings.HasPrefix(path, base) && role != "" {
@@ -274,4 +284,26 @@ func (tam *TokenAuthorizationMiddleware) GetTokenInfoFromBearerRequest(ctx conte
 
 func (tam *TokenAuthorizationMiddleware) GetTokenInfo(ctx context.Context, token string) (*TokenInfo, time.Time) {
 	return tam.tokenBackend.TokenInfoForToken(token)
+}
+
+var pluginsApiPrefix = apiPrefix + "/plugins/"
+
+// pluginAdminRole returns the admin role base of an admin UI plugin API path (/api/v1/plugins/<id>/...)
+func pluginAdminRole(ctx context.Context, path string) (string, bool) {
+	if !strings.HasPrefix(path, pluginsApiPrefix) {
+		return "", false
+	}
+
+	id, _, _ := strings.Cut(strings.TrimPrefix(path, pluginsApiPrefix), "/")
+	plugins := pfconfigdriver.GetType[pfconfigdriver.AdminUiPlugins](ctx)
+	if plugins == nil {
+		return "", false
+	}
+
+	plugin, found := plugins.Element[id]
+	if !found || plugin.Acl == "" {
+		return "", false
+	}
+
+	return plugin.Acl, true
 }

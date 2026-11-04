@@ -430,6 +430,7 @@ sub setup_api_v1_config_routes {
     $self->setup_api_v1_config_system_routes($root);
     $self->setup_api_v1_config_mfas_routes($root);
     $self->setup_api_v1_config_connectors_routes($root);
+    $self->setup_api_v1_config_admin_ui_plugins_routes($root);
     $self->setup_api_v1_config_domains_connectors_routes($root);
     $self->setup_api_v1_config_dns_connectors_routes($root);
     return;
@@ -2233,6 +2234,29 @@ sub setup_api_v1_config_mfas_routes {
         "/mfa/#mfa_id",
         "api.v1.Config.Mfas"
     );
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_admin_ui_plugins_routes
+
+setup_api_v1_config_admin_ui_plugins_routes
+
+=cut
+
+sub setup_api_v1_config_admin_ui_plugins_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::AdminUiPlugins",
+        "/admin_ui_plugins",
+        "/admin_ui_plugin/#admin_ui_plugin_id",
+        "api.v1.Config.AdminUiPlugins"
+    );
+
+    $collection_route->register_sub_action({ action => 'enabled', method => 'GET' });
+    $resource_route->register_sub_action({ action => 'commit_files', path => '/commit', method => 'POST' });
 
     return ($collection_route, $resource_route);
 }

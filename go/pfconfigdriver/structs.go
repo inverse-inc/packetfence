@@ -1024,6 +1024,27 @@ type Connectors struct {
 	}
 }
 
+type AdminUiPlugin struct {
+	Enabled     string `json:"enabled"`
+	Description string `json:"description"`
+	Upstream    string `json:"upstream"`
+	Manifest    string `json:"manifest"`
+	Acl         string `json:"acl"`
+	Replaces    string `json:"replaces"`
+	ConfigFiles []struct {
+		Path      string `json:"path"`
+		Namespace string `json:"namespace"`
+	} `json:"config_files"`
+}
+
+type AdminUiPlugins struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"config::AdminUiPlugins"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string]AdminUiPlugin
+}
+
 type FingerbankSettingsUpstream struct {
 	StructConfig
 	PfconfigMethod    string      `val:"hash_element"`

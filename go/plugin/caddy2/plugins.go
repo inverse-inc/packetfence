@@ -3,6 +3,7 @@ package caddy2
 import (
 	_ "github.com/caddyserver/forwardproxy"
 	_ "github.com/caddyserver/transform-encoder"
+	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/adminuiplugins"
 	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/api"
 	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/api-aaa"
 	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/configstore"

@@ -163,6 +163,8 @@ var (
 	KAFKA_CONFIG_FILE      = filepath.Join(CONF_DIR, "kafka.conf")
 	CONNECTORS_CONFIG_FILE = filepath.Join(CONF_DIR, "connectors.conf")
 
+	ADMIN_UI_PLUGINS_CONFIG_FILE = filepath.Join(CONF_DIR, "admin_ui_plugins.conf")
+
 	GIT_COMMIT_ID_FILE = filepath.Join(CONF_DIR, "git_commit_id")
 
 	// Fingerbank config files

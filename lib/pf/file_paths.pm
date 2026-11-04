@@ -126,6 +126,7 @@ our (
     $cron_config_file, $cron_default_config_file,
     $mfa_config_file,
     $connectors_config_file,
+    $admin_ui_plugins_config_file,
     $kafka_config_file,
     $git_commit_id_file,
     $pfqueue_backend_socket,
@@ -236,6 +237,7 @@ BEGIN {
         $cron_config_file $cron_default_config_file
         $mfa_config_file
         $connectors_config_file
+        $admin_ui_plugins_config_file
         $kafka_config_file
         $git_commit_id_file
         $pfqueue_backend_socket
@@ -397,6 +399,7 @@ $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_t
 $mfa_config_file = catdir($conf_dir,"mfa.conf");
 $kafka_config_file = catdir($conf_dir, "kafka.conf");
 $connectors_config_file = catdir($conf_dir,"connectors.conf");
+$admin_ui_plugins_config_file = catfile($conf_dir, "admin_ui_plugins.conf");
 
 @log_files = map {catfile($log_dir, $_)}
   qw(
@@ -449,6 +452,7 @@ $connectors_config_file = catdir($conf_dir,"connectors.conf");
     $connectors_config_file,
     $dns_connectors_config_file,
     $domains_connectors_config_file,
+    $admin_ui_plugins_config_file,
     $billing_tiers_config_file,
     $event_loggers_config_file,
     $provisioning_filters_config_file,
