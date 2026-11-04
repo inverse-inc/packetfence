@@ -141,6 +141,19 @@ passthrough=enabled
 #
 passthroughs=
 #
+# fencing.registration_access_list
+#
+# When enabled, a device in the registration role gets, from the switches that map roles to access lists
+# ("Role by Access List"), an access list that only allows DHCP, DNS and HTTP/HTTPS to PacketFence and
+# the passthroughs, and denies everything else, so devices in the registration network can't reach each other.
+# An access list set for the registration role on the switch takes precedence.
+registration_access_list=disabled
+#
+# fencing.isolation_access_list
+#
+# Same as registration_access_list for the isolation role, with the isolation passthroughs.
+isolation_access_list=disabled
+#
 # fencing.proxy_passthroughs
 #
 # Comma-delimited list of domains to be use for apache passthrough

@@ -18,6 +18,8 @@ export {
   BaseFormGroupTextarea               as FormGroupProxyPassthroughs,
   BaseFormGroupSwitch                 as FormGroupIsolationPassthrough,
   BaseFormGroupTextarea               as FormGroupIsolationPassthroughs,
+  BaseFormGroupSwitch                 as FormGroupRegistrationAccessList,
+  BaseFormGroupSwitch                 as FormGroupIsolationAccessList,
   BaseFormGroupSwitch                 as FormGroupInterceptionProxy,
   BaseFormGroupTextarea               as FormGroupInterceptionProxyPort,
 
