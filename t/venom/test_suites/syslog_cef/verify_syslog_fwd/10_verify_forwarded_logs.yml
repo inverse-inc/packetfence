@@ -1,0 +1,15 @@
+name: PF service logs forwarded to linux01
+testcases:
+
+- name: grep_forwarded_logs
+  steps:
+  - type: ssh
+    host: '{{.linux01_mgmt_ip}}'
+    user: '{{.ssh_user}}'
+    command: >
+      sudo grep 'packetfence' /var/log/remote/hosts/{{.pfserver_mgmt_ip}}/syslog
+    retry: 12
+    delay: 5
+    assertions:
+      - result.code ShouldEqual 0
+      - result.systemout ShouldContainSubstring "packetfence"

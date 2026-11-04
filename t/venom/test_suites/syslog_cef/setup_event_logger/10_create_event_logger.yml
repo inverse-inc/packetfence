@@ -1,0 +1,19 @@
+name: Create event logger for CEF syslog
+testcases:
+
+- name: create_event_logger
+  steps:
+  - type: pf_api_action
+    method: POST
+    url: 'config/event_loggers'
+    status_code: 201
+    body: >-
+      {
+        "id": "{{.syslog_cef.event_logger_id}}",
+        "type": "syslog",
+        "priority": "notice",
+        "facility": "local0",
+        "host": "{{.linux01_mgmt_ip}}",
+        "port": "{{.syslog_cef.syslog_remote_port}}",
+        "namespaces": "admin_api_audit_log,auth_log,dhcp_option82,dns_audit_log,radius_audit_log"
+      }

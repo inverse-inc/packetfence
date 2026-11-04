@@ -1083,3 +1083,10 @@ wireless_mac_auth_virtualswitch.profiles.wireless.id: catch_wireless_mac_auth_vs
 wireless_mac_auth_virtualswitch.profiles.wireless.description: Wireless MAC auth (virtualswitch)
 wireless_mac_auth_virtualswitch.profiles.wireless.filters.connection_type: Wireless-802.11-NoEAP
 wireless_mac_auth_virtualswitch.profiles.wireless.unreg_on_acct_stop: disabled
+
+################################################################################
+# syslog_cef test suite specific variables
+################################################################################
+syslog_cef.event_logger_id: venom_cef_test
+syslog_cef.syslog_forwarder_id: venom_syslog_fwd_test
+syslog_cef.syslog_remote_port: "514"

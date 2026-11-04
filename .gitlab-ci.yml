@@ -1507,6 +1507,24 @@ captive_portal_el8:
     - .test_rules
     - .test_job_vagrant_el8
 
+syslog_cef_deb12:
+  variables:
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
+  extends:
+    - .test_job
+    - .test_script_job
+    - .test_rules
+    - .test_job_vagrant_deb12
+
+syslog_cef_el8:
+  variables:
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
+  extends:
+    - .test_job
+    - .test_script_job
+    - .test_rules
+    - .test_job_vagrant_el8
+
 external_integrations_deb12:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}

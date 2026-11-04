@@ -1,0 +1,33 @@
+name: Generate MariaDB config and restart to apply triggers
+testcases:
+
+- name: generate_mariadb_config
+  steps:
+  - type: pfcmd_run_command
+    command: generatemariadbconfig
+
+- name: restart_mariadb
+  steps:
+  - type: systemctl_service_restart
+    service: packetfence-mariadb
+    time_to_sleep: 10
+
+- name: verify_udf_loaded
+  steps:
+  - type: exec
+    script: mysql -uroot -s -N -e "SELECT name FROM mysql.func WHERE name='pf_logger'"
+    assertions:
+      - result.code ShouldEqual 0
+      - result.systemout ShouldContainSubstring "pf_logger"
+
+- name: verify_triggers_exist
+  steps:
+  - type: exec
+    script: >
+      mysql -uroot -s -N -e
+      "SELECT COUNT(*) FROM information_schema.TRIGGERS
+       WHERE TRIGGER_SCHEMA='pf'
+       AND TRIGGER_NAME LIKE 'event_logger_%'"
+    assertions:
+      - result.code ShouldEqual 0
+      - result.systemout ShouldNotEqual "0"

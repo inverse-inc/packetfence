@@ -186,6 +186,20 @@ fingerbank_invalid_db_deb12:
 	SCENARIOS_TO_RUN=fingerbank_invalid_db \
 	$(MAKE_TARGET)
 
+syslog_cef_deb12:
+	make \
+	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
+	INT_TEST_VM_NAMES="linux01" \
+	SCENARIOS_TO_RUN=syslog_cef \
+	$(MAKE_TARGET)
+
+syslog_cef_el8:
+	make \
+	PF_VM_NAMES=pfel8$(DEV_ENV) \
+	INT_TEST_VM_NAMES="linux01" \
+	SCENARIOS_TO_RUN=syslog_cef \
+	$(MAKE_TARGET)
+
 external_integrations_deb12:
 	make \
 	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
@@ -400,3 +414,5 @@ pfacct_bandwidth_virtualswitch_el8_branches: pfacct_bandwidth_virtualswitch_el8
 pfacct_bandwidth_virtualswitch_deb12_branches: pfacct_bandwidth_virtualswitch_deb12
 security_event_virtualswitch_el8_branches: security_event_virtualswitch_el8
 security_event_virtualswitch_deb12_branches: security_event_virtualswitch_deb12
+syslog_cef_deb12_branches: syslog_cef_deb12
+syslog_cef_el8_branches: syslog_cef_el8

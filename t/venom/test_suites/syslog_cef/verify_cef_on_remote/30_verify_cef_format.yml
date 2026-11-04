@@ -1,0 +1,15 @@
+name: Validate CEF message structure
+testcases:
+
+- name: cef_format_check
+  steps:
+  - type: ssh
+    host: '{{.linux01_mgmt_ip}}'
+    user: '{{.ssh_user}}'
+    command: >
+      sudo grep -m1 'CEF:0|Inverse|PacketFence' /var/log/remote/hosts/{{.pfserver_mgmt_ip}}/syslog
+    assertions:
+      - result.code ShouldEqual 0
+      - result.systemout ShouldContainSubstring "CEF:0"
+      - result.systemout ShouldContainSubstring "Inverse"
+      - result.systemout ShouldContainSubstring "PacketFence"

@@ -1,0 +1,20 @@
+name: Delete syslog forwarder and regenerate rsyslog config
+testcases:
+
+- name: delete_syslog_forwarder
+  steps:
+  - type: pf_api_action
+    method: DELETE
+    url: 'config/syslog_forwarder/{{.syslog_cef.syslog_forwarder_id}}'
+    status_code: 200
+
+- name: regenerate_syslog_config
+  steps:
+  - type: pfcmd_run_command
+    command: generatesyslogconfig
+
+- name: restart_rsyslog
+  steps:
+  - type: systemctl_service_restart
+    service: packetfence-rsyslog
+    time_to_sleep: 5

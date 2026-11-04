@@ -1,0 +1,16 @@
+name: CEF message for admin_api_audit_log received on linux01
+testcases:
+
+- name: grep_cef_admin_api
+  steps:
+  - type: ssh
+    host: '{{.linux01_mgmt_ip}}'
+    user: '{{.ssh_user}}'
+    command: >
+      sudo grep 'CEF:0|Inverse|PacketFence' /var/log/remote/hosts/{{.pfserver_mgmt_ip}}/syslog
+      | grep 'admin_api_audit_log'
+    retry: 12
+    delay: 5
+    assertions:
+      - result.code ShouldEqual 0
+      - result.systemout ShouldContainSubstring "admin_api_audit_log"

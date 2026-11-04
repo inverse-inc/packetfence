@@ -1,0 +1,13 @@
+name: Generate syslog config and restart rsyslog
+testcases:
+
+- name: generate_syslog_config
+  steps:
+  - type: pfcmd_run_command
+    command: generatesyslogconfig
+
+- name: restart_rsyslog
+  steps:
+  - type: systemctl_service_restart
+    service: packetfence-rsyslog
+    time_to_sleep: 5

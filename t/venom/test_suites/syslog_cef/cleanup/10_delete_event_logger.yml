@@ -1,0 +1,32 @@
+name: Delete event logger and regenerate MariaDB config
+testcases:
+
+- name: delete_event_logger
+  steps:
+  - type: pf_api_action
+    method: DELETE
+    url: 'config/event_logger/{{.syslog_cef.event_logger_id}}'
+    status_code: 200
+
+- name: regenerate_mariadb_config
+  steps:
+  - type: pfcmd_run_command
+    command: generatemariadbconfig
+
+- name: restart_mariadb
+  steps:
+  - type: systemctl_service_restart
+    service: packetfence-mariadb
+    time_to_sleep: 10
+
+- name: verify_triggers_removed
+  steps:
+  - type: exec
+    script: >
+      mysql -uroot -s -N -e
+      "SELECT COUNT(*) FROM information_schema.TRIGGERS
+       WHERE TRIGGER_SCHEMA='pf'
+       AND TRIGGER_NAME LIKE 'event_logger_%'"
+    assertions:
+      - result.code ShouldEqual 0
+      - result.systemout ShouldEqual "0"
