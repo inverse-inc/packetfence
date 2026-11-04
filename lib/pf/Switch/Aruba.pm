@@ -411,6 +411,19 @@ sub extractSsid {
     return;
 }
 
+=item returnPushAclsRoleAttributes
+
+Push ACLs creates the role of a PacketFence role on an Aruba controller as
+C<pf-role-E<lt>roleE<gt>> (conf/pfsetacls), with its ACLs in
+C<pf-policy-E<lt>roleE<gt>>: the reply names that role.
+
+=cut
+
+sub returnPushAclsRoleAttributes {
+    my ($self, $role) = @_;
+    return $self->returnRoleAttributes("pf-role-$role");
+}
+
 =item returnRoleAttribute
 
 What RADIUS Attribute (usually VSA) should the role returned into.

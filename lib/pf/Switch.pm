@@ -3477,13 +3477,15 @@ sub returnRadiusAccessAccept {
         # under the name of the role, which the reply names, unless the reply
         # carries an access list that replaces them (the one of the switch
         # entry, the bypass ACLs of the node)
+        my $pushed;
         if ($self->usePushACLs && exists $ConfigRoles{$args->{'user_role'}} && !$self->replyAccessListReplacesRole($args)) {
             $role = $args->{'user_role'};
+            $pushed = 1;
         }
         if ( defined($role) && $role ne "" ) {
             $radius_reply_ref = {
                 %$radius_reply_ref,
-                $self->returnRoleAttributes($role),
+                ($pushed ? $self->returnPushAclsRoleAttributes($role) : $self->returnRoleAttributes($role)),
             };
             $logger->info(
                 "(".$self->{'_id'}.") Added role $role to the returned RADIUS Access-Accept"
@@ -3518,14 +3520,16 @@ sub returnRoleAttributes {
 
 =item returnPushAclsRoleAttributes
 
-
-Return the specifics in and out attribute of the switch
+The role attributes that name a role whose ACLs Push ACLs put in the switch
+configuration: the role as the push created it on the switch. By default the
+push names it after the role, and the attributes are those of
+L</returnRoleAttributes>.
 
 =cut
 
 sub returnPushAclsRoleAttributes {
     my ($self, $role) = @_;
-    return ($self->returnRoleAttribute() => $role);
+    return $self->returnRoleAttributes($role);
 }
 
 =item returnVpnRoleAttributes

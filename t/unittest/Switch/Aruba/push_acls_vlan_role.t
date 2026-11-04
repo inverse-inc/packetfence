@@ -8,7 +8,9 @@ push_acls_vlan_role
 
 The Access-Accept of the Aruba modules carries the VLAN and the role together:
 a reply that returns a VLAN used to be rebuilt from the VLAN alone, which
-dropped the role, the pushed role with Push ACLs (#9648).
+dropped the role, the pushed role with Push ACLs (#9648). With Push ACLs the
+reply names the role as the push creates it on the controller,
+pf-role-<role>.
 
 =cut
 
@@ -22,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 11;
+use Test::More tests => 15;
 use pf::access_filter::radius;
 use pf::Switch::Aruba;
 use pf::Switch::Aruba::Controller_200;
@@ -73,10 +75,14 @@ sub reply_of {
 
 foreach my $class ('pf::Switch::Aruba::Controller_200', 'pf::Switch::Aruba::Mobility_Master') {
     my ($switch, $reply) = reply_of($class, { UsePushACLs => 'Y' }, vlan => 10);
-    is($reply->{ $switch->returnRoleAttribute }, 'r4', "$class with Push ACLs and a VLAN: the pushed role is named");
+    is($reply->{ $switch->returnRoleAttribute }, 'pf-role-r4', "$class with Push ACLs and a VLAN: the pushed role is named as on the controller");
     is($reply->{'Tunnel-Private-Group-ID'}, '10', "$class with Push ACLs and a VLAN: the VLAN is returned");
     ($switch, $reply) = reply_of($class, { UsePushACLs => 'Y' });
-    is($reply->{ $switch->returnRoleAttribute }, 'r4', "$class with Push ACLs and no VLAN: the pushed role is named");
+    is($reply->{ $switch->returnRoleAttribute }, 'pf-role-r4', "$class with Push ACLs and no VLAN: the pushed role is named as on the controller");
+    ($switch, $reply) = reply_of($class, { UsePushACLs => 'Y', roles => { r4 => 'pf-role-r4' } }, vlan => 10);
+    is($reply->{ $switch->returnRoleAttribute }, 'pf-role-r4', "$class with Push ACLs: a Role Map entry naming the pushed role still works");
+    ($switch, $reply) = reply_of($class, { UsePushACLs => 'Y' }, node_info => { mac => $mac, bypass_acls => 'permit ip any host 10.99.99.99' });
+    is($reply->{ $switch->returnRoleAttribute }, 'pf-role-r4', "$class with Push ACLs: the bypass ACLs cannot be sent, the pushed role stays named");
 }
 
 # Without Push ACLs the role of the Role Map is sent next to the VLAN, as before
