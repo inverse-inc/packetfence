@@ -549,7 +549,8 @@ sub untranslatablePushAcl {
         return "the $side mask '".$entry->{$side}->{'wildcard'}."' is not contiguous" if !$self->aclWildcardIsContiguous($entry->{$side}->{'wildcard'});
     }
     # TCP flags do not apply correctly on the switch
-    return "TCP flags are not supported ('".$entry->{'tcp_flags'}."')" if defined $entry->{'tcp_flags'};
+    my $tcp_flags = $self->untranslatableTcpFlags($entry);
+    return $tcp_flags if defined $tcp_flags;
     return "the source port is not sent" if defined $entry->{'source'}->{'port'};
     return "the ICMP type is not sent ('".$entry->{'icmp_qualifier'}."')" if defined $entry->{'icmp_qualifier'};
     return undef;

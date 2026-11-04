@@ -197,7 +197,7 @@ is_deeply(
 
 # push ACLs carry the full Cisco syntax, only what is not sent is filtered
 
-is($aruba->untranslatablePushAcl({ source => {}, destination => {}, tcp_flags => 'established' }) // '', "TCP flags are not supported ('established')", "Aruba CX push: TCP flags");
+is($aruba->untranslatablePushAcl({ source => {}, destination => {}, tcp_flags => 'established' }) // '', "the TCP flags are not sent ('established')", "Aruba CX push: TCP flags");
 is($aruba->untranslatablePushAcl({ source => { port => 'eq 53' }, destination => {} }) // '', "the source port is not sent", "Aruba CX push: source port");
 ok(!defined $aruba->untranslatablePushAcl({ source => {}, destination => { port => 'range 100 200' } }), "Aruba CX push: the destination port is sent as is");
 ok(!defined $arista->_untranslatablePushAcl({ source => {}, destination => {}, tcp_flags => 'established' }), "Arista push: TCP flags are sent");
