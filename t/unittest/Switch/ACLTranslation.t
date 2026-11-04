@@ -23,7 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 235;
+use Test::More tests => 243;
 use Test::MockModule;
 use Data::Dumper;
 use pf::Switch;
@@ -334,8 +334,7 @@ is($cisco->aclPortNumber('443', 6), 443, "aclPortNumber: a number is kept");
     ok(!defined $aireos_push->_untranslatablePushAcl($port_entry->('permit', 'lt 2')), "AireOS push: lt 2 is the port 1");
     is(chew($aireos_push, "deny tcp any any gt 65535\npermit ip any any"), deny_all($aireos_push), "AireOS push: a deny on gt 65535 ends the ACLs with a deny all");
     is(chew($aireos_push, "permit tcp any any lt 1\npermit tcp any any eq 443"), chew($aireos_push, "permit tcp any any eq 443"), "AireOS push: a permit on lt 1 is skipped, not pushed as the range 1 0");
-    TODO: {
-        local $TODO = "PR #9642 review: the gt and lt ranges are not bounds-checked, a numeric protocol is refused";
+    {
         my $permit_443 = chew($aireos_push, "permit tcp any any eq 443");
         is(chew($aireos_push, "permit tcp any any gt 65535\npermit tcp any any eq 443"), $permit_443, "AireOS push: gt 65535 is skipped, not pushed as the range 65536 65535");
         is(chew($aireos_push, "permit tcp any any lt 1\npermit tcp any any eq 443"), $permit_443, "AireOS push: lt 1 is skipped, not pushed as the range 1 0");
@@ -346,14 +345,19 @@ is($cisco->aclPortNumber('443', 6), 443, "aclPortNumber: a number is kept");
     }
 }
 
-# Dell N1500: _untranslatableAcl calls aclIcmpType in scalar context, which
-# gives the code, not the type: a numeric type or a code of 0 reads as unknown
-TODO: {
-    local $TODO = "PR #9642 review: aclIcmpType is called in scalar context in Dell _untranslatableAcl";
+# Dell N1500: a numeric ICMP type, a type 0 and a code 0 are sent (the check
+# used to read only the code of aclIcmpType)
+{
     is(chew($dell, "permit icmp any any 8"), "in|permit icmp any any icmp-type 8\n", "Dell: a numeric ICMP type is sent");
     is(chew($dell, "permit icmp any any 0"), "in|permit icmp any any icmp-type 0\n", "Dell: the numeric ICMP type 0 is sent");
     is(chew($dell, "permit icmp any any 3 0"), "in|permit icmp any any icmp-type 3 icmp-code 0\n", "Dell: an ICMP code of 0 is sent");
+    is(chew($dell, "permit icmp any host 10.0.0.1 8"), "in|permit icmp any host 10.0.0.1 icmp-type 8\n", "Dell: a numeric ICMP type without a code to a host has no icmp-code");
 }
+is(pf::Switch->aclIcmpMatch('host-unreachable', 'icmp-type', 'icmp-code'), 'icmp-type 3 icmp-code 1', "ICMP match: the type and code with their keywords");
+is(pf::Switch->aclIcmpMatch('8', 'icmp-type', 'icmp-code'), 'icmp-type 8', "ICMP match: no code keyword without a code");
+is(pf::Switch->aclIcmpMatch('echo-reply', 'icmptypes'), 'icmptypes 0', "ICMP match: the type 0");
+is(pf::Switch->aclIcmpMatch('3 1'), '3 1', "ICMP match: the numbers alone without keywords");
+is(pf::Switch->aclIcmpMatch('no-such-message', 'icmptypes'), '', "ICMP match: nothing for an unknown message");
 is(chew($dell, "permit icmp any any echo-reply"), "in|permit icmp any any icmp-type 0\n", "Dell: an ICMP message of type 0 is sent");
 is(chew($dell, "permit icmp any any net-unreachable"), "in|permit icmp any any icmp-type 3 icmp-code 0\n", "Dell: an ICMP message with code 0 is sent");
 is($dell->_untranslatableAcl({ source => { ipv4_addr => '0.0.0.0' }, destination => { ipv4_addr => '0.0.0.0', wildcard => '255.255.255.255' }, icmp_qualifier => 'no-such-message' }) // '', "the ICMP message 'no-such-message' is unknown", "Dell: an unknown ICMP message is still refused");
@@ -371,8 +375,10 @@ is($dell->_untranslatableAcl({ source => { ipv4_addr => '0.0.0.0' }, destination
 {
     my $arista_push = pf::Switch::Arista::AristaSwitch->new({%args, UsePushACLs => 'Y'});
     local $arista_push->{_aclsForPush} = 1;
-    is($arista_push->acl_chewer("permit icmp any any echo-reply", 'testrole'), "10 permit icmp any any echo-reply\n", "Arista push: the ICMP type is sent");
+    is($arista_push->acl_chewer("permit icmp any any echo-reply", 'testrole'), "10 permit icmp any any 0\n", "Arista push: the ICMP type is sent as its number");
     is($arista_push->acl_chewer("permit icmp any host 10.0.0.1 3 1", 'testrole'), "10 permit icmp any host 10.0.0.1 3 1\n", "Arista push: the ICMP type and code are sent");
+    is($arista_push->acl_chewer("permit icmp any any dod-net-prohibited", 'testrole'), "10 permit icmp any any 3 9\n", "Arista push: a Cisco message name is pushed as its type and code, which EOS takes");
+    ok(defined $arista_push->_untranslatablePushAcl({ source => {}, destination => {}, icmp_qualifier => 'no-such-message' }), "Arista push: an unknown ICMP message is refused");
 }
 
 like(pf::Switch::untranslatableAclQualifier($aruba, { action => 'permit', protocol => { object_group_service => 'foo' }, source => {}, destination => {} }) // '', qr/object group 'foo'/, "the protocol object group is named in the reason");

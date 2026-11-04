@@ -445,7 +445,10 @@ sub _untranslatableAcl {
     return "the source address is not sent" if $entry->{'source'}->{'ipv4_addr'} ne '0.0.0.0';
     return "the source port is not sent" if defined $entry->{'source'}->{'port'};
     return "TCP flags are not sent ('".$entry->{'tcp_flags'}."')" if defined $entry->{'tcp_flags'};
-    return "the ICMP message '".$entry->{'icmp_qualifier'}."' is unknown" if defined $entry->{'icmp_qualifier'} && !$self->aclIcmpType($entry->{'icmp_qualifier'});
+    if (defined $entry->{'icmp_qualifier'}) {
+        my ($type) = $self->aclIcmpType($entry->{'icmp_qualifier'});
+        return "the ICMP message '".$entry->{'icmp_qualifier'}."' is unknown" if !defined $type;
+    }
     return undef;
 }
 
@@ -657,9 +660,9 @@ sub acl_chewer {
     foreach my $acl (@$entries) {
         $acl->{'protocol'} =~ s/\(\d*\)//;
         if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
-            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$acl->{'action'}." ".$acl->{'protocol'}." any any " . ( defined($acl->{'icmp_qualifier'}) ? "icmp-type ".join(" icmp-code ", $self->aclIcmpType($acl->{'icmp_qualifier'})) : '' ) . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
+            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$acl->{'action'}." ".$acl->{'protocol'}." any any " . ( defined($acl->{'icmp_qualifier'}) ? $self->aclIcmpMatch($acl->{'icmp_qualifier'}, 'icmp-type', 'icmp-code') : '' ) . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
         } else {
-            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$acl->{'action'}." ".$acl->{'protocol'}." any host ".$acl->{'destination'}->{'ipv4_addr'}." " . ( defined($acl->{'icmp_qualifier'}) ? "icmp-type ".join(" icmp-code ", $self->aclIcmpType($acl->{'icmp_qualifier'})) : '' ) . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
+            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$acl->{'action'}." ".$acl->{'protocol'}." any host ".$acl->{'destination'}->{'ipv4_addr'}." " . ( defined($acl->{'icmp_qualifier'}) ? $self->aclIcmpMatch($acl->{'icmp_qualifier'}, 'icmp-type', 'icmp-code') : '' ) . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
         }
         $i++;
     }
