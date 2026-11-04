@@ -5174,6 +5174,23 @@ sub aclIcmpType {
     return @$message;
 }
 
+=head2 aclIcmpMatch
+
+The ICMP match of a switch that takes numbers, from the ICMP qualifier of a
+Cisco ACL line: the type after C<$type_keyword> and, when the qualifier has
+one, the code after C<$code_keyword> ("icmp-type 3 icmp-code 1",
+"icmptypes 8", "3 1" without keywords). An empty string for a message name
+aclIcmpType does not know.
+
+=cut
+
+sub aclIcmpMatch {
+    my ($self, $qualifier, $type_keyword, $code_keyword) = @_;
+    my ($type, $code) = $self->aclIcmpType($qualifier);
+    return '' if !defined $type;
+    return join(' ', grep { defined($_) && $_ ne '' } $type_keyword, $type, (defined $code ? ($code_keyword, $code) : ()));
+}
+
 =head2 untranslatableFilterRule
 
 Why a parsed ACL entry cannot be sent as a C<NAS-Filter-Rule> in the

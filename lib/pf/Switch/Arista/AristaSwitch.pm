@@ -485,7 +485,7 @@ sub acl_chewer {
                 }
             }
 
-            $acl_chewed .= $acl_number." ".$acl->{'action'}." ".$acl->{'protocol'}." ".$src." ".$dest.(defined($acl->{'icmp_qualifier'}) ? " ".$acl->{'icmp_qualifier'} : '')." ".(defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '')." ".( defined($acl->{'tcp_flags'}) ? $acl->{'tcp_flags'} : '' );
+            $acl_chewed .= $acl_number." ".$acl->{'action'}." ".$acl->{'protocol'}." ".$src." ".$dest.(defined($acl->{'icmp_qualifier'}) ? " ".$self->aclIcmpMatch($acl->{'icmp_qualifier'}) : '')." ".(defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '')." ".( defined($acl->{'tcp_flags'}) ? $acl->{'tcp_flags'} : '' );
             $acl_number = $acl_number + 10;
             $acl_chewed =~ s/\s+$//;
             $acl_chewed .= "\n";
@@ -524,7 +524,7 @@ sub acl_chewer {
                     $src = $acl->{'source'}->{'ipv4_addr'};
                 }
             }
-            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$acl->{'action'}." ".((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] : "in")." ".$acl->{'protocol'}." from any to ".$dest." ".( defined($dest_port) ? $dest_port : '' ).( defined($acl->{'icmp_qualifier'}) ? "icmptypes ".($self->aclIcmpType($acl->{'icmp_qualifier'}))[0] : '' )."\n";
+            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$acl->{'action'}." ".((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] : "in")." ".$acl->{'protocol'}." from any to ".$dest." ".( defined($dest_port) ? $dest_port : '' ).( defined($acl->{'icmp_qualifier'}) ? $self->aclIcmpMatch($acl->{'icmp_qualifier'}, 'icmptypes') : '' )."\n";
         $i++;
         }
     }
@@ -535,13 +535,18 @@ sub acl_chewer {
 
 Why a parsed ACL entry cannot be pushed in the "sequence action protocol source
 destination [ICMP type] port flags" form built by L</acl_chewer>, or undef when
-it can.
+it can. The ICMP type and code are pushed as numbers: some Cisco message names
+are not EOS ones.
 
 =cut
 
 sub _untranslatablePushAcl {
     my ($self, $entry) = @_;
     return "the source port is not sent" if defined $entry->{'source'}->{'port'};
+    if (defined $entry->{'icmp_qualifier'}) {
+        my ($type) = $self->aclIcmpType($entry->{'icmp_qualifier'});
+        return "the ICMP message '".$entry->{'icmp_qualifier'}."' is unknown" if !defined $type;
+    }
     return undef;
 }
 
