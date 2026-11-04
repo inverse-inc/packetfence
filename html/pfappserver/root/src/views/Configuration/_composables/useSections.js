@@ -1,8 +1,60 @@
 import { computed } from '@vue/composition-api'
 import i18n from '@/utils/locale'
+import { load as loadPlugins, usePlugins, useReplaced } from '../plugins/_store'
+
+// menu entries of the admin UI plugins
+const pluginEntry = plugin => {
+  const { id, description, acl = 'SYSTEM', available, manifest: { title, collections = [] } = {} } = plugin
+  const can = `read ${acl.toLowerCase()}`
+  const name = title || description || id
+  if (!available || !collections.length)
+    return { name, path: `/configuration/plugins/${id}/unavailable`, caption: i18n.t('unavailable'), icon: 'exclamation-triangle', can }
+  const items = collections.map(collection => ({
+    name: collection.title || collection.id,
+    path: `/configuration/plugins/${id}/${collection.id}`,
+    saveSearchNamespace: `plugin_${id}_${collection.id}`,
+    can
+  }))
+  return (items.length === 1)
+    ? { ...items[0], name }
+    : { name, items, can }
+}
+
+// menu entries of a plugin with its own UI bundle, by section
+const pluginUiEntries = plugin => {
+  const { acl = 'SYSTEM', ui: { menu = [] } = {} } = plugin
+  const can = `read ${acl.toLowerCase()}`
+  return menu.map(({ section = 'system_configuration', ...entry }) => ({ section, entry: { can, ...entry } }))
+}
+
+// remove the static entries replaced by plugins, add the plugin entries to their section
+const withPlugins = (sections, plugins, replaced) => {
+  const isReplaced = item => (item.id && replaced.includes(item.id))
+    || (item.path && replaced.some(path => item.path === `/configuration/${path}` || item.path.startsWith(`/configuration/${path}/`)))
+  const _filter = items => items
+    .filter(item => !isReplaced(item))
+    .map(item => (item.items) ? { ...item, items: _filter(item.items) } : item)
+  const entries = plugins.reduce((entries, plugin) => {
+    if (plugin.available && plugin.ui)
+      return [...entries, ...pluginUiEntries(plugin)]
+    const section = (plugin.manifest && plugin.manifest.section) || 'system_configuration'
+    return [...entries, { section, entry: pluginEntry(plugin) }]
+  }, [])
+  return _filter(sections).map(section => {
+    const sectionId = section.path && section.path.split('/').pop()
+    const sectionEntries = entries
+      .filter(({ section }) => section === sectionId)
+      .map(({ entry }) => entry)
+    return (sectionEntries.length)
+      ? { ...section, items: [...section.items, ...sectionEntries] }
+      : section
+  })
+}
 
 export const useSections = () => {
-  const sections = computed(() => ([
+  loadPlugins()
+  const plugins = usePlugins()
+  const sections = computed(() => withPlugins([
     {
       name: i18n.t('Policies and Access Control'),
       path: '/configuration/policies_access_control',
@@ -139,7 +191,7 @@ export const useSections = () => {
           ]
         },
         { name: i18n.t('Cluster'), path: '/configuration/active_active', class: 'no-saas' },
-        { name: i18n.t('Connectors'),
+        { name: i18n.t('Connectors'), id: 'connectors',
           items: [
             { name: i18n.t('Connectors'), path: '/configuration/connectors/connectors', saveSearchNamespace: 'connectorsConnectors' },
             { name: i18n.t('Domains'), path: '/configuration/connectors/domains', saveSearchNamespace: 'connectorsDomains' },
@@ -161,9 +213,10 @@ export const useSections = () => {
         { name: i18n.t('DNS Configuration'), path: '/configuration/dns' },
         { name: i18n.t('Kafka'), path: '/configuration/kafka' },
         { name: i18n.t('SSL Certificates'), path: '/configuration/certificates' },
+        { name: i18n.t('Admin UI Plugins'), path: '/configuration/admin_ui_plugins', saveSearchNamespace: 'adminUiPlugins' },
       ]
     }
-  ]))
+  ], plugins.plugins, useReplaced()))
 
   return {
     sections

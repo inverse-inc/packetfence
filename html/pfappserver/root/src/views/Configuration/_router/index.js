@@ -66,15 +66,24 @@ import DnsRoutes from '../dns/_router'
 import AdminLoginRoutes from '../adminLogin/_router'
 import AdminRolesRoutes from '../adminRoles/_router'
 import ConnectorsRoutes from '../connectors/_router'
+import AdminUiPluginsRoutes from '../adminUiPlugins/_router'
+import PluginsRoutes from '../plugins/_router'
 import KafkaRoutes from '../kafka/_router'
 
 import store from '@/store'
 import BasesStoreModule from '../bases/_store'
+import { consumeRoutesChanged, load as loadPlugins } from '../plugins/_store'
 export const beforeEnter = (to, from, next = () => { }) => {
   if (!store.state.$_bases) {
     store.registerModule('$_bases', BasesStoreModule)
   }
-  next()
+  // the admin UI plugins may add or replace routes, match the navigation again when they did
+  loadPlugins().then(() => {
+    if (consumeRoutesChanged())
+      next(to.fullPath)
+    else
+      next()
+  })
 }
 
 const can = () => !store.getters['system/isSaas']
@@ -189,6 +198,8 @@ const route = {
     ...SslCertificatesRoutes,
     ...ConnectorsRoutes,
     ...KafkaRoutes,
+    ...AdminUiPluginsRoutes,
+    ...PluginsRoutes,
   ]
 }
 

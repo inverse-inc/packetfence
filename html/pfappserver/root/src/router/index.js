@@ -54,23 +54,42 @@ const DefaultRoute = {
   }
 }
 
+const routes = (configurationRoute = ConfigurationRoute) => ([
+  LoginRoute,
+  StatusRoute,
+  ReportsRoute,
+  AuditingRoute,
+  NodesRoute,
+  UsersRoute,
+  configurationRoute,
+  ConfiguratorRoute,
+  PreferencesRoute,
+  ResetRoute,
+  ...LiveLogsRoutes,
+  ...HistoricalLogsRoutes,
+  DefaultRoute
+])
+
 let router = new Router({
-  routes: [
-    LoginRoute,
-    StatusRoute,
-    ReportsRoute,
-    AuditingRoute,
-    NodesRoute,
-    UsersRoute,
-    ConfigurationRoute,
-    ConfiguratorRoute,
-    PreferencesRoute,
-    ResetRoute,
-    ...LiveLogsRoutes,
-    ...HistoricalLogsRoutes,
-    DefaultRoute
-  ]
+  routes: routes()
 })
+
+/**
+ * Routes of the admin UI plugins (children of /configuration).
+ * The static routes under the replaced paths (ex: 'connectors' for connectors/...) are dropped,
+ * vue-router 3 cannot remove routes so the matcher is rebuilt.
+ */
+export const setConfigurationPluginRoutes = (pluginRoutes = [], replacedPaths = []) => {
+  const isReplaced = ({ path }) => replacedPaths.some(replaced => path === replaced || path.startsWith(`${replaced}/`))
+  const configurationRoute = {
+    ...ConfigurationRoute,
+    children: [
+      ...ConfigurationRoute.children.filter(route => !isReplaced(route)),
+      ...pluginRoutes
+    ]
+  }
+  router.matcher = new Router({ routes: routes(configurationRoute) }).matcher
+}
 
 router.beforeEach((to, from, next) => {
   if (to.path && !['/', '/login', '/logout', '/expire'].includes(to.path)
