@@ -23,7 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 223;
+use Test::More tests => 235;
 use Test::MockModule;
 use Data::Dumper;
 use pf::Switch;
@@ -334,7 +334,29 @@ is($cisco->aclPortNumber('443', 6), 443, "aclPortNumber: a number is kept");
     ok(!defined $aireos_push->_untranslatablePushAcl($port_entry->('permit', 'lt 2')), "AireOS push: lt 2 is the port 1");
     is(chew($aireos_push, "deny tcp any any gt 65535\npermit ip any any"), deny_all($aireos_push), "AireOS push: a deny on gt 65535 ends the ACLs with a deny all");
     is(chew($aireos_push, "permit tcp any any lt 1\npermit tcp any any eq 443"), chew($aireos_push, "permit tcp any any eq 443"), "AireOS push: a permit on lt 1 is skipped, not pushed as the range 1 0");
+    TODO: {
+        local $TODO = "PR #9642 review: the gt and lt ranges are not bounds-checked, a numeric protocol is refused";
+        my $permit_443 = chew($aireos_push, "permit tcp any any eq 443");
+        is(chew($aireos_push, "permit tcp any any gt 65535\npermit tcp any any eq 443"), $permit_443, "AireOS push: gt 65535 is skipped, not pushed as the range 65536 65535");
+        is(chew($aireos_push, "permit tcp any any lt 1\npermit tcp any any eq 443"), $permit_443, "AireOS push: lt 1 is skipped, not pushed as the range 1 0");
+        is(chew($aireos_push, "permit tcp any any lt 0\npermit tcp any any eq 443"), $permit_443, "AireOS push: lt 0 is skipped, not pushed as the range 1 -1");
+        is(chew($aireos_push, "deny tcp any any gt 65535\npermit ip any any"), deny_all($aireos_push), "AireOS push: a deny on gt 65535 ends the ACLs with a deny all");
+        like(chew($aireos_push, "permit 47 any any"), qr/^acl rule protocol testrole 1 47$/m, "AireOS push: a numeric protocol is pushed as its number, not refused");
+        like(chew($aireos_push, "permit ospf any any"), qr/^acl rule protocol testrole 1 (?:89|ospf)$/m, "AireOS push: a protocol name with a number is pushed, not refused");
+    }
 }
+
+# Dell N1500: _untranslatableAcl calls aclIcmpType in scalar context, which
+# gives the code, not the type: a numeric type or a code of 0 reads as unknown
+TODO: {
+    local $TODO = "PR #9642 review: aclIcmpType is called in scalar context in Dell _untranslatableAcl";
+    is(chew($dell, "permit icmp any any 8"), "in|permit icmp any any icmp-type 8\n", "Dell: a numeric ICMP type is sent");
+    is(chew($dell, "permit icmp any any 0"), "in|permit icmp any any icmp-type 0\n", "Dell: the numeric ICMP type 0 is sent");
+    is(chew($dell, "permit icmp any any 3 0"), "in|permit icmp any any icmp-type 3 icmp-code 0\n", "Dell: an ICMP code of 0 is sent");
+}
+is(chew($dell, "permit icmp any any echo-reply"), "in|permit icmp any any icmp-type 0\n", "Dell: an ICMP message of type 0 is sent");
+is(chew($dell, "permit icmp any any net-unreachable"), "in|permit icmp any any icmp-type 3 icmp-code 0\n", "Dell: an ICMP message with code 0 is sent");
+is($dell->_untranslatableAcl({ source => { ipv4_addr => '0.0.0.0' }, destination => { ipv4_addr => '0.0.0.0', wildcard => '255.255.255.255' }, icmp_qualifier => 'no-such-message' }) // '', "the ICMP message 'no-such-message' is unknown", "Dell: an unknown ICMP message is still refused");
 
 {
     local $mobility_push->{_aclsForPush} = 1;
