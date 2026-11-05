@@ -118,6 +118,38 @@ func (k *kafkaContainer) produce(ctx context.Context, t *testing.T, topic string
 	}()
 }
 
+// writeFlows writes count flows tagged with seq, retrying while the broker or
+// the topic is not ready yet (the writer auto-creates the topic).
+func (k *kafkaContainer) writeFlows(t *testing.T, topic string, seq uint32, count int) {
+	t.Helper()
+	w := &kafka.Writer{
+		Addr:                   kafka.TCP(k.broker),
+		Topic:                  topic,
+		AllowAutoTopicCreation: true,
+		BatchTimeout:           10 * time.Millisecond,
+	}
+	defer w.Close()
+
+	value, _ := json.Marshal(&PfFlows{Header: PfFlowHeader{FlowSeq: seq}})
+	for i := 0; i < count; i++ {
+		var err error
+		for attempt := 0; attempt < 10; attempt++ {
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			err = w.WriteMessages(ctx, kafka.Message{Value: value})
+			cancel()
+			if err == nil {
+				break
+			}
+
+			time.Sleep(time.Second)
+		}
+
+		if err != nil {
+			t.Fatalf("produce to %s: %v", topic, err)
+		}
+	}
+}
+
 // waitForFlow waits for a flow tagged with seq on ChanPfFlow; flows of other
 // scenarios (their Run() goroutines keep consuming) are skipped.
 func waitForFlow(t *testing.T, seq uint32, timeout time.Duration) {
@@ -169,6 +201,20 @@ func waitForStableGroup(t *testing.T, client *kafka.Client, group string, timeou
 	return g
 }
 
+// ownsPartition reports whether a member of the group owns a partition of
+// topic.
+func ownsPartition(g kafka.DescribeGroupsResponseGroup, topic string) bool {
+	for _, m := range g.Members {
+		for _, t := range m.MemberAssignments.Topics {
+			if t.Topic == topic && len(t.Partitions) > 0 {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 // giveReaderTimeToJoin holds the flow exporter back, as in INV-948 where no
 // flow is exported while PacketFence restarts: the topic must not exist
 // before pfflow had a chance to join the group. Without the topic wait the
@@ -178,7 +224,7 @@ func waitForStableGroup(t *testing.T, client *kafka.Client, group string, timeou
 func giveReaderTimeToJoin(t *testing.T, j *PfFlowJob, timeout time.Duration) {
 	t.Helper()
 	if g, ok := stableGroup(j.kafkaClient(), j.GroupID, timeout); ok {
-		t.Fatalf("reader joined %s before the topic existed (assignment empty: %v)", j.GroupID, noPartitionAssigned(g, j.ReadTopic))
+		t.Fatalf("reader joined %s before the topic existed (assignment empty: %v)", j.GroupID, !ownsPartition(g, j.ReadTopic))
 	}
 
 	t.Logf("reader did not join %s within %v (waiting for the topic)", j.GroupID, timeout)
@@ -208,7 +254,7 @@ func TestPfFlowKafka(t *testing.T) {
 		waitForFlow(t, seq, 4*time.Minute)
 
 		g := waitForStableGroup(t, j.kafkaClient(), j.GroupID, time.Minute)
-		if noPartitionAssigned(g, j.ReadTopic) {
+		if !ownsPartition(g, j.ReadTopic) {
 			t.Fatalf("group %s has no partition of %s assigned: %+v", j.GroupID, j.ReadTopic, g.Members)
 		}
 	})
@@ -298,6 +344,136 @@ func TestPfFlowKafka(t *testing.T) {
 		}
 	})
 
+	t.Run("group_id shared with a consumer of another topic", func(t *testing.T) {
+		// Another consumer of another topic in the same group: the group is
+		// stable with assignments on both topics, and the watchdog must not
+		// take pfflow for stuck.
+		const seq = 5
+		group := "network_group_it_shared"
+		other := "pfflows_it_shared_other"
+		j := k.job("pfflows_it_shared", group)
+		client := j.kafkaClient()
+
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		k.produce(ctx, t, other, 0)
+		k.produce(ctx, t, j.ReadTopic, seq)
+		wctx, wcancel := context.WithTimeout(ctx, time.Minute)
+		err := WaitForTopic(j.kafkaDialer(), wctx, k.broker, other)
+		wcancel()
+		if err != nil {
+			t.Fatalf("topic %s: %v", other, err)
+		}
+
+		otherReader := kafka.NewReader(kafka.ReaderConfig{Brokers: j.Brokers, Topic: other, GroupID: group})
+		defer otherReader.Close()
+		go func() {
+			for ctx.Err() == nil {
+				otherReader.ReadMessage(ctx)
+			}
+		}()
+
+		go j.run(ctx)
+		waitForFlow(t, seq, 2*time.Minute)
+
+		deadline := time.Now().Add(time.Minute)
+		var g kafka.DescribeGroupsResponseGroup
+		for {
+			g = waitForStableGroup(t, client, group, time.Minute)
+			if len(g.Members) == 2 && ownsPartition(g, j.ReadTopic) && ownsPartition(g, other) {
+				break
+			}
+
+			if time.Now().After(deadline) {
+				t.Fatalf("group %s did not settle with both consumers: %+v", group, g.Members)
+			}
+
+			time.Sleep(time.Second)
+		}
+
+		stuck, err := j.groupHasNoAssignment(ctx, client)
+		if err != nil {
+			t.Fatalf("groupHasNoAssignment: %v", err)
+		}
+
+		if stuck {
+			t.Fatalf("groupHasNoAssignment flagged pfflow stuck in a group shared with another topic: %+v", g.Members)
+		}
+	})
+
+	t.Run("shutdown does not commit a flow it did not hand over", func(t *testing.T) {
+		// With the aggregator channel full, pfflow fetches the flow but
+		// cannot hand it over; shutting down then must leave it uncommitted
+		// so the next consumer reads it again.
+		j := k.job("pfflows_it_undelivered", "network_group_it_undelivered")
+		client := j.kafkaClient()
+
+		k.writeFlows(t, j.ReadTopic, 6, 1)
+		qctx, qcancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer qcancel()
+		listed, err := client.ListOffsets(qctx, &kafka.ListOffsetsRequest{
+			Topics: map[string][]kafka.OffsetRequest{j.ReadTopic: {kafka.LastOffsetOf(0)}},
+		})
+		if err != nil || len(listed.Topics[j.ReadTopic]) != 1 || listed.Topics[j.ReadTopic][0].LastOffset != 1 {
+			t.Fatalf("expected exactly one flow on %s: %+v, %v", j.ReadTopic, listed, err)
+		}
+
+		filler := []*PfFlows{{Header: PfFlowHeader{FlowSeq: 0}}}
+		for len(ChanPfFlow) < cap(ChanPfFlow) {
+			ChanPfFlow <- filler
+		}
+
+		defer func() {
+			for len(ChanPfFlow) > 0 {
+				<-ChanPfFlow
+			}
+		}()
+
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		done := make(chan struct{})
+		go func() {
+			j.run(ctx)
+			close(done)
+		}()
+
+		// Joined and fetching: it owns the partition and is blocked on the
+		// full channel with the first flow.
+		deadline := time.Now().Add(time.Minute)
+		for {
+			g, ok := stableGroup(client, j.GroupID, 10*time.Second)
+			if ok && ownsPartition(g, j.ReadTopic) {
+				break
+			}
+
+			if time.Now().After(deadline) {
+				t.Fatalf("pfflow did not get the partition of %s", j.ReadTopic)
+			}
+		}
+
+		time.Sleep(5 * time.Second)
+		cancel()
+		select {
+		case <-done:
+		case <-time.After(10 * time.Second):
+			t.Fatal("run() did not return within 10s of shutdown")
+		}
+
+		qctx, qcancel = context.WithTimeout(context.Background(), 10*time.Second)
+		defer qcancel()
+		fetched, err := client.OffsetFetch(qctx, &kafka.OffsetFetchRequest{
+			GroupID: j.GroupID,
+			Topics:  map[string][]int{j.ReadTopic: {0}},
+		})
+		if err != nil {
+			t.Fatalf("OffsetFetch: %v", err)
+		}
+
+		if got := fetched.Topics[j.ReadTopic][0].CommittedOffset; got > 0 {
+			t.Fatalf("committed offset %d after shutdown, the flow that was never handed over is lost", got)
+		}
+	})
+
 	t.Run("shutdown commits and leaves the group", func(t *testing.T) {
 		// On shutdown run() must return, commit what it read and leave the
 		// group, so the next pfcron gets the partition right away instead of
@@ -314,32 +490,7 @@ func TestPfFlowKafka(t *testing.T) {
 			close(done)
 		}()
 
-		w := &kafka.Writer{
-			Addr:                   kafka.TCP(k.broker),
-			Topic:                  j.ReadTopic,
-			AllowAutoTopicCreation: true,
-			BatchTimeout:           10 * time.Millisecond,
-		}
-		defer w.Close()
-		value, _ := json.Marshal(&PfFlows{Header: PfFlowHeader{FlowSeq: seq}})
-		for i := 0; i < count; i++ {
-			var err error
-			for attempt := 0; attempt < 10; attempt++ {
-				wctx, wcancel := context.WithTimeout(context.Background(), 10*time.Second)
-				err = w.WriteMessages(wctx, kafka.Message{Value: value})
-				wcancel()
-				if err == nil {
-					break
-				}
-
-				time.Sleep(time.Second)
-			}
-
-			if err != nil {
-				t.Fatalf("produce: %v", err)
-			}
-		}
-
+		k.writeFlows(t, j.ReadTopic, seq, count)
 		for i := 0; i < count; i++ {
 			waitForFlow(t, seq, 2*time.Minute)
 		}

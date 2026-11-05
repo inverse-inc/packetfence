@@ -43,11 +43,20 @@ func TestIsStrandedOffset(t *testing.T) {
 }
 
 func TestNoPartitionAssigned(t *testing.T) {
-	const topic = "pfflows_events"
-	member := func(topics ...kafka.GroupMemberTopic) kafka.DescribeGroupsResponseMember {
+	const topic, self = "pfflows_events", "pfflow-host-1-2"
+	member := func(clientID string, topics ...kafka.GroupMemberTopic) kafka.DescribeGroupsResponseMember {
 		return kafka.DescribeGroupsResponseMember{
+			ClientID:          clientID,
 			MemberAssignments: kafka.DescribeGroupsResponseAssignments{Topics: topics},
 		}
+	}
+
+	stable := func(members ...kafka.DescribeGroupsResponseMember) kafka.DescribeGroupsResponseGroup {
+		return kafka.DescribeGroupsResponseGroup{GroupState: "Stable", Members: members}
+	}
+
+	owns := func(topic string) kafka.GroupMemberTopic {
+		return kafka.GroupMemberTopic{Topic: topic, Partitions: []int{0}}
 	}
 
 	cases := []struct {
@@ -55,18 +64,21 @@ func TestNoPartitionAssigned(t *testing.T) {
 		group kafka.DescribeGroupsResponseGroup
 		want  bool
 	}{
-		{"stable, single member without assignment", kafka.DescribeGroupsResponseGroup{GroupState: "Stable", Members: []kafka.DescribeGroupsResponseMember{member()}}, true},
-		{"stable, assigned an empty partition list", kafka.DescribeGroupsResponseGroup{GroupState: "Stable", Members: []kafka.DescribeGroupsResponseMember{member(kafka.GroupMemberTopic{Topic: topic})}}, true},
-		{"stable, only another topic assigned", kafka.DescribeGroupsResponseGroup{GroupState: "Stable", Members: []kafka.DescribeGroupsResponseMember{member(kafka.GroupMemberTopic{Topic: "other", Partitions: []int{0}})}}, true},
-		{"stable, partition assigned", kafka.DescribeGroupsResponseGroup{GroupState: "Stable", Members: []kafka.DescribeGroupsResponseMember{member(kafka.GroupMemberTopic{Topic: topic, Partitions: []int{0}})}}, false},
-		{"stable, another member owns the partition", kafka.DescribeGroupsResponseGroup{GroupState: "Stable", Members: []kafka.DescribeGroupsResponseMember{member(), member(kafka.GroupMemberTopic{Topic: topic, Partitions: []int{0}})}}, false},
-		{"stable, no member", kafka.DescribeGroupsResponseGroup{GroupState: "Stable"}, false},
+		{"single member without assignment", stable(member(self)), true},
+		{"assigned an empty partition list", stable(member(self, kafka.GroupMemberTopic{Topic: topic})), true},
+		{"partition assigned", stable(member(self, owns(topic))), false},
+		{"another pfflow owns the partition", stable(member(self), member("pfflow-other-1-1", owns(topic))), false},
+		{"group_id shared with a consumer of another topic, reader stuck", stable(member(self), member("other-app", owns("other"))), true},
+		{"group_id shared with a consumer of another topic, partition assigned", stable(member(self, owns(topic)), member("other-app", owns("other"))), false},
+		{"reader not in the group, other members stable", stable(member("other-app", owns("other"))), false},
+		{"only a member left by an earlier reader", stable(member("pfflow-host-1-1")), false},
+		{"stable, no member", stable(), false},
 		{"empty group", kafka.DescribeGroupsResponseGroup{GroupState: "Empty"}, false},
-		{"rebalancing", kafka.DescribeGroupsResponseGroup{GroupState: "CompletingRebalance", Members: []kafka.DescribeGroupsResponseMember{member()}}, false},
+		{"rebalancing", kafka.DescribeGroupsResponseGroup{GroupState: "CompletingRebalance", Members: []kafka.DescribeGroupsResponseMember{member(self)}}, false},
 	}
 
 	for _, c := range cases {
-		if got := noPartitionAssigned(c.group, topic); got != c.want {
+		if got := noPartitionAssigned(c.group, topic, self); got != c.want {
 			t.Errorf("%s: noPartitionAssigned() = %v, want %v", c.name, got, c.want)
 		}
 	}

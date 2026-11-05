@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"os"
 	"strconv"
 	"sync/atomic"
 	"time"
@@ -29,7 +30,10 @@ type PfFlowJob struct {
 	FilterEvents    int
 	fingerprintChan chan []*PfFlows
 	schedule        OnceSchedule
+	readerClientID  string
 }
+
+var hostname, _ = os.Hostname()
 
 func defaultFromConfig[T any](config map[string]interface{}, name string, defaultVal T) T {
 	i := config[name]
@@ -141,19 +145,29 @@ func (j *PfFlowJob) kafkaClient() *kafka.Client {
 	}
 }
 
-// readTimeout bounds one ReadMessage call. When it expires without a message
+// readTimeout bounds one FetchMessage call. When it expires without a message
 // the consumer group offset is checked against the partition log end.
 const readTimeout = 60 * time.Second
 
+// readerSeq makes the client ID of every reader unique, see newReader.
+var readerSeq atomic.Uint64
+
+// newReader creates a consumer group reader with a client ID of its own,
+// recorded in readerClientID, so the group member it joins as can be told
+// apart from other members (see noPartitionAssigned), including one left by
+// an earlier reader of the same process.
 func (j *PfFlowJob) newReader(ctx context.Context, dialer *kafka.Dialer) *kafka.Reader {
+	d := *dialer
+	d.ClientID = fmt.Sprintf("pfflow-%s-%d-%d", hostname, os.Getpid(), readerSeq.Add(1))
+	j.readerClientID = d.ClientID
 	return kafka.NewReader(kafka.ReaderConfig{
 		Brokers:  j.Brokers,
 		Topic:    j.ReadTopic,
 		GroupID:  j.GroupID,
 		MaxBytes: 10e6, // 10MB
-		Dialer:   dialer,
+		Dialer:   &d,
 		// Commit offsets asynchronously once a second. With the default (0)
-		// kafka-go commits synchronously after every ReadMessage, which costs
+		// kafka-go commits synchronously on every CommitMessages, which costs
 		// one broker round trip per flow and caps the consumer well below the
 		// flow rate of a large deployment.
 		CommitInterval: time.Second,
@@ -165,7 +179,7 @@ func (j *PfFlowJob) newReader(ctx context.Context, dialer *kafka.Dialer) *kafka.
 		ErrorLogger: kafka.LoggerFunc(func(msg string, args ...interface{}) {
 			log.LogErrorf(ctx, "kafka reader: "+msg, args...)
 		}),
-		// Return OffsetOutOfRange from ReadMessage instead of retrying the
+		// Return OffsetOutOfRange from FetchMessage instead of retrying the
 		// fetch forever, so Run() can repair a stranded group offset as soon
 		// as the broker reports it rather than after readTimeout of silence.
 		OffsetOutOfRangeError: true,
@@ -204,10 +218,12 @@ func isStrandedOffset(committed, lastOffset int64, brokerConfirmed bool) bool {
 	return lastOffset > 0 || brokerConfirmed
 }
 
-// WaitForTopic polls the broker until the topic appears or the context times out
+// WaitForTopic polls the broker until the topic appears or the context is
+// done. A metadata error is returned instead of retried on the same
+// connection: the caller redials with a backoff, which also covers a broker
+// that restarted under this connection, and keeps a broker that answers every
+// metadata request with an error from logging once a second.
 func WaitForTopic(dialer *kafka.Dialer, ctx context.Context, brokerAddr string, topic string) error {
-	// 1. Establish a connection to the broker
-	// We dial inside the function, but in a real app you might reuse an existing connection.
 	conn, err := dialer.DialContext(ctx, "tcp", brokerAddr)
 	if err != nil {
 		return fmt.Errorf("failed to dial broker: %w", err)
@@ -220,33 +236,29 @@ func WaitForTopic(dialer *kafka.Dialer, ctx context.Context, brokerAddr string, 
 	stop := context.AfterFunc(ctx, func() { conn.SetDeadline(time.Now()) })
 	defer stop()
 
-	// 2. Create a ticker for the polling interval (e.g., check every 1 second)
-	ticker := time.NewTicker(1 * time.Second)
+	// Check at once, then every second.
+	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
-
 	for {
+		partitions, err := conn.ReadPartitions()
+		if err != nil {
+			if ctx.Err() != nil {
+				return fmt.Errorf("waiting for topic creation: %w", ctx.Err())
+			}
+
+			return fmt.Errorf("failed to read partitions: %w", err)
+		}
+
+		for _, p := range partitions {
+			if p.Topic == topic {
+				return nil
+			}
+		}
+
 		select {
 		case <-ctx.Done():
 			return fmt.Errorf("waiting for topic creation: %w", ctx.Err())
 		case <-ticker.C:
-			// 3. Fetch list of all partitions (metadata)
-			partitions, err := conn.ReadPartitions()
-			if err != nil {
-				// Optional: You might want to log this error, but generally
-				// we keep retrying in case the broker is temporarily restarting.
-				log.LogWarnf(ctx, "Failed to read partitions, retrying: %v", err)
-				continue
-			}
-
-			// 4. Check if our topic exists in the partition list
-			for _, p := range partitions {
-				if p.Topic == topic {
-					return nil // Topic found!
-				}
-			}
-
-			// If we get here, the topic was not found in this cycle.
-			// The loop continues on the next tick.
 		}
 	}
 }
@@ -311,17 +323,25 @@ func sleepCtx(ctx context.Context, d time.Duration) bool {
 // each) after which the consumer group assignment is checked.
 const idleAssignmentChecks = 2
 
-// noPartitionAssigned reports whether a stable consumer group has members but
-// none of them owns a partition of topic. A reader that joined the group while
-// the topic did not exist ends up there and kafka-go never recovers on its own
-// (see waitForTopic). A group without members, or one that is rebalancing, is
-// not reported: the reader may simply not have joined yet.
-func noPartitionAssigned(group kafka.DescribeGroupsResponseGroup, topic string) bool {
-	if group.GroupState != "Stable" || len(group.Members) == 0 {
+// noPartitionAssigned reports whether the member with clientID is in the
+// stable consumer group while no member owns a partition of topic. A reader
+// that joined the group while the topic did not exist ends up there and
+// kafka-go never recovers on its own (see waitForTopic). Members of other
+// topics sharing the group_id, or another pfflow owning the partitions, do
+// not make the reader stuck; neither does a group the reader has not joined
+// (yet) or one that is rebalancing: recreating the reader would only force
+// rebalances on the other members.
+func noPartitionAssigned(group kafka.DescribeGroupsResponseGroup, topic, clientID string) bool {
+	if group.GroupState != "Stable" {
 		return false
 	}
 
+	joined := false
 	for _, m := range group.Members {
+		if m.ClientID == clientID {
+			joined = true
+		}
+
 		for _, t := range m.MemberAssignments.Topics {
 			if t.Topic == topic && len(t.Partitions) > 0 {
 				return false
@@ -329,10 +349,10 @@ func noPartitionAssigned(group kafka.DescribeGroupsResponseGroup, topic string) 
 		}
 	}
 
-	return true
+	return joined
 }
 
-// groupHasNoAssignment asks the group coordinator whether the consumer group
+// groupHasNoAssignment asks the group coordinator whether the current reader
 // is stuck without any partition of the read topic (see noPartitionAssigned).
 func (j *PfFlowJob) groupHasNoAssignment(ctx context.Context, client *kafka.Client) (bool, error) {
 	resp, err := client.DescribeGroups(ctx, &kafka.DescribeGroupsRequest{GroupIDs: []string{j.GroupID}})
@@ -349,7 +369,7 @@ func (j *PfFlowJob) groupHasNoAssignment(ctx context.Context, client *kafka.Clie
 			return false, g.Error
 		}
 
-		return noPartitionAssigned(g, j.ReadTopic), nil
+		return noPartitionAssigned(g, j.ReadTopic, j.readerClientID), nil
 	}
 
 	return false, nil
@@ -595,7 +615,7 @@ func (j *PfFlowJob) run(ctx context.Context) {
 
 		// Use a timeout context to avoid blocking forever if Kafka is unresponsive
 		readCtx, cancel := context.WithTimeout(ctx, readTimeout)
-		m, err := r.ReadMessage(readCtx)
+		m, err := r.FetchMessage(readCtx)
 		cancel()
 		if err != nil {
 			// Shutting down: the read was cancelled, not a Kafka error.
@@ -604,7 +624,7 @@ func (j *PfFlowJob) run(ctx context.Context) {
 			}
 
 			// Check if it's just a timeout (no messages available) vs a real error.
-			// kafka-go's ReadMessage wraps the error ("fetching message: %w"), so a
+			// kafka-go's FetchMessage wraps the error ("fetching message: %w"), so a
 			// plain == comparison never matches — use errors.Is to unwrap.
 			if errors.Is(err, context.DeadlineExceeded) {
 				// No message for a whole readTimeout: either the topic is idle
@@ -667,35 +687,49 @@ func (j *PfFlowJob) run(ctx context.Context) {
 			reconnectDelay = 1 * time.Second
 		}
 
-		// A partition can be stranded while the others keep delivering, in
-		// which case the idle-read path above never fires; check periodically.
-		// The message just read is processed below either way; if a reset
-		// closed the reader, the next iteration recreates it.
-		if time.Now().After(nextStrandedCheck) {
-			repairStrandedOffsets("periodic check", false)
-		}
-
-		pfFlows := &PfFlows{}
-		if err := json.Unmarshal(m.Value, pfFlows); err != nil {
-			log.LogErrorf(ctx, "Error unmarshaling message: %v", err)
-			continue
-		}
-
-		// Both channels are buffered but can fill up when their consumer falls
-		// behind; do not block shutdown on them.
-		select {
-		case ChanPfFlow <- []*PfFlows{pfFlows}:
-		case <-ctx.Done():
+		// Hand the flows over before committing the message: one fetched but
+		// not handed over when pfcron stops is fetched again by the next
+		// consumer instead of being committed by Close().
+		if !j.deliver(ctx, m) {
 			return
 		}
 
-		if j.fingerprintChan != nil {
-			// Send the flows to the fingerprint channel
-			select {
-			case j.fingerprintChan <- []*PfFlows{pfFlows}:
-			case <-ctx.Done():
-				return
-			}
+		if err := r.CommitMessages(ctx, m); err != nil && ctx.Err() == nil {
+			log.LogWarnf(ctx, "unable to commit %s/%d offset %d: %s", m.Topic, m.Partition, m.Offset, err.Error())
+		}
+
+		// A partition can be stranded while the others keep delivering, in
+		// which case the idle-read path above never fires; check periodically.
+		// If a reset closes the reader, the next iteration recreates it.
+		if time.Now().After(nextStrandedCheck) {
+			repairStrandedOffsets("periodic check", false)
 		}
 	}
+}
+
+// deliver hands the flows of m to the aggregator and to the fingerprinting,
+// and reports false if ctx was done first. Both channels are buffered but can
+// fill up when their consumer falls behind; shutdown does not wait for them.
+func (j *PfFlowJob) deliver(ctx context.Context, m kafka.Message) bool {
+	pfFlows := &PfFlows{}
+	if err := json.Unmarshal(m.Value, pfFlows); err != nil {
+		log.LogErrorf(ctx, "Error unmarshaling message: %v", err)
+		return true
+	}
+
+	select {
+	case ChanPfFlow <- []*PfFlows{pfFlows}:
+	case <-ctx.Done():
+		return false
+	}
+
+	if j.fingerprintChan != nil {
+		select {
+		case j.fingerprintChan <- []*PfFlows{pfFlows}:
+		case <-ctx.Done():
+			return false
+		}
+	}
+
+	return true
 }

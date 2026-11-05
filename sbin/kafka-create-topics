@@ -1,32 +1,60 @@
 #!/bin/bash
 
-# Create the Kafka topics PacketFence consumes, once the broker answers.
+# Create the Kafka topic pfflow consumes, once the broker answers.
 #
-# pfflow must not join its consumer group before pfflows_events exists: Kafka
+# pfflow must not join its consumer group before its read_topic exists: Kafka
 # then gives it no partition and, with no other member in the group, never
-# rebalances (INV-948). Without this the topic only appears when the first
-# flow is exported. The topic is created with the broker defaults for the
-# partition count and replication factor, exactly as auto-creation would.
+# rebalances (INV-948). pfflow waits for the topic itself; creating it here
+# lets it start consuming as soon as Kafka is up instead of after the first
+# exported flow auto-creates the topic. The topic gets the broker defaults
+# for the partition count and replication factor, as auto-creation would.
+# Nothing is created while the pfflow task is disabled.
 #
-# Run as ExecStartPost of packetfence-kafka.service; it gives up after
-# KAFKA_CREATE_TOPICS_TIMEOUT seconds so it stays within the unit's start
-# timeout, and pfflow still waits for the topic on its own if it fails.
+# Run as ExecStartPost of packetfence-kafka.service. The whole run, pfconfig
+# lookup included, stays within KAFKA_CREATE_TOPICS_TIMEOUT seconds (plus a
+# few seconds if docker itself hangs) so the unit's start timeout, which also
+# covers its ExecStartPre steps, is not reached.
 
 name=kafka
-bootstrap=localhost:9095
-timeout=${KAFKA_CREATE_TOPICS_TIMEOUT:-75}
+port=9095
+budget=${KAFKA_CREATE_TOPICS_TIMEOUT:-60}
+deadline=$((SECONDS + budget))
 
-topic=$(/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::config::pfcron=%ConfigCron' -e 'print $ConfigCron{pfflow}{read_topic} // ""' 2>/dev/null)
-topic=${topic:-pfflows_events}
+config=$(timeout "$budget" /usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::config::pfcron=%ConfigCron' '-Mpf::util=isenabled' \
+  -e 'my $c = $ConfigCron{pfflow} or die "no pfflow task in the pfcron configuration\n"; print((isenabled($c->{status}) ? "enabled" : "disabled"), " ", $c->{read_topic} // "", "\n")')
+read -r status topic <<< "$config"
+if [ -z "$status" ] || { [ "$status" = "enabled" ] && [ -z "$topic" ]; }; then
+  echo "Unable to read the pfflow configuration, not creating its Kafka topic" >&2
+  exit 1
+fi
 
-deadline=$((SECONDS + timeout))
-until timeout 30 docker exec $name kafka-topics --bootstrap-server $bootstrap --create --if-not-exists --topic "$topic" >/dev/null 2>&1; do
-  if (( SECONDS >= deadline )); then
-    echo "Unable to create Kafka topic $topic within ${timeout}s" >&2
+if [ "$status" != "enabled" ]; then
+  echo "pfflow is disabled, not creating its Kafka topic"
+  exit 0
+fi
+
+last_error="broker not listening on port $port"
+while :; do
+  left=$((deadline - SECONDS))
+  if (( left <= 0 )); then
+    echo "Unable to create Kafka topic $topic within ${budget}s ($last_error), pfflow will wait for it" >&2
     exit 1
+  fi
+
+  # Start the kafka-topics JVM only once the broker listens, and bound it
+  # inside the container: a timeout on the docker client alone would leave
+  # the JVM running next to a broker that is still starting.
+  if timeout "$left" docker exec $name bash -c "exec 3<>/dev/tcp/localhost/$port" 2>/dev/null; then
+    left=$((deadline - SECONDS))
+    if (( left > 0 )); then
+      if out=$(timeout $((left + 5)) docker exec $name timeout "$left" kafka-topics --bootstrap-server localhost:$port --create --if-not-exists --topic "$topic" 2>&1); then
+        echo "Kafka topic $topic is present"
+        exit 0
+      fi
+
+      last_error=${out##*$'\n'}
+    fi
   fi
 
   sleep 2
 done
-
-echo "Kafka topic $topic is present"
