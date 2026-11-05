@@ -1,0 +1,47 @@
+{
+  "manifestVersion": 1,
+  "id": "syslog-forwarders",
+  "title": { "en": "Syslog Entries (plugin)", "fr": "Entrées Syslog (plugin)" },
+  "description": { "en": "The core syslog forwarders, as a plugin page: a collection mapped to the existing core API." },
+  "menu": { "area": "configuration", "section": "/configuration/integration", "after": "/configuration/syslog", "can": "read syslog" },
+  "template": "collection",
+  "api": {
+    "list": "config/syslog_forwarders",
+    "listOptions": "config/syslog_forwarders",
+    "search": "config/syslog_forwarders/search",
+    "create": "config/syslog_forwarders",
+    "item": "config/syslog_forwarder/{id}",
+    "itemOptions": "config/syslog_forwarder/{id}",
+    "update": "config/syslog_forwarder/{id}",
+    "delete": "config/syslog_forwarder/{id}"
+  },
+  "collection": {
+    "columns": [
+      { "key": "id", "label": { "en": "Syslog Name", "fr": "Nom Syslog" }, "sortable": true },
+      { "key": "type", "label": { "en": "Type" }, "sortable": true }
+    ],
+    "searchFields": ["id", "type"]
+  },
+  "form": {
+    "fields": [
+      { "namespace": "id", "component": "BaseFormGroupInput", "label": { "en": "Syslog Name", "fr": "Nom Syslog" },
+        "validators": [ { "fn": "required", "message": { "en": "Name required.", "fr": "Nom requis." } } ] },
+      { "namespace": "type", "component": "BaseFormGroupChosenOne", "label": { "en": "Type" },
+        "props": { "options": [ { "value": "server", "text": "Server" }, { "value": "file", "text": "File" } ] },
+        "validators": [ { "fn": "required" } ] },
+      { "namespace": "proto", "component": "BaseFormGroupChosenOne", "label": { "en": "Protocol", "fr": "Protocole" },
+        "when": { "field": "type", "equals": "server" } },
+      { "namespace": "host", "component": "BaseFormGroupInput", "label": { "en": "Host", "fr": "Hôte" },
+        "when": { "field": "type", "equals": "server" },
+        "validators": [ { "fn": "isFQDN" } ] },
+      { "namespace": "port", "component": "BaseFormGroupInputNumber", "label": { "en": "Port" },
+        "when": { "field": "type", "equals": "server" },
+        "validators": [ { "fn": "isPort" } ] },
+      { "namespace": "all_logs", "component": "BaseFormGroupSwitch", "label": { "en": "All logs", "fr": "Tous les journaux" },
+        "props": { "enabledValue": "enabled", "disabledValue": "disabled" } },
+      { "namespace": "logs", "component": "BaseFormGroupChosenMultiple", "label": { "en": "Logs", "fr": "Journaux" },
+        "when": { "field": "all_logs", "equals": "disabled" },
+        "validators": [ { "fn": "unique" } ] }
+    ]
+  }
+}

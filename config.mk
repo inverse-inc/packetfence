@@ -153,20 +153,13 @@ pfapp_files = $(shell find $(SRC_HTML_PFAPPDIR) \
 	-not -path "$(SRC_HTML_PFAPPDIR)/t/*" \
 	-not -path "$(SRC_HTML_PFAPPDIR_ROOT)*")
 
-# never ship the source of the UI extensions (private repositories, see
-# html/pfappserver/root/extensions/README.md), only the compiled dist/
 pfapp_alt_files = $(shell find $(SRC_HTML_PFAPPDIR_ROOT) \
 	-type f \
-	-not -path "$(SRC_HTML_PFAPPDIR_ROOT)/node_modules/*" \
-	-not -path "$(SRC_HTML_PFAPPDIR_ROOT)/extensions/*/*" \
-	-not -path "$(SRC_HTML_PFAPPDIR_ROOT)/extensions.example/*" \
-	-not -path "$(SRC_HTML_PFAPPDIR_ROOT)/.pf-ui-extensions/*")
+	-not -path "$(SRC_HTML_PFAPPDIR_ROOT)/node_modules/*")
 
 symlink_files = $(shell find $(SRC_HTML_PFAPPDIR) \
 	-type l \
-	-not -path "$(SRC_HTML_PFAPPDIR_ROOT)/node_modules/*" \
-	-not -path "$(SRC_HTML_PFAPPDIR_ROOT)/extensions/*" \
-	-not -path "$(SRC_HTML_PFAPPDIR_ROOT)/extensions.example/*")
+	-not -path "$(SRC_HTML_PFAPPDIR_ROOT)/node_modules/*")
 
 # all directories and files to include in packetfence package
 # $(SRC_ROOT_DIR)/* to exclude SRC_ROOT_DIR himself

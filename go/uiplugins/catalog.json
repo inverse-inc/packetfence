@@ -1,0 +1,326 @@
+{
+  "manifestVersions": [
+    1
+  ],
+  "templates": [
+    "resource",
+    "collection"
+  ],
+  "areas": [
+    "configuration",
+    "status",
+    "auditing",
+    "nodes",
+    "users",
+    "preferences"
+  ],
+  "api": {
+    "verbs": {
+      "list": "GET",
+      "listOptions": "OPTIONS",
+      "search": "POST",
+      "create": "POST",
+      "item": "GET",
+      "itemOptions": "OPTIONS",
+      "update": "PATCH",
+      "delete": "DELETE"
+    },
+    "methods": {
+      "collection": {
+        "list": false,
+        "listOptions": false,
+        "search": false,
+        "create": false,
+        "item": true,
+        "itemOptions": true,
+        "update": true,
+        "delete": true
+      },
+      "resource": {
+        "item": false,
+        "itemOptions": false,
+        "update": false
+      }
+    }
+  },
+  "components": {
+    "BaseFormGroupInput": {
+      "type": "string"
+    },
+    "BaseFormGroupInputNumber": {
+      "type": "string"
+    },
+    "BaseFormGroupInputPassword": {
+      "type": "string"
+    },
+    "BaseFormGroupInputPasswordGenerator": {
+      "type": "string"
+    },
+    "BaseFormGroupTextarea": {
+      "type": "string"
+    },
+    "BaseFormGroupInputDate": {
+      "type": "string"
+    },
+    "BaseFormGroupInputDateTime": {
+      "type": "string"
+    },
+    "BaseFormGroupChosenOne": {
+      "type": "string"
+    },
+    "BaseFormGroupChosenOneSearchable": {
+      "type": "string"
+    },
+    "BaseFormGroupChosenTimezone": {
+      "type": "string"
+    },
+    "BaseFormGroupChosenCountry": {
+      "type": "string"
+    },
+    "BaseFormGroupChosenMultiple": {
+      "type": "array"
+    },
+    "BaseFormGroupChosenMultipleSearchable": {
+      "type": "array"
+    },
+    "BaseFormGroupSwitch": {
+      "type": "mixed"
+    },
+    "BaseFormGroupToggle": {
+      "type": "mixed"
+    },
+    "BaseFormGroupToggleDisabledEnabled": {
+      "type": "string"
+    },
+    "BaseFormGroupToggleNoYes": {
+      "type": "string"
+    },
+    "BaseFormGroupToggleNY": {
+      "type": "string"
+    },
+    "BaseFormGroupToggleOffOn": {
+      "type": "string"
+    },
+    "BaseFormGroupToggleFalseTrue": {
+      "type": "string"
+    }
+  },
+  "validators": {
+    "required": {
+      "types": [
+        "string",
+        "array",
+        "mixed"
+      ],
+      "args": []
+    },
+    "min": {
+      "types": [
+        "string",
+        "array"
+      ],
+      "args": [
+        "integer"
+      ]
+    },
+    "max": {
+      "types": [
+        "string",
+        "array"
+      ],
+      "args": [
+        "integer"
+      ]
+    },
+    "matches": {
+      "types": [
+        "string"
+      ],
+      "args": [
+        "string"
+      ]
+    },
+    "email": {
+      "types": [
+        "string"
+      ],
+      "args": []
+    },
+    "url": {
+      "types": [
+        "string"
+      ],
+      "args": []
+    },
+    "in": {
+      "types": [
+        "string"
+      ],
+      "args": [
+        "array"
+      ]
+    },
+    "not": {
+      "types": [
+        "string"
+      ],
+      "args": [
+        "string"
+      ]
+    },
+    "minAsInt": {
+      "types": [
+        "string"
+      ],
+      "args": [
+        "integer"
+      ]
+    },
+    "maxAsInt": {
+      "types": [
+        "string"
+      ],
+      "args": [
+        "integer"
+      ]
+    },
+    "isAlphaNumeric": {
+      "types": [
+        "string"
+      ],
+      "args": []
+    },
+    "isAlphaNumericHyphenUnderscoreDot": {
+      "types": [
+        "string"
+      ],
+      "args": []
+    },
+    "isUUID": {
+      "types": [
+        "string"
+      ],
+      "args": []
+    },
+    "isCIDR": {
+      "types": [
+        "string"
+      ],
+      "args": []
+    },
+    "isCommonName": {
+      "types": [
+        "string"
+      ],
+      "args": []
+    },
+    "isCommonNameOrFQDN": {
+      "types": [
+        "string"
+      ],
+      "args": []
+    },
+    "isCommonNameOrFQDNOrMAC": {
+      "types": [
+        "string"
+      ],
+      "args": []
+    },
+    "isDomain": {
+      "types": [
+        "string"
+      ],
+      "args": []
+    },
+    "isEmailCsv": {
+      "types": [
+        "string"
+      ],
+      "args": []
+    },
+    "isFilename": {
+      "types": [
+        "string"
+      ],
+      "args": []
+    },
+    "isFQDN": {
+      "types": [
+        "string"
+      ],
+      "args": []
+    },
+    "isLowerCase": {
+      "types": [
+        "string"
+      ],
+      "args": []
+    },
+    "isHostname": {
+      "types": [
+        "string"
+      ],
+      "args": []
+    },
+    "isIpv4": {
+      "types": [
+        "string"
+      ],
+      "args": []
+    },
+    "isIpv4Csv": {
+      "types": [
+        "string"
+      ],
+      "args": []
+    },
+    "isIpv6": {
+      "types": [
+        "string"
+      ],
+      "args": []
+    },
+    "isMAC": {
+      "types": [
+        "string"
+      ],
+      "args": []
+    },
+    "isPort": {
+      "types": [
+        "string"
+      ],
+      "args": []
+    },
+    "isPortCsv": {
+      "types": [
+        "string"
+      ],
+      "args": []
+    },
+    "isPrice": {
+      "types": [
+        "string"
+      ],
+      "args": []
+    },
+    "isStaticRoute": {
+      "types": [
+        "string"
+      ],
+      "args": []
+    },
+    "isVLAN": {
+      "types": [
+        "string"
+      ],
+      "args": []
+    },
+    "unique": {
+      "types": [
+        "array"
+      ],
+      "args": []
+    }
+  }
+}

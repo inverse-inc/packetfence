@@ -1,6 +1,0 @@
-HelloWorld:
-  type: object
-  properties:
-    message:
-      type: string
-      description: The greeting

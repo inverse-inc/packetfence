@@ -17,7 +17,7 @@ const components = {
 
 import { computed } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import { areaSections } from '@/extensions'
+import { areaSections } from '@/plugins'
 const setup = (props, context) => {
 
   const { root: { $store } = {} } = context
@@ -28,7 +28,7 @@ const setup = (props, context) => {
     return { name: host, path: `/status/monitoring/${host}`, class: 'no-saas' }
   }))
 
-  const sections = computed(() => areaSections('status', [ // add the UI extensions items, see extensions/README.md
+  const sections = computed(() => areaSections('status', [ // add the UI plugins items, see docs/ui-plugins/README.md
     {
       name: i18n.t('About'),
       path: '/status/about'
@@ -92,7 +92,7 @@ const setup = (props, context) => {
       name: i18n.t('Local Queue'),
       path: '/status/queue'
     }
-  ], { i18n }))
+  ]))
 
   return {
     sections

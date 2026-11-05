@@ -28,6 +28,8 @@ const ALLOW_ANY = "*"
 var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: apiPrefix + "/current_user", role: ALLOW_ANY},
 	adminRoleMapping{prefix: apiPrefix + "/radius_attributes", role: ALLOW_ANY},
+	// the menu entries of each plugin are filtered by the UI with the manifest menu.can
+	adminRoleMapping{prefix: apiPrefix + "/ui_plugins", role: ALLOW_ANY},
 
 	adminRoleMapping{prefix: apiPrefix + "/preference/", role: ALLOW_ANY},
 	adminRoleMapping{prefix: apiPrefix + "/preferences", role: ALLOW_ANY},

@@ -180,9 +180,7 @@ const setup = (props, context) => {
 
   onMounted(() => {
     if ('can' in item.value)
-      visible.value = (item.value.can.constructor === Function)
-        ? item.value.can()
-        : acl.$can.apply(null, item.value.can.split(' '))
+      visible.value = acl.$can.apply(null, item.value.can.split(' '))
     if (saveSearchNamespace.value) {
       // get declares a reactive placeholder when the preference does not exist
       $store.dispatch('preferences/get', `${saveSearchNamespace.value}::advancedSearch`)

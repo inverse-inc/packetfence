@@ -13,9 +13,6 @@
           <b-nav-item v-b-tooltip.hover.bottom.d300 title="Alt + Shift + N" to="/nodes" :active="$route.path.startsWith('/node')" v-if="canRoute('/nodes')">{{ $t('Nodes') }}</b-nav-item>
           <b-nav-item v-b-tooltip.hover.bottom.d300 title="Alt + Shift + U" to="/users" :active="$route.path.startsWith('/user')" v-if="canRoute('/users')">{{ $t('Users') }}</b-nav-item>
           <b-nav-item v-b-tooltip.hover.bottom.d300 title="Alt + Shift + C" to="/configuration" :active="$route.path.startsWith('/configuration')" v-if="canRoute('/configuration')">{{ $t('Configuration') }}</b-nav-item>
-          <template v-for="item in extensionNavbarItems">
-            <b-nav-item :key="item.to" :to="item.to" :active="$route.path.startsWith(item.activePrefix || item.to)" v-if="canNavbarItem(item)">{{ $t(item.name) }}</b-nav-item>
-          </template>
         </b-navbar-nav>
         <b-nav-text class="ml-auto">
           <b-badge class="mr-1" v-if="isDebug" :variant="apiOK === true? 'success' : apiOK === false? 'danger' : 'warning'">API</b-badge>
@@ -108,7 +105,6 @@ const components = {
 import { computed, ref, watch } from '@vue/composition-api'
 import useEvent from '@/composables/useEvent'
 import i18n, { languages } from '@/utils/locale'
-import { navbarItems as extensionNavbarItems } from '@/extensions'
 
 const setup = (props, context) => {
 
@@ -190,18 +186,6 @@ const setup = (props, context) => {
       return $can(verb, action)
     }
     return false
-  }
-
-  // UI extensions navbar items, see extensions/README.md
-  const canNavbarItem = item => {
-    const { can, to } = item
-    if (can) {
-      if (can.constructor === Function)
-        return can()
-      const [ verb, action ] = can.split(' ')
-      return $can(verb, action)
-    }
-    return canRoute(to)
   }
 
   const setLanguage = lang => {
@@ -289,8 +273,6 @@ const setup = (props, context) => {
     isConfiguratorActive,
     warnings,
     canRoute,
-    canNavbarItem,
-    extensionNavbarItems,
     apiOK,
     chartsOK,
     gitCommitId,
