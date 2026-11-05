@@ -19,8 +19,3 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw*
-
-# UI extensions (see extensions/README.md): drop-in clones and generated files
-/extensions/*
-!/extensions/README.md
-/.pf-ui-extensions

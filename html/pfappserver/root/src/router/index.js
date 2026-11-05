@@ -18,7 +18,14 @@ import PreferencesRoute from '@/views/Preferences/_router'
 import ResetRoute from '@/views/Reset/_router'
 import LiveLogsRoutes from '@/views/LiveLogs/_router'
 import HistoricalLogsRoutes from '@/views/HistoricalLogs/_router'
-import { applyRoutes } from '@/extensions'
+import { loadPlugins } from '@/plugins'
+
+// the views of the UI plugins pages, the core configuration views
+const pluginViews = {
+  resource: () => import(/* webpackChunkName: "plugins" */ '@/plugins/components/TheViewResource'),
+  search: () => import(/* webpackChunkName: "plugins" */ '@/plugins/components/TheSearch'),
+  item: () => import(/* webpackChunkName: "plugins" */ '@/plugins/components/TheViewCollectionItem')
+}
 
 Vue.use(Loading)
 
@@ -57,20 +64,18 @@ const DefaultRoute = {
 
 let router = new Router({
   routes: [
-    ...applyRoutes([ // add the UI extensions routes, see extensions/README.md
-      LoginRoute,
-      StatusRoute,
-      ReportsRoute,
-      AuditingRoute,
-      NodesRoute,
-      UsersRoute,
-      ConfigurationRoute,
-      ConfiguratorRoute,
-      PreferencesRoute,
-      ResetRoute,
-      ...LiveLogsRoutes,
-      ...HistoricalLogsRoutes
-    ]),
+    LoginRoute,
+    StatusRoute,
+    ReportsRoute,
+    AuditingRoute,
+    NodesRoute,
+    UsersRoute,
+    ConfigurationRoute,
+    ConfiguratorRoute,
+    PreferencesRoute,
+    ResetRoute,
+    ...LiveLogsRoutes,
+    ...HistoricalLogsRoutes,
     DefaultRoute
   ]
 })
@@ -110,7 +115,14 @@ router.beforeEach((to, from, next) => {
           return store.dispatch('system/getSummary') // [5a] ensure summary is loaded before first navigation
         }
       }).then(() => {
-        next() // [5b]
+        // [5c] add the routes of the UI plugins, see docs/ui-plugins/README.md
+        return loadPlugins({ router, token: store.state.session.token, views: pluginViews })
+      }).then(() => {
+        // [5d] a URL that only matched the default route may now be a plugin route
+        if (to.name === 'default' && router.resolve(to.fullPath).route.name !== 'default')
+          next(to.fullPath)
+        else
+          next() // [5b]
       }).catch(() => {
         let currentPath = router.currentRoute.fullPath
         if (currentPath === '/') {

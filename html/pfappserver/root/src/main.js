@@ -160,7 +160,6 @@ import router from './router'
 import filters from './utils/filters'
 import { pfTemplatePlugin } from './utils/plugins'
 import App from './App'
-import { installExtensions } from './extensions'
 
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
@@ -190,9 +189,6 @@ const pinia = createPinia()
 for (const filter of Object.keys(filters)) {
   Vue.filter(filter, filters[filter])
 }
-
-// UI extensions store modules and install hooks, see extensions/README.md
-installExtensions({ Vue, router, store, i18n, pinia })
 
 const app = new Vue({
   render: h => h(App),

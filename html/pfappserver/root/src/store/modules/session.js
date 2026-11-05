@@ -6,7 +6,6 @@ import acl, { setupAcl } from '@/utils/acl'
 import apiCall from '@/utils/api'
 import i18n from '@/utils/locale'
 import duration from '@/utils/duration'
-import { loadExtensionMessages } from '@/extensions'
 
 const STORAGE_TOKEN_KEY = 'user-token'
 
@@ -264,12 +263,8 @@ const actions = {
         return api.getLanguage(params.lang).then(response => {
           let messages = response.data.item.lexicon
           i18n.setLocaleMessage(params.lang, messages)
-          // add the UI extensions translations, see extensions/README.md
-          return loadExtensionMessages(params.lang).then(extensionMessages => {
-            i18n.mergeLocaleMessage(params.lang, extensionMessages)
-            commit('LANGUAGES_UPDATED', [ ...state.languages, params.lang ])
-            return setI18nLanguage(params.lang)
-          })
+          commit('LANGUAGES_UPDATED', [ ...state.languages, params.lang ])
+          return setI18nLanguage(params.lang)
         })
       }
       return Promise.resolve(setI18nLanguage(params.lang))

@@ -1,0 +1,1154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://packetfence.org/schemas/ui-plugin-manifest.schema.json",
+  "title": "PacketFence admin UI plugin manifest",
+  "description": "Generated from html/pfappserver/root/src/plugins/catalog.json by html/pfappserver/root/build/ui-plugins-catalog.js, do not edit. The API also checks that every validator applies to the type of its component and that \"when\" references another field. See docs/ui-plugins/README.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifestVersion",
+    "id",
+    "title",
+    "menu",
+    "template",
+    "api",
+    "form"
+  ],
+  "properties": {
+    "manifestVersion": {
+      "enum": [
+        1
+      ]
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]{0,62}$",
+      "description": "The id the plugin service registered with."
+    },
+    "title": {
+      "$ref": "#/$defs/text"
+    },
+    "description": {
+      "$ref": "#/$defs/text"
+    },
+    "menu": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "area"
+      ],
+      "properties": {
+        "area": {
+          "enum": [
+            "configuration",
+            "status",
+            "auditing",
+            "nodes",
+            "users",
+            "preferences"
+          ]
+        },
+        "section": {
+          "type": "string",
+          "description": "Path of an existing sidebar section of the area, without it the item is a new section."
+        },
+        "group": {
+          "type": "string",
+          "description": "Untranslated name of a group of the section."
+        },
+        "before": {
+          "type": "string",
+          "description": "Path of a sidebar item to insert before."
+        },
+        "after": {
+          "type": "string",
+          "description": "Path of a sidebar item to insert after."
+        },
+        "icon": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+(/[a-z0-9-]+)?$",
+          "description": "A vue-awesome icon already used by core, for a new section."
+        },
+        "can": {
+          "type": "string",
+          "pattern": "^[a-z_]+ [a-z_]+$",
+          "description": "The ACL needed to see the item, eg: \"read system\"."
+        }
+      }
+    },
+    "template": {
+      "enum": [
+        "resource",
+        "collection"
+      ]
+    },
+    "api": {
+      "type": "object",
+      "description": "The API of the page, as in the _api.js of the core views: a path relative to /api/v1 by method, called with a fixed verb (list: GET, listOptions: OPTIONS, search: POST, create: POST, item: GET, itemOptions: OPTIONS, update: PATCH, delete: DELETE). A missing method is not offered by the page."
+    },
+    "collection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "columns"
+      ],
+      "properties": {
+        "columns": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "key",
+              "label"
+            ],
+            "properties": {
+              "key": {
+                "type": "string",
+                "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*$"
+              },
+              "label": {
+                "$ref": "#/$defs/text"
+              },
+              "sortable": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "searchFields": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*$"
+          }
+        }
+      }
+    },
+    "form": {
+      "type": "object",
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "fields"
+          ]
+        },
+        {
+          "required": [
+            "tabs"
+          ]
+        }
+      ],
+      "properties": {
+        "fields": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/field"
+          }
+        },
+        "tabs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "title",
+              "fields"
+            ],
+            "properties": {
+              "title": {
+                "$ref": "#/$defs/text"
+              },
+              "fields": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "$ref": "#/$defs/field"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "if": {
+    "properties": {
+      "template": {
+        "const": "collection"
+      }
+    }
+  },
+  "then": {
+    "required": [
+      "collection"
+    ],
+    "properties": {
+      "api": {
+        "$ref": "#/$defs/apiCollection"
+      }
+    }
+  },
+  "else": {
+    "not": {
+      "required": [
+        "collection"
+      ]
+    },
+    "properties": {
+      "api": {
+        "$ref": "#/$defs/apiResource"
+      }
+    }
+  },
+  "$defs": {
+    "text": {
+      "type": "object",
+      "description": "A translatable text, by language, \"en\" is required.",
+      "required": [
+        "en"
+      ],
+      "propertyNames": {
+        "pattern": "^[a-z]{2}([_-][A-Za-z]{2})?$"
+      },
+      "additionalProperties": {
+        "type": "string"
+      },
+      "properties": {
+        "en": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "apiCollection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "item"
+      ],
+      "properties": {
+        "list": {
+          "type": "string",
+          "pattern": "^[a-z0-9_.-]+(/([a-z0-9_.-]+|\\{id\\}))*$",
+          "description": "GET path without {id}",
+          "not": {
+            "pattern": "\\{id\\}"
+          }
+        },
+        "listOptions": {
+          "type": "string",
+          "pattern": "^[a-z0-9_.-]+(/([a-z0-9_.-]+|\\{id\\}))*$",
+          "description": "OPTIONS path without {id}",
+          "not": {
+            "pattern": "\\{id\\}"
+          }
+        },
+        "search": {
+          "type": "string",
+          "pattern": "^[a-z0-9_.-]+(/([a-z0-9_.-]+|\\{id\\}))*$",
+          "description": "POST path without {id}",
+          "not": {
+            "pattern": "\\{id\\}"
+          }
+        },
+        "create": {
+          "type": "string",
+          "pattern": "^[a-z0-9_.-]+(/([a-z0-9_.-]+|\\{id\\}))*$",
+          "description": "POST path without {id}",
+          "not": {
+            "pattern": "\\{id\\}"
+          }
+        },
+        "item": {
+          "type": "string",
+          "pattern": "^[a-z0-9_.-]+(/([a-z0-9_.-]+|\\{id\\}))*$",
+          "description": "GET path with {id}",
+          "allOf": [
+            {
+              "pattern": "\\{id\\}"
+            }
+          ]
+        },
+        "itemOptions": {
+          "type": "string",
+          "pattern": "^[a-z0-9_.-]+(/([a-z0-9_.-]+|\\{id\\}))*$",
+          "description": "OPTIONS path with {id}",
+          "allOf": [
+            {
+              "pattern": "\\{id\\}"
+            }
+          ]
+        },
+        "update": {
+          "type": "string",
+          "pattern": "^[a-z0-9_.-]+(/([a-z0-9_.-]+|\\{id\\}))*$",
+          "description": "PATCH path with {id}",
+          "allOf": [
+            {
+              "pattern": "\\{id\\}"
+            }
+          ]
+        },
+        "delete": {
+          "type": "string",
+          "pattern": "^[a-z0-9_.-]+(/([a-z0-9_.-]+|\\{id\\}))*$",
+          "description": "DELETE path with {id}",
+          "allOf": [
+            {
+              "pattern": "\\{id\\}"
+            }
+          ]
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "list"
+          ]
+        },
+        {
+          "required": [
+            "search"
+          ]
+        }
+      ]
+    },
+    "apiResource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "item"
+      ],
+      "properties": {
+        "item": {
+          "type": "string",
+          "pattern": "^[a-z0-9_.-]+(/([a-z0-9_.-]+|\\{id\\}))*$",
+          "description": "GET path without {id}",
+          "not": {
+            "pattern": "\\{id\\}"
+          }
+        },
+        "itemOptions": {
+          "type": "string",
+          "pattern": "^[a-z0-9_.-]+(/([a-z0-9_.-]+|\\{id\\}))*$",
+          "description": "OPTIONS path without {id}",
+          "not": {
+            "pattern": "\\{id\\}"
+          }
+        },
+        "update": {
+          "type": "string",
+          "pattern": "^[a-z0-9_.-]+(/([a-z0-9_.-]+|\\{id\\}))*$",
+          "description": "PATCH path without {id}",
+          "not": {
+            "pattern": "\\{id\\}"
+          }
+        }
+      }
+    },
+    "field": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "namespace",
+        "component"
+      ],
+      "properties": {
+        "namespace": {
+          "type": "string",
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*$"
+        },
+        "component": {
+          "enum": [
+            "BaseFormGroupInput",
+            "BaseFormGroupInputNumber",
+            "BaseFormGroupInputPassword",
+            "BaseFormGroupInputPasswordGenerator",
+            "BaseFormGroupTextarea",
+            "BaseFormGroupInputDate",
+            "BaseFormGroupInputDateTime",
+            "BaseFormGroupChosenOne",
+            "BaseFormGroupChosenOneSearchable",
+            "BaseFormGroupChosenTimezone",
+            "BaseFormGroupChosenCountry",
+            "BaseFormGroupChosenMultiple",
+            "BaseFormGroupChosenMultipleSearchable",
+            "BaseFormGroupSwitch",
+            "BaseFormGroupToggle",
+            "BaseFormGroupToggleDisabledEnabled",
+            "BaseFormGroupToggleNoYes",
+            "BaseFormGroupToggleNY",
+            "BaseFormGroupToggleOffOn",
+            "BaseFormGroupToggleFalseTrue"
+          ]
+        },
+        "label": {
+          "$ref": "#/$defs/text"
+        },
+        "text": {
+          "$ref": "#/$defs/text"
+        },
+        "placeholder": {
+          "$ref": "#/$defs/text"
+        },
+        "props": {
+          "type": "object",
+          "description": "Other properties of the component (eg: options, enabledValue). Not namespace, columnLabel, text, placeholder or textFn.",
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "namespace"
+                ]
+              },
+              {
+                "required": [
+                  "columnLabel"
+                ]
+              },
+              {
+                "required": [
+                  "text"
+                ]
+              },
+              {
+                "required": [
+                  "placeholder"
+                ]
+              },
+              {
+                "required": [
+                  "textFn"
+                ]
+              }
+            ]
+          }
+        },
+        "when": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "field"
+          ],
+          "oneOf": [
+            {
+              "required": [
+                "equals"
+              ]
+            },
+            {
+              "required": [
+                "notEquals"
+              ]
+            },
+            {
+              "required": [
+                "in"
+              ]
+            }
+          ],
+          "properties": {
+            "field": {
+              "type": "string",
+              "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*$"
+            },
+            "equals": {},
+            "notEquals": {},
+            "in": {
+              "type": "array"
+            }
+          }
+        },
+        "validators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/validator"
+          }
+        }
+      }
+    },
+    "validator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fn"
+      ],
+      "properties": {
+        "fn": {
+          "enum": [
+            "required",
+            "min",
+            "max",
+            "matches",
+            "email",
+            "url",
+            "in",
+            "not",
+            "minAsInt",
+            "maxAsInt",
+            "isAlphaNumeric",
+            "isAlphaNumericHyphenUnderscoreDot",
+            "isUUID",
+            "isCIDR",
+            "isCommonName",
+            "isCommonNameOrFQDN",
+            "isCommonNameOrFQDNOrMAC",
+            "isDomain",
+            "isEmailCsv",
+            "isFilename",
+            "isFQDN",
+            "isLowerCase",
+            "isHostname",
+            "isIpv4",
+            "isIpv4Csv",
+            "isIpv6",
+            "isMAC",
+            "isPort",
+            "isPortCsv",
+            "isPrice",
+            "isStaticRoute",
+            "isVLAN",
+            "unique"
+          ]
+        },
+        "args": {
+          "type": "array"
+        },
+        "message": {
+          "$ref": "#/$defs/text"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "required"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "min"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "args"
+            ],
+            "properties": {
+              "args": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "integer"
+                  }
+                ],
+                "minItems": 1,
+                "maxItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "max"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "args"
+            ],
+            "properties": {
+              "args": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "integer"
+                  }
+                ],
+                "minItems": 1,
+                "maxItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "matches"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "args"
+            ],
+            "properties": {
+              "args": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "string"
+                  }
+                ],
+                "minItems": 1,
+                "maxItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "email"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "url"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "in"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "args"
+            ],
+            "properties": {
+              "args": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "array"
+                  }
+                ],
+                "minItems": 1,
+                "maxItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "not"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "args"
+            ],
+            "properties": {
+              "args": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "string"
+                  }
+                ],
+                "minItems": 1,
+                "maxItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "minAsInt"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "args"
+            ],
+            "properties": {
+              "args": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "integer"
+                  }
+                ],
+                "minItems": 1,
+                "maxItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "maxAsInt"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "args"
+            ],
+            "properties": {
+              "args": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "integer"
+                  }
+                ],
+                "minItems": 1,
+                "maxItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "isAlphaNumeric"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "isAlphaNumericHyphenUnderscoreDot"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "isUUID"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "isCIDR"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "isCommonName"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "isCommonNameOrFQDN"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "isCommonNameOrFQDNOrMAC"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "isDomain"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "isEmailCsv"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "isFilename"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "isFQDN"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "isLowerCase"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "isHostname"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "isIpv4"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "isIpv4Csv"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "isIpv6"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "isMAC"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "isPort"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "isPortCsv"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "isPrice"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "isStaticRoute"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "isVLAN"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fn": {
+                "const": "unique"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "args": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

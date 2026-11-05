@@ -17,7 +17,7 @@ const components = {
 
 import { computed, onMounted, ref } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import { areaSections } from '@/extensions'
+import { areaSections } from '@/plugins'
 import network from '@/utils/network'
 const setup = (props, context) => {
 
@@ -26,7 +26,7 @@ const setup = (props, context) => {
   const switchGroupsMembers = ref([])
   const isLoadingSwitchGroups = computed(() => $store.getters['config/isLoadingSwitchGroups'])
 
-  const sections = computed(() => areaSections('nodes', [ // add the UI extensions items, see extensions/README.md
+  const sections = computed(() => areaSections('nodes', [ // add the UI plugins items, see docs/ui-plugins/README.md
     {
       name: i18n.t('Search'),
       path: '/nodes/search',
@@ -90,7 +90,7 @@ const setup = (props, context) => {
           }
       })
     }
-  ], { i18n }))
+  ]))
 
   onMounted(() => {
     $store.dispatch('config/getSwitches').then(switches => {
