@@ -10,6 +10,11 @@ already provides, listed in
 This works the same on a systemd host and on Kubernetes: only the
 PacketFence database (the `chi_cache` table) and HTTP are involved.
 
+**Writing a plugin:** [`SCAFFOLDING.md`](SCAFFOLDING.md) builds one from
+scratch, with a complete service in Go
+([`examples/go-plugin`](examples/go-plugin)) and in Perl
+([`examples/perl-plugin`](examples/perl-plugin)). This page is the reference.
+
 ## How it works
 
 ```
@@ -251,6 +256,10 @@ the admin satisfies. The `can` of a field or a tab only shapes the form: the
 plugin checks its own rules with `X-PacketFence-Admin-Actions` if it needs to.
 
 ## Examples
+
+- [`examples/go-plugin`](examples/go-plugin) and
+  [`examples/perl-plugin`](examples/perl-plugin): complete plugin services
+  that register themselves, the scaffolds of [`SCAFFOLDING.md`](SCAFFOLDING.md)
 
 [`examples/server.py`](examples/server.py) is an example plugin service,
 Python standard library only: it serves the manifest of a directory and the
