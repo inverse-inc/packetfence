@@ -27,6 +27,7 @@ use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::airwatch qw();
 use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::android qw();
 use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::deny qw();
 use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::dpsk qw();
+use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::generic_http qw();
 use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::google_workspace_chromebook qw();
 use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::intune qw();
 use pfappserver::Form::Config::FilterEngines::ProvisioningFilter::jamf qw();
@@ -44,6 +45,7 @@ our %TYPES_TO_FORMS = (
       android
       deny
       dpsk
+      generic_http
       google_workspace_chromebook
       intune
       jamf
