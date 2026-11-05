@@ -3,7 +3,7 @@ testcases:
   - name: download_ulinux
     steps:
     - type: exec
-      script: wget http://inverse.ca/downloads/PacketFence/LiveCD/ulinux.qcow2 -O /tmp/ulinux.qcow2
+      script: wget http://inverse.ca/downloads/PacketFence/addons/ci-cd/ulinux.qcow2 -O /tmp/ulinux.qcow2
 
   - name: install_systemd_script
     steps:
