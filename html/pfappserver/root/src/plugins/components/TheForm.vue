@@ -29,7 +29,8 @@ import { BaseForm, BaseFormTab } from '@/components/new/'
 import { useFormMetaSchema } from '@/composables/useMeta'
 import i18n from '@/utils/locale'
 import { components } from '../registry'
-import { formSchema, isFieldVisible, translate, usePlugin } from '../'
+import { escapeHtml, formSchema, isFieldVisible, translate, usePlugin } from '../'
+import { can } from '../acl'
 
 export const props = {
   pluginId: {
@@ -67,7 +68,8 @@ export const setup = props => {
   const t = text => translate(text, i18n.locale)
 
   const fields = computed(() => (manifest.value && manifest.value.form.fields) || [])
-  const tabs = computed(() => (manifest.value && manifest.value.form.tabs) || [])
+  // a tab whose can the admin does not have is not shown
+  const tabs = computed(() => ((manifest.value && manifest.value.form.tabs) || []).filter(tab => can(tab.can)))
   // the manifest validators, merged with the meta of the API OPTIONS like the core forms
   const schema = computed(() => manifest.value && useFormMetaSchema(computed(() => props.meta || {}), computed(() => formSchema(manifest.value))))
 
@@ -76,7 +78,7 @@ export const setup = props => {
     ...(field.props || {}),
     namespace: field.namespace,
     columnLabel: t(field.label),
-    text: t(field.text),
+    text: escapeHtml(t(field.text)), // rendered with v-html by the core components
     placeholder: t(field.placeholder),
     // the identifier of an existing item cannot change
     ...((field.namespace === 'id' && !props.isNew && !props.isClone) ? { disabled: true } : {})

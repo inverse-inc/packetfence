@@ -1,8 +1,9 @@
 /**
  * Admin UI plugins (see docs/ui-plugins/README.md).
  *
- * Plugin services register in redis, the API lists the ones whose manifest is
- * valid (GET /api/v1/ui_plugins). Once logged in, the routes and sidebar items
+ * Plugin services register in the database (go/uiplugins, pf::ui_plugins), the
+ * API lists the ones whose manifest is valid (GET /api/v1/plugins) and proxies
+ * /api/v1/plugin/<id>/<path> to them. Once logged in, the routes and sidebar items
  * of their manifests are added and their pages are built from the manifests
  * with the core components only (registry.js).
  *
@@ -17,6 +18,7 @@ import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
 import { types, validators } from './registry'
 import catalog from './catalog.json'
+import { can as canAcl } from './acl'
 
 const PREFIX = '[pf-ui-plugins]'
 
@@ -41,6 +43,10 @@ export const translate = (text, locale = i18n.locale) => {
   return text[locale] || text[base] || text.en
 }
 
+// the manifest texts the core components render with v-html (the text of a
+// field, the validator messages): a plugin cannot add markup to the UI
+export const escapeHtml = s => ((s === undefined || s === null) ? s : `${s}`.replace(/[&<>"']/g, c => `&#${c.charCodeAt(0)};`))
+
 /**
  * Routes
  */
@@ -60,15 +66,18 @@ const pluginRoutes = (plugin, views) => {
   const { id, manifest: { template, api, menu: { can } } } = plugin
   const names = pluginRouteNames(plugin)
   const path = `plugins/${id}`
-  const meta = { plugin: id, ...((can) ? { can } : {}) } // can: '<verb> <target>'
+  // vue-browser-acl checks meta.can on every navigation (string or function)
+  const meta = { plugin: id, ...((can) ? { can: () => canAcl(can) } : {}) }
+  const createCan = api.create && api.create.can
+  const metaCreate = (createCan) ? { ...meta, can: () => canAcl(can) && canAcl(createCan) } : meta
   if (template === 'resource')
     return [{ path, name: names.collection, component: views.resource, props: () => ({ pluginId: id }), meta }]
   return [
     { path, name: names.collection, component: views.search, props: () => ({ pluginId: id }), meta },
     ...((api.create)
       ? [
-        { path: `${path}/new`, name: names.new, component: views.item, props: () => ({ pluginId: id, isNew: true }), meta },
-        { path: `${path}/:id/clone`, name: names.clone, component: views.item, props: route => ({ pluginId: id, id: route.params.id, isClone: true }), meta }
+        { path: `${path}/new`, name: names.new, component: views.item, props: () => ({ pluginId: id, isNew: true }), meta: metaCreate },
+        { path: `${path}/:id/clone`, name: names.clone, component: views.item, props: route => ({ pluginId: id, id: route.params.id, isClone: true }), meta: metaCreate }
       ]
       : []
     ),
@@ -125,7 +134,7 @@ export const loadPlugins = ({ router, token, views }) => {
   if (loadedFor === token)
     return loading
   loadedFor = token
-  loading = apiCall.getQuiet('ui_plugins')
+  loading = apiCall.getQuiet('plugins')
     .then(response => {
       const { data: { items = [] } = {} } = response
       const plugins = items.filter(usable).map(deepFreeze)
@@ -140,6 +149,19 @@ export const loadPlugins = ({ router, token, views }) => {
 }
 
 export const usePlugin = id => state.plugins.find(plugin => plugin.id === id)
+
+/**
+ * The API methods of a manifest the admin may use: a write method with a `can`
+ * the admin does not have is not offered (no New, Clone, Save or Delete).
+ */
+// the API path of a plugin: /api/v1/plugin/<id>/<path>
+export const pluginApiPath = (id, path) => `plugin/${id}/${path}`
+export const apiPath = method => ((typeof method === 'string') ? method : method && method.path)
+export const allowedApi = ({ api = {} }) => Object.entries(api).reduce((allowed, [ method, value ]) => {
+  if (typeof value === 'string' || canAcl(value.can))
+    allowed[method] = true
+  return allowed
+}, {})
 
 /**
  * Sidebars
@@ -197,9 +219,9 @@ export const areaSections = (area, sections) => {
   const tree = copySections(sections)
   for (const plugin of plugins) {
     const { id, manifest: { title, menu: { section, group, before, after, icon, can } } } = plugin
+    if (!canAcl(can)) // the sidebar items only take a '<verb> <target>' can
+      continue
     const item = { name: translate(title), path: pluginPath(plugin), plugin: id }
-    if (can)
-      item.can = can
     let list = tree
     if (section) {
       const found = findItem(tree, section)
@@ -241,7 +263,7 @@ const fieldSchema = (field, componentType) => {
       continue
     }
     try {
-      s = build(s, args, translate(message))
+      s = build(s, args, escapeHtml(translate(message)))
     } catch (err) {
       logError(`${id}: validator "${fn}" ignored`, err)
     }
@@ -279,9 +301,11 @@ export const formSchema = manifest => {
   return schemas.get(manifest)
 }
 
-// is a field shown, given the form values (manifest `when`)
+// is a field shown, given the form values (manifest `when`) and the ACL (`can`)
 export const isFieldVisible = (field, form) => {
-  const { when } = field
+  const { when, can } = field
+  if (!canAcl(can))
+    return false
   if (!when)
     return true
   const value = when.field.split('.').reduce((o, key) => ((o && typeof o === 'object') ? o[key] : undefined), form)

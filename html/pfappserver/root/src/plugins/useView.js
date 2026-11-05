@@ -7,10 +7,8 @@ import { computed, toRefs } from '@vue/composition-api'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import makeSearch from '@/store/factory/search'
 import i18n from '@/utils/locale'
-import { pluginRouteNames, translate, usePlugin } from './'
+import { allowedApi, escapeHtml as escape, pluginRouteNames, translate, usePlugin } from './'
 import { pluginApi, useStore } from './store'
-
-const escape = s => `${s}`.replace(/[&<>"']/g, c => `&#${c.charCodeAt(0)};`)
 
 export const useRouter = plugin => {
   const names = pluginRouteNames(plugin)
@@ -19,7 +17,7 @@ export const useRouter = plugin => {
     goToItem: params => $router
       .push({ name: names.item, params: { id: params.id } })
       .catch(e => { if (e.name !== 'NavigationDuplicated') throw e }),
-    ...((plugin.manifest.api.create)
+    ...((allowedApi(plugin.manifest).create)
       ? {
         goToClone: params => $router.push({ name: names.clone, params: { id: params.id } }),
         goToNew: () => $router.push({ name: names.new })

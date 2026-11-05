@@ -7,64 +7,135 @@ the UI**: it can only use the templates, components and validators core
 already provides, listed in
 [`html/pfappserver/root/src/plugins/catalog.json`](../../html/pfappserver/root/src/plugins/catalog.json).
 
-This works the same on a systemd host and on Kubernetes: only redis-cache,
-pfconfig and HTTP are involved.
+This works the same on a systemd host and on Kubernetes: only the
+PacketFence database (the `chi_cache` table) and HTTP are involved.
 
 ## How it works
 
 ```
-plugin service starts
-  HSET pf:ui_plugins <id> '{"id":…,"scheme":"http","host":…,"port":…,"manifest_path":…}'   (redis-cache)
-  expire resource::ui_plugins                                                              (pfconfig)
+plugin service starts, serves <scheme>://<host>:<port>/manifest.json (https unless on the loopback)
+  registers: the row ui_plugins::<name> of chi_cache       (Go or Perl accessor)
 
 admin logs in
-  GET /api/v1/ui_plugins            api-frontend, existing Go "api" handler
-    reads resource::ui_plugins      pfconfig namespace built from the redis hash
-    fetches each manifest           3s timeout, cached 30s (5s for a failure)
+  GET /api/v1/plugins               api-frontend, existing Go "api" handler
+    reads the registrations         chi_cache, at most every 5s
+    fetches each manifest           3s timeout, then refreshed in the background (30s, 5s for a failure)
     validates it against the catalog, leaves out (and logs) unreachable or invalid ones
   the UI adds the routes and sidebar items of each plugin
 
+admin uses a plugin page
+  * /api/v1/plugin/<name>/<path>    api-frontend, existing Go "api" handler
+    checks the can of the manifest  (see ACL)
+    proxies the declared API to <scheme>://<host>:<port>/<path>, JSON answers only
+
 plugin service stops
-  HDEL pf:ui_plugins <id>
-  expire resource::ui_plugins
+  deregisters: the row is deleted                         (Go or Perl accessor)
 ```
 
-A plugin that stops without deregistering (crash, killed pod) disappears from
-the UI as soon as its manifest cannot be fetched: its registration stays in
-redis until it registers again.
+A manifest is fetched once when its plugin is first listed. After that the
+last result is answered at once and refreshed in the background, so a slow or
+dead plugin does not slow down the admin UI. A plugin that stops without
+deregistering (crash, killed pod) stays registered: it disappears from the UI
+once a refresh of its manifest fails, within about 30s, and its pages answer
+502 ("The plugin … is unavailable") meanwhile. It is listed again as soon as
+its manifest answers, or when it registers again.
 
-`GET /api/v1/ui_plugins` is allowed to any admin. The sidebar item and the
-routes of a plugin are only shown to the admins allowed by its `menu.can`.
+The registrations are rows of the database: they survive a restart of any
+service and every api-frontend reads the same ones, whatever the number of
+pods.
 
-## Registration
+`GET /api/v1/plugins` and `/api/v1/plugin/` are allowed to any admin by
+api-aaa. What each admin sees and may call is decided by the `can` of the
+manifest, see [ACL](#acl).
 
-The registration tells core where the manifest is:
+## Registering a plugin
+
+A plugin registers itself when its service serves its manifest, and
+deregisters itself when it stops, with the PacketFence accessors in Go or in
+Perl. Both write the same row and apply the same rules, so a plugin can use
+either. They use the PacketFence database through the PacketFence
+configuration: **the plugin never handles the database credentials**.
+
+| Operation | Go (`github.com/inverse-inc/packetfence/go/uiplugins`) | Perl (`pf::ui_plugins`) |
+|---|---|---|
+| register or update itself | `uiplugins.Register(ctx, uiplugins.Registration{Name, Host, Port}) error` | `pf::ui_plugins::register({ name => …, host => …, port => … })` → `($status, $error)` |
+| deregister itself | `uiplugins.Deregister(ctx, name) error` | `pf::ui_plugins::deregister($name)` → `($status, $error)` |
+| get one | `uiplugins.Get(ctx, name) (*Registration, error)`, nil when not registered | `pf::ui_plugins::get($name)` → hashref, undef when not registered |
+| list all | `uiplugins.List(ctx) (map[string]Registration, error)` | `pf::ui_plugins::list()` → hashref name → registration |
+| validate without writing | `Registration.Validate() error` | `pf::ui_plugins::validate($registration)` → `($ok, $error)` |
 
 | Property | |
 |---|---|
-| `id` | `^[a-z][a-z0-9_-]{0,62}$`, the field of the hash, also the `id` of the manifest |
-| `scheme` | `http` (default) or `https` |
-| `host`, `port` | how **core** reaches the plugin service (eg: its Kubernetes Service name, or `containers-gateway.internal` and a published port) |
-| `manifest_path` | the path of the manifest, eg: `/pf-ui/manifest.json` |
+| `name` | `^[a-z][a-z0-9_-]{0,62}$`, also the `id` of the manifest and the `<name>` of `/api/v1/plugin/<name>/` |
+| `host` | a hostname or an IP address **core** reaches the plugin service at (eg: its Kubernetes Service name, or `containers-gateway.internal`). Plain HTTP on the loopback only, HTTPS with a certificate valid for this host otherwise, see [The API of a plugin](#the-api-of-a-plugin) |
+| `port` | 1 to 65535 |
 
-Register when the service is ready to serve its manifest, deregister when it
-stops:
+Register is an upsert: registering again updates the registration.
+Deregistering a plugin that is not registered is not an error. The Go
+functions `RegisterDB`, `DeregisterDB`, `GetDB` and `ListDB` do the same with
+a `*sql.DB` of your own.
 
-- shell: [`examples/register.sh`](examples/register.sh) (`redis-cli` and bash),
-  for a Kubernetes `postStart`/`preStop` hook, a systemd
-  `ExecStartPost`/`ExecStopPost` or a container entrypoint
-- Go: `github.com/inverse-inc/packetfence/go/uiplugins`,
-  `uiplugins.NewRegistry().Register(ctx, uiplugins.Registration{…})` and
-  `Deregister(ctx, id)`
+The row, for reference: key `ui_plugins::<name>`, value
+`{"name":…,"host":…,"port":…}`, `expires_at` NULL (pfcron's
+`cleanup_chi_database_cache` never removes it).
 
-Both use the environment of the PacketFence services: `REDIS_CACHE_HOST`,
-`REDIS_CACHE_PORT`, `PFCONFIG_TCP_HOST`, `PFCONFIG_TCP_PORT`.
+Examples:
 
-**Kubernetes with several pfconfig pods (not verified):** an expire sent to
-the pfconfig Service reaches one pod only, the others keep the previous list
-until their namespace is rebuilt. `pfconfig::git_storage::k8s_deploy` expires
-every pod of the deployment for configuration changes, the registration
-helpers do not do that yet.
+- Go: [`examples/register.go`](examples/register.go), registers, waits for
+  SIGTERM or SIGINT, deregisters
+- Perl: [`examples/register.pl`](examples/register.pl)
+  `register <name> <host> <port>`, `deregister <name>`, `list`, eg for a
+  systemd `ExecStartPost`/`ExecStopPost` or a Kubernetes `postStart`/`preStop`
+  hook
+
+## The API of a plugin
+
+The plugin serves its manifest at `/manifest.json` and the API of its page.
+The admin UI reaches that API through api-frontend only:
+`/api/v1/plugin/<name>/<path>` is passed to `<scheme>://<host>:<port>/<path>`,
+with the query string and the body.
+
+**Transport.** A plugin on the loopback of api-frontend (`127.0.0.0/8`,
+`::1`, `localhost`: the same host or pod) is reached over plain HTTP. Any
+other host is reached over **HTTPS**: its certificate must be valid for the
+registered host and chain to the system authorities or to
+`/usr/local/pf/conf/ssl/ui_plugins_ca.pem` (optional, PEM). Redirects are not
+followed and the proxy settings of the environment are not used.
+
+**What is passed.** Only the API methods the manifest declares: the path must
+match one of its `api` paths (`{id}` is one segment, never empty, `.` or
+`..`) with the verb of that method (`list`/`item`: GET or HEAD,
+`listOptions`/`itemOptions`: OPTIONS, `search`/`create`: POST, `update`:
+PATCH, `delete`: DELETE). Anything else is refused (403), and so is a call
+the admin is not allowed (see [ACL](#acl)).
+
+- the admin token is not passed (`Authorization`, `Cookie` are removed), the
+  plugin gets the admin api-aaa checked instead:
+  - `X-PacketFence-Username`
+  - `X-PacketFence-Admin-Roles`: the admin roles (eg: `ALL`)
+  - `X-PacketFence-Admin-Actions`: their actions on the targets the `can`s of
+    the manifest name (eg: `SYSLOG_READ,SYSLOG_UPDATE` for a manifest about
+    `syslog`)
+
+  No other `X-PacketFence-*` header reaches the plugin, whatever its spelling
+  (`_` for `-`, case).
+- a request body is limited to 10 MB, a call to 60s
+
+**What is answered.** The answer must be JSON (`application/json` or
+`+json`, valid, at most 10 MB) or empty. It is passed with fixed headers
+(`Content-Type: application/json`, `X-Content-Type-Options: nosniff`, a
+sandboxing `Content-Security-Policy`, `Cache-Control: no-store`): the
+headers of the plugin (cookies, CORS, …) are not. A redirect, a 401 or 407,
+anything else than JSON, a plugin whose manifest is unavailable or that does
+not answer is a 502.
+
+The answers follow the PacketFence API, as the core views expect them: `{
+"items": [...], "nextCursor": … }` for a list or a search, `{ "item": {...} }`
+for an item, `{ "meta": {...} }` for `OPTIONS`, `{ "message": "…" }` for a
+write or an error. The UI shows the `message`, `warnings[].message` and
+`errors[].message` of a plugin as text (escaped), and ignores the `pattern`s
+of its `OPTIONS` meta (regular expressions the browser would run): use a
+`matches` validator of the manifest instead.
 
 ## Manifest
 
@@ -77,7 +148,7 @@ needed.
 | Property | |
 |---|---|
 | `manifestVersion` | `1` |
-| `id` | the registered id |
+| `id` | the registered name |
 | `title`, `description` | translatable texts: `{ "en": "…", "fr": "…" }`, `en` is required |
 | `menu` | where the page goes, see below |
 | `template` | `resource` (one object, eg: a settings page) or `collection` (a list, and items to create, edit, clone, delete) |
@@ -94,15 +165,16 @@ needed.
 | `group` | the untranslated name of a group of `section` (eg: `Main Configuration`) |
 | `before`, `after` | the path of a sibling item |
 | `icon` | a vue-awesome icon core already uses, for a new section |
-| `can` | the ACL needed to see the page, `<verb> <target>` (eg: `read syslog` for `SYSLOG_READ`) |
+| `can` | **required**: the ACL needed to see the item, open the pages and call the plugin, see [ACL](#acl) |
 
 The page is at `/<area>/plugins/<id>` (and `/new`, `/<item id>`,
 `/<item id>/clone` for a collection).
 
 ### API
 
-The same mapping as the `_api.js` of the core views: a path relative to
-`/api/v1` by method, called with a fixed verb. `{id}` is the id of the item.
+The same mapping as the `_api.js` of the core views: a path relative to the
+plugin, `/api/v1/plugin/<name>/`, by method, called with a fixed verb. `{id}`
+is the id of the item. A manifest cannot reach a core API.
 
 | Method | Verb | `collection` | `resource` |
 |---|---|---|---|
@@ -115,41 +187,92 @@ The same mapping as the `_api.js` of the core views: a path relative to
 | `update` | PATCH | path with `{id}` | path |
 | `delete` | DELETE | path with `{id}` | |
 
+`create`, `update` and `delete` are `{ "path": "…", "can": … }`: the `can`
+is required, the method is only offered to the admins it allows, and the API
+refuses the call to the others (see [ACL](#acl)). A path has one `{id}` at
+most, and `search` cannot have the path of `create`.
+
 A collection needs `list` or `search`. A missing method is not offered:
 without `create` there is no "New" or "Clone", without `update` nothing can be
 saved, without `delete` nothing can be deleted. The `OPTIONS` answers give the
 form its meta (allowed values, placeholders, defaults, required fields) like
 for the core views.
 
-The paths go through the api-frontend like any API call of the UI: an
-existing core API, or an API the plugin exposes there (not part of this
-change).
+The `OPTIONS` answers are the plugin's too: an empty `{ "meta": {} }` is
+fine.
 
 ### Form fields
 
 | Property | |
 |---|---|
-| `namespace` | the property of the item, dots for nested ones (`a.b`) |
+| `namespace` | the property of the item, dots for nested ones (`a.b`); not `__proto__`, `constructor` or `prototype` |
 | `component` | a core component of the catalog, eg: `BaseFormGroupInput`, `BaseFormGroupChosenOne`, `BaseFormGroupSwitch` |
 | `label`, `text`, `placeholder` | translatable texts |
-| `props` | other properties of the component (eg: `options`, `enabledValue`) |
+| `props` | other properties of the component (eg: `options`, `enabledValue`). Not the ones set from the field properties or rendered as HTML (`forbiddenProps` of the catalog) |
 | `when` | show the field only when another one `equals`, `notEquals` or is `in` a value |
-| `validators` | `[{ "fn": "isPort" }, { "fn": "min", "args": [2], "message": { "en": "…" } }]`, the core validators of the catalog |
+| `can` | show the field only to the admins allowed, see [ACL](#acl) |
+| `validators` | `[{ "fn": "isPort" }, { "fn": "min", "args": [2], "message": { "en": "…" } }]`, the core validators of the catalog. A `matches` regular expression has at most 256 characters and no nested quantifiers (`(a+)+`) |
+
+A tab (`tabs[]`) can also have a `can`: it is only shown to the admins
+allowed.
+
+The texts of a manifest are shown as text: the markup of a `text` or a
+validator `message` is escaped, a plugin cannot add HTML to the UI.
+
+### ACL
+
+A `can` is the JSON form of the `acl.$can`, `acl.$some` and `acl.$every` of
+the core views, checked against the admin roles of the admin:
+
+| `can` | |
+|---|---|
+| `"read syslog"` | `<verb> <target>`: the admin role `SYSLOG_READ` |
+| `{ "some": ["read syslog", "read system"] }` | any of them |
+| `{ "every": ["read syslog", "update syslog"] }` | all of them |
+
+`some` and `every` take `can`s, nested 3 levels at most. The verbs are the
+actions of the admin roles (`read`, `create`, `update`, `delete`,
+`create-multiple`, …, `acl.verbs` of the catalog, `_` replaced by `-`), the
+target is the rest of the role, lowercase (`CONFIGURATION_MAIN_READ` is
+`read configuration_main`).
+
+| Where | Without the ACL |
+|---|---|
+| `menu.can` | no sidebar item, the routes of the plugin are refused (as the `meta.can` of a core route) |
+| `api.create.can` | no New and no Clone, the routes are refused |
+| `api.update.can` | no Save |
+| `api.delete.can` | no Delete |
+| a field or tab `can` | not shown |
+
+The API checks the same `can`s for every call to the plugin: `menu.can` for
+any request, and the `can` of `api.create`, `api.update` or `api.delete` for
+those calls. `GET /api/v1/plugins` only lists the plugins whose `menu.can`
+the admin satisfies. The `can` of a field or a tab only shapes the form: the
+plugin checks its own rules with `X-PacketFence-Admin-Actions` if it needs to.
 
 ## Examples
 
-- [`examples/syslog-forwarders`](examples/syslog-forwarders/manifest.json): a
-  collection mapped to the core syslog forwarders API
-- [`examples/alerting`](examples/alerting/manifest.json): a resource with
-  tabs, mapped to the core alerting settings
+[`examples/server.py`](examples/server.py) is an example plugin service,
+Python standard library only: it serves the manifest of a directory and the
+API of its page from memory (and `meta.json`, `data.json` when present).
 
-To try one, serve its directory and register it, eg:
+- [`examples/hello`](examples/hello/manifest.json): a collection, with
+  `can`s on the menu, the write methods and a field, `when`, validators and
+  `OPTIONS` meta
+- [`examples/hello-settings`](examples/hello-settings/manifest.json): a
+  resource with tabs
+
+To try one on the host of api-frontend (loopback, plain HTTP):
 
 ```
-cd docs/ui-plugins/examples/syslog-forwarders
-python3 -m http.server 8099 &
-../register.sh register syslog-forwarders <address core reaches> 8099 /manifest.json
+docs/ui-plugins/examples/server.py docs/ui-plugins/examples/hello --host 127.0.0.1 --port 8090 &
+docs/ui-plugins/examples/register.pl register hello 127.0.0.1 8090
 ```
+
+From another host, serve HTTPS with a certificate valid for the registered
+host (`--tls-cert`, `--tls-key`).
+
+and `register.pl deregister hello` when you stop it.
 
 ## Catalog
 

@@ -13,7 +13,6 @@
  */
 import yup from '@/utils/yup'
 
-/* eslint-disable key-spacing */
 export const components = {
   BaseFormGroupInput: () => import(/* webpackChunkName: "plugins" */ '@/components/new/BaseFormGroupInput'),
   BaseFormGroupInputNumber: () => import(/* webpackChunkName: "plugins" */ '@/components/new/BaseFormGroupInputNumber'),
@@ -36,7 +35,6 @@ export const components = {
   BaseFormGroupToggleOffOn: () => import(/* webpackChunkName: "plugins" */ '@/components/new/BaseFormGroupToggleOffOn'),
   BaseFormGroupToggleFalseTrue: () => import(/* webpackChunkName: "plugins" */ '@/components/new/BaseFormGroupToggleFalseTrue')
 }
-/* eslint-enable key-spacing */
 
 // the yup schema of a value, by component type (catalog.json)
 export const types = {
@@ -46,7 +44,6 @@ export const types = {
 }
 
 // (schema, args, message) => schema, message is undefined for the default one
-/* eslint-disable no-unused-vars */
 export const validators = {
   required: (s, a, m) => s.required(m),
   min: (s, a, m) => s.min(a[0], m),
@@ -82,4 +79,3 @@ export const validators = {
   isVLAN: (s, a, m) => s.isVLAN(m),
   unique: (s, a, m) => s.unique(m)
 }
-/* eslint-enable no-unused-vars */

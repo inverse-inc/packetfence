@@ -19,7 +19,7 @@ type Menu struct {
 	Before  string `json:"before,omitempty"`
 	After   string `json:"after,omitempty"`
 	Icon    string `json:"icon,omitempty"`
-	Can     string `json:"can,omitempty"`
+	Can     *Can   `json:"can,omitempty"`
 }
 
 type Column struct {
@@ -54,11 +54,13 @@ type Field struct {
 	Placeholder Text           `json:"placeholder,omitempty"`
 	Props       map[string]any `json:"props,omitempty"`
 	When        *When          `json:"when,omitempty"`
+	Can         *Can           `json:"can,omitempty"`
 	Validators  []Validator    `json:"validators,omitempty"`
 }
 
 type Tab struct {
 	Title  Text    `json:"title"`
+	Can    *Can    `json:"can,omitempty"`
 	Fields []Field `json:"fields"`
 }
 
@@ -70,25 +72,46 @@ type Form struct {
 // Manifest describes the admin UI page of a plugin, see
 // docs/ui-plugins/manifest.schema.json
 type Manifest struct {
-	ManifestVersion int               `json:"manifestVersion"`
-	ID              string            `json:"id"`
-	Title           Text              `json:"title"`
-	Description     Text              `json:"description,omitempty"`
-	Menu            Menu              `json:"menu"`
-	Template        string            `json:"template"`
-	API             map[string]string `json:"api"`
-	Collection      *Collection       `json:"collection,omitempty"`
-	Form            Form              `json:"form"`
+	ManifestVersion int                  `json:"manifestVersion"`
+	ID              string               `json:"id"`
+	Title           Text                 `json:"title"`
+	Description     Text                 `json:"description,omitempty"`
+	Menu            Menu                 `json:"menu"`
+	Template        string               `json:"template"`
+	API             map[string]APIMethod `json:"api"`
+	Collection      *Collection          `json:"collection,omitempty"`
+	Form            Form                 `json:"form"`
 }
 
 var (
-	// a path relative to /api/v1, {id} is the only placeholder
+	// a path relative to /api/v1/plugin/<name>/, the plugin service, {id} is the only placeholder
 	apiPathRe   = regexp.MustCompile(`^[a-z0-9_.-]+(/([a-z0-9_.-]+|\{id\}))*$`)
 	namespaceRe = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$`)
-	canRe       = regexp.MustCompile(`^[a-z_]+ [a-z_]+$`)
 	langRe      = regexp.MustCompile(`^[a-z]{2}([_-][A-Za-z]{2})?$`)
 	iconRe      = regexp.MustCompile(`^[a-z0-9-]+(/[a-z0-9-]+)?$`)
+	// a quantified group that contains a quantifier: (a+)+, (a|b*)*, (x{2,}){3}:
+	// catastrophic backtracking in the browser regular expressions
+	nestedQuantifierRe = regexp.MustCompile(`\([^()]*[*+}][^()]*\)\s*[*+{]`)
 )
+
+// the namespace segments that reach the prototype of an object in the UI
+var forbiddenSegments = map[string]bool{"__proto__": true, "constructor": true, "prototype": true}
+
+// maximum length of a matches regular expression
+const maxRegexLength = 256
+
+// validNamespace checks a dotted property path of an item
+func validNamespace(namespace string) bool {
+	if !namespaceRe.MatchString(namespace) {
+		return false
+	}
+	for _, segment := range strings.Split(namespace, ".") {
+		if forbiddenSegments[segment] {
+			return false
+		}
+	}
+	return true
+}
 
 // ParseManifest decodes a manifest, unknown properties are refused
 func ParseManifest(b []byte) (*Manifest, error) {
@@ -162,8 +185,12 @@ func (m *Manifest) Validate(c *Catalog, id string) error {
 	if m.Menu.Group != "" && m.Menu.Section == "" {
 		return errors.New("menu.group needs a menu.section")
 	}
-	if m.Menu.Can != "" && !canRe.MatchString(m.Menu.Can) {
-		return fmt.Errorf("menu.can %q must be \"<verb> <target>\"", m.Menu.Can)
+	// required: the API checks it on every call to the plugin
+	if m.Menu.Can == nil {
+		return errors.New("menu.can is required: the ACL an admin needs to see the page and call the plugin")
+	}
+	if err := m.Menu.Can.Validate(c); err != nil {
+		return fmt.Errorf("menu.can: %w", err)
 	}
 	if m.Menu.Icon != "" && !iconRe.MatchString(m.Menu.Icon) {
 		return fmt.Errorf("invalid menu.icon %q", m.Menu.Icon)
@@ -176,7 +203,7 @@ func (m *Manifest) Validate(c *Catalog, id string) error {
 			return errors.New("a collection needs collection.columns")
 		}
 		for i, col := range m.Collection.Columns {
-			if !namespaceRe.MatchString(col.Key) {
+			if !validNamespace(col.Key) {
 				return fmt.Errorf("collection.columns[%d]: invalid key %q", i, col.Key)
 			}
 			if err := col.Label.validate(fmt.Sprintf("collection.columns[%d].label", i), true); err != nil {
@@ -184,7 +211,7 @@ func (m *Manifest) Validate(c *Catalog, id string) error {
 			}
 		}
 		for i, f := range m.Collection.SearchFields {
-			if !namespaceRe.MatchString(f) {
+			if !validNamespace(f) {
 				return fmt.Errorf("collection.searchFields[%d]: invalid field %q", i, f)
 			}
 		}
@@ -199,19 +226,39 @@ func (m *Manifest) Validate(c *Catalog, id string) error {
 
 func (m *Manifest) validateAPI(c *Catalog) error {
 	methods := c.API.Methods[m.Template]
-	for method, path := range m.API {
+	for method, a := range m.API {
+		path := a.Path
 		needsID, found := methods[method]
 		if !found {
 			return fmt.Errorf("api.%s is not a method of the %s template", method, m.Template)
 		}
+		if a.Can == nil && contains(c.ACL.Methods, method) {
+			return fmt.Errorf("api.%s needs a can: {\"path\": ..., \"can\": ...}, the API checks it on every %s", method, method)
+		}
+		if a.Can != nil {
+			if !contains(c.ACL.Methods, method) {
+				return fmt.Errorf("api.%s: can is only allowed on %v, menu.can covers the others", method, c.ACL.Methods)
+			}
+			if err := a.Can.Validate(c); err != nil {
+				return fmt.Errorf("api.%s.can: %w", method, err)
+			}
+		}
 		if !apiPathRe.MatchString(path) || strings.Contains(path, "..") {
-			return fmt.Errorf("api.%s: invalid path %q, a path relative to /api/v1", method, path)
+			return fmt.Errorf("api.%s: invalid path %q, a path relative to /api/v1/plugin/<name>/", method, path)
+		}
+		if strings.Count(path, "{id}") > 1 {
+			return fmt.Errorf("api.%s: the path %q can have one {id} only", method, path)
 		}
 		if hasID := strings.Contains(path, "{id}"); hasID != needsID {
 			if needsID {
 				return fmt.Errorf("api.%s: the path %q needs the {id} of the item", method, path)
 			}
 			return fmt.Errorf("api.%s: the path %q cannot have an {id}", method, path)
+		}
+	}
+	if search, found := m.API["search"]; found {
+		if create, found := m.API["create"]; found && search.Path == create.Path {
+			return fmt.Errorf("api.search and api.create cannot have the same path %q", search.Path)
 		}
 	}
 	if _, found := m.API["item"]; !found {
@@ -235,6 +282,11 @@ func (f *Form) validate(c *Catalog) error {
 	for i, tab := range f.Tabs {
 		if err := tab.Title.validate(fmt.Sprintf("form.tabs[%d].title", i), true); err != nil {
 			return err
+		}
+		if tab.Can != nil {
+			if err := tab.Can.Validate(c); err != nil {
+				return fmt.Errorf("form.tabs[%d].can: %w", i, err)
+			}
 		}
 		if len(tab.Fields) == 0 {
 			return fmt.Errorf("form.tabs[%d] has no fields", i)
@@ -260,7 +312,7 @@ func (f *Form) validate(c *Catalog) error {
 }
 
 func (f *Field) validate(c *Catalog, namespaces map[string]bool) error {
-	if !namespaceRe.MatchString(f.Namespace) {
+	if !validNamespace(f.Namespace) {
 		return errors.New("invalid namespace")
 	}
 	component, found := c.Components[f.Component]
@@ -273,9 +325,13 @@ func (f *Field) validate(c *Catalog, namespaces map[string]bool) error {
 		}
 	}
 	for prop := range f.Props {
-		switch prop {
-		case "namespace", "columnLabel", "text", "placeholder", "textFn":
-			return fmt.Errorf("props.%s is not allowed, use the field properties", prop)
+		if contains(c.ForbiddenProps, prop) {
+			return fmt.Errorf("props.%s is not allowed (set by the field properties, or rendered as HTML)", prop)
+		}
+	}
+	if f.Can != nil {
+		if err := f.Can.Validate(c); err != nil {
+			return fmt.Errorf("can: %w", err)
 		}
 	}
 	if f.When != nil {
@@ -309,8 +365,15 @@ func (f *Field) validate(c *Catalog, namespaces map[string]bool) error {
 			}
 		}
 		if v.Fn == "matches" {
-			if _, err := regexp.Compile(v.Args[0].(string)); err != nil {
+			re := v.Args[0].(string)
+			if len(re) > maxRegexLength {
+				return fmt.Errorf("validators[%d]: regular expression longer than %d characters", i, maxRegexLength)
+			}
+			if _, err := regexp.Compile(re); err != nil {
 				return fmt.Errorf("validators[%d]: invalid regular expression: %w", i, err)
+			}
+			if nestedQuantifierRe.MatchString(re) {
+				return fmt.Errorf("validators[%d]: nested quantifiers are not allowed in a regular expression", i)
 			}
 		}
 		if err := v.Message.validate(fmt.Sprintf("validators[%d].message", i), false); err != nil {

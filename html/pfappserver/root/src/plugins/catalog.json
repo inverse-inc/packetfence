@@ -44,6 +44,36 @@
       }
     }
   },
+  "acl": {
+    "$comment": "A \"can\" is \"<verb> <target>\", {\"some\": [...]} or {\"every\": [...]}, as acl.$can, acl.$some and acl.$every. The verbs are the ADMIN_ROLES_ACTIONS of src/utils/acl.js (\"_\" replaced by \"-\") and \"access\". \"methods\": the api methods that can have their own can.",
+    "verbs": [
+      "create",
+      "create-overwrite",
+      "create-multiple",
+      "delete",
+      "mark-as-sponsor",
+      "probe",
+      "read",
+      "read-sponsored",
+      "set-access-level",
+      "set-access-duration",
+      "set-bandwidth-balance",
+      "set-role",
+      "set-time-balance",
+      "set-unreg-date",
+      "trigger-radius-mfa",
+      "trigger-portal-mfa",
+      "update",
+      "write",
+      "master",
+      "access"
+    ],
+    "methods": [
+      "create",
+      "update",
+      "delete"
+    ]
+  },
   "components": {
     "BaseFormGroupInput": {
       "type": "string"
@@ -323,5 +353,15 @@
       ],
       "args": []
     }
-  }
+  },
+  "forbiddenProps": [
+    "namespace",
+    "columnLabel",
+    "text",
+    "placeholder",
+    "textFn",
+    "apiFeedback",
+    "invalidFeedback",
+    "validFeedback"
+  ]
 }

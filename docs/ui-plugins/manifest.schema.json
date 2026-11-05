@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://packetfence.org/schemas/ui-plugin-manifest.schema.json",
   "title": "PacketFence admin UI plugin manifest",
-  "description": "Generated from html/pfappserver/root/src/plugins/catalog.json by html/pfappserver/root/build/ui-plugins-catalog.js, do not edit. The API also checks that every validator applies to the type of its component and that \"when\" references another field. See docs/ui-plugins/README.md.",
+  "description": "Generated from html/pfappserver/root/src/plugins/catalog.json by html/pfappserver/root/build/ui-plugins-catalog.js, do not edit. The API also checks that every validator applies to the type of its component, that \"when\" references another field and that \"can\" is nested 3 levels at most. See docs/ui-plugins/README.md.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -23,7 +23,7 @@
     "id": {
       "type": "string",
       "pattern": "^[a-z][a-z0-9_-]{0,62}$",
-      "description": "The id the plugin service registered with."
+      "description": "The name the plugin service registered with."
     },
     "title": {
       "$ref": "#/$defs/text"
@@ -35,7 +35,8 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "area"
+        "area",
+        "can"
       ],
       "properties": {
         "area": {
@@ -70,9 +71,8 @@
           "description": "A vue-awesome icon already used by core, for a new section."
         },
         "can": {
-          "type": "string",
-          "pattern": "^[a-z_]+ [a-z_]+$",
-          "description": "The ACL needed to see the item, eg: \"read system\"."
+          "$ref": "#/$defs/can",
+          "description": "The ACL needed to see the item and its pages, and to call the plugin (checked by the API on every call), eg: \"read system\"."
         }
       }
     },
@@ -84,7 +84,7 @@
     },
     "api": {
       "type": "object",
-      "description": "The API of the page, as in the _api.js of the core views: a path relative to /api/v1 by method, called with a fixed verb (list: GET, listOptions: OPTIONS, search: POST, create: POST, item: GET, itemOptions: OPTIONS, update: PATCH, delete: DELETE). A missing method is not offered by the page."
+      "description": "The API of the page, as in the _api.js of the core views: a path relative to /api/v1/plugin/<id>/ (the plugin service) by method, called with a fixed verb (list: GET, listOptions: OPTIONS, search: POST, create: POST, item: GET, itemOptions: OPTIONS, update: PATCH, delete: DELETE). A missing method is not offered by the page."
     },
     "collection": {
       "type": "object",
@@ -106,7 +106,11 @@
             "properties": {
               "key": {
                 "type": "string",
-                "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*$"
+                "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*$",
+                "not": {
+                  "pattern": "(^|\\.)(__proto__|constructor|prototype)(\\.|$)"
+                },
+                "description": "A property of the item, dots for nested ones (not __proto__, constructor or prototype)."
               },
               "label": {
                 "$ref": "#/$defs/text"
@@ -121,7 +125,11 @@
           "type": "array",
           "items": {
             "type": "string",
-            "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*$"
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*$",
+            "not": {
+              "pattern": "(^|\\.)(__proto__|constructor|prototype)(\\.|$)"
+            },
+            "description": "A property of the item, dots for nested ones (not __proto__, constructor or prototype)."
           }
         }
       }
@@ -162,6 +170,9 @@
             "properties": {
               "title": {
                 "$ref": "#/$defs/text"
+              },
+              "can": {
+                "$ref": "#/$defs/can"
               },
               "fields": {
                 "type": "array",
@@ -225,6 +236,49 @@
         }
       }
     },
+    "can": {
+      "description": "The ACL an admin needs, as acl.$can, acl.$some and acl.$every: \"<verb> <target>\", { \"some\": [can, ...] } or { \"every\": [can, ...] }.",
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^(create|create-overwrite|create-multiple|delete|mark-as-sponsor|probe|read|read-sponsored|set-access-level|set-access-duration|set-bandwidth-balance|set-role|set-time-balance|set-unreg-date|trigger-radius-mfa|trigger-portal-mfa|update|write|master|access) [a-z][a-z0-9_]*$"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "some"
+          ],
+          "properties": {
+            "some": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 16,
+              "items": {
+                "$ref": "#/$defs/can"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "every"
+          ],
+          "properties": {
+            "every": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 16,
+              "items": {
+                "$ref": "#/$defs/can"
+              }
+            }
+          }
+        }
+      ]
+    },
     "apiCollection": {
       "type": "object",
       "additionalProperties": false,
@@ -257,11 +311,25 @@
           }
         },
         "create": {
-          "type": "string",
-          "pattern": "^[a-z0-9_.-]+(/([a-z0-9_.-]+|\\{id\\}))*$",
-          "description": "POST path without {id}",
-          "not": {
-            "pattern": "\\{id\\}"
+          "description": "POST path without {id} as { path, can }: the ACL needed to offer it, also checked by the API on every call",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "can"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "pattern": "^[a-z0-9_.-]+(/([a-z0-9_.-]+|\\{id\\}))*$",
+              "description": "POST path without {id}",
+              "not": {
+                "pattern": "\\{id\\}"
+              }
+            },
+            "can": {
+              "$ref": "#/$defs/can"
+            }
           }
         },
         "item": {
@@ -271,6 +339,11 @@
           "allOf": [
             {
               "pattern": "\\{id\\}"
+            },
+            {
+              "not": {
+                "pattern": "\\{id\\}.*\\{id\\}"
+              }
             }
           ]
         },
@@ -281,28 +354,71 @@
           "allOf": [
             {
               "pattern": "\\{id\\}"
+            },
+            {
+              "not": {
+                "pattern": "\\{id\\}.*\\{id\\}"
+              }
             }
           ]
         },
         "update": {
-          "type": "string",
-          "pattern": "^[a-z0-9_.-]+(/([a-z0-9_.-]+|\\{id\\}))*$",
-          "description": "PATCH path with {id}",
-          "allOf": [
-            {
-              "pattern": "\\{id\\}"
+          "description": "PATCH path with {id} as { path, can }: the ACL needed to offer it, also checked by the API on every call",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "can"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "pattern": "^[a-z0-9_.-]+(/([a-z0-9_.-]+|\\{id\\}))*$",
+              "description": "PATCH path with {id}",
+              "allOf": [
+                {
+                  "pattern": "\\{id\\}"
+                },
+                {
+                  "not": {
+                    "pattern": "\\{id\\}.*\\{id\\}"
+                  }
+                }
+              ]
+            },
+            "can": {
+              "$ref": "#/$defs/can"
             }
-          ]
+          }
         },
         "delete": {
-          "type": "string",
-          "pattern": "^[a-z0-9_.-]+(/([a-z0-9_.-]+|\\{id\\}))*$",
-          "description": "DELETE path with {id}",
-          "allOf": [
-            {
-              "pattern": "\\{id\\}"
+          "description": "DELETE path with {id} as { path, can }: the ACL needed to offer it, also checked by the API on every call",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "can"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "pattern": "^[a-z0-9_.-]+(/([a-z0-9_.-]+|\\{id\\}))*$",
+              "description": "DELETE path with {id}",
+              "allOf": [
+                {
+                  "pattern": "\\{id\\}"
+                },
+                {
+                  "not": {
+                    "pattern": "\\{id\\}.*\\{id\\}"
+                  }
+                }
+              ]
+            },
+            "can": {
+              "$ref": "#/$defs/can"
             }
-          ]
+          }
         }
       },
       "anyOf": [
@@ -342,11 +458,25 @@
           }
         },
         "update": {
-          "type": "string",
-          "pattern": "^[a-z0-9_.-]+(/([a-z0-9_.-]+|\\{id\\}))*$",
-          "description": "PATCH path without {id}",
-          "not": {
-            "pattern": "\\{id\\}"
+          "description": "PATCH path without {id} as { path, can }: the ACL needed to offer it, also checked by the API on every call",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "can"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "pattern": "^[a-z0-9_.-]+(/([a-z0-9_.-]+|\\{id\\}))*$",
+              "description": "PATCH path without {id}",
+              "not": {
+                "pattern": "\\{id\\}"
+              }
+            },
+            "can": {
+              "$ref": "#/$defs/can"
+            }
           }
         }
       }
@@ -361,7 +491,11 @@
       "properties": {
         "namespace": {
           "type": "string",
-          "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*$"
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*$",
+          "not": {
+            "pattern": "(^|\\.)(__proto__|constructor|prototype)(\\.|$)"
+          },
+          "description": "A property of the item, dots for nested ones (not __proto__, constructor or prototype)."
         },
         "component": {
           "enum": [
@@ -398,7 +532,7 @@
         },
         "props": {
           "type": "object",
-          "description": "Other properties of the component (eg: options, enabledValue). Not namespace, columnLabel, text, placeholder or textFn.",
+          "description": "Other properties of the component (eg: options, enabledValue). Not namespace, columnLabel, text, placeholder, textFn, apiFeedback, invalidFeedback, validFeedback.",
           "not": {
             "anyOf": [
               {
@@ -425,9 +559,28 @@
                 "required": [
                   "textFn"
                 ]
+              },
+              {
+                "required": [
+                  "apiFeedback"
+                ]
+              },
+              {
+                "required": [
+                  "invalidFeedback"
+                ]
+              },
+              {
+                "required": [
+                  "validFeedback"
+                ]
               }
             ]
           }
+        },
+        "can": {
+          "$ref": "#/$defs/can",
+          "description": "The ACL needed to see the field."
         },
         "when": {
           "type": "object",
@@ -455,7 +608,11 @@
           "properties": {
             "field": {
               "type": "string",
-              "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*$"
+              "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*$",
+              "not": {
+                "pattern": "(^|\\.)(__proto__|constructor|prototype)(\\.|$)"
+              },
+              "description": "A property of the item, dots for nested ones (not __proto__, constructor or prototype)."
             },
             "equals": {},
             "notEquals": {},
@@ -610,7 +767,9 @@
                 "type": "array",
                 "prefixItems": [
                   {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 256,
+                    "description": "At most 256 characters, no nested quantifiers."
                   }
                 ],
                 "minItems": 1,

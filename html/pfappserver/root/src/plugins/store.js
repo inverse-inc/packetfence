@@ -8,6 +8,7 @@ import { computed } from '@vue/composition-api'
 import { types } from '@/store'
 import i18n from '@/utils/locale'
 import { makeApi } from './api'
+import { allowedApi } from './'
 
 export const storeName = id => `$_plugin_${id.replace(/-/g, '_')}`
 
@@ -105,9 +106,14 @@ export const registerStore = ($store, { id, manifest }) => {
  * method is only defined when the manifest api has it, the views hide what is
  * missing (Save, Clone, Delete, ...).
  */
+// the item of a form: useViewCollectionItem merges the props of the view
+// (isNew, isClone, pluginId) into the params of the store methods, they are
+// not sent to the plugin
+const formItem = ({ isNew, isClone, pluginId, ...item }) => item
+
 export const useStore = ({ id, manifest }) => $store => {
   const name = storeName(id)
-  const { api = {} } = manifest
+  const api = allowedApi(manifest) // the methods of the manifest, less the ones the ACL denies
   const dispatch = (action, ...args) => {
     registerStore($store, { id, manifest })
     return $store.dispatch(`${name}/${action}`, ...args)
@@ -116,14 +122,14 @@ export const useStore = ({ id, manifest }) => $store => {
   return {
     isLoading: computed(() => !!$store.getters[`${name}/isLoading`]),
     ...((api.listOptions) ? { getListOptions: () => dispatch('listOptions') } : {}),
-    ...((api.create) ? { createItem: params => dispatch('createItem', params) } : {}),
+    ...((api.create) ? { createItem: params => dispatch('createItem', formItem(params)) } : {}),
     getItem: params => dispatch('getItem', (isCollection) ? params.id : undefined).then(item => {
       return (isCollection && params.isClone)
         ? { ...item, id: `${item.id}-${i18n.t('copy')}`, not_deletable: false }
         : item
     }),
     ...((api.itemOptions) ? { getItemOptions: params => dispatch('itemOptions', (isCollection) ? params.id : undefined) } : {}),
-    ...((api.update) ? { updateItem: params => dispatch('updateItem', params) } : {}),
+    ...((api.update) ? { updateItem: params => dispatch('updateItem', formItem(params)) } : {}),
     ...((api.delete) ? { deleteItem: params => dispatch('deleteItem', params.id) } : {})
   }
 }

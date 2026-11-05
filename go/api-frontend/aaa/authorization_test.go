@@ -334,14 +334,22 @@ func TestPftestAdminRoleMapping(t *testing.T) {
 	}
 }
 
-// Any admin can list the UI plugins (the UI filters their menus), this does not
-// need pfconfig, unlike the test above
+// Any admin can list the UI plugins and reach them (the UI filters their
+// menus, the api handler checks the can of the manifests), this does not need
+// pfconfig, unlike the test above
 func TestUiPluginsAllowedToAnyAdmin(t *testing.T) {
 	ctx := context.Background()
 	m := &TokenAuthorizationMiddleware{}
 	for _, roles := range []map[string]bool{{}, {"NODES_READ": true}} {
-		if res, err := m.isAuthorizedAdminActions(ctx, "GET", "/api/v1/ui_plugins", roles); !res {
-			t.Error("GET /api/v1/ui_plugins was unauthorized, error:", err)
+		for _, c := range []struct{ method, path string }{
+			{"GET", "/api/v1/plugins"},
+			{"GET", "/api/v1/plugin/acme/items"},
+			{"POST", "/api/v1/plugin/acme/items"},
+			{"DELETE", "/api/v1/plugin/acme/items/a"},
+		} {
+			if res, err := m.isAuthorizedAdminActions(ctx, c.method, c.path, roles); !res {
+				t.Errorf("%s %s was unauthorized, error: %v", c.method, c.path, err)
+			}
 		}
 	}
 	// the other paths keep their admin role

@@ -1,0 +1,4 @@
+[
+  { "id": "collector", "type": "server", "proto": "udp", "host": "collector.example.com", "port": 514, "enabled": "enabled" },
+  { "id": "local-file", "type": "file", "enabled": "disabled" }
+]
