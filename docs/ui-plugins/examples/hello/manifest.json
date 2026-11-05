@@ -1,0 +1,46 @@
+{
+  "manifestVersion": 1,
+  "id": "hello",
+  "title": { "en": "Hello Targets (plugin)", "fr": "Cibles Hello (plugin)" },
+  "description": { "en": "An example collection served by a plugin service: its items live in the plugin, not in PacketFence." },
+  "menu": { "area": "configuration", "section": "/configuration/integration", "after": "/configuration/syslog", "can": { "some": ["read syslog", "read system"] } },
+  "template": "collection",
+  "api": {
+    "list": "targets",
+    "listOptions": "targets",
+    "search": "targets/search",
+    "create": { "path": "targets", "can": "create syslog" },
+    "item": "targets/{id}",
+    "itemOptions": "targets/{id}",
+    "update": { "path": "targets/{id}", "can": "update syslog" },
+    "delete": { "path": "targets/{id}", "can": "delete syslog" }
+  },
+  "collection": {
+    "columns": [
+      { "key": "id", "label": { "en": "Name", "fr": "Nom" }, "sortable": true },
+      { "key": "type", "label": { "en": "Type" }, "sortable": true },
+      { "key": "host", "label": { "en": "Host", "fr": "Hôte" } }
+    ],
+    "searchFields": ["id", "type", "host"]
+  },
+  "form": {
+    "fields": [
+      { "namespace": "id", "component": "BaseFormGroupInput", "label": { "en": "Name", "fr": "Nom" },
+        "validators": [ { "fn": "required", "message": { "en": "Name required.", "fr": "Nom requis." } } ] },
+      { "namespace": "type", "component": "BaseFormGroupChosenOne", "label": { "en": "Type" },
+        "props": { "options": [ { "value": "server", "text": "Server" }, { "value": "file", "text": "File" } ] },
+        "validators": [ { "fn": "required" } ] },
+      { "namespace": "proto", "component": "BaseFormGroupChosenOne", "label": { "en": "Protocol", "fr": "Protocole" },
+        "text": { "en": "The choices come from the OPTIONS answer of the plugin (meta.json)." },
+        "when": { "field": "type", "equals": "server" } },
+      { "namespace": "host", "component": "BaseFormGroupInput", "label": { "en": "Host", "fr": "Hôte" },
+        "when": { "field": "type", "equals": "server" },
+        "validators": [ { "fn": "required" }, { "fn": "isFQDN" } ] },
+      { "namespace": "port", "component": "BaseFormGroupInputNumber", "label": { "en": "Port" },
+        "when": { "field": "type", "equals": "server" }, "can": { "every": ["read syslog", "update syslog"] },
+        "validators": [ { "fn": "isPort" } ] },
+      { "namespace": "enabled", "component": "BaseFormGroupSwitch", "label": { "en": "Enabled", "fr": "Activé" },
+        "props": { "enabledValue": "enabled", "disabledValue": "disabled" } }
+    ]
+  }
+}

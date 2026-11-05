@@ -1,0 +1,26 @@
+{
+  "$comment": "The registrations the Go (go/uiplugins) and Perl (pf::ui_plugins) accessors must accept and refuse, read by registration_test.go and t/unittest/ui_plugins.t",
+  "valid": [
+    {"name": "acme", "host": "acme", "port": 8080},
+    {"name": "acme-2_b", "host": "plugin.acme.svc.cluster.local", "port": 1},
+    {"name": "a", "host": "127.0.0.1", "port": 65535},
+    {"name": "v6", "host": "::1", "port": 80},
+    {"name": "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0", "host": "h", "port": 80}
+  ],
+  "invalid": [
+    {"name": "", "host": "acme", "port": 8080},
+    {"name": "Acme", "host": "acme", "port": 8080},
+    {"name": "1acme", "host": "acme", "port": 8080},
+    {"name": "acme/x", "host": "acme", "port": 8080},
+    {"name": "ac.me", "host": "acme", "port": 8080},
+    {"name": "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz01", "host": "h", "port": 80},
+    {"name": "acme", "host": "", "port": 8080},
+    {"name": "acme", "host": "acme:8080", "port": 8080},
+    {"name": "acme", "host": "http://acme", "port": 8080},
+    {"name": "acme", "host": "acme/path", "port": 8080},
+    {"name": "acme", "host": "-acme", "port": 8080},
+    {"name": "acme", "host": "acme", "port": 0},
+    {"name": "acme", "host": "acme", "port": 65536},
+    {"name": "acme", "host": "acme", "port": -1}
+  ]
+}

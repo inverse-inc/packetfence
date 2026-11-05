@@ -1,5 +1,6 @@
 // Package uiplugins implements the admin UI plugins: the registration of a
-// plugin service in redis, and the validation of the manifest it serves.
+// plugin service (the chi_cache table), the validation of the manifest it
+// serves, and the proxy to its API.
 //
 // See docs/ui-plugins/README.md.
 package uiplugins
@@ -26,6 +27,14 @@ type CatalogAPI struct {
 	Methods map[string]map[string]bool `json:"methods"`
 }
 
+// CatalogACL lists the verbs of the admin roles ACL (src/utils/acl.js
+// ADMIN_ROLES_ACTIONS, "_" replaced by "-")
+type CatalogACL struct {
+	Verbs []string `json:"verbs"`
+	// the API methods that can have their own can, menu.can covers the others
+	Methods []string `json:"methods"`
+}
+
 type CatalogValidator struct {
 	Types []string `json:"types"`
 	Args  []string `json:"args"`
@@ -38,8 +47,12 @@ type Catalog struct {
 	Templates        []string                    `json:"templates"`
 	Areas            []string                    `json:"areas"`
 	API              CatalogAPI                  `json:"api"`
+	ACL              CatalogACL                  `json:"acl"`
 	Components       map[string]CatalogComponent `json:"components"`
 	Validators       map[string]CatalogValidator `json:"validators"`
+	// the props a manifest field cannot set: set from the field properties,
+	// or rendered as HTML by the core components
+	ForbiddenProps []string `json:"forbiddenProps"`
 }
 
 var DefaultCatalog = mustCatalog(catalogJSON)

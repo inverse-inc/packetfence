@@ -10,7 +10,7 @@ import (
 
 // the examples of docs/ui-plugins must be valid
 func TestExamples(t *testing.T) {
-	for _, id := range []string{"syslog-forwarders", "alerting"} {
+	for _, id := range []string{"hello", "hello-settings"} {
 		b, err := os.ReadFile(filepath.Join("..", "..", "docs", "ui-plugins", "examples", id, "manifest.json"))
 		if err != nil {
 			t.Fatal(err)
@@ -51,9 +51,9 @@ const valid = `{
   "manifestVersion": 1,
   "id": "acme",
   "title": {"en": "Acme"},
-  "menu": {"area": "configuration", "section": "/configuration/integration"},
+  "menu": {"area": "configuration", "section": "/configuration/integration", "can": "read syslog"},
   "template": "collection",
-  "api": {"list": "acme/items", "item": "acme/item/{id}", "update": "acme/item/{id}"},
+  "api": {"list": "acme/items", "item": "acme/item/{id}", "update": {"path": "acme/item/{id}", "can": "update syslog"}},
   "collection": {"columns": [{"key": "id", "label": {"en": "Id"}}]},
   "form": {"fields": [
     {"namespace": "id", "component": "BaseFormGroupInput", "validators": [{"fn": "required"}]},
@@ -75,6 +75,41 @@ func manifestWith(t *testing.T, change func(m map[string]any)) []byte {
 
 func field(m map[string]any, i int) map[string]any {
 	return m["form"].(map[string]any)["fields"].([]any)[i].(map[string]any)
+}
+
+// the can forms, and the manifest the API sends to the UI keeps them
+func TestManifestCan(t *testing.T) {
+	b := manifestWith(t, func(m map[string]any) {
+		m["menu"].(map[string]any)["can"] = map[string]any{"some": []any{"read syslog", map[string]any{"every": []any{"read system", "create-multiple users"}}}}
+		m["api"].(map[string]any)["update"] = map[string]any{"path": "acme/item/{id}", "can": "update syslog"}
+		field(m, 1)["can"] = "update syslog"
+	})
+	m, err := ParseManifest(b)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := m.Validate(DefaultCatalog, "acme"); err != nil {
+		t.Fatalf("refused: %s", err)
+	}
+	out, err := json.Marshal(m)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := map[string]any{}
+	json.Unmarshal(out, &got)
+	expected := map[string]any{}
+	json.Unmarshal(b, &expected)
+	for _, path := range [][]string{{"menu", "can"}, {"api", "update"}, {"api", "list"}} {
+		g, e := got[path[0]].(map[string]any)[path[1]], expected[path[0]].(map[string]any)[path[1]]
+		gj, _ := json.Marshal(g)
+		ej, _ := json.Marshal(e)
+		if string(gj) != string(ej) {
+			t.Errorf("%v: sent %s, expected %s", path, gj, ej)
+		}
+	}
+	if c := field(got, 1)["can"]; c != "update syslog" {
+		t.Errorf("field can sent as %v", c)
+	}
 }
 
 func TestManifestValidate(t *testing.T) {
@@ -133,6 +168,50 @@ func TestManifestValidate(t *testing.T) {
 		}, "exactly one"},
 		{"duplicate namespace", func(m map[string]any) { field(m, 1)["namespace"] = "id" }, "used twice"},
 		{"props override", func(m map[string]any) { field(m, 0)["props"] = map[string]any{"namespace": "x"} }, "not allowed"},
+		{"props rendered as HTML", func(m map[string]any) {
+			field(m, 0)["props"] = map[string]any{"apiFeedback": "<img src=x onerror=alert(1)>"}
+		}, "not allowed"},
+		{"can unknown verb", func(m map[string]any) { m["menu"].(map[string]any)["can"] = "read_sponsored users" }, "unknown verb"},
+		{"can target", func(m map[string]any) { m["menu"].(map[string]any)["can"] = "read Syslog" }, "must be"},
+		{"can empty some", func(m map[string]any) { m["menu"].(map[string]any)["can"] = map[string]any{"some": []any{}} }, "1 to 16"},
+		{"can some and every", func(m map[string]any) {
+			m["menu"].(map[string]any)["can"] = map[string]any{"some": []any{"read syslog"}, "every": []any{"read syslog"}}
+		}, "exactly one"},
+		{"can unknown operator", func(m map[string]any) {
+			m["menu"].(map[string]any)["can"] = map[string]any{"none": []any{"read syslog"}}
+		}, "unknown field"},
+		{"can too deep", func(m map[string]any) {
+			m["menu"].(map[string]any)["can"] = map[string]any{"some": []any{map[string]any{"every": []any{map[string]any{"some": []any{map[string]any{"every": []any{"read syslog"}}}}}}}}
+		}, "nested more than"},
+		{"field can", func(m map[string]any) { field(m, 1)["can"] = "read" }, "can:"},
+		{"api can on a read method", func(m map[string]any) {
+			m["api"].(map[string]any)["list"] = map[string]any{"path": "acme/items", "can": "read syslog"}
+		}, "can is only allowed on"},
+		{"api object path", func(m map[string]any) {
+			m["api"].(map[string]any)["update"] = map[string]any{"path": "acme/item", "can": "update syslog"}
+		}, "needs the {id}"},
+		{"api object unknown property", func(m map[string]any) {
+			m["api"].(map[string]any)["update"] = map[string]any{"path": "acme/item/{id}", "verb": "PUT"}
+		}, "unknown field"},
+		{"no menu.can", func(m map[string]any) { delete(m["menu"].(map[string]any), "can") }, "menu.can is required"},
+		{"write without can", func(m map[string]any) { m["api"].(map[string]any)["update"] = "acme/item/{id}" }, "api.update needs a can"},
+		{"create without can", func(m map[string]any) { m["api"].(map[string]any)["create"] = "acme/items" }, "api.create needs a can"},
+		{"two ids", func(m map[string]any) { m["api"].(map[string]any)["item"] = "acme/{id}/{id}/{id}/user/admin" }, "one {id} only"},
+		{"search is create", func(m map[string]any) {
+			m["api"].(map[string]any)["search"] = "acme/items"
+			m["api"].(map[string]any)["create"] = map[string]any{"path": "acme/items", "can": "create syslog"}
+		}, "same path"},
+		{"__proto__ namespace", func(m map[string]any) { field(m, 1)["namespace"] = "__proto__.polluted" }, "invalid namespace"},
+		{"constructor namespace", func(m map[string]any) { field(m, 1)["namespace"] = "a.constructor.prototype" }, "invalid namespace"},
+		{"__proto__ column", func(m map[string]any) {
+			m["collection"].(map[string]any)["columns"] = []any{map[string]any{"key": "__proto__", "label": map[string]any{"en": "x"}}}
+		}, "invalid key"},
+		{"long regexp", func(m map[string]any) {
+			field(m, 0)["validators"] = []any{map[string]any{"fn": "matches", "args": []any{strings.Repeat("a", 300)}}}
+		}, "longer than"},
+		{"nested quantifiers", func(m map[string]any) {
+			field(m, 0)["validators"] = []any{map[string]any{"fn": "matches", "args": []any{"^(a+)+$"}}}
+		}, "nested quantifiers"},
 		{"fields and tabs", func(m map[string]any) {
 			m["form"].(map[string]any)["tabs"] = []any{map[string]any{"title": map[string]any{"en": "T"}, "fields": []any{map[string]any{"namespace": "x", "component": "BaseFormGroupInput"}}}}
 		}, "either fields or tabs"},

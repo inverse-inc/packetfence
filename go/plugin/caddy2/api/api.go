@@ -19,6 +19,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
+	"github.com/inverse-inc/packetfence/go/uiplugins"
 	"github.com/julienschmidt/httprouter"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -79,7 +80,10 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 	router.POST("/api/v1/fleetdm-events/cve", m.CVE)
 	router.GET("/api/v1/elasticsearch", m.handleElasticsearch)
 
-	router.GET("/api/v1/ui_plugins", m.uiPlugins)
+	router.GET("/api/v1/plugins", m.plugins)
+	for _, method := range uiplugins.ProxyMethods {
+		router.Handle(method, "/api/v1/plugin/:name/*path", m.pluginProxy)
+	}
 
 	var DBP **gorm.DB
 	var DB *gorm.DB

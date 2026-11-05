@@ -1,0 +1,38 @@
+{
+  "manifestVersion": 1,
+  "id": "hello-settings",
+  "title": { "en": "Hello Settings (plugin)", "fr": "Paramètres Hello (plugin)" },
+  "menu": { "area": "configuration", "section": "/configuration/system_configuration", "group": "Main Configuration", "can": "read configuration_main" },
+  "template": "resource",
+  "api": {
+    "item": "settings",
+    "itemOptions": "settings",
+    "update": { "path": "settings", "can": "update configuration_main" }
+  },
+  "form": {
+    "tabs": [
+      {
+        "title": { "en": "Notifications" },
+        "fields": [
+          { "namespace": "recipients", "component": "BaseFormGroupTextarea", "label": { "en": "Recipients", "fr": "Destinataires" },
+            "text": { "en": "Comma-separated list of email addresses." },
+            "validators": [ { "fn": "isEmailCsv" } ] },
+          { "namespace": "sender", "component": "BaseFormGroupInput", "label": { "en": "Sender address" },
+            "validators": [ { "fn": "email" } ] }
+        ]
+      },
+      {
+        "title": { "en": "Server" },
+        "can": "update configuration_main",
+        "fields": [
+          { "namespace": "server", "component": "BaseFormGroupInput", "label": { "en": "Server" },
+            "validators": [ { "fn": "isFQDN" } ] },
+          { "namespace": "port", "component": "BaseFormGroupInputNumber", "label": { "en": "Port" },
+            "validators": [ { "fn": "minAsInt", "args": [1] }, { "fn": "maxAsInt", "args": [65535] } ] },
+          { "namespace": "verify_tls", "component": "BaseFormGroupSwitch", "label": { "en": "Verify TLS" },
+            "props": { "enabledValue": "enabled", "disabledValue": "disabled" } }
+        ]
+      }
+    ]
+  }
+}
