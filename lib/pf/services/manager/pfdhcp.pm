@@ -21,6 +21,9 @@ use pf::config qw(
 use pf::util;
 
 extends 'pf::services::manager';
+# Runs as a container: generateConfig writes var/conf/pfdhcp.env (LOG_OUTPUT,
+# pfconfig, statsd...) that the docker wrapper passes to it.
+with 'pf::services::manager::roles::env_golang_service';
 
 has '+name' => ( default => sub { 'pfdhcp' } );
 

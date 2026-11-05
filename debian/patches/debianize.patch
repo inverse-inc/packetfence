@@ -470,7 +470,15 @@ diff --git a/conf/systemd/packetfence-pfdhcp.service b/conf/systemd/packetfence-
 index deba9b6843..81bc9e40b7 100644
 --- a/conf/systemd/packetfence-pfdhcp.service
 +++ b/conf/systemd/packetfence-pfdhcp.service
-@@ -16,8 +16,8 @@ ExecStart=/usr/local/pf/sbin/pfdhcp
+@@ -14,15 +14,15 @@
+ TimeoutStopSec=60
+ Environment=LOG_LEVEL=INFO
+ EnvironmentFile=-/usr/local/pf/conf/pfdhcp.conf
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfdhcp' -e 'pf::services::manager::pfdhcp->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfdhcp' -e 'pf::services::manager::pfdhcp->new()->generateConfig()'
+ ExecStart=/usr/local/pf/sbin/pfdhcp-docker-wrapper
+ ExecStop=/bin/bash -c "docker stop -t 50 pfdhcp ; echo Stopped"
+ PIDFile=/usr/local/pf/var/run/pfdhcp-systemd-notify.pid
  Restart=on-failure
  Slice=packetfence.slice
  # iptables rules
