@@ -429,7 +429,9 @@ loop:
 					stats.noteAgent(id)
 				}
 
+				sampled := pfflows.Header.Sampled()
 				for _, f := range *pfflows.Flows {
+					f.Sampled = sampled
 					if a.Heuristics {
 						f.Heuristics()
 					}

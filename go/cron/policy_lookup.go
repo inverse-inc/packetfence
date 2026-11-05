@@ -182,6 +182,12 @@ func (m *Matcher) Matches(ne *NetworkEvent) bool {
 		return false
 	}
 
+	return m.matchesTraffic(ne)
+}
+
+// matchesTraffic reports whether the event is the traffic the ACL line
+// describes, whatever its action.
+func (m *Matcher) matchesTraffic(ne *NetworkEvent) bool {
 	if m.Op == "range" {
 		return m.Proto == ne.IpProtocol && m.SrcNet.Contains(ne.SourceIp) && m.matchDest(ne) &&
 			(m.Port <= ne.DestPort && ne.DestPort <= m.EndPort)
@@ -418,6 +424,7 @@ func UpdateNetworkEvents(ctx context.Context, db *sql.DB, events []*NetworkEvent
 	}
 
 	applyEnforcement(GetPolicyLookup(), events, roles, complete)
+	applyAclVerdicts(ctx, events, pushedAcls(ctx, db, macs))
 }
 
 // applyEnforcement sets the enforcement info of every event from the

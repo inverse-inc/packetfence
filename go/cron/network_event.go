@@ -49,6 +49,28 @@ type NetworkEvent struct {
 	EndTime             uint64                  `json:"end-time"`
 	Count               int                     `json:"count"`
 	ReportingEntity     *ReportingEntity        `json:"reporting-entity"` //   integration-specific e.g. broker-id, cloud-app
+
+	// tcpFlags is the union of the TCP flags of the flows of the event and
+	// sampled is true when any of them was sampled; set by buildNetworkEvents
+	// for applyAclVerdicts, never sent.
+	tcpFlags uint8
+	sampled  bool
+}
+
+// unansweredTCP reports a TCP event whose flows saw a SYN but never an ACK:
+// the connection was never established (dropped by an ACL, no listener, an
+// unreachable host). Sampled flows and exporters that do not report TCP flags
+// are never taken as unanswered, a sampled flow can miss the ACKs of a
+// connection that worked.
+func (e *NetworkEvent) unansweredTCP() bool {
+	return e.IpProtocol == IpProtocolTcp && !e.sampled &&
+		e.tcpFlags&TCPFlagSYN != 0 && e.tcpFlags&TCPFlagACK == 0
+}
+
+// answeredTCP reports a TCP event whose unsampled flows saw an ACK, i.e. the
+// connection was established.
+func (e *NetworkEvent) answeredTCP() bool {
+	return e.IpProtocol == IpProtocolTcp && !e.sampled && e.tcpFlags&TCPFlagACK != 0
 }
 
 var GlobalReportingEntity = ReportingEntity{
