@@ -56,6 +56,10 @@ use pf::firewallsso();
 use pf::pfqueue::stats();
 use pf::pfqueue::producer::redis();
 use pf::util qw(mysql_date);
+
+# Tolerance (seconds) between the reception of an Accounting-Stop and a
+# (re)registration of the node, to absorb clock skew between cluster members.
+use constant ACCT_STOP_REG_TOLERANCE => 10;
 use pf::bandwidth_accounting qw();
 use pf::cidr_role();
 
@@ -660,6 +664,49 @@ sub deregister_node : Public {
     return unless pf::util::validate_argv(\@require,  \@found);
 
     return pf::node::node_deregister($postdata{'mac'}, %postdata);
+}
+
+=head2 deregister_node_on_acct_stop
+
+Deregister a node following an Accounting-Stop, unless the node was
+(re)registered after the Stop was received.
+
+On 802.1X ports the NAS can send the Accounting-Stop of a previous session
+(e.g. the machine-auth session on Windows logon, or the MAB session when the
+supplicant starts) a few seconds *after* the Access-Accept of the new session.
+Deregistering unconditionally in that case unregisters a node that has just
+been auto-registered and resets its regdate/unregdate, even though the
+device is connected and authorized.
+
+The comparison is done against the time the Stop was received minus
+ACCT_STOP_REG_TOLERANCE seconds, to absorb clock skew between cluster
+members (the Stop and the authentication can be handled by different nodes).
+
+=cut
+
+sub deregister_node_on_acct_stop : Public {
+    my ($class, %args) = @_;
+    my $mac = $args{'mac'} or return;
+    my $stop_time  = $args{'stop_time'}       // '';
+    my $threshold  = $args{'stop_threshold'}  // '';
+    my $session_id = $args{'acct_session_id'} // '';
+
+    my $node = pf::node::node_view($mac);
+    if (!$node || ($node->{'status'} // '') ne $pf::constants::node::STATUS_REGISTERED) {
+        $logger->debug("Accounting-Stop for $mac: node is not registered, nothing to do");
+        return;
+    }
+
+    my $regdate = $node->{'regdate'} // '';
+    if ($threshold ne '' && $regdate ne '' && $regdate !~ /^0000-00-00/ && $regdate ge $threshold) {
+        $logger->info("Ignoring Accounting-Stop for $mac (Acct-Session-Id: '$session_id', received $stop_time): "
+            . "node was registered at $regdate, after the Stop threshold $threshold. "
+            . "The Stop belongs to a previous session, keeping the node registered");
+        return;
+    }
+
+    $logger->info("Unregistering $mac on Accounting-Stop (Acct-Session-Id: '$session_id', received $stop_time, regdate $regdate)");
+    return pf::node::node_deregister($mac);
 }
 
 =head2 register_node_ip
@@ -1717,8 +1764,15 @@ sub handle_accounting_metadata : Public {
         my ($profile_name, undef) = pf::Connection::ProfileFactory->get_profile_name($mac);
         my $profile = $pf::config::Profiles_Config{$profile_name};
         if (pf::util::isenabled($profile->{unreg_on_acct_stop}) && pf::util::isenabled($profile->{autoregister})) {
-            $logger->info("Unregistering $mac on Accounting-Stop");
-            $client->notify("deregister_node", mac => $mac);
+            my $now = time;
+            $logger->info("Accounting-Stop received for $mac (User-Name: '" . ($RAD_REQUEST->{'User-Name'} // '')
+                . "', Acct-Session-Id: '" . ($RAD_REQUEST->{'Acct-Session-Id'} // '') . "'), queueing deregistration");
+            $client->notify("deregister_node_on_acct_stop",
+                mac             => $mac,
+                stop_time       => POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime($now)),
+                stop_threshold  => POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime($now - ACCT_STOP_REG_TOLERANCE)),
+                acct_session_id => $RAD_REQUEST->{'Acct-Session-Id'} // '',
+            );
         }
     }
 
