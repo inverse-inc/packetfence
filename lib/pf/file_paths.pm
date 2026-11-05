@@ -123,6 +123,7 @@ our (
     $ocsp_config_file, $ocsp_default_config_file,
     $eap_config_file, $eap_default_config_file,
     $fast_config_file, $fast_default_config_file,
+    $teap_config_file, $teap_default_config_file,
     $cron_config_file, $cron_default_config_file,
     $mfa_config_file,
     $connectors_config_file,
@@ -233,6 +234,7 @@ BEGIN {
         $ocsp_config_file $ocsp_default_config_file
         $eap_config_file $eap_default_config_file
         $fast_config_file $fast_default_config_file
+        $teap_config_file $teap_default_config_file
         $cron_config_file $cron_default_config_file
         $mfa_config_file
         $connectors_config_file
@@ -384,6 +386,8 @@ $fast_config_file = catfile($conf_dir,"radiusd/fast.conf");
 $fast_default_config_file = catfile($conf_dir,"radiusd/fast.conf.defaults");
 $dns_connectors_config_file = catfile($conf_dir,"dns_connectors.conf");
 $domains_connectors_config_file = catfile($conf_dir, "domains_connectors.conf");
+$teap_config_file = catfile($conf_dir,"radiusd/teap.conf");
+$teap_default_config_file = catfile($conf_dir,"radiusd/teap.conf.defaults");
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
@@ -438,6 +442,7 @@ $connectors_config_file = catdir($conf_dir,"connectors.conf");
     $ocsp_config_file,
     $eap_config_file,
     $fast_config_file,
+    $teap_config_file,
     $fingerbank_collector_env_defaults_file,
     $portal_modules_config_file,
     $template_switches_config_file,

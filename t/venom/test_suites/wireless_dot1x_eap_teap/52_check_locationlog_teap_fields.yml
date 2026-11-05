@@ -1,0 +1,53 @@
+name: Check TEAP identities are recorded in locationlog
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+# After a successful TEAP authentication the inner machine identity must be
+# captured in locationlog.teap_machinename and the inner user identity in
+# locationlog.teap_username. Both columns default to '' so a non-empty
+# assertion proves the producer chain (FreeRADIUS -> packetfence.pm ->
+# pf::radius -> pf::Switch -> pf::locationlog) is wired end-to-end.
+- name: get_locationlog_for_wireless01
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/locationlogs/search'
+    ignore_verify_ssl: true
+    retry: 10
+    retry_if:
+      - result.bodyjson.items.items0 ShouldNotContainKey __NO_ITEM__
+    delay: 3
+    body: >-
+      {
+        "cursor": 0,
+        "fields": [
+          "mac",
+          "teap_username",
+          "teap_machinename"
+        ],
+        "sort": [
+          "start_time DESC"
+        ],
+        "limit": 1,
+        "query": {
+          "op": "and",
+          "values": [
+            {
+              "field": "mac",
+              "op": "equals",
+              "value": "{{.wireless01_wlan1_mac_address}}"
+            }
+          ]
+        }
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.items.items0 ShouldContainKey teap_username
+      - result.bodyjson.items.items0 ShouldContainKey teap_machinename
+      - result.bodyjson.items.items0.teap_username ShouldNotBeEmpty
+      - result.bodyjson.items.items0.teap_machinename ShouldNotBeEmpty
