@@ -50,6 +50,7 @@ our (
     # Unified API system user password
     $unified_api_system_pass_file,
     $system_init_key_file,
+    @secret_config_files,
     #profiles.conf variables
     $profiles_config_file, $profiles_default_config_file,
     #Other configuraton files variables
@@ -161,6 +162,7 @@ BEGIN {
         $local_secret_file
         $unified_api_system_pass_file
         $system_init_key_file
+        @secret_config_files
         $profiles_config_file $profiles_default_config_file
         $switches_config_file $switches_default_config_file
         $template_switches_config_file $template_switches_default_config_file
@@ -290,6 +292,8 @@ $nexpose_categories_file = catfile($conf_dir, "nexpose-responses.txt");
 $local_secret_file  = catfile($conf_dir, "local_secret");
 $unified_api_system_pass_file  = catfile($conf_dir, "unified_api_system_pass");
 $system_init_key_file = catfile($conf_dir, "system_init_key");
+# Files that hold secrets: they get a stricter mode than the other configuration files
+@secret_config_files = ($local_secret_file, $unified_api_system_pass_file, $system_init_key_file);
 $pf_doc_file        = catfile($conf_dir, "documentation.conf");
 $oauth_ip_file      = catfile($conf_dir, "oauth2-ips.conf");
 $ui_config_file     = catfile($conf_dir, "ui.conf");
