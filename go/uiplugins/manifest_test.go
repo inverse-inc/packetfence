@@ -10,8 +10,8 @@ import (
 
 // the examples of docs/ui-plugins must be valid
 func TestExamples(t *testing.T) {
-	for _, id := range []string{"hello", "hello-settings"} {
-		b, err := os.ReadFile(filepath.Join("..", "..", "docs", "ui-plugins", "examples", id, "manifest.json"))
+	for dir, id := range map[string]string{"hello": "hello", "hello-settings": "hello-settings", "go-plugin": "notes-go", "perl-plugin": "notes-perl"} {
+		b, err := os.ReadFile(filepath.Join("..", "..", "docs", "ui-plugins", "examples", dir, "manifest.json"))
 		if err != nil {
 			t.Fatal(err)
 		}
