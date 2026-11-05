@@ -3,6 +3,7 @@ package pfqueueclient
 import (
 	"context"
 	"errors"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -69,5 +70,34 @@ func TestProcessNextQueueItemEmptyQueue(t *testing.T) {
 	}
 	if errors.Is(err, ErrTaskExpired) {
 		t.Error("an empty queue must not be reported as an expired task")
+	}
+}
+
+// pfqueue-backend replies {"error": ...} for a task that can't be decoded or
+// failed, so the task is reported as failed instead of completed.
+func TestTaskReply(t *testing.T) {
+	failure := map[string]interface{}{"message": "Invalid task stored in queue", "status": float64(500)}
+	result := map[string]interface{}{"message": "done", "status": float64(200)}
+	tests := []struct {
+		name    string
+		out     interface{}
+		results interface{}
+		failed  bool
+	}{
+		{"error", map[string]interface{}{"error": failure}, failure, true},
+		{"item", map[string]interface{}{"item": result}, result, false},
+		{"item without result", map[string]interface{}{"item": nil}, nil, false},
+		{"reply in another shape", result, result, false},
+		{"no reply", nil, nil, false},
+	}
+
+	for _, tt := range tests {
+		results, failed := taskReply(tt.out)
+		if failed != tt.failed {
+			t.Errorf("%s: failed = %v, want %v", tt.name, failed, tt.failed)
+		}
+		if !reflect.DeepEqual(results, tt.results) {
+			t.Errorf("%s: results = %v, want %v", tt.name, results, tt.results)
+		}
 	}
 }

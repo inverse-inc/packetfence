@@ -95,9 +95,19 @@ sub isPublic {
     return _hasTag($class, $method, 'Public');
 }
 
-sub isQueue {
+=head2 isAllowedInQueue
+
+Check if a method can be run from the queue.
+Only methods tagged Queue or AllowedAsAction are allowed.
+The method must be a bare name: a fully-qualified name like Other::Package::method
+would be resolved by can() and dispatched outside of the class.
+
+=cut
+
+sub isAllowedInQueue {
     my ($class, $method) = @_;
-    return _hasAnyTags($class, $method, 'Public', 'Queue');
+    return 0 if !defined($method) || ref($method) || $method !~ /\A[A-Za-z_]\w*\z/a;
+    return _hasAnyTags($class, $method, 'Queue', 'AllowedAsAction') ? 1 : 0;
 }
 
 sub _hasAnyTags {
