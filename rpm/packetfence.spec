@@ -979,6 +979,7 @@ fi
 %attr(6755, root, root) /usr/local/pf/bin/pfcrypt
 %attr(6755, root, root) /usr/local/pf/bin/pfkafka
 %attr(0755, pf, pf)     /usr/local/pf/bin/kafka-init.pl
+%attr(0755, pf, pf)     /usr/local/pf/bin/kafka-create-topics
 %attr(0755, root, root) /usr/local/pf/bin/ntlm_auth_wrapper
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd.pl
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan

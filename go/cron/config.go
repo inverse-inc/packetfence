@@ -11,6 +11,16 @@ import (
 
 var CachedCronConfig = pfconfigdriver.NewCachedValue(reflect.TypeOf(pfconfigdriver.Cron{}))
 
+// shutdownCtx is done once Shutdown is called. Jobs that run until pfcron
+// stops (pfflow) return when it is done, so cron.Stop(), which waits for the
+// running jobs, does not wait for them forever.
+var shutdownCtx, shutdown = context.WithCancel(context.Background())
+
+// Shutdown asks the jobs that run until pfcron stops to return.
+func Shutdown() {
+	shutdown()
+}
+
 type JobSetupConfig interface {
 	cron.Job
 	Schedule() cron.Schedule
