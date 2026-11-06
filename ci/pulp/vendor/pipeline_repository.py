@@ -456,9 +456,13 @@ def merge_apt_tree(client, name, tree, content_url, *, codename='bookworm', sign
     # Header fields come from the live Release so clients keep the same origin/suite pins.
     live = parse_stanzas(remote(base + '/Release').decode())
     fields = {k: v for k, v in (live[0] if live else []) if k in RELEASE_KEYS}
+    # A new (empty) tree gets the same header as the existing reprepro trees.
+    fields.setdefault('Origin', f'Inverse {codename} distribution')
+    fields.setdefault('Label', f'Inverse {codename} distribution')
     fields.setdefault('Codename', codename)
+    fields.setdefault('Architectures', 'i386 amd64')
     fields.setdefault('Components', codename)
-    fields.setdefault('Architectures', 'amd64 i386 source')
+    fields.setdefault('Description', 'Inverse Debian distribution')
     component = fields['Components'].split()[0]
     if component != codename:
         raise ValueError('Expected the reprepro component to equal the codename')
