@@ -29,6 +29,16 @@ class Pulp:
         self.session.auth = (username, password)
         # REQUESTS_CA_BUNDLE supports an internal CA; TLS verification stays on.
 
+    def clone(self):
+        """Same origin and credentials with a separate HTTP session (one per upload thread)."""
+        other = object.__new__(type(self))
+        other.url, other.timeout = self.url, self.timeout
+        other.session = requests.Session()
+        for attribute in ('auth', 'verify', 'trust_env', 'cert'):
+            setattr(other.session, attribute, getattr(self.session, attribute))
+        other.session.headers.update(self.session.headers)
+        return other
+
     def request(self, method, href, **kwargs):
         if not href.startswith(API) or '..' in href or '?' in href or '#' in href:
             raise ValueError('Unexpected Pulp API reference')
@@ -36,7 +46,7 @@ class Pulp:
                                         allow_redirects=False, **kwargs)
         if not 200 <= response.status_code < 300:
             # Do not dump response bodies: errors can include credentials or submitted data.
-            raise RuntimeError(f'Pulp {method} failed with HTTP {response.status_code}')
+            raise RuntimeError(f'Pulp {method} {href} failed with HTTP {response.status_code} ({self.url})')
         return response.json() if response.content else {}
 
     def find(self, endpoint, name):
@@ -49,13 +59,15 @@ class Pulp:
         if 'task' not in response:
             return response
         deadline = time.monotonic() + self.timeout
+        delay = 0.2
         while time.monotonic() < deadline:
             task = self.request('GET', response['task'])
             if task['state'] == 'completed':
                 return task
             if task['state'] in ('failed', 'canceled', 'canceling', 'skipped'):
                 raise RuntimeError(f'Pulp task {task["state"]}: {response["task"]}')
-            time.sleep(2)
+            time.sleep(delay)
+            delay = min(delay * 2, 2)
         raise TimeoutError('Pulp task timed out; inspect it before retrying')
 
     def upload(self, endpoint, path, data):

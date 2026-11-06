@@ -3,9 +3,10 @@
 
 The generator (PacketFence's generate-pages.sh) owns APT/RPM metadata. This
 transport deliberately uses pulp_file, so .dsc/SRPMs and signed bytes survive.
-Serialize ALL publishers of the configured destination repository.
+Pipeline appends (publish) may run concurrently; tree merges (merge-apt) must be serialized.
 """
 import argparse
+from concurrent.futures import FIRST_EXCEPTION, ThreadPoolExecutor, wait
 import csv
 from datetime import datetime, timezone
 import gzip
@@ -15,6 +16,7 @@ import os
 import re
 import subprocess
 import sys
+import threading
 from pathlib import Path, PurePosixPath
 from urllib.parse import quote, urlsplit
 
@@ -291,6 +293,70 @@ def resource(response, prefix):
     return matches[0]
 
 
+def upload_workers():
+    value = os.environ.get('PULP_UPLOAD_WORKERS', '4')
+    if not re.fullmatch(r'[0-9]+', value) or not 1 <= int(value) <= 16:
+        raise ValueError('PULP_UPLOAD_WORKERS must be between 1 and 16')
+    return int(value)
+
+
+def upload_files(client, repo, files, workers=None):
+    """Upload {relative_path: (local file, sha256)} into repo, several at a time.
+
+    Non-admin uploads must name the repository, so each one adds a single file;
+    Pulp serializes those additions per repository.
+    """
+    local = threading.local()
+
+    def one(path, source, sha):
+        worker = getattr(local, 'client', None)
+        if worker is None:
+            worker = local.client = client.clone() if hasattr(client, 'clone') else client
+        uploaded = worker.upload(API + 'content/file/files/', Path(source),
+                                 {'relative_path': path, 'sha256': sha, 'repository': repo['pulp_href']})
+        obj = worker.request('GET', resource(uploaded, 'content/file/files'))
+        if obj['relative_path'] != path or obj['sha256'] != sha:
+            raise RuntimeError('Uploaded content does not match the local file: ' + path)
+
+    with ThreadPoolExecutor(max_workers=workers or upload_workers()) as pool:
+        futures = [pool.submit(one, path, source, sha) for path, (source, sha) in sorted(files.items())]
+        done, _ = wait(futures, return_when=FIRST_EXCEPTION)
+        failed = [f for f in done if f.exception()]
+        if failed:
+            for future in futures:
+                future.cancel()
+            raise failed[0].exception()
+
+
+def publish_latest(client, repo, dist, attempts=10):
+    """Serve a publication of the repository's latest version.
+
+    Concurrent appenders each end here, so whoever finishes last serves every addition;
+    a slower job never puts back an older version.
+    """
+    for _ in range(attempts):
+        latest = client.request('GET', repo['pulp_href'])['latest_version_href']
+        current = client.request('GET', dist['pulp_href'])
+        if any(current.get(k) != dist.get(k) for k in ('content_guard', 'repository', 'base_path')):
+            raise RuntimeError('Distribution changed; review before publishing')
+        served = current.get('publication')
+        if served and client.request('GET', served)['repository_version'] == latest:
+            return served, latest
+        response = client.wait(client.request('POST', API + 'publications/file/file/',
+                                              json={'repository_version': latest}))
+        publication = resource(response, 'publications/file/file')
+        if client.request('GET', publication)['repository_version'] != latest:
+            raise RuntimeError('Publication does not match the requested repository version')
+        client.wait(client.request('PATCH', dist['pulp_href'], json={'publication': publication}))
+    raise RuntimeError('Repository kept changing; the distribution may lag, retry the job')
+
+
+def check_pipeline_files(client, version, prefix, expected):
+    mine = {p: f['sha256'] for p, f in list_files(client, version).items() if p.startswith(prefix)}
+    if mine != expected:
+        raise RuntimeError(f'Unexpected content under {prefix} in {version}; review before trusting it')
+
+
 def publish_tree(client, name, pipeline, tree, *, dependencies=False, apply=False, require_lock=True):
     if not re.fullmatch(r'[1-9][0-9]*', str(pipeline)):
         raise ValueError('Pipeline ID must be a positive integer')
@@ -337,27 +403,14 @@ def publish_tree(client, name, pipeline, tree, *, dependencies=False, apply=Fals
               'new_files': len(additions), 'applied': False}
     if not apply:
         return result
-    version = initial
-    for path, row in additions:
-        if client.request('GET', repo['pulp_href'])['latest_version_href'] != version:
-            raise RuntimeError('Repository changed during upload; serialize publishers and review')
-        uploaded = client.upload(API + 'content/file/files/', path, {'relative_path': row['path'],
-                                                                   'sha256': row['sha256'],
-                                                                   'repository': repo['pulp_href']})
-        href = resource(uploaded, 'content/file/files')
-        obj = client.request('GET', href)
-        if obj['relative_path'] != row['path'] or obj['sha256'] != row['sha256']:
-            raise RuntimeError('Uploaded content does not match the local file')
-        # Attach on upload so a scoped publisher can retrieve its own content.
-        # The public distribution still serves its previous publication.
-        version = client.request('GET', repo['pulp_href'])['latest_version_href']
-    # Verify the entire resulting membership: preserve everything that was there.
-    actual = list_files(client, version)
-    expected = {p: f['sha256'] for p, f in current_files.items()}
+    # Other pipelines may append concurrently: verify only this pipeline's paths.
+    expected = {p: f['sha256'] for p, f in current_files.items() if p.startswith(prefix)}
     expected.update({f['path']: f['sha256'] for f in inventory})
-    if {p: f['sha256'] for p, f in actual.items()} != expected:
-        raise RuntimeError('Unexpected repository membership; distribution remains unchanged')
-    publication = switch_publication(client, repo, dist, version)
+    upload_files(client, repo, {row['path']: (path, row['sha256']) for path, row in additions})
+    check_pipeline_files(client, client.request('GET', repo['pulp_href'])['latest_version_href'],
+                         prefix, expected)
+    publication, version = publish_latest(client, repo, dist)
+    check_pipeline_files(client, version, prefix, expected)
     result.update(applied=True, repository_version=version, publication=publication)
     return result
 
@@ -546,21 +599,17 @@ def merge_apt_tree(client, name, tree, content_url, *, codename='bookworm', sign
     files = {p: f for p, f in uploads.items() if p not in current}
     files.update({p: work / p for p in [*regenerated, base + '/InRelease', base + '/Release.gpg']})
     expected = {p: f['sha256'] for p, f in current.items()}
-    version = initial
-    # Pool files first, signed metadata last; clients keep the old publication until the switch.
-    for path in sorted(files, key=lambda p: (p.startswith('dists/'), p[len(base) + 1:] in SIGNED_FILES, p)):
-        sha = digest(files[path])
-        expected[path] = sha
-        if path in current and current[path]['sha256'] == sha:
-            continue
-        if client.request('GET', repo['pulp_href'])['latest_version_href'] != version:
-            raise RuntimeError('Repository changed during upload; serialize publishers and review')
-        uploaded = client.upload(API + 'content/file/files/', files[path],
-                                 {'relative_path': path, 'sha256': sha, 'repository': repo['pulp_href']})
-        obj = client.request('GET', resource(uploaded, 'content/file/files'))
-        if obj['relative_path'] != path or obj['sha256'] != sha:
-            raise RuntimeError('Uploaded content does not match the local file')
-        version = client.request('GET', repo['pulp_href'])['latest_version_href']
+    changed = {}
+    for path, source in files.items():
+        expected[path] = sha = digest(source)
+        if not (path in current and current[path]['sha256'] == sha):
+            changed[path] = (source, sha)
+    # A merge rewrites shared indexes: refuse to interleave with another writer.
+    if client.request('GET', repo['pulp_href'])['latest_version_href'] != initial:
+        raise RuntimeError('Repository changed before upload; serialize publishers and review')
+    # Clients keep the old publication until the switch, so upload order does not matter.
+    upload_files(client, repo, changed)
+    version = client.request('GET', repo['pulp_href'])['latest_version_href']
     if {p: f['sha256'] for p, f in list_files(client, version).items()} != expected:
         raise RuntimeError('Unexpected repository membership; distribution remains unchanged')
     publication = switch_publication(client, repo, dist, version)
