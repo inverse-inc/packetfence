@@ -485,10 +485,19 @@ variables:
 # block — only jobs that actually ran and failed will skip the dependents.
 .needs_all_build_images:
   needs:
-    - job: prepare_pulp_dependencies
-      optional: true
-      artifacts: true
+    - job: build_images_ready
+
+# Fan-in gate: followers need this one job instead of every image job (GitLab caps a
+# job at 50 needs and each matrix variant counts). Stops the pipeline if an image failed.
+build_images_ready:
+  stage: build_images
+  image: python:3-alpine
+  before_script: []
+  script: ['true']
+  tags: [docker]
+  needs:
     - job: pre_ci_lint_yaml
+      optional: true
     - job: pre_ci_go_check_debian_bookworm
       optional: true
     - job: pre_ci_go_check_centos_8
@@ -512,7 +521,12 @@ variables:
 
 .build_artifacts_pkg_job:
   stage: build_artifacts
-  needs: !reference [.needs_all_build_images, needs]
+  # Only the package builds consume the dependency lock; GitLab caps a job at 50 needs.
+  needs:
+    - !reference [.needs_all_build_images, needs]
+    - job: prepare_pulp_dependencies
+      optional: true
+      artifacts: true
   artifacts:
     expire_in: 1 day
     paths:
