@@ -38,21 +38,21 @@ fi
 PF_REPO_TYPE=${PF_REPO_TYPE:-debian-branches}
 
 # Build URL based on repo type
-# gitlab pipelines use: http://inverse.ca/downloads/PacketFence/gitlab/PIPELINE_ID/debian bookworm main
-# branches use: http://inverse.ca/downloads/PacketFence/debian-branches/VERSION bookworm bookworm
+# gitlab pipelines use: https://packages.packetfence.com/downloads/PacketFence/gitlab/PIPELINE_ID/debian bookworm main
+# branches use: https://packages.packetfence.com/downloads/PacketFence/debian-branches/VERSION bookworm bookworm
 # Note: packetfence packages are in debian-branches repo, fingerbank/docker are in debian repo
 if [[ "${PF_REPO_TYPE}" == gitlab/* ]]; then
-    PF_REPO_BASE_URL="http://inverse.ca/downloads/PacketFence/${PF_REPO_TYPE}/debian"
+    PF_REPO_BASE_URL="https://packages.packetfence.com/downloads/PacketFence/${PF_REPO_TYPE}/debian"
     PF_REPO_COMPONENT="main"
 else
     # Use the PF_REPO_TYPE in the URL (e.g., debian-branches or debian)
-    PF_REPO_BASE_URL="http://inverse.ca/downloads/PacketFence/${PF_REPO_TYPE}/${PF_RELEASE_VERSION}"
+    PF_REPO_BASE_URL="https://packages.packetfence.com/downloads/PacketFence/${PF_REPO_TYPE}/${PF_RELEASE_VERSION}"
     PF_REPO_COMPONENT="bookworm"
 fi
 
 # URL for dependency packages (fingerbank, docker, freeradius are in debian/VERSION repo)
-PF_DEPS_BASE_URL="http://inverse.ca/downloads/PacketFence/debian/${PF_RELEASE_VERSION}"
-PF_SIGNING_KEY_URL=https://inverse.ca/downloads/GPG_PUBLIC_KEY
+PF_DEPS_BASE_URL="https://packages.packetfence.com/downloads/PacketFence/debian/${PF_RELEASE_VERSION}"
+PF_SIGNING_KEY_URL=https://packages.packetfence.com/downloads/GPG_PUBLIC_KEY
 if [[ "${PF_PULP_ENABLED:-no}" == yes ]]; then
     : "${PF_PACKAGE_ORIGIN:?Set the HTTPS Pulp package origin}"
     [[ "$PF_REPO_TYPE" == gitlab/* && "$PF_PACKAGE_ORIGIN" =~ ^https://[a-zA-Z0-9.-]+(:[0-9]+)?$ ]] || exit 2

@@ -50,7 +50,7 @@ CI_PROJECT_URL="${CI_PROJECT_URL:-https://github.com/inverse-inc/packetfence}"
 
 # Public base URL where this PPA will be reachable. Used only to render the
 # copy/paste install instructions on the home page.
-PPA_URL="${PPA_URL:-https://www.packetfence.org/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}}"
+PPA_URL="${PPA_URL:-https://packages.packetfence.com/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}}"
 # normalise: strip trailing slashes
 PPA_URL="${PPA_URL%/}"
 
