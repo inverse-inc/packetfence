@@ -1246,7 +1246,7 @@ publish_ppa:
       if [ "$PF_PULP_ENABLED" = yes ]; then
         bash ci/pulp/pipeline.sh publish
       elif [ "$PF_PULP_PUBLISH" = yes ]; then
-        PPA_URL="$PF_PACKAGE_ORIGIN/downloads/PacketFence/gitlab/$CI_PIPELINE_ID" generate-pages
+        PAGES_HTML=no generate-pages
         bash ci/pulp/publish-packages.sh ppa
         # Feature branches with publish_ppa=yes also land in debian-branches/X.Y (no test gate).
         case "${PUBLISH_PPA:-}|$CI_COMMIT_MESSAGE" in
@@ -1692,7 +1692,7 @@ deploy_debian_pulp:
         --return_value=password_notes \
       | gpg --batch --pinentry-mode loopback --import
   script:
-    - generate-pages
+    - PAGES_HTML=no generate-pages
     - bash ci/pulp/publish-packages.sh release
   artifacts:
     access: developer
