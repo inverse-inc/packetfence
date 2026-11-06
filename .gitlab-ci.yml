@@ -15,6 +15,10 @@ before_script:
 stages:
   - check
   - build_images
+  # The *_related matrices (one job per service image) get their own stages so the
+  # shared build needs stay under GitLab's 50-needs limit; bake_img waits for them by stage order.
+  - build_images_pfdebian_related
+  - build_images_radiusd_related
   - build_artifacts
   - sign
   - publish
@@ -479,7 +483,8 @@ variables:
     - test-shell-v7
 
 # Strict gate: build_artifacts must not start if YAML lint, either Go check, or
-# any build_images job failed. The lint job is always present and non-optional.
+# any build_images job failed (pfdebian_related and radiusd_related, in their own
+# stages, are waited for by stage order before bake_img). The lint job is always present and non-optional.
 # The opt-in Go jobs and every concrete build_images job are
 # listed as optional: true so a gated-out job (rules → when:never) does not
 # block — only jobs that actually ran and failed will skip the dependents.
@@ -497,11 +502,7 @@ variables:
       optional: true
     - job: pfdebian
       optional: true
-    - job: pfdebian_related
-      optional: true
     - job: radiusd
-      optional: true
-    - job: radiusd_related
       optional: true
     - job: ci_related
       optional: true
@@ -879,6 +880,7 @@ pfdebian:
 pfdebian_related:
   extends:
     - .build_img_container_job
+  stage: build_images_pfdebian_related
   needs:
     - pfdebian
     - job: ci_related
@@ -911,6 +913,7 @@ radiusd:
 radiusd_related:
   extends:
     - .build_img_container_job
+  stage: build_images_radiusd_related
   needs: ["radiusd"]
   variables:
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
@@ -1001,10 +1004,10 @@ build_img_vagrant_devel_and_branches_debian_bookworm:
 # the pfel8dev / pfdeb12dev standalones are baked. Bake fires whenever any
 # baked-box-opted test job would run — reusing .test_rules.
 #
-# Bake jobs depend on publish_ppa because site.yml installs PF packages from
-# the pipeline's PPA (https://packages.packetfence.com/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}).
-# They also gate on the full build_images set: publish_ppa's chain omits the
-# golden base box (build_img_vagrant_*) the bake consumes.
+# Bake jobs have no needs: they start only when every job of the earlier stages
+# (check .. publish, incl. both *_related image stages and publish_ppa, whose PPA
+# https://packages.packetfence.com/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}
+# site.yml installs from) is green.
 .bake_img_rules:
   # standalone (.test_rules) or cluster-only (TEST_CLUSTER) pipelines need the box
   rules:
@@ -1015,10 +1018,6 @@ bake_img_vagrant_el8:
   extends:
     - .bake_img_vagrant_job
     - .bake_img_rules
-  needs:
-    - !reference [.needs_all_build_images, needs]
-    - job: publish_ppa
-      artifacts: false
   variables:
     BAKE_ARCH: el8
     PF_VM_NAME: pfel8dev
@@ -1027,10 +1026,6 @@ bake_img_vagrant_deb12:
   extends:
     - .bake_img_vagrant_job
     - .bake_img_rules
-  needs:
-    - !reference [.needs_all_build_images, needs]
-    - job: publish_ppa
-      artifacts: false
   variables:
     BAKE_ARCH: deb12
     PF_VM_NAME: pfdeb12dev
