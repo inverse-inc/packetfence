@@ -8,6 +8,7 @@ import (
 	"net"
 	"os"
 	"strconv"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -218,41 +219,70 @@ func isStrandedOffset(committed, lastOffset int64, brokerConfirmed bool) bool {
 	return lastOffset > 0 || brokerConfirmed
 }
 
-// WaitForTopic polls the broker until the topic appears or the context is
-// done. A metadata error is returned instead of retried on the same
-// connection: the caller redials with a backoff, which also covers a broker
-// that restarted under this connection, and keeps a broker that answers every
-// metadata request with an error from logging once a second.
-func WaitForTopic(dialer *kafka.Dialer, ctx context.Context, brokerAddr string, topic string) error {
+// metadataTimeout bounds one metadata request in WaitForTopic, so a broker
+// that accepted the connection but stopped answering is redialled.
+const metadataTimeout = 10 * time.Second
+
+// topicNotReady reports whether a metadata error only means that the topic
+// does not exist yet (or is being created), as opposed to a broker problem.
+func topicNotReady(err error) bool {
+	return errors.Is(err, kafka.UnknownTopicOrPartition) || errors.Is(err, kafka.LeaderNotAvailable)
+}
+
+// WaitForTopic polls the broker every second until the topic appears or the
+// context is done. Only the topic's own metadata is requested, so an error on
+// another topic of the cluster cannot hold pfflow back; kafka-go sends that
+// request with auto-creation allowed, so a broker that auto-creates topics
+// creates it at the first poll. onMissing, if not nil, is called the first time
+// the topic is found missing. Any other metadata error is returned instead of
+// retried on the same connection: the caller redials with a backoff, which
+// also covers a broker that restarted under this connection.
+func WaitForTopic(dialer *kafka.Dialer, ctx context.Context, brokerAddr string, topic string, onMissing func()) error {
 	conn, err := dialer.DialContext(ctx, "tcp", brokerAddr)
 	if err != nil {
 		return fmt.Errorf("failed to dial broker: %w", err)
 	}
 	defer conn.Close()
 
-	// ReadPartitions has no deadline of its own: a broker that accepted the
-	// connection but stopped answering would block it forever. Expire the
-	// connection when ctx is done (deadline or shutdown) so it returns.
-	stop := context.AfterFunc(ctx, func() { conn.SetDeadline(time.Now()) })
+	// Expire the connection when ctx is done (shutdown) so a pending request
+	// returns at once instead of at its deadline.
+	// The mutex keeps a per-request deadline set below from overriding it.
+	var deadlineMu sync.Mutex
+	stop := context.AfterFunc(ctx, func() {
+		deadlineMu.Lock()
+		defer deadlineMu.Unlock()
+		conn.SetDeadline(time.Now())
+	})
 	defer stop()
 
 	// Check at once, then every second.
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
 	for {
-		partitions, err := conn.ReadPartitions()
-		if err != nil {
-			if ctx.Err() != nil {
-				return fmt.Errorf("waiting for topic creation: %w", ctx.Err())
-			}
+		// ReadPartitions has no deadline of its own: a broker that accepted
+		// the connection but stopped answering would block it forever.
+		deadlineMu.Lock()
+		if ctx.Err() == nil {
+			conn.SetDeadline(time.Now().Add(metadataTimeout))
+		}
+		deadlineMu.Unlock()
 
+		partitions, err := conn.ReadPartitions(topic)
+		if ctx.Err() != nil {
+			return fmt.Errorf("waiting for topic creation: %w", ctx.Err())
+		}
+
+		if err == nil && len(partitions) > 0 {
+			return nil
+		}
+
+		if err != nil && !topicNotReady(err) {
 			return fmt.Errorf("failed to read partitions: %w", err)
 		}
 
-		for _, p := range partitions {
-			if p.Topic == topic {
-				return nil
-			}
+		if onMissing != nil {
+			onMissing()
+			onMissing = nil
 		}
 
 		select {
@@ -266,27 +296,31 @@ func WaitForTopic(dialer *kafka.Dialer, ctx context.Context, brokerAddr string, 
 // maxTopicWaitDelay caps the backoff between two waitForTopic attempts.
 const maxTopicWaitDelay = 30 * time.Second
 
-// topicWaitTimeout bounds one WaitForTopic attempt, so a broker that accepted
-// the connection but stopped answering is redialled.
-const topicWaitTimeout = 30 * time.Second
-
 // waitForTopic blocks until a broker answers and the read topic exists. The
 // reader must not join the consumer group before that: kafka-go assigns no
 // partition for a topic that does not exist yet (UnknownTopicOrPartition is
 // treated as an empty assignment), and with pfflow as the only member of the
 // group no rebalance ever follows, so the reader would stay idle forever.
 // WaitForTopic returns at once when the broker cannot be dialled (pfcron
-// usually starts before Kafka), so it is retried here with a backoff, cycling
-// through the brokers. It returns false if ctx is done first.
+// usually starts before Kafka) or fails, so it is retried here with a backoff,
+// cycling through the brokers. While a broker answers and the topic is only
+// missing, WaitForTopic keeps polling it without backing off. It returns false
+// if ctx is done first.
 func (j *PfFlowJob) waitForTopic(ctx context.Context, dialer *kafka.Dialer) bool {
 	delay := time.Second
+	waited := false
+	onMissing := func() {
+		if !waited {
+			log.LogInfof(ctx, "waiting for Kafka topic %s to be created", j.ReadTopic)
+			waited = true
+		}
+	}
+
 	for attempt := 0; ; attempt++ {
 		broker := j.Brokers[attempt%len(j.Brokers)]
-		wctx, cancel := context.WithTimeout(ctx, topicWaitTimeout)
-		err := WaitForTopic(dialer, wctx, broker, j.ReadTopic)
-		cancel()
+		err := WaitForTopic(dialer, ctx, broker, j.ReadTopic, onMissing)
 		if err == nil {
-			if attempt > 0 {
+			if attempt > 0 || waited {
 				log.LogInfof(ctx, "Kafka topic %s is available", j.ReadTopic)
 			}
 
@@ -694,7 +728,10 @@ func (j *PfFlowJob) run(ctx context.Context) {
 			return
 		}
 
-		if err := r.CommitMessages(ctx, m); err != nil && ctx.Err() == nil {
+		// Not ctx: on shutdown kafka-go could pick ctx.Done() over queueing
+		// the commit and drop it, and the next consumer would read the flow
+		// again. The commit is only queued (CommitInterval), Close() sends it.
+		if err := r.CommitMessages(context.WithoutCancel(ctx), m); err != nil {
 			log.LogWarnf(ctx, "unable to commit %s/%d offset %d: %s", m.Topic, m.Partition, m.Offset, err.Error())
 		}
 

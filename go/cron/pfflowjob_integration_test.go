@@ -11,6 +11,7 @@ package maint
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net"
 	"os"
@@ -26,7 +27,10 @@ const integrationKafkaImage = "confluentinc/cp-kafka:7.5.2"
 type kafkaContainer struct {
 	name   string
 	broker string
+	env    []string
 }
+
+var containerSeq int
 
 func freePort(t *testing.T) int {
 	t.Helper()
@@ -40,17 +44,20 @@ func freePort(t *testing.T) int {
 }
 
 // newKafkaContainer reserves a name and a port; the broker is only started by
-// start(), so a test can run the consumer while Kafka is still down.
-func newKafkaContainer(t *testing.T) *kafkaContainer {
+// start(), so a test can run the consumer while Kafka is still down. env adds
+// broker settings (KAFKA_*=value) to the defaults.
+func newKafkaContainer(t *testing.T, env ...string) *kafkaContainer {
 	t.Helper()
 	if _, err := exec.LookPath("docker"); err != nil {
 		t.Skip("docker is not available")
 	}
 
 	k := &kafkaContainer{
-		name:   fmt.Sprintf("pfflow-it-kafka-%d", os.Getpid()),
+		name:   fmt.Sprintf("pfflow-it-kafka-%d-%d", os.Getpid(), containerSeq),
 		broker: fmt.Sprintf("127.0.0.1:%d", freePort(t)),
+		env:    env,
 	}
+	containerSeq++
 
 	t.Cleanup(func() { exec.Command("docker", "rm", "-f", k.name).Run() })
 	return k
@@ -62,21 +69,26 @@ func newKafkaContainer(t *testing.T) *kafkaContainer {
 func (k *kafkaContainer) start(t *testing.T) {
 	t.Helper()
 	_, port, _ := net.SplitHostPort(k.broker)
+	args := []string{"run", "-d", "--rm", "--name", k.name}
+	for _, e := range k.env {
+		args = append(args, "-e", e)
+	}
+
 	out, err := exec.Command(
-		"docker", "run", "-d", "--rm", "--name", k.name,
-		"-p", k.broker+":9092",
-		"-e", "CLUSTER_ID=MkU3OEVBNTcwNTJENDM2Qk",
-		"-e", "KAFKA_NODE_ID=1",
-		"-e", "KAFKA_PROCESS_ROLES=broker,controller",
-		"-e", "KAFKA_CONTROLLER_QUORUM_VOTERS=1@localhost:9093",
-		"-e", "KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER",
-		"-e", "KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT",
-		"-e", "KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093",
-		"-e", "KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:"+port,
-		"-e", "KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT",
-		"-e", "KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1",
-		integrationKafkaImage,
-	).CombinedOutput()
+		"docker", append(args,
+			"-p", k.broker+":9092",
+			"-e", "CLUSTER_ID=MkU3OEVBNTcwNTJENDM2Qk",
+			"-e", "KAFKA_NODE_ID=1",
+			"-e", "KAFKA_PROCESS_ROLES=broker,controller",
+			"-e", "KAFKA_CONTROLLER_QUORUM_VOTERS=1@localhost:9093",
+			"-e", "KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER",
+			"-e", "KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT",
+			"-e", "KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093",
+			"-e", "KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:"+port,
+			"-e", "KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT",
+			"-e", "KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1",
+			integrationKafkaImage,
+		)...).CombinedOutput()
 	if err != nil {
 		t.Fatalf("docker run: %v: %s", err, out)
 	}
@@ -215,12 +227,24 @@ func ownsPartition(g kafka.DescribeGroupsResponseGroup, topic string) bool {
 	return false
 }
 
-// giveReaderTimeToJoin holds the flow exporter back, as in INV-948 where no
-// flow is exported while PacketFence restarts: the topic must not exist
-// before pfflow had a chance to join the group. Without the topic wait the
-// reader joins (and gets an empty assignment) within that time, which fails
-// the test even though the watchdog would later repair it: the guard must
-// hold on its own. With it the group stays empty for the whole timeout.
+// readerJoinsWithPartition holds the flow exporter back, as in INV-948 where
+// no flow is exported while PacketFence restarts, and checks that the first
+// assignment the group settles on gives pfflow a partition. On a broker that
+// auto-creates topics pfflow's own topic wait creates the topic, then the
+// reader joins. Without the topic wait the reader joins first and gets an
+// empty assignment, which fails the test even though the watchdog would later
+// repair it: the guard must hold on its own.
+func readerJoinsWithPartition(t *testing.T, j *PfFlowJob, timeout time.Duration) {
+	t.Helper()
+	g := waitForStableGroup(t, j.kafkaClient(), j.GroupID, timeout)
+	if !ownsPartition(g, j.ReadTopic) {
+		t.Fatalf("reader joined %s with no partition of %s assigned: %+v", j.GroupID, j.ReadTopic, g.Members)
+	}
+}
+
+// giveReaderTimeToJoin is readerJoinsWithPartition for a broker that does not
+// auto-create topics: while the topic is missing the reader must not join at
+// all, so the group stays empty for the whole timeout.
 func giveReaderTimeToJoin(t *testing.T, j *PfFlowJob, timeout time.Duration) {
 	t.Helper()
 	if g, ok := stableGroup(j.kafkaClient(), j.GroupID, timeout); ok {
@@ -246,7 +270,7 @@ func TestPfFlowKafka(t *testing.T) {
 		// Let the first waitForTopic attempts fail to dial.
 		time.Sleep(5 * time.Second)
 		k.start(t)
-		giveReaderTimeToJoin(t, j, 90*time.Second)
+		readerJoinsWithPartition(t, j, 90*time.Second)
 
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
@@ -264,8 +288,8 @@ func TestPfFlowKafka(t *testing.T) {
 		j := k.job("pfflows_it_up", "network_group_it_up")
 		go j.Run()
 
-		// pfflow must wait in waitForTopic instead of joining the group.
-		giveReaderTimeToJoin(t, j, 30*time.Second)
+		// pfflow must create the topic in waitForTopic before joining.
+		readerJoinsWithPartition(t, j, 30*time.Second)
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 		k.produce(ctx, t, j.ReadTopic, seq)
@@ -293,7 +317,7 @@ func TestPfFlowKafka(t *testing.T) {
 
 		// The reader's join auto-created the topic, after the assignment.
 		wctx, cancel := context.WithTimeout(ctx, 30*time.Second)
-		err = WaitForTopic(dialer, wctx, j.Brokers[0], j.ReadTopic)
+		err = WaitForTopic(dialer, wctx, j.Brokers[0], j.ReadTopic, nil)
 		cancel()
 		if err != nil {
 			t.Fatalf("topic %s was not auto-created by the reader's join: %v", j.ReadTopic, err)
@@ -359,7 +383,7 @@ func TestPfFlowKafka(t *testing.T) {
 		k.produce(ctx, t, other, 0)
 		k.produce(ctx, t, j.ReadTopic, seq)
 		wctx, wcancel := context.WithTimeout(ctx, time.Minute)
-		err := WaitForTopic(j.kafkaDialer(), wctx, k.broker, other)
+		err := WaitForTopic(j.kafkaDialer(), wctx, k.broker, other, nil)
 		wcancel()
 		if err != nil {
 			t.Fatalf("topic %s: %v", other, err)
@@ -531,4 +555,61 @@ func TestPfFlowKafka(t *testing.T) {
 			t.Fatalf("committed offset %d after shutdown, want %d (all %d flows read)", got, count, count)
 		}
 	})
+}
+
+// createTopic creates topic with one partition, retrying while the broker
+// starts.
+func (k *kafkaContainer) createTopic(t *testing.T, topic string) {
+	t.Helper()
+	client := &kafka.Client{Addr: kafka.TCP(k.broker), Timeout: 10 * time.Second}
+	var err error
+	for attempt := 0; attempt < 60; attempt++ {
+		var resp *kafka.CreateTopicsResponse
+		resp, err = client.CreateTopics(context.Background(), &kafka.CreateTopicsRequest{
+			Topics: []kafka.TopicConfig{{Topic: topic, NumPartitions: 1, ReplicationFactor: 1}},
+		})
+		if err == nil {
+			err = resp.Errors[topic]
+		}
+
+		if err == nil || errors.Is(err, kafka.TopicAlreadyExists) {
+			return
+		}
+
+		time.Sleep(time.Second)
+	}
+
+	t.Fatalf("create topic %s: %v", topic, err)
+}
+
+func TestPfFlowKafkaNoAutoCreate(t *testing.T) {
+	// A broker that does not auto-create topics answers pfflow's topic
+	// request with UnknownTopicOrPartition: pfflow must keep polling it
+	// (without joining the group, and without backing off as if the broker
+	// were down) and start consuming within seconds of the topic's creation.
+	k := newKafkaContainer(t, "KAFKA_AUTO_CREATE_TOPICS_ENABLE=false")
+	k.start(t)
+
+	const seq = 101
+	j := k.job("pfflows_it_noauto", "network_group_it_noauto")
+	ctx, cancel := context.WithCancel(context.Background())
+	done := make(chan struct{})
+	go func() {
+		j.run(ctx)
+		close(done)
+	}()
+
+	t.Cleanup(func() {
+		cancel()
+		<-done
+	})
+
+	// Hold the topic back for many polls: each answer is
+	// UnknownTopicOrPartition, which must not make the reader join.
+	giveReaderTimeToJoin(t, j, 45*time.Second)
+	k.createTopic(t, j.ReadTopic)
+	created := time.Now()
+	k.writeFlows(t, j.ReadTopic, seq, 1)
+	waitForFlow(t, seq, 20*time.Second)
+	t.Logf("flow consumed %v after the topic was created", time.Since(created).Round(100*time.Millisecond))
 }

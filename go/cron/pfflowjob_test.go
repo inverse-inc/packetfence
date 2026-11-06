@@ -2,6 +2,7 @@ package maint
 
 import (
 	"context"
+	"errors"
 	"net"
 	"testing"
 	"time"
@@ -114,7 +115,7 @@ func TestPfFlowRunStopsWhileWaitingForKafka(t *testing.T) {
 
 func TestWaitForTopicSilentBroker(t *testing.T) {
 	// A broker that accepts the connection and never answers: WaitForTopic
-	// must still return when its context expires.
+	// must give up on its own after metadataTimeout, so the caller redials.
 	l, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
 		t.Fatal(err)
@@ -132,11 +133,9 @@ func TestWaitForTopicSilentBroker(t *testing.T) {
 		}
 	}()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
 	done := make(chan error, 1)
 	go func() {
-		done <- WaitForTopic(&kafka.Dialer{Timeout: 10 * time.Second}, ctx, l.Addr().String(), "pfflows_events")
+		done <- WaitForTopic(&kafka.Dialer{Timeout: 10 * time.Second}, context.Background(), l.Addr().String(), "pfflows_events", nil)
 	}()
 
 	select {
@@ -144,7 +143,45 @@ func TestWaitForTopicSilentBroker(t *testing.T) {
 		if err == nil {
 			t.Fatal("WaitForTopic found a topic on a broker that never answers")
 		}
-	case <-time.After(10 * time.Second):
-		t.Fatal("WaitForTopic did not return after its context expired")
+	case <-time.After(metadataTimeout + 10*time.Second):
+		t.Fatal("WaitForTopic did not give up on a broker that never answers")
+	}
+}
+
+func TestWaitForTopicStopsOnShutdown(t *testing.T) {
+	// Same silent broker: a cancelled ctx must end the pending request at
+	// once, not after metadataTimeout.
+	l, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer l.Close()
+	go func() {
+		for {
+			c, err := l.Accept()
+			if err != nil {
+				return
+			}
+
+			defer c.Close()
+		}
+	}()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	done := make(chan error, 1)
+	go func() {
+		done <- WaitForTopic(&kafka.Dialer{Timeout: 10 * time.Second}, ctx, l.Addr().String(), "pfflows_events", nil)
+	}()
+
+	time.Sleep(time.Second)
+	cancel()
+	select {
+	case err := <-done:
+		if !errors.Is(err, context.Canceled) {
+			t.Fatalf("WaitForTopic returned %v, want context.Canceled", err)
+		}
+	case <-time.After(3 * time.Second):
+		t.Fatal("WaitForTopic did not return when its context was cancelled")
 	}
 }
