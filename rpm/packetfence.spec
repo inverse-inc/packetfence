@@ -979,6 +979,7 @@ fi
 %attr(6755, root, root) /usr/local/pf/bin/pfcrypt
 %attr(6755, root, root) /usr/local/pf/bin/pfkafka
 %attr(0755, pf, pf)     /usr/local/pf/bin/kafka-init.pl
+%attr(0755, pf, pf)     /usr/local/pf/bin/kafka-create-topics
 %attr(0755, root, root) /usr/local/pf/bin/ntlm_auth_wrapper
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd.pl
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
@@ -1039,7 +1040,6 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.portal-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.webservices-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/kafka-docker-wrapper
-%attr(0755, pf, pf)     /usr/local/pf/sbin/kafka-create-topics
 %attr(0755, pf, pf)     /usr/local/pf/sbin/netdata-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/ntlm-auth-api-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/ntlm-auth-api-domain

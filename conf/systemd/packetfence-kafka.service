@@ -14,7 +14,7 @@ ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-
 ExecStart=/usr/local/pf/sbin/kafka-docker-wrapper
 # Create the topic pfflow consumes once the broker answers; "-": never fail
 # Kafka because of it.
-ExecStartPost=-/usr/local/pf/sbin/kafka-create-topics
+ExecStartPost=-/usr/local/pf/bin/kafka-create-topics
 ExecStop=/bin/bash -c "docker stop kafka ; echo Stopped"
 Restart=on-failure
 Slice=packetfence.slice
