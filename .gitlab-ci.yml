@@ -258,7 +258,7 @@ variables:
         IMAGE_TAG: latest
         IMAGE_TAGS: "${CI_COMMIT_REF_SLUG},latest"
 
-# Rules for ci_related image builds (pfbuild, signing, publish-ppa).
+# Rules for build_toolchain_images image builds (pfbuild, signing, publish-ppa).
 # Devel arm lives in each job's inline rules (opt-in via BUILD_IMG_DOCKER).
 # IMAGE_TAG is set alongside IMAGE_TAGS so jobs using .build_img_container_job
 # (which references ${IMAGE_TAG} for the kaniko-build image) resolve correctly.
@@ -424,7 +424,7 @@ variables:
     - ci/lib/ensure-runner-disk-free.sh
   variables:
     RESULT_DIR: ${CI_PROJECT_DIR}/ci/packer/vagrant_img/results
-    # ci_related pushes the slug tag in every context; tag pipelines
+    # build_toolchain_images pushes the slug tag in every context; tag pipelines
     # override IMAGE_TAG (release tags are pushed unslugified).
     VAGRANT_BUILD_IMAGE: ${KNK_REGISTRY_URL}/vagrant-build:${IMAGE_TAG}
     UPLOAD_BOX: "yes"
@@ -504,7 +504,7 @@ variables:
       optional: true
     - job: radiusd
       optional: true
-    - job: ci_related
+    - job: build_toolchain_images
       optional: true
     - job: zen_builder
       optional: true
@@ -853,7 +853,7 @@ pre_ci_go_check_centos_8:
 ########################################
 kaniko:
   # NOTE: Not gated by BUILD_IMG_CONTAINER - kaniko is pipeline infrastructure
-  # (needed by ci_related for sign_packages/publish_ppa).
+  # (needed by build_toolchain_images for sign_packages/publish_ppa).
   extends:
     - .build_img_container_kanikobuild_job
   variables:
@@ -883,7 +883,7 @@ pfdebian_related:
   stage: build_images_pfdebian_related
   needs:
     - pfdebian
-    - job: ci_related
+    - job: build_toolchain_images
       optional: true
   variables:
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
@@ -914,10 +914,10 @@ radiusd_related:
   extends:
     - .build_img_container_job
   stage: build_images_radiusd_related
-  # pfconnector-remote compiles in pfbuild-debian-bookworm, which ci_related builds when it runs.
+  # pfconnector-remote compiles in pfbuild-debian-bookworm, which build_toolchain_images builds when it runs.
   needs:
     - radiusd
-    - job: ci_related
+    - job: build_toolchain_images
       optional: true
   variables:
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
@@ -935,10 +935,10 @@ radiusd_related:
     - !reference [.build_img_container_rules, rules]
 
 ########################################
-# ci_related image build jobs
+# build_toolchain_images: package build toolchain images (pfbuild-*, signing, publish-ppa, material)
 # (pfbuild, signing-packages, publish-ppa, pfconfig-material-builder, vagrant-build, zen-builder)
 ########################################
-ci_related:
+build_toolchain_images:
   extends:
     - .build_img_container_job
   needs:
@@ -969,7 +969,7 @@ ci_related:
     - !reference [.build_img_docker_rules, rules]
 
 # Builder image consumed by build_pf_img_zen via ZEN_BUILDER_IMAGE.
-# Own job (not in the ci_related matrix) to stay gated on
+# Own job (not in the build_toolchain_images matrix) to stay gated on
 # BUILD_PF_IMG_ZEN; always built on release tags for the manual zen job.
 zen_builder:
   extends:
@@ -1116,7 +1116,7 @@ sign_packages:
   image: ghcr.io/inverse-inc/packetfence/signing-packages:${IMAGE_TAG}
   stage: sign
   needs:
-    - job: ci_related
+    - job: build_toolchain_images
       optional: true
     - job: build_artifacts_pkg_centos_8
     - job: build_artifacts_pkg_debian_bookworm
