@@ -901,11 +901,8 @@ radiusd:
     - .build_img_container_job
   needs: ["pfdebian"]
   variables:
+    IMAGE_NAME: "radiusd"
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
-  parallel:
-    matrix:
-      - IMAGE_NAME:
-          - "radiusd"
   rules:
     - !reference [.gated_by_build_img_container, rules]
     - !reference [.build_img_container_rules, rules]
