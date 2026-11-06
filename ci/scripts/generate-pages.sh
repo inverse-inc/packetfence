@@ -61,6 +61,8 @@ PPA_SLUG="$(tr '/[:upper:]' '-[:lower:]' <<< "$PPA_NAME")"
 APT_SUITE_SUFFIX="${APT_SUITE_SUFFIX:--gitlab}"
 APT_ARCHITECTURES="${APT_ARCHITECTURES:-amd64 source}"
 APT_COMPONENTS="${APT_COMPONENTS:-main}"
+# no: skip the HTML pages (Pulp renders its own directory listings).
+PAGES_HTML="${PAGES_HTML:-yes}"
 
 # --- helpers ----------------------------------------------------------------
 
@@ -493,8 +495,10 @@ printf 'UNKNOWN: %s\n' "${UNKNOWN_RELEASES[*]:-(none)}"
 (( ${#APT_RELEASES[@]} > 0 )) && apt_repo "${APT_RELEASES[@]}"
 (( ${#YUM_RELEASES[@]} > 0 )) && yum_repo "${YUM_RELEASES[@]}"
 
-generate_home
-generate_tree
+if [ "$PAGES_HTML" != no ]; then
+    generate_home
+    generate_tree
+fi
 
 log_section "Published tree"
 show_tree -L 4 "$PUBLIC_DIR"
