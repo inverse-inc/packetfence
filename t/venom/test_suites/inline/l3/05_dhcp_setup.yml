@@ -15,7 +15,7 @@ testcases:
   - name: download_the_dhcp_relay
     steps:
     - type: exec
-      script: wget http://inverse.ca/downloads/PacketFence/addons/ci-cd/standalone_dhcp -O /tmp/standalone_dhcp && chmod +x /tmp/standalone_dhcp
+      script: wget https://packages.packetfence.com/downloads/PacketFence/addons/ci-cd/standalone_dhcp -O /tmp/standalone_dhcp && chmod +x /tmp/standalone_dhcp
 
   - name: install_systemd_script
     steps:

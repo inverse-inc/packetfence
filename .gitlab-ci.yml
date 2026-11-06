@@ -34,11 +34,10 @@ variables:
   PF_PULP_ENABLED: "no"
   PF_PULP_CONTAINER_SYNC_ENABLED: "no"
   PF_PULP_CONTAINER_ALLOW_TAG_UPDATE: "no"
-  PF_PACKAGE_ORIGIN: "https://www.packetfence.org"
+  PF_PACKAGE_ORIGIN: "https://packages.packetfence.com"
   # Publish the PPA to the packaging Pulp instead of rsync to web.inverse.ca (ci/pulp/publish-packages.sh).
   # Needs masked CI variables PULP_URL/PULP_USERNAME/PULP_PASSWORD (the ci-packages account; no "Expand" on the password).
   PF_PULP_PUBLISH: "no"
-  PF_PULP_ORIGIN: "https://packages.packetfence.com"
   PF_PPA_IMAGE: "ghcr.io/inverse-inc/packetfence/publish-ppa:${IMAGE_TAG}"
   PIPELINE_TIMEOUT_CLEANUP: 10m
   # sub-budgets of PIPELINE_TIMEOUT_CLEANUP; sum must stay below it
@@ -1003,7 +1002,7 @@ build_img_vagrant_devel_and_branches_debian_bookworm:
 # baked-box-opted test job would run — reusing .test_rules.
 #
 # Bake jobs depend on publish_ppa because site.yml installs PF packages from
-# the pipeline's PPA (http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}).
+# the pipeline's PPA (https://packages.packetfence.com/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}).
 # They also gate on the full build_images set: publish_ppa's chain omits the
 # golden base box (build_img_vagrant_*) the bake consumes.
 .bake_img_rules:
@@ -1251,7 +1250,7 @@ publish_ppa:
       if [ "$PF_PULP_ENABLED" = yes ]; then
         bash ci/pulp/pipeline.sh publish
       elif [ "$PF_PULP_PUBLISH" = yes ]; then
-        PPA_URL="$PF_PULP_ORIGIN/downloads/PacketFence/gitlab/$CI_PIPELINE_ID" generate-pages
+        PPA_URL="$PF_PACKAGE_ORIGIN/downloads/PacketFence/gitlab/$CI_PIPELINE_ID" generate-pages
         bash ci/pulp/publish-packages.sh ppa
         # Feature branches with publish_ppa=yes also land in debian-branches/X.Y (no test gate).
         case "${PUBLISH_PPA:-}|$CI_COMMIT_MESSAGE" in

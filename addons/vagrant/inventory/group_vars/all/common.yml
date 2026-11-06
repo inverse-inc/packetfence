@@ -23,5 +23,8 @@ packetfence_server_mgmt_ip: "{{ cluster_vip['mgmt'] if cluster_name|d() else hos
 
 pipeline_id: '{{ lookup("env","CI_PIPELINE_ID") | default("123456789", true) }}'
 
+# PacketFence package host (packaging Pulp) for the PPA, dependencies and signing key.
+pf_repo_origin: '{{ lookup("env", "PF_PACKAGE_ORIGIN") | default("https://packages.packetfence.com", true) }}'
+
 # get current PacketFence minor release (X.Y)
 pf_minor_release: '{{ lookup("env", "PF_MINOR_RELEASE") | default("99.9", true) }}'

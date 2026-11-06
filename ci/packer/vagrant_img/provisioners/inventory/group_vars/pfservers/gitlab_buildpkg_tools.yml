@@ -1,3 +1,6 @@
+# PacketFence package host (packaging Pulp) for dependencies and the signing key.
+pf_repo_origin: '{{ lookup("env", "PF_PACKAGE_ORIGIN") | default("https://packages.packetfence.com", true) }}'
+
 # get current PacketFence minor release (X.Y)
 pf_minor_release: '{{ lookup("env", "PF_MINOR_RELEASE") | default("99.9", true) }}'
 
@@ -6,12 +9,12 @@ gitlab_buildpkg_tools__ppa_enabled: False
 
 # RPM
 gitlab_buildpkg_tools__rpm_keys:
-  - 'https://inverse.ca/downloads/GPG_PUBLIC_KEY'
+  - '{{ pf_repo_origin }}/downloads/GPG_PUBLIC_KEY'
   - 'https://rpm.nodesource.com/gpgkey/ns-operations-public.key'    
 
 gitlab_buildpkg_tools__rpm_deps_repos:
   - name: packetfence
-    baseurl: 'http://inverse.ca/downloads/PacketFence/RHEL$releasever/{{ pf_minor_release }}/$basearch'
+    baseurl: '{{ pf_repo_origin }}/downloads/PacketFence/RHEL$releasever/{{ pf_minor_release }}/$basearch'
     # bypass EL8 modular filtering so PF's freeradius overrides the AppStream module
     module_hotfixes: 1
   - name: nodejs
@@ -29,12 +32,12 @@ gitlab_buildpkg_tools__rpm_enabled_repos:
 
 # Debian
 gitlab_buildpkg_tools__deb_keys:
-  - 'https://inverse.ca/downloads/GPG_PUBLIC_KEY'
+  - '{{ pf_repo_origin }}/downloads/GPG_PUBLIC_KEY'
   - 'https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key'
 
 gitlab_buildpkg_tools__deb_deps_repos:
   - name: packetfence
-    baseurl: 'http://inverse.ca/downloads/PacketFence/debian/{{ pf_minor_release }} {{ ansible_distribution_release }} {{ ansible_distribution_release }}'
+    baseurl: '{{ pf_repo_origin }}/downloads/PacketFence/debian/{{ pf_minor_release }} {{ ansible_distribution_release }} {{ ansible_distribution_release }}'
   - name: nodejs
     baseurl: 'https://deb.nodesource.com/node_20.x nodistro main'
 
