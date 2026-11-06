@@ -17,12 +17,12 @@ RUN dnf install -y python3 python3-requests python3-rpm gnupg2 curl dnf-plugins-
 RUN dnf -y module install ruby:3.0
 
 # Inverse + NodeSource RPM keys and repos (replaces inverse_inc.gitlab_buildpkg_tools role).
-RUN rpm --import https://inverse.ca/downloads/GPG_PUBLIC_KEY && \
+RUN rpm --import https://packages.packetfence.com/downloads/GPG_PUBLIC_KEY && \
     rpm --import https://rpm.nodesource.com/gpgkey/ns-operations-public.key && \
     printf '%s\n' \
         '[packetfence]' \
         'name=packetfence' \
-        'baseurl=http://inverse.ca/downloads/PacketFence/RHEL$releasever/'"${PF_MINOR_RELEASE}"'/$basearch' \
+        'baseurl=https://packages.packetfence.com/downloads/PacketFence/RHEL$releasever/'"${PF_MINOR_RELEASE}"'/$basearch' \
         'enabled=1' \
         'gpgcheck=1' \
         'module_hotfixes=1' \

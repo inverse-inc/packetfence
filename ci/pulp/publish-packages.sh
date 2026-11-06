@@ -11,8 +11,8 @@ ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
 cd "$ROOT"
 MODE=${1:?ppa, branches or release}
 [[ "$MODE" == ppa || "$MODE" == branches || "$MODE" == release ]] || exit 2
-: "${PULP_URL:?}" "${PULP_USERNAME:?}" "${PULP_PASSWORD:?}" "${PF_PULP_ORIGIN:?}" "${CI_PIPELINE_ID:?}"
-[[ "$PF_PULP_ORIGIN" =~ ^https://[a-zA-Z0-9.-]+(:[0-9]+)?$ ]] || { echo 'PF_PULP_ORIGIN must be an HTTPS origin' >&2; exit 1; }
+: "${PULP_URL:?}" "${PULP_USERNAME:?}" "${PULP_PASSWORD:?}" "${PF_PACKAGE_ORIGIN:?}" "${CI_PIPELINE_ID:?}"
+[[ "$PF_PACKAGE_ORIGIN" =~ ^https://[a-zA-Z0-9.-]+(:[0-9]+)?$ ]] || { echo 'PF_PACKAGE_ORIGIN must be an HTTPS origin' >&2; exit 1; }
 [[ "$CI_PIPELINE_ID" =~ ^[1-9][0-9]*$ ]] || exit 2
 PUBLIC_DIR=${PUBLIC_DIR:-public}
 [[ -f "$PUBLIC_DIR/GPG_PUBLIC_KEY" && -d "$PUBLIC_DIR/debian" ]] || { echo "Run generate-pages first ($PUBLIC_DIR)" >&2; exit 1; }
@@ -23,7 +23,7 @@ helper=ci/pulp/vendor/pipeline_repository.py
 if [[ "$MODE" == ppa ]]; then
     python3 "$helper" publish --repository "${PF_PULP_GITLAB_REPOSITORY:-gitlab}" --pipeline "$CI_PIPELINE_ID" \
         --tree "$PUBLIC_DIR" --no-lock --apply --output pulp-publication.json
-    printf 'PF_PPA_URL=%s/downloads/PacketFence/gitlab/%s\n' "$PF_PULP_ORIGIN" "$CI_PIPELINE_ID" > pulp.env
+    printf 'PF_PPA_URL=%s/downloads/PacketFence/gitlab/%s\n' "$PF_PACKAGE_ORIGIN" "$CI_PIPELINE_ID" > pulp.env
     exit 0
 fi
 
@@ -45,7 +45,7 @@ print(c.request("GET", API + "repositories/deb/apt/", params={"name": sys.argv[1
         (( ${#debs[@]} )) || { echo 'No .deb in the generated tree' >&2; exit 1; }
         python3 ci/pulp/vendor/pulp_publish.py deb "$native" "${debs[@]}" \
             --codename bookworm --component bookworm --release "$release" > pulp-release.json
-        echo "Published ${#debs[@]} packages to $PF_PULP_ORIGIN/downloads/PacketFence/debian/$release (native)"
+        echo "Published ${#debs[@]} packages to $PF_PACKAGE_ORIGIN/downloads/PacketFence/debian/$release (native)"
         exit 0
     fi
 fi
@@ -53,6 +53,6 @@ fi
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 python3 "$helper" merge-apt --repository "$repository" --tree "$PUBLIC_DIR/debian" \
-    --content-url "$PF_PULP_ORIGIN/downloads/PacketFence/$tree/$release" \
+    --content-url "$PF_PACKAGE_ORIGIN/downloads/PacketFence/$tree/$release" \
     --work "$work" --apply --output "pulp-$MODE.json"
-echo "Published to $PF_PULP_ORIGIN/downloads/PacketFence/$tree/$release"
+echo "Published to $PF_PACKAGE_ORIGIN/downloads/PacketFence/$tree/$release"
