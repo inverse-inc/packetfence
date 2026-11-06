@@ -8,21 +8,26 @@
 # lets it start consuming as soon as Kafka is up instead of after the first
 # exported flow auto-creates the topic. The topic gets the broker defaults
 # for the partition count and replication factor, as auto-creation would.
-# Nothing is created while the pfflow task is disabled.
+# Nothing is created while the pfflow task is disabled, or when none of its
+# kafka_brokers is this host's Kafka (pfflow then reads from another cluster,
+# where a topic created here would not help).
 #
 # Run as ExecStartPost of packetfence-kafka.service. The whole run, pfconfig
 # lookup included, stays within KAFKA_CREATE_TOPICS_TIMEOUT seconds (plus a
 # few seconds if docker itself hangs) so the unit's start timeout, which also
-# covers its ExecStartPre steps, is not reached.
+# covers its ExecStartPre steps, is not reached. Each kafka-topics attempt is
+# capped at KAFKA_CREATE_TOPICS_ATTEMPT_TIMEOUT seconds, so an AdminClient stuck
+# on a broker that is not ready yet fails and is retried.
 
 name=kafka
 port=9095
+attempt_timeout=${KAFKA_CREATE_TOPICS_ATTEMPT_TIMEOUT:-15}
 budget=${KAFKA_CREATE_TOPICS_TIMEOUT:-60}
 deadline=$((SECONDS + budget))
 
 config=$(timeout "$budget" /usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::config::pfcron=%ConfigCron' '-Mpf::util=isenabled' \
-  -e 'my $c = $ConfigCron{pfflow} or die "no pfflow task in the pfcron configuration\n"; print((isenabled($c->{status}) ? "enabled" : "disabled"), " ", $c->{read_topic} // "", "\n")')
-read -r status topic <<< "$config"
+  -e 'my $c = $ConfigCron{pfflow} or die "no pfflow task in the pfcron configuration\n"; my $b = $c->{kafka_brokers} // []; print((isenabled($c->{status}) ? "enabled" : "disabled"), "|", $c->{read_topic} // "", "|", join(",", ref $b ? @$b : split(/\s*,\s*/, $b)), "\n")')
+IFS="|" read -r status topic brokers <<< "$config"
 if [ -z "$status" ] || { [ "$status" = "enabled" ] && [ -z "$topic" ]; }; then
   echo "Unable to read the pfflow configuration, not creating its Kafka topic" >&2
   exit 1
@@ -30,6 +35,30 @@ fi
 
 if [ "$status" != "enabled" ]; then
   echo "pfflow is disabled, not creating its Kafka topic"
+  exit 0
+fi
+
+# is_local_broker HOST:PORT reports whether a pfflow broker is this host's
+# Kafka: its PF listener (port 9095) under one of the names it is known by.
+local_names=" containers-gateway.internal localhost 127.0.0.1 ::1 $(hostname 2>/dev/null) $(hostname -f 2>/dev/null) $(hostname -I 2>/dev/null) ${KAFKA_ADVERTISED_LISTENER_PF:-} "
+is_local_broker() {
+  local host=${1%:*} broker_port=${1##*:}
+  host=${host#[}
+  host=${host%]}
+  [ "$broker_port" = "$port" ] && [[ "$local_names" == *" $host "* ]]
+}
+
+local_broker=
+IFS=, read -ra broker_list <<< "$brokers"
+for b in "${broker_list[@]}"; do
+  if is_local_broker "$b"; then
+    local_broker=$b
+    break
+  fi
+done
+
+if [ -z "$local_broker" ]; then
+  echo "pfflow reads from ${brokers:-no broker}, not from this host's Kafka, not creating its topic here"
   exit 0
 fi
 
@@ -47,7 +76,8 @@ while :; do
   if timeout "$left" docker exec $name bash -c "exec 3<>/dev/tcp/localhost/$port" 2>/dev/null; then
     left=$((deadline - SECONDS))
     if (( left > 0 )); then
-      if out=$(timeout $((left + 5)) docker exec $name timeout "$left" kafka-topics --bootstrap-server localhost:$port --create --if-not-exists --topic "$topic" 2>&1); then
+      limit=$(( left < attempt_timeout ? left : attempt_timeout ))
+      if out=$(timeout $((limit + 5)) docker exec $name timeout "$limit" kafka-topics --bootstrap-server localhost:$port --create --if-not-exists --topic "$topic" 2>&1); then
         echo "Kafka topic $topic is present"
         exit 0
       fi

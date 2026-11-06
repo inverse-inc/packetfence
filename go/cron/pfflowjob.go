@@ -30,8 +30,11 @@ type PfFlowJob struct {
 	Password        string
 	FilterEvents    int
 	fingerprintChan chan []*PfFlows
-	schedule        OnceSchedule
 	readerClientID  string
+	// drainOnStop makes run process the flows it handed over (the shared
+	// flow pipeline, see DrainFlowPipeline) before closing its reader on
+	// shutdown. Only Run sets it: the pipeline cannot be used afterwards.
+	drainOnStop bool
 }
 
 var hostname, _ = os.Hostname()
@@ -86,24 +89,48 @@ func NewPfFlowJob(config map[string]interface{}) JobSetupConfig {
 		UserName:        config["kafka_user"].(string),
 		Password:        config["kafka_pass"].(string),
 		fingerprintChan: fingerbankChan,
-		schedule:        OnceSchedule{},
 	}
 }
 
-type OnceSchedule struct {
-	ran atomic.Bool
+// startSchedule starts a job that runs until pfcron stops: at once, then
+// every startRetryInterval until the job reports it started (markStarted), and
+// never again after that. wrapJob keeps a fire from running while the
+// previous one still runs. A fire can be skipped without the job running
+// (wrapJob: not the processing node, or a previous fire still running); with
+// a schedule that only fired once the job would then never run. robfig/cron
+// stops asking a schedule once it returned the zero time, so the job must not
+// stop before pfcron does (see PfFlowJob.Run).
+type startSchedule struct {
+	first   atomic.Bool
+	started atomic.Bool
 }
 
-func (o *OnceSchedule) Next(n time.Time) time.Time {
-	if o.ran.CompareAndSwap(false, true) {
+const startRetryInterval = time.Minute
+
+func (s *startSchedule) Next(n time.Time) time.Time {
+	if s.started.Load() {
+		return time.Time{}
+	}
+
+	if s.first.CompareAndSwap(false, true) {
 		return n
 	}
 
-	return time.Time{}
+	return n.Add(startRetryInterval)
 }
 
+// markStarted stops the retries: the job runs and only returns when pfcron
+// stops.
+func (s *startSchedule) markStarted() {
+	s.started.Store(true)
+}
+
+// pfflowSchedule is shared by every PfFlowJob: wrapJob builds a new one on
+// every fire, cron keeps the one GetConfiguredJobs built.
+var pfflowSchedule startSchedule
+
 func (j *PfFlowJob) Schedule() cron.Schedule {
-	return &j.schedule
+	return &pfflowSchedule
 }
 
 func (j *PfFlowJob) kafkaDialer() *kafka.Dialer {
@@ -314,6 +341,11 @@ func (j *PfFlowJob) waitForTopic(ctx context.Context, dialer *kafka.Dialer) bool
 			log.LogInfof(ctx, "waiting for Kafka topic %s to be created", j.ReadTopic)
 			waited = true
 		}
+	}
+
+	if len(j.Brokers) == 0 {
+		log.LogErrorf(ctx, "pfflow: no Kafka broker configured (kafka_brokers is empty)")
+		return false
 	}
 
 	for attempt := 0; ; attempt++ {
@@ -545,15 +577,52 @@ func (j *PfFlowJob) commitGroupOffsets(ctx context.Context, client *kafka.Client
 	return err
 }
 
-// Run consumes the read topic until pfcron stops (see Shutdown).
+// restartDelay is how long Run waits before running pfflow again after it
+// stopped on its own.
+const restartDelay = 30 * time.Second
+
+// Run consumes the read topic until pfcron stops (see Shutdown). Its schedule
+// does not fire again once it started (see startSchedule), so it restarts
+// pfflow itself if it stops before that, on a panic for example.
 func (j *PfFlowJob) Run() {
-	j.run(shutdownCtx)
+	ctx := log.LoggerNewContext(shutdownCtx)
+	pfflowSchedule.markStarted()
+	if len(j.Brokers) == 0 {
+		log.LogErrorf(ctx, "pfflow: no Kafka broker configured (kafka_brokers is empty), not consuming; fix the pfflow task and restart pfcron")
+		return
+	}
+
+	j.drainOnStop = true
+	for {
+		func() {
+			defer func() {
+				if r := recover(); r != nil {
+					log.LogErrorf(ctx, "pfflow panic: %v", r)
+				}
+			}()
+
+			j.run(shutdownCtx)
+		}()
+
+		if shutdownCtx.Err() != nil {
+			return
+		}
+
+		log.LogErrorf(ctx, "pfflow stopped unexpectedly, restarting it in %s", restartDelay)
+		if !sleepCtx(shutdownCtx, restartDelay) {
+			return
+		}
+	}
 }
 
-// run consumes the read topic until ctx is done. On return the reader is
-// closed, which commits the pending offsets and leaves the consumer group, so
-// the next consumer gets the partitions without waiting for the session of
-// this one to time out.
+// commitTimeout bounds queueing one offset commit (see run).
+const commitTimeout = 10 * time.Second
+
+// run consumes the read topic until ctx is done. When ctx is done, the flows
+// already handed over are processed first (DrainFlowPipeline), then the reader
+// is closed, which commits the pending offsets and leaves the consumer group,
+// so the next consumer resumes after flows that were processed and gets the
+// partitions without waiting for the session of this one to time out.
 func (j *PfFlowJob) run(ctx context.Context) {
 	// A context carrying a logger: with a bare context every Log*f call (and
 	// the kafka-go Logger/ErrorLogger closures, invoked on every 1s commit)
@@ -577,8 +646,14 @@ func (j *PfFlowJob) run(ctx context.Context) {
 	}
 
 	defer func() {
+		// Offsets of handed over flows are committed every second while they
+		// may still wait in the pipeline, and Close() commits the last ones:
+		// process them before pfcron exits.
+		if j.drainOnStop && ctx.Err() != nil {
+			DrainFlowPipeline(ctx, pipelineDrainTimeout)
+		}
+
 		closeReader()
-		j.schedule.ran.Store(false)
 		log.LogInfof(ctx, "pfflow stopped")
 	}()
 
@@ -663,8 +738,8 @@ func (j *PfFlowJob) run(ctx context.Context) {
 			}
 
 			// Check if it's just a timeout (no messages available) vs a real error.
-			// kafka-go's FetchMessage wraps the error ("fetching message: %w"), so a
-			// plain == comparison never matches — use errors.Is to unwrap.
+			// FetchMessage returns ctx.Err() as is (only ReadMessage wraps it in
+			// "fetching message: %w"); errors.Is matches either way.
 			if errors.Is(err, context.DeadlineExceeded) {
 				// No message for a whole readTimeout: either the topic is idle
 				// or the group offset is stranded past the end of a recreated
@@ -742,15 +817,22 @@ func (j *PfFlowJob) run(ctx context.Context) {
 
 		// Hand the flows over before committing the message: one fetched but
 		// not handed over when pfcron stops is fetched again by the next
-		// consumer instead of being committed by Close().
+		// consumer instead of being committed by Close(). One handed over is
+		// processed before Close() (see the deferred DrainFlowPipeline).
 		if !j.deliver(ctx, m) {
 			return
 		}
 
 		// Not ctx: on shutdown kafka-go could pick ctx.Done() over queueing
 		// the commit and drop it, and the next consumer would read the flow
-		// again. The commit is only queued (CommitInterval), Close() sends it.
-		if err := r.CommitMessages(context.WithoutCancel(ctx), m); err != nil {
+		// again. The commit is only queued (CommitInterval), Close() sends
+		// it. Queueing blocks while kafka-go's commit queue is full (during a
+		// rebalance, for example), hence the timeout: nothing else could
+		// unblock it and pfcron would not stop.
+		cctx, cancelCommit := context.WithTimeout(context.WithoutCancel(ctx), commitTimeout)
+		err = r.CommitMessages(cctx, m)
+		cancelCommit()
+		if err != nil {
 			log.LogWarnf(ctx, "unable to commit %s/%d offset %d: %s", m.Topic, m.Partition, m.Offset, err.Error())
 		}
 
@@ -765,7 +847,8 @@ func (j *PfFlowJob) run(ctx context.Context) {
 
 // deliver hands the flows of m to the aggregator and to the fingerprinting,
 // and reports false if ctx was done first. Both channels are buffered but can
-// fill up when their consumer falls behind; shutdown does not wait for them.
+// fill up when their consumer falls behind; shutdown does not wait for room
+// in them (flows already in them are processed, see run).
 func (j *PfFlowJob) deliver(ctx context.Context, m kafka.Message) bool {
 	pfFlows := &PfFlows{}
 	if err := json.Unmarshal(m.Value, pfFlows); err != nil {
