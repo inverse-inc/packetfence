@@ -585,6 +585,11 @@ func (j *PfFlowJob) run(ctx context.Context) {
 	dialer := j.kafkaDialer()
 	client := j.kafkaClient()
 	idleReads := 0
+	// lastCheckErr is the last error of the assignment check, logged once
+	// rather than at every check: a group shared with a consumer kafka-go's
+	// DescribeGroups cannot decode (e.g. a Kafka 3.x Java client) fails it
+	// for as long as that consumer runs, while consuming keeps working.
+	lastCheckErr := ""
 
 	nextStrandedCheck := time.Now().Add(strandedCheckInterval)
 	var repairBlockedUntil time.Time
@@ -676,8 +681,22 @@ func (j *PfFlowJob) run(ctx context.Context) {
 				if r != nil && idleReads%idleAssignmentChecks == 0 {
 					stuck, err := j.groupHasNoAssignment(ctx, client)
 					if err != nil {
-						log.LogWarnf(ctx, "unable to check consumer group %s assignment: %s", j.GroupID, err.Error())
-					} else if stuck {
+						if err.Error() != lastCheckErr {
+							log.LogWarnf(ctx, "unable to check consumer group %s assignment: %s (logged once until it changes; a stuck reader cannot be detected meanwhile)", j.GroupID, err.Error())
+						} else {
+							log.LogDebugf(ctx, "unable to check consumer group %s assignment: %s", j.GroupID, err.Error())
+						}
+
+						lastCheckErr = err.Error()
+						continue
+					}
+
+					if lastCheckErr != "" {
+						log.LogInfof(ctx, "consumer group %s assignment check works again", j.GroupID)
+						lastCheckErr = ""
+					}
+
+					if stuck {
 						log.LogErrorf(ctx, "consumer group %s has no partition of %s assigned, recreating the reader", j.GroupID, j.ReadTopic)
 						closeReader()
 					}
