@@ -35,6 +35,10 @@ variables:
   PF_PULP_CONTAINER_SYNC_ENABLED: "no"
   PF_PULP_CONTAINER_ALLOW_TAG_UPDATE: "no"
   PF_PACKAGE_ORIGIN: "https://www.packetfence.org"
+  # Publish the PPA to the packaging Pulp instead of rsync to web.inverse.ca (ci/pulp/publish-packages.sh).
+  # Needs masked CI variables PULP_URL/PULP_USERNAME/PULP_PASSWORD (the ci-packages account; no "Expand" on the password).
+  PF_PULP_PUBLISH: "no"
+  PF_PULP_ORIGIN: "https://packages.packetfence.com"
   PF_PPA_IMAGE: "ghcr.io/inverse-inc/packetfence/publish-ppa:${IMAGE_TAG}"
   PIPELINE_TIMEOUT_CLEANUP: 10m
   # sub-budgets of PIPELINE_TIMEOUT_CLEANUP; sum must stay below it
@@ -1231,7 +1235,7 @@ publish_ppa:
     access: developer
     when: always
     expire_in: 7 days
-    paths: [pipeline-lock.json, pulp-publication.json, package-backup-*.json]
+    paths: [pipeline-lock.json, pulp-publication.json, pulp-branches.json, package-backup-*.json]
     reports:
       dotenv: pulp.env
   needs:
@@ -1246,6 +1250,14 @@ publish_ppa:
     - |
       if [ "$PF_PULP_ENABLED" = yes ]; then
         bash ci/pulp/pipeline.sh publish
+      elif [ "$PF_PULP_PUBLISH" = yes ]; then
+        PPA_URL="$PF_PULP_ORIGIN/downloads/PacketFence/gitlab/$CI_PIPELINE_ID" generate-pages
+        bash ci/pulp/publish-packages.sh ppa
+        # Feature branches with publish_ppa=yes also land in debian-branches/X.Y (no test gate).
+        case "${PUBLISH_PPA:-}|$CI_COMMIT_MESSAGE" in
+          yes\|*|*publish_ppa=yes*)
+            if [ "${CONTEXT_BRANCHES:-}" = yes ]; then bash ci/pulp/publish-packages.sh branches; fi ;;
+        esac
       else
         generate-pages
         ./${UPLOAD_DIR}/deploy-artifacts.sh ppa
@@ -1272,6 +1284,7 @@ publish_ppa:
       | gpg --batch --pinentry-mode loopback --import
       gpg --list-keys
 
+      if [ "$PF_PULP_PUBLISH" != yes ]; then
       echo "=== Import SSH deploy key from Psono ==="
       mkdir -p ~/.ssh && chmod 700 ~/.ssh
       python3 addons/packetfence-perl/psono.py \
@@ -1282,6 +1295,7 @@ publish_ppa:
       > ~/.ssh/id_rsa
       chmod 600 ~/.ssh/id_rsa
       echo "SSH deploy key imported successfully"
+      fi
       fi
   rules:
     - !reference [.gated_by_build_artifacts_pkg, rules]
@@ -1302,6 +1316,7 @@ publish_ppa:
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
       variables:
         IMAGE_TAG: $CI_COMMIT_REF_SLUG
+        CONTEXT_BRANCHES: "yes"
     - !reference [.gated_by_publish_ppa, rules]
 
 ########################################
@@ -1657,7 +1672,52 @@ deploy_packages:
           - packetfence-ci-lib
   rules:
     - !reference [.gated_by_deploy_pkg, rules]
+    # With PF_PULP_PUBLISH, Debian packages go to Pulp (publish_ppa / deploy_debian_pulp); tags keep this path.
+    - if: '$PF_PULP_PUBLISH == "yes" && $DEPLOY_TYPE == "deb" && $CI_COMMIT_TAG == null'
+      when: never
     - !reference [.deploy_pkg_rules, rules]
+
+# maintenance/X.Y and devel: after the tests, publish this build's Debian packages to
+# debian/X.Y in the packaging Pulp (X.Y from conf/pf-release); see ci/pulp/publish-packages.sh.
+deploy_debian_pulp:
+  stage: deploy
+  image: $PF_PPA_IMAGE
+  resource_group: pulp-packetfence-pipelines
+  dependencies:
+    - sign_packages
+  environment:
+    name: $DEPLOY_ENV_NAME
+  before_script:
+    - |
+      set -euo pipefail
+      python3 addons/packetfence-perl/psono.py \
+        --api_key_id="$PSONO_API_KEY_ID" \
+        --api_key_secret_key="$PSONO_API_KEY_SECRET_KEY" \
+        --secret_id="$PSONO_GPG_PRIVATE_KEY_SECRET_ID" \
+        --return_value=password_notes \
+      | gpg --batch --pinentry-mode loopback --import
+  script:
+    - generate-pages
+    - bash ci/pulp/publish-packages.sh release
+  artifacts:
+    access: developer
+    when: always
+    expire_in: 7 days
+    paths: [pulp-release.json]
+  tags:
+    - docker
+  rules:
+    - !reference [.gated_by_deploy_pkg, rules]
+    - if: '$PF_PULP_PUBLISH != "yes"'
+      when: never
+    - if: '$CI_COMMIT_REF_NAME == "devel"'
+      variables:
+        DEPLOY_ENV_NAME: pf-devel
+        IMAGE_TAG: latest
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule")'
+      variables:
+        DEPLOY_ENV_NAME: maintenance
+        IMAGE_TAG: $CI_COMMIT_REF_SLUG
 
 # website artifacts
 deploy_website_artifacts:

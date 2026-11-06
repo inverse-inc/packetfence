@@ -7,6 +7,8 @@ Serialize ALL publishers of the configured destination repository.
 """
 import argparse
 import csv
+from datetime import datetime, timezone
+import gzip
 import hashlib
 import json
 import os
@@ -289,13 +291,15 @@ def resource(response, prefix):
     return matches[0]
 
 
-def publish_tree(client, name, pipeline, tree, *, dependencies=False, apply=False):
+def publish_tree(client, name, pipeline, tree, *, dependencies=False, apply=False, require_lock=True):
     if not re.fullmatch(r'[1-9][0-9]*', str(pipeline)):
         raise ValueError('Pipeline ID must be a positive integer')
     prefix = str(pipeline) + ('/dependencies/' if dependencies else '/')
     repo = client.find('repositories/file/file', name)
     dist = client.find('distributions/file/file', name)
-    if (repo.get('pulp_labels', {}).get('akainverse_ci_append_only') != 'true'
+    labels = repo.get('pulp_labels', {})
+    # Restored hosts label managed file snapshots akainverse_download_snapshot; RBAC limits the writer.
+    if (not (labels.get('akainverse_ci_append_only') == 'true' or labels.get('akainverse_download_snapshot') == 'true')
             or repo.get('autopublish') or dist.get('content_guard') or dist.get('repository')
             or not dist.get('publication')
             or dist.get('base_path') != 'files/' + name):
@@ -308,9 +312,10 @@ def publish_tree(client, name, pipeline, tree, *, dependencies=False, apply=Fals
     paths = sorted(tree.rglob('*'))
     if any(p.is_symlink() or not (p.is_file() or p.is_dir()) for p in paths):
         raise ValueError('Repository tree must contain only regular files/directories')
-    required = ('GPG_PUBLIC_KEY', 'pipeline-lock.json')
+    required = ('GPG_PUBLIC_KEY', 'pipeline-lock.json') if require_lock else ('GPG_PUBLIC_KEY',)
     if any(not (tree / path).is_file() for path in required):
-        raise ValueError('Repository tree must include its signing public key and dependency lock')
+        raise ValueError('Repository tree must include its signing public key'
+                         + (' and dependency lock' if require_lock else ''))
     inventory, additions = [], []
     for path in paths:
         if not path.is_file():
@@ -352,6 +357,12 @@ def publish_tree(client, name, pipeline, tree, *, dependencies=False, apply=Fals
     expected.update({f['path']: f['sha256'] for f in inventory})
     if {p: f['sha256'] for p, f in actual.items()} != expected:
         raise RuntimeError('Unexpected repository membership; distribution remains unchanged')
+    publication = switch_publication(client, repo, dist, version)
+    result.update(applied=True, repository_version=version, publication=publication)
+    return result
+
+
+def switch_publication(client, repo, dist, version):
     response = client.wait(client.request('POST', API + 'publications/file/file/',
                                           json={'repository_version': version}))
     publication = resource(response, 'publications/file/file')
@@ -362,8 +373,207 @@ def publish_tree(client, name, pipeline, tree, *, dependencies=False, apply=Fals
             or client.request('GET', repo['pulp_href'])['latest_version_href'] != version):
         raise RuntimeError('Distribution/repository changed; serialize publishers and review')
     client.wait(client.request('PATCH', dist['pulp_href'], json={'publication': publication}))
+    return publication
+
+
+# --- debian/X.Y and debian-branches/X.Y file trees: merge one signed CI build (newest wins) ---
+
+APT_TREE_REPO = re.compile(r'debian(-branches)?-[0-9]+-[0-9]+')
+SIGNED_FILES = ('Release', 'InRelease', 'Release.gpg')
+RELEASE_KEYS = ('Origin', 'Label', 'Suite', 'Codename', 'Architectures', 'Components', 'Description')
+
+
+def parse_stanzas(text):
+    """Deb822 paragraphs as ordered [field, value] lists; continuation lines stay in the value."""
+    stanzas = []
+    for block in re.split(r'\n[ \t]*\n', text.strip()):
+        fields = []
+        for line in block.splitlines():
+            if line[:1] in (' ', '\t') and fields:
+                fields[-1][1] += '\n' + line
+            elif line.strip():
+                name, _, value = line.partition(':')
+                fields.append([name, value.strip()])
+        if fields:
+            stanzas.append(fields)
+    return stanzas
+
+
+def field(stanza, name):
+    return next((value for key, value in stanza if key.lower() == name.lower()), None)
+
+
+def render_stanzas(stanzas):
+    return ''.join('\n'.join(f'{k}: {v}' if v else f'{k}:' for k, v in s) + '\n\n' for s in stanzas)
+
+
+def read_index(directory, name):
+    """A generated Packages/Sources index, plain or gzip."""
+    if (directory / name).is_file():
+        return (directory / name).read_text()
+    if (directory / (name + '.gz')).is_file():
+        return gzip.decompress((directory / (name + '.gz')).read_bytes()).decode()
+    return ''
+
+
+def component_release(fields, component, arch):
+    return (f'Archive: {fields.get("Suite", fields["Codename"])}\nComponent: {component}\nOrigin: {fields.get("Origin", "")}\n'
+            f'Label: {fields.get("Label", "")}\nArchitecture: {arch}\n').encode()
+
+
+def merge_apt_tree(client, name, tree, content_url, *, codename='bookworm', sign=None, work=None, apply=False):
+    """Add one pipeline's packages to a debian(-branches)-X-Y file tree; the newest build of each name wins.
+
+    tree is the generated PPA debian/ directory (dists/<codename>/main, pool/main). The
+    destination keeps the reprepro layout: component <codename>, pool/<codename>/...
+    """
+    if not APT_TREE_REPO.fullmatch(name):
+        raise ValueError('Destination must be a debian-X-Y or debian-branches-X-Y file repository')
+    repo = client.find('repositories/file/file', name)
+    dist = client.find('distributions/file/file', name)
+    if (repo.get('autopublish') or dist.get('content_guard') or dist.get('repository')
+            or not dist.get('publication') or dist.get('base_path') != 'files/' + name):
+        raise ValueError('Destination must be a published public APT file repository')
+    tree, content_url = Path(tree), content_url.rstrip('/')
+    if not content_url.startswith('https://'):
+        raise ValueError('Content URL must be HTTPS')
+    generated = tree / 'dists' / codename / 'main'
+    if not generated.is_dir():
+        raise ValueError(f'Missing generated dists/{codename}/main in the tree')
+    initial = repo['latest_version_href']
+    current = list_files(client, initial)
+    base = f'dists/{codename}'
+
+    def remote(path):
+        return read_public(f'{content_url}/{path}') if path in current else b''
+
+    def remap(path):
+        path = path.rstrip('/')
+        if not path.startswith('pool/main/'):
+            raise ValueError('Generated pool path outside pool/main: ' + path)
+        return safe_path(f'pool/{codename}/' + path[len('pool/main/'):])
+
+    # Header fields come from the live Release so clients keep the same origin/suite pins.
+    live = parse_stanzas(remote(base + '/Release').decode())
+    fields = {k: v for k, v in (live[0] if live else []) if k in RELEASE_KEYS}
+    fields.setdefault('Codename', codename)
+    fields.setdefault('Components', codename)
+    fields.setdefault('Architectures', 'amd64 i386 source')
+    component = fields['Components'].split()[0]
+    if component != codename:
+        raise ValueError('Expected the reprepro component to equal the codename')
+    archs = fields['Architectures'].split()
+
+    uploads = {}  # destination path -> local file
+    new_bin = []
+    for stanza in parse_stanzas(read_index(generated / 'binary-amd64', 'Packages')):
+        original = field(stanza, 'Filename')
+        local = tree / safe_path(original)
+        if not local.is_file() or digest(local) != field(stanza, 'SHA256'):
+            raise ValueError('Generated index does not match its pool file: ' + original)
+        target = remap(original)
+        uploads[target] = local
+        new_bin.append([[k, target if k == 'Filename' else v] for k, v in stanza])
+    if not new_bin:
+        raise ValueError('The generated tree has no binary packages')
+    names = {field(s, 'Package') for s in new_bin}
+
+    regenerated = {}
+    for arch in (a for a in archs if a != 'source'):
+        path = f'{base}/{component}/binary-{arch}/Packages'
+        kept = [s for s in parse_stanzas(remote(path).decode()) if field(s, 'Package') not in names]
+        text = render_stanzas(kept + [s for s in new_bin if field(s, 'Architecture') in (arch, 'all')]).encode()
+        regenerated[path] = text
+        regenerated[path + '.gz'] = gzip.compress(text, mtime=0)
+        regenerated[f'{base}/{component}/binary-{arch}/Release'] = component_release(fields, component, arch)
+
+    if 'source' in archs:
+        new_src = []
+        for stanza in parse_stanzas(read_index(generated / 'source', 'Sources')):
+            directory = field(stanza, 'Directory')
+            target_dir = remap(directory)
+            for line in (field(stanza, 'Checksums-Sha256') or '').splitlines():
+                parts = line.split()
+                if len(parts) != 3:
+                    continue
+                local = tree / safe_path(f'{directory}/{parts[2]}')
+                if not local.is_file() or digest(local) != parts[0]:
+                    raise ValueError('Generated Sources does not match its pool file: ' + parts[2])
+                uploads[f'{target_dir}/{parts[2]}'] = local
+            new_src.append([[k, target_dir if k == 'Directory' else v] for k, v in stanza])
+        path = f'{base}/{component}/source/Sources.gz'
+        replaced = {field(s, 'Package') for s in new_src}
+        old_text = gzip.decompress(remote(path)).decode() if path in current else ''
+        kept = [s for s in parse_stanzas(old_text) if field(s, 'Package') not in replaced]
+        regenerated[path] = gzip.compress(render_stanzas(kept + new_src).encode(), mtime=0)
+        regenerated[f'{base}/{component}/source/Release'] = component_release(fields, component, 'source')
+
+    # Any other live index under dists/ (e.g. debian-installer) is carried over unchanged.
+    indexed = dict(regenerated)
+    for path in current:
+        if path.startswith(base + '/') and path not in indexed and path[len(base) + 1:] not in SIGNED_FILES:
+            indexed[path] = remote(path)
+
+    lines = [f'{k}: {fields[k]}' for k in ('Origin', 'Label', 'Suite', 'Codename') if k in fields]
+    lines.append('Date: ' + datetime.now(timezone.utc).strftime('%a, %d %b %Y %H:%M:%S UTC'))
+    lines += [f'{k}: {fields[k]}' for k in ('Architectures', 'Components', 'Description') if k in fields]
+    for title, algorithm in (('MD5Sum', 'md5'), ('SHA1', 'sha1'), ('SHA256', 'sha256')):
+        lines.append(title + ':')
+        lines += [f' {hashlib.new(algorithm, indexed[p]).hexdigest()} {len(indexed[p]):>16} {p[len(base) + 1:]}'
+                  for p in sorted(indexed)]
+    regenerated[base + '/Release'] = ('\n'.join(lines) + '\n').encode()
+
+    conflicts = [p for p, f in uploads.items() if p in current and current[p]['sha256'] != digest(f)]
+    if conflicts:
+        raise ValueError('Existing pool path has a different hash: ' + conflicts[0])
+    result = {'repository': name, 'packages': sorted(names), 'previous_publication': dist.get('publication'),
+              'new_pool_files': sorted(p for p in uploads if p not in current),
+              'indexes': sorted(regenerated), 'applied': False}
+    if not apply:
+        return result
+    if sign is None or work is None:
+        raise ValueError('Applying needs a signer and a work directory')
+
+    work = Path(work)
+    for path, data in regenerated.items():
+        (work / path).parent.mkdir(parents=True, exist_ok=True)
+        (work / path).write_bytes(data)
+    sign(work / base / 'Release', work / base / 'InRelease', work / base / 'Release.gpg')
+    files = {p: f for p, f in uploads.items() if p not in current}
+    files.update({p: work / p for p in [*regenerated, base + '/InRelease', base + '/Release.gpg']})
+    expected = {p: f['sha256'] for p, f in current.items()}
+    version = initial
+    # Pool files first, signed metadata last; clients keep the old publication until the switch.
+    for path in sorted(files, key=lambda p: (p.startswith('dists/'), p[len(base) + 1:] in SIGNED_FILES, p)):
+        sha = digest(files[path])
+        expected[path] = sha
+        if path in current and current[path]['sha256'] == sha:
+            continue
+        if client.request('GET', repo['pulp_href'])['latest_version_href'] != version:
+            raise RuntimeError('Repository changed during upload; serialize publishers and review')
+        uploaded = client.upload(API + 'content/file/files/', files[path],
+                                 {'relative_path': path, 'sha256': sha, 'repository': repo['pulp_href']})
+        obj = client.request('GET', resource(uploaded, 'content/file/files'))
+        if obj['relative_path'] != path or obj['sha256'] != sha:
+            raise RuntimeError('Uploaded content does not match the local file')
+        version = client.request('GET', repo['pulp_href'])['latest_version_href']
+    if {p: f['sha256'] for p, f in list_files(client, version).items()} != expected:
+        raise RuntimeError('Unexpected repository membership; distribution remains unchanged')
+    publication = switch_publication(client, repo, dist, version)
     result.update(applied=True, repository_version=version, publication=publication)
     return result
+
+
+def gpg_signer(fingerprint):
+    if not re.fullmatch(r'[A-F0-9]{40}', fingerprint or ''):
+        raise ValueError('Set GPG_KEY_FINGERPRINT to the exact 40-hex signing fingerprint')
+
+    def sign(release, inrelease, detached):
+        base = ['gpg', '--batch', '--yes', '--pinentry-mode', 'loopback', '--local-user', fingerprint,
+                '--digest-algo', 'SHA512']
+        subprocess.run(base + ['--clearsign', '--output', str(inrelease), str(release)], check=True)
+        subprocess.run(base + ['--armor', '--detach-sign', '--output', str(detached), str(release)], check=True)
+    return sign
 
 
 def main():
@@ -384,8 +594,18 @@ def main():
     publisher.add_argument('--pipeline', required=True)
     publisher.add_argument('--tree', type=Path, required=True)
     publisher.add_argument('--dependencies', action='store_true')
+    publisher.add_argument('--no-lock', action='store_true',
+                           help='Publish a PacketFence-only tree without a dependency lock')
     publisher.add_argument('--apply', action='store_true')
     publisher.add_argument('--output', type=Path, required=True)
+    branch = sub.add_parser('merge-apt', help='Merge a generated debian/ tree into debian(-branches)-X-Y')
+    branch.add_argument('--repository', required=True)
+    branch.add_argument('--tree', type=Path, required=True, help='Generated PPA debian/ directory')
+    branch.add_argument('--content-url', required=True, help='Public HTTPS URL of the destination tree')
+    branch.add_argument('--codename', default='bookworm')
+    branch.add_argument('--work', type=Path, required=True, help='Empty directory for signed metadata')
+    branch.add_argument('--apply', action='store_true')
+    branch.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     try:
         if args.command == 'fetch':
@@ -396,9 +616,14 @@ def main():
                 result = resolve(client, json.loads(args.policy.read_text()), args.release, args.base,
                                  os.environ['PULP_CONTENT_ORIGIN'],
                                  json.loads(args.overrides.read_text()) if args.overrides else None)
+            elif args.command == 'merge-apt':
+                sign = gpg_signer(os.environ.get('GPG_KEY_FINGERPRINT')) if args.apply else None
+                result = merge_apt_tree(client, args.repository, args.tree, args.content_url,
+                                      codename=args.codename, sign=sign, work=args.work, apply=args.apply)
             else:
                 result = publish_tree(client, args.repository, args.pipeline, args.tree,
-                                      dependencies=args.dependencies, apply=args.apply)
+                                      dependencies=args.dependencies, apply=args.apply,
+                                      require_lock=not args.no_lock)
             write_json(args.output, result)
     except (KeyError, ValueError, RuntimeError, OSError, subprocess.CalledProcessError, requests.RequestException) as exc:
         print(f'Pipeline repository failed: {exc}', file=sys.stderr)
