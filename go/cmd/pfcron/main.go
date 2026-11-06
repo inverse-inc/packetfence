@@ -171,18 +171,20 @@ func main() {
 			return
 		}
 
-		// A job that runs until pfcron stops (pfflow) returns on the first
-		// signal and cleans up (pfflow processes what it read, commits and
-		// leaves its consumer group). The other jobs ignore it; a second
-		// signal kills the process as before.
-		sig := make(chan os.Signal, 1)
-		signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
-		go func() {
-			<-sig
-			signal.Stop(sig)
-			fmt.Fprintf(os.Stderr, "stopping %s (send the signal again to force)\n", jobName)
-			maint.Shutdown()
-		}()
+		// pfflow runs until pfcron stops: on the first signal it returns and
+		// cleans up (processes what it read, commits and leaves its consumer
+		// group); a second signal kills it. The other jobs ignore Shutdown,
+		// so they keep the default signal handling.
+		if jobName == "pfflow" {
+			sig := make(chan os.Signal, 1)
+			signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
+			go func() {
+				<-sig
+				signal.Stop(sig)
+				fmt.Fprintf(os.Stderr, "stopping %s (send the signal again to force)\n", jobName)
+				maint.Shutdown()
+			}()
+		}
 
 		code = runJobNow(jobName, additionalArgs)
 		if code == 0 {

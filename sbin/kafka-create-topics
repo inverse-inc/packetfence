@@ -39,13 +39,24 @@ if [ "$status" != "enabled" ]; then
 fi
 
 # is_local_broker HOST:PORT reports whether a pfflow broker is this host's
-# Kafka: its PF listener (port 9095) under one of the names it is known by.
-local_names=" containers-gateway.internal localhost 127.0.0.1 ::1 $(hostname 2>/dev/null) $(hostname -f 2>/dev/null) $(hostname -I 2>/dev/null) ${KAFKA_ADVERTISED_LISTENER_PF:-} "
+# Kafka: its PF listener (port 9095) under one of the names it is known by,
+# or under a name resolving to one of this host's addresses (an alias such
+# as KAFKA_ADVERTISED_LISTENER_PF, which is not set in this unit).
+local_names=" containers-gateway.internal localhost $(hostname 2>/dev/null) $(hostname -f 2>/dev/null) ${KAFKA_ADVERTISED_LISTENER_PF:-} "
+local_addrs=" 127.0.0.1 ::1 $(hostname -I 2>/dev/null) "
+local_names=${local_names,,}
 is_local_broker() {
-  local host=${1%:*} broker_port=${1##*:}
+  local host=${1%:*} broker_port=${1##*:} addr
   host=${host#[}
   host=${host%]}
-  [ "$broker_port" = "$port" ] && [[ "$local_names" == *" $host "* ]]
+  host=${host,,}
+  [ -n "$host" ] && [ "$broker_port" = "$port" ] || return 1
+  [[ "$local_names$local_addrs" == *" $host "* ]] && return 0
+  for addr in $(getent ahosts "$host" 2>/dev/null | awk '{print $1}' | sort -u); do
+    [[ "$local_addrs" == *" $addr "* ]] && return 0
+  done
+
+  return 1
 }
 
 local_broker=

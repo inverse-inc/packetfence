@@ -18,13 +18,6 @@ var fingerPrintingJobOnce sync.Once
 
 var fingerprintChan chan []*PfFlows
 
-// fingerprintingJob is the job SetupFingerPrintingJob started, if any.
-var fingerprintingJob *FingerPrintingJob
-
-func pipelineFingerprinting() *FingerPrintingJob {
-	return fingerprintingJob
-}
-
 type FingerPrintingJob struct {
 	fingerprintChan <-chan []*PfFlows
 	stopChan        chan struct{}
@@ -198,7 +191,9 @@ func SetupFingerPrintingJob(config map[string]interface{}) chan []*PfFlows {
 		log.LogDebugf(options.Ctx, "Fingerprinting is enabled, starting fingerprint job")
 		fingerprintChan = options.FingerprintChan
 		fb := NewFingerPrintingJob(options)
+		pipelineMu.Lock()
 		fingerprintingJob = fb
+		pipelineMu.Unlock()
 		go fb.Run()
 	})
 

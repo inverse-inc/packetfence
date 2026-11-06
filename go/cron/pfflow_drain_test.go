@@ -108,18 +108,15 @@ func TestKafkaSubmitterStopsWhenChannelClosed(t *testing.T) {
 // drains, with a fresh drainOnce, and restores the previous state afterwards.
 func withDrainPipeline(t *testing.T, aggregator *Aggregator) {
 	t.Helper()
-	aggregatorMu.Lock()
-	prevAggregator, prevSubmitter := pipelineAggregator, pipelineSubmitter
-	pipelineAggregator, pipelineSubmitter = aggregator, nil
-	aggregatorMu.Unlock()
-	prevFingerprinting := fingerprintingJob
-	fingerprintingJob = nil
+	pipelineMu.Lock()
+	prevAggregator, prevSubmitter, prevFingerprinting := pipelineAggregator, pipelineSubmitter, fingerprintingJob
+	pipelineAggregator, pipelineSubmitter, fingerprintingJob = aggregator, nil, nil
+	pipelineMu.Unlock()
 	drainOnce = sync.Once{}
 	t.Cleanup(func() {
-		aggregatorMu.Lock()
-		pipelineAggregator, pipelineSubmitter = prevAggregator, prevSubmitter
-		aggregatorMu.Unlock()
-		fingerprintingJob = prevFingerprinting
+		pipelineMu.Lock()
+		pipelineAggregator, pipelineSubmitter, fingerprintingJob = prevAggregator, prevSubmitter, prevFingerprinting
+		pipelineMu.Unlock()
 		drainOnce = sync.Once{}
 	})
 }
@@ -193,5 +190,38 @@ func TestPfFlowRunWithoutBrokers(t *testing.T) {
 	case <-done:
 	case <-time.After(5 * time.Second):
 		t.Fatal("Run with an empty kafka_brokers did not return")
+	}
+}
+
+func TestDrainFlowPipelineFingerprinting(t *testing.T) {
+	db, err := getDb()
+	if err != nil {
+		t.Skipf("no database: %s", err)
+	}
+
+	a, _ := newDrainTestAggregator(t)
+	withDrainPipeline(t, a)
+
+	prevChan := fingerprintChan
+	t.Cleanup(func() { fingerprintChan = prevChan })
+	options := FingerPrintingJobOptions{
+		FingerprintChan: make(chan []*PfFlows, 10),
+		StopChan:        make(chan struct{}),
+		CacheExpiration: time.Minute,
+		Ctx:             context.Background(),
+		DB:              db,
+	}
+	fingerprintChan = options.FingerprintChan
+	fb := NewFingerPrintingJob(&options)
+	fingerprintingJob = fb
+	go fb.Run()
+	fingerprintChan <- drainTestFlows()
+
+	if !DrainFlowPipeline(context.Background(), 10*time.Second) {
+		t.Fatal("DrainFlowPipeline timed out")
+	}
+
+	if n := len(options.FingerprintChan); n != 0 {
+		t.Fatalf("%d batches left in fingerprintChan after the drain", n)
 	}
 }

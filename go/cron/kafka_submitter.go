@@ -19,8 +19,12 @@ var (
 	aggregatorMu      sync.Mutex
 	aggregatorStarted bool
 	// The flow pipeline SetupKafka started, drained by DrainFlowPipeline.
+	// pipelineMu, not aggregatorMu: SetupKafka holds aggregatorMu while it
+	// retries the database forever, and the drain must not wait for that.
+	pipelineMu         sync.Mutex
 	pipelineAggregator *Aggregator
 	pipelineSubmitter  *KafkaSubmiter
+	fingerprintingJob  *FingerPrintingJob
 )
 
 type KafkaSubmiterOptions struct {
@@ -236,7 +240,9 @@ func SetupKafka(config map[string]interface{}) {
 	}
 
 	go submitter.Run()
+	pipelineMu.Lock()
 	pipelineSubmitter = submitter
+	pipelineMu.Unlock()
 
 	aggregator := NewAggregator(
 		&AggregatorOptions{
@@ -247,7 +253,9 @@ func SetupKafka(config map[string]interface{}) {
 		},
 	)
 	go aggregator.handleEvents()
+	pipelineMu.Lock()
 	pipelineAggregator = aggregator
+	pipelineMu.Unlock()
 
 	// Mark as successfully started only after everything is set up
 	aggregatorStarted = true
@@ -271,10 +279,9 @@ var drainOnce sync.Once
 func DrainFlowPipeline(ctx context.Context, timeout time.Duration) bool {
 	drained := true
 	drainOnce.Do(func() {
-		aggregatorMu.Lock()
-		aggregator, submitter := pipelineAggregator, pipelineSubmitter
-		aggregatorMu.Unlock()
-		fingerprinting := pipelineFingerprinting()
+		pipelineMu.Lock()
+		aggregator, submitter, fingerprinting := pipelineAggregator, pipelineSubmitter, fingerprintingJob
+		pipelineMu.Unlock()
 
 		if aggregator == nil && submitter == nil && fingerprinting == nil {
 			return
@@ -313,7 +320,7 @@ func DrainFlowPipeline(ctx context.Context, timeout time.Duration) bool {
 			log.LogInfof(ctx, "pfflow: all flows read were processed")
 		case <-time.After(timeout):
 			drained = false
-			log.LogWarnf(ctx, "pfflow: flows read were not all processed within %s, the remaining ones are lost", timeout)
+			log.LogWarnf(ctx, "pfflow: flows read were not all processed within %s, the ones still in the pipeline are lost (their offsets are committed)", timeout)
 		}
 	})
 
