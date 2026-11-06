@@ -1,101 +1,221 @@
-#!/bin/bash
+#!/usr/bin/perl
 
-# Create the Kafka topic pfflow consumes, once the broker answers.
-#
-# pfflow must not join its consumer group before its read_topic exists: Kafka
-# then gives it no partition and, with no other member in the group, never
-# rebalances (INV-948). pfflow waits for the topic itself; creating it here
-# lets it start consuming as soon as Kafka is up instead of after the first
-# exported flow auto-creates the topic. The topic gets the broker defaults
-# for the partition count and replication factor, as auto-creation would.
-# Nothing is created while the pfflow task is disabled, or when none of its
-# kafka_brokers is this host's Kafka (pfflow then reads from another cluster,
-# where a topic created here would not help).
-#
-# Run as ExecStartPost of packetfence-kafka.service. The whole run, pfconfig
-# lookup included, stays within KAFKA_CREATE_TOPICS_TIMEOUT seconds (plus a
-# few seconds if docker itself hangs) so the unit's start timeout, which also
-# covers its ExecStartPre steps, is not reached. Each kafka-topics attempt is
-# capped at KAFKA_CREATE_TOPICS_ATTEMPT_TIMEOUT seconds, so an AdminClient stuck
-# on a broker that is not ready yet fails and is retried.
+=head1 NAME
 
-name=kafka
-port=9095
-attempt_timeout=${KAFKA_CREATE_TOPICS_ATTEMPT_TIMEOUT:-15}
-budget=${KAFKA_CREATE_TOPICS_TIMEOUT:-60}
-deadline=$((SECONDS + budget))
+kafka-create-topics - create the Kafka topic pfflow consumes, once the broker answers
 
-config=$(timeout "$budget" /usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::config::pfcron=%ConfigCron' '-Mpf::util=isenabled' \
-  -e 'my $c = $ConfigCron{pfflow} or die "no pfflow task in the pfcron configuration\n"; my $b = $c->{kafka_brokers} // []; print((isenabled($c->{status}) ? "enabled" : "disabled"), "|", $c->{read_topic} // "", "|", join(",", ref $b ? @$b : split(/\s*,\s*/, $b)), "\n")')
-IFS="|" read -r status topic brokers <<< "$config"
-if [ -z "$status" ] || { [ "$status" = "enabled" ] && [ -z "$topic" ]; }; then
-  echo "Unable to read the pfflow configuration, not creating its Kafka topic" >&2
-  exit 1
-fi
+=head1 DESCRIPTION
 
-if [ "$status" != "enabled" ]; then
-  echo "pfflow is disabled, not creating its Kafka topic"
-  exit 0
-fi
+pfflow must not join its consumer group before its read_topic exists: Kafka
+then gives it no partition and, with no other member in the group, never
+rebalances (INV-948). pfflow waits for the topic itself; creating it here lets
+it start consuming as soon as Kafka is up instead of after the first exported
+flow auto-creates the topic. The topic gets the broker defaults for the
+partition count and replication factor, as auto-creation would. Nothing is
+created while the pfflow task is disabled, or when none of its kafka_brokers is
+this host's Kafka (pfflow then reads from another cluster, where a topic
+created here would not help).
 
-# is_local_broker HOST:PORT reports whether a pfflow broker is this host's
-# Kafka: its PF listener (port 9095) under one of the names it is known by,
-# or under a name resolving to one of this host's addresses (an alias such
-# as KAFKA_ADVERTISED_LISTENER_PF, which is not set in this unit).
-local_names=" containers-gateway.internal localhost $(hostname 2>/dev/null) $(hostname -f 2>/dev/null) ${KAFKA_ADVERTISED_LISTENER_PF:-} "
-local_addrs=" 127.0.0.1 ::1 $(hostname -I 2>/dev/null) "
-local_names=${local_names,,}
-is_local_broker() {
-  local host=${1%:*} broker_port=${1##*:} addr
-  host=${host#[}
-  host=${host%]}
-  host=${host,,}
-  [ -n "$host" ] && [ "$broker_port" = "$port" ] || return 1
-  [[ "$local_names$local_addrs" == *" $host "* ]] && return 0
-  for addr in $(getent ahosts "$host" 2>/dev/null | awk '{print $1}' | sort -u); do
-    [[ "$local_addrs" == *" $addr "* ]] && return 0
-  done
+Run as ExecStartPost of packetfence-kafka.service. The whole run, pfconfig
+lookup included, stays within KAFKA_CREATE_TOPICS_TIMEOUT seconds (plus a few
+seconds if docker itself hangs) so the unit's start timeout, which also covers
+its ExecStartPre steps, is not reached. Each kafka-topics attempt is capped at
+KAFKA_CREATE_TOPICS_ATTEMPT_TIMEOUT seconds, so an AdminClient stuck on a
+broker that is not ready yet fails and is retried.
 
-  return 1
+=cut
+
+use strict;
+use warnings;
+
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
+
+use Socket qw(getaddrinfo getnameinfo NI_NUMERICHOST NIx_NOSERV SOCK_STREAM);
+use Sys::Hostname qw(hostname);
+
+my $container       = 'kafka';
+my $port            = 9095;
+my $attempt_timeout = $ENV{KAFKA_CREATE_TOPICS_ATTEMPT_TIMEOUT} || 15;
+my $budget          = $ENV{KAFKA_CREATE_TOPICS_TIMEOUT} || 60;
+my $deadline        = time() + $budget;
+
+# This host's names and addresses, filled on the first is_local_broker call.
+my (%local_names, %local_addrs);
+
+$| = 1;
+
+my ($enabled, $topic, @brokers) = read_pfflow_config();
+if (!$enabled) {
+    print "pfflow is disabled, not creating its Kafka topic\n";
+    exit 0;
 }
 
-local_broker=
-IFS=, read -ra broker_list <<< "$brokers"
-for b in "${broker_list[@]}"; do
-  if is_local_broker "$b"; then
-    local_broker=$b
-    break
-  fi
-done
+if (!grep { is_local_broker($_) } @brokers) {
+    my $list = @brokers ? join(',', @brokers) : 'no broker';
+    print "pfflow reads from $list, not from this host's Kafka, not creating its topic here\n";
+    exit 0;
+}
 
-if [ -z "$local_broker" ]; then
-  echo "pfflow reads from ${brokers:-no broker}, not from this host's Kafka, not creating its topic here"
-  exit 0
-fi
+my $last_error = "broker not listening on port $port";
+while (1) {
+    my $left = $deadline - time();
+    if ($left <= 0) {
+        print STDERR "Unable to create Kafka topic $topic within ${budget}s ($last_error), pfflow will wait for it\n";
+        exit 1;
+    }
 
-last_error="broker not listening on port $port"
-while :; do
-  left=$((deadline - SECONDS))
-  if (( left <= 0 )); then
-    echo "Unable to create Kafka topic $topic within ${budget}s ($last_error), pfflow will wait for it" >&2
-    exit 1
-  fi
+    # Start the kafka-topics JVM only once the broker listens, and bound it
+    # inside the container: a timeout on the docker client alone would leave
+    # the JVM running next to a broker that is still starting.
+    my ($listening) = run_cmd('timeout', $left, 'docker', 'exec', $container, 'bash', '-c', "exec 3<>/dev/tcp/localhost/$port");
+    if ($listening) {
+        $left = $deadline - time();
+        if ($left > 0) {
+            my $limit = $left < $attempt_timeout ? $left : $attempt_timeout;
+            my ($ok, $out) = run_cmd(
+                'timeout', $limit + 5, 'docker', 'exec', $container, 'timeout', $limit,
+                'kafka-topics', '--bootstrap-server', "localhost:$port", '--create', '--if-not-exists', '--topic', $topic,
+            );
+            if ($ok) {
+                print "Kafka topic $topic is present\n";
+                exit 0;
+            }
 
-  # Start the kafka-topics JVM only once the broker listens, and bound it
-  # inside the container: a timeout on the docker client alone would leave
-  # the JVM running next to a broker that is still starting.
-  if timeout "$left" docker exec $name bash -c "exec 3<>/dev/tcp/localhost/$port" 2>/dev/null; then
-    left=$((deadline - SECONDS))
-    if (( left > 0 )); then
-      limit=$(( left < attempt_timeout ? left : attempt_timeout ))
-      if out=$(timeout $((limit + 5)) docker exec $name timeout "$limit" kafka-topics --bootstrap-server localhost:$port --create --if-not-exists --topic "$topic" 2>&1); then
-        echo "Kafka topic $topic is present"
-        exit 0
-      fi
+            my @lines = grep { /\S/ } split /\n/, $out;
+            $last_error = @lines ? $lines[-1] : "kafka-topics exited with status " . ($? >> 8);
+        }
+    }
 
-      last_error=${out##*$'\n'}
-    fi
-  fi
+    sleep 2;
+}
 
-  sleep 2
-done
+=head2 read_pfflow_config
+
+Returns whether the pfflow task is enabled, its read_topic and its
+kafka_brokers, within the time budget. Exits 1 if pfconfig does not answer or
+the configuration is unusable.
+
+=cut
+
+sub read_pfflow_config {
+    my @config = eval {
+        local $SIG{ALRM} = sub { die "pfconfig did not answer within ${budget}s\n" };
+        alarm $budget;
+        require pf::config::pfcron;
+        require pf::util;
+        no warnings 'once';
+        my $c = $pf::config::pfcron::ConfigCron{pfflow}
+          or die "no pfflow task in the pfcron configuration\n";
+        my $b = $c->{kafka_brokers} // [];
+        my @list = ref $b ? @$b : split /\s*,\s*/, $b;
+        alarm 0;
+        (pf::util::isenabled($c->{status}) ? 1 : 0, $c->{read_topic} // '', grep { length } @list);
+    };
+    alarm 0;
+    if (!@config || ($config[0] && $config[1] eq '')) {
+        my $why = $@ || "no read_topic\n";
+        print STDERR "Unable to read the pfflow configuration, not creating its Kafka topic: $why";
+        exit 1;
+    }
+
+    return @config;
+}
+
+=head2 is_local_broker
+
+Reports whether a pfflow broker (HOST:PORT) is this host's Kafka: its PF
+listener (port 9095) under one of the names it is known by, or under a name
+resolving to one of this host's addresses (an alias such as the
+KAFKA_ADVERTISED_LISTENER_PF value, which is not set in this unit).
+
+=cut
+
+sub is_local_broker {
+    my ($broker) = @_;
+    my ($host, $broker_port) = $broker =~ /^\[?(.*?)\]?:(\d+)$/ or return 0;
+    $host = lc $host;
+    return 0 if $host eq '' || $broker_port != $port;
+
+    if (!%local_names) {
+        %local_names = map { lc($_) => 1 } grep { defined && length } (
+            'containers-gateway.internal', 'localhost', hostname(),
+            command_output('hostname', '-f'), $ENV{KAFKA_ADVERTISED_LISTENER_PF},
+        );
+        %local_addrs = map { $_ => 1 } ('127.0.0.1', '::1', split ' ', command_output('hostname', '-I'));
+    }
+
+    return 1 if $local_names{$host} || $local_addrs{$host};
+
+    my ($err, @res) = getaddrinfo($host, undef, { socktype => SOCK_STREAM });
+    return 0 if $err;
+    for my $ai (@res) {
+        my ($nerr, $addr) = getnameinfo($ai->{addr}, NI_NUMERICHOST, NIx_NOSERV);
+        return 1 if !$nerr && $local_addrs{$addr};
+    }
+
+    return 0;
+}
+
+=head2 run_cmd
+
+Runs a command with stdout and stderr captured together. Returns whether it
+exited with status 0 and its output.
+
+=cut
+
+sub run_cmd {
+    my @cmd = @_;
+    my $pid = open(my $fh, '-|');
+    if (!defined $pid) {
+        return (0, "cannot fork: $!");
+    }
+
+    if ($pid == 0) {
+        open(STDERR, '>&', \*STDOUT);
+        exec { $cmd[0] } @cmd or do { print "cannot run $cmd[0]: $!\n"; exit 127 };
+    }
+
+    my $out = do { local $/; <$fh> } // '';
+    close $fh;
+    return ($? == 0, $out);
+}
+
+=head2 command_output
+
+Returns the trimmed output of a command, or an empty string if it failed.
+
+=cut
+
+sub command_output {
+    my ($ok, $out) = run_cmd(@_);
+    return '' if !$ok;
+    $out =~ s/^\s+|\s+$//g;
+    return $out;
+}
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2026 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
