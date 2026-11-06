@@ -914,7 +914,11 @@ radiusd_related:
   extends:
     - .build_img_container_job
   stage: build_images_radiusd_related
-  needs: ["radiusd"]
+  # pfconnector-remote compiles in pfbuild-debian-bookworm, which ci_related builds when it runs.
+  needs:
+    - radiusd
+    - job: ci_related
+      optional: true
   variables:
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   parallel:
