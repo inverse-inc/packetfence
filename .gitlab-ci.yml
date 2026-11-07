@@ -1247,12 +1247,8 @@ publish_ppa:
         bash ci/pulp/pipeline.sh publish
       elif [ "$PF_PULP_PUBLISH" = yes ]; then
         PAGES_HTML=no generate-pages
+        # Only gitlab/<pipeline> here; branch trees are published after the tests (deploy_branches_pulp).
         bash ci/pulp/publish-packages.sh ppa
-        # Feature branches with publish_ppa=yes also land in debian-branches/X.Y (no test gate).
-        case "${PUBLISH_PPA:-}|$CI_COMMIT_MESSAGE" in
-          yes\|*|*publish_ppa=yes*)
-            if [ "${CONTEXT_BRANCHES:-}" = yes ]; then bash ci/pulp/publish-packages.sh branches; fi ;;
-        esac
       else
         generate-pages
         ./${UPLOAD_DIR}/deploy-artifacts.sh ppa
@@ -1311,7 +1307,6 @@ publish_ppa:
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
       variables:
         IMAGE_TAG: $CI_COMMIT_REF_SLUG
-        CONTEXT_BRANCHES: "yes"
     - !reference [.gated_by_publish_ppa, rules]
 
 ########################################
@@ -1667,8 +1662,11 @@ deploy_packages:
           - packetfence-ci-lib
   rules:
     - !reference [.gated_by_deploy_pkg, rules]
-    # With PF_PULP_PUBLISH, Debian packages go to Pulp (publish_ppa / deploy_debian_pulp); tags keep this path.
+    # With PF_PULP_PUBLISH, Debian packages go to Pulp (deploy_debian_pulp / deploy_branches_pulp); tags keep this path.
     - if: '$PF_PULP_PUBLISH == "yes" && $DEPLOY_TYPE == "deb" && $CI_COMMIT_TAG == null'
+      when: never
+    # Feature-branch RPMs go to Pulp's RHEL8/branches/X.Y (deploy_branches_pulp).
+    - if: '$PF_PULP_PUBLISH == "yes" && $DEPLOY_TYPE == "rpm" && $CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null'
       when: never
     - !reference [.deploy_pkg_rules, rules]
 
@@ -1712,6 +1710,44 @@ deploy_debian_pulp:
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule")'
       variables:
         DEPLOY_ENV_NAME: maintenance
+        IMAGE_TAG: $CI_COMMIT_REF_SLUG
+
+# Feature branches started from the web UI/API with publish_ppa=yes: after the tests, merge
+# this build into debian/branches/X.Y and RHEL8/branches/X.Y; see ci/pulp/publish-packages.sh.
+deploy_branches_pulp:
+  stage: deploy
+  image: $PF_PPA_IMAGE
+  resource_group: pulp-packetfence-pipelines
+  dependencies:
+    - sign_packages
+  environment:
+    name: $DEPLOY_ENV_NAME
+  before_script:
+    - |
+      set -euo pipefail
+      python3 addons/packetfence-perl/psono.py \
+        --api_key_id="$PSONO_API_KEY_ID" \
+        --api_key_secret_key="$PSONO_API_KEY_SECRET_KEY" \
+        --secret_id="$PSONO_GPG_PRIVATE_KEY_SECRET_ID" \
+        --return_value=password_notes \
+      | gpg --batch --pinentry-mode loopback --import
+  script:
+    - PAGES_HTML=no generate-pages
+    - bash ci/pulp/publish-packages.sh branches
+  artifacts:
+    access: developer
+    when: always
+    expire_in: 7 days
+    paths: [pulp-branches-deb.json, pulp-branches-rpm.json]
+  tags:
+    - docker
+  rules:
+    - !reference [.gated_by_deploy_pkg, rules]
+    - if: '$PF_PULP_PUBLISH != "yes"'
+      when: never
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ($PUBLISH_PPA == "yes" || $CI_COMMIT_MESSAGE =~ /publish_ppa=yes/)'
+      variables:
+        DEPLOY_ENV_NAME: pf-branches
         IMAGE_TAG: $CI_COMMIT_REF_SLUG
 
 # website artifacts
