@@ -182,7 +182,7 @@ const setup = (props, context) => {
       const { meta: { can = () => false } = {} } = route
       if (can.constructor === Function)
         return can()
-      const [ verb, action ] = can.spit(' ')
+      const [ verb, action ] = can.split(' ')
       return $can(verb, action)
     }
     return false
