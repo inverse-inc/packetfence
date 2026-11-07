@@ -8,5 +8,5 @@ packetfence_install__centos:
 packetfence_install__deb:
   repos:
     - 'debian/{{ pf_minor_release }}'
-    - 'debian-branches/{{ pf_minor_release }}'
+    - 'debian/branches/{{ pf_minor_release }}'
 

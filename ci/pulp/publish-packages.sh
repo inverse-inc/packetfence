@@ -1,8 +1,9 @@
 #!/bin/bash
 # Publish CI packages to the packaging Pulp through its API (PF_PULP_PUBLISH=yes).
-#   ppa       public/        -> gitlab/<pipeline>/      every pipeline, for the CI tests (pruned after 3 days)
-#   branches  public/debian  -> debian-branches/<X.Y>/  feature branches with publish_ppa=yes
-#   release   public/debian  -> debian/<X.Y>/           maintenance/X.Y and devel, after the tests
+#   ppa       public/          -> gitlab/<pipeline>/           every pipeline, for the CI tests (pruned after 3 days)
+#   branches  public/debian    -> debian/branches/<X.Y>/       feature branches with publish_ppa=yes, after the tests
+#             public/centos/8  -> RHEL8/branches/<X.Y>/x86_64/
+#   release   public/debian    -> debian/<X.Y>/                maintenance/X.Y and devel, after the tests
 # X.Y comes from conf/pf-release. File trees are merged (newest build of each package wins) and
 # re-signed here; a native Pulp APT repo (e.g. 15.2) gets the .debs and signs its own index.
 # Secret values must never be traced.
@@ -31,7 +32,22 @@ release=$(sed -nE 's/^PacketFence ([0-9]+\.[0-9]+)\.[0-9]+.*$/\1/p' conf/pf-rele
 [[ -n "$release" ]] || { echo 'Cannot determine PacketFence release' >&2; exit 1; }
 dashed=${release/./-}
 if [[ "$MODE" == branches ]]; then
-    tree=debian-branches; repository="debian-branches-$dashed"
+    : "${GPG_KEY_FINGERPRINT:?Set the approved signing fingerprint explicitly}"
+    work=$(mktemp -d)
+    trap 'rm -rf "$work"' EXIT
+    python3 "$helper" merge-apt --repository "debian-branches-$dashed" --tree "$PUBLIC_DIR/debian" \
+        --content-url "$PF_PACKAGE_ORIGIN/downloads/PacketFence/debian/branches/$release" \
+        --work "$work/deb" --apply --output pulp-branches-deb.json
+    echo "Published to $PF_PACKAGE_ORIGIN/downloads/PacketFence/debian/branches/$release"
+    if [[ -d "$PUBLIC_DIR/centos/8/x86_64/repodata" ]]; then
+        python3 "$helper" merge-rpm --repository "rhel8-branches-$dashed" --tree "$PUBLIC_DIR/centos/8/x86_64" \
+            --content-url "$PF_PACKAGE_ORIGIN/downloads/PacketFence/RHEL8/branches/$release" \
+            --work "$work/rpm" --apply --output pulp-branches-rpm.json
+        echo "Published to $PF_PACKAGE_ORIGIN/downloads/PacketFence/RHEL8/branches/$release"
+    else
+        echo "No EL8 build in this pipeline; RHEL8/branches/$release unchanged"
+    fi
+    exit 0
 else
     tree=debian; repository="debian-$dashed"
     # A native APT repository for this release takes the .debs; Pulp signs its own index.
