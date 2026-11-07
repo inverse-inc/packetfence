@@ -1,0 +1,1043 @@
+openapi: 3.0.3
+info:
+  title: PacketFence NACBot (pfchatbot) API
+  version: 1.2.0
+  description: |
+    REST API for the PacketFence NACBot assistant service (`lib/pfchatbot`).
+
+    **Authentication.** Every request reaches this service through the
+    PacketFence admin API reverse proxy at `/api/v1/pfchatbot/*`.  The
+    `api-frontend` AAA layer validates the admin session token and injects
+    two headers before forwarding:
+
+    | Header | Purpose |
+    |--------|---------|
+    | `X-PacketFence-Username` | Authenticated admin's `pid` (person id) |
+    | `X-PacketFence-Admin-Roles` | Comma-separated admin role names |
+
+    **Authorization.**  Read endpoints require the `CHATBOT_READ` admin
+    action.  Mutating endpoints live under the `/write/` path prefix so
+    the AAA layer can gate them with the `CHATBOT_WRITE` action
+    independently of HTTP method.
+  contact:
+    name: Inverse Inc.
+  license:
+    name: GPL-2.0-only
+
+servers:
+  - url: /api/v1/pfchatbot
+    description: Proxied through the PacketFence admin API
+
+tags:
+  - name: config
+    description: Service configuration and health
+  - name: settings
+    description: Provider, model and key management
+  - name: chat
+    description: Conversational assistant
+  - name: threads
+    description: Conversation threads
+  - name: files
+    description: File attachments (upload, download, list)
+  - name: nodes
+    description: Node inspection and actions
+  - name: test-tools
+    description: RADIUS / 802.1X / packet-capture test tools
+
+paths:
+  # ── config ─────────────────────────────────────────────────────────
+  /config:
+    get:
+      operationId: getConfig
+      tags: [config]
+      summary: Service info
+      description: Returns the PacketFence admin URL and detected version.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Config'
+
+  # ── settings ───────────────────────────────────────────────────────
+  /settings:
+    get:
+      operationId: getSettings
+      tags: [settings]
+      summary: Active provider settings (read-only)
+      description: |
+        Returns the currently configured LLM provider, model and a masked
+        key hint.  Editing is done through `pf.conf [pfchatbot]` via the
+        standard PacketFence config API (`/api/v1/config/base/pfchatbot`).
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Settings'
+
+  /models:
+    get:
+      operationId: getModels
+      tags: [settings]
+      summary: List models available to the active provider
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelsResponse'
+        '400':
+          description: No provider configured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /write/settings/test:
+    post:
+      operationId: testApiKey
+      tags: [settings]
+      summary: Validate an API key without saving it
+      description: Requires `CHATBOT_WRITE`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [provider]
+              properties:
+                provider:
+                  type: string
+                  enum: [openai, anthropic]
+                api_key:
+                  type: string
+                  description: Key to test. Omit to re-test the saved key.
+                model:
+                  type: string
+                  nullable: true
+      responses:
+        '200':
+          description: Test result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  models:
+                    type: integer
+                    description: Number of models the key can access (on success).
+                  error:
+                    type: string
+
+  # ── threads ────────────────────────────────────────────────────────
+  /threads:
+    get:
+      operationId: listThreads
+      tags: [threads]
+      summary: List this user's conversation threads
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ThreadSummary'
+
+  /threads/search:
+    get:
+      operationId: searchThreads
+      tags: [threads]
+      summary: Full-text search across threads and messages
+      parameters:
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Search query (FULLTEXT with LIKE fallback for short strings).
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ThreadSearchResult'
+
+  /threads/{tid}:
+    get:
+      operationId: getThread
+      tags: [threads]
+      summary: Full thread with messages and files
+      parameters:
+        - $ref: '#/components/parameters/ThreadId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Thread'
+        '404':
+          description: Thread not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      operationId: deleteThread
+      tags: [threads]
+      summary: Delete a thread and all its messages
+      parameters:
+        - $ref: '#/components/parameters/ThreadId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ok'
+
+  # ── chat ───────────────────────────────────────────────────────────
+  /chat:
+    post:
+      operationId: chat
+      tags: [chat]
+      summary: Send a message to the assistant
+      description: |
+        Creates a new thread if `thread_id` is absent or unknown.
+        The assistant may call PacketFence API tools; mutating tool calls
+        are staged and returned as a `confirm` payload rather than executed
+        immediately.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Assistant reply
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '400':
+          description: Empty message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /cancel:
+    post:
+      operationId: cancelRun
+      tags: [chat]
+      summary: Cancel an in-flight chat run
+      description: |
+        Stops the run at its next tool boundary.  The model call already
+        in flight completes; subsequent calls are skipped.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [run_id]
+              properties:
+                run_id:
+                  type: string
+      responses:
+        '200':
+          description: Cancellation result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cancelled:
+                    type: boolean
+                  error:
+                    type: string
+
+  /feedback:
+    post:
+      operationId: setFeedback
+      tags: [chat]
+      summary: Rate an assistant message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [message_id, rating]
+              properties:
+                message_id:
+                  type: integer
+                rating:
+                  type: integer
+                  enum: [-1, 0, 1]
+                  description: "1 = good, -1 = not good, 0 = clear"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  message_id:
+                    type: integer
+                  rating:
+                    type: integer
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /write/confirm_write:
+    post:
+      operationId: confirmWrite
+      tags: [chat]
+      summary: Execute or cancel a staged write
+      description: |
+        Completes a previously-pended mutating API call after explicit user
+        approval.  Requires `CHATBOT_WRITE`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [confirm_token, approved]
+              properties:
+                confirm_token:
+                  type: string
+                approved:
+                  type: boolean
+      responses:
+        '200':
+          description: Execution result or cancellation
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    properties:
+                      executed:
+                        type: boolean
+                      result:
+                        type: object
+                        description: The API call result, including status_code and body.
+                  - type: object
+                    properties:
+                      cancelled:
+                        type: boolean
+
+  /usage:
+    get:
+      operationId: getUsage
+      tags: [chat]
+      summary: Token usage statistics
+      description: Daily (last 30 days) and monthly (last 12 months) token counts.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsageResponse'
+
+  # ── files ──────────────────────────────────────────────────────────
+  /files:
+    get:
+      operationId: listFiles
+      tags: [files]
+      summary: List files for this user
+      parameters:
+        - name: thread_id
+          in: query
+          schema:
+            type: string
+        - name: kind
+          in: query
+          schema:
+            type: string
+            enum: [upload, output]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  files:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FileMeta'
+                  quotas:
+                    $ref: '#/components/schemas/FileQuotas'
+                  used_bytes:
+                    type: integer
+
+  /files/upload:
+    post:
+      operationId: uploadFile
+      tags: [files]
+      summary: Upload a file to a conversation
+      description: |
+        Uploads are NOT indexed for search.  The assistant reads them
+        on demand.  Contents are sent to the LLM provider when read.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                thread_id:
+                  type: string
+                  description: Omit to create a new thread.
+      responses:
+        '200':
+          description: Upload accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  thread_id:
+                    type: string
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  size_bytes:
+                    type: integer
+                  mime:
+                    type: string
+                  kind:
+                    type: string
+        '413':
+          description: File too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '507':
+          description: Quota exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /files/{fid}/download:
+    get:
+      operationId: downloadFile
+      tags: [files]
+      summary: Download a file
+      parameters:
+        - name: fid
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: File content
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+        '404':
+          description: File not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /files/{fid}:
+    delete:
+      operationId: deleteFile
+      tags: [files]
+      summary: Delete a file
+      parameters:
+        - name: fid
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ok'
+        '404':
+          description: File not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ok'
+
+  # ── nodes ──────────────────────────────────────────────────────────
+  /roles:
+    get:
+      operationId: listRoles
+      tags: [nodes]
+      summary: Node categories (roles) with numeric IDs
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  roles:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Role'
+
+  /node/{mac}:
+    get:
+      operationId: getNode
+      tags: [nodes]
+      summary: Read one node for the inspector
+      description: |
+        Direct API call — does NOT go through the model.  Instant,
+        deterministic, no token cost.
+      parameters:
+        - $ref: '#/components/parameters/Mac'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  node_actions:
+                    type: object
+                  node:
+                    type: object
+        '404':
+          description: Node not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /write/node/{mac}/reevaluate:
+    post:
+      operationId: nodeReevaluate
+      tags: [nodes]
+      summary: Re-evaluate access for a node
+      description: Stages a reevaluate_access call for confirmation.  Requires `CHATBOT_WRITE`.
+      parameters:
+        - $ref: '#/components/parameters/Mac'
+      responses:
+        '200':
+          description: Confirmation payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfirmPayload'
+
+  /write/node/{mac}/status:
+    post:
+      operationId: nodeSetStatus
+      tags: [nodes]
+      summary: Register or deregister a node
+      description: Stages the status change for confirmation.  Requires `CHATBOT_WRITE`.
+      parameters:
+        - $ref: '#/components/parameters/Mac'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [reg, unreg]
+      responses:
+        '200':
+          description: Confirmation payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfirmPayload'
+
+  /write/node/{mac}/role:
+    post:
+      operationId: nodeSetRole
+      tags: [nodes]
+      summary: Change a node's role (category)
+      description: Stages the role change for confirmation.  Requires `CHATBOT_WRITE`.
+      parameters:
+        - $ref: '#/components/parameters/Mac'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category_id:
+                  type: integer
+                  description: Numeric category ID (preferred).
+                role:
+                  type: string
+                  description: Role name (resolved to category_id).
+      responses:
+        '200':
+          description: Confirmation payload with resolved category_id
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  confirm:
+                    $ref: '#/components/schemas/ConfirmPayload'
+                  category_id:
+                    type: integer
+
+  # ── test-tools ─────────────────────────────────────────────────────
+  /testtools:
+    get:
+      operationId: getTestTools
+      tags: [test-tools]
+      summary: Available test tools and their variants
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tools:
+                    type: object
+                    description: Keyed by tool name (eapol_test, radclient, tcpdump).
+                  enabled:
+                    type: boolean
+                    description: Whether the helper socket is reachable.
+
+  /testtools/health:
+    get:
+      operationId: testToolsHealth
+      tags: [test-tools]
+      summary: Deep health check of the test-tool helper
+      responses:
+        '200':
+          description: Health report
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+  /write/testtools/run:
+    post:
+      operationId: runTestTool
+      tags: [test-tools]
+      summary: Execute a RADIUS / 802.1X test
+      description: |
+        Runs a test binary on the host via the helper socket.
+        Requires `CHATBOT_WRITE`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tool]
+              properties:
+                tool:
+                  type: string
+                  enum: [eapol_test, radclient, tcpdump]
+                params:
+                  type: object
+                  additionalProperties: true
+                preview:
+                  type: boolean
+                  description: Dry-run; return the command without executing.
+      responses:
+        '200':
+          description: Test result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  output:
+                    type: string
+                  error:
+                    type: string
+
+  /write/testtools/capture:
+    post:
+      operationId: runCapture
+      tags: [test-tools]
+      summary: Run a bounded packet capture
+      description: Requires `CHATBOT_WRITE`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                params:
+                  type: object
+                  properties:
+                    iface:
+                      type: string
+                    preset:
+                      type: string
+                      enum: [radius, dhcp, dns, eap, all]
+                    filter:
+                      type: string
+                    seconds:
+                      type: integer
+                      maximum: 60
+                    packets:
+                      type: integer
+                      maximum: 500
+                preview:
+                  type: boolean
+      responses:
+        '200':
+          description: Capture result (tshark summary, no raw payloads)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  output:
+                    type: string
+                  error:
+                    type: string
+
+# ── components ─────────────────────────────────────────────────────
+components:
+  parameters:
+    ThreadId:
+      name: tid
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Thread ID (numeric string).
+    Mac:
+      name: mac
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^([0-9a-fA-F]{2}[:\-]){5}[0-9a-fA-F]{2}$'
+      description: MAC address (colon or dash separated).
+
+  schemas:
+    Ok:
+      type: object
+      properties:
+        ok:
+          type: boolean
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+
+    Config:
+      type: object
+      properties:
+        pf_admin_url:
+          type: string
+          example: https://172.105.110.47:1443
+        pf_version:
+          type: string
+          example: '15.2.0'
+
+    Settings:
+      type: object
+      properties:
+        provider:
+          type: string
+          enum: ['', openai, anthropic]
+        model:
+          type: string
+        source:
+          type: string
+          example: pf.conf
+        key_hint:
+          type: string
+          description: Last 4 characters of the key, masked.
+          example: '…Kq0A'
+        providers:
+          type: array
+          items:
+            type: string
+          example: [anthropic, openai]
+
+    ModelsResponse:
+      type: object
+      properties:
+        provider:
+          type: string
+        current:
+          type: string
+          description: Currently selected model.
+        models:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              recommended:
+                type: boolean
+
+    ThreadSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        created:
+          type: number
+          description: Unix timestamp.
+        updated:
+          type: number
+          description: Unix timestamp.
+        msg_count:
+          type: integer
+
+    ThreadSearchResult:
+      allOf:
+        - $ref: '#/components/schemas/ThreadSummary'
+        - type: object
+          properties:
+            match_count:
+              type: integer
+            title_hit:
+              type: boolean
+            snippet:
+              type: string
+
+    Thread:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/FileMeta'
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+        role:
+          type: string
+          enum: [user, assistant]
+        content:
+          type: string
+        activity:
+          type: array
+          items:
+            type: string
+          description: Tool-call trace lines.
+        feedback:
+          type: integer
+          nullable: true
+          description: "1 = good, -1 = not good, null = no rating."
+
+    ChatRequest:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+        thread_id:
+          type: string
+          nullable: true
+          description: Omit or pass an unknown ID to create a new thread.
+        debug:
+          type: boolean
+          description: Include verbose tool arguments in the activity trace.
+        run_id:
+          type: string
+          description: Client-generated UUID for cancel support.
+
+    ChatResponse:
+      type: object
+      properties:
+        reply:
+          type: string
+        activity:
+          type: array
+          items:
+            type: string
+        thread_id:
+          type: string
+        message_id:
+          type: integer
+        confirm:
+          $ref: '#/components/schemas/ConfirmPayload'
+        node_actions:
+          type: object
+          description: Present when the reply references a specific node.
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/FileMeta'
+          description: Files the assistant produced during this reply.
+        cancelled:
+          type: boolean
+
+    ConfirmPayload:
+      type: object
+      description: |
+        A staged write awaiting user approval.  Pass `confirm_token`
+        to `/write/confirm_write` to execute or cancel.
+      properties:
+        confirm_token:
+          type: string
+        summary:
+          type: string
+        method:
+          type: string
+        path:
+          type: string
+        body:
+          type: object
+
+    UsageResponse:
+      type: object
+      properties:
+        daily:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              input_tokens:
+                type: integer
+              output_tokens:
+                type: integer
+              total_tokens:
+                type: integer
+        monthly:
+          type: array
+          items:
+            type: object
+            properties:
+              month:
+                type: string
+                example: '2026-10'
+              input_tokens:
+                type: integer
+              output_tokens:
+                type: integer
+              total_tokens:
+                type: integer
+
+    FileMeta:
+      type: object
+      properties:
+        id:
+          type: integer
+        thread_id:
+          type: string
+        message_id:
+          type: integer
+          nullable: true
+        kind:
+          type: string
+          enum: [upload, output]
+        name:
+          type: string
+        mime:
+          type: string
+        size_bytes:
+          type: integer
+        created:
+          type: number
+          description: Unix timestamp.
+        inline:
+          type: boolean
+
+    FileQuotas:
+      type: object
+      properties:
+        inline_max:
+          type: integer
+        file_max:
+          type: integer
+        thread_quota:
+          type: integer
+        user_quota:
+          type: integer
+        upload_ttl_days:
+          type: integer
+        dir:
+          type: string
+
+    Role:
+      type: object
+      properties:
+        category_id:
+          type: integer
+        name:
+          type: string
+        notes:
+          type: string

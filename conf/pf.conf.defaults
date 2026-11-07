@@ -1620,6 +1620,7 @@ pfperl-api=[% ENV.env_or_default("PF_SERVICES_URL_PFPERL_API", "http://container
 pfdns-doh=[% ENV.env_or_default("PF_SERVICES_URL_PFDNS_DOH", "http://containers-gateway.internal:853") %]
 pfsso=[% ENV.env_or_default("PF_SERVICES_URL_PFSSO", "http://containers-gateway.internal:8777") %]
 pfldapexplorer=[% ENV.env_or_default("PF_SERVICES_URL_PFLDAPEXPLORER", "http://containers-gateway.internal:22229") %]
+pfchatbot=[% ENV.env_or_default("PF_SERVICES_URL_PFCHATBOT", "http://containers-gateway.internal:8800") %]
 pfconnector-server=[% ENV.env_or_default("PF_SERVICES_URL_PFCONNECTOR_SERVER", "http://containers-gateway.internal:22226") %]
 api-frontend=[% ENV.env_or_default("PF_SERVICES_URL_API_FRONTEND", "https://containers-gateway.internal:9999") %]
 netdata=[% ENV.env_or_default("PF_SERVICES_URL_NETDATA", "http://containers-gateway.internal:19999") %]
@@ -1665,6 +1666,22 @@ host=
 email=
 password=
 token=
+
+[pfchatbot]
+provider=
+api_key=
+model=
+pf_username=
+pf_password=
+pf_verify_tls=disabled
+llm_timeout=180
+llm_retries=4
+rag_embed_model=BAAI/bge-small-en-v1.5
+rag_rerank_model=Xenova/ms-marco-MiniLM-L-6-v2
+file_max=8
+file_thread_quota=50
+file_user_quota=500
+upload_ttl_days=30
 
 [pfdns_connector]
 pfdns_connector_server=[% ENV.env_or_default("PFDNS_CONNECTOR_HOST_PORT", "%mgmtip%:5353") %]
