@@ -598,6 +598,12 @@ def merge_apt_tree(client, name, tree, content_url, *, codename='bookworm', sign
     sign(work / base / 'Release', work / base / 'InRelease', work / base / 'Release.gpg')
     files = {p: f for p, f in uploads.items() if p not in current}
     files.update({p: work / p for p in [*regenerated, base + '/InRelease', base + '/Release.gpg']})
+    result.update(apply_merge(client, repo, dist, initial, current, files))
+    return result
+
+
+def apply_merge(client, repo, dist, initial, current, files):
+    """Upload a merged tree's changed files, verify the exact membership, then switch."""
     expected = {p: f['sha256'] for p, f in current.items()}
     changed = {}
     for path, source in files.items():
@@ -613,7 +619,155 @@ def merge_apt_tree(client, name, tree, content_url, *, codename='bookworm', sign
     if {p: f['sha256'] for p, f in list_files(client, version).items()} != expected:
         raise RuntimeError('Unexpected repository membership; distribution remains unchanged')
     publication = switch_publication(client, repo, dist, version)
-    result.update(applied=True, repository_version=version, publication=publication)
+    return {'applied': True, 'repository_version': version, 'publication': publication}
+
+
+# --- RHEL8/branches/X.Y file trees: merge one signed CI build (newest wins) ---
+
+RPM_TREE_REPO = re.compile(r'rhel8-branches-[0-9]+-[0-9]+')
+RPM_METADATA = {'primary': 'metadata', 'filelists': 'filelists', 'other': 'otherdata'}
+PACKAGE_BLOCK = re.compile(r'<package\b.*?</package>', re.S)
+# createrepo output is matched textually (as the APT side), never fed to an XML parser.
+REPOMD_DATA = re.compile(r'<data type="([a-z_]+)">(.*?)</data>', re.S)
+
+
+def rpm_metadata(repomd, read):
+    """{type: xml text} of primary/filelists/other, each checked against repomd's sha256."""
+    out = {}
+    for kind, body in REPOMD_DATA.findall(repomd.decode()):
+        if kind not in RPM_METADATA:
+            continue
+        checksum = rpm_field(body, r'<checksum type="sha256">([0-9a-f]{64})</checksum>', 'a sha256 checksum')
+        raw = read(safe_path(rpm_field(body, r'<location href="([^"]+)"/>', 'a location')))
+        if hashlib.sha256(raw).hexdigest() != checksum:
+            raise ValueError(f'{kind} metadata does not match repomd.xml')
+        out[kind] = gzip.decompress(raw).decode() if raw[:2] == b'\x1f\x8b' else raw.decode()
+    if set(out) != set(RPM_METADATA):
+        raise ValueError('repomd.xml must list primary, filelists and other')
+    return out
+
+
+def rpm_root(xml, kind):
+    """Root element attributes without the packages count."""
+    match = re.search(rf'<{RPM_METADATA[kind]}\b([^>]*?)/?>', xml)
+    if not match:
+        raise ValueError(f'Unexpected {kind} metadata')
+    return re.sub(r'\s+packages="[0-9]*"', '', match.group(1))
+
+
+def rpm_field(block, pattern, what):
+    match = re.search(pattern, block)
+    if not match:
+        raise ValueError('RPM metadata entry without ' + what)
+    return match.group(1)
+
+
+def render_rpm_metadata(kind, attributes, blocks):
+    root = RPM_METADATA[kind]
+    return (f'<?xml version="1.0" encoding="UTF-8"?>\n<{root}{attributes} packages="{len(blocks)}">\n'
+            + ''.join(b + '\n' for b in blocks) + f'</{root}>\n').encode()
+
+
+def render_repomd(files, now):
+    lines = ['<?xml version="1.0" encoding="UTF-8"?>',
+             '<repomd xmlns="http://linux.duke.edu/metadata/repo" xmlns:rpm="http://linux.duke.edu/metadata/rpm">',
+             f'  <revision>{now}</revision>']
+    for kind, data in files.items():
+        packed = gzip.compress(data, mtime=0)
+        lines += [f'  <data type="{kind}">',
+                  f'    <checksum type="sha256">{hashlib.sha256(packed).hexdigest()}</checksum>',
+                  f'    <open-checksum type="sha256">{hashlib.sha256(data).hexdigest()}</open-checksum>',
+                  f'    <location href="repodata/{kind}.xml.gz"/>',
+                  f'    <timestamp>{now}</timestamp>',
+                  f'    <size>{len(packed)}</size>',
+                  f'    <open-size>{len(data)}</open-size>',
+                  '  </data>']
+    return ('\n'.join(lines + ['</repomd>']) + '\n').encode()
+
+
+def merge_rpm_tree(client, name, tree, content_url, *, sign=None, work=None, apply=False, now=None):
+    """Add one pipeline's RPMs to a rhel8-branches-X-Y file tree; the newest build of each name wins.
+
+    tree is the generated x86_64 directory (*.rpm, repodata/). The destination keeps the
+    release-tree layout: x86_64/RPMS/<file> and x86_64/repodata/{primary,filelists,other}.xml.gz.
+    """
+    if not RPM_TREE_REPO.fullmatch(name):
+        raise ValueError('Destination must be a rhel8-branches-X-Y file repository')
+    repo = client.find('repositories/file/file', name)
+    dist = client.find('distributions/file/file', name)
+    if (repo.get('autopublish') or dist.get('content_guard') or dist.get('repository')
+            or not dist.get('publication') or dist.get('base_path') != 'files/' + name):
+        raise ValueError('Destination must be a published public RPM file repository')
+    tree, content_url = Path(tree), content_url.rstrip('/')
+    if not content_url.startswith('https://'):
+        raise ValueError('Content URL must be HTTPS')
+    if not (tree / 'repodata' / 'repomd.xml').is_file():
+        raise ValueError('Missing generated repodata/repomd.xml in the tree')
+    initial = repo['latest_version_href']
+    current = list_files(client, initial)
+
+    def remote(path):
+        data = read_public(f'{content_url}/x86_64/{path}')
+        if current.get('x86_64/' + path, {}).get('sha256') != hashlib.sha256(data).hexdigest():
+            raise RuntimeError('Served tree differs from the repository; publish or review it first: ' + path)
+        return data
+
+    generated = rpm_metadata((tree / 'repodata' / 'repomd.xml').read_bytes(), lambda p: (tree / p).read_bytes())
+    live = rpm_metadata(remote('repodata/repomd.xml'), remote) if 'x86_64/repodata/repomd.xml' in current else None
+
+    uploads, new_ids, names = {}, set(), set()
+    new_primary = []
+    for block in PACKAGE_BLOCK.findall(generated['primary']):
+        pkgid = rpm_field(block, r'<checksum type="sha256" pkgid="YES">([0-9a-f]{64})</checksum>', 'sha256 pkgid')
+        href = rpm_field(block, r'<location href="([^"/]+\.rpm)"/>', 'a flat location')
+        local = tree / safe_path(href)
+        if not local.is_file() or digest(local) != pkgid:
+            raise ValueError('Generated metadata does not match its RPM: ' + href)
+        uploads['x86_64/RPMS/' + href] = local
+        new_ids.add(pkgid)
+        names.add(rpm_field(block, r'<name>([^<]+)</name>', 'a name'))
+        new_primary.append(block.replace(f'<location href="{href}"/>', f'<location href="RPMS/{href}"/>'))
+    if not new_primary:
+        raise ValueError('The generated tree has no RPM packages')
+
+    kept_primary, kept_ids = [], set()
+    for block in PACKAGE_BLOCK.findall(live['primary']) if live else []:
+        if rpm_field(block, r'<name>([^<]+)</name>', 'a name') in names:
+            continue
+        pkgid = rpm_field(block, r'<checksum type="sha256" pkgid="YES">([0-9a-f]{64})</checksum>', 'sha256 pkgid')
+        href = rpm_field(block, r'<location href="([^"]+)"/>', 'a location')
+        if current.get('x86_64/' + safe_path(href), {}).get('sha256') != pkgid:
+            raise ValueError('Live metadata references a missing or different RPM: ' + href)
+        kept_primary.append(block)
+        kept_ids.add(pkgid)
+
+    merged = {'primary': render_rpm_metadata('primary', rpm_root((live or generated)['primary'], 'primary'),
+                                             kept_primary + new_primary)}
+    for kind in ('filelists', 'other'):
+        def keep(blocks, ids):
+            return [b for b in PACKAGE_BLOCK.findall(blocks) if rpm_field(b, r'pkgid="([0-9a-f]{64})"', 'a pkgid') in ids]
+        merged[kind] = render_rpm_metadata(kind, rpm_root((live or generated)[kind], kind),
+                                           (keep(live[kind], kept_ids) if live else []) + keep(generated[kind], new_ids))
+    conflicts = [p for p, f in uploads.items() if p in current and current[p]['sha256'] != digest(f)]
+    if conflicts:
+        raise ValueError('Existing RPM path has a different hash: ' + conflicts[0])
+    result = {'repository': name, 'packages': sorted(names), 'previous_publication': dist.get('publication'),
+              'new_rpms': sorted(p for p in uploads if p not in current), 'applied': False}
+    if not apply:
+        return result
+    if sign is None or work is None:
+        raise ValueError('Applying needs a signer and a work directory')
+
+    regenerated = {f'x86_64/repodata/{kind}.xml.gz': gzip.compress(data, mtime=0) for kind, data in merged.items()}
+    regenerated['x86_64/repodata/repomd.xml'] = render_repomd(merged, int(now or datetime.now(timezone.utc).timestamp()))
+    work = Path(work)
+    for path, data in regenerated.items():
+        (work / path).parent.mkdir(parents=True, exist_ok=True)
+        (work / path).write_bytes(data)
+    sign(work / 'x86_64/repodata/repomd.xml', work / 'x86_64/repodata/repomd.xml.asc')
+    files = {p: f for p, f in uploads.items() if p not in current}
+    files.update({p: work / p for p in [*regenerated, 'x86_64/repodata/repomd.xml.asc']})
+    result.update(apply_merge(client, repo, dist, initial, current, files))
     return result
 
 
@@ -626,6 +780,18 @@ def gpg_signer(fingerprint):
                 '--digest-algo', 'SHA512']
         subprocess.run(base + ['--clearsign', '--output', str(inrelease), str(release)], check=True)
         subprocess.run(base + ['--armor', '--detach-sign', '--output', str(detached), str(release)], check=True)
+    return sign
+
+
+def gpg_detached_signer(fingerprint):
+    """Armored detached signature (repomd.xml.asc) with the same approved key."""
+    if not re.fullmatch(r'[A-F0-9]{40}', fingerprint or ''):
+        raise ValueError('Set GPG_KEY_FINGERPRINT to the exact 40-hex signing fingerprint')
+
+    def sign(path, detached):
+        subprocess.run(['gpg', '--batch', '--yes', '--pinentry-mode', 'loopback', '--local-user', fingerprint,
+                        '--digest-algo', 'SHA512', '--armor', '--detach-sign', '--output', str(detached), str(path)],
+                       check=True)
     return sign
 
 
@@ -659,6 +825,13 @@ def main():
     branch.add_argument('--work', type=Path, required=True, help='Empty directory for signed metadata')
     branch.add_argument('--apply', action='store_true')
     branch.add_argument('--output', type=Path, required=True)
+    rpm = sub.add_parser('merge-rpm', help='Merge a generated EL8 x86_64 tree into rhel8-branches-X-Y')
+    rpm.add_argument('--repository', required=True)
+    rpm.add_argument('--tree', type=Path, required=True, help='Generated PPA centos/8/x86_64 directory')
+    rpm.add_argument('--content-url', required=True, help='Public HTTPS URL of the destination tree')
+    rpm.add_argument('--work', type=Path, required=True, help='Empty directory for signed metadata')
+    rpm.add_argument('--apply', action='store_true')
+    rpm.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     try:
         if args.command == 'fetch':
@@ -673,6 +846,10 @@ def main():
                 sign = gpg_signer(os.environ.get('GPG_KEY_FINGERPRINT')) if args.apply else None
                 result = merge_apt_tree(client, args.repository, args.tree, args.content_url,
                                       codename=args.codename, sign=sign, work=args.work, apply=args.apply)
+            elif args.command == 'merge-rpm':
+                sign = gpg_detached_signer(os.environ.get('GPG_KEY_FINGERPRINT')) if args.apply else None
+                result = merge_rpm_tree(client, args.repository, args.tree, args.content_url,
+                                        sign=sign, work=args.work, apply=args.apply)
             else:
                 result = publish_tree(client, args.repository, args.pipeline, args.tree,
                                       dependencies=args.dependencies, apply=args.apply,
