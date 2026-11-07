@@ -48,7 +48,7 @@ sub build_child {
 
 sub cleanup_after_read {
     my ( $self, $id, $data ) = @_;
-    $self->expand_list( $data, qw(whitelisted_roles) );
+    $self->expand_list( $data, qw(whitelisted_roles same_device_fields) );
 }
 
 

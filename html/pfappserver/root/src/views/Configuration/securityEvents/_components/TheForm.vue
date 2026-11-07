@@ -29,6 +29,11 @@
                                   :text="$i18n.t(`Which roles shouldn't be impacted by this security event.`)"
     />
 
+    <form-group-same-device-fields namespace="same_device_fields"
+                                   :column-label="$i18n.t('Same Device Fields')"
+                                   :text="$i18n.t(`The security event is also opened and closed on the other endpoints sharing the values of these fields with the endpoint, such as the wired and wireless MAC addresses of a laptop. Endpoints with an empty value or the default owner never match.`)"
+    />
+
     <form-group-triggers namespace="triggers"
                          :column-label="$i18n.t('Event Triggers')"
     >
@@ -78,6 +83,7 @@ import {
   FormGroupGrace,
   FormGroupIdentifier,
   FormGroupPriority,
+  FormGroupSameDeviceFields,
   FormGroupTriggers,
   FormGroupTriggersHeader,
   FormGroupWhitelistedRoles,
@@ -95,6 +101,7 @@ const components = {
   FormGroupGrace,
   FormGroupIdentifier,
   FormGroupPriority,
+  FormGroupSameDeviceFields,
   FormGroupTriggers,
   FormGroupTriggersHeader,
   FormGroupWhitelistedRoles,
