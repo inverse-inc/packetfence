@@ -36,7 +36,9 @@ import re
 import subprocess
 import threading
 import time
+import sys
 import uuid
+from collections import deque
 from urllib.parse import quote, urlsplit, urlencode
 
 import numpy as np
@@ -44,6 +46,33 @@ import numpy as np
 import httpx
 from fastapi import FastAPI, Request, UploadFile, File, Form
 from fastapi.responses import JSONResponse, Response
+
+# ── in-memory log ring buffer (exposed via /logs) ────────────────────────────
+_log_lock = __import__('threading').Lock()
+_log_buffer: deque = deque(maxlen=500)
+
+class _TeeStream:
+    """Writes to real stdout AND captures lines into _log_buffer."""
+    def __init__(self, real):
+        self._real = real
+        self._pending = ""
+    def write(self, text):
+        self._real.write(text)
+        self._pending += text
+        while "\n" in self._pending:
+            line, self._pending = self._pending.split("\n", 1)
+            if line.strip():
+                ts = time.strftime("%Y-%m-%d %H:%M:%S")
+                with _log_lock:
+                    _log_buffer.append(f"{ts}  {line}")
+    def flush(self):
+        self._real.flush()
+    def __getattr__(self, name):
+        return getattr(self._real, name)
+
+sys.stdout = _TeeStream(sys.stdout)
+# ─────────────────────────────────────────────────────────────────────────────
+
 
 import providers
 from prompts import SYSTEM, version_line, style_addendum, read_only_line
@@ -2704,3 +2733,11 @@ def node_set_role(mac: str, payload: dict, request: Request):
 def get_config():
     return JSONResponse({"pf_admin_url": PF_ADMIN_URL,
                          "pf_version": _state.get("pf_version") or ""})
+
+@app.get("/logs")
+def get_logs(lines: int = 200):
+    """Return the most recent log lines captured from stdout."""
+    n = min(max(1, lines), 500)
+    with _log_lock:
+        entries = list(_log_buffer)[-n:]
+    return JSONResponse({"lines": entries})

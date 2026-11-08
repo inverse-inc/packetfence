@@ -30,6 +30,10 @@
               v-b-tooltip.hover.bottom.d300 :title="$t('Test tools (802.1X / RADIUS)')">
               <icon name="tools" />
             </b-button>
+            <b-button size="sm" variant="outline-secondary" @click="showLogs = true"
+              v-b-tooltip.hover.bottom.d300 :title="$t('Service logs')">
+              <icon name="terminal" />
+            </b-button>
             <b-button size="sm" variant="outline-secondary" to="/configuration/pfchatbot" v-if="canConfigure"
               v-b-tooltip.hover.bottom.d300 :title="$t('Provider settings')">
               <icon name="cog" />
@@ -60,6 +64,7 @@
       <the-node-inspector v-if="sidePane === 'node'" @send="send" @close="sidePane = null" />
       <the-files v-if="sidePane === 'files'" @close="sidePane = null" />
     </b-col>
+    <the-journal-logs v-model="showLogs" />
     <the-usage v-model="showUsage" />
     <the-test-tools v-model="showTestTools" :prepare="testToolsPrepare" @send="send" />
   </b-row>
@@ -74,6 +79,7 @@ import TheFiles from './TheFiles'
 import TheNodeInspector from './TheNodeInspector'
 import TheTestTools from './TheTestTools'
 import TheThreads from './TheThreads'
+import TheJournalLogs from './TheJournalLogs'
 import TheUsage from './TheUsage'
 
 const components = {
@@ -81,6 +87,7 @@ const components = {
   TheEntry,
   TheFiles,
   TheNodeInspector,
+  TheJournalLogs,
   TheTestTools,
   TheThreads,
   TheUsage
@@ -148,6 +155,7 @@ const setup = (props, context) => {
         openTestTools({ tool: 'tcpdump', fields: prepare_capture })
     })
 
+  const showLogs = ref(false)
   const showUsage = ref(false)
   const showTestTools = ref(false)
   const testToolsPrepare = ref(null)
@@ -181,6 +189,7 @@ const setup = (props, context) => {
     sidePane,
     toggleSidePane,
     send,
+    showLogs,
     showUsage,
     showTestTools,
     testToolsPrepare,
