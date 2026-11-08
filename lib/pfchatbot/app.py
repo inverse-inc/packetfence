@@ -266,6 +266,7 @@ _state: dict = {"token": None, "ops": {}, "rag": None, "embedder": None}
 # Kept in-memory only; a restart clears them (safe — nothing has executed yet).
 _pending_writes: dict = {}
 _options_cache: dict = {}  # collection path → options_meta result
+_pending_auto_corrections: dict = {}  # oid → corrections list from last preflight
 _PENDING_TTL = 600  # seconds a confirmation stays valid
 
 
@@ -715,48 +716,87 @@ def _readback(oid: str, path_params=None) -> dict | None:
 
 
 def _preflight_check(oid: str, body: dict | None) -> dict | None:
-    """Validate a write body against the OPTIONS schema before confirmation.
+    """Validate and auto-correct a write body against the OPTIONS schema.
 
-    Returns None if validation passes (or no schema is available), or a
-    dict with 'preflight_validation_failed' that the model must handle by
-    asking the user for each missing/invalid field."""
+    Strategy (in order):
+      1. Missing required field with a default  → auto-fill with default
+      2. Invalid enum value with a text→value mapping → auto-correct silently
+      3. Missing required field, no default      → flag as unresolvable
+      4. Invalid enum, no mapping               → flag as unresolvable
+
+    Returns:
+      None                     – passes, no changes
+      {"auto_corrected": True, "corrected_body": {}, "corrections": [...]}
+                               – passes after auto-correction; use corrected_body
+      {"preflight_validation_failed": True, ...}
+                               – unresolvable issues remain; model must ask user
+    """
     o = _state["ops"].get(oid)
     if not o or not o.get("is_write"):
         return None
-    body = body or {}
+    body = {**(body or {})}  # shallow copy so we can mutate
     path = o["path"]
     coll = _collection_path(path)
     if coll not in _options_cache:
         _options_cache[coll] = options_meta(oid)
     meta = _options_cache.get(coll, {})
     if "error" in meta or not meta.get("fields"):
-        return None  # no usable schema — let the call through
-    missing, invalid = [], []
+        return None
+
+    corrections: list[dict] = []
+    unresolvable: list[dict] = []
+
+    def _try_map(sf: dict, val) -> tuple[bool, object]:
+        """Try to map val to a valid allowed value. Returns (found, corrected)."""
+        tmap = sf.get("_text_map", {})
+        if tmap:
+            mapped = tmap.get(str(val).lower())
+            if mapped is not None:
+                return True, mapped
+        return False, val
+
+    # ── top-level fields ─────────────────────────────────────────────────────
     for f in meta["fields"]:
         name = f["name"]
-        if f.get("required") and (name not in body or body[name] in (None, "", [], {})):
-            entry = {"field": name, "type": f.get("type")}
-            if f.get("allowed"):
-                entry["allowed_values"] = f["allowed"][:20]
-            if f.get("example"):
-                entry["example"] = f["example"]
-            missing.append(entry)
-        if f.get("allowed") and name in body and body[name] not in (None, "", [], {}):
-            sent = body[name]
+        val = body.get(name)
+        is_empty = val is None or val in ("", [], {})
+
+        if is_empty:
+            if f.get("required"):
+                default = f.get("default")
+                if default not in (None, "", [], {}):
+                    body[name] = default
+                    corrections.append({"field": name, "action": "default", "value": default})
+                else:
+                    entry = {"field": name, "type": f.get("type")}
+                    if f.get("allowed"):
+                        entry["allowed_values"] = f["allowed"][:20]
+                    unresolvable.append(entry)
+        elif f.get("allowed"):
             allowed_flat = [str(a) for a in f["allowed"]]
-            if str(sent) not in allowed_flat:
-                invalid.append({
-                    "field": name,
-                    "sent": sent,
-                    "allowed_values": f["allowed"][:20],
-                })
-    # Validate items inside array fields against item_schema
-    for f in fields:
-        name = f["name"]
+            if str(val) not in allowed_flat:
+                found, corrected = _try_map(f, val)
+                if found:
+                    body[name] = corrected
+                    corrections.append({"field": name, "action": "mapped",
+                                        "from": val, "to": corrected})
+                else:
+                    default = f.get("default")
+                    if default not in (None, "", [], {}) and default in f["allowed"]:
+                        body[name] = default
+                        corrections.append({"field": name, "action": "default_fallback",
+                                            "sent": val, "used": default})
+                    else:
+                        unresolvable.append({
+                            "field": name, "sent": val,
+                            "allowed_values": f["allowed"][:20],
+                        })
+
+        # ── array item sub-fields ─────────────────────────────────────────────
         item_schema = f.get("item_schema")
-        if not item_schema or name not in body:
+        if not item_schema:
             continue
-        items = body[name]
+        items = body.get(name)
         if not isinstance(items, list):
             continue
         schema_map = {sf["name"]: sf for sf in item_schema}
@@ -764,40 +804,77 @@ def _preflight_check(oid: str, body: dict | None) -> dict | None:
             if not isinstance(item, dict):
                 continue
             for sname, sf in schema_map.items():
-                val = item.get(sname)
-                is_empty = val is None or val == ""
-                if sf.get("required") and is_empty:
-                    entry = {"field": f"{name}[{idx}].{sname}", "type": sf.get("type")}
-                    if sf.get("allowed"):
-                        entry["allowed_values"] = sf["allowed"]
-                    missing.append(entry)
-                elif sf.get("allowed") and not is_empty:
+                sval = item.get(sname)
+                s_empty = sval is None or sval == ""
+
+                if s_empty:
+                    if sf.get("required"):
+                        sdefault = sf.get("default")
+                        if sdefault not in (None, "", [], {}):
+                            item[sname] = sdefault
+                            corrections.append({
+                                "field": f"{name}[{idx}].{sname}",
+                                "action": "default", "value": sdefault,
+                            })
+                        else:
+                            entry = {"field": f"{name}[{idx}].{sname}",
+                                     "type": sf.get("type")}
+                            if sf.get("allowed"):
+                                entry["allowed_values"] = sf["allowed"]
+                            unresolvable.append(entry)
+                elif sf.get("allowed"):
                     allowed_flat = [str(a) for a in sf["allowed"]]
-                    if str(val) not in allowed_flat:
-                        invalid.append({
-                            "field": f"{name}[{idx}].{sname}",
-                            "sent": val,
-                            "allowed_values": sf["allowed"][:20],
-                        })
-    if not missing and not invalid:
+                    if str(sval) not in allowed_flat:
+                        found, corrected = _try_map(sf, sval)
+                        if found:
+                            item[sname] = corrected
+                            corrections.append({
+                                "field": f"{name}[{idx}].{sname}",
+                                "action": "mapped",
+                                "from": sval, "to": corrected,
+                            })
+                        else:
+                            sdefault = sf.get("default")
+                            if sdefault not in (None, "", [], {}) and sdefault in sf["allowed"]:
+                                item[sname] = sdefault
+                                corrections.append({
+                                    "field": f"{name}[{idx}].{sname}",
+                                    "action": "default_fallback",
+                                    "sent": sval, "used": sdefault,
+                                })
+                            else:
+                                unresolvable.append({
+                                    "field": f"{name}[{idx}].{sname}",
+                                    "sent": sval,
+                                    "allowed_values": sf["allowed"][:20],
+                                })
+
+    if not corrections and not unresolvable:
         return None
+
+    if corrections and not unresolvable:
+        # Fully resolved — return corrected body for invoke() to use
+        return {
+            "auto_corrected": True,
+            "corrected_body": body,
+            "corrections": corrections,
+        }
+
+    # Partial or complete failure
     result: dict = {
         "preflight_validation_failed": True,
-        "operation_id": oid,
-        "method": o["method"].upper(),
-        "path": path,
+        "operation_id": oid, "method": o["method"].upper(), "path": path,
         "instruction": (
-            "One or more required fields are missing or have invalid values. "
-            "Do NOT retry with guessed values. "
-            "Ask the user for each missing or invalid field, one at a time, "
-            "and show the allowed values where listed. "
-            "Retry pf_call_operation only after the user provides the values."
+            "Some fields could not be resolved automatically. "
+            "Ask the user for each field in 'needs_user_input', one at a time, "
+            "showing allowed values where listed. "
+            "Do NOT guess values. Retry pf_call_operation once you have all values."
         ),
+        "needs_user_input": unresolvable,
     }
-    if missing:
-        result["missing_required_fields"] = missing
-    if invalid:
-        result["invalid_field_values"] = invalid
+    if corrections:
+        result["auto_corrected"] = corrections  # partial corrections already applied
+        result["partially_corrected_body"] = body
     return result
 
 def invoke(oid: str, path_params=None, query_params=None, body=None,
@@ -814,7 +891,12 @@ def invoke(oid: str, path_params=None, query_params=None, body=None,
     if o["is_write"] and not confirmed:
         pf = _preflight_check(oid, body)
         if pf:
-            return pf
+            if pf.get("auto_corrected") is True and not pf.get("preflight_validation_failed"):
+                # Fully auto-corrected — use corrected body and fall through to confirmation
+                body = pf["corrected_body"]
+                _pending_auto_corrections[oid] = pf.get("corrections", [])
+            else:
+                return pf
         token = uuid.uuid4().hex[:16]
         _pending_writes[token] = {
             "oid": oid, "path_params": path_params, "query_params": query_params,
@@ -835,6 +917,17 @@ def invoke(oid: str, path_params=None, query_params=None, body=None,
                     "confirm it in the UI. Tell the user what will happen and that "
                     "they need to confirm.",
         }
+        corrections = _pending_auto_corrections.pop(oid, None)
+        if corrections:
+            result["auto_corrections"] = corrections
+            result["note"] += (
+                " The following fields were auto-corrected from the schema: "
+                + "; ".join(
+                    f"{c['field']}: {c.get('from', '(missing)')} → {c.get('to', c.get('value', c.get('used')))}"
+                    for c in corrections
+                )
+                + ". Mention these corrections when describing what will happen."
+            )
 
     path = o["path"]
     for k, v in (path_params or {}).items():
@@ -1339,9 +1432,22 @@ def options_meta(target: str) -> dict:
             allowed = spec.get("allowed") or spec.get("options") or spec.get("enum")
             if isinstance(allowed, list) and allowed:
                 vals = []
+                tmap = {}
                 for a in allowed[:40]:
-                    vals.append(a.get("value") if isinstance(a, dict) else a)
+                    if isinstance(a, dict) and "value" in a:
+                        vals.append(a["value"])
+                        tmap[a["value"].lower()] = a["value"]
+                        if "text" in a:
+                            tmap[a["text"].lower()] = a["value"]
+                    else:
+                        vals.append(a)
+                        tmap[str(a).lower()] = a
                 f["allowed"] = vals
+                if tmap:
+                    f["_text_map"] = tmap
+            default_v = spec.get("default")
+            if default_v not in (None, "", [], {}):
+                f["default"] = default_v
             # Array fields: extract item sub-schema so pf_describe_fields and
             # preflight can validate nested values (e.g. filter[].type)
             item_props = spec.get("item", {}) if isinstance(spec.get("item"), dict) else {}
@@ -1355,11 +1461,22 @@ def options_meta(target: str) -> dict:
                           "required": bool(sspec.get("required"))}
                     sallowed = sspec.get("allowed") or sspec.get("options") or sspec.get("enum")
                     if isinstance(sallowed, list) and sallowed:
-                        svals = [a.get("value") if isinstance(a, dict) else a
-                                 for a in sallowed[:40]]
+                        svals, stmap = [], {}
+                        for a in sallowed[:40]:
+                            if isinstance(a, dict) and "value" in a:
+                                svals.append(a["value"])
+                                stmap[a["value"].lower()] = a["value"]
+                                if "text" in a:
+                                    stmap[a["text"].lower()] = a["value"]
+                            else:
+                                svals.append(a)
+                                stmap[str(a).lower()] = a
                         sf["allowed"] = svals
-                    if sspec.get("default") not in (None, ""):
-                        sf["default"] = sspec["default"]
+                        if stmap:
+                            sf["_text_map"] = stmap
+                    sdefault = sspec.get("default")
+                    if sdefault not in (None, "", [], {}):
+                        sf["default"] = sdefault
                     sub_fields.append(sf)
                 if sub_fields:
                     f["item_schema"] = sub_fields
