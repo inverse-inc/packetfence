@@ -265,6 +265,7 @@ _state: dict = {"token": None, "ops": {}, "rag": None, "embedder": None}
 # Pending write operations awaiting user confirmation (token -> op details).
 # Kept in-memory only; a restart clears them (safe — nothing has executed yet).
 _pending_writes: dict = {}
+_options_cache: dict = {}  # collection path → options_meta result
 _PENDING_TTL = 600  # seconds a confirmation stays valid
 
 
@@ -712,6 +713,64 @@ def _readback(oid: str, path_params=None) -> dict | None:
     return None
 
 
+
+def _preflight_check(oid: str, body: dict | None) -> dict | None:
+    """Validate a write body against the OPTIONS schema before confirmation.
+
+    Returns None if validation passes (or no schema is available), or a
+    dict with 'preflight_validation_failed' that the model must handle by
+    asking the user for each missing/invalid field."""
+    o = _state["ops"].get(oid)
+    if not o or not o.get("is_write"):
+        return None
+    body = body or {}
+    path = o["path"]
+    coll = _collection_path(path)
+    if coll not in _options_cache:
+        _options_cache[coll] = options_meta(oid)
+    meta = _options_cache.get(coll, {})
+    if "error" in meta or not meta.get("fields"):
+        return None  # no usable schema — let the call through
+    missing, invalid = [], []
+    for f in meta["fields"]:
+        name = f["name"]
+        if f.get("required") and (name not in body or body[name] in (None, "", [], {})):
+            entry = {"field": name, "type": f.get("type")}
+            if f.get("allowed"):
+                entry["allowed_values"] = f["allowed"][:20]
+            if f.get("example"):
+                entry["example"] = f["example"]
+            missing.append(entry)
+        if f.get("allowed") and name in body and body[name] not in (None, "", [], {}):
+            sent = body[name]
+            allowed_flat = [str(a) for a in f["allowed"]]
+            if str(sent) not in allowed_flat:
+                invalid.append({
+                    "field": name,
+                    "sent": sent,
+                    "allowed_values": f["allowed"][:20],
+                })
+    if not missing and not invalid:
+        return None
+    result: dict = {
+        "preflight_validation_failed": True,
+        "operation_id": oid,
+        "method": o["method"].upper(),
+        "path": path,
+        "instruction": (
+            "One or more required fields are missing or have invalid values. "
+            "Do NOT retry with guessed values. "
+            "Ask the user for each missing or invalid field, one at a time, "
+            "and show the allowed values where listed. "
+            "Retry pf_call_operation only after the user provides the values."
+        ),
+    }
+    if missing:
+        result["missing_required_fields"] = missing
+    if invalid:
+        result["invalid_field_values"] = invalid
+    return result
+
 def invoke(oid: str, path_params=None, query_params=None, body=None,
            confirmed: bool = False) -> dict:
     o = _state["ops"].get(oid)
@@ -724,6 +783,9 @@ def invoke(oid: str, path_params=None, query_params=None, body=None,
     # call only runs after the user approves it via /confirm_write. This makes it
     # impossible for the model to change production state without a human click.
     if o["is_write"] and not confirmed:
+        pf = _preflight_check(oid, body)
+        if pf:
+            return pf
         token = uuid.uuid4().hex[:16]
         _pending_writes[token] = {
             "oid": oid, "path_params": path_params, "query_params": query_params,
