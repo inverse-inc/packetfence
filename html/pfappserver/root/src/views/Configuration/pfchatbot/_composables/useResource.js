@@ -11,3 +11,10 @@ export const useStore = $store => {
     updateItem: params => $store.dispatch('$_bases/updatePfchatbot', params)
   }
 }
+
+export const useServices = () => computed(() => {
+  return {
+    message: i18n.t('Changes to most NACBot settings require a restart of the assistant service to take effect.'),
+    system_services: ['packetfence-chatbot'],
+  }
+})

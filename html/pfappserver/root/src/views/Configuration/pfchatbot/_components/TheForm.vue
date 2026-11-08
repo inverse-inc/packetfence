@@ -13,7 +13,7 @@
 
     <form-group-api-key namespace="api_key"
                         :column-label="$i18n.t('API key')"
-                        :text="$i18n.t('The API key for the LLM provider. Test validates it with the provider without saving it.')"
+                        :text="$i18n.t('The API key for the LLM provider. Applied without a restart. Test validates it with the provider without saving it.')"
     />
 
     <form-group-model namespace="model"
