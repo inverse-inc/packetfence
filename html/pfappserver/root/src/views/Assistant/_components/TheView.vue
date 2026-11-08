@@ -9,12 +9,12 @@
           <div>
             <h4 class="mb-0" v-t="'NACBot'" />
             <small class="text-muted">
-              <template v-if="settings.provider">{{ settings.provider }} / {{ settings.model }}</template>
+              <template v-if="pfVersion">PacketFence {{ pfVersion }}</template>
+              <template v-if="settings.provider"> &middot; {{ settings.provider }} / {{ settings.model }}</template>
               <template v-else-if="isAvailable">
-                {{ $t('No LLM provider configured.') }}
-                <b-link v-if="canConfigure" to="/configuration/pfchatbot">{{ $t('Configure') }}</b-link>
+                &middot; {{ \$t("No LLM provider configured.") }}
+                <b-link v-if="canConfigure" to="/configuration/pfchatbot">{{ \$t("Configure") }}</b-link>
               </template>
-              <template v-if="pfVersion"> &middot; PacketFence {{ pfVersion }}</template>
             </small>
           </div>
           <b-button-group class="ml-auto">
