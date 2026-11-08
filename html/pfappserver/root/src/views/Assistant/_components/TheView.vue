@@ -12,8 +12,8 @@
               <template v-if="pfVersion">PacketFence {{ pfVersion }}</template>
               <template v-if="settings.provider"> &middot; {{ settings.provider }} / {{ settings.model }}</template>
               <template v-else-if="isAvailable">
-                &middot; {{ \$t("No LLM provider configured.") }}
-                <b-link v-if="canConfigure" to="/configuration/pfchatbot">{{ \$t("Configure") }}</b-link>
+                &middot; {{ $t("No LLM provider configured.") }}
+                <b-link v-if="canConfigure" to="/configuration/pfchatbot">{{ $t("Configure") }}</b-link>
               </template>
             </small>
           </div>
