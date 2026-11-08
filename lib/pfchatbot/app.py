@@ -750,6 +750,35 @@ def _preflight_check(oid: str, body: dict | None) -> dict | None:
                     "sent": sent,
                     "allowed_values": f["allowed"][:20],
                 })
+    # Validate items inside array fields against item_schema
+    for f in fields:
+        name = f["name"]
+        item_schema = f.get("item_schema")
+        if not item_schema or name not in body:
+            continue
+        items = body[name]
+        if not isinstance(items, list):
+            continue
+        schema_map = {sf["name"]: sf for sf in item_schema}
+        for idx, item in enumerate(items):
+            if not isinstance(item, dict):
+                continue
+            for sname, sf in schema_map.items():
+                val = item.get(sname)
+                is_empty = val is None or val == ""
+                if sf.get("required") and is_empty:
+                    entry = {"field": f"{name}[{idx}].{sname}", "type": sf.get("type")}
+                    if sf.get("allowed"):
+                        entry["allowed_values"] = sf["allowed"]
+                    missing.append(entry)
+                elif sf.get("allowed") and not is_empty:
+                    allowed_flat = [str(a) for a in sf["allowed"]]
+                    if str(val) not in allowed_flat:
+                        invalid.append({
+                            "field": f"{name}[{idx}].{sname}",
+                            "sent": val,
+                            "allowed_values": sf["allowed"][:20],
+                        })
     if not missing and not invalid:
         return None
     result: dict = {
@@ -1313,6 +1342,27 @@ def options_meta(target: str) -> dict:
                 for a in allowed[:40]:
                     vals.append(a.get("value") if isinstance(a, dict) else a)
                 f["allowed"] = vals
+            # Array fields: extract item sub-schema so pf_describe_fields and
+            # preflight can validate nested values (e.g. filter[].type)
+            item_props = spec.get("item", {}) if isinstance(spec.get("item"), dict) else {}
+            item_props = item_props.get("properties", {})
+            if isinstance(item_props, dict) and item_props:
+                sub_fields = []
+                for sname, sspec in item_props.items():
+                    if not isinstance(sspec, dict):
+                        continue
+                    sf = {"name": sname, "type": sspec.get("type"),
+                          "required": bool(sspec.get("required"))}
+                    sallowed = sspec.get("allowed") or sspec.get("options") or sspec.get("enum")
+                    if isinstance(sallowed, list) and sallowed:
+                        svals = [a.get("value") if isinstance(a, dict) else a
+                                 for a in sallowed[:40]]
+                        sf["allowed"] = svals
+                    if sspec.get("default") not in (None, ""):
+                        sf["default"] = sspec["default"]
+                    sub_fields.append(sf)
+                if sub_fields:
+                    f["item_schema"] = sub_fields
             fields.append(f)
     out = {"path": coll, "field_count": len(fields),
            "required": [f["name"] for f in fields if f.get("required")],
