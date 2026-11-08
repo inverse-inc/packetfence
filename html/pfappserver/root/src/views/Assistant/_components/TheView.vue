@@ -32,7 +32,7 @@
             </b-button>
             <b-button size="sm" variant="outline-secondary" @click="showLogs = true"
               v-b-tooltip.hover.bottom.d300 :title="$t('Service logs')">
-              <icon name="terminal" />
+              <icon name="file-code" />
             </b-button>
             <b-button size="sm" variant="outline-secondary" to="/configuration/pfchatbot" v-if="canConfigure"
               v-b-tooltip.hover.bottom.d300 :title="$t('Provider settings')">
