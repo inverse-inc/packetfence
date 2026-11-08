@@ -92,8 +92,12 @@ const setup = (props, context) => {
 
   const lineClass = line => {
     const l = line.toLowerCase()
-    if (/error|exception|traceback|critical/.test(l)) return 'text-danger'
-    if (/warning|warn/.test(l)) return 'text-warning'
+    // Only flag as error if the word 'error' appears as a problem indicator,
+    // not as a JSON key with a null/none value like {'error': None}
+    if (/traceback|critical/.test(l)) return 'text-danger'
+    if (/\berror\b/.test(l) && !/['\]?error[']?\s*:\s*(none|null|false)/.test(l)) return 'text-danger'
+    if (/\bexception\b/.test(l) && !/exception.*none/.test(l)) return 'text-danger'
+    if (/\bwarning\b|\bwarn\b/.test(l)) return 'text-warning'
     if (/\b(get|post|put|delete|patch)\b.*\b(200|201|204)\b/.test(l)) return 'text-secondary'
     return ''
   }
