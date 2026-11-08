@@ -4,12 +4,11 @@
       <h4 class="mb-0 mr-auto" v-html="title" />
       <b-button
         :to="{ name: 'assistant' }"
-        tag="router-link"
-        variant="outline-primary"
+        variant="success"
         size="sm"
       >
-        <icon name="comments" class="mr-1" />
         {{ $t('Open Dashboard') }}
+        <icon name="external-link-alt" class="ml-1" />
       </b-button>
     </b-card-header>
     <b-form @submit.prevent="onSave" ref="rootRef">
