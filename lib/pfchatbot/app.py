@@ -809,11 +809,7 @@ def _preflight_check(oid: str, body: dict | None) -> dict | None:
                 if default not in (None, "", [], {}):
                     body[name] = default
                     corrections.append({"field": name, "action": "default", "value": default})
-                else:
-                    entry = {"field": name, "type": f.get("type")}
-                    if f.get("allowed"):
-                        entry["allowed_values"] = f["allowed"][:20]
-                    unresolvable.append(entry)
+                # else: omit — PF's own validation will 422 with specific error if truly needed
         elif f.get("allowed"):
             allowed_flat = [str(a) for a in f["allowed"]]
             if str(val) not in allowed_flat:
@@ -858,12 +854,7 @@ def _preflight_check(oid: str, body: dict | None) -> dict | None:
                                 "field": f"{name}[{idx}].{sname}",
                                 "action": "default", "value": sdefault,
                             })
-                        else:
-                            entry = {"field": f"{name}[{idx}].{sname}",
-                                     "type": sf.get("type")}
-                            if sf.get("allowed"):
-                                entry["allowed_values"] = sf["allowed"]
-                            unresolvable.append(entry)
+                        # else: omit — let PF return a specific 422 error
                 elif sf.get("allowed"):
                     allowed_flat = [str(a) for a in sf["allowed"]]
                     if str(sval) not in allowed_flat:
@@ -902,20 +893,19 @@ def _preflight_check(oid: str, body: dict | None) -> dict | None:
             "corrections": corrections,
         }
 
-    # Partial or complete failure
+    # Only invalid values remain (wrong enum with no mapping/fallback)
     result: dict = {
         "preflight_validation_failed": True,
         "operation_id": oid, "method": o["method"].upper(), "path": path,
         "instruction": (
-            "Some fields could not be resolved automatically. "
-            "Ask the user for each field in 'needs_user_input', one at a time, "
-            "showing allowed values where listed. "
-            "Do NOT guess values. Retry pf_call_operation once you have all values."
+            "The following fields have invalid values that cannot be auto-corrected. "
+            "Ask the user for the correct value, showing allowed_values. "
+            "Retry pf_call_operation once fixed."
         ),
-        "needs_user_input": unresolvable,
+        "invalid_field_values": unresolvable,
     }
     if corrections:
-        result["auto_corrected"] = corrections  # partial corrections already applied
+        result["auto_corrected"] = corrections
         result["partially_corrected_body"] = body
     return result
 
@@ -989,8 +979,23 @@ def invoke(oid: str, path_params=None, query_params=None, body=None,
         data = r.json()
     except Exception:
         data = r.text[:4000]
-    return {"status_code": r.status_code, "method": o["method"].upper(), "path": path,
-            "curl": curl, "body": data}
+    result_body = {"status_code": r.status_code, "method": o["method"].upper(),
+                   "path": path, "curl": curl, "body": data}
+    # Format 422 validation errors so the model can fix and retry immediately
+    if r.status_code == 422 and isinstance(data, dict):
+        errs = data.get("errors") or data.get("error") or []
+        if isinstance(errs, list) and errs:
+            result_body["_422_fix_instruction"] = (
+                "The API rejected the body with specific field errors above. "
+                "Fix ONLY those fields and immediately retry pf_call_operation. "
+                "Do NOT redirect to the web UI. Do NOT ask the user unless a "
+                "field value is genuinely unknown to you."
+            )
+            result_body["_field_errors"] = [
+                {"field": e.get("field","?"), "error": e.get("message","?")}
+                for e in errs if isinstance(e, dict)
+            ]
+    return result_body
 
 
 # ── neutral tool schemas + dispatch ──────────────────────────────────────────
