@@ -5,15 +5,19 @@
       <small class="text-muted">
         <icon name="circle" :class="paused ? 'text-warning' : 'text-success'" scale="0.6" class="mr-1" />
         {{ paused ? $t('Paused') : $t('Live — updates every 2s') }}
-        <span v-if="lines.length" class="ml-2">{{ lines.length }} {{ $t('lines') }}</span>
+        <span v-if="lines.length" class="ml-2">
+          {{ lines.length }} {{ $t('lines') }}
+          <span class="text-muted"> · last 24h</span>
+        </span>
       </small>
       <b-button-group size="sm">
         <b-button variant="outline-secondary" @click="togglePause">
           <icon :name="paused ? 'play' : 'pause'" class="mr-1" />
           {{ paused ? $t('Resume') : $t('Pause') }}
         </b-button>
-        <b-button variant="outline-secondary" @click="clearLocal" v-b-tooltip.hover :title="$t('Clear display')">
-          <icon name="trash" />
+        <b-button variant="outline-danger" @click="clearLocal">
+          <icon name="trash-alt" class="mr-1" />
+          {{ $t('Clear') }}
         </b-button>
         <b-button variant="outline-secondary" @click="scrollToBottom" v-b-tooltip.hover :title="$t('Jump to bottom')">
           <icon name="arrow-down" />
@@ -23,12 +27,12 @@
     <b-alert :show="!!loadError" variant="danger" class="mb-2">{{ loadError }}</b-alert>
     <div ref="logContainer"
       class="log-container p-2 rounded"
-      style="height:62vh; overflow-y:auto; font-family:monospace; font-size:0.78rem; white-space:pre-wrap; background:#1e1e1e; color:#d4d4d4;">
+      style="height:65vh; overflow-y:auto; font-family:monospace; font-size:0.78rem; white-space:pre-wrap; background:#1e1e1e; color:#d4d4d4;">
       <div v-if="isLoading && !lines.length" class="text-muted text-center pt-4">
-        <icon name="circle-notch" spin class="mr-1" />{{ $t('Loading…') }}
+        <icon name="circle-notch" spin class="mr-1" />{{ $t('Loading 24h of logs…') }}
       </div>
       <div v-else-if="!lines.length" class="text-muted text-center pt-4">
-        {{ $t('No log entries yet.') }}
+        {{ $t('No log entries in the last 24 hours.') }}
       </div>
       <div v-for="(line, i) in lines" :key="i" :class="lineClass(line)">{{ line }}</div>
     </div>
@@ -56,29 +60,61 @@ const setup = (props, context) => {
   const loadError = ref('')
   const paused = ref(false)
   let timer = null
+  let lastTs = ''       // last timestamp seen — used for incremental polling
+  let cleared = false   // user cleared display; keep polling but don't restore old lines
 
-  const fetch = () => {
-    if (paused.value) return
-    api.logs(500).then(r => {
+  // Initial load: fetch full 24h history (no `since` param)
+  const loadHistory = () => {
+    isLoading.value = true
+    api.logs(5000, '').then(r => {
       lines.value = r.lines || []
+      lastTs = r.last_ts || ''
       loadError.value = ''
-      if (!paused.value) nextTick(scrollToBottom)
+      nextTick(scrollToBottom)
     }).catch(err => {
       const { response: { data: { error, message } = {} } = {} } = err || {}
       loadError.value = error || message || 'Could not load logs'
     }).finally(() => { isLoading.value = false })
   }
 
+  // Incremental poll: only fetch lines newer than lastTs
+  const pollNew = () => {
+    if (paused.value) return
+    api.logs(2000, lastTs).then(r => {
+      const newLines = r.lines || []
+      if (newLines.length) {
+        if (!cleared) {
+          lines.value = [...lines.value, ...newLines]
+          nextTick(scrollToBottom)
+        } else {
+          // After clear, start fresh with just the new lines
+          lines.value = newLines
+          cleared = false
+          nextTick(scrollToBottom)
+        }
+      }
+      if (r.last_ts) lastTs = r.last_ts
+      loadError.value = ''
+    }).catch(err => {
+      const { response: { data: { error, message } = {} } = {} } = err || {}
+      loadError.value = error || message || 'Could not load logs'
+    })
+  }
+
   const onShow = () => {
     isLoading.value = true
     paused.value = false
-    fetch()
-    timer = setInterval(fetch, 2000)
+    cleared = false
+    lastTs = ''
+    lines.value = []
+    loadHistory()
+    timer = setInterval(pollNew, 2000)
   }
 
   const onHide = () => {
     clearInterval(timer)
     timer = null
+    lastTs = ''
   }
 
   const scrollToBottom = () => {
@@ -88,12 +124,13 @@ const setup = (props, context) => {
 
   const togglePause = () => { paused.value = !paused.value }
 
-  const clearLocal = () => { lines.value = [] }
+  const clearLocal = () => {
+    lines.value = []
+    cleared = true
+  }
 
   const lineClass = line => {
     const l = line.toLowerCase()
-    // Only flag as error if the word 'error' appears as a problem indicator,
-    // not as a JSON key with a null/none value like {'error': None}
     if (/traceback|critical/.test(l)) return 'text-danger'
     if (/\berror\b/.test(l) && !/['\]?error[']?\s*:\s*(none|null|false)/.test(l)) return 'text-danger'
     if (/\bexception\b/.test(l) && !/exception.*none/.test(l)) return 'text-danger'

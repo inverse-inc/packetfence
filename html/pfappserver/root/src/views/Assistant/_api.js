@@ -46,7 +46,7 @@ export default {
   downloadFile: id => apiCall.request({ method: 'get', url: `pfchatbot/files/${id}/download`, responseType: 'blob' }),
   deleteFile: id => apiCall.deleteQuiet(['pfchatbot', 'files', id]).then(unwrap),
 
-  logs: (lines = 200) => apiCall.getQuiet('pfchatbot/logs', { params: { lines } }).then(unwrap),
+  logs: (lines = 5000, since = '') => apiCall.getQuiet('pfchatbot/logs', { params: { lines, since } }).then(unwrap),
 
   testTools: () => apiCall.getQuiet('pfchatbot/testtools').then(unwrap),
   testToolsHealth: () => apiCall.getQuiet('pfchatbot/testtools/health').then(unwrap),

@@ -47,15 +47,43 @@ import httpx
 from fastapi import FastAPI, Request, UploadFile, File, Form
 from fastapi.responses import JSONResponse, Response
 
-# ── in-memory log ring buffer (exposed via /logs) ────────────────────────────
+# ── log ring buffer + persistent 24h log file ────────────────────────────────
+_LOG_FILE = "/home/pfbot/pfchatbot.log"
+_LOG_RETENTION_HOURS = 24
 _log_lock = __import__('threading').Lock()
-_log_buffer: deque = deque(maxlen=500)
+_log_buffer: deque = deque(maxlen=2000)   # in-memory ring (current run)
+
+def _log_cutoff_str() -> str:
+    """ISO-ish timestamp string for 24h ago, comparable to log line prefixes."""
+    return time.strftime("%Y-%m-%d %H:%M:%S",
+                         time.gmtime(time.time() - _LOG_RETENTION_HOURS * 3600))
+
+def _prune_log_file():
+    """Remove lines older than 24h from the log file (called once at startup)."""
+    try:
+        if not os.path.exists(_LOG_FILE):
+            return
+        cutoff = _log_cutoff_str()
+        kept = []
+        with open(_LOG_FILE, "r", errors="replace") as f:
+            for line in f:
+                kept.append(line) if line[:19] >= cutoff else None
+        with open(_LOG_FILE, "w") as f:
+            f.writelines(kept)
+    except Exception:
+        pass
 
 class _TeeStream:
-    """Writes to real stdout AND captures lines into _log_buffer."""
+    """Writes to real stdout, ring buffer, and persistent log file."""
     def __init__(self, real):
         self._real = real
         self._pending = ""
+        self._fh = None
+        try:
+            self._fh = open(_LOG_FILE, "a", buffering=1, errors="replace")
+        except Exception:
+            pass
+
     def write(self, text):
         self._real.write(text)
         self._pending += text
@@ -63,13 +91,27 @@ class _TeeStream:
             line, self._pending = self._pending.split("\n", 1)
             if line.strip():
                 ts = time.strftime("%Y-%m-%d %H:%M:%S")
+                entry = f"{ts}  {line}"
                 with _log_lock:
-                    _log_buffer.append(f"{ts}  {line}")
+                    _log_buffer.append(entry)
+                if self._fh:
+                    try:
+                        self._fh.write(entry + "\n")
+                    except Exception:
+                        pass
+
     def flush(self):
         self._real.flush()
+        if self._fh:
+            try:
+                self._fh.flush()
+            except Exception:
+                pass
+
     def __getattr__(self, name):
         return getattr(self._real, name)
 
+_prune_log_file()
 sys.stdout = _TeeStream(sys.stdout)
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -2964,9 +3006,34 @@ def get_config():
                          "pf_version": _state.get("pf_version") or ""})
 
 @app.get("/logs")
-def get_logs(lines: int = 200):
-    """Return the most recent log lines captured from stdout."""
-    n = min(max(1, lines), 500)
-    with _log_lock:
-        entries = list(_log_buffer)[-n:]
-    return JSONResponse({"lines": entries})
+def get_logs(lines: int = 5000, since: str = ""):
+    """Return log lines from the persistent 24h log file.
+
+    lines: max number of lines to return (default 5000, max 20000)
+    since: ISO-ish timestamp (YYYY-MM-DD HH:MM:SS); return only lines after this
+           Used by the UI for incremental polling — only new lines since last fetch.
+    """
+    n = min(max(1, lines), 20000)
+    cutoff = since.strip() if since.strip() else _log_cutoff_str()
+    entries: list[str] = []
+
+    # Read from persistent file (survives restarts, holds up to 24h)
+    try:
+        if os.path.exists(_LOG_FILE):
+            with open(_LOG_FILE, "r", errors="replace") as f:
+                for line in f:
+                    s = line.rstrip()
+                    if s and s[:19] > cutoff:
+                        entries.append(s)
+    except Exception:
+        pass
+
+    # Fallback / supplement with in-memory ring for lines not yet flushed
+    if not entries:
+        with _log_lock:
+            entries = [l for l in _log_buffer if l[:19] > cutoff]
+
+    entries = entries[-n:]
+    # Return the timestamp of the last entry so the client can use it as next `since`
+    last_ts = entries[-1][:19] if entries else cutoff
+    return JSONResponse({"lines": entries, "last_ts": last_ts, "since": cutoff})
