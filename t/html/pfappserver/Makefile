@@ -16,7 +16,7 @@ RECORD_KEY ?=
 
 all:
 	@echo "Usage:"
-	@echo "make install-debian|install-rhel: install libraries"
+	@echo "make install-debian: install libraries"
 	@echo "make install: install cypress"
 	@echo "make test: run tests headless"
 	@echo "make test-project: run tests headless in a project, requires PROJECT_ID and RECORD_KEY"
@@ -33,12 +33,6 @@ all:
 	@echo "make [target] TAGS=foo,bar"
 	@echo ""
 	@echo "DISPLAY=\$$(cat /etc/resolv.conf | grep nameserver | awk '{print \$$2; exit;}'):0.0 make [target]"
-
-install-rhel:
-	yum install -y xorg-x11-server-Xvfb gtk2-devel gtk3-devel libnotify-devel GConf2 nss libXScrnSaver alsa-lib
-	wget -O- "https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64&lang=en-US" | tar -Jx -C /usr/local/
-	ln -sf /usr/local/firefox/firefox /usr/bin/firefox
-	firefox --version
 
 install-debian:
 	apt-get update -y

@@ -7,8 +7,8 @@
 # services before this point fails on a healthy cluster.
 #
 # degraded = startup finished with some failed units; the verify suite judges
-# those. Poll rather than `is-system-running --wait`: --wait landed in systemd
-# 240, but el8 ships 239 where it is ignored and returns immediately.
+# those. Poll with retries rather than `is-system-running --wait` so the wait
+# stays bounded.
 - name: "Wait for the boot transaction to settle on {{ inventory_hostname }}"
   ansible.builtin.command: systemctl is-system-running
   register: _boot_settled

@@ -25,12 +25,8 @@ testcases:
   - type: exec
     script: |
       set -e
-      if command -v apt-get >/dev/null 2>&1; then
-        export DEBIAN_FRONTEND=noninteractive
-        apt-get update
-        apt-get -y install mariadb-backup socat
-      else
-        yum install -y MariaDB-backup socat --enablerepo=packetfence
-      fi
+      export DEBIAN_FRONTEND=noninteractive
+      apt-get update
+      apt-get -y install mariadb-backup socat
     assertions:
       - result.code ShouldEqual 0

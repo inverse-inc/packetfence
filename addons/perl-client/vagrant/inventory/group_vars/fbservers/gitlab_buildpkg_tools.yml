@@ -5,7 +5,6 @@ gitlab_buildpkg_tools__ppa_enabled: True
 # available as artifact, mounted into Vagrant box under /src
 gitlab_buildpkg_tools__ppa_url: '/src/public'
 gitlab_buildpkg_tools__ppa_url_deb: 'file:{{ gitlab_buildpkg_tools__ppa_url }}/debian'
-gitlab_buildpkg_tools__ppa_url_rpm: 'file://{{ gitlab_buildpkg_tools__ppa_url }}/centos'
 
 # redefine this variables to avoid confusion with official "packetfence" repositories
 gitlab_buildpkg_tools__deb_ppa:
@@ -15,25 +14,12 @@ gitlab_buildpkg_tools__deb_ppa:
     # installing a key from a file
     gpgkey: 'http://inverse.ca/downloads/GPG_PUBLIC_KEY'
 
-gitlab_buildpkg_tools__rpm_ppa:
-  - name: 'fingerbank-local'
-    baseurl: '{{ gitlab_buildpkg_tools__ppa_url_rpm + "/$releasever/$basearch" }}'
-    gpgkey: '{{ gitlab_buildpkg_tools__ppa_url + "/GPG_PUBLIC_KEY" }}'
-    # always prefered this repo to install fingerbank pkg
-    priority: 1
-
 # to install run time dependencies
 gitlab_buildpkg_tools__deb_deps_repos:
   - name: packetfence
     baseurl: 'http://inverse.ca/downloads/PacketFence/debian/{{ pf_minor_release }} {{ ansible_distribution_release }} {{ ansible_distribution_release }}'
 
-gitlab_buildpkg_tools__rpm_deps_repos:
-  - name: packetfence
-    baseurl: 'http://inverse.ca/downloads/PacketFence/RHEL$releasever/{{ pf_minor_release }}/$basearch'
 # we only install repos at this step
 gitlab_buildpkg_tools__deb_pkgs:
-  - fingerbank
-
-gitlab_buildpkg_tools__rpm_pkgs:
   - fingerbank
 

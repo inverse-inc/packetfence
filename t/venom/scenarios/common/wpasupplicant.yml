@@ -1,18 +1,10 @@
 ---
 # tasks
-- name: ensure wpa_supplicant installed on EL systems
-  yum:
-    name: wpa_supplicant
-    state: present
-    update_cache: no
-  when: ansible_facts['os_family'] == 'RedHat'
-
-- name: ensure wpasupplicant installed on Deb systems
+- name: ensure wpasupplicant installed
   apt:
     name: wpasupplicant
     state: present
     update_cache: no
-  when: ansible_facts['os_family'] == 'Debian'
 
 - name: Stopped wpasupplicant daemon
   service:

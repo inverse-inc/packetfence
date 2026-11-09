@@ -17,13 +17,9 @@ cd /usr/local/pf/t/html/pfappserver
 
 ### Install dependancies
 
-Install cypress dependancies using `yum` (rhel), `apt-get` (debian).
+Install cypress dependancies using `apt-get`.
 
 ```bash
-# RHEL
-make install-rhel
-
-# Debian
 make install-debian
 ```
 

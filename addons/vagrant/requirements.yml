@@ -38,4 +38,4 @@ collections:
 # to test using a Git repository
   # - name: https://github.com/inverse-inc/ansible-packetfence.git
   #   type: git
-  #   version: feature/rhel8
+  #   version: feature/my-branch

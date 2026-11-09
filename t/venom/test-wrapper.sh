@@ -87,7 +87,7 @@ configure_and_check() {
     PF_MINOR_RELEASE=${PF_MINOR_RELEASE:-}
 
     # Baked vagrant box (set by bake_img_vagrant_* CI jobs). When
-    # USE_VAGRANT_BOX=yes, PF VMs (pfel8dev/pfdeb13dev) boot from the
+    # USE_VAGRANT_BOX=yes, PF VMs (pfdeb13dev) boot from the
     # per-pipeline pre-baked box inverse-inc/<vm> registered by
     # ci/lib/vagrant/setup-vagrant-box.sh, skipping site.yml and the
     # configurator wizard. Defaults preserve the original behavior.
@@ -117,9 +117,8 @@ configure_and_check() {
 # LOCAL_BAKED_BOX=yes maps localdev VMs to a `bake-vagrant-img.sh local` box.
 baked_box_for_pf_vm() {
     case "$1" in
-        pfel8dev|pf[123]el8dev) echo pfel8dev ;;
         pfdeb13dev|pf[123]deb13dev) echo pfdeb13dev ;;
-        pfel8localdev|pf[123]el8localdev|pfdeb13localdev|pf[123]deb13localdev)
+        pfdeb13localdev|pf[123]deb13localdev)
             if [ "${LOCAL_BAKED_BOX:-no}" = yes ]; then
                 echo "${1/#pf[123]/pf}"
             else
@@ -176,16 +175,6 @@ refresh_network_post_import() {
     log_subsection "Refresh network on ${vm} (post-import boot)"
     ( cd ${VAGRANT_DIR} ; \
       ansible-playbook playbooks/refresh_network_post_import.yml -l "${vm}" )
-}
-
-# The bake unregisters RHEL before packaging, so a baked el8 clone boots
-# without yum repos; re-register so scenarios can install packages.
-# No-op on Debian (playbook guards on os_family); teardown unregisters.
-reregister_rhel_post_import() {
-    local vm=$1
-    log_subsection "Re-register RHEL subscription on ${vm} (post-import)"
-    ( cd ${VAGRANT_DIR} ; \
-      ansible-playbook playbooks/register_rhel_subscription.yml -l "${vm}" )
 }
 
 check_free_space() {
@@ -353,7 +342,7 @@ wait_for_ssh() {
 # Prep/readdress playbooks for baked cluster clones (no-op for standalone VMs).
 baked_cluster_playbook() {
     local playbook=$1 vm=$2
-    [[ "${vm}" =~ ^pf[123](deb13|el8)(local)?dev$ ]] || return 0
+    [[ "${vm}" =~ ^pf[123]deb13(local)?dev$ ]] || return 0
     ( cd "${VAGRANT_DIR}"; ansible-playbook "playbooks/${playbook}" -l "${vm}" )
 }
 
@@ -390,7 +379,6 @@ start_vm() {
             baked_cluster_playbook cluster_prep_baked.yml "${vm}"
             refresh_network_post_import "${vm}"
             baked_cluster_playbook cluster_readdress_baked.yml "${vm}"
-            reregister_rhel_post_import "${vm}"
         else
             ( cd ${VAGRANT_DIR}; \
               ansible-playbook site.yml -l $vm )
@@ -418,7 +406,6 @@ start_vm() {
             baked_cluster_playbook cluster_prep_baked.yml "${vm}"
             refresh_network_post_import "${vm}"
             baked_cluster_playbook cluster_readdress_baked.yml "${vm}"
-            reregister_rhel_post_import "${vm}"
         else
             ( cd ${VAGRANT_DIR} ; \
               VAGRANT_DOTFILE_PATH=${dotfile_path} \
@@ -435,7 +422,7 @@ start_baked_pf_vms() {
     local vm_names=$* vm cluster_vms=""
     local vm_list=${vm_names// /,}
     for vm in ${vm_names}; do
-        [[ "${vm}" =~ ^pf[123](deb13|el8)(local)?dev$ ]] && cluster_vms="${cluster_vms},${vm}"
+        [[ "${vm}" =~ ^pf[123]deb13(local)?dev$ ]] && cluster_vms="${cluster_vms},${vm}"
     done
     cluster_vms=${cluster_vms#,}
     ( cd "${VAGRANT_DIR}"
@@ -449,8 +436,6 @@ start_baked_pf_vms() {
     if [ -n "${cluster_vms}" ]; then
         ( cd "${VAGRANT_DIR}"; ansible-playbook playbooks/cluster_readdress_baked.yml -l "${cluster_vms}" )
     fi
-    log_subsection "Re-register RHEL subscription on ${vm_list} (post-import)"
-    ( cd "${VAGRANT_DIR}"; ansible-playbook playbooks/register_rhel_subscription.yml -l "${vm_list}" )
 }
 
 start_and_provision_pf_vm() {
@@ -576,7 +561,7 @@ teardown() {
 }
 
 ansible_teardown() {
-    log_subsection "Ansible teardown (RHEL8 Unregister and Get Logs on all VM)"
+    log_subsection "Ansible teardown (Get Logs on all VM)"
     if [ -n "${ANSIBLE_VM_LIST}" ]; then
         run_ansible_galaxy_once "${VAGRANT_DIR}/requirements.yml"
         ( cd $VAGRANT_DIR ; \

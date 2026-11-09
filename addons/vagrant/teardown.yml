@@ -1,4 +1,2 @@
 ---
-- import_playbook: playbooks/unregister_rhel_subscription.yml
-
 - import_playbook: playbooks/get_logs.yml

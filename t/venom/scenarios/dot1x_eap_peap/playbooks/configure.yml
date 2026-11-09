@@ -10,30 +10,11 @@
       - virtualenv
       - jq
 
-    el8Packages:
-      - curl
-      - python3-pip
-      - python3-setuptools
-      - virtualenv
-      - jq
-
   tasks:
-    - name: Install packages on debian
+    - name: Install packages
       package:
         name: "{{ debianPackages }}"
         state: present
-      when: ansible_facts['os_family'] == "Debian"
-
-    - name: Install packages on el8
-      package:
-        name: "{{ el8Packages }}"
-        state: present
-      when: ansible_facts['os_family'] == "RedHat"
-
-    - name: Install xmltodict python package
-      pip:
-        name: xmltodict
-      when: ansible_facts['os_family'] == "RedHat"
 
     - name: Install xmltodict python package
       shell: | 
@@ -41,4 +22,3 @@
         pip install xmltodict --break-system-packages
       args:
         executable: /usr/bin/bash
-      when: ansible_facts['os_family'] == "Debian"

@@ -1,8 +1,0 @@
----
-### EL
-# pre-requisites to run shell provisioner after
-gitlab_buildpkg_tools__rpm_pkgs:
-  - yum-utils
-
-### Debian
-gitlab_buildpkg_tools__deb_pkgs: []

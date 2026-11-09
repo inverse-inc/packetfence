@@ -11,10 +11,5 @@ bootstrap. Covers the "Setup on all servers" section of
   and `net.ipv6.conf.all.disable_ipv6 = 1`, applied with `sysctl -p`.
   The doc's `reboot` is **skipped** — `sysctl -p` applies the values live
   and reboots over the ansible connection are fragile in CI.
-- Install `mariadb-backup` (+ `socat`) — required for galera SST.
-  Idempotent so the suite is safe to re-run.
-
-## Notes
-- OS detection is `command -v apt-get`: Debian uses `apt-get install
-  mariadb-backup socat`; EL uses `yum install MariaDB-backup socat
-  --enablerepo=packetfence`.
+- Install `mariadb-backup` (+ `socat`) with `apt-get` — required for
+  galera SST. Idempotent so the suite is safe to re-run.

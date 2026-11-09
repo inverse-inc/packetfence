@@ -6,7 +6,7 @@
 # all downstream test jobs in the same pipeline (setup-vagrant-box.sh), so
 # they skip site.yml and the configurator wizard.
 #
-# Required env: BAKE_ARCH (el8|deb13), PF_VM_NAME (pfel8dev|pfdeb13dev),
+# Required env: BAKE_ARCH (deb13), PF_VM_NAME (pfdeb13dev),
 #               CI_PIPELINE_ID.
 # Optional env: RESULT_DIR, VAGRANT_PF_DOTFILE_PATH.
 # `local` registers the box in the local vagrant store instead of uploading it.
@@ -20,8 +20,8 @@ source "${PF_SRC_DIR}/ci/lib/common/functions.sh"
 source "${PF_SRC_DIR}/ci/lib/ansible-galaxy-cache.sh"
 
 configure_and_check() {
-    BAKE_ARCH=${BAKE_ARCH:?BAKE_ARCH must be set (e.g. el8, deb13)}
-    PF_VM_NAME=${PF_VM_NAME:?PF_VM_NAME must be set (e.g. pfel8dev, pfdeb13dev)}
+    BAKE_ARCH=${BAKE_ARCH:?BAKE_ARCH must be set (e.g. deb13)}
+    PF_VM_NAME=${PF_VM_NAME:?PF_VM_NAME must be set (e.g. pfdeb13dev)}
     CI_PIPELINE_ID=${CI_PIPELINE_ID:?CI_PIPELINE_ID must be set}
 
     RESULT_DIR=${RESULT_DIR:-/var/local/gitlab-runner/vagrant_img/${CI_PIPELINE_ID}}
@@ -78,15 +78,6 @@ capture_venom_logs() {
         && RESULT_DIR="${PF_SRC_DIR}/results" \
            ansible-playbook playbooks/get_logs.yml -l "${PF_VM_NAME}" ) \
         || echo "WARNING: venom log capture failed (non-fatal)"
-}
-
-# Drop RHEL entitlement certs (/etc/pki/consumer, /var/lib/rhsm) before
-# packaging. No-op on Debian via the playbook's own ansible_os_family guard.
-unregister_pf_vm() {
-    log_section "Unregister RHEL subscription on ${PF_VM_NAME} (pre-sysprep)"
-    ( cd "${VAGRANT_DIR}" \
-        && ansible-playbook playbooks/unregister_rhel_subscription.yml \
-               -l "${PF_VM_NAME}" )
 }
 
 # Run sysprep_pf.yml inside the live PF VM right before halt, so the
@@ -294,7 +285,6 @@ bake_box() {
     prepare_ansible_dependencies "${VAGRANT_DIR}/requirements.yml" "${VAGRANT_DIR}/ansible.cfg"
     capture_venom_logs
     [ "${rc}" -eq 0 ] || die "configurator run failed (rc=${rc}) — see results/ artifact"
-    unregister_pf_vm
     sysprep_pf_vm
     diag_network_state
     halt_pf_vm
