@@ -81,7 +81,7 @@ make -C t/venom cluster_recovery_deb13
 
 ### Why C is skipped in the combined job
 
-`cluster_recovery_deb13`/`_el8` run `cluster_configurator` first, and it ends
+`cluster_recovery_deb13` runs `cluster_configurator` first, and it ends
 with the same rolling reboot as C (one node at a time, re-Sync before the next)
 on the same cluster. Running C again only adds ~15 min and a
 `cluster_verify_all` pass, which the job's 3 h limit can't spare. The one thing
@@ -101,7 +101,7 @@ ansible-playbook scenarios/cluster_recovery/site.yml -l <pf1,pf2,pf3> \
 
 (The `recovery_scenarios` list defaults to `['A','B','C','D','E','F']`.)
 
-CI: jobs `cluster_recovery_deb13` / `_el8` run in the `test_cluster` stage under
+CI: job `cluster_recovery_deb13` runs in the `test_cluster` stage under
 the same `TEST_CLUSTER=yes` gate as the configurator jobs (or a `test_cluster=yes`
 commit message).
 
@@ -170,7 +170,7 @@ startup; waiting for the first node to become fully healthy before booting peers
 can block recovery. Do not change this scheduling in the capacity comparison.
 
 The next experiment on the existing runner uses **3 vCPUs / 8 GiB per cluster
-node** (Debian 13 and EL8 dev inventory). Leave `CLUSTER_RUNNER_TAG` at its default
+node** (Debian 13 dev inventory). Leave `CLUSTER_RUNNER_TAG` at its default
 for this run. Standalone/bake VM allocations are unchanged. Compare guest steal,
 startup timeouts and scenario A completion before trying the larger runner.
 

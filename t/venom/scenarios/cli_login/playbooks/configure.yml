@@ -189,7 +189,7 @@
         }
         }
 
-  - name: Creating radius service for Debian
+  - name: Creating radius service
     copy:
       dest: "/lib/systemd/system/radius-test.service"
       content: |
@@ -205,25 +205,6 @@
         StartLimitInterval=10
         ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n test -fm
         Restart=on-failure
-    when: ansible_facts['os_family'] == "Debian"
-
-  - name: Creating radius service for RHEL8
-    copy:
-      dest: "/lib/systemd/system/radius-test.service"
-      content: |
-        # Copyright (C) Inverse inc.
-        [Unit]
-        Description=RADIUS test service
-        Documentation=man:radiusd(8) man:radiusd.conf(5) http://wiki.freeradius.org/ http://networkradius.com/doc/
-        
-        [Service]
-        Type=notify
-        WatchdogSec=20
-        StartLimitBurst=3
-        StartLimitInterval=10
-        ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n test -fm
-        Restart=on-failure
-    when: ansible_facts['os_family'] == "RedHat"
 
   - name: Reload services
     ansible.builtin.systemd:

@@ -1,8 +1,3 @@
 ---
-### EL
-# installation of packetfence is done in a playbook
-gitlab_buildpkg_tools__rpm_pkgs: []
-
-### Debian
 gitlab_buildpkg_tools__deb_pkgs:
   - packetfence

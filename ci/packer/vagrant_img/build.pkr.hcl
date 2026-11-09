@@ -1,9 +1,6 @@
 build {
   name = "dev"
-  sources = [
-    "source.qemu.el-8",
-    "source.qemu.debian-13"
-  ]
+  sources = ["source.qemu.debian-13"]
 
   # Fix DHCP/DNS for QEMU user-mode networking.
   provisioner "shell" {
@@ -14,20 +11,6 @@ build {
       "IFACE=$(ip -o link show | awk -F': ' '/^[0-9]+: e/{print $2; exit}')",
       "ip link set \"$IFACE\" up",
       "dhclient -v \"$IFACE\" || true",
-      "echo 'nameserver 8.8.8.8' > /etc/resolv.conf",
-    ]
-  }
-
-  # Same fix for EL 8 — generic/rhel8 ships NetworkManager rather than
-  # isc-dhcp-client, so fall back to nmcli when dhclient is absent.
-  provisioner "shell" {
-    only = ["qemu.el-8"]
-    execute_command = "echo 'vagrant' | sudo -S -E bash '{{.Path}}'"
-    inline = [
-      "set -eux",
-      "IFACE=$(ip -o link show | awk -F': ' '/^[0-9]+: e/{print $2; exit}')",
-      "ip link set \"$IFACE\" up",
-      "if command -v dhclient >/dev/null 2>&1; then dhclient -v \"$IFACE\" || true; elif command -v nmcli >/dev/null 2>&1; then nmcli device connect \"$IFACE\" || true; fi",
       "echo 'nameserver 8.8.8.8' > /etc/resolv.conf",
     ]
   }
@@ -47,38 +30,10 @@ build {
     use_proxy = false
   }
 
-  provisioner "file" {
-    only = ["qemu.el-8"]
-    source = "${var.pfroot_dir}/rpm/packetfence.spec"
-    destination = "${var.spec_file_path}"
-  }
-
-  provisioner "shell" {
-    only = ["qemu.el-8"]
-    execute_command = "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
-    script = "${var.pfroot_dir}/addons/dev-helpers/centos-chroot/install-packages-from-spec.sh"
-    environment_vars = [
-      "SPEC=${var.spec_file_path}"
-    ]
-  }
-
   provisioner "shell" {
     only = ["qemu.debian-13"]
     execute_command = "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
     script = "${var.pfroot_dir}/addons/dev-helpers/debian/install-pf-dependencies.sh"
-  }
-
-  # Ship the box unregistered: the build-time RHEL subscription goes stale once
-  # this build's consumer is reaped, leaving published boxes unable to reach
-  # entitled repos. Runtime provisioning re-registers per dev/CI.
-  provisioner "shell" {
-    only = ["qemu.el-8"]
-    execute_command = "echo 'vagrant' | sudo -S -E bash '{{.Path}}'"
-    inline = [
-      "set -eux",
-      "subscription-manager unregister || true",
-      "subscription-manager clean || true",
-    ]
   }
 
   # Local .box output picked up by upload-to-linode.sh (Linode Object Storage
@@ -197,10 +152,7 @@ build {
 
 build {
   name = "stable"
-  sources = [
-    "source.qemu.el-8",
-    "source.qemu.debian-13"
-  ]
+  sources = ["source.qemu.debian-13"]
 
   provisioner "shell" {
     only = ["qemu.debian-13"]
@@ -210,18 +162,6 @@ build {
       "IFACE=$(ip -o link show | awk -F': ' '/^[0-9]+: e/{print $2; exit}')",
       "ip link set \"$IFACE\" up",
       "dhclient -v \"$IFACE\" || true",
-      "echo 'nameserver 8.8.8.8' > /etc/resolv.conf",
-    ]
-  }
-
-  provisioner "shell" {
-    only = ["qemu.el-8"]
-    execute_command = "echo 'vagrant' | sudo -S -E bash '{{.Path}}'"
-    inline = [
-      "set -eux",
-      "IFACE=$(ip -o link show | awk -F': ' '/^[0-9]+: e/{print $2; exit}')",
-      "ip link set \"$IFACE\" up",
-      "if command -v dhclient >/dev/null 2>&1; then dhclient -v \"$IFACE\" || true; elif command -v nmcli >/dev/null 2>&1; then nmcli device connect \"$IFACE\" || true; fi",
       "echo 'nameserver 8.8.8.8' > /etc/resolv.conf",
     ]
   }
@@ -239,19 +179,6 @@ build {
     extra_arguments  = ["--skip-tags", "upgrade"]
     inventory_directory = "${var.provisioner_dir}/inventory"
     use_proxy = false
-  }
-
-  # Ship the box unregistered: the build-time RHEL subscription goes stale once
-  # this build's consumer is reaped, leaving published boxes unable to reach
-  # entitled repos. Runtime provisioning re-registers per dev/CI.
-  provisioner "shell" {
-    only = ["qemu.el-8"]
-    execute_command = "echo 'vagrant' | sudo -S -E bash '{{.Path}}'"
-    inline = [
-      "set -eux",
-      "subscription-manager unregister || true",
-      "subscription-manager clean || true",
-    ]
   }
 
   # Local .box output picked up by upload-to-linode.sh (Linode Object Storage

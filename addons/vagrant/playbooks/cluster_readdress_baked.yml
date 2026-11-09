@@ -59,21 +59,11 @@
       retries: 6
       delay: 10
 
-    - name: Apply changed addresses on NetworkManager nodes
-      ansible.builtin.service:
-        name: NetworkManager
-        state: restarted
-      when: ansible_os_family == 'RedHat'
-
     - name: Verify live and persistent addresses before cluster integration
       ansible.builtin.shell: |
         set -eu
         ip -o -4 addr show dev {{ item.stdout | quote }} | grep -F -- {{ (item.item.ip ~ '/') | quote }} >/dev/null
-        if command -v apt-get >/dev/null 2>&1; then
-          grep -Eq '^[[:space:]]*address[[:space:]]+{{ item.item.ip | regex_escape }}$' /etc/network/interfaces
-        else
-          grep -Fx -- {{ ('IPADDR=' ~ item.item.ip) | quote }} /etc/sysconfig/network-scripts/ifcfg-{{ item.stdout }} >/dev/null
-        fi
+        grep -Eq '^[[:space:]]*address[[:space:]]+{{ item.item.ip | regex_escape }}$' /etc/network/interfaces
       loop: '{{ interface_names.results }}'
       changed_when: false
 
@@ -81,7 +71,6 @@
     # A dangling auto/allow-hotplug entry makes ifupdown fail at each boot.
     # Preserve any existing definition, including those in interfaces.d.
     - name: Define the unused inline NIC for Debian ifupdown
-      when: ansible_os_family == 'Debian'
       block:
         - name: Discover inline NIC using the test interface index
           ansible.builtin.shell: >-

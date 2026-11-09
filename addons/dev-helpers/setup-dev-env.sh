@@ -83,10 +83,6 @@ detect_os() {
         . /etc/os-release
         case "$ID" in
             debian|ubuntu)
-                OS_TYPE="debian"
-                ;;
-            rhel|centos|rocky|almalinux|fedora)
-                OS_TYPE="rhel"
                 ;;
             *)
                 die "Unsupported Linux distribution: $ID"
@@ -102,18 +98,9 @@ detect_os
 ## Check if PacketFence is installed
 log_section "Checking if PacketFence is installed"
 PF_INSTALLED=false
-case "$OS_TYPE" in
-    debian)
-        if dpkg -l packetfence 2>/dev/null | grep -q "^ii"; then
-            PF_INSTALLED=true
-        fi
-        ;;
-    rhel)
-        if rpm -q packetfence >/dev/null 2>&1; then
-            PF_INSTALLED=true
-        fi
-        ;;
-esac
+if dpkg -l packetfence 2>/dev/null | grep -q "^ii"; then
+    PF_INSTALLED=true
+fi
 
 if [ "$PF_INSTALLED" = false ]; then
     echo "PacketFence is not installed."
@@ -143,15 +130,7 @@ echo "Management interface is configured."
 
 ## Install build dependencies
 log_section "Installing build dependencies"
-case "$OS_TYPE" in
-    debian)
-        apt install -y build-essential devscripts dpkg-dev fakeroot git tmux vim gnupg sudo curl
-        ;;
-    rhel)
-        dnf groupinstall -y 'Development Tools'
-        dnf install -y curl-devel git rpm-build tmux vim gnupg2 sudo curl
-        ;;
-esac
+apt install -y build-essential devscripts dpkg-dev fakeroot git tmux vim gnupg sudo curl
 
 ## Install Node.js
 log_section "Installing Node.js"
@@ -174,16 +153,8 @@ else
 fi
 
 echo "Installing Node.js $NODEJS_VERSION..."
-case "$OS_TYPE" in
-    debian)
-        curl -fsSL "https://deb.nodesource.com/setup_${NODEJS_VERSION}.x" | bash -
-        apt install -y nodejs
-        ;;
-    rhel)
-        dnf module reset nodejs -y
-        dnf module install "nodejs:${NODEJS_VERSION}" -y
-        ;;
-esac
+curl -fsSL "https://deb.nodesource.com/setup_${NODEJS_VERSION}.x" | bash -
+apt install -y nodejs
 
 # Verify installation
 if ! type node 2>/dev/null || ! type npm 2>/dev/null; then
@@ -219,16 +190,8 @@ git config --global --add safe.directory /usr/local/pf
 
 log_section "install required header files from PF repo"
 
-case "$OS_TYPE" in
-    debian)
-        echo "Installing header files for Debian-based system"
-        apt install -y libcurl4-openssl-dev libcjson-dev
-        ;;
-    rhel)
-        echo "Installing header files for Red Hat-based system"
-        dnf install -y --enablerepo=packetfence libcurl-devel cjson-devel
-        ;;
-esac
+echo "Installing header files for Debian-based system"
+apt install -y libcurl4-openssl-dev libcjson-dev
 
 cd /usr/local/pf/
 
@@ -255,17 +218,8 @@ cp /usr/local/pf-pkg/conf/system_init_key /usr/local/pf/conf/system_init_key
 
 log_section "Install asciidoc*"
 
-case "$OS_TYPE" in
-    debian)
-        echo "Installing Ruby for Debian-based system"
-        apt install -y ruby ruby-dev build-essential
-        ;;
-    rhel)
-        echo "Installing Ruby for Red Hat-based system"
-        dnf module reset ruby -y
-        yum install -y @ruby:2.6
-        ;;
-esac
+echo "Installing Ruby for Debian-based system"
+apt install -y ruby ruby-dev build-essential
 
 # Check if gems are already installed to avoid reinstalling
 if ! gem list -i asciidoctor > /dev/null 2>&1; then

@@ -111,36 +111,6 @@ all:
       children:
         clusters:
           hosts:
-            pf1el8dev:
-              box: inverse-inc/pfel8dev
-              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfel8dev/metadata.json
-              mgmt_ip: "{{ users_vars[dict_name]['vms']['pf1el8dev']['ip'] }}"
-              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf1el8dev']['netmask'] }}"
-              ansible_host: "{{ mgmt_ip }}"
-              ansible_python_interpreter: '/usr/bin/python3'
-              cpus: 3
-              memory: 8192
-              disk_size: 130
-            pf2el8dev:
-              box: inverse-inc/pfel8dev
-              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfel8dev/metadata.json
-              mgmt_ip: "{{ users_vars[dict_name]['vms']['pf2el8dev']['ip'] }}"
-              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf2el8dev']['netmask'] }}"
-              ansible_host: "{{ mgmt_ip }}"
-              ansible_python_interpreter: '/usr/bin/python3'
-              cpus: 3
-              memory: 8192
-              disk_size: 130
-            pf3el8dev:
-              box: inverse-inc/pfel8dev
-              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfel8dev/metadata.json
-              mgmt_ip: "{{ users_vars[dict_name]['vms']['pf3el8dev']['ip'] }}"
-              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf3el8dev']['netmask'] }}"
-              ansible_host: "{{ mgmt_ip }}"
-              ansible_python_interpreter: '/usr/bin/python3'
-              cpus: 3
-              memory: 8192
-              disk_size: 130
             pf1deb13dev:
               box: inverse-inc/pfdeb13dev
               box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfdeb13dev/metadata.json
@@ -169,36 +139,6 @@ all:
               ansible_host: "{{ mgmt_ip }}"
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 3
-              memory: 8192
-              disk_size: 130
-            pf1el8localdev:
-              box: inverse-inc/pfel8dev
-              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfel8dev/metadata.json
-              mgmt_ip: "{{ users_vars[dict_name]['vms']['pf1el8localdev']['ip'] }}"
-              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf1el8localdev']['netmask'] }}"
-              ansible_host: "{{ mgmt_ip }}"
-              ansible_python_interpreter: '/usr/bin/python3'
-              cpus: 4
-              memory: 8192
-              disk_size: 130
-            pf2el8localdev:
-              box: inverse-inc/pfel8dev
-              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfel8dev/metadata.json
-              mgmt_ip: "{{ users_vars[dict_name]['vms']['pf2el8localdev']['ip'] }}"
-              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf2el8localdev']['netmask'] }}"
-              ansible_host: "{{ mgmt_ip }}"
-              ansible_python_interpreter: '/usr/bin/python3'
-              cpus: 4
-              memory: 8192
-              disk_size: 130
-            pf3el8localdev:
-              box: inverse-inc/pfel8dev
-              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfel8dev/metadata.json
-              mgmt_ip: "{{ users_vars[dict_name]['vms']['pf3el8localdev']['ip'] }}"
-              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf3el8localdev']['netmask'] }}"
-              ansible_host: "{{ mgmt_ip }}"
-              ansible_python_interpreter: '/usr/bin/python3'
-              cpus: 4
               memory: 8192
               disk_size: 130
             pf1deb13localdev:
@@ -234,31 +174,11 @@ all:
 
         standalones:
           hosts:
-            pfel8dev:
-              box: inverse-inc/pfel8dev
-              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfel8dev/metadata.json
-              mgmt_ip: "{{ users_vars[dict_name]['vms']['pfel8dev']['ip'] }}"
-              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfel8dev']['netmask'] }}"
-              ansible_host: "{{ mgmt_ip }}"
-              ansible_python_interpreter: '/usr/bin/python3'
-              cpus: 8
-              memory: 16384
-              disk_size: 130
             pfdeb13dev:
               box: inverse-inc/pfdeb13dev
               box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfdeb13dev/metadata.json
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pfdeb13dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb13dev']['netmask'] }}"
-              ansible_host: "{{ mgmt_ip }}"
-              ansible_python_interpreter: '/usr/bin/python3'
-              cpus: 8
-              memory: 16384
-              disk_size: 130
-            el8dev:
-              box: generic/rhel8
-              box_version: '4.2.16'
-              mgmt_ip: "{{ users_vars[dict_name]['vms']['el8dev']['ip'] }}"
-              mgmt_netmask: "{{ users_vars[dict_name]['vms']['el8dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
@@ -278,16 +198,6 @@ all:
               mgmt_ip: "{{ users_vars[dict_name]['vms']['localhost']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['localhost']['netmask'] }}"
               ansible_connection: local
-            pfel8localdev:
-              box: generic/rhel8
-              box_version: '4.2.16'
-              mgmt_ip: "{{ users_vars[dict_name]['vms']['pfel8localdev']['ip'] }}"
-              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfel8localdev']['netmask'] }}"
-              ansible_host: "{{ mgmt_ip }}"
-              ansible_python_interpreter: '/usr/bin/python3'
-              cpus: 8
-              memory: 16384
-              disk_size: 130
             pfdeb13localdev:
               box: debian/trixie64
               box_version: 13.20260519.1
@@ -298,31 +208,11 @@ all:
               cpus: 8
               memory: 16384
               disk_size: 130
-            el8localdev:
-              box: generic/rhel8
-              box_version: '4.2.16'
-              mgmt_ip: "{{ users_vars[dict_name]['vms']['el8dev']['ip'] }}"
-              mgmt_netmask: "{{ users_vars[dict_name]['vms']['el8dev']['netmask'] }}"
-              ansible_host: "{{ mgmt_ip }}"
-              ansible_python_interpreter: '/usr/bin/python3'
-              cpus: 8
-              memory: 16384
-              disk_size: 130
             deb13localdev:
               box: debian/trixie64
               box_version: 13.20260519.1
               mgmt_ip: "{{ users_vars[dict_name]['vms']['deb13dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['deb13dev']['netmask'] }}"
-              ansible_host: "{{ mgmt_ip }}"
-              ansible_python_interpreter: '/usr/bin/python3'
-              cpus: 8
-              memory: 16384
-              disk_size: 130
-            pfel8stable:
-              box: inverse-inc/pfel8stable
-              box_url: https://packetfence-vagrant-box.us-ord-1.linodeobjects.com/pfel8stable/metadata.json
-              mgmt_ip: "{{ users_vars[dict_name]['vms']['pfel8stable']['ip'] }}"
-              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfel8stable']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
@@ -352,13 +242,8 @@ all:
 
     dev:
       hosts:
-        pfel8dev: {}
         pfdeb13dev: {}
-        el8dev: {}
         deb13dev: {}
-        pf1el8dev: {}
-        pf2el8dev: {}
-        pf3el8dev: {}
         pf1deb13dev: {}
         pf2deb13dev: {}
         pf3deb13dev: {}
@@ -366,20 +251,14 @@ all:
     localdev:
       hosts:
         localhost: {}
-        pfel8localdev: {}
         pfdeb13localdev: {}
-        el8localdev: {}
         deb13localdev: {}
-        pf1el8localdev: {}
-        pf2el8localdev: {}
-        pf3el8localdev: {}
         pf1deb13localdev: {}
         pf2deb13localdev: {}
         pf3deb13localdev: {}
 
     stable:
       hosts:
-        pfel8stable: {}
         pfdeb13stable: {}
         pfdeb9stable: {}
 
@@ -392,7 +271,6 @@ all:
       # ci
       gitlab-runner:
         vars:
-          rhel_sub_secret_id: 'e9d98894-bd22-4f32-8b59-653aceb72ec4'
           fingerbank_api_key:
             secret_id: 'd2c4d4f8-c5b1-4281-a724-e4ade5c31fe1'
             email: 'support@inverse.ca'
@@ -413,14 +291,6 @@ all:
           - name: inline_l3_ci
             subnet: '172.18.204.0/24'
         clusters:
-          cluster_el8dev:
-            ip_mgmt: '172.18.200.23'
-            ip_reg: '172.18.201.23'
-            ip_iso: '172.18.202.23'
-          cluster_el8localdev:
-            ip_mgmt: '172.18.200.27'
-            ip_reg: '172.18.201.27'
-            ip_iso: '172.18.202.27'
           cluster_deb13dev:
             ip_mgmt: '172.18.200.31'
             ip_reg: '172.18.201.31'
@@ -458,12 +328,6 @@ all:
           linux02:
             ip: '172.18.200.102'
             netmask: '255.255.255.0'
-          pfel8dev:
-            ip: '172.18.200.10'
-            netmask: '255.255.255.0'
-          el8dev:
-            ip: '172.18.200.11'
-            netmask: '255.255.255.0'
           pfdeb13dev:
             ip: '172.18.200.12'
             netmask: '255.255.255.0'
@@ -473,20 +337,11 @@ all:
           localhost:
             ip: ''
             netmask: '255.255.255.0'
-          pfel8localdev:
-            ip: '172.18.200.14'
-            netmask: '255.255.255.0'
           pfdeb13localdev:
             ip: '172.18.200.15'
             netmask: '255.255.255.0'
-          el8localdev:
-            ip: '172.18.200.8'
-            netmask: '255.255.255.0'
           deb13localdev:
             ip: '172.18.200.9'
-            netmask: '255.255.255.0'
-          pfel8stable:
-            ip: '172.18.200.16'
             netmask: '255.255.255.0'
           pfdeb9stable:
             ip: '172.18.200.17'
@@ -494,36 +349,6 @@ all:
           pfdeb13stable:
             ip: '172.18.200.18'
             netmask: '255.255.255.0'
-          pf1el8dev:
-            ip: '172.18.200.20'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.201.20'
-            ip_iso: '172.18.202.20'
-          pf2el8dev:
-            ip: '172.18.200.21'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.201.21'
-            ip_iso: '172.18.202.21'
-          pf3el8dev:
-            ip: '172.18.200.22'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.201.22'
-            ip_iso: '172.18.202.22'
-          pf1el8localdev:
-            ip: '172.18.200.24'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.201.24'
-            ip_iso: '172.18.202.24'
-          pf2el8localdev:
-            ip: '172.18.200.25'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.201.25'
-            ip_iso: '172.18.202.25'
-          pf3el8localdev:
-            ip: '172.18.200.26'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.201.26'
-            ip_iso: '172.18.202.26'
           pf1deb13dev:
             ip: '172.18.200.28'
             netmask: '255.255.255.0'
@@ -557,7 +382,6 @@ all:
       # local dev
       _nqb:
         vars:
-          rhel_sub_secret_id: '7ecb993e-5179-4eb5-a686-7d7943bf65eb'
           fingerbank_api_key:
             secret_id: '98090324-0b00-4877-a0b2-e8a215350c72'
             email: 'nqb+git@azyx.fr'
@@ -577,14 +401,6 @@ all:
           - name: inline_l3_nqb
             subnet: '172.18.144.0/24'
         clusters:
-          cluster_el8dev:
-            ip_mgmt: '172.18.140.23'
-            ip_reg: '172.18.141.23'
-            ip_iso: '172.18.142.23'
-          cluster_el8localdev:
-            ip_mgmt: '172.18.140.27'
-            ip_reg: '172.18.141.27'
-            ip_iso: '172.18.142.27'
           cluster_deb13dev:
             ip_mgmt: '172.18.140.31'
             ip_reg: '172.18.141.31'
@@ -622,12 +438,6 @@ all:
           linux02:
             ip: '172.18.140.102'
             netmask: '255.255.255.0'
-          pfel8dev:
-            ip: '172.18.140.10'
-            netmask: '255.255.255.0'
-          el8dev:
-            ip: '172.18.140.11'
-            netmask: '255.255.255.0'
           pfdeb13dev:
             ip: '172.18.140.12'
             netmask: '255.255.255.0'
@@ -637,20 +447,11 @@ all:
           localhost:
             ip: ''
             netmask: '255.255.255.0'
-          pfel8localdev:
-            ip: '172.18.140.14'
-            netmask: '255.255.255.0'
           pfdeb13localdev:
             ip: '172.18.140.15'
             netmask: '255.255.255.0'
-          el8localdev:
-            ip: '172.18.140.8'
-            netmask: '255.255.255.0'
           deb13localdev:
             ip: '172.18.140.9'
-            netmask: '255.255.255.0'
-          pfel8stable:
-            ip: '172.18.140.16'
             netmask: '255.255.255.0'
           pfdeb9stable:
             ip: '172.18.140.17'
@@ -658,36 +459,6 @@ all:
           pfdeb13stable:
             ip: '172.18.140.18'
             netmask: '255.255.255.0'
-          pf1el8dev:
-            ip: '172.18.140.20'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.141.20'
-            ip_iso: '172.18.142.20'
-          pf2el8dev:
-            ip: '172.18.140.21'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.141.21'
-            ip_iso: '172.18.142.21'
-          pf3el8dev:
-            ip: '172.18.140.22'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.141.22'
-            ip_iso: '172.18.142.22'
-          pf1el8localdev:
-            ip: '172.18.140.24'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.141.24'
-            ip_iso: '172.18.142.24'
-          pf2el8localdev:
-            ip: '172.18.140.25'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.141.25'
-            ip_iso: '172.18.142.25'
-          pf3el8localdev:
-            ip: '172.18.140.26'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.141.26'
-            ip_iso: '172.18.142.26'
           pf1deb13dev:
             ip: '172.18.140.28'
             netmask: '255.255.255.0'
@@ -720,7 +491,6 @@ all:
             ip_iso: '172.18.142.34'
       _jrouzier:
         vars:
-          rhel_sub_secret_id: ''
           fingerbank_api_key:
             secret_id: ''
             email: ''
@@ -740,14 +510,6 @@ all:
           - name: inline_l3_jrouzier
             subnet: '172.18.119.0/24'
         clusters:
-          cluster_el8dev:
-            ip_mgmt: '172.18.115.23'
-            ip_reg: '172.18.116.23'
-            ip_iso: '172.18.117.23'
-          cluster_el8localdev:
-            ip_mgmt: '172.18.115.27'
-            ip_reg: '172.18.116.27'
-            ip_iso: '172.18.117.27'
           cluster_deb13dev:
             ip_mgmt: '172.18.115.31'
             ip_reg: '172.18.116.31'
@@ -785,12 +547,6 @@ all:
           linux02:
             ip: '172.18.115.102'
             netmask: '255.255.255.0'
-          pfel8dev:
-            ip: '172.18.115.10'
-            netmask: '255.255.255.0'
-          el8dev:
-            ip: '172.18.115.11'
-            netmask: '255.255.255.0'
           pfdeb13dev:
             ip: '172.18.115.12'
             netmask: '255.255.255.0'
@@ -800,20 +556,11 @@ all:
           localhost:
             ip: ''
             netmask: '255.255.255.0'
-          pfel8localdev:
-            ip: '172.18.115.14'
-            netmask: '255.255.255.0'
           pfdeb13localdev:
             ip: '172.18.115.15'
             netmask: '255.255.255.0'
-          el8localdev:
-            ip: '172.18.115.8'
-            netmask: '255.255.255.0'
           deb13localdev:
             ip: '172.18.115.9'
-            netmask: '255.255.255.0'
-          pfel8stable:
-            ip: '172.18.115.16'
             netmask: '255.255.255.0'
           pfdeb9stable:
             ip: '172.18.115.17'
@@ -821,36 +568,6 @@ all:
           pfdeb13stable:
             ip: '172.18.115.18'
             netmask: '255.255.255.0'
-          pf1el8dev:
-            ip: '172.18.115.20'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.116.20'
-            ip_iso: '172.18.117.20'
-          pf2el8dev:
-            ip: '172.18.115.21'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.116.21'
-            ip_iso: '172.18.117.21'
-          pf3el8dev:
-            ip: '172.18.115.22'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.116.22'
-            ip_iso: '172.18.117.22'
-          pf1el8localdev:
-            ip: '172.18.115.24'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.116.24'
-            ip_iso: '172.18.117.24'
-          pf2el8localdev:
-            ip: '172.18.115.25'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.116.25'
-            ip_iso: '172.18.117.25'
-          pf3el8localdev:
-            ip: '172.18.115.26'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.116.26'
-            ip_iso: '172.18.117.26'
           pf1deb13dev:
             ip: '172.18.115.28'
             netmask: '255.255.255.0'
@@ -883,7 +600,6 @@ all:
             ip_iso: '172.18.117.34'
       _lzammit:
         vars:
-          rhel_sub_secret_id: ''
           fingerbank_api_key:
             secret_id: ''
             email: ''
@@ -903,14 +619,6 @@ all:
           - name: inline_l3_lzammit
             subnet: '172.18.149.0/24'
         clusters:
-          cluster_el8dev:
-            ip_mgmt: '172.18.145.23'
-            ip_reg: '172.18.146.23'
-            ip_iso: '172.18.147.23'
-          cluster_el8localdev:
-            ip_mgmt: '172.18.145.27'
-            ip_reg: '172.18.146.27'
-            ip_iso: '172.18.147.27'
           cluster_deb13dev:
             ip_mgmt: '172.18.145.31'
             ip_reg: '172.18.146.31'
@@ -948,12 +656,6 @@ all:
           linux02:
             ip: '172.18.145.102'
             netmask: '255.255.255.0'
-          pfel8dev:
-            ip: '172.18.145.10'
-            netmask: '255.255.255.0'
-          el8dev:
-            ip: '172.18.145.11'
-            netmask: '255.255.255.0'
           pfdeb13dev:
             ip: '172.18.145.12'
             netmask: '255.255.255.0'
@@ -963,20 +665,11 @@ all:
           localhost:
             ip: ''
             netmask: '255.255.255.0'
-          pfel8localdev:
-            ip: '172.18.145.14'
-            netmask: '255.255.255.0'
           pfdeb13localdev:
             ip: '172.18.145.15'
             netmask: '255.255.255.0'
-          el8localdev:
-            ip: '172.18.145.8'
-            netmask: '255.255.255.0'
           deb13localdev:
             ip: '172.18.145.9'
-            netmask: '255.255.255.0'
-          pfel8stable:
-            ip: '172.18.145.16'
             netmask: '255.255.255.0'
           pfdeb9stable:
             ip: '172.18.145.17'
@@ -984,36 +677,6 @@ all:
           pfdeb13stable:
             ip: '172.18.145.18'
             netmask: '255.255.255.0'
-          pf1el8dev:
-            ip: '172.18.145.20'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.146.20'
-            ip_iso: '172.18.147.20'
-          pf2el8dev:
-            ip: '172.18.145.21'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.146.21'
-            ip_iso: '172.18.147.21'
-          pf3el8dev:
-            ip: '172.18.145.22'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.146.22'
-            ip_iso: '172.18.147.22'
-          pf1el8localdev:
-            ip: '172.18.145.24'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.146.24'
-            ip_iso: '172.18.147.24'
-          pf2el8localdev:
-            ip: '172.18.145.25'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.146.25'
-            ip_iso: '172.18.147.25'
-          pf3el8localdev:
-            ip: '172.18.145.26'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.146.26'
-            ip_iso: '172.18.147.26'
           pf1deb13dev:
             ip: '172.18.145.28'
             netmask: '255.255.255.0'
@@ -1046,7 +709,6 @@ all:
             ip_iso: '172.18.147.34'
       _jgoimard:
         vars:
-          rhel_sub_secret_id: '14e54e10-247a-4a38-b19c-b1f8209daf70'
           fingerbank_api_key:
             secret_id: 'ba503744-9ea6-4be3-bd73-d3d5f75d7092'
             email: 'jgoimard@inverse.ca'
@@ -1066,14 +728,6 @@ all:
           - name: inline_l3_jgoimard
             subnet: '172.18.124.0/24'
         clusters:
-          cluster_el8dev:
-            ip_mgmt: '172.18.120.23'
-            ip_reg: '172.18.121.23'
-            ip_iso: '172.18.122.23'
-          cluster_el8localdev:
-            ip_mgmt: '172.18.120.27'
-            ip_reg: '172.18.121.27'
-            ip_iso: '172.18.122.27'
           cluster_deb13dev:
             ip_mgmt: '172.18.120.31'
             ip_reg: '172.18.121.31'
@@ -1111,12 +765,6 @@ all:
           linux02:
             ip: '172.18.120.102'
             netmask: '255.255.255.0'
-          pfel8dev:
-            ip: '172.18.120.10'
-            netmask: '255.255.255.0'
-          el8dev:
-            ip: '172.18.120.11'
-            netmask: '255.255.255.0'
           pfdeb13dev:
             ip: '172.18.120.12'
             netmask: '255.255.255.0'
@@ -1126,20 +774,11 @@ all:
           localhost:
             ip: ''
             netmask: '255.255.255.0'
-          pfel8localdev:
-            ip: '172.18.120.14'
-            netmask: '255.255.255.0'
           pfdeb13localdev:
             ip: '172.18.120.15'
             netmask: '255.255.255.0'
-          el8localdev:
-            ip: '172.18.120.8'
-            netmask: '255.255.255.0'
           deb13localdev:
             ip: '172.18.120.9'
-            netmask: '255.255.255.0'
-          pfel8stable:
-            ip: '172.18.120.16'
             netmask: '255.255.255.0'
           pfdeb9stable:
             ip: '172.18.120.17'
@@ -1147,36 +786,6 @@ all:
           pfdeb13stable:
             ip: '172.18.120.18'
             netmask: '255.255.255.0'
-          pf1el8dev:
-            ip: '172.18.120.20'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.121.20'
-            ip_iso: '172.18.122.20'
-          pf2el8dev:
-            ip: '172.18.120.21'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.121.21'
-            ip_iso: '172.18.122.21'
-          pf3el8dev:
-            ip: '172.18.120.22'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.121.22'
-            ip_iso: '172.18.122.22'
-          pf1el8localdev:
-            ip: '172.18.120.24'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.121.24'
-            ip_iso: '172.18.122.24'
-          pf2el8localdev:
-            ip: '172.18.120.25'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.121.25'
-            ip_iso: '172.18.122.25'
-          pf3el8localdev:
-            ip: '172.18.120.26'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.121.26'
-            ip_iso: '172.18.122.26'
           pf1deb13dev:
             ip: '172.18.120.28'
             netmask: '255.255.255.0'
@@ -1209,7 +818,6 @@ all:
             ip_iso: '172.18.122.34'
       _dsatkunas:
         vars:
-          rhel_sub_secret_id: '24fc6fc9-a93a-45a6-86af-09380cad1e1a'
           fingerbank_api_key:
             secret_id: '1ec6dc22-39c8-4ae8-99c8-01403c6cb247'
             email: 'dsatkuna@akamai.com'
@@ -1229,14 +837,6 @@ all:
           - name: inline_l3_dsatkunas
             subnet: '172.18.119.0/24'
         clusters:
-          cluster_el8dev:
-            ip_mgmt: '172.18.125.23'
-            ip_reg: '172.18.126.23'
-            ip_iso: '172.18.127.23'
-          cluster_el8localdev:
-            ip_mgmt: '172.18.125.27'
-            ip_reg: '172.18.126.27'
-            ip_iso: '172.18.127.27'
           cluster_deb13dev:
             ip_mgmt: '172.18.125.31'
             ip_reg: '172.18.126.31'
@@ -1274,12 +874,6 @@ all:
           linux02:
             ip: '172.18.125.102'
             netmask: '255.255.255.0'
-          pfel8dev:
-            ip: '172.18.125.10'
-            netmask: '255.255.255.0'
-          el8dev:
-            ip: '172.18.125.11'
-            netmask: '255.255.255.0'
           pfdeb13dev:
             ip: '172.18.125.12'
             netmask: '255.255.255.0'
@@ -1289,20 +883,11 @@ all:
           localhost:
             ip: ''
             netmask: '255.255.255.0'
-          pfel8localdev:
-            ip: '172.18.125.14'
-            netmask: '255.255.255.0'
           pfdeb13localdev:
             ip: '172.18.125.15'
             netmask: '255.255.255.0'
-          el8localdev:
-            ip: '172.18.125.8'
-            netmask: '255.255.255.0'
           deb13localdev:
             ip: '172.18.125.9'
-            netmask: '255.255.255.0'
-          pfel8stable:
-            ip: '172.18.125.16'
             netmask: '255.255.255.0'
           pfdeb9stable:
             ip: '172.18.125.17'
@@ -1310,36 +895,6 @@ all:
           pfdeb13stable:
             ip: '172.18.125.18'
             netmask: '255.255.255.0'
-          pf1el8dev:
-            ip: '172.18.125.20'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.126.20'
-            ip_iso: '172.18.127.20'
-          pf2el8dev:
-            ip: '172.18.125.21'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.126.21'
-            ip_iso: '172.18.127.21'
-          pf3el8dev:
-            ip: '172.18.125.22'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.126.22'
-            ip_iso: '172.18.127.22'
-          pf1el8localdev:
-            ip: '172.18.125.24'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.126.24'
-            ip_iso: '172.18.127.24'
-          pf2el8localdev:
-            ip: '172.18.125.25'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.126.25'
-            ip_iso: '172.18.127.25'
-          pf3el8localdev:
-            ip: '172.18.125.26'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.126.26'
-            ip_iso: '172.18.127.26'
           pf1deb13dev:
             ip: '172.18.125.28'
             netmask: '255.255.255.0'
@@ -1372,7 +927,6 @@ all:
             ip_iso: '172.18.127.34'
       _fdurand:
         vars:
-          rhel_sub_secret_id: ''
           fingerbank_api_key:
             secret_id: ''
             email: ''
@@ -1392,14 +946,6 @@ all:
           - name: inline_l3_fdurand
             subnet: '172.18.139.0/24'
         clusters:
-          cluster_el8dev:
-            ip_mgmt: '172.18.135.23'
-            ip_reg: '172.18.136.23'
-            ip_iso: '172.18.137.23'
-          cluster_el8localdev:
-            ip_mgmt: '172.18.135.27'
-            ip_reg: '172.18.136.27'
-            ip_iso: '172.18.137.27'
           cluster_deb13dev:
             ip_mgmt: '172.18.135.31'
             ip_reg: '172.18.136.31'
@@ -1437,12 +983,6 @@ all:
           linux02:
             ip: '172.18.135.102'
             netmask: '255.255.255.0'
-          pfel8dev:
-            ip: '172.18.135.10'
-            netmask: '255.255.255.0'
-          el8dev:
-            ip: '172.18.135.11'
-            netmask: '255.255.255.0'
           pfdeb13dev:
             ip: '172.18.135.12'
             netmask: '255.255.255.0'
@@ -1452,20 +992,11 @@ all:
           localhost:
             ip: ''
             netmask: '255.255.255.0'
-          pfel8localdev:
-            ip: '172.18.135.14'
-            netmask: '255.255.255.0'
           pfdeb13localdev:
             ip: '172.18.135.15'
             netmask: '255.255.255.0'
-          el8localdev:
-            ip: '172.18.135.8'
-            netmask: '255.255.255.0'
           deb13localdev:
             ip: '172.18.135.9'
-            netmask: '255.255.255.0'
-          pfel8stable:
-            ip: '172.18.135.16'
             netmask: '255.255.255.0'
           pfdeb9stable:
             ip: '172.18.135.17'
@@ -1473,36 +1004,6 @@ all:
           pfdeb13stable:
             ip: '172.18.135.18'
             netmask: '255.255.255.0'
-          pf1el8dev:
-            ip: '172.18.135.20'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.136.20'
-            ip_iso: '172.18.137.20'
-          pf2el8dev:
-            ip: '172.18.135.21'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.136.21'
-            ip_iso: '172.18.137.21'
-          pf3el8dev:
-            ip: '172.18.135.22'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.136.22'
-            ip_iso: '172.18.137.22'
-          pf1el8localdev:
-            ip: '172.18.135.24'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.136.24'
-            ip_iso: '172.18.137.24'
-          pf2el8localdev:
-            ip: '172.18.135.25'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.136.25'
-            ip_iso: '172.18.137.25'
-          pf3el8localdev:
-            ip: '172.18.135.26'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.136.26'
-            ip_iso: '172.18.137.26'
           pf1deb13dev:
             ip: '172.18.135.28'
             netmask: '255.255.255.0'
@@ -1535,7 +1036,6 @@ all:
             ip_iso: '172.18.137.34'
       _jsemaan:
         vars:
-          rhel_sub_secret_id: '99d6f340-a3cb-471d-bcc2-b5c8af02428a'
           fingerbank_api_key:
             secret_id: '22f6cf2d-3603-44aa-9789-7727e55df1ce'
             email: 'jul.semaan@gmail.com'
@@ -1555,14 +1055,6 @@ all:
           - name: inline_l3_jsemaan
             subnet: '172.18.159.0/24'
         clusters:
-          cluster_el8dev:
-            ip_mgmt: '172.18.155.23'
-            ip_reg: '172.18.156.23'
-            ip_iso: '172.18.157.23'
-          cluster_el8localdev:
-            ip_mgmt: '172.18.155.27'
-            ip_reg: '172.18.156.27'
-            ip_iso: '172.18.157.27'
           cluster_deb13dev:
             ip_mgmt: '172.18.155.31'
             ip_reg: '172.18.156.31'
@@ -1600,12 +1092,6 @@ all:
           linux02:
             ip: '172.18.155.102'
             netmask: '255.255.255.0'
-          pfel8dev:
-            ip: '172.18.155.10'
-            netmask: '255.255.255.0'
-          el8dev:
-            ip: '172.18.155.11'
-            netmask: '255.255.255.0'
           pfdeb13dev:
             ip: '172.18.155.12'
             netmask: '255.255.255.0'
@@ -1615,20 +1101,11 @@ all:
           localhost:
             ip: ''
             netmask: '255.255.255.0'
-          pfel8localdev:
-            ip: '172.18.155.14'
-            netmask: '255.255.255.0'
           pfdeb13localdev:
             ip: '172.18.155.15'
             netmask: '255.255.255.0'
-          el8localdev:
-            ip: '172.18.155.8'
-            netmask: '255.255.255.0'
           deb13localdev:
             ip: '172.18.155.9'
-            netmask: '255.255.255.0'
-          pfel8stable:
-            ip: '172.18.155.16'
             netmask: '255.255.255.0'
           pfdeb9stable:
             ip: '172.18.155.17'
@@ -1636,36 +1113,6 @@ all:
           pfdeb13stable:
             ip: '172.18.155.18'
             netmask: '255.255.255.0'
-          pf1el8dev:
-            ip: '172.18.155.20'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.156.20'
-            ip_iso: '172.18.157.20'
-          pf2el8dev:
-            ip: '172.18.155.21'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.156.21'
-            ip_iso: '172.18.157.21'
-          pf3el8dev:
-            ip: '172.18.155.22'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.156.22'
-            ip_iso: '172.18.157.22'
-          pf1el8localdev:
-            ip: '172.18.155.24'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.156.24'
-            ip_iso: '172.18.157.24'
-          pf2el8localdev:
-            ip: '172.18.155.25'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.156.25'
-            ip_iso: '172.18.157.25'
-          pf3el8localdev:
-            ip: '172.18.155.26'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.156.26'
-            ip_iso: '172.18.157.26'
           pf1deb13dev:
             ip: '172.18.155.28'
             netmask: '255.255.255.0'
@@ -1698,7 +1145,6 @@ all:
             ip_iso: '172.18.157.34'
       _abprasa:
         vars:
-          rhel_sub_secret_id: '05e7cadd-ea00-4d98-8097-60c14c674afc'
           fingerbank_api_key:
             secret_id: 'caf645c1-4134-46f2-9e6e-5469e0274b7e'
             email: 'abprasa@akamai.com'
@@ -1718,14 +1164,6 @@ all:
           - name: inline_l3_abprasa
             subnet: '172.18.164.0/24'
         clusters:
-          cluster_el8dev:
-            ip_mgmt: '172.18.160.23'
-            ip_reg: '172.18.161.23'
-            ip_iso: '172.18.162.23'
-          cluster_el8localdev:
-            ip_mgmt: '172.18.160.27'
-            ip_reg: '172.18.161.27'
-            ip_iso: '172.18.162.27'
           cluster_deb13dev:
             ip_mgmt: '172.18.160.31'
             ip_reg: '172.18.161.31'
@@ -1763,12 +1201,6 @@ all:
           linux02:
             ip: '172.18.160.102'
             netmask: '255.255.255.0'
-          pfel8dev:
-            ip: '172.18.160.10'
-            netmask: '255.255.255.0'
-          el8dev:
-            ip: '172.18.160.11'
-            netmask: '255.255.255.0'
           pfdeb13dev:
             ip: '172.18.160.12'
             netmask: '255.255.255.0'
@@ -1778,20 +1210,11 @@ all:
           localhost:
             ip: ''
             netmask: '255.255.255.0'
-          pfel8localdev:
-            ip: '172.18.160.14'
-            netmask: '255.255.255.0'
           pfdeb13localdev:
             ip: '172.18.160.15'
             netmask: '255.255.255.0'
-          el8localdev:
-            ip: '172.18.160.8'
-            netmask: '255.255.255.0'
           deb13localdev:
             ip: '172.18.160.9'
-            netmask: '255.255.255.0'
-          pfel8stable:
-            ip: '172.18.160.16'
             netmask: '255.255.255.0'
           pfdeb9stable:
             ip: '172.18.160.17'
@@ -1799,36 +1222,6 @@ all:
           pfdeb13stable:
             ip: '172.18.160.18'
             netmask: '255.255.255.0'
-          pf1el8dev:
-            ip: '172.18.160.20'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.161.20'
-            ip_iso: '172.18.162.20'
-          pf2el8dev:
-            ip: '172.18.160.21'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.161.21'
-            ip_iso: '172.18.162.21'
-          pf3el8dev:
-            ip: '172.18.160.22'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.161.22'
-            ip_iso: '172.18.162.22'
-          pf1el8localdev:
-            ip: '172.18.160.24'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.161.24'
-            ip_iso: '172.18.162.24'
-          pf2el8localdev:
-            ip: '172.18.160.25'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.161.25'
-            ip_iso: '172.18.162.25'
-          pf3el8localdev:
-            ip: '172.18.160.26'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.161.26'
-            ip_iso: '172.18.162.26'
           pf1deb13dev:
             ip: '172.18.160.28'
             netmask: '255.255.255.0'
@@ -1861,7 +1254,6 @@ all:
             ip_iso: '172.18.162.34'
       _zma:
         vars:
-          rhel_sub_secret_id: 'bb5ea639-b4aa-4c93-b86f-25d14c80bb53'
           fingerbank_api_key:
             secret_id: 'eb7a9c9b-545e-41b0-90d3-80b6a96b742c'
             email: 'zma@akamai.com'
@@ -1881,14 +1273,6 @@ all:
           - name: inline_l3_zma
             subnet: '172.18.174.0/24'
         clusters:
-          cluster_el8dev:
-            ip_mgmt: '172.18.170.23'
-            ip_reg: '172.18.171.23'
-            ip_iso: '172.18.172.23'
-          cluster_el8localdev:
-            ip_mgmt: '172.18.170.27'
-            ip_reg: '172.18.171.27'
-            ip_iso: '172.18.172.27'
           cluster_deb13dev:
             ip_mgmt: '172.18.170.31'
             ip_reg: '172.18.171.31'
@@ -1926,12 +1310,6 @@ all:
           linux02:
             ip: '172.18.170.102'
             netmask: '255.255.255.0'
-          pfel8dev:
-            ip: '172.18.170.10'
-            netmask: '255.255.255.0'
-          el8dev:
-            ip: '172.18.170.11'
-            netmask: '255.255.255.0'
           pfdeb13dev:
             ip: '172.18.170.12'
             netmask: '255.255.255.0'
@@ -1941,20 +1319,11 @@ all:
           localhost:
             ip: ''
             netmask: '255.255.255.0'
-          pfel8localdev:
-            ip: '172.18.170.14'
-            netmask: '255.255.255.0'
           pfdeb13localdev:
             ip: '172.18.170.15'
             netmask: '255.255.255.0'
-          el8localdev:
-            ip: '172.18.170.8'
-            netmask: '255.255.255.0'
           deb13localdev:
             ip: '172.18.170.9'
-            netmask: '255.255.255.0'
-          pfel8stable:
-            ip: '172.18.170.16'
             netmask: '255.255.255.0'
           pfdeb9stable:
             ip: '172.18.170.17'
@@ -1962,36 +1331,6 @@ all:
           pfdeb13stable:
             ip: '172.18.170.18'
             netmask: '255.255.255.0'
-          pf1el8dev:
-            ip: '172.18.170.20'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.171.20'
-            ip_iso: '172.18.172.20'
-          pf2el8dev:
-            ip: '172.18.170.21'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.171.21'
-            ip_iso: '172.18.172.21'
-          pf3el8dev:
-            ip: '172.18.170.22'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.171.22'
-            ip_iso: '172.18.172.22'
-          pf1el8localdev:
-            ip: '172.18.170.24'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.171.24'
-            ip_iso: '172.18.172.24'
-          pf2el8localdev:
-            ip: '172.18.170.25'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.171.25'
-            ip_iso: '172.18.172.25'
-          pf3el8localdev:
-            ip: '172.18.170.26'
-            netmask: '255.255.255.0'
-            ip_reg: '172.18.171.26'
-            ip_iso: '172.18.172.26'
           pf1deb13dev:
             ip: '172.18.170.28'
             netmask: '255.255.255.0'
