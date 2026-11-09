@@ -19,7 +19,6 @@ use List::MoreUtils qw(uniq);
 use POSIX;
 use pf::config qw(
     %Config
-    $OS
     @listen_ints
     @dhcplistener_ints
     $management_network

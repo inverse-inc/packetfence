@@ -24,7 +24,6 @@ use pf::cluster;
 use pf::util qw(isenabled);
 use pf::config qw(
     %Config
-    $OS
     $management_network
     @portal_ints
     @internal_nets
@@ -54,12 +53,6 @@ sub generateConfig {
     $tags{'conf_dir'} = $var_dir.'/conf';
     $tags{'bind-process'} = '';
     my $bind_process = '';
-    if ($OS eq 'debian') {
-        $tags{'os_path'} = '/etc/haproxy/errors/';
-    } else {
-         $tags{'os_path'} = '/usr/share/haproxy/';
-    }
-
     my $backend_static_uri = URI->new($Config{services_url}{'httpd_admin_dispatcher_static'});
     $tags{backend_static} = $backend_static_uri->host . ":" . $backend_static_uri->port;
 

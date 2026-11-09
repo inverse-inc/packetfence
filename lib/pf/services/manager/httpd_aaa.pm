@@ -15,7 +15,7 @@ pf::services::manager::httpd_aaa
 use strict;
 use warnings;
 use Moo;
-use pf::config qw(%Config $OS);
+use pf::config qw(%Config);
 use pf::file_paths qw(
     $install_dir
 );

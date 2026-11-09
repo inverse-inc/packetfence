@@ -25,19 +25,10 @@ use IPC::Open3;
 use Socket;
 use Net::IP;
 our $IPT_NETFLOW_VERSION;
-our $os = pf::util::os_detection();
-if ($os eq 'rhel') {
-    $IPT_NETFLOW_VERSION = qx{ rpm -q ipt-netflow --queryformat "%{VERSION}-%{RELEASE}"};
-    chomp($IPT_NETFLOW_VERSION);
-    if ($IPT_NETFLOW_VERSION =~ /^(.*)$/) {
-        $IPT_NETFLOW_VERSION = $1;
-    }
-} elsif ($os eq 'debian') {
-    $IPT_NETFLOW_VERSION = qx{dpkg-query -W -f \\\${Version} iptables-netflow-dkms};
-    chomp($IPT_NETFLOW_VERSION);
-    if ($IPT_NETFLOW_VERSION =~ /^(.*)-\d$/) {
-        $IPT_NETFLOW_VERSION = $1;
-    }
+$IPT_NETFLOW_VERSION = qx{dpkg-query -W -f \\\${Version} iptables-netflow-dkms};
+chomp($IPT_NETFLOW_VERSION);
+if ($IPT_NETFLOW_VERSION =~ /^(.*)-\d$/) {
+    $IPT_NETFLOW_VERSION = $1;
 }
 
 sub _run {
