@@ -1,4 +1,4 @@
-name: packetfence-perl_debian_rhel8_package
+name: packetfence-perl_debian_package
 on:
   workflow_dispatch:
   push:
@@ -67,9 +67,9 @@ jobs:
               - '.github/workflows/reusable_sign_packages.yml'
               - '.github/workflows/reusable_upload_packages.yml'
               # containers/packetfence-perl/** rather than per-distro entries:
-              # the dirs are debian13/ rhel8/, and the old
-              # 'debian/**' entry matched none of them, so Dockerfile-only
-              # changes never triggered this pipeline.
+              # the dir is debian13/, and the old 'debian/**' entry never
+              # matched it, so Dockerfile-only changes never triggered this
+              # pipeline.
               - 'containers/packetfence-perl/**'
       - run:  | 
           echo ${{ steps.filters.outputs.src }}
@@ -94,7 +94,7 @@ jobs:
     if: ${{ contains( github.event.head_commit.message, '[perl]') || needs.build_preparation.outputs.path_changes == 'true' && needs.build_preparation.outputs.regex_match_branch != '' }}
     strategy:
       matrix:
-        images: ['debian13', 'rhel8']
+        images: ['debian13']
     uses:  ./.github/workflows/packetfence-perl_build_image_package.yml
     needs: ['build_preparation']
     with:
@@ -107,7 +107,7 @@ jobs:
   unit_tests_packages:
     strategy:
       matrix:
-        images: ['debian13', 'rhel8']
+        images: ['debian13']
     uses:  ./.github/workflows/reusable_unit_test.yml
     needs: ['build_preparation', 'build_images_and_packages']
     with:
@@ -118,7 +118,7 @@ jobs:
   sign_package:
     strategy:
       matrix:
-        images: ['debian13', 'rhel8']
+        images: ['debian13']
     uses:  ./.github/workflows/reusable_sign_packages.yml
     needs: ['build_preparation', 'build_images_and_packages', 'unit_tests_packages']
     with:
@@ -131,7 +131,7 @@ jobs:
   upload_packages:
     strategy:
       matrix:
-        images: ['debian13', 'rhel8']
+        images: ['debian13']
     uses:  ./.github/workflows/reusable_upload_packages.yml
     needs: ['build_preparation', 'build_images_and_packages', 'unit_tests_packages', 'sign_package']
     with:

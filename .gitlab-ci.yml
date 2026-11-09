@@ -38,7 +38,6 @@ variables:
   BUILD_PFAPPSERVER_VUE: "yes"
   # Opt in to Go analysis and full builds on both build images.
   GO_CHECK: "no"
-  PFBUILD_RHEL_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-centos-8
   PFBUILD_DEB_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-debian-trixie
   KANIKO_DEBUG_IMG: ghcr.io/inverse-inc/packetfence/kaniko-executor:debug
   KANIKOBUILD_IMG: ghcr.io/inverse-inc/packetfence/kaniko-build
@@ -68,7 +67,7 @@ variables:
   VAGRANT_FORCE_COLOR: "true"
   # Selective test execution
   # Run only tests matching this pattern (grep -E regex). Empty = all tests.
-  # Examples: configurator, mac_auth, configurator|pfappserver, .*_el8
+  # Examples: configurator, mac_auth, configurator|pfappserver, .*_deb13
   # KEEP_VMS=yes preserves test VMs only when TEST_ONLY selects the job.
   TEST_ONLY: ""
   # Heavy 3-VM cluster tests. Also run on TEST=yes (after the test stage passes);
@@ -102,8 +101,6 @@ variables:
         CONTEXT: release
         IMAGE_TAG: $CI_COMMIT_TAG
         # Release pfbuild-base builds switch to stable Ansible groups.
-        ANSIBLE_CENTOS_GROUP: common_centos
-        ANSIBLE_CENTOS8_GROUP: stable_centos8
         ANSIBLE_DEBIAN_GROUP: common_debian
         ANSIBLE_RUBYGEMS_GROUP: stable_rubygems
         DEPLOY_ENV_NAME: pf-stable
@@ -130,9 +127,6 @@ variables:
         IMAGE_TAG: $CI_COMMIT_REF_SLUG
         DEPLOY_ENV_NAME: pf-branches
         DEB_DEPLOY_DIR: debian-branches
-        RPM_DEPLOY_DIR: branches/x86_64
-        PKG_DEST_NAME: packetfence-release-branches.el8.noarch.rpm
-        PF_EXPORT_RPM_DEST_NAME: packetfence-export-branches.el8.noarch.rpm
         PF_EXPORT_DEB_DEST_NAME: packetfence-export_branches.deb
         PF_CI_LIB_DEB_DEST_NAME: packetfence-ci-lib_branches.deb
 
@@ -278,19 +272,16 @@ variables:
       variables:
         IMAGE_TAG: $CI_COMMIT_REF_SLUG
 
-# Shared rules for deploy_* (rpm, deb, pkg_friendly_names) — runs on
+# Shared rules for deploy_* (deb, pkg_friendly_names) — runs on
 # devel push/web/schedule, release tag, branches via web/api/schedule,
 # maintenance via web/api/schedule. Used together with .gated_by_deploy_pkg.
-# Mirror DEPLOY_ENV_NAME and the deploy-dir vars (DEB_DEPLOY_DIR / RPM_DEPLOY_DIR)
+# Mirror DEPLOY_ENV_NAME and the deploy-dir var (DEB_DEPLOY_DIR)
 # from .context_rules — .deploy_pkg_rules is the only rule path the deploy_* jobs
 # traverse, and .context_rules' when:always fallback can't be composed in without
 # breaking branch/source filtering. Without DEB_DEPLOY_DIR set here, deploy-artifacts.sh
 # falls back to its :-foo default and publishes under .../PacketFence/foo/<version>/.
 # (Pre-matrix maintenance branches set these per explicit deploy job; this block is
-# the single-matrix equivalent.) RPM_DEPLOY_DIR is only overridden for feature
-# branches; devel/maintenance/release rely on the script default
-# (${PF_MINOR_RELEASE}/x86_64), and PF_MINOR_RELEASE (from conf/pf-release) is not
-# available at YAML rule-evaluation time.
+# the single-matrix equivalent.)
 .deploy_pkg_rules:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "devel"'
@@ -298,8 +289,8 @@ variables:
         DEPLOY_ENV_NAME: pf-devel
         IMAGE_TAG: latest
         DEB_DEPLOY_DIR: debian
-        # packetfence-release/export/upgrade deploy into the shared debian/ + RHEL*
-        # dirs regardless of context, so the context is encoded in the filename.
+        # packetfence-export/upgrade deploy into the shared debian/ dir
+        # regardless of context, so the context is encoded in the filename.
         # Only ci-lib gets a devel-specific name; the rest use versioned defaults.
         PF_CI_LIB_DEB_DEST_NAME: packetfence-ci-lib_devel.deb
     - if: '$CI_COMMIT_TAG'
@@ -317,12 +308,9 @@ variables:
         DEPLOY_ENV_NAME: pf-branches
         IMAGE_TAG: $CI_COMMIT_REF_SLUG
         DEB_DEPLOY_DIR: debian-branches
-        RPM_DEPLOY_DIR: branches/x86_64
-        # release/export/ci-lib deploy into the shared debian/ + RHEL* dirs; the
+        # export/ci-lib deploy into the shared debian/ dir; the
         # *-branches filenames keep feature-branch builds from overwriting the
         # versioned release artifacts that live alongside them.
-        PKG_DEST_NAME: packetfence-release-branches.el8.noarch.rpm
-        PF_EXPORT_RPM_DEST_NAME: packetfence-export-branches.el8.noarch.rpm
         PF_EXPORT_DEB_DEST_NAME: packetfence-export_branches.deb
         PF_CI_LIB_DEB_DEST_NAME: packetfence-ci-lib_branches.deb
 
@@ -478,8 +466,6 @@ variables:
     - job: pre_ci_lint_yaml
     - job: pre_ci_go_check_debian_trixie
       optional: true
-    - job: pre_ci_go_check_centos_8
-      optional: true
     - job: kaniko
       optional: true
     - job: pfdebian_trixie
@@ -590,7 +576,6 @@ variables:
   variables:
     DEPLOY_USER: reposync
     DEPLOY_HOST: web.inverse.ca
-    DEPLOY_SRPMS: "no"
     DEPLOY_PORT: 444
     PSONO_SSH_DEPLOY_KEY_SECRET_ID: ed9a0533-4da0-4cdb-ab5f-ac7e061c281c
   before_script:
@@ -670,10 +655,6 @@ variables:
     - inverse.ca
     - shell-v7
 
-.rpm_script_job:
-  script:
-    - make -e build_rpm
-
 .deb_script_job:
   script:
     - make -e build_deb
@@ -686,15 +667,6 @@ variables:
 # pfappserver_* and *_pristine jobs intentionally don't extend these — they
 # exercise the full provisioning + configurator path. No standalone
 # configurator_<arch> test remains: the bake already runs the configurator suite.
-.test_job_vagrant_el8:
-  needs:
-    - bake_img_vagrant_el8
-  variables:
-    USE_VAGRANT_BOX: "yes"
-    VAGRANT_BOX_VERSION: "0.0.${CI_PIPELINE_ID}"
-    SKIP_CONFIGURATOR_BAKED: "yes"
-    BOX_NAME: pfel8dev
-
 .test_job_vagrant_deb13:
   needs:
     - bake_img_vagrant_deb13
@@ -828,11 +800,6 @@ pre_ci_go_check_debian_trixie:
     - .go_check_job
   image: ${PFBUILD_DEB_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
 
-pre_ci_go_check_centos_8:
-  extends:
-    - .go_check_job
-  image: ${PFBUILD_RHEL_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
-
 ########################################
 # BUILD_IMG_CONTAINER JOBS (kaniko / pfdebian_trixie /
 # pfdebian_related / radiusd / radiusd_related)
@@ -929,7 +896,6 @@ ci_related:
   parallel:
     matrix:
       - IMAGE_NAME:
-          - "pfbuild-centos-8"
           - "signing-packages"
           - "publish-ppa"
           - "pfconfig-material-builder"
@@ -986,7 +952,7 @@ build_img_vagrant_devel_and_branches_debian_trixie:
 # One bake job per arch. Produces the per-pipeline baked vagrant box that
 # test jobs (which extend .test_job_vagrant_<arch>) consume to skip site.yml
 # and the configurator wizard. Disabled for cluster/stable variants; only
-# the pfel8dev / pfdeb13dev standalones are baked. Bake fires whenever any
+# the pfdeb13dev standalone is baked. Bake fires whenever any
 # baked-box-opted test job would run — reusing .test_rules.
 #
 # Bake jobs depend on publish_ppa because site.yml installs PF packages from
@@ -998,18 +964,6 @@ build_img_vagrant_devel_and_branches_debian_trixie:
   rules:
     - !reference [.test_rules, rules]
     - !reference [.cluster_test_rules, rules]
-
-bake_img_vagrant_el8:
-  extends:
-    - .bake_img_vagrant_job
-    - .bake_img_rules
-  needs:
-    - !reference [.needs_all_build_images, needs]
-    - job: publish_ppa
-      artifacts: false
-  variables:
-    BAKE_ARCH: el8
-    PF_VM_NAME: pfel8dev
 
 bake_img_vagrant_deb13:
   extends:
@@ -1027,21 +981,6 @@ bake_img_vagrant_deb13:
 #  BUILD_ARTIFACTS JOBS
 ########################################
 # Consolidated per-OS pkg-build jobs.
-build_artifacts_pkg_centos_8:
-  image: ${PFBUILD_RHEL_IMG}:${IMAGE_TAG}
-  extends:
-    - .build_artifacts_pkg_job
-    - .rpm_script_job
-  rules:
-    - !reference [.gated_by_build_artifacts_pkg, rules]
-    # Override: maintenance/branches need web/api/schedule, default branch rule
-    # in .context_rules matches all branches — we narrow here:
-    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && ($CI_PIPELINE_SOURCE != "web" && $CI_PIPELINE_SOURCE != "api" && $CI_PIPELINE_SOURCE != "schedule")'
-      when: never
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE != "web" && $CI_PIPELINE_SOURCE != "api" && $CI_PIPELINE_SOURCE != "schedule")'
-      when: never
-    - !reference [.context_rules, rules]
-
 build_artifacts_pkg_debian_trixie:
   image: ${PFBUILD_DEB_IMG}:${IMAGE_TAG}
   extends:
@@ -1107,7 +1046,6 @@ sign_packages:
   needs:
     - job: ci_related
       optional: true
-    - job: build_artifacts_pkg_centos_8
     - job: build_artifacts_pkg_debian_trixie
   variables:
     # GPG_KEY_FINGERPRINT, GPG_USER_ID, PSONO_API_KEY_ID,
@@ -1206,18 +1144,10 @@ publish_ppa:
 ### development and maintenance
 # Job definition order below = runner dispatch order (GitLab assigns pending jobs
 # FIFO to free runners). It is optimized to minimize total pipeline wall-clock on
-# 10 runners, robust to ±10% duration variation, with deb13/el8 pairs kept
-# adjacent for readability. Long jobs are front-loaded and staggered; the tail is
-# short jobs only, so runners finish together. Re-balance if durations shift a lot.
+# 10 runners, robust to ±10% duration variation. Long jobs are front-loaded and
+# staggered; the tail is short jobs only, so runners finish together. Re-balance
+# if durations shift a lot.
 pfappserver_deb13:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_rules
-
-pfappserver_el8:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
@@ -1234,15 +1164,6 @@ inline_deb13:
     - .test_rules
     - .test_job_vagrant_deb13
 
-inline_el8:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_rules
-    - .test_job_vagrant_el8
-
 mac_auth_virtualswitch_deb13:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
@@ -1251,15 +1172,6 @@ mac_auth_virtualswitch_deb13:
     - .test_script_job
     - .test_rules
     - .test_job_vagrant_deb13
-
-mac_auth_virtualswitch_el8:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_rules
-    - .test_job_vagrant_el8
 
 security_event_virtualswitch_deb13:
   variables:
@@ -1270,15 +1182,6 @@ security_event_virtualswitch_deb13:
     - .test_rules
     - .test_job_vagrant_deb13
 
-security_event_virtualswitch_el8:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_rules
-    - .test_job_vagrant_el8
-
 unit_tests_deb13:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
@@ -1287,15 +1190,6 @@ unit_tests_deb13:
     - .test_script_job
     - .test_rules
     - .test_job_vagrant_deb13
-
-unit_tests_el8:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_rules
-    - .test_job_vagrant_el8
 
 cli_login_deb13:
   variables:
@@ -1306,15 +1200,6 @@ cli_login_deb13:
     - .test_rules
     - .test_job_vagrant_deb13
 
-cli_login_el8:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_rules
-    - .test_job_vagrant_el8
-
 dot1x_eap_peap_deb13:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
@@ -1324,15 +1209,6 @@ dot1x_eap_peap_deb13:
     - .test_rules
     - .test_job_vagrant_deb13
 
-dot1x_eap_peap_el8:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_rules
-    - .test_job_vagrant_el8
-
 dot1x_eap_tls_deb13:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
@@ -1341,15 +1217,6 @@ dot1x_eap_tls_deb13:
     - .test_script_job
     - .test_rules
     - .test_job_vagrant_deb13
-
-dot1x_eap_tls_el8:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_rules
-    - .test_job_vagrant_el8
 
 fingerbank_invalid_db_deb13:
   variables:
@@ -1369,15 +1236,6 @@ mac_auth_deb13:
     - .test_rules
     - .test_job_vagrant_deb13
 
-mac_auth_el8:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_rules
-    - .test_job_vagrant_el8
-
 device_profiling_virtualswitch_deb13:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
@@ -1386,15 +1244,6 @@ device_profiling_virtualswitch_deb13:
     - .test_script_job
     - .test_rules
     - .test_job_vagrant_deb13
-
-device_profiling_virtualswitch_el8:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_rules
-    - .test_job_vagrant_el8
 
 pfacct_bandwidth_virtualswitch_deb13:
   variables:
@@ -1405,15 +1254,6 @@ pfacct_bandwidth_virtualswitch_deb13:
     - .test_rules
     - .test_job_vagrant_deb13
 
-pfacct_bandwidth_virtualswitch_el8:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_rules
-    - .test_job_vagrant_el8
-
 dot1x_wired_computer_auth_virtualswitch_deb13:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
@@ -1422,15 +1262,6 @@ dot1x_wired_computer_auth_virtualswitch_deb13:
     - .test_script_job
     - .test_rules
     - .test_job_vagrant_deb13
-
-dot1x_wired_computer_auth_virtualswitch_el8:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_rules
-    - .test_job_vagrant_el8
 
 security_events_deb13:
   variables:
@@ -1449,15 +1280,6 @@ captive_portal_deb13:
     - .test_script_job
     - .test_rules
     - .test_job_vagrant_deb13
-
-captive_portal_el8:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_rules
-    - .test_job_vagrant_el8
 
 external_integrations_deb13:
   variables:
@@ -1479,15 +1301,6 @@ cluster_configurator_deb13:
     - .cluster_test_rules
     - .test_job_vagrant_deb13
 
-cluster_configurator_el8:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-  extends:
-    - .test_cluster_job
-    - .test_script_job
-    - .cluster_test_rules
-    - .test_job_vagrant_el8
-
 # Recovery family (A-F): builds the cluster then runs cluster_recovery in the
 # same job/VMs. Slow (~1h+); same TEST_CLUSTER gate as the configurator jobs.
 cluster_recovery_deb13:
@@ -1503,28 +1316,7 @@ cluster_recovery_deb13:
     - .cluster_test_rules
     - .test_job_vagrant_deb13
 
-cluster_recovery_el8:
-  timeout: 5h
-  variables:
-    CLUSTER_SETUP_TIMEOUT: 120m
-    CLUSTER_RECOVERY_TIMEOUT: 150m
-    PIPELINE_TIMEOUT_SCRIPT: 280m
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
-  extends:
-    - .test_cluster_job
-    - .test_script_job
-    - .cluster_test_rules
-    - .test_job_vagrant_el8
-
 ### release
-configurator_el8_pristine:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}-${CI_JOB_ID}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .release_only_rules
-
 configurator_deb13_pristine:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}-${CI_JOB_ID}
@@ -1545,9 +1337,7 @@ deploy_packages:
   parallel:
     matrix:
       - DEPLOY_TYPE:
-          - rpm
           - deb
-          - packetfence-release
           - packetfence-export
           - packetfence-upgrade
           - packetfence-ci-lib

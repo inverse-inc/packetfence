@@ -31,12 +31,6 @@ PUBLIC_REPO_BASE_DIR=${PUBLIC_REPO_BASE_DIR:-/var/www/inverse.ca/downloads/Packe
 # CI
 CI_PLATFORM=${CI_PLATFORM:-gitlab}
 
-# RPM
-DEPLOY_SRPMS=${DEPLOY_SRPMS:-no}
-RPM_BASE_DIR=${RPM_BASE_DIR:-"${PUBLIC_REPO_BASE_DIR}"}
-RPM_DEPLOY_DIR=${RPM_DEPLOY_DIR:-"${PF_MINOR_RELEASE}/x86_64"}
-RPM_RESULT_DIR=${RPM_RESULT_DIR:-"${RESULT_DIR}/centos"}
-
 # Deb
 DEB_UPLOAD_DIR=${DEB_UPLOAD_DIR:-"/home/$DEPLOY_USER/debian/UploadQueue"}
 DEB_BASE_DIR=${DEB_BASE_DIR:-"${PUBLIC_REPO_BASE_DIR}"}
@@ -49,42 +43,6 @@ PPA_ID=${PPA_ID:-tmp}
 # CI
 # automatically set up by CI based on environment
 CI_ENV_NAME=${CI_ENVIRONMENT_NAME:-environment}
-
-rpm_deploy() {
-    for release_name in $(ls $RPM_RESULT_DIR); do
-        src_dir="$RPM_RESULT_DIR/${release_name}"
-        base_repo="$RPM_BASE_DIR/RHEL$release_name/$RPM_DEPLOY_DIR"
-        rpm_dir="$base_repo/RPMS"
-        dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$rpm_dir"
-        deploy_cmd="/usr/local/bin/ci-repo-deploy rpm $base_repo $CI_ENV_NAME"
-        declare -p src_dir dst_dir
-
-        # dest repo + subdirectories RPMS need to exist
-        # repodata dir will be created by createrepo command
-        mkdir_cmd="$DEPLOY_USER@$DEPLOY_HOST mkdir -p $rpm_dir"
-	echo "running following command (on port $DEPLOY_PORT): $mkdir_cmd"
-        ssh $SSH_OPTS $mkdir_cmd \
-            || die "remote mkdir failed"
-
-        if [ "$DEPLOY_SRPMS" == "no" ]; then
-            echo "Removing SRPMS according to '$DEPLOY_SRPMS' value"
-            rm -v $src_dir/*.src.rpm
-        else
-            echo "Keeping SRPMS according to '$DEPLOY_SRPMS' value"
-        fi
-
-        # copy rpm files
-	echo "copy (on port $DEPLOY_PORT): $src_dir/*.rpm -> $dst_dir"
-        scp $SSH_OPTS $src_dir/*.rpm $dst_dir \
-            || die "scp failed"
-
-        # update repository
-        dst_cmd="$DEPLOY_USER@$DEPLOY_HOST $deploy_cmd"
-	echo "running following command (on port $DEPLOY_PORT): $dst_cmd"
-        ssh $SSH_OPTS $dst_cmd \
-            || die "update failed"
-    done
-}
 
 deb_deploy() {
     for release_name in $(ls $DEB_RESULT_DIR); do
@@ -114,37 +72,7 @@ deb_deploy() {
 }
 
 # no deploy command because it's just a file
-packetfence_release_deploy() {
-    for release_name in $(ls $RPM_RESULT_DIR); do
-        src_dir="$RPM_RESULT_DIR/${release_name}"
-        dst_repo="$PUBLIC_REPO_BASE_DIR/RHEL$release_name"
-        dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
-        pf_release_rpm_file=$(basename $(ls $src_dir/packetfence-release*))
-        pkg_dest_name=${PKG_DEST_NAME:-"packetfence-release-${PF_MINOR_RELEASE}.el${release_name}.noarch.rpm"}
-        declare -p src_dir dst_dir pf_release_rpm_file pkg_dest_name
-
-	echo "scp (on port $DEPLOY_PORT): ${src_dir}/${pf_release_rpm_file} -> ${dst_dir}/${pkg_dest_name}"
-        scp $SSH_OPTS "${src_dir}/${pf_release_rpm_file}" "${dst_dir}/${pkg_dest_name}" \
-            || die "scp failed"
-    done
-}
-
-# no deploy command because it's just a file
 packetfence_upgrade_deploy() {
-    # EL
-    for release_name in $(ls $RPM_RESULT_DIR); do
-        src_dir="$RPM_RESULT_DIR/${release_name}"
-        dst_repo="$PUBLIC_REPO_BASE_DIR/RHEL$release_name"
-        dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
-        pf_upgrade_rpm_file=$(basename $(ls $src_dir/packetfence-upgrade*))
-        pf_upgrade_rpm_dest_name=${PF_UPGRADE_RPM_DEST_NAME:-"packetfence-upgrade-${PF_MINOR_RELEASE}.el${release_name}.noarch.rpm"}
-        declare -p src_dir dst_dir pf_upgrade_rpm_file pf_upgrade_rpm_dest_name
-
-        echo "scp (on port $DEPLOY_PORT): ${src_dir}/${pf_upgrade_rpm_file} -> ${dst_dir}/${pf_upgrade_rpm_dest_name}"
-        scp $SSH_OPTS "${src_dir}/${pf_upgrade_rpm_file}" "${dst_dir}/${pf_upgrade_rpm_dest_name}" \
-            || die "scp failed"
-    done
-    # Deb
     for release_name in $(ls $DEB_RESULT_DIR); do
         src_dir="$DEB_RESULT_DIR/${release_name}"
         dst_repo="$DEB_BASE_DIR/debian"
@@ -161,20 +89,6 @@ packetfence_upgrade_deploy() {
 
 # no deploy command because it's just a file
 packetfence_export_deploy() {
-    # EL
-    for release_name in $(ls $RPM_RESULT_DIR); do
-        src_dir="$RPM_RESULT_DIR/${release_name}"
-        dst_repo="$PUBLIC_REPO_BASE_DIR/RHEL$release_name"
-        dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
-        pf_export_rpm_file=$(basename $(ls $src_dir/packetfence-export*))
-        pf_export_rpm_dest_name=${PF_EXPORT_RPM_DEST_NAME:-"packetfence-export-${PF_MINOR_RELEASE}.el${release_name}.noarch.rpm"}
-        declare -p src_dir dst_dir pf_export_rpm_file pf_export_rpm_dest_name
-
-	echo "scp (on port $DEPLOY_PORT): ${src_dir}/${pf_export_rpm_file} -> ${dst_dir}/${pf_export_rpm_dest_name}"
-        scp $SSH_OPTS "${src_dir}/${pf_export_rpm_file}" "${dst_dir}/${pf_export_rpm_dest_name}" \
-            || die "scp failed"
-    done
-    # Deb
     for release_name in $(ls $DEB_RESULT_DIR); do
         src_dir="$DEB_RESULT_DIR/${release_name}"
         dst_repo="$DEB_BASE_DIR/debian"
@@ -243,9 +157,7 @@ echo "${PF_MINOR_RELEASE}"
 
 log_section "Deploy $1 artifacts"
 case $1 in
-    rpm) rpm_deploy ;;
     deb) deb_deploy ;;
-    packetfence-release) packetfence_release_deploy ;;
     packetfence-export) packetfence_export_deploy ;;
     packetfence-upgrade) packetfence_upgrade_deploy ;;
     packetfence-ci-lib) packetfence_ci_lib_deploy ;;

@@ -10,31 +10,6 @@ on:
         type: string
 
 jobs:
-  unit-test-rhel:
-    name: unit-test
-    if: inputs._IMAGE_TYPE == 'rhel8'
-    runs-on: packetfence-perl-package-build
-    container:
-      # UBI is public on Docker Hub, so no registry credentials are required.
-      image: redhat/ubi8:8.8
-    steps:
-      - name: Download artifactory rhel8
-        uses: actions/download-artifact@v4.1.7
-        with:
-          name: package-rpm8
-          path:  /mnt
-
-      - name: Install the package ${{ inputs._PACKAGE_NAME }} rhel8
-        run: |
-          ls -la /mnt
-          PF_RELEASE_PATH=https://raw.githubusercontent.com/inverse-inc/packetfence/devel/conf/pf-release
-          PF_MINOR_RELEASE=$(curl -s ${PF_RELEASE_PATH}  | grep -oE '[0-9]+\.[0-9]+')
-          yum -y install findutils
-          yum -y localinstall http://packetfence.org/downloads/PacketFence/RHEL8/packetfence-release-${PF_MINOR_RELEASE}.el8.noarch.rpm
-          set -e && find /mnt -name ${{ inputs._PACKAGE_NAME }}*.rpm -exec bash -c 'yum -y localinstall --enablerepo=packetfence {}' \;
-          echo "Next packages ${{ inputs._PACKAGE_NAME }} was installed successfuly: "
-          rpm -qa | grep ${{ inputs._PACKAGE_NAME }}
-
   unit-test-debian:
     name: unit-test
     if: startsWith(inputs._IMAGE_TYPE, 'debian')

@@ -61,15 +61,13 @@ jobs:
       - name: Find package version
         id: contents
         run: |
-          package_version=$(${{ inputs._IMAGE_TYPE == 'rhel8' &&  env.command_rpm || env.command_deb}})
+          package_version=$(${{ env.command_deb }})
           echo "Found version: $package_version"
           echo "PACKAGE_VERSION=$package_version" >> "$GITHUB_ENV"
           echo "data=$package_version" >> "$GITHUB_OUTPUT"
         env:
-          # rpm-build (RHEL) and build-essential/dpkg-dev (Debian) are pre-baked
-          # in the signing-* images, so no runtime install is needed.
-          command_rpm: set -e && docker run --rm -i -v ${{ github.workspace }}/addons/packetfence-perl:${{ inputs._WORKDIR }}/ ghcr.io/inverse-inc/packetfence/signing-packages:latest /bin/bash -c \
-            "set -e && cd ${{ inputs._WORKDIR }}/ && rpmspec -q --qf \"%{version}\"  rhel8/SPECS/packetfence-perl.spec"
+          # build-essential/dpkg-dev are pre-baked in the signing-packages
+          # image, so no runtime install is needed.
           command_deb: set -e && docker run --rm -i -v ${{ github.workspace }}/addons/packetfence-perl:${{ inputs._WORKDIR }}/ ghcr.io/inverse-inc/packetfence/signing-packages:latest /bin/bash -c \
             "set -e && cd ${{ inputs._WORKDIR }}/ && dpkg-parsechangelog --show-field Version"
 
@@ -91,7 +89,6 @@ jobs:
           build-args: |
             workdir=${{ inputs._WORKDIR }}
             output_directory=${{ inputs._OUTPUT_DIRECTORY }}
-            psono_nqb_rhel_subs_secret_id=${{ vars.PSONO_NQB_RHEL_SUBS_SECRET_ID }}
           tags: |
             ${{env.IMAGE_PATH_VERSION}}
             ${{ inputs._BRANCH_NAME == 'devel' && env.IMAGE_PATH_LATEST || ''}}
@@ -127,9 +124,9 @@ jobs:
           # HOME=/github/home, which hides the policy baked into the image (INSTALL_BASE,
           # allow_installing_module_downgrades, allow_installing_outdated_dists, urllist).
           HOME: /root
-          # build_package.sh honours ${WORKDIR:-/root} to locate debian/ and rhel8/.
+          # build_package.sh honours ${WORKDIR:-/root} to locate debian/.
           WORKDIR: ${{ github.workspace }}/addons/packetfence-perl
-          PATH_PACKAGE: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'rhel8' || 'debian' }}
+          PATH_PACKAGE: debian
     
       - name: Upload the package to artifactory ${{inputs._IMAGE_TYPE}}
         uses: actions/upload-artifact@v4.4.3
@@ -138,9 +135,9 @@ jobs:
           path:  ${{ inputs._OUTPUT_DIRECTORY }}/${{ env.PATH_PACKAGE }}/packages/${{ env.PACKAGE_NAME }}
           overwrite: true
         env:
-          PACKAGE_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'packetfence-perl-*.rpm' || inputs._IMAGE_TYPE == 'debian13' && 'packetfence-perl*.deb' }}
-          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm8' || inputs._IMAGE_TYPE == 'debian13' && 'package-deb13' }}
-          PATH_PACKAGE: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'rhel8' || 'debian' }}
+          PACKAGE_NAME: 'packetfence-perl*.deb'
+          ARTIFACTORY_NAME: package-deb13
+          PATH_PACKAGE: debian
 
       # Every step above ran as root inside the container while $GITHUB_WORKSPACE is a
       # bind mount of the runner's own workspace, so checkout's .git and the build

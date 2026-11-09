@@ -36,7 +36,7 @@ jobs:
           name: ${{ env.ARTIFACTORY_NAME }}
           path:  /mnt
         env:
-          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm8' || inputs._IMAGE_TYPE == 'debian13' && 'package-deb13' }}
+          ARTIFACTORY_NAME: package-deb13
 
       - name: Upload the package to web server
         shell: bash
@@ -48,4 +48,4 @@ jobs:
           rsync -avzr --delete --rsync-path='mkdir -p  ${{ env.PACKAGE_DEST_PATH }} &&  rm -rf ${{ env.PACKAGE_DEST_PATH }}/* && rsync' -e "ssh -o StrictHostKeyChecking=no -o PubkeyAcceptedAlgorithms=+ssh-rsa -p 22"   /mnt/${{inputs._PACKAGE_NAME}}${{ env.PACKAGE_TYPE }} reposync@${{ vars.WEB_INVERSE_IP_ADDRESS }}:${{ env.PACKAGE_DEST_PATH }}
           ssh-add -D
         env:
-          PACKAGE_TYPE: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  '*.rpm' || '*.deb' }}
+          PACKAGE_TYPE: '*.deb'
