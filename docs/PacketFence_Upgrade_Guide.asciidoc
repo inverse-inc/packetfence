@@ -1382,6 +1382,18 @@ Before upgrading, check the `sticky_dc` value of each domain in
 [filename]`/usr/local/pf/conf/domain.conf`, and set it back to `*` if you don't
 want to pin a domain controller.
 
+=== HTTP source basic authentication credentials
+
+The `API username (basic auth)` and `API password (basic auth)` fields of an
+HTTP authentication source were not saved when entered in the administration
+interface, so PacketFence called the external API without basic authentication.
+Credentials already present in [filename]`/usr/local/pf/conf/authentication.conf`
+(`username` and `password` of the source) were used, but were shown empty in the
+form.
+
+After upgrading, open each HTTP source in the administration interface and enter
+the basic authentication credentials again if the external API requires them.
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]
