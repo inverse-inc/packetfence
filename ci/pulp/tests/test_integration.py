@@ -41,27 +41,50 @@ class ConfigurationTest(unittest.TestCase):
         self.assertEqual(config['.gated_by_deploy_pkg']['rules'][0],
                          {'if': '$PF_PULP_ENABLED == "yes"', 'when': 'never'})
 
-    def test_container_sync_is_independent_and_guarded(self):
+    def test_container_sync_runs_in_deploy_containers_after_promotion(self):
         config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
-        self.assertEqual(config['variables']['PF_PULP_CONTAINER_SYNC_ENABLED'], 'no')
-        job = config['sync_pulp_branch_images']
+        self.assertNotIn('PF_PULP_CONTAINER_SYNC_ENABLED', config['variables'])
+        self.assertNotIn('sync_pulp_branch_images', config)
+        job = config['deploy_containers']
         self.assertEqual(job['resource_group'], 'pulp-packetfence-containers')
-        self.assertEqual(job['stage'], 'publish')
-        self.assertNotIn('needs', job)
-        self.assertEqual(job['before_script'], [])
-        self.assertEqual(len(job['rules']), 2)
-        devel, maintenance = [rule['if'] for rule in job['rules']]
-        for rule in (devel, maintenance):
-            self.assertIn('PF_PULP_CONTAINER_SYNC_ENABLED == "yes"', rule)
-            self.assertIn('CI_COMMIT_REF_PROTECTED == "true"', rule)
-            self.assertIn('CI_COMMIT_TAG == null', rule)
-            for source in ('web', 'api', 'schedule'):
-                self.assertIn('CI_PIPELINE_SOURCE == "'+source+'"', rule)
-        self.assertIn('CI_COMMIT_BRANCH == "devel"', devel)
-        self.assertIn('CI_PIPELINE_SOURCE == "push"', devel)
-        self.assertNotIn('CI_PIPELINE_SOURCE == "push"', maintenance)
-        self.assertIn('CI_COMMIT_BRANCH != "maintenance/99.9"', maintenance)
-        self.assertIn('CI_COMMIT_BRANCH =~ /^maintenance', maintenance)
+        script = '\n'.join(job['script'])
+        # GitHub first, then packages.packetfence.com, which fetches the promoted tags.
+        self.assertLess(script.index('promote-images.py'), script.index('ci/pulp/container-sync.sh'))
+        self.assertNotIn('PF_PULP_CONTAINER_SYNC_ENABLED', script)
+        self.assertEqual(job['artifacts']['expire_in'], '1 day')
+
+    def test_service_images_are_promoted_only_after_tests(self):
+        config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
+        service = config['.build_img_service_rules']['rules']
+        for name in ('pfdebian', 'pfdebian_related', 'radiusd', 'radiusd_related'):
+            self.assertIn({'reference': ['.build_img_service_rules', 'rules']}, config[name]['rules'])
+        for rule in service:
+            if rule['if'] in ('$CI_COMMIT_REF_NAME == "devel"',) or rule['if'].startswith('$CI_COMMIT_REF_NAME =~ /^maintenance'):
+                self.assertEqual(rule['variables']['IMAGE_TAGS'], '${CI_COMMIT_REF_SLUG}-p${CI_PIPELINE_ID}')
+                self.assertEqual(rule['variables']['BUILDER_TAG'], '${CI_COMMIT_REF_SLUG}')
+        job = config['deploy_containers']
+        self.assertEqual(job['stage'], 'deploy')
+        self.assertNotIn('needs', job)  # waits for every test stage
+        for rule in job['rules'][1:]:
+            self.assertIn('$TEST == "yes"', rule['if'])
+            self.assertIn('$CI_COMMIT_TAG == null', rule['if'])
+        self.assertEqual([r['variables']['PROMOTE_TAGS'] for r in job['rules'][1:]],
+                         ['${CI_COMMIT_REF_SLUG},latest', '$CI_COMMIT_REF_SLUG'])
+
+    def test_pipeline_image_tag_contexts(self):
+        helper = ROOT/'ci/lib/common/pipeline-image-tag.sh'
+        base = {'PATH': os.environ['PATH'], 'CI_PIPELINE_ID': '42'}
+        cases = [({'CI_COMMIT_REF_NAME': 'devel', 'CI_COMMIT_REF_SLUG': 'devel', 'CI_PIPELINE_SOURCE': 'push'}, 'devel-p42'),
+                 ({'CI_COMMIT_REF_NAME': 'maintenance/15.2', 'CI_COMMIT_REF_SLUG': 'maintenance-15-2',
+                   'CI_PIPELINE_SOURCE': 'web'}, 'maintenance-15-2-p42'),
+                 ({'CI_COMMIT_REF_NAME': 'maintenance/15.2', 'CI_COMMIT_REF_SLUG': 'maintenance-15-2',
+                   'CI_PIPELINE_SOURCE': 'push'}, ''),
+                 ({'CI_COMMIT_REF_NAME': 'feature/x', 'CI_COMMIT_REF_SLUG': 'feature-x', 'CI_PIPELINE_SOURCE': 'web'}, ''),
+                 ({'CI_COMMIT_REF_NAME': 'devel', 'CI_COMMIT_REF_SLUG': 'devel', 'BUILD_IMG_CONTAINER': 'no'}, ''),
+                 ({'CI_COMMIT_REF_NAME': 'v16.0.0', 'CI_COMMIT_TAG': 'v16.0.0'}, '')]
+        for env, expected in cases:
+            result = subprocess.run(['sh', str(helper)], env={**base, **env}, capture_output=True, text=True)
+            self.assertEqual((result.returncode, result.stdout.strip()), (0, expected), env)
 
     def test_container_sync_routes_only_trusted_supported_pipelines(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -83,12 +106,12 @@ class ConfigurationTest(unittest.TestCase):
                 with self.subTest(branch=branch, source=source, protected=protected, tag=tag):
                     calls.write_text('')
                     env = dict(os.environ, PATH=str(work)+os.pathsep+os.environ['PATH'],
-                               TEST_CALLS=str(calls), PF_PULP_CONTAINER_SYNC_ENABLED='yes',
+                               TEST_CALLS=str(calls),
                                CI_COMMIT_BRANCH=branch, CI_PIPELINE_SOURCE=source,
                                CI_COMMIT_REF_PROTECTED=protected, CI_COMMIT_TAG=tag,
                                PF_PULP_CONTAINER_USERNAME='test-sync', PF_PULP_CONTAINER_PASSWORD='dummy',
                                PULP_USERNAME='wrong-account', PULP_PASSWORD='wrong-password',
-                               PULP_URL='https://pulp.test', PF_PULP_CONTAINER_ALLOW_TAG_UPDATE='yes')
+                               PULP_URL='https://pulp.test')
                     result = subprocess.run(['bash', str(ROOT/'ci/pulp/container-sync.sh')],
                                             env=env, capture_output=True, text=True)
                     self.assertEqual(result.returncode == 0, allowed, result.stderr)
@@ -189,7 +212,7 @@ esac
 
     def test_publishing_artifacts_require_project_developer_access(self):
         config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
-        for name in ('prepare_pulp_dependencies', 'publish_ppa', 'sync_pulp_branch_images'):
+        for name in ('prepare_pulp_dependencies', 'publish_ppa', 'deploy_containers'):
             self.assertEqual(config[name]['artifacts']['access'], 'developer')
         # Execute every former environment-dump hook with a fake CI secret.
         environment = dict(os.environ, CI_AUDIT_SECRET='must-not-appear-in-job-logs')
