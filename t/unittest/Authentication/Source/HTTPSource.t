@@ -237,7 +237,7 @@ sub curl_options {
 }
 
 my $options = curl_options();
-is_deeply([@$options{CURLOPT_SSL_VERIFYPEER, CURLOPT_SSL_VERIFYHOST}], [0, 0], "TLS is not verified by default, like before the option existed");
+is_deeply([@$options{CURLOPT_SSL_VERIFYPEER, CURLOPT_SSL_VERIFYHOST}], [0, 0], "TLS is not verified when the option is not set, like before the option existed");
 
 $options = curl_options(verify_tls => 'disabled');
 is_deeply([@$options{CURLOPT_SSL_VERIFYPEER, CURLOPT_SSL_VERIFYHOST}], [0, 0], "TLS is not verified when disabled");
