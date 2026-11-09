@@ -8,6 +8,6 @@
     create 660 fingerbank fingerbank
     copytruncate
 
-    # This following line is required for RHEL / CentOS 7 but will be ignored on RHEL / CentOS 6
+    # Rotate as the fingerbank user
     su fingerbank fingerbank
 }

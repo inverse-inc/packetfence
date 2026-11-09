@@ -43,7 +43,7 @@ RUN mkdir -p ${WORKDIR}/debian && \
 RUN PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'CPAN::HandleConfig->load(doit => 1, autoconfig => 1); CPAN::HandleConfig->commit;' < /dev/null > /dev/null 2>&1
 
 # 1. configure CPAN with defaults (answer yes)
-# 2. override default conf to UNINST cpan after upgrade (seems mandatory for EL8)
+# 2. override default conf to UNINST cpan after upgrade
 # 3. allow outdated dists before pinning CPAN-${CPAN_VERSION}: once a newer CPAN
 #    is indexed, the pinned install is refused without it
 RUN (echo o conf make_install_arg 'UNINST=1'; echo o conf allow_installing_outdated_dists 'yes'; echo o conf commit)|PERL_MM_USE_DEFAULT=1 ${CPAN_BIN_PATH} > /dev/null 2>&1 && \
