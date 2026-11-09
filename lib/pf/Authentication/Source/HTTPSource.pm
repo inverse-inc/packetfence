@@ -140,15 +140,41 @@ sub available_attributes {
 
 Encodes a hash into URL/BODY parameters
 
+Plain values are sent as is, undefined values as empty strings. The values of
+a nested hash (like radius_request) are sent as C<key.attribute>, once per
+value for multi-valued attributes. Objects and deeper structures are not sent.
+
 =cut
 
 sub encode_params {
     my %hash = @_;
     my @pairs;
-    for my $key (keys %hash) {
-        push @pairs, join "=", map { uri_escape($_) } $key, $hash{$key};
+    for my $key (sort keys %hash) {
+        my $value = $hash{$key};
+        if (ref($value) eq 'HASH') {
+            for my $sub_key (sort keys %$value) {
+                push @pairs, map { [ "$key.$sub_key", $_ ] } _scalar_values($value->{$sub_key});
+            }
+        } else {
+            push @pairs, map { [ $key, $_ ] } _scalar_values($value);
+        }
     }
-    return join "&", @pairs;
+    return join "&", map { join "=", map { uri_escape($_) } @$_ } @pairs;
+}
+
+=head2 _scalar_values
+
+The values of a param that can be sent: the value itself, or the elements of an
+array of plain values. Undefined values become empty strings.
+
+=cut
+
+sub _scalar_values {
+    my ($value) = @_;
+    return ('') if !defined $value;
+    return ($value) if !ref $value;
+    return map { $_ // '' } grep { !ref $_ } @$value if ref($value) eq 'ARRAY';
+    return ();
 }
 
 =head2 authenticate
@@ -215,7 +241,8 @@ The HTTPSource class overrides the match method of the Source parent class.
 
 The actions are defined by the API through its JSON response. All the
 match parameters (username, mac, SSID, rule_class, ...) are sent as POST
-fields.
+fields, see L</encode_params>. The attributes of the RADIUS request are sent
+as C<radius_request.Attribute-Name> (ex: radius_request.TLS-Client-Cert-Common-Name).
 
 Supported attributes: access_duration, access_level, sponsor (1 marks the
 user as a sponsor), unregdate (ignored when access_duration is set),

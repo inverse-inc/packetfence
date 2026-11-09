@@ -50,7 +50,9 @@ A response that is not a valid JSON object is treated as a failed authentication
 
 This should provide the actions to apply to a user, based on their attributes.
 
-The request contains the context of the user as POST fields. When the source is used from the captive portal, these include *username*, *stripped_user_name*, *mac*, *SSID*, *connection_type*, *realm*, *switch_id*, *switch_group*, *computer_name*, *context* and *rule_class*.
+The request contains the context of the user as POST fields. These include *username*, *stripped_user_name*, *mac*, *SSID*, *connection_type*, *realm*, *switch_id*, *switch_group*, *computer_name*, *context* (`portal` or `radius`) and *rule_class*. Fields without a value are sent empty.
+
+When the source is used during a RADIUS authentication, the attributes of the RADIUS request are also sent, prefixed by `radius_request.`. For example, with EAP-TLS, the client certificate is available in *radius_request.TLS-Client-Cert-Common-Name*, *radius_request.TLS-Client-Cert-Serial*, *radius_request.TLS-Client-Cert-Issuer*, and so on. A multi-valued attribute is sent once per value.
 
 The following attributes are available for the reply:
 
