@@ -147,7 +147,7 @@
   become: True
   # doc: add cluster nodes one at a time. Joining pf2 and pf3 together makes both
   # request an SST from pf1 at once; on constrained nodes a joiner gets stuck
-  # (seen on el8: pf3 stuck 'Initialized'). serial:1 joins them sequentially.
+  # (pf3 seen stuck 'Initialized'). serial:1 joins them sequentially.
   serial: 1
 
   vars:
@@ -229,8 +229,8 @@
     # (docker-wrapped radiusd-load_balancer et al.) can start minutes later and
     # race the verify play (seen on pf3: active 35s after verify gave up).
     # degraded = startup done with some failed units; verify judges those.
-    # Poll rather than `is-system-running --wait`: --wait landed in systemd 240,
-    # but el8 ships 239 where it's ignored and returns immediately ('starting').
+    # Poll with retries rather than `is-system-running --wait` so the wait
+    # stays bounded.
     - name: Wait for the boot transaction to settle
       command: systemctl is-system-running
       register: boot_settled

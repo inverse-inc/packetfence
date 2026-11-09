@@ -7,7 +7,6 @@
     masked: True
   loop: '{{ apt_services }}'
   register: disable_apt_services_register
-  when: ansible_os_family == 'Debian'
 
 - name: apply systemd changes
   systemd:

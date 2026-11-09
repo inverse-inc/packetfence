@@ -10,6 +10,5 @@
 
   roles:
     - role: apt_preferences
-      when: ansible_os_family == 'Debian'
 
     - role: inverse_inc.gitlab_buildpkg_tools

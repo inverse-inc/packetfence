@@ -1,10 +1,5 @@
 ---
 # Add branches repository
-packetfence_install__centos_release_rpm: 'http://packetfence.org/downloads/PacketFence/RHEL8/packetfence-release-branches.el8.noarch.rpm'
-packetfence_install__centos:
-  repos:
-    - packetfence-branches
-
 packetfence_install__deb:
   repos:
     - 'debian/{{ pf_minor_release }}'
