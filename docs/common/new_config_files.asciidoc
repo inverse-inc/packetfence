@@ -3,12 +3,6 @@ configuration files and merge them if required.
 
 To find out which configuration files have changed run following command:
 
-.RHEL-based systems
-[source,bash]
-----
-find /usr/local/pf -name \*.rpmnew
-----
-
 .Debian-based systems
 [source,bash]
 ----

@@ -98,77 +98,24 @@ screen to complete the installation.
 
 === Installing PacketFence on existing Linux
 
-PacketFence provides repositories for *RHEL 8* and *Debian 13* (trixie) with
-all required dependencies.
+PacketFence provides repositories for *Debian 13* (trixie) with all required
+dependencies.
 
 *Repository Benefits:*
 
 [options="compact"]
  * Streamlined installation with dependency management
- * Pre-built RPM (EL8) and DEB (Debian 13) packages  
+ * Pre-built DEB (Debian 13) packages
  * Simplified upgrade process
 
 ==== Common Prerequisites
 
-*All Systems:*
 [options="compact"]
  * Minimal OS installation (no additional packages)
  * UEFI Secure Boot *disabled* (if applicable)
  * System updated to latest patches
- * No SELinux or Apparmor enabled
+ * No AppArmor enabled
  * No firewalld (Iptables is used)
-
-==== RHEL 8 System Preparation
-
-===== Security Configuration
-
-[source,bash]
-----
-# Disable firewall and SELinux (required)
-systemctl disable --now firewalld
-sed -i 's/^SELINUX=.*/SELINUX=disabled/' /etc/selinux/config
-
-# Update system
-yum update
-
-# Reboot to apply SELinux changes
-reboot
-----
-
-PacketFence will not work properly if SELinux is enabled. Explicitly disable
-SELinux in the `/etc/selinux/config` file and reboot the machine.
-
-===== Kernel and Development Tools
-
-*Prerequisites:*
-
-[options="compact"]
- * Valid RHEL subscription for dependency installation
- * Latest kernel running
-
-[source,bash]
-----
-# Install kernel development package for current kernel
-yum install kernel-devel-$(uname -r)
-
-# Remove conflicting container tools (PacketFence uses docker)
-yum remove runc podman
-
-# Import PacketFence GPG key (required for EL8)
-rpm --import https://inverse.ca/downloads/GPG_PUBLIC_KEY
-----
-
-===== PacketFence Software Installation
-
-[source,bash,subs="attributes"]
-----
-# Install PacketFence repository
-yum localinstall https://www.packetfence.org/downloads/PacketFence/RHEL8/packetfence-release-{release_minor}.el8.noarch.rpm
-
-# Install PacketFence with all dependencies
-# Includes: MariaDB, FreeRADIUS, DHCP server
-yum install --enablerepo=packetfence packetfence
-----
 
 ==== Debian System Preparation  
 

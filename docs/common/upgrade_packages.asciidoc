@@ -1,13 +1,5 @@
 Upgrade PacketFence packages to latest version:
 
-==== RHEL-based systems
-
-[source,bash]
-----
-yum clean all --enablerepo=packetfence
-yum update --enablerepo=packetfence
-----
-
 ==== Debian-based systems
 
 [source,bash]
