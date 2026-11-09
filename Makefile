@@ -247,25 +247,6 @@ conf/git_commit_id:
 conf/build_id:
 	$(SRC_CIDIR)/lib/build/generate-build-id.sh
 
-.PHONY: rpm/.rpmmacros
-rpm/.rpmmacros:
-	echo "%systemddir /usr/lib/systemd" > $(SRC_RPMDIR)/.rpmmacros
-	echo "%pf_minor_release $(PF_MINOR_RELEASE)" >> $(SRC_RPMDIR)/.rpmmacros
-
-.PHONY: build_rpm
-build_rpm: conf/git_commit_id conf/build_id rpm/.rpmmacros dist-packetfence-test dist-packetfence-export dist-packetfence-upgrade dist
-	cp $(SRC_RPMDIR)/.rpmmacros $(HOME)
-	mkdir -p $(PKG_RELEASE_DIR)
-	for spec in packetfence.spec packetfence-release.spec packetfence-test.spec packetfence-export.spec packetfence-upgrade.spec; do \
-		sed -i -e "s/^Release:.*/Release:\t$(RPM_PKG_SUFFIX)%{?dist}/" $(SRC_RPMDIR)/$$spec ; \
-		rpmbuild -ba --clean --rmsource \
-			--define "_topdir $(HOME)/rpmbuild/$(OS_RELEASE_ID)-$(OS_RELEASE_NAME)" \
-			--define "_sourcedir $(SRC_ROOT_DIR)" \
-			$(SRC_RPMDIR)/$$spec || exit 1 ; \
-	done
-	find $(HOME)/rpmbuild/$(OS_RELEASE_ID)-$(OS_RELEASE_NAME) -type f -name '*.rpm' \
-		-exec cp -fv {} $(PKG_RELEASE_DIR)/ \;
-
 .PHONY: build_deb
 build_deb: conf/git_commit_id conf/build_id
 	cp $(SRC_CIDIR)/debian/.devscripts $(HOME)

@@ -32,32 +32,6 @@ what you have in `dependencies.csv`. `install_cpan.sh` will warn you if this
 is the case. The best option will be to look at `META.yml` of modules and
 certainly update `dependencies.csv` with new version.
 
-## How to build RPM package ?
-
-1. Update `Release` or `Version` in `rhel8/SPECS/packetfence-perl.spec` and add a changelog
-   entry if necessary
-1. Run following commands:
-
-``` shell
-./make_tar_from_source.sh
-# only in Docker container, see note below
-QA_RPATHS=$(( 0x0001 )) rpmbuild -bb ./rhel8/SPECS/packetfence-perl.spec --clean --rmsource --define "_sourcedir ${PWD}/rhel8/SOURCES"
-# or
-rpmbuild -bb ./rhel8/SPECS/packetfence-perl.spec --clean --rmsource --define "_sourcedir ${PWD}/rhel8/SOURCES"
-```
-
-If you build inside a Docker container, you need to define `QA_RPATHS=$(( 0x0001 ))` inside environment used by `rpmbuild` to avoid error related to
-RPATHS
-
-1. Copy your RPM from `/root/rpmbuild/RPMS/x86_64/`
-
-IMPORTANT: you can get a list of all Perl modules with their version provided through RPM using following command:
-
-```shell
-rpm -qp --provides RPM_PKG
-```
-
-
 ## How to build Debian package ?
 
 1. Add a changelog entry in `debian/changelog` with new package version

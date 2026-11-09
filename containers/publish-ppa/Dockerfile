@@ -5,9 +5,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Runtime deps:
 #   psono.py (GPG key fetch): python3, python3-nacl, python3-requests
-#   ci/pulp (Pulp API, container push): python3-requests-toolbelt, python3-rpm, skopeo, curl
+#   ci/pulp (Pulp API, container push): python3-requests-toolbelt, skopeo, curl
 #   generate-pages.sh APT repo build: reprepro
-#   generate-pages.sh YUM repo build: createrepo-c
 #   generate-pages.sh: tree (optional, for directory visualization)
 #   publish_ppa job: gnupg (for GPG key import / repo signing)
 RUN apt-get update -qq \
@@ -15,9 +14,8 @@ RUN apt-get update -qq \
         tree \
         gnupg \
         reprepro \
-        createrepo-c \
-        python3 python3-nacl python3-requests python3-requests-toolbelt python3-rpm \
-        rpm curl ca-certificates skopeo \
+        python3 python3-nacl python3-requests python3-requests-toolbelt \
+        curl ca-certificates skopeo \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -25,6 +23,6 @@ RUN apt-get update -qq \
 COPY ci/scripts/generate-pages.sh /usr/local/bin/generate-pages
 
 LABEL maintainer="Inverse Inc <info@inverse.ca>"
-LABEL description="PacketFence publish_ppa container: reprepro + createrepo-c repo builder (self-contained, no gitlab-buildpkg-tools)"
+LABEL description="PacketFence publish_ppa container: reprepro repo builder (self-contained, no gitlab-buildpkg-tools)"
 LABEL org.opencontainers.image.source="https://gitlab.com/inverse-inc/packetfence"
 LABEL org.opencontainers.image.licenses="GPL-3.0 AND GPL-2.0-or-later"
