@@ -56,6 +56,7 @@ has_field 'verify_tls' =>
    label => 'Verify TLS',
    checkbox_value  => 'enabled',
    unchecked_value => 'disabled',
+   # New sources verify TLS, existing ones keep the attribute default (disabled)
    default => 'enabled',
    tags => { after_element => \&help,
              help => 'Verify the certificate and the hostname of the server when using https.' },

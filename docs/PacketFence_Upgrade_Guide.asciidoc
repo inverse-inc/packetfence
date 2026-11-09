@@ -1399,12 +1399,11 @@ the basic authentication credentials again if the external API requires them.
 HTTP sources have a new *Verify TLS* option to verify the certificate and the
 hostname of the API server when using `https`. It is enabled for new sources.
 Existing sources keep their previous behavior and do not verify TLS: the
-upgrade script [filename]`/usr/local/pf/addons/upgrade/to-16.0-http-source-verify-tls.pl`
-writes `verify_tls=disabled` in each existing HTTP source of
-[filename]`/usr/local/pf/conf/authentication.conf`. If the option is not
-written, the administration interface shows it as enabled and saving the source
-turns verification on. After upgrading, enable the option on each HTTP source
-whose API certificate is trusted by the PacketFence server.
+package upgrade runs [filename]`/usr/local/pf/addons/upgrade/add-default-params-to-auth.pl`,
+which writes `verify_tls=disabled` in each existing HTTP source of
+[filename]`/usr/local/pf/conf/authentication.conf`. After upgrading, enable the
+option on each HTTP source whose API certificate is trusted by the PacketFence
+server.
 
 === HTTP source authorization requests
 
