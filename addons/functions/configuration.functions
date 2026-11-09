@@ -8,11 +8,7 @@ export CLUSTER_CONF_PATH="/usr/local/pf/conf/cluster.conf"
 declare -A PF_IFACE_RENAMES
 
 function ipcalc_wrapper() {
-  if is_deb_based; then
-    ipcalc-ng $@
-  else
-    ipcalc $@
-  fi
+  ipcalc-ng $@
 }
 
 function get_config_files() {

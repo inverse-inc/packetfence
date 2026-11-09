@@ -54,36 +54,29 @@ function backup_pf_release() {
 function upgrade_packetfence_package() {
   local include_os_update=$1
   canceled_update=no
-  if is_rpm_based; then
-    yum_upgrade_packetfence_package $include_os_update
-  elif is_deb_based; then
-    if get_packages_to_remove; then
-        echo "Packages to remove detected"
-        echo "OS upgrade can't be performed until ${packages_to_remove} are removed"
-        include_os_update=no
-        canceled_update=yes
-    else
-        echo "Unable to detect packages to remove"
-    fi
-    if get_libmariadb_dev; then
-        if dpkg --compare-versions "${libmariadb_version}" le "10.5.15"; then
-            echo "libmariadb-dev ${libmariadb_version} detected"
-            echo "OS upgrade can't be performed until libmariadb-dev is uninstalled"
-            include_os_update=no
-            canceled_update=yes
-        # cover fresh installations performed on Debian 11.6 before libmariadb-dev dependencies was removed
-        else
-            echo "libmariadb-dev ${libmariadb_version} detected"
-            echo "OS upgrade can occur"
-        fi
-    else
-        echo "Unable to detect a libmariadb-dev package, upgrade will continue"
-    fi
-    apt_upgrade_packetfence_package $include_os_update
+  if get_packages_to_remove; then
+    echo "Packages to remove detected"
+    echo "OS upgrade can't be performed until ${packages_to_remove} are removed"
+    include_os_update=no
+    canceled_update=yes
   else
-    echo "Unable to detect package manager to upgrade PacketFence"
-    exit 1
+    echo "Unable to detect packages to remove"
   fi
+  if get_libmariadb_dev; then
+    if dpkg --compare-versions "${libmariadb_version}" le "10.5.15"; then
+      echo "libmariadb-dev ${libmariadb_version} detected"
+      echo "OS upgrade can't be performed until libmariadb-dev is uninstalled"
+      include_os_update=no
+      canceled_update=yes
+    # cover fresh installations performed on Debian 11.6 before libmariadb-dev dependencies was removed
+    else
+      echo "libmariadb-dev ${libmariadb_version} detected"
+      echo "OS upgrade can occur"
+    fi
+  else
+    echo "Unable to detect a libmariadb-dev package, upgrade will continue"
+  fi
+  apt_upgrade_packetfence_package $include_os_update
 }
 
 # The published file names come from OS_SUPPORTED in ci/lib/common/functions.sh,
@@ -91,12 +84,7 @@ function upgrade_packetfence_package() {
 # Debian major from os-release instead of hardcoding it, so a Debian 13 host asks
 # for latest-stable-Debian-13.txt rather than the Debian 12 file.
 function find_latest_stable() {
-  OS=""
-  if is_rpm_based; then
-    OS="RHEL-8"
-  elif is_deb_based; then
-    OS="Debian-$(deb_version_id)"
-  fi
+  OS="Debian-$(deb_version_id)"
   curl https://www.packetfence.org/downloads/PacketFence/latest-stable-$OS.txt
 }
 
@@ -114,12 +102,8 @@ function set_upgrade_to() {
 }
 
 function install_gpg_key(){
-  if is_deb_based; then
-    apt install gnupg sudo curl
-    curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
-  elif is_rpm_based; then
-    rpm --import https://inverse.ca/downloads/GPG_PUBLIC_KEY
-  fi
+  apt install gnupg sudo curl
+  curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
 }
 
 function apt_upgrade_packetfence_package() {
@@ -144,19 +128,6 @@ function apt_upgrade_packetfence_package() {
     apt-mark hold packetfence-upgrade
     DEBIAN_FRONTEND=noninteractive apt upgrade -q -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y
     apt-mark unhold packetfence-upgrade
-  fi
-}
-
-function yum_upgrade_packetfence_package() {
-  set_upgrade_to
-  install_gpg_key
-  yum localinstall -y https://www.inverse.ca/downloads/PacketFence/RHEL8/packetfence-release-$UPGRADE_TO.el8.noarch.rpm
-  yum clean all --enablerepo=packetfence
-  yum_upgrade_mariadb_server
-  if is_enabled $1; then
-    yum update -y --enablerepo=packetfence --exclude=packetfence-upgrade --allowerasing
-  else
-    yum update packetfence -y --enablerepo=packetfence --allowerasing
   fi
 }
 
@@ -217,14 +188,7 @@ function handle_pkgnew_file() {
 }
 
 function handle_pkgnew_files() {
-  if is_rpm_based; then
-    suffix=".rpmnew"
-  elif is_deb_based; then
-    suffix=".dpkg-dist"
-  else
-    echo "Unable to detect package manager to upgrade PacketFence"
-    exit 1
-  fi
+  suffix=".dpkg-dist"
 
   echo "Checking for any $suffix files to process"
 

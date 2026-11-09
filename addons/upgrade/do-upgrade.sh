@@ -10,16 +10,8 @@ setup_upgrade_log
 main_splitter
 echo "Installing or upgrading the upgrade tools for PacketFence"
 
-if is_rpm_based; then
-  if rpm -q packetfence-upgrade; then
-    yum update packetfence-upgrade --enablerepo=packetfence
-  else
-    yum install packetfence-upgrade --enablerepo=packetfence
-  fi
-else
-  apt update
-  apt install packetfence-upgrade
-fi
+apt update
+apt install packetfence-upgrade
 
 main_splitter
 echo "Starting upgrade process"

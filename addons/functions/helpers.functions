@@ -69,14 +69,6 @@ function versions_since() {
   echo $versions
 }
 
-function is_rpm_based() {
-  which yum > /dev/null 2>&1
-}
-
-function is_deb_based() {
-  which apt > /dev/null 2>&1
-}
-
 # Debian suite codename of the running system, e.g. "bookworm" or "trixie".
 # The PacketFence repo publishes one suite per codename, so anything writing an
 # apt sources line has to ask the host rather than assume.

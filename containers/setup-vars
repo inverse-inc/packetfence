@@ -1,9 +1,3 @@
 #!/bin/bash
 
-source /etc/os-release
-
-if [ "$ID" = "debian" ]; then
-    export HOST_OS=$ID
-else
-    export HOST_OS=rhel
-fi
+export HOST_OS=debian
