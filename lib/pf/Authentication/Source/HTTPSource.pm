@@ -24,6 +24,7 @@ use JSON::MaybeXS;
 use pf::constants qw($TRUE $FALSE);
 use pf::Authentication::constants;
 use pf::Authentication::Action;
+use pf::Authentication::Rule;
 use pf::Authentication::Source;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use WWW::Curl::Easy;
@@ -246,7 +247,8 @@ as C<radius_request.Attribute-Name> (ex: radius_request.TLS-Client-Cert-Common-N
 
 Supported attributes: access_duration, access_level, sponsor (1 marks the
 user as a sponsor), unregdate (ignored when access_duration is set),
-category, time_balance and bandwidth_balance.
+category, time_balance, bandwidth_balance, trigger_radius_mfa and
+trigger_portal_mfa (the ID of the MFA to trigger).
 
 Sample JSON response, note that not all attributes are necessary, only send back what you need.
 {"access_duration":"1D","access_level":"ALL","sponsor":1,"unregdate":"2030-01-01","category":"default"}
@@ -311,6 +313,16 @@ sub match {
     my $bandwidth_balance = $result->{'bandwidth_balance'};
     if (defined $bandwidth_balance) {
         push @actions, pf::Authentication::Action->new({type => $Actions::SET_BANDWIDTH_BALANCE, value => $bandwidth_balance});
+    }
+
+    my $trigger_radius_mfa = $result->{'trigger_radius_mfa'};
+    if (defined $trigger_radius_mfa) {
+        push @actions, pf::Authentication::Action->new({type => $Actions::TRIGGER_RADIUS_MFA, value => $trigger_radius_mfa});
+    }
+
+    my $trigger_portal_mfa = $result->{'trigger_portal_mfa'};
+    if (defined $trigger_portal_mfa) {
+        push @actions, pf::Authentication::Action->new({type => $Actions::TRIGGER_PORTAL_MFA, value => $trigger_portal_mfa});
     }
 
     return pf::Authentication::Rule->new(

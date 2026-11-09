@@ -20,8 +20,10 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 14;
+use Test::More tests => 19;
 use URI;
+use Test::MockModule;
+use pf::Authentication::constants;
 use pf::Authentication::Source::HTTPSource;
 
 #This test will running last
@@ -100,6 +102,57 @@ is_deeply(
     local $SIG{__WARN__} = sub { push @warnings, @_ };
     pf::Authentication::Source::HTTPSource::encode_params(mac => undef, radius_request => {'Called-Station-Id' => undef});
     is_deeply(\@warnings, [], "undefined values do not warn");
+}
+
+# Run match with the given JSON reply from the authorization API and return the
+# actions as type => value
+sub match_actions {
+    my ($reply) = @_;
+    my $mock = Test::MockModule->new('pf::Authentication::Source::HTTPSource');
+    $mock->mock('_post_curl', sub { return (0, 200, $reply, undef) });
+    my $rule = $source->match({username => 'bob', rule_class => $Rules::AUTH});
+    return $rule && { map { $_->type => $_->value } @{$rule->{actions}} };
+}
+
+is_deeply(
+    match_actions('{"trigger_radius_mfa":"mfa1","trigger_portal_mfa":"mfa2"}'),
+    {
+        $Actions::TRIGGER_RADIUS_MFA => 'mfa1',
+        $Actions::TRIGGER_PORTAL_MFA => 'mfa2',
+    },
+    "MFA triggers are returned as actions"
+);
+
+is_deeply(
+    match_actions('{"access_duration":"1D","access_level":"ALL","sponsor":1,"category":"default","time_balance":"1h","bandwidth_balance":"1G"}'),
+    {
+        $Actions::SET_ACCESS_DURATION   => '1D',
+        $Actions::SET_ACCESS_LEVEL      => 'ALL',
+        $Actions::MARK_AS_SPONSOR       => 1,
+        $Actions::SET_ROLE              => 'default',
+        $Actions::SET_TIME_BALANCE      => '1h',
+        $Actions::SET_BANDWIDTH_BALANCE => '1G',
+    },
+    "the other attributes are returned as actions"
+);
+
+is_deeply(
+    match_actions('{"access_duration":"1D","unregdate":"2030-01-01"}'),
+    { $Actions::SET_ACCESS_DURATION => '1D' },
+    "unregdate is ignored when access_duration is set"
+);
+
+is_deeply(
+    match_actions('{"unregdate":"2030-01-01","sponsor":0}'),
+    { $Actions::SET_UNREG_DATE => '2030-01-01' },
+    "unregdate alone is used, sponsor 0 is not an action"
+);
+
+{
+    my $mock = Test::MockModule->new('pf::Authentication::Source::HTTPSource');
+    $mock->mock('_post_curl', sub { return (0, 200, '{"trigger_portal_mfa":"mfa2"}', undef) });
+    my $rule = $source->match({username => 'bob', rule_class => $Rules::AUTH});
+    is_deeply([map { $_->class } @{$rule->{actions}}], [$Rules::AUTH], "MFA trigger action is in the authentication class");
 }
 
 =head1 AUTHOR

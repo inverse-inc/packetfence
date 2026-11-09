@@ -64,6 +64,8 @@ The following attributes are available for the reply:
  * *category* : the role to assign
  * *time_balance* : the time balance
  * *bandwidth_balance* : the bandwidth balance
+ * *trigger_radius_mfa* : the ID of the multi-factor authentication (as defined in [filename]`conf/mfa.conf`) to trigger during RADIUS authentication
+ * *trigger_portal_mfa* : the ID of the multi-factor authentication (as defined in [filename]`conf/mfa.conf`) to trigger on the captive portal
 
 Sample JSON response, note that not all attributes are necessary, only send back what you need.
 
