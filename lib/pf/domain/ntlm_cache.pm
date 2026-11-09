@@ -15,7 +15,7 @@ use warnings;
 
 use pf::constants;
 use pf::authentication;
-use pf::config qw(%ConfigDomain $OS);
+use pf::config qw(%ConfigDomain);
 use Net::LDAP::Control::Paged;
 use Net::LDAP::Constant qw( LDAP_CONTROL_PAGED );
 use pf::log;
@@ -29,12 +29,7 @@ use pf::Redis;
 use pf::constants::domain qw($NTLM_REDIS_CACHE_HOST $NTLM_REDIS_CACHE_PORT);
 use Socket;
 use pf::CHI;
-our $SECRETSDUMP_BIN;
-if ($OS eq 'rhel') {
-    $SECRETSDUMP_BIN = '/usr/bin/secretsdump.py';
-} elsif ($OS eq 'debian') {
-    $SECRETSDUMP_BIN = '/usr/bin/impacket-secretsdump';
-}
+our $SECRETSDUMP_BIN = '/usr/bin/impacket-secretsdump';
 
 my $CHI_CACHE = pf::CHI->new( namespace => 'ntlm_cache_username_lookup' );
 

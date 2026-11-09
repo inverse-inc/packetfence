@@ -22,7 +22,6 @@ use pf::util;
 use pf::cluster;
 use pf::config qw(
     %Config
-    $OS
     @listen_ints
     @dhcplistener_ints
     $management_network
@@ -60,13 +59,7 @@ sub generateConfig {
     $tags{'var_dir'} = $var_dir;
     $tags{'conf_dir'} = $var_dir.'/conf';
     $tags{'timeout'} = $Config{'database_advanced'}{'net_write_timeout'} * 1000;
-    $tags{'management_ip_frontend'} = '';
-    if ($OS eq 'debian') {
-        $tags{'os_path'} = '/etc/haproxy/errors/';
-    } else {
-         $tags{'os_path'} = '/usr/share/haproxy/';
-    }
-    
+    $tags{'management_ip_frontend'} = '';    
     $tags{'management_ip'}
         = defined( $management_network->tag('vip') )
         ? $management_network->tag('vip')
