@@ -4,7 +4,7 @@ Captive Portal Proxy Bypass
  * Proxy configuration on the clients is using a DNS name not an IP
 
 == Installation instructions ==
- * Install squid. At least version 3.1 is required. For RHEL, packages are available at: http://people.redhat.com/jskala/squid/
+ * Install squid. At least version 3.1 is required.
  * Change squid's configuration (/etc/squid/squid.conf)
   * Change localnet ACLs to cover PacketFence's trapped network. For example:
 # PacketFence's localnets

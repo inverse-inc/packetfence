@@ -133,13 +133,6 @@ sub sanity_check {
     # emptying problem list
     @problems = ();
 
-    # SELinux test only for RedHat based distros
-    if ( -e "/etc/redhat-release" && `getenforce` =~ /^Enforcing/ ) {
-        add_problem( $WARN,
-            'SELinux is in enforcing mode. This is currently not supported in PacketFence'
-        );
-    }
-
     interfaces_defined();
     interfaces();
 
