@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 46;
+use Test::More tests => 50;
 use WWW::Curl::Easy;
 use URI;
 use JSON::MaybeXS qw(decode_json);
@@ -94,9 +94,15 @@ is_deeply(
 );
 
 is_deeply(
-    encode(username => 'bob', switch => bless({_id => '192.0.2.1'}, 'pf::Switch'), nested => {deep => {deeper => 1}}),
+    encode(username => 'bob', switch => bless({_id => '192.0.2.1'}, 'pf::Switch'), radius_request => {deep => {deeper => 1}}),
     [username => 'bob'],
     "objects and deeper structures are not sent"
+);
+
+is_deeply(
+    encode(username => 'bob', owner => {pid => 'bob', psk => 'secret-psk', otp => 'secret-otp'}, node_info => {mac => '00:11:22:33:44:55'}),
+    [username => 'bob'],
+    "hashes other than the RADIUS request are not sent"
 );
 
 {
@@ -291,9 +297,15 @@ is_deeply(
 );
 
 is_deeply(
-    encode_json_body(username => 'bob', switch => bless({_id => '192.0.2.1'}, 'pf::Switch'), nested => {deep => {deeper => 1}, kept => 1}, list => ['a', {b => 1}]),
-    {username => 'bob', nested => {kept => 1}, list => ['a']},
+    encode_json_body(username => 'bob', switch => bless({_id => '192.0.2.1'}, 'pf::Switch'), radius_request => {deep => {deeper => 1}, kept => 1}, list => ['a', {b => 1}]),
+    {username => 'bob', radius_request => {kept => 1}, list => ['a']},
     "JSON: objects and deeper structures are not sent"
+);
+
+is_deeply(
+    encode_json_body(username => 'bob', owner => {pid => 'bob', psk => 'secret-psk', otp => 'secret-otp'}, node_info => {mac => '00:11:22:33:44:55'}),
+    {username => 'bob'},
+    "JSON: hashes other than the RADIUS request are not sent"
 );
 
 like(
@@ -377,6 +389,17 @@ ok(!exists $options->{+CURLOPT_HTTPHEADER}, "form: curl sends its default applic
     my $field = $form->field('content_type');
     is($field->default, 'application/x-www-form-urlencoded', "new HTTP sources are URL-encoded by default");
     is_deeply([sort map { $_->{value} } @{$field->options}], ['application/json', 'application/x-www-form-urlencoded'], "the content type can be URL-encoded or JSON");
+}
+
+# The RADIUS path passes the owner (person record with its PSK and OTP secret) in the match params
+for my $http_source ($source, $json_source) {
+    my (undef, $authorization) = sent_bodies($http_source, {
+        username       => 'bob',
+        rule_class     => $Rules::AUTH,
+        owner          => {pid => 'bob', psk => 'secret-psk', otp => 'secret-otp'},
+        radius_request => {'User-Name' => 'bob'},
+    });
+    unlike($authorization, qr/secret-psk|secret-otp|owner/, $http_source->content_type . ": the owner record is not sent to the authorization API");
 }
 
 =head1 AUTHOR

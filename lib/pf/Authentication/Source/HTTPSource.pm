@@ -183,13 +183,27 @@ sub encode_request {
     return $self->is_json ? encode_json_params(%params) : encode_params(%params);
 }
 
+=head2 is_nested_param
+
+Whether the values of a hash param are sent. Only the RADIUS request is: other
+hashes of the match params hold local data that must not be sent to the API,
+like the owner (person) record with its PSK and OTP secret.
+
+=cut
+
+sub is_nested_param {
+    my ($key) = @_;
+    return $key eq 'radius_request' ? $TRUE : $FALSE;
+}
+
 =head2 encode_json_params
 
 Encodes a hash into a JSON object
 
-Plain values are sent as is, undefined values as null. A nested hash (like
-radius_request) is sent as an object, a multi-valued attribute as an array.
-Objects and deeper structures are not sent, like in L</encode_params>.
+Plain values are sent as is, undefined values as null, a multi-valued
+attribute as an array. The radius_request hash is sent as an object (see
+L</is_nested_param>). Other hashes, objects and deeper structures are not
+sent, like in L</encode_params>.
 Byte strings holding UTF-8 (like the RADIUS attributes) are decoded first, so
 the body is valid UTF-8 without double encoding.
 
@@ -201,6 +215,7 @@ sub encode_json_params {
     for my $key (keys %hash) {
         my $value = $hash{$key};
         if (ref($value) eq 'HASH') {
+            next if !is_nested_param($key);
             my %sub_json;
             for my $sub_key (keys %$value) {
                 my @sub_value = _json_values($value->{$sub_key});
@@ -249,8 +264,9 @@ sub _json_string {
 Encodes a hash into URL/BODY parameters
 
 Plain values are sent as is, undefined values as empty strings. The values of
-a nested hash (like radius_request) are sent as C<key.attribute>, once per
-value for multi-valued attributes. Objects and deeper structures are not sent.
+the radius_request hash (see L</is_nested_param>) are sent as
+C<radius_request.attribute>, once per value for multi-valued attributes. Other
+hashes, objects and deeper structures are not sent.
 
 =cut
 
@@ -260,6 +276,7 @@ sub encode_params {
     for my $key (sort keys %hash) {
         my $value = $hash{$key};
         if (ref($value) eq 'HASH') {
+            next if !is_nested_param($key);
             for my $sub_key (sort keys %$value) {
                 push @pairs, map { [ "$key.$sub_key", $_ ] } _scalar_values($value->{$sub_key});
             }
