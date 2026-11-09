@@ -38,12 +38,6 @@ Install following softwares:
 
 ===== Install Ansible and Ansible code
 
-.RHEL-based systems
-[source,bash]
-----
-yum install -y python3-pip
-----
-
 .Debian-based systems
 [source,bash]
 ----
@@ -135,8 +129,8 @@ file that override default inventory, for example:
 [source,bash]
 ----
 cat >> extra.yml << EOF
-packetfence_install__centos_packages:
-  - packetfence-9.2-20191126180126.98740132.0007.el7
+packetfence_install__deb_packages:
+  - packetfence=99.9.0
 EOF
 ansible-playbook site.yml --limit VM_NAME -e @extra.yml
 ----

@@ -20,8 +20,8 @@ endif::[]
 
 Set up your development environment to run sources from `/usr/local/pf`.
 
-Deploy RHEL 8 or Rocky 8 machine. Other operating systems are not supported for
-development environments.
+Deploy a Debian 13 (trixie) machine. Other operating systems are not supported
+for development environments.
 
 NOTE: If you're running on Linode, disable Network helper:
 https://www.linode.com/docs/guides/network-helper/
@@ -31,13 +31,16 @@ https://github.com/inverse-inc/packetfence/blob/devel/conf/pf-release
 
 IMPORTANT: This example will use version `99.9` as the example version number.
 
-Install PacketFence from RPM repository:
+Install PacketFence from the Debian repository:
 
 [source,bash]
 ----
-yum localinstall https://www.packetfence.org/downloads/PacketFence/RHEL8/packetfence-release-99.9.el8.noarch.rpm -y
-yum install kernel-devel-$(uname -r) -y
-yum install packetfence --enablerepo=packetfence --allowerasing
+apt install gnupg sudo curl
+curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
+echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] https://inverse.ca/downloads/PacketFence/debian/99.9 trixie trixie" > /etc/apt/sources.list.d/packetfence.list
+apt update
+apt install linux-headers-$(uname -r)
+apt install packetfence
 git config --global --add safe.directory /usr/local/pf
 ----
 
@@ -47,7 +50,6 @@ Next, run:
 
 [source,bash]
 ----
-dnf module install nodejs:20
 bash /usr/local/pf/addons/dev-helpers/setup-dev-env.sh
 ----
 
