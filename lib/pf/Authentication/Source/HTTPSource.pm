@@ -2,9 +2,21 @@ package pf::Authentication::Source::HTTPSource;
 
 =head1 NAME
 
-pf::Authentication::Source::HTTPSource
+pf::Authentication::Source::HTTPSource - Authentication source backed by an external HTTP API
 
 =head1 DESCRIPTION
+
+Delegates authentication and authorization to an external HTTP API.
+
+Both calls are HTTP POST requests with a URL-encoded body, sent to
+C<protocol://host:port/authentication_url> and
+C<protocol://host:port/authorization_url>. HTTP basic authentication is used
+when both C<username> and C<password> are set. TLS certificates are not
+verified.
+
+The API must reply with HTTP status 200 and a JSON body; anything else is
+treated as a failure. See L</authenticate> and L</match> for the expected
+responses.
 
 =cut
 
@@ -145,6 +157,9 @@ Whether or not the username/password combination is valid
 
 The server should reply with two attributes in a JSON response
 
+The username and password are sent as the C<username> and C<password>
+POST fields.
+
 result should be 1 for success, 0 for failure
 message should be the reason it succeeded or failed
 
@@ -170,6 +185,13 @@ sub authenticate {
     }
 }
 
+=head2 handleResults
+
+Decodes the JSON body of an authentication reply and returns
+C<($result, $message)>. An invalid or non-object body is a failure.
+
+=cut
+
 sub handleResults {
     my ($self, $response_body, $username) = @_;
     my $result = eval {decode_json($response_body) };
@@ -191,7 +213,13 @@ sub handleResults {
 
 The HTTPSource class overrides the match method of the Source parent class.
 
-The actions are defined by the API through it's JSON response.
+The actions are defined by the API through its JSON response. All the
+match parameters (username, mac, SSID, rule_class, ...) are sent as POST
+fields.
+
+Supported attributes: access_duration, access_level, sponsor (1 marks the
+user as a sponsor), unregdate (ignored when access_duration is set),
+category, time_balance and bandwidth_balance.
 
 Sample JSON response, note that not all attributes are necessary, only send back what you need.
 {"access_duration":"1D","access_level":"ALL","sponsor":1,"unregdate":"2030-01-01","category":"default"}

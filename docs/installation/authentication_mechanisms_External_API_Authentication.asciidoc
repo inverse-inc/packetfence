@@ -18,50 +18,71 @@ endif::[]
 
 === External API Authentication
 
-PacketFence also supports calling an external HTTP API as an authentication source. The external API needs to implement an authentication action and an authorization action.
+PacketFence also supports calling an external HTTP API as an authentication source (source type `HTTP`). The external API needs to implement an authentication action and an authorization action.
+
+Both actions are called with an HTTP `POST` request whose body is URL-encoded (`application/x-www-form-urlencoded`). The API must reply with HTTP status code `200` and a JSON body. Any other status code, or a connection error, is treated as a failure.
 
 ==== Authentication
 
-This should provide the information about whether or not the username/password combination is valid
+This should tell whether or not the username/password combination is valid.
 
-These information are available through the POST fields of the request
+The following POST fields are sent:
 
-The server should reply with two attributes in a JSON response
+[options="compact"]
+ * *username* : the username entered by the user
+ * *password* : the password entered by the user
+
+The server should reply with two attributes in a JSON response:
 
 [options="compact"]
  * *result* : should be 1 for success, 0 for failure
  * *message* : should be the reason it succeeded or failed
 
-Example JSON response :
-[source,bash]
+Example JSON response:
+[source,json]
 ----
   {"result":1,"message":"Valid username and password"}
 ----
 
+A response that is not a valid JSON object is treated as a failed authentication.
+
 ==== Authorization
 
-This should provide the actions to apply on a user based on it's attributes
+This should provide the actions to apply to a user, based on their attributes.
 
-The following attributes are available for the reply : *access_duration*, *access_level*, *sponsor*, *unregdate*, *category*.
+The request contains the context of the user as POST fields. When the source is used from the captive portal, these include *username*, *stripped_user_name*, *mac*, *SSID*, *connection_type*, *realm*, *switch_id*, *switch_group*, *computer_name*, *context* and *rule_class*.
+
+The following attributes are available for the reply:
+
+[options="compact"]
+ * *access_duration* : the access duration (for example `1D`)
+ * *access_level* : the administrative access level
+ * *sponsor* : set to `1` to mark the user as a sponsor
+ * *unregdate* : the unregistration date (for example `2030-01-01`). It is ignored when *access_duration* is also returned.
+ * *category* : the role to assign
+ * *time_balance* : the time balance
+ * *bandwidth_balance* : the bandwidth balance
 
 Sample JSON response, note that not all attributes are necessary, only send back what you need.
 
-[source,bash]
+[source,json]
 ----
   {"access_duration":"1D","access_level":"ALL","sponsor":1
     ,"unregdate":"2030-01-01","category":"default"}
 ----
 
-NOTE: See [filename]`/usr/local/pf/addons/example_external_auth` for an example implementation compatible with PacketFence.
+NOTE: See [filename]`/usr/local/pf/addons/example_external_auth` and [filename]`/usr/local/pf/t/mock_servers/external_HTTP_API.py` for example implementations compatible with PacketFence. They are meant for testing only.
 
 ==== PacketFence Configuration
 
 In PacketFence, you need to configure an HTTP source in order to use an external API.
 
-Here is a brief description of the fields :
+Here is a brief description of the fields:
 
 [options="compact"]
- * *Host* : First, the protocol, then the IP address or hostname of the API and lastly the port to connect to the API.
+ * *Host* : the encryption (`http` or `https`), then the IP address or hostname of the API, and lastly the port to connect to the API.
  * *API username and password* : If the API implements HTTP basic authentication (RFC 2617) these can be added in these fields. Leaving any of those two fields empty will make PacketFence do the requests without any authentication.
  * *Authentication URL* : URL relative to the host to call when doing the authentication of a user. Note that it is automatically prefixed by a slash.
  * *Authorization URL* : URL relative to the host to call when doing the authorization of a user. Note that it is automatically prefixed by a slash.
+
+WARNING: When using `https`, PacketFence does not verify the certificate or the hostname of the API server. Only use this source with an API reachable over a trusted network.

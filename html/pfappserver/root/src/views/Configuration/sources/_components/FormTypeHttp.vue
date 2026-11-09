@@ -15,14 +15,14 @@
     />
 
     <form-group-protocol-host-port :namespaces="['protocol', 'host', 'port']"
-      :column-label="$i18n.t('File Path')"
+      :column-label="$i18n.t('Host')"
     />
 
-    <form-group-api-username namespace="api_username"
+    <form-group-api-username namespace="username"
       :column-label="$i18n.t('API username (basic auth)')"
     />
 
-    <form-group-api-password namespace="api_password"
+    <form-group-api-password namespace="password"
       :column-label="$i18n.t('API password (basic auth)')"
     />
 
