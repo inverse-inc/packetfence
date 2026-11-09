@@ -12,8 +12,8 @@
     error_log("Param, $key : " . (is_array($value) ? json_encode($value) : $value));
   }
   if (
-      isset($params["username"]) && $params["username"] == "testing" &&
-      isset($params["password"]) && $params["password"] == "123"
+      isset($params["username"]) && $params["username"] === "testing" &&
+      isset($params["password"]) && $params["password"] === "123"
      ) {
     echo json_encode(array("result" => 1, "message" => "Valid username and password"));
   }else{  
