@@ -52,8 +52,8 @@ has 'authentication_url' => ( isa => 'Str', is => 'rw', default => '' );
 has 'authorization_url' => ( isa => 'Str', is => 'rw', default => '' );
 # Sources created before this option existed did not verify TLS: keep that
 # behavior when the option is not set. On upgrade, add-default-params-to-auth.pl
-# writes this default (disabled) in the existing sources. New sources default to
-# enabled (see the form).
+# writes this default (disabled) in the existing sources. New sources created in
+# the admin UI default to enabled (see useItemDefaults of the sources views).
 has 'verify_tls' => ( isa => 'Str', is => 'rw', default => 'disabled' );
 
 Readonly our $CONTENT_TYPE_FORM => 'application/x-www-form-urlencoded';

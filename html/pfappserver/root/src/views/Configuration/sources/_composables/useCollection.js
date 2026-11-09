@@ -16,7 +16,13 @@ export const useItemDefaults = (meta, props) => {
   const {
     sourceType
   } = toRefs(props)
-  return { ...useDefaultsFromMeta(meta), type: sourceType.value }
+  const defaults = { ...useDefaultsFromMeta(meta), type: sourceType.value }
+  if (sourceType.value === 'HTTP') {
+    // New HTTP sources verify TLS. The API has no default for it, so that the
+    // existing sources without the option show (and keep) the attribute default
+    defaults.verify_tls = 'enabled'
+  }
+  return defaults
 }
 
 export const useItemTitle = (props) => {
