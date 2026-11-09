@@ -15,7 +15,7 @@ ARG DPKG_SIG_DEB_URL=https://archive.debian.org/debian/pool/main/d/dpkg-sig/dpkg
 # guard against archive tampering / MITM. Update this if DPKG_SIG_DEB_URL changes.
 ARG DPKG_SIG_DEB_SHA256=64a0898317de54f50bebead2867a921b9adb1c8588ff3e5113164ff87efbc609
 
-# Unified signing container for both DEB and RPM packages.
+# Signing container for DEB packages.
 # Pre-bake all signing/upload/publish dependencies; no runtime apt-get install.
 RUN apt-get update -qq && apt-get install -y --no-install-recommends \
         curl ca-certificates gnupg && \
@@ -33,13 +33,7 @@ RUN apt-get update -qq && apt-get install -y --no-install-recommends \
         openssh-client rsync \
         build-essential \
         dpkg-dev debhelper \
-        rpm \
         wget sudo \
         /tmp/dpkg-sig.deb && \
     rm -f /tmp/dpkg-sig.deb && \
-    rm -rf /var/lib/apt/lists/* && \
-    # Configure rpm to use gpg for signing (Debian's rpm needs explicit config)
-    mkdir -p /root && \
-    echo '%__gpg /usr/bin/gpg' > /root/.rpmmacros && \
-    echo '%_signature gpg' >> /root/.rpmmacros && \
-    echo '%_gpg_name %{nil}' >> /root/.rpmmacros
+    rm -rf /var/lib/apt/lists/*

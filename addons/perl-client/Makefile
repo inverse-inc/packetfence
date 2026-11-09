@@ -160,20 +160,6 @@ dist: distclean db/fingerbank_Upstream.db
 		-f fingerbank-$(FB_VERSION).tar fingerbank-$(FB_VERSION)
 	rm -rf fingerbank-$(FB_VERSION)
 
-# rpmbuild/debuild directly: gitlab-buildpkg-tools (ci-build-pkg) is gone from the
-# build images, which now come pre-baked with the toolchain. Mirrors the root
-# Makefile:248-278.
-.PHONY: build_rpm
-build_rpm: dist
-	mkdir -p $(PKG_RELEASE_DIR)
-	sed -i -e "s/^Release:.*/Release:\t$(RPM_PKG_SUFFIX)%{?dist}/" $(SRC_RPMDIR)/fingerbank.spec
-	rpmbuild -ba --clean --rmsource \
-		--define "_topdir $(HOME)/rpmbuild/$(OS_RELEASE_ID)-$(OS_RELEASE_NAME)" \
-		--define "_sourcedir $(SRC_ROOT_DIR)" \
-		$(SRC_RPMDIR)/fingerbank.spec
-	find $(HOME)/rpmbuild/$(OS_RELEASE_ID)-$(OS_RELEASE_NAME) -type f -name '*.rpm' \
-		-exec cp -fv {} $(PKG_RELEASE_DIR)/ \;
-
 # no dist dependency because debian/source/format is 3.0 (native): debuild
 # builds straight from the tree
 .PHONY: build_deb

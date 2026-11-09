@@ -99,7 +99,6 @@ configure_and_check() {
                            -not -path "*/publish-ppa/*" \
                            -not -path "*/pfbuild-trixie/*" \
                            -not -path "*/pfdebian-trixie/*" \
-                           -not -path "*/pfbuild-centos-8/*" \
                            -not -path "*/vagrant-build/*" \
                            -not -path "*/pfconfig-material-builder/*" \
                            -not -path "*/zen-builder/*" \

@@ -17,7 +17,6 @@ ARG PKGS_TO_EXCLUDE
 
 # This is to ensure a cache miss when there is a change in the dependencies
 COPY debian/control /tmp/
-COPY rpm/packetfence.spec /tmp/
 COPY addons/dev-helpers/debian/install-pf-dependencies.sh /usr/local/pf/addons/dev-helpers/debian/install-pf-dependencies.sh
 COPY addons/dev-helpers/create-python-venv.sh /usr/local/pf/addons/dev-helpers/create-python-venv.sh
 
