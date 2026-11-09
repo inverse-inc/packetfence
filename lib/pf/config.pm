@@ -227,7 +227,6 @@ BEGIN {
         @Profile_Filters %Profiles_Config
         %ConfigCloud
         %ConfigFirewallSSO
-        $OS
         $CONTAINER_INT
         %Doc_Config
         %ConfigRealm
@@ -362,9 +361,6 @@ Readonly::Scalar our $ACCOUNTING_POLICY_BANDWIDTH => 'BandwidthExpired';
 
 
 Readonly our $WIPS_SECURITY_EVENT_ID => '1100020';
-
-# OS Specific
-Readonly::Scalar our $OS => os_detection();
 
 # OS Version Specific
 

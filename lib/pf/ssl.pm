@@ -23,7 +23,6 @@ use LWP::UserAgent;
 use pf::util;
 use pf::log;
 use pf::cluster;
-use pf::config qw($OS);
 use Readonly;
 use pfconfig::git_storage;
 
@@ -41,7 +40,6 @@ use pf::file_paths qw(
 );
 
 Readonly::Scalar our $DEB_CA_CERT_FILE => '/etc/ssl/certs/ca-certificates.crt';
-Readonly::Scalar our $RHEL_CA_CERT_FILE => '/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem';
 Readonly::Scalar our $OS_CA_CERT_FILE => get_ca_cert_file();
 
 =head2 certs_map
@@ -547,21 +545,12 @@ sub install_to_file {
 
 =head2 get_ca_cert_file
 
-Get OS specific file for CA certificates
+Get the file for CA certificates
 
 =cut
 
 sub get_ca_cert_file {
-    if ($OS eq 'debian') {
-        return $DEB_CA_CERT_FILE;
-    }
-    elsif ($OS eq 'rhel') {
-        return $RHEL_CA_CERT_FILE;
-    }
-    else {
-        get_logger->error("Unable to get CA certificates file");
-        return undef;
-    }
+    return $DEB_CA_CERT_FILE;
 }
 
 =head1 AUTHOR

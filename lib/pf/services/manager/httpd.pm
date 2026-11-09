@@ -15,7 +15,6 @@ use strict;
 use warnings;
 use pf::config qw(
     %Config
-    $OS
     %CAPTIVE_PORTAL
     $SELFREG_MODE_EMAIL
     $SELFREG_MODE_SPONSOR
@@ -46,7 +45,7 @@ has configTemplateFilePath => (is => 'rw', builder => 1, lazy => 1);
 
 sub _cmdLine {
     my $self = shift;
-    $self->executable . " -f $install_dir/var/conf/httpd.conf.d/" . $self->name . " -DFOREGROUND  -D$OS";
+    $self->executable . " -f $install_dir/var/conf/httpd.conf.d/" . $self->name . " -DFOREGROUND";
 }
 
 sub createVars {

@@ -23,7 +23,6 @@ use pf::util;
 use pf::cluster;
 use pf::config qw(
     %Config
-    $OS
     @listen_ints
     @dhcplistener_ints
     $management_network

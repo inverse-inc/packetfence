@@ -41,7 +41,6 @@ use pf::constants::exit_code qw($EXIT_SUCCESS);
 use pfconfig::cached_hash;
 use pf::config qw(
     $management_network
-    $OS
     %Config
 );
 use pf::constants::eventLogger;
@@ -150,11 +149,7 @@ sub _run {
         );
     }
 
-    if ($OS eq 'debian') {
-        $vars{'libgalera'} = '/usr/lib/galera/libgalera_smm.so';
-    } else {
-        $vars{'libgalera'} = '/usr/lib64/galera-4/libgalera_smm.so';
-    }
+    $vars{'libgalera'} = '/usr/lib/galera/libgalera_smm.so';
 
     my $maria_conf = "$install_dir/var/conf/mariadb.conf";
     $tt->process("$conf_dir/mariadb/mariadb.conf.tt", \%vars, $maria_conf) or die $tt->error();
