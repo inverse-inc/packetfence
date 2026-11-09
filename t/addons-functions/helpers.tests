@@ -32,17 +32,6 @@ function test_versions_since() {
   versions_since "10.3" | grep '^11.0 11.1' > /dev/null || failed_test "versions_since returns the right values for a minor version"
 }
 
-function test_os_detection() {
-  if ! is_rpm_based && ! is_deb_based; then
-    failed_test "Wasn't able to detect this is a deb or rpm operating system"
-  fi
-
-  if is_rpm_based && is_deb_based; then
-    failed_test "Detected that this is a deb and rpm operating system"
-  fi
-
-}
-
 function test_is_enabled() {
   is_enabled "yes" || failed_test "'yes' is a true value for is_enabled"
   is_enabled "enabled" || failed_test "'enabled' is a true value for is_enabled"
@@ -76,7 +65,6 @@ function run_helpers_tests() {
   echo "==> Starting helpers tests"
   test_versions_since
   test_prompt
-  test_os_detection
   test_is_enabled
   echo "==> Completed helpers tests"
 }

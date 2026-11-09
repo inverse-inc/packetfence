@@ -29,8 +29,7 @@ my %CONFIGURATION_TO_TEMPLATE   = (
     'os-checks'         => '50_OS-checks',
 );
 
-my $OS = ( -e "/etc/debian_version" ) ? "debian" : "rhel";
-my $MONIT_PATH  = ( $OS eq "rhel" ) ? "/etc/monit.d" : "/etc/monit/conf.d";
+my $MONIT_PATH  = "/etc/monit/conf.d";
 my $MONIT_EXTRA_PATH = "$MONIT_PATH/packetfence";
 
 
@@ -136,16 +135,13 @@ sub generate_specific_configurations {
 
 
         my $tt = Template->new(ABSOLUTE => 1);
-        my $freeradius_bin = ( $OS eq "rhel" ) ? "radiusd" : "freeradius";
-        my $mail_bin = ( $OS eq "rhel" ) ? "/bin/mail" : "/usr/bin/mail";
-        my $service_bin = ( $OS eq "rhel" ) ? "/sbin/service" : "/usr/sbin/service";
         my $vars = {
-            FREERADIUS_BIN      => $freeradius_bin,
+            FREERADIUS_BIN      => "freeradius",
             EMAILS              => \@emails,
             SUBJECT_IDENTIFIER  => $subject_identifier,
             MAILSERVER          => $mailserver,
-            MAIL_BIN            => $mail_bin,
-            SERVICE_BIN         => $service_bin,
+            MAIL_BIN            => "/usr/bin/mail",
+            SERVICE_BIN         => "/usr/sbin/service",
             ACTIVE_ACTIVE       => (any { $_ eq 'active-active' } @configurations),
             FINGERBANK_ENABLED  => $fingerbank_enabled,
         };

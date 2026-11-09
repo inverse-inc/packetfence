@@ -246,26 +246,16 @@ function install_mariabackup() {
 }
 
 function install_old_mariabackup() {
-    if is_deb_based; then
 	temp_dir=$(mktemp -d)
 	wget -O $temp_dir/mariadb-backup-10.2_10.2.37.deb \
 	     https://www.packetfence.org/downloads/PacketFence/debian-lastrelease/pool/stretch/m/mariadb-10.2/mariadb-backup-10.2_10.2.37+maria~stretch_amd64.deb
 	dpkg-deb -xv $temp_dir/mariadb-backup-10.2_10.2.37.deb $temp_dir/mariadb-backup
 	mv -f $temp_dir/mariadb-backup/usr/bin/mariabackup /usr/local/bin/mariabackup
 	mv -f $temp_dir/mariadb-backup/usr/bin/mbstream /usr/local/bin/mbstream
-    else
-	yum remove -q -y MariaDB-backup
-	yum localinstall -q -y https://www.packetfence.org/downloads/PacketFence/CentOS7/x86_64/RPMS/MariaDB-backup-10.2.37-1.el7.centos.x86_64.rpm
-    fi
 }
 
 function install_current_mariabackup() {
-    if is_deb_based; then
-	apt update && apt install -q -y mariadb-backup
-    else
-	yum clean all -q --enablerepo=packetfence
-	yum install -q -y MariaDB-backup --enablerepo=packetfence
-  fi
+    apt update && apt install -q -y mariadb-backup
 }
 
 function uninstall_mariabackup() {
@@ -280,23 +270,15 @@ function uninstall_mariabackup() {
     fi
 }
 
-# yum and apt will not exit with an error code greater than 0
-# if package to removed is not installed
 function uninstall_old_mariabackup() {
-    if is_deb_based; then
-	rm -f /usr/local/bin/mariabackup
-	rm -f /usr/local/bin/mbstream
-    else
-	yum remove -q -y MariaDB-backup
-    fi
+    rm -f /usr/local/bin/mariabackup
+    rm -f /usr/local/bin/mbstream
 }
 
+# apt will not exit with an error code greater than 0
+# if the package to remove is not installed
 function uninstall_current_mariabackup() {
-    if is_deb_based; then
-	apt remove -q -y mariadb-backup
-    else
-	yum remove -q -y MariaDB-backup
-  fi
+    apt remove -q -y mariadb-backup
 }
 
 function handle_devel_db_schema() {
@@ -309,24 +291,4 @@ function handle_devel_db_schema() {
     fi
 }
 
-function yum_upgrade_mariadb_server() {
-  installed=`rpm -q --whatprovides mysql-server 2> /dev/null`
-  if [ $? -eq 0 -a -n "$installed" ]; then
-    installed=`echo "$installed"|sed -n 1p`
-    version=`rpm -q --queryformat='%''{VERSION}' "$installed" 2>&1`
-    myversion=$(yum '--disablerepo=*' --enablerepo=packetfence --quiet list available --showduplicates MariaDB-server | grep -i mariadb-server | awk '{print $2}' | tail -1 2> /dev/null)
-
-    old_family=`echo $version   | sed -n -e 's,^\([1-9][0-9]*\.[0-9][0-9]*\)\..*$,\1,p'`
-    new_family=`echo $myversion | sed -n -e 's,^\([1-9][0-9]*\.[0-9][0-9]*\)\..*$,\1,p'`
-
-    if [ "$old_family" != "$new_family" ]; then
-      echo "Upgrade MariaDB-server from ${old_family} to ${new_family}"
-      systemctl stop packetfence-mariadb.service 
-      rpm -e --nodeps MariaDB-client MariaDB-common MariaDB-server MariaDB-shared
-      yum install -q -y MariaDB-server --enablerepo=packetfence
-      systemctl start packetfence-mariadb.service 
-      mariadb-upgrade
-    fi
-fi
-}
 

@@ -253,10 +253,7 @@ Checks running operating system
 sub _checkOs {
     my ( $self ) = @_;
 
-    # Default to undef
-    my $os;
-
-    return ucfirst(host_os_detection());
+    return 'Debian';
 }
 
 =head2 getSystem
@@ -305,133 +302,6 @@ use pf::log;
 
 requires qw(writeNetworkConfigs);
 
-
-package pfappserver::Model::Config::System::Rhel;
-
-=head3 NAME
-
-pfappserver::Model::Config::System::Rhel
-
-=head3 DESCRIPTION
-
-Moose class derivated from role for OS specific methods
-
-=cut
-
-use Moose;
-
-use pf::util;
-use pf::log;
-
-with 'pfappserver::Model::Config::System::Role';
-
-our $_network_conf_dir    = "/etc/sysconfig/";
-our $_interfaces_conf_dir = "network-scripts/";
-our $_network_conf_file   = "network";
-our $_interface_conf_file = "ifcfg-";
-our $var_dir              = "/usr/local/pf/var/";
-
-=head1 METHODS
-
-=head2 writeNetworkConfigs
-
-=cut
-
-sub writeNetworkConfigs {
-    my ( $self, $interfaces_ref, $gateway, $gateway_interface ) = @_;
-    my $logger = get_logger();
-
-    my $status_msg;
-    my $interface_gateway;
-    my $interface_defroute ="no";
-    while (my ($interface, $interface_values) = each %$interfaces_ref) {
-        next if ( !$interface_values->{is_running} );
-        # interface_rhel.tt always emits BOOTPROTO=static + IPADDR=, so an
-        # address-less interface would overwrite its real IPADDR with an empty
-        # one. Callers pass get('all'), so a transiently address-less interface
-        # gets swept in even when only another one is being changed.
-        # interface_debian.tt already guards its stanzas the same way.
-        if ( !$interface_values->{'ipaddress'} && !$interface_values->{'ipv6_address'} ) {
-            $logger->warn("Interface $interface has no address, keeping its existing persistent configuration");
-            next;
-        }
-        if ($gateway_interface eq $interface) {
-            $interface_defroute = "yes";
-            $interface_gateway = $gateway;
-        } else {
-            $interface_defroute = "no";
-            $interface_gateway = undef;
-        }
-        my %vars = (
-            logical_name => $interface,
-            vlan_device  => $interface_values->{'vlan'},
-            hwaddr       => $interface_values->{'hwaddress'},
-            ipaddr       => $interface_values->{'ipaddress'},
-            netmask      => $interface_values->{'netmask'},
-            ipv6_address => $interface_values->{'ipv6_address'},
-            ipv6_prefix  => $interface_values->{'ipv6_prefix'},
-            defroute     => $interface_defroute,
-            gateway      => $interface_gateway,
-        );
-
-        my $template = Template->new({
-            INCLUDE_PATH    => "/usr/local/pf/html/pfappserver/root/interface",
-            OUTPUT_PATH     => $var_dir,
-        });
-        my $outfile = $_interface_conf_file.$interface;
-
-        $template->process( "interface_rhel.tt", \%vars, $outfile );
-
-        if ( $template->error() ) {
-            $status_msg = "Error while writing system network interfaces configuration";
-            $logger->error("$status_msg");
-            return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
-        }
-        my $interface_config_file = "$_network_conf_dir$_interfaces_conf_dir$_interface_conf_file$interface";
-        my $filter = variableExcludeRegex("$var_dir$outfile");
-        safe_pf_run('grep', '--no-filename', '-Pv', $filter, $interface_config_file, {stdout => "$var_dir$outfile", stdout_append => 1, accepted_exit_status => [1]});
-        my $status = safe_pf_run('sudo', 'tee', $interface_config_file, {stdin => "$var_dir$outfile", redirect_stderr_to_stdout => 1});
-        # Something went wrong
-        if ( !(defined($status) ) ) {
-            $status_msg = "Something went wrong while writing the network interface file";
-            $logger->warn($status_msg);
-            return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
-        }
-    }
-
-    if ( !(-e $_network_conf_dir.$_network_conf_file) ) {
-        $status_msg = "Error while writing system's default gateway";
-        $logger->error($status_msg ." | ". $_network_conf_dir.$_network_conf_file ." don't exists");
-        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
-    }
-
-    open IN, '<', $_network_conf_dir.$_network_conf_file;
-    my @content = <IN>;
-    close IN;
-
-    @content = grep { !/^GATEWAY=/ } @content;
-    open(my $out, "|-", "sudo tee $_network_conf_dir$_network_conf_file > /dev/null");
-    if (!$out) {
-        $status_msg = "Something went wrong while writing the network file";
-        $logger->warn($status_msg);
-        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
-    }
-    print $out @content;
-    print $out "GATEWAY=$gateway\n";
-    close $out;
-
-    $logger->info("System network configurations successfully written");
-    return $STATUS::OK;
-}
-
-sub variableExcludeRegex {
-    my ($file) = @_;
-    open IN, '<', $file;
-    chomp(my @vars = <IN>);
-    close IN;
-    my @excludes = map { s/=.*//;$_ } grep { $_ ne ''  } @vars;
-    return '^(?:(?:' . join('|', @excludes) . ')=|$)';
-}
 
 package pfappserver::Model::Config::System::Debian;
 
