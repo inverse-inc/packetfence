@@ -20,7 +20,8 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 8;
+use Test::More tests => 14;
+use URI;
 use pf::Authentication::Source::HTTPSource;
 
 #This test will running last
@@ -39,6 +40,67 @@ is(url_for_host('192.0.2.10'), 'http://192.0.2.10:10000/authentication', "IPv4 h
 is(url_for_host('2001:db8::1'), 'http://[2001:db8::1]:10000/authentication', "IPv6 host enclosed in brackets");
 is(url_for_host('[2001:db8::1]'), 'http://[2001:db8::1]:10000/authentication', "IPv6 host already in brackets");
 is(url_for_host('auth.example.com'), 'http://auth.example.com:10000/authentication', "host name");
+
+# Decode a URL-encoded body into an ordered list of key/value pairs
+sub decode_params {
+    my ($body) = @_;
+    my $uri = URI->new('http://localhost/');
+    $uri->query($body);
+    return [$uri->query_form];
+}
+
+sub encode {
+    return decode_params(pf::Authentication::Source::HTTPSource::encode_params(@_));
+}
+
+is_deeply(
+    encode(username => 'bob', password => 'p@ss w&rd=1'),
+    [password => 'p@ss w&rd=1', username => 'bob'],
+    "scalar params are URL-encoded"
+);
+
+is_deeply(
+    encode(username => 'bob', mac => undef),
+    [mac => '', username => 'bob'],
+    "undefined params are sent empty"
+);
+
+is_deeply(
+    encode(
+        username       => 'bob',
+        radius_request => {
+            'EAP-Type'                     => 13,
+            'TLS-Client-Cert-Common-Name'  => 'bob.example.com',
+            'TLS-Client-Cert-Serial'       => '01',
+        },
+    ),
+    [
+        'radius_request.EAP-Type'                    => 13,
+        'radius_request.TLS-Client-Cert-Common-Name' => 'bob.example.com',
+        'radius_request.TLS-Client-Cert-Serial'      => '01',
+        username                                     => 'bob',
+    ],
+    "the attributes of the RADIUS request (EAP-TLS) are sent"
+);
+
+is_deeply(
+    encode(radius_request => { 'Cisco-AVPair' => ['a=1', 'b=2'] }),
+    ['radius_request.Cisco-AVPair' => 'a=1', 'radius_request.Cisco-AVPair' => 'b=2'],
+    "multi-valued RADIUS attributes are sent once per value"
+);
+
+is_deeply(
+    encode(username => 'bob', switch => bless({_id => '192.0.2.1'}, 'pf::Switch'), nested => {deep => {deeper => 1}}),
+    [username => 'bob'],
+    "objects and deeper structures are not sent"
+);
+
+{
+    my @warnings;
+    local $SIG{__WARN__} = sub { push @warnings, @_ };
+    pf::Authentication::Source::HTTPSource::encode_params(mac => undef, radius_request => {'Called-Station-Id' => undef});
+    is_deeply(\@warnings, [], "undefined values do not warn");
+}
 
 =head1 AUTHOR
 
