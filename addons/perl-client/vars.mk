@@ -3,7 +3,6 @@
 # hack to get directory of config.mk from any Makefile in source tree
 # even if make is called with -C
 SRC_ROOT_DIR = $(realpath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
-SRC_RPMDIR = $(SRC_ROOT_DIR)/rpm
 SRC_DEBDIR = $(SRC_ROOT_DIR)/debian
 SRC_TESTDIR = $(SRC_ROOT_DIR)/t
 SRC_VAGRANTDIR = $(SRC_ROOT_DIR)/vagrant
@@ -29,7 +28,6 @@ files_to_include = $(shell find $(SRC_ROOT_DIR)/* \
 	-not -path "$(SRC_ROOT_DIR)/.git" \
 	-not -path "$(SRC_ROOT_DIR)/.github" \
 	-not -path "$(SRC_RESULTDIR)" \
-	-not -path "$(SRC_RPMDIR)" \
 	-not -path "$(SRC_TESTDIR)" \
 	-not -path "$(SRC_VAGRANTDIR)" )
 
@@ -54,7 +52,6 @@ OS_RELEASE_NAME := $(shell . /etc/os-release 2>/dev/null && printf '%s' "$${VERS
 OS_RELEASE_NUM  := $(shell . /etc/os-release 2>/dev/null && printf '%04d' "$${VERSION_ID%%.*}" 2>/dev/null || printf '0000')
 
 DEB_PKG_SUFFIX  := +$(CI_COMMIT_DATE)+$(CI_PIPELINE_ID)+$(OS_RELEASE_NUM)+$(CI_COMMIT_REF_TILDE)+$(OS_RELEASE_NAME)
-RPM_PKG_SUFFIX  := $(CI_COMMIT_DATE).$(CI_PIPELINE_ID).$(OS_RELEASE_NUM).$(CI_COMMIT_REF_TILDE)
 
 # centos:8 -> result/centos/8, debian:trixie -> result/debian/trixie
 PKG_RESULT_DIR  ?= $(SRC_RESULTDIR)

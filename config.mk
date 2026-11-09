@@ -45,7 +45,6 @@ NTLM_AUTH_JOIN_CONTAINERSDIR = $(NTLM_AUTH_JOIN_PREFIX)/containers
 # hack to get directory of config.mk from any Makefile in source tree
 # even if make is called with -C
 SRC_ROOT_DIR = $(realpath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
-SRC_RPMDIR = $(SRC_ROOT_DIR)/rpm
 SRC_DEBDIR = $(SRC_ROOT_DIR)/debian
 SRC_CONFDIR = $(SRC_ROOT_DIR)/conf
 SRC_SYSTEMD_DIR = $(SRC_CONFDIR)/systemd
@@ -103,7 +102,6 @@ OS_RELEASE_NAME := $(shell . /etc/os-release 2>/dev/null && printf '%s' "$${VERS
 OS_RELEASE_NUM  := $(shell . /etc/os-release 2>/dev/null && printf '%04d' "$${VERSION_ID%%.*}" 2>/dev/null || printf '0000')
 
 DEB_PKG_SUFFIX  := +$(CI_COMMIT_DATE)+$(CI_PIPELINE_ID)+$(OS_RELEASE_NUM)+$(CI_COMMIT_REF_TILDE)+$(OS_RELEASE_NAME)
-RPM_PKG_SUFFIX  := $(CI_COMMIT_DATE).$(CI_PIPELINE_ID).$(OS_RELEASE_NUM).$(CI_COMMIT_REF_TILDE)
 
 PKG_RESULT_DIR  ?= $(SRC_ROOT_DIR)/result
 PKG_RELEASE_DIR  = $(PKG_RESULT_DIR)/$(OS_RELEASE_ID)/$(OS_RELEASE_NAME)
@@ -170,7 +168,6 @@ files_to_include = $(shell find $(SRC_ROOT_DIR)/* \
 	-not -path "$(SRC_DEBDIR)" \
 	-not -path "$(SRC_ROOT_DIR)/packetfence-$(PF_PATCH_RELEASE)" \
 	-not -path "$(SRC_ROOT_DIR)/public" \
-	-not -path "$(SRC_RPMDIR)" \
 	-not -path "$(SRC_TESTDIR)" )
 
 # all directories and files to include in packetfence-test package
