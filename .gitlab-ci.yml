@@ -128,9 +128,6 @@ variables:
       variables:
         CONTEXT: devel
         IMAGE_TAG: latest
-        # Emit both tags (slug + latest) for devel-context container pushes.
-        IMAGE_TAGS_DEVEL: "${CI_COMMIT_REF_SLUG},latest"
-        DOCKER_TAGS_DEVEL: "latest,devel,maintenance-99-9"
         DEPLOY_ENV_NAME: pf-devel
         DEB_DEPLOY_DIR: debian
         PF_CI_LIB_DEB_DEST_NAME: packetfence-ci-lib_devel.deb
