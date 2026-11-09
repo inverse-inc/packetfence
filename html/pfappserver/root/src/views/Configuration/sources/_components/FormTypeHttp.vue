@@ -25,6 +25,11 @@
       disabled-value="disabled"
     />
 
+    <form-group-content-type namespace="content_type"
+      :column-label="$i18n.t('Request content type')"
+      :text="$i18n.t('The format of the body of the authentication and authorization requests.')"
+    />
+
     <form-group-api-username namespace="username"
       :column-label="$i18n.t('API username (basic auth)')"
     />
@@ -56,6 +61,7 @@ import {
   FormGroupApiPassword,
   FormGroupAuthenticationUrl,
   FormGroupAuthorizationUrl,
+  FormGroupContentType,
   FormGroupDescription,
   FormGroupIdentifier,
   FormGroupProtocolHostPort,
@@ -70,6 +76,7 @@ const components = {
   FormGroupApiPassword,
   FormGroupAuthenticationUrl,
   FormGroupAuthorizationUrl,
+  FormGroupContentType,
   FormGroupDescription,
   FormGroupIdentifier,
   FormGroupProtocolHostPort,

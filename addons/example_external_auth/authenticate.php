@@ -1,11 +1,19 @@
 <?php
   error_log("Starting authentication");
-  foreach ($_POST as $key => $value){
-    error_log("Param, $key : $value");
+  // The source sends the fields as a form (default) or as a JSON object
+  $params = $_POST;
+  if (isset($_SERVER["CONTENT_TYPE"]) && stripos($_SERVER["CONTENT_TYPE"], "application/json") === 0) {
+    $params = json_decode(file_get_contents("php://input"), true);
+    if (!is_array($params)) {
+      $params = array();
+    }
+  }
+  foreach ($params as $key => $value){
+    error_log("Param, $key : " . (is_array($value) ? json_encode($value) : $value));
   }
   if (
-      isset($_POST["username"]) && $_POST["username"] == "testing" &&
-      isset($_POST["password"]) && $_POST["password"] == "123"
+      isset($params["username"]) && $params["username"] == "testing" &&
+      isset($params["password"]) && $params["password"] == "123"
      ) {
     echo json_encode(array("result" => 1, "message" => "Valid username and password"));
   }else{  
