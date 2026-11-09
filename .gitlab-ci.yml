@@ -36,8 +36,6 @@ variables:
   PIPELINE_TIMEOUT_SCRIPT: 160m
   # Opt-in only after provisioning and acceptance described in ci/pulp/README.md.
   PF_PULP_ENABLED: "no"
-  PF_PULP_CONTAINER_SYNC_ENABLED: "no"
-  PF_PULP_CONTAINER_ALLOW_TAG_UPDATE: "no"
   PF_PACKAGE_ORIGIN: "https://packages.packetfence.com"
   # Publish the PPA to the packaging Pulp instead of rsync to web.inverse.ca (ci/pulp/publish-packages.sh).
   # Needs masked CI variables PULP_URL/PULP_USERNAME/PULP_PASSWORD (the ci-packages account; no "Expand" on the password).
@@ -257,6 +255,31 @@ variables:
       variables:
         IMAGE_TAG: latest
         IMAGE_TAGS: "${CI_COMMIT_REF_SLUG},latest"
+
+# Service images (pfdebian, radiusd and their *_related matrices). devel and maintenance/X.Y
+# push them only as <slug>-p<pipeline>; deploy_containers gives them their branch tags after
+# the tests. IMAGE_TAG stays the branch tag (kaniko-build job image) and BUILDER_TAG pins the
+# pfbuild-* builder. Keep in step with ci/lib/common/pipeline-image-tag.sh.
+.build_img_service_rules:
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
+      variables:
+        IMAGE_TAG: ${CI_COMMIT_REF_SLUG}
+        BUILDER_TAG: ${CI_COMMIT_REF_SLUG}
+        IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}-p${CI_PIPELINE_ID}
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
+      variables:
+        IMAGE_TAG: ${CI_COMMIT_REF_SLUG}
+        IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
+    - if: '$CI_COMMIT_TAG'
+      variables:
+        IMAGE_TAG: ${CI_COMMIT_TAG}
+        IMAGE_TAGS: ${CI_COMMIT_TAG}
+    - if: '$CI_COMMIT_REF_NAME == "devel"'
+      variables:
+        IMAGE_TAG: latest
+        BUILDER_TAG: ${CI_COMMIT_REF_SLUG}
+        IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}-p${CI_PIPELINE_ID}
 
 # Rules for build_toolchain_images image builds (pfbuild, signing, publish-ppa).
 # Devel arm lives in each job's inline rules (opt-in via BUILD_IMG_DOCKER).
@@ -875,7 +898,7 @@ pfdebian:
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   rules:
     - !reference [.gated_by_build_img_container, rules]
-    - !reference [.build_img_container_rules, rules]
+    - !reference [.build_img_service_rules, rules]
 
 pfdebian_related:
   extends:
@@ -894,7 +917,7 @@ pfdebian_related:
           - "fingerbank-db"
   rules:
     - !reference [.gated_by_build_img_container, rules]
-    - !reference [.build_img_container_rules, rules]
+    - !reference [.build_img_service_rules, rules]
 
 radiusd:
   extends:
@@ -905,7 +928,7 @@ radiusd:
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   rules:
     - !reference [.gated_by_build_img_container, rules]
-    - !reference [.build_img_container_rules, rules]
+    - !reference [.build_img_service_rules, rules]
 
 radiusd_related:
   extends:
@@ -929,7 +952,7 @@ radiusd_related:
           - "pfconnector-remote"
   rules:
     - !reference [.gated_by_build_img_container, rules]
-    - !reference [.build_img_container_rules, rules]
+    - !reference [.build_img_service_rules, rules]
 
 ########################################
 # build_toolchain_images: package build toolchain images (pfbuild-*, signing, publish-ppa, material)
@@ -1712,6 +1735,41 @@ deploy_debian_pulp:
         DEPLOY_ENV_NAME: maintenance
         IMAGE_TAG: $CI_COMMIT_REF_SLUG
 
+# devel and maintenance/X.Y: service images are pushed only as <slug>-p<pipeline>. Once the
+# tests pass, give them their branch tags on GitHub (devel,latest / maintenance-X-Y; manifests
+# are copied, nothing is rebuilt), then have packages.packetfence.com fetch those tags
+# (ci/pulp/container-sync.sh). Runs only when tests ran. The environment lets GitLab skip an older pipeline that finishes after a newer one.
+deploy_containers:
+  stage: deploy
+  image: $PF_PPA_IMAGE
+  # One Pulp container writer at a time, across branches.
+  resource_group: pulp-packetfence-containers
+  dependencies: []
+  environment:
+    name: containers/$CI_COMMIT_REF_SLUG
+  script:
+    - pipeline_tag=$(sh ci/lib/common/pipeline-image-tag.sh)
+    - test -n "$pipeline_tag" || { echo 'This pipeline has no pipeline-tagged images' >&2; exit 1; }
+    - python3 ci/lib/upload/promote-images.py --source "$pipeline_tag" --tags "$PROMOTE_TAGS" --apply
+    - bash ci/pulp/container-sync.sh
+  artifacts:
+    access: developer
+    when: always
+    expire_in: 1 day
+    paths: [container-plan.json, container-publication.json]
+  tags:
+    - docker
+  rules:
+    - !reference [.gated_by_build_img_container, rules]
+    - if: '$CI_COMMIT_REF_NAME == "devel" && $CI_COMMIT_TAG == null && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" || $TEST_CLUSTER == "yes" || $CI_COMMIT_MESSAGE =~ /test_cluster=yes/ )'
+      variables:
+        IMAGE_TAG: latest
+        PROMOTE_TAGS: "${CI_COMMIT_REF_SLUG},latest"
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" || $TEST_CLUSTER == "yes" || $CI_COMMIT_MESSAGE =~ /test_cluster=yes/ )'
+      variables:
+        IMAGE_TAG: $CI_COMMIT_REF_SLUG
+        PROMOTE_TAGS: $CI_COMMIT_REF_SLUG
+
 # Feature branches started from the web UI/API with publish_ppa=yes: after the tests, merge
 # this build into debian/branches/X.Y and RHEL8/branches/X.Y; see ci/pulp/publish-packages.sh.
 deploy_branches_pulp:
@@ -1847,23 +1905,3 @@ build_pf_img_vagrant_release_debian_bookworm:
     - if: '$CI_COMMIT_TAG'
       when: manual
       allow_failure: true
-
-# Copies public GHCR maintenance/devel images after successful earlier stages.
-# This remains independent of the opt-in Debian/RPM publication switch.
-sync_pulp_branch_images:
-  stage: publish
-  image: $PF_PULP_IMAGE
-  resource_group: pulp-packetfence-containers
-  before_script: []
-  dependencies: []
-  script:
-    - bash ci/pulp/container-sync.sh
-  artifacts:
-    access: developer
-    when: always
-    expire_in: 30 days
-    paths: [container-plan.json, container-publication.json]
-  tags: [docker]
-  rules:
-    - if: '$PF_PULP_CONTAINER_SYNC_ENABLED == "yes" && $CI_COMMIT_REF_PROTECTED == "true" && $CI_COMMIT_BRANCH == "devel" && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule")'
-    - if: '$PF_PULP_CONTAINER_SYNC_ENABLED == "yes" && $CI_COMMIT_REF_PROTECTED == "true" && $CI_COMMIT_BRANCH =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_BRANCH != "maintenance/99.9" && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule")'

@@ -133,10 +133,21 @@ branch preparation.
 
 ## Maintenance and development container images
 
-`sync_pulp_branch_images` is a separate opt-in job. Set the protected
-`PF_PULP_CONTAINER_SYNC_ENABLED=yes` variable on reviewed protected branches.
-The job runs after earlier stages succeed and asks Pulp to fetch the current
-public GHCR image layers directly:
+On `devel` and `maintenance/X.Y`, the service images (`pfdebian`, `radiusd` and their
+`*_related` matrices) are pushed to GHCR only as `<slug>-p<pipeline>`
+(`ci/lib/common/pipeline-image-tag.sh`). The test VMs pull that tag: provisioning writes
+`/etc/packetfence-ci-image-tag` and `manage-images.sh` retags the images locally with the
+package's `TAG_OR_BRANCH_NAME`, so the packages themselves keep their branch tag. After the
+tests pass, `deploy_containers` (deploy stage) copies the manifests to the branch tags on
+GitHub (`devel,latest` or `maintenance-X-Y`; `ci/lib/upload/promote-images.py`), then has
+packages.packetfence.com fetch them (`ci/pulp/container-sync.sh`). It runs only in pipelines
+that run tests, so a pipeline without tests leaves the branch tags unchanged. Builder images
+(`pfbuild-*`, `kaniko-build`, `signing-packages`, `publish-ppa`) keep their branch tags
+(`BUILDER_TAG` in the Dockerfiles). Pipeline tags are not deleted automatically.
+
+The packages.packetfence.com step always runs after the GitHub promotion; if it fails,
+`deploy_containers` fails (the GitHub tags are already moved). It asks Pulp to fetch the
+just-promoted GHCR image layers directly:
 
 | Branch | Pipeline sources | Selected tags |
 |---|---|---|
@@ -153,10 +164,9 @@ is copied only through the `devel` branch.
 
 Use `PF_PULP_CONTAINER_USERNAME` and `PF_PULP_CONTAINER_PASSWORD` for the dedicated
 sync account, plus the existing `PULP_URL`, pinned `PF_PULP_IMAGE`, and optional
-`REQUESTS_CA_BUNDLE`. To advance moving maintenance/development tags, explicitly set
-`PF_PULP_CONTAINER_ALLOW_TAG_UPDATE=yes`; otherwise a different existing digest
-fails. Provision repositories with `--latest-only` (`retain_repo_versions=1`) before
-allowing CI to update tags. Infrastructure owns pruning of superseded manifests
+`REQUESTS_CA_BUNDLE`. Branch tags move on every tested pipeline, so the sync always
+updates an existing tag to the new digest. Provision repositories with `--latest-only`
+(`retain_repo_versions=1`) before the first run. Infrastructure owns pruning of superseded manifests
 and orphan cleanup; the CI account receives no deletion/admin privileges. Each
 tag exposes its current digest, while other branches' tags are preserved. Do not run this CI writer concurrently with that cron
 job: its GitLab resource group does not acquire the host refresh lock.
