@@ -1394,6 +1394,14 @@ form.
 After upgrading, open each HTTP source in the administration interface and enter
 the basic authentication credentials again if the external API requires them.
 
+=== HTTP source TLS verification
+
+HTTP sources have a new *Verify TLS* option to verify the certificate and the
+hostname of the API server when using `https`. It is enabled for new sources.
+Existing sources keep their previous behavior and do not verify TLS: enable the
+option on each HTTP source whose API certificate is trusted by the PacketFence
+server.
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]

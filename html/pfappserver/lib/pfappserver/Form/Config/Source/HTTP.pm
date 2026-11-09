@@ -50,6 +50,16 @@ has_field 'protocol' =>
    element_class => ['input-small'],
    default => pf::Authentication::Source::HTTPSource->meta->get_attribute('protocol')->default,
   );
+has_field 'verify_tls' =>
+  (
+   type => 'Toggle',
+   label => 'Verify TLS',
+   checkbox_value  => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'enabled',
+   tags => { after_element => \&help,
+             help => 'Verify the certificate and the hostname of the server when using https.' },
+  );
 has_field 'username' =>
   (
    type => 'Text',
