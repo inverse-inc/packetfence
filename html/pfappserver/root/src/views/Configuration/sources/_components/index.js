@@ -139,6 +139,7 @@ export {
   BaseFormGroupInput                        as FormGroupUsernameAttributeString,
   BaseFormGroupSwitch                       as FormGroupValidateSponsor,
   BaseFormGroupChosenOne                    as FormGroupVerify,
+  BaseFormGroupSwitch                       as FormGroupVerifyTls,
   BaseFormGroupInputNumber                  as FormGroupWriteTimeout,
   BaseFormGroupTextarea                     as FormGroupEduroamOptions,
   BaseFormGroupChosenMultiple               as FormGroupEduroamRadiusAuth,

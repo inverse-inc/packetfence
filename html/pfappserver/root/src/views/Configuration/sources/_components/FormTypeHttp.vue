@@ -18,6 +18,13 @@
       :column-label="$i18n.t('Host')"
     />
 
+    <form-group-verify-tls namespace="verify_tls"
+      :column-label="$i18n.t('Verify TLS')"
+      :text="$i18n.t('Verify the certificate and the hostname of the server when using https.')"
+      enabled-value="enabled"
+      disabled-value="disabled"
+    />
+
     <form-group-api-username namespace="username"
       :column-label="$i18n.t('API username (basic auth)')"
     />
@@ -53,6 +60,7 @@ import {
   FormGroupIdentifier,
   FormGroupProtocolHostPort,
   FormGroupRealms,
+  FormGroupVerifyTls,
 } from './'
 
 const components = {
@@ -66,6 +74,7 @@ const components = {
   FormGroupIdentifier,
   FormGroupProtocolHostPort,
   FormGroupRealms,
+  FormGroupVerifyTls,
 }
 
 import { useForm as setup, useFormProps as props } from '../_composables/useForm'

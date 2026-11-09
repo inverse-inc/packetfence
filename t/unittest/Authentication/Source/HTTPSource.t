@@ -20,7 +20,8 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 19;
+use Test::More tests => 23;
+use WWW::Curl::Easy;
 use URI;
 use Test::MockModule;
 use pf::Authentication::constants;
@@ -153,6 +154,34 @@ is_deeply(
     $mock->mock('_post_curl', sub { return (0, 200, '{"trigger_portal_mfa":"mfa2"}', undef) });
     my $rule = $source->match({username => 'bob', rule_class => $Rules::AUTH});
     is_deeply([map { $_->class } @{$rule->{actions}}], [$Rules::AUTH], "MFA trigger action is in the authentication class");
+}
+
+# Return the curl options set by _post_curl for a source with the given attributes
+sub curl_options {
+    my (%attrs) = @_;
+    my %options;
+    my $curl = Test::MockModule->new('WWW::Curl::Easy');
+    $curl->mock('setopt', sub { my (undef, $option, $value) = @_; $options{$option} = $value; return 0 });
+    $curl->mock('perform', sub { 0 });
+    $curl->mock('getinfo', sub { 200 });
+    my $http_source = pf::Authentication::Source::HTTPSource->new({id => 'test', protocol => 'https', %attrs});
+    $http_source->_post_curl('authorization', 'username=bob');
+    return \%options;
+}
+
+my $options = curl_options();
+is_deeply([@$options{CURLOPT_SSL_VERIFYPEER, CURLOPT_SSL_VERIFYHOST}], [0, 0], "TLS is not verified by default, like before the option existed");
+
+$options = curl_options(verify_tls => 'disabled');
+is_deeply([@$options{CURLOPT_SSL_VERIFYPEER, CURLOPT_SSL_VERIFYHOST}], [0, 0], "TLS is not verified when disabled");
+
+$options = curl_options(verify_tls => 'enabled');
+is_deeply([@$options{CURLOPT_SSL_VERIFYPEER, CURLOPT_SSL_VERIFYHOST}], [1, 2], "the certificate and the hostname are verified when enabled");
+
+{
+    require pfappserver::Form::Config::Source::HTTP;
+    my $form = pfappserver::Form::Config::Source::HTTP->new;
+    is($form->field('verify_tls')->default, 'enabled', "new HTTP sources verify TLS by default");
 }
 
 =head1 AUTHOR

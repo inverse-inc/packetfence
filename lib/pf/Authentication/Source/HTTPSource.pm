@@ -11,8 +11,8 @@ Delegates authentication and authorization to an external HTTP API.
 Both calls are HTTP POST requests with a URL-encoded body, sent to
 C<protocol://host:port/authentication_url> and
 C<protocol://host:port/authorization_url>. HTTP basic authentication is used
-when both C<username> and C<password> are set. TLS certificates are not
-verified.
+when both C<username> and C<password> are set. The certificate and the
+hostname of the server are verified when C<verify_tls> is enabled.
 
 The API must reply with HTTP status 200 and a JSON body; anything else is
 treated as a failure. See L</authenticate> and L</match> for the expected
@@ -45,6 +45,9 @@ has 'username' => ( isa => 'Maybe[Str]', is => 'rw', default => undef );
 has 'password' => ( isa => 'Maybe[Str]', is => 'rw', default => undef );
 has 'authentication_url' => ( isa => 'Str', is => 'rw', default => '' );
 has 'authorization_url' => ( isa => 'Str', is => 'rw', default => '' );
+# Sources created before this option existed did not verify TLS: keep that
+# behavior when the option is not set. New sources default to enabled (see the form).
+has 'verify_tls' => ( isa => 'Str', is => 'rw', default => 'disabled' );
 
 =head1 METHODS
 
@@ -106,8 +109,13 @@ sub _post_curl {
     $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
     $curl->setopt(CURLOPT_NOSIGNAL, 1);
     $curl->setopt(CURLOPT_URL, $uri);
-    $curl->setopt(CURLOPT_SSL_VERIFYHOST, 0);
-    $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0);
+    if (isenabled($self->verify_tls)) {
+        $curl->setopt(CURLOPT_SSL_VERIFYHOST, 2);
+        $curl->setopt(CURLOPT_SSL_VERIFYPEER, 1);
+    } else {
+        $curl->setopt(CURLOPT_SSL_VERIFYHOST, 0);
+        $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0);
+    }
 
     $logger->debug("Calling Authentication API service using URI : $uri");
 
