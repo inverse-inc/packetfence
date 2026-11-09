@@ -1,6 +1,7 @@
 ARG KNK_REGISTRY_URL
 ARG IMAGE_TAG
-FROM ${KNK_REGISTRY_URL}/pfbuild-debian-bookworm:${IMAGE_TAG}
+ARG BUILDER_TAG
+FROM ${KNK_REGISTRY_URL}/pfbuild-debian-bookworm:${BUILDER_TAG}
 
 RUN mkdir -p /usr/local/pf/
 WORKDIR /usr/local/pf/
