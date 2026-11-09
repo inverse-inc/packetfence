@@ -94,7 +94,7 @@ Here is a brief description of the fields:
 
 [options="compact"]
  * *Host* : the encryption (`http` or `https`), then the IP address or hostname of the API, and lastly the port to connect to the API.
- * *Verify TLS* : When using `https`, verify the certificate and the hostname of the API server. Enabled by default for new sources. The certificate must be trusted by the system CA bundle of the PacketFence server.
+ * *Verify TLS* : When using `https`, verify the certificate and the hostname of the API server. Enabled by default for the sources created in the administration interface. The certificate must be trusted by the system CA bundle of the PacketFence server.
  * *Request content type* : the format of the body of the requests: `application/x-www-form-urlencoded` (default) or `application/json`.
  * *API username and password* : If the API implements HTTP basic authentication (RFC 2617) these can be added in these fields. Leaving any of those two fields empty will make PacketFence do the requests without any authentication.
  * *Authentication URL* : URL relative to the host to call when doing the authentication of a user. Note that it is automatically prefixed by a slash.

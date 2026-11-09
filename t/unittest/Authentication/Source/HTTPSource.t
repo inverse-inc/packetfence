@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 50;
+use Test::More tests => 51;
 use WWW::Curl::Easy;
 use URI;
 use JSON::MaybeXS qw(decode_json);
@@ -254,8 +254,15 @@ is_deeply([@$options{CURLOPT_SSL_VERIFYPEER, CURLOPT_SSL_VERIFYHOST}], [1, 2], "
 
 {
     require pfappserver::Form::Config::Source::HTTP;
-    my $form = pfappserver::Form::Config::Source::HTTP->new;
-    is($form->field('verify_tls')->default, 'enabled', "new HTTP sources verify TLS by default");
+    # Process the form like the admin API does to return an existing source (cleanup_item)
+    my $verify_tls_shown = sub {
+        my (%item) = @_;
+        my $form = pfappserver::Form::Config::Source::HTTP->new;
+        $form->process(init_object => {id => 'test', type => 'HTTP', authentication_url => 'a', authorization_url => 'b', %item}, posted => 0);
+        return $form->value->{verify_tls};
+    };
+    isnt($verify_tls_shown->(), 'enabled', "a source without verify_tls is not shown as verifying TLS, it does not");
+    is($verify_tls_shown->(verify_tls => 'enabled'), 'enabled', "a source with verify_tls enabled is shown as enabled");
 }
 
 # Request content type
