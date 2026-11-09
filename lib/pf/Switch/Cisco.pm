@@ -1560,6 +1560,11 @@ sub _radiusBounceMac {
     try {
         my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
 
+        # bounce-host-port is a CoA-Request, so coaPort wins and disconnectPort
+        # is the fallback. Left unset, perform_coa uses its default (3799).
+        my $coa_port = $self->{'_coaPort'} || $self->{'_disconnectPort'};
+        $connection_info->{'nas_port'} = $coa_port if $coa_port;
+
         $response = $self->handleRadiusCoa( $connection_info,
             {
                 'Acct-Terminate-Cause' => 'Admin-Reset',
