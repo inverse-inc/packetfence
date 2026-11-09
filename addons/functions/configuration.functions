@@ -212,6 +212,12 @@ function upgrade_configuration() {
     echo "Running $script"
     $script
   done
+  # The packages add the default parameters of the authentication sources on
+  # upgrade, but an imported authentication.conf (export/import) was written
+  # by the previous version: add the defaults of the options it does not have.
+  sub_splitter
+  echo "Adding the default parameters to the authentication sources"
+  perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
 }
 
 function restore_certificates() {
