@@ -12,8 +12,8 @@
     error_log("Param, $key : " . (is_array($value) ? json_encode($value) : $value));
   }
   if (
-      isset($params["SSID"]) && $params["SSID"] == "PF-Test" &&
-      isset($params["mac"]) && $params["mac"] == "00:11:22:33:44:55"
+      isset($params["SSID"]) && $params["SSID"] === "PF-Test" &&
+      isset($params["mac"]) && $params["mac"] === "00:11:22:33:44:55"
      ) {
     echo json_encode(array("category" => "default", "access_duration" => "1Y"));
   }else{  
