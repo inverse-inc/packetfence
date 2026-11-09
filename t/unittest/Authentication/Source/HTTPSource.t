@@ -20,9 +20,10 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 32;
+use Test::More tests => 46;
 use WWW::Curl::Easy;
 use URI;
+use JSON::MaybeXS qw(decode_json);
 use Test::MockModule;
 use pf::Authentication::constants;
 use pf::Authentication::Source::HTTPSource;
@@ -249,6 +250,133 @@ is_deeply([@$options{CURLOPT_SSL_VERIFYPEER, CURLOPT_SSL_VERIFYHOST}], [1, 2], "
     require pfappserver::Form::Config::Source::HTTP;
     my $form = pfappserver::Form::Config::Source::HTTP->new;
     is($form->field('verify_tls')->default, 'enabled', "new HTTP sources verify TLS by default");
+}
+
+# Request content type
+
+is($source->content_type, 'application/x-www-form-urlencoded', "requests are URL-encoded by default, like before the option existed");
+
+my $json_source = pf::Authentication::Source::HTTPSource->new({id => 'test', content_type => 'application/json'});
+
+sub encode_json_body {
+    return decode_json(pf::Authentication::Source::HTTPSource::encode_json_params(@_));
+}
+
+is_deeply(
+    encode_json_body(username => 'bob', password => 'p@ss w&rd=1', mac => undef),
+    {username => 'bob', password => 'p@ss w&rd=1', mac => undef},
+    "JSON: plain values are sent as is, undefined values as null"
+);
+
+is_deeply(
+    encode_json_body(
+        username       => 'bob',
+        radius_request => {
+            'EAP-Type'                    => 13,
+            'TLS-Client-Cert-Common-Name' => 'bob.example.com',
+            'Cisco-AVPair'                => ['a=1', 'b=2'],
+            'Called-Station-Id'           => undef,
+        },
+    ),
+    {
+        username       => 'bob',
+        radius_request => {
+            'EAP-Type'                    => 13,
+            'TLS-Client-Cert-Common-Name' => 'bob.example.com',
+            'Cisco-AVPair'                => ['a=1', 'b=2'],
+            'Called-Station-Id'           => undef,
+        },
+    },
+    "JSON: the RADIUS request is an object, multi-valued attributes are arrays"
+);
+
+is_deeply(
+    encode_json_body(username => 'bob', switch => bless({_id => '192.0.2.1'}, 'pf::Switch'), nested => {deep => {deeper => 1}, kept => 1}, list => ['a', {b => 1}]),
+    {username => 'bob', nested => {kept => 1}, list => ['a']},
+    "JSON: objects and deeper structures are not sent"
+);
+
+like(
+    pf::Authentication::Source::HTTPSource::encode_json_params(port => 1812, name => '1812'),
+    qr/"name":"1812".*"port":1812/,
+    "JSON: numbers stay numbers and strings stay strings"
+);
+
+is(
+    pf::Authentication::Source::HTTPSource::encode_json_params(bytes => "caf\xc3\xa9", chars => "caf\x{e9}", wide => "\x{263a}", latin1 => "caf\xe9"),
+    qq({"bytes":"caf\xc3\xa9","chars":"caf\xc3\xa9","latin1":"caf\xc3\xa9","wide":"\xe2\x98\xba"}),
+    "JSON: the body is UTF-8, UTF-8 byte strings are not encoded twice"
+);
+
+# Return the body sent by authenticate and match for a source
+sub sent_bodies {
+    my ($http_source, $params) = @_;
+    my @bodies;
+    my $mock = Test::MockModule->new('pf::Authentication::Source::HTTPSource');
+    $mock->mock('_post_curl', sub { push @bodies, $_[2]; return (0, 200, '{"result":1}', undef) });
+    $http_source->authenticate('bob', 'secret');
+    $http_source->match($params);
+    return @bodies;
+}
+
+my $match_params = {
+    username       => 'bob',
+    password       => 'secret',
+    rule_class     => $Rules::AUTH,
+    radius_request => {
+        'User-Name'                   => 'bob',
+        'User-Password'               => 'secret123456',
+        'MS-CHAP2-Response'           => 'x',
+        'EAP-Type'                    => 13,
+        'TLS-Client-Cert-Common-Name' => 'bob.example.com',
+    },
+};
+
+{
+    my ($authentication, $authorization) = sent_bodies($json_source, $match_params);
+    is_deeply(decode_json($authentication), {username => 'bob', password => 'secret'}, "JSON: authentication sends the username and the password");
+    is_deeply(
+        decode_json($authorization),
+        {
+            username       => 'bob',
+            rule_class     => $Rules::AUTH,
+            radius_request => {
+                'User-Name'                   => 'bob',
+                'EAP-Type'                    => 13,
+                'TLS-Client-Cert-Common-Name' => 'bob.example.com',
+            },
+        },
+        "JSON: authorization sends the match params without the secrets"
+    );
+}
+
+{
+    my ($authentication, $authorization) = sent_bodies($source, $match_params);
+    is_deeply(decode_params($authentication), [password => 'secret', username => 'bob'], "form: authentication is URL-encoded");
+    is_deeply(
+        decode_params($authorization),
+        [
+            'radius_request.EAP-Type'                    => 13,
+            'radius_request.TLS-Client-Cert-Common-Name' => 'bob.example.com',
+            'radius_request.User-Name'                   => 'bob',
+            rule_class                                   => $Rules::AUTH,
+            username                                     => 'bob',
+        ],
+        "form: authorization is URL-encoded"
+    );
+}
+
+$options = curl_options(content_type => 'application/json');
+is_deeply($options->{+CURLOPT_HTTPHEADER}, ['Content-Type: application/json'], "JSON: the Content-Type header is application/json");
+
+$options = curl_options();
+ok(!exists $options->{+CURLOPT_HTTPHEADER}, "form: curl sends its default application/x-www-form-urlencoded Content-Type");
+
+{
+    my $form = pfappserver::Form::Config::Source::HTTP->new;
+    my $field = $form->field('content_type');
+    is($field->default, 'application/x-www-form-urlencoded', "new HTTP sources are URL-encoded by default");
+    is_deeply([sort map { $_->{value} } @{$field->options}], ['application/json', 'application/x-www-form-urlencoded'], "the content type can be URL-encoded or JSON");
 }
 
 =head1 AUTHOR

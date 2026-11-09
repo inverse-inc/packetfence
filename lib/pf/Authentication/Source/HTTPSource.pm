@@ -8,9 +8,11 @@ pf::Authentication::Source::HTTPSource - Authentication source backed by an exte
 
 Delegates authentication and authorization to an external HTTP API.
 
-Both calls are HTTP POST requests with a URL-encoded body, sent to
+Both calls are HTTP POST requests, sent to
 C<protocol://host:port/authentication_url> and
-C<protocol://host:port/authorization_url>. HTTP basic authentication is used
+C<protocol://host:port/authorization_url>. The body is URL-encoded
+(C<application/x-www-form-urlencoded>, the default) or JSON
+(C<application/json>), depending on C<content_type>. HTTP basic authentication is used
 when both C<username> and C<password> are set. The certificate and the
 hostname of the server are verified when C<verify_tls> is enabled.
 
@@ -21,6 +23,7 @@ responses.
 =cut
 
 use JSON::MaybeXS;
+use Encode qw(decode FB_CROAK);
 use pf::constants qw($TRUE $FALSE);
 use pf::config qw(%ConfigMfa);
 use pf::Authentication::constants;
@@ -52,6 +55,10 @@ has 'authorization_url' => ( isa => 'Str', is => 'rw', default => '' );
 # writes this default (disabled) in the existing sources. New sources default to
 # enabled (see the form).
 has 'verify_tls' => ( isa => 'Str', is => 'rw', default => 'disabled' );
+
+Readonly our $CONTENT_TYPE_FORM => 'application/x-www-form-urlencoded';
+Readonly our $CONTENT_TYPE_JSON => 'application/json';
+has 'content_type' => ( isa => 'Str', is => 'rw', default => $CONTENT_TYPE_FORM );
 
 =head1 METHODS
 
@@ -105,6 +112,10 @@ sub _post_curl {
         $curl->setopt(CURLOPT_PASSWORD, $self->password);
     }
 
+    if ($self->is_json) {
+        $curl->setopt(CURLOPT_HTTPHEADER, ["Content-Type: $CONTENT_TYPE_JSON"]);
+    }
+
     my $response_body = '';
     $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
     $curl->setopt(CURLOPT_POSTFIELDS, $request);
@@ -147,6 +158,90 @@ sub available_attributes {
                        ];
 
   return [@$super_attributes, @$own_attributes];
+}
+
+=head2 is_json
+
+Whether the requests are sent as JSON
+
+=cut
+
+sub is_json {
+    my ($self) = @_;
+    return ($self->content_type // '') eq $CONTENT_TYPE_JSON ? $TRUE : $FALSE;
+}
+
+=head2 encode_request
+
+Encodes the params of a request according to C<content_type>: see
+L</encode_params> (URL-encoded) and L</encode_json_params> (JSON)
+
+=cut
+
+sub encode_request {
+    my ($self, %params) = @_;
+    return $self->is_json ? encode_json_params(%params) : encode_params(%params);
+}
+
+=head2 encode_json_params
+
+Encodes a hash into a JSON object
+
+Plain values are sent as is, undefined values as null. A nested hash (like
+radius_request) is sent as an object, a multi-valued attribute as an array.
+Objects and deeper structures are not sent, like in L</encode_params>.
+Byte strings holding UTF-8 (like the RADIUS attributes) are decoded first, so
+the body is valid UTF-8 without double encoding.
+
+=cut
+
+sub encode_json_params {
+    my %hash = @_;
+    my %json;
+    for my $key (keys %hash) {
+        my $value = $hash{$key};
+        if (ref($value) eq 'HASH') {
+            my %sub_json;
+            for my $sub_key (keys %$value) {
+                my @sub_value = _json_values($value->{$sub_key});
+                $sub_json{$sub_key} = $sub_value[0] if @sub_value;
+            }
+            $json{$key} = \%sub_json;
+        } else {
+            my @json_value = _json_values($value);
+            $json{$key} = $json_value[0] if @json_value;
+        }
+    }
+    return JSON::MaybeXS->new(utf8 => 1, canonical => 1)->encode(\%json);
+}
+
+=head2 _json_values
+
+The JSON value of a param, as a list: empty when the value cannot be sent,
+the value itself, or an array of the plain values of an array
+
+=cut
+
+sub _json_values {
+    my ($value) = @_;
+    return (undef) if !defined $value;
+    return (_json_string($value)) if !ref $value;
+    return ([map { _json_string($_) } grep { !ref $_ } @$value]) if ref($value) eq 'ARRAY';
+    return ();
+}
+
+=head2 _json_string
+
+A plain value as a character string: a byte string holding valid UTF-8 is
+decoded, anything else is kept as is
+
+=cut
+
+sub _json_string {
+    my ($value) = @_;
+    return $value if !defined $value || looks_like_number($value) || utf8::is_utf8($value) || $value !~ /[\x80-\xff]/;
+    my $decoded = eval { decode('UTF-8', $value, FB_CROAK) };
+    return defined $decoded ? $decoded : $value;
 }
 
 =head2 encode_params
@@ -239,7 +334,7 @@ Whether or not the username/password combination is valid
 The server should reply with two attributes in a JSON response
 
 The username and password are sent as the C<username> and C<password>
-POST fields.
+fields of the request body (see L</encode_request>).
 
 result should be 1 for success, 0 for failure
 message should be the reason it succeeded or failed
@@ -254,7 +349,7 @@ sub authenticate {
 
     my $uri = $self->authentication_url;
 
-    my $post_fields = encode_params(username => $username, password => $password);
+    my $post_fields = $self->encode_request(username => $username, password => $password);
 
     my ($curl_return_code, $response_code, $response_body, $curl) = $self->_post_curl($uri, $post_fields);
     if ($curl_return_code == 0 && $response_code == 200) {
@@ -295,9 +390,10 @@ sub handleResults {
 The HTTPSource class overrides the match method of the Source parent class.
 
 The actions are defined by the API through its JSON response. All the
-match parameters (username, mac, SSID, rule_class, ...) are sent as POST
-fields, see L</encode_params>. The attributes of the RADIUS request are sent
-as C<radius_request.Attribute-Name> (ex: radius_request.TLS-Client-Cert-Common-Name),
+match parameters (username, mac, SSID, rule_class, ...) are sent in the
+request body, see L</encode_request>. The attributes of the RADIUS request are
+sent as C<radius_request.Attribute-Name> (ex: radius_request.TLS-Client-Cert-Common-Name)
+in a URL-encoded body, or in the C<radius_request> object of a JSON body,
 except the passwords, CHAP/MS-CHAP values, EAP-Message, State and
 Message-Authenticator.
 
@@ -319,7 +415,7 @@ sub match {
 
     my $uri = $self->authorization_url;
 
-    my $post_fields = encode_params(%{authorization_params($params)});
+    my $post_fields = $self->encode_request(%{authorization_params($params)});
 
     my ($curl_return_code, $response_code, $response_body, $curl) = $self->_post_curl($uri, $post_fields);
     if ($curl_return_code != 0 || $response_code != 200) {

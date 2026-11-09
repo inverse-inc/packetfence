@@ -20,13 +20,13 @@ endif::[]
 
 PacketFence also supports calling an external HTTP API as an authentication source (source type `HTTP`). The external API needs to implement an authentication action and an authorization action.
 
-Both actions are called with an HTTP `POST` request whose body is URL-encoded (`application/x-www-form-urlencoded`). The API must reply with HTTP status code `200` and a JSON body. Any other status code, or a connection error, is treated as a failure.
+Both actions are called with an HTTP `POST` request. Depending on the *Request content type* of the source, the body is URL-encoded (`application/x-www-form-urlencoded`, the default) or a JSON object (`application/json`). The fields described below are the same in both formats. The API must reply with HTTP status code `200` and a JSON body. Any other status code, or a connection error, is treated as a failure.
 
 ==== Authentication
 
 This should tell whether or not the username/password combination is valid.
 
-The following POST fields are sent:
+The following fields are sent:
 
 [options="compact"]
  * *username* : the username entered by the user
@@ -50,9 +50,18 @@ A response that is not a valid JSON object is treated as a failed authentication
 
 This should provide the actions to apply to a user, based on their attributes.
 
-The request contains the context of the user as POST fields. These include *username*, *stripped_user_name*, *mac*, *SSID*, *connection_type*, *realm*, *switch_id*, *switch_group*, *computer_name*, *context* (`portal` or `radius`) and *rule_class*. Fields without a value are sent empty.
+The request contains the context of the user as fields of the body. These include *username*, *stripped_user_name*, *mac*, *SSID*, *connection_type*, *realm*, *switch_id*, *switch_group*, *computer_name*, *context* (`portal` or `radius`) and *rule_class*. Fields without a value are sent empty.
 
 When the source is used during a RADIUS authentication, the attributes of the RADIUS request are also sent, prefixed by `radius_request.`. For example, with EAP-TLS, the client certificate is available in *radius_request.TLS-Client-Cert-Common-Name*, *radius_request.TLS-Client-Cert-Serial*, *radius_request.TLS-Client-Cert-Issuer*, and so on. A multi-valued attribute is sent once per value.
+
+With the JSON content type, a field without a value is `null`, the attributes of the RADIUS request are in the *radius_request* object (without the prefix), and a multi-valued attribute is an array. For example:
+
+[source,json]
+----
+  {"username":"bob","mac":"00:11:22:33:44:55","context":"radius","rule_class":"authentication",
+    "radius_request":{"EAP-Type":"13","TLS-Client-Cert-Common-Name":"bob.example.com",
+    "Cisco-AVPair":["a=1","b=2"]}}
+----
 
 The following attributes are available for the reply:
 
@@ -86,6 +95,7 @@ Here is a brief description of the fields:
 [options="compact"]
  * *Host* : the encryption (`http` or `https`), then the IP address or hostname of the API, and lastly the port to connect to the API.
  * *Verify TLS* : When using `https`, verify the certificate and the hostname of the API server. Enabled by default for new sources. The certificate must be trusted by the system CA bundle of the PacketFence server.
+ * *Request content type* : the format of the body of the requests: `application/x-www-form-urlencoded` (default) or `application/json`.
  * *API username and password* : If the API implements HTTP basic authentication (RFC 2617) these can be added in these fields. Leaving any of those two fields empty will make PacketFence do the requests without any authentication.
  * *Authentication URL* : URL relative to the host to call when doing the authentication of a user. Note that it is automatically prefixed by a slash.
  * *Authorization URL* : URL relative to the host to call when doing the authorization of a user. Note that it is automatically prefixed by a slash.

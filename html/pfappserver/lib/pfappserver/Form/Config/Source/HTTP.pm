@@ -61,6 +61,20 @@ has_field 'verify_tls' =>
    tags => { after_element => \&help,
              help => 'Verify the certificate and the hostname of the server when using https.' },
   );
+has_field 'content_type' =>
+  (
+   type => 'Select',
+   label => 'Request content type',
+   options =>
+   [
+    { value => $pf::Authentication::Source::HTTPSource::CONTENT_TYPE_FORM, label => 'Form (application/x-www-form-urlencoded)' },
+    { value => $pf::Authentication::Source::HTTPSource::CONTENT_TYPE_JSON, label => 'JSON (application/json)' },
+   ],
+   required => 1,
+   default => pf::Authentication::Source::HTTPSource->meta->get_attribute('content_type')->default,
+   tags => { after_element => \&help,
+             help => 'The format of the body of the authentication and authorization requests.' },
+  );
 has_field 'username' =>
   (
    type => 'Text',
