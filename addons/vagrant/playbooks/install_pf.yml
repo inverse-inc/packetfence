@@ -16,6 +16,25 @@
         gather_subset:
           - network
 
+    # devel and maintenance/X.Y pipelines push their images under a pipeline tag until the
+    # tests pass (deploy_containers); manage-images.sh pulls that tag when this file exists.
+    - name: Select this pipeline's container images
+      ansible.builtin.set_fact:
+        pf_ci_image_tag: "{{ lookup('pipe', playbook_dir ~ '/../../../ci/lib/common/pipeline-image-tag.sh') }}"
+
+    - name: Write the pipeline image tag for manage-images.sh
+      ansible.builtin.copy:
+        dest: /etc/packetfence-ci-image-tag
+        content: "{{ pf_ci_image_tag }}\n"
+        mode: '0644'
+      when: pf_ci_image_tag | length > 0
+
+    - name: Use the package's image tag outside those pipelines
+      ansible.builtin.file:
+        path: /etc/packetfence-ci-image-tag
+        state: absent
+      when: pf_ci_image_tag | length == 0
+
   # search roles in collections
   roles:
 
