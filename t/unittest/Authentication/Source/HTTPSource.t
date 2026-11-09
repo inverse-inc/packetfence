@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 23;
+use Test::More tests => 32;
 use WWW::Curl::Easy;
 use URI;
 use Test::MockModule;
@@ -107,10 +107,12 @@ is_deeply(
 
 # Run match with the given JSON reply from the authorization API and return the
 # actions as type => value
+my %configured_mfa = (mfa1 => 1, mfa2 => 1);
 sub match_actions {
     my ($reply) = @_;
     my $mock = Test::MockModule->new('pf::Authentication::Source::HTTPSource');
     $mock->mock('_post_curl', sub { return (0, 200, $reply, undef) });
+    $mock->mock('mfa_exists', sub { exists $configured_mfa{$_[1]} });
     my $rule = $source->match({username => 'bob', rule_class => $Rules::AUTH});
     return $rule && { map { $_->type => $_->value } @{$rule->{actions}} };
 }
@@ -149,9 +151,74 @@ is_deeply(
     "unregdate alone is used, sponsor 0 is not an action"
 );
 
+is_deeply(
+    match_actions('{"sponsor":true}'),
+    { $Actions::MARK_AS_SPONSOR => 1 },
+    "sponsor true marks the user as a sponsor"
+);
+
+is_deeply(
+    match_actions('{"sponsor":false}'),
+    {},
+    "sponsor false is not an action"
+);
+
+is_deeply(
+    match_actions('{"trigger_radius_mfa":"mfa_typo","trigger_portal_mfa":"mfa2"}'),
+    { $Actions::TRIGGER_PORTAL_MFA => 'mfa2' },
+    "an MFA trigger naming an unknown MFA is ignored"
+);
+
+is_deeply(
+    match_actions('{"trigger_portal_mfa":true,"category":{"name":"x"},"access_level":["ALL"],"sponsor":"yes","access_duration":"1D"}'),
+    { $Actions::SET_ACCESS_DURATION => '1D' },
+    "attributes that are not strings or numbers are ignored"
+);
+
+for my $reply ('<html>Error</html>', '', '[]', '"ok"') {
+    is(match_actions($reply), undef, "an authorization reply that is not a JSON object is a failure: '$reply'");
+}
+
+{
+    my $body;
+    my $mock = Test::MockModule->new('pf::Authentication::Source::HTTPSource');
+    $mock->mock('_post_curl', sub { $body = $_[2]; return (0, 200, '{}', undef) });
+    $source->match({
+        username       => 'bob',
+        password       => 'secret',
+        rule_class     => $Rules::AUTH,
+        radius_request => {
+            'User-Name'                => 'bob',
+            'User-Password'            => 'secret123456',
+            'PacketFence-UserPassword' => 'c2VjcmV0',
+            'CHAP-Password'            => 'x',
+            'CHAP-Challenge'           => 'x',
+            'MS-CHAP-Challenge'        => 'x',
+            'MS-CHAP2-Response'        => 'x',
+            'EAP-Message'              => 'x',
+            'State'                    => 'x',
+            'Message-Authenticator'    => 'x',
+            'EAP-Type'                 => 13,
+            'TLS-Client-Cert-Common-Name' => 'bob.example.com',
+        },
+    });
+    is_deeply(
+        decode_params($body),
+        [
+            'radius_request.EAP-Type'                    => 13,
+            'radius_request.TLS-Client-Cert-Common-Name' => 'bob.example.com',
+            'radius_request.User-Name'                   => 'bob',
+            rule_class                                   => $Rules::AUTH,
+            username                                     => 'bob',
+        ],
+        "secrets of the RADIUS request are not sent to the authorization API"
+    );
+}
+
 {
     my $mock = Test::MockModule->new('pf::Authentication::Source::HTTPSource');
     $mock->mock('_post_curl', sub { return (0, 200, '{"trigger_portal_mfa":"mfa2"}', undef) });
+    $mock->mock('mfa_exists', sub { 1 });
     my $rule = $source->match({username => 'bob', rule_class => $Rules::AUTH});
     is_deeply([map { $_->class } @{$rule->{actions}}], [$Rules::AUTH], "MFA trigger action is in the authentication class");
 }
