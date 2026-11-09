@@ -5,12 +5,12 @@ set -euo pipefail
 # generate-pages.sh
 #
 # Build an installable PacketFence PPA from the freshly built/signed packages
-# and lay it out exactly the way `apt` and `yum`/`dnf` expect, plus a browsable
+# and lay it out exactly the way `apt` expects, plus a browsable
 # HTML index on top.
 #
 # This is a self-contained reimplementation of the gitlab-buildpkg-tools
 # `ci-pages-ppa`, `ci-pages-home` and `ci-pages-tree` scripts. It depends on
-# the same underlying tools (reprepro, createrepo_c, gpg, tree) but NOT on the
+# the same underlying tools (reprepro, gpg, tree) but NOT on the
 # external gitlab-buildpkg-tools package, and produces the same on-disk layout
 # that devel published before that dependency was removed:
 #
@@ -19,15 +19,11 @@ set -euo pipefail
 #     debian/
 #       dists/<codename>/...              signed Release/Packages   (reprepro)
 #       pool/...                          .deb / .dsc / source files
-#     centos/<release>/
-#       x86_64/{*.rpm,repodata/}          signed yum repo           (createrepo_c)
-#       Source/{*.src.rpm,repodata/}
 #     index.html                          install instructions      (home page)
 #     <every-subdir>/index.html           directory listing         (tree pages)
 #
-# Expected input layout (produced by `make build_deb` / `make build_rpm`):
+# Expected input layout (produced by `make build_deb`):
 #   RESULT_DIR/debian/<codename>/*.{deb,dsc,changes,tar.*}
-#   RESULT_DIR/centos/<release>/*.rpm
 #
 # The GPG signing key must already be importable: either it lives in the gpg
 # keyring of the current user (the publish_ppa job imports it in before_script)
@@ -122,7 +118,7 @@ export_public_key() {
 # --- release discovery ------------------------------------------------------
 
 # Emits "<id>/<name>" for every depth-2 directory under RESULT_DIR,
-# e.g. "debian/trixie", "centos/8". Hidden dirs are ignored.
+# e.g. "debian/trixie". Hidden dirs are ignored.
 find_releases() {
     [ -d "$RESULT_DIR" ] || return 0
     (cd "$RESULT_DIR" && find . -mindepth 2 -maxdepth 2 -type d \
@@ -187,61 +183,12 @@ EOF
     done
 }
 
-# --- YUM repository (createrepo_c) ------------------------------------------
-
-detect_createrepo() {
-    if command -v createrepo_c >/dev/null 2>&1; then
-        CREATEREPO_BIN=createrepo_c
-    elif command -v createrepo >/dev/null 2>&1; then
-        CREATEREPO_BIN=createrepo
-    else
-        die "no createrepo / createrepo_c binary found"
-    fi
-}
-
-yum_repo() {
-    log_section "Build YUM repositories with $CREATEREPO_BIN"
-    echo "releases: $*"
-
-    local release src arch repo_dir
-    for release in "$@"; do
-        # Split binary (noarch/x86_64) and source rpms into arch subtrees.
-        mkdir -p "$PUBLIC_DIR/$release/x86_64" "$PUBLIC_DIR/$release/Source"
-
-        find "$RESULT_DIR/$release" \( -name '*.noarch.rpm' -o -name '*.x86_64.rpm' \) -print0 \
-            | xargs -0 --no-run-if-empty cp -fv --target-directory "$PUBLIC_DIR/$release/x86_64" \
-            || die "cp of binary rpms failed: $release"
-
-        find "$RESULT_DIR/$release" -name '*.src.rpm' -print0 \
-            | xargs -0 --no-run-if-empty cp -fv --target-directory "$PUBLIC_DIR/$release/Source" \
-            || die "cp of source rpms failed: $release"
-
-        for arch in x86_64 Source; do
-            repo_dir="$PUBLIC_DIR/$release/$arch"
-            log_subsection "createrepo $repo_dir"
-            "$CREATEREPO_BIN" --update --verbose --outputdir "$repo_dir" "$repo_dir" \
-                || die "createrepo failed: $repo_dir"
-            # Sign the repo metadata so yum/dnf can verify repo_gpgcheck.
-            rm -f "$repo_dir/repodata/repomd.xml.asc"
-            gpg --batch --no-tty --yes --detach-sign --armor -u "$GPG_KEY_ID" \
-                "$repo_dir/repodata/repomd.xml" \
-                || die "gpg sign of repomd.xml failed: $repo_dir"
-        done
-    done
-}
-
 # --- HTML: home page (install instructions) ---------------------------------
 
 # Codenames of published apt repos, derived from the generated InRelease files.
 apt_published_releases() {
     find "$PUBLIC_DIR" -type f -name InRelease 2>/dev/null \
         | awk -F/ '{print $(NF-3)"/"$(NF-1)}' | sort -u
-}
-
-# "<id>/<release>" of published yum repos, derived from repodata dirs.
-yum_published_releases() {
-    find "$PUBLIC_DIR" -type d -name repodata 2>/dev/null \
-        | awk -F/ '{print $(NF-3)"/"$(NF-2)}' | sort -u
 }
 
 # Escape text for safe embedding in HTML, in both element and (double-quoted)
@@ -252,9 +199,8 @@ generate_home() {
     log_section "Generate home page (install instructions)"
     local out="$PUBLIC_DIR/index.html"
 
-    local apt_releases yum_releases
+    local apt_releases
     mapfile -t apt_releases < <(apt_published_releases)
-    mapfile -t yum_releases < <(yum_published_releases)
 
     # Escape every externally-influenced value before embedding it in HTML.
     # Branch/tag names especially are attacker-influenceable and git permits
@@ -297,7 +243,6 @@ function pick(cls, value) {
   for (var i = 0; i < els.length; i++) { els[i].textContent = value; }
 }
 function pickDeb(sel) { var v = sel.value.split('/'); pick('deb_id', v[0]); pick('deb_name', v[1]); }
-function pickRpm(sel) { var v = sel.value.split('/'); pick('rpm_id', v[0]); pick('rpm_name', v[1]); }
 </script>
 </head>
 <body>
@@ -345,32 +290,6 @@ sudo apt-get update</code></pre>
 EOF
         fi
 
-        if [ "${#yum_releases[@]}" -gt 0 ]; then
-            cat <<EOF
-<h2>CentOS / RHEL (YUM/DNF)</h2>
-<pre><code>sudo rpm --import $ppa_url_h/GPG_PUBLIC_KEY</code></pre>
-<form>
-  <select onchange="pickRpm(this);">
-    <option value="RELEASE_ID/RELEASE_NAME">Choose your release…</option>
-EOF
-            for r in "${yum_releases[@]}"; do
-                r_h="$(printf '%s' "$r" | html_escape)"
-                printf '    <option value="%s">%s</option>\n' "$r_h" "$r_h"
-            done
-            cat <<EOF
-  </select>
-</form>
-<pre><code>sudo tee /etc/yum.repos.d/gitlab-$ppa_slug_h.repo &lt;&lt;'REPO'
-[$ppa_slug_h]
-name=PacketFence $ppa_slug_h
-baseurl=$ppa_url_h/<span class="rpm_id">RELEASE_ID</span>/<span class="rpm_name">RELEASE_NAME</span>/\$basearch
-enabled=1
-gpgcheck=1
-repo_gpgcheck=1
-gpgkey=$ppa_url_h/GPG_PUBLIC_KEY
-REPO</code></pre>
-EOF
-        fi
 
         cat <<EOF
 </body>
@@ -453,27 +372,23 @@ declare -p RESULT_DIR PUBLIC_DIR PPA_URL
 mkdir -p "$PUBLIC_DIR"
 
 configure_gpg
-detect_createrepo
 export_public_key
 
 log_section "Discover releases under $RESULT_DIR"
-APT_RELEASES=() YUM_RELEASES=() UNKNOWN_RELEASES=()
+APT_RELEASES=() UNKNOWN_RELEASES=()
 while IFS= read -r release; do
     [ -n "$release" ] || continue
     case "$release" in
         debian/*|ubuntu/*|mint/*)         APT_RELEASES+=("$release") ;;
-        centos/*|fedora/*|rhel/*|rocky/*) YUM_RELEASES+=("$release") ;;
         *)                                UNKNOWN_RELEASES+=("$release") ;;
     esac
 done < <(find_releases)
 
 printf 'APT: %s\n' "${APT_RELEASES[*]:-(none)}"
-printf 'YUM: %s\n' "${YUM_RELEASES[*]:-(none)}"
 printf 'UNKNOWN: %s\n' "${UNKNOWN_RELEASES[*]:-(none)}"
 (( ${#UNKNOWN_RELEASES[@]} == 0 )) || die "unknown release layout: ${UNKNOWN_RELEASES[*]}"
 
 (( ${#APT_RELEASES[@]} > 0 )) && apt_repo "${APT_RELEASES[@]}"
-(( ${#YUM_RELEASES[@]} > 0 )) && yum_repo "${YUM_RELEASES[@]}"
 
 generate_home
 generate_tree
