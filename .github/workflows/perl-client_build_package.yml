@@ -45,11 +45,10 @@ jobs:
     runs-on: package-build
     needs: git_checkout
     container:
-      # Per-distro build image: signing-packages carries signing tooling only,
-      # so 'make build_rpm' died there on a missing yum. These are
-      # the images the GitLab pipeline builds packages with (.gitlab-ci.yml:38-39),
-      # tagged with PFBUILD_DEFAULT_DEV_TAG.
-      image: ghcr.io/inverse-inc/packetfence/${{ inputs._IMAGE_TYPE == 'rhel8' && 'pfbuild-centos-8' || 'pfbuild-debian-trixie' }}:latest
+      # The build image the GitLab pipeline builds packages with
+      # (PFBUILD_DEB_IMG in .gitlab-ci.yml), tagged with PFBUILD_DEFAULT_DEV_TAG.
+      # signing-packages carries signing tooling only.
+      image: ghcr.io/inverse-inc/packetfence/pfbuild-debian-trixie:latest
       credentials:
         username: ${{ vars.USER_GITHUB }}
         password: ${{ secrets.TOKEN_GITHUB }}
@@ -75,11 +74,7 @@ jobs:
         shell: bash
         run: |
           python3 -c 'import nacl, requests' 2>/dev/null && exit 0
-          if command -v dnf >/dev/null; then
-            dnf install -y python3-pynacl python3-requests
-          else
-            apt-get update -qq && apt-get install -y --no-install-recommends python3 python3-nacl python3-requests
-          fi
+          apt-get update -qq && apt-get install -y --no-install-recommends python3 python3-nacl python3-requests
 
       - name: Build package ${{inputs._IMAGE_TYPE}}
         shell: bash
@@ -92,8 +87,8 @@ jobs:
           ls -la "${EXECUTION_DIRECTORY}/addons"
           cd "${EXECUTION_DIRECTORY}"/addons/perl-client/
           set -e && export FINGERBANK_API_KEY=$(set -e && python3  "${EXECUTION_DIRECTORY}"/addons/packetfence-perl/psono.py --api_key_id=${{ secrets.PSONO_API_KEY_ID }} --api_key_secret_key=${{ secrets.PSONO_API_KEY_SECRET_KEY }} --secret_id=${{ vars.PSONO_BUILDS_KEY_FINGERBANK }} --return_value=password)
-          set -e &&  make SHELL='sh' -e ${{ inputs._IMAGE_TYPE == 'rhel8' && 'build_rpm' || 'build_deb'}}
-          ls -la "${EXECUTION_DIRECTORY}"/addons/perl-client/result/${{ inputs._IMAGE_TYPE == 'rhel8' && 'centos/8' || inputs._IMAGE_TYPE == 'debian13' && 'debian/trixie'}}
+          set -e &&  make SHELL='sh' -e build_deb
+          ls -la "${EXECUTION_DIRECTORY}"/addons/perl-client/result/debian/trixie
         env:
           # Consumed by the package version suffix in addons/perl-client/vars.mk,
           # which mirrors config.mk's GitLab-flavoured variables. CI_COMMIT_TIMESTAMP
@@ -107,16 +102,15 @@ jobs:
         uses: actions/upload-artifact@v4.4.3
         with:
           name: ${{ env.ARTIFACTORY_NAME }}
-#          path:  /__w/packetfence/packetfence/addons/perl-client/result/${{ inputs._IMAGE_TYPE == 'rhel8' && 'centos/8' || inputs._IMAGE_TYPE == 'debian13' && 'debian/trixie'}}/${{ env.PACKAGE_NAME }}
-          path:  /mnt/packetfence/addons/perl-client/result/${{ inputs._IMAGE_TYPE == 'rhel8' && 'centos/8' || inputs._IMAGE_TYPE == 'debian13' && 'debian/trixie'}}/${{ env.PACKAGE_NAME }}
+#          path:  /__w/packetfence/packetfence/addons/perl-client/result/debian/trixie/${{ env.PACKAGE_NAME }}
+          path:  /mnt/packetfence/addons/perl-client/result/debian/trixie/${{ env.PACKAGE_NAME }}
           overwrite: true
         env:
-          PACKAGE_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'fingerbank-*.noarch.rpm' || inputs._IMAGE_TYPE == 'debian13' && 'fingerbank*.deb' }}
-          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm8' || inputs._IMAGE_TYPE == 'debian13' && 'package-deb13' }}
+          PACKAGE_NAME: 'fingerbank*.deb'
+          ARTIFACTORY_NAME: package-deb13
           PATH: "${GITHUB_WORKSPACE}"
 
       - name: Clean directory
         if: always()
         run: |
           rm -rf "${EXECUTION_DIRECTORY}"
-          rm -rf  ${HOME}/rpmbuild

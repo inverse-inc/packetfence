@@ -35,7 +35,7 @@ jobs:
           name: ${{ env.ARTIFACTORY_NAME }}
           path:  /mnt
         env:
-          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm8' || inputs._IMAGE_TYPE == 'debian13' && 'package-deb13' }}
+          ARTIFACTORY_NAME: package-deb13
 
       - name: Import private key ${{ inputs._IMAGE_TYPE }}
         run: | 
@@ -56,57 +56,5 @@ jobs:
           path:  /mnt/${{ env.PACKAGE_NAME }}
           overwrite: true
         env:
-          PACKAGE_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&   env.RPM_FORMAT_PACKAGE_NAME || env.DEB_FORMAT_PACKAGE_NAME }}
-          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm8' || inputs._IMAGE_TYPE == 'debian13' && 'package-deb13' }}
-          DEB_FORMAT_PACKAGE_NAME: "${{ inputs._PACKAGE_NAME }}*.deb"
-          RPM_FORMAT_PACKAGE_NAME: "${{ inputs._PACKAGE_NAME }}*.rpm"
-
-  sign_package_rpm:
-    runs-on: packetfence-perl-package-build
-    if: inputs._IMAGE_TYPE == 'rhel8'
-    container:
-      # rpm, python3, pynacl, requests are pre-baked.
-      image: ghcr.io/inverse-inc/packetfence/signing-packages:latest
-      credentials:
-        username: ${{ vars.USER_GITHUB }}
-        password: ${{ secrets.TOKEN_GITHUB }}
-      volumes:
-        - ${{ github.workspace }}/addons/packetfence-perl/:/root
-    steps:
-      - name: Download artifactory ${{ inputs._IMAGE_TYPE }}
-        uses: actions/download-artifact@v4.1.7
-        with:
-          name: ${{ env.ARTIFACTORY_NAME }}
-          path: /mnt
-        env:
-          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm8' || inputs._IMAGE_TYPE == 'debian13' && 'package-deb13' }}
-
-      - name: Import private key ${{ inputs._IMAGE_TYPE }}
-        run: |
-          set -e && python3 /root/psono.py --api_key_id=${{ secrets.PSONO_API_KEY_ID }} --api_key_secret_key=${{ secrets.PSONO_API_KEY_SECRET_KEY }} --secret_id=${{ vars.PSONO_GPG_PRIVATE_KEY_SECRET_ID }} --return_value=password_notes | gpg --pinentry-mode loopback --import
-
-      - name: Check if the key was imported ${{ inputs._IMAGE_TYPE }}
-        run: |
-          gpg --batch --list-secret-keys --keyid-format LONG support@inverse.ca
-          gpg --batch --with-colons --list-secret-keys support@inverse.ca | grep -q '^sec:'
-
-      - name: Sign the package ${{ inputs._IMAGE_TYPE }}
-        run: rpm --define "__gpg /usr/bin/gpg" --define "_gpg_name support@inverse.ca" --define '_signature gpg' --addsign /mnt/${{ inputs._PACKAGE_NAME }}*.rpm
-
-      - name: Verify ${{ inputs._IMAGE_TYPE }} Package Signature
-        run: |
-          gpg  --batch --yes   --output /tmp/pubkey.pub --armor --export  support@inverse.ca && rpm --import /tmp/pubkey.pub
-          rpm -qpi /mnt/${{ inputs._PACKAGE_NAME }}**.rpm
-          rpm --checksig /mnt/${{ inputs._PACKAGE_NAME }}**.rpm
-
-      - name: Upload the package to artifactory ${{inputs._IMAGE_TYPE}}
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.ARTIFACTORY_NAME }}
-          path:  /mnt/${{ env.PACKAGE_NAME }}
-          overwrite: true
-        env:
-          PACKAGE_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&   env.RPM_FORMAT_PACKAGE_NAME || env.DEB_FORMAT_PACKAGE_NAME }}
-          ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm8' || inputs._IMAGE_TYPE == 'debian13' && 'package-deb13' }}
-          DEB_FORMAT_PACKAGE_NAME: "${{ inputs._PACKAGE_NAME }}*.deb"
-          RPM_FORMAT_PACKAGE_NAME: "${{ inputs._PACKAGE_NAME }}*.rpm"
+          PACKAGE_NAME: "${{ inputs._PACKAGE_NAME }}*.deb"
+          ARTIFACTORY_NAME: package-deb13
