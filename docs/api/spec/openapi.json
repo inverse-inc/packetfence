@@ -27617,6 +27617,9 @@
                      "authorization_url" : {
                         "$ref" : "#/components/schemas/Meta"
                      },
+                     "content_type" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
                      "description" : {
                         "$ref" : "#/components/schemas/Meta"
                      },
@@ -27642,6 +27645,9 @@
                         "$ref" : "#/components/schemas/Meta"
                      },
                      "username" : {
+                        "$ref" : "#/components/schemas/Meta"
+                     },
+                     "verify_tls" : {
                         "$ref" : "#/components/schemas/Meta"
                      }
                   },
@@ -31730,6 +31736,10 @@
                   "description" : "Note : The URL is always prefixed by a slash (/)",
                   "type" : "string"
                },
+               "content_type" : {
+                  "description" : "The format of the body of the authentication and authorization requests.",
+                  "type" : "string"
+               },
                "description" : {
                   "description" : "Description",
                   "type" : "string"
@@ -31769,6 +31779,10 @@
                },
                "username" : {
                   "description" : "API username (basic auth)",
+                  "type" : "string"
+               },
+               "verify_tls" : {
+                  "description" : "Verify the certificate and the hostname of the server when using https.",
                   "type" : "string"
                }
             },
