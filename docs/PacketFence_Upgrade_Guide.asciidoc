@@ -1398,9 +1398,22 @@ the basic authentication credentials again if the external API requires them.
 
 HTTP sources have a new *Verify TLS* option to verify the certificate and the
 hostname of the API server when using `https`. It is enabled for new sources.
-Existing sources keep their previous behavior and do not verify TLS: enable the
-option on each HTTP source whose API certificate is trusted by the PacketFence
-server.
+Existing sources keep their previous behavior and do not verify TLS: the
+upgrade script [filename]`/usr/local/pf/addons/upgrade/to-16.0-http-source-verify-tls.pl`
+writes `verify_tls=disabled` in each existing HTTP source of
+[filename]`/usr/local/pf/conf/authentication.conf`. If the option is not
+written, the administration interface shows it as enabled and saving the source
+turns verification on. After upgrading, enable the option on each HTTP source
+whose API certificate is trusted by the PacketFence server.
+
+=== HTTP source authorization requests
+
+The authorization request of an HTTP source now carries the attributes of the
+RADIUS request as `radius_request.Attribute-Name` fields. Passwords,
+CHAP/MS-CHAP values, `EAP-Message`, `State` and `Message-Authenticator` are not
+sent. A `trigger_radius_mfa` or `trigger_portal_mfa` naming an MFA that is not
+configured is ignored, as is any attribute whose value is not a string or a
+number.
 
 == Troubleshooting Upgrades
 

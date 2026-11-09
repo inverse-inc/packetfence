@@ -59,7 +59,7 @@ The following attributes are available for the reply:
 [options="compact"]
  * *access_duration* : the access duration (for example `1D`)
  * *access_level* : the administrative access level
- * *sponsor* : set to `1` to mark the user as a sponsor
+ * *sponsor* : set to `1` or `true` to mark the user as a sponsor
  * *unregdate* : the unregistration date (for example `2030-01-01`). It is ignored when *access_duration* is also returned.
  * *category* : the role to assign
  * *time_balance* : the time balance

@@ -22,6 +22,7 @@ responses.
 
 use JSON::MaybeXS;
 use pf::constants qw($TRUE $FALSE);
+use pf::config qw(%ConfigMfa);
 use pf::Authentication::constants;
 use pf::Authentication::Action;
 use pf::Authentication::Rule;
@@ -31,6 +32,7 @@ use WWW::Curl::Easy;
 use pf::Curl;
 use pf::log;
 use Readonly;
+use Scalar::Util qw(looks_like_number);
 use pf::util;
 
 use Moose;
@@ -186,6 +188,48 @@ sub _scalar_values {
     return ();
 }
 
+=head2 is_sensitive_attribute
+
+Whether a RADIUS attribute holds a secret (password, OTP, challenge or EAP
+exchange) that must not be sent to the authorization API
+
+=cut
+
+sub is_sensitive_attribute {
+    my ($name) = @_;
+    return $name =~ /password|^(?:MS-)?CHAP|^EAP-Message$|^State$|^Message-Authenticator$/i ? $TRUE : $FALSE;
+}
+
+=head2 authorization_params
+
+The match parameters sent to the authorization API: the secrets of the RADIUS
+request (see L</is_sensitive_attribute>) and any password are removed.
+
+=cut
+
+sub authorization_params {
+    my ($params) = @_;
+    my %params = map { $_ => $params->{$_} } grep { !is_sensitive_attribute($_) } keys %$params;
+    my $radius_request = $params{radius_request};
+    if (ref($radius_request) eq 'HASH') {
+        $params{radius_request} = {
+            map { $_ => $radius_request->{$_} } grep { !is_sensitive_attribute($_) } keys %$radius_request
+        };
+    }
+    return \%params;
+}
+
+=head2 mfa_exists
+
+Whether an MFA with this ID is configured
+
+=cut
+
+sub mfa_exists {
+    my ($self, $mfa_id) = @_;
+    return exists $ConfigMfa{$mfa_id} ? $TRUE : $FALSE;
+}
+
 =head2 authenticate
 
 Whether or not the username/password combination is valid
@@ -251,12 +295,16 @@ The HTTPSource class overrides the match method of the Source parent class.
 The actions are defined by the API through its JSON response. All the
 match parameters (username, mac, SSID, rule_class, ...) are sent as POST
 fields, see L</encode_params>. The attributes of the RADIUS request are sent
-as C<radius_request.Attribute-Name> (ex: radius_request.TLS-Client-Cert-Common-Name).
+as C<radius_request.Attribute-Name> (ex: radius_request.TLS-Client-Cert-Common-Name),
+except the passwords, CHAP/MS-CHAP values, EAP-Message, State and
+Message-Authenticator.
 
-Supported attributes: access_duration, access_level, sponsor (1 marks the
-user as a sponsor), unregdate (ignored when access_duration is set),
+Supported attributes: access_duration, access_level, sponsor (1 or true marks
+the user as a sponsor), unregdate (ignored when access_duration is set),
 category, time_balance, bandwidth_balance, trigger_radius_mfa and
-trigger_portal_mfa (the ID of the MFA to trigger).
+trigger_portal_mfa (the ID of the MFA to trigger, ignored when no such MFA
+is configured). Attributes whose value is not a string or a number are ignored.
+An invalid JSON reply, or one that is not an object, is a failure.
 
 Sample JSON response, note that not all attributes are necessary, only send back what you need.
 {"access_duration":"1D","access_level":"ALL","sponsor":1,"unregdate":"2030-01-01","category":"default"}
@@ -269,68 +317,81 @@ sub match {
 
     my $uri = $self->authorization_url;
 
-    my $result;
-    my $post_fields = encode_params(%{$params});
+    my $post_fields = encode_params(%{authorization_params($params)});
 
     my ($curl_return_code, $response_code, $response_body, $curl) = $self->_post_curl($uri, $post_fields);
-    if ($curl_return_code == 0 && $response_code == 200) {
-        $result = decode_json($response_body);
-    }
-    else {
+    if ($curl_return_code != 0 || $response_code != 200) {
         my $curl_error = $curl->errbuf;
         get_logger->error("Could get proper reply for authorization request to ".$self->host.". Server replied with $response_body. Curl error : $curl_error");
         return undef;
     }
 
-    if (!defined $result) {
+    my $result = eval { decode_json($response_body) };
+    if ($@ || ref($result) ne 'HASH') {
+        get_logger->error("Invalid reply for authorization request to ".$self->host.": the body is not a JSON object. $@");
         return undef;
+    }
+
+    # Keep only the attributes with a plain value (string or number)
+    my %values;
+    for my $name (keys %$result) {
+        my $value = $result->{$name};
+        next if !defined $value;
+        # sponsor also accepts a JSON boolean (true marks the user as a sponsor)
+        $value = $value ? 1 : 0 if $name eq 'sponsor' && JSON::MaybeXS::is_bool($value);
+        if (ref $value) {
+            get_logger->warn("Ignoring the attribute $name of the authorization reply from ".$self->host.": not a string or a number");
+            next;
+        }
+        $values{$name} = $value;
     }
 
     my @actions = ();
 
-    my $access_duration = $result->{'access_duration'};
+    my $access_duration = $values{'access_duration'};
     if (defined $access_duration) {
         push @actions, pf::Authentication::Action->new({type => $Actions::SET_ACCESS_DURATION, value => $access_duration});
     }
 
-    my $access_level = $result->{'access_level'};
+    my $access_level = $values{'access_level'};
     if (defined $access_level ) {
         push @actions, pf::Authentication::Action->new({type => $Actions::SET_ACCESS_LEVEL, value => $access_level});
     }
 
-    my $sponsor = $result->{'sponsor'};
-    if (defined($sponsor) && $sponsor == 1) {
+    my $sponsor = $values{'sponsor'};
+    if (defined($sponsor) && looks_like_number($sponsor) && $sponsor == 1) {
         push @actions, pf::Authentication::Action->new({type => $Actions::MARK_AS_SPONSOR, value => 1});
     }
 
-    my $unregdate = $result->{'unregdate'};
+    my $unregdate = $values{'unregdate'};
     if (!defined $access_duration && defined $unregdate) {
         push @actions, pf::Authentication::Action->new({type => $Actions::SET_UNREG_DATE, value => $unregdate});
     }
 
-    my $category = $result->{'category'};
+    my $category = $values{'category'};
     if (defined $category) {
         push @actions, pf::Authentication::Action->new({type => $Actions::SET_ROLE, value => $category});
     }
 
-    my $time_balance = $result->{'time_balance'};
+    my $time_balance = $values{'time_balance'};
     if (defined $time_balance) {
         push @actions, pf::Authentication::Action->new({type => $Actions::SET_TIME_BALANCE, value => $time_balance});
     }
 
-    my $bandwidth_balance = $result->{'bandwidth_balance'};
+    my $bandwidth_balance = $values{'bandwidth_balance'};
     if (defined $bandwidth_balance) {
         push @actions, pf::Authentication::Action->new({type => $Actions::SET_BANDWIDTH_BALANCE, value => $bandwidth_balance});
     }
 
-    my $trigger_radius_mfa = $result->{'trigger_radius_mfa'};
-    if (defined $trigger_radius_mfa) {
-        push @actions, pf::Authentication::Action->new({type => $Actions::TRIGGER_RADIUS_MFA, value => $trigger_radius_mfa});
-    }
-
-    my $trigger_portal_mfa = $result->{'trigger_portal_mfa'};
-    if (defined $trigger_portal_mfa) {
-        push @actions, pf::Authentication::Action->new({type => $Actions::TRIGGER_PORTAL_MFA, value => $trigger_portal_mfa});
+    for my $mfa_action ([trigger_radius_mfa => $Actions::TRIGGER_RADIUS_MFA], [trigger_portal_mfa => $Actions::TRIGGER_PORTAL_MFA]) {
+        my ($name, $type) = @$mfa_action;
+        my $mfa_id = $values{$name};
+        next if !defined $mfa_id;
+        if (!$self->mfa_exists($mfa_id)) {
+            get_logger->warn("Ignoring $name=$mfa_id from the authorization reply of ".$self->host.": no such MFA is configured");
+            next;
+        }
+        push @actions, pf::Authentication::Action->new({type => $type, value => $mfa_id});
     }
 
     return pf::Authentication::Rule->new(
