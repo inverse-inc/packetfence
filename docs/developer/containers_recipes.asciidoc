@@ -20,7 +20,7 @@ endif::[]
 
 === Glossary
 
- * A server running the packages: A PacketFence server installed using the RPM or DEB packages and not converted to a dev machine (i.e. what PacketFence users deploy)
+ * A server running the packages: A PacketFence server installed using the DEB packages and not converted to a dev machine (i.e. what PacketFence users deploy)
 
 === Applying a custom patch on a server running the packages
 

@@ -57,12 +57,6 @@ Dependencies use go modules and will be fetched automatically during build time.
 You will also need [package]`ipset-devel` and [package]`pkgconfig` libraries
 which can be installed using the following command:
 
-.RHEL-based systems
-[source,bash]
-----
-yum install ipset-devel pkgconfig
-----
-
 .Debian-based systems
 [source,bash]
 ----
@@ -106,7 +100,7 @@ make copy
 ==== Checks before building
 
 Go analysis is opt-in. Normal binary builds, including race builds, service
-container builds and Debian/RPM packaging, do not run the checks by default.
+container builds and Debian packaging, do not run the checks by default.
 To run checks followed by a full build locally, from the repository root:
 
 [source,bash]
@@ -118,11 +112,10 @@ Checks finish before compilation starts, including with `make -j`. A failed
 blocking check stops the build.
 
 In CI, `GO_CHECK` defaults to `"no"`. Set `GO_CHECK=yes` in GitLab CI/CD variables
-or when starting a pipeline to enable `pre_ci_go_check_debian_trixie` and
-`pre_ci_go_check_centos_8`, including on feature branches. Both jobs run
-[command]`make -C go check-build` using their respective build images.
-Artifact jobs wait for these checks when enabled and are blocked if they fail.
-When disabled, the jobs are omitted and artifact builds proceed without them.
+or when starting a pipeline to enable `pre_ci_go_check_debian_trixie`, including
+on feature branches. The job runs [command]`make -C go check-build` using the
+Debian build image. Artifact jobs wait for this check when enabled and are
+blocked if it fails. When disabled, the job is omitted and artifact builds proceed without them.
 
 To run the checks without building a binary, from the repository root:
 

@@ -494,12 +494,6 @@ long lock on the database which may cause service to hang.
 This is fixed easily by using MariaDB-backup which can complete a full database
 backup without locking the tables.
 
-.RHEL-based systems
-[source,bash]
-----
-yum install MariaDB-backup --enablerepo=packetfence
-----
-
 .Debian-based systems (for PacketFence versions 11.0 and later
 [source,bash]
 ----

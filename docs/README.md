@@ -56,18 +56,6 @@ Install Ruby gems:
 sudo gem install asciidoctor-pdf rouge
 ```
 
-### Enterprise Linux 8 (RHEL8/CentOS8/Rocky8/AlmaLinux8)
-
-Install system packages:
-```bash
-sudo dnf install rubygem-asciidoctor ruby-devel gcc make jq
-```
-
-Install Ruby gems:
-```bash
-sudo gem install asciidoctor-pdf rouge
-```
-
 ## Custom Components
 
 ### HTML Generation
@@ -132,7 +120,7 @@ make docs/PacketFence_Installation_Guide.pdf
 - Check Ruby gem installation permissions
 
 **Missing jq Command**
-- Install jq package: `apt install jq` (Debian) or `dnf install jq` (EL8)
+- Install jq package: `apt install jq`
 
 ### Verification
 

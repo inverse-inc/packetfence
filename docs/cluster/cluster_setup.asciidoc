@@ -24,11 +24,10 @@ Run these actions on *all cluster members*.
 
 ==== Interfaces names
 
-Ensure interface names are identical on *all servers*. Use these guides for
+Ensure interface names are identical on *all servers*. Use this guide for
 predictable network interface names:
 
 [options="compact"]
-* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/configuring_and_managing_networking/consistent-network-interface-device-naming_configuring-and-managing-networking[RHEL-based systems]
 * link:https://wiki.debian.org/NetworkInterfaceNames[Debian-based systems]
 
 ==== sysctl.conf
@@ -78,12 +77,6 @@ an odd number of servers).
 
 First, you will need to install, *on each servers*, Mariabackup for the
 synchronization to work correctly.
-
-.On RHEL-based systems
-[source,bash]
-----
-yum install MariaDB-backup socat --enablerepo=packetfence
-----
 
 .On Debian-based systems (for PacketFence versions 11.0 and later)
 [source,bash]
