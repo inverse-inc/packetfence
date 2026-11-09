@@ -307,11 +307,16 @@ sub _scalar_values {
 Whether a RADIUS attribute holds a secret (password, OTP, challenge or EAP
 exchange) that must not be sent to the authorization API
 
+This includes the pre-shared keys and the WPA handshake material sent by the
+controllers for DPSK/PPSK (ex: Ruckus-DPSK-Anonce, Ruckus-DPSK-EAPOL-Key-Frame,
+Eleven-EAPOL-Anonce, FreeRADIUS-802.1X-EAPoL-Key-Msg): with the SSID and the
+MAC addresses, it allows an offline brute force of the PSK.
+
 =cut
 
 sub is_sensitive_attribute {
     my ($name) = @_;
-    return $name =~ /password|^(?:MS-)?CHAP|^EAP-Message$|^State$|^Message-Authenticator$/i ? $TRUE : $FALSE;
+    return $name =~ /password|^(?:MS-)?CHAP|^EAP-Message$|^State$|^Message-Authenticator$|PSK|PMK|EAPOL|Anonce/i ? $TRUE : $FALSE;
 }
 
 =head2 authorization_params
@@ -411,8 +416,8 @@ match parameters (username, mac, SSID, rule_class, ...) are sent in the
 request body, see L</encode_request>. The attributes of the RADIUS request are
 sent as C<radius_request.Attribute-Name> (ex: radius_request.TLS-Client-Cert-Common-Name)
 in a URL-encoded body, or in the C<radius_request> object of a JSON body,
-except the passwords, CHAP/MS-CHAP values, EAP-Message, State and
-Message-Authenticator.
+except the passwords, CHAP/MS-CHAP values, EAP-Message, State,
+Message-Authenticator and the PSK/DPSK and WPA handshake (EAPOL) attributes.
 
 Supported attributes: access_duration, access_level, sponsor (1 or true marks
 the user as a sponsor), unregdate (ignored when access_duration is set),

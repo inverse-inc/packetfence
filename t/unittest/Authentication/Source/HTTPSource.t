@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 51;
+use Test::More tests => 54;
 use WWW::Curl::Easy;
 use URI;
 use JSON::MaybeXS qw(decode_json);
@@ -263,6 +263,13 @@ is_deeply([@$options{CURLOPT_SSL_VERIFYPEER, CURLOPT_SSL_VERIFYHOST}], [1, 2], "
     };
     isnt($verify_tls_shown->(), 'enabled', "a source without verify_tls is not shown as verifying TLS, it does not");
     is($verify_tls_shown->(verify_tls => 'enabled'), 'enabled', "a source with verify_tls enabled is shown as enabled");
+
+    # Process the form like the admin API does to create a source (posted params, no form defaults)
+    my $form = pfappserver::Form::Config::Source::HTTP->new;
+    $form->process(posted => 1, params => {id => 'test', type => 'HTTP', description => 'test', protocol => 'http', authentication_url => 'a', authorization_url => 'b'});
+    ok($form->validated, "a source can be created through the API without content_type");
+    my $source_from_form = pf::Authentication::Source::HTTPSource->new({ map { $_ => $form->value->{$_} } grep { defined $form->value->{$_} } keys %{$form->value} });
+    is($source_from_form->content_type, 'application/x-www-form-urlencoded', "a source created without content_type is URL-encoded");
 }
 
 # Request content type
@@ -396,6 +403,24 @@ ok(!exists $options->{+CURLOPT_HTTPHEADER}, "form: curl sends its default applic
     my $field = $form->field('content_type');
     is($field->default, 'application/x-www-form-urlencoded', "new HTTP sources are URL-encoded by default");
     is_deeply([sort map { $_->{value} } @{$field->options}], ['application/json', 'application/x-www-form-urlencoded'], "the content type can be URL-encoded or JSON");
+}
+
+# DPSK/PPSK: the controllers send the WPA handshake to verify the PSK
+{
+    my %handshake = map { $_ => 'x' } qw(
+        Ruckus-DPSK Ruckus-DPSK-Anonce Ruckus-DPSK-EAPOL-Key-Frame Ruckus-DPSK-AKM-Suite Ruckus-DPSK-Cipher
+        Eleven-EAPOL-Anonce Eleven-EAPOL-Frame-2 FreeRADIUS-802.1X-Anonce FreeRADIUS-802.1X-EAPoL-Key-Msg
+        Huawei-DPSK-Info Extreme-PPSK-PMK Mikrotik-Wireless-PSK
+    );
+    my $params = pf::Authentication::Source::HTTPSource::authorization_params({
+        username       => 'bob',
+        radius_request => {%handshake, 'User-Name' => 'bob', 'Ruckus-SSID' => 'PF-Secure', 'Called-Station-Id' => 'aa-bb-cc-dd-ee-ff:PF-Secure'},
+    });
+    is_deeply(
+        $params->{radius_request},
+        {'User-Name' => 'bob', 'Ruckus-SSID' => 'PF-Secure', 'Called-Station-Id' => 'aa-bb-cc-dd-ee-ff:PF-Secure'},
+        "the PSK and WPA handshake attributes of the RADIUS request are not sent"
+    );
 }
 
 # The RADIUS path passes the owner (person record with its PSK and OTP secret) in the match params
