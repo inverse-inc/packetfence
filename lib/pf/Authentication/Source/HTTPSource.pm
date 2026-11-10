@@ -36,6 +36,7 @@ use pf::Curl;
 use pf::log;
 use Readonly;
 use Scalar::Util qw(looks_like_number);
+use Hash::Flatten qw(flatten);
 use pf::util;
 
 use Moose;
@@ -50,15 +51,48 @@ has 'username' => ( isa => 'Maybe[Str]', is => 'rw', default => undef );
 has 'password' => ( isa => 'Maybe[Str]', is => 'rw', default => undef );
 has 'authentication_url' => ( isa => 'Str', is => 'rw', default => '' );
 has 'authorization_url' => ( isa => 'Str', is => 'rw', default => '' );
-# Sources created before this option existed did not verify TLS: keep that
-# behavior when the option is not set. On upgrade, add-default-params-to-auth.pl
-# writes this default (disabled) in the existing sources. New sources created in
-# the admin UI default to enabled (see useItemDefaults of the sources views).
-has 'verify_tls' => ( isa => 'Str', is => 'rw', default => 'disabled' );
+# Sources created before this option existed did not verify TLS: on upgrade,
+# add-default-params-to-auth.pl writes the legacy default (disabled) in them, see
+# legacy_defaults
+has 'verify_tls' => ( isa => 'Str', is => 'rw', default => 'enabled' );
 
 Readonly our $CONTENT_TYPE_FORM => 'application/x-www-form-urlencoded';
 Readonly our $CONTENT_TYPE_JSON => 'application/json';
 has 'content_type' => ( isa => 'Str', is => 'rw', default => $CONTENT_TYPE_FORM );
+
+# One encoder for all the requests
+my $JSON_ENCODER = JSON::MaybeXS->new(utf8 => 1, canonical => 1);
+
+=head1 RADIUS ATTRIBUTES
+
+Only these attributes of the RADIUS request are sent to the authorization API
+(see L</is_allowed_radius_attribute>): any other one, like a vendor attribute,
+may hold a secret (password, PSK, digest, WPA handshake) that would allow an
+offline brute force.
+
+=cut
+
+Readonly our @RADIUS_ATTRIBUTES => qw(
+    User-Name Stripped-User-Name Realm
+    Calling-Station-Id Called-Station-Id Called-Station-SSID
+    NAS-IP-Address NAS-IPv6-Address NAS-Identifier NAS-Port NAS-Port-Id NAS-Port-Type
+    Service-Type Framed-Protocol Framed-IP-Address Framed-IPv6-Address Framed-MTU
+    Connect-Info Acct-Session-Id Acct-Multi-Session-Id Event-Timestamp
+    EAP-Type FreeRADIUS-Client-IP-Address FreeRADIUS-Client-Shortname
+    Cisco-AVPair Airespace-Wlan-Id Aruba-Essid-Name Aruba-AP-Group Aruba-Location-Id Ruckus-SSID
+    PacketFence-Authorization-Status PacketFence-AutoReg PacketFence-Computer-Name
+    PacketFence-Connection-Type PacketFence-Domain PacketFence-Eap-Type PacketFence-IfIndex
+    PacketFence-IsPhone PacketFence-Mac PacketFence-NasName PacketFence-Outer-User
+    PacketFence-Profile PacketFence-Proxied-From PacketFence-Proxied-To PacketFence-Radius-Ip
+    PacketFence-Request-Time PacketFence-Role PacketFence-ShortName PacketFence-Source
+    PacketFence-SSID PacketFence-Status PacketFence-Switch-Id PacketFence-Switch-Ip-Address
+    PacketFence-Switch-Mac PacketFence-UserDN PacketFence-UserName
+);
+
+# The certificate of an EAP-TLS client and of its issuer
+Readonly our $RADIUS_ATTRIBUTE_PREFIXES => qr/^TLS-(?:Client-)?Cert-/;
+
+my %RADIUS_ATTRIBUTES = map { $_ => 1 } @RADIUS_ATTRIBUTES;
 
 =head1 METHODS
 
@@ -69,6 +103,16 @@ Which module to use for DynamicRouting
 =cut
 
 sub dynamic_routing_module { 'Authentication::Login' }
+
+=head2 legacy_defaults
+
+The values that add-default-params-to-auth.pl writes in the existing sources
+when they differ from the defaults of the new sources: the sources created
+before verify_tls existed did not verify TLS.
+
+=cut
+
+sub legacy_defaults { { verify_tls => 'disabled' } }
 
 =head2 has_authentication_rules
 
@@ -162,13 +206,22 @@ sub available_attributes {
 
 =head2 is_json
 
-Whether the requests are sent as JSON
+Whether the requests are sent as JSON: the media type (without its parameters,
+ex: C<; charset=utf-8>) is C<application/json>, or C<json>. Any other value is
+URL-encoded, with a warning when it is not C<application/x-www-form-urlencoded>.
 
 =cut
 
 sub is_json {
     my ($self) = @_;
-    return ($self->content_type // '') eq $CONTENT_TYPE_JSON ? $TRUE : $FALSE;
+    my ($media_type) = split /;/, $self->content_type // '', 2;
+    $media_type = lc($media_type // '');
+    $media_type =~ s/^\s+|\s+$//g;
+    return $TRUE if $media_type eq $CONTENT_TYPE_JSON || $media_type eq 'json';
+    if ($media_type ne '' && $media_type ne $CONTENT_TYPE_FORM) {
+        get_logger->warn("Unknown content_type '" . $self->content_type . "' for the HTTP source " . $self->id . ", the requests are URL-encoded");
+    }
+    return $FALSE;
 }
 
 =head2 encode_request
@@ -227,7 +280,7 @@ sub encode_json_params {
             $json{$key} = $json_value[0] if @json_value;
         }
     }
-    return JSON::MaybeXS->new(utf8 => 1, canonical => 1)->encode(\%json);
+    return $JSON_ENCODER->encode(\%json);
 }
 
 =head2 _json_values
@@ -263,66 +316,81 @@ sub _json_string {
 
 Encodes a hash into URL/BODY parameters
 
-Plain values are sent as is, undefined values as empty strings. The values of
-the radius_request hash (see L</is_nested_param>) are sent as
-C<radius_request.attribute>, once per value for multi-valued attributes. Other
-hashes, objects and deeper structures are not sent.
+The fields are named with L<Hash::Flatten>, like the rule conditions of
+L<pf::Authentication::Source/match>: the values of the radius_request hash (see
+L</is_nested_param>) are sent as C<radius_request.attribute>, and the values of
+a multi-valued attribute as C<radius_request.attribute:0>,
+C<radius_request.attribute:1>, ... Undefined values are sent as empty strings.
+Other hashes, objects and deeper structures are not sent.
 
 =cut
 
 sub encode_params {
     my %hash = @_;
-    my @pairs;
-    for my $key (sort keys %hash) {
+    my %plain;
+    for my $key (keys %hash) {
         my $value = $hash{$key};
         if (ref($value) eq 'HASH') {
             next if !is_nested_param($key);
-            for my $sub_key (sort keys %$value) {
-                push @pairs, map { [ "$key.$sub_key", $_ ] } _scalar_values($value->{$sub_key});
+            my %sub_plain;
+            for my $sub_key (keys %$value) {
+                my @sub_value = _plain_value($value->{$sub_key});
+                $sub_plain{$sub_key} = $sub_value[0] if @sub_value;
             }
+            $plain{$key} = \%sub_plain;
         } else {
-            push @pairs, map { [ $key, $_ ] } _scalar_values($value);
+            my @plain_value = _plain_value($value);
+            $plain{$key} = $plain_value[0] if @plain_value;
         }
     }
-    return join "&", map { join "=", map { uri_escape($_) } @$_ } @pairs;
+    my $flat = flatten(\%plain);
+    return join "&", map { uri_escape($_) . "=" . uri_escape($flat->{$_} // '') } sort keys %$flat;
 }
 
-=head2 _scalar_values
+=head2 _plain_value
 
-The values of a param that can be sent: the value itself, or the elements of an
-array of plain values. Undefined values become empty strings.
+The value of a param that can be sent, as a list: empty when the value cannot
+be sent, the value itself (undefined or plain), or a copy of an array without
+its elements that are not plain values
 
 =cut
 
-sub _scalar_values {
+sub _plain_value {
     my ($value) = @_;
-    return ('') if !defined $value;
     return ($value) if !ref $value;
-    return map { $_ // '' } grep { !ref $_ } @$value if ref($value) eq 'ARRAY';
+    return ([grep { !ref $_ } @$value]) if ref($value) eq 'ARRAY';
     return ();
 }
 
 =head2 is_sensitive_attribute
 
-Whether a RADIUS attribute holds a secret (password, OTP, challenge or EAP
-exchange) that must not be sent to the authorization API
-
-This includes the pre-shared keys and the WPA handshake material sent by the
-controllers for DPSK/PPSK (ex: Ruckus-DPSK-Anonce, Ruckus-DPSK-EAPOL-Key-Frame,
-Eleven-EAPOL-Anonce, FreeRADIUS-802.1X-EAPoL-Key-Msg): with the SSID and the
-MAC addresses, it allows an offline brute force of the PSK.
+Whether a match param holds a secret (ex: the password) that must not be sent
+to the authorization API
 
 =cut
 
 sub is_sensitive_attribute {
     my ($name) = @_;
-    return $name =~ /password|^(?:MS-)?CHAP|^EAP-Message$|^State$|^Message-Authenticator$|PSK|PMK|EAPOL|Anonce/i ? $TRUE : $FALSE;
+    return $name =~ /password|secret|passphrase|psk|otp/i ? $TRUE : $FALSE;
+}
+
+=head2 is_allowed_radius_attribute
+
+Whether an attribute of the RADIUS request is sent to the authorization API,
+see L</RADIUS ATTRIBUTES>
+
+=cut
+
+sub is_allowed_radius_attribute {
+    my ($name) = @_;
+    return ($RADIUS_ATTRIBUTES{$name} || $name =~ $RADIUS_ATTRIBUTE_PREFIXES) ? $TRUE : $FALSE;
 }
 
 =head2 authorization_params
 
-The match parameters sent to the authorization API: the secrets of the RADIUS
-request (see L</is_sensitive_attribute>) and any password are removed.
+The match parameters sent to the authorization API: the params holding a secret
+(see L</is_sensitive_attribute>) are removed, and only the allowed attributes
+of the RADIUS request are kept (see L</is_allowed_radius_attribute>).
 
 =cut
 
@@ -332,7 +400,7 @@ sub authorization_params {
     my $radius_request = $params{radius_request};
     if (ref($radius_request) eq 'HASH') {
         $params{radius_request} = {
-            map { $_ => $radius_request->{$_} } grep { !is_sensitive_attribute($_) } keys %$radius_request
+            map { $_ => $radius_request->{$_} } grep { is_allowed_radius_attribute($_) } keys %$radius_request
         };
     }
     return \%params;
@@ -358,7 +426,8 @@ The server should reply with two attributes in a JSON response
 The username and password are sent as the C<username> and C<password>
 fields of the request body (see L</encode_request>).
 
-result should be 1 for success, 0 for failure
+result should be 1 (or true) for success, 0 (or false) for failure. Any
+other value, like "false", "0.0", an array or an object, is a failure.
 message should be the reason it succeeded or failed
 
 Example JSON response :
@@ -383,6 +452,21 @@ sub authenticate {
     }
 }
 
+=head2 is_success_result
+
+Whether the result of an authentication reply is a success: a JSON true, the
+number 1, or the string "1" or "true". Anything else is a failure.
+
+=cut
+
+sub is_success_result {
+    my ($result) = @_;
+    return $FALSE if !defined $result;
+    return $result ? $TRUE : $FALSE if JSON::MaybeXS::is_bool($result);
+    return $FALSE if ref $result;
+    return ($result eq '1' || $result eq 'true') ? $TRUE : $FALSE;
+}
+
 =head2 handleResults
 
 Decodes the JSON body of an authentication reply and returns
@@ -397,14 +481,13 @@ sub handleResults {
         get_logger->error("$@");
         return ($FALSE, "Invalid response");
     }
-    if ($result->{result}) {
+    if (is_success_result($result->{result})) {
         get_logger->info( "Authentication valid with $username in custom source");
-    } else {
-        $result->{message} //= "Authentication failed";
-        get_logger->info( "Authentication invalid with $username in custom source. Error is : " . $result->{message} );
+        return ( $TRUE, $result->{message} );
     }
-
-    return ( $result->{result} // $FALSE, $result->{message} ); 
+    $result->{message} //= "Authentication failed";
+    get_logger->info( "Authentication invalid with $username in custom source. Error is : " . $result->{message} );
+    return ( $FALSE, $result->{message} );
 }
 
 =head2 match
@@ -415,9 +498,8 @@ The actions are defined by the API through its JSON response. All the
 match parameters (username, mac, SSID, rule_class, ...) are sent in the
 request body, see L</encode_request>. The attributes of the RADIUS request are
 sent as C<radius_request.Attribute-Name> (ex: radius_request.TLS-Client-Cert-Common-Name)
-in a URL-encoded body, or in the C<radius_request> object of a JSON body,
-except the passwords, CHAP/MS-CHAP values, EAP-Message, State,
-Message-Authenticator and the PSK/DPSK and WPA handshake (EAPOL) attributes.
+in a URL-encoded body, or in the C<radius_request> object of a JSON body. Only
+the attributes listed in L</RADIUS ATTRIBUTES> are sent.
 
 Supported attributes: access_duration, access_level, sponsor (1 or true marks
 the user as a sponsor), unregdate (ignored when access_duration is set),
