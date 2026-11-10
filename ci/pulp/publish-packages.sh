@@ -4,6 +4,7 @@
 #   branches  public/debian    -> debian/branches/<X.Y>/       feature branches with publish_ppa=yes, after the tests
 #             public/centos/8  -> RHEL8/branches/<X.Y>/x86_64/
 #   release   public/debian    -> debian/<X.Y>/                maintenance/X.Y and devel, after the tests
+#             public/centos/8  -> RHEL8/<X.Y>/x86_64/          (native packetfence-X-Y-el8 only)
 # X.Y comes from conf/pf-release. File trees are merged (newest build of each package wins) and
 # re-signed here; a native Pulp APT repo (e.g. 15.2) gets the .debs and signs its own index.
 # Secret values must never be traced.
@@ -50,13 +51,24 @@ if [[ "$MODE" == branches ]]; then
     exit 0
 else
     tree=debian; repository="debian-$dashed"
-    # A native APT repository for this release takes the .debs; Pulp signs its own index.
-    native="packetfence-$dashed-bookworm"
-    found=$(cd ci/pulp/vendor && python3 -c 'import os, sys
+    native_count() {  # 1 when the native repository exists (Pulp signs its own index)
+        (cd ci/pulp/vendor && python3 -c 'import os, sys
 from pulp_publish import API, Pulp
 c = Pulp(os.environ["PULP_URL"], os.environ["PULP_USERNAME"], os.environ["PULP_PASSWORD"])
-print(c.request("GET", API + "repositories/deb/apt/", params={"name": sys.argv[1]})["count"])' "$native")
-    if [[ "$found" == 1 ]]; then
+print(c.request("GET", API + "repositories/" + sys.argv[1] + "/", params={"name": sys.argv[2]})["count"])' "$1" "$2")
+    }
+    # EL8: the native RPM repository takes this build's binary RPMs (no file-tree fallback).
+    native_rpm="packetfence-$dashed-el8"
+    if [[ -d "$PUBLIC_DIR/centos/8/x86_64" && $(native_count rpm/rpm "$native_rpm") == 1 ]]; then
+        mapfile -t rpms < <(find "$PUBLIC_DIR/centos/8/x86_64" -type f -name '*.rpm' ! -name '*.src.rpm' | sort)
+        (( ${#rpms[@]} )) || { echo 'No .rpm in the generated EL8 tree' >&2; exit 1; }
+        python3 ci/pulp/vendor/pulp_publish.py rpm "$native_rpm" "${rpms[@]}" --release "$release" > pulp-release-rpm.json
+        echo "Published ${#rpms[@]} packages to $PF_PACKAGE_ORIGIN/downloads/PacketFence/RHEL8/$release/x86_64 (native)"
+    else
+        echo "No EL8 build or no $native_rpm repository; RHEL8/$release unchanged"
+    fi
+    native="packetfence-$dashed-bookworm"
+    if [[ $(native_count deb/apt "$native") == 1 ]]; then
         mapfile -t debs < <(find "$PUBLIC_DIR/debian/pool" -type f -name '*.deb' | sort)
         (( ${#debs[@]} )) || { echo 'No .deb in the generated tree' >&2; exit 1; }
         python3 ci/pulp/vendor/pulp_publish.py deb "$native" "${debs[@]}" \

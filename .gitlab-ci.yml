@@ -1690,8 +1690,8 @@ deploy_packages:
       when: never
     - !reference [.deploy_pkg_rules, rules]
 
-# maintenance/X.Y and devel: after the tests, publish this build's Debian packages to
-# debian/X.Y in the packaging Pulp (X.Y from conf/pf-release); see ci/pulp/publish-packages.sh.
+# maintenance/X.Y and devel: after the tests, publish this build's Debian and EL8 packages to
+# debian/X.Y and RHEL8/X.Y/x86_64 in the packaging Pulp (X.Y from conf/pf-release); see ci/pulp/publish-packages.sh.
 deploy_debian_pulp:
   stage: deploy
   image: $PF_PPA_IMAGE
@@ -1716,7 +1716,7 @@ deploy_debian_pulp:
     access: developer
     when: always
     expire_in: 7 days
-    paths: [pulp-release.json]
+    paths: [pulp-release.json, pulp-release-rpm.json]
   tags:
     - docker
   rules:
