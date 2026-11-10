@@ -112,9 +112,8 @@ sub compute_tier_connections {
     $total_weight += $_ for values %$weights;
     return {} unless $total_weight > 0;
 
-    my $usable = int($capacity->{db_max_connections} * (100 - $capacity->{reserve_pct}) / 100);
-    my $budget = int($usable / $capacity->{tenants});
-    my $floor  = $capacity->{min_per_tier};
+    my (undef, $budget) = tier_budget($capacity);
+    my $floor = $capacity->{min_per_tier};
 
     # Every tier needs at least the floor, so a budget that cannot cover all of
     # them together has no valid split. Say so rather than handing back tiers
@@ -156,6 +155,86 @@ sub compute_tier_connections {
     return \%conns;
 }
 
+=head2 tier_budget
+
+Return C<(usable, budget)> for a capacity plan: the connections left after the
+reserve, and one tenant's share of them. compute_tier_connections splits the
+budget, and generateConfig prints both in the generated file, so the two can
+never disagree.
+
+=cut
+
+sub tier_budget {
+    my ($capacity) = @_;
+    my $usable = int($capacity->{db_max_connections} * (100 - $capacity->{reserve_pct}) / 100);
+    my $budget = int($usable / $capacity->{tenants});
+    return ($usable, $budget);
+}
+
+=head2 tier_route_patterns
+
+The ProxySQL C<match_pattern> of each routed tier, as ProxySQL sees it (before
+the libconfig escaping generateConfig adds). The catch-all takes whatever none
+of these match.
+
+=over
+
+=item * C<large> -- the auth hot path: httpd.aaa (RADIUS authorize and its
+chi_cache reads, decorated through pf::CHI::db), pfacct, and pfconfig, whose
+C<keyed> reads stall every config client, auth included, while they wait.
+
+=item * C<medium> -- frontend and API.
+
+=item * C<radius> -- FreeRADIUS rlm_sql, which offers no hook to prepend the
+routing remark, so it is matched on the statements it sends: the C<acct_*>
+procedures and the rlm_sql tables (raddb/mods-config/sql/main/mysql/queries.conf,
+conf/radiusd/sql.conf.example). Only SELECT/INSERT/UPDATE/CALL qualify, so an
+undecorated C<ALTER> or C<DELETE> on radacct from a script falls to the
+catch-all instead of taking RADIUS connections. Decorated queries start with
+C</*>, so they can never match it.
+
+=back
+
+The tag charset allows C<.>, C<-> and C</>, which are regex metacharacters,
+hence the escaping. A tag ends either with C<" */"> or with C<":E<lt>unitE<gt>">,
+so C<[ :]> after a service name matches both while preventing prefix
+collisions (pfhttpd vs pfhttpd2).
+
+=cut
+
+sub tier_route_patterns {
+    my $rlm_sql_tables = join('|', qw(
+        radacct radius_nas radius_audit_log radpostauth
+        radcheck radreply radgroupcheck radgroupreply radusergroup
+    ));
+    return {
+        large  => '^/\* pf:(httpd\.aaa|pfacct|pfconfig)[ :]',
+        medium => '^/\* pf:((pfhttpd|httpd\.webservices|pfperl-api)[ :]|pfqueue[^:]*:api )',
+        radius => '(?s)^\s*(CALL\s+acct_(start|update|stop)\b'
+                . '|(SELECT|INSERT|UPDATE)\b.*\b(' . $rlm_sql_tables . ')\b'
+                . '|SELECT\b.*\bFROM\s+password\s+JOIN\s+activation\b)',
+    };
+}
+
+=head2 template_has_tier_placeholders
+
+Whether the proxysql.conf template carries the placeholders the SaaS tiers
+need. conf/proxysql.conf ships with each release, but a locally modified copy is
+kept on upgrade (rpm %config(noreplace), dpkg conffile), and rendering tiers
+into a pre-tier template would write the tier hostgroups without their query
+rules, sending everything to the catch-all.
+
+=cut
+
+sub template_has_tier_placeholders {
+    my ($path) = @_;
+    open(my $fh, '<', $path) or return 0;
+    local $/;
+    my $content = <$fh>;
+    close($fh);
+    return $content =~ /\[%\s*mysql_cloud_variables\s*%\]/ ? 1 : 0;
+}
+
 sub generateConfig {
     my ($self,$quick) = @_;
     my $tt = Template->new(ABSOLUTE => 1);
@@ -182,21 +261,25 @@ sub generateConfig {
     my $reader_hostgroup  = 30;
     my $has_reader_split  = 0;  # flag: only generate query rules / replication hostgroups when we actually have a reader HG
 
-    # Cloud single-backend capacity tiers.
+    # SaaS single-backend capacity tiers.
     #
-    # In cloud, 100+ clients share one Cloud SQL instance, so each client must
-    # cap what it can take. max_connections is a mysql_servers attribute (not a
-    # hostgroup one), so each tier is a hostgroup holding its own row pointing at
-    # the SAME backend host:port with its own cap; the query rule that routes to
-    # it carries the query timeout. Most queries are sorted into tiers by the
-    # pf::db / sqlcomment routing remark (/* pf:<service>[:<unit>] */, see PR
-    # #9097); FreeRADIUS has no such hook, so its tier is matched on its own
-    # table names instead (see the rules further down).
+    # In SaaS, 100+ tenants share one Cloud SQL instance, so each must cap what
+    # it can take, without impacting authentication. max_connections is a
+    # mysql_servers attribute (not a hostgroup one), so each tier is a hostgroup
+    # holding its own row pointing at the SAME backend host:port with its own
+    # cap; the query rule that routes to it carries the query timeout. Queries
+    # are sorted into tiers by the routing remark (/* pf:<service>[:<unit>] */,
+    # see pf::db::dbi and go/db/sqlcomment) and, for FreeRADIUS, by the
+    # statements rlm_sql sends; see tier_route_patterns. The defined tiers carry
+    # the time-critical traffic; the catch-all is the bounded low-priority bucket.
     #
-    # The connection caps are NOT hand-picked -- they are derived from the four
-    # numbers in %capacity below by compute_tier_connections(). To retune a
-    # deployment, change those numbers and regenerate; see that sub's
-    # documentation for the arithmetic and a worked example.
+    # Tiers only apply under PF_SAAS (the same flag pf::UnifiedApi::Controller::
+    # SystemSummary reports). On-prem the database belongs to the deployment, and
+    # a single backend keeps the untiered layout.
+    #
+    # The connection caps are NOT hand-picked -- they are derived from the
+    # numbers in %capacity below by compute_tier_connections(). To retune,
+    # change those numbers and regenerate; see that sub's documentation.
     #
     # Timeouts are log-spaced downward from the 360s network timeout, which is
     # the ceiling: large keeps it, medium and catch-all are progressively clamped.
@@ -204,35 +287,24 @@ sub generateConfig {
     my $large_hostgroup  = 12;
     my $radius_hostgroup = 13;
 
-    # PF_SAAS marks a cloud deployment (the same flag pf::UnifiedApi::Controller::
-    # SystemSummary reports to the admin UI). It decides which database we are
-    # planning against, and that is the only thing that differs between the two:
-    #
-    #   cloud   -- many tenants share one Cloud SQL instance, which allows 4000
-    #              connections on every machine type except db-f1-micro and
-    #              db-g1-small. Not published by Google; confirm with
-    #              SHOW VARIABLES LIKE 'max_connections'.
-    #   on-prem -- the database is the one PacketFence configures itself, so its
-    #              ceiling is database_advanced.max_connections, and this instance
-    #              is its only user.
     my $is_saas = isenabled($ENV{PF_SAAS});
 
+    # Cloud SQL for MySQL allows 4000 connections on every machine type except
+    # db-f1-micro and db-g1-small. Google does not publish the per-tier table;
+    # confirm with SHOW VARIABLES LIKE 'max_connections'.
     my %capacity = (
-        reserve_pct    => 20,   # held back for admin, monitoring, replication, migrations
-        min_per_tier   => 2,    # floor, so a tier can never be starved to nothing
-        frontend_ratio => 8,    # frontend sessions allowed per backend connection
-        frontend_max   => 2048, # ceiling on that, matching ProxySQL's own default
-        user_pct       => 75,   # per-user share of the frontend cap
-        $is_saas
-            ? ( db_max_connections => 4000,
-                tenants            => 120 )   # 100+ today, sized for growth
-            : ( db_max_connections => $Config{database_advanced}{max_connections} || 1000,
-                tenants            => 1 ),
+        db_max_connections => 4000,
+        tenants            => 120,  # 100+ today, sized for growth
+        reserve_pct        => 20,   # held back for admin, monitoring, replication, migrations
+        min_per_tier       => 2,    # floor, so a tier can never be starved to nothing
+        frontend_ratio     => 8,    # frontend sessions allowed per backend connection
+        frontend_max       => 2048, # ceiling on that, matching ProxySQL's own default
+        user_pct           => 75,   # per-user share of the frontend cap
     );
 
     # Relative share of a tenant's budget. Large carries RADIUS authentication
     # and accounting, medium the frontend and API, and the remaining two are
-    # background and undecorated traffic.
+    # FreeRADIUS rlm_sql and the catch-all.
     my %tier_weight = (
         small  => 2,
         radius => 2,
@@ -240,47 +312,16 @@ sub generateConfig {
         large  => 5,
     );
 
-    my $tier_conns = compute_tier_connections(\%capacity, \%tier_weight);
-
     my %tier = (
         small  => { hg => $writer_hostgroup, timeout_ms => 40_000  },
         radius => { hg => $radius_hostgroup, timeout_ms => 40_000  },
         medium => { hg => $medium_hostgroup, timeout_ms => 120_000 },
         large  => { hg => $large_hostgroup,  timeout_ms => 360_000 },
     );
-
-    # An empty plan means the budget cannot seat every tier at its floor, i.e.
-    # %capacity has been retuned past what the tiers can express. Fall back to the
-    # untiered single-hostgroup layout rather than emitting a plan that would
-    # oversubscribe the database.
-    my $tiers_fit = (keys %$tier_conns) == (keys %tier);
-    if (!$tiers_fit) {
-        $logger->error(
-            "proxysql capacity plan cannot seat " . scalar(keys %tier) . " tiers at "
-            . "min_per_tier=$capacity{min_per_tier} from $capacity{db_max_connections} "
-            . "connections shared by $capacity{tenants} tenants; falling back to a single hostgroup");
-    }
-    $tier{$_}{max_connections} = $tier_conns->{$_} for grep { $tiers_fit } keys %tier;
-
-    # Frontend sessions (PF services into ProxySQL) never reach the database:
-    # multiplexing lends a pooled backend connection out only for the duration of
-    # a statement, so they can safely outnumber the backend pool. These caps are
-    # a leak guard, not a database protection -- sized as a multiple of the
-    # backend budget, since a frontend count far above that ratio means
-    # something is holding sessions it should have returned.
-    my $backend_budget = 0;
-    $backend_budget += $tier{$_}{max_connections} // 0 for keys %tier;
-    my $cloud_frontend_max = $backend_budget * $capacity{frontend_ratio};
-    $cloud_frontend_max = $capacity{frontend_max} if $cloud_frontend_max > $capacity{frontend_max};
-    my $cloud_user_max     = int($cloud_frontend_max * $capacity{user_pct} / 100);
-    my $cloud_tiers = 0;  # flag: single-backend cloud mode, generate the tier rules
+    my $cloud_tiers = 0;  # flag: SaaS single-backend tier mode, generate the tier rules
 
     # Frontend connection cap (mysql_variables max_connections), i.e. sessions
-    # from PF services into ProxySQL. These never reach Cloud SQL -- multiplexing
-    # hands a pooled backend connection over only for the duration of a statement
-    # -- so this is a leak guard, not a database protection. A lightly loaded
-    # instance in the capture held ~11 concurrent sessions; a busy one with every
-    # service running holds well under 200.
+    # from PF services into ProxySQL. ProxySQL's own default; tier mode lowers it.
     $tags{'frontend_max_connections'} = 2048;
     $tags{'mysql_cloud_variables'} = "";
     $tags{'mysql_user_max_connections'} = "";
@@ -318,6 +359,10 @@ EOT
 
     # NOTE: mysql_users is generated after the backend branching below, since the
     # per-user frontend cap depends on whether we ended up in cloud tier mode.
+    # transaction_persistent=1 keeps a transaction on the hostgroup it started
+    # in: with query rules (tiers or a reader split) the statements of one
+    # transaction would otherwise be routed one at a time to different
+    # hostgroups, so different backend connections, outside the transaction.
 
     my $i = 100;
     my $database_proxysql = $pf::config::Config{database_proxysql};
@@ -338,57 +383,85 @@ EOT
 
         if (scalar(@backends) <= 1) {
             $single_server = 1;
-            $cloud_tiers = $tiers_fit;
             my $backend = $backends[0] // '';
+            if ($is_saas) {
+                my $tier_conns = compute_tier_connections(\%capacity, \%tier_weight);
+                if ((keys %$tier_conns) != (keys %tier)) {
+                    # The budget cannot seat every tier at its floor, i.e.
+                    # %capacity has been retuned past what the tiers can express.
+                    $logger->error(
+                        "proxysql capacity plan cannot seat " . scalar(keys %tier) . " tiers at "
+                        . "min_per_tier=$capacity{min_per_tier} from $capacity{db_max_connections} "
+                        . "connections shared by $capacity{tenants} tenants; falling back to a single hostgroup");
+                } elsif (!template_has_tier_placeholders($self->proxysql_config_template)) {
+                    $logger->error(
+                        $self->proxysql_config_template . " predates the capacity tiers (no mysql_cloud_variables "
+                        . "placeholder), most likely a locally modified copy kept on upgrade; falling back to a "
+                        . "single hostgroup. Merge proxysql.conf.example into it to enable the tiers.");
+                } else {
+                    $tier{$_}{max_connections} = $tier_conns->{$_} for keys %tier;
+                    $cloud_tiers = 1;
+                }
+            }
+
             if (!$cloud_tiers) {
-                # Unsatisfiable capacity plan (logged above): fall back to one
-                # hostgroup and no tier rules, exactly as before the tiers existed.
+                # On-prem, or a SaaS plan that cannot be applied (logged above):
+                # one hostgroup and no rules.
                 $tags{mysql_servers} .= << "EOT";
     { address="$backend" , port=$port , hostgroup=$writer_hostgroup, max_connections=1000, weight=100, use_ssl=$ssl },
 EOT
             } else {
-            # Single server: no reader split. The one backend is registered once
-            # per capacity tier (same address:port, different hostgroup) so each
-            # tier gets its own connection cap. Queries reach the right tier via
-            # the routing remark rules generated further down.
-            # Record the capacity plan in the generated file so an operator
-            # reading it can see where these numbers came from.
-            $tags{mysql_servers} .= sprintf(
-                "    # capacity plan: %d ceiling - %d%% reserved = %d usable, / %d tenants = %d per tenant\n",
-                $capacity{db_max_connections}, $capacity{reserve_pct},
-                int($capacity{db_max_connections} * (100 - $capacity{reserve_pct}) / 100),
-                $capacity{tenants}, $backend_budget);
-            foreach my $name (qw(small radius medium large)) {
-                my $t = $tier{$name};
-                $tags{mysql_servers} .= << "EOT";
+                # The one backend is registered once per capacity tier (same
+                # address:port, different hostgroup) so each tier gets its own
+                # connection cap. Queries reach the right tier via the rules
+                # generated further down. The capacity plan is recorded in the
+                # generated file so an operator can see where the numbers came from.
+                my ($usable, $budget) = tier_budget(\%capacity);
+                $tags{mysql_servers} .= sprintf(
+                    "    # capacity plan: %d ceiling - %d%% reserved = %d usable, / %d tenants = %d per tenant\n",
+                    $capacity{db_max_connections}, $capacity{reserve_pct}, $usable, $capacity{tenants}, $budget);
+                foreach my $name (qw(small radius medium large)) {
+                    my $t = $tier{$name};
+                    $tags{mysql_servers} .= << "EOT";
     { address="$backend" , port=$port , hostgroup=$t->{hg}, max_connections=$t->{max_connections}, weight=100, use_ssl=$ssl }, # $name tier (weight $tier_weight{$name})
 EOT
-            }
+                }
 
-            # Connection hygiene for the shared Cloud SQL instance. These are
-            # applied here (not via the admin interface) because the container
-            # starts proxysql with --initial, which re-reads this generated file
-            # and discards any runtime/on-disk changes.
-            $tags{'frontend_max_connections'} = $cloud_frontend_max;
-            # auto_increment_delay_multiplex defaults to 5, which pins a backend
-            # connection for 5 queries after every auto-increment INSERT -- a
-            # constant tax at PF's insert rate. Safe to disable: the only two
-            # last_insert_id callers (pf::security_event, pf::Survey) read
-            # mysql_insertid from the OK packet, and nothing issues
-            # SELECT LAST_INSERT_ID() as a separate statement.
-            $tags{'mysql_cloud_variables'} = << "EOT";
+                # Frontend sessions (PF services into ProxySQL) never reach the
+                # database: multiplexing lends a pooled backend connection out
+                # only for the duration of a statement, so they can safely
+                # outnumber the backend pool. This cap is a leak guard, not a
+                # database protection -- sized as a multiple of the backend
+                # budget, since a frontend count far above that ratio means
+                # something is holding sessions it should have returned.
+                my $frontend_max = $budget * $capacity{frontend_ratio};
+                $frontend_max = $capacity{frontend_max} if $frontend_max > $capacity{frontend_max};
+                $tags{'frontend_max_connections'} = $frontend_max;
+
+                # Connection hygiene for the shared Cloud SQL instance. These are
+                # applied here (not via the admin interface) because the container
+                # starts proxysql with --initial, which re-reads this generated file
+                # and discards any runtime/on-disk changes.
+                # auto_increment_delay_multiplex defaults to 5, which pins a backend
+                # connection for 5 queries after every auto-increment INSERT -- a
+                # constant tax at PF's insert rate. Safe to disable: the only two
+                # last_insert_id callers (pf::security_event, pf::Survey) read
+                # mysql_insertid from the OK packet, and nothing issues
+                # SELECT LAST_INSERT_ID() as a separate statement.
+                $tags{'mysql_cloud_variables'} = << "EOT";
     wait_timeout=300000
     connection_max_age_ms=300000
     auto_increment_delay_multiplex=0
 EOT
-            # Per-user frontend cap, kept below the global one above so that it is
-            # the binding limit: a leak then fails as "max_connections exceeded"
-            # for this user rather than as a generic frontend rejection, and the
-            # spare headroom covers a second account (migration, admin) without
-            # reconfiguring. Unlike the backend caps -- where ProxySQL holds the
-            # query until a pooled connection frees -- exceeding this is an
-            # intentional reject: it is the noisy-neighbour throttle.
-            $tags{'mysql_user_max_connections'} = ", max_connections = $cloud_user_max";
+                # Per-user frontend cap, kept below the global one above so that it is
+                # the binding limit: a leak then fails as "max_connections exceeded"
+                # for this user rather than as a generic frontend rejection, and the
+                # spare headroom covers a second account (migration, admin) without
+                # reconfiguring. Unlike the backend caps -- where ProxySQL holds the
+                # query until a pooled connection frees -- exceeding this is an
+                # intentional reject: it is the noisy-neighbour throttle.
+                my $user_max = int($frontend_max * $capacity{user_pct} / 100);
+                $tags{'mysql_user_max_connections'} = ", max_connections = $user_max";
             }
         } else {
             $single_server = 0;
@@ -490,7 +563,7 @@ EOT
     }
 
     $tags{'mysql_users'} = << "EOT";
-        { username = "$DB_Config->{user}", password = "$DB_Config->{pass}", default_hostgroup = $writer_hostgroup, transaction_persistent = 0, active = 1$tags{'mysql_user_max_connections'} },
+        { username = "$DB_Config->{user}", password = "$DB_Config->{pass}", default_hostgroup = $writer_hostgroup, transaction_persistent = 1, active = 1$tags{'mysql_user_max_connections'} },
 EOT
 
     $tags{'scheduler'} = $TRUE;
@@ -599,31 +672,22 @@ mysql_query_rules =
 )
 EOT
     } elsif ($cloud_tiers) {
-        # Capacity tiers for the shared cloud database, routed by the pf::db /
-        # sqlcomment routing remark: "/* pf:<service>[:<unit>] */ <SQL>".
+        # Capacity tiers for the shared SaaS database; the patterns and what each
+        # tier carries are documented on tier_route_patterns.
         #
-        # These must use match_pattern: match_digest strips comments (see the
-        # pf_query_comment POD in lib/pf/db.pm). The tag charset allows '.', '-'
-        # and '/', which are regex metacharacters, hence the escaping. A tag ends
-        # either with " */" or with ":<unit>", so "[ :]" after a service name
-        # matches both while preventing prefix collisions (pfhttpd vs pfhttpd2).
-        # Backslashes are doubled here because libconfig unescapes one level.
+        # These must use match_pattern: match_digest strips comments (see
+        # pf::db::dbi). Backslashes are doubled here because libconfig unescapes
+        # one level.
         #
         # Rules are evaluated by ascending rule_id and apply=1 stops at the first
         # match, so the catch-all clamp must come last. rule_ids start at 21 to
         # stay clear of 1..5 (1,2,5 rewritten at runtime by proxysql-read-only-handler.sh)
         # and of the legacy 100..400 rules.
-        #
-        # FreeRADIUS is the exception: rlm_sql offers no hook to prepend the
-        # remark, so its traffic is matched on its own table names. The "^[^/]*"
-        # prefix is what keeps that safe -- a decorated query starts with '/', so
-        # [^/]* can only match zero characters and the table name would have to
-        # appear at position 0, which it never does. Decorated queries that
-        # legitimately touch radacct (pfacct's writes, pfcron's maintenance) are
-        # therefore left to their own tiers.
-        my $large_pattern  = "^/\\\\* pf:(httpd\\\\.aaa|pfacct)[ :]";
-        my $medium_pattern = "^/\\\\* pf:((pfhttpd|httpd\\\\.webservices|pfperl-api)[ :]|pfqueue[^:]*:api )";
-        my $radius_pattern = "^[^/]*(radius_nas|radacct)";
+        my %pattern = %{ tier_route_patterns() };
+        s/\\/\\\\/g for values %pattern;
+        my $large_pattern  = $pattern{large};
+        my $medium_pattern = $pattern{medium};
+        my $radius_pattern = $pattern{radius};
         $tags{'mysql_query_rules'} = << "EOT";
 mysql_query_rules =
 (
@@ -634,7 +698,7 @@ mysql_query_rules =
         destination_hostgroup=$tier{large}{hg},
         timeout=$tier{large}{timeout_ms},
         apply=1,
-        comment="Large capacity tier: RADIUS auth and accounting"
+        comment="Large capacity tier: RADIUS auth, accounting and pfconfig"
     },
     {
         rule_id=22,
@@ -652,7 +716,7 @@ mysql_query_rules =
         destination_hostgroup=$tier{radius}{hg},
         timeout=$tier{radius}{timeout_ms},
         apply=1,
-        comment="RADIUS tier: undecorated FreeRADIUS rlm_sql traffic, matched by table"
+        comment="RADIUS tier: undecorated FreeRADIUS rlm_sql traffic, matched by statement"
     },
     {
         rule_id=24,

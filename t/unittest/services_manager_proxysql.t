@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 29;
+use Test::More tests => 58;
 use Test::NoWarnings;
 
 use pf::services::manager::proxysql;
@@ -97,14 +97,77 @@ my $zero_weight = pf::services::manager::proxysql::compute_tier_connections(
 );
 is_deeply($zero_weight, {}, "no weights yields no tiers rather than dividing by zero");
 
-# On-prem: the database is the one PacketFence configures itself, so the ceiling
-# is database_advanced.max_connections and this instance is its only user.
-my $onprem = plan_for(db_max_connections => 1000, tenants => 1);
-is(total_of($onprem), 800, "on-prem: 1000 ceiling less 20% reserved, all of it for one instance");
-is($onprem->{large},  334, "on-prem: large tier");
-is($onprem->{medium}, 200, "on-prem: medium tier");
-cmp_ok(total_of($onprem), '<', 1000, "on-prem: the plan stays under what the local server accepts");
+# tier_budget is the single source of the arithmetic the generated file prints.
+my ($usable, $budget) = pf::services::manager::proxysql::tier_budget(
+    { db_max_connections => 4000, tenants => 120, reserve_pct => 20 });
+is($usable, 3200, "tier_budget: usable is the ceiling less the reserve");
+is($budget, 26,   "tier_budget: budget is one tenant's share of it");
+is(total_of($plan), $budget, "the plan splits exactly the budget tier_budget reports");
 
-# The ceiling tracks the setting rather than assuming the 1000 default.
-my $onprem_2k = plan_for(db_max_connections => 2000, tenants => 1);
-is(total_of($onprem_2k), 1600, "on-prem: raising max_connections raises the budget with it");
+# Routing: which tier each statement lands in. ProxySQL evaluates the rules in
+# order (large, medium, radius, catch-all) with the CASELESS modifier.
+my $patterns = pf::services::manager::proxysql::tier_route_patterns();
+sub tier_of {
+    my ($sql) = @_;
+    for my $tier (qw(large medium radius)) {
+        return $tier if $sql =~ /$patterns->{$tier}/i;
+    }
+    return 'small';
+}
+
+my @routes = (
+    # the auth hot path
+    [ '/* pf:httpd.aaa */ SELECT * FROM node WHERE mac = ?',                 'large',  'httpd.aaa' ],
+    [ '/* pf:httpd.aaa */ SELECT value, expires_at FROM chi_cache WHERE `key` = ?',
+                                                                             'large',  'chi_cache read from httpd.aaa (decorated through pf::CHI::db)' ],
+    [ '/* pf:pfacct */ UPDATE radacct SET acctstoptime = NOW()',             'large',  'pfacct' ],
+    [ '/* pf:pfconfig */ SELECT value FROM keyed WHERE id = ?',              'large',  'pfconfig keyed read' ],
+    [ '/* pf:pfacct:bandwidth */ SELECT 1',                                   'large',  'pfacct with a unit' ],
+    # frontend and API
+    [ '/* pf:pfhttpd */ SELECT 1',                                            'medium', 'pfhttpd' ],
+    [ '/* pf:pfperl-api */ SELECT 1',                                         'medium', 'pfperl-api' ],
+    [ '/* pf:httpd.webservices */ SELECT 1',                                  'medium', 'httpd.webservices' ],
+    [ '/* pf:pfqueue:api */ SELECT 1',                                        'medium', 'pfqueue api tasks' ],
+    [ '/* pf:pfhttpd2 */ SELECT 1',                                           'small',  'no prefix collision: pfhttpd2 is not pfhttpd' ],
+    [ '/* pf:httpdXaaa */ SELECT 1',                                          'small',  'the dot in httpd.aaa is literal' ],
+    [ '/* pf:pfconfigurator */ SELECT 1',                                     'small',  'no prefix collision: pfconfigurator is not pfconfig' ],
+    [ '/* pf:pfqueue:populate_ntlm_redis_cache */ SELECT 1',                  'small',  'non-API pfqueue tasks stay in the catch-all' ],
+    # FreeRADIUS rlm_sql (undecorated)
+    [ "CALL acct_start ('a', 'b')",                                           'radius', 'rlm_sql accounting start' ],
+    [ "          CALL acct_update ( \n FROM_UNIXTIME(1) )",                    'radius', 'rlm_sql interim update, leading whitespace and newlines' ],
+    [ "CALL acct_stop ('a')",                                                 'radius', 'rlm_sql accounting stop' ],
+    [ "UPDATE radacct SET acctstoptime = FROM_UNIXTIME(1) WHERE 1",           'radius', 'rlm_sql accounting-on' ],
+    [ "INSERT INTO radacct (acctsessionid) VALUES ('Gi1/0/1')",               'radius', 'rlm_sql alternate insert, with a slash in a value' ],
+    [ "INSERT INTO radius_audit_log (mac) VALUES ('aa')",                     'radius', 'rlm_sql post-auth audit log' ],
+    [ "SELECT id, nasname FROM radius_nas where 1=0",                         'radius', 'rlm_sql client_query' ],
+    [ "SELECT 1, pid, (\n CASE WHEN 1 THEN 'x' END ) AS passwordhash FROM password JOIN activation using (pid) WHERE pid = 'u'",
+                                                                             'radius', 'rlm_sql guest/local authorize_check_query' ],
+    # maintenance and undecorated scripts must not take RADIUS connections
+    [ '/* pf:pfcron:acct_cleanup */ DELETE FROM radacct WHERE acctstoptime < ? LIMIT 100',
+                                                                             'small',  'decorated pfcron cleanup of radacct' ],
+    [ '/* pf:pfcron */ SELECT * FROM radacct',                                'small',  'decorated SELECT on radacct keeps its own tier' ],
+    [ 'ALTER TABLE radacct ADD COLUMN x INT',                                  'small',  'undecorated ALTER on radacct' ],
+    [ 'DELETE FROM radacct WHERE 1',                                          'small',  'undecorated DELETE on radacct' ],
+    [ 'SELECT password FROM password WHERE pid = 1',                          'small',  'undecorated password lookup without the rlm_sql join' ],
+    [ 'START TRANSACTION',                                                    'small',  'undecorated BEGIN from a driver' ],
+);
+is(tier_of($_->[0]), $_->[1], "route: $_->[2] -> $_->[1]") for @routes;
+
+# The handle subclass that carries the remark (used by pf::db, pf::CHI::db and
+# pfconfig::backend::mysql).
+use pf::db::dbi;
+{
+    local $0 = '/usr/local/pf/sbin/pfconfig';
+    Log::Log4perl::MDC->remove('proc');
+    Log::Log4perl::MDC->remove('pf_unit');
+    is(pf::db::dbi::decorate_statement('SELECT 1'), '/* pf:pfconfig */ SELECT 1',
+        "decorate_statement: falls back to basename(\$0) for the service");
+    is(pf::db::dbi::decorate_statement('/* pf:x */ SELECT 1'), '/* pf:x */ SELECT 1',
+        "decorate_statement: an already decorated statement is left alone");
+    Log::Log4perl::MDC->put('proc', 'httpd.aaa');
+    is(pf::db::dbi::decorate_statement('SELECT 1'), '/* pf:httpd.aaa */ SELECT 1',
+        "decorate_statement: uses the proc MDC when set");
+    Log::Log4perl::MDC->remove('proc');
+}
+ok(pf::db::dbi::db->can('prepare_cached') == \&pf::db::dbi::db::prepare_cached,
+    "the db handle subclass overrides prepare_cached (used by CHI::Driver::DBI)");
