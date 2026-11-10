@@ -79,9 +79,11 @@ sub authenticationLogin : Private {
     my $portalSession = $c->portalSession;
     my $mac           = $portalSession->clientMac;
     my ( $return, $message, $source_id, $extra );
+    my $fallback_profile;
+    my $status_login = $request->{'match'} eq "status/login";
     $logger->debug("authentication attempt");
 
-    if ($request->{'match'} eq "status/login") {
+    if ($status_login) {
         my $person_info = pf::person::person_view($request->param("username"));
         if($person_info) {
             if($person_info->{potd} eq "yes") {
@@ -94,13 +96,14 @@ sub authenticationLogin : Private {
                 $c->stash( use_local_source => 1 );
             }
             my $portal = $person_info->{portal};
-            unless (defined $portal && length($portal) && exists $Profiles_Config{$portal}) {
-                $portal = $DEFAULT_PROFILE;
+            # Use the connection profile the person registered on. Otherwise try the
+            # profile of the device first (the default profile may not have the
+            # source of the person), then the default profile
+            if (defined $portal && length($portal) && exists $Profiles_Config{$portal}) {
+                $profile = pf::Connection::ProfileFactory->instantiate( $mac, { portal => $portal });
+            } elsif ($profile->getName ne $DEFAULT_PROFILE) {
+                $fallback_profile = pf::Connection::ProfileFactory->instantiate( $mac, { portal => $DEFAULT_PROFILE });
             }
-            my $options = {
-                portal => $portal,
-            };
-            $profile = pf::Connection::ProfileFactory->instantiate( $mac, $options);
         }
     }
     $c->stash( profile => $profile );
@@ -120,6 +123,27 @@ sub authenticationLogin : Private {
               'rule_class' => $Rules::AUTH,
               'context' => $pf::constants::realm::PORTAL_CONTEXT,
           }, @{$sources} );
+    if ( !(defined($return) && $return == 1) && $fallback_profile ) {
+        # Only the sources of the default profile that weren't tried with the profile of the device
+        my %tried = map { ($_->id => 1) } @{$sources};
+        $c->stash( profile => $fallback_profile );
+        my @fallback_sources = grep { !$tried{$_->id} } @{$self->getSources($c, $username, $realm)};
+        if (@fallback_sources) {
+            $logger->debug("Authentication failed with the sources of connection profile " . $profile->getName . ", trying the remaining ones of $DEFAULT_PROFILE");
+            my @fallback_result = pf::authentication::authenticate( {
+                  'username' => $username,
+                  'password' => $password,
+                  'rule_class' => $Rules::AUTH,
+                  'context' => $pf::constants::realm::PORTAL_CONTEXT,
+              }, @fallback_sources );
+            $sources = [ @{$sources}, @fallback_sources ];
+            if ( defined($fallback_result[0]) && $fallback_result[0] == 1 ) {
+                ( $return, $message, $source_id, $extra ) = @fallback_result;
+                $profile = $fallback_profile;
+            }
+        }
+        $c->stash( profile => $profile );
+    }
     if ( defined($return) && $return == 1 ) {
         my ($matched_source) = grep { $_->id eq $source_id } @{$sources};
         pf::auth_log::record_auth($source_id, $matched_source ? $matched_source->type : '', $portalSession->clientMac, $username, $pf::auth_log::COMPLETED, $profile->name);
@@ -129,7 +153,8 @@ sub authenticationLogin : Private {
         $c->user_session->{source_match} = $source_id;
         $c->user_session->{extra} = $extra;
         if(!person_exist($username)){
-            person_add($username);
+            # A status page login records where the person comes from, as a registration does
+            person_add($username, ($status_login ? (portal => $profile->getName, source => $source_id) : ()));
         }
         # Logging USER/IP/MAC of the just-authenticated user
         $logger->info("Successfully authenticated ".$username."/".$portalSession->clientIP->normalizedIP."/".$portalSession->clientMac);
@@ -165,7 +190,12 @@ sub getSources : Private {
 
     my $realm_source = get_realm_authentication_source($stripped_username, $realm, \@sources);
     if (ref($realm_source) eq 'ARRAY') {
-        $c->log->info("Realm source is part of the connection profile sources. Using it as the only auth source.");
+        if (@$realm_source) {
+            $c->log->info("Realm source is part of the connection profile sources. Using it as the only auth source.");
+        } else {
+            my $from = $c->request->{'match'} =~ "activate/email" ? "internal sources" : "sources of the connection profile " . $profile->getName;
+            $c->log->warn("None of the $from can be used for realm " . ($realm // 'null'));
+        }
         return ($realm_source);
     }
     return \@sources;

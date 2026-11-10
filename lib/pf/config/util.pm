@@ -633,7 +633,19 @@ sub send_using_smtp_callback {
       or Carp::croak "SMTP Failed to connect to mail server: $!\n";
 
     if ($args{StartTLS}) {
-        $smtp->starttls;
+        # Never continue in cleartext (and send the credentials) when STARTTLS fails
+        # SSL_ERROR is a global that isn't reset by a new connection
+        local $IO::Socket::SSL::SSL_ERROR = '';
+        if (!$smtp->starttls) {
+            # A rejected STARTTLS (or EHLO after it) leaves the server's reply, a failed handshake the TLS error
+            my $code = $smtp->code // '';
+            my $error = ($code ne '' && $code !~ /^2/)
+              ? $smtp->message
+              : ($IO::Socket::SSL::SSL_ERROR || $smtp->message || $!);
+            $error //= '';
+            $error =~ s/\s+$//;
+            die "SMTP STARTTLS failed on $hostname: $error\n";
+        }
     }
 
     # Possibly authenticate
@@ -641,9 +653,12 @@ sub send_using_smtp_callback {
         and defined $args{AuthPass}
         and !$args{NoAuth} )
     {
-        if ( $smtp->supports( 'AUTH', 500, ["Command unknown: 'AUTH'"] ) ) {
+        if ( my $offered = $smtp->supports( 'AUTH', 500, ["Command unknown: 'AUTH'"] ) ) {
+            my @mechanisms = smtp_auth_mechanisms($offered);
+            die "SMTP server $hostname doesn't offer a supported authentication mechanism (PLAIN or LOGIN), it offers: $offered\n"
+              unless @mechanisms;
             my $sasl = Authen::SASL->new(
-              mechanism => 'PLAIN LOGIN',
+              mechanism => join(' ', @mechanisms),
               callback => {
                 pass => $args{AuthPass},
                 user => $args{AuthUser},
@@ -685,6 +700,19 @@ sub send_using_smtp_callback {
     $smtp->quit;
 
     return $self->{last_send_successful} = 1;
+}
+
+=head2 smtp_auth_mechanisms
+
+The supported SASL mechanisms offered by the SMTP server, in order of preference.
+Authen::SASL uses the first mechanism it supports without checking what the server offers.
+
+=cut
+
+sub smtp_auth_mechanisms {
+    my ($offered) = @_;
+    my %offered = map { uc($_) => 1 } split(/\s+/, $offered // '');
+    return grep { $offered{$_} } qw(PLAIN LOGIN);
 }
 
 =head2 merge_with_alert_config

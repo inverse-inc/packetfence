@@ -490,6 +490,13 @@ behavior on inline L2/L3 networks).
 
 Adjust `pfacct` configuration based on the NetFlow traffic source.
 
+When PacketFence does not need to process NetFlow traffic, for example when an
+external NetFlow collector is used, disable _Netflow processor_ in
+_Configuration -> System Configuration -> Services_ menu: `pfacct` no longer
+listens for NetFlow traffic and the NetFlow kernel module is not loaded for
+inline networks. Then restart `packetfence-pfacct` and `packetfence-iptables`
+services for it to take effect.
+
 ===== NetFlow traffic from network devices
 
 Configure the following:

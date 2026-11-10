@@ -15,9 +15,60 @@ pf::UnifiedApi::Search::Builder
 use strict;
 use warnings;
 use Moo;
+use Exporter qw(import);
 use pf::SQL::Abstract;
 use pf::UnifiedApi::Search;
 use pf::error qw(is_error);
+
+our @EXPORT_OK = qw(
+    map_dal_fields_to_join_spec
+    map_dal_field_to_join_spec
+    make_join_column_spec
+);
+
+=head2 map_dal_fields_to_join_spec
+
+The allowed join fields of the columns of a dal table, except the excluded ones
+
+    my %ALLOWED_JOIN_FIELDS = (
+        map_dal_fields_to_join_spec("pf::dal::password", \@PASSWORD_JOIN, undef, { password => 1 }),
+    );
+
+=cut
+
+sub map_dal_fields_to_join_spec {
+    my ($dal, $join_spec, $where_spec, $exclude) = @_;
+    $exclude //= {};
+    my $table = $dal->table;
+    return map { map_dal_field_to_join_spec($table, $_, $join_spec, $where_spec) } grep {!exists $exclude->{$_}} @{$dal->table_field_names};
+}
+
+=head2 map_dal_field_to_join_spec
+
+The allowed join field of a column, named table.field
+
+=cut
+
+sub map_dal_field_to_join_spec {
+    my ($table, $field, $join_spec, $where_spec) = @_;
+    return "${table}.${field}" => {
+        join_spec => $join_spec,
+        namespace => $table,
+        (defined $where_spec ? (where_spec => $where_spec) : () ),
+        column_spec => make_join_column_spec($table, $field),
+   }
+}
+
+=head2 make_join_column_spec
+
+The column spec selecting table.field as `table.field`
+
+=cut
+
+sub make_join_column_spec {
+    my ($t, $f) = @_;
+    return \"`${t}`.`${f}` AS `${t}.${f}`";
+}
 
 =head2 $self->search($search_info)
 

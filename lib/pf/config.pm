@@ -903,14 +903,24 @@ sub load_configdata_into_db {
 }
 
 sub netflow_enabled {
+    # pfacct does not process NetFlow traffic: no need for the ipt_NETFLOW module
+    # nor for the iptables rule exporting flows to it. Unset counts as enabled,
+    # like in pfacct.
+    my $netflow_processor = $Config{services}{netflow_processor};
+    if (defined($netflow_processor) && length($netflow_processor) && isdisabled($netflow_processor)) {
+        return $FALSE;
+    }
+
     if (isenabled($Config{advanced}{netflow_on_all_networks})) {
         return $TRUE;
     }
 
-    while( my ($network, $data) = each %ConfigNetworks ) {
+    # keys rather than each: returning from an each loop would leave the hash
+    # iterator half way for the next call
+    foreach my $network (keys %ConfigNetworks) {
         # We skip non-inline networks/interfaces
         next if ( !pf::config::is_network_type_inline($network) );
-        return $TRUE if isenabled($data->{netflow_accounting_enabled} || 'disabled');
+        return $TRUE if isenabled($ConfigNetworks{$network}{netflow_accounting_enabled} || 'disabled');
     }
 
     return $FALSE;

@@ -292,18 +292,19 @@ index 3096a086ab..49e84602c0 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-kafka.service b/conf/systemd/packetfence-kafka.service
-index 3de894cfe4..f9c5fc2b6b 100644
+index 46ec0cae2c..eb098a6727 100644
 --- a/conf/systemd/packetfence-kafka.service
 +++ b/conf/systemd/packetfence-kafka.service
-@@ -8,15 +8,15 @@ StartLimitBurst=3
- StartLimitInterval=10
- Type=simple
+@@ -10,7 +10,7 @@
  TimeoutStopSec=60
+ # Covers the ExecStartPre steps plus kafka-create-topics (up to ~65s).
+ TimeoutStartSec=180
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::kafka' -e 'pf::services::manager::kafka->new()->generateConfig()'
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::kafka' -e 'pf::services::manager::kafka->new()->generateConfig()'
  ExecStart=/usr/local/pf/sbin/kafka-docker-wrapper
- ExecStop=/bin/bash -c "docker stop kafka ; echo Stopped"
- Restart=on-failure
+ # Create the topic pfflow consumes once the broker answers; "-": never fail
+ # Kafka because of it.
+@@ -20,8 +20,8 @@
  Slice=packetfence.slice
  PIDFile=/usr/local/pf/var/run/kafka-systemd-notify.pid
  # iptables rules

@@ -219,15 +219,16 @@ sub create {
         # Connector-backed domain: the cloud cannot reach the customer's on-prem
         # dns_servers directly, so querying them here would stall ~75s before
         # falling back. Resolve the AD server through the connector instead — a bare
-        # IP is used as-is, a hostname goes through pfdns-connector (and is checked
-        # against the connector networks).
+        # IP is used as-is, a hostname goes through pfdns-connector (an IP part of a
+        # connector network is preferred, otherwise the first one is used, like a
+        # bare IP).
         my $resolved_ip = pf::factory::connector->resolve($ad_server);
         if (defined($resolved_ip) && valid_ip($resolved_ip)) {
             $ad_server_host = $ad_fqdn;
             $ad_server_ip = $resolved_ip;
         }
         else {
-            return $self->render_error(422, "Unable to resolve AD server '$ad_server' through the connector. Provide an IP within a connector's networks, or a name resolvable via pfdns-connector.\n");
+            return $self->render_error(422, "Unable to resolve AD server '$ad_server' through pfdns-connector.\n");
         }
     }
     elsif (defined($dns_servers)) {
@@ -401,7 +402,7 @@ sub update {
             $ad_server_ip = $resolved_ip;
         }
         else {
-            return $self->render_error(422, "Unable to resolve AD server '$ad_server' through the connector. Provide an IP within a connector's networks, or a name resolvable via pfdns-connector.\n");
+            return $self->render_error(422, "Unable to resolve AD server '$ad_server' through pfdns-connector.\n");
         }
     }
     elsif (defined($dns_servers)) {

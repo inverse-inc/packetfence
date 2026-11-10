@@ -151,8 +151,8 @@
         <form-group-renewal-mail namespace="renewal_mail"
                                  :column-label="$i18n.t('Renewal Email')"
                                  :text="$i18n.t('Send an email to the owner of the certificate when it is about to expire.')"
-                                 :enabled-value="1"
-                                 :disabled-value="0"
+                                 enabled-value="1"
+                                 disabled-value="0"
         />
         <form-group-days-before-renewal-mail namespace="days_before_renewal_mail"
                                              :column-label="$i18n.t('Days before sending renewal email')"

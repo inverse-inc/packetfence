@@ -20,6 +20,8 @@ use base 'pfconfig::namespaces::interfaces';
 sub init {
     my ($self, $host_id) = @_;
     $self->{_interfaces} = defined($host_id) ? $self->{cache}->get_cache("interfaces($host_id)") : $self->{cache}->get_cache("interfaces");
+    # config::Switch adds the management IPs to the switches
+    $self->{child_resources} = [ defined($host_id) ? "config::Switch($host_id)" : "config::Switch" ];
 }
 
 sub build {

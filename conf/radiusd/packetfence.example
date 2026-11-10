@@ -108,9 +108,13 @@ server packetfence {
 				&control:Auth-Type := Accept
 			}
 		}
+		[% IF multi_domain_disabled %]
+		# packetfence-multi-domain not activated because [% multi_domain_disabled %]
+		[% ELSE %]
 		if ("%{%{Control:Auth-type}:-No-MS_CHAP}" == "MS-CHAP") {
 			packetfence-multi-domain
 		}
+		[% END %]
 		packetfence-eap-mac-policy
 
 		#
@@ -190,6 +194,16 @@ server packetfence {
 				ok
 			}
 			else {
+				# EAP-MSCHAPv2 outside of a tunnel (IKEv2 VPN) does not go through the
+				# authorize section that looks up the domain: look it up here. The
+				# authorize method of the perl module does the lookup.
+				[% IF multi_domain_disabled %]
+				# packetfence-multi-domain not activated because [% multi_domain_disabled %]
+				[% ELSE %]
+				if (!PacketFence-Domain) {
+					packetfence-multi-domain.authorize
+				}
+				[% END %]
 				packetfence-mschap-authenticate
 			}
 		}
@@ -392,10 +406,8 @@ server packetfence {
 		# If the request has not been handled inside the inner-tunnel
 		# send it to packetfence
 		if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
-			rest
-			update {
-				&request:User-Password := "******"
-			}
+			# rest + failure policy (see raddb/policy.d/packetfence)
+			packetfence-post-auth-rest
 			if ("%{%{control:PacketFence-Authorization-Status}:-Allow}" == "deny") {
 				packetfence-audit-log-reject
 				reject
@@ -693,7 +705,11 @@ server packetfence-degraded-tunnel {
 		mschap
 		suffix
 		ntdomain
+		[% IF multi_domain_disabled %]
+		# packetfence-multi-domain not activated because [% multi_domain_disabled %]
+		[% ELSE %]
 		packetfence-multi-domain
+		[% END %]
 
 		if(User-Name =~ /^host\//) {
 			update {

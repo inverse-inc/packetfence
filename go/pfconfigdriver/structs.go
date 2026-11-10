@@ -158,6 +158,7 @@ type PfConfServices struct {
 	Keepalived           string `json:"keepalived"`
 	Netdata              string `json:"netdata"`
 	NetFlowAddress       string `json:"netflow_address"`
+	NetFlowProcessor     string `json:"netflow_processor"`
 	MysqlProbe           string `json:"mysql-probe"`
 	Pfacct               string `json:"pfacct"`
 	Pfdhcp               string `json:"pfdhcp"`
@@ -573,6 +574,18 @@ type ClusterSummary struct {
 	MultiZoneEnabled int `json:"multi_zone_enabled"`
 }
 
+// PfConfPfdhcp is the [pfdhcp] section of pf.conf. mac2ip_lookup decides
+// whether pf::ip4log::mac2ip asks pfdhcp for a MAC's current IP before falling
+// back to the SQL table, which changes which ip4log entry update_ip4log closes.
+type PfConfPfdhcp struct {
+	StructConfig
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"config::Pf"`
+	PfconfigHashNS string `val:"pfdhcp"`
+	Mac2ipLookup   string `json:"mac2ip_lookup"`
+	Ip2macLookup   string `json:"ip2mac_lookup"`
+}
+
 type PfConfAdvanced struct {
 	StructConfig
 	PfconfigMethod                   string   `val:"hash_element"`
@@ -584,7 +597,6 @@ type PfConfAdvanced struct {
 	UpdateIplogWithAccounting        string   `json:"update_iplog_with_accounting"`
 	UpdateIplogWithAuthentication    string   `json:"update_iplog_with_authentication"`
 	AdminCspSecurityHeaders          string   `json:"admin_csp_security_headers"`
-	Multihost                        string   `json:"multihost"`
 	SsoOnAccessReevaluation          string   `json:"sso_on_access_reevaluation"`
 	DisablePfDomainAuth              string   `json:"disable_pf_domain_auth"`
 	TimingStatsLevel                 string   `json:"timing_stats_level"`
@@ -721,6 +733,7 @@ type PfConfRadiusConfiguration struct {
 	PfacctSocketRecvBuffer             string   `json:"pfacct_socket_recv_buffer"`
 	PfacctAAANotifyWorkers             string   `json:"pfacct_aaa_notify_workers"`
 	PfacctAAANotifyQueueSize           string   `json:"pfacct_aaa_notify_queue_size"`
+	RadiusdMaxServers                  string   `json:"radiusd_max_servers"`
 }
 
 type PfQueueConfig struct {
@@ -1136,9 +1149,10 @@ type PfConfSwitch struct {
 	CliTransport string              `json:"cliTransport"`
 
 	// Web Services
-	WsTransport string              `json:"wsTransport"`
-	WsUser      string              `json:"wsUser"`
-	WsPwd       pfcrypt.CryptString `json:"wsPwd"`
+	WsTransport         string              `json:"wsTransport"`
+	WsVerifyCertificate string              `json:"wsVerifyCertificate"`
+	WsUser              string              `json:"wsUser"`
+	WsPwd               pfcrypt.CryptString `json:"wsPwd"`
 
 	// VoIP Detection
 	VoIPEnabled           int    `json:"VoIPEnabled"`
@@ -1158,6 +1172,7 @@ type PfConfSwitch struct {
 	MacSearchesMaxNb         string        `json:"macSearchesMaxNb"`
 	MacSearchesSleepInterval string        `json:"macSearchesSleepInterval"`
 	DeauthOnPrevious         string        `json:"deauthOnPrevious"`
+	HostMode                 string        `json:"host_mode"`
 	Uplink                   []string      `json:"uplink"`
 }
 

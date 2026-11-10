@@ -86,7 +86,7 @@ const setup = (props) => {
     const { locale } = i18n
     const { plotlyImageType: format = 'png' } = settings.value
     const toImageButtonOptions = { filename: title.value, format }
-    plotly.react(plotlyRef.value, traces.value, { ...layout, title: title.value }, { locale, toImageButtonOptions, ...config })
+    plotly.react(plotlyRef.value, traces.value, { ...layout, title: { text: title.value } }, { locale, toImageButtonOptions, ...config })
   }
 
   watch([traces, title, settings, () => i18n.locale], _queueRender, { immediate: true })

@@ -55,6 +55,18 @@ sub run {
             next;
         }
         my $password = pf::password::view($source->{id});
+        if (!defined($password)) {
+            # Deleting a POTD source removes its password, but keeps the person while
+            # devices are registered under it. A source created again with the same
+            # id must get a password, as for a new person.
+            my $person = pf::person::person_view($source->{id});
+            if ($person && ($person->{potd} // '') eq 'yes') {
+                $logger->info("Create the password of $source->{id}");
+                $new_password = pf::password::generate($source->{id},[{type => 'valid_from', value => $now},{type => 'expiration', value => pf::config::access_duration($source->{password_rotation})}],undef,'0',$source);
+                $self->send_email(pid => $source->{id}, password => $new_password, email => $source->{password_email_update}, expiration => pf::config::access_duration($source->{password_rotation}));
+            }
+            next;
+        }
         if(defined($password)){
             my $expiration = $password->{expiration};
             $expiration = DateTime::Format::MySQL->parse_datetime($expiration);

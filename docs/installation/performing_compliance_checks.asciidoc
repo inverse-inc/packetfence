@@ -128,7 +128,7 @@ image::scan_type.png[alt="Scanner add"]
 There are common parameters for each scan engines:
 
   Name: the name of the scan engine
-  Roles: Only devices with these role(s) will be affected (Optional)
+  Roles: Only devices with these role(s) will be affected (Optional). A device without a role (ex: before registration) is considered to have the default role.
   OS: Only devices with this Operating System will be affected (Optional)
   Duration: Approximate duration of scan (Progress bar on the captive portal)
   Scan before registration: Trigger the scan when the device appear on the
@@ -292,7 +292,7 @@ Notes on the configuration:
 [options="compact"]
 * 172.20.20.230 is the IP address (hostname can also be configured) of the Rapid7 server
 * Verify Hostname must be disabled unless a valid SSL certificate is configured for the configured Rapid7 hostname
-* Roles and OS represents the roles and operating systems for which to apply this scan engine. Leaving them empty will apply the policy to all devices.
+* Roles and OS represents the roles and operating systems for which to apply this scan engine. Leaving them empty will apply the policy to all devices. A device without a role, such as an unregistered device scanned before registration, is considered to have the `default` role.
 * Scan before/on/after registration controls when the automated scans are started for the devices PacketFence sees. To only start the scans manually, leave those unchecked.
 * It will not be possible to select a scan template, site and scan engine when initially configuring the engine. First configure the access and credentials and edit the engine again to be able to select those from the available values in Rapid7.
 

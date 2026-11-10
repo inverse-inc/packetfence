@@ -651,7 +651,7 @@ charts=scatter@Ip4Log Start Time|Start time,scatter@Ip4Log End Time|End time
 [Node::Active]
 type=sql
 description=All active nodes
-columns=mac, ip, start_time, pid, detect_date, regdate, status, user_agent, computername, notes, last_arp, last_dhcp, os
+columns=mac, ip, start_time, pid, detect_date, regdate, status, user_agent, computername, notes, last_dhcp, os
 sql= <<EOT
   SELECT
     n.mac as mac,
@@ -664,7 +664,6 @@ sql= <<EOT
     user_agent,
     computername,
     notes,
-    last_arp,
     last_dhcp,
     device_type AS os
   FROM node n
@@ -687,7 +686,7 @@ charts=scatter|regdate
 [Node::Inactive]
 type=sql
 description=All inactive nodes
-columns=mac, ip, start_time, pid, detect_date, regdate, status, user_agent, computername, notes, last_arp, last_dhcp, os
+columns=mac, ip, start_time, pid, detect_date, regdate, status, user_agent, computername, notes, last_dhcp, os
 sql= <<EOT
   SELECT
     mac,
@@ -698,7 +697,6 @@ sql= <<EOT
     user_agent,
     computername,
     notes,
-    last_arp,
     last_dhcp,
     device_type AS os
   FROM node n
@@ -723,7 +721,7 @@ person_fields=pid
 [Node::Registered::Active]
 type=sql
 description=All registered active nodes
-columns=mac,pid,detect_date,regdate,status,user_agent,computername,notes,last_arp,last_dhcp,os
+columns=mac,pid,detect_date,regdate,status,user_agent,computername,notes,last_dhcp,os
 sql= <<EOT
 SELECT
         n.mac,
@@ -734,7 +732,6 @@ SELECT
         user_agent,
         computername,
         notes,
-        last_arp,
         last_dhcp,
         device_type AS os
       FROM node n LEFT JOIN ip4log i USING (mac)
@@ -757,7 +754,7 @@ person_fields=pid
 [Node::Registered::All]
 type=sql
 description=All registered nodes
-columns=mac,pid,detect_date,regdate,status,user_agent,computername,notes,last_arp,last_dhcp,os
+columns=mac,pid,detect_date,regdate,status,user_agent,computername,notes,last_dhcp,os
 sql= <<EOT
 SELECT
         mac,
@@ -768,7 +765,6 @@ SELECT
         user_agent,
         computername,
         notes,
-        last_arp,
         last_dhcp,
         device_type AS os
       FROM node
@@ -790,7 +786,7 @@ person_fields=pid
 [Node::Unregistered::Active]
 type=sql
 description=All active unregistered nodes
-columns=mac, ip, start_time, pid, detect_date, regdate, status, user_agent, computername, notes, last_arp, last_dhcp, os
+columns=mac, ip, start_time, pid, detect_date, regdate, status, user_agent, computername, notes, last_dhcp, os
 sql= <<EOT
   SELECT
     n.mac,
@@ -801,7 +797,6 @@ sql= <<EOT
     user_agent,
     computername,
     notes,
-    last_arp,
     last_dhcp,
     device_type AS os
   FROM node n
@@ -824,7 +819,7 @@ person_fields=pid
 [Node::Unregistered::All]
 type=sql
 description=All unregistered nodes
-columns=mac, ip, start_time, pid, detect_date, regdate, status, user_agent, computername, notes, last_arp, last_dhcp, os
+columns=mac, ip, start_time, pid, detect_date, regdate, status, user_agent, computername, notes, last_dhcp, os
 sql= <<EOT
   SELECT
     mac,
@@ -835,7 +830,6 @@ sql= <<EOT
     user_agent,
     computername,
     notes,
-    last_arp,
     last_dhcp,
     device_type AS os
   FROM node

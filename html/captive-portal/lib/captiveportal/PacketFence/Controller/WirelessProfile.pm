@@ -2,6 +2,7 @@ package captiveportal::PacketFence::Controller::WirelessProfile;
 use Moose;
 use namespace::autoclean;
 use File::Slurp qw(read_file);
+use Data::UUID;
 use pf::constants;
 use pf::util qw (isenabled);
 
@@ -67,7 +68,20 @@ sub index : Path : Args(0) {
         reverse_fqdn     => $reverse_fqdn,
         raw              => $TRUE,
         psk              => $psk,
+        payload_uuid     => _payload_uuids(),
     );
+}
+
+=head2 _payload_uuids
+
+New UUIDs for the payloads of the profile, the templates use the same UUID to
+reference a payload from another one (certificate anchors, identity certificate)
+
+=cut
+
+sub _payload_uuids {
+    my $generator = Data::UUID->new;
+    return { map { $_ => $generator->create_str } qw(wifi identity anchor ca profile) };
 }
 
 sub profile_xml : Path('/profile.xml') : Args(0) {

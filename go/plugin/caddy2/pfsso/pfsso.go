@@ -16,6 +16,7 @@ import (
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/statsd"
+	"github.com/inverse-inc/packetfence/go/api-frontend/unifiedapierrors"
 	"github.com/inverse-inc/packetfence/go/connector"
 	"github.com/inverse-inc/packetfence/go/firewallsso"
 	"github.com/inverse-inc/packetfence/go/panichandler"
@@ -138,7 +139,7 @@ func (h PfssoHandler) spawnSso(ctx context.Context, firewall firewallsso.Firewal
 		goCtx := connector.WithConnectorsContainer(ctxLog, h.connectors)
 		sent, err := f(goCtx, infoCopy)
 		if err != nil {
-			log.LoggerWContext(goCtx).Error(fmt.Sprintf("Error while sending SSO to %s: %s"+firewall.GetFirewallSSO(goCtx).PfconfigHashNS, err))
+			log.LoggerWContext(goCtx).Error(fmt.Sprintf("Error while sending SSO to %s: %s", firewall.GetFirewallSSO(goCtx).PfconfigHashNS, err))
 		}
 
 		if sent {
@@ -182,7 +183,7 @@ func (h PfssoHandler) handleUpdate(w http.ResponseWriter, r *http.Request, p htt
 			// Delete any entries for this MAC that aren't matching this cache key
 			for k, _ := range h.updateCache.Items() {
 				// If its not our current cache key but its made for the same MAC, then we'll remove it since its not relevant anymore
-				if k != cacheKey && strings.Contains(k, "|mac|"+info["mac"]) {
+				if k != cacheKey && strings.Contains(k, "|mac|"+info["mac"]+"|ip|") {
 					log.LoggerWContext(ctx).Debug("Deleting irrelevant cache key " + k)
 					h.updateCache.Delete(k)
 				}
@@ -292,6 +293,15 @@ func (h *PfssoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next ca
 		handle(w, r, params)
 
 		// TODO change me and wrap actions into something that handles server errors
+		return nil
+	}
+
+	if strings.HasPrefix(r.URL.Path, "/api/v1/firewall_sso/") {
+		if unifiedapierrors.OtherMethodMatches(r, func(method string) bool { handle, _, _ := h.router.Lookup(method, r.URL.Path); return handle != nil }) {
+			unifiedapierrors.MethodNotAllowed(w, r)
+		} else {
+			unifiedapierrors.UnknownPath(w, r)
+		}
 		return nil
 	}
 

@@ -7,7 +7,7 @@ ConfigCertificate:
         - false
         - true
     certificate:
-      description: The server certficate for the resource in x509 PEM encoded format
+      description: The server certficate for the resource in x509 PEM encoded format. It can be followed by its intermediate certificates (full chain), which are used when intermediate_cas is absent or empty.
       type: string
     private_key:
       description: The RSA server key for the resource in PEM encoded format
@@ -16,7 +16,7 @@ ConfigCertificate:
       description: The CA certficate for the resource (if applicable)
       type: string
     intermediate_cas:
-      description: The list of certificate authorities for the server certificate
+      description: The list of intermediate certificate authorities for the server certificate. When absent, the intermediates are the ones following the server certificate in the certificate field, otherwise they are fetched through the Authority Information Access of the certificate. When empty, the intermediates following the server certificate are used, otherwise no intermediate is used.
       type: array
       items:
         type: string

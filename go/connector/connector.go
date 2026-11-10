@@ -30,6 +30,10 @@ type DynReverseConnectionInfo struct {
 	Port    json.Number `json:"port"`
 }
 
+type FingerbankCollectorEndpointInfo struct {
+	Endpoint string `json:"endpoint"`
+}
+
 func (c *Connector) init() error {
 	for _, network := range c.Networks {
 		_, ipnet, err := net.ParseCIDR(network)
@@ -63,6 +67,23 @@ func (c *Connector) connectorServerApiClient(ctx context.Context) (*unifiedapicl
 		client.Port = u.Port()
 		return client, nil
 	}
+}
+
+// FingerbankCollectorEndpoint returns the URL of the fingerbank collector co-located
+// with this connector's pfconnector, so callers can query only that collector instead
+// of fanning out across all collectors. Returns an error if the connector tunnel is not
+// currently active.
+func (c *Connector) FingerbankCollectorEndpoint(ctx context.Context) (string, error) {
+	client, err := c.connectorServerApiClient(ctx)
+	if err != nil {
+		return "", err
+	}
+	resp := FingerbankCollectorEndpointInfo{}
+	apiErr := client.Call(ctx, "GET", "/api/v1/pfconnector/fingerbank-collector-endpoint?connector-id="+c.PfconfigHashNS, &resp)
+	if apiErr != nil {
+		return "", apiErr
+	}
+	return resp.Endpoint, nil
 }
 
 func (c *Connector) DynReverse(ctx context.Context, to string) (DynReverseConnectionInfo, error) {

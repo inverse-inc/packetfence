@@ -39,18 +39,28 @@ sub connect_redis {
 
 sub connectorServerApiClient {
     my ($self) = @_;
+    my ($client) = $self->connectorServerApiClientWithOwnership;
+    return $client;
+}
+
+# Same as connectorServerApiClient but also reports whether the client points at
+# the pfconnector server instance that actually holds this connector's tunnel
+# (the address it registered in Redis when it connected) rather than at the
+# generic unified API client.
+sub connectorServerApiClientWithOwnership {
+    my ($self) = @_;
     #TODO: get this out of redis_queue
     my $redis = $self->connect_redis;
     if(my $server = $redis->get($Config{pfconnector}{redis_tunnels_namespace}.$self->id)) {
         if(exists($connections{$server})) {
-            return $connections{$server};
+            return ($connections{$server}, 1);
         }
         my $uri = URI->new($server);
         $connections{$server} = pf::api::unifiedapiclient->new(proto => $uri->scheme, host => $uri->host, port => $uri->port);
-        return $connections{$server};
+        return ($connections{$server}, 1);
     }
     else {
-        return pf::api::unifiedapiclient->default_client;
+        return (pf::api::unifiedapiclient->default_client, 0);
     }
 }
 
@@ -77,7 +87,7 @@ sub dynreverse {
         }
     }
 
-    my $client = $self->connectorServerApiClient;
+    my ($client, $owns_tunnel) = $self->connectorServerApiClientWithOwnership;
     my $connector_conn = $client->call("POST", "/api/v1/pfconnector/dynreverse", {
         to => $to,
         connector_id => $self->id,
@@ -90,19 +100,11 @@ sub dynreverse {
     #been programmed for a while), whereas the instance address we just used for this
     #API call is directly reachable. Required for long-lived calls like the domain join
     #where dialing the ClusterIP hangs and the tunnel gets reaped mid-request.
-    #In K8S/SaaS the connector is otherwise reached through PFCONNECTOR_SERVICE_HOST; the
-    #host the server returns (e.g. containers-gateway.internal) doesn't resolve from this
-    #pod, so whenever PFCONNECTOR_SERVICE_HOST is defined we prefer it.
-    #Otherwise, on a 'Classic PF' container, force the local containers interface so that
-    #the docker proxy gets the packets back on the containers network.
     if ($opts->{pod_direct}) {
         $connector_conn->{host} = $client->host;
     }
-    elsif ($ENV{PFCONNECTOR_SERVICE_HOST}) {
-        $connector_conn->{host} = $ENV{PFCONNECTOR_SERVICE_HOST};
-    }
-    elsif ( ($ENV{IS_A_CLASSIC_PF_CONTAINER} && !$ENV{DOCKER_NETWORK_IS_HOST}) || (exists $ENV{PF_SAAS} && !isenabled($ENV{PF_SAAS})) ) {
-        $connector_conn->{host} = "containers-gateway.internal";
+    else {
+        $connector_conn->{host} = reverse_host($connector_conn->{host}, $client, $owns_tunnel);
     }
     
     get_logger->debug("Using pfconnector dynreverse ".$connector_conn->{host}.":".$connector_conn->{port}." via ".$self->id);
@@ -113,6 +115,59 @@ sub dynreverse {
     }
 
     return $connector_conn;
+}
+
+=head2 reverse_host
+
+The host to dial for a reverse port that the pfconnector server bound on its side of
+a connector's tunnel (a dynreverse port or the connector's fingerbank collector port),
+given the host the server returned, the API client used to reach that server and
+whether that client points at the instance owning the tunnel.
+
+=cut
+
+sub reverse_host {
+    my ($host, $client, $owns_tunnel) = @_;
+
+    #In K8S/SaaS the connector is reached through PFCONNECTOR_SERVICE_HOST; the
+    #host the server returns (e.g. containers-gateway.internal) doesn't resolve from this
+    #pod, so whenever PFCONNECTOR_SERVICE_HOST is defined we prefer it.
+    if ($ENV{PFCONNECTOR_SERVICE_HOST}) {
+        #A dynamic reverse port is bound on the single pfconnector instance that owns the
+        #tunnel and, unlike the static connections, it is never published on the
+        #pfconnector k8s Service. Sending to the Service ClusterIP on such a port has
+        #no kube-proxy rule behind it, so the packets are silently dropped: RADIUS
+        #CoA/Disconnect and SNMP going through a connector simply time out and nothing
+        #ever reaches the connector. Dial the owning instance directly when we know it.
+        return $owns_tunnel ? $client->host : $ENV{PFCONNECTOR_SERVICE_HOST};
+    }
+
+    #On a 'Classic PF' container, force the local containers interface so that
+    #the docker proxy gets the packets back on the containers network.
+    if ( ($ENV{IS_A_CLASSIC_PF_CONTAINER} && !$ENV{DOCKER_NETWORK_IS_HOST}) || (exists $ENV{PF_SAAS} && !isenabled($ENV{PF_SAAS})) ) {
+        return "containers-gateway.internal";
+    }
+
+    return $host;
+}
+
+=head2 fingerbank_collector_endpoint
+
+The fingerbank collector co-located with this connector, as a URI pointing at the
+reverse port the pfconnector server bound for it. Dies when the server has no active
+remote tunnel for this connector.
+
+=cut
+
+sub fingerbank_collector_endpoint {
+    my ($self) = @_;
+    my ($client, $owns_tunnel) = $self->connectorServerApiClientWithOwnership;
+    my $res = $client->call("GET", "/api/v1/pfconnector/fingerbank-collector-endpoint?connector-id=".$self->id, undef);
+    die "No fingerbank collector endpoint returned for connector ".$self->id."\n" unless $res && $res->{endpoint};
+
+    my $uri = URI->new($res->{endpoint});
+    $uri->host(reverse_host($uri->host, $client, $owns_tunnel));
+    return $uri;
 }
 
 =head2 reprovision_static

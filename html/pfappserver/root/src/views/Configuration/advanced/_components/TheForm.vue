@@ -144,13 +144,6 @@
       :text="$i18n.t('The source to use to send an SMS when creating a user.')"
     />
 
-    <form-group-multihost namespace="multihost"
-                          :column-label="$i18n.t('Multihost')"
-                          :text="$i18n.t('Ability to manage all active devices from a same switch port.')"
-                          enabled-value="enabled"
-                          disabled-value="disabled"
-    />
-
     <form-group-active-directory-os-join-check-bypass
       namespace="active_directory_os_join_check_bypass"
       :column-label="$i18n.t('Disable OS AD join check')"
@@ -212,7 +205,6 @@ import {
   FormGroupLanguage,
   FormGroupLdapAttributes,
   FormGroupLocationlogCloseOnAccountingStop,
-  FormGroupMultihost,
   FormGroupNetflowOnAllNetworks,
   FormGroupOpenidAttributes,
   FormGroupPffilterMaxRss,
@@ -248,7 +240,6 @@ const components = {
   FormGroupLanguage,
   FormGroupLdapAttributes,
   FormGroupLocationlogCloseOnAccountingStop,
-  FormGroupMultihost,
   FormGroupNetflowOnAllNetworks,
   FormGroupOpenidAttributes,
   FormGroupPffilterMaxRss,

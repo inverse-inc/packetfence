@@ -28,7 +28,7 @@ BEGIN {
 use pf::config::builder::template_switches;
 use pf::Switch::Template;
 my $builder = pf::config::builder::template_switches->new;
-use Test::More tests => (scalar @FILES) + 6;
+use Test::More tests => (scalar @FILES) + 16;
 #This test will running last
 use Test::NoWarnings;
 for my $file (@FILES) {
@@ -86,6 +86,59 @@ for my $file (@FILES) {
         [$RADIUS::RLM_MODULE_OK, 'Cisco-AVPair' => 'shell:priv-lvl=15'],
         "returnAuthorizeWrite"
     );
+}
+
+{
+    # Why coaOrDisconnect sends a Disconnect-Request although useCoA is enabled (#5124)
+    my $switch = pf::SwitchFactory->instantiate('172.16.8.25');
+    like($switch->_coaFallbackReason(undef), qr/no role on this switch/, "no role for the node");
+    like($switch->_coaFallbackReason('guest'), qr/role mapping is disabled/, "a role but no role mapping");
+}
+
+{
+    # handleCoaOrDisconnect: the fallback to a Disconnect-Request is only logged
+    # when useCoA is enabled, with the reason
+    package FakeLogger9381;
+    our @infos;
+    sub new { bless {}, shift }
+    sub info { shift; push @infos, join('', @_) }
+    sub AUTOLOAD { }
+    sub DESTROY { }
+    package main;
+
+    my $switch = pf::SwitchFactory->instantiate('172.16.8.25');
+    my ($role, @sent);
+    no warnings qw(redefine once);
+    local *pf::roles::custom::getRoleForNode = sub { $role };
+    local *pf::Switch::Template::handleCoa = sub { push @sent, 'coa' };
+    local *pf::Switch::Template::handleDisconnect = sub { push @sent, 'disconnect' };
+    local *pf::Switch::logger = sub { FakeLogger9381->new };
+    my $send = sub {
+        my (%cfg) = @_;
+        local @{$switch}{keys %cfg} = values %cfg;
+        @sent = (); @FakeLogger9381::infos = ();
+        $switch->handleCoaOrDisconnect('02:51:24:00:00:01', {});
+        return (join(',', @sent), join(' | ', grep { /instead of a CoA-Request/ } @FakeLogger9381::infos));
+    };
+
+    $role = 'guest';
+    my ($sent, $log) = $send->(_useCoA => 'Y', _RoleMap => 'Y');
+    is($sent, 'coa', "useCoA and a mapped role: CoA-Request");
+    is($log, '', "nothing logged when the CoA-Request is sent");
+
+    $role = undef;
+    ($sent, $log) = $send->(_useCoA => 'Y', _RoleMap => 'Y');
+    is($sent, 'disconnect', "useCoA without a role: Disconnect-Request");
+    like($log, qr/no role on this switch/, "the missing role is logged");
+
+    $role = 'guest';
+    ($sent, $log) = $send->(_useCoA => 'Y', _RoleMap => 'N', _UrlMap => 'N', _VpnMap => 'N');
+    is($sent, 'disconnect', "useCoA without role mapping: Disconnect-Request");
+    like($log, qr/role mapping is disabled/, "the disabled role mapping is logged");
+
+    ($sent, $log) = $send->(_useCoA => 'N', _RoleMap => 'Y');
+    is($sent, 'disconnect', "useCoA disabled: Disconnect-Request");
+    is($log, '', "nothing logged when useCoA is disabled");
 }
 
 =head1 AUTHOR

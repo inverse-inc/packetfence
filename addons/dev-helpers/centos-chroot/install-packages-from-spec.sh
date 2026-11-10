@@ -8,6 +8,7 @@ PFDIR=${PFDIR:-/usr/local/pf}
 SPEC=${SPEC:-"$PFDIR/rpm/packetfence.spec"}
 REPO=${REPO:-packetfence}
 PF_REPO="--enablerepo=$REPO"
+STD_REPOS="--enablerepo=baseos --enablerepo=appstream --enablerepo=extras"
 
 if [ ! -x /usr/bin/repoquery ];then
     echo "Package yum-utils is not installed to run"
@@ -15,11 +16,11 @@ if [ ! -x /usr/bin/repoquery ];then
     exit 1
 fi
 
-YUM="yum $PF_REPO -y"
+YUM="yum --disablerepo=* $PF_REPO $STD_REPOS -y"
 $YUM makecache
 echo installing the packetfence dependencies from the $REPO repo
 
-REPOQUERY="repoquery --queryformat=%{NAME} $PF_REPO -c /etc/yum.conf -C --pkgnarrow=all"
+REPOQUERY="repoquery --queryformat=%{NAME} --disablerepo=* $PF_REPO $STD_REPOS -c /etc/yum.conf -C --pkgnarrow=all"
 
 EL_VERSION=$(cat /etc/redhat-release | perl -p -e's/^.*(\d+)\..*$/$1/' )
 

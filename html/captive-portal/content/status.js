@@ -6,11 +6,16 @@ document.addEventListener('DOMContentLoaded', function () {
   (function () {
 
     var varsEl = document.getElementById('variables');
-    var vars = JSON.parse(variables.textContent || variables.innerHTML);
+    var vars = JSON.parse(varsEl.textContent || varsEl.innerHTML);
+    // The countdowns fill elements that come from translated strings: when one
+    // is missing (e.g. a broken translation), keep the text rendered by the server
+    var expirationEl = document.getElementById('expiration');
+    var timeleftEl = document.getElementById('timeleft');
+    var pauseEl = document.getElementById('pause');
 
-    if (vars.expiration) {
+    if (vars.expiration && expirationEl) {
       // Initialization of the countdown
-      document.getElementById('expiration').innerHTML = countdown(vars.expiration * 1000, null, countdown.DAYS|countdown.HOURS|countdown.MINUTES, 2).toString();
+      expirationEl.innerHTML = countdown(vars.expiration * 1000, null, countdown.DAYS|countdown.HOURS|countdown.MINUTES, 2).toString();
       // Timer to update the countdown
       var timerId = countdown(
         vars.expiration * 1000,
@@ -32,12 +37,14 @@ document.addEventListener('DOMContentLoaded', function () {
                   window.location = "/status?ts=" + ts.value;
                   return;
                 }
-                document.getElementById('expiration').innerHTML = ts.toString();
+                expirationEl.innerHTML = ts.toString();
               },
               function () { // failure
                 paused = true;
-                document.getElementById('expiration').parentNode.style.display = 'none';
-                document.getElementById('pause').style.display = 'block';
+                expirationEl.parentNode.style.display = 'none';
+                if (pauseEl) {
+                  pauseEl.style.display = 'block';
+                }
               }
             );
           }
@@ -46,8 +53,8 @@ document.addEventListener('DOMContentLoaded', function () {
         2
       );
     }
-    else if (vars.time_balance) {
-      document.getElementById('timeleft').innerHTML = countdown(
+    else if (vars.time_balance && timeleftEl) {
+      timeleftEl.innerHTML = countdown(
         new Date().getTime() + vars.time_balance * 1000,
         null,
         countdown.DAYS|countdown.HOURS|countdown.MINUTES,

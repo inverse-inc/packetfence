@@ -19,6 +19,7 @@ our @EXPORT = qw(
 
 use pf::authentication;
 use pf::config;
+use pf::log;
 use pf::Authentication::constants;
 use pf::util;
 use pf::constants;

@@ -527,12 +527,23 @@ EOT
     }
 
     # Generate mysql_query_rules:
-    #   rule 1 — SELECT FOR UPDATE → HG 10 (writer always, locks rows)
-    #   rule 2 — SELECT            → HG 30 (readers preferred)
+    #   rule 1 — SELECT ... FOR UPDATE     → HG 10 (writer always, locks rows)
+    #   rule 2 — SELECT @@global.read_only → HG 10 (writer)
+    #   rule 3 — SELECT on processlist or performance_schema → HG 10 (writer)
+    #            netdata's mysql collector runs SET SESSION sql_log_off and
+    #            SET SESSION slow_query_log, which lock its session to HG 10;
+    #            without this rule its processlist SELECT (and the
+    #            performance_schema SELECTs of newer netdata functions) match
+    #            rule 4 → HG 30 and ProxySQL rejects them with error 9006
+    #            (locked to hostgroup). (?s) lets .* cross the newlines of
+    #            those multi-line queries
+    #   rule 4 — SELECT                    → HG 30 (readers preferred)
     #            writer is also in HG 30 (weight=50) only as fallback
-    #            if all pure readers go down ✅
-    #   rule 4 — catch-all                 → HG 10 in normal mode
-    #            scheduler rewrites 1,2,4 during degraded mode
+    #            if all pure readers go down
+    #   rule 5 — catch-all                 → HG 10 in normal mode
+    #            scheduler rewrites 1,2,5 during degraded mode
+    #            (rule 3 is deliberately NOT rewritten: a SELECT still works
+    #            on a read-only writer, and replace_pattern would break it)
     # Only generated when we actually have a reader split, and never for a
     # single server (the template used to enforce the latter with an
     # "UNLESS single_server" wrapper; it lives here now because cloud tier mode
@@ -556,7 +567,7 @@ mysql_query_rules =
     {
         rule_id=2,
         active=1,
-        match_pattern="^SELECT \@\@global.read_only",
+        match_pattern="^SELECT \@\@global[.]read_only",
         destination_hostgroup=$writer_hostgroup,
         apply=1,
         comment="SELECT global.read_only goes to writer"
@@ -564,13 +575,21 @@ mysql_query_rules =
     {
         rule_id=3,
         active=1,
+        match_pattern="(?s)^SELECT.*(information_schema[.]processlist|performance_schema[.])",
+        destination_hostgroup=$writer_hostgroup,
+        apply=1,
+        comment="processlist and performance_schema SELECTs stay on writer — netdata session is locked to HG $writer_hostgroup by SET SESSION"
+    },
+    {
+        rule_id=4,
+        active=1,
         match_pattern="^SELECT",
         destination_hostgroup=$reader_hostgroup,
         apply=1,
         comment="SELECT goes to readers — writer is also in HG $reader_hostgroup as fallback"
     },
     {
-        rule_id=4,
+        rule_id=5,
         active=1,
         match_pattern=".*",
         destination_hostgroup=$writer_hostgroup,
@@ -592,7 +611,7 @@ EOT
         #
         # Rules are evaluated by ascending rule_id and apply=1 stops at the first
         # match, so the catch-all clamp must come last. rule_ids start at 21 to
-        # stay clear of 1..4 (rewritten at runtime by proxysql-read-only-handler.sh)
+        # stay clear of 1..5 (1,2,5 rewritten at runtime by proxysql-read-only-handler.sh)
         # and of the legacy 100..400 rules.
         #
         # FreeRADIUS is the exception: rlm_sql offers no hook to prepend the

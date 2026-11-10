@@ -150,7 +150,7 @@ func (ocspr *OCSPResponder) Verify(rawreq []byte) ([]byte, error) {
 
 	ent, err := ocspr.getCertificateStatus(req.SerialNumber, ca)
 
-	if err != nil {
+	if err != nil || ent == nil {
 		status = ocsp.Unknown
 	} else {
 		if ent.Status == StatusRevoked {

@@ -2,6 +2,8 @@
   name: Unregister RHEL subscription
   become: True
   gather_facts: False
+  # an unreachable VM here must not abort the log collection play that follows
+  ignore_unreachable: True
   tags: unregister
 
   pre_tasks:
@@ -15,4 +17,4 @@
   tasks:
     - name: Include tasks to unregister RHEL systems
       include_tasks: tasks/unregister_rhel_subscription_tasks.yml
-      when: ansible_os_family == 'RedHat'
+      when: ansible_os_family | default('') == 'RedHat'

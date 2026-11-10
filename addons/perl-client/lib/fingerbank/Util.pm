@@ -381,7 +381,10 @@ sub set_permissions {
     if ( !$params->{'permissions'} ) {
         my %files = map { $_ => 1 } @fingerbank::FilePath::FILES;
         my %paths = map { $_ => 1 } @fingerbank::FilePath::PATHS;
-        if ( exists($files{$path}) ) {
+        if ( $path eq $fingerbank::FilePath::CONF_FILE ) {
+            # fingerbank.conf contains the Fingerbank API key: no world-readable bit
+            $permissions = 0660;
+        } elsif ( exists($files{$path}) ) {
             $permissions = $fingerbank::Constant::FILE_PERMISSIONS;
         } elsif ( exists($paths{$path}) ) {
             $permissions = $fingerbank::Constant::PATH_PERMISSIONS;

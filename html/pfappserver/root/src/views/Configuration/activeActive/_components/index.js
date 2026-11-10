@@ -2,6 +2,7 @@ import {BaseViewResource} from '../../_components/new/'
 import {
   BaseFormButtonBar,
   BaseFormGroupInput,
+  BaseFormGroupInputNumber,
   BaseFormGroupInputPassword,
   BaseFormGroupSwitch,
 } from '@/components/new/'
@@ -12,6 +13,8 @@ import TheView from './TheView'
 export {
   BaseFormButtonBar as FormButtonBar,
 
+  BaseFormGroupInputNumber as FormGroupApiConnectTimeout,
+  BaseFormGroupInputNumber as FormGroupApiTimeout,
   BaseFormGroupSwitch as FormGroupAuthOnManagement,
   BaseFormGroupSwitch as FormGroupCentralizedDeauth,
   BaseFormGroupSwitch as FormGroupCentralizeVips,

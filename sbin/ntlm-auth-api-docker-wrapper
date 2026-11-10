@@ -14,17 +14,17 @@ cd - || exit 1
 
 option=$1
 
-if [ -z "$env_files" ]; then
-    echo "No .env file found in /usr/local/pf/var/conf/${name}.d/. Service unable to start. Do you have a valid domain.conf, or manually edited domain.conf without a pfcmd configreload ?"
-    exit 1
-fi
-
 if [ "$option" == "" ]; then
     echo "No option given, terminated"
     exit 1
 fi
 
 if [ "$option" = "start" ]; then
+    if [ -z "$env_files" ]; then
+        echo "No .env file found in /usr/local/pf/var/conf/${name}.d/. Service unable to start. Do you have a valid domain.conf, or manually edited domain.conf without a pfcmd configreload ?"
+        exit 1
+    fi
+
     for env_file in $env_files; do
         iden=$(echo $env_file | awk -F '.' '{print $1}')
         echo "Starting ntlm auth api domain service for: $iden using env file: $env_file"
@@ -39,10 +39,11 @@ elif [ "$option" = "stop" ]; then
         echo '' >/usr/local/pf/var/run/ntlm-auth-api.pid
     fi
 
-    for env_file in $env_files; do
-        iden=$(echo $env_file | awk -F '.' '{print $1}')
-        echo "Stopping ntlm auth api domain service for: $iden"
-        systemctl stop packetfence-ntlm-auth-api-domain@"$iden" &
+    # stop every domain service, including the ones of domains disabled or removed since they were started
+    units=$(systemctl list-units --all --plain --no-legend 'packetfence-ntlm-auth-api-domain@*' | awk '{print $1}')
+    for unit in $units; do
+        echo "Stopping ntlm auth api domain service: $unit"
+        systemctl stop "$unit" &
     done
 
     failures=0

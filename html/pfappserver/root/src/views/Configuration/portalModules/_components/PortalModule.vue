@@ -3,7 +3,7 @@
     <b-row align-v="center" class="portal-module-row row-nowrap" :class="{ first: index === 0, last: (last && !isChained), disconnected: isChained, 'first-in-chain': firstInChain }">
       <icon v-if="!isChained" class="connector-arrow" name="caret-right" />
       <portal-module-button :class="{ first: index === 0, last: (last && (isRoot || !isChained)), leaf: !children }"
-        :module="currentModule" :is-root="isRoot" v-bind="$attrs" @remove="onRemove" />
+        :module="currentModule" :is-root="isRoot" :removable="isRoot || parents.length > 0" v-bind="$attrs" @remove="onRemove" />
       <!-- vertical children -->
       <b-col v-if="!isRoot && !isChained && children" class="portal-module-col" :class="{ dragging: dragging }">
         <draggable v-model="children" :group="{ name: path, pull: path, put: ['portal-module', path] }" ghost-class="portal-module-row-ghost" drag-class="portal-module-row-drag"
@@ -78,7 +78,8 @@ const setup = (props, context) => {
     modules,
     parents,
     level,
-    index
+    index,
+    isRoot
   } = toRefs(props)
 
   const { emit } = context
@@ -114,25 +115,19 @@ const setup = (props, context) => {
     return 'L' + level.value + 'I' + index.value
   })
 
-  const onRemove = id => {
-    let list = []
-    let _index = -1
-    let _id = id.value
+  const onRemove = removedId => {
     if (parents.value.length > 0) {
-      // Disconnect module from its parent
-      let [parentId] = parents.value.slice(-1)
-      let parentModule = modules.value.find(module => module.id === parentId)
-      list = parentModule.modules
-      _index = list.findIndex(mid => mid === id)
-      _id = parentId
-    } else {
-      // Delete module's definition
-      list = modules.value
-      _index = list.findIndex(module => module.id === id)
+      // Disconnect module from its parent (new list, so the change is detected)
+      const [parentId] = parents.value.slice(-1)
+      const parentModule = modules.value.find(module => module.id === parentId)
+      if (parentModule) {
+        const list = (parentModule.modules || []).filter(mid => mid !== removedId)
+        emit('update', { id: parentId, modules: list })
+      }
     }
-    if (_index >= 0) {
-      list.splice(_index, 1)
-      emit('update', { id: _id, modules: list })
+    else if (isRoot.value) {
+      // Delete module's definition (list of all modules)
+      emit('delete', removedId)
     }
   }
 

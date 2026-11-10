@@ -107,6 +107,16 @@
                                             :text="$i18n.t('Defines the replication password to be used for the MariaDB Galera cluster replication.')"
     />
 
+    <form-group-api-connect-timeout namespace="api_connect_timeout"
+                                    :column-label="$i18n.t('API connect timeout')"
+                                    :text="$i18n.t('Timeout in seconds to connect to the webservices of another cluster member.')"
+    />
+
+    <form-group-api-timeout namespace="api_timeout"
+                            :column-label="$i18n.t('API timeout')"
+                            :text="$i18n.t('Timeout in seconds of a request to the webservices of another cluster member. The transfers of the Fingerbank databases are only bounded by their lack of progress.')"
+    />
+
     <form-group-probe-mysql-from-haproxy-db namespace="probe_mysql_from_haproxy_db"
                                             :column-label="$i18n.t('Probe Mysql from haproxy-db')"
                                             :text="$i18n.t('Enable mysql-probe in haproxy-db to detect the availability of the MariaDB servers.')"
@@ -121,6 +131,8 @@ import {computed} from '@vue/composition-api'
 import {BaseForm} from '@/components/new/'
 import schemaFn from '../schema'
 import {
+  FormGroupApiConnectTimeout,
+  FormGroupApiTimeout,
   FormGroupAuthOnManagement,
   FormGroupCentralizedDeauth,
   FormGroupCentralizeVips,
@@ -143,6 +155,8 @@ import {
 const components = {
   BaseForm,
 
+  FormGroupApiConnectTimeout,
+  FormGroupApiTimeout,
   FormGroupAuthOnManagement,
   FormGroupCentralizedDeauth,
   FormGroupCentralizeVips,

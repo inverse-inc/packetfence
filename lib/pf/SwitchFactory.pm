@@ -70,6 +70,48 @@ Checks if switch id exists
 
 sub hasId { exists $SwitchConfig{$_[0]} }
 
+=item getSwitchConfig
+
+Resolves switch identifiers (IP, MAC, hostname) to their switches.conf entry.
+This is the lookup L</instantiate> performs: every identifier is first tried as
+a section name, then the IPs are matched against the CIDR sections, most
+specific range first.
+
+  my ($switch_id, $switch_config, $matched) = pf::SwitchFactory::getSwitchConfig(@identifiers);
+
+Returns the section id, its configuration hash and the identifier that matched,
+or an empty list when none does.
+
+=cut
+
+sub getSwitchConfig {
+    my @searches = grep { defined $_ && $_ ne '' } @_;
+
+    foreach my $search (@searches) {
+        if (my $switch_data = $SwitchConfig{$search}) {
+            return ($search, $switch_data, $search);
+        }
+    }
+
+    #Switch ranges is an order array of [NetAddr::IP object of switch,switch_id]
+    return unless @SwitchRanges;
+    foreach my $search (@searches) {
+        next unless valid_ip($search);
+        my $ip = NetAddr::IP->new($search);
+        #Find the first switch that matches it's network range
+        my $rangeConfig = first { $ip->within($_->[0]) } @SwitchRanges;
+        next unless $rangeConfig;
+        my $switch_data = $SwitchConfig{$rangeConfig->[1]};
+        if (!defined $switch_data) {
+            get_logger->error("$search matched but it is not found");
+            next;
+        }
+        return ($rangeConfig->[1], $switch_data, $search);
+    }
+
+    return;
+}
+
 =item instantiate - create new pf::Switch (or subclass) object
 
   $switch = SwitchFactory->instantiate( <switchIdentifier> );
@@ -118,34 +160,7 @@ sub instantiate {
     }
 
     my $switch_data;
-    foreach my $search (@requestedSwitches){
-        if($SwitchConfig{$search}){
-            $switch_id = $requestedSwitch = $search;
-            $switch_data = $SwitchConfig{$search};
-            last;
-        }
-    }
-    if (!$requestedSwitch) {
-        #Switch ranges is an order array of [NetAddr::IP object of switch,switch_id]
-        if(@SwitchRanges) {
-            foreach my $search (@requestedSwitches) {
-                next unless (valid_ip($search));
-                my $ip = NetAddr::IP->new($search);
-                #Find the first switch that matches it's network range
-                if (my $rangeConfig = first { $ip->within($_->[0]) } @SwitchRanges) {
-                    $requestedSwitch = $search;
-                    $switch_id = $rangeConfig->[1];
-                    $switch_data     = $SwitchConfig{$switch_id};
-                    if (!defined $switch_data) {
-                        $logger->error("$search matched but it is not found");
-                        next;
-                    }
-
-                    last;
-                }
-            }
-        }
-    }
+    ($switch_id, $switch_data, $requestedSwitch) = getSwitchConfig(@requestedSwitches);
     unless (defined($requestedSwitch)) {
         $logger->error("WARNING ! Unknown switch(es) ". join(" ",@requestedSwitches));
         return 0;

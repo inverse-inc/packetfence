@@ -113,7 +113,7 @@ const setup = props => {
     const { locale } = i18n
     const { plotlyImageType: format = 'png' } = settings.value
     const toImageButtonOptions = { filename: titleWithDates.value, format }
-    plotly.react(plotlyRef.value, data, { ...layout, title: titleWithDates.value }, { locale, toImageButtonOptions, ...config })
+    plotly.react(plotlyRef.value, data, { ...layout, title: { text: titleWithDates.value } }, { locale, toImageButtonOptions, ...config })
   }
 
   const useSearch = useSearchFactory(meta)

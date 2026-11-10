@@ -19,6 +19,18 @@ has '+source' => (
     builder => '_build_source',
 );
 
+=head2 _extract_username_from_response
+
+Create a generic username if no e-mail is in the response, a Facebook account
+doesn't always have one
+
+=cut
+
+sub _extract_username_from_response {
+    my ($self, $info) = @_;
+    return $info->{email} || ($info->{id} ? $info->{id}.'@facebook' : undef);
+}
+
 sub _build_source {
     my ($self) = @_;
     return $self->app->profile->getSourceByType('Facebook');

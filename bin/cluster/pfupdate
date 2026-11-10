@@ -34,3 +34,10 @@ if (-e "$custom_script_path" && -x "$custom_script_path") {
     print "Running $custom_script_path\n";
     safe_pf_run($custom_script_path, $mode, $vip);
 }
+
+# Record the transition for the cluster virtual IPs status, once the failover
+# actions above are done
+if (defined $vip) {
+    require pf::cluster;
+    pf::cluster::record_vip_state($vip, $mode);
+}

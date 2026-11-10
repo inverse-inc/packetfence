@@ -483,6 +483,54 @@ yup.addMethod(yup.string, 'isPort', function (min = 1, max = 65535, message) {
   })
 })
 
+// Split a list the way it is read when the iptables rules are generated:
+//  lines: a list field, comma or line separated
+//  commas: a text field split on commas, spaces around them are ignored
+//  strict: a text field split on commas only, an item with spaces is invalid
+// An empty item between two separators (8080,,3128, or a blank line) is kept
+// as '', which no check accepts: the rules would get an empty port or
+// interface. A trailing separator is ignored, as when the rules are generated.
+const splitList = (value, mode = 'lines') => {
+  if (mode === 'strict')
+    return value.split(',').filter(item => item !== '')
+  // the lines of a list field are saved joined with commas
+  const joined = (mode === 'lines') ? value.split(/[\n\v\f\r\u0085\u2028\u2029]+/).join(',') : value
+  const items = joined.trim().split(/\s*,\s*/)
+  while (items.length > 0 && items[items.length - 1] === '')
+    items.pop()
+  return items
+}
+const isPortNumber = value => /^\d{1,5}$/.test(value) && +value >= 1 && +value <= 65535
+// a trailing + is the iptables wildcard (ex: eth+)
+const isInterfaceName = value => /^(?=.{1,15}$)[a-zA-Z0-9][a-zA-Z0-9_.@-]*\+?$/.test(value)
+
+yup.addMethod(yup.string, 'isPortCsv', function (message, mode = 'lines') {
+  return this.test({
+    name: 'isPortCsv',
+    message: message || i18n.t('Invalid list of ports (1-65535).'),
+    test: value => ['', null, undefined].includes(value) || splitList(value, mode).every(isPortNumber)
+  })
+})
+
+yup.addMethod(yup.string, 'isPortProtocolCsv', function (message, mode = 'commas') {
+  return this.test({
+    name: 'isPortProtocolCsv',
+    message: message || i18n.t('Invalid list of ports, expected port/protocol (ex: 80/tcp).'),
+    test: value => ['', null, undefined].includes(value) || splitList(value, mode).every(item => {
+      const [port, protocol, ...rest] = item.split('/')
+      return rest.length === 0 && isPortNumber(port) && /^(tcp|udp)$/i.test(protocol)
+    })
+  })
+})
+
+yup.addMethod(yup.string, 'isInterfaceNameCsv', function (message, mode = 'lines') {
+  return this.test({
+    name: 'isInterfaceNameCsv',
+    message: message || i18n.t('Invalid list of interface names.'),
+    test: value => ['', null, undefined].includes(value) || splitList(value, mode).every(isInterfaceName)
+  })
+})
+
 yup.addMethod(yup.string, 'isPrice', function (message) {
   return this.test({
     name: 'isPrice',
@@ -511,6 +559,8 @@ import {
   MysqlString,
   MysqlNumber,
   MysqlDatetime,
+  MysqlDatetimeMax,
+  MysqlDatetimeMin,
   MysqlEnum,
   MysqlEmail,
   MysqlMac
@@ -535,6 +585,14 @@ yup.addMethod(yup.string, 'mysql', function(columnSchema) {
         case (type === MysqlDatetime):
           if (!([0, '0'].includes(value)) && format.replace(/[a-z]/gi, '0') !== value.replace(/[0-9]/g, '0'))
             return this.createError({ message: i18n.t('Invalid datetime, use format "{format}".', { format }) })
+          // zero-padded YYYY-MM-DD... compares lexically, zero dates (0, 0000-00-00 ...) are allowed
+          if (format.startsWith('YYYY-MM-DD') && !/^0+(-|$)/.test(`${value}`)) {
+            const date = `${value}`.substring(0, 10)
+            if (date < MysqlDatetimeMin)
+              return this.createError({ message: i18n.t('Invalid datetime, must be on or after {min}.', { min: MysqlDatetimeMin }) })
+            if (date > MysqlDatetimeMax)
+              return this.createError({ message: i18n.t('Invalid datetime, must be on or before {max}.', { max: MysqlDatetimeMax }) })
+          }
           break
 
         case (type === MysqlNumber):

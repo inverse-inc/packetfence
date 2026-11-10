@@ -267,7 +267,8 @@ sub _build_clientMac {
         }
     }
 
-    Log::Log4perl::MDC->put('mac', $mac) if defined $mac;
+    # Keep 'unknown' in the logging context when no MAC address was found (ip2mac returns 0)
+    Log::Log4perl::MDC->put('mac', $mac) if $mac;
     return $mac;
 }
 

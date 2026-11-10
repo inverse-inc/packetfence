@@ -4,7 +4,6 @@ import { pfFieldType as fieldType } from '@/globals/pfField'
 export const baseRoles = [
   'registration',
   'isolation',
-  'macDetection',
   'inline'
 ]
 

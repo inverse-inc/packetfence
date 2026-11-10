@@ -37,7 +37,6 @@
 #     node_info.machine_account
 #     node_info.category
 #     node_info.mac
-#     node_info.last_arp
 #     node_info.last_dhcp
 #     node_info.user_agent
 #     node_info.computername
@@ -71,6 +70,8 @@
 #     regex
 #     date_is_before
 #     date_is_after
+#       (the value of date_is_before and date_is_after is a date "YYYY-MM-DD HH:MM:SS",
+#        "YYYY-MM-DD HH:MM", "YYYY-MM-DD" or "now" for the time of the evaluation)
 #     time
 #
 # Example of Value can be :

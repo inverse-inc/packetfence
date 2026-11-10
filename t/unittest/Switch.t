@@ -21,7 +21,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 19;
+use Test::More tests => 30;
 use pf::Switch;
 use pf::Switch::Cisco::ASA;
 use pf::error::switch;
@@ -150,6 +150,39 @@ is(pf::Switch::_parentRoleForVlan("r1"), '', "parent role for vlan r1 is undef")
 is($switch->getVlanByName("r3"), "gotTwo", "Got the parent vlan");
 is($switch->getVlanByName("r2"), "gotTwo", "Got my vlan");
 is($switch->getVlanByName("r1"), "gotOne", "Got my vlan");
+
+is($switch->resolve_deauth_host("192.0.2.10"), "192.0.2.10", "An IPv4 deauth host is returned unchanged");
+is($switch->resolve_deauth_host("localhost"), "127.0.0.1", "A hostname deauth host is resolved to its IP address");
+is($switch->resolve_deauth_host("unresolvable.invalid"), "unresolvable.invalid", "An unresolvable deauth host is returned unchanged");
+is($switch->resolve_deauth_host(undef), undef, "An undefined deauth host is returned unchanged");
+
+# A controller behind a remote connector may only be resolvable through pfdns-connector
+{
+    require pf::factory::connector;
+    my (@asked, $connector_answer);
+    no warnings qw(redefine once);
+    local *pf::factory::connector::resolve = sub { push @asked, $_[1]; return $connector_answer };
+    is($switch->resolve_deauth_host("localhost", 1), "127.0.0.1", "A locally resolvable deauth host uses the local resolver");
+    $connector_answer = "198.51.100.7";
+    is($switch->resolve_deauth_host("remote.invalid", 1), "198.51.100.7", "An unresolvable deauth host is resolved through the connector");
+    $connector_answer = undef;
+    is($switch->resolve_deauth_host("remote.invalid", 1), "remote.invalid", "A deauth host unknown to the connector is returned unchanged");
+    $connector_answer = "198.51.100.7";
+    is($switch->resolve_deauth_host("remote.invalid"), "remote.invalid", "The connector is not used when the deauth doesn't go through a connector");
+    is_deeply(\@asked, ["remote.invalid", "remote.invalid"], "The connector is only asked when the local resolver fails");
+}
+
+# An unresolvable deauth host is resolved, and reported, once per deauthentication
+{
+    my $resolutions = 0;
+    my $resolve = \&pf::Switch::resolve_deauth_host;
+    no warnings qw(redefine once);
+    local *pf::Switch::resolve_deauth_host = sub { $resolutions++; $resolve->(@_) };
+    local *pf::Switch::shouldUseConnectorForRadiusDeauth = sub { 0 };
+    my $connection_info = $switch->radius_deauth_connection_info("unresolvable.invalid");
+    is($connection_info->{LocalAddr}, "0.0.0.0", "An unresolvable deauth host gets no source address lookup");
+    is($resolutions, 1, "An unresolvable deauth host is resolved once");
+}
 
 =head1 AUTHOR
 

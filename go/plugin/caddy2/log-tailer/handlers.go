@@ -109,7 +109,7 @@ func (h *LogTailerHandler) createNewSession(c *gin.Context) {
 }
 
 func (h *LogTailerHandler) getSession(c *gin.Context) {
-	func() {
+	found := func() bool {
 		h.sessionsLock.RLock()
 		defer h.sessionsLock.RUnlock()
 
@@ -118,7 +118,7 @@ func (h *LogTailerHandler) getSession(c *gin.Context) {
 
 		if _, ok := h.sessions[sessionId]; !ok {
 			c.JSON(http.StatusNotFound, gin.H{"message": "Unable to find a session with this identifier"})
-			return
+			return false
 		}
 
 		char := "?"
@@ -135,7 +135,12 @@ func (h *LogTailerHandler) getSession(c *gin.Context) {
 		sharedutils.CheckError(err)
 
 		h.sessions[sessionId].Touch()
+		return true
 	}()
+
+	if !found {
+		return
+	}
 
 	h.eventsManager.SubscriptionHandler(c.Writer, c.Request)
 }

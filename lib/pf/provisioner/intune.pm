@@ -17,6 +17,7 @@ use Moo;
 extends 'pf::provisioner';
 
 use JSON::MaybeXS qw( decode_json );
+use URI::Escape qw(uri_escape);
 use pf::util qw(clean_mac);
 use WWW::Curl::Easy;
 use WWW::Curl::Form;
@@ -136,6 +137,51 @@ Domains that needs to be allowed to fetch the agent
 
 has domains => (is => 'rw');
 
+=head2 device_lookup
+
+Ordered list of the methods used to find the device in Intune (see
+@DEVICE_LOOKUP_METHODS). Intune keeps a single Wi-Fi and a single Ethernet
+MAC per device, so a MAC-only lookup misses docks, USB adapters and
+secondary NICs (GitHub #9082); the other methods use identifiers PacketFence
+already knows about the node.
+
+=cut
+
+has device_lookup => (is => 'rw', default => sub { ['mac'] });
+
+=head1 Lookup methods
+
+=over
+
+=item azure_ad_device_id
+
+The client certificate CN or the 802.1X identity is the Azure AD / Entra
+device ID. This is the case for EAP-TLS with an Intune SCEP profile whose
+subject is C<CN={{AAD_Device_ID}}>. Graph: C<$filter=azureADDeviceId eq>.
+
+=item intune_device_id
+
+The same, with the Intune managed device ID (C<CN={{DeviceId}}>).
+Graph: C<managedDevices/{id}>.
+
+=item device_name
+
+The host name in an 802.1X machine identity (C<host/name.domain>) is the
+Intune device name. The DHCP host name isn't used: the client chooses it.
+A name shared by several devices is not used. Graph: C<$filter=deviceName eq>.
+
+=item mac
+
+The historical behaviour: every managed device is listed and matched on
+C<wiFiMacAddress> / C<ethernetMacAddress> (Graph cannot filter on those).
+
+=back
+
+=cut
+
+our @DEVICE_LOOKUP_METHODS = qw(azure_ad_device_id intune_device_id device_name mac);
+our $GRAPH_SELECT = '$select=id,deviceName,azureADDeviceId,serialNumber,wiFiMacAddress,ethernetMacAddress,complianceState,lastSyncDateTime';
+
 sub get_access_token {
     my ($self) = @_;
     my $logger = get_logger();
@@ -233,10 +279,204 @@ sub perform_get_device_info {
     return $self->decode_response($curl_info, $response_body);
 }
 
+sub _is_comm_failed {
+    my ($v) = @_;
+    return defined $v && !ref($v) && $v eq $pf::provisioner::COMMUNICATION_FAILED;
+}
+
+sub graph_url {
+    my ($self, $path) = @_;
+    return $self->protocol . '://' . $self->host . ':' . $self->port . '/v1.0/deviceManagement/' . $path;
+}
+
+=head2 lookup_methods
+
+The configured lookup methods, in order, restricted to the known ones.
+Falls back to the MAC scan when nothing valid is configured.
+
+=cut
+
+sub lookup_methods {
+    my ($self) = @_;
+    my $configured = $self->device_lookup;
+    my @methods = ref($configured) eq 'ARRAY' ? @$configured : split(/\s*,\s*/, $configured // '');
+    my %known = map { $_ => 1 } @DEVICE_LOOKUP_METHODS;
+    my (@valid, %seen);
+    for my $m (map { lc } @methods) {
+        push @valid, $m if $known{$m} && !$seen{$m}++;
+    }
+    return @valid ? @valid : ('mac');
+}
+
+=head2 normalize_dot1x_identity
+
+Strips what 802.1X identities carry around the identifier itself: a
+C<host/> prefix (machine authentication), a C<DOMAIN\> prefix and an
+C<@realm> suffix.
+
+=cut
+
+sub normalize_dot1x_identity {
+    my ($self, $identity) = @_;
+    return undef unless defined $identity && length $identity;
+    $identity =~ s/^host\///i;
+    $identity =~ s/^[^\\]+\\//;
+    $identity =~ s/@.*$//;
+    $identity =~ s/^\s+|\s+$//g;
+    return length $identity ? $identity : undef;
+}
+
+sub is_guid {
+    my ($self, $value) = @_;
+    return defined $value && $value =~ /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+}
+
+sub short_hostname {
+    my ($self, $name) = @_;
+    return undef unless defined $name && length $name;
+    $name =~ s/\..*$//;
+    $name =~ s/\$$//;
+    return length $name ? $name : undef;
+}
+
+=head2 lookup_identities
+
+The identifier available for each lookup method.
+
+During a RADIUS request (C<user_name> in the context), the identity of the
+request is used: the node's last 802.1X username is the previous session's
+until the locationlog is updated. Otherwise, the node's last 802.1X username.
+
+=cut
+
+sub lookup_identities {
+    my ($self, $mac, $node_info, $context) = @_;
+    $node_info //= {};
+    my %ids = (mac => $mac);
+    my ($identity, $cn);
+    if (ref($context) eq 'HASH' && defined $context->{user_name}) {
+        $identity = $context->{user_name};
+        my $request = $context->{radius_request};
+        if (ref($request) eq 'HASH') {
+            $cn = $request->{'TLS-Client-Cert-Common-Name'};
+            $cn = $cn->[0] if ref($cn) eq 'ARRAY';
+        }
+    }
+    else {
+        $identity = $node_info->{last_dot1x_username};
+    }
+
+    # The certificate CN first: radius_configuration.username_attributes
+    # prefers the certificate SAN (UPN, DNS) over it for the username
+    for my $candidate ($cn, $identity) {
+        my $id = $self->normalize_dot1x_identity($candidate);
+        if ($self->is_guid($id)) {
+            $ids{azure_ad_device_id} = lc $id;
+            $ids{intune_device_id}   = lc $id;
+            last;
+        }
+    }
+
+    # Only an authenticated machine identity: the DHCP host name is chosen by the client
+    if (defined $identity && $identity =~ m{^host/}i) {
+        my $name = $self->short_hostname($self->normalize_dot1x_identity($identity));
+        $ids{device_name} = $name if defined $name && !$self->is_guid($name);
+    }
+    return \%ids;
+}
+
+=head2 authorize_cache_key_suffix
+
+The identities used by the lookup, so that devices sharing a MAC (a dock)
+don't share the cached result of authorize_apply_role.
+
+=cut
+
+sub authorize_cache_key_suffix {
+    my ($self, $mac, $context) = @_;
+    return '' unless grep { $_ ne 'mac' } $self->lookup_methods;
+    my $has_request_identity = ref($context) eq 'HASH' && defined $context->{user_name};
+    my $ids = $self->lookup_identities($mac, $has_request_identity ? {} : node_view($mac), $context);
+    return join('', map { "-$_=$ids->{$_}" } sort grep { $_ ne 'mac' } keys %$ids);
+}
+
+=head2 find_device
+
+Tries every configured lookup method in order and returns the first
+managed device found, undef when none matched, or COMMUNICATION_FAILED.
+In list context, also returns the method that found the device.
+
+=cut
+
+sub find_device {
+    my ($self, $mac, $node_info, $context) = @_;
+    my $logger = get_logger();
+    my $ids = $self->lookup_identities($mac, $node_info, $context);
+    my @tried;
+    for my $method ($self->lookup_methods) {
+        my $value = $ids->{$method};
+        unless (defined $value) {
+            $logger->debug("Intune lookup by $method skipped for $mac: no identifier available on the node");
+            next;
+        }
+        push @tried, "$method=$value";
+        my $device = $self->find_device_by_method($method, $value);
+        return $device if _is_comm_failed($device);
+        if (defined $device) {
+            $logger->info("Found device $mac in Intune by $method ($value): id=" . ($device->{id} // '?') . " name=" . ($device->{deviceName} // '?'));
+            return wantarray ? ($device, $method) : $device;
+        }
+        $logger->debug("Device $mac not found in Intune by $method ($value)");
+    }
+    $logger->info("Device $mac not found in Intune (tried: " . (join(", ", @tried) || 'nothing, no identifier available') . ")");
+    return undef;
+}
+
+sub find_device_by_method {
+    my ($self, $method, $value) = @_;
+    return $self->get_device_by_filter("azureADDeviceId eq '" . _odata_quote($value) . "'") if $method eq 'azure_ad_device_id';
+    return $self->get_device_by_id($value, 1)                                                if $method eq 'intune_device_id';
+    return $self->get_device_by_filter("deviceName eq '" . _odata_quote($value) . "'", 1)   if $method eq 'device_name';
+    return $self->get_device_by_mac($value)                                                  if $method eq 'mac';
+    return undef;
+}
+
+# OData string literals escape a single quote by doubling it.
+sub _odata_quote {
+    my ($value) = @_;
+    $value =~ s/'/''/g;
+    return $value;
+}
+
+=head2 get_device_by_filter
+
+Runs a C<$filter> query on managedDevices and returns the matching device;
+when several match, the most recently synced one, or undef when
+C<$unique> is set.
+
+=cut
+
+sub get_device_by_filter {
+    my ($self, $filter, $unique) = @_;
+    my $info = $self->perform_get_device_info($self->graph_url('managedDevices?' . $GRAPH_SELECT . '&$filter=' . uri_escape($filter)));
+    return $info if _is_comm_failed($info);
+    my @found = @{ (ref($info) eq 'HASH' ? $info->{value} : undef) // [] };
+    return undef unless @found;
+    if (@found > 1 && $unique) {
+        get_logger->warn("Intune returned " . scalar(@found) . " devices for filter '$filter'; not using an ambiguous match");
+        return undef;
+    }
+    if (@found > 1) {
+        get_logger->warn("Intune returned " . scalar(@found) . " devices for filter '$filter'; using the most recently synced one");
+        @found = sort { ($b->{lastSyncDateTime} // '') cmp ($a->{lastSyncDateTime} // '') } @found;
+    }
+    return $found[0];
+}
+
 sub find_device_by_mac {
     my ($self, $info, $mac) = @_;
     for my $entry (@{$info->{value} // []}) {
-        if ($entry->{wiFiMacAddress} eq $mac || ($entry->{ethernetMacAddress} // "") eq $mac) {
+        if (($entry->{wiFiMacAddress} // "") eq $mac || ($entry->{ethernetMacAddress} // "") eq $mac) {
             return $entry;
         }
     }
@@ -244,71 +484,99 @@ sub find_device_by_mac {
     return undef;
 }
 
+=head2 get_device_by_id
+
+Fetches one managed device by its Intune ID: the selected properties only,
+or the full record when C<$full> is set. Returns undef when Intune does not
+know the ID (Graph answers 404 with an error document).
+
+=cut
+
 sub get_device_by_id {
-    my ($self, $id) = @_;
-    my $info = $self->perform_get_device_info($self->protocol.'://' . $self->host . ':' .  $self->port . "/v1.0/deviceManagement/managedDevices/$id");
-    return $info;
+    my ($self, $id, $full) = @_;
+    return undef unless defined $id && length $id;
+    my $info = $self->perform_get_device_info($self->graph_url('managedDevices/' . uri_escape($id) . ($full ? '' : '?' . $GRAPH_SELECT)));
+    return $info if _is_comm_failed($info);
+    return (ref($info) eq 'HASH' && defined $info->{id}) ? $info : undef;
 }
 
-sub get_device_info {
+=head2 get_device_by_mac
+
+Lists every managed device (paged) and matches on the Wi-Fi / Ethernet MAC.
+Graph does not filter on those properties, so this walks the whole fleet.
+
+=cut
+
+sub get_device_by_mac {
     my ($self, $mac) = @_;
-    my $logger = get_logger();
     my $azuremac = uc($mac);
     $azuremac =~ s/://g;
 
-    my @infos;
-    my $info = $self->perform_get_device_info($self->protocol.'://' . $self->host . ':' .  $self->port . '/v1.0/deviceManagement/managedDevices?$select=wiFiMacAddress,complianceState,id,ethernetMacAddress');
-    if($info == $pf::provisioner::COMMUNICATION_FAILED) {
-        return $pf::provisioner::COMMUNICATION_FAILED;
-    }
+    my $info = $self->perform_get_device_info($self->graph_url('managedDevices?' . $GRAPH_SELECT));
+    return $info if _is_comm_failed($info);
 
     my $entry = $self->find_device_by_mac($info, $azuremac);
-    if (defined $entry) {
-        return $entry;
-    }
+    return $entry if defined $entry;
 
-    while ($info && $info != $pf::provisioner::COMMUNICATION_FAILED && $info->{'@odata.nextLink'}) {
+    while ($info && !_is_comm_failed($info) && $info->{'@odata.nextLink'}) {
         $info = $self->perform_get_device_info($info->{'@odata.nextLink'});
-        if($info == $pf::provisioner::COMMUNICATION_FAILED) {
-            return $pf::provisioner::COMMUNICATION_FAILED;
-        }
-
-        my $entry = $self->find_device_by_mac($info, $azuremac);
-        if (defined $entry) {
-            return $entry;
-        }
+        return $info if _is_comm_failed($info);
+        $entry = $self->find_device_by_mac($info, $azuremac);
+        return $entry if defined $entry;
     }
 
     return undef;
 }
 
-
 sub authorize {
-    my ($self,$mac) = @_;
+    my ($self, $mac, $context) = @_;
     my $logger = get_logger();
+    my $node_info = node_view($mac);
 
-    my $result = $self->get_device_info($mac);
-    if (defined $result && $result == $pf::provisioner::COMMUNICATION_FAILED) {
+    my ($result, $method) = $self->find_device($mac, $node_info, $context);
+    if (_is_comm_failed($result)) {
         $logger->info("Graph access token is probably not valid anymore.");
         $self->refresh_access_token();
-        $result = $self->get_device_info($mac);
+        ($result, $method) = $self->find_device($mac, $node_info, $context);
     }
 
-    if (defined $result && $result == $pf::provisioner::COMMUNICATION_FAILED) {
+    if (_is_comm_failed($result)) {
         $logger->error("Unable to contact the Graph API to validate if mac $mac is registered.");
         return $pf::provisioner::COMMUNICATION_FAILED;
     }
 
-    return $self->verify_compliance($mac, $result);
+    return $self->verify_compliance($mac, $result, $node_info, $method);
 }
 
 sub verify_compliance {
-    my ($self, $mac, $info) = @_;
+    my ($self, $mac, $info, $node_info, $method) = @_;
     my $logger = get_logger();
-    # Format the mac to the azure format
-    my $device = $self->get_device_by_id($info->{id});
-    my $node_info = node_view($mac);
-    if ($info->{complianceState} ne 'compliant') {
+    $node_info //= node_view($mac);
+
+    unless (ref($info) eq 'HASH' && defined $info->{id}) {
+        # Not enrolled (or enrolled under identifiers we could not match):
+        # not compliant, and there is no device record to hand to the rules.
+        $logger->info("Device $mac is not enrolled in Intune (no managed device matched); treating it as non compliant.");
+        if ($self->{non_compliance_security_event}) {
+            pf::security_event::security_event_add($mac, $self->{non_compliance_security_event}, ());
+        }
+        return $self->handleAuthorizeEnforce($mac, {node_info => $node_info, compliant_check => 0, intune => undef}, $FALSE);
+    }
+
+    # The list/filter answers carry the selected properties only; fetch the
+    # full record for the authorize_enforce rules (the lookup by Intune ID
+    # already did).
+    my $device = $info;
+    if (($method // '') ne 'intune_device_id') {
+        $device = $self->get_device_by_id($info->{id}, 1);
+        unless (ref($device) eq 'HASH') {
+            $logger->warn("Unable to fetch the full Intune record of device $info->{id}; the rules only get its selected properties");
+            $device = $info;
+        }
+    }
+
+    if (($info->{complianceState} // '') ne 'compliant') {
+        $logger->info("Device $mac (Intune id $info->{id}) is not compliant: " . ($info->{complianceState} // 'unknown'));
         if ($self->{non_compliance_security_event}) {
             pf::security_event::security_event_add($mac, $self->{non_compliance_security_event}, ());
         }
@@ -316,7 +584,7 @@ sub verify_compliance {
         return $self->handleAuthorizeEnforce($mac, {node_info => $node_info, compliant_check => 0, intune => $device}, $FALSE);
     }
 
-    $logger->info("Device $mac is compliant.");
+    $logger->info("Device $mac (Intune id $info->{id}) is compliant.");
     return $self->handleAuthorizeEnforce($mac, {node_info => $node_info, intune => $device, compliant_check => 1}, $TRUE);
 }
 

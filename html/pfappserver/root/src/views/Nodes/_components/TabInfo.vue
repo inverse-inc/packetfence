@@ -44,9 +44,6 @@
         <base-form-group class="text-nowrap" :column-label="$t('Unregistration Date')">
           {{ node.unregdate | longDateTime }} <abbr v-if="node.unregdate && node.unregdate !== '0000-00-00 00:00:00'" :title="node.unregdate | longDateTime">(<timeago :datetime="node.unregdate" :auto-update="60" :locale="$i18n.locale"/>)</abbr>
         </base-form-group>
-        <base-form-group class="text-nowrap" :column-label="$t('Last ARP')">
-          {{ node.last_arp | longDateTime }} <abbr v-if="node.last_arp && node.last_arp !== '0000-00-00 00:00:00'" :title="node.last_arp | longDateTime">(<timeago :datetime="node.last_arp" :auto-update="60" :locale="$i18n.locale"/>)</abbr>
-        </base-form-group>
         <base-form-group class="text-nowrap" :column-label="$t('Last DHCP')">
           {{ node.last_dhcp | longDateTime }} <abbr v-if="node.last_dhcp && node.last_dhcp !== '0000-00-00 00:00:00'" :title="node.last_dhcp | longDateTime">(<timeago :datetime="node.last_dhcp" :auto-update="60" :locale="$i18n.locale"/>)</abbr>
         </base-form-group>

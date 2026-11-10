@@ -77,6 +77,8 @@
                 :value="inputValueDate"
                 class="align-self-center"
                 :locale="$i18n.locale"
+                :max="max"
+                :min="min"
                 @input="onDate"
                 label-help=""
                 hide-header

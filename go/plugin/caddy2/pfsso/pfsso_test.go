@@ -5,6 +5,7 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/inverse-inc/go-utils/log"
@@ -18,6 +19,7 @@ func TestMain(m *testing.M) {
 	ctx := context.Background()
 	firewalls := firewallsso.NewFirewallsContainer(ctx)
 	pfconfigdriver.AddRefreshable(ctx, "firewallsso.FirewallsContainer", firewalls)
+	os.Exit(m.Run())
 }
 
 func TestValidateInfo(t *testing.T) {
@@ -164,6 +166,7 @@ func TestHandleStart(t *testing.T) {
 	err := pfsso.buildPfssoHandler(ctx)
 	sharedutils.CheckTestError(t, err)
 	req := httptest.NewRequest("POST", "/pfsso/start", bytes.NewBuffer([]byte(`{"ip":"1.2.3.4", "mac": "00:11:22:33:44:55", "username":"lzammit", "role": "default", "timeout":"86400"}`)))
+	req = req.WithContext(ctx)
 	recorder := httptest.NewRecorder()
 	pfsso.handleStart(recorder, req, httprouter.Params{})
 
@@ -173,6 +176,7 @@ func TestHandleStart(t *testing.T) {
 
 	// Test invalid JSON payload
 	req = httptest.NewRequest("POST", "/pfsso/start", bytes.NewBuffer([]byte(`{"ip":"1.2.3.4", "mac": "00:11:22:33:44:55", "username":"lzammit", "role": "default", "timeout":"86400"`)))
+	req = req.WithContext(ctx)
 	recorder = httptest.NewRecorder()
 	pfsso.handleStart(recorder, req, httprouter.Params{})
 
@@ -182,6 +186,7 @@ func TestHandleStart(t *testing.T) {
 
 	// Test missing info
 	req = httptest.NewRequest("POST", "/pfsso/start", bytes.NewBuffer([]byte(`{"ip":"1.2.3.4", "mac": "00:11:22:33:44:55", "username":"lzammit", "timeout":"86400"}`)))
+	req = req.WithContext(ctx)
 	recorder = httptest.NewRecorder()
 	pfsso.handleStart(recorder, req, httprouter.Params{})
 
@@ -197,6 +202,7 @@ func TestHandleStop(t *testing.T) {
 	err := pfsso.buildPfssoHandler(ctx)
 	sharedutils.CheckTestError(t, err)
 	req := httptest.NewRequest("POST", "/pfsso/stop", bytes.NewBuffer([]byte(`{"ip":"1.2.3.4", "mac": "00:11:22:33:44:55", "username":"lzammit", "role": "default"}`)))
+	req = req.WithContext(ctx)
 	recorder := httptest.NewRecorder()
 	pfsso.handleStop(recorder, req, httprouter.Params{})
 
@@ -206,6 +212,7 @@ func TestHandleStop(t *testing.T) {
 
 	// Test invalid JSON payload
 	req = httptest.NewRequest("POST", "/pfsso/stop", bytes.NewBuffer([]byte(`{"ip":"1.2.3.4", "mac": "00:11:22:33:44:55", "username":"lzammit", "role": "default"`)))
+	req = req.WithContext(ctx)
 	recorder = httptest.NewRecorder()
 	pfsso.handleStart(recorder, req, httprouter.Params{})
 
@@ -215,6 +222,7 @@ func TestHandleStop(t *testing.T) {
 
 	// Test missing info
 	req = httptest.NewRequest("POST", "/pfsso/stop", bytes.NewBuffer([]byte(`{"ip":"1.2.3.4", "mac": "00:11:22:33:44:55", "username":"lzammit"}`)))
+	req = req.WithContext(ctx)
 	recorder = httptest.NewRecorder()
 	pfsso.handleStart(recorder, req, httprouter.Params{})
 

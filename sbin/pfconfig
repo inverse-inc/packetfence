@@ -96,6 +96,10 @@ my $daemonize = $args{d};
 # standard signals and daemonize
 daemonize($PROGRAM_NAME, $PID_FILE) if ($daemonize);
 
+# pid of the daemon itself (daemonize forks, so take it after), used by END to
+# skip the cleanup in forked children
+my $DAEMON_PID = $$;
+
 my $FILE_LOCK = getLockOnPid($PID_FILE);
 
 unless ($FILE_LOCK) {
@@ -233,7 +237,8 @@ while($RUNNING) {
 $logger->info("Stop running\n");
 
 END {
-    if (!$args{h} && $FILE_LOCK ) {
+    # Forked children inherit $FILE_LOCK: only the daemon may notify systemd and remove the pid file
+    if (!$args{h} && $FILE_LOCK && $$ == $DAEMON_PID) {
         Linux::Systemd::Daemon::sd_notify( STOPPING => 1 );
         deletepid($PROGRAM_NAME, $PID_FILE);
     }
@@ -479,23 +484,26 @@ sub pull_expire {
     $logger->info("Forking to pull git conf");
     my $pid = pf::AtFork::pf_fork();
     if ($pid == 0) {
-        my $res = pfconfig::git_storage->update();
-        if(!$res) {
-            $logger->error("Unable to update from git storage");
-            exit;
-        }
-        $res = pfconfig::util::socket_expire(
-            # Force the socket call to happen on the local pfconfig instance regardless of the configuration
-            tcp_host => "127.0.0.1",
-            namespace => $query->{namespace}, 
-            light => $query->{light},
-        );
-        if(!$res) {
-            $logger->error("Unable to expire via socket");
-            exit;
-        }
-        $logger->info("Completed pull_expire");
-        exit;
+        eval {
+            my $res = pfconfig::git_storage->update();
+            if(!$res) {
+                $logger->error("Unable to update from git storage");
+                return;
+            }
+            $res = pfconfig::util::socket_expire(
+                # Force the socket call to happen on the local pfconfig instance regardless of the configuration
+                tcp_host => "127.0.0.1",
+                namespace => $query->{namespace},
+                light => $query->{light},
+            );
+            if(!$res) {
+                $logger->error("Unable to expire via socket");
+                return;
+            }
+            $logger->info("Completed pull_expire");
+        };
+        $logger->error("pull_expire failed: $@") if $@;
+        child_exit(0);
     }
     else {
         send_output({status => "accepted"}, $socket, $query);
@@ -540,6 +548,22 @@ sub getLockOnPid {
         return undef;
     }
     return $fh;
+}
+
+=head2 child_exit
+
+Exit a forked child without running END blocks or global destruction.
+A plain exit would run the daemon's END block in the child, which sends
+STOPPING=1 to systemd (the service then gets killed and restarted) and deletes
+the daemon's pid file. Output is flushed first since _exit skips it.
+
+=cut
+
+sub child_exit {
+    my ($status) = @_;
+    STDOUT->flush;
+    STDERR->flush;
+    POSIX::_exit($status);
 }
 
 sub child_sighandler {

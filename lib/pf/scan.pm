@@ -342,10 +342,12 @@ sub matchCategory {
     my ($self, $node_attributes) = @_;
     my $categories = $self->{_categories} || [];
     my $node_cat = $node_attributes->{'category'};
+    # A node without a role (ex: unregistered) is considered to have the default role
+    $node_cat = 'default' if !defined($node_cat) || $node_cat eq '';
 
     get_logger->debug( sub { "Trying to match the role '$node_cat' against " . join(",", @$categories) });
     # validating that the node is under the proper category for provisioner
-    return @$categories == 0 || !defined($node_cat) || any { $_ eq $node_cat } @$categories;
+    return @$categories == 0 || any { $_ eq $node_cat } @$categories;
 }
 
 =item matchOS

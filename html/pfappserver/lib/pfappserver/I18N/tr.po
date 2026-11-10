@@ -2502,7 +2502,7 @@ msgid "Kickbox"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Kickbox.pm
-msgid "Kickbox.io API key."
+msgid "Kickbox API key."
 msgstr ""
 
 # pf::Authentication::Source::LDAPSource (name)
@@ -6590,8 +6590,8 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid ""
-"Use instead this IP address for de-authentication requests. Normally used "
-"for Wi-Fi only"
+"Use instead this IP address or FQDN for de-authentication requests. Normally "
+"used for Wi-Fi only"
 msgstr ""
 
 # conf/documentation.conf

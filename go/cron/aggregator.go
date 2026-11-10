@@ -1,19 +1,17 @@
 package maint
 
 import (
-	"cmp"
 	"context"
 	"database/sql"
 	"fmt"
-	"math"
 	"net/netip"
 	"time"
 
 	"github.com/inverse-inc/go-utils/log"
-	"github.com/inverse-inc/packetfence/go/db"
 )
 
 type EventKey struct {
+	AgentAddr netip.Addr
 	DomainID  uint32
 	FlowSeq   uint32
 	SrcIp     netip.Addr
@@ -23,6 +21,18 @@ type EventKey struct {
 	HasBiFlow bool
 }
 
+// switchID returns the switch ID for the exporter address of a flow batch, or
+// "" when there is none. Older collectors leave it unset for NetFlow/IPFIX
+// ("invalid IP") and an sFlow exporter without an agent-ip sends 0.0.0.0;
+// neither is a switch.
+func switchID(addr netip.Addr) string {
+	if !addr.IsValid() || addr.IsUnspecified() {
+		return ""
+	}
+
+	return addr.String()
+}
+
 func NewAggregator(o *AggregatorOptions) *Aggregator {
 	return &Aggregator{
 		timeout:          o.Timeout,
@@ -30,9 +40,11 @@ func NewAggregator(o *AggregatorOptions) *Aggregator {
 		networkEventChan: o.NetworkEventChan,
 		events:           make(map[EventKey][]PfFlow),
 		stop:             make(chan struct{}),
+		done:             make(chan struct{}),
 		PfFlowsChan:      ChanPfFlow,
 		Heuristics:       o.Heuristics,
 		db:               o.Db,
+		flushChan:        make(chan flushBatch, 1),
 	}
 }
 
@@ -52,42 +64,18 @@ type Aggregator struct {
 	events           map[EventKey][]PfFlow
 	PfFlowsChan      chan []*PfFlows
 	stop             chan struct{}
+	done             chan struct{}
 	networkEventChan chan []*NetworkEvent
 	backlog          int
 	timeout          time.Duration
 	Heuristics       bool
 	db               *sql.DB
+	flushChan        chan flushBatch
 }
 
 func emptyMac(mac string) bool {
 	return mac == "00:00:00:00:00:00" || mac == ""
 }
-
-func updateMacs(ctx context.Context, f *PfFlow, stmt *sql.Stmt) {
-	if !emptyMac(f.SrcMac) && !emptyMac(f.DstMac) {
-		return
-	}
-
-	var srcMac, dstMac string
-	err := stmt.QueryRowContext(ctx, f.SrcIp.String(), f.DstIp.String()).Scan(&srcMac, &dstMac)
-	if err != nil {
-		log.LogErrorf(ctx, "updateMacs Database Error: %s", err.Error())
-	}
-
-	if emptyMac(f.SrcMac) {
-		f.SrcMac = srcMac
-	}
-
-	if emptyMac(f.DstMac) {
-		f.DstMac = dstMac
-	}
-}
-
-const updateMacsSql = `
-SELECT
-	COALESCE((SELECT mac FROM ip4log WHERE ip = ?), "00:00:00:00:00:00") as src_mac,
-	COALESCE((SELECT mac FROM ip4log WHERE ip = ?), "00:00:00:00:00:00") as dst_mac;
-`
 
 func flowType(t uint16) string {
 	switch t {
@@ -416,104 +404,107 @@ func logPfFlow(ctx context.Context, header *PfFlowHeader, f *PfFlow) {
 }
 
 func (a *Aggregator) handleEvents() {
-	ctx := context.Background()
+	// A context carrying a logger: with a bare context every Log*f call
+	// rebuilds a logger (including a syslog dial) before filtering the line.
+	ctx := log.LoggerNewContext(context.Background())
 	ticker := time.NewTicker(a.timeout)
-	stmt, err := new(sql.Stmt), error(nil)
-	//	if a.db != nil {
-	stmt, err = a.db.PrepareContext(ctx, updateMacsSql)
-	if err != nil {
-		log.LogErrorf(ctx, "handleEvents Database Error: %s %s", updateMacsSql, err.Error())
-		stmt = nil
-	} else {
-		defer stmt.Close()
+	defer ticker.Stop()
+
+	flusherDone := make(chan struct{})
+	go func() {
+		defer close(flusherDone)
+		a.flusher(ctx)
+	}()
+
+	stats := newWindowStats()
+	ingest := func(pfflowsArray []*PfFlows) {
+		for _, pfflows := range pfflowsArray {
+			if pfflows.Flows == nil {
+				continue
+			}
+
+			stats.messages++
+			stats.flows += len(*pfflows.Flows)
+			// The agent address is the exporter (switch) IP. Marked as seen
+			// once per window by the flusher, off this goroutine.
+			if id := switchID(pfflows.Header.AgentAddr); id != "" {
+				stats.noteAgent(id)
+			}
+
+			for _, f := range *pfflows.Flows {
+				if a.Heuristics {
+					f.Heuristics()
+				}
+
+				key := f.Key(&pfflows.Header)
+				a.events[key] = append(a.events[key], f)
+			}
+		}
 	}
-	//	}
+
+	// On Stop, the flows still queued in PfFlowsChan and the open window are
+	// flushed, and Stop returns once the flusher is done with them: pfflow
+	// has committed their Kafka offsets, so dropping them here would lose
+	// them for good.
+	defer func() {
+	drain:
+		for {
+			select {
+			case pfflowsArray := <-a.PfFlowsChan:
+				ingest(pfflowsArray)
+			default:
+				break drain
+			}
+		}
+
+		if stats.messages > 0 {
+			a.flushChan <- flushBatch{events: a.events, stats: stats, tickedAt: time.Now()}
+			a.events = make(map[EventKey][]PfFlow)
+		}
+
+		close(a.flushChan)
+		<-flusherDone
+		close(a.done)
+	}()
 
 loop:
 	for {
 		select {
-		case pfflowsArray := <-ChanPfFlow:
-			for _, pfflows := range pfflowsArray {
-				log.LogInfof(ctx, "Received %d flows of FlowType %s", len(*pfflows.Flows), flowType(pfflows.Header.FlowType))
-				// The agent address is the exporter (switch) IP. Older collectors do not
-				// fill it in for NetFlow/IPFIX, in which case it prints as "invalid IP",
-				// and an sFlow exporter without an agent-ip sends 0.0.0.0; neither must
-				// be recorded as a switch.
-				if addr := pfflows.Header.AgentAddr; addr.IsValid() && !addr.IsUnspecified() {
-					if err := db.MarkSwitchAsSeen(a.db, pfflows.Header.AgentAddr.String()); err != nil {
-						log.LogErrorf(ctx, "handleEvents: failed to mark switch %s as seen: %s", pfflows.Header.AgentAddr.String(), err.Error())
-					}
-				}
-				for _, f := range *pfflows.Flows {
-					if stmt != nil {
-						updateMacs(ctx, &f, stmt)
-					}
-
-					key := f.Key(&pfflows.Header)
-					val := a.events[key]
-					if a.Heuristics {
-						f.Heuristics()
-					}
-
-					a.events[key] = append(val, f)
-				}
-			}
+		case pfflowsArray := <-a.PfFlowsChan:
+			ingest(pfflowsArray)
 		case <-ticker.C:
-			networkEvents := []*NetworkEvent{}
-			for _, events := range a.events {
-				startTime := int64(math.MaxInt64)
-				endTime := int64(0)
-				connectionCount := uint64(0)
-				var networkEvent *NetworkEvent
-				for _, e := range events {
-					networkEvent = e.ToNetworkEvent()
-					if networkEvent != nil {
-						break
-					}
-				}
-
-				if networkEvent == nil {
-					continue
-				}
-
-				ports := map[AggregatorSession]struct{}{}
-				for _, e := range events {
-					startTime = min(startTime, e.StartTime)
-					endTime = max(endTime, e.EndTime)
-					sessionKey := e.SessionKey()
-					if _, ok := ports[sessionKey]; !ok {
-						ports[sessionKey] = struct{}{}
-						connectionCount += e.ConnectionCount
-					}
-				}
-
-				networkEvent.Count = cmp.Or(int(connectionCount), len(ports))
-				if startTime != 0 {
-					networkEvent.StartTime = uint64(startTime)
-				}
-
-				if endTime != 0 {
-					networkEvent.EndTime = uint64(endTime)
-				}
-
-				if networkEvent.EndTime == 0 {
-					networkEvent.EndTime = networkEvent.StartTime
-				}
-
-				networkEvents = append(networkEvents, networkEvent)
+			// Nothing arrived this window. A window whose messages carried no
+			// flows (template/options-only NetFlow packets, an idle switch) is
+			// still handed to the flusher so that its exporters are marked as
+			// seen; MarkSwitchAsSeen used to run per message, unconditionally.
+			if stats.messages == 0 {
+				continue
 			}
 
-			for _, e := range networkEvents {
-				e.UpdateEnforcementInfo(ctx, a.db)
-			}
+			batch := flushBatch{events: a.events, stats: stats, tickedAt: time.Now()}
+			a.events = make(map[EventKey][]PfFlow, len(batch.events))
+			stats = newWindowStats()
 
-			if len(networkEvents) > 0 && a.networkEventChan != nil {
-				a.networkEventChan <- networkEvents
+			// Hand the window to the flusher. The channel holds one window, so
+			// this only blocks when the flusher is already a full window behind;
+			// then ingestion pauses (bounded memory) and the delay shows up as
+			// consumer lag rather than silent loss.
+			select {
+			case a.flushChan <- batch:
+			default:
+				log.LogWarnf(ctx, "pfflow aggregator: flusher is one window (%s) behind, pausing ingestion until the previous flush completes", a.timeout)
+				a.flushChan <- batch
 			}
-
-			clear(a.events)
 		case <-a.stop:
 			break loop
 		}
 	}
+}
+
+// Stop makes handleEvents flush everything it has not flushed yet (see
+// handleEvents) and returns once that is done. handleEvents must be running,
+// and nothing may send to PfFlowsChan any more.
+func (a *Aggregator) Stop() {
+	a.stop <- struct{}{}
+	<-a.done
 }

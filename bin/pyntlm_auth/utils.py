@@ -16,6 +16,14 @@ def is_ipv4(address):
     return bool(ipv4_pattern.match(address))
 
 
+# parses domain.conf 'sticky_dc': a comma (or space) separated list of DCs, '*' means any DC.
+def parse_sticky_dc(value):
+    if value is None:
+        return ['*']
+    dcs = [dc.strip() for dc in re.split(r'[,\s]+', value) if dc.strip() != ""]
+    return dcs if dcs else ['*']
+
+
 def nt_time_to_datetime(nt_time):
     if nt_time == 0:
         return 0

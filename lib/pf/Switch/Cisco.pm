@@ -1542,7 +1542,7 @@ sub _radiusBounceMac {
         return 1;
     }
 
-    if (!defined($self->{'_radiusSecret'})) {
+    if (!$self->hasRadiusSecret()) {
         $logger->warn(
             "Unable to perform RADIUS CoA-Request on $self->{'_id'}: RADIUS Shared Secret not configured"
         );
@@ -1801,6 +1801,24 @@ sub returnInAccessListAttribute {
     return "ip:inacl#";
 }
 
+=head2 untranslatableCiscoAcl
+
+Why a parsed ACL entry cannot be sent by L</acl_chewer>, or undef when it can.
+
+The source port is not sent. In a RADIUS reply (anything but
+the push of the role ACLs, see L<pf::Switch/aclsForPush>) the source is always
+sent as "any", which the switch replaces with the address of the endpoint: the
+switch does not apply an ACL with another source, so it cannot be sent either.
+
+=cut
+
+sub untranslatableCiscoAcl {
+    my ($self, $entry) = @_;
+    return "the source address is replaced by the endpoint" if !$self->aclsForPush && $entry->{'source'}->{'ipv4_addr'} ne '0.0.0.0';
+    return "the source port is not sent" if defined $entry->{'source'}->{'port'};
+    return undef;
+}
+
 
 =head2 returnOutAccessListAttribute
 
@@ -1824,9 +1842,12 @@ sub acl_chewer {
     my $logger = $self->logger;
     my ($acl_ref , @direction) = $self->format_acl($acl);
 
+    my $entries;
+    ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, sub { $self->untranslatableCiscoAcl($_[0]) });
+
     my $i = 0;
     my $acl_chewed;
-    foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
+    foreach my $acl (@$entries) {
         $acl->{'protocol'} =~ s/\(\d*\)//;
         my $dest;
         if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
@@ -1849,9 +1870,13 @@ sub acl_chewer {
             }
 
         }
-        $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$acl->{'action'}." ".$acl->{'protocol'}." ".(($self->usePushACLs) ? $src : "any")." ".$dest ." ".(defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '')." ".( defined($acl->{'tcp_flags'}) ? $acl->{'tcp_flags'} : '' );
-        $acl_chewed =~ s/\s+$//;
-        $acl_chewed .= "\n";
+        my @line = ($acl->{'action'}, $acl->{'protocol'}, ($self->aclsForPush ? $src : "any"), $dest);
+        push @line, $acl->{'destination'}->{'port'} if defined $acl->{'destination'}->{'port'};
+        # The ICMP type (echo, echo-reply, 8, ...) and the TCP flags follow the
+        # destination, as in the line the administrator wrote
+        push @line, $acl->{'icmp_qualifier'} if defined $acl->{'icmp_qualifier'};
+        push @line, $acl->{'tcp_flags'} if defined $acl->{'tcp_flags'};
+        $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "") . join(' ', @line) . "\n";
         $i++;
     }
     return $acl_chewed;

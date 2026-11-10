@@ -134,6 +134,9 @@ const setup = (props, context) => {
       if (ssoEnabled.value && 'token' in $router.currentRoute.query) {
         doLogin(null, $router.currentRoute.query.token)
       }
+      else if (ssoEnabled.value && $router.currentRoute.query.error === 'denied') {
+        message.value = { level: 'danger', text: i18n.t('Single sign-on succeeded but you do not have access to the administration interface.') }
+      }
     })
   })
 

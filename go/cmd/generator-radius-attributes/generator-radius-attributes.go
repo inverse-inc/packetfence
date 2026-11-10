@@ -3,9 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/inverse-inc/go-radius/dictionary"
 	"os"
 	"strconv"
+
+	"github.com/inverse-inc/go-radius/dictionary"
+	"github.com/inverse-inc/packetfence/go/radiusdictionary"
 )
 
 type Attrs map[string][2]string
@@ -15,16 +17,16 @@ type RValuesVal map[uint]string
 type Values map[int]ValuesVal
 type RValues map[int]RValuesVal
 type RadiusDictPerl struct {
-	Vendors   map[string]uint    `json:"vendors"`
-	AVendors  map[string]string  `json:"avendors"`
-	VsAttrs   map[uint]Attrs     `json:"vsattr"`
-	Attrs     Attrs              `json:"attr"`
-	RAttrs    RAttrs             `json:"rattr"`
-	RVAttrs   map[uint]RAttrs    `json:"rvsattr"`
-	Values    Values             `json:"val"`
-	RValues   RValues            `json:"rval"`
-	VSValues  map[uint]Values    `json:"vsaval"`
-	RVSValues map[uint]RValues   `json:"rvsaval"`
+	Vendors   map[string]uint   `json:"vendors"`
+	AVendors  map[string]string `json:"avendors"`
+	VsAttrs   map[uint]Attrs    `json:"vsattr"`
+	Attrs     Attrs             `json:"attr"`
+	RAttrs    RAttrs            `json:"rattr"`
+	RVAttrs   map[uint]RAttrs   `json:"rvsattr"`
+	Values    Values            `json:"val"`
+	RValues   RValues           `json:"rval"`
+	VSValues  map[uint]Values   `json:"vsaval"`
+	RVSValues map[uint]RValues  `json:"rvsaval"`
 }
 
 func AddValues(dictValues Values, dictRValues RValues, attrs []*dictionary.Attribute, dValues []*dictionary.Value) {
@@ -53,13 +55,8 @@ func AddValues(dictValues Values, dictRValues RValues, attrs []*dictionary.Attri
 }
 
 func main() {
-	parser := &dictionary.Parser{
-		Opener: &dictionary.FileSystemOpener{
-			Root: "/usr/share/freeradius",
-		},
-		IgnoreIdenticalAttributes:  true,
-		IgnoreUnknownAttributeType: true,
-	}
+	// Handles the optional include of conf/radiusd/dictionary.local
+	parser := radiusdictionary.NewParser()
 
 	d, err := parser.ParseFile("/usr/local/pf/lib/pf/util/combined_dictionary")
 	if err != nil {

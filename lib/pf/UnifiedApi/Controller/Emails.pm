@@ -15,8 +15,10 @@ use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use Data::Dumper;
 use MIME::Base64;
+use Encode qw();
 use pf::error qw(is_error);
 use pf::config::util qw();
+use pf::web::constants;
 
 sub handle_email_payload {
     my ($self) = @_;
@@ -29,6 +31,12 @@ sub handle_email_payload {
         return undef;
     }
 
+    # Include the acceptable use policy in the email (ex: printed guest accounts)
+    if (delete $data->{args}{with_aup}) {
+        require pf::web::guest;
+        $data->{args}{aup} = pf::web::guest::aup();
+    }
+
     return $data;
 }
 
@@ -39,8 +47,9 @@ sub preview {
 
     return unless($data);
 
-    my $msg = pf::config::util::build_email($data->{template}, 'dummy@example.com', $data->{subject}, $data->{args});
-    return $self->render(json => {body => MIME::Base64::decode($msg->body_as_string)});
+    my $msg = pf::config::util::build_email($data->{template}, 'dummy@example.com', $data->{subject}, $data->{args}, $self->email_template_options($data));
+    # The body is UTF-8 encoded, decode it so that the JSON doesn't encode it a second time
+    return $self->render(json => {body => Encode::decode_utf8(MIME::Base64::decode($msg->body_as_string))});
 }
 
 sub send_email {
@@ -54,10 +63,50 @@ sub send_email {
         return $self->render_error(422, "Missing 'to' parameter");
     }
 
-    my $msg = pf::config::util::build_email($data->{template}, $data->{to}, $data->{subject}, $data->{args});
+    my $msg = pf::config::util::build_email($data->{template}, $data->{to}, $data->{subject}, $data->{args}, $self->email_template_options($data));
     my $success = pf::config::util::send_using_smtp_callback($msg);
     my $user_message = $success ? "Successfully sent email to $data->{to}" : "Failed to send email to $data->{to}. Check server side logs for details";
     return $self->render(json => {message => $user_message}, status => ($success ? 200 : 500));
+}
+
+=head2 email_template_options
+
+The template options of build_email for the language of the request: the
+'locale' of the payload if given, otherwise the Accept-Language header (the
+admin UI sends its language). Without a supported language, the default
+language is used.
+
+=cut
+
+sub email_template_options {
+    my ($self, $data) = @_;
+    my @languages = grep { $_ ne 'i-default' } @{ $self->stash->{languages} // [] };
+    unshift @languages, $data->{locale} if defined $data->{locale} && $data->{locale} ne '';
+    my $locale = email_locale(@languages);
+    return defined $locale ? { __locale => $locale } : {};
+}
+
+=head2 email_locale
+
+The first of the languages (fr, fr-CA, pt_BR) that matches a supported locale
+of @WEB::LOCALES: the same locale, or the first one of the same language.
+Returns undef when none matches, so the default language is used.
+
+=cut
+
+sub email_locale {
+    my (@languages) = @_;
+    for my $lang (@languages) {
+        next unless defined $lang && $lang =~ /^([a-zA-Z]{2,3})(?:[-_]([a-zA-Z]{2}))?$/;
+        my ($language, $region) = (lc($1), $2);
+        if (defined $region) {
+            my $exact = "${language}_\U$region";
+            return $exact if grep { $_ eq $exact } @WEB::LOCALES;
+        }
+        my ($same_language) = grep { /^${language}_/ } @WEB::LOCALES;
+        return $same_language if defined $same_language;
+    }
+    return undef;
 }
 
 sub pfmailer {

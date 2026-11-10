@@ -93,11 +93,23 @@ const setup = (props, context) => {
   } = toRefs(props)
 
   const k8sServicesSorted = computed(() => k8s_services.value.sort((a, b) => a.localeCompare(b)))
-  const servicesSorted = computed(() => services.value.sort((a, b) => a.localeCompare(b)))
+  // Hide the services that are disabled and stopped on all the servers, they don't need to be restarted (#6818)
+  //  a service is kept until its status is known, and while it runs somewhere: enabled is the systemd
+  //  unit file state, a service started without being enabled still has to reload its configuration
+  const isDisabledEverywhere = service => {
+    const { [service]: { servers = {} } = {} } = $store.getters['cluster/servicesByServer']
+    const statuses = Object.values(servers)
+    return statuses.length > 0
+      && statuses.every(({ enabled }) => enabled !== undefined)
+      && statuses.every(({ enabled, alive, pid }) => !enabled && !(alive && pid))
+  }
+  const servicesSorted = computed(() => services.value
+    .filter(service => !isDisabledEverywhere(service))
+    .sort((a, b) => a.localeCompare(b)))
   const systemServicesSorted = computed(() => system_services.value.sort((a, b) => a.localeCompare(b)))
 
   const show = computed(() => !!value.value && !!(
-    (!isSaas.value && (services.value.length || system_services.value.length || systemd.value)) ||
+    (!isSaas.value && (servicesSorted.value.length || system_services.value.length || systemd.value)) ||
     (isSaas.value && k8s_services.value.length)
   ))
 

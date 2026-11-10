@@ -207,7 +207,7 @@ Prompt for the activation PIN
 
 sub prompt_pin {
     my ($self) = @_;
-    $self->render("sms/validate.html", {title => "Confirm Mobile Phone Number"});
+    $self->render("sms/validate.html", {title => "Enter the PIN sent to your phone"});
 }
 
 =head2 validate_info

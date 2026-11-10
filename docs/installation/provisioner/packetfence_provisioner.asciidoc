@@ -101,6 +101,14 @@ the `untrusted` warning when installing the profile. For more information,
 please refer to the PKI guides referred earlier in 'Configure the feature'
 above.
 
+With EAP-PEAP, the profile installs the certificate configured in *RADIUS
+server CA path* as a trusted root on the device, and the RADIUS server
+certificate as a regular certificate. The network trusts both, limited to the
+name (CN) of the RADIUS server certificate, so a server certificate renewed
+by the same CA, with the same name, is accepted without provisioning the
+device again. Choose that CA knowingly: it becomes a trusted root of the
+device.
+
 ===== Other Corporate Devices
 
 Let's say that you now need to add some 'Linux computers' as 'corporate'

@@ -120,7 +120,6 @@ sub options_field_names {
       node_info.machine_account
       node_info.category
       node_info.mac
-      node_info.last_arp
       node_info.last_dhcp
       node_info.user_agent
       node_info.computername

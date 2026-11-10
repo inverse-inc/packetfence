@@ -108,6 +108,13 @@
                                 :text="$i18n.t(`The network address to listen to listen on. Do not change unless you know what you're doing.`)"
     />
 
+    <form-group-netflow-processor namespace="netflow_processor"
+                                  :column-label="$i18n.t('Netflow processor')"
+                                  :text="$i18n.t(`Should pfacct process NetFlow traffic? When disabled, pfacct does not listen for NetFlow traffic and the NetFlow kernel module is not loaded for inline networks. Changing this requires to restart pfacct.`)"
+                                  enabled-value="enabled"
+                                  disabled-value="disabled"
+    />
+
     <form-group-pfdhcp namespace="pfdhcp"
                        column-label="pfdhcp"
                        :text="$i18n.t('Should pfdhcp be managed by PacketFence?')"
@@ -317,6 +324,7 @@ import {
   FormGroupMysqlProbe,
   FormGroupNetdata,
   FormGroupNetflowAddress,
+  FormGroupNetflowProcessor,
   FormGroupPfacct,
   FormGroupPfcron,
   FormGroupPfdhcp,
@@ -364,6 +372,7 @@ const components = {
   FormGroupKeepalived,
   FormGroupNetdata,
   FormGroupNetflowAddress,
+  FormGroupNetflowProcessor,
   FormGroupPfacct,
   FormGroupPfcron,
   FormGroupPfdhcp,

@@ -66,6 +66,10 @@ msgstr "%s: Solicitação de acesso de convidado"
 msgid "%s: Guest access request accepted"
 msgstr "%s: Solicitação de acesso de convidado aceito"
 
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "---Choose a Provider---"
+msgstr "---Escolha uma operadora---"
+
 # html/captive-portal/templates/ssl_inspection/windows.html
 msgid ""
 "A <i>Security Warning</i> will appear, asking if you're sure you'd like to "
@@ -382,11 +386,6 @@ msgstr "Empresa"
 msgid "Computer name "
 msgstr "Nome do computador"
 
-# html/captive-
-# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/SMS.pm
-msgid "Confirm Mobile Phone Number"
-msgstr "Confirme o Número do Celular"
-
 # html/captive-portal/templates/status/reset_password_token.html
 msgid "Confirm Password"
 msgstr ""
@@ -643,6 +642,11 @@ msgstr "Registro via e-mail"
 msgid "Enter a valid telephone number"
 msgstr "Insira um número de telefone válido"
 
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/SMS.pm
+msgid "Enter the PIN sent to your phone"
+msgstr "Digite o PIN enviado para o seu celular"
+
 # html/captive-portal/templates/security_events/bandwidth_expiration.html
 msgid "Expiration"
 msgstr "Expiração"
@@ -664,6 +668,10 @@ msgid ""
 "Failure to do so within %s minutes will result in a termination of your "
 "network access."
 msgstr "Não fazer isto dentro de %s minutos resultará em um encerramento do seu acesso à rede."
+
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "Female"
+msgstr "Feminino"
 
 # html/captive-portal/templates/ssl_inspection/firefox.html
 msgid "Firefox CA trust prompt"
@@ -981,6 +989,10 @@ msgid ""
 "Make sure <i>Trust</i> is expanded and select the dropdown next to <i>When "
 "using this certificate:</i> and change it to <i>Always Trust</i>."
 msgstr "Certifique-se de que <i>Confiar</i> esteja expandido e selecione a lista suspensa ao lado de <i>Ao usar este certificado:</i> e mude para <i>Sempre confiar</i>."
+
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "Male"
+msgstr "Masculino"
 
 # html/captive-portal/templates/stripe-customer-portal/select-account.html
 msgid "Manage"

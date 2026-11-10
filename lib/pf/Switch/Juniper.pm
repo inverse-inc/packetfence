@@ -171,17 +171,22 @@ sub setAdminStatus {
     my $session;
     eval {
         require Net::Appliance::Session;
-        $session = Net::Appliance::Session->new(
-            Host      => $self->{_ip},
-            Timeout   => 20,
-            Transport => $self->{_cliTransport},
-            Platform  => "JUNOS",
-        );
+        # The SSH transport of Net::CLI::Interact doesn't check the host key of the switch (no known_hosts is
+        # managed for the switches), as with the other switch modules using the CLI
+        $session = Net::Appliance::Session->new({
+            host        => $self->{_ip},
+            timeout     => 20,
+            transport   => $self->{_cliTransport},
+            personality => "junos",
+            # Junos has no privileged (enable) mode, the configure mode is entered from the operational mode
+            do_privileged_mode => 0,
+            do_configure_mode  => 1,
+        });
 
-        $session->connect(
-            Name     => $self->{_cliUser},
-            Password => $self->{_cliPwd}
-        );
+        $session->connect({
+            username => $self->{_cliUser},
+            password => $self->{_cliPwd},
+        });
     };
 
     if ($@) {
@@ -202,24 +207,36 @@ sub setAdminStatus {
 
     my @output;
     eval {
-        # fake priviledged mode
-        $session->in_privileged_mode(1);
         $session->begin_configure();
 
         $logger->trace("sending CLI command '$command'");
-        @output = $session->cmd(String => $command, Timeout => '5');
-        @output = $session->cmd(String => 'commit comment "admin link status change by PacketFence"', Timeout => '30');
+        @output = $session->cmd($command, { timeout => 5 });
+        @output = $session->cmd('commit comment "admin link status change by PacketFence"', { timeout => 30 });
 
-        $session->in_privileged_mode(0);
+        $session->end_configure();
     };
 
     if ($@) {
         $logger->error("Unable to set admin status for port $port: $@");
-        $session->close();
+        # Discard the uncommitted change, otherwise leaving the configure mode asks for a confirmation
+        eval { $session->cmd('rollback', { timeout => 10 }) if $session->in_configure_mode };
+        _close_session($session, $logger);
         return;
     }
-    $session->close();
+    _close_session($session, $logger);
     return 1;
+}
+
+=item _close_session
+
+Close a Net::Appliance::Session, which leaves the configure mode if needed and can die
+
+=cut
+
+sub _close_session {
+    my ($session, $logger) = @_;
+    eval { $session->close() };
+    $logger->warn("Error while closing the CLI session: $@") if $@;
 }
 
 =item handleReAssignVlanTrapForWiredMacAuth

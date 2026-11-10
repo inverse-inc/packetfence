@@ -57,6 +57,8 @@
           button-only right
           button-variant="light"
           :locale="$i18n.locale"
+          :max="max"
+          :min="min"
           :state="inputState"
           :value="inputValue"
           @input="onInput"

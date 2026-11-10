@@ -82,6 +82,23 @@ TODO: This list is incomplete
 
 =cut
 
+=item parseRequest
+
+Nortel/Avaya ERS switches do MAC authentication (NEAP) without a
+Calling-Station-Id: the MAC address of the device is only in the User-Name
+
+=cut
+
+sub parseRequest {
+    my ($self, $radius_request) = @_;
+    my @request = $self->SUPER::parseRequest($radius_request);
+    if (!$request[2]) {
+        my $user_name = ref($radius_request->{'User-Name'}) eq 'ARRAY' ? $radius_request->{'User-Name'}[0] : $radius_request->{'User-Name'};
+        $request[2] = clean_mac($user_name);
+    }
+    return @request;
+}
+
 sub getVersion {
     my ($self) = @_;
     my $oid_s5ChasVer = '1.3.6.1.4.1.45.1.6.3.1.5.0';

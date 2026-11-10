@@ -666,6 +666,14 @@ sub security_event_trigger {
         my %data;
 
         my $class = class_view($security_event_id);
+        if (!$class) {
+            $logger->error(
+                "security_event $security_event_id triggered not found. " .
+                "Not adding security_event."
+            );
+            next;
+        }
+
         # Check if the security_event is delayed
         if ($class->{'delay_by'}) {
             $data{status} = 'delayed';
@@ -746,6 +754,10 @@ sub security_event_close {
     my $logger = get_logger();
     require pf::class;
     my $class_info = pf::class::class_view($security_event_id);
+    if (!$class_info) {
+        $logger->error("security_event $security_event_id not found, cannot close it for node $mac");
+        return (-1);
+    }
 
     # check auto_enable = 'N'
     if ( $class_info->{'auto_enable'} =~ /^N$/i ) {
@@ -974,6 +986,10 @@ sub _security_event_run_delayed {
     my $security_event_id = $security_event->{security_event_id};
     my %data = (status => 'open');
     my $class = pf::class::class_view($security_event_id);
+    if (!$class) {
+        $logger->error("security_event $security_event_id not found, cannot run the delayed security_event for node $mac");
+        return;
+    }
     if (defined($class->{'window'})) {
         my $date = 0;
         if ($class->{'window'} ne 'dynamic' && $class->{'window'} ne '0' ) {

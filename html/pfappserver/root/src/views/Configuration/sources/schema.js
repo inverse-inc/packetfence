@@ -1,8 +1,18 @@
 import store from '@/store'
-import { pfActionsSchema as schemaActions } from '@/globals/pfActions'
+import { pfActionsSchema, pfActionsTransliterations } from '@/globals/pfActions'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
 import { connectThroughPortMin, connectThroughPortMax } from './config'
+
+// The rules of a source require a role with an unregistration date, as the API does (pfappserver::Form::Field::SourceRule).
+// Portal modules and users share pfActionsSchema without it: a portal module can get the role from the source,
+// and a user doesn't need a role.
+const schemaActions = pfActionsSchema
+  .ifThenRequires(
+    i18n.t('"{set_unreg_date}" requires either "{set_role}" or "{set_role_on_not_found}".', pfActionsTransliterations),
+    ({ type }) => type === 'set_unreg_date',
+    ({ type }) => ['set_role', 'set_role_on_not_found'].includes(type)
+  )
 
 yup.addMethod(yup.string, 'sourceIdExists', function (message) {
   return this.test({

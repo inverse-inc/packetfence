@@ -186,6 +186,10 @@ sub interfaces_defined {
     my $cached_pf_config = pfconfig::namespaces::config::Pf->new(pfconfig::manager->new);
     $cached_pf_config->build();
     foreach my $interface ( $cached_pf_config->GroupMembers("interface") ) {
+        # Not in the configuration of this server: an interface that cluster.conf
+        # doesn't define for it is ignored on it (multi-zone cluster), the cluster
+        # check reports the ones that shouldn't be
+        next unless ref($Config{$interface}) eq 'HASH';
         my %int_conf = %{$Config{$interface}};
         my $type = $int_conf{'type'};
         my $int_with_no_config_required_regexp = qr/(?:monitor|dhcplistener|dhcp-listener|high-availability|other)/;
@@ -955,7 +959,7 @@ sub connection_profiles {
         billing_tiers|description|sources|redirecturl|always_use_redirecturl|
         allowed_devices|allow_android_devices|
         reuse_dot1x_credentials|provisioners|filter_match_style|sms_pin_retry_limit|
-        sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal|mac_auth_recompute_role_from_portal|dot1x_unset_on_unmatch|scan|root_module|preregistration|autoregister|access_registration_when_registered|self_service|
+        sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal|mac_auth_recompute_role_from_portal|dot1x_unset_on_unmatch|scan|root_module|preregistration|autoregister|access_registration_when_registered|self_service|self_service_status|self_service_device_registration|
         dpsk|default_psk_key|status|unreg_on_acct_stop|vlan_pool_technique|show_manage_devices_on_max_nodes)/x;
     my $validator = pf::validation::profile_filters->new;
 
@@ -985,6 +989,14 @@ sub connection_profiles {
                 my $advanced_filter = $data->{advanced_filter};
                 if ($advanced_filter =~ /tenant_id/) {
                     add_problem( $FATAL, "advanced_filter '$advanced_filter' cannot be use a tenant_id as a condition" );
+                }
+                # Built like the connection profiles are: a profile whose advanced filter can't be built is skipped
+                if (defined $advanced_filter && $advanced_filter ne '') {
+                    eval { pf::factory::condition::profile->instantiate_advanced($advanced_filter) };
+                    if (my $build_err = $@) {
+                        chomp($build_err);
+                        add_problem( $WARN, "Connection profile '$connection_profile' is skipped, its advanced filter can't be built: $build_err" );
+                    }
                 }
             }
         }
@@ -1177,8 +1189,41 @@ sub cluster {
             }
         }
     }
+    else {
+        # The zones can have different interfaces, but an interface not defined for a server is ignored on it
+        add_problem($WARN, $_) for multi_zone_interface_problems(\@ints, \@servers, \%pf::cluster::all_cluster_sections);
+    }
 
     _check_database_host_in_cluster();
+}
+
+=item multi_zone_interface_problems
+
+The interfaces of pf.conf that are ignored on servers of a multi-zone cluster
+because cluster.conf doesn't define them for these servers: on a server of this
+zone when other servers of the zone have it (a whole zone without an interface
+is fine), or on every server when no server of any zone has it.
+
+Takes the interfaces of pf.conf, the servers of this zone (with the CLUSTER
+entry of the zone) and the servers of each zone, returns the messages.
+
+=cut
+
+sub multi_zone_interface_problems {
+    my ($ints, $zone_servers, $all_zones) = @_;
+    my @problems;
+    my @all_servers = map { @{$_ // []} } values %{$all_zones // {}};
+    foreach my $int (map { $_->{name} } @$ints) {
+        my $section = "interface $int";
+        my @missing = grep { !exists $_->{$section} } @$zone_servers;
+        if (!grep { exists $_->{$section} } @all_servers) {
+            push @problems, "Interface $int of pf.conf is defined for no server in cluster.conf: it is ignored on every server";
+        }
+        elsif (@missing && @missing < @$zone_servers) {
+            push @problems, "Interface $int is defined for other servers of this zone but not for $_->{host} in cluster.conf: it is ignored on $_->{host}" for @missing;
+        }
+    }
+    return @problems;
 }
 
 

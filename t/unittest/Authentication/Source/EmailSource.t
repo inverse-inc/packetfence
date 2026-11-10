@@ -82,9 +82,19 @@ use pf::authentication;
 use Test::NoWarnings;
 use List::Util qw(sum);
 
-my $test_count = sum 1, map { ( scalar @{$_->{allowed} // []}, scalar @{$_->{banned} // []}) } @TESTS;
+my $test_count = sum 1, 4, map { ( scalar @{$_->{allowed} // []}, scalar @{$_->{banned} // []}) } @TESTS;
 
 plan tests => $test_count;
+
+{
+    my $source = getAuthenticationSource('email');
+    is($source->wait_for_activation, 'disabled', "wait_for_activation defaults to disabled");
+    ok(!$source->waitForActivation, "waitForActivation is false by default");
+
+    $source = getAuthenticationSource('email2');
+    is($source->wait_for_activation, 'enabled', "wait_for_activation read from the config");
+    ok($source->waitForActivation, "waitForActivation is true when enabled");
+}
 
 for my $test (@TESTS) {
     my $name = $test->{name};

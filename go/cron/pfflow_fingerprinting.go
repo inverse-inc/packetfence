@@ -191,6 +191,9 @@ func SetupFingerPrintingJob(config map[string]interface{}) chan []*PfFlows {
 		log.LogDebugf(options.Ctx, "Fingerprinting is enabled, starting fingerprint job")
 		fingerprintChan = options.FingerprintChan
 		fb := NewFingerPrintingJob(options)
+		pipelineMu.Lock()
+		fingerprintingJob = fb
+		pipelineMu.Unlock()
 		go fb.Run()
 	})
 
@@ -220,7 +223,16 @@ func (f *FingerPrintingJob) Run() {
 			close(f.stopChan)
 			log.LogDebug(f.Ctx, "FingerPrintingJob stopped")
 			return
-		case pfflows := <-f.fingerprintChan:
+		case pfflows, ok := <-f.fingerprintChan:
+			if !ok {
+				// Closed and drained: wait for Stop, which expects the
+				// stop/close handshake below.
+				<-f.stopChan
+				close(f.stopChan)
+				log.LogDebug(f.Ctx, "FingerPrintingJob stopped")
+				return
+			}
+
 			log.LogDebugf(f.Ctx, "Received flows from fingerprintChan: %+v", pfflows)
 			f.handleFlows(pfflows)
 		}
