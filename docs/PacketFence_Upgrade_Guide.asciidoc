@@ -1397,7 +1397,9 @@ the basic authentication credentials again if the external API requires them.
 === HTTP source TLS verification
 
 HTTP sources have a new *Verify TLS* option to verify the certificate and the
-hostname of the API server when using `https`. It is enabled for new sources.
+hostname of the API server when using `https`. It is enabled by default,
+including for the sources created through the REST API or by editing
+[filename]`/usr/local/pf/conf/authentication.conf`.
 Existing sources keep their previous behavior and do not verify TLS: the
 package upgrade runs [filename]`/usr/local/pf/addons/upgrade/add-default-params-to-auth.pl`,
 which writes `verify_tls=disabled` in each existing HTTP source of
@@ -1405,14 +1407,27 @@ which writes `verify_tls=disabled` in each existing HTTP source of
 option on each HTTP source whose API certificate is trusted by the PacketFence
 server.
 
-=== HTTP source authorization requests
+=== HTTP source requests
 
-The authorization request of an HTTP source now carries the attributes of the
-RADIUS request as `radius_request.Attribute-Name` fields. Passwords,
-CHAP/MS-CHAP values, `EAP-Message`, `State` and `Message-Authenticator` are not
-sent. A `trigger_radius_mfa` or `trigger_portal_mfa` naming an MFA that is not
-configured is ignored, as is any attribute whose value is not a string or a
-number.
+The authorization request of an HTTP source now carries attributes of the
+RADIUS request: as `radius_request.Attribute-Name` fields in a URL-encoded body
+(the values of a multi-valued attribute as `radius_request.Attribute-Name:0`,
+`radius_request.Attribute-Name:1`, ...), or in a `radius_request` object with
+the new JSON content type. Only an allowed list of attributes is sent (see the
+External API Authentication section of the Installation Guide): passwords,
+CHAP/MS-CHAP and digest values, `EAP-Message`, `State`,
+`Message-Authenticator`, the PSK/DPSK and WPA handshake attributes
+(`Ruckus-DPSK-*`, `Eleven-EAPOL-*`, `FreeRADIUS-802.1X-*`) and the vendor
+attributes not in the list are not sent. The `owner` and `node_info` records
+are not sent either.
+
+A `trigger_radius_mfa` or `trigger_portal_mfa` naming an MFA that is not
+configured is ignored, as is any attribute of the authorization reply whose
+value is not a string or a number.
+
+The `result` of the authentication reply must now be `1`, `true`, `"1"` or
+`"true"` for a success: any other value (for example `"false"` or `"0.0"`,
+which were accepted before) is a failure.
 
 == Troubleshooting Upgrades
 
