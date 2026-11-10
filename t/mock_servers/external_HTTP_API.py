@@ -4,9 +4,9 @@
 # because PacketFence services are now running inside containers using docker, and "127.0.0.1" refers to the
 # loopback of the container, not the PacketFence server.
 
-# When using external HTTP authentication source, PacketFence will take parameters such as username and password
-# from Form Values. If the programming language you are using does not have a built-in method to extract POST fields,
-# you might need to test and debug by specifying this header: "Content-Type: application/x-www-form-urlencoded"
+# When using external HTTP authentication source, PacketFence sends parameters such as username and password
+# as form values ("Content-Type: application/x-www-form-urlencoded", the default) or as a JSON object
+# ("Content-Type: application/json"), depending on the "Request content type" of the source.
 
 from flask import Flask, request, jsonify
 
@@ -44,7 +44,9 @@ def authorize():  # here is an example, we always return the same authorization 
 def extract_credentials():
     try:
         if request.is_json:
-            return None, None, {"result": RES_CODE_FAILURE, "message": "Invalid payload, form-urlencoded data required"}
+            data = request.get_json(silent=True)
+            if not isinstance(data, dict):
+                return None, None, {"result": RES_CODE_FAILURE, "message": "Invalid payload, JSON object required"}
         else:
             data = request.form
 

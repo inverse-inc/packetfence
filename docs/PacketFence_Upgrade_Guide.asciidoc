@@ -1382,6 +1382,65 @@ Before upgrading, check the `sticky_dc` value of each domain in
 [filename]`/usr/local/pf/conf/domain.conf`, and set it back to `*` if you don't
 want to pin a domain controller.
 
+=== HTTP source basic authentication credentials
+
+The `API username (basic auth)` and `API password (basic auth)` fields of an
+HTTP authentication source were not saved when entered in the administration
+interface, so PacketFence called the external API without basic authentication.
+Credentials already present in [filename]`/usr/local/pf/conf/authentication.conf`
+(`username` and `password` of the source) were used, but were shown empty in the
+form.
+
+After upgrading, open each HTTP source in the administration interface and enter
+the basic authentication credentials again if the external API requires them.
+
+=== HTTP source TLS verification
+
+HTTP sources have a new *Verify TLS* option to verify the certificate and the
+hostname of the API server when using `https`. It is enabled by default,
+including for the sources created through the REST API or by editing
+[filename]`/usr/local/pf/conf/authentication.conf`.
+Existing sources keep their previous behavior and do not verify TLS: the
+upgrade runs [filename]`/usr/local/pf/addons/upgrade/to-16.0-http-source-defaults.pl`,
+which writes `verify_tls=disabled` and
+`content_type=application/x-www-form-urlencoded` in each existing HTTP source of
+[filename]`/usr/local/pf/conf/authentication.conf`, before
+[filename]`/usr/local/pf/addons/upgrade/add-default-params-to-auth.pl` adds the
+defaults of the other new parameters. When upgrading manually, run them in
+this order:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-16.0-http-source-defaults.pl
+/usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
+----
+
+After upgrading, enable the option on each HTTP source whose API certificate is
+trusted by the PacketFence server.
+
+=== HTTP source requests
+
+The authorization request of an HTTP source now carries attributes of the
+RADIUS request: as `radius_request.Attribute-Name` fields in a URL-encoded body
+(the values of a multi-valued attribute as `radius_request.Attribute-Name:0`,
+`radius_request.Attribute-Name:1`, ...), or in a `radius_request` object with
+the new JSON content type, the default of the new sources (the existing sources
+keep sending a URL-encoded body). Only an allowed list of attributes is sent (see the
+External API Authentication section of the Installation Guide): passwords,
+CHAP/MS-CHAP and digest values, `EAP-Message`, `State`,
+`Message-Authenticator`, the PSK/DPSK and WPA handshake attributes
+(`Ruckus-DPSK-*`, `Eleven-EAPOL-*`, `FreeRADIUS-802.1X-*`) and the vendor
+attributes not in the list are not sent. The `owner` and `node_info` records
+are not sent either.
+
+A `trigger_radius_mfa` or `trigger_portal_mfa` naming an MFA that is not
+configured is ignored, as is any attribute of the authorization reply whose
+value is not a string or a number.
+
+The `result` of the authentication reply must now be `1`, `true`, `"1"` or
+`"true"` for a success: any other value (for example `"false"` or `"0.0"`,
+which were accepted before) is a failure.
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]

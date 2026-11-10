@@ -672,11 +672,6 @@ if ! grep 'containers-gateway.internal' /etc/hosts > /dev/null; then
     echo "100.64.0.1 containers-gateway.internal" >> /etc/hosts
 fi
 
-# Run actions only on upgrade
-if [ "$1" = "2" ]; then
-    perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
-fi
-
 echo "Generate values in kafka.conf"
 /usr/local/pf/addons/upgrade/to-15.0-replace-kafka-values.sh
 
