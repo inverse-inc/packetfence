@@ -390,6 +390,8 @@ def publish_tree(client, name, pipeline, tree, *, dependencies=False, apply=Fals
         if any(p in ('conf', 'db', '.git') for p in PurePosixPath(relative).parts) or relative == 'PULP_MANIFEST':
             raise ValueError('Refusing repository internals or a caller-supplied PULP_MANIFEST')
         full = prefix + relative
+        if path.suffix in ('.rpm', '.deb') and path.stat().st_size == 0:
+            raise ValueError('Refusing an empty package (failed build?): ' + relative)
         sha = digest(path)
         row = {'path': full, 'sha256': sha, 'size': path.stat().st_size}
         inventory.append(row)

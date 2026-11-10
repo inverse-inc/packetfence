@@ -90,6 +90,8 @@ def publish(client, kind, name, paths, codename=None, component='main', guard=No
     paths = [Path(path) for path in paths]
     if any(not path.is_file() or path.suffix != '.' + kind for path in paths):
         raise ValueError('Every input must be an existing binary package of the selected type')
+    if empty := [str(path) for path in paths if path.stat().st_size == 0]:
+        raise ValueError('Refusing empty packages (failed build?): ' + ', '.join(empty))
     model = TYPES[kind]
     repo = client.find(f'repositories/{kind}/{model}', name)
     labels = repo.get('pulp_labels', {})
@@ -97,9 +99,12 @@ def publish(client, kind, name, paths, codename=None, component='main', guard=No
         raise ValueError('Repository is frozen or not managed by this deployment')
     if labels.get('akainverse_release', '') != (release or ''):
         raise ValueError('--release must match the configured PacketFence release')
-    if kind == 'deb' and (labels.get('akainverse_distribution') != codename
-                         or labels.get('akainverse_component') != component):
-        raise ValueError('Codename/component does not match the repository definition')
+    if kind == 'deb':
+        # Main suite, or an extra one added to the version (release_os.yml): component == suite there.
+        extra = [s for s in labels.get('akainverse_extra_distributions', '').split(',') if s]
+        main = labels.get('akainverse_distribution') == codename and labels.get('akainverse_component') == component
+        if not main and not (codename in extra and component == codename):
+            raise ValueError('Codename/component does not match the repository definition')
     dist = client.find(f'distributions/{kind}/{model}', name)
     expected_guard = client.find('contentguards/core/rbac', guard)['pulp_href'] if guard else None
     if dist.get('content_guard') != expected_guard:
@@ -147,9 +152,17 @@ def publish(client, kind, name, paths, codename=None, component='main', guard=No
         raise RuntimeError('Distribution changed during publish; serialize jobs and retry after review')
     # Never create distributions or alter access controls from CI.
     client.wait(client.request('PATCH', dist['pulp_href'], json={'publication': publications[0]}))
-    return {'repository': name, 'repository_version': version,
-            'publication': publications[0], 'previous_publication': old_publication,
-            'base_url': dist['base_url']}
+    result = {'repository': name, 'repository_version': version,
+              'publication': publications[0], 'previous_publication': old_publication,
+              'base_url': dist['base_url']}
+    bundle = labels.get('akainverse_addon_bundle')
+    if bundle and paths:
+        # A private add-on also goes into the all-add-ons bundle (same files, the bundle's own guard).
+        bundle_dist = client.find(f'distributions/{kind}/{model}', bundle)
+        bundle_guard = client.request('GET', bundle_dist['content_guard'])['name'] if bundle_dist.get('content_guard') else None
+        result['bundle'] = publish(client, kind, bundle, paths, codename=codename, component=component,
+                                   guard=bundle_guard, release=release)
+    return result
 
 
 def main():
