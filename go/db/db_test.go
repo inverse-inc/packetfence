@@ -61,18 +61,29 @@ func TestReturnURIUsesSocketForLocalhost(t *testing.T) {
 	}
 }
 
-func TestSetPoolLimitsStaysWithinTierBudget(t *testing.T) {
-	// A tenant's entire backend budget across all capacity tiers is a few dozen
-	// connections (lib/pf/services/manager/proxysql.pm), shared by every
-	// service. A single handle must not be able to claim all of it.
+func TestSetPoolLimitsStaysWithinTierBudgetInSaaS(t *testing.T) {
+	// In SaaS a tenant's entire backend budget across all capacity tiers is a
+	// few dozen connections (lib/pf/services/manager/proxysql.pm), shared by
+	// every service. A single handle must not be able to claim all of it.
+	t.Setenv("PF_SAAS", "yes")
 	db := &sql.DB{}
 	SetPoolLimits(db)
 
 	stats := db.Stats()
-	if stats.MaxOpenConnections <= 0 {
-		t.Fatal("MaxOpenConns must be bounded, not unlimited")
+	if stats.MaxOpenConnections != 25 {
+		t.Fatalf("MaxOpenConns = %d in SaaS, want 25", stats.MaxOpenConnections)
 	}
-	if stats.MaxOpenConnections > 25 {
-		t.Fatalf("MaxOpenConns = %d, too large for the per-tier budget", stats.MaxOpenConnections)
+}
+
+func TestSetPoolLimitsKeepsOnPremCap(t *testing.T) {
+	// On-prem the database is the deployment's own: keep the previous cap.
+	for _, v := range []string{"", "no", "disabled"} {
+		t.Setenv("PF_SAAS", v)
+		db := &sql.DB{}
+		SetPoolLimits(db)
+
+		if got := db.Stats().MaxOpenConnections; got != 100 {
+			t.Fatalf("PF_SAAS=%q: MaxOpenConns = %d, want 100", v, got)
+		}
 	}
 }

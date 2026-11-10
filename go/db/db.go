@@ -4,12 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/db/sqlcomment"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
@@ -62,28 +64,39 @@ func ConnectURI(ctx context.Context, uri string) (*sql.DB, error) {
 // SetPoolLimits applies the standard pool sizing to a handle. Exported so the
 // GORM call sites, which build their own *sql.DB, can apply it too.
 //
-// Sized for ProxySQL rather than for a dedicated database. In cloud a tenant's
-// whole backend budget is a few dozen connections split across capacity tiers
-// (see lib/pf/services/manager/proxysql.pm), and ProxySQL multiplexes: a
-// frontend connection only borrows a backend one for the duration of a
-// statement, so frontend connections stay cheap and can outnumber the pool.
+// The open-connection cap depends on the deployment (see poolMaxOpen). Idle
+// connections are kept up to that cap, so a steady concurrency above a small
+// idle count does not dial a new connection for most queries, and are reaped
+// after a minute without use instead: SetConnMaxIdleTime was never called
+// before, so a handle kept its idle connections forever.
 //
-// What does pin a backend connection for as long as it lives is session state
-// ProxySQL cannot hand to another client mid-flight: an open transaction, a
-// user variable, a temporary table, a table lock. Long-lived *sql.Stmt values
+// What pins a ProxySQL backend connection for as long as it lives is session
+// state ProxySQL cannot hand to another client mid-flight: an open transaction,
+// a user variable, a temporary table, a table lock. Long-lived *sql.Stmt values
 // are NOT in that category -- ProxySQL keys its statement cache globally and
 // re-prepares on whichever backend it hands out, which was measured with twelve
 // concurrent clients each holding a statement open over a hostgroup capped at
 // six backend connections.
-//
-// The limits are still modest because a frontend connection costs a slot
-// against the per-user cap, and idle ones are now reaped: SetConnMaxIdleTime
-// was never called before, so a handle kept its idle connections forever.
 func SetPoolLimits(db *sql.DB) {
-	db.SetMaxIdleConns(2)
-	db.SetMaxOpenConns(25)
+	maxOpen := poolMaxOpen()
+	db.SetMaxOpenConns(maxOpen)
+	db.SetMaxIdleConns(maxOpen)
 	db.SetConnMaxLifetime(time.Minute * 5)
 	db.SetConnMaxIdleTime(time.Minute)
+}
+
+// poolMaxOpen is the per-handle open-connection cap.
+//
+// In SaaS (PF_SAAS) a tenant's whole backend budget on the shared database is a
+// few dozen connections split across capacity tiers (see
+// lib/pf/services/manager/proxysql.pm), and every frontend connection costs a
+// slot against ProxySQL's per-user cap, so a handle is held to 25. On-prem the
+// database is the deployment's own and keeps the previous cap of 100.
+func poolMaxOpen() int {
+	if sharedutils.IsEnabled(os.Getenv("PF_SAAS")) {
+		return 25
+	}
+	return 100
 }
 
 func ReturnURIFromConfig(ctx context.Context, dbName ...string) string {
