@@ -2701,6 +2701,9 @@ def get_settings():
     _reload_provider_if_changed()
     cfg = _state.get("cfg") or {}
     key = cfg.get("api_key") or ""
+    # Default model per provider (mirrors providers/*/default_model)
+    from providers import _REGISTRY as _prov_reg
+    provider_defaults = {name: cls.default_model for name, cls in _prov_reg.items()}
     return JSONResponse(
         {
             "provider": cfg.get("provider") or "",
@@ -2708,6 +2711,7 @@ def get_settings():
             "source": cfg.get("source", "pf.conf"),
             "key_hint": ("\u2026" + key[-4:]) if len(key) >= 8 else ("set" if key else ""),
             "providers": _provider_names(),
+            "provider_defaults": provider_defaults,
         }
     )
 

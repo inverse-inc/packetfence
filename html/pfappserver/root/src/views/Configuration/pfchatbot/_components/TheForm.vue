@@ -78,7 +78,7 @@
   </base-form>
 </template>
 <script>
-import {computed} from '@vue/composition-api'
+import {computed, watch} from '@vue/composition-api'
 import {BaseForm} from '@/components/new/'
 import schemaFn from '../schema'
 import {
@@ -136,6 +136,17 @@ const providerOptions = ['anthropic', 'openai'].map(value => ({ value, text: val
 export const setup = (props) => {
 
   const schema = computed(() => schemaFn(props))
+
+  // Auto-update model when provider changes (mirrors providers/*/default_model)
+  const PROVIDER_DEFAULTS = { openai: 'gpt-4o', anthropic: 'claude-opus-4-8' }
+  watch(
+    () => props.form && props.form.provider,
+    (newProvider, oldProvider) => {
+      if (newProvider && oldProvider && newProvider !== oldProvider && props.form) {
+        props.form.model = PROVIDER_DEFAULTS[newProvider] || ''
+      }
+    }
+  )
 
   return {
     schema,
