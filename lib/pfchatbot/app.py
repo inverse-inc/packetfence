@@ -412,10 +412,34 @@ _cfg_mtime = None
 
 
 def _effective_config() -> dict:
-    """pf.conf [pfchatbot] provider/key/model, env as fallback."""
+    """pf.conf [pfchatbot] provider/key/model, env as fallback.
+
+    PacketFence encrypts sensitive values as PF_ENC[...] in pf.conf.
+    Reading pf.conf directly returns ciphertext. When detected, we fetch
+    the decrypted values from PF's own /config/base/pfchatbot API instead.
+    """
     cfg = pfconf.live_settings(_ENV_LIVE)
-    return {"provider": cfg["provider"].strip().lower(), "api_key": cfg["api_key"],
-            "model": cfg["model"] or None, "source": "pf.conf"}
+    # Decrypt PF_ENC values via the PF config API (which handles decryption)
+    if any((v or "").startswith("PF_ENC[") for v in cfg.values()):
+        try:
+            r = http.get(build_url("/config/base/pfchatbot"), headers=auth(),
+                         timeout=10)
+            if r.status_code == 401 and PF_USERNAME:
+                login()
+                r = http.get(build_url("/config/base/pfchatbot"), headers=auth(),
+                             timeout=10)
+            if r.status_code == 200:
+                item = r.json().get("item") or {}
+                for k in ("provider", "api_key", "model"):
+                    pf_val = item.get(k)
+                    if pf_val is not None:
+                        cfg[k] = pf_val
+                print("[pf-bot] config: decrypted PF_ENC values via PF API")
+        except Exception as e:
+            print(f"[pf-bot] config: could not decrypt via PF API ({e}); using raw value")
+    return {"provider": (cfg.get("provider") or "").strip().lower(),
+            "api_key": cfg.get("api_key") or "",
+            "model": cfg.get("model") or None, "source": "pf.conf"}
 
 
 def _reload_provider_if_changed() -> None:
