@@ -30,11 +30,11 @@ Please include as much of the following as you can:
 | Status updates | At least every 14 days until resolution |
 | Fix released: Critical | Within 30 days of confirmation |
 | Fix released: High | Within 60 days of confirmation |
-| Fix released: Medium / Low | In a scheduled release |
+| Fix released: Medium / Low | In the next release |
 
-Security fixes are provided for the current release and its maintenance branch.
+Security fixes are provided for the latest release line (its `maintenance/X.Y` branch) and for `devel`. Older release lines are not supported; upgrade to the latest release to receive fixes.
 
-Severity is assessed using CVSS v3.1 together with how PacketFence is typically deployed. If we decline a report, we will tell you why.
+Severity is assessed using CVSS (v3.1 or later) together with how PacketFence is typically deployed. If we decline a report, we will tell you why.
 
 No bug bounty is offered.
 
@@ -42,7 +42,7 @@ No bug bounty is offered.
 
 We follow coordinated disclosure:
 
-- Please give us a reasonable chance to release a fix before disclosing publicly. We ask for **up to 90 days** from your report, and we will agree on a disclosure date with you.
+- Please give us a reasonable chance to release a fix before disclosing publicly. We ask for **up to 90 days** from your report, and we will agree on a disclosure date with you. If a Medium or Low fix will ship after that window, we will ask you to agree an extension.
 - When a fix is released, we publish a **GitHub Security Advisory** for this repository, request a **CVE** where appropriate, and note the fix in [NEWS.asciidoc](NEWS.asciidoc).
 - Reporters are credited in the advisory unless they ask not to be.
 
@@ -72,4 +72,4 @@ We will not pursue or support legal action against anyone who researches and rep
 
 ## Security Updates
 
-To be notified of security fixes, **Watch** this repository and select **Security alerts** under *Custom*, and follow the [NEWS file](NEWS.asciidoc) and release announcements.
+To be notified of security fixes, **Watch** this repository and select **Releases** under *Custom*, follow the [NEWS file](NEWS.asciidoc), and check this repository's [published security advisories](https://github.com/inverse-inc/packetfence/security/advisories).
