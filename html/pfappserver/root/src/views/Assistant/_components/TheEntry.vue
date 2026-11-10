@@ -147,6 +147,25 @@ export default {
       border: 1px solid $gray-300;
       border-radius: $border-radius;
     }
+    table.pf-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: .5rem 0;
+      font-size: .875rem;
+      th, td {
+        padding: .3rem .65rem;
+        border: 1px solid $gray-300;
+        text-align: left;
+        vertical-align: top;
+      }
+      thead th {
+        background-color: $gray-200;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      tbody tr:nth-child(even) { background-color: $gray-100; }
+      tbody tr:hover            { background-color: lighten($primary, 48%); }
+    }
     code.mac { cursor: pointer; }
     .navlink {
       font-weight: 600;

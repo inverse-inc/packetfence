@@ -135,6 +135,20 @@ export default s => {
   s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
   s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
   s = s.replace(/(?<!["=])(https?:\/\/[^\s<)]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>')
+  // GFM pipe tables — rendered before the line loop so cells get inline markup
+  s = s.replace(/((?:^|\n)[ \t]*\|[^\n]*\|[ \t]*\n)([ \t]*\|[ \t]*[-:| \t]+\|[ \t]*\n)((?:[ \t]*\|[^\n]*\|[ \t]*\n)*)/g,
+    (match, headerLine, _sep, bodyBlock) => {
+      const splitCells = row => row.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map(c => c.trim())
+      const headers = splitCells(headerLine)
+      const bodyRows = bodyBlock.trim() ? bodyBlock.trim().split('\n').map(splitCells) : []
+      let t = '<table class="pf-table"><thead><tr>'
+      t += headers.map(h => '<th>' + h + '</th>').join('')
+      t += '</tr></thead><tbody>'
+      for (const cells of bodyRows)
+        t += '<tr>' + cells.map(c => '<td>' + c + '</td>').join('') + '</tr>'
+      t += '</tbody></table>\n'
+      return t
+    })
   const out = []
   let mode = null, olSeq = 0
   const close = () => {
