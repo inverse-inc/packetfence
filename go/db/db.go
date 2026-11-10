@@ -142,17 +142,6 @@ func ReturnURI(ctx context.Context, user, pass, host, port, dbName string) strin
 	Config.ParseTime = true
 	Config.Loc = location
 	Config.Params = map[string]string{"sql_mode": sqlMode}
-	// Interpolate placeholders client-side so a parameterized query goes out as
-	// a single COM_QUERY. Without this the driver does a server-side
-	// prepare/execute/close for every query with arguments, which costs two
-	// extra round trips and, more importantly, makes ProxySQL pin the backend
-	// connection for the duration -- prepared statements cannot be multiplexed
-	// because the statement id is scoped to one backend connection.
-	//
-	// Safe here: multiStatements is off, so an interpolated value cannot open a
-	// second statement, and utf8mb4 is not one of the encodings the driver
-	// rejects for interpolation (BIG5, CP932, GB2312, GBK, SJIS).
-	Config.InterpolateParams = true
 	// Bound connection establishment. Deliberately no ReadTimeout/WriteTimeout:
 	// those are per-read deadlines that would kill legitimately long queries,
 	// and query duration is already bounded by the per-tier ProxySQL timeouts.

@@ -10,33 +10,22 @@ import (
 // The DSN settings below are load-bearing for ProxySQL, and nothing else in the
 // build would notice if they were dropped, so pin them here.
 
-func TestReturnURIInterpolatesParams(t *testing.T) {
-	// Without interpolateParams the driver turns every parameterized query into
-	// a server-side prepare, which ProxySQL cannot multiplex: it has to pin the
-	// backend connection for the prepare/execute pair.
+func TestReturnURIDoesNotInterpolateParams(t *testing.T) {
+	// Client-side interpolation quotes every string argument into the SQL, so
+	// a string bound to LIMIT/OFFSET becomes LIMIT '6', which MariaDB rejects
+	// (the reports API binds them as strings). Server-side prepares accept it,
+	// and they do not pin ProxySQL backends: ProxySQL re-prepares on whichever
+	// backend connection it hands out.
 	uri := ReturnURI(context.Background(), "pf", "secret", "100.64.0.1", "6033", "pf")
-	if !strings.Contains(uri, "interpolateParams=true") {
-		t.Fatalf("DSN is missing interpolateParams=true: %s", uri)
+	if strings.Contains(uri, "interpolateParams=true") {
+		t.Fatalf("DSN must not enable interpolateParams: %s", uri)
 	}
 }
 
 func TestReturnURIDoesNotEnableMultiStatements(t *testing.T) {
-	// interpolateParams is only safe to use while multiStatements is off --
-	// otherwise an interpolated value could open a second statement.
 	uri := ReturnURI(context.Background(), "pf", "secret", "100.64.0.1", "6033", "pf")
 	if strings.Contains(uri, "multiStatements=true") {
-		t.Fatalf("multiStatements must stay off while interpolateParams is on: %s", uri)
-	}
-}
-
-func TestReturnURICollationIsInterpolationSafe(t *testing.T) {
-	// go-sql-driver refuses to interpolate under these encodings, because a
-	// multibyte sequence could swallow the closing quote.
-	uri := ReturnURI(context.Background(), "pf", "secret", "100.64.0.1", "6033", "pf")
-	for _, unsafe := range []string{"big5", "cp932", "gb2312", "gbk", "sjis"} {
-		if strings.Contains(strings.ToLower(uri), unsafe) {
-			t.Fatalf("collation %q cannot be used with interpolateParams: %s", unsafe, uri)
-		}
+		t.Fatalf("multiStatements must stay off: %s", uri)
 	}
 }
 
