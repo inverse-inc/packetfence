@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 85;
+use Test::More tests => 84;
 use WWW::Curl::Easy;
 use URI;
 use JSON::MaybeXS qw(decode_json);
@@ -295,8 +295,6 @@ sub curl_options {
 
 my $options = curl_options();
 is_deeply([@$options{CURLOPT_SSL_VERIFYPEER, CURLOPT_SSL_VERIFYHOST}], [1, 2], "TLS is verified when the option is not set");
-
-is_deeply(pf::Authentication::Source::HTTPSource->legacy_defaults, {verify_tls => 'disabled'}, "the existing sources keep not verifying TLS on upgrade");
 
 $options = curl_options(verify_tls => 'disabled');
 is_deeply([@$options{CURLOPT_SSL_VERIFYPEER, CURLOPT_SSL_VERIFYHOST}], [0, 0], "TLS is not verified when disabled");

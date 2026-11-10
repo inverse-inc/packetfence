@@ -66,9 +66,8 @@ sub main {
 =head2 add_default_params
 
 Writes the default of each attribute missing from the sources of an
-authentication.conf. A source class can give, with legacy_defaults, the value
-of an attribute for the existing sources when it differs from the default of
-the new sources.
+authentication.conf. It runs after the upgrade scripts, which write in the
+existing sources the values that differ from the defaults of the new sources.
 
 =cut
 
@@ -84,12 +83,10 @@ sub add_default_params {
         } else {
             print "Updating $section ($type)\n";
         }
-        my $legacy_defaults = $class->can('legacy_defaults') ? $class->legacy_defaults : {};
         my $meta = $class->meta;
         for my $attr ($meta->get_all_attributes()) {
             my $name = $attr->name;
-            my $value = exists $legacy_defaults->{$name} ? $legacy_defaults->{$name}
-                      : $attr->is_default_a_coderef ? $attr->default->() : $attr->default;
+            my $value = $attr->is_default_a_coderef ? $attr->default->() : $attr->default;
             next unless defined $value;
             next if exists $attributes_to_skip{$name} || $ini->exists($section, $name);
             if ($dry_run) {
