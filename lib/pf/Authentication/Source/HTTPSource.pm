@@ -52,8 +52,7 @@ has 'password' => ( isa => 'Maybe[Str]', is => 'rw', default => undef );
 has 'authentication_url' => ( isa => 'Str', is => 'rw', default => '' );
 has 'authorization_url' => ( isa => 'Str', is => 'rw', default => '' );
 # Sources created before this option existed did not verify TLS: on upgrade,
-# add-default-params-to-auth.pl writes the legacy default (disabled) in them, see
-# legacy_defaults
+# to-16.0-http-source-defaults.pl writes verify_tls=disabled in them
 has 'verify_tls' => ( isa => 'Str', is => 'rw', default => 'enabled' );
 
 Readonly our $CONTENT_TYPE_FORM => 'application/x-www-form-urlencoded';
@@ -103,16 +102,6 @@ Which module to use for DynamicRouting
 =cut
 
 sub dynamic_routing_module { 'Authentication::Login' }
-
-=head2 legacy_defaults
-
-The values that add-default-params-to-auth.pl writes in the existing sources
-when they differ from the defaults of the new sources: the sources created
-before verify_tls existed did not verify TLS.
-
-=cut
-
-sub legacy_defaults { { verify_tls => 'disabled' } }
 
 =head2 has_authentication_rules
 

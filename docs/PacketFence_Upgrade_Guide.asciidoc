@@ -1401,11 +1401,22 @@ hostname of the API server when using `https`. It is enabled by default,
 including for the sources created through the REST API or by editing
 [filename]`/usr/local/pf/conf/authentication.conf`.
 Existing sources keep their previous behavior and do not verify TLS: the
-package upgrade runs [filename]`/usr/local/pf/addons/upgrade/add-default-params-to-auth.pl`,
-which writes `verify_tls=disabled` in each existing HTTP source of
-[filename]`/usr/local/pf/conf/authentication.conf`. After upgrading, enable the
-option on each HTTP source whose API certificate is trusted by the PacketFence
-server.
+upgrade runs [filename]`/usr/local/pf/addons/upgrade/to-16.0-http-source-defaults.pl`,
+which writes `verify_tls=disabled` and
+`content_type=application/x-www-form-urlencoded` in each existing HTTP source of
+[filename]`/usr/local/pf/conf/authentication.conf`, before
+[filename]`/usr/local/pf/addons/upgrade/add-default-params-to-auth.pl` adds the
+defaults of the other new parameters. When upgrading manually, run them in
+this order:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-16.0-http-source-defaults.pl
+/usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
+----
+
+After upgrading, enable the option on each HTTP source whose API certificate is
+trusted by the PacketFence server.
 
 === HTTP source requests
 
