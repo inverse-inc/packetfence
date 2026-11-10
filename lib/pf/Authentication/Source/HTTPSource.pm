@@ -10,9 +10,9 @@ Delegates authentication and authorization to an external HTTP API.
 
 Both calls are HTTP POST requests, sent to
 C<protocol://host:port/authentication_url> and
-C<protocol://host:port/authorization_url>. The body is URL-encoded
-(C<application/x-www-form-urlencoded>, the default) or JSON
-(C<application/json>), depending on C<content_type>. HTTP basic authentication is used
+C<protocol://host:port/authorization_url>. The body is JSON
+(C<application/json>, the default) or URL-encoded
+(C<application/x-www-form-urlencoded>), depending on C<content_type>. HTTP basic authentication is used
 when both C<username> and C<password> are set. The certificate and the
 hostname of the server are verified when C<verify_tls> is enabled.
 
@@ -57,7 +57,7 @@ has 'verify_tls' => ( isa => 'Str', is => 'rw', default => 'enabled' );
 
 Readonly our $CONTENT_TYPE_FORM => 'application/x-www-form-urlencoded';
 Readonly our $CONTENT_TYPE_JSON => 'application/json';
-has 'content_type' => ( isa => 'Str', is => 'rw', default => $CONTENT_TYPE_FORM );
+has 'content_type' => ( isa => 'Str', is => 'rw', default => $CONTENT_TYPE_JSON );
 
 # One encoder for all the requests
 my $JSON_ENCODER = JSON::MaybeXS->new(utf8 => 1, canonical => 1);
