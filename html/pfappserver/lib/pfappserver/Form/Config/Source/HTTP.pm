@@ -69,7 +69,7 @@ has_field 'content_type' =>
     { value => $pf::Authentication::Source::HTTPSource::CONTENT_TYPE_FORM, label => 'Form (application/x-www-form-urlencoded)' },
     { value => $pf::Authentication::Source::HTTPSource::CONTENT_TYPE_JSON, label => 'JSON (application/json)' },
    ],
-   # Not required: a source without it (ex: created through the REST API) is URL-encoded
+   # Not required: a source without it (ex: created through the REST API) is sent as JSON
    default => pf::Authentication::Source::HTTPSource->meta->get_attribute('content_type')->default,
    tags => { after_element => \&help,
              help => 'The format of the body of the authentication and authorization requests.' },

@@ -1424,7 +1424,8 @@ The authorization request of an HTTP source now carries attributes of the
 RADIUS request: as `radius_request.Attribute-Name` fields in a URL-encoded body
 (the values of a multi-valued attribute as `radius_request.Attribute-Name:0`,
 `radius_request.Attribute-Name:1`, ...), or in a `radius_request` object with
-the new JSON content type. Only an allowed list of attributes is sent (see the
+the new JSON content type, the default of the new sources (the existing sources
+keep sending a URL-encoded body). Only an allowed list of attributes is sent (see the
 External API Authentication section of the Installation Guide): passwords,
 CHAP/MS-CHAP and digest values, `EAP-Message`, `State`,
 `Message-Authenticator`, the PSK/DPSK and WPA handshake attributes
