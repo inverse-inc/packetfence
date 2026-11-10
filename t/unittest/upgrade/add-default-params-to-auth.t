@@ -39,9 +39,9 @@ my $ini = pf::IniFiles->new(
     select($old);
 }
 
-is($ini->val('legacy_http', 'verify_tls'), 'enabled', "an HTTP source without verify_tls gets the default");
-is($ini->val('json_http', 'verify_tls'), 'disabled', "an HTTP source with verify_tls keeps its value");
-is($ini->val('legacy_http', 'content_type'), 'application/json', "the other attributes get their default");
+is($ini->val('legacy_http', 'verify_tls'), 'disabled', "an HTTP source without verify_tls gets the default");
+is($ini->val('checked_http', 'verify_tls'), 'enabled', "an HTTP source with verify_tls keeps its value");
+is($ini->val('legacy_http', 'content_type'), 'application/x-www-form-urlencoded', "the other attributes get their default");
 is($ini->val('legacy_http', 'host'), 'api.example.com', "the existing values are kept");
 
 {

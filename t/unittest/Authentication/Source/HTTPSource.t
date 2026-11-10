@@ -295,7 +295,7 @@ sub curl_options {
 }
 
 my $options = curl_options();
-is_deeply([@$options{CURLOPT_SSL_VERIFYPEER, CURLOPT_SSL_VERIFYHOST}], [1, 2], "TLS is verified when the option is not set");
+is_deeply([@$options{CURLOPT_SSL_VERIFYPEER, CURLOPT_SSL_VERIFYHOST}], [0, 0], "TLS is not verified when the option is not set");
 
 $options = curl_options(verify_tls => 'disabled');
 is_deeply([@$options{CURLOPT_SSL_VERIFYPEER, CURLOPT_SSL_VERIFYHOST}], [0, 0], "TLS is not verified when disabled");
@@ -312,7 +312,7 @@ is_deeply([@$options{CURLOPT_SSL_VERIFYPEER, CURLOPT_SSL_VERIFYHOST}], [1, 2], "
         $form->process(init_object => {id => 'test', type => 'HTTP', authentication_url => 'a', authorization_url => 'b', %item}, posted => 0);
         return $form->value->{verify_tls};
     };
-    is($verify_tls_shown->(), 'enabled', "a source without verify_tls is shown as verifying TLS, like it does");
+    is($verify_tls_shown->(), 'disabled', "a source without verify_tls is shown as not verifying TLS, like it does");
     is($verify_tls_shown->(verify_tls => 'disabled'), 'disabled', "a source with verify_tls disabled is shown as disabled");
     is($verify_tls_shown->(verify_tls => 'enabled'), 'enabled', "a source with verify_tls enabled is shown as enabled");
 
@@ -321,12 +321,12 @@ is_deeply([@$options{CURLOPT_SSL_VERIFYPEER, CURLOPT_SSL_VERIFYHOST}], [1, 2], "
     $form->process(posted => 1, params => {id => 'test', type => 'HTTP', description => 'test', protocol => 'http', authentication_url => 'a', authorization_url => 'b'});
     ok($form->validated, "a source can be created through the API without content_type");
     my $source_from_form = pf::Authentication::Source::HTTPSource->new({ map { $_ => $form->value->{$_} } grep { defined $form->value->{$_} } keys %{$form->value} });
-    is($source_from_form->content_type, 'application/json', "a source created without content_type is sent as JSON");
+    is($source_from_form->content_type, 'application/x-www-form-urlencoded', "a source created without content_type is URL-encoded");
 }
 
 # Request content type
 
-ok(pf::Authentication::Source::HTTPSource->new({id => 'test'})->is_json, "requests are sent as JSON by default");
+ok(!pf::Authentication::Source::HTTPSource->new({id => 'test'})->is_json, "requests are URL-encoded by default");
 
 for my $content_type ('application/json', 'application/json; charset=utf-8', 'Application/JSON', ' application/json ', 'json', 'JSON') {
     ok(pf::Authentication::Source::HTTPSource->new({id => 'test', content_type => $content_type})->is_json, "'$content_type' is JSON");
@@ -455,7 +455,7 @@ $options = curl_options(content_type => 'application/json');
 is_deeply($options->{+CURLOPT_HTTPHEADER}, ['Content-Type: application/json'], "JSON: the Content-Type header is application/json");
 
 $options = curl_options();
-is_deeply($options->{+CURLOPT_HTTPHEADER}, ['Content-Type: application/json'], "the Content-Type header is application/json by default");
+ok(!exists $options->{+CURLOPT_HTTPHEADER}, "the Content-Type header is curl's default application/x-www-form-urlencoded by default");
 
 $options = curl_options(content_type => 'application/x-www-form-urlencoded');
 ok(!exists $options->{+CURLOPT_HTTPHEADER}, "form: curl sends its default application/x-www-form-urlencoded Content-Type");
@@ -463,7 +463,7 @@ ok(!exists $options->{+CURLOPT_HTTPHEADER}, "form: curl sends its default applic
 {
     my $form = pfappserver::Form::Config::Source::HTTP->new;
     my $field = $form->field('content_type');
-    is($field->default, 'application/json', "new HTTP sources are sent as JSON by default");
+    is($field->default, 'application/x-www-form-urlencoded', "new HTTP sources are URL-encoded by default");
     is_deeply([sort map { $_->{value} } @{$field->options}], ['application/json', 'application/x-www-form-urlencoded'], "the content type can be URL-encoded or JSON");
 }
 

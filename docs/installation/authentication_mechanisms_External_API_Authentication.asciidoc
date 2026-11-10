@@ -20,7 +20,7 @@ endif::[]
 
 PacketFence also supports calling an external HTTP API as an authentication source (source type `HTTP`). The external API needs to implement an authentication action and an authorization action.
 
-Both actions are called with an HTTP `POST` request. Depending on the *Request content type* of the source, the body is a JSON object (`application/json`, the default) or URL-encoded (`application/x-www-form-urlencoded`). The fields described below are the same in both formats. The API must reply with HTTP status code `200` and a JSON body. Any other status code, or a connection error, is treated as a failure.
+Both actions are called with an HTTP `POST` request. Depending on the *Request content type* of the source, the body is URL-encoded (`application/x-www-form-urlencoded`, the default) or a JSON object (`application/json`). The fields described below are the same in both formats. The API must reply with HTTP status code `200` and a JSON body. Any other status code, or a connection error, is treated as a failure.
 
 ==== Authentication
 
@@ -111,8 +111,8 @@ Here is a brief description of the fields:
 
 [options="compact"]
  * *Host* : the encryption (`http` or `https`), then the IP address or hostname of the API, and lastly the port to connect to the API.
- * *Verify TLS* : When using `https`, verify the certificate and the hostname of the API server. Enabled by default. The certificate must be issued by a certificate authority trusted by the CA bundle of the PacketFence containers: a certificate authority added to the operating system of the PacketFence server is not used.
- * *Request content type* : the format of the body of the requests: `application/json` (default) or `application/x-www-form-urlencoded`.
+ * *Verify TLS* : When using `https`, verify the certificate and the hostname of the API server. Disabled by default. The certificate must be issued by a certificate authority trusted by the CA bundle of the PacketFence containers: a certificate authority added to the operating system of the PacketFence server is not used.
+ * *Request content type* : the format of the body of the requests: `application/x-www-form-urlencoded` (default) or `application/json`.
  * *API username and password* : If the API implements HTTP basic authentication (RFC 2617) these can be added in these fields. Leaving any of those two fields empty will make PacketFence do the requests without any authentication.
  * *Authentication URL* : URL relative to the host to call when doing the authentication of a user. Note that it is automatically prefixed by a slash.
  * *Authorization URL* : URL relative to the host to call when doing the authorization of a user. Note that it is automatically prefixed by a slash.

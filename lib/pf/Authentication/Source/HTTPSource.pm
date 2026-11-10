@@ -51,13 +51,13 @@ has 'username' => ( isa => 'Maybe[Str]', is => 'rw', default => undef );
 has 'password' => ( isa => 'Maybe[Str]', is => 'rw', default => undef );
 has 'authentication_url' => ( isa => 'Str', is => 'rw', default => '' );
 has 'authorization_url' => ( isa => 'Str', is => 'rw', default => '' );
-# Sources created before this option existed did not verify TLS: on upgrade,
-# to-16.0-http-source-defaults.pl writes verify_tls=disabled in them
-has 'verify_tls' => ( isa => 'Str', is => 'rw', default => 'enabled' );
+# Disabled by default: the sources created before this option existed did not verify TLS
+has 'verify_tls' => ( isa => 'Str', is => 'rw', default => 'disabled' );
 
 Readonly our $CONTENT_TYPE_FORM => 'application/x-www-form-urlencoded';
 Readonly our $CONTENT_TYPE_JSON => 'application/json';
-has 'content_type' => ( isa => 'Str', is => 'rw', default => $CONTENT_TYPE_JSON );
+# URL-encoded by default: the only format the sources sent before this option existed
+has 'content_type' => ( isa => 'Str', is => 'rw', default => $CONTENT_TYPE_FORM );
 
 # One encoder for all the requests
 my $JSON_ENCODER = JSON::MaybeXS->new(utf8 => 1, canonical => 1);
