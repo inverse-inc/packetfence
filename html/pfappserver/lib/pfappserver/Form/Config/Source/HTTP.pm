@@ -56,8 +56,7 @@ has_field 'verify_tls' =>
    label => 'Verify TLS',
    checkbox_value  => 'enabled',
    unchecked_value => 'disabled',
-   # No default: a source without the option shows its actual value (the
-   # attribute default, disabled). New sources are enabled by the admin UI.
+   default => pf::Authentication::Source::HTTPSource->meta->get_attribute('verify_tls')->default,
    tags => { after_element => \&help,
              help => 'Verify the certificate and the hostname of the server when using https.' },
   );

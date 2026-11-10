@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 54;
+use Test::More tests => 85;
 use WWW::Curl::Easy;
 use URI;
 use JSON::MaybeXS qw(decode_json);
@@ -35,6 +35,13 @@ my $source = pf::Authentication::Source::HTTPSource->new({id => 'test'});
 is_deeply([$source->handleResults('"{}"', "source")], [0, "Invalid response"]);
 is_deeply([$source->handleResults("{}", "source")], [0, "Authentication failed"]);
 is_deeply([$source->handleResults('{"result":1, "message": "Success"}', "source")], [1, "Success"]);
+is_deeply([$source->handleResults('{"result":true, "message": "Success"}', "source")], [1, "Success"], "result true is a success");
+is_deeply([$source->handleResults('{"result":"1", "message": "Success"}', "source")], [1, "Success"], "result \"1\" is a success");
+is_deeply([$source->handleResults('{"result":"true", "message": "Success"}', "source")], [1, "Success"], "result \"true\" is a success");
+for my $result ('0', 'false', '"0"', '"false"', '"0.0"', '"no"', '2', '"yes"', '[]', '{}', '[1]', '{"a":1}', 'null', '""') {
+    my ($ok, $message) = $source->handleResults(qq({"result":$result}), "source");
+    is($ok, 0, "result $result is a failure");
+}
 
 sub url_for_host {
     my ($host) = @_;
@@ -89,9 +96,19 @@ is_deeply(
 
 is_deeply(
     encode(radius_request => { 'Cisco-AVPair' => ['a=1', 'b=2'] }),
-    ['radius_request.Cisco-AVPair' => 'a=1', 'radius_request.Cisco-AVPair' => 'b=2'],
-    "multi-valued RADIUS attributes are sent once per value"
+    ['radius_request.Cisco-AVPair:0' => 'a=1', 'radius_request.Cisco-AVPair:1' => 'b=2'],
+    "multi-valued RADIUS attributes are sent like the rule conditions name them (Hash::Flatten)"
 );
+
+{
+    use Hash::Flatten qw(flatten);
+    my $radius_request = { 'Cisco-AVPair' => ['a=1', 'b=2'], 'FreeRADIUS-Client-Shortname' => 'sw1', 'Some.Dotted' => 'x' };
+    is_deeply(
+        { @{ encode(radius_request => $radius_request) } },
+        flatten({ radius_request => $radius_request }),
+        "the field names are the names of the rule conditions"
+    );
+}
 
 is_deeply(
     encode(username => 'bob', switch => bless({_id => '192.0.2.1'}, 'pf::Switch'), radius_request => {deep => {deeper => 1}}),
@@ -122,6 +139,39 @@ sub match_actions {
     $mock->mock('mfa_exists', sub { exists $configured_mfa{$_[1]} });
     my $rule = $source->match({username => 'bob', rule_class => $Rules::AUTH});
     return $rule && { map { $_->type => $_->value } @{$rule->{actions}} };
+}
+
+# Secrets of the RADIUS request that a deny list would miss
+{
+    my $params = pf::Authentication::Source::HTTPSource::authorization_params({
+        username       => 'bob',
+        radius_request => {
+            map({ $_ => 'secret' } qw(
+                Digest-Response Digest-HA1 Digest-Attributes Digest-Nonce
+                Aruba-Passphrase Vendor-Shared-Secret Vendor-Key Tunnel-Password
+                PacketFence-UserPassword PacketFence-NTCacheHash PacketFence-RPC-Pass PacketFence-RPC-User
+                Some-Unknown-Vendor-Attribute
+            )),
+            'User-Name'                   => 'bob',
+            'Calling-Station-Id'          => '00-11-22-33-44-55',
+            'NAS-IP-Address'              => '192.0.2.1',
+            'TLS-Client-Cert-Common-Name' => 'bob.example.com',
+            'TLS-Cert-Issuer'             => 'CA',
+            'PacketFence-Switch-Id'       => '192.0.2.1',
+        },
+    });
+    is_deeply(
+        $params->{radius_request},
+        {
+            'User-Name'                   => 'bob',
+            'Calling-Station-Id'          => '00-11-22-33-44-55',
+            'NAS-IP-Address'              => '192.0.2.1',
+            'TLS-Client-Cert-Common-Name' => 'bob.example.com',
+            'TLS-Cert-Issuer'             => 'CA',
+            'PacketFence-Switch-Id'       => '192.0.2.1',
+        },
+        "only the allowed attributes of the RADIUS request are sent"
+    );
 }
 
 is_deeply(
@@ -244,7 +294,9 @@ sub curl_options {
 }
 
 my $options = curl_options();
-is_deeply([@$options{CURLOPT_SSL_VERIFYPEER, CURLOPT_SSL_VERIFYHOST}], [0, 0], "TLS is not verified when the option is not set, like before the option existed");
+is_deeply([@$options{CURLOPT_SSL_VERIFYPEER, CURLOPT_SSL_VERIFYHOST}], [1, 2], "TLS is verified when the option is not set");
+
+is_deeply(pf::Authentication::Source::HTTPSource->legacy_defaults, {verify_tls => 'disabled'}, "the existing sources keep not verifying TLS on upgrade");
 
 $options = curl_options(verify_tls => 'disabled');
 is_deeply([@$options{CURLOPT_SSL_VERIFYPEER, CURLOPT_SSL_VERIFYHOST}], [0, 0], "TLS is not verified when disabled");
@@ -261,7 +313,8 @@ is_deeply([@$options{CURLOPT_SSL_VERIFYPEER, CURLOPT_SSL_VERIFYHOST}], [1, 2], "
         $form->process(init_object => {id => 'test', type => 'HTTP', authentication_url => 'a', authorization_url => 'b', %item}, posted => 0);
         return $form->value->{verify_tls};
     };
-    isnt($verify_tls_shown->(), 'enabled', "a source without verify_tls is not shown as verifying TLS, it does not");
+    is($verify_tls_shown->(), 'enabled', "a source without verify_tls is shown as verifying TLS, like it does");
+    is($verify_tls_shown->(verify_tls => 'disabled'), 'disabled', "a source with verify_tls disabled is shown as disabled");
     is($verify_tls_shown->(verify_tls => 'enabled'), 'enabled', "a source with verify_tls enabled is shown as enabled");
 
     # Process the form like the admin API does to create a source (posted params, no form defaults)
@@ -275,6 +328,13 @@ is_deeply([@$options{CURLOPT_SSL_VERIFYPEER, CURLOPT_SSL_VERIFYHOST}], [1, 2], "
 # Request content type
 
 is($source->content_type, 'application/x-www-form-urlencoded', "requests are URL-encoded by default, like before the option existed");
+
+for my $content_type ('application/json', 'application/json; charset=utf-8', 'Application/JSON', ' application/json ', 'json', 'JSON') {
+    ok(pf::Authentication::Source::HTTPSource->new({id => 'test', content_type => $content_type})->is_json, "'$content_type' is JSON");
+}
+for my $content_type ('application/x-www-form-urlencoded', 'application/x-www-form-urlencoded; charset=utf-8', '', 'application/jsonp') {
+    ok(!pf::Authentication::Source::HTTPSource->new({id => 'test', content_type => $content_type})->is_json, "'$content_type' is URL-encoded");
+}
 
 my $json_source = pf::Authentication::Source::HTTPSource->new({id => 'test', content_type => 'application/json'});
 

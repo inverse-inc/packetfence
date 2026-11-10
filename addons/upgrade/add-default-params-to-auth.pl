@@ -27,22 +27,7 @@ use Module::Pluggable
   'inner'       => 0,
   ;
 
-my $dry_run = 0;
-
-GetOptions("dry-run|n" => \$dry_run);
-
-unless (-e $authentication_config_file) {
-    print "$authentication_config_file does not exists\n";
-    exit 0;
-}
-
 sources();
-run_as_pf();
-
-my $ini = pf::IniFiles->new(
-    -file => $authentication_config_file,
-    -allowempty => 1,
-);
 
 our %attributes_to_skip = (
     (
@@ -52,35 +37,71 @@ our %attributes_to_skip = (
 
 delete @attributes_to_skip{qw(dynamic_routing_module)};
 
-for my $section ($ini->Sections()) {
-    next if $section =~ / / || !$ini->exists( $section, 'type' );
-    my $type = $ini->val($section, 'type');
-    my $class = "pf::Authentication::Source::${type}Source";
-    load $class;
-    if ($dry_run) {
-        print "Will update $section ($type)\n";
-    } else {
-        print "Updating $section ($type)\n";
-    }
-    my $meta = $class->meta;
-    for my $attr ($meta->get_all_attributes()) {
-        my $value = $attr->is_default_a_coderef ? $attr->default->() : $attr->default;
-        next unless defined $value;
-        my $name = $attr->name;
-        next if exists $attributes_to_skip{$name} || $ini->exists($section, $name);
-        if ($dry_run) {
-            print " Will set $name to '$value'\n";
-        } else {
-            print " Setting $name to '$value'\n";
-            $ini->newval($section, $name, $value);
-        }
+main() if not caller();
+
+sub main {
+    my $dry_run = 0;
+
+    GetOptions("dry-run|n" => \$dry_run);
+
+    unless (-e $authentication_config_file) {
+        print "$authentication_config_file does not exists\n";
+        exit 0;
     }
 
-    print "\n";
+    run_as_pf();
+
+    my $ini = pf::IniFiles->new(
+        -file => $authentication_config_file,
+        -allowempty => 1,
+    );
+
+    add_default_params($ini, $dry_run);
+
+    if (!$dry_run) {
+        $ini->RewriteConfig();
+    }
 }
 
-if (!$dry_run) {
-    $ini->RewriteConfig();
+=head2 add_default_params
+
+Writes the default of each attribute missing from the sources of an
+authentication.conf. A source class can give, with legacy_defaults, the value
+of an attribute for the existing sources when it differs from the default of
+the new sources.
+
+=cut
+
+sub add_default_params {
+    my ($ini, $dry_run) = @_;
+    for my $section ($ini->Sections()) {
+        next if $section =~ / / || !$ini->exists( $section, 'type' );
+        my $type = $ini->val($section, 'type');
+        my $class = "pf::Authentication::Source::${type}Source";
+        load $class;
+        if ($dry_run) {
+            print "Will update $section ($type)\n";
+        } else {
+            print "Updating $section ($type)\n";
+        }
+        my $legacy_defaults = $class->can('legacy_defaults') ? $class->legacy_defaults : {};
+        my $meta = $class->meta;
+        for my $attr ($meta->get_all_attributes()) {
+            my $name = $attr->name;
+            my $value = exists $legacy_defaults->{$name} ? $legacy_defaults->{$name}
+                      : $attr->is_default_a_coderef ? $attr->default->() : $attr->default;
+            next unless defined $value;
+            next if exists $attributes_to_skip{$name} || $ini->exists($section, $name);
+            if ($dry_run) {
+                print " Will set $name to '$value'\n";
+            } else {
+                print " Setting $name to '$value'\n";
+                $ini->newval($section, $name, $value);
+            }
+        }
+
+        print "\n";
+    }
 }
 
 =head1 AUTHOR
@@ -110,3 +131,4 @@ USA.
 
 =cut
 
+1;
