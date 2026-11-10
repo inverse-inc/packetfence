@@ -41,20 +41,17 @@ foreach ( @MODULES ) {
 =head2 new
 
 Will create a new pf::mfa sub class based off the name
-If no provider is found the return undef
+If no MFA with this name is configured, returns undef
 
 =cut
 
 sub new {
     my ($class,$name) = @_;
-    my $object;
-    my $data = $ConfigMfa{$name};
-    $data->{id} = $name;
-    if ($data) {
-        my $subclass = $class->getModuleName($name,$data);
-        $object = $subclass->new($data);
-    }
-    return $object;
+    return undef if !defined $name || !exists $ConfigMfa{$name};
+    # Copy the config: do not add the id to the shared MFA config
+    my $data = { %{ $ConfigMfa{$name} }, id => $name };
+    my $subclass = $class->getModuleName($name,$data);
+    return $subclass->new($data);
 }
 
 

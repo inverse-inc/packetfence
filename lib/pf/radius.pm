@@ -1188,6 +1188,26 @@ sub returnRadiusCli{
     }
 }
 
+=head2 _mfa_or_reject
+
+The MFA triggered by a source action, or the rejection of the request when no
+such MFA is configured (ex: deleted after the source was configured): the
+second factor required by the source cannot be checked, so the request is
+rejected instead of being accepted without it.
+
+Returns C<($mfa, undef)> or C<(undef, $radius_reply)>.
+
+=cut
+
+sub _mfa_or_reject {
+    my ($self, $mfa_id, $matched) = @_;
+    my $mfa = pf::factory::mfa->new($mfa_id);
+    return ($mfa, undef) if defined $mfa;
+    my $source_id = $matched->{source_id} // 'unknown';
+    $self->logger->error("The source $source_id triggers the MFA $mfa_id, which is not configured: rejecting the request");
+    return (undef, [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "MFA $mfa_id is not configured") ]);
+}
+
 sub mfa_post_auth {
     my ($self, $args, $options, $sources, $source_id, $extra ,$otp, $password) = @_;
     my $logger = $self->logger;
@@ -1201,7 +1221,8 @@ sub mfa_post_auth {
 
     my $value = $matched->{values}{$Actions::TRIGGER_RADIUS_MFA} if $matched;
     if ($value) {
-        my $mfa = pf::factory::mfa->new($value);
+        my ($mfa, $reject) = $self->_mfa_or_reject($value, $matched);
+        return $reject if $reject;
         # If the mfa method is secondary password do nothing, the mfa will be triggered on a second request.
         if ($mfa->radius_mfa_method eq 'second-password') {
             my $cache = pf::mfa->cache;
@@ -1239,7 +1260,8 @@ sub mfa_pre_auth {
     # Verify if the user succeed the MFA on the portal
     my $value = $matched->{values}{$Actions::TRIGGER_PORTAL_MFA} if $matched;
     if ($value) {
-        my $mfa = pf::factory::mfa->new($value);
+        my ($mfa, $reject) = $self->_mfa_or_reject($value, $matched);
+        return $reject if $reject;
         my $cache = pf::mfa->cache;
         if (isenabled($args->{switch}->{_PostMfaValidation}) && $cache->get($args->{'username'}."mfapreauth") && $cache->get($args->{'username'}."mfapostauth")) {
             $cache->remove($args->{'username'}."mfapostauth");
@@ -1253,7 +1275,8 @@ sub mfa_pre_auth {
 
     $value = $matched->{values}{$Actions::TRIGGER_RADIUS_MFA} if $matched;
     if ($value) {
-        my $mfa = pf::factory::mfa->new($value);
+        my ($mfa, $reject) = $self->_mfa_or_reject($value, $matched);
+        return $reject if $reject;
         my $cache = pf::mfa->cache;
         my $split_char = $mfa->split_char;
         if ($$password =~ /^(.*)$split_char(sms|push|phone)(\d?)$/i) {

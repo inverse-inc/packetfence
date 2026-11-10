@@ -96,6 +96,15 @@ sub execute_child {
     my $args;
     
     unless($mfa){
+        my $mfa_id = $self->app->session->{mfa_id};
+        if (defined $mfa_id) {
+            # The source requires an MFA that is not configured (ex: deleted):
+            # the second factor cannot be checked, do not skip it
+            get_logger->error("The MFA $mfa_id triggered for $mac is not configured: blocking the authentication");
+            $self->app->flash->{error} = "Unable to validate the multi-factor response. Please contact your local support staff.";
+            $self->app->redirect("/logout");
+            return;
+        }
         get_logger->info("No mfa found for $mac. Continuing.");
         $self->done();
         return;
