@@ -212,6 +212,11 @@ function upgrade_configuration() {
     echo "Running $script"
     $script
   done
+  # After the upgrade scripts, so the values they write in the existing sources
+  # take precedence over the defaults
+  sub_splitter
+  echo "Adding the default parameters to the authentication sources"
+  perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
 }
 
 function restore_certificates() {
