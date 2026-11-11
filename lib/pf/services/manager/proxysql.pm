@@ -193,6 +193,12 @@ undecorated C<ALTER> or C<DELETE> on radacct from a script falls to the
 catch-all instead of taking RADIUS connections. Decorated queries start with
 C</*>, so they can never match it.
 
+=item * C<pfcron> -- not a tier of its own: pfcron's maintenance jobs (node,
+ip4log and accounting cleanups) stay in the catch-all hostgroup, so they still
+share its few connections and cannot crowd the tiers above, but with the 360s
+ceiling instead of its 40s clamp. A cleanup that needs more than 40s would
+otherwise be killed on every run and never catch up.
+
 =back
 
 The tag charset allows C<.>, C<-> and C</>, which are regex metacharacters,
@@ -213,16 +219,19 @@ sub tier_route_patterns {
         radius => '(?s)^\s*(CALL\s+acct_(start|update|stop)\b'
                 . '|(SELECT|INSERT|UPDATE)\b.*\b(' . $rlm_sql_tables . ')\b'
                 . '|SELECT\b.*\bFROM\s+password\s+JOIN\s+activation\b)',
+        pfcron => '^/\* pf:pfcron[ :]',
     };
 }
 
 =head2 template_has_tier_placeholders
 
-Whether the proxysql.conf template carries the placeholders the SaaS tiers
-need. conf/proxysql.conf ships with each release, but a locally modified copy is
-kept on upgrade (rpm %config(noreplace), dpkg conffile), and rendering tiers
-into a pre-tier template would write the tier hostgroups without their query
-rules, sending everything to the catch-all.
+Whether the proxysql.conf template can render the SaaS tiers: it carries the
+C<mysql_cloud_variables> placeholder, and C<mysql_query_rules> is rendered for a
+single server, i.e. not inside C<[% UNLESS single_server %]> as before the
+tiers. conf/proxysql.conf ships with each release, but a locally modified copy
+is kept on upgrade (rpm %config(noreplace), dpkg conffile). Rendering tiers into
+a template that drops the rules would write the tier hostgroups without their
+query rules, sending everything to the catch-all.
 
 =cut
 
@@ -232,7 +241,24 @@ sub template_has_tier_placeholders {
     local $/;
     my $content = <$fh>;
     close($fh);
-    return $content =~ /\[%\s*mysql_cloud_variables\s*%\]/ ? 1 : 0;
+    return 0 unless $content =~ /\[%\s*mysql_cloud_variables\s*%\]/;
+
+    # Walk the template directives, tracking the open blocks, and check the
+    # rules placeholder is present and not under UNLESS single_server.
+    my @open;
+    my $rules_ok = 0;
+    while ($content =~ /\[%-?\s*(.*?)\s*-?%\]/gs) {
+        my $directive = $1;
+        if ($directive =~ /^(IF|UNLESS|FOREACH|WHILE|BLOCK|WRAPPER|SWITCH)\b/) {
+            push @open, $directive;
+        } elsif ($directive =~ /^END\b/) {
+            pop @open;
+        } elsif ($directive eq 'mysql_query_rules') {
+            return 0 if grep { /^UNLESS\s+single_server\b/ } @open;
+            $rules_ok = 1;
+        }
+    }
+    return $rules_ok;
 }
 
 sub generateConfig {
@@ -321,6 +347,9 @@ sub generateConfig {
         medium => { hg => $medium_hostgroup, timeout_ms => 120_000 },
         large  => { hg => $large_hostgroup,  timeout_ms => 360_000 },
     );
+    # pfcron's maintenance jobs: the catch-all's hostgroup, the large tier's
+    # timeout (see tier_route_patterns).
+    my %pfcron_route = (hg => $writer_hostgroup, timeout_ms => $tier{large}{timeout_ms});
     my $cloud_tiers = 0;  # flag: SaaS single-backend tier mode, generate the tier rules
 
     # Frontend connection cap (mysql_variables max_connections), i.e. sessions
@@ -691,6 +720,7 @@ EOT
         my $large_pattern  = $pattern{large};
         my $medium_pattern = $pattern{medium};
         my $radius_pattern = $pattern{radius};
+        my $pfcron_pattern = $pattern{pfcron};
         $tags{'mysql_query_rules'} = << "EOT";
 mysql_query_rules =
 (
@@ -723,6 +753,15 @@ mysql_query_rules =
     },
     {
         rule_id=24,
+        active=1,
+        match_pattern="$pfcron_pattern",
+        destination_hostgroup=$pfcron_route{hg},
+        timeout=$pfcron_route{timeout_ms},
+        apply=1,
+        comment="pfcron maintenance: catch-all connections, 360s timeout instead of the 40s clamp"
+    },
+    {
+        rule_id=25,
         active=1,
         match_pattern=".",
         destination_hostgroup=$tier{small}{hg},

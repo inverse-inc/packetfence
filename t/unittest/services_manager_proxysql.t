@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 58;
+use Test::More tests => 68;
 use Test::NoWarnings;
 
 use pf::services::manager::proxysql;
@@ -104,12 +104,13 @@ is($usable, 3200, "tier_budget: usable is the ceiling less the reserve");
 is($budget, 26,   "tier_budget: budget is one tenant's share of it");
 is(total_of($plan), $budget, "the plan splits exactly the budget tier_budget reports");
 
-# Routing: which tier each statement lands in. ProxySQL evaluates the rules in
-# order (large, medium, radius, catch-all) with the CASELESS modifier.
+# Routing: which rule each statement lands in. ProxySQL evaluates the rules in
+# order (large, medium, radius, pfcron, catch-all) with the CASELESS modifier.
+# 'pfcron' is the catch-all hostgroup with the long timeout.
 my $patterns = pf::services::manager::proxysql::tier_route_patterns();
 sub tier_of {
     my ($sql) = @_;
-    for my $tier (qw(large medium radius)) {
+    for my $tier (qw(large medium radius pfcron)) {
         return $tier if $sql =~ /$patterns->{$tier}/i;
     }
     return 'small';
@@ -127,7 +128,7 @@ my @routes = (
     [ '/* pf:pfhttpd */ SELECT 1',                                            'medium', 'pfhttpd' ],
     [ '/* pf:pfperl-api */ SELECT 1',                                         'medium', 'pfperl-api' ],
     [ '/* pf:httpd.webservices */ SELECT 1',                                  'medium', 'httpd.webservices' ],
-    [ '/* pf:pfqueue:api */ SELECT 1',                                        'medium', 'pfqueue api tasks' ],
+    [ '/* pf:pfqueue:api */ SELECT 1',                                        'medium', 'pfqueue api tasks (sbin/pfqueue-backend stamps pf_unit with the task type)' ],
     [ '/* pf:pfhttpd2 */ SELECT 1',                                           'small',  'no prefix collision: pfhttpd2 is not pfhttpd' ],
     [ '/* pf:httpdXaaa */ SELECT 1',                                          'small',  'the dot in httpd.aaa is literal' ],
     [ '/* pf:pfconfigurator */ SELECT 1',                                     'small',  'no prefix collision: pfconfigurator is not pfconfig' ],
@@ -144,14 +145,45 @@ my @routes = (
                                                                              'radius', 'rlm_sql guest/local authorize_check_query' ],
     # maintenance and undecorated scripts must not take RADIUS connections
     [ '/* pf:pfcron:acct_cleanup */ DELETE FROM radacct WHERE acctstoptime < ? LIMIT 100',
-                                                                             'small',  'decorated pfcron cleanup of radacct' ],
-    [ '/* pf:pfcron */ SELECT * FROM radacct',                                'small',  'decorated SELECT on radacct keeps its own tier' ],
+                                                                             'pfcron', 'decorated pfcron cleanup of radacct: catch-all, long timeout' ],
+    [ '/* pf:pfcron */ SELECT * FROM radacct',                                'pfcron', 'decorated SELECT on radacct keeps its own route' ],
+    [ '/* pf:pfcronX */ SELECT 1',                                            'small',  'no prefix collision: pfcronX is not pfcron' ],
     [ 'ALTER TABLE radacct ADD COLUMN x INT',                                  'small',  'undecorated ALTER on radacct' ],
     [ 'DELETE FROM radacct WHERE 1',                                          'small',  'undecorated DELETE on radacct' ],
     [ 'SELECT password FROM password WHERE pid = 1',                          'small',  'undecorated password lookup without the rlm_sql join' ],
-    [ 'START TRANSACTION',                                                    'small',  'undecorated BEGIN from a driver' ],
+    [ 'START TRANSACTION',                                                    'small',  'undecorated BEGIN (driver without the wrapper)' ],
+    # go/db/sqlcomment decorates BEGIN, so a transaction is opened in its caller's tier
+    [ '/* pf:pfhttpd */ START TRANSACTION',                                   'medium', 'Go BEGIN from pfhttpd' ],
+    [ '/* pf:pfacct */ START TRANSACTION READ ONLY',                          'large',  'Go read-only BEGIN from pfacct' ],
 );
 is(tier_of($_->[0]), $_->[1], "route: $_->[2] -> $_->[1]") for @routes;
+
+# The template guard: placeholder present and rules rendered for a single server.
+{
+    use File::Temp qw(tempfile);
+    my $guard = sub {
+        my ($body) = @_;
+        my ($fh, $path) = tempfile(UNLINK => 1);
+        print $fh $body;
+        close $fh;
+        return pf::services::manager::proxysql::template_has_tier_placeholders($path);
+    };
+    my $vars  = "mysql_variables = {\n[% mysql_cloud_variables %]\n}\n";
+    ok($guard->($vars . "[% mysql_query_rules %]\n"),
+        "template guard: accepts the shipped layout");
+    ok(!$guard->("[% mysql_query_rules %]\n"),
+        "template guard: rejects a template without mysql_cloud_variables");
+    ok(!$guard->($vars . "[% UNLESS single_server %]\n[% mysql_query_rules %]\n[% END %]\n"),
+        "template guard: rejects rules still inside UNLESS single_server");
+    ok(!$guard->($vars . "[% UNLESS single_server %]\n[% IF x %]y[% END %]\n[% mysql_query_rules %]\n[% END %]\n"),
+        "template guard: rejects rules under UNLESS single_server past a nested block");
+    ok($guard->($vars . "[% UNLESS single_server %]x[% END %]\n[% mysql_query_rules %]\n"),
+        "template guard: accepts rules after a closed UNLESS single_server");
+    ok(!$guard->($vars),
+        "template guard: rejects a template without the rules placeholder");
+    ok(pf::services::manager::proxysql::template_has_tier_placeholders('/usr/local/pf/conf/proxysql.conf.example'),
+        "template guard: accepts the shipped conf/proxysql.conf.example");
+}
 
 # The handle subclass that carries the remark (used by pf::db, pf::CHI::db and
 # pfconfig::backend::mysql).
