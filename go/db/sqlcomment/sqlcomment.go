@@ -206,11 +206,49 @@ func (c wrapConn) ExecContext(ctx context.Context, query string, args []driver.N
 	return e.ExecContext(ctx, decorate(ctx, query), args)
 }
 
+// BeginTx opens the transaction with a decorated START TRANSACTION instead of
+// the driver's bare one. ProxySQL routes a transaction by its first statement
+// and, with transaction_persistent, keeps the rest on that hostgroup: an
+// undecorated START TRANSACTION would pin every transaction (including GORM's
+// implicit ones around each write) to the catch-all tier, whatever service
+// opened it.
+//
+// A non-default isolation level needs a separate SET TRANSACTION first, which
+// ProxySQL would route on its own, so that case keeps the driver's BeginTx.
 func (c wrapConn) BeginTx(ctx context.Context, opts driver.TxOptions) (driver.Tx, error) {
-	if b, ok := c.Conn.(driver.ConnBeginTx); ok {
-		return b.BeginTx(ctx, opts)
+	e, ok := c.Conn.(driver.ExecerContext)
+	if !ok || sql.IsolationLevel(opts.Isolation) != sql.LevelDefault {
+		if b, ok := c.Conn.(driver.ConnBeginTx); ok {
+			return b.BeginTx(ctx, opts)
+		}
+		return c.Conn.Begin()
 	}
-	return c.Conn.Begin()
+	q := "START TRANSACTION"
+	if opts.ReadOnly {
+		q += " READ ONLY"
+	}
+	if _, err := e.ExecContext(ctx, decorate(ctx, q), nil); err != nil {
+		return nil, err
+	}
+	return &wrapTx{conn: e}, nil
+}
+
+// wrapTx ends a transaction opened by wrapConn.BeginTx, the way the mysql
+// driver's own Tx does: one COMMIT or ROLLBACK on the same connection, then
+// unusable. These need no remark: transaction_persistent keeps them on the
+// transaction's hostgroup.
+type wrapTx struct{ conn driver.ExecerContext }
+
+func (t *wrapTx) Commit() error   { return t.end("COMMIT") }
+func (t *wrapTx) Rollback() error { return t.end("ROLLBACK") }
+
+func (t *wrapTx) end(q string) error {
+	if t.conn == nil {
+		return mysql.ErrInvalidConn
+	}
+	_, err := t.conn.ExecContext(context.Background(), q, nil)
+	t.conn = nil
+	return err
 }
 
 func (c wrapConn) Ping(ctx context.Context) error {

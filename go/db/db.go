@@ -64,11 +64,12 @@ func ConnectURI(ctx context.Context, uri string) (*sql.DB, error) {
 // SetPoolLimits applies the standard pool sizing to a handle. Exported so the
 // GORM call sites, which build their own *sql.DB, can apply it too.
 //
-// The open-connection cap depends on the deployment (see poolMaxOpen). Idle
-// connections are kept up to that cap, so a steady concurrency above a small
-// idle count does not dial a new connection for most queries, and are reaped
-// after a minute without use instead: SetConnMaxIdleTime was never called
-// before, so a handle kept its idle connections forever.
+// The open-connection cap depends on the deployment (see poolMaxOpen). At most
+// five connections are kept idle, as before, and they are reaped after a
+// minute without use: SetConnMaxIdleTime was never called before, so a handle
+// kept its idle connections forever. Each idle connection holds a frontend slot
+// against ProxySQL's per-user cap, which rejects new connections once reached;
+// keeping up to 25 idle per handle in SaaS would spend that cap on nothing.
 //
 // What pins a ProxySQL backend connection for as long as it lives is session
 // state ProxySQL cannot hand to another client mid-flight: an open transaction,
@@ -80,10 +81,13 @@ func ConnectURI(ctx context.Context, uri string) (*sql.DB, error) {
 func SetPoolLimits(db *sql.DB) {
 	maxOpen := poolMaxOpen()
 	db.SetMaxOpenConns(maxOpen)
-	db.SetMaxIdleConns(maxOpen)
+	db.SetMaxIdleConns(poolMaxIdle)
 	db.SetConnMaxLifetime(time.Minute * 5)
 	db.SetConnMaxIdleTime(time.Minute)
 }
+
+// poolMaxIdle is the per-handle idle-connection cap.
+const poolMaxIdle = 5
 
 // poolMaxOpen is the per-handle open-connection cap.
 //
