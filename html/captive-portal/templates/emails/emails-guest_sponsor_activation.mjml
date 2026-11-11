@@ -1,7 +1,7 @@
 <mjml>
   <mj-head>
     <mj-include path="_header.mjml" />
-    <mj-preview>[% firstname %] [% lastname %] [% i18n("requested guest access to your network.") %]</mj-preview>
+    <mj-preview>[% IF firstname || lastname %][% firstname %] [% lastname %][% ELSE %][% email %][% END %] [% i18n("requested guest access to your network.") %]</mj-preview>
   </mj-head>
   <mj-body>
     <mj-section></mj-section>
@@ -20,7 +20,7 @@
         <mj-column>
           <mj-text>
             <p style="padding-bottom: 20px">[% i18n("Hello") %]</p>
-            <p>[% firstname %] [% lastname %] [% i18n("requested guest access to your network.") %]</p>
+            <p>[% IF firstname || lastname %][% firstname %] [% lastname %][% ELSE %][% email %][% END %] [% i18n("requested guest access to your network.") %]</p>
             <p>[% i18n("Do NOT authorize access if you were not expecting this guest.") %]</p>
             <p>[% i18n("Here is the information the guest provided with registration form") %]:</p>
           </mj-text>
@@ -29,10 +29,10 @@
       <mj-section padding-top="0">
         <mj-column width="50%">
           <mj-text align="left">
-            <p class="label">[% i18n("Firstname") %]</p>
-            <p class="value">[% firstname %]</p>
-            <p class="label">[% i18n("Lastname") %]</p>
-            <p class="value">[% lastname %]</p>
+            [% IF firstname %]<p class="label">[% i18n("Firstname") %]</p>
+            <p class="value">[% firstname %]</p>[% END %]
+            [% IF lastname %]<p class="label">[% i18n("Lastname") %]</p>
+            <p class="value">[% lastname %]</p>[% END %]
             [% IF telephone %]<p class="label">[% i18n("Phone number") %]</p>
             <p class="value">[% telephone %]</p>[% END %]
             <p class="label">[% i18n("Email") %]</p>

@@ -2,7 +2,6 @@ package models
 
 import (
 	"context"
-	"errors"
 	"strings"
 	"time"
 
@@ -66,15 +65,18 @@ func (a AdminApiAuditLog) Search(vars sql.Vars) (DBRes, error) {
 	res := DBRes{}
 	sqls, err := vars.Sql(a)
 	if err != nil {
-		return res, err
+		return res, invalidSearch(err)
 	}
 
 	var count int64
 	var items []AdminApiAuditLog
-	a.DB.Model(&AdminApiAuditLog{}).Where(sqls.Where.Query, sqls.Where.Values...).Count(&count)
+	if err := a.DB.Model(&AdminApiAuditLog{}).Where(sqls.Where.Query, sqls.Where.Values...).Count(&count).Error; err != nil {
+		return res, err
+	}
 
 	if count == 0 {
-		return res, errors.New("entries not found")
+		// No match isn't an error: return an empty page
+		return emptyPage[AdminApiAuditLog](), nil
 	}
 	counter := int(count)
 	res.Total = &counter

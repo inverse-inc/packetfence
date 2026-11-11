@@ -16,7 +16,117 @@ use warnings;
 
 use base ('pf::Switch::Aruba');
 
+use pf::util;
+
+use NetAddr::IP;
+
 sub description { 'Aruba 200 Controller' }
+
+use pf::SwitchSupports qw(
+    PushACLs
+    AccessListBasedEnforcement
+);
+
+=head2 acl_chewer
+
+Format ACL to match with the expected switch format.
+
+=cut
+
+sub acl_chewer {
+    my ($self, $acl, $role) = @_;
+    my $logger = $self->logger;
+    my ($acl_ref , @direction) = $self->format_acl($acl);
+
+    my $entries;
+    ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, sub { $self->untranslatableControllerAcl($_[0]) });
+
+    my $i = 0;
+    my $acl_chewed;
+    foreach my $acl (@$entries) {
+        $acl->{'protocol'} =~ s/\(\d*\)//;
+        my $dest;
+        my $dest_port;
+        if (defined($acl->{'destination'}->{'port'})) {
+            $dest_port = $acl->{'destination'}->{'port'};
+            # One port or a range, as numbers (a Cisco port name is resolved)
+            if ($dest_port =~ /range\s+(\S+)\s+(\S+)/) {
+                $dest_port = $self->aclPortNumber($1, $acl->{'protocol'})."-".$self->aclPortNumber($2, $acl->{'protocol'});
+            } else {
+                $dest_port =~ s/\w+\s+//;
+                $dest_port = $self->aclPortNumber($dest_port, $acl->{'protocol'});
+            }
+        }
+        if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
+            $dest = "any";
+        } elsif($acl->{'destination'}->{'ipv4_addr'} ne '0.0.0.0') {
+            if ($acl->{'destination'}->{'wildcard'} ne '0.0.0.0') {
+                my $net_addr = NetAddr::IP->new($acl->{'destination'}->{'ipv4_addr'}, norm_net_mask($acl->{'destination'}->{'wildcard'}));
+                my $cidr = "network ".$net_addr->cidr();
+                $dest = $cidr;
+            } else {
+                $dest = "host ".$acl->{'destination'}->{'ipv4_addr'};
+            }
+        }
+        my $src;
+        if ($acl->{'source'}->{'ipv4_addr'} eq '0.0.0.0') {
+            $src = "user";
+        } elsif($acl->{'source'}->{'ipv4_addr'} ne '0.0.0.0') {
+            if ($acl->{'source'}->{'wildcard'} ne '0.0.0.0') {
+                my $net_addr = NetAddr::IP->new($acl->{'source'}->{'ipv4_addr'}, norm_net_mask($acl->{'source'}->{'wildcard'}));
+                my $cidr = $net_addr->cidr();
+                $src = $cidr;
+            } else {
+                $src = $acl->{'source'}->{'ipv4_addr'};
+            }
+        }
+        if ($self->aclsForPush) {
+            my $dir_prefix = (defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] . "|" : "";
+            my $dest_port_val = defined($dest_port) ? $dest_port : '';
+            my $line = sprintf("%s %s %s %s %s %s\n",
+                $dir_prefix,
+                $src,
+                $dest,
+                $acl->{'protocol'},
+                $dest_port_val,
+                $acl->{'action'}
+            );
+            $acl_chewed .= $line;
+        } else {
+            my $dir_prefix = (defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] . "|" : "";
+            my $action     = $acl->{'action'};
+            my $dir        = (defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] : "in";
+            my $protocol   = $acl->{'protocol'};
+            my $dest_str   = $dest;
+            my $port_str   = defined($dest_port) ? $dest_port : '';
+            $acl_chewed .= "${dir_prefix}${action} ${dir} ${protocol} from any to ${dest_str} ${port_str}\n";
+        }
+        $i++;
+    }
+    return $acl_chewed;
+}
+
+=head2 implicit_acl
+
+Return implicit acl
+
+=cut
+
+sub implicit_acl {
+    my ($self) = @_;
+    return "permit any";
+}
+
+=head2 pushAclsName
+
+Only the in ACLs of a role are pushed, as a session ACL attached to the user-role
+
+=cut
+
+sub pushAclsName {
+    my ($self, $role, $direction) = @_;
+    return $direction eq 'out' ? undef : $role;
+}
 
 =head1 AUTHOR
 

@@ -21,7 +21,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 12;
+use Test::More tests => 17;
 use Test::Mojo;
 use Utils;
 
@@ -102,6 +102,33 @@ $t->post_ok(
             {
                 field   => 'pfconnector_port',
                 message => 'Value must be between 30000 and 30999',
+            }
+        ],
+        message => 'Unable to validate',
+    }
+);
+
+# Saving a RADIUS source with its own port must not conflict with itself
+$t->patch_ok(
+    "/api/v1/config/source/RADIUS_CONNECT_THROUGH_TEST" => json => {
+        pfconnector_port => 30000,
+    }
+)->status_is(200);
+
+# Port of a DNS server with the same id as the RADIUS source
+$t->post_ok(
+    $collection_base_url => json => {
+        id               => 'TEST',
+        pfconnector_port => 30001,
+        %options,
+    }
+)->status_is(422)->json_is(
+    {
+        status => 422,
+        errors => [
+            {
+                field   => 'pfconnector_port',
+                message => 'Port should be unique',
             }
         ],
         message => 'Unable to validate',

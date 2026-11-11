@@ -18,6 +18,24 @@ endif::[]
 
 //== Troubleshooting a cluster
 
+=== Checking which server holds the virtual IPs
+
+In the administration interface, _Status -> Cluster_ shows in realtime which
+cluster member currently holds each virtual IP, and since when, in every zone
+of the cluster. A virtual IP held by more than one member (split brain) or by
+no member is highlighted. When a member can't be queried (each member gets a
+few seconds to answer), the virtual IPs of its zone that no other member holds
+are shown as unknown.
+
+The same information is available from the API:
+
+----
+curl -k -H "Authorization: $TOKEN" https://MANAGEMENT_VIP:1443/api/v1/cluster/vips
+----
+
+The `since` value is the time the current owner became master, as reported by
+keepalived. It is unknown until the next VRRP state change after an upgrade.
+
 === Checking the MariaDB sync
 
 Check MariaDB sync by examining `wsrep` status values in MariaDB:

@@ -233,6 +233,30 @@ sub getIfIndexByNasPortId {
     }
 }
 
+=item ifIndexCacheTables
+
+The ifDescr table getIfIndexByNasPortId looks NAS-Port-Id up in, refreshed by
+the switch_cache_ifindex pfcron task.
+
+=cut
+
+sub ifIndexCacheTables {
+    return ([-baseoid => '1.3.6.1.2.1.2.2.1.2']);
+}
+
+=head2 aclsInRadiusReply
+
+L</returnRadiusAccessAccept> adds the access list of the role to the reply
+when the Access List Map is enabled and the request computes the ACLs
+(C<compute_acl>, which a subclass that adds them itself turns off).
+
+=cut
+
+sub aclsInRadiusReply {
+    my ($self, $args) = @_;
+    return ($args->{'compute_acl'} && $self->accessListMapEnabled) ? 1 : 0;
+}
+
 =head2 returnRadiusAccessAccept
 
 Prepares the RADIUS Access-Accept response for the network device.
@@ -254,7 +278,7 @@ sub returnRadiusAccessAccept {
     my @av_pairs = defined($radius_reply_ref->{'Arista-AVPair'}) ? @{$radius_reply_ref->{'Arista-AVPair'}} : ();
 
     if ( $args->{'compute_acl'} && isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
-        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && !($self->usePushACLs && exists $ConfigRoles{$args->{'user_role'}} ) && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}, $args->{ifIndex}))){
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}, $args->{ifIndex}, $args))){
             if ($access_list) {
                 my $acl_num = 101;
                 my @acls;
@@ -427,12 +451,18 @@ sub acl_chewer {
     my ($self, $acl, $role) = @_;
     my $logger = $self->logger;
     my ($acl_ref , @direction) = $self->format_acl($acl);
+    my $push = $self->aclsForPush;
+
+    my $entries;
+    ($entries, @direction) = $self->filterUntranslatableAcls($acl_ref, \@direction, $role, $push
+        ? sub { $self->_untranslatablePushAcl($_[0]) }
+        : sub { $self->untranslatableFilterRule($_[0]) });
 
     my $i = 0;
     my $acl_number = "10";
     my $acl_chewed;
-    foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
-        if ($self->usePushACLs && (whowasi() eq "pf::Switch::getRoleAccessListByName")) {
+    foreach my $acl (@$entries) {
+        if ($push) {
             $acl->{'protocol'} =~ s/\(\d*\)//;
             my $dest;
             if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
@@ -455,13 +485,11 @@ sub acl_chewer {
                 }
             }
 
-            $acl_chewed .= $acl_number." ".$acl->{'action'}." ".$acl->{'protocol'}." ".(($self->usePushACLs) ? $src : "any")." ".$dest ." ".(defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '')." ".( defined($acl->{'tcp_flags'}) ? $acl->{'tcp_flags'} : '' );
+            $acl_chewed .= $acl_number." ".$acl->{'action'}." ".$acl->{'protocol'}." ".$src." ".$dest ." ".(defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '')." ".( defined($acl->{'tcp_flags'}) ? $acl->{'tcp_flags'} : '' );
             $acl_number = $acl_number + 10;
             $acl_chewed =~ s/\s+$//;
             $acl_chewed .= "\n";
         } else {
-            #Bypass acl that contain tcp_flag, it doesnt apply correctly on the switch
-            next if (defined($acl->{'tcp_flags'}));
             if ($acl->{'protocol'}  =~ /\((\d+)\)/g) {
                 $acl->{'protocol'} = $1;
             } else {
@@ -501,6 +529,20 @@ sub acl_chewer {
         }
     }
     return $acl_chewed;
+}
+
+=item _untranslatablePushAcl
+
+Why a parsed ACL entry cannot be pushed in the "sequence action protocol source
+destination port flags" form built by L</acl_chewer>, or undef when it can.
+
+=cut
+
+sub _untranslatablePushAcl {
+    my ($self, $entry) = @_;
+    return "the source port is not sent" if defined $entry->{'source'}->{'port'};
+    return "the ICMP type is not sent ('".$entry->{'icmp_qualifier'}."')" if defined $entry->{'icmp_qualifier'};
+    return undef;
 }
 
 =back

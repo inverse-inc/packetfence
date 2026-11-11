@@ -319,7 +319,7 @@ sub action_email_user {
             }
         }
         pf::config::util::send_email(
-            'security_event-triggered',
+            $pf::security_event_config::SecurityEvent_Config{$security_event_id}{user_template_email} || 'security_event-triggered',
             $to,
             "$description detection on $mac",
             $vars,

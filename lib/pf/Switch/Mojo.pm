@@ -119,7 +119,7 @@ sub radiusDisconnect {
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
 
-    if (!defined($self->{'_radiusSecret'})) {
+    if (!$self->hasRadiusSecret()) {
         $logger->warn(
             "Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): RADIUS Shared Secret not configured"
         );
@@ -142,7 +142,7 @@ sub radiusDisconnect {
 
     my $response;
     try {
-        my $locationlog = locationlog_view_open_mac($mac);
+        my $locationlog = $self->locationlog_for_disconnect($mac);
         my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
         $connection_info->{nas_port} = $nas_port;
 
@@ -302,9 +302,6 @@ sub returnRadiusAccessAccept {
 
     my $node = $args->{'node_info'};
 
-    my $filter = pf::access_filter::radius->new;
-    my $rule = $filter->test('returnRadiusAccessAccept', $args);
-
     if ( $self->externalPortalEnforcement ) {
         my $security_event = pf::security_event::security_event_view_top($args->{'mac'});
         # if user is unregistered or is in security_event then we reject him to show him the captive portal
@@ -314,6 +311,9 @@ sub returnRadiusAccessAccept {
             $self->handleRadiusDeny();
         }
         else {
+            # Only this branch answers without the parent, which applies the filter itself
+            my $filter = pf::access_filter::radius->new;
+            my $rule = $filter->test('returnRadiusAccessAccept', $args);
             if($node->{unregdate} ne $ZERO_DATE) {
                 my $unreg = DateTime::Format::MySQL->parse_datetime($node->{unregdate}) ; 
                 $unreg->set_time_zone("local"); 

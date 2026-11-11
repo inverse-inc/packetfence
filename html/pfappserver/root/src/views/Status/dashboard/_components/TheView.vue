@@ -47,6 +47,7 @@ const components = {
 }
 
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from '@vue/composition-api'
+import { notifyHostAlarms } from '../../_composables/useAlarmNotifications'
 import acl from '@/utils/acl'
 import i18n from '@/utils/locale'
 import allSections from '../_config'
@@ -135,31 +136,7 @@ const setup = (props, context) => {
     if ($store.state['$_status'].allCharts) {
       Object.values(cluster.value).forEach(({ management_ip: ip }) => {
         $store.dispatch(`$_status/alarms`, ip).then(({ hostname, alarms = {} } = {}) => {
-          Object.keys(alarms).forEach(url => {
-            const alarm = alarms[url]
-            const label = alarm.chart.split('.')[0].replace(/_/g, ' ') + ' - ' + alarm.family
-            const value = alarm.value_string
-            let status = alarm.status.toLowerCase()
-            switch (status) {
-              case 'warning':
-                break
-              case 'critical':
-                status = 'danger'
-                break
-              default:
-                status = 'info'
-            }
-            const previousNotification = $store.state.notification.all.find(notification => {
-              return notification.url === url && notification.value === value
-            })
-            if (!previousNotification) {
-              $store.dispatch(`notification/${status}`, {
-                message: `<span class="font-weight-normal">${hostname}</span> ${label}`,
-                url,
-                value
-              })
-            }
-          })
+          notifyHostAlarms($store, hostname, alarms)
           getAlarmsTimer.value = setTimeout(getAlarms, alarmsInterval.value)
         })
       })

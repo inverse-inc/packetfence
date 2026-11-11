@@ -20,7 +20,6 @@ inlineTrigger =
 normalRole =
 registrationRole =
 isolationRole =
-macDetectionRole =
 voiceRole = voice
 inlineRole = inline
 VoIPEnabled = N
@@ -81,6 +80,9 @@ SNMPCommunityTrap = public
 wsTransport = http
 wsUser =
 wsPwd =
+# Verify the certificate of the web services peer when wsTransport is https
+wsVerifyCertificate = N
+wsPath =
 #
 # RADIUS NAS Client config
 #
@@ -97,6 +99,7 @@ radiusDeauthUseConnector=Y
 VoIPLLDPDetect=Y
 PostMfaValidation=N
 deauthOnPrevious=N
+host_mode=single-host
 
 # ACLs
 UsePushACLs=N

@@ -12,7 +12,8 @@ const schemaRoutes = yup.array().ensure()
 export const schema = () => yup.object({
   staticroutes: schemaRoutes,
   rogueinterval: yup.string().nullable().label(i18n.t('Interval')),
-  interfaceSNAT: yup.string().nullable().label(i18n.t('Interface')),
+  interfaceSNAT: yup.string().nullable().label(i18n.t('Interface'))
+    .isInterfaceNameCsv(i18n.t('Invalid list of interface names, separated by commas without spaces.'), 'strict'),
 })
 
 export default schema

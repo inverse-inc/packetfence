@@ -516,13 +516,6 @@ export const nodeFields = [
     sortable: true
   },
   {
-    key: 'last_arp',
-    label: i18n.t('Last ARP'),
-    sortable: true,
-    formatter: formatter.datetimeIgnoreZero,
-    class: 'text-nowrap'
-  },
-  {
     key: 'last_dhcp',
     label: i18n.t('Last DHCP'),
     sortable: true,

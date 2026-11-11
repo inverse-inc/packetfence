@@ -18,7 +18,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 22;
+use Test::More tests => 28;
 use Test::MockObject::Extends;
 use Test::NoWarnings;
 
@@ -68,6 +68,33 @@ is(
 is(
     pf::web::util::validate_phone_number("223344556677"), $expected,
     "validate phone number format xxxxxxxxxxxx"
+);
+
+# browser languages to portal locales, in the browser's order of preference
+my @authorized_locales = qw(en_US fr_FR fr_CA cs_CZ);
+is_deeply(
+    pf::web::util::match_browser_locales([qw(cs en_US)], \@authorized_locales), [qw(cs_CZ en_US)],
+    "a closest locale keeps the browser priority over a later exact locale"
+);
+is_deeply(
+    pf::web::util::match_browser_locales([qw(fr en_US)], \@authorized_locales), [qw(fr_FR en_US)],
+    "a language without country uses the first authorized locale of that language"
+);
+is_deeply(
+    pf::web::util::match_browser_locales([qw(fr_CA fr en)], \@authorized_locales), [qw(fr_CA fr_FR en_US)],
+    "the exact locale is used before the closest one"
+);
+is_deeply(
+    pf::web::util::match_browser_locales(['de_DE', ' fr_ca', 'EN'], \@authorized_locales), [qw(fr_CA en_US)],
+    "unsupported languages are skipped, case and whitespace are normalized"
+);
+is_deeply(
+    pf::web::util::match_browser_locales([qw(c ca *)], \@authorized_locales), [],
+    "no match when only the language prefix differs"
+);
+is_deeply(
+    pf::web::util::match_browser_locales([qw(fil frr fr es_419)], [qw(en_US fr_FR fi_FI es_ES)]), [qw(fr_FR es_ES)],
+    "a three-letter language isn't taken for the two-letter one it starts with"
 );
 
 =head2 pf::web::constants

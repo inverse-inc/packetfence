@@ -1,6 +1,7 @@
 package maint
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/netip"
@@ -435,6 +436,40 @@ func TestMatcher(t *testing.T) {
 			in:  "",
 			err: fmt.Errorf("Invalid Syntax: ''"),
 		},
+		{
+			in: "permit udp any any range 8000 9000",
+			out: Matcher{
+				Action:  "permit",
+				DstMac:  mac.Mac{},
+				Proto:   IpProtocol("udp"),
+				Port:    8000,
+				EndPort: 9000,
+				SrcNet:  AnyPrefix,
+				DstNet:  AnyPrefix,
+				Op:      "range",
+			},
+		},
+		{
+			in: "permit tcp any any range 8000 8000",
+			out: Matcher{
+				Action:  "permit",
+				DstMac:  mac.Mac{},
+				Proto:   IpProtocol("tcp"),
+				Port:    8000,
+				EndPort: 8000,
+				SrcNet:  AnyPrefix,
+				DstNet:  AnyPrefix,
+				Op:      "range",
+			},
+		},
+		{
+			in:  "permit udp any any range 9000 8000",
+			err: fmt.Errorf("Invalid port range '%s': start port is greater than end port", "permit udp any any range 9000 8000"),
+		},
+		{
+			in:  "permit udp any any range 8000",
+			err: fmt.Errorf("Invalid Syntax: 'permit udp any any range 8000'"),
+		},
 	}
 
 	for _, test := range tests {
@@ -580,6 +615,26 @@ func TestMatchNetworkEvent(t *testing.T) {
 				IpProtocol: IpProtocolTcp,
 			},
 			false,
+		},
+		{
+			"permit tcp any any range 8000 9000",
+			NetworkEvent{
+				DestPort:   22,
+				SourceIp:   netip.AddrFrom4([4]byte{10, 0, 0, 1}),
+				DestIp:     netip.AddrFrom4([4]byte{10, 0, 0, 3}),
+				IpProtocol: IpProtocolTcp,
+			},
+			false,
+		},
+		{
+			"permit tcp any any range 8000 9000",
+			NetworkEvent{
+				DestPort:   8000,
+				SourceIp:   netip.AddrFrom4([4]byte{10, 0, 0, 1}),
+				DestIp:     netip.AddrFrom4([4]byte{10, 0, 0, 3}),
+				IpProtocol: IpProtocolTcp,
+			},
+			true,
 		},
 	}
 
@@ -872,3 +927,87 @@ func TestPolicyLookup(t *testing.T) {
 
 }
 */
+
+func TestRoleKeyIsCaseInsensitive(t *testing.T) {
+	// node.mac is compared case-insensitively by MariaDB but a Go map is not;
+	// MACs filled in from ip4log keep whatever case the writer used.
+	if roleKey("AA:BB:CC:DD:EE:FF") != roleKey("aa:bb:cc:dd:ee:ff") {
+		t.Fatal("roleKey must normalize case")
+	}
+	if roleKey("aa:bb:cc:dd:ee:ff") != "aa:bb:cc:dd:ee:ff" {
+		t.Fatal("roleKey must leave a lower-case MAC unchanged")
+	}
+}
+
+func TestUpdateNetworkEventsWithoutDatabase(t *testing.T) {
+	// No database: roles resolve to "" and the lookup must still run (and not
+	// panic) so that MAC/implicit policies keep applying.
+	StorePolicyLookup(&PolicyLookup{}) // no pfconfig in unit tests
+	ne := &NetworkEvent{
+		SourceInventoryItem: &InventoryItem{ExternalIDS: []string{"AA:BB:CC:DD:EE:01"}},
+		DestInventoryitem:   &InventoryItem{ExternalIDS: []string{"aa:bb:cc:dd:ee:02"}},
+	}
+	UpdateNetworkEvents(context.Background(), nil, []*NetworkEvent{ne})
+	if ne.EnforcementInfo != nil {
+		t.Fatalf("no policies loaded: expected no enforcement info, got %+v", ne.EnforcementInfo)
+	}
+}
+
+// TestApplyEnforcementIncompleteRolesSkipsRolePolicies covers the degraded
+// path taken when a node-role chunk query failed: MAC policies still apply,
+// role-based and implicit policies do not, since the role that would select
+// them may simply be missing from the map.
+func TestApplyEnforcementIncompleteRolesSkipsRolePolicies(t *testing.T) {
+	rolePolicy := Policy{
+		EnforcementInfo: []EnforcementInfo{{RuleID: "role", Verdict: "allow"}},
+		Acls:            []string{"permit tcp any any"},
+	}
+	macPolicy := Policy{
+		EnforcementInfo: []EnforcementInfo{{RuleID: "mac", Verdict: "allow"}},
+		Acls:            []string{"permit tcp any any"},
+	}
+	implicit := Policy{
+		EnforcementInfo: []EnforcementInfo{{RuleID: "implicit", Verdict: "deny"}},
+		Acls:            []string{"permit tcp any any"},
+	}
+	lookup := &PolicyLookup{
+		ByRoles:        map[string][]Policy{"IoT": {rolePolicy}},
+		NodesPolicies:  map[string][]Policy{"aa:bb:cc:dd:ee:02": {macPolicy}},
+		ImplictPolices: []Policy{implicit},
+	}
+	lookup.UpdateMatchers()
+
+	newEvents := func() (byRole, byMac *NetworkEvent) {
+		byRole = &NetworkEvent{
+			SourceIp: netip.AddrFrom4([4]byte{10, 0, 0, 1}), DestIp: netip.AddrFrom4([4]byte{10, 0, 0, 2}), IpProtocol: IpProtocolTcp,
+			SourceInventoryItem: &InventoryItem{ExternalIDS: []string{"aa:bb:cc:dd:ee:01"}},
+		}
+		byMac = &NetworkEvent{
+			SourceIp: netip.AddrFrom4([4]byte{10, 0, 0, 3}), DestIp: netip.AddrFrom4([4]byte{10, 0, 0, 4}), IpProtocol: IpProtocolTcp,
+			SourceInventoryItem: &InventoryItem{ExternalIDS: []string{"aa:bb:cc:dd:ee:02"}},
+		}
+		return
+	}
+	roles := map[string]string{"aa:bb:cc:dd:ee:01": "IoT"}
+
+	byRole, byMac := newEvents()
+	applyEnforcement(lookup, []*NetworkEvent{byRole, byMac}, roles, true)
+	if byRole.EnforcementInfo == nil || byRole.EnforcementInfo.RuleID != "role" {
+		t.Fatalf("complete roles: expected the role policy, got %+v", byRole.EnforcementInfo)
+	}
+	if byMac.EnforcementInfo == nil || byMac.EnforcementInfo.RuleID != "mac" {
+		t.Fatalf("complete roles: expected the MAC policy, got %+v", byMac.EnforcementInfo)
+	}
+
+	// A chunk failed: the role map is (possibly) missing entries. The event
+	// whose node is not in the map must get neither the implicit policy nor a
+	// guess; the MAC policy is unaffected.
+	byRole, byMac = newEvents()
+	applyEnforcement(lookup, []*NetworkEvent{byRole, byMac}, map[string]string{}, false)
+	if byRole.EnforcementInfo != nil {
+		t.Fatalf("incomplete roles: expected no enforcement info, got %+v", byRole.EnforcementInfo)
+	}
+	if byMac.EnforcementInfo == nil || byMac.EnforcementInfo.RuleID != "mac" {
+		t.Fatalf("incomplete roles: expected the MAC policy, got %+v", byMac.EnforcementInfo)
+	}
+}

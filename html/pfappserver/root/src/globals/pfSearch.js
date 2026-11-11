@@ -19,6 +19,7 @@ export const pfSearchConditionType = {
   CONNECTION_TYPE:         'connection_type',
   NODE_STATUS:             'node_status',
   ONLINE:                  'online',
+  ACCOUNT_TYPE:            'account_type',
   YESNO:                   'yesno',
   NAS_PORT_TYPE:           'nas_port_type',
   SWITCH_IP:               'switch_ip',
@@ -98,6 +99,10 @@ pfConditionOperators[pfSearchConditionType.NODE_STATUS] = {
   'not_equals':            pfSearchConditionValue.SELECT
 }
 pfConditionOperators[pfSearchConditionType.ONLINE] = {
+  'equals':                pfSearchConditionValue.SELECT,
+  'not_equals':            pfSearchConditionValue.SELECT
+}
+pfConditionOperators[pfSearchConditionType.ACCOUNT_TYPE] = {
   'equals':                pfSearchConditionValue.SELECT,
   'not_equals':            pfSearchConditionValue.SELECT
 }
@@ -226,6 +231,16 @@ pfSearchConditionValues[pfSearchConditionType.ONLINE] = [
   {
     value: 'unknown',
     text: 'Unknown'
+  }
+]
+pfSearchConditionValues[pfSearchConditionType.ACCOUNT_TYPE] = [
+  {
+    value: 'local',
+    text: 'Local'
+  },
+  {
+    value: 'remote',
+    text: 'Remote'
   }
 ]
 pfSearchConditionValues[pfSearchConditionType.YESNO] = [

@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 3;
+use Test::More tests => 5;
 
 #This test will running last
 use Test::NoWarnings;
@@ -38,15 +38,20 @@ use pf::Switch;
     );
 
     my $hash = {};
+    my $ids = {};
 
     {
         no warnings qw(redefine);
         local *pf::Switch::getLldpLocPortDesc =
           sub {  $hash->{$_[0]->{_id}} = 1  };
+        # The table of the port IDs is cached too
+        local *pf::Switch::getLldpLocPortId =
+          sub {  $ids->{$_[0]->{_id}} = 1  };
         $task->run();
     }
 
     is_deeply( $hash, { '172.16.8.31' => 1 } );
+    is_deeply( $ids, $hash, "the port IDs of the same switches are cached" );
 }
 
 {
@@ -61,15 +66,20 @@ use pf::Switch;
     );
 
     my $hash = {};
+    my $ids = {};
 
     {
         no warnings qw(redefine);
         local *pf::Switch::getLldpLocPortDesc =
           sub {  $hash->{$_[0]->{_id}} = 1  };
+        # The table of the port IDs is cached too
+        local *pf::Switch::getLldpLocPortId =
+          sub {  $ids->{$_[0]->{_id}} = 1  };
         $task->run();
     }
 
     is_deeply( $hash, { '172.16.8.31' => 1, (map { ("172.16.9.$_" => 1) } (1...254) ) } );
+    is_deeply( $ids, $hash, "the port IDs of the switch ranges are cached" );
 }
 
 =head1 AUTHOR

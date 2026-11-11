@@ -46,11 +46,13 @@ type PfAcct struct {
 	AllowedNetworks           []net.IPNet
 	NetFlowPort               string
 	NetFlowAddress            string
+	NetFlowProcessorEnabled   bool
 	Management                pfconfigdriver.ManagementNetwork
 	AAAClient                 *jsonrpc2.Client
 	LoggerCtx                 context.Context
 	Dispatcher                *Dispatcher
 	SwitchInfoCache           *cache.Cache
+	EndpointSwitchCache       *cache.Cache
 	NodeSessionCache          *cache.Cache
 	AcctSessionCache          *cache.Cache
 	RateLimitCache            *cache.Cache
@@ -58,6 +60,10 @@ type PfAcct struct {
 	SessionOnlineCache        *cache.Cache
 	RateLimit                 bool
 	PfacctRateLimitCacheTtl   int
+	LastSeenCache             *cache.Cache
+	Ip4logCache               *cache.Cache
+	UpdateIplogWithAccounting bool
+	Mac2ipLookup              bool
 	StatsdAddress             string
 	StatsdOption              statsd.Option
 	StatsdClient              *statsd.Client
@@ -107,6 +113,7 @@ func NewPfAcct(logLevel string) *PfAcct {
 		AAANotifyQueueSize:  DefaultAAANotifyQueueSize,
 	}
 	pfAcct.SwitchInfoCache = cache.New(5*time.Minute, 10*time.Minute)
+	pfAcct.EndpointSwitchCache = cache.New(5*time.Minute, 10*time.Minute)
 	pfAcct.NodeSessionCache = cache.New(nodeSessionExpiration, nodeSessionCleanupInterval)
 	pfAcct.AcctSessionCache = cache.New(5*time.Minute, 10*time.Minute)
 	pfAcct.SessionOnlineCache = cache.New(sessionOnlineRefreshTtl, 10*time.Minute)
@@ -145,10 +152,12 @@ func makeRadiusRequests(h *PfAcct, requestFanOut, backlog int) []chan<- radiusRe
 }
 
 // aaaNotifyJob carries a pre-serialized radius_accounting notification to the
-// dedicated AAA notifier pool.
+// dedicated AAA notifier pool. method is the AAA method to call,
+// radius_accounting when empty.
 type aaaNotifyJob struct {
-	ctx  context.Context
-	attr map[string]interface{}
+	ctx    context.Context
+	attr   map[string]interface{}
+	method string
 }
 
 // makeAAANotifiers builds a MAC-sharded pool of workers that forward
@@ -163,7 +172,11 @@ func makeAAANotifiers(h *PfAcct, workers, backlog int) []chan<- aaaNotifyJob {
 		queues[i] = c
 		go func(c <-chan aaaNotifyJob) {
 			for job := range c {
-				if err := h.AAAClient.Notify(job.ctx, "radius_accounting", job.attr); err != nil {
+				method := job.method
+				if method == "" {
+					method = "radius_accounting"
+				}
+				if err := h.AAAClient.Notify(job.ctx, method, job.attr); err != nil {
 					logError(job.ctx, err.Error())
 				}
 			}
@@ -175,9 +188,10 @@ func makeAAANotifiers(h *PfAcct, workers, backlog int) []chan<- aaaNotifyJob {
 
 // reportAAADrops periodically logs how many radius_accounting notifications
 // were dropped because the notifier queues were saturated. Drops here do not
-// affect node online/offline status (written synchronously by the accounting
-// workers); they only mean some accounting side effects (ip4log, locationlog,
-// triggers) were skipped while httpd.aaa could not keep up.
+// affect what the accounting workers write themselves (node online/offline
+// status, node.last_seen, the ip4log entry); they only mean the side effects
+// that still live in httpd.aaa (locationlog, firewall SSO, scans, Fingerbank)
+// were skipped while it could not keep up.
 func (pfAcct *PfAcct) reportAAADrops() {
 	go func() {
 		for {
@@ -250,6 +264,9 @@ func (pfAcct *PfAcct) SetupConfig(ctx context.Context) {
 		pfAcct.NetFlowAddress = defaultNetFlowAddr
 	}
 
+	// enabled when unset to preserve the historical behavior
+	pfAcct.NetFlowProcessorEnabled = keyPfConfServices.NetFlowProcessor == "" || sharedutils.IsEnabled(keyPfConfServices.NetFlowProcessor)
+
 	pfAcct.StatsdOption = statsd.Address("localhost:" + keyConfAdvanced.StatsdListenPort)
 	pfAcct.NetFlowPort = ports.PFAcctNetflow
 	pfconfigdriver.FetchDecodeSocket(ctx, &pfAcct.Management)
@@ -263,6 +280,25 @@ func (pfAcct *PfAcct) SetupConfig(ctx context.Context) {
 	pfAcct.applyRateLimitConfig(ctx, RadiusConfiguration)
 	pfAcct.RateLimitCache = cache.New(time.Duration(pfAcct.PfacctRateLimitCacheTtl)*time.Minute, 10*time.Minute)
 	pfAcct.MacNasCache = cache.New(time.Duration(pfAcct.PfacctRateLimitCacheTtl)*time.Minute, 10*time.Minute)
+	// The same TTL paces the native last_seen and ip4log refreshes;
+	// applyRateLimitConfig already replaced a non-positive value (which go-cache
+	// would treat as "never expires") with the default, so it is used as is.
+	pfAcct.LastSeenCache = cache.New(time.Duration(pfAcct.PfacctRateLimitCacheTtl)*time.Minute, 10*time.Minute)
+	pfAcct.Ip4logCache = cache.New(time.Duration(pfAcct.PfacctRateLimitCacheTtl)*time.Minute, 10*time.Minute)
+	pfAcct.UpdateIplogWithAccounting = sharedutils.IsEnabled(keyConfAdvanced.UpdateIplogWithAccounting)
+
+	// When pfdhcp.mac2ip_lookup is on, pf::ip4log::mac2ip resolves the previous
+	// IP through the pfdhcp API before falling back to SQL. pfacct has only the
+	// SQL half, so it hands the whole ip4log primitive back to httpd.aaa rather
+	// than close a different entry than update_ip4log would; see updateIp4log.
+	keyConfPfdhcp := pfconfigdriver.PfConfPfdhcp{}
+	keyConfPfdhcp.PfconfigNS = "config::Pf"
+	keyConfPfdhcp.PfconfigHostnameOverlay = "yes"
+	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfPfdhcp)
+	pfAcct.Mac2ipLookup = sharedutils.IsEnabled(keyConfPfdhcp.Mac2ipLookup)
+	if pfAcct.UpdateIplogWithAccounting && pfAcct.Mac2ipLookup {
+		logInfo(ctx, "pfdhcp.mac2ip_lookup is enabled: leaving the ip4log accounting updates to httpd.aaa")
+	}
 	if !pfAcct.ProcessBandwidthAcct {
 		logInfo(ctx, "Not processing bandwidth accounting records. To enable set radius_configuration.process_bandwidth_accounting = enabled")
 	}

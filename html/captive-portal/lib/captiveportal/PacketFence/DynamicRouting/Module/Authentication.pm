@@ -157,11 +157,7 @@ sub execute_actions {
         get_logger->debug(sub { use Data::Dumper; "new_node_info after auth module actions : ".Dumper($self->new_node_info) });
         return $TRUE;
     }
-    unless(
-        defined($self->new_node_info->{category}) && 
-        $self->new_node_info->{category} ne $REJECT_ROLE && 
-        ( defined($self->new_node_info->{time_balance}) || defined($self->new_node_info->{bandwidth_balance}) || defined($self->new_node_info->{unregdate}))
-    ){
+    unless($self->actions_allow_registration()){
         $self->app->flash->{error} = "You do not have permission to register a device with this username";
 
         # Make sure the current source is not remembered since it failed...
@@ -172,6 +168,13 @@ sub execute_actions {
 
     $self->app->session->{source} = $self->source;
     if(isenabled($self->source->{create_local_account})){
+        # The credentials of the local account are sent by e-mail, ex: a Facebook account registered with a phone number has none
+        if(!$self->local_account_email()) {
+            get_logger->error("Can't create the local account of " . ($self->app->session->{username} // '') . ": the source " . $self->source->id . " didn't provide an e-mail address");
+            $self->app->flash->{error} = "Your account didn't provide an e-mail address, which is needed to create your local account. Please use another login method.";
+            $self->session->{source_id} = undef;
+            return $FALSE;
+        }
         if(!$self->create_local_account()) {
             $self->app->flash->{error} = "Unable to create the local account with this username. Please try registering using a different email or phone number.";
             # Make sure the current source is not remembered since it failed...
@@ -182,6 +185,37 @@ sub execute_actions {
 
     get_logger->debug(sub { use Data::Dumper; "new_node_info after auth module actions : ".Dumper($self->new_node_info) });
     return $TRUE;
+}
+
+=head2 actions_allow_registration
+
+Whether the node info computed by the actions lets the user through: an admin
+access level on the root SSO portal, or what L</new_node_info_allows_registration>
+requires. Shared by L</execute_actions> and the checks made before it runs.
+
+=cut
+
+sub actions_allow_registration {
+    my ($self) = @_;
+    return (($self->app->isRootSSO && defined($self->new_node_info->{access_level}))
+        || $self->new_node_info_allows_registration()) ? $TRUE : $FALSE;
+}
+
+=head2 new_node_info_allows_registration
+
+Whether the new_node_info computed by the actions allows the device to be registered:
+a role that is not the reject role and an unregdate, a time balance or a bandwidth balance
+
+=cut
+
+sub new_node_info_allows_registration {
+    my ($self) = @_;
+    my $info = $self->new_node_info;
+    return (
+        defined($info->{category}) &&
+        $info->{category} ne $REJECT_ROLE &&
+        ( defined($info->{time_balance}) || defined($info->{bandwidth_balance}) || defined($info->{unregdate}))
+    ) ? $TRUE : $FALSE;
 }
 
 =head2 _build_required_fields
@@ -285,6 +319,17 @@ Meant for child modules to define their params
 
 sub auth_source_params_child { {} }
 
+=head2 local_account_email
+
+The e-mail address the local account credentials are sent to
+
+=cut
+
+sub local_account_email {
+    my ($self) = @_;
+    return $self->session->{fields}->{email} // $self->session->{email} // $self->app->session->{email};
+}
+
 =head2 create_local_account
 
 Create a local account using the email in the session
@@ -299,7 +344,7 @@ sub create_local_account {
 
     my $auth_params = $self->auth_source_params();
 
-    my $email = $self->session->{fields}->{email} // $self->session->{email} // $self->app->session->{email};
+    my $email = $self->local_account_email();
     unless($email){
         get_logger->error("Can't create account since there is no user e-mail in the session.");
         return $FALSE;

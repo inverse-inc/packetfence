@@ -19,11 +19,23 @@ endif::[]
 
 //=== Fortinet FortiSwitch
 
-This section shows how to configure RADIUS, MAC Authentication, and 802.1X on a
-FortiSwitch running FortiSwitchOS 7.x.
+This section shows how to configure RADIUS, MAC Authentication, 802.1X, dynamic
+ACLs and flow export on a FortiSwitch running FortiSwitchOS 7.x.
 
-CLI access to the FortiSwitch is required for this configuration.
+A FortiSwitch is deployed in one of two modes, and the configuration is not
+done in the same place:
 
+* *Standalone*: the switch is configured on its own CLI. The sections below,
+  from <<fortiswitch_radius,RADIUS>> to <<fortiswitch_flow_export,Flow export (IPFIX)>>, apply.
+* *Managed by a FortiGate (FortiLink)*: the FortiGate pushes the RADIUS server,
+  the 802.1X policy, the VLANs and the flow export settings to the switch, and
+  overwrites most settings made on the switch CLI. See
+  <<fortiswitch_fortilink,FortiSwitch managed by a FortiGate (FortiLink)>>.
+
+In PacketFence, use the switch type "FortiSwitchOS v7.x"
+(`Fortinet::FortiSwitchOS_v7_x`) and set the Deauthentication Method to RADIUS.
+
+[[fortiswitch_radius]]
 ==== RADIUS
 
 Define an IPv4 RADIUS server using the CLI:
@@ -42,6 +54,38 @@ Define an IPv4 RADIUS server using the CLI:
      set link-monitor-interval <5-120 seconds>
    end
  end
+
+==== RADIUS CoA (Disconnect)
+
+PacketFence deauthenticates endpoints with RADIUS Disconnect-Requests sent to
+UDP port 3799. Enable CoA on the RADIUS server definition:
+
+ config user radius
+   edit <name>
+     set radius-coa enable
+   next
+ end
+
+The CoA port is set globally (3799 by default):
+
+ config system global
+   set radius-coa-port 3799
+ end
+
+The FortiSwitch also needs `radius-acct` in the `allowaccess` list of the
+interface that receives the Disconnect-Request (the management interface, or
+`internal` for a FortiLink-managed switch). Without it, the switch silently
+drops the request and PacketFence logs a timeout on port 3799:
+
+ config system interface
+   edit internal
+     set allowaccess ping https ssh radius-acct
+   next
+ end
+
+NOTE: On a FortiLink-managed switch, a value set on the switch CLI is lost when
+the FortiGate resynchronizes the switch. See
+<<fortiswitch_fortilink_coa,CoA on the switch (radius-acct)>>.
 
 ==== Port Security Global Settings
 
@@ -230,9 +274,12 @@ On the PacketFence side, configure the switch to use ACL-based enforcement:
 1. Navigate to Configuration → Policies and Access Control → Switches
 2. Edit your FortiSwitch configuration
 3. In the Roles section, enable "Role by Access List"
-4. Define ACL rules for each role
+4. Define the ACL rules on each role, in Configuration → Policies and Access
+Control → Roles
 
-Example ACL for a registration role (allows access to captive portal):
+ACLs defined on the role use the generic PacketFence syntax, and PacketFence
+translates them to the FortiSwitch `NAS-Filter-Rule` format. Example ACL for a
+registration role (allows access to the captive portal):
 
  permit udp any any eq 53
  permit udp any any eq 67
@@ -240,7 +287,47 @@ Example ACL for a registration role (allows access to captive portal):
  permit tcp any host 192.168.1.5 eq 443
  deny ip any any
 
+is sent to the switch as:
+
+ permit in udp from any to any 53
+ permit in udp from any to any 67
+ permit in tcp from any to 192.168.1.5/32 80
+ permit in tcp from any to 192.168.1.5/32 443
+ deny in ip from any to any
+
 NOTE: Replace 192.168.1.5 with your PacketFence server IP address.
+
+A line that can't be expressed as a rule is not sent, and a warning is logged in
+[filename]`packetfence.log`:
+
+* a source port, TCP flags (`established`, ...) and ICMP types,
+* a port operator other than `eq` and `range`,
+* a protocol without a number (`nos`, an object group),
+* a non contiguous source or destination mask, and `host 0.0.0.0` (0.0.0.0 is
+  only sent as any),
+* the `dscp`, `precedence`, `tos`, `fragments`, `time-range` and `option` qualifiers,
+
+Skipping a `permit` only narrows the role. Skipping a `deny` would let the lines
+after it allow what it blocks, so the ACL is cut at that `deny` and ends with a
+deny of all the traffic. A role whose lines were all skipped, or whose ACLs
+PacketFence cannot parse, gets that deny all too: sending no ACL would leave the
+endpoint unrestricted. Check [filename]`packetfence.log` for the warning naming
+the line.
+
+NOTE: An access list entered for a role in the Roles section of the switch
+configuration overrides the role ACL and is sent to the switch as is. It must
+already use the FortiSwitch format shown above.
+
+Limitations:
+
+* FortiSwitchOS accepts one rule per `NAS-Filter-Rule` attribute, of at most 80
+  characters. PacketFence sends each rule in its own attribute. If a FortiSwitch
+  shows `DACL total items :0:` and its event log (`execute log display`) shows
+  `NAS-Filter-Rule exceed maximum size 80, failure with batch install`, the
+  rules were packed into a single attribute; upgrade PacketFence.
+* ICMP rules (`icmp` or protocol `1`) are installed but not enforced by
+  FortiSwitchOS 7.x. Use `ip`, `tcp` or `udp` rules.
+* With FortiLink, see <<fortiswitch_fortilink_dacl,Dynamic ACL with FortiLink>>.
 
 When DACL is enabled, the switch diagnostic output will show:
 

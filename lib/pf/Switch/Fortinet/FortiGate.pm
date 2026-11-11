@@ -115,8 +115,6 @@ sub returnRadiusAccessAccept {
     return $kick if (defined($kick));
 
     my $node = $args->{'node_info'};
-    my $filter = pf::access_filter::radius->new;
-    my $rule = $filter->test('returnRadiusAccessAccept', $args);
 
     if ( $self->externalPortalEnforcement ) {
         my $security_event = pf::security_event::security_event_view_top($args->{'mac'});
@@ -127,6 +125,9 @@ sub returnRadiusAccessAccept {
             $self->handleRadiusDeny();
         }
         else{
+            # Only this branch answers without the parent, which applies the filter itself
+            my $filter = pf::access_filter::radius->new;
+            my $rule = $filter->test('returnRadiusAccessAccept', $args);
             $logger->info("Returning ACCEPT");
             ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
             return [$status, %$radius_reply_ref];

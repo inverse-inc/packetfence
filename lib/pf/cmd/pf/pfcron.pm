@@ -33,6 +33,8 @@ pfcmd pfcron <task> [options...]
 
 =item pki_certificates_check
 
+=item pki_revoked_certs_cleanup
+
 =item cleanup_chi_database_cache
 
 =item cluster_check
@@ -64,6 +66,8 @@ pfcmd pfcron <task> [options...]
 =item security_event_maintenance
 
 =item switch_cache_lldpLocalPort_description
+
+=item switch_cache_ifindex
 
 =item ubiquiti_ap_mac_to_ip
 

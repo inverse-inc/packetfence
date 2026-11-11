@@ -255,22 +255,37 @@ Performs the same as read but instead of returning the result set, it returns a 
 =cut
 
 sub read_hashref {
-    my ( $self, $id ) = @_;
+    my ( $self, $id, @args ) = @_;
     
-    my ($status, $resultset) = $self->read($id);
+    # The extra arguments are given to read (ex: the parents of a device)
+    my ($status, $resultset) = $self->read($id, @args);
 
     if(is_error($status)) {
         return ($status, $resultset);
     }
 
-    my $return = {};
-    # Building the resultset to be returned
-    foreach my $column ( $resultset->result_source->columns ) {
-        if($resultset->can($column)) {
-            $return->{$column} = $resultset->$column;
-        }
+    my $return = _columns_hashref($resultset);
+    if ( ref($resultset->{parents}) eq 'ARRAY' ) {
+        $return->{parents} = [ map { _columns_hashref($_) } @{$resultset->{parents}} ];
     }
     return ($status, $return);
+}
+
+=head2 _columns_hashref
+
+The columns of a database row as a hashref
+
+=cut
+
+sub _columns_hashref {
+    my ( $row ) = @_;
+    my $return = {};
+    foreach my $column ( $row->result_source->columns ) {
+        if($row->can($column)) {
+            $return->{$column} = $row->$column;
+        }
+    }
+    return $return;
 }
 
 =head2 update

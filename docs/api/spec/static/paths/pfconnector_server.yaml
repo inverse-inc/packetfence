@@ -1,0 +1,84 @@
+/api/v1/pfconnector/tunnel:
+  get:
+    summary: Encrypted pfconnector tunnel endpoint.
+    description: |
+      Serves the encrypted SSH-based tunnel pfconnector-client peers
+      establish with the pfconnector-server. The SSH frames ride on an
+      HTTP connection upgraded via the chisel protocol; the tunnel
+      itself (not the transport) is what carries the connector's
+      traffic.
+
+      Plain HTTP GET or HEAD requests that do NOT initiate the chisel
+      upgrade fall through to a 404 response — including the
+      X-PacketFence-Version header.
+
+      The endpoint is listed as `no_auth` in `conf/caddy-services/api.conf.example`,
+      so unauthenticated callers can probe reachability. External
+      tooling (e.g. the pf-cloudnac-proxy `connector-remote-install.sh`
+      pre-uninstall version-compat check) uses a HEAD against this URL
+      to read the `X-PacketFence-Version` response header without
+      needing an admin bearer.
+    tags:
+      - PfConnector
+    responses:
+      '101':
+        description: Upgrade accepted; the encrypted tunnel handshake proceeds.
+        headers:
+          X-PacketFence-Version:
+            $ref: "#/components/headers/X-PacketFence-Version"
+      '404':
+        description: Plain HEAD / GET without the chisel upgrade. Expected for probe-style callers that only want the header or reachability signal.
+        headers:
+          X-PacketFence-Version:
+            $ref: "#/components/headers/X-PacketFence-Version"
+
+/api/v1/pfconnector/health:
+  get:
+    summary: Aggregate liveness probe for all pfconnector clients.
+    description: |
+      Returns a per-connector up/down map plus an `overall` rollup
+      (`ok` / `degraded`). Status is 200 when overall is `ok`, 503 when
+      `degraded`. An empty connectors map is treated as `ok` — nothing to
+      flag yet.
+
+      The endpoint is listed as `no_auth` in `conf/caddy-services/api.conf.example`
+      so external liveness probes can call it without a bearer.
+    tags:
+      - PfConnector
+    responses:
+      '200':
+        description: Overall healthy. Every observed connector is up.
+        headers:
+          X-PacketFence-Version:
+            $ref: "#/components/headers/X-PacketFence-Version"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PfConnectorHealth"
+            examples:
+              ok:
+                value:
+                  overall: ok
+                  connectors:
+                    connector-abc123: true
+                    connector-def456: true
+              empty:
+                value:
+                  overall: ok
+                  connectors: {}
+      '503':
+        description: Overall degraded. At least one observed connector is down.
+        headers:
+          X-PacketFence-Version:
+            $ref: "#/components/headers/X-PacketFence-Version"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PfConnectorHealth"
+            examples:
+              degraded:
+                value:
+                  overall: degraded
+                  connectors:
+                    connector-abc123: true
+                    connector-def456: false

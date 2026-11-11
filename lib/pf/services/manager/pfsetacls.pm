@@ -35,7 +35,7 @@ sub generateConfig {
     );
     my $vars = {
        env_dict => {
-           SEMAPHORE_DB_DIALECT => "bolt",
+           SEMAPHORE_DB_DIALECT => "sqlite",
            SEMAPHORE_ADMIN_PASSWORD => "$Config{'database'}{'pass'}",
            SEMAPHORE_ADMIN_NAME => "$Config{'database'}{'user'}",
            SEMAPHORE_ADMIN_EMAIL => "$Config{'alerting'}{'emailaddr'}",

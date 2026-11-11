@@ -86,7 +86,7 @@
     <form-group-rotate v-show="wants('rotate')"
                        namespace="rotate"
                        :column-label="$i18n.t('Rotate')"
-                       :text="$i18n.t(`Enable or disable ${logName} rotation (moving ${logName}_history records to ${logName}_archive)\nIf disabled, this task will delete from the ${logName}_history table rather than the ${logName}_archive.`)"
+                       :text="$i18n.t('Enable or disable {logName} rotation (moving {logName}_history records to {logName}_archive)\nIf disabled, this task will delete from the {logName}_history table rather than the {logName}_archive.', { logName })"
     />
 
     <form-group-rotate-batch v-show="wants('rotate_batch')"

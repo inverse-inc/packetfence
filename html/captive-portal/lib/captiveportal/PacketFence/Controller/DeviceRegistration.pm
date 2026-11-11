@@ -49,7 +49,9 @@ Checks whether or not a device registration policy is enabled on the current con
 
 sub isDeviceRegEnabled {
     my ($self, $c) = @_;
-    if ($c->profile->{'_self_service'}) {
+    my $profile = $c->profile;
+    # Device registration requires a self service policy and the status page to log in
+    if ($profile->{'_self_service'} && $profile->selfServiceStatusEnabled && $profile->selfServiceDeviceRegistrationEnabled) {
         return $TRUE
     } else {
         return $FALSE;

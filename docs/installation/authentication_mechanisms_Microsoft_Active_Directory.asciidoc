@@ -46,6 +46,7 @@ Where :
  * *Machine account password* password of server's account in the Active Directory
  * *Allow on registration* would allow devices in the registration network to communicate with the DC.
  * *additional machine accounts* How many *additional* machine accounts will be created to handle NTLM authentication. By default 0. Means only 1 machine account will be created. Maximum is 10, you can only create 10 additional machine accounts.
+ * *Force LDAP* (LDAP Connection tab) always creates the machine account over LDAPS. By default the account is created with SAMR when the *OU* is empty or the default `Computers` container, and with LDAPS when another OU is given.
 
 Always check domain settings by running `net config workstation` on
 the domain controller.

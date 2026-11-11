@@ -18,6 +18,8 @@ setup_vars() {
     DOCKFILE_PATH=${DOCKFILE_PATH:-"$CI_PROJECT_DIR/containers/$IMAGE_NAME/Dockerfile"}
     DOCKFILE_VARS=${DOCKFILE_VARS:-}
     KNK_CACHE=${KNK_CACHE:-true}
+    # busts the package upgrade layer of pfdebian once a day
+    export BUILD_DATE=${BUILD_DATE:-$(date +%F)}
 
     # IMAGE_TAG is used inside DockerFile to reference other image
     # only one tag can be used in Dockerfile

@@ -99,11 +99,20 @@ sub _matches_wildcard_passthrough {
     return ($FALSE, []);
 }
 
+=head2 get_resolv_dns_servers
+
+The nameservers (IPv4 and IPv6) of a resolv.conf file, /etc/resolv.conf by
+default. An empty list when the file can't be read.
+
+=cut
+
 sub get_resolv_dns_servers {
+    my ($resolv_conf) = @_;
+    $resolv_conf //= "/etc/resolv.conf";
     my @servers;
-    my $resolvconf = read_file("/etc/resolv.conf");
+    my $resolvconf = eval { read_file($resolv_conf) } // '';
     for my $line (split(/\n/, $resolvconf)) {
-        if($line =~ /^\s*nameserver\s([0-9.]+)/) {
+        if($line =~ /^\s*nameserver\s+(\S+)/) {
             push @servers, $1;
         }
     }

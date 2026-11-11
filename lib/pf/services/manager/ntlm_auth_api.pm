@@ -29,7 +29,7 @@ use pf::file_paths qw(
     $var_dir
     $captiveportal_templates_path
 );
-use pf::util qw(isenabled safe_pf_run);
+use pf::util qw(isenabled isdisabled safe_pf_run);
 use pf::constants qw($TRUE $FALSE);
 
 extends 'pf::services::manager';
@@ -72,9 +72,8 @@ sub generateConfig {
     safe_pf_run("sudo", "echo", "CACHE_PORT=$redis_cache_port", {stdout => $db_ini, stdout_append => 1});
 
     my $host_id = hostname();
-    for my $identifier (keys(%ConfigDomain)) {
+    for my $identifier (local_domains(\%ConfigDomain)) {
         my %conf = %{$ConfigDomain{$identifier}};
-        next if (exists($conf{use_connector}) && isenabled($conf{use_connector}));
         if (exists($conf{ntlm_auth_host}) && exists($conf{ntlm_auth_port}) && exists($conf{machine_account_password})) {
             my $ntlm_auth_host = $conf{ntlm_auth_host};
             my $ntlm_auth_port = $conf{ntlm_auth_port};
@@ -90,15 +89,27 @@ sub generateConfig {
 
 sub isManaged {
     my ($self) = @_;
-    if ($self->SUPER::isManaged && keys(%ConfigDomain) > 0) {
-        for my $identifier (keys(%ConfigDomain)) {
-            my %conf = %{$ConfigDomain{$identifier}};
-            if (!exists($conf{use_connector}) || !isenabled($conf{use_connector})) {
-                return $TRUE;
-            }
-        }
+    if ($self->SUPER::isManaged && (my @domains = local_domains(\%ConfigDomain))) {
+        return $TRUE;
     }
     return $FALSE;
+}
+
+=head2 local_domains
+
+The sorted identifiers of the domains served by a local ntlm-auth-api container:
+the enabled ones that don't use a connector. A domain without a status is enabled.
+
+=cut
+
+sub local_domains {
+    my ($domains) = @_;
+    my @identifiers = grep {
+        my $conf = $domains->{$_};
+        !(defined($conf->{status}) && isdisabled($conf->{status}))
+          && !(exists($conf->{use_connector}) && isenabled($conf->{use_connector}))
+    } keys(%$domains);
+    return sort @identifiers;
 }
 
 

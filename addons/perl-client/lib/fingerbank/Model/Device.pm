@@ -55,11 +55,14 @@ sub read {
 
         while ( $parent_exists ) {
             $logger->debug("Found parent ID '$parent_id' for device ID '$id'");
-            push(@parents_ids, $parent_id);
-            my $parent = $self->read($parent_id);
-            foreach ( keys %$parent ) {
-                $parents[$iteration] = $parent;
+            my ($parent_status, $parent) = $self->read($parent_id);
+            # The parent can be missing, ex: a local device whose upstream parent was removed by a database update
+            if ( is_error($parent_status) ) {
+                $logger->warn("Cannot read parent ID '$parent_id' of device ID '$id', stopping at the parents found so far");
+                last;
             }
+            push(@parents_ids, $parent_id);
+            $parents[$iteration] = $parent;
             $iteration ++;
             $parent_id = $parent->parent_id if ( defined($parent->parent_id) );
             $parent_exists = 0 if ( !defined($parent->parent_id) );

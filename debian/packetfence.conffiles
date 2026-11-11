@@ -81,6 +81,7 @@
 /usr/local/pf/conf/radiusd/auth.conf
 /usr/local/pf/conf/radiusd/cert
 /usr/local/pf/conf/radiusd/cli.conf
+/usr/local/pf/conf/radiusd/dictionary.local
 /usr/local/pf/conf/radiusd/eap.conf
 /usr/local/pf/conf/radiusd/eap_profiles.conf
 /usr/local/pf/conf/radiusd/eduroam.conf

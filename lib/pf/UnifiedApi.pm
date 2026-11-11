@@ -15,6 +15,7 @@ pf::UnifiedApi
 use strict;
 use warnings;
 use JSON::MaybeXS qw();
+use Scalar::Util qw();
 {
    package JSON::PP::Boolean;
    sub clone {
@@ -216,6 +217,14 @@ sub around_action_cb {
     Log::Log4perl::MDC->put('pf_unit', $route) if defined $route && length $route;
     my $result = eval { $next->() };
     my $err = $@;
+    if (Scalar::Util::blessed($err) && $err->isa('pf::ConfigStore::LockTimeout')) {
+        # Another request kept the config file locked: fail instead of writing
+        # without the lock and losing one of the changes
+        $c->res->headers->header('Retry-After' => 5);
+        $c->render(json => { message => $err->message, status => 503 }, status => 503);
+        $err = undef;
+        $result = undef;
+    }
     if (defined $prev) {
         Log::Log4perl::MDC->put('pf_unit', $prev);
     } else {
@@ -2007,6 +2016,8 @@ sub setup_api_v1_cluster_routes {
     my $resource_route = $root->any("/cluster")->to(controller => "Cluster")->name("api.v1.Cluster");;
     $resource_route->any(['GET'] => "/servers")->to(action => "servers")->name("api.v1.Cluster.servers");
     $resource_route->any(['GET'] => "/config")->to(action => "config")->name("api.v1.Cluster.config");
+    $resource_route->any(['GET'] => "/vips")->to(action => "vips")->name("api.v1.Cluster.vips");
+    $resource_route->any(['GET'] => "/vips/local")->to(action => "vips_local")->name("api.v1.Cluster.vips_local");
     return (undef, $resource_route);
 }
 

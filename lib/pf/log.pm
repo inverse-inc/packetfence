@@ -22,6 +22,7 @@ use pf::file_paths qw($log_conf_dir $log_config_file);
 use pf::log::trapper;
 use File::Basename qw(basename);
 use Carp;
+use POSIX ();
 
 STDOUT->autoflush(1);
 
@@ -29,6 +30,30 @@ Log::Log4perl::Config->allow_code('restrictive');
 Log::Log4perl::Config->vars_shared_with_safe_compartment(
     main => ['%ENV'],
 );
+
+# Safe->reval wipes every Perl signal handler: creating the compartment's *SIG
+# glob zeroes PL_psig_ptr (gv.c) while the kernel keeps Perl's C handler, so the
+# next such signal kills the process with "Signal SIGxxx received, but no signal
+# handler set.". Log4perl compiles "sub {...}" config values in a Safe compartment
+# on every (re)read of the config, so put the handlers back around it. Signals are
+# blocked meanwhile so one arriving mid-compile is delivered to the restored handler.
+{
+    my $compile_in_safe_cpt = \&Log::Log4perl::Config::compile_in_safe_cpt;
+    no warnings 'redefine';
+    *Log::Log4perl::Config::compile_in_safe_cpt = sub {
+        my %handlers = map { $_ => $SIG{$_} } grep { ref $SIG{$_} } keys %SIG;
+        my $all = POSIX::SigSet->new;
+        $all->fillset;
+        my $old = POSIX::SigSet->new;
+        POSIX::sigprocmask(POSIX::SIG_BLOCK(), $all, $old);
+        my $cref = eval { $compile_in_safe_cpt->(@_) };
+        my $err = $@;
+        $SIG{$_} = $handlers{$_} for keys %handlers;
+        POSIX::sigprocmask(POSIX::SIG_SETMASK(), $old);
+        die $err if $err;
+        return $cref;
+    };
+}
 
 Log::Log4perl->wrapper_register(__PACKAGE__);
 

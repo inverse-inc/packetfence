@@ -141,6 +141,25 @@ func ParseAcl(acl string) (Matcher, error) {
 				return Matcher{}, fmt.Errorf("Invalid port '%s': %w", acl, err)
 			}
 			matcher.Port = int(port)
+		case "range":
+			matcher.Op = parts[i]
+			i++
+			if i+1 >= len(parts) {
+				return Matcher{}, fmt.Errorf("Invalid Syntax: '%s'", acl)
+			}
+			port, err := strconv.ParseUint(parts[i], 10, 16)
+			if err != nil {
+				return Matcher{}, fmt.Errorf("Invalid start port '%s': %w", acl, err)
+			}
+			matcher.Port = int(port)
+			port, err = strconv.ParseUint(parts[i+1], 10, 16)
+			if err != nil {
+				return Matcher{}, fmt.Errorf("Invalid end port '%s': %w", acl, err)
+			}
+			matcher.EndPort = int(port)
+			if matcher.Port > matcher.EndPort {
+				return Matcher{}, fmt.Errorf("Invalid port range '%s': start port is greater than end port", acl)
+			}
 		}
 	}
 
@@ -148,18 +167,24 @@ func ParseAcl(acl string) (Matcher, error) {
 }
 
 type Matcher struct {
-	Action string
-	DstMac mac.Mac
-	Op     string
-	Proto  IpProtocol
-	Port   int
-	SrcNet netip.Prefix
-	DstNet netip.Prefix
+	Action  string
+	DstMac  mac.Mac
+	Op      string
+	Proto   IpProtocol
+	Port    int
+	EndPort int
+	SrcNet  netip.Prefix
+	DstNet  netip.Prefix
 }
 
 func (m *Matcher) Matches(ne *NetworkEvent) bool {
 	if m.Action == "deny" {
 		return false
+	}
+
+	if m.Op == "range" {
+		return m.Proto == ne.IpProtocol && m.SrcNet.Contains(ne.SourceIp) && m.matchDest(ne) &&
+			(m.Port <= ne.DestPort && ne.DestPort <= m.EndPort)
 	}
 
 	return (m.Op == "" || m.Port == ne.DestPort) && m.Proto == ne.IpProtocol && m.SrcNet.Contains(ne.SourceIp) && m.matchDest(ne)
@@ -257,9 +282,10 @@ type PolicyLookup struct {
 	ImplictPolices []Policy
 }
 
-func (l PolicyLookup) Lookup(ctx context.Context, db *sql.DB, ne *NetworkEvent) *EnforcementInfo {
-	srcMac, srcRole := ne.GetSrcRole(ctx, db)
-	dstMac, dstRole := ne.GetDstRole(ctx, db)
+// LookupWithRoles resolves the enforcement info of an event whose node roles
+// were already looked up, so callers can batch the role queries for many
+// events (see UpdateNetworkEvents).
+func (l PolicyLookup) LookupWithRoles(ne *NetworkEvent, srcMac, srcRole, dstMac, dstRole string) *EnforcementInfo {
 	if ei := l.LookupByMac(srcMac, ne); ei != nil {
 		return ei
 	}
@@ -357,12 +383,82 @@ func StorePolicyLookup(p *PolicyLookup) {
 	storePolicyLookup.Store(p)
 }
 
-func UpdateNetworkEvent(ctx context.Context, db *sql.DB, ne *NetworkEvent) {
-	lookup := GetPolicyLookup()
-	ei := lookup.Lookup(ctx, db, ne)
-	if ei != nil {
-		ne.EnforcementInfo = ei
+const nodeRolesLookupChunk = 1000
+
+// roleKey normalizes a MAC for the nodeRoles map. node.mac is compared
+// case-insensitively by MariaDB (utf8mb4_general_ci) but a Go map is not, and
+// MACs filled in from ip4log keep whatever case the writer used.
+func roleKey(mac string) string {
+	return strings.ToLower(mac)
+}
+
+// UpdateNetworkEvents sets the enforcement info of every event, resolving the
+// node roles with one query per chunk of distinct MACs instead of two queries
+// per event.
+func UpdateNetworkEvents(ctx context.Context, db *sql.DB, events []*NetworkEvent) {
+	macSet := make(map[string]struct{}, len(events))
+	for _, ne := range events {
+		if mac := inventoryMac(ne.SourceInventoryItem); mac != "" {
+			macSet[roleKey(mac)] = struct{}{}
+		}
+
+		if mac := inventoryMac(ne.DestInventoryitem); mac != "" {
+			macSet[roleKey(mac)] = struct{}{}
+		}
 	}
+
+	macs := make([]string, 0, len(macSet))
+	for mac := range macSet {
+		macs = append(macs, mac)
+	}
+
+	roles, complete := nodeRoles(ctx, db, macs)
+	if !complete {
+		log.LogErrorf(ctx, "pfflow: node role lookup failed for part of this window; role-based and implicit policies are not applied to its %d network events, MAC policies still are", len(events))
+	}
+
+	applyEnforcement(GetPolicyLookup(), events, roles, complete)
+}
+
+// applyEnforcement sets the enforcement info of every event from the
+// pre-resolved roles. When rolesComplete is false a role query failed for
+// some chunk of MACs and an absent role can no longer be told from "no role":
+// only the MAC policies, which do not depend on the lookup, are applied, and
+// the role-based and implicit policies are skipped rather than evaluated with
+// a role that may be wrong. Events then go out without enforcement info for
+// this window, as they do when no policy matches.
+func applyEnforcement(lookup *PolicyLookup, events []*NetworkEvent, roles map[string]string, rolesComplete bool) {
+	for _, ne := range events {
+		srcMac := inventoryMac(ne.SourceInventoryItem)
+		dstMac := inventoryMac(ne.DestInventoryitem)
+
+		var ei *EnforcementInfo
+		if rolesComplete {
+			ei = lookup.LookupWithRoles(ne, srcMac, roles[roleKey(srcMac)], dstMac, roles[roleKey(dstMac)])
+		} else if ei = lookup.LookupByMac(srcMac, ne); ei == nil {
+			ei = lookup.LookupByMac(dstMac, ne)
+		}
+
+		if ei != nil {
+			ne.EnforcementInfo = ei
+		}
+	}
+}
+
+// nodeRoles maps each known MAC (lower-cased, see roleKey) to its role name
+// ("" when the node has no role). MACs absent from the node table are absent
+// from the result, which also yields "" on lookup, the same as the per-event
+// query did. macs must already be roleKey-normalized. The boolean is false
+// when a chunk query failed, in which case up to nodeRolesLookupChunk MACs
+// are missing from the map for a reason other than "unknown node".
+func nodeRoles(ctx context.Context, db *sql.DB, macs []string) (map[string]string, bool) {
+	if db == nil {
+		return map[string]string{}, true
+	}
+
+	return queryStringPairs(ctx, db, "nodeRoles",
+		`SELECT LOWER(node.mac), COALESCE(node_category.name, '') FROM node LEFT JOIN node_category ON node_category.category_id = node.category_id WHERE node.mac IN (`,
+		macs, nodeRolesLookupChunk)
 }
 
 func init() {

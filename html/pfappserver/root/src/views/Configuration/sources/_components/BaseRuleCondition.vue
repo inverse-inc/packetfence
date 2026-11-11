@@ -1,5 +1,5 @@
 <template>
-  <div class="base-flex-wrap" align-v="center">
+  <div class="base-rule-condition base-flex-wrap" align-v="center">
 
     <base-input-chosen-one ref="attributeComponentRef"
       :namespace="`${namespace}.attribute`"
@@ -11,6 +11,7 @@
     />
 
     <component :is="valueComponent" ref="valueComponentRef" v-if="operatorValue"
+      class="base-rule-condition-value"
       :namespace="`${namespace}.value`"
       v-bind="valueBind"
     />
@@ -191,3 +192,11 @@ export default {
   setup
 }
 </script>
+<style lang="scss">
+.base-rule-condition {
+  // the value input can't shrink below a readable width, the row wraps instead
+  & > .base-rule-condition-value {
+    flex: 1 0 12rem !important;
+  }
+}
+</style>

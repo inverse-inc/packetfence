@@ -23,7 +23,8 @@ echo "===> packer init"
 packer init .
 
 echo "===> packer build qemu.${BUILD_NAME}"
-packer build -only="qemu.${BUILD_NAME}" -on-error="${PKR_ON_ERROR:-cleanup}" .
+bash "${ZEN_DIR}/ansible-galaxy-cache.sh" provisioners/requirements.yml ansible.cfg \
+  packer build -only="qemu.${BUILD_NAME}" -on-error="${PKR_ON_ERROR:-cleanup}" .
 
 cd "${ZEN_DIR}"
 

@@ -138,6 +138,7 @@ conf/radiusd/auth.conf
 conf/radiusd/cli.conf
 conf/radiusd/clients.conf.inc
 conf/radiusd/clients.eduroam.conf.inc
+conf/radiusd/dictionary.local
 conf/radiusd/eap.conf
 conf/radiusd/eduroam
 conf/radiusd/eduroam-cluster

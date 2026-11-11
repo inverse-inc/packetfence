@@ -10,7 +10,8 @@ import {
   BaseFormGroupInputPassword,
   BaseFormGroupTextarea,
   BaseFormGroupSwitch,
-  BaseInput
+  BaseInput,
+  BaseInputToggleDisabledEnabled
 } from '@/components/new/'
 import BaseFormGroupInlineTrigger from '../../switches/_components/BaseFormGroupInlineTrigger'
 import BaseFormGroupToggleStaticDynamicDefault from '../../switches/_components/BaseFormGroupToggleStaticDynamicDefault'
@@ -80,6 +81,7 @@ export {
   BaseFormGroupInput                      as FormGroupDownloadableAclsLimit,
   BaseFormGroupInput                      as FormGroupAclsLimit,
   BaseFormGroupSwitch                     as FormGroupDeauthOnPrevious,
+  BaseFormGroupChosenOne                  as FormGroupHostMode,
   BaseFormGroupToggleNYDefault            as FormGroupToggleAccessListMap,
   BaseFormGroupToggleNYDefault            as FormGroupToggleRoleMap,
   BaseFormGroupToggleNYDefault            as FormGroupToggleVpnMap,
@@ -96,9 +98,12 @@ export {
   BaseFormGroupInputPassword              as FormGroupWebServicesPwd,
   BaseFormGroupChosenOne                  as FormGroupWebServicesTransport,
   BaseFormGroupInput                      as FormGroupWebServicesUser,
+  BaseFormGroupToggleNYDefault            as FormGroupWebServicesVerifyCertificate,
+  BaseFormGroupInput                      as FormGroupWebServicesPath,
 
   BaseInput                               as InputRoleMapNetwork,
   BaseInputToggleNetworkFrom              as InputToggleNetworkFrom,
+  BaseInputToggleDisabledEnabled          as InputToggleEnableDisable,
 
   BaseViewCollectionItem                  as BaseView,
   TheForm,

@@ -34,6 +34,8 @@ has 'timeout' => (isa => 'Int', is => 'rw', default => 10);
 my $GET_ADMIN_TOKEN_KEY = "get_admin_token";
 
 my %AZURE_AD_UA = ();
+# Safety net for the memberOf pagination loop (999 objects per page)
+our $MAX_MEMBEROF_PAGES = 50;
 
 sub get_ua {
     my ($self) = @_;
@@ -170,45 +172,49 @@ sub authenticate {
 
 }
 
-sub handle_failed_admin_call {
-    my ($self, $response, $retry_call) = @_;
-
-    # We make sure this doesn't get called over and over
-    my $caller2 = (caller(2))[3];
-    my $caller3 = (caller(3))[3];
-    if($caller2 eq "pf::Authentication::Source::AzureADSource::handle_failed_admin_call" || $caller3 eq "pf::Authentication::Source::AzureADSource::handle_failed_admin_call") {
-        return undef;
-    }
-
-    if($response->code eq 401 || $response->code eq 403) {
-        $self->cache->remove($GET_ADMIN_TOKEN_KEY) ;
-        $retry_call->();
-    }
-    else {
-        return undef;
-    }
-}
-
 sub get_memberOf {
-    my ($self, $username) = @_;
+    my ($self, $username, $retrying) = @_;
     my $logger = get_logger;
     my $ua = $self->get_ua;
+    my $id = $self->id;
 
     my $token = $self->get_admin_token();
-    my $r = $ua->get(
-        $self->build_user_groups_url($username) . '?$select=id,displayName', 
-        Authorization => "Bearer $token", 
-        "Content-Type" => "application/json", 
-    );
-    if($r->is_success) {
-        my $response = decode_json($r->decoded_content);
-        return map{ $_->{displayName} } @{$response->{value}};
+    # Graph pages memberOf results (100 objects per page by default). Ask for
+    # the largest page size allowed and follow @odata.nextLink so users with
+    # many memberships still get their full group list.
+    # Any failure throws: a partial list would look valid, fail to match rules
+    # and, with user_groups_cache, be cached. get_cached_memberOf catches it.
+    my $url = $self->build_user_groups_url($username) . '?$select=id,displayName&$top=999';
+    my @groups;
+    my $page = 0;
+    while (defined $url) {
+        $page++;
+        if ($page > $MAX_MEMBEROF_PAGES) {
+            die "Group lookup for $username (source[$id]) exceeded $MAX_MEMBEROF_PAGES pages\n";
+        }
+        my $r = $ua->get(
+            $url,
+            Authorization => "Bearer $token",
+            "Content-Type" => "application/json",
+        );
+        unless ($r->is_success) {
+            # A rejected admin token is refreshed and the whole lookup restarted, once
+            if (($r->code == 401 || $r->code == 403) && !$retrying) {
+                $logger->info("Admin token rejected while fetching groups for $username (source[$id], page $page): " . $r->status_line . "; refreshing the token and retrying");
+                $self->cache->remove($GET_ADMIN_TOKEN_KEY);
+                return $self->get_memberOf($username, 1);
+            }
+            die "Failed to obtain groups for $username (source[$id], page $page): " . $r->status_line . "\n";
+        }
+        my $response = eval { decode_json($r->decoded_content) };
+        if ($@ || ref($response) ne 'HASH') {
+            die "Failed to decode groups for $username (source[$id], page $page): " . ($@ || "unexpected response") . "\n";
+        }
+        push @groups, map { $_->{displayName} } grep { defined $_->{displayName} } @{$response->{value} // []};
+        $url = $response->{'@odata.nextLink'};
     }
-    else {
-        my $id = $self->id;
-        $logger->error("Failed to obtain groups for $username (source[$id]): " . $r->status_line);
-        return $self->handle_failed_admin_call($r, sub{$self->get_memberOf($username)});
-    }
+    $logger->debug("Found " . scalar(@groups) . " groups for $username (source[$id]) over $page page(s)");
+    return @groups;
 }
 
 sub get_cached_memberOf {
@@ -219,12 +225,19 @@ sub get_cached_memberOf {
         get_logger->debug("Found groups for $username in RADIUS parameters: ".join(",", @radius_groups));
         return @radius_groups;
     }
-    elsif($self->user_groups_cache) {
-        return $self->cache->compute($self->id."-memberOf-$username", {expires_in => $self->user_groups_cache}, sub {$self->get_memberOf($username)});
-    } 
-    else {
-        return $self->get_memberOf($username);
+
+    # get_memberOf throws on failure. CHI::compute does not store anything when
+    # the callback throws, so a failed lookup is never cached as "no groups".
+    my @groups = eval {
+        $self->user_groups_cache
+            ? $self->cache->compute($self->id."-memberOf-$username", {expires_in => $self->user_groups_cache}, sub {$self->get_memberOf($username)})
+            : $self->get_memberOf($username);
+    };
+    if ($@) {
+        get_logger->error("Group lookup failed for $username (source[".$self->id."]): $@");
+        return;
     }
+    return @groups;
 }
 
 sub match_in_subclass {

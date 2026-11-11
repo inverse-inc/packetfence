@@ -107,8 +107,22 @@ const actions = {
           roleDefaults[`${role}Role`] = null
           roleDefaults[`${role}AccessList`] = null
           roleDefaults[`${role}Url`] = null
+          roleDefaults[`${role}Vpn`] = null
+          roleDefaults[`${role}Interface`] = null
+          roleDefaults[`${role}VlanEnabled`] = 'enabled'
+          roleDefaults[`${role}RoleEnabled`] = 'enabled'
+          roleDefaults[`${role}AccessListEnabled`] = 'enabled'
+          roleDefaults[`${role}UrlEnabled`] = 'enabled'
+          roleDefaults[`${role}VpnEnabled`] = 'enabled'
+          roleDefaults[`${role}InterfaceEnabled`] = 'enabled'
         })
         item = { ...roleDefaults, ...item }
+        // Ensure Enabled fields default to 'enabled' if null/undefined
+        Object.keys(roleDefaults).forEach(key => {
+          if (key.endsWith('Enabled') && (item[key] === null || item[key] === undefined)) {
+            item[key] = 'enabled'
+          }
+        })
         commit('ITEM_REPLACED', item)
         return JSON.parse(JSON.stringify(state.cache[id]))
       })

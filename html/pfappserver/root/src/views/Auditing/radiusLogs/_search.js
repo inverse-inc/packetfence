@@ -383,16 +383,6 @@ export const useSearch = makeSearch('radiusLogs', {
       types: [conditionType.SUBSTRING]
     },
     {
-      value: 'pf_domain',
-      text: 'Domain', // i18n defer
-      types: [conditionType.SUBSTRING]
-    },
-    {
-      value: 'profile',
-      text: 'Profile', // i18n defer
-      types: [conditionType.SUBSTRING]
-    },
-    {
       value: 'radius_reply',
       text: 'RADIUS Reply', // i18n defer
       types: [conditionType.SUBSTRING]
@@ -420,7 +410,7 @@ export const useSearch = makeSearch('radiusLogs', {
     {
       value: 'request_time',
       text: 'Request Time', // i18n defer
-      types: [conditionType.SUBSTRING]
+      types: [conditionType.INTEGER]
     },
     {
       value: 'role',

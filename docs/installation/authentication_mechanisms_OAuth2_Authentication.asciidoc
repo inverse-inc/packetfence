@@ -53,6 +53,23 @@ Also, add the following Authorized domains : `*.google.com, *.google.ca,
 have the google domain from the appropriate country like Canada => *.google.ca,
 France => *.google.fr, etc...)
 
+[NOTE]
+====
+The Google sign-in page loads its scripts from `www.gstatic.com`, which
+the `*.gstatic.com` authorized domain lets through. Chrome and ChromeOS also
+use `http://www.gstatic.com/generate_204` to detect a captive portal, so on a
+connection profile with a Google source (OAuth, or Google as a SAML identity
+provider) that probe reaches Google and Chrome doesn't show its own captive
+portal page. The detection of the operating systems (Android, ChromeOS
+`clients3.google.com`, Apple, Windows) still triggers the portal, and browsing
+to any other site still lands on it.
+
+`www.gstatic.com/generate_204` is therefore not in the default
+`captive_portal.detection_mecanism_urls`. Adding it back in [filename]`pf.conf`
+restores Chrome's detection but breaks the Google sign-in, since a detection
+host is always answered with the portal, before the passthroughs.
+====
+
 Once the client id, and API key are available, configure the OAuth2 provider.
 This can be done by adding a Google OAuth2 authentication source from
 _Configuration -> Policies and Access Control -> Authentication Sources_.
@@ -99,6 +116,12 @@ Moreover, don't forget to add Facebook as a *Source* from the connection
 profile definition, available from _Configuration -> Policies and Access
 Control -> Connection Profiles_.
 
+A Facebook account can be registered with a phone number only, without an
+e-mail address. Such a user gets `<Facebook account ID>@facebook` as username.
+If *Create local account* is enabled on the source, they can't register: the
+credentials of the local account are sent by e-mail, so the portal asks them to
+use another login method.
+
 CAUTION: By allowing OAuth through Facebook, you will give Facebook access
 to the users while they are sitting in the registration VLAN.
 
@@ -125,7 +148,7 @@ Control -> Connection Profiles_.
 ==== Kickbox
 
 To use Kickbox, an API key is needed. To get one, first create an account on
-<https://kickbox.io>, then navigate to
+<https://kickbox.com>, then navigate to
 <https://app.kickbox.com/settings/keys>. Click on `API Keys -> Create Key`.
 Pick a name and choose `Production` mode and `Single` verification.
 
@@ -147,7 +170,14 @@ specify the following as the Callback URL
 https://YOUR_PORTAL_HOSTNAME/oauth2/callback
 
 Get more details about how to configure the LinkedIn application inside
-https://docs.microsoft.com/fr-fr/linkedin/shared/authentication/authentication[Microsoft documentation].
+https://learn.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/sign-in-with-linkedin-v2[Microsoft documentation].
+
+The App must have the *Sign In with LinkedIn using OpenID Connect* product.
+The source uses it by default, with the scope `openid profile email` and the API URL
+`https://api.linkedin.com/v2/userinfo`. A source created before PacketFence
+16.0 keeps the legacy scope (`r_emailaddress,r_liteprofile`) and API URL,
+which LinkedIn no longer grants to new Apps: if the login fails after the
+LinkedIn page, set these two values in the source.
 
 Of course, replace the hostname with the values from `general.hostname` and
 `general.domain`.

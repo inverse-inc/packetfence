@@ -63,7 +63,7 @@ our $COUNT_RE = qr/^ (?: (all) | ( $RE{net}{MAC} ) | (?: ( category | pid  ) \s*
 
 our @FIELDS = qw(
   mac computername pid category status bypass_vlan voip
-  detect_date regdate unregdate last_connection_type last_switch last_port last_vlan last_ssid last_dot1x_username user_agent dhcp_fingerprint last_arp last_dhcp notes);
+  detect_date regdate unregdate last_connection_type last_switch last_port last_vlan last_ssid last_dot1x_username user_agent dhcp_fingerprint last_dhcp notes);
 
 =head2 action_view
 

@@ -10,7 +10,7 @@ pf::condition::date_after
 
 Check if a given date is after actual (or supplied) date
 
-Date format is YYYY-MM-DD HH:MM:SS
+See pf::condition::date_compare for the supported formats
 
 =cut
 
@@ -18,28 +18,17 @@ use strict;
 use warnings;
 
 use Moose;
-use POSIX qw(strftime);
-use Time::Piece;
 
-extends 'pf::condition';
+extends 'pf::condition::date_compare';
 
-has value => (
-    is => 'rw',
-    isa => 'Maybe[Str]',
-    required => 0,
-);
+=head2 compare_dates
 
-sub match {
-    my ($self, $arg, $args) = @_;
+Whether the given date is after the control date
 
-    my $date_format = "%Y-%m-%d %H:%M:%S";
+=cut
 
-    my $date_to_compare = $arg;
-    my $date_control = $self->value // strftime $date_format, localtime;
-
-    $date_to_compare = Time::Piece->strptime($date_to_compare, $date_format);
-    $date_control = Time::Piece->strptime($date_control, $date_format);
-
+sub compare_dates {
+    my ($self, $date_to_compare, $date_control) = @_;
     return $date_to_compare > $date_control;
 }
 

@@ -63,6 +63,8 @@ export {
   BaseFormGroupSwitch                 as FormGroupAccessRegistrationWhenRegistered,
   BaseFormGroupSwitch                 as FormGroupNetworkLogoff,
   BaseFormGroupSwitch                 as FormGroupNetworkLogoffPopup,
+  BaseFormGroupSwitch                 as FormGroupSelfServiceStatus,
+  BaseFormGroupSwitch                 as FormGroupSelfServiceDeviceRegistration,
   BaseFormGroupLocales                as FormGroupLocale,
 
   ButtonPreviewPortal,

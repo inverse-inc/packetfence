@@ -11,6 +11,16 @@ import (
 
 var CachedCronConfig = pfconfigdriver.NewCachedValue(reflect.TypeOf(pfconfigdriver.Cron{}))
 
+// shutdownCtx is done once Shutdown is called. Jobs that run until pfcron
+// stops (pfflow) return when it is done, so cron.Stop(), which waits for the
+// running jobs, does not wait for them forever.
+var shutdownCtx, shutdown = context.WithCancel(context.Background())
+
+// Shutdown asks the jobs that run until pfcron stops to return.
+func Shutdown() {
+	shutdown()
+}
+
 type JobSetupConfig interface {
 	cron.Job
 	Schedule() cron.Schedule
@@ -37,6 +47,7 @@ var builders = map[string]func(map[string]interface{}) JobSetupConfig{
 	"radius_audit_log_cleanup":     MakeWindowSqlJobSetupConfig(`DELETE FROM radius_audit_log WHERE created_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
 	"node_current_session_cleanup": MakeWindowSqlJobSetupConfig(`DELETE FROM node_current_session WHERE updated < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
 	"security_event_purge":         MakeWindowSqlJobSetupConfig(`DELETE FROM security_event WHERE start_date < DATE_SUB(?, INTERVAL ? SECOND) AND status = 'closed' LIMIT ?`),
+	"pki_revoked_certs_cleanup":    MakeWindowSqlJobSetupConfig(`DELETE FROM pki_revoked_certs WHERE revoked < DATE_SUB(?, INTERVAL ? SECOND) AND valid_until < NOW() LIMIT ?`),
 	"locationlog_cleanup": MakeMultiWindowSqlJobSetupConfig(
 		`DELETE FROM locationlog_history WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) AND end_time != '0000-00-00 00:00:00' LIMIT ?`,
 		`DELETE FROM locationlog WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) AND end_time != '0000-00-00 00:00:00' LIMIT ?`,

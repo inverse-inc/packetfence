@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/inverse-inc/packetfence/go/radiusdictionary"
+
 	"github.com/inverse-inc/go-radius/dictionary"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/julienschmidt/httprouter"
@@ -82,13 +84,8 @@ func setupRadiusDictionary() {
 	var RadiusConfiguration pfconfigdriver.PfConfRadiusConfiguration
 	pfconfigdriver.FetchDecodeSocket(ctx, &RadiusConfiguration)
 
-	parser := &dictionary.Parser{
-		Opener: &dictionary.FileSystemOpener{
-			Root: "/usr/share/freeradius",
-		},
-		IgnoreIdenticalAttributes:  true,
-		IgnoreUnknownAttributeType: true,
-	}
+	// Handles the optional include of conf/radiusd/dictionary.local
+	parser := radiusdictionary.NewParser()
 
 	results := RadiusAttributesResults{}
 

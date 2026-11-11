@@ -69,6 +69,17 @@ func (cc *ConnectorsContainer) ForIP(ctx context.Context, ip net.IP) *Connector 
 	return nil
 }
 
+// HasRemoteConnectors reports whether any connector other than the local one has
+// networks, i.e. whether ForIP can return anything but the local connector.
+func (cc *ConnectorsContainer) HasRemoteConnectors(ctx context.Context) bool {
+	for id, o := range cc.SnapshotStructs(ctx) {
+		if id != "local_connector" && len(o.(*Connector).NetworksObjects) > 0 {
+			return true
+		}
+	}
+	return false
+}
+
 func (cc *ConnectorsContainer) IpPartOf(ctx context.Context, ip net.IP) bool {
 	for _, o := range cc.SnapshotStructs(ctx) {
 		c := o.(*Connector)

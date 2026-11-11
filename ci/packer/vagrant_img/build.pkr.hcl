@@ -44,8 +44,6 @@ build {
     ]
     extra_arguments  = ["--skip-tags", "upgrade"]
     inventory_directory = "${var.provisioner_dir}/inventory"
-    galaxy_file = "${var.provisioner_dir}/requirements.yml"
-    galaxy_force_install = false
     use_proxy = false
   }
 
@@ -108,6 +106,8 @@ build {
   # APT after applying the EOL Debian source configuration.
   # resolv.conf is made immutable so reboots during Ansible provisioning
   # don't lose DNS (dhclient at boot would overwrite it with QEMU's 10.0.2.3).
+  # Once Samba is provisioned, the guest must resolve its own KDC through the
+  # build-time management address; keep the public resolver as a fallback.
   provisioner "shell" {
     execute_command = "echo 'vagrant' | sudo -S -E bash '{{.Path}}'"
     inline = [
@@ -116,7 +116,7 @@ build {
       "ip link set \"$IFACE\" up",
       "dhclient -v \"$IFACE\" || true",
       "rm -f /etc/resolv.conf",
-      "echo 'nameserver 8.8.8.8' > /etc/resolv.conf",
+      "printf 'nameserver 10.0.2.15\\nnameserver 8.8.8.8\\n' > /etc/resolv.conf",
       "chattr +i /etc/resolv.conf",
     ]
   }
@@ -130,7 +130,6 @@ build {
       "--extra-vars", "samba4ad__mgmt_ip=10.0.2.15",
       "--skip-tags",  "upgrade",
     ]
-    galaxy_force_install = false
     use_proxy            = false
   }
 
@@ -172,8 +171,6 @@ build {
     host_alias           = "${var.pfserver_name}"
     groups               = ["nodes", "wireless"]
     inventory_directory  = "${var.pfroot_dir}/addons/vagrant/inventory"
-    galaxy_file          = "${var.pfroot_dir}/addons/vagrant/requirements.yml"
-    galaxy_force_install = true
     ansible_env_vars     = ["PF_MINOR_RELEASE=${var.pf_version}"]
     extra_arguments = [
       "--skip-tags", "upgrade",
@@ -241,8 +238,6 @@ build {
     ]
     extra_arguments  = ["--skip-tags", "upgrade"]
     inventory_directory = "${var.provisioner_dir}/inventory"
-    galaxy_file = "${var.provisioner_dir}/requirements.yml"
-    galaxy_force_install = false
     use_proxy = false
   }
 

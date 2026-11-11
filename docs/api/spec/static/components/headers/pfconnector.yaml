@@ -1,0 +1,12 @@
+X-PacketFence-Version:
+  description: |
+    Running PacketFence version in `X.Y.Z` form (same value
+    `pf::version::version_get_release()` returns, read from
+    `/usr/local/pf/conf/pf-release`). Emitted on every response from the
+    pfconnector-server's HTTP handler so external tooling can read it
+    from a no-auth endpoint without hitting the authenticated
+    `/api/v1/system_summary`. The header is omitted on servers whose
+    `pf-release` file is unreadable at startup.
+  schema:
+    type: string
+    example: "16.0.0"

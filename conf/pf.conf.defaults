@@ -763,6 +763,12 @@ tracking-config_binary=/dev/null
 netflow_address=0.0.0.0
 
 #
+# services.netflow_processor
+#
+# Should pfacct process NetFlow traffic?
+netflow_processor=enabled
+
+#
 # services.netflow_target_host_port
 #
 # NetFlow Target Host Port
@@ -948,7 +954,7 @@ detection_mecanism_bypass = disabled
 #
 # Comma-delimited list of URLs known to be used by devices to detect the presence
 # of a captive portal and trigger their captive portal mechanism.
-detection_mecanism_urls = http://www.gstatic.com/generate_204,http://clients3.google.com/generate_204,http://www.apple.com/library/test/success,http://connectivitycheck.android.com/generate_204,http://connectivitycheck.gstatic.com/generate_204,http://www.msftncsi.com/ncsi.txt,http://www.appleiphonecell.com,http://captive.apple.com,http://captive.roku.com/ok,http://detectportal.firefox.com/success.txt,http://firefox-portal-detection.com/generate_204,http://www.msftconnecttest.com/connecttest.txt,http://fireoscaptiveportal.com/generate_204,http://connectivitycheck.cbg-app.huawei.com/generate_204,http://connect.rom.miui.com/generate_204,http://freetimecaptiveportal.com/generate_204,http://gateway.zscalerthree.net/generate_204,http://gateway.zscloud.net/generate_204,http://g.cn/generate_204,http://play.googleapis.com/generate_204,http://speedtest-global.spatialbuzz.net/generate_204,http://tabletcaptiveportal.com/generate204,http://www.google.cn/generate_204,http://edge.microsoft.com/captiveportal/generate_204
+detection_mecanism_urls = http://clients3.google.com/generate_204,http://www.apple.com/library/test/success,http://connectivitycheck.android.com/generate_204,http://connectivitycheck.gstatic.com/generate_204,http://www.msftncsi.com/ncsi.txt,http://www.appleiphonecell.com,http://captive.apple.com,http://captive.roku.com/ok,http://detectportal.firefox.com/success.txt,http://firefox-portal-detection.com/generate_204,http://www.msftconnecttest.com/connecttest.txt,http://fireoscaptiveportal.com/generate_204,http://connectivitycheck.cbg-app.huawei.com/generate_204,http://connect.rom.miui.com/generate_204,http://freetimecaptiveportal.com/generate_204,http://gateway.zscalerthree.net/generate_204,http://gateway.zscloud.net/generate_204,http://g.cn/generate_204,http://play.googleapis.com/generate_204,http://speedtest-global.spatialbuzz.net/generate_204,http://tabletcaptiveportal.com/generate204,http://www.google.cn/generate_204,http://edge.microsoft.com/captiveportal/generate_204
 #
 # captive_portal.wispr_redirection
 #
@@ -1044,7 +1050,9 @@ pfperl_api_processes=8
 #
 # advanced.update_iplog_with_accounting
 #
-# Use the information included in the accounting to update the iplog
+# Use the information included in the accounting to update the iplog.
+# Note: pfacct performs this update itself and reads this option once at
+# startup, so restart pfacct for a change to this option to take effect.
 update_iplog_with_accounting=disabled
 #
 # advanced.update_iplog_with_authentication
@@ -1072,11 +1080,6 @@ timing_stats_level=5
 #
 # The source to use to send an SMS when creating a user
 source_to_send_sms_when_creating_users=
-#
-# advanced.multihost
-#
-# Ability to manage all active devices from a same switch port
-multihost=disabled
 #
 # active_directory_os_join_check_bypass
 #
@@ -1332,6 +1335,17 @@ radius_proxy_with_vip=enabled
 # Process Firewall SSO only on the managemenr server (the current load balancer).
 # Disabling it will allow each members of the cluster to send Firewall SSO request to firewalls
 firewall_sso_on_management=disabled
+#
+# active_active.api_connect_timeout
+#
+# Timeout in seconds to connect to the webservices of another cluster member
+api_connect_timeout=5
+#
+# active_active.api_timeout
+#
+# Timeout in seconds of a call to the webservices of another cluster member.
+# The long operations (syncing the configuration, transferring files) aren't capped by it.
+api_timeout=60
 
 [parking]
 #
@@ -1473,7 +1487,12 @@ pfacct_work_queue_size = 1000
 pfacct_rate_limit=disabled
 # radius_configuration.pfacct_rate_limit_cache_ttl
 #
-# If rate limiting on pfacct is enabled,  the Time to Live value in minutes represent the time of the accounting cache
+# Time to Live in minutes of the pfacct accounting caches. When
+# radius_configuration.pfacct_rate_limit is enabled it is how long pfacct
+# suppresses forwarding a repeated accounting packet to httpd.aaa. Independently
+# of that option, it is also how often pfacct refreshes node.last_seen and the
+# ip4log entry of a given device. Must be at least 1: zero or a negative value
+# falls back to the default of 5 minutes and pfacct logs a warning.
 pfacct_rate_limit_cache_ttl=5
 # radius_configuration.pfacct_socket_recv_buffer
 #
@@ -1638,6 +1657,7 @@ sso_base_url=
 sso_login_path=/admin-sso
 sso_authorize_path=/portaltoken
 sso_login_text=Single Sign On
+sso_allowed_callback_hosts=
 allow_username_password=enabled
 
 [fleetdm]

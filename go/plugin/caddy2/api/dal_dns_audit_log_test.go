@@ -213,6 +213,51 @@ func TestSearchDnsAuditLog(t *testing.T) {
 	}
 }
 
+func searchDnsAuditLog(t *testing.T, payload string) (int, RespBody) {
+	handler := dalDnsAuditLog()
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/dns_audit_logs/search", bytes.NewBufferString(payload))
+	w := httptest.NewRecorder()
+	handler(w, req)
+	res := w.Result()
+	defer res.Body.Close()
+	data, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		t.Fatalf("Error: %s", err.Error())
+	}
+	respBody := RespBody{}
+	if err := json.Unmarshal(data, &respBody); err != nil {
+		t.Fatalf("Error: %s: %s", err.Error(), string(data))
+	}
+	return res.StatusCode, respBody
+}
+
+func TestSearchDnsAuditLogNoMatch(t *testing.T) {
+	// A search without match is an empty page, not an error
+	status, respBody := searchDnsAuditLog(t, `{"query":{"op":"and","values":[{"op":"equals","field":"id","value":-1}]}}`)
+	if status != http.StatusOK {
+		t.Fatalf("unexpected http response code %d for a search without match", status)
+	}
+	if respBody.Total == nil || *respBody.Total != 0 {
+		t.Fatalf("expected a total of 0, got %v", respBody.Total)
+	}
+	items, ok := respBody.Items.([]interface{})
+	if !ok || len(items) != 0 {
+		t.Fatalf("expected an empty list of items, got %#v", respBody.Items)
+	}
+}
+
+func TestSearchDnsAuditLogInvalid(t *testing.T) {
+	// A search query that can't be built is the client's error, with one condition or several
+	for _, payload := range []string{
+		`{"query":{"op":"and","values":[{"op":"equals","field":"no_such_field","value":1}]}}`,
+		`{"query":{"op":"and","values":[{"op":"equals","field":"id","value":1},{"op":"equals","field":"no_such_field","value":1}]}}`,
+	} {
+		if status, _ := searchDnsAuditLog(t, payload); status != http.StatusUnprocessableEntity {
+			t.Fatalf("unexpected http response code %d for the invalid search %s", status, payload)
+		}
+	}
+}
+
 func TestGetDnsAuditLog(t *testing.T) {
 	teardownTestCase := setupTestCaseDnsAuditLog(t)
 	defer teardownTestCase(t)

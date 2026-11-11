@@ -20,7 +20,7 @@ two other nodes".
 | 05_register_cluster_file | Add the #8984 exec test file to this node's `cluster-files.txt` before sync | done |
 | 10_cluster_sync | `cluster/sync --from=pf1`; restart packetfence-config, configreload, proxysql, httpd.webservices | done |
 | 15_assert_synced_exec_perms | Assert the synced file kept its executable bit (#8984) | done |
-| 20_mariadb_join | Stop mariadb, `rm -rf /var/lib/mysql/*` (guarded against pf1), restart to join | done |
+| 20_mariadb_join | Stop mariadb, `rm -rf /var/lib/mysql/*` (guarded against pf1), restart to join, write `~/.my.cnf` | done |
 | 30_assert_joined | Wait `wsrep_local_state_comment=Synced`, then `wsrep_cluster_size=3` | done |
 
 ## Notes
@@ -37,3 +37,4 @@ two other nodes".
   because `cluster/sync --from` reads *this* node's `cluster-files.txt`.
   `test -x` is the discriminator — it is false when no exec bit is set (even
   for root), so it fails on the pre-fix behavior (file pulled as 0664).
+- SST brings pf1's root password, so `20_mariadb_join` writes `~/.my.cnf`.

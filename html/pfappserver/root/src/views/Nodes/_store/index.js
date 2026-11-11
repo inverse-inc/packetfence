@@ -49,13 +49,9 @@ const getters = {
 }
 
 const actions = {
-  exists: ({ state, commit }, mac) => {
-    if (mac in state.nodeExists) {
-      if (state.nodeExists[mac]) {
-        return Promise.resolve(true)
-      }
-      return Promise.reject(new Error('Unknown MAC'))
-    }
+  exists: ({ commit }, mac) => {
+    // Always ask the API: a node can be created (ex: when the device connects again) or
+    // deleted (ex: by another admin or the node cleanup task) at any time
     let body = {
       fields: ['mac'],
       limit: 1,
@@ -113,7 +109,7 @@ const actions = {
       let ip4 = {}
       api.ip4logOpen(mac).then(data => {
         Object.assign(ip4, data)
-        ip4.active = data.end_time === '0000-00-00 00:00:00'
+        ip4.active = !!data // the open endpoint only returns leases with no end time or ending in the future
       }).catch(() => {
         Object.assign(ip4, { active: false })
       }).finally(() => {
@@ -135,7 +131,7 @@ const actions = {
       let ip6 = {}
       api.ip6logOpen(mac).then(data => {
         Object.assign(ip6, data)
-        ip6.active = data.end_time === '0000-00-00 00:00:00'
+        ip6.active = !!data // the open endpoint only returns leases with no end time or ending in the future
       }).catch(() => {
         Object.assign(ip6, { active: false })
       }).finally(() => {

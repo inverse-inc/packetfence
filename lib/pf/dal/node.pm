@@ -94,7 +94,60 @@ sub pre_save {
     my ($self) = @_;
     my $voip = $self->voip;
     $self->{voip} = 'no' if !defined ($voip) || $voip ne 'yes';
+    my $old_data = $self->__old_data;
+    if ($old_data && ($old_data->{status} // '') ne 'reg' && missing_regdate($self->{status}, $self->{regdate})) {
+        $self->{regdate} = $self->now;
+    }
+    $self->_update_source_types;
     return $self->_update_category_ids;
+}
+
+=head2 _update_source_types
+
+Keep source_type and source_base_type describing source. Callers only set
+source (node_register, RADIUS autoreg, import...), so the type columns are
+derived here whenever source changes rather than at every call site. An
+unchanged source keeps the types already recorded, even if that source has
+since been deleted.
+
+=cut
+
+sub _update_source_types {
+    my ($self) = @_;
+    my $old_data = $self->__old_data;
+    return if $old_data && ($old_data->{source} // '') eq ($self->{source} // '');
+    @{$self}{qw(source_type source_base_type)} = source_types($self->{source});
+    return;
+}
+
+=head2 source_types
+
+The (source_type, source_base_type) of the configured authentication source with
+this id, or ('', '') when there is none -- read as UNCLASSIFIED.
+
+=cut
+
+sub source_types {
+    my ($source_id) = @_;
+    return ('', '') unless defined $source_id && length $source_id;
+    require pf::authentication;
+    my $source = pf::authentication::getAuthenticationSource($source_id);
+    return $source ? ($source->type, $source->base_type) : ('', '');
+}
+
+=head2 missing_regdate
+
+Returns true when a node written with this status and regdate would be
+registered without a registration date.
+
+=cut
+
+sub missing_regdate {
+    my ($status, $regdate) = @_;
+    return 0 if ($status // '') ne 'reg';
+    return 1 if !defined $regdate;
+    return 0 if ref $regdate;
+    return $regdate eq '' || $regdate eq $ZERO_DATE;
 }
 
 =head2 after_create_hook
@@ -182,6 +235,10 @@ sub _insert_data {
     }
     if ($data->{detect_date} eq '0000-00-00 00:00:00') {
        $data->{detect_date} = $self->now;
+    }
+
+    if (missing_regdate($data->{status}, $data->{regdate})) {
+       $data->{regdate} = $self->now;
     }
 
     $data->{mac} = clean_mac($data->{mac});

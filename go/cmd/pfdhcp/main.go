@@ -30,6 +30,7 @@ import (
 	dhcp "github.com/inverse-inc/dhcp4"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
+	"github.com/inverse-inc/packetfence/go/api-frontend/unifiedapierrors"
 	"github.com/inverse-inc/packetfence/go/jsonrpc2"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	statsd "gopkg.in/alexcesaro/statsd.v2"
@@ -531,6 +532,7 @@ func (I *Interface) handleRequest(ctx context.Context, p dhcp.Packet, handler DH
 
 			answer.D = dhcp.ReplyPacket(p, dhcp.ACK, setOptionServerIdentifier(srvIP, handler.ip).To4(), reqIP, leaseDuration,
 				GlobalOptions.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
+			setBootFields(answer.D, GlobalOptions)
 			var cacheDuration time.Duration
 			if leaseDuration < time.Duration(60)*time.Second {
 				cacheDuration = time.Duration(120) * time.Second
@@ -810,6 +812,7 @@ reply:
 	log.LoggerWContext(ctx).Info("DHCPOFFER on " + answer.IP.String() + " to " + clientMac + " (" + clientHostname + ")")
 	answer.D = dhcp.ReplyPacket(p, dhcp.Offer, setOptionServerIdentifier(srvIP, handler.ip).To4(), answer.IP, leaseDuration,
 		GlobalOptions.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
+	setBootFields(answer.D, GlobalOptions)
 
 	return answer
 }
@@ -1042,6 +1045,8 @@ func startNetworkListeners(ctx context.Context, jobs chan job) {
 func setupAPIRoutes(ctx context.Context, db *sql.DB) *mux.Router {
 	api := &API{DB: db, Ctx: ctx}
 	router := mux.NewRouter()
+	router.NotFoundHandler = http.HandlerFunc(unifiedapierrors.UnknownPath)
+	router.MethodNotAllowedHandler = http.HandlerFunc(unifiedapierrors.MethodNotAllowed)
 
 	// API endpoints
 	router.HandleFunc("/api/v1/dhcp/mac/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", api.handleMac2Ip).Methods("GET")

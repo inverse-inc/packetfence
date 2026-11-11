@@ -15,7 +15,7 @@
     />
 
     <form-group-api-key namespace="api_key"
-      :column-label="$i18n.t('Kickbox.io API key')"
+      :column-label="$i18n.t('Kickbox API key')"
     />
 
     <form-group-authentication-rules namespace="authentication_rules"
