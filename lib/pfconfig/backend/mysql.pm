@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use Sereal::Encoder qw(sereal_encode_with_object);
 use DBI;
+use pf::db::dbi;
 use pfconfig::config;
 use Try::Tiny;
 use pf::log;
@@ -73,11 +74,13 @@ sub _get_db {
         # pfconfig serves one request at a time: bound the DB calls so a stalled database
         # (e.g. a galera flow control pause) can't block the whole configuration service.
         # Its request alarm can't interrupt a blocking libmysqlclient call, only these socket timeouts can.
+        # RootClass prepends the ProxySQL routing remark (/* pf:pfconfig */, see pf::db::dbi) so
+        # these reads are routed with the auth traffic that waits on them.
         my $connect_timeout = $cfg->{connect_timeout} || 5;
         my $read_timeout = $cfg->{read_timeout} || 15;
         my $write_timeout = $cfg->{write_timeout} || 15;
         $db = DBI->connect( "DBI:mysql:database=$cfg->{db};host=$cfg->{host};port=$cfg->{port};mysql_socket=$cfg->{unix_socket};mysql_connect_timeout=$connect_timeout;mysql_read_timeout=$read_timeout;mysql_write_timeout=$write_timeout",
-            $cfg->{user}, $cfg->{pass}, { 'RaiseError' => 1, mysql_auto_reconnect => 1, mysql_compression => $compression } );
+            $cfg->{user}, $cfg->{pass}, { 'RaiseError' => 1, mysql_auto_reconnect => 1, mysql_compression => $compression, RootClass => 'pf::db::dbi' } );
     };
     if($@) {
         $self->_set_last_failed_time();
