@@ -159,6 +159,54 @@ func DecodeRemote(s string) (*Remote, error) {
 	return r, nil
 }
 
+func ValidateRemappedRemoteBinds(ports []string) (map[string]string, error) {
+	portMap := map[string]string{}
+
+	for _, entry := range ports {
+		entry = strings.TrimSpace(entry)
+		if entry == "" {
+			continue
+		}
+		from, to, ok := strings.Cut(entry, "=")
+		if !ok {
+			return nil, fmt.Errorf("invalid entry %q: expected port[/proto]=port|-", entry)
+		}
+		port, proto, hasProto := strings.Cut(from, "/")
+		if !isPort(port) || (hasProto && proto != "udp" && proto != "tcp") {
+			return nil, fmt.Errorf("invalid source port or protocol: %s", from)
+		}
+		if to != "-" && !isPort(to) {
+			return nil, fmt.Errorf("invalid target port: %s", to)
+		}
+		portMap[from] = to
+	}
+	return portMap, nil
+}
+
+// RemapRemoteBinds rewrites the local port of remotes fetched from the pfconnector
+// server so they don't collide with host services
+func RemapRemoteBinds(bindPortMap map[string]string, remotes []*Remote) []*Remote {
+	remapped := make([]*Remote, 0, len(remotes))
+
+	for _, remote := range remotes {
+		to, ok := bindPortMap[remote.LocalPort+"/"+remote.LocalProto]
+		if !ok {
+			to, ok = bindPortMap[remote.LocalPort]
+		}
+		switch {
+		case !ok:
+			remapped = append(remapped, remote)
+		case to == "-":
+			// skipping remote bind on local port. 
+			// rules logged at startup
+		default:
+			remote.LocalPort = to
+			remapped = append(remapped, remote)
+		}
+	}
+	return remapped
+}
+
 func (r *Remote) setupLocalPort() error {
 	if r.LocalProto == "tcp" {
 		addr, err := net.ResolveTCPAddr("tcp", r.Local())
