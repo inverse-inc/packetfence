@@ -21,10 +21,14 @@ testcases:
     assertions:
       - result.code ShouldEqual 0
 
-- name: point_pf_at_proxysql
+# Order matters: pfconfig keeps its L2 cache in the database, so pf.conf must
+# be reloaded while pfconfig still reaches MariaDB directly. Only once
+# ProxySQL is up are pfconfig and the services moved onto it.
+- name: enable_database_proxysql
   steps:
   - type: exec
     script: |
+      set -e
       perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e '
         my ($file, @kv) = @ARGV;
         my $c = Config::IniFiles->new(-file => $file, -allowempty => 1) or die "cannot read $file";
@@ -35,37 +39,68 @@ testcases:
         }
         $c->RewriteConfig or die "cannot rewrite $file";
       ' {{.pfserver_conf_dir}}/pf.conf \
-        database.host 100.64.0.1 database.port 6033 \
         database_proxysql.status enabled \
         database_proxysql.backends '{{.pfserver_mgmt_ip}}' \
-        database_proxysql.port 3306 \
-      && perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e '
-        my $c = Config::IniFiles->new(-file => $ARGV[0], -allowempty => 1) or die;
-        $c->AddSection("mysql") unless $c->SectionExists("mysql");
-        for my $kv (["host", "100.64.0.1"], ["port", "6033"]) {
-            $c->setval("mysql", @$kv) or $c->newval("mysql", @$kv);
-        }
-        $c->RewriteConfig or die;
-      ' {{.pfserver_conf_dir}}/pfconfig.conf \
-      && chown pf:pf {{.pfserver_conf_dir}}/pf.conf {{.pfserver_conf_dir}}/pfconfig.conf
+        database_proxysql.port 3306
+      chown pf:pf {{.pfserver_conf_dir}}/pf.conf
+      {{.pfserver_pfcmd}} configreload hard
+      perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::config \
+        -e 'print "database_proxysql.status=$pf::config::Config{database_proxysql}{status}\n"'
+    assertions:
+      - result.code ShouldEqual 0
+      - result.systemout ShouldContainSubstring "database_proxysql.status=enabled"
+
+- name: start_proxysql
+  steps:
+  - type: exec
+    script: |
+      {{.pfserver_pfcmd}} service pf updatesystemd || exit 1
+      {{.pfserver_pfcmd}} service proxysql restart
+      for i in $(seq 1 30); do
+        ss -ltn | grep -q ':6033 ' && break
+        sleep 2
+      done
+      if ! ss -ltn | grep ':6033 '; then
+        # show why ProxySQL did not come up
+        systemctl status packetfence-proxysql --no-pager -l | tail -20
+        journalctl -u packetfence-proxysql --no-pager -n 40
+        exit 1
+      fi
+    timeout: 300
     assertions:
       - result.code ShouldEqual 0
 
-- name: start_proxysql_and_restart_pf
+- name: point_pf_at_proxysql
   steps:
   - type: exec
     script: |
       set -e
-      {{.pfserver_pfcmd}} configreload hard
-      {{.pfserver_pfcmd}} service pf updatesystemd
-      {{.pfserver_pfcmd}} service proxysql restart
-      sleep 10
+      perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e '
+        my ($file, $sect, @kv) = @ARGV;
+        my $c = Config::IniFiles->new(-file => $file, -allowempty => 1) or die "cannot read $file";
+        $c->AddSection($sect) unless $c->SectionExists($sect);
+        while (my ($k, $v) = splice(@kv, 0, 2)) {
+            $c->setval($sect, $k, $v) or $c->newval($sect, $k, $v);
+        }
+        $c->RewriteConfig or die "cannot rewrite $file";
+      ' {{.pfserver_conf_dir}}/pf.conf database host 100.64.0.1 port 6033
+      perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e '
+        my ($file, $sect, @kv) = @ARGV;
+        my $c = Config::IniFiles->new(-file => $file, -allowempty => 1) or die "cannot read $file";
+        $c->AddSection($sect) unless $c->SectionExists($sect);
+        while (my ($k, $v) = splice(@kv, 0, 2)) {
+            $c->setval($sect, $k, $v) or $c->newval($sect, $k, $v);
+        }
+        $c->RewriteConfig or die "cannot rewrite $file";
+      ' {{.pfserver_conf_dir}}/pfconfig.conf mysql host 100.64.0.1 port 6033
+      chown pf:pf {{.pfserver_conf_dir}}/pf.conf {{.pfserver_conf_dir}}/pfconfig.conf
       systemctl restart packetfence-config
       {{.pfserver_pfcmd}} configreload hard
       {{.pfserver_pfcmd}} service pf restart
     timeout: 900
     assertions:
       - result.code ShouldEqual 0
+      - result.systemout ShouldNotContainSubstring "L2 cache"
 
 - name: tiers_are_loaded
   steps:
