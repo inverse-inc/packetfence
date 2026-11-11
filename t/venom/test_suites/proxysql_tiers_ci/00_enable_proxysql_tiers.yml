@@ -95,12 +95,22 @@ testcases:
       ' {{.pfserver_conf_dir}}/pfconfig.conf mysql host 100.64.0.1 port 6033
       chown pf:pf {{.pfserver_conf_dir}}/pf.conf {{.pfserver_conf_dir}}/pfconfig.conf
       systemctl restart packetfence-config
-      {{.pfserver_pfcmd}} configreload hard
+      # The pfconfig container takes a few seconds to answer after a restart;
+      # until then pfcmd reads a truncated reply ("Bad Sereal header"). The
+      # cluster suites tolerate that first failure; here retry until a reload
+      # succeeds and could write pfconfig's L2 cache through ProxySQL.
+      ok=0
+      for i in $(seq 1 24); do
+        if out=$({{.pfserver_pfcmd}} configreload hard 2>&1) && ! echo "$out" | grep -q 'L2 cache'; then
+          ok=1; echo "configreload hard succeeded on attempt $i"; break
+        fi
+        sleep 5
+      done
+      if [ "$ok" != 1 ]; then echo "configreload hard never succeeded, last output:"; echo "$out" | tail -20; exit 1; fi
       {{.pfserver_pfcmd}} service pf restart
     timeout: 900
     assertions:
       - result.code ShouldEqual 0
-      - result.systemout ShouldNotContainSubstring "L2 cache"
 
 - name: tiers_are_loaded
   steps:
