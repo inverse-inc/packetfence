@@ -241,7 +241,28 @@ run_ansible_galaxy_once() {
     prepare_ansible_dependencies "$1" "$(dirname "$1")/ansible.cfg"
 }
 
+# A canceled job skips its teardown, so its VMs keep running on the runner.
+# Every CI job gives a VM the same management IP (pfdeb12dev 172.18.200.12,
+# pfel8dev .10, pf1el8dev .20, ...), so the next job on that runner reaches the
+# leftover VM instead of its own. Before starting anything, remove this
+# branch's domains: the job has created none yet, and destroy() already sweeps
+# the same prefix when a job ends.
+sweep_stale_branch_vms() {
+    [ -n "${CI:-}" ] && [ -n "${CI_COMMIT_REF_SLUG:-}" ] || return 0
+    # Vagrantfile names domains vagrant-<slug>-<6 hex>-<vm>. Match that whole
+    # shape so a branch whose slug merely starts with ours is left alone.
+    local pattern="^vagrant-${CI_COMMIT_REF_SLUG}-[0-9a-f]{6}-[A-Za-z0-9_]+\$"
+    local vm
+    log_subsection "Remove VMs left on this runner by earlier jobs of ${CI_COMMIT_REF_SLUG}"
+    for vm in $(virsh list --all --name | grep -E "${pattern}" || true); do
+        echo "Removing stale ${vm}"
+        virsh destroy "${vm}" >/dev/null 2>&1 || true
+        virsh undefine "${vm}" --remove-all-storage || true
+    done
+}
+
 run() {
+    sweep_stale_branch_vms
     if [ "${SCENARIOS_TO_RUN}" = "cluster_configurator cluster_recovery" ]; then
         # Each phase gets its own clock. The CI job timeout must cover both
         # budgets plus teardown; setup can no longer consume recovery's time.
