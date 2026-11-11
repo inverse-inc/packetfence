@@ -1,0 +1,92 @@
+name: CI-ONLY - put ProxySQL capacity tiers in front of the standalone database
+# CI-ONLY (revert before merge). Points PacketFence at ProxySQL on
+# 100.64.0.1:6033 (the same endpoint the configurator sets for a remote
+# database) with a single backend, the local MariaDB on the management IP.
+# With tier mode forced in pf::services::manager::proxysql, every scenario
+# then runs through the SaaS tier hostgroups and caps.
+testcases:
+- name: mariadb_listens_on_management_ip
+  steps:
+  - type: exec
+    # skip-networking is only rendered when no management network exists;
+    # restart MariaDB if it still runs a config from before the configurator.
+    script: |
+      set -e
+      if ! ss -ltn | grep -q '{{.pfserver_mgmt_ip}}:3306'; then
+        {{.pfserver_pfcmd}} generatemariadbconfig
+        systemctl restart packetfence-mariadb
+        sleep 10
+      fi
+      ss -ltn | grep '{{.pfserver_mgmt_ip}}:3306'
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: point_pf_at_proxysql
+  steps:
+  - type: exec
+    script: |
+      perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e '
+        my ($file, @kv) = @ARGV;
+        my $c = Config::IniFiles->new(-file => $file, -allowempty => 1) or die "cannot read $file";
+        while (my ($k, $v) = splice(@kv, 0, 2)) {
+            my ($sect, $param) = split /\./, $k;
+            $c->AddSection($sect) unless $c->SectionExists($sect);
+            $c->setval($sect, $param, $v) or $c->newval($sect, $param, $v);
+        }
+        $c->RewriteConfig or die "cannot rewrite $file";
+      ' {{.pfserver_conf_dir}}/pf.conf \
+        database.host 100.64.0.1 database.port 6033 \
+        database_proxysql.status enabled \
+        database_proxysql.backends '{{.pfserver_mgmt_ip}}' \
+        database_proxysql.port 3306 \
+      && perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e '
+        my $c = Config::IniFiles->new(-file => $ARGV[0], -allowempty => 1) or die;
+        $c->AddSection("mysql") unless $c->SectionExists("mysql");
+        for my $kv (["host", "100.64.0.1"], ["port", "6033"]) {
+            $c->setval("mysql", @$kv) or $c->newval("mysql", @$kv);
+        }
+        $c->RewriteConfig or die;
+      ' {{.pfserver_conf_dir}}/pfconfig.conf \
+      && chown pf:pf {{.pfserver_conf_dir}}/pf.conf {{.pfserver_conf_dir}}/pfconfig.conf
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: start_proxysql_and_restart_pf
+  steps:
+  - type: exec
+    script: |
+      set -e
+      {{.pfserver_pfcmd}} configreload hard
+      {{.pfserver_pfcmd}} service pf updatesystemd
+      {{.pfserver_pfcmd}} service proxysql restart
+      sleep 10
+      systemctl restart packetfence-config
+      {{.pfserver_pfcmd}} configreload hard
+      {{.pfserver_pfcmd}} service pf restart
+    timeout: 900
+    assertions:
+      - result.code ShouldEqual 0
+
+- name: tiers_are_loaded
+  steps:
+  - type: exec
+    script: |
+      mysql -h 100.64.0.1 -P 6032 -uadministrator -padmin -N -e \
+        "SELECT group_concat(hostgroup_id) FROM (SELECT DISTINCT hostgroup_id FROM runtime_mysql_servers ORDER BY hostgroup_id);
+         SELECT rule_id, destination_hostgroup, timeout FROM runtime_mysql_query_rules ORDER BY rule_id;
+         SELECT username, max_connections, transaction_persistent FROM runtime_mysql_users;"
+    assertions:
+      - result.code ShouldEqual 0
+      - result.systemout ShouldContainSubstring "10,11,12,13"
+
+- name: pf_reaches_db_through_proxysql
+  steps:
+  - type: exec
+    script: |
+      set -e
+      INC="-I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5"
+      DBUSER=$(perl $INC -Mpf::config -e 'print $pf::config::Config{database}{user}')
+      DBPASS=$(perl $INC -Mpf::config -e 'print $pf::config::Config{database}{pass}')
+      mysql -h 100.64.0.1 -P 6033 -u"$DBUSER" -p"$DBPASS" -N -e 'SELECT COUNT(*) FROM pf.node'
+    assertions:
+      - result.code ShouldEqual 0

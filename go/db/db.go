@@ -93,7 +93,8 @@ func SetPoolLimits(db *sql.DB) {
 // slot against ProxySQL's per-user cap, so a handle is held to 25. On-prem the
 // database is the deployment's own and keeps the previous cap of 100.
 func poolMaxOpen() int {
-	if sharedutils.IsEnabled(os.Getenv("PF_SAAS")) {
+	// CI-ONLY (revert before merge): use the SaaS cap so CI runs the 25-connection pools.
+	if true || sharedutils.IsEnabled(os.Getenv("PF_SAAS")) {
 		return 25
 	}
 	return 100
