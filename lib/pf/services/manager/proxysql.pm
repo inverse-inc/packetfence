@@ -17,6 +17,7 @@ use warnings;
 use Moo;
 
 use List::MoreUtils qw(uniq);
+use List::Util qw(sum0);
 
 use pf::log;
 use pf::util;
@@ -169,6 +170,107 @@ sub tier_budget {
     my $usable = int($capacity->{db_max_connections} * (100 - $capacity->{reserve_pct}) / 100);
     my $budget = int($usable / $capacity->{tenants});
     return ($usable, $budget);
+}
+
+=head2 frontend_connection_bound
+
+How many frontend sessions the PF services can open into ProxySQL at once, all
+as the one C<pf> database user, from the client pools they are configured with.
+Returns the total and a hashref of each contribution, so the generated file can
+show where the number came from.
+
+Frontend sessions never reach the database (multiplexing lends a backend
+connection out only for the duration of a statement; the backend tier caps are
+what protect it), so the frontend caps are a leak guard. Sized below this bound
+they would reject the services' own legitimate peak -- a RADIUS burst first --
+so the per-user cap is set to this bound.
+
+Inputs (see L</frontend_bound_inputs>):
+
+=over
+
+=item * C<radiusd> -- the C<max_servers> of each running radiusd instance: every
+instance includes F<mods-enabled/>, so each has its own rlm_sql pool, and
+F<sql.conf> sizes that pool's C<max> from the thread pool's C<max_servers>.
+
+=item * C<apache> -- the C<MaxClients> of httpd.aaa, httpd.webservices and
+httpd.portal: prefork, one process per client, each holding a C<pf::db> handle
+and a C<pf::CHI::db> handle.
+
+=item * C<perl_workers> -- other long-lived Perl processes with the same two
+handles: pfperl-api processes and the pfqueue-backend children (one per
+pfqueue-go worker).
+
+=item * C<go_handles> -- Go C<*sql.DB> handles, each capped at C<go_max_open>.
+
+=item * C<other> -- single connections: pfconfig, pfcmd and cron runs.
+
+=back
+
+=cut
+
+sub frontend_connection_bound {
+    my ($in) = @_;
+    my $per_process = 2;    # pf::db + pf::CHI::db
+    my %part = (
+        radiusd      => sum0(@{ $in->{radiusd} }),
+        apache       => $per_process * sum0(@{ $in->{apache} }),
+        perl_workers => $per_process * sum0(@{ $in->{perl_workers} }),
+        go           => $in->{go_handles} * $in->{go_max_open},
+        other        => $in->{other},
+    );
+    return (sum0(values %part), \%part);
+}
+
+=head2 frontend_bound_inputs
+
+Gather the inputs of L</frontend_connection_bound> from the configuration.
+
+=cut
+
+# httpd.aaa and httpd.webservices hard-code MaxClients in their templates
+# (conf/httpd.conf.d/httpd.{aaa,webservices}.tt.example); the unit test checks
+# these against the templates. The Go handles are the sql.DB handles opened by
+# go/httpdispatcher, pfstats, pfdhcp, pfacct, go/cron, api-frontend's token
+# backend, and the pfpki, pfipset, api and pfdns plugins.
+our %FRONTEND_FIXED = (
+    httpd_aaa_max_clients         => 256,
+    httpd_webservices_max_clients => 256,
+    radiusd_cli_max_servers       => 128,    # conf/radiusd/radiusd_cli.conf.example
+    go_handles                    => 10,
+    go_max_open                   => 25,     # go/db poolMaxOpen under PF_SAAS
+    other                         => 16,
+);
+
+sub frontend_bound_inputs {
+    require pf::services::manager::radiusd;
+    require pf::services::manager::httpd;
+    require pf::config::pfqueue;
+
+    my $max_servers = $pf::config::Config{radius_configuration}{radiusd_max_servers};
+    # Same fallback as pf::services::manager::radiusd_child.
+    $max_servers = 128 unless defined($max_servers) && $max_servers =~ /^\d+$/ && $max_servers > 0;
+    my $radiusd = pf::services::manager::radiusd->new;
+    my @radiusd = map {
+        $_ eq 'cli' ? $FRONTEND_FIXED{radiusd_cli_max_servers} : $max_servers
+    } grep { $radiusd->_isManaged($_) } qw(auth acct eduroam cli load_balancer);
+
+    my $portal = pf::services::manager::httpd::calculate_max_clients(
+        pf::services::manager::httpd::get_total_system_memory());
+
+    my $api = $pf::config::Config{advanced}{pfperl_api_processes};
+    $api = 8 unless defined($api) && $api =~ /^\d+$/;
+    my $pfqueue = $pf::config::pfqueue::ConfigPfqueue{pfqueue}{workers} // 0;
+    $pfqueue += $_->{workers} // 0 for @{ $pf::config::pfqueue::ConfigPfqueue{queues} // [] };
+
+    return {
+        radiusd      => \@radiusd,
+        apache       => [ $FRONTEND_FIXED{httpd_aaa_max_clients}, $FRONTEND_FIXED{httpd_webservices_max_clients}, $portal ],
+        perl_workers => [ $api, $pfqueue ],
+        go_handles   => $FRONTEND_FIXED{go_handles},
+        go_max_open  => $FRONTEND_FIXED{go_max_open},
+        other        => $FRONTEND_FIXED{other},
+    };
 }
 
 =head2 tier_route_patterns
@@ -326,9 +428,7 @@ sub generateConfig {
         tenants            => 120,  # 100+ today, sized for growth
         reserve_pct        => 20,   # held back for admin, monitoring, replication, migrations
         min_per_tier       => 2,    # floor, so a tier can never be starved to nothing
-        frontend_ratio     => 8,    # frontend sessions allowed per backend connection
-        frontend_max       => 2048, # ceiling on that, matching ProxySQL's own default
-        user_pct           => 75,   # per-user share of the frontend cap
+        user_pct           => 75,   # per-user share of the global frontend cap
     );
 
     # Relative share of a tenant's budget. Large carries RADIUS authentication
@@ -459,16 +559,16 @@ EOT
 EOT
                 }
 
-                # Frontend sessions (PF services into ProxySQL) never reach the
-                # database: multiplexing lends a pooled backend connection out
-                # only for the duration of a statement, so they can safely
-                # outnumber the backend pool. This cap is a leak guard, not a
-                # database protection -- sized as a multiple of the backend
-                # budget, since a frontend count far above that ratio means
-                # something is holding sessions it should have returned.
-                my $frontend_max = $budget * $capacity{frontend_ratio};
-                $frontend_max = $capacity{frontend_max} if $frontend_max > $capacity{frontend_max};
+                # Frontend caps: a leak guard sized from what the services can
+                # open (see frontend_connection_bound), not from the backend
+                # budget -- below that, a RADIUS burst would be rejected.
+                my ($user_max, $frontend_part) = frontend_connection_bound(frontend_bound_inputs());
+                my $frontend_max = int(($user_max * 100 + $capacity{user_pct} - 1) / $capacity{user_pct});
                 $tags{'frontend_max_connections'} = $frontend_max;
+                $tags{mysql_servers} .= sprintf(
+                    "    # frontend caps: %s = %d for the %s user, %d in all\n",
+                    join(' + ', map { "$_ $frontend_part->{$_}" } sort keys %$frontend_part),
+                    $user_max, $DB_Config->{user}, $frontend_max);
 
                 # Connection hygiene for the shared Cloud SQL instance. These are
                 # applied here (not via the admin interface) because the container
@@ -485,14 +585,11 @@ EOT
     connection_max_age_ms=300000
     auto_increment_delay_multiplex=0
 EOT
-                # Per-user frontend cap, kept below the global one above so that it is
-                # the binding limit: a leak then fails as "max_connections exceeded"
-                # for this user rather than as a generic frontend rejection, and the
-                # spare headroom covers a second account (migration, admin) without
-                # reconfiguring. Unlike the backend caps -- where ProxySQL holds the
-                # query until a pooled connection frees -- exceeding this is an
-                # intentional reject: it is the noisy-neighbour throttle.
-                my $user_max = int($frontend_max * $capacity{user_pct} / 100);
+                # Per-user frontend cap: everything the services can open, so only
+                # a leak reaches it. The global cap above is that over user_pct,
+                # leaving room for a second account (migration, admin). Unlike the
+                # backend caps -- where ProxySQL holds the query until a pooled
+                # connection frees -- exceeding these is a reject.
                 $tags{'mysql_user_max_connections'} = ", max_connections = $user_max";
             }
         } else {

@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 68;
+use Test::More tests => 76;
 use Test::NoWarnings;
 
 use pf::services::manager::proxysql;
@@ -157,6 +157,34 @@ my @routes = (
     [ '/* pf:pfacct */ START TRANSACTION READ ONLY',                          'large',  'Go read-only BEGIN from pfacct' ],
 );
 is(tier_of($_->[0]), $_->[1], "route: $_->[2] -> $_->[1]") for @routes;
+
+# Frontend caps: sized from what the services can open, not from the backend budget.
+{
+    my %in = (
+        radiusd      => [ 128, 128 ],          # auth + acct
+        apache       => [ 256, 256, 256 ],     # httpd.aaa, webservices, portal
+        perl_workers => [ 8, 11 ],             # pfperl-api, pfqueue-backend children
+        go_handles   => 10,
+        go_max_open  => 25,
+        other        => 16,
+    );
+    my ($total, $part) = pf::services::manager::proxysql::frontend_connection_bound(\%in);
+    is($part->{radiusd}, 256, "frontend bound: rlm_sql pools of auth and acct");
+    is($part->{apache}, 1536, "frontend bound: two handles per Apache child");
+    is($part->{go}, 250, "frontend bound: Go handles at their open cap");
+    is($total, 256 + 1536 + 38 + 250 + 16, "frontend bound: total of every contribution");
+    cmp_ok($total, '>', 2 * 128, "frontend bound: above what FreeRADIUS alone can open");
+    my ($more) = pf::services::manager::proxysql::frontend_connection_bound({ %in, radiusd => [ 512, 512 ] });
+    is($more - $total, 768, "frontend bound: follows radiusd_max_servers");
+
+    # The Apache limits the bound assumes are the ones the templates set.
+    for my $t ([ 'httpd.aaa', 'httpd_aaa_max_clients' ], [ 'httpd.webservices', 'httpd_webservices_max_clients' ]) {
+        my ($name, $key) = @$t;
+        open(my $fh, '<', "/usr/local/pf/conf/httpd.conf.d/$name.tt.example") or die "$name: $!";
+        my ($max) = join('', <$fh>) =~ /^\s*MaxClients\s+(\d+)/m;
+        is($max, $pf::services::manager::proxysql::FRONTEND_FIXED{$key}, "frontend bound: $name MaxClients matches its template");
+    }
+}
 
 # The template guard: placeholder present and rules rendered for a single server.
 {
