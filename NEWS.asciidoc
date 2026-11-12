@@ -145,7 +145,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - Admin UI — MAC column not truncated, readable status chart colors, single condition kept when switching filter modes, server time for report date ranges, scrollable portal module palette, portal module delete and Save fixed (#9437, #9438, #9439, #9442, #9451, #9502)
   - i18n: admin strings extracted as looked up at runtime (en.po passes `msgfmt -c`) (#9547)
   - Connectors: saving an existing DNS server with a pfconnector port no longer fails with "Port should be unique" (#9584)
-  - MFA: a source action triggering an MFA that is not configured (for example deleted) rejects the RADIUS request or blocks the portal login with an error, instead of crashing the request (#9665)
+  - MFA: a source action triggering an MFA that is not configured (for example deleted) rejects the RADIUS request or blocks the portal login with an error (a skipable portal MFA step is skipped), instead of crashing the request (#9665)
 
 === Security Fixes
 

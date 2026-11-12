@@ -21,12 +21,13 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;
+use Test::More tests => 11;
 use Test::MockModule;
 
 #This test will running last
 use Test::NoWarnings;
 use pf::radius;
+use pf::constants;
 use pf::Authentication::constants;
 use pf::radius::constants;
 
@@ -45,11 +46,12 @@ $profile_factory->mock('instantiate', sub { test::profile->new });
 my $radius = pf::radius->new;
 
 sub args {
+    my ($post_mfa_validation) = @_;
     return {
         mac            => '00:11:22:33:44:55',
         user_name      => 'bob',
         username       => 'bob',
-        switch         => { _PostMfaValidation => 'enabled' },
+        switch         => { _PostMfaValidation => $post_mfa_validation // 'enabled' },
         radius_request => { 'User-Name' => 'bob' },
     };
 }
@@ -57,7 +59,9 @@ sub args {
 sub is_rejected {
     my ($return, $name) = @_;
     ok(ref($return) eq 'ARRAY' && $return->[0] == $RADIUS::RLM_MODULE_FAIL, "$name: the request is rejected");
-    like(ref($return) eq 'ARRAY' ? {@$return[1..$#$return]}->{'Reply-Message'} // '' : '', qr/no-such-mfa/, "$name: the reply names the MFA");
+    my $reply = ref($return) eq 'ARRAY' ? {@$return[1..$#$return]}->{'Reply-Message'} // '' : '';
+    like($reply, qr/multi-factor authentication is not available/i, "$name: the reply is generic");
+    unlike($reply, qr/no-such-mfa/, "$name: the reply does not leak the MFA name");
 }
 
 for my $action ($Actions::TRIGGER_RADIUS_MFA, $Actions::TRIGGER_PORTAL_MFA) {
@@ -65,6 +69,14 @@ for my $action ($Actions::TRIGGER_RADIUS_MFA, $Actions::TRIGGER_PORTAL_MFA) {
     my ($otp, $password, $extra) = (undef, 'secret', undef);
     my $return = eval { $radius->mfa_pre_auth(args(), {}, [], \$extra, \$otp, \$password) };
     is_rejected($return, "pre auth, $action");
+}
+
+{
+    # The portal MFA is only checked by RADIUS when the switch validates it
+    $matched = { source_id => 'test', values => { $Actions::TRIGGER_PORTAL_MFA => 'no-such-mfa' } };
+    my ($otp, $password, $extra) = (undef, 'secret', undef);
+    my $return = eval { $radius->mfa_pre_auth(args('disabled'), {}, [], \$extra, \$otp, \$password) };
+    is($return, $pf::constants::FALSE, "pre auth, portal MFA without post MFA validation: the request is not rejected");
 }
 
 {

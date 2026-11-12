@@ -1205,7 +1205,8 @@ sub _mfa_or_reject {
     return ($mfa, undef) if defined $mfa;
     my $source_id = $matched->{source_id} // 'unknown';
     $self->logger->error("The source $source_id triggers the MFA $mfa_id, which is not configured: rejecting the request");
-    return (undef, [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "MFA $mfa_id is not configured") ]);
+    # Do not leak the MFA name to the RADIUS client: the log has the details
+    return (undef, [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Multi-factor authentication is not available") ]);
 }
 
 sub mfa_post_auth {
@@ -1258,17 +1259,18 @@ sub mfa_pre_auth {
     my $matched = pf::authentication::match2([@$sources], $merged, $$extra, \$attributes);
     my $source_id = \@$sources;
     # Verify if the user succeed the MFA on the portal
+    # Only relevant when the switch validates the portal MFA
     my $value = $matched->{values}{$Actions::TRIGGER_PORTAL_MFA} if $matched;
-    if ($value) {
-        my ($mfa, $reject) = $self->_mfa_or_reject($value, $matched);
+    if ($value && isenabled($args->{switch}->{_PostMfaValidation})) {
+        my (undef, $reject) = $self->_mfa_or_reject($value, $matched);
         return $reject if $reject;
         my $cache = pf::mfa->cache;
-        if (isenabled($args->{switch}->{_PostMfaValidation}) && $cache->get($args->{'username'}."mfapreauth") && $cache->get($args->{'username'}."mfapostauth")) {
+        if ($cache->get($args->{'username'}."mfapreauth") && $cache->get($args->{'username'}."mfapostauth")) {
             $cache->remove($args->{'username'}."mfapostauth");
             $cache->remove($args->{'username'}."mfapreauth");
             return $self->returnRadiusVpn($args, $options, $sources, $source_id, $extra);
         }
-        if (isenabled($args->{switch}->{_PostMfaValidation}) && $cache->get($args->{'username'}."mfapreauth") && !$cache->get($args->{'username'}."mfapostauth")) {
+        if ($cache->get($args->{'username'}."mfapreauth") && !$cache->get($args->{'username'}."mfapostauth")) {
             return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "MFA portal verification failed") ];
         }
     }
