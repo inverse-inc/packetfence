@@ -138,8 +138,16 @@ sub patch_policy {
         return 0;
     }
 
-    # The chrooted_mschap call of the domain user branch of packetfence-mschap-authenticate
-    unless ($current =~ s/(^packetfence-mschap-authenticate\s*\{.*?^)([ \t]*)chrooted_mschap[ \t]*\n/$1$2if ( &outer.EAP-Type == TEAP ) {\n$2    chrooted_mschap_mppe\n$2} else {\n$2    chrooted_mschap\n$2}\n/sm) {
+    # The chrooted_mschap call of the domain user branch of packetfence-mschap-authenticate.
+    # Only patch inside that policy block (up to its closing brace in the first column),
+    # never a chrooted_mschap call of a later policy.
+    my $patched;
+    $current =~ s{(^packetfence-mschap-authenticate\s*\{.*?^\})}{
+        my $block = $1;
+        $patched = $block =~ s/^([ \t]*)chrooted_mschap[ \t]*\n/$1if ( &outer.EAP-Type == TEAP ) {\n$1    chrooted_mschap_mppe\n$1} else {\n$1    chrooted_mschap\n$1}\n/m;
+        $block;
+    }sme;
+    unless ($patched) {
         warn "Could not find chrooted_mschap in packetfence-mschap-authenticate of $target; aborting policy patch.\n";
         return 0;
     }
