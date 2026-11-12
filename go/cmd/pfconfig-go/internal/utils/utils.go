@@ -1,7 +1,10 @@
+// Package utils contains various helpers
 package utils
 
 import (
+	"os"
 	"reflect"
+	"time"
 	"unsafe"
 )
 
@@ -45,4 +48,13 @@ func NewValueFromType[T any]() T {
 		return reflect.New(elemType).Interface().(T)
 	}
 	return x
+}
+
+// LastFileUpdate returns the last time the file was updated on disk
+func LastFileUpdate(path string) (time.Time, error) {
+	fileInfo, err := os.Stat(path)
+	if err != nil {
+		return time.Now().UTC(), err
+	}
+	return fileInfo.ModTime().UTC(), nil
 }
