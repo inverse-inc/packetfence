@@ -16,6 +16,7 @@ pfcmd service <service> [start|stop|restart|status|generateconfig|updatesystemd]
 Services managed by PacketFence:
 
   api-frontend           | Golang daemon providing API
+  chatbot                | NACBot assistant (chatbot container)
   fingerbank-collector   | Fingerprinting data collection daemon
   galera-autofix         | Automated recovery of Galera clusters
   haproxy-admin          | haproxy admin daemon

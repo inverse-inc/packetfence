@@ -17,7 +17,7 @@
 #
 set -euo pipefail
 
-DOCS_DIR="${DOCS_DIR:-/usr/local/pf/containers/pfchatbot/docs}"
+DOCS_DIR="${DOCS_DIR:-/usr/local/pf/containers/chatbot/docs}"
 PF_RELEASE="${PF_RELEASE:-/usr/local/pf/conf/pf-release}"
 BASE_HTML="https://packetfence.org/doc"
 BASE_PDF="https://packetfence.org/downloads/PacketFence/doc"
@@ -117,4 +117,4 @@ ls -1 "$DOCS_DIR" | sed 's/^/  /'
 echo
 log "the RAG indexes everything in the docs dir by default \u2014 no .env change needed."
 log "(it is mounted into the container at /docs.) rebuild the corpus with:"
-log "    systemctl restart pf-chatbot"
+log "    /usr/local/pf/bin/pfcmd service chatbot restart"

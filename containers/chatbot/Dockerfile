@@ -16,7 +16,7 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 # Dependencies first (better layer caching)
-COPY containers/pfchatbot/requirements.txt .
+COPY containers/chatbot/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # App
@@ -28,7 +28,7 @@ COPY lib/pfchatbot/tools.py .
 COPY lib/pfchatbot/providers/ ./providers/
 COPY lib/pfchatbot/rag/ ./rag/
 COPY lib/pfchatbot/pf-testtool-helper.py .
-COPY containers/pfchatbot/supervisor.sh .
+COPY containers/chatbot/supervisor.sh .
 
 # Two identities, because the helper is the only thing allowed to execute the
 # RADIUS tools. The app runs as pfbot and is NOT in the pfhelper group, so even

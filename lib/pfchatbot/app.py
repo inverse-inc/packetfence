@@ -1042,7 +1042,7 @@ def invoke(oid: str, path_params=None, query_params=None, body=None,
 
 # ── neutral tool schemas + dispatch ──────────────────────────────────────────
 # ── log search (read-only, MAC-scoped) ───────────────────────────────────────
-# Logs are mounted read-only into the container at /pflogs (see pf-chatbot.service).
+# Logs are mounted read-only into the container at /pflogs (see sbin/chatbot-docker-wrapper).
 # Only these fixed files are searchable; the tool never takes an arbitrary path.
 PF_LOG_DIR = os.environ.get("PF_LOG_DIR", "/pflogs")
 _LOG_FILES = {

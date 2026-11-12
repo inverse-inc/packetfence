@@ -481,6 +481,11 @@ pfsso=enabled
 # Should ldapexplorer be managed by PacketFence?
 pfldapexplorer=enabled
 #
+# services.chatbot
+#
+# Should NACBot (chatbot) be managed by PacketFence?
+chatbot=disabled
+#
 # services.radiusd
 #
 # Should radiusd be managed by PacketFence?

@@ -15,7 +15,7 @@ Tested on PacketFence 15.1 and 15.2 (containerized installs).
              CHATBOT_WRITE, the rest CHATBOT_READ (go/api-frontend/aaa)
              caddy handle_path strips /api/v1/pfchatbot, proxies to
              {$PF_SERVICES_URL_PFCHATBOT} (default containers-gateway.internal:8800)
-          -> pf-chatbot container (FastAPI, host networking, binds internal IP only)
+          -> chatbot container (FastAPI, host networking, binds internal IP only)
 
 Two enforcement layers: the Go path-gate (by role, by path prefix) and the
 app's may_write() (reads X-PacketFence-Admin-Roles, which carries ROLE NAMES).
@@ -38,18 +38,21 @@ app's may_write() (reads X-PacketFence-Admin-Roles, which carries ROLE NAMES).
     html/pfappserver/root/src/views/
       Assistant/                          # the UI, part of the admin SPA (/#/assistant)
       Configuration/pfchatbot/            # settings page (Integration > NACBot)
-    containers/pfchatbot/
+    containers/chatbot/
       Dockerfile  requirements.txt        # python:3.12-slim + test tools, dual users
       supervisor.sh                       #   runs helper (pfhelper) + app (pfbot); safe
                                           #   auto-bind via containers-gateway.internal
       rebuild.sh                          #   verify -> build -> verify image -> restart
-      packetfence-chatbot.service         #   systemd unit (docker run, mounts, caps)
       README.md                           #   this file
     addons/pfchatbot/
       MODIFICATIONS.md                    #   what PF upgrades clobber + re-apply steps
 
     # PR-9319 integration (edits to existing PF files, included in this branch):
-    conf/pf.conf.defaults                 # [services_url] pfchatbot=...gateway:8800,
+    conf/systemd/packetfence-chatbot.service  # systemd unit, runs sbin/chatbot-docker-wrapper
+    sbin/chatbot-docker-wrapper           # docker run args (host network, caps, mounts)
+    lib/pf/services/manager/chatbot.pm    # pfcmd service chatbot start|stop|restart|status
+    conf/pf.conf.defaults                 # [services] chatbot=disabled (enable: Configuration > Services),
+                                          # [services_url] pfchatbot=...gateway:8800,
                                           #   [pfchatbot] settings (+ documentation.conf)
     conf/caddy-services/api.conf.example  # handle_path /api/v1/pfchatbot/* block
     conf/adminroles.conf.example          # [chatbot-user] / [chatbot-admin]
@@ -58,7 +61,7 @@ app's may_write() (reads X-PacketFence-Admin-Roles, which carries ROLE NAMES).
     lib/pf/services/manager/roles/env_golang_service.pm  # services_url -> Go env
 
 Deliberately NOT in the repo (created at install): conf/pfchatbot*.env (secrets),
-containers/pfchatbot/docs/ (generated), /usr/local/pf/.dockerignore, and the
+containers/chatbot/docs/ (generated), /usr/local/pf/.dockerignore, and the
 live api.conf / adminroles.conf mirrors.
 
 ## Install
@@ -117,7 +120,7 @@ in the env (see pfchatbot.env.example).
 ### 4. Deploy the service
     PF=/usr/local/pf
     cp -a <clone>/lib/pfchatbot        $PF/lib/
-    cp -a <clone>/containers/pfchatbot $PF/containers/
+    cp -a <clone>/containers/chatbot $PF/containers/
     cp -a <clone>/addons/pfchatbot     $PF/addons/
 
 Build-context allowlist (REQUIRED, not committed upstream — a root .dockerignore
@@ -126,8 +129,8 @@ would affect every other build in the repo):
     cat > $PF/.dockerignore <<'DI'
     *
     !lib/pfchatbot
-    !containers/pfchatbot
-    containers/pfchatbot/docs
+    !containers/chatbot
+    containers/chatbot/docs
     DI
 
 ### 5. Settings and environment
@@ -152,11 +155,14 @@ HARD REQUIREMENTS learned the hard way:
 - docker --env-file has NO inline-comment syntax: comments on their own lines.
 
 ### 6. Docs corpus + first boot
-    DOCS_DIR=$PF/containers/pfchatbot/docs bash $PF/lib/pfchatbot/fetch_docs.sh
-    cd $PF && bash containers/pfchatbot/rebuild.sh   # installs the systemd unit on first run
+    DOCS_DIR=$PF/containers/chatbot/docs bash $PF/lib/pfchatbot/fetch_docs.sh
+    # enable it first: Configuration > System Configuration > Services > chatbot
+    cd $PF && bash containers/chatbot/rebuild.sh   # builds packetfence/chatbot, make systemd,
+                                                   # pfcmd service chatbot restart
 
 First boot downloads the embedding model and builds the RAG index (minutes);
-journalctl -u packetfence-chatbot -f until "startup complete". Restarts load
+journalctl -u packetfence-chatbot -f until "startup complete"
+(pfcmd service chatbot status shows the service). Restarts load
 from cache in ~1s.
 
 ### 7. Admin UI

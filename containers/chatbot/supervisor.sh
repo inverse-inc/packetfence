@@ -82,7 +82,7 @@ elif [ "${cur%% *}" = "root:root" ] || [ "${cur%%:*}" = "root" ]; then
   chown pfhelper:pfbot "$HELPER_DIR" || {
     echo "[pf-bot] FATAL: cannot chown $HELPER_DIR. The container needs CAP_CHOWN" >&2
     echo "[pf-bot]        (and CAP_SETUID/CAP_SETGID for setpriv) -- check the" >&2
-    echo "[pf-bot]        --cap-add flags in pf-chatbot.service." >&2
+    echo "[pf-bot]        --cap-add flags in sbin/chatbot-docker-wrapper." >&2
     exit 1; }
 else
   echo "[pf-bot] FATAL: $HELPER_DIR is $cur; expected pfhelper:pfbot 770 or root-owned." >&2

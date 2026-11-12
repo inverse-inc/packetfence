@@ -26,5 +26,5 @@ Then: pfcmd configreload hard; restart api-frontend + haproxy-admin.
 - pf.conf [pfchatbot] (provider, key, model, PF API account): kept across
   upgrades like the rest of pf.conf
 - MariaDB user 'pfchatbot'@'localhost'
-- pf-chatbot image (built locally by containers/pfchatbot/rebuild.sh);
+- packetfence/chatbot image (built locally by containers/chatbot/rebuild.sh);
   pre-change backup convention: pfchatbot-premigration:backup

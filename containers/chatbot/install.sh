@@ -3,11 +3,13 @@
 # already has the code (lib/containers/addons pfchatbot dirs) and a
 # container image. Idempotent: safe to re-run, including after PF upgrades.
 #
-#   bash /usr/local/pf/containers/pfchatbot/install.sh [--image TAG]
+#   bash /usr/local/pf/containers/chatbot/install.sh [--image TAG]
 set -u
 
 PF=/usr/local/pf
-IMAGE="pf-chatbot"
+# the image run() in containers/systemd-service starts for the chatbot service
+TAG_OR_BRANCH_NAME=$(sed -n 's/^TAG_OR_BRANCH_NAME=//p' "$PF/conf/build_id" 2>/dev/null)
+IMAGE="packetfence/chatbot:${TAG_OR_BRANCH_NAME:-devel}"
 while [ $# -gt 0 ]; do case "$1" in
   --image) IMAGE="$2"; shift 2 ;;
   *) echo "unknown arg: $1" >&2; exit 2 ;;
@@ -23,7 +25,7 @@ step "1. Preflight"
 [ -f "$PF/conf/pf-release" ] || die "no PacketFence at $PF"
 ok "$(cat $PF/conf/pf-release)"
 command -v docker >/dev/null || die "docker not found"
-for d in lib/pfchatbot containers/pfchatbot addons/pfchatbot; do
+for d in lib/pfchatbot containers/chatbot addons/pfchatbot; do
   [ -d "$PF/$d" ] || die "$PF/$d missing — deploy the pfchatbot dirs first"
 done
 ok "pfchatbot directories present"
@@ -53,12 +55,12 @@ else
   if [ -f "$PF/.dockerignore" ] || cat > "$PF/.dockerignore" <<'DI'
 *
 !lib/pfchatbot
-!containers/pfchatbot
-containers/pfchatbot/docs
+!containers/chatbot
+containers/chatbot/docs
 DI
   then ok ".dockerignore in place"; fi
   step "1b. Image $IMAGE absent — building"
-  docker build -t "$IMAGE" -f "$PF/containers/pfchatbot/Dockerfile" "$PF" \
+  docker build -t "$IMAGE" -f "$PF/containers/chatbot/Dockerfile" "$PF" \
     || die "image build failed"
 fi
 
@@ -81,7 +83,7 @@ fi
 
 step "3. Environment files"
 EX="$PF/lib/pfchatbot/pfchatbot.env.example"
-[ -f "$EX" ] || EX="$PF/containers/pfchatbot/pfchatbot.env.example"
+[ -f "$EX" ] || EX="$PF/containers/chatbot/pfchatbot.env.example"
 if [ ! -f "$PF/conf/pfchatbot.env" ]; then
   cp "$EX" "$PF/conf/pfchatbot.env"
   warn "created conf/pfchatbot.env from the example — EDIT IT: PF_ADMIN_URL"
@@ -90,7 +92,7 @@ else
 fi
 if [ ! -f "$PF/conf/pfchatbot-testtool.env" ]; then
   EXT="$PF/lib/pfchatbot/pfchatbot-testtool.env.example"
-  [ -f "$EXT" ] || EXT="$PF/containers/pfchatbot/pfchatbot-testtool.env.example"
+  [ -f "$EXT" ] || EXT="$PF/containers/chatbot/pfchatbot-testtool.env.example"
   cp "$EXT" "$PF/conf/pfchatbot-testtool.env"
   ok "created conf/pfchatbot-testtool.env (defaults are portable)"
 else
@@ -103,19 +105,35 @@ if grep -qE 'REPLACE-ME|sk-REPLACE' "$PF/conf/pfchatbot.env"; then
 fi
 
 step "4. Documentation corpus for RAG"
-if ls "$PF/containers/pfchatbot/docs/"*.txt >/dev/null 2>&1; then
+if ls "$PF/containers/chatbot/docs/"*.txt >/dev/null 2>&1; then
   ok "docs already fetched"
 else
-  DOCS_DIR="$PF/containers/pfchatbot/docs" bash "$PF/lib/pfchatbot/fetch_docs.sh" \
+  DOCS_DIR="$PF/containers/chatbot/docs" bash "$PF/lib/pfchatbot/fetch_docs.sh" \
     || warn "doc fetch failed (offline?) — the bot still works; RAG indexes the API spec only"
 fi
 
 step "5. Service"
 UNIT=packetfence-chatbot
-install -m 0644 "$PF/containers/pfchatbot/$UNIT.service" "/etc/systemd/system/$UNIT.service"
-systemctl daemon-reload
-systemctl enable "$UNIT" >/dev/null 2>&1 || true
-systemctl restart "$UNIT"
+# PacketFence stops and disables services it does not manage, so the service
+# must be turned on first: Configuration > System Configuration > Services >
+# chatbot, or [services] chatbot=enabled in pf.conf.
+sed -n '/^\[services\]/,/^\[/p' "$PF/conf/pf.conf" 2>/dev/null | grep -qE '^chatbot *= *enabled' \
+  || die "services.chatbot is not enabled: turn on chatbot in Configuration > System Configuration > Services, then re-run"
+ok "services.chatbot enabled"
+# Retire pre-wrapper installs: a unit copied into /etc/systemd/system shadows
+# the one `make systemd` installs, and the old container was named pf-chatbot.
+for u in "$UNIT" pf-chatbot; do
+  if [ -f "/etc/systemd/system/$u.service" ]; then
+    systemctl disable --now "$u" >/dev/null 2>&1 || true
+    rm -f "/etc/systemd/system/$u.service"
+    ok "removed old /etc/systemd/system/$u.service"
+  fi
+done
+docker rm -f pf-chatbot >/dev/null 2>&1 || true
+make -C "$PF" systemd >/dev/null || die "make systemd failed"
+ok "units installed (make systemd)"
+"$PF/bin/pfcmd" service chatbot updatesystemd
+"$PF/bin/pfcmd" service chatbot restart
 sleep 8
 systemctl is-active --quiet "$UNIT" || { journalctl -u "$UNIT" -n 25 --no-pager; die "service did not start"; }
 ok "service active"

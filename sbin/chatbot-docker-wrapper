@@ -1,0 +1,45 @@
+#!/bin/bash
+
+source /usr/local/pf/containers/systemd-service
+
+name=chatbot
+
+# No base_args: this container acts on LLM output, so it gets only what it
+# uses (no sudoers, no /var/lib/mysql, no fingerbank, no var/run).
+#
+# --network host is required for packet capture: a bridge-networked container
+# sees only its veth pair, never the real interfaces. With host networking
+# there is no -p mapping, so BIND_HOST is the only thing controlling
+# reachability. "auto" resolves to PacketFence's internal host address
+# (100.64.0.1) when present, else 127.0.0.1, never 0.0.0.0.
+#
+# Capabilities are pared to the minimum:
+#   NET_RAW, NET_ADMIN  tcpdump: raw sockets and promiscuous mode
+#   CHOWN               supervisor.sh giving the socket dir to pfhelper
+#   SETUID, SETGID      setpriv dropping from root to pfbot / pfhelper
+# no-new-privileges is deliberately NOT set: it makes execve ignore file
+# capabilities, which is how tcpdump obtains NET_RAW as a non-root user.
+args="--rm --network host --add-host=containers-gateway.internal:host-gateway"
+args="$args --cap-drop ALL --cap-add NET_RAW --cap-add NET_ADMIN --cap-add CHOWN --cap-add SETUID --cap-add SETGID"
+args="$args -e BIND_PORT=8800"
+args="$args -eTZ=`timedatectl | grep Time | awk '{print $3}'`"
+for env in /usr/local/pf/conf/pfchatbot.env /usr/local/pf/conf/pfchatbot-testtool.env; do
+  if [ -f "$env" ]; then
+    args="$args --env-file $env"
+  fi
+done
+args="$args -v /usr/local/pf/containers/chatbot/docs:/docs:ro"
+args="$args -v /usr/local/pf/docs:/pfdocs:ro"
+args="$args -v /usr/local/pf/conf/pf-release:/pf-release:ro"
+args="$args -v /usr/local/pf/conf:/usr/local/pf/conf:ro"
+args="$args -v pf-chatbot-cache:/home/pfbot/.cache"
+args="$args -v pf-chatbot-files:/var/lib/pf-chatbot/files"
+args="$args -v /usr/local/pf/docs/api/spec/openapi.json:/spec/openapi.json:ro"
+args="$args -v /usr/local/pf/logs:/pflogs:ro"
+args="$args -v /var/lib/mysql/mysql.sock:/var/lib/mysql/mysql.sock"
+args="$args --group-add 2025"
+args="$args --memory 2g --memory-swap 2g"
+
+cd /usr/local/pf/
+
+run $name "$args"
