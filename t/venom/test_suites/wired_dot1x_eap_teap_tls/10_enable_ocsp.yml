@@ -26,15 +26,15 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 201
 
-- name: update_tls_teap_profile
+- name: update_tls_common_profile
   steps:
   - type: http
     method: PATCH
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/radiusd/tls_profile/tls-eap-teap'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/radiusd/tls_profile/tls-common'
     ignore_verify_ssl: true
     body: >-
       {
-        "id": "tls-eap-teap",
+        "id": "tls-common",
         "ocsp": "{{.wired_dot1x_eap_teap_tls.ocsp.id}}"
       }
     headers:

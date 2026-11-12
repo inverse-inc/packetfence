@@ -33,11 +33,11 @@ testcases:
   steps:
   - type: http
     method: PATCH
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/radiusd/tls_profile/tls-eap-teap'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/radiusd/tls_profile/tls-common'
     ignore_verify_ssl: true
     body: >-
       {
-        "id": "tls-eap-teap",
+        "id": "tls-common",
         "ocsp": "default"
       }
     headers:
