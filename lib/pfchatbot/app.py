@@ -1005,6 +1005,24 @@ def invoke(oid: str, path_params=None, query_params=None, body=None,
         data = r.text[:4000]
     result_body = {"status_code": r.status_code, "method": o["method"].upper(),
                    "path": path, "curl": curl, "body": data}
+    # Resolve category_id to role names for node responses
+    if r.status_code == 200 and isinstance(data, dict) and "/node" in path:
+        _items = data.get("items") or ([data.get("item")] if data.get("item") else [])
+        _needs_resolve = any(
+            isinstance(it, dict) and "category_id" in it and "category" not in it
+            for it in _items if isinstance(it, dict)
+        )
+        if _needs_resolve:
+            try:
+                _roles = _fetch_roles()
+                _id_to_name = {str(r.get("category_id")): r.get("name", "?")
+                               for r in _roles if isinstance(r, dict) and "category_id" in r}
+                for it in _items:
+                    if isinstance(it, dict) and "category_id" in it:
+                        cid = str(it["category_id"])
+                        it["category"] = _id_to_name.get(cid, cid)
+            except Exception:
+                pass
     # Format 422 validation errors so the model can fix and retry immediately
     if r.status_code == 422 and isinstance(data, dict):
         errs = data.get("errors") or data.get("error") or []

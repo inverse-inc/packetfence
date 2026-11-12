@@ -136,7 +136,7 @@ export default s => {
   s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
   s = s.replace(/(?<!["=])(https?:\/\/[^\s<)]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>')
   // GFM pipe tables — rendered before the line loop so cells get inline markup
-  s = s.replace(/((?:^|\n)[ \t]*\|[^\n]*\|[ \t]*\n)([ \t]*\|[ \t]*[-:| \t]+\|[ \t]*\n)((?:[ \t]*\|[^\n]*\|[ \t]*\n)*)/g,
+  s = s.replace(/((?:^|\n)[ \t]*\|[^\n]*\|[ \t]*\n)([ \t]*\|[ \t]*[-:| \t]+\|[ \t]*\n)((?:[ \t]*\|[^\n]*\|[ \t]*\n)*(?:[ \t]*\|[^\n]*\|[ \t]*)?)/g,
     (match, headerLine, _sep, bodyBlock) => {
       const splitCells = row => row.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map(c => c.trim())
       const headers = splitCells(headerLine)
@@ -145,7 +145,12 @@ export default s => {
       t += headers.map(h => '<th>' + h + '</th>').join('')
       t += '</tr></thead><tbody>'
       for (const cells of bodyRows)
-        t += '<tr>' + cells.map(c => '<td>' + c + '</td>').join('') + '</tr>'
+        t += '<tr>' + cells.map(c => {
+          // Wrap bare MAC addresses in <code class="mac"> for click-to-copy
+          const macRe = /(?:^|(?<=\s))([0-9A-Fa-f]{2}(?:[:-][0-9A-Fa-f]{2}){5}|[0-9A-Fa-f]{4}(?:\.[0-9A-Fa-f]{4}){2}|[0-9A-Fa-f]{12})(?=\s|$)/g
+          c = c.replace(macRe, '<code class="mac" title="click to copy">$1</code>')
+          return '<td>' + c + '</td>'
+        }).join('') + '</tr>'
       t += '</tbody></table>\n'
       return t
     })
