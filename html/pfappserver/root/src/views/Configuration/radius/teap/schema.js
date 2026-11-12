@@ -34,7 +34,7 @@ export default (props) => {
     identity_types: yup.string().nullable().required(i18n.t('Identity Types required.')).label(i18n.t('Identity Types')),
     tls: yup.string().nullable().required(i18n.t('TLS Profile required.')).label(i18n.t('TLS Profile')),
     default_eap_type: yup.string().nullable().required(i18n.t('Default EAP Type required.')).label(i18n.t('Default EAP Type')),
-    user_eap_type: yup.string().nullable().required(i18n.t('User EAP Type required.')).label(i18n.t('User EAP Type')),
-    machine_eap_type: yup.string().nullable().required(i18n.t('Machine EAP Type required.')).label(i18n.t('Machine EAP Type'))
+    user_eap_type: yup.string().nullable().label(i18n.t('User EAP Type')),
+    machine_eap_type: yup.string().nullable().label(i18n.t('Machine EAP Type'))
   })
 }

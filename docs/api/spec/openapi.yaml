@@ -17636,8 +17636,6 @@ components:
       - identity_types
       - authority_identity
       - default_eap_type
-      - user_eap_type
-      - machine_eap_type
       type: object
     ConfigRadiusdTeapProfileMeta:
       properties:

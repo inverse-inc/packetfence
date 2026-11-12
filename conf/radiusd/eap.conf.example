@@ -895,8 +895,12 @@ eap [% key -%] {
 		#  Supported authentication methods inside of TEAP are
 		#  EAP-TLS, EAP-MSCHAPv2, and PAP.
 
+[% IF eap.$key.teap_config.user_eap_type %]
 		user_eap_type = [% eap.$key.teap_config.user_eap_type %]
+[% END %]
+[% IF eap.$key.teap_config.machine_eap_type %]
 		machine_eap_type = [% eap.$key.teap_config.machine_eap_type %]
+[% END %]
 
 		#  Authority ID of the server
 		#

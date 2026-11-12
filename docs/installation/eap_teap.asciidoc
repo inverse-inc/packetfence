@@ -88,10 +88,11 @@ Config TEAP Profiles
 *Identity Types* is a setting that tells the RADIUS server which identities should be authenticated. Supported values are "machine", "machine,user", "user", "user,machine".
 If you want to authenticate both machine identity and user identity, select "machine,user" or "user,machine".
 
-*User EAP Type* and *Machine EAP Type* set the inner method used to authenticate the user identity and the machine
-identity. The RADIUS server requires that method: a client that asks for another one inside the tunnel is rejected,
-so they must match the inner methods configured on your clients. *Default EAP Type* is only used for an identity
-type that has no EAP type of its own. The shipped "Default" profile uses EAP-TLS for user and machine identities.
+*Default EAP Type* sets the inner method used to authenticate the user and machine identities. *User EAP Type* and
+*Machine EAP Type* are optional and override it for the user identity or the machine identity, for instance EAP-TLS
+for the machine and EAP-MSCHAPv2 for the user. The RADIUS server requires that method: a client that asks for
+another one inside the tunnel is rejected, so they must match the inner methods configured on your clients. The
+shipped "Default" profile uses EAP-TLS for both identities.
 
 *Authority Identity* identifies your RADIUS server to TEAP supplicants (per RFC 7170). The shipped default
 `packetfence.local` MUST be changed for any production deployment, and MUST be identical across every node
