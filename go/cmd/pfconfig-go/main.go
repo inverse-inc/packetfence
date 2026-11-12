@@ -13,13 +13,16 @@ import (
 	"syscall"
 
 	"github.com/Sereal/Sereal/Go/sereal"
-	"github.com/inverse-inc/packetfence/go/cmd/pfconfig-go/internal/namespace"
+	"github.com/inverse-inc/packetfence/go/cmd/pfconfig-go/internal/cache"
+	"github.com/inverse-inc/packetfence/go/cmd/pfconfig-go/internal/loader"
+	"github.com/inverse-inc/packetfence/go/cmd/pfconfig-go/internal/manager"
 	"gopkg.in/ini.v1"
 )
 
 const (
 	goPfconfigSocketPath   = "/usr/local/pf/var/run/pfconfig-go.sock"
 	perlPfconfigSocketPath = "/usr/local/pf/var/run/pfconfig.sock"
+	confFolder             = "/usr/local/pf/conf"
 )
 
 func main() {
@@ -33,6 +36,15 @@ func main() {
 		syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGABRT, syscall.SIGINT)
 
 	{
+		logger.InfoContext(ctx, "Preloading all configuration files...")
+		cache := cache.NewShardedCache[*loader.Conf](64, 128)
+		defer cache.Close()
+		manager := manager.NewManager(confFolder, cache)
+		if err := manager.LoadConfigs(ctx, logger); err != nil {
+			logger.ErrorContext(ctx, err.Error())
+			os.Exit(1)
+		}
+		logger.InfoContext(ctx, ".. done!")
 		logger.InfoContext(ctx, "Starting server on UNIX socket...")
 		_ = os.Remove(goPfconfigSocketPath)
 		l, err := net.Listen("unix", goPfconfigSocketPath)
@@ -47,13 +59,13 @@ func main() {
 			l.Close() //nolint:errcheck
 		}()
 		logger.InfoContext(ctx, "... now listenning on socket "+goPfconfigSocketPath)
-		_ = runServer(ctx, logger, l)
+		_ = runServer(ctx, logger, l, manager)
 	}
 
 	logger.InfoContext(ctx, "Server stopped!")
 }
 
-func runServer(ctx context.Context, logger *slog.Logger, l net.Listener) error {
+func runServer(ctx context.Context, logger *slog.Logger, l net.Listener, m *manager.Manager) error {
 	var wg sync.WaitGroup
 	defer wg.Wait()
 	for {
@@ -65,7 +77,7 @@ func runServer(ctx context.Context, logger *slog.Logger, l net.Listener) error {
 		logger.InfoContext(ctx, "connection", "addr", reqConn.RemoteAddr())
 		wg.Go(func() {
 			defer reqConn.Close() //nolint:errcheck
-			if err := manageRequest(ctx, logger, reqConn); err != nil {
+			if err := manageRequest(ctx, logger, reqConn, m); err != nil {
 				logger.ErrorContext(ctx, err.Error())
 				return
 			}
@@ -73,7 +85,7 @@ func runServer(ctx context.Context, logger *slog.Logger, l net.Listener) error {
 	}
 }
 
-func manageRequest(ctx context.Context, logger *slog.Logger, reqConn net.Conn) error {
+func manageRequest(ctx context.Context, logger *slog.Logger, reqConn net.Conn, m *manager.Manager) error {
 	// read the request
 	const bufSize = 1024
 	data := make([]byte, 0, bufSize)
@@ -92,20 +104,22 @@ func manageRequest(ctx context.Context, logger *slog.Logger, reqConn net.Conn) e
 			break
 		}
 	}
-	var request namespace.Request
+	var request manager.Request
 	err := json.Unmarshal(data, &request)
 	if err != nil {
 		logger.ErrorContext(ctx, err.Error())
 		return err
 	}
 	// Treat the request in the new pfconfig
-	err = namespace.Manage(ctx, logger, reqConn, request)
-	if errors.Is(err, errors.ErrUnsupported) {
-		// Proxy the request to pfconfig Perl
-		return proxyRequest(ctx, logger, reqConn, data)
-	} else {
+	_, err = m.Process(ctx, logger, request)
+	if err != nil {
+		if errors.Is(err, errors.ErrUnsupported) {
+			// Proxy the request to pfconfig Perl
+			return proxyRequest(ctx, logger, reqConn, data)
+		}
 		return err
 	}
+	return nil
 }
 
 func proxyRequest(ctx context.Context, logger *slog.Logger, reqConn net.Conn, data []byte) error {
@@ -137,3 +151,13 @@ func test() {
 	_ = sereal.NewEncoderV3()
 	_ = ini.DefaultSection
 }
+
+/*
+	var header [4]byte
+	binary.LittleEndian.PutUint32(header[:], uint32(len(output)))
+	n, err := c.Write(header[:])
+	if n != len(header) || err != nil {
+		logger.InfoContext(ctx, "write header 1", "err", err.Error())
+		return
+	}
+*/
