@@ -1,5 +1,5 @@
 <template>
-  <b-row class="the-assistant">
+  <b-row :class="['the-assistant', { 'the-assistant--dark': darkMode }]">
     <b-col cols="12" md="3" xl="2" class="mb-3">
       <the-threads />
     </b-col>
@@ -39,6 +39,10 @@
               <icon name="cog" />
             </b-button>
           </b-button-group>
+          <b-button size="sm" variant="outline-secondary" @click="toggleDark"
+            v-b-tooltip.hover.bottom.d300 :title="darkMode ? $t('Switch to light theme') : $t('Switch to dark theme')">
+            <icon :name="darkMode ? 'sun' : 'moon'" />
+          </b-button>
           <!-- the header slider (AppAssistant) adds its close/fullscreen controls here -->
           <slot name="header-actions" />
         </b-card-header>
@@ -155,6 +159,13 @@ const setup = (props, context) => {
         openTestTools({ tool: 'tcpdump', fields: prepare_capture })
     })
 
+  // Dark mode — persisted in localStorage
+  const darkMode = ref(localStorage.getItem('nacbot-dark') === '1')
+  const toggleDark = () => {
+    darkMode.value = !darkMode.value
+    localStorage.setItem('nacbot-dark', darkMode.value ? '1' : '0')
+  }
+
   const showLogs = ref(false)
   const showUsage = ref(false)
   const showTestTools = ref(false)
@@ -189,6 +200,8 @@ const setup = (props, context) => {
     sidePane,
     toggleSidePane,
     send,
+    darkMode,
+    toggleDark,
     showLogs,
     showUsage,
     showTestTools,
@@ -215,5 +228,83 @@ export default {
     flex: 1;
     overflow-y: auto;
   }
+}
+
+/* ── Dark theme ─────────────────────────────────────────────────────────── */
+.the-assistant--dark {
+  .card, .the-assistant-card {
+    background: #1a1b1e;
+    border-color: #3a3b40;
+    .card-header, .card-footer { background: #141517; border-color: #3a3b40; }
+  }
+  .the-assistant-log { background: #1a1b1e; }
+
+  // text
+  p, li, h3, h4, h5, h6, small, .text-muted { color: #c9cdd4 !important; }
+  strong { color: #e2e5ea; }
+  h4.mb-0 { color: #ffffff; }
+
+  // user bubble
+  .the-entry-user { background: #2d2f35 !important; border-color: #3a3b40 !important; color: #e2e5ea !important; }
+
+  // bot reply border
+  .the-entry-bot { border-left-color: #4a4d55; }
+
+  // trace
+  .the-entry-trace { border-left-color: #4a90d9; .text-muted, .text-black-50 { color: #7a8290 !important; } }
+
+  // code blocks
+  pre { background: #252628 !important; border-color: #3a3b40 !important; color: #cdd6f4; }
+  code { background: #2a2c30; color: #cba6f7; }
+  code.mac { color: #f38ba8; }
+
+  // tables
+  table.pf-table {
+    thead th { background: #252628; color: #e2e5ea; border-color: #3a3b40; }
+    td        { border-color: #3a3b40; color: #c9cdd4; }
+    tbody tr:nth-child(even) { background: #202224; }
+    tbody tr:hover            { background: #2d3748; }
+  }
+
+  // links
+  a:not(.btn):not(.navlink) { color: #89b4fa; }
+  .navlink { color: #89b4fa; border-bottom-color: #89b4fa; }
+
+  // alert
+  .alert-danger { background: #2d1b1b; border-color: #6b3030; color: #f38ba8; }
+
+  // thread sidebar
+  .list-group-item {
+    background: #1e1f22;
+    border-color: #3a3b40;
+    color: #c9cdd4;
+    &.active, &:hover { background: #2d2f35; }
+  }
+  .card { &.border-primary { border-color: #4a90d9 !important; } }
+
+  // form inputs in composer
+  textarea, input[type="text"] {
+    background: #252628 !important;
+    border-color: #3a3b40 !important;
+    color: #e2e5ea !important;
+    &::placeholder { color: #6b7280 !important; }
+  }
+
+  // buttons - keep outline variants readable
+  .btn-outline-secondary {
+    color: #9ca3af;
+    border-color: #4a4d55;
+    &:hover { background: #2d2f35; color: #e2e5ea; }
+    &.active, &.pressed { background: #2d2f35 !important; color: #e2e5ea; }
+  }
+  .btn-outline-primary  { color: #89b4fa; border-color: #89b4fa; &:hover { background: #1e3a5f; } }
+  .btn-outline-danger   { color: #f38ba8; border-color: #f38ba8; &:hover { background: #3d1a1a; } }
+
+  // badge
+  .badge-light { background: #2d2f35; color: #c9cdd4; }
+
+  // confirm card
+  .the-entry-confirm { background: #252628; border-color: #b45309 !important; }
+  .the-entry-response { background: #1a1b1e !important; border-color: #3a3b40 !important; color: #c9cdd4; }
 }
 </style>
