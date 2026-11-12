@@ -11,26 +11,25 @@ import (
 
 func TestMakeKeyCacheDistinguishesQueries(t *testing.T) {
 	pf := &pfdns{}
-	base := pf.MakeKeyCache("00:11:22:33:44:55", "default", false, "example.com.", dns.TypeA, "inline")
+	base := pf.MakeKeyCache("00:11:22:33:44:55", "default", false, "example.com.", dns.TypeA)
 	for name, key := range map[string]string{
-		"qtype":         pf.MakeKeyCache("00:11:22:33:44:55", "default", false, "example.com.", dns.TypeAAAA, "inline"),
-		"scope":         pf.MakeKeyCache("00:11:22:33:44:55", "default", false, "example.com.", dns.TypeA, "dnsenforcement"),
-		"mac":           pf.MakeKeyCache("00:11:22:33:44:66", "default", false, "example.com.", dns.TypeA, "inline"),
-		"category":      pf.MakeKeyCache("00:11:22:33:44:55", "guest", false, "example.com.", dns.TypeA, "inline"),
-		"securityEvent": pf.MakeKeyCache("00:11:22:33:44:55", "default", true, "example.com.", dns.TypeA, "inline"),
-		"qname":         pf.MakeKeyCache("00:11:22:33:44:55", "default", false, "example.org.", dns.TypeA, "inline"),
+		"qtype":         pf.MakeKeyCache("00:11:22:33:44:55", "default", false, "example.com.", dns.TypeAAAA),
+		"mac":           pf.MakeKeyCache("00:11:22:33:44:66", "default", false, "example.com.", dns.TypeA),
+		"category":      pf.MakeKeyCache("00:11:22:33:44:55", "guest", false, "example.com.", dns.TypeA),
+		"securityEvent": pf.MakeKeyCache("00:11:22:33:44:55", "default", true, "example.com.", dns.TypeA),
+		"qname":         pf.MakeKeyCache("00:11:22:33:44:55", "default", false, "example.org.", dns.TypeA),
 	} {
 		if key == base {
 			t.Errorf("changing the %s does not change the cache key %q", name, key)
 		}
 	}
 
-	if got := pf.MakeKeyCache("00:11:22:33:44:55", "default", false, "example.com.", dns.TypeA, "inline"); got != base {
+	if got := pf.MakeKeyCache("00:11:22:33:44:55", "default", false, "example.com.", dns.TypeA); got != base {
 		t.Errorf("same query gave cache key %q, want %q", got, base)
 	}
 
 	// Fields are separated, so moving characters between them gives another key.
-	if pf.MakeKeyCache("mac", "ab", false, "c.", dns.TypeA, "inline") == pf.MakeKeyCache("mac", "a", false, "bc.", dns.TypeA, "inline") {
+	if pf.MakeKeyCache("mac", "ab", false, "c.", dns.TypeA) == pf.MakeKeyCache("mac", "a", false, "bc.", dns.TypeA) {
 		t.Error("cache key fields are not separated")
 	}
 }
@@ -45,7 +44,7 @@ func TestDnsFilterAnswerCachesPerQtype(t *testing.T) {
 	calls := map[uint16]int{}
 	query := func(qtype uint16) (string, bool) {
 		t.Helper()
-		key := pf.MakeKeyCache("00:11:22:33:44:55", "default", false, "example.com.", qtype, "inline")
+		key := pf.MakeKeyCache("00:11:22:33:44:55", "default", false, "example.com.", qtype)
 		got, cached, err := dnsFilterAnswer(c, key, func() (string, error) {
 			calls[qtype]++
 			return answers[qtype], nil

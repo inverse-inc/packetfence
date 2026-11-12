@@ -290,7 +290,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 				}
 			}
 
-			cacheKey := pf.MakeKeyCache(mac, category, securityEvent, state.QName(), state.QType(), Type)
+			cacheKey := pf.MakeKeyCache(mac, category, securityEvent, state.QName(), state.QType())
 			response, cached, err := dnsFilterAnswer(pfdnsRefreshableConfig.DNSFilter, cacheKey, func() (string, error) {
 				info, err := pffilter.FilterDns(Type, map[string]interface{}{
 					"qname":    state.QName(),
@@ -716,9 +716,9 @@ func (pf *pfdns) PortalFQDNInit(ctx context.Context) error {
 }
 
 // MakeKeyCache returns the DNS filter cache key of a query. pffilter can answer
-// differently per query type and per filter scope, so both are part of the key.
-func (pf *pfdns) MakeKeyCache(mac string, category string, securityEvent bool, qname string, qtype uint16, scope string) string {
-	return strings.Join([]string{mac, category, strconv.FormatBool(securityEvent), qname, strconv.FormatUint(uint64(qtype), 10), scope}, "|")
+// differently per query type, so the type is part of the key.
+func (pf *pfdns) MakeKeyCache(mac string, category string, securityEvent bool, qname string, qtype uint16) string {
+	return strings.Join([]string{mac, category, strconv.FormatBool(securityEvent), qname, strconv.FormatUint(uint64(qtype), 10)}, "|")
 }
 
 // dnsFilterAnswer returns the DNS filter answer stored under key, and whether
