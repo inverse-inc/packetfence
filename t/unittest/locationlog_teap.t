@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;
+use Test::More tests => 12;
 use Utils;
 use pf::constants::config qw($WIRELESS_802_1X $WIRELESS_MAC_AUTH);
 use pf::locationlog qw(locationlog_synchronize locationlog_view_open_mac);
@@ -61,6 +61,26 @@ is($row->{teap_username}, '', "TEAP user name cleared for another user");
 sync($WIRELESS_802_1X, 'alice', 'default', 'alice', 'host/pc1');
 $row = sync($WIRELESS_MAC_AUTH, $mac, 'default', '', '');
 is($row->{teap_machinename}, '', "TEAP machine name cleared for MAB");
+
+# Machine-only TEAP authentication under the same (anonymous) outer identity
+sync($WIRELESS_802_1X, 'anonymous', 'default', 'alice', 'host/pc1');
+$row = sync($WIRELESS_802_1X, 'anonymous', 'default', '', 'host/pc1');
+is($row->{teap_username}, '', "TEAP user name cleared by a machine-only authentication");
+is($row->{teap_machinename}, 'host/pc1', "TEAP machine name kept by a machine-only authentication");
+
+# PEAP under the same outer identity, with a role change
+sync($WIRELESS_802_1X, 'anonymous', 'default', 'alice', 'host/pc1');
+$row = sync($WIRELESS_802_1X, 'anonymous', 'guest', '', '');
+is($row->{teap_username}, '', "TEAP user name cleared by PEAP under the same outer identity");
+
+# Unknown TEAP identity (inner TEAP round, VoIP, ...) does not create a new row
+sync($WIRELESS_802_1X, 'anonymous', 'default', 'alice', 'host/pc1');
+my $before = sync($WIRELESS_802_1X, 'anonymous', 'default', undef, undef);
+is($before->{teap_username}, 'alice', "TEAP user name untouched by a caller that does not know it");
+
+# Unknown TEAP identity with another connection type is not carried over
+$row = sync($WIRELESS_MAC_AUTH, $mac, 'default', undef, undef);
+is($row->{teap_username}, '', "TEAP user name not carried to another connection type");
 
 =head1 AUTHOR
 

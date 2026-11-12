@@ -157,8 +157,16 @@ sub authorize {
 
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
 
-    my $teap_username    = _first_value($radius_request->{'PacketFence-TEAP-User-Name'});
-    my $teap_machinename = _first_value($radius_request->{'PacketFence-TEAP-Machine-Name'});
+    # The TEAP identities are only known on the outer request, the outer post-auth
+    # copies them from session-state. An inner TEAP round (it carries
+    # FreeRADIUS-EAP-TEAP-Identity-Type) passes undef so the locationlog neither
+    # compares nor clears them; an outer request without them passes '' so a
+    # non-TEAP or machine-only authentication clears the previous ones.
+    my ($teap_username, $teap_machinename);
+    unless (defined $radius_request->{'FreeRADIUS-EAP-TEAP-Identity-Type'}) {
+        $teap_username    = _first_value($radius_request->{'PacketFence-TEAP-User-Name'});
+        $teap_machinename = _first_value($radius_request->{'PacketFence-TEAP-Machine-Name'});
+    }
 
     my $RAD_REPLY_REF;
 
