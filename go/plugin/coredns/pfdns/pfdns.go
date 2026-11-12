@@ -290,12 +290,8 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 				}
 			}
 
-			cacheKey := pf.MakeKeyCache(mac, category, securityEvent, state.QName())
-			reply, found := pfdnsRefreshableConfig.DNSFilter.Get(cacheKey)
-			if found && reply != "null" {
-				log.LoggerWContext(ctx).Debug("Get answer from the cache for " + state.QName())
-				rr, _ = dns.NewRR(reply.(string))
-			} else {
+			cacheKey := pf.MakeKeyCache(mac, category, securityEvent, state.QName(), state.QType(), Type)
+			response, cached, err := dnsFilterAnswer(pfdnsRefreshableConfig.DNSFilter, cacheKey, func() (string, error) {
 				info, err := pffilter.FilterDns(Type, map[string]interface{}{
 					"qname":    state.QName(),
 					"peerhost": state.RemoteAddr(),
@@ -303,8 +299,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 					"mac":      mac,
 				})
 				if err != nil {
-					pfdnsRefreshableConfig.DNSFilter.Set(cacheKey, "null", cache.DefaultExpiration)
-					break
+					return "", err
 				}
 				var response string
 				for a, b := range info.(map[string]interface{}) {
@@ -313,10 +308,17 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 						break
 					}
 				}
-				log.LoggerWContext(ctx).Debug("Get answer from pffilter for " + state.QName())
-				pfdnsRefreshableConfig.DNSFilter.Set(cacheKey, response, cache.DefaultExpiration)
-				rr, _ = dns.NewRR(response)
+				return response, nil
+			})
+			if err != nil {
+				break
 			}
+			if cached {
+				log.LoggerWContext(ctx).Debug("Get answer from the cache for " + state.QName())
+			} else {
+				log.LoggerWContext(ctx).Debug("Get answer from pffilter for " + state.QName())
+			}
+			rr, _ = dns.NewRR(response)
 
 			a.Answer = []dns.RR{rr}
 			log.LoggerWContext(ctx).Debug("DNS Filter matched for MAC " + mac + " IP " + srcIP + " Query " + state.QName())
@@ -713,8 +715,27 @@ func (pf *pfdns) PortalFQDNInit(ctx context.Context) error {
 	return nil
 }
 
-func (pf *pfdns) MakeKeyCache(mac string, category string, securityEvent bool, qname string) string {
-	return mac + category + strconv.FormatBool(securityEvent) + qname
+// MakeKeyCache returns the DNS filter cache key of a query. pffilter can answer
+// differently per query type and per filter scope, so both are part of the key.
+func (pf *pfdns) MakeKeyCache(mac string, category string, securityEvent bool, qname string, qtype uint16, scope string) string {
+	return strings.Join([]string{mac, category, strconv.FormatBool(securityEvent), qname, strconv.FormatUint(uint64(qtype), 10), scope}, "|")
+}
+
+// dnsFilterAnswer returns the DNS filter answer stored under key, and whether
+// it came from the cache, calling filter and caching its answer when there is
+// none. A failed filter call is recorded as "null", which is not served from
+// the cache.
+func dnsFilterAnswer(c *cache.Cache, key string, filter func() (string, error)) (string, bool, error) {
+	if reply, found := c.Get(key); found && reply != "null" {
+		return reply.(string), true, nil
+	}
+	response, err := filter()
+	if err != nil {
+		c.Set(key, "null", cache.DefaultExpiration)
+		return "", false, err
+	}
+	c.Set(key, response, cache.DefaultExpiration)
+	return response, false, nil
 }
 
 func (pf *pfdns) MakeDetectionMecanism(ctx context.Context) error {
