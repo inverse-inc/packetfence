@@ -139,53 +139,23 @@ On `devel` and `maintenance/X.Y`, the service images (`pfdebian`, `radiusd` and 
 `/etc/packetfence-ci-image-tag` and `manage-images.sh` retags the images locally with the
 package's `TAG_OR_BRANCH_NAME`, so the packages themselves keep their branch tag. After the
 tests pass, `deploy_containers` (deploy stage) copies the manifests to the branch tags on
-GitHub (`devel,latest` or `maintenance-X-Y`; `ci/lib/upload/promote-images.py`), then has
-packages.packetfence.com fetch them (`ci/pulp/container-sync.sh`). It runs only in pipelines
-that run tests, so a pipeline without tests leaves the branch tags unchanged. Builder images
-(`pfbuild-*`, `kaniko-build`, `signing-packages`, `publish-ppa`) keep their branch tags
-(`BUILDER_TAG` in the Dockerfiles). Pipeline tags are not deleted automatically.
+GitHub (`devel,latest` or `maintenance-X-Y`; `ci/lib/upload/promote-images.py`), then pushes
+the same images to packages.packetfence.com under the same tags (`ci/pulp/container-push.sh`).
+It runs only in pipelines that run tests, so a pipeline without tests leaves the branch tags
+unchanged. Builder images (`pfbuild-*`, `kaniko-build`, `signing-packages`, `publish-ppa`) keep
+their branch tags (`BUILDER_TAG` in the Dockerfiles). Pipeline tags are not deleted automatically.
 
-The packages.packetfence.com step always runs after the GitHub promotion; if it fails,
-`deploy_containers` fails (the GitHub tags are already moved). It asks Pulp to fetch the
-just-promoted GHCR image layers directly:
+The push runs on the runner with `skopeo` (in the `publish-ppa` image): for each image of
+`ci/pulp/container-images.json` that carries this pipeline's tag, `skopeo copy --all
+--preserve-digests` from GHCR to `packages.packetfence.com/inverse-inc/packetfence/<image>:<tag>`,
+so the digests match GitHub's. Pulp fetches nothing. It needs a protected ref and refuses any
+tag but `devel`, `latest` and `maintenance-X-Y`; if it fails, `deploy_containers` fails (the
+GitHub tags are already moved).
 
-| Branch | Pipeline sources | Selected tags |
-|---|---|---|
-| `maintenance/X.Y` | Web, API, schedule | `maintenance-X-Y` |
-| `devel` | Push, web, API, schedule | Available `devel`, `latest`, `maintenance-99-9` aliases |
-
-It imports only tags actually published for each approved image; it does not
-invent an alias or replace a missing maintenance tag with `latest`. The source
-tag is resolved when this job runs, not guaranteed to belong to this exact commit.
-Unprotected refs, feature branches, release-tag and merge-request pipelines cannot
-run this writer. It does not add a second Docker push or change runtime image
-references. The synthetic branch `maintenance/99.9` is rejected; its published image alias
-is copied only through the `devel` branch.
-
-Use `PF_PULP_CONTAINER_USERNAME` and `PF_PULP_CONTAINER_PASSWORD` for the dedicated
-sync account, plus the existing `PULP_URL`, pinned `PF_PULP_IMAGE`, and optional
-`REQUESTS_CA_BUNDLE`. Branch tags move on every tested pipeline, so the sync always
-updates an existing tag to the new digest. Provision repositories with `--latest-only`
-(`retain_repo_versions=1`) before the first run. Infrastructure owns pruning of superseded manifests
-and orphan cleanup; the CI account receives no deletion/admin privileges. Each
-tag exposes its current digest, while other branches' tags are preserved. Do not run this CI writer concurrently with that cron
-job: its GitLab resource group does not acquire the host refresh lock.
-
-The job stores `container-plan.json` and `container-publication.json`. Images
-without matching tags are listed as omissions.
-The catalog is a reviewed snapshot of the 54 public GHCR PacketFence packages,
-including historical builders. New images/tags require operator provisioning
-and account scope updates before CI can import them. Keep the catalog and
-vendored helper synchronized with infrastructure.
-
-Follow infrastructure's `packaging/docs/CONTAINER_IMAGES.md` for HTTPS registry
-routes, ES256 token keys, exact-tag remotes, scoped permissions, initial import,
-rollback and staging acceptance. The public registry is available at
-`<packaging-host>/inverse-inc/packetfence/<image>:maintenance-X-Y` once enabled.
-Apply/cherry-pick this integration onto `devel` and each intended maintenance
-branch. All approved development aliases must also be present in the operator
-plan used to provision remotes and the scoped synchronizer grants. Enabling CI
-does not configure the host's worker egress, catalog refresh or backup schedule.
+Credentials: masked CI variables `PF_PULP_CONTAINER_USERNAME` (`ci-docker`) and
+`PF_PULP_CONTAINER_PASSWORD`; the password reaches `skopeo` through a private temporary
+auth file. `ci-docker` may push tags and add images under `inverse-inc/` only; it cannot
+delete or reconfigure an image (the infrastructure's `packaging/docs/CONTAINERS.md`).
 
 ## Required package archive
 

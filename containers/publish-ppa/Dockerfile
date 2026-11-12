@@ -19,7 +19,7 @@ RUN apt-get update -qq \
         reprepro \
         createrepo-c \
         python3 python3-nacl python3-requests python3-requests-toolbelt python3-rpm python3-boto3 \
-        rpm dnf dnf-plugins-core curl ca-certificates \
+        rpm dnf dnf-plugins-core curl ca-certificates skopeo \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

@@ -41,17 +41,14 @@ class ConfigurationTest(unittest.TestCase):
         self.assertEqual(config['.gated_by_deploy_pkg']['rules'][0],
                          {'if': '$PF_PULP_ENABLED == "yes"', 'when': 'never'})
 
-    def test_container_sync_runs_in_deploy_containers_after_promotion(self):
+    def test_container_push_runs_in_deploy_containers_after_promotion(self):
         config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
-        self.assertNotIn('PF_PULP_CONTAINER_SYNC_ENABLED', config['variables'])
-        self.assertNotIn('sync_pulp_branch_images', config)
         job = config['deploy_containers']
         self.assertEqual(job['resource_group'], 'pulp-packetfence-containers')
         script = '\n'.join(job['script'])
-        # GitHub first, then packages.packetfence.com, which fetches the promoted tags.
-        self.assertLess(script.index('promote-images.py'), script.index('ci/pulp/container-sync.sh'))
-        self.assertNotIn('PF_PULP_CONTAINER_SYNC_ENABLED', script)
-        self.assertEqual(job['artifacts']['expire_in'], '1 day')
+        # GitHub first, then the same tags pushed to packages.packetfence.com.
+        self.assertLess(script.index('promote-images.py'), script.index('ci/pulp/container-push.sh'))
+        self.assertIn('container-push.sh "$pipeline_tag" "$PROMOTE_TAGS"', script)
 
     def test_service_images_are_promoted_only_after_tests(self):
         config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
@@ -86,12 +83,15 @@ class ConfigurationTest(unittest.TestCase):
             result = subprocess.run(['sh', str(helper)], env={**base, **env}, capture_output=True, text=True)
             self.assertEqual((result.returncode, result.stdout.strip()), (0, expected), env)
 
-    def test_container_sync_routes_only_trusted_supported_pipelines(self):
+    def test_container_push_routes_only_trusted_pipelines_and_never_shows_the_password(self):
         with tempfile.TemporaryDirectory() as folder:
             work = Path(folder)
-            fake_python = work/'python3'
-            fake_python.write_text("#!/bin/sh\nprintf '%s|%s|%s|%s|%s\\n' \"$2\" \"$*\" \"$PULP_USERNAME\" \"$PULP_PASSWORD\" \"$PULP_URL\" >> \"$TEST_CALLS\"\n")
-            fake_python.chmod(0o700)
+            # Fake skopeo: pfcmd and radiusd carry the pipeline tag, nothing else does.
+            fake = work/'skopeo'
+            fake.write_text('#!/bin/sh\nprintf "%s\\n" "$*" >> "$TEST_CALLS"\n'
+                            'case "$*" in "inspect "*) case "$*" in *pfcmd:p-7*|*radiusd:p-7*) exit 0;; *) exit 1;; esac;; '
+                            '"login "*) cat > /dev/null;; esac\n')
+            fake.chmod(0o700)
             calls = work/'calls'
             cases = [('devel', source, 'true', '', True) for source in ('push', 'web', 'api', 'schedule')]
             cases += [('maintenance/15.2', source, 'true', '', True) for source in ('web', 'api', 'schedule')]
@@ -105,42 +105,35 @@ class ConfigurationTest(unittest.TestCase):
             for branch, source, protected, tag, allowed in cases:
                 with self.subTest(branch=branch, source=source, protected=protected, tag=tag):
                     calls.write_text('')
-                    env = dict(os.environ, PATH=str(work)+os.pathsep+os.environ['PATH'],
-                               TEST_CALLS=str(calls),
+                    env = dict(os.environ, PATH=str(work)+os.pathsep+os.environ['PATH'], TEST_CALLS=str(calls),
                                CI_COMMIT_BRANCH=branch, CI_PIPELINE_SOURCE=source,
                                CI_COMMIT_REF_PROTECTED=protected, CI_COMMIT_TAG=tag,
-                               PF_PULP_CONTAINER_USERNAME='test-sync', PF_PULP_CONTAINER_PASSWORD='dummy',
-                               PULP_USERNAME='wrong-account', PULP_PASSWORD='wrong-password',
-                               PULP_URL='https://pulp.test')
-                    result = subprocess.run(['bash', str(ROOT/'ci/pulp/container-sync.sh')],
+                               PF_PULP_CONTAINER_USERNAME='ci-docker', PF_PULP_CONTAINER_PASSWORD='secret-value')
+                    result = subprocess.run(['bash', str(ROOT/'ci/pulp/container-push.sh'), 'p-7', 'devel,latest'],
                                             env=env, capture_output=True, text=True)
                     self.assertEqual(result.returncode == 0, allowed, result.stderr)
                     recorded = calls.read_text().splitlines()
                     if not allowed:
                         self.assertEqual(recorded, [])
                         continue
-                    self.assertEqual(len(recorded), 2)
-                    self.assertIn('--branch '+branch, recorded[0])
-                    self.assertIn('--allow-tag-update', recorded[1])
-                    self.assertIn('--apply', recorded[1])
-                    self.assertTrue(all(row.endswith('|test-sync|dummy|https://pulp.test') for row in recorded))
+                    self.assertTrue(recorded[0].startswith('login --authfile '))
+                    self.assertIn('--username ci-docker --password-stdin packages.packetfence.com', recorded[0])
+                    copies = [row for row in recorded if row.startswith('copy ')]
+                    self.assertEqual(len(copies), 4)  # 2 images x 2 tags
+                    self.assertTrue(all('--all --preserve-digests' in row for row in copies))
+                    self.assertIn('docker://ghcr.io/inverse-inc/packetfence/pfcmd:p-7 '
+                                  'docker://packages.packetfence.com/inverse-inc/packetfence/pfcmd:latest', copies[1])
+                    self.assertFalse(any('secret-value' in row for row in recorded))
+                    self.assertNotIn('secret-value', result.stdout + result.stderr)
 
-    def test_devel_and_maintenance_plans_select_only_their_published_tags(self):
-        with patch.object(sys, 'path', [str(ROOT/'ci/pulp/vendor')] + sys.path):
-            spec = importlib.util.spec_from_file_location('container_mirror', ROOT/'ci/pulp/vendor/container_mirror.py')
-            mirror = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(mirror)
-        registry = Mock()
-        registry.tags.return_value = {'devel', 'latest', 'maintenance-99-9', 'maintenance-15-2',
-                                      'maintenance-14-1', 'cache-build', 'v16.0.0'}
-        registry.digest.return_value = 'sha256:'+'a'*64
-        for branch, expected in [('devel', {'devel', 'latest', 'maintenance-99-9'}),
-                                 ('maintenance/15.2', {'maintenance-15-2'})]:
-            plan = mirror.plan({'schema': 1, 'images': ['pfcmd']}, [branch], registry)
-            self.assertEqual({entry['tag'] for entry in plan['entries']}, expected)
-        registry.tags.return_value = {'latest'}
-        plan = mirror.plan({'schema': 1, 'images': ['pfcmd']}, ['devel'], registry)
-        self.assertEqual([entry['tag'] for entry in plan['entries']], ['latest'])
+    def test_container_push_refuses_other_tags(self):
+        env = dict(os.environ, CI_COMMIT_BRANCH='devel', CI_PIPELINE_SOURCE='web', CI_COMMIT_REF_PROTECTED='true',
+                   CI_COMMIT_TAG='', PF_PULP_CONTAINER_USERNAME='ci-docker', PF_PULP_CONTAINER_PASSWORD='x')
+        for tags in ('v16.0.0', 'devel,feature-x', 'maintenance-15'):
+            result = subprocess.run(['bash', str(ROOT/'ci/pulp/container-push.sh'), 'p-7', tags],
+                                    env=env, capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0, tags)
+            self.assertIn('Refusing tag', result.stderr)
 
     def test_backup_failure_prevents_pulp_publish_and_receipts_are_retained(self):
         config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
@@ -212,8 +205,9 @@ esac
 
     def test_publishing_artifacts_require_project_developer_access(self):
         config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
-        for name in ('prepare_pulp_dependencies', 'publish_ppa', 'deploy_containers'):
+        for name in ('prepare_pulp_dependencies', 'publish_ppa'):
             self.assertEqual(config[name]['artifacts']['access'], 'developer')
+        self.assertNotIn('artifacts', config['deploy_containers'])  # the push leaves no plan to keep
         # Execute every former environment-dump hook with a fake CI secret.
         environment = dict(os.environ, CI_AUDIT_SECRET='must-not-appear-in-job-logs')
         for scope in (config, config['.build_pf_img_vagrant_job'], config['.build_pf_img_job']):
