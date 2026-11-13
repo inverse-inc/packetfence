@@ -441,6 +441,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-pfconnector-client.service %{buildroot}%{_unitdir}/packetfence-pfconnector-client.service
 %{__install} -D -m0644 conf/systemd/packetfence-proxysql.service %{buildroot}%{_unitdir}/packetfence-proxysql.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfldapexplorer.service %{buildroot}%{_unitdir}/packetfence-pfldapexplorer.service
+%{__install} -D -m0644 conf/systemd/packetfence-chatbot.service %{buildroot}%{_unitdir}/packetfence-chatbot.service
 %{__install} -D -m0644 conf/systemd/packetfence-ntlm-auth-api.service %{buildroot}%{_unitdir}/packetfence-ntlm-auth-api.service
 %{__install} -D -m0644 conf/systemd/packetfence-ntlm-auth-api-domain@.service %{buildroot}%{_unitdir}/packetfence-ntlm-auth-api-domain@.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfsetacls.service %{buildroot}%{_unitdir}/packetfence-pfsetacls.service
@@ -1059,6 +1060,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/proxysql-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfacct-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfldapexplorer-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/chatbot-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/iptables_monitor.pl
 %attr(0755, pf, pf)     /usr/local/pf/sbin/ip6tables_monitor.pl
 %doc                    /usr/local/pf/ChangeLog

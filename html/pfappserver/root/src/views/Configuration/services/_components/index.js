@@ -12,6 +12,7 @@ export {
   BaseFormButtonBar                   as FormButtonBar,
 
   BaseFormGroupSwitch                 as FormGroupApiFrontend,
+  BaseFormGroupSwitch                 as FormGroupChatbot,
   BaseFormGroupSwitch                 as FormGroupFingerbankCollector,
   BaseFormGroupSwitch                 as FormGroupGaleraAutofix,
   BaseFormGroupSwitch                 as FormGroupHaproxyAdmin,

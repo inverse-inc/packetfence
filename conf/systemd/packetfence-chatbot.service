@@ -1,0 +1,18 @@
+[Unit]
+Description=PacketFence NACBot (chatbot + RADIUS/capture test-tool helper)
+Wants=packetfence-base.target packetfence-config.service network-online.target
+After=packetfence-base.target packetfence-config.service packetfence-mariadb.service network-online.target
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+TimeoutStopSec=60
+ExecStart=/usr/local/pf/sbin/chatbot-docker-wrapper
+ExecStop=/bin/bash -c "docker stop chatbot; echo Stopped"
+Restart=on-failure
+RestartSec=15
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target

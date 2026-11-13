@@ -12,6 +12,13 @@
                              disabled-value="disabled"
     />
 
+    <form-group-chatbot namespace="chatbot"
+                        column-label="chatbot"
+                        :text="$i18n.t('Should NACBot (chatbot) be managed by PacketFence?')"
+                        enabled-value="enabled"
+                        disabled-value="disabled"
+    />
+
     <form-group-galera-autofix namespace="galera-autofix"
                                column-label="galera-autofix"
                                :text="$i18n.t('Should galera-autofix be managed by PacketFence?')"
@@ -309,6 +316,7 @@ import {BaseForm} from '@/components/new/'
 import schemaFn from '../schema'
 import {
   FormGroupApiFrontend,
+  FormGroupChatbot,
   FormGroupFingerbankCollector,
   FormGroupGaleraAutofix,
   FormGroupHaproxyAdmin,
@@ -358,6 +366,7 @@ const components = {
   BaseForm,
 
   FormGroupApiFrontend,
+  FormGroupChatbot,
   FormGroupFingerbankCollector,
   FormGroupGaleraAutofix,
   FormGroupHaproxyAdmin,

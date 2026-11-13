@@ -31,6 +31,7 @@ import WrixRoutes from '../wrix/_router'
 import PkiRoutes from '../pki/_router'
 import MfasRoutes from '../mfas/_router'
 import FleetDMRoutes from '../fleetDM/_router'
+import PfchatbotRoutes from '../pfchatbot/_router'
 
 /* Advanced Access Configuration */
 const AdvancedAccessConfigurationSection = () => import(/* webpackChunkName: "ConfigurationAdvancedAccess" */ '../_components/TheSectionAdvancedAccessConfiguration')
@@ -136,6 +137,7 @@ const route = {
     ...PkiRoutes,
     ...MfasRoutes,
     ...FleetDMRoutes,
+    ...PfchatbotRoutes,
 
     /**
      *  Advanced Access Configuration

@@ -52,6 +52,10 @@
             :active="$route.path.startsWith('/historical-logs')">
             <icon name="history" />
           </b-nav-item>
+          <b-nav-item @click="toggleAssistantViewer" :active="showAssistantViewer || $route.path.startsWith('/assistant')" v-if="$can('read', 'chatbot')"
+            v-b-tooltip.hover.bottom.d300 :title="$t('NACBot')">
+            <icon name="robot" />
+          </b-nav-item>
         </b-navbar-nav>
         <app-notifications :isAuthenticated="isAuthenticated || isConfiguratorActive" />
       </b-collapse>
@@ -64,7 +68,7 @@
         <b-button v-if="warning.to" size="sm" variant="outline-light" class="ml-2" :to="warning.to">{{ warning.toLabel }}</b-button>
       </div>
     </b-container>
-    <b-container :class="[{ 'pt-6': warnings.length === 0, 'documentation-container': isAuthenticated }, documentationViewerClass]" fluid>
+    <b-container :class="[{ 'pt-6': warnings.length === 0, 'documentation-container': isAuthenticated }, documentationViewerClass, assistantViewerClass]" fluid>
       <app-documentation v-show="isAuthenticated">
         <div class="py-1 pl-3" v-show="version">
           <b-form-text v-t="'Packetfence Version'"/> {{ version }}
@@ -76,6 +80,8 @@
           <b-form-text v-t="'Server Hostname'"/> {{ hostname }}
         </div>
       </app-documentation>
+      <!-- mounted on first open, then kept so the conversation survives closing -->
+      <app-assistant v-if="isAuthenticated && assistantOpened && !$route.path.startsWith('/assistant')" :show="showAssistantViewer" @close="showAssistantViewer = false" />
       <router-view/>
     </b-container>
     <!-- Show login if session expires -->
@@ -87,6 +93,7 @@
 
 <script>
 import AppApiProgress from '@/components/AppApiProgress'
+import AppAssistant from '@/components/AppAssistant'
 import AppDocumentation from '@/components/AppDocumentation'
 import AppLogin from '@/components/AppLogin'
 import AppNotifications from '@/components/AppNotifications'
@@ -95,6 +102,7 @@ import IconCounter from '@/components/IconCounter'
 
 const components = {
   AppApiProgress,
+  AppAssistant,
   AppDocumentation,
   AppLogin,
   AppNotifications,
@@ -127,6 +135,45 @@ const setup = (props, context) => {
   })
   const toggleDocumentationViewer = () => {
     $store.dispatch('documentation/toggleViewer')
+  }
+
+  // the assistant slides in like the documentation viewer; only one is open at a time
+  const assistantViewerClass = ref(null)
+  const showAssistantViewer = ref(false)
+  const assistantOpened = ref(false)
+  watch(showAssistantViewer, (a) => {
+    if (a) { // shown
+      assistantOpened.value = true
+      assistantViewerClass.value = 'assistant-enter'
+      setTimeout(() => {
+        // the finished animation keeps a transform, which would pin the fullscreen
+        // panel (position: fixed) to this container instead of the viewport
+        if (showAssistantViewer.value)
+          assistantViewerClass.value = 'assistant-open'
+      }, 300) // match the animation duration defined in AppAssistant.vue
+      if (showDocumentationViewer.value)
+        $store.dispatch('documentation/closeViewer')
+    }
+    else {
+      assistantViewerClass.value = 'assistant-leave'
+      setTimeout(() => {
+        assistantViewerClass.value = null
+      }, 300) // match the animation duration defined in AppAssistant.vue
+    }
+  })
+  watch(showDocumentationViewer, (a) => {
+    if (a)
+      showAssistantViewer.value = false
+  })
+  // the /assistant page already shows the same view
+  watch(() => context.root.$route.path, path => {
+    if (path.startsWith('/assistant'))
+      showAssistantViewer.value = false
+  })
+  const toggleAssistantViewer = () => {
+    if (context.root.$route.path.startsWith('/assistant'))
+      return
+    showAssistantViewer.value = !showAssistantViewer.value
   }
 
   const closeFullscreenDocs = () => {
@@ -290,6 +337,10 @@ const setup = (props, context) => {
 
     // documentation
     documentationViewerClass,
+    assistantViewerClass,
+    showAssistantViewer,
+    assistantOpened,
+    toggleAssistantViewer,
     showDocumentationViewer,
     toggleDocumentationViewer,
     closeFullscreenDocs,

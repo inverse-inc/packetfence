@@ -23,3 +23,11 @@ actions=FLEETDM_EVENTS_READ
 [pftest Operator]
 description=Run pftest authentication and profile filter tests
 actions=PFTEST_CREATE
+
+[chatbot-user]
+description=NACBot - read only
+actions=CHATBOT_READ
+
+[chatbot-admin]
+description=NACBot - read and write
+actions=CHATBOT_READ,CHATBOT_WRITE

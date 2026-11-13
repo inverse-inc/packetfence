@@ -749,6 +749,7 @@ variables:
   - haproxy-admin
   - proxysql
   - pfldapexplorer
+  - chatbot
   - kafka
   - ntlm-auth-api
   - ntlm-join-remote
