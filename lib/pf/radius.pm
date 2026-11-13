@@ -136,6 +136,27 @@ sub _keep_unregistered {
     $node_obj->{unregdate} = $ZERO_DATE;
 }
 
+=item * _teap_identity
+
+On the outer request of an EAP-TEAP authentication the User-Name is the outer
+(usually anonymous) identity. Use the inner TEAP user identity, or the machine
+identity for a machine-only authentication, as the username so the role,
+the owner and the authentication sources are computed for it.
+
+Returns ($user_name, $stripped_user_name, $realm), unchanged when there is no
+TEAP identity.
+
+=cut
+
+sub _teap_identity {
+    my ($user_name, $stripped_user_name, $realm, $teap_username, $teap_machinename) = @_;
+    my $identity = (defined $teap_username && $teap_username ne '') ? $teap_username : $teap_machinename;
+    return ($user_name, $stripped_user_name, $realm) unless defined $identity && $identity ne '';
+    get_logger()->info("EAP-TEAP: using the inner identity '$identity' instead of the outer identity '" . ($user_name // '') . "'");
+    my ($stripped, $teap_realm) = strip_username($identity);
+    return ($identity, $stripped, $teap_realm // $realm);
+}
+
 =item * authorize - handling the RADIUS authorize call
 
 Returns an arrayref (tuple) with element 0 being a response code for Radius and second element an hash meant
@@ -158,14 +179,14 @@ sub authorize {
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
 
     # The TEAP identities are only known on the outer request, the outer post-auth
-    # copies them from session-state. An inner TEAP round (it carries
-    # FreeRADIUS-EAP-TEAP-Identity-Type) passes undef so the locationlog neither
-    # compares nor clears them; an outer request without them passes '' so a
-    # non-TEAP or machine-only authentication clears the previous ones.
+    # copies them from session-state. An inner TEAP round (the inner tunnel tags
+    # it with PacketFence-TEAP-Identity-Type) passes undef so the locationlog
+    # neither compares nor clears them; an outer request without them passes ''
+    # so a non-TEAP authentication clears the previous ones.
     my ($teap_username, $teap_machinename);
-    unless (defined $radius_request->{'FreeRADIUS-EAP-TEAP-Identity-Type'}) {
-        $teap_username    = (listify($radius_request->{'PacketFence-TEAP-User-Name'}))[0] // '';
-        $teap_machinename = (listify($radius_request->{'PacketFence-TEAP-Machine-Name'}))[0] // '';
+    unless (defined $radius_request->{'PacketFence-TEAP-Identity-Type'}) {
+        $teap_username    = listify($radius_request->{'PacketFence-TEAP-User-Name'})->[0] // '';
+        $teap_machinename = listify($radius_request->{'PacketFence-TEAP-Machine-Name'})->[0] // '';
     }
 
     my $RAD_REPLY_REF;
@@ -193,6 +214,8 @@ sub authorize {
     }
 
     Log::Log4perl::MDC->put( 'mac', $mac );
+
+    ($user_name, $stripped_user_name, $realm) = _teap_identity($user_name, $stripped_user_name, $realm, $teap_username, $teap_machinename);
 
     if (exists $radius_request->{"Framed-IP-Address"} && valid_ip($radius_request->{"Framed-IP-Address"})) {
         if (isenabled($Config{advanced}{update_iplog_with_authentication})) {
