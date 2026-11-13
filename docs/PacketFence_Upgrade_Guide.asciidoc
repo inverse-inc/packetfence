@@ -983,8 +983,10 @@ With _Push ACLs_ enabled and the _Role Map_ disabled, no reply names the pushed
 role: the RADIUS reply now carries the ACLs of the role, as without _Push ACLs_,
 where most switch types used to send no ACL at all.
 
-A Cisco switch now receives the ICMP type of an ACL (`permit icmp any any
-echo`); such a line used to be skipped.
+The ICMP type of an ACL (`permit icmp any any echo`, `deny icmp any any 3 1`)
+is now sent to Cisco, Dell N1500, Aruba CX and Arista switches; such a line
+used to be skipped. Aruba CX and Arista match the ICMP type only, so a line
+with an ICMP code (`host-unreachable`, `3 1`) is still skipped there.
 
 The role ACLs pushed to an Aruba Controller, an Aruba Mobility Master or a
 Cisco WLC (AireOS) follow the same rules: a line with TCP flags used to be sent

@@ -106,7 +106,6 @@ use warnings;
 use Net::SNMP;
 use Try::Tiny;
 use Socket qw(inet_pton AF_INET6);
-use Switch;
 
 use base ('pf::Switch::Cisco');
 
@@ -709,16 +708,8 @@ sub acl_chewer {
     foreach my $acl (@$entries) {
         $acl_chewed .= "acl rule add $role $j\n";
         $acl_chewed .= "acl rule action $role $j $acl->{'action'}\n";
-        $acl->{'protocol'} =~ s/\(\d*\)//;
-        switch($acl->{'protocol'}) {
-            case /ip/ { $acl->{'protocol'} = "any"}
-            case /icmp/ { $acl->{'protocol'} = 1}
-            case /igmp/ { $acl->{'protocol'} = 2}
-            case /tcp/ { $acl->{'protocol'} = 6}
-            case /udp/ { $acl->{'protocol'} = 17}
-            case /gre/ { $acl->{'protocol'} = 47}
-            else { $acl->{'protocol'} = "any"}
-        }
+        # The rule takes the protocol number, ip is any
+        $acl->{'protocol'} = ($acl->{'protocol'} =~ m{\((\d+)\)$} || $acl->{'protocol'} =~ m{^(\d+)$}) ? $1 : "any";
         $acl_chewed .= "acl rule protocol $role $j $acl->{'protocol'}\n";
 
         $acl_chewed .= "acl rule direction $role $j $direction[$i]\n";
@@ -750,8 +741,8 @@ L</acl_chewer>, or undef when it can. A rule has no TCP flags and no ICMP
 type, a port is a range built from eq, gt or lt: another operator (range, neq)
 is not printed, a port name the protocol does not know has no number, and a
 gt or lt that leaves no port (gt 65535, lt 1) or a port above 65535 gives no
-range. An address mask has to be contiguous, and the protocol one of the rule
-(ip, icmp, igmp, tcp, udp, gre): another one would be pushed as any. Dropping
+range. An address mask has to be contiguous, and the protocol ip or one with a
+number, which the rule takes: another one would be pushed as any. Dropping
 any of them would widen the ACL.
 
 =cut
@@ -762,7 +753,7 @@ sub _untranslatablePushAcl {
     return $reason if defined $reason;
     return "the ICMP type is not sent ('".$entry->{'icmp_qualifier'}."')" if defined $entry->{'icmp_qualifier'};
     my $protocol = $entry->{'protocol'};
-    return "the protocol '".(ref $protocol ? 'object group' : $protocol)."' is not a rule protocol" if ref $protocol || $protocol !~ m{^(?:ip\(\)|(?:icmp|igmp|tcp|udp|gre)\(\d+\))$};
+    return "the protocol '".(ref $protocol ? 'object group' : $protocol)."' has no number" if ref $protocol || $protocol !~ m{^(?:ip\(\)|[\w-]*\(\d+\)|\d+)$};
     foreach my $side ('source', 'destination') {
         my $wildcard = $entry->{$side}->{'wildcard'};
         return "the $side mask '$wildcard' is not contiguous" if !$self->aclWildcardIsContiguous($wildcard);
