@@ -26,6 +26,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/filter_client"
 	"github.com/inverse-inc/packetfence/go/redis_cache"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
+	"github.com/inverse-inc/packetfence/go/util"
 	cache "github.com/patrickmn/go-cache"
 	"github.com/redis/go-redis/v9"
 
@@ -718,7 +719,7 @@ func (pf *pfdns) PortalFQDNInit(ctx context.Context) error {
 // MakeKeyCache returns the DNS filter cache key of a query. pffilter can answer
 // differently per query type, so the type is part of the key.
 func (pf *pfdns) MakeKeyCache(mac string, category string, securityEvent bool, qname string, qtype uint16) string {
-	return strings.Join([]string{mac, category, strconv.FormatBool(securityEvent), qname, strconv.FormatUint(uint64(qtype), 10)}, "|")
+	return util.LengthPrefixedKey(mac, category, strconv.FormatBool(securityEvent), qname, strconv.FormatUint(uint64(qtype), 10))
 }
 
 // dnsFilterAnswer returns the DNS filter answer stored under key, and whether

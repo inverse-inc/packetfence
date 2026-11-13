@@ -28,9 +28,14 @@ func TestMakeKeyCacheDistinguishesQueries(t *testing.T) {
 		t.Errorf("same query gave cache key %q, want %q", got, base)
 	}
 
-	// Fields are separated, so moving characters between them gives another key.
-	if pf.MakeKeyCache("mac", "ab", false, "c.", dns.TypeA) == pf.MakeKeyCache("mac", "a", false, "bc.", dns.TypeA) {
-		t.Error("cache key fields are not separated")
+	// Moving characters between fields gives another key.
+	for _, test := range [][2]string{
+		{pf.MakeKeyCache("mac", "ab", false, "c.", dns.TypeA), pf.MakeKeyCache("mac", "a", false, "bc.", dns.TypeA)},
+		{pf.MakeKeyCache("mac", "a", false, "false|example.com.", dns.TypeA), pf.MakeKeyCache("mac", "a|false", false, "example.com.", dns.TypeA)},
+	} {
+		if test[0] == test[1] {
+			t.Errorf("different queries share the cache key %q", test[0])
+		}
 	}
 }
 
