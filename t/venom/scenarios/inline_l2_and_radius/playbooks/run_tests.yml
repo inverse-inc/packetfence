@@ -9,7 +9,6 @@
   vars:
     test_suites:
       - configurator_inline_l2
-      - proxysql_tiers_ci  # CI-ONLY (revert before merge)
 
   tasks:
     - name: Check configurator state
@@ -56,7 +55,6 @@
     test_suites:
       - global_config
       - inline_l2_and_radius
-      - proxysql_tiers_ci_report  # CI-ONLY (revert before merge)
 
 
   tasks:

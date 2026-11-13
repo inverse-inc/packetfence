@@ -7,7 +7,6 @@
     # put your test suites to try here
     test_suites:
       - configurator
-      - proxysql_tiers_ci  # CI-ONLY (revert before merge)
       - global_config
 
       # Run the captive_portal suite independently from the other ones since it it requires to keep the IP in the registration VLAN and the other test suites perform VLAN changes
@@ -56,7 +55,6 @@
       - wireless_dot1x_eap_peap/teardown
       - fingerbank_invalid_db/clear_cache
       - fingerbank_invalid_db/missing_table/teardown
-      - proxysql_tiers_ci_report  # CI-ONLY (revert before merge)
 
   tasks:
     - name: Run Venom testsuites
