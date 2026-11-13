@@ -1,0 +1,20 @@
+FingerbankCombinations:
+  description: Request successful. The response contains the combinations.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankCombinations"
+
+FingerbankCombinationsSearch:
+  description: Request successful. The response contains the combinations search results.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankCombinationsSearch"
+
+FingerbankCombination:
+  description: Request successful. The response contains the combination.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankCombinationItem"

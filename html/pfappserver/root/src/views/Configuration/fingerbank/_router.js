@@ -2,7 +2,6 @@ import store from '@/store'
 import StoreModule from './_store'
 import GeneralSettingsRoutes from './generalSettings/_router'
 import DeviceChangeDetectionRoutes from './deviceChangeDetection/_router'
-import CombinationsRoutes from './combinations/_router'
 import DevicesRoutes from './devices/_router'
 import DhcpFingerprintsRoutes from './dhcpFingerprints/_router'
 import Dhcpv6EnterprisesRoutes from './dhcpv6Enterprises/_router'
@@ -15,7 +14,6 @@ import BasesStoreModule from '../bases/_store'
 const routes = [
   ...GeneralSettingsRoutes,
   ...DeviceChangeDetectionRoutes,
-  ...CombinationsRoutes,
   ...DevicesRoutes,
   ...DhcpFingerprintsRoutes,
   ...Dhcpv6EnterprisesRoutes,

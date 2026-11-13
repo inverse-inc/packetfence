@@ -134,13 +134,6 @@
                                          :text="$i18n.t('Additional environment variables to setup for the Fingerbank collector. One by line, following this format: COLLECTOR_ALL_HOSTS_CACHE_SIZE=100')"
     />
 
-    <form-group-query-record-unmatched namespace="query.record_unmatched"
-                                       :column-label="$i18n.t('Record Unmatched Parameters')"
-                                       :text="$i18n.t('Should the local instance of Fingerbank record unmatched parameters so that it will be possible to submit thoses unmatched parameters to the upstream Fingerbank project for contribution.')"
-                                       enabled-value="enabled"
-                                       disabled-value="disabled"
-    />
-
     <form-group-proxy-use-proxy namespace="proxy.use_proxy"
                                 :column-label="$i18n.t('Use proxy')"
                                 :text="$i18n.t('Should Fingerbank interact with WWW using a proxy?')"
@@ -190,7 +183,6 @@ import {
   FormGroupCollectorDatabasePersistenceInterval,
   FormGroupCollectorClusterResyncInterval,
   FormGroupCollectorAdditionalEnv,
-  FormGroupQueryRecordUnmatched,
   FormGroupProxyUseProxy,
   FormGroupProxyHost,
   FormGroupProxyPort,
@@ -216,7 +208,6 @@ const components = {
   FormGroupCollectorDatabasePersistenceInterval,
   FormGroupCollectorClusterResyncInterval,
   FormGroupCollectorAdditionalEnv,
-  FormGroupQueryRecordUnmatched,
   FormGroupProxyUseProxy,
   FormGroupProxyHost,
   FormGroupProxyPort,
