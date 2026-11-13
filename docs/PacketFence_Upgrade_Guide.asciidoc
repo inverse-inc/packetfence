@@ -1441,6 +1441,42 @@ The `result` of the authentication reply must now be `1`, `true`, `"1"` or
 `"true"` for a success: any other value (for example `"false"` or `"0.0"`,
 which were accepted before) is a failure.
 
+=== EAP-TEAP support in the RADIUS configuration
+
+EAP-TEAP changes the following package configuration files:
+
+* [filename]`/usr/local/pf/conf/radiusd/eap.conf`
+* [filename]`/usr/local/pf/conf/radiusd/mschap.conf`
+* [filename]`/usr/local/pf/conf/radiusd/packetfence`
+* [filename]`/usr/local/pf/conf/radiusd/packetfence-tunnel`
+
+They are updated automatically unless you modified them (see the general
+procedure above). [filename]`/usr/local/pf/raddb/policy.d/packetfence` is
+always replaced by the package. If you kept a customized [filename]`eap.conf`
+or [filename]`mschap.conf`, the following script adds the TEAP block and the
+`chrooted_mschap_mppe` module to them. Without it, TEAP with EAP-MSCHAPv2
+against a domain fails:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-16.0-radiusd-teap.pl
+----
+
+If you kept a customized [filename]`packetfence` or [filename]`packetfence-tunnel`,
+merge the TEAP sections of the new version (`.rpmnew` on RHEL, `.dpkg-dist` on
+Debian) into your file. Without
+them, RADIUS keeps working but the TEAP machine and user identities are not
+passed to PacketFence.
+
+TEAP is not enabled after the upgrade: add it to the EAP profiles that should
+offer it, see the EAP-TEAP section of the Installation Guide. Then restart all
+RADIUS instances:
+
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service radiusd restart
+----
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]

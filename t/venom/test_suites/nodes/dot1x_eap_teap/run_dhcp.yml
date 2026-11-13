@@ -1,0 +1,10 @@
+name: Run DHCP
+testcases:
+- name: run_dhcp
+  steps:
+  - type: exec
+    script: "sudo dhclient -v ens7"
+    timeout: 10
+    assertions:
+      - result.systemout ShouldContainSubstring "DHCPACK"
+      - result.systemout ShouldContainSubstring "ens7"

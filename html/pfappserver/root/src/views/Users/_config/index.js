@@ -490,6 +490,16 @@ export const nodeFields = [
     sortable: true
   },
   {
+    key: 'locationlog.teap_username',
+    label: i18n.t('TEAP Username'),
+    sortable: true
+  },
+  {
+    key: 'locationlog.teap_machinename',
+    label: i18n.t('TEAP Machine Name'),
+    sortable: true
+  },
+  {
     key: 'bypass_vlan',
     label: i18n.t('Bypass VLAN'),
     sortable: true

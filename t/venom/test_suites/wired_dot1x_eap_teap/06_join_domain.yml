@@ -1,0 +1,71 @@
+name: Join domain
+vars:
+  # temp, workaround for https://github.com/ovh/venom/issues/445
+  # pf only accepts hostname with less than 14 characters
+  random_server_name: "{{ randAlpha 13 }}"
+  random_ad_domain_id: "{{ randAlpha 7 }}"
+  random_machine_account_password: "{{ randAlpha 16 }}"
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: create_domain
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/domains'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "ad_fqdn": "ad.example.lan",
+        "ad_server": "{{.ad_mgmt_ip}}",
+        "bind_dn": "{{.ad_domain_admin_user}}",
+        "bind_pass": "{{.ad_domain_admin_password}}",
+        "dns_name": "{{.ad_dns_domain}}",
+        "dns_servers": "{{.ad_mgmt_ip}}",
+        "id": "{{.random_ad_domain_id}}",
+        "ntlm_cache": null,
+        "ntlm_cache_expiry": 3600,
+        "ntlm_cache_source": null,
+        "ntlmv2_only": null,
+        "ou": "Computers",
+        "registration": null,
+        "server_name": "{{.random_server_name}}",
+        "status": "enabled",
+        "sticky_dc": "*",
+        "workgroup": "{{.ad_domain_upper}}",
+        "machine_account_password": "{{.random_machine_account_password}}"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
+- name: start_ntlm_auth_api_service
+  steps:
+    - type: pf_api_service_start_async
+      service: 'ntlm-auth-api'
+
+- name: sleep_some_time
+  steps:
+    - type: exec
+      script: sleep 10
+
+- name: test_machine_account
+  steps:
+    - type: http
+      method: POST
+      url: '{{.pfserver_webadmin_url}}/api/v1/ntlm/test'
+      ignore_verify_ssl: true
+      body: >-
+        {
+          "id": "{{.random_ad_domain_id}}",
+          "machine_account_password": "{{.random_machine_account_password}}"
+        }
+      headers:
+        "Authorization": "{{.get_login_token.result.token}}"
+        "Content-Type": "application/json"
+      assertions:
+        - result.statuscode ShouldEqual 200
