@@ -41,6 +41,9 @@ configure_and_check() {
     # Successful tests leave JOB_STATUS unset (or explicitly zero).
     if [ "$JOB_STATUS" = "0" ]; then
         echo "Passed tests"
+    elif [ "${CI_JOB_STATUS:-}" = "canceled" ]; then
+        # Someone canceled this job: clean up, but leave the other jobs alone.
+        echo "\nCanceled job\n"
     else
         echo "\nFailed tests\n"
         # We don't want other jobs to be canceled when running a manual pipeline

@@ -84,3 +84,23 @@ run_case keep_nonmatching_filter yes 7 7 0 0 0 mac_auth no || exit 1
 run_case keep_invalid_filter yes 7 7 0 0 0 '[' no || exit 1
 run_case keep_matching_list yes 7 7 0 0 0 'mac_auth,unit_tests' || exit 1
 run_case keep_matching_regex yes 7 7 0 0 0 '^unit_tests_.*' || exit 1
+
+# A canceled job (cleanup from after_script, CI_JOB_STATUS=canceled) in a
+# scheduled pipeline still destroys its VMs but must not cancel other jobs.
+canceled_case() {
+    local log="$WORK/canceled.calls" output="$WORK/canceled.output" status=0
+    timeout 4s \
+        env -u TEST_ONLY PATH="$WORK/bin:$PATH" CALL_LOG="$log" \
+            PIPELINE_TIMEOUT_TEARDOWN=1s PIPELINE_TIMEOUT_CLEAN=2s \
+            JOB_STATUS=1 CI_JOB_STATUS=canceled CI_JOB_NAME=unit_tests_deb12 \
+            KEEP_VMS=no CI_PIPELINE_SOURCE=schedule \
+            bash "$TARGET" >"$output" 2>&1 || status=$?
+    if [ "$(cat "$log" 2>/dev/null)" != $'teardown\nclean' ] || \
+       grep -q 'Cancelling jobs not started' "$output"; then
+        echo "FAIL: canceled_job (exit $status)"
+        cat "$output"
+        return 1
+    fi
+    echo "PASS: canceled_job"
+}
+canceled_case || exit 1
