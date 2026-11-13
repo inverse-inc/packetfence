@@ -82,6 +82,18 @@ sub show_mfa {
     $self->render($self->get_mfa->template, $args);
 }
 
+=head2 _fail
+
+Show the error and log the user out
+
+=cut
+
+sub _fail {
+    my ($self, $message) = @_;
+    $self->app->flash->{error} = $message;
+    $self->app->redirect("/logout");
+}
+
 =head2 execute_child
 
 Find the mfa and proceed to the actions related to it
@@ -96,6 +108,20 @@ sub execute_child {
     my $args;
     
     unless($mfa){
+        my $mfa_id = $self->app->session->{mfa_id};
+        if (defined $mfa_id && length $mfa_id) {
+            # The source requires an MFA that is not configured (ex: deleted)
+            if (isenabled($self->skipable)) {
+                get_logger->error("The MFA $mfa_id triggered for $mac is not configured: skipping the optional MFA step");
+                $self->done();
+                return;
+            }
+            # The second factor cannot be checked, do not skip it
+            get_logger->error("The MFA $mfa_id triggered for $mac is not configured: blocking the authentication");
+            delete $self->app->session->{mfa_id};
+            $self->_fail("Multi-factor authentication is not available. Please contact your local support staff.");
+            return;
+        }
         get_logger->info("No mfa found for $mac. Continuing.");
         $self->done();
         return;
@@ -107,8 +133,7 @@ sub execute_child {
     }
     elsif ($self->app->request->method eq "POST") {
         if(!$mfa->verify_response($self->app->hashed_params(), $self->username)) {
-            $self->app->flash->{error} = "Unable to validate the multi-factor response. Please contact your local support staff.";
-            $self->app->redirect("/logout");
+            $self->_fail("Unable to validate the multi-factor response. Please contact your local support staff.");
         } 
         else {
             get_logger->info("MFA response validated, moving to the next step");
