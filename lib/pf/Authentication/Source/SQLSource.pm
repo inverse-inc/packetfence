@@ -90,8 +90,23 @@ sub match {
         return undef;
     }
 
+    return pf::Authentication::Rule->new(
+        id => "default",
+        class => $params->{rule_class},
+        actions => $self->static_user_attribute_actions($result),
+    );
+}
+
+=head2 static_user_attribute_actions
+
+Build the list of actions described by a row of the password table.
+
+=cut
+
+sub static_user_attribute_actions {
+    my ($self, $result) = @_;
+
     my @actions = ();
-    my $action;
 
     my $access_duration = $result->{'access_duration'};
     if (defined $access_duration) {
@@ -112,7 +127,7 @@ sub match {
     }
 
     my $sponsor = $result->{'sponsor'};
-    if ($sponsor == 1) {
+    if ($sponsor && $sponsor == 1) {
         push @actions, pf::Authentication::Action->new({
             type    => $Actions::MARK_AS_SPONSOR,
             value   => 1,
@@ -167,11 +182,7 @@ sub match {
 
     }
 
-    return pf::Authentication::Rule->new(
-        id => "default",
-        class => $params->{rule_class},
-        actions => \@actions,
-    );
+    return \@actions;
 }
 
 =head1 AUTHOR
