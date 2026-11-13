@@ -1449,15 +1449,13 @@ EAP-TEAP changes the following package configuration files:
 * [filename]`/usr/local/pf/conf/radiusd/mschap.conf`
 * [filename]`/usr/local/pf/conf/radiusd/packetfence`
 * [filename]`/usr/local/pf/conf/radiusd/packetfence-tunnel`
-* [filename]`/usr/local/pf/raddb/policy.d/packetfence`
 
 They are updated automatically unless you modified them (see the general
-procedure above); on Debian, [filename]`policy.d/packetfence` is always
-replaced. If you kept a customized [filename]`eap.conf`,
-[filename]`mschap.conf` or [filename]`policy.d/packetfence`, the following
-script adds the TEAP block and the `chrooted_mschap_mppe` module to them, and
-makes [filename]`policy.d/packetfence` use that module for TEAP. Without it,
-TEAP with EAP-MSCHAPv2 against a domain fails:
+procedure above). [filename]`/usr/local/pf/raddb/policy.d/packetfence` is
+always replaced by the package. If you kept a customized [filename]`eap.conf`
+or [filename]`mschap.conf`, the following script adds the TEAP block and the
+`chrooted_mschap_mppe` module to them. Without it, TEAP with EAP-MSCHAPv2
+against a domain fails:
 
 [source,bash]
 ----

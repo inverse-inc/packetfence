@@ -90,6 +90,26 @@ sub options_teap {
     return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Radiusd::TeapProfile->new->readAllIds};
 }
 
+=head2 validate
+
+A method listed in eap_authentication_types is rendered into eap.conf from
+its profile: an empty profile renders an invalid module block, which stops
+every radiusd instance.
+
+=cut
+
+sub validate {
+    my ($self) = @_;
+    my $value = $self->value;
+    my %enabled = map { $_ => 1 } @{ $value->{eap_authentication_types} // [] };
+    for my $check ([TEAP => 'teap_config'], [FAST => 'fast_config']) {
+        my ($type, $field) = @$check;
+        next unless $enabled{$type};
+        next if defined $value->{$field} && length $value->{$field};
+        $self->field($field)->add_error("A $type profile is required when $type is in the EAP authentication types.");
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

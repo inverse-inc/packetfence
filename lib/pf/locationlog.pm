@@ -249,15 +249,19 @@ sub locationlog_insert_start {
 
     # An undefined TEAP identity means the caller does not know it (pfsnmp,
     # VoIP, VPN, inline, the inner rounds of a TEAP authentication): keep the
-    # one of the previous row when the connection type is unchanged, so a
-    # vlan/role change does not blank it. A defined value, even empty, comes
-    # from a RADIUS authorize and replaces it: a new authentication without a
-    # TEAP user (machine only, PEAP, MAB, ...) must not inherit the previous
-    # TEAP user, even under the same outer identity.
-    my $same_conn_type = defined($locationlog_mac)
-        && ($locationlog_mac->{'connection_type'} // '') eq ($conn_type // '');
-    $teap_username    //= ($same_conn_type ? $locationlog_mac->{'teap_username'}    : undef) // '';
-    $teap_machinename //= ($same_conn_type ? $locationlog_mac->{'teap_machinename'} : undef) // '';
+    # one of the previous row when the connection type and the identity are
+    # unchanged, so a vlan/role change does not blank it. A row for another
+    # identity (the inner rounds of a new TEAP session authenticate the
+    # machine and the user under their own names) starts without it: the
+    # outer round that follows records the new identities. A defined value,
+    # even empty, comes from a RADIUS authorize and replaces it: a new
+    # authentication without a TEAP user (machine only, PEAP, MAB, ...) must
+    # not inherit the previous TEAP user, even under the same outer identity.
+    my $same_session = defined($locationlog_mac)
+        && ($locationlog_mac->{'connection_type'} // '') eq ($conn_type // '')
+        && ($locationlog_mac->{'dot1x_username'} // '') eq $user_name;
+    $teap_username    //= ($same_session ? $locationlog_mac->{'teap_username'}    : undef) // '';
+    $teap_machinename //= ($same_session ? $locationlog_mac->{'teap_machinename'} : undef) // '';
     my %values = (
         switch_id           => $switch_id,
         switch              => $switch,

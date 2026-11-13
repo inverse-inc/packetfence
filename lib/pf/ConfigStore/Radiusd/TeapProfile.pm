@@ -17,10 +17,12 @@ exposed through the pfconfig namespace config::Teap.
 use HTTP::Status qw(:constants is_error is_success);
 use Moo;
 use namespace::autoclean;
+use pf::constants;
 use pf::file_paths qw(
     $teap_config_file
     $teap_default_config_file
 );
+use pf::ConfigStore::Radiusd::EAPProfile;
 extends 'pf::ConfigStore';
 
 
@@ -31,6 +33,25 @@ sub pfconfigNamespace {'config::Teap'}
 sub default_section { 'default' }
 
 sub importConfigFile { $teap_default_config_file }
+
+=head2 canDelete
+
+A TEAP profile referenced by an EAP profile cannot be deleted: eap.conf would
+render an empty teap block and radiusd would not start.
+
+=cut
+
+sub canDelete {
+    my ($self, $id) = @_;
+    my @users = map { $_->{id} }
+      grep { ($_->{teap_config} // '') eq $id }
+      @{ pf::ConfigStore::Radiusd::EAPProfile->new->readAll('id') };
+    if (@users) {
+        return "Used by the EAP profile(s): " . join(', ', @users), $FALSE;
+    }
+
+    return $self->SUPER::canDelete($id);
+}
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 

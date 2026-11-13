@@ -164,8 +164,8 @@ sub authorize {
     # non-TEAP or machine-only authentication clears the previous ones.
     my ($teap_username, $teap_machinename);
     unless (defined $radius_request->{'FreeRADIUS-EAP-TEAP-Identity-Type'}) {
-        $teap_username    = _first_value($radius_request->{'PacketFence-TEAP-User-Name'});
-        $teap_machinename = _first_value($radius_request->{'PacketFence-TEAP-Machine-Name'});
+        $teap_username    = (listify($radius_request->{'PacketFence-TEAP-User-Name'}))[0] // '';
+        $teap_machinename = (listify($radius_request->{'PacketFence-TEAP-Machine-Name'}))[0] // '';
     }
 
     my $RAD_REPLY_REF;
@@ -1613,12 +1613,6 @@ sub _merge_radius_attrs {
         }
     }
     return map { ($_ => $merged{$_}) } @order;
-}
-
-sub _first_value {
-    my ($value) = @_;
-    return '' unless defined $value;
-    return (ref($value) eq 'ARRAY') ? ($value->[0] // '') : $value;
 }
 
 =back

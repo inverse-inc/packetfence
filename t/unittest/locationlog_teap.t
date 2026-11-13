@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 12;
+use Test::More tests => 15;
 use Utils;
 use pf::constants::config qw($WIRELESS_802_1X $WIRELESS_MAC_AUTH);
 use pf::locationlog qw(locationlog_synchronize locationlog_view_open_mac);
@@ -81,6 +81,16 @@ is($before->{teap_username}, 'alice', "TEAP user name untouched by a caller that
 # Unknown TEAP identity with another connection type is not carried over
 $row = sync($WIRELESS_MAC_AUTH, $mac, 'default', undef, undef);
 is($row->{teap_username}, '', "TEAP user name not carried to another connection type");
+
+# The inner rounds of a new TEAP session (unknown TEAP identity, under the
+# inner identities) must not carry the identities of the previous session
+sync($WIRELESS_802_1X, 'anonymous', 'default', 'alice', 'host/pc1');
+$row = sync($WIRELESS_802_1X, 'host/pc1', 'default', undef, undef);
+is($row->{teap_username}, '', "TEAP user name not carried to the inner machine round of a new session");
+$row = sync($WIRELESS_802_1X, 'bob', 'default', undef, undef);
+is($row->{teap_username}, '', "TEAP user name not carried to the inner user round of a new session");
+$row = sync($WIRELESS_802_1X, 'anonymous', 'default', 'bob', 'host/pc1');
+is($row->{teap_username}, 'bob', "TEAP user name recorded by the outer round of the new session");
 
 =head1 AUTHOR
 

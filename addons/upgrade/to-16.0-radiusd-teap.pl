@@ -6,8 +6,9 @@ to-16.0-radiusd-teap.pl
 
 =head1 DESCRIPTION
 
-Patch in-place radiusd templates that ship as %config(noreplace) so existing
-installations pick up the EAP-TEAP support added in 16.0:
+Patch in-place the radiusd templates that the package keeps when they were
+modified (conffiles) so existing installations pick up the EAP-TEAP support
+added in 16.0:
 
   - conf/radiusd/eap.conf       : add the [% ELSIF eaptype == "TEAP" %] block
                                   before the FAST elsif, sourced from
@@ -16,10 +17,10 @@ installations pick up the EAP-TEAP support added in 16.0:
                                   module block referenced by
                                   raddb/policy.d/packetfence (TEAP + Domain
                                   inner MSCHAPv2 path).
-  - raddb/policy.d/packetfence  : make packetfence-mschap-authenticate use
-                                  chrooted_mschap_mppe for TEAP inner
-                                  requests of a domain.
   - conf/radiusd/teap.conf      : ensure the file exists (touch if missing).
+
+raddb/policy.d/packetfence is not a conffile: the package always installs the
+new version, which already uses chrooted_mschap_mppe for TEAP.
 
 The script is idempotent: re-running it after a successful pass is a no-op.
 
@@ -40,7 +41,6 @@ use pf::util;
 run_as_pf();
 
 my $CONF_DIR = '/usr/local/pf/conf/radiusd';
-my $POLICY_FILE = '/usr/local/pf/raddb/policy.d/packetfence';
 my $STAMP    = strftime('%Y%m%d%H%M%S', localtime);
 
 my ($pf_uid, $pf_gid) = (getpwnam('pf'))[2,3];
@@ -49,7 +49,6 @@ my $changes = 0;
 
 $changes += patch_eap_conf();
 $changes += patch_mschap_conf();
-$changes += patch_policy();
 $changes += ensure_teap_conf();
 
 if ($changes) {
@@ -123,38 +122,6 @@ sub patch_mschap_conf {
 
     write_file($target, $current);
     print "Patched $target with chrooted_mschap_mppe block.\n";
-    return 1;
-}
-
-sub patch_policy {
-    my $target = $POLICY_FILE;
-
-    return 0 unless -f $target;
-    return 0 if pending_pkgnew($target);
-
-    my $current = slurp($target);
-    if ($current =~ /\bchrooted_mschap_mppe\b/) {
-        print "$target already uses chrooted_mschap_mppe; skipping.\n";
-        return 0;
-    }
-
-    # The chrooted_mschap call of the domain user branch of packetfence-mschap-authenticate.
-    # Only patch inside that policy block (up to its closing brace in the first column),
-    # never a chrooted_mschap call of a later policy.
-    my $patched;
-    $current =~ s{(^packetfence-mschap-authenticate\s*\{.*?^\})}{
-        my $block = $1;
-        $patched = $block =~ s/^([ \t]*)chrooted_mschap[ \t]*\n/$1if ( &outer.EAP-Type == TEAP ) {\n$1    chrooted_mschap_mppe\n$1} else {\n$1    chrooted_mschap\n$1}\n/m;
-        $block;
-    }sme;
-    unless ($patched) {
-        warn "Could not find chrooted_mschap in packetfence-mschap-authenticate of $target; aborting policy patch.\n";
-        return 0;
-    }
-
-    backup($target);
-    write_file($target, $current);
-    print "Patched $target to use chrooted_mschap_mppe for TEAP.\n";
     return 1;
 }
 

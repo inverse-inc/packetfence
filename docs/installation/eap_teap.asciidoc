@@ -41,8 +41,9 @@ It is known not to work with:
 
 Windows by default supports EAP-MSCHAPv2 and EAP-TLS when you configure 802.1x client and TEAP.
 PacketFence supports EAP-MSCHAPv2 and EAP-TLS as inner methods. Each TEAP profile uses one inner method per
-identity type (see *User EAP Type* and *Machine EAP Type* below): the shipped "Default" profile uses EAP-TLS
-for the user identity. To use EAP-MSCHAPv2, create a TEAP profile with the EAP types set to MSCHAPv2.
+identity type (see *Default EAP Type*, *User EAP Type* and *Machine EAP Type* below): the shipped "Default"
+profile only requests the user identity and authenticates it with EAP-TLS. To use EAP-MSCHAPv2, create a TEAP
+profile with the EAP types set to MSCHAPv2.
 
 ==== EAP chaining
 
@@ -71,19 +72,28 @@ By default, PacketFence is configured only verifying user identities.
 
 ==== Enable TEAP in PacketFence
 TEAP is not enabled by default, enable it in the EAP profiles that should offer it.
-Change the *Authority Identity* of the TEAP profile first (see below).
+Create your own TEAP profile first: the shipped "Default" profile is read-only and its *Authority Identity*
+must be changed (see below).
+
+Create a TEAP profile
+
+1. Go to *Configuration* -> *System Configuration* -> *RADIUS* -> *TEAP Profiles*
+2. Clone the "Default" profile (or create a new one) and give it a name.
+3. Set the *Authority Identity* to a value unique to your installation, select the TLS profile you previously
+   created or updated, and set the *Identity Types* and the inner EAP types as needed, then save.
+
+image::teap-profiles.jpg[scaledwidth="100%",alt="TEAP Profile Settings"]
+
+Enable TEAP in the EAP profile
 
 1. Go to *Configuration* -> *System Configuration* -> *RADIUS* -> *EAP Profiles*
-2. In *EAP Authentication types*, adds "TEAP" and click save.
+2. In *EAP Authentication types*, add "TEAP", select your profile in *TEAP Profile* and click save. A TEAP
+   profile is required as soon as TEAP is in the authentication types.
 3. Restart the radiusd related services if you don't need any other changes.
 
 image::eap-profile.jpg[scaledwidth="100%",alt="EAP Profile Settings"]
 
-Config TEAP Profiles
-
-1. Go to *Configurations* -> *System Configuration* -> *RADIUS* -> *TEAP Profiles*
-2. You will see a "Default" Profile in the page, create a new one or clone from the default config if you need to change the settings.
-3. In the teap profile you are editing, you can change the TLS profile you previously created or updated, or change other settings or the *Identity Types*
+TEAP profile settings
 
 *Identity Types* is a setting that tells the RADIUS server which identities should be authenticated. Supported values are "machine", "machine,user", "user", "user,machine".
 If you want to authenticate both machine identity and user identity, select "machine,user" or "user,machine".
@@ -92,14 +102,12 @@ If you want to authenticate both machine identity and user identity, select "mac
 *Machine EAP Type* are optional and override it for the user identity or the machine identity, for instance EAP-TLS
 for the machine and EAP-MSCHAPv2 for the user. The RADIUS server requires that method: a client that asks for
 another one inside the tunnel is rejected, so they must match the inner methods configured on your clients. The
-shipped "Default" profile uses EAP-TLS for both identities.
+shipped "Default" profile sets EAP-TLS as the default EAP type, with no per-identity override.
 
 *Authority Identity* identifies your RADIUS server to TEAP supplicants (per RFC 7170). The shipped default
 `packetfence.local` MUST be changed for any production deployment, and MUST be identical across every node
 of a cluster. A domain name owned by your organization is recommended. The field accepts only letters,
-digits, dot, underscore, dash, and colon.
-
-image::teap-profiles.jpg[scaledwidth="100%",alt="EAP Profile Settings"]
+digits, dot, underscore, dash, and colon. A TEAP profile selected by an EAP profile cannot be deleted.
 
 Restart radiusd service
 
