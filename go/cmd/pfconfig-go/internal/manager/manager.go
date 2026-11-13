@@ -54,9 +54,9 @@ func ExtractQuery(s string) (Query, error) {
 func NewManager(confFolder string, cache *cache.ShardedCache[*loader.Conf]) *Manager {
 	m := Manager{
 		confFolder: confFolder,
+		namespaces: make(map[string]*ns.NamespaceInfos, len(ns.NamespaceDefinitions)),
+		cache:      cache,
 	}
-	m.namespaces = make(map[string]*ns.NamespaceInfos, len(ns.NamespaceDefinitions))
-	m.cache = cache
 	for _, ns := range ns.NamespaceDefinitions {
 		ns.Path = filepath.Clean(filepath.Join(confFolder, ns.Path))
 		m.namespaces[ns.Name] = &ns
@@ -98,7 +98,7 @@ func (m *Manager) Process(ctx context.Context, logger *slog.Logger, request Requ
 	}
 	conf, ok := m.getCache(query.Namespace)
 	if !ok {
-		// TODO: cache here
+		// not in cache or expired, build it
 		return nil, errors.ErrUnsupported
 	}
 	data, err := dispatchMethod(ctx, logger, conf, request)
