@@ -38,5 +38,10 @@ export default {
   },
   delete: id => {
     return apiCall.delete(['config', 'provisioning', id])
+  },
+  testJq: data => {
+    return apiCall.postQuiet('config/provisionings/test_jq', data).then(response => {
+      return response.data
+    })
   }
 }
