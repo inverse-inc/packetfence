@@ -26,15 +26,15 @@ var trueFalseValues = map[string]bool{
 	"":         false,
 }
 
-func StringToBytes(s string) []byte {
-	return unsafe.Slice(unsafe.StringData(s), len(s))
-}
-
 func IsEnabled(s string) bool {
 	if v, ok := trueFalseValues[s]; ok {
 		return v
 	}
 	return false
+}
+
+func StringToBytes(s string) []byte {
+	return unsafe.Slice(unsafe.StringData(s), len(s))
 }
 
 // NewValueFromType Creates a zero value for generic type T:
