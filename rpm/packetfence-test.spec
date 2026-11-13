@@ -119,6 +119,9 @@ PacketFence test files. This package contains all files related to PacketFence t
 # addons/functions tests
 %attr(0755, -, -)     /usr/local/pf/t/addons-functions/*.tests
 
+# pf-cluster-upgrade tests
+%attr(0755, -, -)     /usr/local/pf/t/pf-cluster-upgrade/*.tests
+
 %changelog
 * Mon Aug 24 2026 Inverse <info@inverse.ca> - 16.0.0-1
 - New release 16.0.0

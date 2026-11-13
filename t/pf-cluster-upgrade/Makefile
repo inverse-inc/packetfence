@@ -1,0 +1,2 @@
+test:
+	./run-all.tests
