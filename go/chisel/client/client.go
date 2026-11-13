@@ -58,16 +58,17 @@ type TLSConfig struct {
 // Client represents a client instance
 type Client struct {
 	*cio.Logger
-	config    *Config
-	computed  settings.Config
-	sshConfig *ssh.ClientConfig
-	tlsConfig *tls.Config
-	proxyURL  *url.URL
-	server    string
-	connCount cnet.ConnCount
-	stop      func()
-	eg        *errgroup.Group
-	tunnel    *tunnel.Tunnel
+	config      *Config
+	computed    settings.Config
+	sshConfig   *ssh.ClientConfig
+	tlsConfig   *tls.Config
+	proxyURL    *url.URL
+	server      string
+	connCount   cnet.ConnCount
+	stop        func()
+	eg          *errgroup.Group
+	tunnel      *tunnel.Tunnel
+	bindPortMap map[string]string
 }
 
 // NewClient creates a new client instance
@@ -162,6 +163,17 @@ func NewClient(c *Config) (*Client, error) {
 		}
 		client.computed.Remotes = append(client.computed.Remotes, r)
 	}
+	//validate remote binds
+	ports := strings.Split(os.Getenv("PFCONNECTOR_BIND_PORT_MAP"), ",")
+	remapped, err := settings.ValidateRemappedRemoteBinds(ports)
+	if err != nil {
+		return nil, fmt.Errorf("PFCONNECTOR_BIND_PORT_MAP: %w", err)
+	}
+	client.bindPortMap = remapped
+	for from, to := range client.bindPortMap {
+		client.Infof("Bind port map: %s -> %s", from, to)
+	}
+	
 	//outbound proxy
 	if p := c.Proxy; p != "" {
 		client.proxyURL, err = url.Parse(p)
@@ -297,9 +309,14 @@ func (c *Client) Start(ctx context.Context) error {
 							remotes = append(remotes, remote)
 						}
 					}
-					err = c.tunnel.BindRemotes(ctx, remotes)
-					if err != nil {
-						fmt.Println("Error binding remotes obtained from the pfconnector server", err)
+					remappedRemotes := settings.RemapRemoteBinds(c.bindPortMap, remotes)
+					if len(remappedRemotes) == 0 {
+						fmt.Println("No remote remapped bounds available")
+					} else {
+						err = c.tunnel.BindRemotes(ctx, remappedRemotes)
+						if err != nil {
+							fmt.Println("Error binding remotes obtained from the pfconnector server", err)
+						}
 					}
 				}()
 			}
