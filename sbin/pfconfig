@@ -440,7 +440,11 @@ sub encode_output {
             $result = $json->encode($data);
         };
         if($@) {
-            return $json->encode({error => "Cannot transform object into JSON data: $@"});
+            # Keep the last touch cache: it is what tells a client whether the resources it has
+            # loaded are still current, and a reply without it leaves the client unable to know
+            my %error = (error => "Cannot transform object into JSON data: $@");
+            $error{last_touch_cache} = $data->{last_touch_cache} if defined($data->{last_touch_cache});
+            return $json->encode(\%error);
         }
         return $result;
     }
