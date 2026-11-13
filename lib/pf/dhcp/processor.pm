@@ -106,6 +106,13 @@ my $sso_refresh_cache = CHI->new( driver => 'RawMemory', datastore => $sso_refre
 # the [storage fingerbank]
 # expires_in (24h) — long enough to suppress renewal storms, short enough
 # that updated Fingerbank signatures get re-applied within a day.
+#
+# The signature also carries the node's detect_date. Deleting a node leaves
+# this per-worker cache untouched, so a device deleted then reconnecting with
+# the same fingerprint would otherwise be suppressed for up to a day and the
+# recreated node would never get its device type (nor the security events
+# triggered by it). Every node insert stamps detect_date (pf::dal::node), so a
+# recreated node always carries a new one and misses the cache.
 my $fingerbank_signature_hash = {};
 my $fingerbank_signature_cache = CHI->new( driver => 'RawMemory', datastore => $fingerbank_signature_hash );
 Readonly::Scalar my $FINGERBANK_SIGNATURE_TTL => 86400;
@@ -266,8 +273,14 @@ sub processFingerbank {
         # signature must cover every field mapped into fingerbank_args that
         # influences classification, including the DHCPv6-derived ones, or a
         # change in only the DHCPv6 fingerprint/enterprise would be suppressed.
+        # It is prefixed with the node's detect_date so a node deleted and
+        # recreated since the last packet (no node, or a node with no
+        # detect_date yet, yields an empty prefix) is profiled again.
         my $mac = $fingerbank_args->{mac};
-        my $signature = ($fingerbank_args->{dhcp_fingerprint} // '') . '|'
+        my $node = node_attributes($mac);
+        my $detect_date = (ref($node) eq 'HASH' && defined($node->{detect_date})) ? $node->{detect_date} : '';
+        my $signature = $detect_date . '|'
+                      . ($fingerbank_args->{dhcp_fingerprint} // '') . '|'
                       . ($fingerbank_args->{dhcp_vendor} // '') . '|'
                       . ($fingerbank_args->{computername} // '') . '|'
                       . ($fingerbank_args->{dhcp6_fingerprint} // '') . '|'
