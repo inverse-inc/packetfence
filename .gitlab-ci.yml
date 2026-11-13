@@ -758,6 +758,7 @@ variables:
   - pfstats
   - caddy-l4
   - pfdns-connector
+  - pfdhcp
 
 ################################################################################
 # JOBS
