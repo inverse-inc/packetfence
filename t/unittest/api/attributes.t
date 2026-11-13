@@ -24,6 +24,7 @@ sub isAForkFunction2 :Public :Fork {}
 sub isaRest : Public :RestPath(/path) {}
 sub isAPrivateFunction {}
 sub isAQueueFunction :Queue {}
+sub isAnActionFunction :Public :AllowedAsAction(mac, $mac) {}
 sub anotherFunction {}
 }
 
@@ -35,10 +36,16 @@ sub isAPublicFunction2 {}
 sub isAForkFunction2 {}
 }
 
+{
+package api::other;
+use base qw(pf::api::attributes);
+sub queued :Queue {}
+}
+
 use strict;
 use warnings;
 
-use Test::More tests => 18;                      # last test to print
+use Test::More tests => 25;                      # last test to print
 
 use Test::NoWarnings;
 
@@ -46,9 +53,6 @@ sub full_tests {
     ok(api::test->isPublic("isAPublicFunction"),    "isAPublicFunction is public");
     ok(api::test->isPublic("isAPublicFunction2"),   "isAPublicFunction2 is public");
     ok(!api::test->isPublic("isAPrivateFunction"),  "isAPrivateFunction is private");
-    ok(!api::test->isQueue("isAPrivateFunction"),  "isAPrivateFunction is not queueable");
-    ok(api::test->isQueue("isAQueueFunction"),  "isAQueueFunction is queueable");
-    ok(api::test->isQueue("isAPublicFunction"),  "isAPublicFunction is queueable");
     ok(!api::test->isPublic("isAQueueFunction"),  "isAQueueFunction is not public");
     ok(ref(api::test->restPath("/path")) eq 'CODE', "/path is a rest path");
     ok(!defined api::test->restPath("/path/"),      "/path/ is not a rest path");
@@ -60,6 +64,16 @@ sub full_tests {
     ok(api::test->shouldFork("isAForkFunction"),    "isAForkFunction should fork");
     ok(api::test->shouldFork("isAForkFunction2"),   "isAForkFunction2 should fork");
     ok(!api::test2->shouldFork("isAForkFunction2"), "isAForkFunction is not forkable anymore");
+    ok(api::test->isAllowedInQueue("isAQueueFunction"),     "isAQueueFunction is allowed in the queue");
+    ok(api::test->isAllowedInQueue("isAnActionFunction"),   "isAnActionFunction is allowed in the queue");
+    ok(!api::test->isAllowedInQueue("isAPublicFunction"),   "isAPublicFunction is not allowed in the queue");
+    ok(!api::test->isAllowedInQueue("isAPrivateFunction"),  "isAPrivateFunction is not allowed in the queue");
+    ok(!api::test->isAllowedInQueue("api::other::queued"),  "a fully-qualified method of another package is not allowed in the queue");
+    ok(!api::test->isAllowedInQueue("api::test::isAQueueFunction"), "a fully-qualified method is not allowed in the queue");
+    ok(!api::test->isAllowedInQueue("isAQueueFunction\n"),   "a method name with a trailing newline is not allowed in the queue");
+    ok(!api::test->isAllowedInQueue(""),                    "an empty method name is not allowed in the queue");
+    ok(!api::test->isAllowedInQueue(undef),                 "undef is not allowed in the queue");
+    ok(!api::test->isAllowedInQueue(["isAQueueFunction"]),  "a reference is not allowed in the queue");
 }
 
 full_tests();
