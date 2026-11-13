@@ -1,0 +1,36 @@
+name: Iptables stops cleanly before management is configured
+testcases:
+- name: iptables_without_management
+  steps:
+  - type: exec
+    script: |
+      perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::config -e 'die "Management must be unset before this test\n" if ref($pf::config::management_network)'
+    assertions:
+      - result.code ShouldEqual 0
+
+  # Start the real unit so ExecStopPost still restores basic firewall/Docker rules.
+  - type: exec
+    script: systemctl start packetfence-iptables.service
+    assertions:
+      - result.code ShouldEqual 0
+
+  - type: exec
+    script: |
+      # Wait beyond RestartSec=5 to catch an automatic restart loop.
+      sleep 7
+      systemctl show packetfence-iptables.service -p ActiveState -p Result -p ExecMainStatus -p NRestarts
+    assertions:
+      - result.code ShouldEqual 0
+      - result.systemout ShouldContainSubstring "ActiveState=inactive"
+      - result.systemout ShouldContainSubstring "Result=success"
+      - result.systemout ShouldContainSubstring "ExecMainStatus=78"
+      - result.systemout ShouldContainSubstring "NRestarts=0"
+
+  - type: exec
+    script: |
+      set -e
+      iptables -S INPUT | grep -Fx -- '-P INPUT ACCEPT'
+      iptables -S FORWARD | grep -Fx -- '-P FORWARD ACCEPT'
+      iptables -t nat -C POSTROUTING -s 100.64.0.0/10 ! -o docker0 -j MASQUERADE
+    assertions:
+      - result.code ShouldEqual 0
