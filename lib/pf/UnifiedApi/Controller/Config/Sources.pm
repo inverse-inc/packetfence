@@ -53,6 +53,7 @@ use pfappserver::Form::Config::Source::SMS;
 use pfappserver::Form::Config::Source::SQL;
 use pfappserver::Form::Config::Source::SponsorEmail;
 use pfappserver::Form::Config::Source::Stripe;
+use pfappserver::Form::Config::Source::TeltonikaSMSGateway;
 use pfappserver::Form::Config::Source::Twilio;
 use pfappserver::Form::Config::Source::WindowsLive;
 use pfappserver::Form::Config::Source::Potd;
@@ -89,6 +90,7 @@ our %TYPES_TO_FORMS = (
       SponsorEmail
       SQL
       Stripe
+      TeltonikaSMSGateway
       Twilio
       WindowsLive
       )
