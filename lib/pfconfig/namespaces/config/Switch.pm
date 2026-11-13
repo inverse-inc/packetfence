@@ -52,6 +52,13 @@ sub build_child {
         SNMPCommunityTrap => 'public'
     };
 
+    # The RADIUS attributes of the roles, parsed in the section that sets them
+    while (my ($section, $data) = each %tmp_cfg) {
+        for my $key (grep { /^.+RadiusAttributes$/ && $data->{$_} } keys %$data) {
+            $data->{$key} = $self->_buildRadiusAttributes($section, $key, $data->{$key});
+        }
+    }
+
     my @keys;
     # default is always first
     push @keys, "default";
@@ -86,12 +93,12 @@ sub build_child {
 
         $self->updateReverseLookup($name, $switch, qw(group));
         # transforming vlans and roles to hashes
-        my %merged = ( Vlan => {}, Role => {}, AccessList => {} , Url => {} , Vpn => {} , Interface => {}, Network => {}, NetworkFrom => {});
+        my %merged = ( Vlan => {}, Role => {}, AccessList => {} , Url => {} , Vpn => {} , Interface => {}, Network => {}, NetworkFrom => {}, RadiusAttributes => {});
         my %enabled = ( VlanEnabled => {}, RoleEnabled => {}, AccessListEnabled => {} , UrlEnabled => {} , VpnEnabled => {} , InterfaceEnabled => {});
         my %roles;
-        foreach my $key ( grep {/(Vlan|Role|AccessList|Url|Vpn|Interface|Network|NetworkFrom|VlanEnabled|RoleEnabled|AccessListEnabled|UrlEnabled|VpnEnabled|InterfaceEnabled)$/} keys %{$switch} ) {
+        foreach my $key ( grep {/(Vlan|Role|AccessList|Url|Vpn|Interface|Network|NetworkFrom|RadiusAttributes|VlanEnabled|RoleEnabled|AccessListEnabled|UrlEnabled|VpnEnabled|InterfaceEnabled)$/} keys %{$switch} ) {
             next unless my $value = $switch->{$key};
-            if ( my ( $type_key, $type ) = ( $key =~ /^(.+)(Vlan|Role|AccessList|Url|Vpn|Interface|Network|NetworkFrom|VlanEnabled|RoleEnabled|AccessListEnabled|UrlEnabled|VpnEnabled|InterfaceEnabled)$/ ) ) {
+            if ( my ( $type_key, $type ) = ( $key =~ /^(.+)(Vlan|Role|AccessList|Url|Vpn|Interface|Network|NetworkFrom|RadiusAttributes|VlanEnabled|RoleEnabled|AccessListEnabled|UrlEnabled|VpnEnabled|InterfaceEnabled)$/ ) ) {
                 if ($type =~ /Enabled$/) {
                     $enabled{$type}{$type_key} = $value;
                 } else {
@@ -135,6 +142,7 @@ sub build_child {
         $switch->{vpn}          = $merged{Vpn};
         $switch->{networks}     = $merged{Network};
         $switch->{networks_from}= $merged{NetworkFrom};
+        $switch->{radius_attributes} = $merged{RadiusAttributes};
 
         $switch->{interfaces}   = $merged{Interface};
         $switch->{VoIPEnabled}  = (
@@ -217,6 +225,24 @@ sub _splitInlineTrigger {
     my ($trigger) = @_;
     my ( $type, $value ) = split( /::/, $trigger );
     return { type => $type, value => $value };
+}
+
+# One "Attribute-Name = value" per line, as the RADIUS attributes of the switch templates
+sub _buildRadiusAttributes {
+    my ($self, $section, $key, $value) = @_;
+    my @attributes;
+    for my $line (split /\n/, $value) {
+        $line =~ s/^\s+|\s+$//g;
+        my ( $name, $attribute_value ) = split( /\s*=\s*/, $line, 2 );
+        if (!defined $attribute_value) {
+            my $error_msg = "$self->{file}: [$section] $key: '$line' is not a valid radius attribute";
+            get_logger->error($error_msg);
+            warn($error_msg);
+            return undef;
+        }
+        push @attributes, $name, $attribute_value;
+    }
+    return \@attributes;
 }
 
 =head1 AUTHOR

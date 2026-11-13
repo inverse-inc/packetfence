@@ -93,6 +93,7 @@ VoIPCDPDetect=Y
 VoIPDHCPDetect=Y
 VoIPFullAuthorization=N
 AccessListMap=N
+RadiusAttributesMap=N
 UrlMap=N
 useCoA=Y
 radiusDeauthUseConnector=Y
