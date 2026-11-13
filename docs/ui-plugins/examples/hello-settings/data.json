@@ -1,0 +1,1 @@
+{ "recipients": "admin@example.com", "sender": "pf@example.com", "server": "smtp.example.com", "port": 25, "verify_tls": "enabled" }

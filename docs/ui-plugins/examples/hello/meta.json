@@ -1,0 +1,3 @@
+{
+  "proto": { "type": "string", "allowed": [ { "value": "udp", "text": "UDP" }, { "value": "tcp", "text": "TCP" } ] }
+}

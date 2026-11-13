@@ -17,8 +17,9 @@ const components = {
 
 import { computed } from '@vue/composition-api'
 import i18n from '@/utils/locale'
+import { areaSections } from '@/plugins'
 const setup = () => {
-  const sections = computed(() => ([
+  const sections = computed(() => areaSections('auditing', [ // add the UI plugins items, see docs/ui-plugins/README.md
     {
       name: i18n.t('RADIUS Audit Logs'),
       path: '/auditing/radiuslogs/search',

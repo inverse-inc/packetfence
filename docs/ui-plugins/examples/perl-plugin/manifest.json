@@ -1,0 +1,33 @@
+{
+  "manifestVersion": 1,
+  "id": "notes-perl",
+  "title": { "en": "Notes (perl plugin)", "fr": "Notes (plugin perl)" },
+  "description": { "en": "A collection of notes, stored by the plugin service." },
+  "menu": { "area": "configuration", "section": "/configuration/integration", "can": "read syslog" },
+  "template": "collection",
+  "api": {
+    "list": "notes",
+    "listOptions": "notes",
+    "search": "notes/search",
+    "create": { "path": "notes", "can": "create syslog" },
+    "item": "notes/{id}",
+    "itemOptions": "notes/{id}",
+    "update": { "path": "notes/{id}", "can": "update syslog" },
+    "delete": { "path": "notes/{id}", "can": "delete syslog" }
+  },
+  "collection": {
+    "columns": [
+      { "key": "id", "label": { "en": "Name", "fr": "Nom" }, "sortable": true },
+      { "key": "text", "label": { "en": "Text", "fr": "Texte" } }
+    ],
+    "searchFields": ["id", "text"]
+  },
+  "form": {
+    "fields": [
+      { "namespace": "id", "component": "BaseFormGroupInput", "label": { "en": "Name", "fr": "Nom" },
+        "validators": [ { "fn": "required" }, { "fn": "matches", "args": ["^[a-z0-9-]+$"], "message": { "en": "Lowercase letters, digits and dashes." } } ] },
+      { "namespace": "text", "component": "BaseFormGroupTextarea", "label": { "en": "Text", "fr": "Texte" },
+        "validators": [ { "fn": "required" } ] }
+    ]
+  }
+}
