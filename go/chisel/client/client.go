@@ -173,7 +173,7 @@ func NewClient(c *Config) (*Client, error) {
 	for from, to := range client.bindPortMap {
 		client.Infof("Bind port map: %s -> %s", from, to)
 	}
-	
+
 	//outbound proxy
 	if p := c.Proxy; p != "" {
 		client.proxyURL, err = url.Parse(p)
@@ -309,7 +309,10 @@ func (c *Client) Start(ctx context.Context) error {
 							remotes = append(remotes, remote)
 						}
 					}
-					remappedRemotes := settings.RemapRemoteBinds(c.bindPortMap, remotes)
+					remappedRemotes, conflicts := settings.RemapRemoteBinds(c.bindPortMap, remotes)
+					for _, conflict := range conflicts {
+						c.Infof("PFCONNECTOR_BIND_PORT_MAP: skipping remote bind %s", conflict)
+					}
 					if len(remappedRemotes) == 0 {
 						fmt.Println("No remote remapped bounds available")
 					} else {
