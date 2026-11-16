@@ -525,3 +525,9 @@ uuid
 EOT
 
 [sentinelone]
+
+[generic_http]
+fields= <<EOT
+result
+results
+EOT

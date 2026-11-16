@@ -284,6 +284,56 @@ BEGIN {
             input => { },
             out   => 'HELLO world',
         },
+        {
+            tmpl  => '${json_quote($value)}',
+            input => { value => 'bob"x' },
+            out   => '"bob\"x"',
+        },
+        {
+            tmpl  => '${json_quote($value)}',
+            input => { value => "a\nb" },
+            out   => '"a\nb"',
+        },
+        {
+            tmpl  => '${json_quote($value)}',
+            input => { value => 'a\b' },
+            out   => '"a\\\\b"',
+        },
+        {
+            tmpl  => '${json_quote($value)}',
+            input => { value => undef },
+            out   => 'null',
+        },
+        {
+            tmpl  => '${json_quote($value)}',
+            input => { value => "Ren\x{c3}\x{a9}" },
+            out   => '"Ren\u00e9"',
+        },
+        {
+            tmpl  => '${url_quote($value)}',
+            input => { value => 'bob&admin=1' },
+            out   => 'bob%26admin%3D1',
+        },
+        {
+            tmpl  => '${url_quote($value)}',
+            input => { value => 'aa:bb:cc:dd:ee:ff' },
+            out   => 'aa%3Abb%3Acc%3Add%3Aee%3Aff',
+        },
+        {
+            tmpl  => '${url_quote($value)}',
+            input => { value => 'a-b_c.d~e' },
+            out   => 'a-b_c.d~e',
+        },
+        {
+            tmpl  => '${url_quote($value)}',
+            input => { value => "Ren\x{c3}\x{a9}" },
+            out   => 'Ren%C3%A9',
+        },
+        {
+            tmpl  => '${url_quote($value)}',
+            input => { value => undef },
+            out   => '',
+        },
     );
 }
 
