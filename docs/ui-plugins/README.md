@@ -8,7 +8,7 @@ already provides, listed in
 [`html/pfappserver/root/src/plugins/catalog.json`](../../html/pfappserver/root/src/plugins/catalog.json).
 
 This works the same on a systemd host and on Kubernetes: only the
-PacketFence database (the `chi_cache` table) and HTTP are involved.
+PacketFence database (the `ui_plugin` table) and HTTP are involved.
 
 **Writing a plugin:** [`SCAFFOLDING.md`](SCAFFOLDING.md) builds one from
 scratch, with a complete service in Go
@@ -19,11 +19,11 @@ scratch, with a complete service in Go
 
 ```
 plugin service starts, serves <scheme>://<host>:<port>/manifest.json (https unless on the loopback)
-  registers: the row ui_plugins::<name> of chi_cache       (Go or Perl accessor)
+  registers: its row of the ui_plugin table                (Go or Perl accessor)
 
 admin logs in
   GET /api/v1/plugins               api-frontend, existing Go "api" handler
-    reads the registrations         chi_cache, at most every 5s
+    reads the registrations         ui_plugin table, at most every 5s
     fetches each manifest           3s timeout, then refreshed in the background (30s, 5s for a failure)
     validates it against the catalog, leaves out (and logs) unreachable or invalid ones
   the UI adds the routes and sidebar items of each plugin
@@ -44,6 +44,12 @@ deregistering (crash, killed pod) stays registered: it disappears from the UI
 once a refresh of its manifest fails, within about 30s, and its pages answer
 502 ("The plugin … is unavailable") meanwhile. It is listed again as soon as
 its manifest answers, or when it registers again.
+
+The UI adds the routes of the plugins once per session, when the admin logs
+in or reloads the page: a manifest that gains a page after that (an
+`api.create` adds New and Clone) needs a reload of the admin UI to show it.
+The routes of a plugin that deregisters stay until the reload, they show the
+unavailable view.
 
 The registrations are rows of the database: they survive a restart of any
 service and every api-frontend reads the same ones, whatever the number of
@@ -80,9 +86,10 @@ Deregistering a plugin that is not registered is not an error. The Go
 functions `RegisterDB`, `DeregisterDB`, `GetDB` and `ListDB` do the same with
 a `*sql.DB` of your own.
 
-The row, for reference: key `ui_plugins::<name>`, value
-`{"name":…,"host":…,"port":…}`, `expires_at` NULL (pfcron's
-`cleanup_chi_database_cache` never removes it).
+The table, for reference: `ui_plugin` (`name` primary key, `host`, `port`),
+one row per plugin, kept until the plugin deregisters. A row is validated again
+when it is read: one written by hand that breaks the rules above is logged and
+left out.
 
 Examples:
 
@@ -106,6 +113,9 @@ other host is reached over **HTTPS**: its certificate must be valid for the
 registered host and chain to the system authorities or to
 `/usr/local/pf/conf/ssl/ui_plugins_ca.pem` (optional, PEM). Redirects are not
 followed and the proxy settings of the environment are not used.
+That file is read once, when api-frontend first contacts a plugin, and the
+api-frontend log says whether it was loaded or is absent: after adding or
+rotating it, restart api-frontend.
 
 **What is passed.** Only the API methods the manifest declares: the path must
 match one of its `api` paths (`{id}` is one segment, never empty, `.` or
@@ -214,12 +224,45 @@ fine.
 | `component` | a core component of the catalog, eg: `BaseFormGroupInput`, `BaseFormGroupChosenOne`, `BaseFormGroupSwitch` |
 | `label`, `text`, `placeholder` | translatable texts |
 | `props` | other properties of the component (eg: `options`, `enabledValue`). Not the ones set from the field properties or rendered as HTML (`forbiddenProps` of the catalog) |
-| `when` | show the field only when another one `equals`, `notEquals` or is `in` a value |
+| `when` | show the field only when another one `equals`, `notEquals` or is `in` a list of values (one value at least); exactly one of the three |
 | `can` | show the field only to the admins allowed, see [ACL](#acl) |
-| `validators` | `[{ "fn": "isPort" }, { "fn": "min", "args": [2], "message": { "en": "…" } }]`, the core validators of the catalog. A `matches` regular expression has at most 256 characters and no nested quantifiers (`(a+)+`) |
+| `validators` | `[{ "fn": "isPort" }, { "fn": "min", "args": [2], "message": { "en": "…" } }]`, the core validators of the catalog. A `matches` regular expression follows the rules below |
 
 A tab (`tabs[]`) can also have a `can`: it is only shown to the admins
 allowed.
+
+#### `matches` regular expressions
+
+The browser runs the regular expression (a JavaScript `RegExp` without
+flags) on every keystroke, and the API checks it when it validates the
+manifest. Only the syntax both read the same way is accepted:
+
+- at most 256 characters
+- escapes: `\d \D \w \W \s \S \b \B \n \r \t \f \v`, `\xHH` (two
+  hexadecimal digits) and an escaped character that is not a letter or a digit
+  (`\.`, `\-`, `\/`, `\]`…)
+- groups: `(…)` and `(?:…)` only: no flags (`(?i)`), named groups
+  (`(?P<id>…)`, `(?<id>…)`), lookarounds (`(?=…)`) or backreferences (`\1`)
+- no POSIX classes (`[[:alpha:]]`, use `[a-zA-Z]`), no `\p{…}`, `\A`, `\z`,
+  `\Q…\E` or `\x{…}`; a `]` first in a class is escaped (`[\]a]`)
+- no nested quantifiers: a group repeated more than once (`*`, `+`, `{2,}`,
+  `{1,3}`, `{3}`) cannot hold a quantifier (`*`, `+`, `?`, a variable
+  `{m,n}`) or an alternation of more than single characters. The browser
+  engine backtracks: `^(a|aa)+$`, `^((a+)b?)*$` or `^(\d+\.?)+$` freeze the
+  page on a 30 characters input. A fixed count and an alternation of single
+  characters are fine: `^(?:[a-f0-9]{2}:){5}[a-f0-9]{2}$`, `^(a|b)+$`.
+
+A refused regular expression makes the whole manifest invalid: the plugin is
+left out of the UI and the API logs the reason. Rewrite a nested pattern with
+one level of repetition, or use a core validator:
+
+| refused | instead |
+|---|---|
+| `^(\d+\.?)+$` | `^[\d.]+$` |
+| `^(\w+-?)+$` | `^[\w-]+$` |
+| `^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$` | the `isIpv4` validator |
+| `^(?=.*\d).+$` | `^.*\d.*$` |
+| `^(?i)[a-z]+$` | `^[a-zA-Z]+$` |
 
 The texts of a manifest are shown as text: the markup of a `text` or a
 validator `message` is escaped, a plugin cannot add HTML to the UI.

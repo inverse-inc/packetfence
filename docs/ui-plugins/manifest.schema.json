@@ -617,7 +617,8 @@
             "equals": {},
             "notEquals": {},
             "in": {
-              "type": "array"
+              "type": "array",
+              "minItems": 1
             }
           }
         },
@@ -769,7 +770,7 @@
                   {
                     "type": "string",
                     "maxLength": 256,
-                    "description": "At most 256 characters, no nested quantifiers."
+                    "description": "At most 256 characters, run by the browser RegExp (no flags). Only the syntax RE2 and JavaScript share: escapes \\d \\D \\w \\W \\s \\S \\b \\B \\n \\r \\t \\f \\v, \\xHH and an escaped non-alphanumeric character; ( and (?: groups only; no POSIX classes. A repeated group cannot hold a quantifier or an alternation: (a+)+, (a|aa)+ and (\\d+\\.?)+ are refused. See docs/ui-plugins/README.md."
                   }
                 ],
                 "minItems": 1,

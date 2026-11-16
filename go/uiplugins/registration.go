@@ -1,23 +1,18 @@
 package uiplugins
 
-// The registry of the admin UI plugins: one row per plugin in the chi_cache
-// table of the PacketFence database. A plugin registers itself when it is
-// ready and deregisters itself when it stops, through these accessors or the
-// same ones in Perl (pf::ui_plugins): the database credentials stay in the
-// PacketFence configuration, the plugin never handles them.
-//
-//	key         ui_plugins::<name>
-//	value       {"name":"<name>","host":"<host>","port":<port>}
-//	expires_at  NULL, the row stays until it is deregistered
+// The registry of the admin UI plugins: one row per plugin in the ui_plugin
+// table of the PacketFence database (name, host, port). A plugin registers
+// itself when it is ready and deregisters itself when it stops, through these
+// accessors or the same ones in Perl (pf::ui_plugins): the database
+// credentials stay in the PacketFence configuration, the plugin never handles
+// them.
 //
 // A plugin that crashes without deregistering stays listed: its manifest
 // cannot be fetched, so the admin UI leaves it out, its pages answer 502.
 
 import (
-	"bytes"
 	"context"
 	"database/sql"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net"
@@ -27,9 +22,6 @@ import (
 
 	"github.com/inverse-inc/packetfence/go/db"
 )
-
-// KeyPrefix is the prefix of the chi_cache keys of the registrations
-const KeyPrefix = "ui_plugins::"
 
 // ManifestPath is where a plugin serves its manifest
 const ManifestPath = "/manifest.json"
@@ -102,21 +94,14 @@ func (r Registration) Validate() error {
 	return nil
 }
 
-// the LIKE pattern of the keys, _ is a wildcard of LIKE
-var keyLike = strings.ReplaceAll(KeyPrefix, "_", `\_`) + "%"
-
 // RegisterDB adds or replaces the registration of a plugin in database
 func RegisterDB(ctx context.Context, database *sql.DB, r Registration) error {
 	if err := r.Validate(); err != nil {
 		return err
 	}
-	data, err := json.Marshal(r)
-	if err != nil {
-		return err
-	}
-	_, err = database.ExecContext(ctx,
-		"INSERT INTO chi_cache (`key`, `value`, `expires_at`) VALUES (?, ?, NULL) ON DUPLICATE KEY UPDATE `value` = VALUES(`value`), `expires_at` = NULL",
-		KeyPrefix+r.Name, data)
+	_, err := database.ExecContext(ctx,
+		"INSERT INTO ui_plugin (`name`, `host`, `port`) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `host` = VALUES(`host`), `port` = VALUES(`port`)",
+		r.Name, r.Host, r.Port)
 	if err != nil {
 		return fmt.Errorf("unable to register the UI plugin %s: %w", r.Name, err)
 	}
@@ -126,90 +111,31 @@ func RegisterDB(ctx context.Context, database *sql.DB, r Registration) error {
 // DeregisterDB removes the registration of a plugin from database, an unknown
 // name is not an error
 func DeregisterDB(ctx context.Context, database *sql.DB, name string) error {
-	if _, err := database.ExecContext(ctx, "DELETE FROM chi_cache WHERE `key` = ?", KeyPrefix+name); err != nil {
+	if _, err := database.ExecContext(ctx, "DELETE FROM ui_plugin WHERE `name` = ?", name); err != nil {
 		return fmt.Errorf("unable to deregister the UI plugin %s: %w", name, err)
 	}
 	return nil
 }
 
-// the properties of a stored registration, exactly
-var registrationKeys = map[string]bool{"name": true, "host": true, "port": true}
-
-// decodeStrict decodes a stored registration: exactly the keys name, host and
-// port, each once, with their exact case (encoding/json alone matches the keys
-// case-insensitively and keeps the last of duplicates)
-func decodeStrict(value []byte) (Registration, error) {
-	r := Registration{}
-	raw := map[string]json.RawMessage{}
-	d := json.NewDecoder(bytes.NewReader(value))
-	if t, err := d.Token(); err != nil || t != json.Delim('{') {
-		return r, errors.New("not an object")
-	}
-	for d.More() {
-		t, err := d.Token()
-		if err != nil {
-			return r, err
-		}
-		key := t.(string)
-		if !registrationKeys[key] {
-			return r, fmt.Errorf("unknown property %q", key)
-		}
-		if _, dup := raw[key]; dup {
-			return r, fmt.Errorf("property %q set twice", key)
-		}
-		var v json.RawMessage
-		if err := d.Decode(&v); err != nil {
-			return r, err
-		}
-		raw[key] = v
-	}
-	if _, err := d.Token(); err != nil {
-		return r, err
-	}
-	if d.More() {
-		return r, errors.New("trailing data")
-	}
-	if len(raw) != len(registrationKeys) {
-		return r, errors.New("name, host and port are required")
-	}
-	if err := json.Unmarshal(raw["name"], &r.Name); err != nil {
-		return r, fmt.Errorf("name: %w", err)
-	}
-	if err := json.Unmarshal(raw["host"], &r.Host); err != nil {
-		return r, fmt.Errorf("host: %w", err)
-	}
-	if err := json.Unmarshal(raw["port"], &r.Port); err != nil {
-		return r, fmt.Errorf("port: %w", err)
-	}
-	return r, nil
-}
-
-func decodeRegistration(key string, value []byte) (Registration, error) {
-	r, err := decodeStrict(value)
-	if err != nil {
-		return r, fmt.Errorf("invalid registration %s: %w", key, err)
-	}
-	if KeyPrefix+r.Name != key {
-		return r, fmt.Errorf("invalid registration %s: name %q", key, r.Name)
-	}
+// a row is validated again when it is read: it may have been written by hand
+func checkRow(r Registration) (Registration, error) {
 	if err := r.Validate(); err != nil {
-		return r, fmt.Errorf("invalid registration %s: %w", key, err)
+		return r, fmt.Errorf("invalid registration %q: %w", r.Name, err)
 	}
 	return r, nil
 }
 
 // GetDB returns the registration of a plugin, nil when it is not registered
 func GetDB(ctx context.Context, database *sql.DB, name string) (*Registration, error) {
-	var value []byte
-	err := database.QueryRowContext(ctx, "SELECT `value` FROM chi_cache WHERE `key` = ?", KeyPrefix+name).Scan(&value)
+	r := Registration{}
+	err := database.QueryRowContext(ctx, "SELECT `name`, `host`, `port` FROM ui_plugin WHERE `name` = ?", name).Scan(&r.Name, &r.Host, &r.Port)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil
 	}
 	if err != nil {
 		return nil, err
 	}
-	r, err := decodeRegistration(KeyPrefix+name, value)
-	if err != nil {
+	if r, err = checkRow(r); err != nil {
 		return nil, err
 	}
 	return &r, nil
@@ -218,20 +144,18 @@ func GetDB(ctx context.Context, database *sql.DB, name string) (*Registration, e
 // ListDB returns the valid registrations by name. An invalid row is skipped
 // and passed to invalid when it is not nil.
 func ListDB(ctx context.Context, database *sql.DB, invalid func(error)) (map[string]Registration, error) {
-	rows, err := database.QueryContext(ctx, "SELECT `key`, `value` FROM chi_cache WHERE `key` LIKE ?", keyLike)
+	rows, err := database.QueryContext(ctx, "SELECT `name`, `host`, `port` FROM ui_plugin")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 	registrations := map[string]Registration{}
 	for rows.Next() {
-		var key string
-		var value []byte
-		if err := rows.Scan(&key, &value); err != nil {
+		r := Registration{}
+		if err := rows.Scan(&r.Name, &r.Host, &r.Port); err != nil {
 			return nil, err
 		}
-		r, err := decodeRegistration(key, value)
-		if err != nil {
+		if r, err = checkRow(r); err != nil {
 			if invalid != nil {
 				invalid(err)
 			}

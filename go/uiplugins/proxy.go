@@ -203,8 +203,6 @@ func checkAnswer(resp *http.Response) error {
 	return nil
 }
 
-var pluginTransport http.RoundTripper = newTransport()
-
 // Proxy passes a request to the plugin service of a registration: path is the
 // path on the plugin service, identity the admin api-aaa checked. The request
 // is checked with Allowed against the manifest of the plugin, from the cache
@@ -238,7 +236,7 @@ func (f *Fetcher) Proxy(w http.ResponseWriter, r *http.Request, registration Reg
 	}
 	actions := strings.Join(manifest.ActionsFor(identity.Actions), ",")
 	proxy := &httputil.ReverseProxy{
-		Transport: pluginTransport,
+		Transport: roundTripper{},
 		Rewrite: func(pr *httputil.ProxyRequest) {
 			pr.Out.URL.Scheme = target.Scheme
 			pr.Out.URL.Host = target.Host

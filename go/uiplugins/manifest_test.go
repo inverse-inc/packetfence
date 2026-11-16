@@ -212,6 +212,8 @@ func TestManifestValidate(t *testing.T) {
 		{"nested quantifiers", func(m map[string]any) {
 			field(m, 0)["validators"] = []any{map[string]any{"fn": "matches", "args": []any{"^(a+)+$"}}}
 		}, "nested quantifiers"},
+		{"when empty in", func(m map[string]any) { field(m, 1)["when"] = map[string]any{"field": "id", "in": []any{}} }, "at least one value"},
+		{"when no operator", func(m map[string]any) { field(m, 1)["when"] = map[string]any{"field": "id"} }, "exactly one"},
 		{"fields and tabs", func(m map[string]any) {
 			m["form"].(map[string]any)["tabs"] = []any{map[string]any{"title": map[string]any{"en": "T"}, "fields": []any{map[string]any{"namespace": "x", "component": "BaseFormGroupInput"}}}}
 		}, "either fields or tabs"},
@@ -229,5 +231,71 @@ func TestManifestValidate(t *testing.T) {
 				t.Errorf("error %q, expected %q", err, test.error)
 			}
 		})
+	}
+}
+
+func TestValidateRegex(t *testing.T) {
+	accepted := []string{
+		`^[a-z]+$`,
+		`^(a|b)+$`,
+		`^\d{1,3}$`,
+		`^[A-Za-z0-9_.-]{1,64}$`,
+		`^(?:[a-f0-9]{2}:){5}[a-f0-9]{2}$`,
+		`^\d+(?:\.\d)?$`,
+		`^\x41\.\-\/\s\S\w\W\b\B\n\r\t\f\v$`,
+		`^[\]a]$`,
+		`^[^\]]+$`,
+		`^a?b*c+d{2}$`,
+		`^(?:ab){2,}$`,
+		`^(?:[a-f0-9]{2}[:-]){5}[a-f0-9]{2}$`,
+	}
+	for _, re := range accepted {
+		if err := validateRegex(re); err != nil {
+			t.Errorf("%s refused: %s", re, err)
+		}
+	}
+	refused := map[string]string{
+		// catastrophic backtracking in the browser
+		`^((a+)b?)*$`:  "nested quantifiers",
+		`^(a|aa)+$`:    "nested quantifiers",
+		`^(\d+\.?)+$`:  "nested quantifiers",
+		`(a+)+`:        "nested quantifiers",
+		`^(a*)*$`:      "nested quantifiers",
+		`^(ab|cd){2}$`: "nested quantifiers",
+		`^(x{2,}){3}$`: "nested quantifiers",
+		`^(a?){30}$`:   "nested quantifiers",
+		// a variable count inside a count: the isIpv4 validator does this one
+		`^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$`: "nested quantifiers",
+		// RE2 only
+		`^(?P<id>[a-z]+)$`: "only ( and (?:",
+		`^(?i)abc$`:        "only ( and (?:",
+		`^\pL+$`:           "\\p",
+		`^[[:alpha:]]+$`:   "POSIX",
+		`^abc\z`:           "\\z",
+		`^\Aabc`:           "\\A",
+		`^\Qa.b\E$`:        "\\Q",
+		`^\x{41}$`:         "two hexadecimal digits",
+		`^[]a]$`:           "must be escaped",
+		`^[a\b]$`:          "character class",
+		// JavaScript only (refused by RE2 anyway)
+		`^(?=.*\d).+$`: "only ( and (?:",
+		`^(a)\1$`:      "\\1",
+		`\`:            "trailing backslash",
+		// syntax
+		`(`:  "invalid regular expression",
+		`a{`: "",
+	}
+	for re, msg := range refused {
+		err := validateRegex(re)
+		if msg == "" {
+			continue // a{ is a literal for both, only checks it does not panic
+		}
+		if err == nil {
+			t.Errorf("%s accepted, expected %q", re, msg)
+			continue
+		}
+		if !strings.Contains(err.Error(), msg) {
+			t.Errorf("%s: error %q, expected %q", re, err, msg)
+		}
 	}
 }

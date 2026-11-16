@@ -5,7 +5,7 @@ package api
 //	GET /api/v1/plugins                the plugins whose manifest is reachable and valid
 //	*   /api/v1/plugin/<name>/<path>   the declared API, proxied to <scheme>://<host>:<port>/<path> (go/uiplugins Proxy)
 //
-// The plugins register themselves in the chi_cache table (go/uiplugins,
+// The plugins register themselves in the ui_plugin table (go/uiplugins,
 // pf::ui_plugins).
 
 import (
@@ -19,23 +19,29 @@ import (
 	"time"
 
 	"github.com/inverse-inc/go-utils/log"
-	"github.com/inverse-inc/packetfence/go/db"
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/api-frontend/aaa"
 	"github.com/inverse-inc/packetfence/go/uiplugins"
 	"github.com/julienschmidt/httprouter"
+	"golang.org/x/sync/singleflight"
 )
 
 var pluginsFetcher = uiplugins.NewFetcher(func(ctx context.Context, msg string) {
 	log.LoggerWContext(ctx).Warn(msg)
 })
 
-// how long the registrations read from the database are reused
+// how long the registrations read from the database are reused, also after a
+// failed read (negative caching: a hung database is queried at most once per
+// TTL, not by every request)
 const pluginRegistrationsTTL = 5 * time.Second
 
 type pluginRegistrationsCache struct {
 	lock          sync.Mutex
 	registrations map[string]uiplugins.Registration
-	expires       time.Time
+	// the error of the last read when there are no previous registrations
+	err     error
+	expires time.Time
+	// the reads in flight: concurrent requests share one query
+	group singleflight.Group
 }
 
 var pluginRegistrations = &pluginRegistrationsCache{}
@@ -54,55 +60,67 @@ var listPluginRegistrations = func(ctx context.Context, database *sql.DB) (map[s
 const pluginRegistrationsTimeout = 3 * time.Second
 
 // the registrations, read from the database at most every
-// pluginRegistrationsTTL. The query is bounded by
-// pluginRegistrationsTimeout; when it fails the last registrations are used.
-func (c *pluginRegistrationsCache) get(ctx context.Context, database *sql.DB) (map[string]uiplugins.Registration, error) {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-	if c.registrations != nil && time.Now().Before(c.expires) {
-		return c.registrations, nil
+// pluginRegistrationsTTL. The query runs outside the lock and is shared by
+// the concurrent requests (singleflight); it is bounded by
+// pluginRegistrationsTimeout and does not depend on the request that started
+// it. When it fails the last registrations are used until the next TTL.
+func (c *pluginRegistrationsCache) get(ctx context.Context, database func(context.Context) *sql.DB) (map[string]uiplugins.Registration, error) {
+	if registrations, err, fresh := c.cached(); fresh {
+		return registrations, err
 	}
-	qctx, cancel := context.WithTimeout(ctx, pluginRegistrationsTimeout)
-	defer cancel()
-	registrations, err := listPluginRegistrations(qctx, database)
-	if err != nil {
-		if c.registrations != nil {
-			log.LoggerWContext(ctx).Warn("Unable to read the UI plugins registrations, using the previous ones: " + err.Error())
-			return c.registrations, nil
+	v, err, _ := c.group.Do("registrations", func() (any, error) {
+		// another request may have refreshed while this one waited
+		if registrations, err, fresh := c.cached(); fresh {
+			return registrations, err
 		}
+		qctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), pluginRegistrationsTimeout)
+		defer cancel()
+		registrations, err := listPluginRegistrations(qctx, database(qctx))
+		c.lock.Lock()
+		defer c.lock.Unlock()
+		c.expires = time.Now().Add(pluginRegistrationsTTL)
+		if err != nil {
+			if c.registrations != nil {
+				log.LoggerWContext(ctx).Warn("Unable to read the UI plugins registrations, using the previous ones: " + err.Error())
+				return c.registrations, nil
+			}
+			c.err = err
+			return nil, err
+		}
+		c.registrations, c.err = registrations, nil
+		return registrations, nil
+	})
+	if err != nil {
 		return nil, err
 	}
-	c.registrations, c.expires = registrations, time.Now().Add(pluginRegistrationsTTL)
-	return registrations, nil
+	return v.(map[string]uiplugins.Registration), nil
 }
 
-// the database handle, opened again when it could not be at startup
-var pluginDBLock sync.Mutex
-
-func (h *APIHandler) pluginDB(ctx context.Context) *sql.DB {
-	pluginDBLock.Lock()
-	defer pluginDBLock.Unlock()
-	if h.db == nil {
-		if database, err := db.DbFromConfig(ctx); err == nil {
-			h.db = database
-		} else {
-			log.LoggerWContext(ctx).Error("Unable to open the database for the UI plugins: " + err.Error())
-		}
+// the cached answer, fresh is false when the TTL is over
+func (c *pluginRegistrationsCache) cached() (registrations map[string]uiplugins.Registration, err error, fresh bool) {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+	if !time.Now().Before(c.expires) || (c.registrations == nil && c.err == nil) {
+		return nil, nil, false
 	}
-	return h.db
+	if c.registrations != nil {
+		return c.registrations, nil, true
+	}
+	return nil, c.err, true
 }
 
 func (c *pluginRegistrationsCache) reset() {
 	c.lock.Lock()
 	defer c.lock.Unlock()
-	c.registrations = nil
+	c.registrations, c.err = nil, nil
+	c.expires = time.Time{}
 }
 
 // GET /api/v1/plugins: the plugins whose menu.can the admin satisfies
 func (h *APIHandler) plugins(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	ctx := r.Context()
 	plugins := []uiplugins.Plugin{}
-	registrations, err := pluginRegistrations.get(ctx, h.pluginDB(ctx))
+	registrations, err := pluginRegistrations.get(ctx, h.pluginDB)
 	if err != nil {
 		// the admin UI must work without any plugin
 		log.LoggerWContext(ctx).Error("Unable to load the UI plugins registrations: " + err.Error())
@@ -126,7 +144,7 @@ func (h *APIHandler) pluginProxy(w http.ResponseWriter, r *http.Request, p httpr
 	// ServeHTTP set a default, the plugin answer sets its own
 	w.Header().Del("Content-Type")
 	name := p.ByName("name")
-	registrations, err := pluginRegistrations.get(ctx, h.pluginDB(ctx))
+	registrations, err := pluginRegistrations.get(ctx, h.pluginDB)
 	if err != nil {
 		log.LoggerWContext(ctx).Error("Unable to load the UI plugins registrations: " + err.Error())
 		uiplugins.Error(w, http.StatusServiceUnavailable, "Unable to load the plugins")
@@ -141,18 +159,6 @@ func (h *APIHandler) pluginProxy(w http.ResponseWriter, r *http.Request, p httpr
 	pluginsFetcher.Proxy(w, r, registration, p.ByName("path"), identity)
 }
 
-// the actions of admin roles, a variable for the tests
-var pluginAdminActions = adminActions
-
-// the actions of admin roles, as api-aaa computes them (aaa.TokenInfo
-// AdminActions)
-func adminActions(ctx context.Context, roles []string) map[string]bool {
-	adminRoles := pfconfigdriver.GetType[pfconfigdriver.AdminRoles](ctx)
-	actions := map[string]bool{}
-	for _, role := range roles {
-		for action := range adminRoles.Element[role].Actions {
-			actions[action] = true
-		}
-	}
-	return actions
-}
+// the actions of admin roles, as api-aaa computes them, a variable for the
+// tests
+var pluginAdminActions = aaa.ActionsForRoles

@@ -382,6 +382,18 @@ BEGIN
 END /
 DELIMITER ;
 
+\! echo "Creating table ui_plugin...";
+--
+-- The registry of the admin UI plugins, one row per plugin service
+-- (go/uiplugins, pf::ui_plugins)
+--
+CREATE TABLE IF NOT EXISTS `ui_plugin` (
+  `name` VARCHAR(63) NOT NULL,
+  `host` VARCHAR(253) NOT NULL,
+  `port` SMALLINT UNSIGNED NOT NULL,
+  PRIMARY KEY (`name`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
 --
 -- Clean up the helper / validation procedures
 --

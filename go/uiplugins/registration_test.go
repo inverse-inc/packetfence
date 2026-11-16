@@ -49,7 +49,7 @@ func TestRegistrationValidate(t *testing.T) {
 	}
 }
 
-// UIPLUGINS_TEST_DSN is a database with the chi_cache table of
+// UIPLUGINS_TEST_DSN is a database with the ui_plugin table of
 // db/pf-schema-X.Y.sql, eg: user:pass@tcp(127.0.0.1:3306)/pf
 func testDB(t *testing.T) *sql.DB {
 	dsn := os.Getenv("UIPLUGINS_TEST_DSN")
@@ -61,7 +61,7 @@ func testDB(t *testing.T) *sql.DB {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { database.Close() })
-	if _, err := database.Exec("DELETE FROM chi_cache WHERE `key` LIKE ?", keyLike); err != nil {
+	if _, err := database.Exec("DELETE FROM ui_plugin"); err != nil {
 		t.Fatal(err)
 	}
 	return database
@@ -70,13 +70,6 @@ func testDB(t *testing.T) *sql.DB {
 func TestRegistry(t *testing.T) {
 	ctx := context.Background()
 	database := testDB(t)
-
-	// a row of another chi_cache namespace whose key matches ui_plugins with _
-	// as a LIKE wildcard
-	if _, err := database.Exec("REPLACE INTO chi_cache (`key`, `value`, `expires_at`) VALUES ('uiXplugins::other', '{}', NULL)"); err != nil {
-		t.Fatal(err)
-	}
-	defer database.Exec("DELETE FROM chi_cache WHERE `key` = 'uiXplugins::other'")
 
 	for _, r := range loadRegistrationsFixture(t).Invalid {
 		if err := RegisterDB(ctx, database, r); err == nil {
@@ -96,10 +89,6 @@ func TestRegistry(t *testing.T) {
 	if err := RegisterDB(ctx, database, Registration{Name: "other", Host: "10.0.0.1", Port: 80}); err != nil {
 		t.Fatal(err)
 	}
-	var expires sql.NullFloat64
-	if err := database.QueryRow("SELECT expires_at FROM chi_cache WHERE `key` = 'ui_plugins::acme'").Scan(&expires); err != nil || expires.Valid {
-		t.Errorf("expires_at must be NULL: %v %v", expires, err)
-	}
 
 	got, err := GetDB(ctx, database, "acme")
 	if err != nil || got == nil || *got != r {
@@ -109,16 +98,19 @@ func TestRegistry(t *testing.T) {
 		t.Errorf("get of an unknown plugin: %+v %v", got, err)
 	}
 
-	// a row that is not a valid registration is skipped
-	if _, err := database.Exec("REPLACE INTO chi_cache (`key`, `value`, `expires_at`) VALUES ('ui_plugins::bad', '{\"name\":\"bad\",\"host\":\"x y\",\"port\":1}', NULL), ('ui_plugins::moved', '{\"name\":\"acme\",\"host\":\"h\",\"port\":1}', NULL), ('ui_plugins::extra', '{\"name\":\"extra\",\"host\":\"h\",\"port\":1,\"scheme\":\"ftp\"}', NULL), ('ui_plugins::upper', '{\"NAME\":\"upper\",\"host\":\"h\",\"port\":1}', NULL), ('ui_plugins::dup', '{\"name\":\"x\",\"name\":\"dup\",\"host\":\"h\",\"port\":1}', NULL)"); err != nil {
+	// rows written by hand that are not valid registrations are skipped
+	if _, err := database.Exec("INSERT INTO ui_plugin (`name`, `host`, `port`) VALUES ('bad', 'x y', 1), ('Upper', 'h', 1), ('zero', 'h', 0)"); err != nil {
 		t.Fatal(err)
+	}
+	if got, err := GetDB(ctx, database, "bad"); got != nil || err == nil {
+		t.Errorf("get of an invalid row: %+v %v", got, err)
 	}
 	skipped := 0
 	list, err := ListDB(ctx, database, func(error) { skipped++ })
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(list) != 2 || list["acme"] != r || list["other"].Host != "10.0.0.1" || skipped != 5 {
+	if len(list) != 2 || list["acme"] != r || list["other"].Host != "10.0.0.1" || skipped != 3 {
 		t.Errorf("unexpected list %+v, %d skipped", list, skipped)
 	}
 
@@ -131,5 +123,5 @@ func TestRegistry(t *testing.T) {
 	if got, _ := GetDB(ctx, database, "acme"); got != nil {
 		t.Error("acme still registered")
 	}
-	database.Exec("DELETE FROM chi_cache WHERE `key` LIKE ?", keyLike)
+	database.Exec("DELETE FROM ui_plugin")
 }

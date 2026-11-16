@@ -6,6 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"regexp/syntax"
+	"slices"
 	"strings"
 )
 
@@ -89,9 +91,6 @@ var (
 	namespaceRe = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$`)
 	langRe      = regexp.MustCompile(`^[a-z]{2}([_-][A-Za-z]{2})?$`)
 	iconRe      = regexp.MustCompile(`^[a-z0-9-]+(/[a-z0-9-]+)?$`)
-	// a quantified group that contains a quantifier: (a+)+, (a|b*)*, (x{2,}){3}:
-	// catastrophic backtracking in the browser regular expressions
-	nestedQuantifierRe = regexp.MustCompile(`\([^()]*[*+}][^()]*\)\s*[*+{]`)
 )
 
 // the namespace segments that reach the prototype of an object in the UI
@@ -162,7 +161,7 @@ func argMatches(kind string, v any) bool {
 
 // Validate checks a manifest against the catalog, id is the registered plugin id
 func (m *Manifest) Validate(c *Catalog, id string) error {
-	if !contains(c.ManifestVersions, m.ManifestVersion) {
+	if !slices.Contains(c.ManifestVersions, m.ManifestVersion) {
 		return fmt.Errorf("unsupported manifestVersion %d, supported: %v", m.ManifestVersion, c.ManifestVersions)
 	}
 	if m.ID != id {
@@ -174,7 +173,7 @@ func (m *Manifest) Validate(c *Catalog, id string) error {
 	if err := m.Description.validate("description", false); err != nil {
 		return err
 	}
-	if !contains(c.Areas, m.Menu.Area) {
+	if !slices.Contains(c.Areas, m.Menu.Area) {
 		return fmt.Errorf("menu.area %q is not one of %v", m.Menu.Area, c.Areas)
 	}
 	for name, path := range map[string]string{"section": m.Menu.Section, "before": m.Menu.Before, "after": m.Menu.After} {
@@ -195,7 +194,7 @@ func (m *Manifest) Validate(c *Catalog, id string) error {
 	if m.Menu.Icon != "" && !iconRe.MatchString(m.Menu.Icon) {
 		return fmt.Errorf("invalid menu.icon %q", m.Menu.Icon)
 	}
-	if !contains(c.Templates, m.Template) {
+	if !slices.Contains(c.Templates, m.Template) {
 		return fmt.Errorf("template %q is not one of %v", m.Template, c.Templates)
 	}
 	if m.Template == "collection" {
@@ -232,11 +231,11 @@ func (m *Manifest) validateAPI(c *Catalog) error {
 		if !found {
 			return fmt.Errorf("api.%s is not a method of the %s template", method, m.Template)
 		}
-		if a.Can == nil && contains(c.ACL.Methods, method) {
+		if a.Can == nil && slices.Contains(c.ACL.Methods, method) {
 			return fmt.Errorf("api.%s needs a can: {\"path\": ..., \"can\": ...}, the API checks it on every %s", method, method)
 		}
 		if a.Can != nil {
-			if !contains(c.ACL.Methods, method) {
+			if !slices.Contains(c.ACL.Methods, method) {
 				return fmt.Errorf("api.%s: can is only allowed on %v, menu.can covers the others", method, c.ACL.Methods)
 			}
 			if err := a.Can.Validate(c); err != nil {
@@ -325,7 +324,7 @@ func (f *Field) validate(c *Catalog, namespaces map[string]bool) error {
 		}
 	}
 	for prop := range f.Props {
-		if contains(c.ForbiddenProps, prop) {
+		if slices.Contains(c.ForbiddenProps, prop) {
 			return fmt.Errorf("props.%s is not allowed (set by the field properties, or rendered as HTML)", prop)
 		}
 	}
@@ -339,6 +338,9 @@ func (f *Field) validate(c *Catalog, namespaces map[string]bool) error {
 			return fmt.Errorf("when.field %q must be another field of the form", f.When.Field)
 		}
 		set := 0
+		if f.When.In != nil && len(f.When.In) == 0 {
+			return errors.New("when.in needs at least one value")
+		}
 		for _, b := range []bool{f.When.Equals != nil, f.When.NotEquals != nil, f.When.In != nil} {
 			if b {
 				set++
@@ -353,7 +355,7 @@ func (f *Field) validate(c *Catalog, namespaces map[string]bool) error {
 		if !found {
 			return fmt.Errorf("validators[%d]: unknown validator %q, a plugin can only use the core validators", i, v.Fn)
 		}
-		if !contains(validator.Types, component.Type) {
+		if !slices.Contains(validator.Types, component.Type) {
 			return fmt.Errorf("validators[%d]: %q does not apply to %s (a %s)", i, v.Fn, f.Component, component.Type)
 		}
 		if len(v.Args) != len(validator.Args) {
@@ -365,20 +367,164 @@ func (f *Field) validate(c *Catalog, namespaces map[string]bool) error {
 			}
 		}
 		if v.Fn == "matches" {
-			re := v.Args[0].(string)
-			if len(re) > maxRegexLength {
-				return fmt.Errorf("validators[%d]: regular expression longer than %d characters", i, maxRegexLength)
-			}
-			if _, err := regexp.Compile(re); err != nil {
-				return fmt.Errorf("validators[%d]: invalid regular expression: %w", i, err)
-			}
-			if nestedQuantifierRe.MatchString(re) {
-				return fmt.Errorf("validators[%d]: nested quantifiers are not allowed in a regular expression", i)
+			if err := validateRegex(v.Args[0].(string)); err != nil {
+				return fmt.Errorf("validators[%d]: %w", i, err)
 			}
 		}
 		if err := v.Message.validate(fmt.Sprintf("validators[%d].message", i), false); err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+// the escaped letters and digits that mean the same in RE2 and in the
+// JavaScript RegExp of the browser (without flags), \x is followed by two
+// hexadecimal digits
+var portableEscapes = map[byte]bool{
+	'd': true, 'D': true, 'w': true, 'W': true, 's': true, 'S': true,
+	'b': true, 'B': true, 'n': true, 'r': true, 't': true, 'f': true, 'v': true,
+	'x': true,
+}
+
+func isHex(c byte) bool {
+	return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')
+}
+
+func isAlphaNumeric(c byte) bool {
+	return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
+}
+
+// portableRegex checks that a regular expression only uses the syntax RE2 (the
+// API) and the browser RegExp (the admin UI, where the validator runs) read
+// the same way:
+//   - escapes: \d \D \w \W \s \S \b \B \n \r \t \f \v, \xHH and an escaped
+//     character that is not a letter or a digit (\. \- \/ ...)
+//   - groups: ( and (?: only, no flags, named groups or lookarounds
+//   - no POSIX classes ([[:alpha:]])
+//
+// That leaves out, among others, (?P<name>, (?i), \pL, \z, \A, \Q...\E,
+// \x{...} and backreferences (\1).
+func portableRegex(re string) error {
+	inClass := false
+	for i := 0; i < len(re); i++ {
+		c := re[i]
+		switch {
+		case c == '\\':
+			if i+1 >= len(re) {
+				return errors.New("trailing backslash")
+			}
+			e := re[i+1]
+			if isAlphaNumeric(e) && !portableEscapes[e] {
+				return fmt.Errorf("the escape \\%c is not supported by both the API and the browser", e)
+			}
+			if inClass && (e == 'b' || e == 'B') {
+				// a backspace in JavaScript, refused by RE2
+				return fmt.Errorf("the escape \\%c is not supported in a character class", e)
+			}
+			if e == 'x' {
+				if i+3 >= len(re) || !isHex(re[i+2]) || !isHex(re[i+3]) {
+					return errors.New("\\x must be followed by two hexadecimal digits")
+				}
+				i += 2
+			}
+			i++
+		case inClass:
+			if c == '[' && i+1 < len(re) && re[i+1] == ':' {
+				return errors.New("POSIX character classes ([[:alpha:]]) are not supported, use a range ([a-zA-Z])")
+			}
+			if c == ']' {
+				inClass = false
+			}
+		case c == '[':
+			inClass = true
+			// a ] first in the class is a literal for RE2, an empty class for
+			// JavaScript
+			if i+1 < len(re) && re[i+1] == '^' {
+				i++
+			}
+			if i+1 < len(re) && re[i+1] == ']' {
+				return errors.New("a ] first in a character class must be escaped (\\])")
+			}
+		case c == '(':
+			if i+1 < len(re) && re[i+1] == '?' {
+				if i+2 >= len(re) || re[i+2] != ':' {
+					return errors.New("only ( and (?: groups are supported: no flags, named groups or lookarounds")
+				}
+			}
+		}
+	}
+	return nil
+}
+
+// repeats tells if a node of the syntax tree can match its sub-expression
+// more than once
+func repeats(n *syntax.Regexp) bool {
+	switch n.Op {
+	case syntax.OpStar, syntax.OpPlus:
+		return true
+	case syntax.OpRepeat:
+		return n.Max == -1 || n.Max > 1
+	}
+	return false
+}
+
+// ambiguous tells if a sub-tree holds a quantifier or an alternation: inside a
+// repetition the browser engine can then match the same text in exponentially
+// many ways. A fixed count ({2}) is not a choice, its sub-tree is checked.
+func ambiguous(n *syntax.Regexp) bool {
+	switch n.Op {
+	case syntax.OpStar, syntax.OpPlus, syntax.OpQuest, syntax.OpAlternate:
+		return true
+	case syntax.OpRepeat:
+		if n.Min != n.Max {
+			return true
+		}
+	}
+	for _, sub := range n.Sub {
+		if ambiguous(sub) {
+			return true
+		}
+	}
+	return false
+}
+
+// nestedRepetition finds a repetition of a sub-expression that holds a
+// quantifier or an alternation: (a+)+, ((a+)b?)*, (a|aa)+, (\d+\.?)+
+func nestedRepetition(n *syntax.Regexp) bool {
+	if repeats(n) {
+		for _, sub := range n.Sub {
+			if ambiguous(sub) {
+				return true
+			}
+		}
+	}
+	for _, sub := range n.Sub {
+		if nestedRepetition(sub) {
+			return true
+		}
+	}
+	return false
+}
+
+// validateRegex checks the regular expression of a matches validator: it runs
+// in the browser on every keystroke, with a backtracking engine
+func validateRegex(re string) error {
+	if len(re) > maxRegexLength {
+		return fmt.Errorf("regular expression longer than %d characters", maxRegexLength)
+	}
+	if err := portableRegex(re); err != nil {
+		return fmt.Errorf("invalid regular expression: %w", err)
+	}
+	if _, err := regexp.Compile(re); err != nil {
+		return fmt.Errorf("invalid regular expression: %w", err)
+	}
+	tree, err := syntax.Parse(re, syntax.Perl)
+	if err != nil {
+		return fmt.Errorf("invalid regular expression: %w", err)
+	}
+	if nestedRepetition(tree) {
+		return errors.New("nested quantifiers are not allowed in a regular expression: a repeated group cannot hold a quantifier or an alternation")
 	}
 	return nil
 }

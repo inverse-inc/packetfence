@@ -74,7 +74,7 @@ const validatorSchemas = Object.entries(data.validators).map(([fn, { args }]) =>
     ...((args.length) ? { required: ['args'] } : {}),
     properties: {
       args: (args.length)
-        ? { type: 'array', prefixItems: args.map(kind => ((fn === 'matches') ? { type: 'string', maxLength: 256, description: 'At most 256 characters, no nested quantifiers.' } : argSchema[kind])), minItems: args.length, maxItems: args.length }
+        ? { type: 'array', prefixItems: args.map(kind => ((fn === 'matches') ? { type: 'string', maxLength: 256, description: 'At most 256 characters, run by the browser RegExp (no flags). Only the syntax RE2 and JavaScript share: escapes \\d \\D \\w \\W \\s \\S \\b \\B \\n \\r \\t \\f \\v, \\xHH and an escaped non-alphanumeric character; ( and (?: groups only; no POSIX classes. A repeated group cannot hold a quantifier or an alternation: (a+)+, (a|aa)+ and (\\d+\\.?)+ are refused. See docs/ui-plugins/README.md.' } : argSchema[kind])), minItems: args.length, maxItems: args.length }
         : { type: 'array', maxItems: 0 }
     }
   }
@@ -185,7 +185,7 @@ const schema = {
           additionalProperties: false,
           required: ['field'],
           oneOf: [{ required: ['equals'] }, { required: ['notEquals'] }, { required: ['in'] }],
-          properties: { field: namespace, equals: {}, notEquals: {}, in: { type: 'array' } }
+          properties: { field: namespace, equals: {}, notEquals: {}, in: { type: 'array', minItems: 1 } }
         },
         validators: { type: 'array', items: { $ref: '#/$defs/validator' } }
       }

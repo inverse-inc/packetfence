@@ -10,7 +10,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strconv"
+	"sync"
+	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/inverse-inc/packetfence/go/uiplugins"
 	"github.com/julienschmidt/httprouter"
@@ -165,5 +168,105 @@ func TestPluginProxyLookup(t *testing.T) {
 	}
 	if len(seen) != 1 || seen[0].Path != "/items" || seen[0].Header.Get(uiplugins.ActionsHeader) != "SYSLOG_READ" {
 		t.Errorf("unexpected requests to the plugin %+v", seen)
+	}
+}
+
+// the registrations are read by one query at a time, outside the lock, and a
+// failed read is not retried before the TTL (a hung database does not stall
+// the requests one after the other)
+func TestPluginRegistrationsCache(t *testing.T) {
+	var calls atomic.Int32
+	release := make(chan struct{})
+	failing := atomic.Bool{}
+	withRegistrations(t, func(context.Context, *sql.DB) (map[string]uiplugins.Registration, error) {
+		calls.Add(1)
+		<-release
+		if failing.Load() {
+			return nil, errors.New("database unavailable")
+		}
+		return map[string]uiplugins.Registration{"acme": {Name: "acme", Host: "127.0.0.1", Port: 1}}, nil
+	})
+	noDB := func(context.Context) *sql.DB { return nil }
+
+	var wg sync.WaitGroup
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			if r, err := pluginRegistrations.get(context.Background(), noDB); err != nil || len(r) != 1 {
+				t.Errorf("unexpected registrations %v %v", r, err)
+			}
+		}()
+	}
+	time.Sleep(50 * time.Millisecond)
+	close(release)
+	wg.Wait()
+	if c := calls.Load(); c != 1 {
+		t.Errorf("concurrent requests ran %d queries, expected 1", c)
+	}
+
+	// a failed read: the previous registrations, and no new query until the TTL
+	failing.Store(true)
+	pluginRegistrations.lock.Lock()
+	pluginRegistrations.expires = time.Now().Add(-time.Second)
+	pluginRegistrations.lock.Unlock()
+	for i := 0; i < 5; i++ {
+		start := time.Now()
+		r, err := pluginRegistrations.get(context.Background(), noDB)
+		if err != nil || len(r) != 1 {
+			t.Errorf("expected the previous registrations, got %v %v", r, err)
+		}
+		if d := time.Since(start); d > 100*time.Millisecond {
+			t.Errorf("a cached failure waited %s", d)
+		}
+	}
+	if c := calls.Load(); c != 2 {
+		t.Errorf("a failed read was retried before the TTL: %d queries", c)
+	}
+
+	// no previous registrations: the error is cached too
+	pluginRegistrations.reset()
+	for i := 0; i < 5; i++ {
+		if _, err := pluginRegistrations.get(context.Background(), noDB); err == nil {
+			t.Error("expected the error")
+		}
+	}
+	if c := calls.Load(); c != 3 {
+		t.Errorf("a failed read without previous registrations was retried before the TTL: %d queries", c)
+	}
+
+	// a canceled request does not cancel the shared query
+	pluginRegistrations.reset()
+	failing.Store(false)
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if r, err := pluginRegistrations.get(ctx, noDB); err != nil || len(r) != 1 {
+		t.Errorf("a canceled request canceled the query: %v %v", r, err)
+	}
+}
+
+// the SQL handle is read by the node handlers while the plugins may open it
+// again: every access goes through the guarded accessors (go test -race)
+func TestSQLDBAccess(t *testing.T) {
+	database := locationlogHandler(t, &locationlogDriver{switchIPs: map[string]string{"00:11:22:33:44:55": "10.1.2.3"}}).sqlDB()
+	h := &APIHandler{}
+	var wg sync.WaitGroup
+	for i := 0; i < 20; i++ {
+		wg.Add(2)
+		go func() {
+			defer wg.Done()
+			h.setSQLDB(database)
+		}()
+		go func() {
+			defer wg.Done()
+			// no MAC: reads the handle, no query (the test driver is not
+			// safe for concurrent queries)
+			h.switchIPsForMacs(context.Background(), nil)
+			h.sqlDB()
+		}()
+	}
+	wg.Wait()
+	if got := h.switchIPsForMacs(context.Background(), []string{"00:11:22:33:44:55"}); got["00:11:22:33:44:55"] != "10.1.2.3" {
+		t.Errorf("unexpected switch IPs %v", got)
 	}
 }

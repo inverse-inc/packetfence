@@ -27,7 +27,7 @@ use JSON::MaybeXS qw(decode_json);
 use File::Slurp qw(read_file);
 use pf::error qw(is_success is_error);
 use pf::db;
-use pf::dal::chi_cache;
+use pf::dal::ui_plugin;
 use pf::ui_plugins;
 
 my $dbh = eval { db_connect() };
@@ -36,7 +36,7 @@ BAIL_OUT("Cannot connect to dbh") unless $dbh;
 my $fixture = decode_json(scalar read_file('/usr/local/pf/go/uiplugins/testdata/registrations.json'));
 
 sub clear {
-    pf::dal::chi_cache->remove_items(-where => { key => { -like => 'ui\_plugins::%' } });
+    pf::dal::ui_plugin->remove_items(-where => {});
 }
 clear();
 
@@ -62,16 +62,14 @@ ok(is_success($status), 'register another plugin');
 is_deeply(pf::ui_plugins::get('acme'), { name => 'acme', host => 'acme', port => 8081 }, 'get');
 is(pf::ui_plugins::get('unknown'), undef, 'get an unknown plugin');
 
-my ($found, $row) = pf::dal::chi_cache->find({ key => 'ui_plugins::acme' });
-is($row->{expires_at}, undef, 'the row does not expire');
-is_deeply(decode_json($row->{value}), { name => 'acme', host => 'acme', port => 8081 }, 'the row of the Go accessors, port a number');
+my ($found, $row) = pf::dal::ui_plugin->find({ name => 'acme' });
+is_deeply({ map { $_ => $row->{$_} } qw(name host port) }, { name => 'acme', host => 'acme', port => 8081 }, 'the row of the Go accessors');
 
-# rows that are not valid registrations, and a key that matches with _ as a LIKE wildcard
-pf::dal::chi_cache->new({ key => 'ui_plugins::bad', value => '{"name":"bad","host":"x y","port":1}', expires_at => undef })->upsert;
-pf::dal::chi_cache->new({ key => 'ui_plugins::moved', value => '{"name":"acme","host":"h","port":1}', expires_at => undef })->upsert;
-pf::dal::chi_cache->new({ key => 'uiXplugins::other', value => '{}', expires_at => undef })->upsert;
-pf::dal::chi_cache->new({ key => 'ui_plugins::extra', value => '{"name":"extra","host":"h","port":1,"scheme":"ftp"}', expires_at => undef })->upsert;
-pf::dal::chi_cache->new({ key => 'ui_plugins::upper', value => '{"NAME":"upper","host":"h","port":1}', expires_at => undef })->upsert;
+# rows written by hand that are not valid registrations
+pf::dal::ui_plugin->new({ name => 'bad', host => 'x y', port => 1 })->insert;
+pf::dal::ui_plugin->new({ name => 'Upper', host => 'h', port => 1 })->insert;
+pf::dal::ui_plugin->new({ name => 'zero', host => 'h', port => 0 })->insert;
+is(pf::ui_plugins::get('bad'), undef, 'get an invalid row');
 is_deeply(
     pf::ui_plugins::list(),
     {
@@ -80,7 +78,6 @@ is_deeply(
     },
     'list skips the invalid rows'
 );
-pf::dal::chi_cache->remove_by_id({ key => 'uiXplugins::other' });
 
 ($status) = pf::ui_plugins::deregister('acme');
 is($status, $STATUS::OK, 'deregister');

@@ -314,6 +314,6 @@ export const isFieldVisible = (field, form) => {
   if ('notEquals' in when)
     return value !== when.notEquals
   if ('in' in when)
-    return when.in.includes(value)
-  return true
+    return Array.isArray(when.in) && when.in.includes(value)
+  return false // a condition the API refuses (go/uiplugins Validate)
 }

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
 )
@@ -79,7 +80,7 @@ func (c *Can) validate(catalog *Catalog, depth int) error {
 		if len(parts) != 2 || !canTargetRe.MatchString(parts[1]) {
 			return fmt.Errorf("%q must be \"<verb> <target>\"", c.Rule)
 		}
-		if !contains(catalog.ACL.Verbs, parts[0]) {
+		if !slices.Contains(catalog.ACL.Verbs, parts[0]) {
 			return fmt.Errorf("%q: unknown verb %q, one of %v", c.Rule, parts[0], catalog.ACL.Verbs)
 		}
 		return nil
@@ -222,20 +223,22 @@ func (m *Manifest) Targets() map[string]bool {
 	return targets
 }
 
-// ActionsFor are the actions of the admin on the targets the manifest names:
-// <TARGET>_<ACTION>, or <TARGET> for an access role
+// ActionsFor are the actions of the admin on the targets the manifest names,
+// exactly the actions a rule "<verb> <target>" can be (Role) for a verb of
+// the catalog: <TARGET>_<VERB>, or <TARGET> for an access role. USERS_READ
+// belongs to the target users, USERS_SOURCES_READ does not (it is the target
+// users_sources).
 func (m *Manifest) ActionsFor(actions map[string]bool) []string {
-	targets := m.Targets()
+	roles := map[string]bool{}
+	for target := range m.Targets() {
+		for _, verb := range DefaultCatalog.ACL.Verbs {
+			roles[Role(verb+" "+strings.ToLower(target))] = true
+		}
+	}
 	list := []string{}
 	for action, ok := range actions {
-		if !ok {
-			continue
-		}
-		for target := range targets {
-			if action == target || strings.HasPrefix(action, target+"_") {
-				list = append(list, action)
-				break
-			}
+		if ok && roles[action] {
+			list = append(list, action)
 		}
 	}
 	sort.Strings(list)

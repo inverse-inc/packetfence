@@ -43,12 +43,31 @@ export const types = {
   mixed: () => yup.mixed()
 }
 
+// the API checks the regular expression of matches (go/uiplugins
+// validateRegex), a browser that still cannot compile it fails closed: the
+// field never validates instead of accepting any value
+const matches = (s, pattern, message) => {
+  let re
+  try {
+    re = new RegExp(pattern)
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[pf-ui-plugins]', `invalid regular expression ${JSON.stringify(pattern)}`, err)
+    return s.test({
+      name: 'matches',
+      message: message || 'Invalid regular expression in the plugin manifest.',
+      test: () => false
+    })
+  }
+  return s.matches(re, message)
+}
+
 // (schema, args, message) => schema, message is undefined for the default one
 export const validators = {
   required: (s, a, m) => s.required(m),
   min: (s, a, m) => s.min(a[0], m),
   max: (s, a, m) => s.max(a[0], m),
-  matches: (s, a, m) => s.matches(new RegExp(a[0]), m),
+  matches: (s, a, m) => matches(s, a[0], m),
   email: (s, a, m) => s.email(m),
   url: (s, a, m) => s.url(m),
   in: (s, a, m) => s.in(a[0], m),

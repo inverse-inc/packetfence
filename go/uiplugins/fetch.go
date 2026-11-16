@@ -8,6 +8,8 @@ import (
 	"sort"
 	"sync"
 	"time"
+
+	"golang.org/x/sync/singleflight"
 )
 
 // maximum size of a manifest
@@ -16,6 +18,17 @@ const maxManifestSize = 1 << 20
 // how long a failure is cached
 const errorTTL = 5 * time.Second
 
+// A plugin that was fetched once keeps its last good manifest through failed
+// refreshes (unreachable, invalid answer) until maxRefreshFailures
+// consecutive refreshes failed or refreshGrace passed since the last success,
+// whichever comes first: a network blip does not remove a working plugin.
+// Each failure is logged. A plugin whose first fetch fails is left out at
+// once.
+const (
+	maxRefreshFailures = 3
+	refreshGrace       = 2 * time.Minute
+)
+
 // Plugin is a registered plugin with its valid manifest
 type Plugin struct {
 	ID       string    `json:"id"`
@@ -23,19 +36,28 @@ type Plugin struct {
 }
 
 type cacheEntry struct {
-	manifest   *Manifest
-	err        error
-	expires    time.Time
-	refreshing bool
+	// the manifest answered: the last good one, also during the grace of
+	// failed refreshes
+	manifest *Manifest
+	// the error answered when there is no manifest
+	err error
+	// the last successful fetch, and the failures since
+	lastSuccess time.Time
+	failures    int
+	expires     time.Time
+	refreshing  bool
 }
 
 // Fetcher fetches and validates the manifests of the registered plugins.
 //
-// A manifest, valid or not, is fetched once when its plugin registers. After
-// that the last result is answered at once and refreshed in the background
-// when it is older than TTL (errorTTL for a failure): a slow or dead plugin
-// does not slow down the admin UI loads, it disappears from the list once a
-// refresh fails.
+// A manifest, valid or not, is fetched once when its plugin registers: the
+// concurrent requests for it share that fetch, which does not depend on the
+// request that started it (an admin leaving the page does not cache a
+// cancellation), the client timeout bounds it. After that the last result is
+// answered at once and refreshed in the background when it is older than TTL
+// (errorTTL for a failure): a slow or dead plugin does not slow down the admin
+// UI loads. A working plugin whose refreshes fail is kept for a grace period
+// (see maxRefreshFailures and refreshGrace), then disappears from the list.
 type Fetcher struct {
 	Client  *http.Client
 	Catalog *Catalog
@@ -45,6 +67,8 @@ type Fetcher struct {
 
 	lock  sync.Mutex
 	cache map[string]cacheEntry
+	// the fetches in flight, by cacheKey
+	group singleflight.Group
 }
 
 func NewFetcher(log func(ctx context.Context, msg string)) *Fetcher {
@@ -91,18 +115,51 @@ func cacheKey(r Registration) string {
 	return r.Name + "|" + r.ManifestURL()
 }
 
-func (f *Fetcher) store(key string, m *Manifest, err error) {
-	ttl := f.TTL
-	if err != nil && ttl > errorTTL {
-		ttl = errorTTL // a plugin that is starting must show up quickly
-	}
+func (f *Fetcher) store(key string, r Registration, m *Manifest, err error) {
+	now := time.Now()
+	msg := ""
+	// logged once the lock is released
+	defer func() {
+		if msg != "" {
+			f.log(context.Background(), msg)
+		}
+	}()
 	f.lock.Lock()
 	defer f.lock.Unlock()
 	if f.cache == nil {
 		f.cache = map[string]cacheEntry{}
 	}
 	// the TTL starts once the answer is known, not when the request was sent
-	f.cache[key] = cacheEntry{manifest: m, err: err, expires: time.Now().Add(ttl)}
+	if err == nil {
+		f.cache[key] = cacheEntry{manifest: m, lastSuccess: now, expires: now.Add(f.TTL)}
+		return
+	}
+	ttl := f.TTL
+	if ttl > errorTTL {
+		ttl = errorTTL // a plugin that is starting must show up quickly
+	}
+	previous, found := f.cache[key]
+	if found && previous.manifest != nil {
+		failures := previous.failures + 1
+		if failures < maxRefreshFailures && now.Sub(previous.lastSuccess) < refreshGrace {
+			msg = fmt.Sprintf("UI plugin %q: refresh %d failed, keeping its last manifest: %s", r.Name, failures, err)
+			f.cache[key] = cacheEntry{manifest: previous.manifest, lastSuccess: previous.lastSuccess, failures: failures, expires: now.Add(ttl)}
+			return
+		}
+		msg = fmt.Sprintf("UI plugin %q: refresh %d failed, dropping its manifest: %s", r.Name, failures, err)
+	}
+	f.cache[key] = cacheEntry{err: err, expires: now.Add(ttl)}
+}
+
+// fetchAndStore fetches a manifest once for all the concurrent callers. Not
+// the request context: the fetch outlives the request, the client timeout
+// bounds it.
+func (f *Fetcher) fetchAndStore(key string, r Registration) <-chan singleflight.Result {
+	return f.group.DoChan(key, func() (any, error) {
+		m, err := f.fetch(context.Background(), r)
+		f.store(key, r, m, err)
+		return m, err
+	})
 }
 
 func (f *Fetcher) get(ctx context.Context, r Registration) (*Manifest, error) {
@@ -116,20 +173,25 @@ func (f *Fetcher) get(ctx context.Context, r Registration) (*Manifest, error) {
 		if time.Now().After(entry.expires) && !entry.refreshing {
 			entry.refreshing = true
 			f.cache[key] = entry
-			go func() {
-				// not the request context: the refresh outlives the request,
-				// the client timeout bounds it
-				m, err := f.fetch(context.Background(), r)
-				f.store(key, m, err)
-			}()
+			f.fetchAndStore(key, r)
 		}
 		f.lock.Unlock()
-		return entry.manifest, entry.err
+		if entry.manifest != nil {
+			return entry.manifest, nil
+		}
+		return nil, entry.err
 	}
 	f.lock.Unlock()
-	m, err := f.fetch(ctx, r)
-	f.store(key, m, err)
-	return m, err
+	select {
+	case result := <-f.fetchAndStore(key, r):
+		if result.Err != nil {
+			return nil, result.Err
+		}
+		return result.Val.(*Manifest), nil
+	case <-ctx.Done():
+		// the fetch goes on and is cached for the next requests
+		return nil, ctx.Err()
+	}
 }
 
 // forget the plugins that are not registered anymore

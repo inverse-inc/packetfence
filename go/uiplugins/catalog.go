@@ -1,5 +1,5 @@
 // Package uiplugins implements the admin UI plugins: the registration of a
-// plugin service (the chi_cache table), the validation of the manifest it
+// plugin service (the ui_plugin table), the validation of the manifest it
 // serves, and the proxy to its API.
 //
 // See docs/ui-plugins/README.md.
@@ -63,13 +63,4 @@ func mustCatalog(b []byte) *Catalog {
 		panic("uiplugins: invalid catalog.json: " + err.Error())
 	}
 	return c
-}
-
-func contains[T comparable](list []T, v T) bool {
-	for _, i := range list {
-		if i == v {
-			return true
-		}
-	}
-	return false
 }

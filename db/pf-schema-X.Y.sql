@@ -1284,6 +1284,18 @@ CREATE TABLE `chi_cache` (
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
+-- Creating ui_plugin table: the registry of the admin UI plugins, one row per
+-- plugin service (go/uiplugins, pf::ui_plugins)
+--
+
+CREATE TABLE `ui_plugin` (
+  `name` VARCHAR(63) NOT NULL,
+  `host` VARCHAR(253) NOT NULL,
+  `port` SMALLINT UNSIGNED NOT NULL,
+  PRIMARY KEY (`name`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+--
 -- Dumping routines for database 'pf'
 --
 DROP FUNCTION IF EXISTS `FREERADIUS_DECODE`;

@@ -43,7 +43,45 @@ func (APIHandler) CaddyModule() caddy.ModuleInfo {
 
 type APIHandler struct {
 	router *httprouter.Router
-	db     *sql.DB
+	// the raw SQL handle, only through sqlDB, setSQLDB and pluginDB (guarded
+	// by sqlDBLock)
+	db *sql.DB
+}
+
+// guards APIHandler.db: written at startup and by a lazy reopen, read by the
+// request handlers. A package lock and not a field: CaddyModule has a value
+// receiver, APIHandler must stay copyable.
+var sqlDBLock sync.RWMutex
+
+// sqlDB is the raw SQL handle, nil when it could not be opened
+func (m *APIHandler) sqlDB() *sql.DB {
+	sqlDBLock.RLock()
+	defer sqlDBLock.RUnlock()
+	return m.db
+}
+
+func (m *APIHandler) setSQLDB(database *sql.DB) {
+	sqlDBLock.Lock()
+	defer sqlDBLock.Unlock()
+	m.db = database
+}
+
+// pluginDB is the raw SQL handle, opened again when it could not be at
+// startup
+func (m *APIHandler) pluginDB(ctx context.Context) *sql.DB {
+	if database := m.sqlDB(); database != nil {
+		return database
+	}
+	sqlDBLock.Lock()
+	defer sqlDBLock.Unlock()
+	if m.db == nil {
+		if database, err := db.DbFromConfig(ctx); err == nil {
+			m.db = database
+		} else {
+			log.LoggerWContext(ctx).Error("Unable to open the database for the UI plugins: " + err.Error())
+		}
+	}
+	return m.db
 }
 
 // Setup the api middleware
@@ -157,7 +195,7 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 	if sqlHandle, sqlErr := db.DbFromConfig(ctx); sqlErr != nil {
 		log.LoggerWContext(ctx).Warn("Unable to open sql.DB handle for the API plugin: " + sqlErr.Error())
 	} else {
-		m.db = sqlHandle
+		m.setSQLDB(sqlHandle)
 	}
 	NewAdminApiAuditLog(ctx, DBP).AddToRouter(router)
 	NewAuthLog(ctx, DBP).AddToRouter(router)

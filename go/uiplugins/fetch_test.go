@@ -97,7 +97,7 @@ func TestFetcherRefreshInBackground(t *testing.T) {
 	})
 	f := NewFetcher(nil)
 	f.Client.Timeout = 200 * time.Millisecond
-	f.TTL = 50 * time.Millisecond
+	f.TTL = 50 * time.Millisecond // also the TTL of a failure
 	regs := map[string]Registration{"acme": registrationFor(t, "acme", server)}
 
 	if len(f.Plugins(context.Background(), regs)) != 1 {
@@ -113,16 +113,26 @@ func TestFetcherRefreshInBackground(t *testing.T) {
 	if d := time.Since(start); d > 100*time.Millisecond {
 		t.Errorf("an expired result waited for the refresh: %s", d)
 	}
-	time.Sleep(300 * time.Millisecond) // the refresh times out
-	start = time.Now()
-	if plugins := f.Plugins(context.Background(), regs); len(plugins) != 0 {
-		t.Errorf("a plugin whose refresh failed is still listed: %+v", plugins)
+	// the refreshes time out: the last good manifest is kept for
+	// maxRefreshFailures-1 failures, then the plugin is left out
+	for failure := 1; failure <= maxRefreshFailures; failure++ {
+		time.Sleep(300 * time.Millisecond) // the refresh times out, its error expires (TTL)
+		start = time.Now()
+		plugins := f.Plugins(context.Background(), regs)
+		if d := time.Since(start); d > 100*time.Millisecond {
+			t.Errorf("the failed refresh slowed the answer: %s", d)
+		}
+		if failure < maxRefreshFailures && len(plugins) != 1 {
+			t.Errorf("after %d failed refresh(es) the plugin must still be listed", failure)
+		}
+		if failure == maxRefreshFailures && len(plugins) != 0 {
+			t.Errorf("after %d failed refreshes the plugin is still listed: %+v", failure, plugins)
+		}
 	}
-	if d := time.Since(start); d > 100*time.Millisecond {
-		t.Errorf("the failed refresh slowed the answer: %s", d)
-	}
-	if c := atomic.LoadInt32(&calls); c != 2 {
-		t.Errorf("expected 2 fetches (first, one refresh), got %d", c)
+	// the first fetch and the failed refreshes, the last Plugins call may
+	// have started one more
+	if c := atomic.LoadInt32(&calls); c < 1+maxRefreshFailures || c > 2+maxRefreshFailures {
+		t.Errorf("expected %d or %d fetches (first, the refreshes), got %d", 1+maxRefreshFailures, 2+maxRefreshFailures, c)
 	}
 
 	// a deregistered plugin is forgotten
@@ -150,5 +160,84 @@ func TestFetcherRedirect(t *testing.T) {
 	}
 	if atomic.LoadInt32(&targetCalls) != 0 {
 		t.Error("the redirect was followed")
+	}
+}
+
+// the grace of a working plugin ends refreshGrace after its last success,
+// whatever the number of failures
+func TestFetcherRefreshGrace(t *testing.T) {
+	f := NewFetcher(nil)
+	r := Registration{Name: "acme", Host: "127.0.0.1", Port: 1}
+	key := cacheKey(r)
+	m := &Manifest{ID: "acme"}
+	f.store(key, r, m, nil)
+	f.store(key, r, nil, context.DeadlineExceeded)
+	if got, _ := f.get(context.Background(), r); got != m {
+		t.Fatal("the last good manifest must be kept after one failure")
+	}
+	f.lock.Lock()
+	e := f.cache[key]
+	e.lastSuccess = time.Now().Add(-refreshGrace)
+	f.cache[key] = e
+	f.lock.Unlock()
+	f.store(key, r, nil, context.DeadlineExceeded)
+	f.lock.Lock()
+	e = f.cache[key]
+	f.lock.Unlock()
+	if e.manifest != nil || e.err == nil {
+		t.Errorf("the manifest must be dropped after the grace period: %+v", e)
+	}
+}
+
+// concurrent first requests share one fetch, and an admin request canceled
+// during the first fetch does not cache the cancellation
+func TestFetcherFirstFetch(t *testing.T) {
+	var calls int32
+	release := make(chan struct{})
+	server := pluginServer(t, &calls, func(w http.ResponseWriter) {
+		<-release
+		w.Write([]byte(valid))
+	})
+	f := NewFetcher(nil)
+	r := registrationFor(t, "acme", server)
+
+	// a request canceled while the first fetch runs
+	ctx, cancel := context.WithCancel(context.Background())
+	done := make(chan error, 1)
+	go func() {
+		_, err := f.get(ctx, r)
+		done <- err
+	}()
+	time.Sleep(50 * time.Millisecond)
+	cancel()
+	if err := <-done; err != context.Canceled {
+		t.Fatalf("expected the request to end with context.Canceled, got %v", err)
+	}
+
+	// concurrent requests wait for the same fetch
+	var wg sync.WaitGroup
+	results := make(chan *Manifest, 10)
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			m, _ := f.get(context.Background(), r)
+			results <- m
+		}()
+	}
+	time.Sleep(50 * time.Millisecond)
+	close(release)
+	wg.Wait()
+	close(results)
+	for m := range results {
+		if m == nil {
+			t.Error("a concurrent request got no manifest")
+		}
+	}
+	if c := atomic.LoadInt32(&calls); c != 1 {
+		t.Errorf("expected 1 manifest fetch, got %d", c)
+	}
+	if m, err := f.get(context.Background(), r); m == nil || err != nil {
+		t.Errorf("the fetch of the canceled request must be cached: %v %v", m, err)
 	}
 }

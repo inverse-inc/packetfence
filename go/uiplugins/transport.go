@@ -1,28 +1,46 @@
 package uiplugins
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
+	"io/fs"
 	"net"
 	"net/http"
 	"os"
+	"sync"
 	"time"
+
+	"github.com/inverse-inc/go-utils/log"
 )
 
 // CAFile holds the certificates of the authorities that sign the plugin
-// services certificates, in addition to the system ones (optional, PEM)
+// services certificates, in addition to the system ones (optional, PEM).
+//
+// It is read once, when the first plugin is contacted: after adding or
+// rotating it, restart api-frontend (the process serving /api/v1/plugins and
+// /api/v1/plugin/<name>/*). The file loaded, or its absence, is logged then.
 const CAFile = "/usr/local/pf/conf/ssl/ui_plugins_ca.pem"
 
 // RootCAs are the authorities a plugin service certificate must chain to: the
 // system ones and CAFile. A variable for the tests.
 var RootCAs = func() *x509.CertPool {
+	ctx := context.Background()
 	pool, err := x509.SystemCertPool()
 	if err != nil || pool == nil {
 		pool = x509.NewCertPool()
 	}
-	if pem, err := os.ReadFile(CAFile); err == nil {
-		pool.AppendCertsFromPEM(pem)
+	pem, err := os.ReadFile(CAFile)
+	switch {
+	case errors.Is(err, fs.ErrNotExist):
+		log.LoggerWContext(ctx).Info("UI plugins: no " + CAFile + ", the plugin certificates must chain to the system authorities")
+	case err != nil:
+		log.LoggerWContext(ctx).Warn("UI plugins: unable to read " + CAFile + ", only the system authorities are trusted: " + err.Error())
+	case !pool.AppendCertsFromPEM(pem):
+		log.LoggerWContext(ctx).Warn("UI plugins: no certificate in " + CAFile + ", only the system authorities are trusted")
+	default:
+		log.LoggerWContext(ctx).Info("UI plugins: trusting the authorities of " + CAFile + " and the system ones (restart api-frontend after changing it)")
 	}
 	return pool
 }
@@ -42,13 +60,40 @@ func newTransport() *http.Transport {
 	}
 }
 
+var (
+	sharedTransportOnce sync.Once
+	sharedTransport     http.RoundTripper
+)
+
+// pluginTransport replaces the shared transport in the tests
+var pluginTransport http.RoundTripper
+
+// transport is the one transport of the manifest fetches and of the proxy:
+// one pool of idle connections per plugin service, the CA pool loaded once,
+// when the first plugin is contacted
+func transport() http.RoundTripper {
+	if pluginTransport != nil {
+		return pluginTransport
+	}
+	sharedTransportOnce.Do(func() { sharedTransport = newTransport() })
+	return sharedTransport
+}
+
+// roundTripper sends the requests through transport()
+type roundTripper struct{}
+
+func (roundTripper) RoundTrip(r *http.Request) (*http.Response, error) {
+	return transport().RoundTrip(r)
+}
+
 var errRedirect = errors.New("a plugin service cannot redirect")
 
-// newClient is the client of the manifest fetches: redirects are refused
+// newClient is the client of the manifest fetches, on the shared transport:
+// its own timeout, redirects are refused
 func newClient(timeout time.Duration) *http.Client {
 	return &http.Client{
 		Timeout:       timeout,
-		Transport:     newTransport(),
+		Transport:     roundTripper{},
 		CheckRedirect: func(*http.Request, []*http.Request) error { return errRedirect },
 	}
 }

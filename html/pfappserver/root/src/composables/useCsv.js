@@ -32,14 +32,14 @@ export const useTableColumnsItems = (columns, items) => {
   return csvContentArray.join('\r\n')
 }
 
-// a spreadsheet runs a cell that starts with = + - @ (or a tab, a carriage
-// return) as a formula: such a text is prefixed with ', a number is kept
-const formulaRe = /^[=+\-@\t\r]/
-const numberRe = /^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/
+// a spreadsheet runs a cell that starts with = or @ as a formula: such a text
+// is prefixed with '. A leading + or - is kept, it starts phone numbers,
+// negative values and names (+1 514 555 0100, -5ms, -lab-01).
+const formulaRe = /^[=@]/
 
 export const csvCell = value => {
   let text = `${value}`
-  if (formulaRe.test(text) && !numberRe.test(text))
+  if (formulaRe.test(text))
     text = `'${text}`
   return `"${text.replace(/"/g, '""')}"` // RFC 4180: a quote is doubled
 }
