@@ -855,11 +855,14 @@ sub getAccessListByName {
     my ($self, $access_list_name, $mac, $port, $args) = @_;
     my ($type, $acls) = $self->accessListForRequest($access_list_name, $mac, $args);
     return if !defined $type;
+    # A device is enforced by one switch at a time: drop its rows on every
+    # switch so a device that moved is no longer reported on the previous one.
+    # Without a MAC, stay on this switch: the role rows of the Push ACLs
+    # (getRoleAccessListByName) are stored with an empty MAC on every switch.
+    my %where = (mac => $mac);
+    $where{switch_id} = $self->{_id} if !defined $mac || $mac eq '';
     my $status = pf::dal::switch_observability_acls->remove_items(
-        -where => {
-            switch_id => $self->{_id},
-            mac => $mac,
-        }
+        -where => \%where,
     );
     my $dal = pf::dal::switch_observability_acls->new({
         switch_id => $self->{_id},
