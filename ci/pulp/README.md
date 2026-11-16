@@ -23,10 +23,10 @@ DNS points at it; until then they still serve the older hosts.
 - The jobs share `resource_group: pulp-packetfence-pipelines`, so two pipelines never write
   the same repository at once.
 
-The jobs publish as `ci-packages` to the API on `PF_PACKAGE_ORIGIN`. `PF_PULP_PUBLISH=no`
+The jobs publish as `ci-packages` (credentials from Psono) to the API on `PF_PACKAGE_ORIGIN`. `PF_PULP_PUBLISH=no`
 falls back to the rsync upload to web.inverse.ca.
 
-## Container images (`devel` and `maintenance/X.Y`)
+## Container images (`devel`, `maintenance/X.Y` and release tags)
 
 On `devel` and `maintenance/X.Y`, the service images (`pfdebian`, `radiusd` and their
 `*_related` matrices) are pushed to GHCR only as `<slug>-p<pipeline>`
@@ -35,19 +35,20 @@ On `devel` and `maintenance/X.Y`, the service images (`pfdebian`, `radiusd` and 
 package's `TAG_OR_BRANCH_NAME`, so the packages themselves keep their branch tag. After the
 tests pass, `deploy_containers` (deploy stage) copies the manifests to the branch tags on
 GitHub (`devel,latest` or `maintenance-X-Y`; `ci/lib/upload/promote-images.py`), then pushes
-the same images to packages.packetfence.com under the same tags (`ci/pulp/container-push.sh`).
-It runs only in pipelines that run tests, so a pipeline without tests leaves the branch tags
-unchanged. Builder images (`pfbuild-*`, `kaniko-build`, `signing-packages`, `publish-ppa`) keep
+the same images to the registry on `PF_PACKAGE_ORIGIN` under the same tags
+(`ci/pulp/container-push.sh`). It runs only in pipelines that run tests, so a pipeline without
+tests leaves the branch tags unchanged. A release tag `vX.Y.Z` builds its images on GHCR as
+`vX.Y.Z`; its `deploy_containers` pushes them under that tag, with no GitHub promotion. Builder images (`pfbuild-*`, `kaniko-build`, `signing-packages`, `publish-ppa`) keep
 their branch tags (`BUILDER_TAG` in the Dockerfiles). Pipeline tags are not deleted automatically.
 
 The push runs on the runner with `skopeo` (in the `publish-ppa` image): for each image of
 `ci/pulp/container-images.json` that carries this pipeline's tag, `skopeo copy --all
---preserve-digests` from GHCR to `packages.packetfence.com/inverse-inc/packetfence/<image>:<tag>`,
-so the digests match GitHub's. Pulp fetches nothing. It needs a protected ref and refuses any
-tag but `devel`, `latest` and `maintenance-X-Y`; if it fails, `deploy_containers` fails (the
+--preserve-digests` from GHCR to `<registry>/inverse-inc/packetfence/<image>:<tag>`,
+so the digests match GitHub's. Pulp fetches nothing. It needs a protected ref; a branch pipeline
+may push only `devel`, `latest` and `maintenance-X-Y`, a tag pipeline only its own `vX.Y.Z`. If it fails, `deploy_containers` fails (the
 GitHub tags are already moved).
 
-The push runs as `ci-docker`; its password reaches `skopeo` through a private temporary
+The push runs as `ci-docker` (credentials from Psono); the password reaches `skopeo` through a private temporary
 auth file. `ci-docker` may push tags and add images under `inverse-inc/` only; it cannot
 delete or reconfigure an image (private infrastructure repository, `packaging/docs/CONTAINERS.md`).
 
@@ -59,8 +60,8 @@ the helpers and the checksums together, from a reviewed infrastructure revision.
 
 ## Secrets
 
-The `ci-packages` and `ci-docker` passwords are read from Psono at run time
-(`ci/pulp/psono-password.sh`, with the pipeline's `PSONO_CI_API_*`), like the signing key;
+The `ci-packages` and `ci-docker` usernames and passwords are read from Psono at run time
+(`ci/pulp/psono-field.sh`, with the pipeline's `PSONO_CI_API_*`), like the signing key;
 their entry IDs are the protected GitLab variables `PSONO_CI_PULP_PACKAGES_ID` and
 `PSONO_CI_PULP_DOCKER_ID` (empty by default in `.gitlab-ci.yml`). The infrastructure provisions the accounts from the same entries, so a
 password changed in Psono applies to both after the next packaging deploy. Disable debug tracing
