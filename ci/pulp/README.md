@@ -5,26 +5,32 @@ packaging Pulp behind packages.packetfence.com. Pulp serves the same `/downloads
 paths, signed with the same key. Other names (inverse.ca, packetfence.org) reach it once their
 DNS points at it; until then they still serve the older hosts.
 
-## Packages (default, `PF_PULP_PUBLISH=yes`)
+## Packages
 
 `ci/pulp/publish-packages.sh` publishes through the Pulp API (X.Y from `conf/pf-release`):
 
 | Job | When | Destination |
 |---|---|---|
+| `check_pulp_release` | release tags, first | stops the pipeline unless the tag matches `conf/pf-release` and Pulp has this version's repositories (prepared by the release on the packaging side) |
 | `publish_ppa` | pipelines that build packages | `gitlab/<pipeline>/`, used by the CI tests |
-| `deploy_debian_pulp` | `devel`, `maintenance/X.Y`, after the tests | `debian/X.Y/` and `RHEL8/X.Y/x86_64/` |
-| `deploy_branches_pulp` | feature branches with `publish_ppa=yes`, after the tests | `debian/branches/X.Y/` and `RHEL8/branches/X.Y/x86_64/` |
+| `deploy_debian_pulp` | `devel`, `maintenance/X.Y`, release tags, after the tests | `debian/X.Y/`, `RHEL<N>/X.Y/x86_64/` |
+| `deploy_branches_pulp` | feature branches with `publish_ppa=yes`, after the tests | `debian/branches/X.Y/`, `RHEL<N>/branches/X.Y/x86_64/` |
+| `deploy_files_pulp` | `devel`, `maintenance/X.Y`, release tags, feature branches with `deploy_pkg=yes` | `packetfence-release/-export/-upgrade/-ci-lib` in `debian/`, `RHEL<N>/` |
 
-- When Pulp has the native repository (`packetfence-X-Y-bookworm`, `packetfence-X-Y-el8`), it
-  receives the binary packages and Pulp signs its index. Otherwise the Debian tree is merged
-  with the published one (newest build of each package wins) and re-signed here
-  (`GPG_KEY_FINGERPRINT`); EL8 is left unchanged.
-- Tags keep the existing `deploy_pkg` release path.
+- The OS comes from what was built: each Debian suite goes to the X.Y repository serving it (a newer
+  Debian is a suite in the same repository, same URL), each `centos/<N>` to `packetfence-X-Y-el<N>`;
+  `ci/pulp/native.py` finds them by their Pulp labels. Without a native repository (a devel version not
+  yet released) the Debian tree is merged into the published one and re-signed here (`GPG_KEY_FINGERPRINT`).
+- A new OS: add it to `OS_SUPPORTED` (`ci/lib/common/functions.sh`) once the packaging side serves it;
+  CI then builds it, and `check_pulp_release` requires its repositories on tags.
+- `packetfence-export/-upgrade/-ci-lib` are `Architecture: all`: one copy serves every Debian release.
+- The `latest-<channel>-<OS>.txt` markers are not published by CI: they follow the release on the
+  packaging side.
 - The jobs share `resource_group: pulp-packetfence-pipelines`, so two pipelines never write
   the same repository at once.
 
-The jobs publish as `ci-packages` (credentials from Psono) to the API on `PF_PACKAGE_ORIGIN`. `PF_PULP_PUBLISH=no`
-falls back to the rsync upload to web.inverse.ca.
+The jobs publish as `ci-packages` (credentials from Psono) to the API on `PF_PACKAGE_ORIGIN`; Pulp is the only
+place CI publishes packages.
 
 ## Container images (`devel`, `maintenance/X.Y` and release tags)
 
