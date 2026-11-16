@@ -37,7 +37,7 @@ variables:
   PF_PACKAGE_ORIGIN: "https://packages.packetfence.com"
   # Packages go to the packaging Pulp (ci/pulp/publish-packages.sh); "no" falls back to rsync to web.inverse.ca.
   PF_PULP_PUBLISH: "yes"
-  # Psono entry IDs of the Pulp CI accounts ci-packages and ci-docker (read with PSONO_CI_API_*).
+  # Psono entry IDs of the Pulp CI accounts ci-packages and ci-docker (read with PSONO_API_KEY_*).
   # Set them as protected GitLab variables; the Pulp jobs fail while they are empty.
   PSONO_CI_PULP_PACKAGES_ID: ""
   PSONO_CI_PULP_DOCKER_ID: ""
@@ -628,8 +628,8 @@ variables:
       echo "=== Import SSH deploy key from Psono ==="
       mkdir -p ~/.ssh && chmod 700 ~/.ssh
       python3 addons/packetfence-perl/psono.py \
-        --api_key_id="$PSONO_CI_API_KEY_ID" \
-        --api_key_secret_key="$PSONO_CI_API_SECRET_KEY_HEX" \
+        --api_key_id="$PSONO_API_KEY_ID" \
+        --api_key_secret_key="$PSONO_API_KEY_SECRET_KEY" \
         --secret_id="$PSONO_SSH_DEPLOY_KEY_SECRET_ID" \
         --return_value=password_notes \
       > ~/.ssh/id_rsa
@@ -656,8 +656,8 @@ variables:
       echo "=== Import SSH deploy key from Psono ==="
       mkdir -p ~/.ssh && chmod 700 ~/.ssh
       python3 addons/packetfence-perl/psono.py \
-        --api_key_id="$PSONO_CI_API_KEY_ID" \
-        --api_key_secret_key="$PSONO_CI_API_SECRET_KEY_HEX" \
+        --api_key_id="$PSONO_API_KEY_ID" \
+        --api_key_secret_key="$PSONO_API_KEY_SECRET_KEY" \
         --secret_id="$PSONO_SSH_DEPLOY_KEY_SECRET_ID" \
         --return_value=password_notes \
       > ~/.ssh/id_rsa
@@ -1131,8 +1131,8 @@ sign_packages:
     - job: build_artifacts_pkg_centos_8
     - job: build_artifacts_pkg_debian_bookworm
   variables:
-    # GPG_KEY_FINGERPRINT, GPG_USER_ID, PSONO_CI_API_KEY_ID,
-    # PSONO_CI_API_SECRET_KEY_HEX, PSONO_GPG_PRIVATE_KEY_SECRET_ID:
+    # GPG_KEY_FINGERPRINT, GPG_USER_ID, PSONO_API_KEY_ID,
+    # PSONO_API_KEY_SECRET_KEY, PSONO_GPG_PRIVATE_KEY_SECRET_ID:
     # set via GitLab CI/CD variables.
     RESULT_DIR: result
   script:
@@ -1141,8 +1141,8 @@ sign_packages:
 
       echo "=== Import GPG private key from Psono ==="
       python3 addons/packetfence-perl/psono.py \
-        --api_key_id="$PSONO_CI_API_KEY_ID" \
-        --api_key_secret_key="$PSONO_CI_API_SECRET_KEY_HEX" \
+        --api_key_id="$PSONO_API_KEY_ID" \
+        --api_key_secret_key="$PSONO_API_KEY_SECRET_KEY" \
         --secret_id="$PSONO_GPG_PRIVATE_KEY_SECRET_ID" \
         --return_value=password_notes \
       | gpg --batch --pinentry-mode loopback --import
@@ -1251,8 +1251,8 @@ publish_ppa:
       set -euo pipefail
       echo "=== Import GPG key for repo signing ==="
       python3 addons/packetfence-perl/psono.py \
-        --api_key_id="$PSONO_CI_API_KEY_ID" \
-        --api_key_secret_key="$PSONO_CI_API_SECRET_KEY_HEX" \
+        --api_key_id="$PSONO_API_KEY_ID" \
+        --api_key_secret_key="$PSONO_API_KEY_SECRET_KEY" \
         --secret_id="$PSONO_GPG_PRIVATE_KEY_SECRET_ID" \
         --return_value=password_notes \
       | gpg --batch --pinentry-mode loopback --import
@@ -1262,8 +1262,8 @@ publish_ppa:
       echo "=== Import SSH deploy key from Psono ==="
       mkdir -p ~/.ssh && chmod 700 ~/.ssh
       python3 addons/packetfence-perl/psono.py \
-        --api_key_id="$PSONO_CI_API_KEY_ID" \
-        --api_key_secret_key="$PSONO_CI_API_SECRET_KEY_HEX" \
+        --api_key_id="$PSONO_API_KEY_ID" \
+        --api_key_secret_key="$PSONO_API_KEY_SECRET_KEY" \
         --secret_id="$PSONO_SSH_DEPLOY_KEY_SECRET_ID" \
         --return_value=password_notes \
       > ~/.ssh/id_rsa
@@ -1661,8 +1661,8 @@ deploy_debian_pulp:
     - |
       set -euo pipefail
       python3 addons/packetfence-perl/psono.py \
-        --api_key_id="$PSONO_CI_API_KEY_ID" \
-        --api_key_secret_key="$PSONO_CI_API_SECRET_KEY_HEX" \
+        --api_key_id="$PSONO_API_KEY_ID" \
+        --api_key_secret_key="$PSONO_API_KEY_SECRET_KEY" \
         --secret_id="$PSONO_GPG_PRIVATE_KEY_SECRET_ID" \
         --return_value=password_notes \
       | gpg --batch --pinentry-mode loopback --import
@@ -1733,8 +1733,8 @@ deploy_branches_pulp:
     - |
       set -euo pipefail
       python3 addons/packetfence-perl/psono.py \
-        --api_key_id="$PSONO_CI_API_KEY_ID" \
-        --api_key_secret_key="$PSONO_CI_API_SECRET_KEY_HEX" \
+        --api_key_id="$PSONO_API_KEY_ID" \
+        --api_key_secret_key="$PSONO_API_KEY_SECRET_KEY" \
         --secret_id="$PSONO_GPG_PRIVATE_KEY_SECRET_ID" \
         --return_value=password_notes \
       | gpg --batch --pinentry-mode loopback --import
