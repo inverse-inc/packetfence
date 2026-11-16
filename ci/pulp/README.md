@@ -51,12 +51,12 @@ GitHub tags are already moved).
 Credentials: masked CI variables `PF_PULP_CONTAINER_USERNAME` (`ci-docker`) and
 `PF_PULP_CONTAINER_PASSWORD`; the password reaches `skopeo` through a private temporary
 auth file. `ci-docker` may push tags and add images under `inverse-inc/` only; it cannot
-delete or reconfigure an image (the infrastructure's `packaging/docs/CONTAINERS.md`).
+delete or reconfigure an image (private infrastructure repository, `packaging/docs/CONTAINERS.md`).
 
 ## Vendored helpers
 
-`vendor/pulp_publish.py` and `vendor/pipeline_repository.py` come from the infrastructure
-repository (`packaging/scripts/`). `vendor/SHA256SUMS` is checked before any upload: refresh
+`vendor/pulp_publish.py` and `vendor/pipeline_repository.py` come from the private
+infrastructure repository (`packaging/scripts/`). `vendor/SHA256SUMS` is checked before any upload: refresh
 the helpers and the checksums together, from a reviewed infrastructure revision.
 
 ## Secrets
