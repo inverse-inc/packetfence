@@ -52,6 +52,28 @@ The push runs as `ci-docker` (credentials from Psono); the password reaches `sko
 auth file. `ci-docker` may push tags and add images under `inverse-inc/` only; it cannot
 delete or reconfigure an image (private infrastructure repository, `packaging/docs/CONTAINERS.md`).
 
+## New images and making an image public
+
+The registry only receives images listed in `ci/pulp/container-images.json` **and** public on GHCR
+(the push reads GHCR anonymously).
+
+1. **New service image.** Add its name to `ci/pulp/container-images.json` in the same change as
+   its build job; `test_every_image_the_pipeline_tags_is_in_the_push_list` fails otherwise.
+2. **While it is private on GHCR**, `deploy_containers` logs
+   `<image>: not public on GHCR (private or not created yet), skipped` and pushes the others.
+   Nothing about it reaches the registry.
+3. **To publish it**, make the package public on GitHub (package settings → Change visibility →
+   Public). Nothing to do on the registry side: the next `deploy_containers` (tested `devel` or
+   `maintenance/X.Y`, or a release tag) copies it, and the registry creates it **public**. Only
+   tags pushed from then on are copied; to publish an existing tag right away, run that branch's
+   pipeline with the tests.
+4. **Making it private again** on GitHub only stops new pushes: the registry keeps serving what it
+   has. An administrator of the packaging Pulp must make it private or remove it (`ci-docker`
+   cannot).
+
+An image that must stay private in the registry needs the private publishing path instead; this
+pipeline does not publish private images.
+
 ## Vendored helpers
 
 `vendor/pulp_publish.py` and `vendor/pipeline_repository.py` come from the private
