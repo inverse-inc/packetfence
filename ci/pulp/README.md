@@ -47,6 +47,10 @@ signing, `publish_ppa` and image steps succeed. `DEPLOY_PKG` decides whether a p
 | release tag `vX.Y.Z` | never: its packages are already there from `maintenance/X.Y`; the tag runs the tests (configurator included), and ISO, ZEN and Vagrant stay manual jobs | — |
 | feature branch (web, API, schedule) | only when asked, to `debian/branches/X.Y` and `RHEL<N>/branches/X.Y` (never images to the registry) | `DEPLOY_PKG=yes`, or `deploy_pkg=yes` in the commit message |
 
+Before any build, a `devel` pipeline checks that `conf/pf-release` is still Pulp's newest release
+(`check_pulp_release`). After a release it is not until the post-release bump of `conf/pf-release` to the new
+devel version: devel stops there instead of publishing into the new maintenance repositories.
+
 `PUBLISH_PPA=yes` (or `publish_ppa=yes` in the commit message) still works as an alias for feature branches.
 `publish_ppa` itself (the pipeline's `gitlab/<pipeline>/` tree) runs whenever the pipeline builds packages,
 since the tests install from it.
