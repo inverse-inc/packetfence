@@ -26,6 +26,9 @@ use pf::dal::class;
 
 our (%SecurityEvent_Config);
 
+# The node fields a security event can use to find the other nodes of the same device (same_device_fields)
+our @SAME_DEVICE_FIELDS = qw(pid computername category_id user_agent machine_account device_type device_class dhcp_fingerprint);
+
 tie %SecurityEvent_Config, 'pfconfig::cached_hash', 'config::SecurityEvents';
 
 
@@ -34,7 +37,7 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     # Categorized by feature, pay attention when modifying
-    @EXPORT = qw(%SecurityEvent_Config);
+    @EXPORT = qw(%SecurityEvent_Config @SAME_DEVICE_FIELDS);
 }
 
 sub loadSecurityEventsIntoDb {

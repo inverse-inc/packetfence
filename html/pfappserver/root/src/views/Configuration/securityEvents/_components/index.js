@@ -27,6 +27,7 @@ export {
   BaseFormGroupIntervalUnit   as FormGroupGrace,
   BaseFormGroupInput          as FormGroupIdentifier,
   BaseFormGroupInputNumber    as FormGroupPriority,
+  BaseFormGroupChosenMultiple as FormGroupSameDeviceFields,
   BaseFormGroupTriggers       as FormGroupTriggers,
   BaseFormGroupTriggersHeader as FormGroupTriggersHeader,
   BaseFormGroupChosenMultiple as FormGroupWhitelistedRoles,

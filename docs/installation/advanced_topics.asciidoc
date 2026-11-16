@@ -522,6 +522,33 @@ for all networks instead of the ones defined in
 
 Then restart `packetfence-pfacct` services for it to take effect.
 
+=== Security Events on Every MAC Address of a Device
+
+A security event applies to a MAC address. A laptop with a wired and a wireless
+interface is two endpoints: when the wired one is isolated, the wireless one
+still gets network access.
+
+The _Same Device Fields_ setting of a security event (_Configuration -> Compliance
+-> Security Events_, `same_device_fields` in [filename]`security_events.conf`)
+lists the endpoint fields identifying the other MAC addresses of the same
+device: owner, computer name, role, user agent, machine account, device type,
+device class and DHCP fingerprint. When it is set, opening the security event on
+an endpoint also opens it on every endpoint sharing the values of these fields,
+with the same actions, and closing it (from the captive portal, the admin
+interface, the API or `pfcmd`) also closes it on them and reevaluates their
+access. A delayed security event is delayed on them too.
+
+For example, with the owner and the computer name selected, the security event
+opened on the wired MAC address of a laptop is also opened on its wireless MAC
+address, as long as both endpoints belong to the same user and reported the same
+computer name (through DHCP or the provisioning agents).
+
+Endpoints with an empty value in one of the selected fields never match, and
+neither do the endpoints of the `default` owner, so an unregistered endpoint is
+never matched through its owner. Endpoints whose role is in _Ignored Roles_ are
+not matched either. The grace period, the window and the maximum number of
+enables apply to each endpoint separately.
+
 include::kafka.asciidoc[]
 
 include::monitoring.asciidoc[]

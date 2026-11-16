@@ -22,6 +22,11 @@ snort_rules=local.rules,emerging-attack_response.rules,emerging-botcc.rules,emer
 vlan=isolation
 # if you add a role/category here, nodes in these roles/categories will be immune to the security event
 whitelisted_roles=
+# same_device_fields: the node fields identifying the other MAC addresses of the same device (pid, computername,
+# category_id, user_agent, machine_account, device_type, device_class, dhcp_fingerprint). When set, the security
+# event is also opened and closed on every node sharing these values with the node (a laptop on wired and wireless).
+# Nodes with an empty value or the default owner never match.
+same_device_fields=
 template=generic
 recipient_template_email=security_event-triggered
 user_template_email=security_event-triggered

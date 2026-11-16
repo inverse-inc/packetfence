@@ -131,6 +131,7 @@ export const schema = (props) => {
       .label(i18n.t('Description')),
     priority: yup.string().nullable().label(i18n.t('Priority')),
     whitelisted_roles: schemaWhiteListedRoles,
+    same_device_fields: yup.array().ensure().of(yup.string().nullable()),
     grace: schemaIntervalUnit(grace),
     window: schemaIntervalUnit(window),
     delay_by: schemaIntervalUnit(delay_by),

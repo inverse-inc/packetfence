@@ -223,6 +223,17 @@ has_field 'whitelisted_roles' =>
    tags => { after_element => \&help,
              help => 'Nodes with the selected roles won\'t be affected by a security event of this type.' },
   );
+has_field 'same_device_fields' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Same device fields',
+   options_method => \&options_same_device_fields,
+   element_class => ['chzn-select', 'input-xxlarge'],
+   element_attr => {'data-placeholder' => 'Click to add a field'},
+   tags => { after_element => \&help,
+             help => 'The security event is also opened and closed on the other nodes sharing the values of these fields with the node, such as the wired and wireless MAC addresses of a laptop. Nodes with an empty value or the default owner never match.' },
+  );
 has_field 'trigger' =>
   (
    label =>"Trigger",
@@ -419,6 +430,27 @@ sub options_whitelisted_roles {
         $whitelisted_roles{$role} = $role;
     }
     return %whitelisted_roles;
+}
+
+=head2 options_same_device_fields
+
+The node fields identifying the other nodes of the same device
+
+=cut
+
+my %SAME_DEVICE_FIELD_LABELS = (
+    pid              => 'Owner',
+    computername     => 'Computer name',
+    category_id      => 'Role',
+    user_agent       => 'User agent',
+    machine_account  => 'Machine account',
+    device_type      => 'Device type',
+    device_class     => 'Device class',
+    dhcp_fingerprint => 'DHCP fingerprint',
+);
+
+sub options_same_device_fields {
+    return map { $_ => ($SAME_DEVICE_FIELD_LABELS{$_} // $_) } @pf::security_event_config::SAME_DEVICE_FIELDS;
 }
 
 =head2 options_roles
