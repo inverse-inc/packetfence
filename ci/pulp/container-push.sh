@@ -1,7 +1,7 @@
 #!/bin/bash
 # Push this pipeline's tested service images to packages.packetfence.com under their branch tags
 # (deploy_containers, after the GitHub promotion): the runner copies them, Pulp fetches nothing.
-# Only ci-docker may push there (masked CI variables PF_PULP_CONTAINER_USERNAME / _PASSWORD).
+# Only ci-docker may push there; its password comes from Psono.
 # Usage: container-push.sh <pipeline image tag> <branch tags, comma-separated>
 set -euo pipefail
 ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
@@ -23,7 +23,9 @@ tags=${2:?comma-separated branch tags}
 for tag in ${tags//,/ }; do
     [[ $tag =~ ^(devel|latest|maintenance-[0-9]+-[0-9]+)$ ]] || { echo "Refusing tag $tag" >&2; exit 1; }
 done
-: "${PF_PULP_CONTAINER_USERNAME:?}" "${PF_PULP_CONTAINER_PASSWORD:?}"
+PF_PULP_CONTAINER_USERNAME=${PF_PULP_CONTAINER_USERNAME:-ci-docker}
+[[ -n "${PF_PULP_CONTAINER_PASSWORD:-}" ]] ||
+    PF_PULP_CONTAINER_PASSWORD=$(bash ci/pulp/psono-password.sh "${PF_PULP_DOCKER_PSONO_ID:?}")
 registry=${PF_CONTAINER_REGISTRY:-packages.packetfence.com}
 source=ghcr.io/inverse-inc/packetfence
 destination=$registry/inverse-inc/packetfence
