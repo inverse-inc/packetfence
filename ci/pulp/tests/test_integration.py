@@ -1,6 +1,7 @@
 """Offline CI wiring checks; requires PyYAML."""
 import hashlib
 import os
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -12,6 +13,23 @@ ROOT = Path(__file__).resolve().parents[3]
 class GitLabLoader(yaml.SafeLoader):
     pass
 GitLabLoader.add_constructor('!reference', lambda loader, node: {'reference': loader.construct_sequence(node)})
+
+
+def push_tree(work):
+    """container-push.sh in a copy of the repository whose Psono returns secret-value and logs the entry ID."""
+    root = work/'repo'
+    (root/'ci/pulp').mkdir(parents=True)
+    (root/'addons/packetfence-perl').mkdir(parents=True)
+    for name in ('container-push.sh', 'psono-password.sh', 'container-images.json'):
+        shutil.copy(ROOT/'ci/pulp'/name, root/'ci/pulp'/name)
+    (root/'addons/packetfence-perl/psono.py').write_text(
+        'import os, sys\n'
+        'open(os.environ["TEST_PSONO"], "a").write(" ".join(a for a in sys.argv[1:] if a.startswith("--secret_id")) + "\\n")\n'
+        'print(\'{"website_password_password": "secret-value"}\')\n')
+    return root/'ci/pulp/container-push.sh'
+
+
+PSONO_ENV = {'PSONO_API_KEY_ID': 'key', 'PSONO_API_KEY_SECRET_KEY': 'key-secret', 'PF_PULP_DOCKER_PSONO_ID': 'docker-entry'}
 
 
 class ConfigurationTest(unittest.TestCase):
@@ -64,9 +82,10 @@ class ConfigurationTest(unittest.TestCase):
             fake = work/'skopeo'
             fake.write_text('#!/bin/sh\nprintf "%s\\n" "$*" >> "$TEST_CALLS"\n'
                             'case "$*" in "inspect "*) case "$*" in *pfcmd:p-7*|*radiusd:p-7*) exit 0;; *) exit 1;; esac;; '
-                            '"login "*) cat > /dev/null;; esac\n')
+                            '"login "*) cat > "$TEST_LOGIN";; esac\n')
             fake.chmod(0o700)
-            calls = work/'calls'
+            script = push_tree(work)
+            calls, login, psono = work/'calls', work/'login', work/'psono'
             cases = [('devel', source, 'true', '', True) for source in ('push', 'web', 'api', 'schedule')]
             cases += [('maintenance/15.2', source, 'true', '', True) for source in ('web', 'api', 'schedule')]
             cases += [('maintenance/15.2', 'push', 'true', '', False),
@@ -79,17 +98,21 @@ class ConfigurationTest(unittest.TestCase):
             for branch, source, protected, tag, allowed in cases:
                 with self.subTest(branch=branch, source=source, protected=protected, tag=tag):
                     calls.write_text('')
-                    env = dict(os.environ, PATH=str(work)+os.pathsep+os.environ['PATH'], TEST_CALLS=str(calls),
+                    psono.write_text('')
+                    env = dict(os.environ, **PSONO_ENV, PATH=str(work)+os.pathsep+os.environ['PATH'],
+                               TEST_CALLS=str(calls), TEST_LOGIN=str(login), TEST_PSONO=str(psono),
                                CI_COMMIT_BRANCH=branch, CI_PIPELINE_SOURCE=source,
-                               CI_COMMIT_REF_PROTECTED=protected, CI_COMMIT_TAG=tag,
-                               PF_PULP_CONTAINER_USERNAME='ci-docker', PF_PULP_CONTAINER_PASSWORD='secret-value')
-                    result = subprocess.run(['bash', str(ROOT/'ci/pulp/container-push.sh'), 'p-7', 'devel,latest'],
+                               CI_COMMIT_REF_PROTECTED=protected, CI_COMMIT_TAG=tag)
+                    result = subprocess.run(['bash', str(script), 'p-7', 'devel,latest'],
                                             env=env, capture_output=True, text=True)
                     self.assertEqual(result.returncode == 0, allowed, result.stderr)
                     recorded = calls.read_text().splitlines()
                     if not allowed:
                         self.assertEqual(recorded, [])
+                        self.assertEqual(psono.read_text(), '')  # refused before reading Psono
                         continue
+                    self.assertEqual(psono.read_text(), '--secret_id=docker-entry\n')
+                    self.assertEqual(login.read_text(), 'secret-value')
                     self.assertTrue(recorded[0].startswith('login --authfile '))
                     self.assertIn('--username ci-docker --password-stdin packages.packetfence.com', recorded[0])
                     copies = [row for row in recorded if row.startswith('copy ')]
@@ -101,8 +124,8 @@ class ConfigurationTest(unittest.TestCase):
                     self.assertNotIn('secret-value', result.stdout + result.stderr)
 
     def test_container_push_refuses_other_tags(self):
-        env = dict(os.environ, CI_COMMIT_BRANCH='devel', CI_PIPELINE_SOURCE='web', CI_COMMIT_REF_PROTECTED='true',
-                   CI_COMMIT_TAG='', PF_PULP_CONTAINER_USERNAME='ci-docker', PF_PULP_CONTAINER_PASSWORD='x')
+        env = dict(os.environ, **PSONO_ENV, CI_COMMIT_BRANCH='devel', CI_PIPELINE_SOURCE='web',
+                   CI_COMMIT_REF_PROTECTED='true', CI_COMMIT_TAG='')
         for tags in ('v16.0.0', 'devel,feature-x', 'maintenance-15'):
             result = subprocess.run(['bash', str(ROOT/'ci/pulp/container-push.sh'), 'p-7', tags],
                                     env=env, capture_output=True, text=True)
