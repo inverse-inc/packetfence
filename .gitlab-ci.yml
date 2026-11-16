@@ -298,7 +298,7 @@ variables:
       variables:
         IMAGE_TAG: $CI_COMMIT_REF_SLUG
 
-# Rules for deploy_files_pulp: devel push/web/schedule, release tag, maintenance and branches via
+# Rules for deploy_files_pulp: devel push/web/schedule, maintenance and branches via
 # web/api/schedule (with .gated_by_deploy_pkg). Each arm sets DEPLOY_ENV_NAME and the per-context
 # published names that ci/pulp/publish-files.py reads.
 .deploy_pkg_rules:
@@ -311,10 +311,6 @@ variables:
         # dirs regardless of context, so the context is encoded in the filename.
         # Only ci-lib gets a devel-specific name; the rest use versioned defaults.
         PF_CI_LIB_DEB_DEST_NAME: packetfence-ci-lib_devel.deb
-    - if: '$CI_COMMIT_TAG'
-      variables:
-        DEPLOY_ENV_NAME: pf-stable
-        IMAGE_TAG: $CI_COMMIT_TAG
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule")'
       variables:
         DEPLOY_ENV_NAME: maintenance
@@ -1560,16 +1556,12 @@ deploy_debian_pulp:
       variables:
         DEPLOY_ENV_NAME: maintenance
         IMAGE_TAG: $CI_COMMIT_REF_SLUG
-    - if: '$CI_COMMIT_TAG'
-      variables:
-        DEPLOY_ENV_NAME: pf-stable
-        IMAGE_TAG: $CI_COMMIT_TAG
 
 # devel and maintenance/X.Y: service images are pushed only as <slug>-p<pipeline>. Once the
 # tests pass, give them their branch tags on GitHub (devel,latest / maintenance-X-Y; manifests
 # are copied, nothing is rebuilt), then push them to packages.packetfence.com under the same
-# tags as ci-docker (ci/pulp/container-push.sh). Runs only when tests ran. A release tag vX.Y.Z
-# pushes the images it built (already vX.Y.Z on GitHub) under that tag. The environment lets GitLab skip an older pipeline that finishes after a newer one.
+# tags as ci-docker (ci/pulp/container-push.sh). Runs only when tests ran; a release tag keeps its
+# vX.Y.Z images on GitHub. The environment lets GitLab skip an older pipeline that finishes after a newer one.
 deploy_containers:
   stage: deploy
   image: $PF_PPA_IMAGE
@@ -1580,14 +1572,10 @@ deploy_containers:
     name: containers/$CI_COMMIT_REF_SLUG
   script:
     - |
-      if [ -n "${CI_COMMIT_TAG:-}" ]; then
-        bash ci/pulp/container-push.sh "$CI_COMMIT_TAG" "$CI_COMMIT_TAG"
-      else
-        pipeline_tag=$(sh ci/lib/common/pipeline-image-tag.sh)
-        test -n "$pipeline_tag" || { echo 'This pipeline has no pipeline-tagged images' >&2; exit 1; }
-        python3 ci/lib/upload/promote-images.py --source "$pipeline_tag" --tags "$PROMOTE_TAGS" --apply
-        bash ci/pulp/container-push.sh "$pipeline_tag" "$PROMOTE_TAGS"
-      fi
+      pipeline_tag=$(sh ci/lib/common/pipeline-image-tag.sh)
+      test -n "$pipeline_tag" || { echo 'This pipeline has no pipeline-tagged images' >&2; exit 1; }
+      python3 ci/lib/upload/promote-images.py --source "$pipeline_tag" --tags "$PROMOTE_TAGS" --apply
+      bash ci/pulp/container-push.sh "$pipeline_tag" "$PROMOTE_TAGS"
   tags:
     - docker
   rules:
@@ -1600,9 +1588,6 @@ deploy_containers:
       variables:
         IMAGE_TAG: $CI_COMMIT_REF_SLUG
         PROMOTE_TAGS: $CI_COMMIT_REF_SLUG
-    - if: '$CI_COMMIT_TAG =~ /^v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$/'
-      variables:
-        IMAGE_TAG: $CI_COMMIT_TAG
 
 # packetfence-release/-export/-upgrade/-ci-lib into Pulp's debian/ and RHEL<N>/ file snapshots, under their
 # published names (.deploy_pkg_rules sets the per-context names).
