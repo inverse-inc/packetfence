@@ -145,6 +145,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - Admin UI — MAC column not truncated, readable status chart colors, single condition kept when switching filter modes, server time for report date ranges, scrollable portal module palette, portal module delete and Save fixed (#9437, #9438, #9439, #9442, #9451, #9502)
   - i18n: admin strings extracted as looked up at runtime (en.po passes `msgfmt -c`) (#9547)
   - Connectors: saving an existing DNS server with a pfconnector port no longer fails with "Port should be unique" (#9584)
+  - Admin UI: the per-role mappings of a switch (VLAN ID, Switch Role, Vpn Role, Access List, Interface, Web Auth URL and Network CIDR tabs) are shown again
 
 === Security Fixes
 

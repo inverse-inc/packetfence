@@ -744,6 +744,7 @@ import BaseRoleMapList from './BaseRoleMapList.vue'
 const components = {
   BaseForm,
   BaseFormTab,
+  BaseRoleMapList,
   BaseInputToggleAdvancedMode,
 
   FormGroupContainer,
