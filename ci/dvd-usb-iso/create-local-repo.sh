@@ -53,13 +53,6 @@ fi
 # URL for dependency packages (fingerbank, docker, freeradius are in debian/VERSION repo)
 PF_DEPS_BASE_URL="https://packages.packetfence.com/downloads/PacketFence/debian/${PF_RELEASE_VERSION}"
 PF_SIGNING_KEY_URL=https://packages.packetfence.com/downloads/GPG_PUBLIC_KEY
-if [[ "${PF_PULP_ENABLED:-no}" == yes ]]; then
-    : "${PF_PACKAGE_ORIGIN:?Set the HTTPS Pulp package origin}"
-    [[ "$PF_REPO_TYPE" == gitlab/* && "$PF_PACKAGE_ORIGIN" =~ ^https://[a-zA-Z0-9.-]+(:[0-9]+)?$ ]] || exit 2
-    PF_REPO_BASE_URL="$PF_PACKAGE_ORIGIN/downloads/PacketFence/$PF_REPO_TYPE/debian"
-    PF_DEPS_BASE_URL="$PF_REPO_BASE_URL"
-    PF_SIGNING_KEY_URL="$PF_PACKAGE_ORIGIN/downloads/PacketFence/$PF_REPO_TYPE/GPG_PUBLIC_KEY"
-fi
 
 echo "=============================================="
 echo "Creating PacketFence Package Repository"
