@@ -1,5 +1,6 @@
 """Offline CI wiring checks; requires PyYAML."""
 import hashlib
+import importlib.util
 import json
 import os
 import shutil
@@ -156,6 +157,63 @@ class ConfigurationTest(unittest.TestCase):
         built.discard(None)
         self.assertGreater(len(built), 30)
         self.assertEqual(sorted(built - listed), [], 'add these images to ci/pulp/container-images.json')
+
+    def test_packages_are_published_to_pulp_only(self):
+        text = (ROOT/'.gitlab-ci.yml').read_text()
+        config = yaml.load(text, Loader=GitLabLoader)
+        self.assertIn('$CI_COMMIT_TAG', [r.get('if') for r in config['deploy_debian_pulp']['rules']])
+        for gone in ('deploy_packages', 'deploy_website_artifacts', 'build_artifacts_website', '.deploy_packages_job'):
+            self.assertNotIn(gone, config)
+        for word in ('PF_PULP_PUBLISH', 'deploy-artifacts.sh', 'web.inverse.ca', 'PSONO_SSH_DEPLOY_KEY'):
+            self.assertNotIn(word, text)
+        files = config['deploy_files_pulp']
+        self.assertIn({'reference': ['.deploy_pkg_rules', 'rules']}, files['rules'])
+        self.assertEqual(files['script'], ['bash ci/pulp/publish-packages.sh files'])
+
+    def test_files_keep_their_published_names_for_every_os(self):
+        spec = importlib.util.spec_from_file_location('publish_files', ROOT/'ci/pulp/publish-files.py')
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory() as folder:
+            result = Path(folder)
+            for n in ('8', '9'):
+                (result/'centos'/n).mkdir(parents=True)
+                for prefix in ('packetfence-release', 'packetfence-upgrade', 'packetfence-export'):
+                    (result/'centos'/n/f'{prefix}-16.0.0-1.el{n}.noarch.rpm').write_text('x')
+                (result/'centos'/n/'packetfence-16.0.0-1.el8.src.rpm').write_text('x')
+            (result/'debian'/'bookworm').mkdir(parents=True)
+            for prefix in ('packetfence-upgrade', 'packetfence-export', 'packetfence-ci-lib'):
+                (result/'debian'/'bookworm'/f'{prefix}_16.0.0_all.deb').write_text('x')
+            planned = {(snapshot, name) for snapshot, _, name in module.plan(result, '16.0', {})}
+            self.assertEqual(planned, {
+                ('rhel8', 'packetfence-release-16.0.el8.noarch.rpm'), ('rhel8', 'packetfence-upgrade-16.0.el8.noarch.rpm'),
+                ('rhel8', 'packetfence-export-16.0.el8.noarch.rpm'), ('rhel9', 'packetfence-release-16.0.el9.noarch.rpm'),
+                ('rhel9', 'packetfence-upgrade-16.0.el9.noarch.rpm'), ('rhel9', 'packetfence-export-16.0.el9.noarch.rpm'),
+                ('debian', 'packetfence-upgrade_16.0.deb'), ('debian', 'packetfence-export_16.0.deb'),
+                ('debian', 'packetfence-ci-lib_16.0.deb')})
+            # Architecture: all, no dependencies: a second Debian release adds no second copy.
+            (result/'debian'/'trixie').mkdir()
+            for prefix in ('packetfence-upgrade', 'packetfence-export', 'packetfence-ci-lib'):
+                (result/'debian'/'trixie'/f'{prefix}_16.0.0_all.deb').write_text('x')
+            debs = [(name, source.parent.name) for snapshot, source, name in module.plan(result, '16.0', {}) if snapshot == 'debian']
+            self.assertEqual(sorted(debs), [('packetfence-ci-lib_16.0.deb', 'bookworm'), ('packetfence-export_16.0.deb', 'bookworm'),
+                                            ('packetfence-upgrade_16.0.deb', 'bookworm')])
+            shutil.rmtree(result/'debian'/'trixie')
+            shutil.rmtree(result/'centos'/'9')
+            named = {name for _, _, name in module.plan(result, '16.0', {'PF_CI_LIB_DEB_DEST_NAME': 'packetfence-ci-lib_devel.deb'})}
+            self.assertIn('packetfence-ci-lib_devel.deb', named)
+
+    def test_published_files_join_the_listing(self):
+        spec = importlib.util.spec_from_file_location('publish_files', ROOT/'ci/pulp/publish-files.py')
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        labels = {'akainverse_client_path': '/downloads/PacketFence/debian/',
+                  'akainverse_index_files': '["a.deb"]', 'akainverse_index_file_sizes': '{"a.deb":1}',
+                  'akainverse_index_file_modified': '{"a.deb":"2026-01-01T00:00:00Z"}'}
+        updated = module.listing_labels(labels, {'packetfence-ci-lib_devel.deb': 5, 'a.deb': 2}, '2026-11-16T00:00:00Z')
+        self.assertEqual(json.loads(updated['akainverse_index_files']), ['a.deb', 'packetfence-ci-lib_devel.deb'])
+        self.assertEqual(json.loads(updated['akainverse_index_file_sizes']), {'a.deb': 2, 'packetfence-ci-lib_devel.deb': 5})
+        self.assertEqual(updated['akainverse_client_path'], '/downloads/PacketFence/debian/')
 
     def test_container_push_refuses_other_tags(self):
         env = dict(os.environ, **PSONO_ENV, CI_COMMIT_BRANCH='devel', CI_PIPELINE_SOURCE='web',
