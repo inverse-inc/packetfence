@@ -36,8 +36,10 @@ variables:
   PIPELINE_TIMEOUT_SCRIPT: 160m
   PF_PACKAGE_ORIGIN: "https://packages.packetfence.com"
   # Packages go to the packaging Pulp (ci/pulp/publish-packages.sh); "no" falls back to rsync to web.inverse.ca.
-  # Needs masked CI variables PULP_URL/PULP_USERNAME/PULP_PASSWORD (the ci-packages account; no "Expand" on the password).
   PF_PULP_PUBLISH: "yes"
+  # Psono entries of the Pulp CI accounts ci-packages and ci-docker (read with PSONO_API_KEY_*).
+  PF_PULP_PACKAGES_PSONO_ID: ""
+  PF_PULP_DOCKER_PSONO_ID: ""
   PF_PPA_IMAGE: "ghcr.io/inverse-inc/packetfence/publish-ppa:${IMAGE_TAG}"
   PIPELINE_TIMEOUT_CLEANUP: 10m
   # sub-budgets of PIPELINE_TIMEOUT_CLEANUP; sum must stay below it
