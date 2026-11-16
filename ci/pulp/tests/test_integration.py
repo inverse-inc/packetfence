@@ -1,5 +1,6 @@
 """Offline CI wiring checks; requires PyYAML."""
 import hashlib
+import json
 import os
 import shutil
 import subprocess
@@ -82,11 +83,12 @@ class ConfigurationTest(unittest.TestCase):
     def test_container_push_routes_only_trusted_pipelines_and_never_shows_the_password(self):
         with tempfile.TemporaryDirectory() as folder:
             work = Path(folder)
-            # Fake skopeo: pfcmd and radiusd carry the pipeline tag, nothing else does.
+            # Fake skopeo: pfcmd and radiusd carry the pipeline tag, pfqueue is private, the rest lack the tag.
             fake = work/'skopeo'
             fake.write_text('#!/bin/sh\nprintf "%s\\n" "$*" >> "$TEST_CALLS"\n'
                             'case "$*" in "inspect "*) case "$*" in *pfcmd:p-7*|*radiusd:p-7*|*pfcmd:v16.0.0*|*radiusd:v16.0.0*) exit 0;; '
-                            '*) exit 1;; esac;; '
+                            '*pfqueue:*) echo "requested access to the resource is denied" >&2; exit 1;; '
+                            '*) echo "manifest unknown" >&2; exit 1;; esac;; '
                             '"login "*) cat > "$TEST_LOGIN";; esac\n')
             fake.chmod(0o700)
             script = push_tree(work)
@@ -134,8 +136,26 @@ class ConfigurationTest(unittest.TestCase):
                     self.assertEqual(len(copies), 4)  # 2 images x 2 tags
                     self.assertIn('docker://ghcr.io/inverse-inc/packetfence/pfcmd:p-7 '
                                   'docker://registry.example/inverse-inc/packetfence/pfcmd:latest', copies[1])
+                    self.assertIn('pfqueue: not public on GHCR (private or not created yet), skipped', result.stdout)
+                    self.assertNotIn('pfcron:', result.stdout)  # only lacks this pipeline's tag: silent
                     self.assertFalse(any('secret-value' in row for row in recorded))
                     self.assertNotIn('secret-value', result.stdout + result.stderr)
+
+    def test_every_image_the_pipeline_tags_is_in_the_push_list(self):
+        # A service image missing from container-images.json would never reach the registry.
+        config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
+        listed = set(json.loads((ROOT/'ci/pulp/container-images.json').read_text())['images'])
+        built = set()
+        for job in config.values():
+            if not isinstance(job, dict) or {'reference': ['.build_img_service_rules', 'rules']} not in (job.get('rules') or []):
+                continue
+            built.add(job.get('variables', {}).get('IMAGE_NAME'))
+            for entry in (job.get('parallel') or {}).get('matrix', []):
+                names = entry['IMAGE_NAME']
+                built.update([names] if isinstance(names, str) else names)
+        built.discard(None)
+        self.assertGreater(len(built), 30)
+        self.assertEqual(sorted(built - listed), [], 'add these images to ci/pulp/container-images.json')
 
     def test_container_push_refuses_other_tags(self):
         env = dict(os.environ, **PSONO_ENV, CI_COMMIT_BRANCH='devel', CI_PIPELINE_SOURCE='web',
