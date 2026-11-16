@@ -6,4 +6,5 @@ fastembed==0.8.0
 PyYAML==6.0.3
 pypdf==6.14.2
 PyMySQL==1.1.1
+cryptography==50.0.2
 python-multipart==0.0.20

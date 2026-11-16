@@ -10,16 +10,12 @@ Design notes
   key starts with `pid` and a foreign key cascades from `person`, so deleting a
   person removes their conversations automatically. Users never see each
   other's threads: every query is scoped by pid.
-* **Compression.** On MariaDB the tables use `ROW_FORMAT=COMPRESSED
-  KEY_BLOCK_SIZE=8`. Chat transcripts and log excerpts are highly repetitive
-  and compress ~50% on disk. MySQL 8 deprecated InnoDB compressed row format,
-  so when running on MySQL 8+ the tables use the default row format instead.
-  Compression is at the InnoDB *page* level, which is what makes the next
-  point possible.
-* **Still searchable.** Because compression is transparent to the engine,
-  normal indexes keep working — including `FULLTEXT` on the thread title and
-  the message body. Compressing the columns instead (e.g. `COMPRESS()` or
-  gzip in Python) would have made the text unindexable and unsearchable.
+* **Schema.** The tables are created by the PacketFence schema and upgrade
+  scripts (db/pf-schema-*.sql, db/upgrade-*.sql); `init()` only creates them
+  if missing, using the same MySQL 8-compliant DDL (default row format, no
+  zero-date defaults, no integer display widths).
+* **Searchable.** `FULLTEXT` indexes on the thread title and the message body
+  back conversation search.
 * **Charset matching.** `person.pid` is often utf8mb3 while the database
   defaults to utf8mb4; creating the child table without matching the parent
   column exactly fails with errno 150. The pid column definition is therefore
@@ -75,11 +71,10 @@ if not DB_PASS:
               f"(user={DB_USER}, socket={DB_SOCKET or 'tcp'}); set CHATBOT_DB_* to override", flush=True)
 PREFIX = os.environ.get("CHATBOT_TABLE_PREFIX", "chatbot_")
 DEFAULT_PID = os.environ.get("CHATBOT_DEFAULT_PID", "admin")
-KEY_BLOCK_SIZE = int(os.environ.get("CHATBOT_KEY_BLOCK_SIZE", "8"))
 
 # ── file attachments ─────────────────────────────────────────────────────────
-# Small artifacts live inline in the row (they inherit the per-user cascade and
-# the table's compression); anything larger spills to a content-addressed file
+# Small artifacts live inline in the row (they inherit the per-user cascade);
+# anything larger spills to a content-addressed file
 # so blobs don't bloat mysqldump / replication / the InnoDB buffer pool.
 FILE_DIR = os.environ.get("CHATBOT_FILE_DIR", "/var/lib/pf-chatbot/files")
 FILE_INLINE_MAX = int(os.environ.get("CHATBOT_FILE_INLINE_MAX", 256 * 1024))
@@ -184,17 +179,9 @@ def _pid_column_ddl() -> str:
     return spec
 
 
-def _is_mariadb() -> bool:
-    """True when the server is MariaDB (VERSION() contains 'MariaDB')."""
-    row = _q("SELECT VERSION() AS v", fetch="one")
-    return "mariadb" in (row["v"] or "").lower() if row else False
-
-
 def _table_opts() -> str:
-    """ENGINE clause: MariaDB gets compressed rows; MySQL 8+ uses the default."""
-    if _is_mariadb():
-        return f"ENGINE=InnoDB ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE={KEY_BLOCK_SIZE}"
-    return "ENGINE=InnoDB"
+    """Table options, kept identical to db/pf-schema-*.sql."""
+    return "ENGINE=InnoDB DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci"
 
 
 def init() -> None:
@@ -209,8 +196,8 @@ def init() -> None:
               `pid` {pid_ddl} NOT NULL,
               `thread_id` bigint NOT NULL AUTO_INCREMENT,
               `title` varchar(255) NOT NULL,
-              `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-              `updated` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+              `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+              `updated` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
               PRIMARY KEY (`pid`,`thread_id`),
               UNIQUE KEY `uk_thread_id` (`thread_id`),
               KEY `idx_thread_recent` (`pid`,`updated`),
@@ -226,7 +213,7 @@ def init() -> None:
               `role` varchar(16) NOT NULL,
               `content` mediumtext NOT NULL,
               `activity` mediumtext DEFAULT NULL,
-              `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+              `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
               `feedback` tinyint NOT NULL DEFAULT 0,
               PRIMARY KEY (`id`),
               KEY `idx_msg_thread` (`pid`,`thread_id`,`id`),
@@ -239,7 +226,7 @@ def init() -> None:
         _q(f"""CREATE TABLE IF NOT EXISTS `{T_USAGE}` (
               `pid` {pid_ddl} NOT NULL,
               `id` bigint NOT NULL AUTO_INCREMENT,
-              `ts` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+              `ts` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
               `provider` varchar(32) NOT NULL,
               `model` varchar(128) NOT NULL,
               `input_tokens` int NOT NULL DEFAULT 0,
@@ -264,7 +251,7 @@ def init() -> None:
               `sha256` char(64) NOT NULL,
               `content` mediumblob DEFAULT NULL,
               `disk_path` varchar(255) DEFAULT NULL,
-              `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+              `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
               PRIMARY KEY (`id`),
               KEY `idx_file_thread` (`pid`,`thread_id`,`created`),
               KEY `idx_file_msg` (`pid`,`message_id`),

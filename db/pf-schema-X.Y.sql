@@ -1678,6 +1678,79 @@ CREATE TABLE switch_observability_acls (
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
+-- Tables for the chatbot (NACBot): per-user conversation threads, messages,
+-- token usage and file attachments. Rows cascade-delete with their person.
+--
+
+CREATE TABLE chatbot_thread (
+  `pid` varchar(255) NOT NULL,
+  `thread_id` bigint NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`pid`,`thread_id`),
+  UNIQUE KEY `uk_thread_id` (`thread_id`),
+  KEY `idx_thread_recent` (`pid`,`updated`),
+  FULLTEXT KEY `ft_thread_title` (`title`),
+  CONSTRAINT `fk_chatbot_thread_person` FOREIGN KEY (`pid`)
+    REFERENCES `person` (`pid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+CREATE TABLE chatbot_message (
+  `pid` varchar(255) NOT NULL,
+  `thread_id` bigint NOT NULL,
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `role` varchar(16) NOT NULL,
+  `content` mediumtext NOT NULL,
+  `activity` mediumtext DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `feedback` tinyint NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `idx_msg_thread` (`pid`,`thread_id`,`id`),
+  KEY `idx_msg_feedback` (`pid`,`feedback`,`id`),
+  FULLTEXT KEY `ft_msg_content` (`content`),
+  CONSTRAINT `fk_chatbot_msg_thread` FOREIGN KEY (`pid`,`thread_id`)
+    REFERENCES `chatbot_thread` (`pid`,`thread_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+CREATE TABLE chatbot_usage (
+  `pid` varchar(255) NOT NULL,
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `ts` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `provider` varchar(32) NOT NULL,
+  `model` varchar(128) NOT NULL,
+  `input_tokens` int NOT NULL DEFAULT 0,
+  `output_tokens` int NOT NULL DEFAULT 0,
+  `thread_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`pid`,`id`),
+  UNIQUE KEY `uk_usage_id` (`id`),
+  KEY `idx_usage_ts` (`pid`,`ts`),
+  CONSTRAINT `fk_chatbot_usage_person` FOREIGN KEY (`pid`)
+    REFERENCES `person` (`pid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+CREATE TABLE chatbot_file (
+  `pid` varchar(255) NOT NULL,
+  `thread_id` bigint NOT NULL,
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `message_id` bigint DEFAULT NULL,
+  `kind` varchar(8) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `mime` varchar(128) NOT NULL DEFAULT 'application/octet-stream',
+  `size_bytes` bigint NOT NULL,
+  `sha256` char(64) NOT NULL,
+  `content` mediumblob DEFAULT NULL,
+  `disk_path` varchar(255) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_file_thread` (`pid`,`thread_id`,`created`),
+  KEY `idx_file_msg` (`pid`,`message_id`),
+  KEY `idx_file_sha` (`sha256`),
+  CONSTRAINT `fk_chatbot_file_thread` FOREIGN KEY (`pid`,`thread_id`)
+    REFERENCES `chatbot_thread` (`pid`,`thread_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+--
 -- Updating to current version
 --
 
