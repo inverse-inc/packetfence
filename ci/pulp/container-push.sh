@@ -1,35 +1,29 @@
 #!/bin/bash
 # Push this pipeline's service images to the registry on PF_PACKAGE_ORIGIN (deploy_containers):
-# tested devel/maintenance images under their branch tags, after the GitHub promotion, and release
-# images under their vX.Y.Z tag. The runner copies them, Pulp fetches nothing. The ci-docker
-# account's username and password come from Psono.
+# tested devel/maintenance images under their branch tags, after the GitHub promotion. The runner
+# copies them, Pulp fetches nothing. The ci-docker account's username and password come from Psono.
 # Usage: container-push.sh <source image tag> <destination tags, comma-separated>
 set -euo pipefail
 ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
 cd "$ROOT"
 
-# Only from a protected ref: a release tag vX.Y.Z, or tested devel and real maintenance/X.Y pipelines.
+# Only from a protected ref: tested devel and real maintenance/X.Y pipelines (never a release tag).
 [[ ${CI_COMMIT_REF_PROTECTED:-false} == true ]] || { echo 'Container push requires a protected ref' >&2; exit 1; }
 source_tag=${1:?source image tag}
 tags=${2:?comma-separated destination tags}
-if [[ -n ${CI_COMMIT_TAG:-} ]]; then
-    [[ $CI_COMMIT_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ && $source_tag == "$CI_COMMIT_TAG" && $tags == "$CI_COMMIT_TAG" ]] || {
-        echo 'A tag pipeline pushes only its own vX.Y.Z release tag' >&2; exit 1;
-    }
-else
-    [[ ( ${CI_COMMIT_BRANCH:-} == devel ||
-        ( ${CI_COMMIT_BRANCH:-} =~ ^maintenance/[0-9]+\.[0-9]+$ && ${CI_COMMIT_BRANCH} != maintenance/99.9 ) ) ]] || {
-        echo 'Container push requires devel or a real maintenance/X.Y branch' >&2; exit 1;
-    }
-    case ${CI_PIPELINE_SOURCE:-} in
-        web|api|schedule) ;;
-        push) [[ $CI_COMMIT_BRANCH == devel ]] || { echo 'Maintenance push requires web/API/schedule' >&2; exit 1; } ;;
-        *) echo 'Unsupported pipeline source for container push' >&2; exit 1 ;;
-    esac
-    for tag in ${tags//,/ }; do
-        [[ $tag =~ ^(devel|latest|maintenance-[0-9]+-[0-9]+)$ ]] || { echo "Refusing tag $tag" >&2; exit 1; }
-    done
-fi
+[[ -z ${CI_COMMIT_TAG:-} ]] || { echo 'A release tag keeps its images on GitHub: nothing is pushed here' >&2; exit 1; }
+[[ ( ${CI_COMMIT_BRANCH:-} == devel ||
+    ( ${CI_COMMIT_BRANCH:-} =~ ^maintenance/[0-9]+\.[0-9]+$ && ${CI_COMMIT_BRANCH} != maintenance/99.9 ) ) ]] || {
+    echo 'Container push requires devel or a real maintenance/X.Y branch' >&2; exit 1;
+}
+case ${CI_PIPELINE_SOURCE:-} in
+    web|api|schedule) ;;
+    push) [[ $CI_COMMIT_BRANCH == devel ]] || { echo 'Maintenance push requires web/API/schedule' >&2; exit 1; } ;;
+    *) echo 'Unsupported pipeline source for container push' >&2; exit 1 ;;
+esac
+for tag in ${tags//,/ }; do
+    [[ $tag =~ ^(devel|latest|maintenance-[0-9]+-[0-9]+)$ ]] || { echo "Refusing tag $tag" >&2; exit 1; }
+done
 : "${PF_PACKAGE_ORIGIN:?}"
 [[ $PF_PACKAGE_ORIGIN =~ ^https://([a-zA-Z0-9.-]+(:[0-9]+)?)$ ]] || { echo 'PF_PACKAGE_ORIGIN must be an HTTPS origin' >&2; exit 1; }
 registry=${BASH_REMATCH[1]}

@@ -11,11 +11,11 @@ DNS points at it; until then they still serve the older hosts.
 
 | Job | When | Destination |
 |---|---|---|
-| `check_pulp_release` | release tags, first | stops the pipeline unless the tag matches `conf/pf-release` and Pulp has this version's repositories (prepared by the release on the packaging side) |
+| `check_pulp_release` | release tags, first | stops the pipeline unless the tag matches `conf/pf-release`, Pulp has this version's repositories (prepared by the release on the packaging side) and, for `vX.Y.0`, the new devel carries every package of X.Y (a later `vX.Y.Z` only warns); it publishes nothing |
 | `publish_ppa` | pipelines that build packages | `gitlab/<pipeline>/`, used by the CI tests |
-| `deploy_debian_pulp` | `devel`, `maintenance/X.Y`, release tags, after the tests | `debian/X.Y/`, `RHEL<N>/X.Y/x86_64/` |
+| `deploy_debian_pulp` | `devel`, `maintenance/X.Y`, after the tests | `debian/X.Y/`, `RHEL<N>/X.Y/x86_64/` |
 | `deploy_branches_pulp` | feature branches with `DEPLOY_PKG=yes` (or `true`; `PUBLISH_PPA` is an alias), after the tests | `debian/branches/X.Y/`, `RHEL<N>/branches/X.Y/x86_64/` |
-| `deploy_files_pulp` | `devel`, `maintenance/X.Y`, release tags, feature branches with `DEPLOY_PKG=yes` | `packetfence-release/-export/-upgrade/-ci-lib` in `debian/`, `RHEL<N>/` |
+| `deploy_files_pulp` | `devel`, `maintenance/X.Y`, feature branches with `DEPLOY_PKG=yes` | `packetfence-release/-export/-upgrade/-ci-lib` in `debian/`, `RHEL<N>/` |
 
 - The OS comes from what was built: each Debian suite goes to the X.Y repository serving it (a newer
   Debian is a suite in the same repository, same URL), each `centos/<N>` to `packetfence-X-Y-el<N>`;
@@ -43,14 +43,14 @@ signing, `publish_ppa` and image steps succeed. `DEPLOY_PKG` decides whether a p
 |---|---|---|
 | `devel` (any source) | by default | `DEPLOY_PKG=no` |
 | `maintenance/X.Y` (web, API, schedule) | by default | `DEPLOY_PKG=no` |
-| release tag `vX.Y.Z` | always, once `check_pulp_release` passes | — |
+| release tag `vX.Y.Z` | never: its packages are already there from `maintenance/X.Y`; the tag runs the tests (configurator included), and ISO, ZEN and Vagrant stay manual jobs | — |
 | feature branch (web, API, schedule) | only when asked, to `debian/branches/X.Y` and `RHEL<N>/branches/X.Y` (never images to the registry) | `DEPLOY_PKG=yes`, or `deploy_pkg=yes` in the commit message |
 
 `PUBLISH_PPA=yes` (or `publish_ppa=yes` in the commit message) still works as an alias for feature branches.
 `publish_ppa` itself (the pipeline's `gitlab/<pipeline>/` tree) runs whenever the pipeline builds packages,
 since the tests install from it.
 
-## Container images (`devel`, `maintenance/X.Y` and release tags)
+## Container images (`devel` and `maintenance/X.Y`)
 
 On `devel` and `maintenance/X.Y`, the service images (`pfdebian`, `radiusd` and their
 `*_related` matrices) are pushed to GHCR only as `<slug>-p<pipeline>`
@@ -62,14 +62,14 @@ GitHub (`devel,latest` or `maintenance-X-Y`; `ci/lib/upload/promote-images.py`),
 the same images to the registry on `PF_PACKAGE_ORIGIN` under the same tags
 (`ci/pulp/container-push.sh`). It runs only in pipelines that run tests, so a pipeline without
 tests leaves the branch tags unchanged. A release tag `vX.Y.Z` builds its images on GHCR as
-`vX.Y.Z`; its `deploy_containers` pushes them under that tag, with no GitHub promotion. Builder images (`pfbuild-*`, `kaniko-build`, `signing-packages`, `publish-ppa`) keep
+`vX.Y.Z` and keeps them there: nothing is pushed to the registry on `PF_PACKAGE_ORIGIN`. Builder images (`pfbuild-*`, `kaniko-build`, `signing-packages`, `publish-ppa`) keep
 their branch tags (`BUILDER_TAG` in the Dockerfiles). Pipeline tags are not deleted automatically.
 
 The push runs on the runner with `skopeo` (in the `publish-ppa` image): for each image of
 `ci/pulp/container-images.json` that carries this pipeline's tag, `skopeo copy --all
 --preserve-digests` from GHCR to `<registry>/inverse-inc/packetfence/<image>:<tag>`,
 so the digests match GitHub's. Pulp fetches nothing. It needs a protected ref; a branch pipeline
-may push only `devel`, `latest` and `maintenance-X-Y`, a tag pipeline only its own `vX.Y.Z`. If it fails, `deploy_containers` fails (the
+may push only `devel`, `latest` and `maintenance-X-Y`; a tag pipeline pushes nothing. If it fails, `deploy_containers` fails (the
 GitHub tags are already moved).
 
 The push runs as `ci-docker` (credentials from Psono); the password reaches `skopeo` through a private temporary
