@@ -17,7 +17,7 @@ MODE=${1:?ppa, branches or release}
 [[ "$PF_PACKAGE_ORIGIN" =~ ^https://[a-zA-Z0-9.-]+(:[0-9]+)?$ ]] || { echo 'PF_PACKAGE_ORIGIN must be an HTTPS origin' >&2; exit 1; }
 [[ "$CI_PIPELINE_ID" =~ ^[1-9][0-9]*$ ]] || exit 2
 # Always the ci-packages account, its password read from Psono.
-PULP_PASSWORD=$(bash ci/pulp/psono-password.sh "${PF_PULP_PACKAGES_PSONO_ID:?}")
+PULP_PASSWORD=$(bash ci/pulp/psono-password.sh "${PSONO_CI_PULP_PACKAGES_ID:?}")
 export PULP_URL=$PF_PACKAGE_ORIGIN PULP_USERNAME=ci-packages PULP_PASSWORD
 PUBLIC_DIR=${PUBLIC_DIR:-public}
 [[ -f "$PUBLIC_DIR/GPG_PUBLIC_KEY" && -d "$PUBLIC_DIR/debian" ]] || { echo "Run generate-pages first ($PUBLIC_DIR)" >&2; exit 1; }
