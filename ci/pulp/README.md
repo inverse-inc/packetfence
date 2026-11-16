@@ -44,7 +44,7 @@ signing, `publish_ppa` and image steps succeed. `DEPLOY_PKG` decides whether a p
 | `devel` (any source) | by default | `DEPLOY_PKG=no` |
 | `maintenance/X.Y` (web, API, schedule) | by default | `DEPLOY_PKG=no` |
 | release tag `vX.Y.Z` | always, once `check_pulp_release` passes | — |
-| feature branch (web, API, schedule) | only when asked | `DEPLOY_PKG=yes`, or `deploy_pkg=yes` in the commit message |
+| feature branch (web, API, schedule) | only when asked, to `debian/branches/X.Y` and `RHEL<N>/branches/X.Y` (never images to the registry) | `DEPLOY_PKG=yes`, or `deploy_pkg=yes` in the commit message |
 
 `PUBLISH_PPA=yes` (or `publish_ppa=yes` in the commit message) still works as an alias for feature branches.
 `publish_ppa` itself (the pipeline's `gitlab/<pipeline>/` tree) runs whenever the pipeline builds packages,
