@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 11;
+use Test::More tests => 19;
 use Test::Mojo;
 use Utils;
 
@@ -47,6 +47,35 @@ $t->post_ok($collection_base_url => json => {
     type => 'Hostapd_template'
 })
   ->status_is(201);
+
+$t->post_ok($collection_base_url => json => {
+    id => 'radius_attributes_group',
+    type => 'Cisco::Cisco_IOS_15_5',
+    RadiusAttributesMap => 'Y',
+    guestRadiusAttributes => [ { type => 'Lab-Unknown-Attribute' } ],
+})
+  ->status_is(422)
+  ->json_like('/errors/0/message', qr/required/i);
+
+# as the RADIUS attributes of the switch templates, the names are not checked
+$t->post_ok($collection_base_url => json => {
+    id => 'radius_attributes_group_unknown',
+    type => 'Cisco::Cisco_IOS_15_5',
+    RadiusAttributesMap => 'Y',
+    guestRadiusAttributes => [ { type => 'Lab-Unknown-Attribute', value => '1' } ],
+})
+  ->status_is(201);
+
+# PUT must expand flat ${role}RadiusAttributes into RadiusAttributesMapping
+# before validation, same as POST (cleanupItemForReplace → cleanupItemForCreate)
+$t->put_ok("$base_url/radius_attributes_group_unknown" => json => {
+    id => 'radius_attributes_group_unknown',
+    type => 'Cisco::Cisco_IOS_15_5',
+    RadiusAttributesMap => 'Y',
+    guestRadiusAttributes => [ { type => 'Lab-Unknown-Attribute' } ],
+})
+  ->status_is(422)
+  ->json_like('/errors/0/message', qr/required/i);
 
 $t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
   ->status_is(400);

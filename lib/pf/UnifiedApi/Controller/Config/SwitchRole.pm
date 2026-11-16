@@ -48,6 +48,11 @@ sub cleanupItemForCreate {
     return $item;
 }
 
+sub cleanupItemForReplace {
+    my ($self, $item) = @_;
+    return $self->cleanupItemForCreate($item);
+}
+
 sub mergeUpdate {
     my ($self, $patch, $old_item) = @_;
     my $mappings = makeMappings($patch);
@@ -63,7 +68,7 @@ sub makeMappings {
     my %mapping;
 
     while (my ($k, $v) = each %$patch) {
-        next unless ($k =~ /(.*)(AccessList|Vlan|Url|Role|Vpn|Interface|Network|NetworkFrom)$/);
+        next unless ($k =~ /(.*)(AccessList|Vlan|Url|Role|Vpn|Interface|Network|NetworkFrom|RadiusAttributes)$/);
         my $type = $2;
         my $role = $1;
         if ($type eq 'Role') {

@@ -26,7 +26,7 @@ const schemaRadiusAttribute = yup.object({
     ))
 })
 
-const schemaRadiusAttributes = yup.array().ensure().unique(i18n.t('Duplicate attribute.')).of(schemaRadiusAttribute)
+export const schemaRadiusAttributes = yup.array().ensure().unique(i18n.t('Duplicate attribute.')).of(schemaRadiusAttribute)
 
 export const schema = (props) => {
   const {

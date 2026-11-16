@@ -93,6 +93,7 @@ const actions = {
             [`${role}Url`]: null,
             [`${role}Vpn`]: null,
             [`${role}Interface`]: null,
+            [`${role}RadiusAttributes`]: null,
             [`${role}VlanEnabled`]: 'enabled',
             [`${role}RoleEnabled`]: 'enabled',
             [`${role}AccessListEnabled`]: 'enabled',

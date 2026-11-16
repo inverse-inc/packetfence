@@ -44,6 +44,7 @@ our %MappingKey = (
     NetworkMapping => 'network',
     NetworkFromMapping => 'networkfrom',
     InterfaceMapping => 'interface',
+    RadiusAttributesMapping => 'radiusattributes',
 );
 
 our %MappingKey2 = (
@@ -55,6 +56,7 @@ our %MappingKey2 = (
     NetworkMapping => 'Network',
     NetworkFromMapping => 'NetworkFrom',
     InterfaceMapping => 'Interface',
+    RadiusAttributesMapping => 'RadiusAttributes',
 );
 
 =head2 Methods
@@ -121,11 +123,14 @@ sub _expandMapping {
     my $toset = {};
     my $enabled = {};
     while (my ($attr, $val) = each %$switch) {
-        if ($attr =~ /(.*)(AccessList|Vlan|Url|Role|Vpn|Interface|Network|NetworkFrom)$/) {
+        if ($attr =~ /(.*)(AccessList|Vlan|Url|Role|Vpn|Interface|Network|NetworkFrom|RadiusAttributes)$/) {
             my $type = $2;
             my $role = $1;
             if ($type eq 'AccessList' && ref($val) eq 'ARRAY') {
                 $val = join("\n", @$val);
+                $toset->{$attr} = $val;
+            } elsif ($type eq 'RadiusAttributes') {
+                $val = listify($val);
                 $toset->{$attr} = $val;
             }
 
@@ -157,7 +162,7 @@ sub _expandMapping {
         }
     }
 
-    for my $k (qw(AccessListMapping VlanMapping UrlMapping ControllerRoleMapping VpnMapping InterfaceMapping NetworkMapping NetworkFromMapping))  {
+    for my $k (qw(AccessListMapping VlanMapping UrlMapping ControllerRoleMapping VpnMapping InterfaceMapping NetworkMapping NetworkFromMapping RadiusAttributesMapping))  {
         next if !exists $switch->{$k};
         $switch->{$k} = [sort { $a->{role} cmp $b->{role} } @{$switch->{$k} // []}]
     }
@@ -187,11 +192,12 @@ sub cleanupBeforeCommit {
 sub _flattenRoleMappings {
     my ( $switch ) = @_;
     
-    for my $namespace (qw(AccessListMapping VlanMapping UrlMapping ControllerRoleMapping VpnMapping InterfaceMapping NetworkMapping NetworkFromMapping))  {
+    for my $namespace (qw(AccessListMapping VlanMapping UrlMapping ControllerRoleMapping VpnMapping InterfaceMapping NetworkMapping NetworkFromMapping RadiusAttributesMapping))  {
         my $list = $switch->{$namespace} // [];
         for my $mapping (@$list) {
             my $role = $mapping->{role};
-            $switch->{"${role}$MappingKey2{$namespace}"} = $mapping->{$MappingKey{$namespace}};
+            my $val = $mapping->{$MappingKey{$namespace}};
+            $switch->{"${role}$MappingKey2{$namespace}"} = (ref($val) eq 'ARRAY' && !@$val) ? undef : $val;
         }
     }
     
@@ -201,7 +207,7 @@ sub _flattenRoleMappings {
 
 sub _deleteRoleMappings {
     my ( $switch ) = @_;
-    delete @{$switch}{qw(AccessListMapping VlanMapping UrlMapping ControllerRoleMapping VpnMapping InterfaceMapping NetworkMapping NetworkFromMapping)};
+    delete @{$switch}{qw(AccessListMapping VlanMapping UrlMapping ControllerRoleMapping VpnMapping InterfaceMapping NetworkMapping NetworkFromMapping RadiusAttributesMapping)};
 }
 
 =head2 _normalizeUplink

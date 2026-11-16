@@ -140,6 +140,12 @@ has_field 'AccessListMap' =>
    label => 'Role by access list',
    default => undef,
   );
+has_field 'RadiusAttributesMap' =>
+  (
+   type => 'Toggle',
+   label => 'Role by RADIUS attributes',
+   default => undef,
+  );
 has_field 'UrlMap' =>
   (
    type => 'Toggle',
@@ -594,6 +600,10 @@ addRoleMapping("VpnMapping", "vpn");
 addRoleMapping("NetworkMapping", "network");
 addRoleMapping("NetworkFromMapping", "networkfrom");
 addRoleMapping("InterfaceMapping", "interface");
+addRoleMapping("RadiusAttributesMapping", "radiusattributes", [type => 'Repeatable', num_when_empty => 0, num_extra => 0]);
+has_field "RadiusAttributesMapping.radiusattributes.contains" => (
+    type => 'RadiusAttribute',
+);
 
 # Add mappings for Enabled parameters
 addRoleMapping("VlanEnabledMapping", "vlan_enabled");
@@ -611,7 +621,7 @@ my %seen;
 
 foreach my $role (@all_roles) {
     # Define the mapping fields
-    foreach my $type (qw(Vlan Role AccessList Url Vpn Network NetworkFrom Interface)) {
+    foreach my $type (qw(Vlan Role AccessList Url Vpn Network NetworkFrom Interface RadiusAttributes)) {
         my $field_name = "${role}${type}";
         has_field $field_name => (
             type => 'Text',
@@ -645,7 +655,7 @@ after 'BUILD' => sub {
         # Find all role-specific fields in the init data
         foreach my $key (keys %$init_object) {
             # Check for role mapping fields including Enabled parameters
-            if ($key =~ /^(.+?)(Vlan|Role|AccessList|Url|Vpn|Network|NetworkFrom|Interface|VlanEnabled|RoleEnabled|AccessListEnabled|UrlEnabled|VpnEnabled|InterfaceEnabled)$/) {
+            if ($key =~ /^(.+?)(Vlan|Role|AccessList|Url|Vpn|Network|NetworkFrom|Interface|RadiusAttributes|VlanEnabled|RoleEnabled|AccessListEnabled|UrlEnabled|VpnEnabled|InterfaceEnabled)$/) {
                 my $role = $1;
                 my $type = $2;
                 
