@@ -61,8 +61,8 @@ the helpers and the checksums together, from a reviewed infrastructure revision.
 
 The `ci-packages` and `ci-docker` passwords are read from Psono at run time
 (`ci/pulp/psono-password.sh`, with the pipeline's `PSONO_API_KEY_*`), like the signing key;
-their entry IDs are `PF_PULP_PACKAGES_PSONO_ID` and `PF_PULP_DOCKER_PSONO_ID` in
-`.gitlab-ci.yml`. The infrastructure provisions the accounts from the same entries, so a
+their entry IDs are the protected GitLab variables `PF_PULP_PACKAGES_PSONO_ID` and
+`PF_PULP_DOCKER_PSONO_ID` (empty by default in `.gitlab-ci.yml`). The infrastructure provisions the accounts from the same entries, so a
 password changed in Psono applies to both after the next packaging deploy. Disable debug tracing
 (`CI_DEBUG_TRACE`, `CI_DEBUG_SERVICES`) for these jobs, and never collect environment dumps,
 signing homes or credential files as artifacts. Publishing artifacts require Developer

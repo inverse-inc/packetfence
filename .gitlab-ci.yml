@@ -37,7 +37,8 @@ variables:
   PF_PACKAGE_ORIGIN: "https://packages.packetfence.com"
   # Packages go to the packaging Pulp (ci/pulp/publish-packages.sh); "no" falls back to rsync to web.inverse.ca.
   PF_PULP_PUBLISH: "yes"
-  # Psono entries of the Pulp CI accounts ci-packages and ci-docker (read with PSONO_API_KEY_*).
+  # Psono entry IDs of the Pulp CI accounts ci-packages and ci-docker (read with PSONO_API_KEY_*).
+  # Set them as protected GitLab variables; the Pulp jobs fail while they are empty.
   PF_PULP_PACKAGES_PSONO_ID: ""
   PF_PULP_DOCKER_PSONO_ID: ""
   PF_PPA_IMAGE: "ghcr.io/inverse-inc/packetfence/publish-ppa:${IMAGE_TAG}"
