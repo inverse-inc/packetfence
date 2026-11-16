@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 11;
+use Test::More tests => 23;
 use Test::Mojo;
 use Utils;
 
@@ -47,6 +47,36 @@ $t->post_ok($collection_base_url => json => {
     type => 'Hostapd_template'
 })
   ->status_is(201);
+
+# PUT expands the flat per-role parameters into their mappings and validates
+# them, as POST does
+$t->post_ok($collection_base_url => json => {
+    id => 'put_group',
+    type => 'Cisco::Cisco_IOS_15_5',
+})
+  ->status_is(201);
+
+$t->put_ok("$base_url/put_group" => json => {
+    id => 'put_group',
+    type => 'Cisco::Cisco_IOS_15_5',
+    r1Vlan => '42',
+})
+  ->status_is(200);
+
+$t->get_ok("$base_url/put_group")
+  ->status_is(200)
+  ->json_is('/item/r1Vlan', '42');
+
+$t->put_ok("$base_url/put_group" => json => {
+    id => 'put_group',
+    type => 'Cisco::Cisco_IOS_15_5',
+    registrationAccessList => "permit ip any any\n" x 80,
+})
+  ->status_is(422);
+
+$t->get_ok("$base_url/put_group")
+  ->status_is(200)
+  ->json_is('/item/r1Vlan', '42');
 
 $t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
   ->status_is(400);

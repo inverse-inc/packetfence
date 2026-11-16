@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 80;
+use Test::More tests => 92;
 use List::Util qw(first);
 use Test::Mojo;
 use Utils;
@@ -152,6 +152,31 @@ Test2::Tools::Compare::is(
     },
     "Placeholders for VlanMapping is correct"
 );
+
+# PUT expands the flat per-role parameters into their mappings and validates
+# them, as POST does
+{
+    my $id = "172.16.9.10";
+    $t->post_ok($collection_base_url => json => { id => $id, type => 'Cisco::Cisco_IOS_15_5', description => "put" })
+      ->status_is(201);
+
+    $t->put_ok("$base_url/$id" => json => { id => $id, type => 'Cisco::Cisco_IOS_15_5', description => "put", r1Vlan => '42' })
+      ->status_is(200);
+
+    $t->get_ok("$base_url/$id")
+      ->status_is(200)
+      ->json_is('/item/r1Vlan', '42');
+
+    $t->put_ok("$base_url/$id" => json => {
+        id => $id, type => 'Cisco::Cisco_IOS_15_5', description => "put",
+        registrationAccessList => "permit ip any any\n" x 80,
+    })
+      ->status_is(422);
+
+    $t->get_ok("$base_url/$id")
+      ->status_is(200)
+      ->json_is('/item/r1Vlan', '42');
+}
 
 $t->post_ok($collection_base_url => json => { id => "172.16.9.1", type => 'Cisco::ASA', description => "ss"})
   ->status_is(201)

@@ -48,6 +48,11 @@ sub cleanupItemForCreate {
     return $item;
 }
 
+sub cleanupItemForReplace {
+    my ($self, $item) = @_;
+    return $self->cleanupItemForCreate($item);
+}
+
 sub mergeUpdate {
     my ($self, $patch, $old_item) = @_;
     my $mappings = makeMappings($patch);
