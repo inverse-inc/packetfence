@@ -12,6 +12,7 @@ DNS points at it; until then they still serve the older hosts.
 | Job | When | Destination |
 |---|---|---|
 | `check_pulp_release` | release tags, first | stops the pipeline unless the tag matches `conf/pf-release`, Pulp has this version's repositories (prepared by the release on the packaging side) and, for `vX.Y.0`, the new devel carries every package of X.Y (a later `vX.Y.Z` only warns); it publishes nothing |
+| `check_pulp_release` | `devel` (unless `DEPLOY_PKG=no`), first | stops the pipeline if Pulp already has a release newer than `conf/pf-release`: that version was released, so devel would publish into maintenance. Post-release step: bump `conf/pf-release` on `devel` to the new devel version |
 | `publish_ppa` | pipelines that build packages | `gitlab/<pipeline>/`, used by the CI tests |
 | `deploy_debian_pulp` | `devel`, `maintenance/X.Y`, after the tests | `debian/X.Y/`, `RHEL<N>/X.Y/x86_64/` |
 | `deploy_branches_pulp` | feature branches with `DEPLOY_PKG=yes` (or `true`; `PUBLISH_PPA` is an alias), after the tests | `debian/branches/X.Y/`, `RHEL<N>/branches/X.Y/x86_64/` |

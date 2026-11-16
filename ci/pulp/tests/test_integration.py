@@ -7,6 +7,7 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 import yaml
@@ -274,6 +275,18 @@ class ConfigurationTest(unittest.TestCase):
         self.assertEqual(module.missing_in_devel(FakePulp(seeded), '16.0', module.expected('Debian-12'), devel='16.1', names=lookup), [])
         self.assertEqual(module.missing_in_devel(FakePulp(ready), '16.0', module.expected('RHEL-8'), devel='16.1', names=lookup),
                          ['EL8: no active public 16.1 repository'])
+        # Devel guard: conf/pf-release must still be Pulp's newest release.
+        with tempfile.TemporaryDirectory() as folder, mock.patch.dict(os.environ, PULP_URL='https://p', PULP_USERNAME='u', PULP_PASSWORD='p'):
+            release = Path(folder)/'pf-release'
+            release.write_text('PacketFence 16.0.0\n')
+            for pulp, stops in ((seeded, True), (ready, False)):
+                with mock.patch.object(module, 'Pulp', lambda *a, pulp=pulp: FakePulp(pulp)):
+                    if stops:
+                        with self.assertRaises(SystemExit) as stop:
+                            module.main(['--devel', '--pf-release', str(release)])
+                        self.assertIn('Bump conf/pf-release on devel to 16.1', str(stop.exception))
+                    else:
+                        module.main(['--devel', '--pf-release', str(release)])
         with tempfile.TemporaryDirectory() as folder:
             release = Path(folder)/'pf-release'
             release.write_text('PacketFence 16.0.1\n')
@@ -284,7 +297,8 @@ class ConfigurationTest(unittest.TestCase):
     def test_the_release_check_runs_first_on_tags(self):
         config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
         job = config['check_pulp_release']
-        self.assertEqual(job['rules'], [{'if': '$CI_COMMIT_TAG'}])
+        self.assertEqual(job['rules'], [{'if': '$CI_COMMIT_TAG'},
+                                        {'if': '$CI_COMMIT_REF_NAME == "devel" && $DEPLOY_PKG != "no" && $DEPLOY_PKG != "false"'}])
         self.assertIn('.check_job', job['extends'])
         self.assertIn({'job': 'check_pulp_release', 'optional': True}, config['.needs_all_build_images']['needs'])
 
