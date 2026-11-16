@@ -37,9 +37,9 @@ variables:
   # Opt-in only after provisioning and acceptance described in ci/pulp/README.md.
   PF_PULP_ENABLED: "no"
   PF_PACKAGE_ORIGIN: "https://packages.packetfence.com"
-  # Publish the PPA to the packaging Pulp instead of rsync to web.inverse.ca (ci/pulp/publish-packages.sh).
+  # Packages go to the packaging Pulp (ci/pulp/publish-packages.sh); "no" falls back to rsync to web.inverse.ca.
   # Needs masked CI variables PULP_URL/PULP_USERNAME/PULP_PASSWORD (the ci-packages account; no "Expand" on the password).
-  PF_PULP_PUBLISH: "no"
+  PF_PULP_PUBLISH: "yes"
   PF_PPA_IMAGE: "ghcr.io/inverse-inc/packetfence/publish-ppa:${IMAGE_TAG}"
   PIPELINE_TIMEOUT_CLEANUP: 10m
   # sub-budgets of PIPELINE_TIMEOUT_CLEANUP; sum must stay below it
