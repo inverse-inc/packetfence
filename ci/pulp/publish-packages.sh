@@ -1,5 +1,5 @@
 #!/bin/bash
-# Publish CI packages to the packaging Pulp through its API (PF_PULP_PUBLISH=yes).
+# Publish CI packages to the packaging Pulp through its API (default; PF_PULP_PUBLISH=no uses rsync instead).
 #   ppa       public/          -> gitlab/<pipeline>/           every pipeline, for the CI tests (pruned after 3 days)
 #   branches  public/debian    -> debian/branches/<X.Y>/       feature branches with publish_ppa=yes, after the tests
 #             public/centos/8  -> RHEL8/branches/<X.Y>/x86_64/
