@@ -3,7 +3,7 @@
 #   ppa       public/                 -> gitlab/<pipeline>/                every pipeline, for the CI tests
 #   branches  public/debian           -> debian/branches/<X.Y>/            feature branches with DEPLOY_PKG=yes
 #             public/centos/<N>       -> RHEL<N>/branches/<X.Y>/x86_64/    (rhel<N>-branches-X-Y)
-#   release   public/debian, suite S  -> the native X.Y repository serving S   devel, maintenance/X.Y, release tags
+#   release   public/debian, suite S  -> the native X.Y repository serving S   devel, maintenance/X.Y
 #             public/centos/<N>       -> native packetfence-X-Y-el<N>
 #   files     result/                 -> debian/ and RHEL<N>/ file snapshots: packetfence-release/-export/
 #                                        -upgrade/-ci-lib under their published names (publish-files.py)

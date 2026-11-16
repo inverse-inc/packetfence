@@ -41,10 +41,10 @@ class ConfigurationTest(unittest.TestCase):
         job = config['deploy_containers']
         self.assertEqual(job['resource_group'], 'pulp-packetfence-containers')
         script = '\n'.join(job['script'])
-        # Branches: GitHub first, then the same tags pushed to PF_PACKAGE_ORIGIN. Release tags: push only.
+        # GitHub first, then the same tags pushed to PF_PACKAGE_ORIGIN; a release tag pushes nothing there.
         self.assertLess(script.index('promote-images.py'), script.index('container-push.sh "$pipeline_tag"'))
         self.assertIn('container-push.sh "$pipeline_tag" "$PROMOTE_TAGS"', script)
-        self.assertIn('container-push.sh "$CI_COMMIT_TAG" "$CI_COMMIT_TAG"', script)
+        self.assertNotIn('CI_COMMIT_TAG', script)
 
     def test_service_images_are_promoted_only_after_tests(self):
         config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
@@ -58,13 +58,12 @@ class ConfigurationTest(unittest.TestCase):
         job = config['deploy_containers']
         self.assertEqual(job['stage'], 'deploy')
         self.assertNotIn('needs', job)  # waits for every test stage
-        branches, release = job['rules'][1:-1], job['rules'][-1]
+        branches = job['rules'][1:]
         for rule in branches:
             self.assertIn('$TEST == "yes"', rule['if'])
             self.assertIn('$CI_COMMIT_TAG == null', rule['if'])
         self.assertEqual([r['variables']['PROMOTE_TAGS'] for r in branches],
                          ['${CI_COMMIT_REF_SLUG},latest', '$CI_COMMIT_REF_SLUG'])
-        self.assertTrue(release['if'].startswith('$CI_COMMIT_TAG =~ /^v'))
 
     def test_pipeline_image_tag_contexts(self):
         helper = ROOT/'ci/lib/common/pipeline-image-tag.sh'
@@ -97,7 +96,7 @@ class ConfigurationTest(unittest.TestCase):
             branch_args = ('p-7', 'devel,latest')
             cases = [('devel', source, 'true', '', branch_args, True) for source in ('push', 'web', 'api', 'schedule')]
             cases += [('maintenance/15.2', source, 'true', '', branch_args, True) for source in ('web', 'api', 'schedule')]
-            cases += [('', 'push', 'true', 'v16.0.0', ('v16.0.0', 'v16.0.0'), True),
+            cases += [('', 'push', 'true', 'v16.0.0', ('v16.0.0', 'v16.0.0'), False),  # a release tag stays on GitHub
                       ('maintenance/15.2', 'push', 'true', '', branch_args, False),
                       ('maintenance/99.9', 'schedule', 'true', '', branch_args, False),
                       ('feature/test', 'web', 'true', '', branch_args, False),
@@ -129,11 +128,6 @@ class ConfigurationTest(unittest.TestCase):
                     self.assertIn('--username ci-docker --password-stdin registry.example', recorded[0])
                     copies = [row for row in recorded if row.startswith('copy ')]
                     self.assertTrue(all('--all --preserve-digests' in row for row in copies))
-                    if tag:
-                        self.assertEqual(len(copies), 2)  # 2 images x the release tag
-                        self.assertIn('docker://ghcr.io/inverse-inc/packetfence/pfcmd:v16.0.0 '
-                                      'docker://registry.example/inverse-inc/packetfence/pfcmd:v16.0.0', copies[0])
-                        continue
                     self.assertEqual(len(copies), 4)  # 2 images x 2 tags
                     self.assertIn('docker://ghcr.io/inverse-inc/packetfence/pfcmd:p-7 '
                                   'docker://registry.example/inverse-inc/packetfence/pfcmd:latest', copies[1])
@@ -161,7 +155,11 @@ class ConfigurationTest(unittest.TestCase):
     def test_packages_are_published_to_pulp_only(self):
         text = (ROOT/'.gitlab-ci.yml').read_text()
         config = yaml.load(text, Loader=GitLabLoader)
-        self.assertIn('$CI_COMMIT_TAG', [r.get('if') for r in config['deploy_debian_pulp']['rules']])
+        # A release tag publishes nothing: its packages came from maintenance/X.Y, its images stay on GitHub.
+        for job in ('deploy_debian_pulp', 'deploy_containers', 'deploy_branches_pulp'):
+            self.assertNotIn('$CI_COMMIT_TAG', [r.get('if') for r in config[job]['rules'] if isinstance(r, dict)])
+            self.assertFalse(any('$CI_COMMIT_TAG =~' in (r.get('if') or '') for r in config[job]['rules'] if isinstance(r, dict)))
+        self.assertNotIn('$CI_COMMIT_TAG', [r.get('if') for r in config['.deploy_pkg_rules']['rules']])
         for gone in ('deploy_packages', 'deploy_website_artifacts', 'build_artifacts_website', '.deploy_packages_job'):
             self.assertNotIn(gone, config)
         for word in ('PF_PULP_PUBLISH', 'deploy-artifacts.sh', 'web.inverse.ca', 'PSONO_SSH_DEPLOY_KEY'):
@@ -247,9 +245,12 @@ class ConfigurationTest(unittest.TestCase):
                 if 'name' in params:
                     return {'results': [{'name': params['name']}] if params['name'] in self.repos else []}
                 kind = href.split('/')[-3]
-                return {'results': [r for r in self.repos.values() if r.get('kind') == kind]}
+                wanted = dict(pair.split('=') for pair in params.get('pulp_label_select', '').split(',') if pair)
+                return {'results': [r for r in self.repos.values() if r.get('kind') == kind and all(
+                    r['pulp_labels'].get(k) == v for k, v in wanted.items() if k == 'akainverse_release')]}
         def repo(name, kind, distribution='', extra=''):
-            return {'name': name, 'kind': kind, 'pulp_labels': {'akainverse_distribution': distribution,
+            release = '.'.join(name.split('-')[1:3])
+            return {'name': name, 'kind': kind, 'pulp_labels': {'akainverse_distribution': distribution, 'akainverse_release': release,
                                                                  'akainverse_extra_distributions': extra}}
         ready = {'packetfence-16-0-el8': repo('packetfence-16-0-el8', 'rpm'),
                  'packetfence-16-0-bookworm': repo('packetfence-16-0-bookworm', 'deb', 'bookworm', 'trixie'),
@@ -261,6 +262,18 @@ class ConfigurationTest(unittest.TestCase):
         no_trixie = {**ready, 'packetfence-16-0-bookworm': repo('packetfence-16-0-bookworm', 'deb', 'bookworm')}
         self.assertEqual(module.problems(FakePulp(no_trixie), '16.0', module.expected('Debian-13')),
                          ['Debian suite trixie: no active public 16.0 repository (or not granted to ci-packages yet)'])
+        # The devel the release seeded must carry every package name X.Y serves, per OS.
+        seeded = {**ready, 'packetfence-16-1-el8': repo('packetfence-16-1-el8', 'rpm'),
+                  'packetfence-16-1-bookworm': repo('packetfence-16-1-bookworm', 'deb', 'bookworm')}
+        names = {'packetfence-16-0-el8': {'packetfence', 'freeradius', 'redis'}, 'packetfence-16-1-el8': {'packetfence', 'freeradius'},
+                 'packetfence-16-0-bookworm': {'packetfence', 'haproxy'}, 'packetfence-16-1-bookworm': {'packetfence', 'haproxy', 'new'}}
+        lookup = lambda client, kind, name: names[name]  # noqa: E731
+        self.assertEqual((module.devel_after(FakePulp(seeded), '16.0'), module.devel_after(FakePulp(ready), '16.0')), ('16.1', None))
+        self.assertEqual(module.missing_in_devel(FakePulp(seeded), '16.0', module.expected('RHEL-8 Debian-12'), devel='16.1', names=lookup),
+                         ['EL8: 16.1 lacks 1 package(s) of 16.0: redis'])
+        self.assertEqual(module.missing_in_devel(FakePulp(seeded), '16.0', module.expected('Debian-12'), devel='16.1', names=lookup), [])
+        self.assertEqual(module.missing_in_devel(FakePulp(ready), '16.0', module.expected('RHEL-8'), devel='16.1', names=lookup),
+                         ['EL8: no active public 16.1 repository'])
         with tempfile.TemporaryDirectory() as folder:
             release = Path(folder)/'pf-release'
             release.write_text('PacketFence 16.0.1\n')
