@@ -16,9 +16,10 @@ MODE=${1:?ppa, branches or release}
 : "${PF_PACKAGE_ORIGIN:?}" "${CI_PIPELINE_ID:?}"
 [[ "$PF_PACKAGE_ORIGIN" =~ ^https://[a-zA-Z0-9.-]+(:[0-9]+)?$ ]] || { echo 'PF_PACKAGE_ORIGIN must be an HTTPS origin' >&2; exit 1; }
 [[ "$CI_PIPELINE_ID" =~ ^[1-9][0-9]*$ ]] || exit 2
-# Always the ci-packages account, its password read from Psono.
-PULP_PASSWORD=$(bash ci/pulp/psono-password.sh "${PSONO_CI_PULP_PACKAGES_ID:?}")
-export PULP_URL=$PF_PACKAGE_ORIGIN PULP_USERNAME=ci-packages PULP_PASSWORD
+# The ci-packages account: username and password read from Psono.
+PULP_USERNAME=$(bash ci/pulp/psono-field.sh "${PSONO_CI_PULP_PACKAGES_ID:?}" username)
+PULP_PASSWORD=$(bash ci/pulp/psono-field.sh "$PSONO_CI_PULP_PACKAGES_ID" password)
+export PULP_URL=$PF_PACKAGE_ORIGIN PULP_USERNAME PULP_PASSWORD
 PUBLIC_DIR=${PUBLIC_DIR:-public}
 [[ -f "$PUBLIC_DIR/GPG_PUBLIC_KEY" && -d "$PUBLIC_DIR/debian" ]] || { echo "Run generate-pages first ($PUBLIC_DIR)" >&2; exit 1; }
 # Fail before any upload if the vendored helper snapshot was edited.

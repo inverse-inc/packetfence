@@ -16,20 +16,21 @@ GitLabLoader.add_constructor('!reference', lambda loader, node: {'reference': lo
 
 
 def push_tree(work):
-    """container-push.sh in a copy of the repository whose Psono returns secret-value and logs the entry ID."""
+    """container-push.sh in a copy of the repository whose Psono returns ci-docker / secret-value and logs the call."""
     root = work/'repo'
     (root/'ci/pulp').mkdir(parents=True)
     (root/'addons/packetfence-perl').mkdir(parents=True)
-    for name in ('container-push.sh', 'psono-password.sh', 'container-images.json'):
+    for name in ('container-push.sh', 'psono-field.sh', 'container-images.json'):
         shutil.copy(ROOT/'ci/pulp'/name, root/'ci/pulp'/name)
     (root/'addons/packetfence-perl/psono.py').write_text(
         'import os, sys\n'
         'open(os.environ["TEST_PSONO"], "a").write(" ".join(a for a in sys.argv[1:] if a.startswith("--secret_id")) + "\\n")\n'
-        'print(\'{"website_password_password": "secret-value"}\')\n')
+        'print(\'{"website_password_username": "ci-docker", "website_password_password": "secret-value"}\')\n')
     return root/'ci/pulp/container-push.sh'
 
 
-PSONO_ENV = {'PSONO_CI_API_KEY_ID': 'key', 'PSONO_CI_API_SECRET_KEY_HEX': 'key-secret', 'PSONO_CI_PULP_DOCKER_ID': 'docker-entry'}
+PSONO_ENV = {'PSONO_CI_API_KEY_ID': 'key', 'PSONO_CI_API_SECRET_KEY_HEX': 'key-secret', 'PSONO_CI_PULP_DOCKER_ID': 'docker-entry',
+             'PF_PACKAGE_ORIGIN': 'https://registry.example'}
 
 
 class ConfigurationTest(unittest.TestCase):
@@ -38,9 +39,10 @@ class ConfigurationTest(unittest.TestCase):
         job = config['deploy_containers']
         self.assertEqual(job['resource_group'], 'pulp-packetfence-containers')
         script = '\n'.join(job['script'])
-        # GitHub first, then the same tags pushed to packages.packetfence.com.
-        self.assertLess(script.index('promote-images.py'), script.index('ci/pulp/container-push.sh'))
+        # Branches: GitHub first, then the same tags pushed to PF_PACKAGE_ORIGIN. Release tags: push only.
+        self.assertLess(script.index('promote-images.py'), script.index('container-push.sh "$pipeline_tag"'))
         self.assertIn('container-push.sh "$pipeline_tag" "$PROMOTE_TAGS"', script)
+        self.assertIn('container-push.sh "$CI_COMMIT_TAG" "$CI_COMMIT_TAG"', script)
 
     def test_service_images_are_promoted_only_after_tests(self):
         config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
@@ -54,11 +56,13 @@ class ConfigurationTest(unittest.TestCase):
         job = config['deploy_containers']
         self.assertEqual(job['stage'], 'deploy')
         self.assertNotIn('needs', job)  # waits for every test stage
-        for rule in job['rules'][1:]:
+        branches, release = job['rules'][1:-1], job['rules'][-1]
+        for rule in branches:
             self.assertIn('$TEST == "yes"', rule['if'])
             self.assertIn('$CI_COMMIT_TAG == null', rule['if'])
-        self.assertEqual([r['variables']['PROMOTE_TAGS'] for r in job['rules'][1:]],
+        self.assertEqual([r['variables']['PROMOTE_TAGS'] for r in branches],
                          ['${CI_COMMIT_REF_SLUG},latest', '$CI_COMMIT_REF_SLUG'])
+        self.assertTrue(release['if'].startswith('$CI_COMMIT_TAG =~ /^v'))
 
     def test_pipeline_image_tag_contexts(self):
         helper = ROOT/'ci/lib/common/pipeline-image-tag.sh'
@@ -81,45 +85,55 @@ class ConfigurationTest(unittest.TestCase):
             # Fake skopeo: pfcmd and radiusd carry the pipeline tag, nothing else does.
             fake = work/'skopeo'
             fake.write_text('#!/bin/sh\nprintf "%s\\n" "$*" >> "$TEST_CALLS"\n'
-                            'case "$*" in "inspect "*) case "$*" in *pfcmd:p-7*|*radiusd:p-7*) exit 0;; *) exit 1;; esac;; '
+                            'case "$*" in "inspect "*) case "$*" in *pfcmd:p-7*|*radiusd:p-7*|*pfcmd:v16.0.0*|*radiusd:v16.0.0*) exit 0;; '
+                            '*) exit 1;; esac;; '
                             '"login "*) cat > "$TEST_LOGIN";; esac\n')
             fake.chmod(0o700)
             script = push_tree(work)
             calls, login, psono = work/'calls', work/'login', work/'psono'
-            cases = [('devel', source, 'true', '', True) for source in ('push', 'web', 'api', 'schedule')]
-            cases += [('maintenance/15.2', source, 'true', '', True) for source in ('web', 'api', 'schedule')]
-            cases += [('maintenance/15.2', 'push', 'true', '', False),
-                      ('maintenance/99.9', 'schedule', 'true', '', False),
-                      ('feature/test', 'web', 'true', '', False),
-                      ('devel', 'merge_request_event', 'true', '', False),
-                      ('devel', 'web', 'false', '', False),
-                      ('maintenance/15.2', 'web', 'false', '', False),
-                      ('devel', 'web', 'true', 'v16.0.0', False)]
-            for branch, source, protected, tag, allowed in cases:
-                with self.subTest(branch=branch, source=source, protected=protected, tag=tag):
+            branch_args = ('p-7', 'devel,latest')
+            cases = [('devel', source, 'true', '', branch_args, True) for source in ('push', 'web', 'api', 'schedule')]
+            cases += [('maintenance/15.2', source, 'true', '', branch_args, True) for source in ('web', 'api', 'schedule')]
+            cases += [('', 'push', 'true', 'v16.0.0', ('v16.0.0', 'v16.0.0'), True),
+                      ('maintenance/15.2', 'push', 'true', '', branch_args, False),
+                      ('maintenance/99.9', 'schedule', 'true', '', branch_args, False),
+                      ('feature/test', 'web', 'true', '', branch_args, False),
+                      ('devel', 'merge_request_event', 'true', '', branch_args, False),
+                      ('devel', 'web', 'false', '', branch_args, False),
+                      ('maintenance/15.2', 'web', 'false', '', branch_args, False),
+                      ('devel', 'web', 'true', 'v16.0.0', branch_args, False),
+                      ('', 'push', 'false', 'v16.0.0', ('v16.0.0', 'v16.0.0'), False),
+                      ('', 'push', 'true', 'v16.0.0', ('v16.0.0', 'latest'), False),
+                      ('', 'push', 'true', 'v16.0.0-rc1', ('v16.0.0-rc1', 'v16.0.0-rc1'), False)]
+            for branch, source, protected, tag, args, allowed in cases:
+                with self.subTest(branch=branch, source=source, protected=protected, tag=tag, args=args):
                     calls.write_text('')
                     psono.write_text('')
                     env = dict(os.environ, **PSONO_ENV, PATH=str(work)+os.pathsep+os.environ['PATH'],
                                TEST_CALLS=str(calls), TEST_LOGIN=str(login), TEST_PSONO=str(psono),
                                CI_COMMIT_BRANCH=branch, CI_PIPELINE_SOURCE=source,
                                CI_COMMIT_REF_PROTECTED=protected, CI_COMMIT_TAG=tag)
-                    result = subprocess.run(['bash', str(script), 'p-7', 'devel,latest'],
-                                            env=env, capture_output=True, text=True)
+                    result = subprocess.run(['bash', str(script), *args], env=env, capture_output=True, text=True)
                     self.assertEqual(result.returncode == 0, allowed, result.stderr)
                     recorded = calls.read_text().splitlines()
                     if not allowed:
                         self.assertEqual(recorded, [])
                         self.assertEqual(psono.read_text(), '')  # refused before reading Psono
                         continue
-                    self.assertEqual(psono.read_text(), '--secret_id=docker-entry\n')
+                    self.assertEqual(psono.read_text(), '--secret_id=docker-entry\n' * 2)  # username, password
                     self.assertEqual(login.read_text(), 'secret-value')
                     self.assertTrue(recorded[0].startswith('login --authfile '))
-                    self.assertIn('--username ci-docker --password-stdin packages.packetfence.com', recorded[0])
+                    self.assertIn('--username ci-docker --password-stdin registry.example', recorded[0])
                     copies = [row for row in recorded if row.startswith('copy ')]
-                    self.assertEqual(len(copies), 4)  # 2 images x 2 tags
                     self.assertTrue(all('--all --preserve-digests' in row for row in copies))
+                    if tag:
+                        self.assertEqual(len(copies), 2)  # 2 images x the release tag
+                        self.assertIn('docker://ghcr.io/inverse-inc/packetfence/pfcmd:v16.0.0 '
+                                      'docker://registry.example/inverse-inc/packetfence/pfcmd:v16.0.0', copies[0])
+                        continue
+                    self.assertEqual(len(copies), 4)  # 2 images x 2 tags
                     self.assertIn('docker://ghcr.io/inverse-inc/packetfence/pfcmd:p-7 '
-                                  'docker://packages.packetfence.com/inverse-inc/packetfence/pfcmd:latest', copies[1])
+                                  'docker://registry.example/inverse-inc/packetfence/pfcmd:latest', copies[1])
                     self.assertFalse(any('secret-value' in row for row in recorded))
                     self.assertNotIn('secret-value', result.stdout + result.stderr)
 
