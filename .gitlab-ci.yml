@@ -39,8 +39,8 @@ variables:
   PF_PULP_PUBLISH: "yes"
   # Psono entry IDs of the Pulp CI accounts ci-packages and ci-docker (read with PSONO_API_KEY_*).
   # Set them as protected GitLab variables; the Pulp jobs fail while they are empty.
-  PF_PULP_PACKAGES_PSONO_ID: ""
-  PF_PULP_DOCKER_PSONO_ID: ""
+  PSONO_CI_PULP_PACKAGES_ID: ""
+  PSONO_CI_PULP_DOCKER_ID: ""
   PF_PPA_IMAGE: "ghcr.io/inverse-inc/packetfence/publish-ppa:${IMAGE_TAG}"
   PIPELINE_TIMEOUT_CLEANUP: 10m
   # sub-budgets of PIPELINE_TIMEOUT_CLEANUP; sum must stay below it
