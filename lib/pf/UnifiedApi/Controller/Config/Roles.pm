@@ -334,7 +334,7 @@ sub migrate_role_in_switches {
             my $value = $cachedConfig->val($sect, $old_key);
             my $new_key = "${new}${suffix}";
             if (!$cachedConfig->exists($sect, $new_key)) {
-                $cachedConfig->setval($sect, $new_key, $value);
+                $cachedConfig->newval($sect, $new_key, $value);
             }
             $cachedConfig->delval($sect, $old_key);
             $i |= 1;

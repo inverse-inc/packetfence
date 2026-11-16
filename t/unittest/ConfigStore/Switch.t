@@ -20,9 +20,10 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 14;
+use Test::More tests => 19;
 use Utils;
 use pf::ConfigStore::Switch;
+use pf::UnifiedApi::Controller::Config::Roles;
 my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Switch");
 
 #This test will running last
@@ -318,6 +319,29 @@ is($new->{voiceVlan}, $oldVoiceVlan, "delete inherited values");
             }
         ]
     );
+}
+
+{
+    # PATCH /api/v1/config/role/<old>/reassign moves the parameters of the old role to the new one
+    my $cs = pf::ConfigStore::Switch->new;
+    my $config = $cs->cachedConfig;
+    my $id = '172.16.8.40';
+    $config->AddSection($id);
+    $config->newval($id, 'type', 'Cisco::Cisco_IOS_15_5');
+    $config->newval($id, 'oldroleVlan', '30');
+    $config->newval($id, 'oldroleAccessList', 'permit ip any host 10.0.0.1', 'permit ip any host 10.0.0.2');
+    $config->newval($id, 'oldroleUrl', 'http://old.example.com');
+    $config->newval($id, 'newroleUrl', 'http://new.example.com');
+    $cs->commit;
+
+    pf::UnifiedApi::Controller::Config::Roles->migrate_role_in_switches('oldrole', 'newrole');
+
+    $config = pf::ConfigStore::Switch->new->cachedConfig;
+    is($config->val($id, 'newroleVlan'), '30', 'the parameter of the old role is moved to the new role');
+    is_deeply([$config->val($id, 'newroleAccessList')], ['permit ip any host 10.0.0.1', 'permit ip any host 10.0.0.2'], 'every line of a multi-line parameter is moved');
+    is($config->val($id, 'newroleUrl'), 'http://new.example.com', 'the parameter already set for the new role is kept');
+    is_deeply([grep { /^oldrole/ } $config->Parameters($id)], [], 'the parameters of the old role are removed');
+    is($config->val($id, 'type'), 'Cisco::Cisco_IOS_15_5', 'the other parameters are kept');
 }
 
 =head1 AUTHOR
