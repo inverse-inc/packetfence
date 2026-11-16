@@ -23,7 +23,7 @@ tags=${2:?comma-separated branch tags}
 for tag in ${tags//,/ }; do
     [[ $tag =~ ^(devel|latest|maintenance-[0-9]+-[0-9]+)$ ]] || { echo "Refusing tag $tag" >&2; exit 1; }
 done
-password=$(bash ci/pulp/psono-password.sh "${PF_PULP_DOCKER_PSONO_ID:?}")
+password=$(bash ci/pulp/psono-password.sh "${PSONO_CI_PULP_DOCKER_ID:?}")
 registry=packages.packetfence.com
 source=ghcr.io/inverse-inc/packetfence
 destination=$registry/inverse-inc/packetfence

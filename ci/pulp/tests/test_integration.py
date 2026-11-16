@@ -29,7 +29,7 @@ def push_tree(work):
     return root/'ci/pulp/container-push.sh'
 
 
-PSONO_ENV = {'PSONO_API_KEY_ID': 'key', 'PSONO_API_KEY_SECRET_KEY': 'key-secret', 'PF_PULP_DOCKER_PSONO_ID': 'docker-entry'}
+PSONO_ENV = {'PSONO_API_KEY_ID': 'key', 'PSONO_API_KEY_SECRET_KEY': 'key-secret', 'PSONO_CI_PULP_DOCKER_ID': 'docker-entry'}
 
 
 class ConfigurationTest(unittest.TestCase):
