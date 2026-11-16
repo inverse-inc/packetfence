@@ -45,8 +45,14 @@ printf '%s' "$password" | skopeo login --authfile "$auth" --username "$username"
 
 pushed=0
 for image in $(python3 -c 'import json; print(" ".join(json.load(open("ci/pulp/container-images.json"))["images"]))'); do
-    # Images without this pipeline's tag (builders, tools) are not part of this release.
-    skopeo inspect --raw "docker://$source/$image:$source_tag" >/dev/null 2>&1 || continue
+    # Read anonymously: an image that is not public on GHCR never reaches the registry. Images
+    # without this pipeline's tag (builders, tools) are not part of this release.
+    if ! error=$(skopeo inspect --raw "docker://$source/$image:$source_tag" 2>&1 >/dev/null); then
+        if grep -qiE 'denied|unauthorized|authentication required' <<<"$error"; then
+            echo "$image: not public on GHCR (private or not created yet), skipped"
+        fi
+        continue
+    fi
     for tag in ${tags//,/ }; do
         # Same manifests and digests as on GitHub, every architecture.
         skopeo copy --all --preserve-digests --retry-times 3 --dest-authfile "$auth" \
