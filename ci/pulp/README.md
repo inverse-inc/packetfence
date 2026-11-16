@@ -14,8 +14,8 @@ DNS points at it; until then they still serve the older hosts.
 | `check_pulp_release` | release tags, first | stops the pipeline unless the tag matches `conf/pf-release` and Pulp has this version's repositories (prepared by the release on the packaging side) |
 | `publish_ppa` | pipelines that build packages | `gitlab/<pipeline>/`, used by the CI tests |
 | `deploy_debian_pulp` | `devel`, `maintenance/X.Y`, release tags, after the tests | `debian/X.Y/`, `RHEL<N>/X.Y/x86_64/` |
-| `deploy_branches_pulp` | feature branches with `publish_ppa=yes`, after the tests | `debian/branches/X.Y/`, `RHEL<N>/branches/X.Y/x86_64/` |
-| `deploy_files_pulp` | `devel`, `maintenance/X.Y`, release tags, feature branches with `deploy_pkg=yes` | `packetfence-release/-export/-upgrade/-ci-lib` in `debian/`, `RHEL<N>/` |
+| `deploy_branches_pulp` | feature branches with `DEPLOY_PKG=yes` (or `true`; `PUBLISH_PPA` is an alias), after the tests | `debian/branches/X.Y/`, `RHEL<N>/branches/X.Y/x86_64/` |
+| `deploy_files_pulp` | `devel`, `maintenance/X.Y`, release tags, feature branches with `DEPLOY_PKG=yes` | `packetfence-release/-export/-upgrade/-ci-lib` in `debian/`, `RHEL<N>/` |
 
 - The OS comes from what was built: each Debian suite goes to the X.Y repository serving it (a newer
   Debian is a suite in the same repository, same URL), each `centos/<N>` to `packetfence-X-Y-el<N>`;
@@ -31,6 +31,24 @@ DNS points at it; until then they still serve the older hosts.
 
 The jobs publish as `ci-packages` (credentials from Psono) to the API on `PF_PACKAGE_ORIGIN`; Pulp is the only
 place CI publishes packages.
+
+### When packages are deployed
+
+The `deploy_*_pulp` jobs run in the `deploy` stage: after the tests when the pipeline runs some
+(`TEST=yes`, `TEST_ONLY=…`, `TEST_CLUSTER=yes`) and only if they pass; without tests, as soon as the build,
+signing, `publish_ppa` and image steps succeed. `DEPLOY_PKG` decides whether a pipeline deploys
+(`yes`/`true`, `no`/`false`):
+
+| Pipeline | Deploys | Turn it off / on |
+|---|---|---|
+| `devel` (any source) | by default | `DEPLOY_PKG=no` |
+| `maintenance/X.Y` (web, API, schedule) | by default | `DEPLOY_PKG=no` |
+| release tag `vX.Y.Z` | always, once `check_pulp_release` passes | — |
+| feature branch (web, API, schedule) | only when asked | `DEPLOY_PKG=yes`, or `deploy_pkg=yes` in the commit message |
+
+`PUBLISH_PPA=yes` (or `publish_ppa=yes` in the commit message) still works as an alias for feature branches.
+`publish_ppa` itself (the pipeline's `gitlab/<pipeline>/` tree) runs whenever the pipeline builds packages,
+since the tests install from it.
 
 ## Container images (`devel`, `maintenance/X.Y` and release tags)
 
