@@ -6,6 +6,8 @@ native repository (a Debian one serving its suite, packetfence-X-Y-el<N>) and it
 (debian / rhel<N>), all visible to ci-packages. They come from the packaging side's release, which also
 seeds the next devel with X.Y's packages: every package name X.Y serves must be in that devel too, so the
 new devel keeps every dependency (a vX.Y.0 tag stops otherwise; a later vX.Y.Z only warns).
+With --devel (devel pipelines, before any build): stop if Pulp already has a newer release than
+conf/pf-release, i.e. that version was released and is maintenance now: bump conf/pf-release on devel first.
 Reads Pulp only and publishes nothing; PULP_URL / PULP_USERNAME / PULP_PASSWORD as for publishing.
 """
 import argparse
@@ -97,13 +99,24 @@ def problems(client, release, needed, finder=find):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--tag', required=True)
+    parser.add_argument('--tag')
+    parser.add_argument('--devel', action='store_true', help='guard a devel pipeline instead of checking a tag')
     parser.add_argument('--pf-release', type=Path, default=Path('conf/pf-release'))
-    parser.add_argument('--os-list', required=True)
+    parser.add_argument('--os-list')
     args = parser.parse_args(argv)
     match = re.fullmatch(r'PacketFence (([0-9]+\.[0-9]+)\.[0-9]+)\s*', args.pf_release.read_text())
     if not match:
         sys.exit('Cannot read the version in ' + str(args.pf_release))
+    if args.devel:
+        client = Pulp(os.environ['PULP_URL'], os.environ['PULP_USERNAME'], os.environ['PULP_PASSWORD'])
+        newer = devel_after(client, match.group(2))
+        if newer:
+            sys.exit(f'conf/pf-release says {match.group(2)}, but Pulp already has {newer}: {match.group(2)} was released and is '
+                     f'maintenance now. Bump conf/pf-release on devel to {newer} before publishing devel builds.')
+        print(f'devel publishes to {match.group(2)}, the newest release in Pulp')
+        return
+    if not args.tag or not args.os_list:
+        parser.error('--tag and --os-list, or --devel')
     if args.tag != 'v' + match.group(1):
         sys.exit(f'Tag {args.tag} does not match conf/pf-release ({match.group(1)})')
     release = match.group(2)

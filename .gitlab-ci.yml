@@ -708,6 +708,7 @@ run_pipeline_if_necessary:
 # because lint errors here break every downstream job — fail fast is the point.
 # TODO: upgrade to `glab ci lint --strict` once the auth path is decided.
 # Release tags: stop before any build unless the packaging side prepared Pulp for this version.
+# Devel: stop before any build if conf/pf-release still names a released version.
 check_pulp_release:
   extends:
     - .check_job
@@ -718,6 +719,8 @@ check_pulp_release:
     - bash ci/pulp/check-release.sh
   rules:
     - if: '$CI_COMMIT_TAG'
+    # devel publishes to conf/pf-release's version: stop early if Pulp already released it.
+    - if: '$CI_COMMIT_REF_NAME == "devel" && $DEPLOY_PKG != "no" && $DEPLOY_PKG != "false"'
 
 pre_ci_lint_yaml:
   extends:
