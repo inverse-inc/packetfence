@@ -23,9 +23,8 @@ DNS points at it; until then they still serve the older hosts.
 - The jobs share `resource_group: pulp-packetfence-pipelines`, so two pipelines never write
   the same repository at once.
 
-Masked CI variables: `PULP_URL`, `PULP_USERNAME`, `PULP_PASSWORD` (the `ci-packages`
-account; no "Expand" on the password). `PF_PULP_PUBLISH=no` falls back to the rsync upload
-to web.inverse.ca.
+The jobs publish as `ci-packages` to the API on `PF_PACKAGE_ORIGIN`. `PF_PULP_PUBLISH=no`
+falls back to the rsync upload to web.inverse.ca.
 
 ## Container images (`devel` and `maintenance/X.Y`)
 
@@ -48,8 +47,7 @@ so the digests match GitHub's. Pulp fetches nothing. It needs a protected ref an
 tag but `devel`, `latest` and `maintenance-X-Y`; if it fails, `deploy_containers` fails (the
 GitHub tags are already moved).
 
-Credentials: masked CI variables `PF_PULP_CONTAINER_USERNAME` (`ci-docker`) and
-`PF_PULP_CONTAINER_PASSWORD`; the password reaches `skopeo` through a private temporary
+The push runs as `ci-docker`; its password reaches `skopeo` through a private temporary
 auth file. `ci-docker` may push tags and add images under `inverse-inc/` only; it cannot
 delete or reconfigure an image (private infrastructure repository, `packaging/docs/CONTAINERS.md`).
 
@@ -61,7 +59,11 @@ the helpers and the checksums together, from a reviewed infrastructure revision.
 
 ## Secrets
 
-Credentials live only in masked, protected GitLab variables. Disable debug tracing
+The `ci-packages` and `ci-docker` passwords are read from Psono at run time
+(`ci/pulp/psono-password.sh`, with the pipeline's `PSONO_API_KEY_*`), like the signing key;
+their entry IDs are `PF_PULP_PACKAGES_PSONO_ID` and `PF_PULP_DOCKER_PSONO_ID` in
+`.gitlab-ci.yml`. The infrastructure provisions the accounts from the same entries, so a
+password changed in Psono applies to both after the next packaging deploy. Disable debug tracing
 (`CI_DEBUG_TRACE`, `CI_DEBUG_SERVICES`) for these jobs, and never collect environment dumps,
 signing homes or credential files as artifacts. Publishing artifacts require Developer
 access (`artifacts:access: developer`).
