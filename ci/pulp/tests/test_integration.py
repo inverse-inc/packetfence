@@ -215,6 +215,50 @@ class ConfigurationTest(unittest.TestCase):
         self.assertEqual(json.loads(updated['akainverse_index_file_sizes']), {'a.deb': 2, 'packetfence-ci-lib_devel.deb': 5})
         self.assertEqual(updated['akainverse_client_path'], '/downloads/PacketFence/debian/')
 
+    def test_a_release_tag_stops_unless_pulp_is_ready(self):
+        spec = importlib.util.spec_from_file_location('check_release', ROOT/'ci/pulp/check-release.py')
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        self.assertEqual(module.expected('RHEL-8 Debian-12 Debian-13 RHEL-9'), {
+            ('rpm', '8'), ('rpm', '9'), ('deb', 'bookworm'), ('deb', 'trixie'), ('file', 'debian'), ('file', 'rhel8'), ('file', 'rhel9')})
+        with self.assertRaises(ValueError):
+            module.expected('Ubuntu-24')
+
+        class FakePulp:
+            def __init__(self, repos):
+                self.repos = repos
+            def request(self, method, href, params):
+                if 'name' in params:
+                    return {'results': [{'name': params['name']}] if params['name'] in self.repos else []}
+                kind = href.split('/')[-3]
+                return {'results': [r for r in self.repos.values() if r.get('kind') == kind]}
+        def repo(name, kind, distribution='', extra=''):
+            return {'name': name, 'kind': kind, 'pulp_labels': {'akainverse_distribution': distribution,
+                                                                 'akainverse_extra_distributions': extra}}
+        ready = {'packetfence-16-0-el8': repo('packetfence-16-0-el8', 'rpm'),
+                 'packetfence-16-0-bookworm': repo('packetfence-16-0-bookworm', 'deb', 'bookworm', 'trixie'),
+                 'debian': {'name': 'debian'}, 'rhel8': {'name': 'rhel8'}}
+        self.assertEqual(module.problems(FakePulp(ready), '16.0', module.expected('RHEL-8 Debian-12 Debian-13')), [])
+        missing = {k: v for k, v in ready.items() if k != 'packetfence-16-0-el8'}
+        self.assertEqual(module.problems(FakePulp(missing), '16.0', module.expected('RHEL-8')),
+                         ['EL8: no active public 16.0 repository (or not granted to ci-packages yet)'])
+        no_trixie = {**ready, 'packetfence-16-0-bookworm': repo('packetfence-16-0-bookworm', 'deb', 'bookworm')}
+        self.assertEqual(module.problems(FakePulp(no_trixie), '16.0', module.expected('Debian-13')),
+                         ['Debian suite trixie: no active public 16.0 repository (or not granted to ci-packages yet)'])
+        with tempfile.TemporaryDirectory() as folder:
+            release = Path(folder)/'pf-release'
+            release.write_text('PacketFence 16.0.1\n')
+            with self.assertRaises(SystemExit) as stop:
+                module.main(['--tag', 'v16.0.0', '--pf-release', str(release), '--os-list', 'RHEL-8'])
+            self.assertIn('does not match', str(stop.exception))
+
+    def test_the_release_check_runs_first_on_tags(self):
+        config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
+        job = config['check_pulp_release']
+        self.assertEqual(job['rules'], [{'if': '$CI_COMMIT_TAG'}])
+        self.assertIn('.check_job', job['extends'])
+        self.assertIn({'job': 'check_pulp_release', 'optional': True}, config['.needs_all_build_images']['needs'])
+
     def test_container_push_refuses_other_tags(self):
         env = dict(os.environ, **PSONO_ENV, CI_COMMIT_BRANCH='devel', CI_PIPELINE_SOURCE='web',
                    CI_COMMIT_REF_PROTECTED='true', CI_COMMIT_TAG='')
