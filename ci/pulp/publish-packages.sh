@@ -25,7 +25,6 @@ helper=ci/pulp/vendor/pipeline_repository.py
 if [[ "$MODE" == ppa ]]; then
     python3 "$helper" publish --repository "${PF_PULP_GITLAB_REPOSITORY:-gitlab}" --pipeline "$CI_PIPELINE_ID" \
         --tree "$PUBLIC_DIR" --no-lock --apply --output pulp-publication.json
-    printf 'PF_PPA_URL=%s/downloads/PacketFence/gitlab/%s\n' "$PF_PACKAGE_ORIGIN" "$CI_PIPELINE_ID" > pulp.env
     exit 0
 fi
 
