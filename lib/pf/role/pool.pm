@@ -214,39 +214,38 @@ sub getPerUserVlan {
         $logger->info("Found VLAN $vlan for $pid with registered devices in it.");
         $res->finish();
         return $vlan;
-    }
-    else {
-        $logger->debug("Unable to find a VLAN in the pool that $pid has devices in. Finding an available VLAN for this user.");
-        ($status, $res) = pf::dal->db_execute("
-        SELECT vlan 
-        FROM   locationlog 
-               JOIN node USING (mac)
-        WHERE  vlan IN ( $sql_vlans ) 
-               AND node.status != 'unreg' 
-        ");
-        if(is_error($status)) {
-            $logger->error("Error while finding available VLAN for $pid");
-            return;
-        }
+    } 
 
-        my %used_vlans = map{$_->[0] => 1} @{$res->fetchall_arrayref};
-        $res->finish();
-        my $available_vlan;
-        for my $vlan (@vlans) {
-            if(!exists($used_vlans{$vlan})) {
-                $available_vlan = $vlan;
-                last;
-            }
-        }
-        if($available_vlan) {
-            $logger->info("Found available VLAN $available_vlan in the pool for $pid");
-            return $available_vlan;
-        }
-        else {
-            $logger->error("No available VLAN in the pool");
-            return;
+    $logger->debug("Unable to find a VLAN in the pool that $pid has devices in. Finding an available VLAN for this user.");
+    ($status, $res) = pf::dal->db_execute("
+    SELECT vlan 
+    FROM   locationlog 
+           JOIN node USING (mac)
+    WHERE  vlan IN ( $sql_vlans ) 
+           AND node.status != 'unreg' 
+    ");
+    if(is_error($status)) {
+        $logger->error("Error while finding available VLAN for $pid");
+        return;
+    }
+
+    my %used_vlans = map{$_->[0] => 1} @{$res->fetchall_arrayref};
+    $res->finish();
+    my $available_vlan;
+    for my $vlan (@vlans) {
+        if(!exists($used_vlans{$vlan})) {
+            $available_vlan = $vlan;
+            last;
         }
     }
+
+    if ($available_vlan) {
+        $logger->info("Found available VLAN $available_vlan in the pool for $pid");
+        return $available_vlan;
+    }
+
+    $logger->error("No available VLAN in the pool");
+    return $vlans[int(rand(scalar @vlans))];
 }
 
 =head1 AUTHOR
