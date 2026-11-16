@@ -23,18 +23,15 @@ tags=${2:?comma-separated branch tags}
 for tag in ${tags//,/ }; do
     [[ $tag =~ ^(devel|latest|maintenance-[0-9]+-[0-9]+)$ ]] || { echo "Refusing tag $tag" >&2; exit 1; }
 done
-PF_PULP_CONTAINER_USERNAME=${PF_PULP_CONTAINER_USERNAME:-ci-docker}
-[[ -n "${PF_PULP_CONTAINER_PASSWORD:-}" ]] ||
-    PF_PULP_CONTAINER_PASSWORD=$(bash ci/pulp/psono-password.sh "${PF_PULP_DOCKER_PSONO_ID:?}")
-registry=${PF_CONTAINER_REGISTRY:-packages.packetfence.com}
+password=$(bash ci/pulp/psono-password.sh "${PF_PULP_DOCKER_PSONO_ID:?}")
+registry=packages.packetfence.com
 source=ghcr.io/inverse-inc/packetfence
 destination=$registry/inverse-inc/packetfence
 
 # The password goes through a private temporary file, never on a command line.
 auth=$(mktemp)
 trap 'rm -f "$auth"' EXIT
-printf '%s' "$PF_PULP_CONTAINER_PASSWORD" \
-    | skopeo login --authfile "$auth" --username "$PF_PULP_CONTAINER_USERNAME" --password-stdin "$registry" >/dev/null
+printf '%s' "$password" | skopeo login --authfile "$auth" --username ci-docker --password-stdin "$registry" >/dev/null
 
 pushed=0
 for image in $(python3 -c 'import json; print(" ".join(json.load(open("ci/pulp/container-images.json"))["images"]))'); do
