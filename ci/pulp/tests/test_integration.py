@@ -170,6 +170,16 @@ class ConfigurationTest(unittest.TestCase):
         self.assertIn({'reference': ['.deploy_pkg_rules', 'rules']}, files['rules'])
         self.assertEqual(files['script'], ['bash ci/pulp/publish-packages.sh files'])
 
+    def test_feature_branches_deploy_with_deploy_pkg_yes_or_true(self):
+        config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
+        branch_rules = [r['if'] for r in config['deploy_branches_pulp']['rules'] if 'if' in r and '$CI_COMMIT_TAG == null' in r['if']]
+        file_rules = [r['if'] for r in config['.deploy_pkg_rules']['rules'] if 'if' in r and 'pf-branches' == r.get('variables', {}).get('DEPLOY_ENV_NAME')]
+        for rule in branch_rules + file_rules:
+            for wanted in ('$DEPLOY_PKG == "yes"', '$DEPLOY_PKG == "true"', '$PUBLISH_PPA == "yes"', '$PUBLISH_PPA == "true"'):
+                self.assertIn(wanted, rule)
+        self.assertEqual((len(branch_rules), len(file_rules)), (1, 1))
+        self.assertEqual(config['.gated_by_deploy_pkg']['rules'][0]['if'], '$DEPLOY_PKG == "no" || $DEPLOY_PKG == "false"')
+
     def test_files_keep_their_published_names_for_every_os(self):
         spec = importlib.util.spec_from_file_location('publish_files', ROOT/'ci/pulp/publish-files.py')
         module = importlib.util.module_from_spec(spec)

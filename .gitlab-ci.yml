@@ -172,7 +172,7 @@ variables:
 
 .gated_by_publish_ppa:
   rules:
-    - if: '$PUBLISH_PPA == "yes" || $CI_COMMIT_MESSAGE =~ /publish_ppa=yes/'
+    - if: '$PUBLISH_PPA == "yes" || $PUBLISH_PPA == "true" || $CI_COMMIT_MESSAGE =~ /publish_ppa=(yes|true)/'
     - if: '$CI_COMMIT_TAG'
     - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" || $TEST_CLUSTER == "yes" || $CI_COMMIT_MESSAGE =~ /test_cluster=yes/ )'
     - if: '$CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" || $TEST_CLUSTER == "yes" || $CI_COMMIT_MESSAGE =~ /test_cluster=yes/ )'
@@ -210,7 +210,7 @@ variables:
 
 .gated_by_deploy_pkg:
   rules:
-    - if: '$DEPLOY_PKG == "no"'
+    - if: '$DEPLOY_PKG == "no" || $DEPLOY_PKG == "false"'
       when: never
 
 # === SHARED CONTAINER-BUILD RULES ===
@@ -319,7 +319,8 @@ variables:
       variables:
         DEPLOY_ENV_NAME: maintenance
         IMAGE_TAG: $CI_COMMIT_REF_SLUG
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule") && $DEPLOY_PKG == "yes"'
+    # Feature branches deploy only when asked: DEPLOY_PKG=yes|true (PUBLISH_PPA is an alias).
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule") && ($DEPLOY_PKG == "yes" || $DEPLOY_PKG == "true" || $PUBLISH_PPA == "yes" || $PUBLISH_PPA == "true" || $CI_COMMIT_MESSAGE =~ /(deploy_pkg|publish_ppa)=(yes|true)/)'
       variables:
         DEPLOY_ENV_NAME: pf-branches
         IMAGE_TAG: $CI_COMMIT_REF_SLUG
@@ -1622,7 +1623,7 @@ deploy_files_pulp:
     - !reference [.gated_by_deploy_pkg, rules]
     - !reference [.deploy_pkg_rules, rules]
 
-# Feature branches started from the web UI/API with publish_ppa=yes: after the tests, merge
+# Feature branches started from the web UI/API/schedule with DEPLOY_PKG=yes|true: after the tests, merge
 # this build into debian/branches/X.Y and RHEL8/branches/X.Y; see ci/pulp/publish-packages.sh.
 deploy_branches_pulp:
   stage: deploy
@@ -1653,7 +1654,7 @@ deploy_branches_pulp:
     - docker
   rules:
     - !reference [.gated_by_deploy_pkg, rules]
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ($PUBLISH_PPA == "yes" || $CI_COMMIT_MESSAGE =~ /publish_ppa=yes/)'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule") && ($DEPLOY_PKG == "yes" || $DEPLOY_PKG == "true" || $PUBLISH_PPA == "yes" || $PUBLISH_PPA == "true" || $CI_COMMIT_MESSAGE =~ /(deploy_pkg|publish_ppa)=(yes|true)/)'
       variables:
         DEPLOY_ENV_NAME: pf-branches
         IMAGE_TAG: $CI_COMMIT_REF_SLUG
