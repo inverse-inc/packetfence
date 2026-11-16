@@ -179,6 +179,12 @@ class ConfigurationTest(unittest.TestCase):
                 self.assertIn(wanted, rule)
         self.assertEqual((len(branch_rules), len(file_rules)), (1, 1))
         self.assertEqual(config['.gated_by_deploy_pkg']['rules'][0]['if'], '$DEPLOY_PKG == "no" || $DEPLOY_PKG == "false"')
+        # A feature branch never deploys images to the registry nor packages to the release repositories.
+        for job in ('deploy_containers', 'deploy_debian_pulp'):
+            for rule in config[job]['rules']:
+                condition = rule.get('if', '') if isinstance(rule, dict) else ''
+                self.assertTrue(not condition or 'devel' in condition or 'maintenance' in condition or 'CI_COMMIT_TAG' in condition, (job, condition))
+                self.assertNotIn('$CI_COMMIT_REF_NAME != "devel"', condition)
 
     def test_files_keep_their_published_names_for_every_os(self):
         spec = importlib.util.spec_from_file_location('publish_files', ROOT/'ci/pulp/publish-files.py')
