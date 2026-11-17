@@ -167,6 +167,11 @@ export default {
       tbody tr:hover            { background-color: lighten($primary, 48%); }
     }
     code.mac { cursor: pointer; }
+    .pf-svc          { font-weight: 600; }
+    .pf-svc-running  { color: $success; }
+    .pf-svc-starting { color: darken($warning, 10%); }
+    .pf-svc-stopped  { color: $danger; }
+    .pf-svc-disabled { color: $info; }
     .navlink {
       font-weight: 600;
       border-bottom: 1px dotted;

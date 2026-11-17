@@ -135,6 +135,9 @@ export default s => {
   s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
   s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
   s = s.replace(/(?<!["=])(https?:\/\/[^\s<)]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>')
+  // Service states colored like `pfcmd service pf status`; only whole-cell matches
+  const SERVICE_STATES = { running: 'running', started: 'running', starting: 'starting',
+    stopped: 'stopped', dead: 'stopped', disabled: 'disabled' }
   // GFM pipe tables — rendered before the line loop so cells get inline markup
   s = s.replace(/((?:^|\n)[ \t]*\|[^\n]*\|[ \t]*\n)([ \t]*\|[ \t]*[-:| \t]+\|[ \t]*\n)((?:[ \t]*\|[^\n]*\|[ \t]*\n)*(?:[ \t]*\|[^\n]*\|[ \t]*)?)/g,
     (match, headerLine, _sep, bodyBlock) => {
@@ -149,6 +152,8 @@ export default s => {
           // Wrap bare MAC addresses in <code class="mac"> for click-to-copy
           const macRe = /(?:^|(?<=\s))([0-9A-Fa-f]{2}(?:[:-][0-9A-Fa-f]{2}){5}|[0-9A-Fa-f]{4}(?:\.[0-9A-Fa-f]{4}){2}|[0-9A-Fa-f]{12})(?=\s|$)/g
           c = c.replace(macRe, '<code class="mac" title="click to copy">$1</code>')
+          const state = SERVICE_STATES[c.replace(/<[^>]+>|[*_`]/g, '').trim().toLowerCase()]
+          if (state) c = '<span class="pf-svc pf-svc-' + state + '">' + c + '</span>'
           return '<td>' + c + '</td>'
         }).join('') + '</tr>'
       t += '</tbody></table>\n'
