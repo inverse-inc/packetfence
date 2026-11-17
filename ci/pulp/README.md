@@ -109,12 +109,27 @@ pipeline does not publish private images.
 infrastructure repository (`packaging/scripts/`). `vendor/SHA256SUMS` is checked before any upload: refresh
 the helpers and the checksums together, from a reviewed infrastructure revision.
 
+## Documentation
+
+`deploy_docs_pulp` publishes the built guides (`build_artifacts_doc`: `docs/*.html`, `docs/*.pdf`, `docs/images/`,
+`docs/styles/*.min.css`) to `/downloads/PacketFence/doc/X.Y.0/`, X.Y from `conf/pf-release`, after the tests:
+
+- a release tag `vX.Y.Z` (the docs are always built on tags);
+- a `maintenance/X.Y` pipeline started from the web or the API with `BUILD_ARTIFACTS_DOC=yes` (or
+  `build_artifacts_doc=yes` in the commit message), to rebuild that version's docs.
+
+Never `devel`: a devel version has no published docs. The folder then holds exactly this build
+(`ci/pulp/publish-docs.sh`, as `ci-docs`). The folder must exist: the packaging side creates it when X.Y is
+released, starting with a copy of the previous docs. The unversioned guide links
+(`/downloads/PacketFence/doc/<guide>.html`) point to the newest released version only, so rebuilding an older
+version's docs never moves them.
+
 ## Secrets
 
-The `ci-packages` and `ci-docker` usernames and passwords are read from Psono at run time
+The `ci-packages`, `ci-docker` and `ci-docs` usernames and passwords are read from Psono at run time
 (`ci/pulp/psono-field.sh`, with the pipeline's `PSONO_CI_API_*`), like the signing key;
-their entry IDs are the protected GitLab variables `PSONO_CI_PULP_PACKAGES_ID` and
-`PSONO_CI_PULP_DOCKER_ID` (empty by default in `.gitlab-ci.yml`). The infrastructure provisions the accounts from the same entries, so a
+their entry IDs are the protected GitLab variables `PSONO_CI_PULP_PACKAGES_ID`,
+`PSONO_CI_PULP_DOCKER_ID` and `PSONO_CI_PULP_DOCS_ID` (empty by default in `.gitlab-ci.yml`). The infrastructure provisions the accounts from the same entries, so a
 password changed in Psono applies to both after the next packaging deploy. Disable debug tracing
 (`CI_DEBUG_TRACE`, `CI_DEBUG_SERVICES`) for these jobs, and never collect environment dumps,
 signing homes or credential files as artifacts. Publishing artifacts require Developer
