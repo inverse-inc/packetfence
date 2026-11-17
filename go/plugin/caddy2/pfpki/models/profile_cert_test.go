@@ -526,3 +526,43 @@ func parsePair(certPEM, keyPEM string) (any, error) {
 		return k, nil
 	}
 }
+
+// When x509.CreateCertificate fails (an HSM CA whose token refuses to
+// sign, here a profile mail address that can't be encoded) sign_csr
+// returns an error instead of storing a certificate built from a nil DER.
+func TestCSR_New_SigningFailure(t *testing.T) {
+	env := testutil.NewEnv(t)
+	caRow := mustCreateCA(t, env, "csr-fail-ca", certutils.KEY_ECDSA, 256, x509.ECDSAWithSHA256)
+	p := profileTemplate("csr-fail-prof", caRow, certutils.KEY_ECDSA, 256, x509.ECDSAWithSHA256)
+	p.DB = env.DB
+	p.Ctx = env.Ctx
+	pinfo, err := p.New()
+	if err != nil {
+		t.Fatalf("Profile.New: %v", err)
+	}
+	profile := pinfo.Entries.([]models.Profile)[0]
+	if err := env.DB.Model(&models.Profile{}).Where("id = ?", profile.ID).Update("mail", "l\u00e9af@example.test").Error; err != nil {
+		t.Fatal(err)
+	}
+
+	csrKey, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	csrDER, err := x509.CreateCertificateRequest(rand.Reader, &x509.CertificateRequest{
+		Subject: pkix.Name{CommonName: "csr-fail.example.test"},
+	}, csrKey)
+	if err != nil {
+		t.Fatal(err)
+	}
+	csr := models.CSR{DB: env.DB, Ctx: env.Ctx, Csr: string(csrDER)}
+	info, err := csr.New(map[string]string{"id": fmt.Sprintf("%d", profile.ID)})
+	if err == nil {
+		t.Fatalf("CSR.New succeeded with a CA that can't sign")
+	}
+	if info.Status != 500 {
+		t.Errorf("status %d, want 500", info.Status)
+	}
+	var n int64
+	env.DB.Model(&models.Cert{}).Where("cn = ?", "csr-fail.example.test").Count(&n)
+	if n != 0 {
+		t.Errorf("%d certificates stored after a signing failure", n)
+	}
+}
