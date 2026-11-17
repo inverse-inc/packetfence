@@ -7,38 +7,45 @@
       <b-card no-body class="the-assistant-card">
         <b-card-header class="d-flex align-items-center">
           <div>
-            <h4 class="mb-0" v-t="'NACBot'" />
+            <h4 class="mb-0 the-assistant-title d-flex align-items-center">
+              <span v-t="'NACBot'" />
+              <span class="the-assistant-status ml-2" :class="statusClass" role="img"
+                :aria-label="statusTitle" v-b-tooltip.hover.bottom.d300 :title="statusTitle" />
+            </h4>
             <small class="text-muted">
               <template v-if="pfVersion">PacketFence {{ pfVersion }}</template>
-              <template v-if="settings.provider"> &middot; {{ settings.provider }} / {{ settings.model }}</template>
+              <template v-if="settings.provider"> &middot; <span v-b-tooltip.hover.bottom.d300 :title="settings.provider">{{ settings.model || $t('provider default') }}</span></template>
               <template v-else-if="isAvailable">
                 &middot; {{ $t("No LLM provider configured.") }}
                 <b-link v-if="canConfigure" to="/configuration/pfchatbot">{{ $t("Configure") }}</b-link>
               </template>
             </small>
           </div>
-          <b-button-group class="ml-auto">
-            <b-button size="sm" variant="outline-secondary" :pressed="sidePane === 'files'" @click="toggleSidePane('files')"
-              v-b-tooltip.hover.bottom.d300 :title="$t('Files in this conversation')">
-              <icon name="file" />
-            </b-button>
-            <b-button size="sm" variant="outline-secondary" @click="showUsage = true"
-              v-b-tooltip.hover.bottom.d300 :title="$t('Token usage')">
-              <icon name="chart-bar" />
-            </b-button>
-            <b-button size="sm" variant="outline-secondary" @click="openTestTools()"
-              v-b-tooltip.hover.bottom.d300 :title="$t('Test tools (802.1X / RADIUS)')">
-              <icon name="tools" />
-            </b-button>
-            <b-button size="sm" variant="outline-secondary" @click="showLogs = true"
-              v-b-tooltip.hover.bottom.d300 :title="$t('Service logs')">
-              <icon name="file-code" />
-            </b-button>
-            <b-button size="sm" variant="outline-secondary" to="/configuration/pfchatbot" v-if="canConfigure"
+          <div class="ml-auto d-flex align-items-center">
+            <div class="the-assistant-tools d-flex" role="group" :aria-label="$t('NACBot tools')">
+              <b-button variant="link" class="the-assistant-tool" :class="{ active: sidePane === 'files' }"
+                :aria-pressed="sidePane === 'files' ? 'true' : 'false'" @click="toggleSidePane('files')"
+                v-b-tooltip.hover.bottom.d300 :title="$t('Files in this conversation')">
+                <icon name="book-open" />
+              </b-button>
+              <b-button variant="link" class="the-assistant-tool" :class="{ active: showUsage }" @click="showUsage = true"
+                v-b-tooltip.hover.bottom.d300 :title="$t('Token usage')">
+                <icon name="chart-bar" />
+              </b-button>
+              <b-button variant="link" class="the-assistant-tool" :class="{ active: showTestTools }" @click="openTestTools()"
+                v-b-tooltip.hover.bottom.d300 :title="$t('Test tools (802.1X / RADIUS)')">
+                <icon name="wrench" />
+              </b-button>
+              <b-button variant="link" class="the-assistant-tool" :class="{ active: showLogs }" @click="showLogs = true"
+                v-b-tooltip.hover.bottom.d300 :title="$t('Service logs')">
+                <icon name="file-code" />
+              </b-button>
+            </div>
+            <b-button variant="link" class="the-assistant-tool the-assistant-tool-solo ml-2" to="/configuration/pfchatbot" v-if="canConfigure"
               v-b-tooltip.hover.bottom.d300 :title="$t('Provider settings')">
               <icon name="cog" />
             </b-button>
-          </b-button-group>
+          </div>
           <!-- the header slider (AppAssistant) adds its close/fullscreen controls here -->
           <slot name="header-actions" />
         </b-card-header>
@@ -71,6 +78,8 @@
 </template>
 
 <script>
+import 'vue-awesome/icons/book-open'
+import 'vue-awesome/icons/wrench'
 import { computed, nextTick, onBeforeUnmount, ref, watch } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import TheComposer from './TheComposer'
@@ -113,6 +122,12 @@ const setup = (props, context) => {
   const availabilityError = computed(() => $store.state.$_assistant.availabilityError)
   const nodeActions = computed(() => $store.state.$_assistant.nodeActions)
   const canConfigure = computed(() => $can('update', 'configuration_main'))
+  // header dot: green when the service answers, red when it does not, grey until known
+  const statusClass = computed(() => ({ true: 'is-up', false: 'is-down' })[String(isAvailable.value)] || 'is-unknown')
+  const statusTitle = computed(() => ({
+    'is-up': i18n.t('NACBot service is reachable'),
+    'is-down': i18n.t('NACBot service is not reachable')
+  })[statusClass.value] || i18n.t('Checking the NACBot service'))
 
   const sidePane = ref(null)
   const toggleSidePane = pane => {
@@ -186,6 +201,8 @@ const setup = (props, context) => {
     isAvailable,
     availabilityError,
     canConfigure,
+    statusClass,
+    statusTitle,
     sidePane,
     toggleSidePane,
     send,
@@ -214,6 +231,50 @@ export default {
   .the-assistant-log {
     flex: 1;
     overflow-y: auto;
+  }
+  .the-assistant-title { font-weight: 700; }
+  .the-assistant-status {
+    display: inline-block;
+    width: .55rem;
+    height: .55rem;
+    border-radius: 50%;
+    &.is-up      { background-color: $success; }
+    &.is-down    { background-color: $danger; }
+    &.is-unknown { background-color: $gray-400; }
+  }
+  .the-assistant-tools {
+    padding: .25rem;
+    background-color: $gray-100;
+    border-radius: .65rem;
+  }
+  .the-assistant-tool {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.5rem;
+    height: 2.5rem;
+    padding: 0 .65rem;
+    color: $gray-800;
+    border: 0;
+    border-radius: .5rem;
+    &:hover, &:focus {
+      color: $primary;
+      text-decoration: none;
+      background-color: lighten($primary, 46%);
+    }
+    &.active {
+      color: $gray-900;
+      background-color: $white;
+      box-shadow: 0 1px 2px rgba($black, .1);
+    }
+    + .the-assistant-tool { margin-left: .15rem; }
+  }
+  .the-assistant-tool-solo {
+    height: 3rem;
+    min-width: 3rem;
+    background-color: $white;
+    border: 1px solid $gray-300;
+    border-radius: .65rem;
   }
 }
 </style>
