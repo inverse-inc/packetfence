@@ -183,3 +183,38 @@ func TestAcmeMountPath(t *testing.T) {
 		}
 	}
 }
+
+// TestHTTP01CheckRedirect: redirects stay on the identifier's host
+// (scheme upgrade, other path, case or trailing dot are fine); another
+// host, even a private one, is refused.
+func TestHTTP01CheckRedirect(t *testing.T) {
+	cases := []struct {
+		first, next string
+		ok          bool
+	}{
+		{"http://host.example.com/.well-known/acme-challenge/t", "https://host.example.com/.well-known/acme-challenge/t", true},
+		{"http://host.example.com/.well-known/acme-challenge/t", "http://HOST.example.com./other", true},
+		{"http://192.0.2.10/.well-known/acme-challenge/t", "https://192.0.2.10/x", true},
+		{"http://[2001:db8::1]/.well-known/acme-challenge/t", "https://[2001:db8:0::1]/x", true},
+		{"http://host.example.com/.well-known/acme-challenge/t", "http://other.example.com/", false},
+		{"http://host.example.com/.well-known/acme-challenge/t", "https://10.0.0.1/", false},
+		{"http://192.0.2.10/.well-known/acme-challenge/t", "http://192.0.2.11/", false},
+		{"http://192.0.2.10/.well-known/acme-challenge/t", "ftp://192.0.2.10/", false},
+	}
+	for _, c := range cases {
+		first, _ := http.NewRequest("GET", c.first, nil)
+		next, _ := http.NewRequest("GET", c.next, nil)
+		err := http01CheckRedirect(next, []*http.Request{first})
+		if (err == nil) != c.ok {
+			t.Errorf("%s -> %s: err=%v, want ok=%v", c.first, c.next, err, c.ok)
+		}
+	}
+	first, _ := http.NewRequest("GET", "http://host.example.com/", nil)
+	via := make([]*http.Request, 10)
+	for i := range via {
+		via[i] = first
+	}
+	if http01CheckRedirect(first, via) == nil {
+		t.Errorf("an 11th hop was allowed")
+	}
+}

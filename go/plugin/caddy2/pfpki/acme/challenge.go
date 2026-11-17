@@ -4,12 +4,14 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
 
 	chi "github.com/go-chi/chi/v5"
 	jose "github.com/go-jose/go-jose/v4"
+	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/models"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
 	"gorm.io/gorm"
@@ -126,7 +128,11 @@ func validateChallenge(r *http.Request, h *types.Handler, jc *jwsContext, ch *mo
 	var attestedSPKI string
 	switch ch.Type {
 	case "http-01":
-		validateErr = http01Validate(r.Context(), authz.Value, ch.Token, thumbprint)
+		if err := http01Validate(r.Context(), authz.Value, ch.Token, thumbprint); err != nil {
+			log.LoggerWContext(r.Context()).Info(fmt.Sprintf("ACME profile %s challenge %d for %s: %s",
+				jc.Profile.Name, ch.ID, authz.Value, err.Error()))
+			validateErr = errHTTP01Failed
+		}
 	case "device-attest-01":
 		// RFC 9447 §3: the JWS payload is JSON of the shape
 		//   {"attObj":"<base64url CBOR>"}
