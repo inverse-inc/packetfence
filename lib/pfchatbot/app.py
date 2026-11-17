@@ -749,19 +749,65 @@ def search_docs(query: str, limit: int = 6) -> list[dict]:
     return [{"source": h["source_type"], "text": h["text"], "score": round(h["score"], 4)} for h in hits]
 
 
+def _resolve_oid(oid: str):
+    """(operation, error): exact id, else a case-insensitive exact match; never a
+    fuzzy pick, only suggestions."""
+    ops = _state.get("ops", {}) or {}
+    o = ops.get(oid)
+    if o:
+        return o, None
+    low = (oid or "").strip().lower()
+    for k, v in ops.items():
+        if k.lower() == low:
+            return v, None
+    import difflib
+    err = {"error": f"Unknown operation_id '{oid}'. Search first."}
+    near = difflib.get_close_matches(oid or "", list(ops), n=3, cutoff=0.6)
+    if near:
+        err["did_you_mean"] = near
+    return None, err
+
+
+def _resolve_path(o: dict, path_params=None):
+    """(path, error): substitute path parameters. One leftover placeholder with
+    one differently-named parameter is matched up; anything else unresolved is
+    reported instead of sending a URL with literal {braces}."""
+    path = o["path"]
+    params = dict(path_params or {})
+    used = set()
+    for k, v in params.items():
+        if "{" + k + "}" in path:
+            # safe=":" so a MAC stays 02:00:00:00:00:01 rather than becoming
+            # 02%3A00%3A... — PacketFence's node paths use the colons literally
+            path = path.replace("{" + k + "}", quote(str(v), safe=":"))
+            used.add(k)
+    left = _PATH_PARAM_RE.findall(path)
+    unused = [k for k in params if k not in used]
+    if len(left) == 1 and len(unused) == 1:
+        path = path.replace(left[0], quote(str(params[unused[0]]), safe=":"))
+        left = []
+    if left:
+        return None, {"error": f"missing path parameter(s) for {o['method'].upper()} {o['path']}",
+                      "path_params_needed": [p.strip("{}") for p in left],
+                      "hint": "pass them in path_params using these exact names"}
+    return path, None
+
+
 def describe(oid: str) -> dict:
-    o = _state["ops"].get(oid)
+    o, err = _resolve_oid(oid)
     if not o:
-        return {"error": f"Unknown operation_id '{oid}'. Search first."}
+        return err
     return {"operation_id": o["id"], "method": o["method"].upper(), "path": o["path"], "summary": o["summary"],
             "is_write": o["is_write"], "description": o["description"],
+            "path_params": [p.strip("{}") for p in _PATH_PARAM_RE.findall(o["path"])],
             "parameters": o["parameters"], "request_body": o["requestBody"]}
 
 
 def build_url(path: str) -> str:
-    prefix = urlsplit(PF_BASE_URL).path
-    if prefix and path.startswith(prefix + "/"):
-        s = urlsplit(PF_BASE_URL)
+    # Spec paths are mostly relative to /api/v1; a few are absolute, including
+    # other API versions (/api/v1.1/reports).
+    s = urlsplit(PF_BASE_URL)
+    if s.path and path.startswith("/api/"):
         return f"{s.scheme}://{s.netloc}{path}"
     return PF_BASE_URL + path
 
@@ -964,9 +1010,13 @@ def _preflight_check(oid: str, body: dict | None) -> dict | None:
 
 def invoke(oid: str, path_params=None, query_params=None, body=None,
            confirmed: bool = False) -> dict:
-    o = _state["ops"].get(oid)
+    o, err = _resolve_oid(oid)
     if not o:
-        return {"error": f"Unknown operation_id '{oid}'."}
+        return err
+    oid = o["id"]
+    _, perr = _resolve_path(o, path_params)
+    if perr:
+        return perr
 
     # ── write guard ──────────────────────────────────────────────────────────
     # Mutating operations are NOT executed on the agent's say-so. We pend them
@@ -988,9 +1038,7 @@ def invoke(oid: str, path_params=None, query_params=None, body=None,
             "body": body, "created": time.time(),
         }
         # best-effort human-readable path preview
-        preview = o["path"]
-        for k, v in (path_params or {}).items():
-            preview = preview.replace("{" + k + "}", str(v))
+        preview = _resolve_path(o, path_params)[0] or o["path"]
         return {
             "confirmation_required": True,
             "confirm_token": token,
@@ -1014,11 +1062,7 @@ def invoke(oid: str, path_params=None, query_params=None, body=None,
                 + ". Mention these corrections when describing what will happen."
             )
 
-    path = o["path"]
-    for k, v in (path_params or {}).items():
-        # safe=":" so a MAC stays 02:00:00:00:00:01 rather than becoming
-        # 02%3A00%3A... — PacketFence's node paths use the colons literally
-        path = path.replace("{" + k + "}", quote(str(v), safe=":"))
+    path, _ = _resolve_path(o, path_params)
     url = build_url(path)
     sent_body = body if o["is_write"] else None
     curl = _curl_for(o["method"], url, query_params, sent_body, has_auth=bool(_state["token"]))
