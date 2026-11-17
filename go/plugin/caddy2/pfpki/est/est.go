@@ -33,11 +33,13 @@ import (
 	"net/http"
 	"net/textproto"
 	"strings"
+	"time"
 
 	chi "github.com/go-chi/chi/v5"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/certutils"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/models"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/ratelimit"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
 	"github.com/inverse-inc/pkcs7"
 	"gorm.io/gorm"
@@ -50,6 +52,12 @@ const (
 
 	// maxCSRSize bounds the base64 PKCS#10 body of an enrollment.
 	maxCSRSize = 64 << 10
+
+	// A source that fails HTTP Basic authentication maxAuthFailures
+	// times within authFailureWindow is refused for authLockout.
+	maxAuthFailures   = 10
+	authFailureWindow = 10 * time.Minute
+	authLockout       = 15 * time.Minute
 )
 
 var oidSubjectAltName = asn1.ObjectIdentifier{2, 5, 29, 17}
@@ -59,12 +67,15 @@ var oidSubjectAltName = asn1.ObjectIdentifier{2, 5, 29, 17}
 func Mount(h *types.Handler) chi.Router {
 	r := chi.NewRouter()
 	r.Use(requireTLS)
+	// The EST password is shared by the devices of a profile: limit the
+	// guesses of each source.
+	lock := ratelimit.NewLockout(maxAuthFailures, authFailureWindow, authLockout)
 	routes := func(r chi.Router) {
 		r.Get("/cacerts", caCertsHandler(h))
 		r.Get("/csrattrs", csrAttrsHandler(h))
-		r.Post("/simpleenroll", enrollHandler(h, false))
-		r.Post("/simplereenroll", enrollHandler(h, true))
-		r.Post("/serverkeygen", serverKeyGenHandler(h))
+		r.Post("/simpleenroll", enrollHandler(h, lock, false))
+		r.Post("/simplereenroll", enrollHandler(h, lock, true))
+		r.Post("/serverkeygen", serverKeyGenHandler(h, lock))
 	}
 	routes(r)
 	r.Route("/{profile}", routes)
@@ -113,13 +124,23 @@ func profileFor(h *types.Handler, w http.ResponseWriter, r *http.Request) *model
 	return prof
 }
 
-// authenticate checks the HTTP Basic credentials against the profile.
-func authenticate(prof *models.Profile, w http.ResponseWriter, r *http.Request) bool {
+// authenticate checks the HTTP Basic credentials against the profile. A
+// source locked out after too many failures is refused before the check.
+func authenticate(lock *ratelimit.Lockout, prof *models.Profile, w http.ResponseWriter, r *http.Request) bool {
+	client := ratelimit.ClientKey(r)
+	if locked, wait := lock.Locked(client); locked {
+		logInfo(r, fmt.Sprintf("refused: %s is locked out after too many authentication failures", client))
+		ratelimit.TooManyRequests(w, wait)
+		return false
+	}
 	user, pass, ok := r.BasicAuth()
 	valid := ok && prof.EstPassword != "" &&
 		subtle.ConstantTimeCompare([]byte(pass), []byte(prof.EstPassword)) == 1 &&
 		(prof.EstUsername == "" || subtle.ConstantTimeCompare([]byte(user), []byte(prof.EstUsername)) == 1)
 	if !valid {
+		if ok {
+			lock.Fail(client)
+		}
 		w.Header().Set("WWW-Authenticate", fmt.Sprintf(`Basic realm="EST %s"`, prof.Name))
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 	}
@@ -153,10 +174,10 @@ func csrAttrsHandler(h *types.Handler) http.HandlerFunc {
 	}
 }
 
-func enrollHandler(h *types.Handler, reenroll bool) http.HandlerFunc {
+func enrollHandler(h *types.Handler, lock *ratelimit.Lockout, reenroll bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		prof := profileFor(h, w, r)
-		if prof == nil || !authenticate(prof, w, r) {
+		if prof == nil || !authenticate(lock, prof, w, r) {
 			return
 		}
 		csr, err := readCSR(r)
@@ -183,10 +204,10 @@ func enrollHandler(h *types.Handler, reenroll bool) http.HandlerFunc {
 // serverKeyGenHandler generates the key pair on behalf of the client
 // (RFC 7030 4.4). The private key is returned unencrypted as PKCS#8,
 // protected by the TLS session as the RFC allows.
-func serverKeyGenHandler(h *types.Handler) http.HandlerFunc {
+func serverKeyGenHandler(h *types.Handler, lock *ratelimit.Lockout) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		prof := profileFor(h, w, r)
-		if prof == nil || !authenticate(prof, w, r) {
+		if prof == nil || !authenticate(lock, prof, w, r) {
 			return
 		}
 		clientCSR, err := readCSR(r)
