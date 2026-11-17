@@ -31,6 +31,14 @@ type identifier struct {
 // bloat the state tables.
 const maxOrderIdentifiers = 100
 
+// maxOpenOrders bounds the orders one account may have that are not
+// final yet (pending, ready or processing, and not expired). A client
+// finishes or abandons an order before starting the next one; without
+// a cap a single account can grow the order/authz/challenge tables
+// until the cleanup task runs. Concurrent new-orders can overshoot it
+// slightly, which is fine for a cap meant against floods.
+const maxOpenOrders = 20
+
 // newOrderPayload is the §7.4 request body. notBefore/notAfter are
 // decoded only so they can be refused: the certificate validity comes
 // from the profile template.
@@ -53,6 +61,29 @@ type orderResponse struct {
 	Finalize       string       `json:"finalize"`
 	Certificate    string       `json:"certificate,omitempty"`
 	Error          any          `json:"error,omitempty"`
+}
+
+// openOrdersLimited reports whether accountID already has
+// maxOpenOrders orders that are not final, and if so how many seconds
+// to wait (Retry-After) until the first of them expires, between one
+// minute and one hour.
+func openOrdersLimited(db *gorm.DB, accountID uint, now time.Time) (bool, int, error) {
+	var open []models.AcmeOrder
+	err := db.Select("expires_at").
+		Where("account_id = ? AND status IN ? AND expires_at > ?",
+			accountID, []string{"pending", "ready", "processing"}, now).
+		Order("expires_at").Limit(maxOpenOrders).Find(&open).Error
+	if err != nil || len(open) < maxOpenOrders {
+		return false, 0, err
+	}
+	retry := int(open[0].ExpiresAt.Sub(now).Seconds())
+	if retry < 60 {
+		retry = 60
+	}
+	if retry > 3600 {
+		retry = 3600
+	}
+	return true, retry, nil
 }
 
 // newOrderHandler implements RFC 8555 §7.4. kid-authenticated (the
@@ -130,6 +161,17 @@ func newOrderHandler(h *types.Handler) http.HandlerFunc {
 					"permanent-identifier requires an attestation format on this profile")
 				return
 			}
+		}
+
+		if limited, retry, err := openOrdersLimited(h.DB, jc.Account.ID, time.Now()); err != nil {
+			_ = WriteProblem(w, http.StatusInternalServerError, ErrServerInternal, err.Error())
+			return
+		} else if limited {
+			// RFC 8555 §6.6: rateLimited with a Retry-After header.
+			w.Header().Set("Retry-After", strconv.Itoa(retry))
+			_ = WriteProblem(w, http.StatusTooManyRequests, ErrRateLimited,
+				"too many open orders on this account, at most "+strconv.Itoa(maxOpenOrders))
+			return
 		}
 
 		identifiersJSON, _ := json.Marshal(payload.Identifiers)
