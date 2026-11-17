@@ -749,6 +749,21 @@ def search_docs(query: str, limit: int = 6) -> list[dict]:
     return [{"source": h["source_type"], "text": h["text"], "score": round(h["score"], 4)} for h in hits]
 
 
+def _service_state(svc: dict) -> str:
+    """running / starting / stopped / disabled, from PacketFence's service status
+    fields (running = alive with a pid, as in the admin UI's Services view)."""
+    def on(v):
+        return str(v).strip().lower() not in ("", "0", "false", "none")
+    alive, pid, enabled = on(svc.get("alive")), on(svc.get("pid")), on(svc.get("enabled"))
+    if alive and pid:
+        return "running"
+    if enabled and (alive or pid):
+        return "starting"
+    if enabled:
+        return "stopped"
+    return "disabled"
+
+
 def _resolve_oid(oid: str):
     """(operation, error): exact id, else a case-insensitive exact match; never a
     fuzzy pick, only suggestions."""
@@ -1096,6 +1111,11 @@ def invoke(oid: str, path_params=None, query_params=None, body=None,
                         it["category"] = _id_to_name.get(cid, cid)
             except Exception:
                 pass
+    # Service status: add a plain-language state next to alive/enabled/pid
+    if r.status_code == 200 and isinstance(data, dict) and "/service" in path:
+        for it in (data.get("items") if isinstance(data.get("items"), list) else [data]):
+            if isinstance(it, dict) and {"alive", "enabled"} <= set(it):
+                it["service_status"] = _service_state(it)
     # Format 422 validation errors so the model can fix and retry immediately
     if r.status_code == 422 and isinstance(data, dict):
         errs = data.get("errors") or data.get("error") or []
