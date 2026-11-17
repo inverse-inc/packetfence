@@ -773,6 +773,61 @@ def merge_rpm_tree(client, name, tree, content_url, *, sign=None, work=None, app
     return result
 
 
+# --- doc/X.Y.0 snapshots: the guides a PacketFence build produced, exactly ---
+
+DOC_REPO = re.compile(r'doc-[0-9]+-[0-9]+-0')
+
+
+def publish_docs(client, name, tree, *, apply=False):
+    """Make the doc-X-Y-0 snapshot hold exactly the built guides (new or changed files uploaded, the rest
+    removed), then serve it. Readers keep the previous publication until the switch."""
+    if not DOC_REPO.fullmatch(name):
+        raise ValueError('Destination must be a doc-X-Y-0 file repository')
+    repo = client.find('repositories/file/file', name)
+    dist = client.find('distributions/file/file', name)
+    if (repo.get('autopublish') or dist.get('content_guard') or dist.get('repository')
+            or not dist.get('publication') or dist.get('base_path') != 'files/' + name):
+        raise ValueError('Destination must be a published public doc repository (created by the release)')
+    tree = Path(tree)
+    if not tree.is_dir() or tree.is_symlink():
+        raise ValueError('Missing or symlinked documentation tree')
+    local = {}
+    for path in sorted(tree.rglob('*')):
+        if path.is_symlink() or not (path.is_file() or path.is_dir()):
+            raise ValueError('Documentation tree must contain only regular files/directories')
+        if path.is_file():
+            relative = safe_path(path.relative_to(tree).as_posix())
+            if relative == 'PULP_MANIFEST':
+                raise ValueError('Refusing a caller-supplied PULP_MANIFEST')
+            local[relative] = (path, digest(path))
+    if not any(p.endswith('.html') and '/' not in p for p in local):
+        raise ValueError('No guide (.html) at the top of the documentation tree')
+    initial = repo['latest_version_href']
+    current = list_files(client, initial)
+    changed = {p: v for p, v in local.items() if current.get(p, {}).get('sha256') != v[1]}
+    stale = sorted(set(current) - set(local))
+    result = {'repository': name, 'files': len(local), 'changed': sorted(changed), 'removed': stale,
+              'previous_publication': dist.get('publication'), 'applied': False}
+    if not apply:
+        return result
+    served = client.request('GET', dist['publication'])['repository_version']
+    if not changed and not stale and served == initial:
+        result.update(applied=True, repository_version=initial, publication=dist['publication'])
+        return result
+    # One writer at a time (resource_group in CI); never interleave with another.
+    if client.request('GET', repo['pulp_href'])['latest_version_href'] != initial:
+        raise RuntimeError('Repository changed before upload; serialize publishers and review')
+    upload_files(client, repo, changed)
+    if stale:
+        client.wait(client.request('POST', repo['pulp_href'] + 'modify/',
+                                   json={'remove_content_units': [current[p]['pulp_href'] for p in stale]}))
+    version = client.request('GET', repo['pulp_href'])['latest_version_href']
+    if {p: f['sha256'] for p, f in list_files(client, version).items()} != {p: v[1] for p, v in local.items()}:
+        raise RuntimeError('Unexpected repository membership; distribution remains unchanged')
+    result.update(applied=True, repository_version=version, publication=switch_publication(client, repo, dist, version))
+    return result
+
+
 def gpg_signer(fingerprint):
     if not re.fullmatch(r'[A-F0-9]{40}', fingerprint or ''):
         raise ValueError('Set GPG_KEY_FINGERPRINT to the exact 40-hex signing fingerprint')
@@ -834,6 +889,11 @@ def main():
     rpm.add_argument('--work', type=Path, required=True, help='Empty directory for signed metadata')
     rpm.add_argument('--apply', action='store_true')
     rpm.add_argument('--output', type=Path, required=True)
+    docs = sub.add_parser('publish-docs', help='Make doc-X-Y-0 hold exactly a built documentation tree')
+    docs.add_argument('--repository', required=True)
+    docs.add_argument('--tree', type=Path, required=True, help='Guides (*.html, *.pdf) with their images/ and styles/')
+    docs.add_argument('--apply', action='store_true')
+    docs.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     try:
         if args.command == 'fetch':
@@ -848,6 +908,8 @@ def main():
                 sign = gpg_signer(os.environ.get('GPG_KEY_FINGERPRINT')) if args.apply else None
                 result = merge_apt_tree(client, args.repository, args.tree, args.content_url,
                                       codename=args.codename, sign=sign, work=args.work, apply=args.apply)
+            elif args.command == 'publish-docs':
+                result = publish_docs(client, args.repository, args.tree, apply=args.apply)
             elif args.command == 'merge-rpm':
                 sign = gpg_detached_signer(os.environ.get('GPG_KEY_FINGERPRINT')) if args.apply else None
                 result = merge_rpm_tree(client, args.repository, args.tree, args.content_url,
