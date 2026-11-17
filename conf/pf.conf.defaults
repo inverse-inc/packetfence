@@ -1597,7 +1597,7 @@ live=enabled
 #
 # lets_encrypt.test_uri
 # The URI to use to test that the portal is available publicly
-test_uri=https://ssl-test.inverse.ca/
+test_uri=https://ssl-test.packetfence.com/
 
 [monit]
 status=disabled
