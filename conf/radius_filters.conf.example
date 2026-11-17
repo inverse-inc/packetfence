@@ -127,17 +127,10 @@
 #
 # When the RADIUS server of a proxied realm (e.g. Cisco ISE) answers with a
 # downloadable ACL (Cisco-AVPair ACS:CiscoSecure-Defined-ACL=#ACSACL#-IP-...),
-# the Cisco switch asks PacketFence for its content. Send these requests to the
+# the Cisco switch asks PacketFence for its content. The ProxyServerDownloadableACL
+# filter (radius_filters.conf.defaults, disabled) sends these requests to the
 # realm of that server, which answers with as many Access-Challenge as the ACL
-# needs (the realm must exist, e.g. ACME):
-#
-#[ProxyServerDownloadableACL]
-#status=enabled
-#answer.0=control:Proxy-To-Realm = ACME
-#description=Downloadable ACLs of the RADIUS server of the ACME realm
-#scopes=packetfence.authorize
-#merge_answer=no
-#condition=user_name =~ "^.ACSACL.-IP"
+# needs: enable it and set the realm in its answer.
 #
 #### preacct example ####
 #

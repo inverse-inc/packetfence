@@ -35,3 +35,11 @@ condition=radius_request.User-Name =~ "acme.com$"
 answer.0=TLS-Stripped-UserName = ${BuildFromMatch($radius_request.TLS-Client-Cert-Common-Name,"^[^@]+","$0")}
 description=Preprocess attribute for EAP-TLS
 scopes=preProcess
+
+[ProxyServerDownloadableACL]
+status=disabled
+description=Send the downloadable ACLs of the RADIUS server of a proxied realm (e.g. Cisco ISE) to that server: set the realm in the answer
+scopes=packetfence.authorize
+merge_answer=no
+condition=user_name =~ "^#ACSACL#-IP(V6)?-"
+answer.0=control:Proxy-To-Realm = ACME
