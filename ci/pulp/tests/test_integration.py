@@ -290,8 +290,13 @@ class ConfigurationTest(unittest.TestCase):
         self.assertEqual(release['rules'], [{'if': '$CI_COMMIT_TAG =~ /^v[0-9]+\\.[0-9]+\\.[0-9]+$/'}])
         self.assertEqual(maintenance['dependencies'], ['build_artifacts_doc_devel_and_branches'])
         # Exactly when the maintenance docs are built.
-        self.assertEqual(maintenance['rules'], [r for r in config['.build_artifacts_doc_devel_and_branches_rules']['rules']
-                                                if r['if'].startswith('$CI_COMMIT_REF_NAME =~ /^maintenance')])
+        self.assertEqual(maintenance['rules'][:1], [r for r in config['.build_artifacts_doc_devel_and_branches_rules']['rules']
+                                                    if r['if'].startswith('$CI_COMMIT_REF_NAME =~ /^maintenance')])
+        # TEMPORARY staging rehearsal: only on request, and never with the production origin.
+        rehearsal = maintenance['rules'][1]['if']
+        self.assertIn('$DEPLOY_DOCS == "yes"', rehearsal)
+        self.assertIn('$PF_PACKAGE_ORIGIN != "https://packages.packetfence.com"', rehearsal)
+        self.assertEqual(config['variables']['PF_PACKAGE_ORIGIN'], 'https://packages.packetfence.com')
         self.assertIn('PSONO_CI_PULP_DOCS_ID', config['variables'])
         script = (ROOT/'ci/pulp/publish-docs.sh').read_text()
         self.assertIn('publish-docs --repository "doc-${release/./-}-0"', script)
