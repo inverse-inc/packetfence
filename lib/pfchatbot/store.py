@@ -260,7 +260,8 @@ def _create_tables() -> None:
         if e.args and e.args[0] in (1044, 1142):
             raise StoreUnavailable(
                 "chatbot tables are missing and the database user may not create them: "
-                "run the PacketFence database upgrade (db/upgrade-*.sql), which creates them") from e
+                "restart packetfence-chatbot (it creates them from db/chatbot-tables.sql) "
+                "or run the PacketFence database upgrade") from e
         raise
 
 

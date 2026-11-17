@@ -43,4 +43,14 @@ args="$args --memory 4g --memory-swap 4g"
 
 cd /usr/local/pf/
 
+# Create the conversation tables if this database predates them (e.g. created
+# by an earlier build of the same version, which no db upgrade script touches).
+# Root over the local socket, so the pf DB user needs no DDL grant. Never blocks
+# the start: without a local socket (external DB) the schema/upgrade path applies.
+if [ -S /var/lib/mysql/mysql.sock ] && [ -f db/chatbot-tables.sql ]; then
+  db=$(awk -F= '/^\[database\]/{f=1;next} /^\[/{f=0} f && $1 ~ /^ *db *$/ {gsub(/ /,"",$2); print $2}' conf/pf.conf 2>/dev/null)
+  timeout 30 mysql -S /var/lib/mysql/mysql.sock "${db:-pf}" < db/chatbot-tables.sql >/dev/null 2>&1 \
+    || echo "chatbot: could not verify the chatbot tables in database '${db:-pf}'; continuing"
+fi
+
 run $name "$args"
