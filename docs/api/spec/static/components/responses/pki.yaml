@@ -118,11 +118,20 @@ PkiCertDownload:
         example: attachment; filename="certificate.p12"
 
 PkiCertEmail:
-  description: Request successful. The PKI Certificate has been emailed. `password` is the password of the PKCS-12 file.
+  description: Request successful. The PKI Certificate has been emailed.
   content:
     application/json:
       schema:
-        $ref: "#/components/schemas/PkiNull"
+        type: object
+        properties:
+          password:
+            type: string
+            description: The password of the PKCS-12 file.
+          password_mailed:
+            type: boolean
+            description: Whether the password was in the mail (the `p12_mail_password` setting of the template). When it wasn't, the administrator has to give it to the user.
+          status:
+            type: integer
 
 PkiCertRevoke:
   description: Request successful. The PKI Certificate has been revoked.

@@ -131,8 +131,9 @@
   get:
     summary: Email PKI Certificate.
     description: |
-      Kept for compatibility: prefer the POST request, which takes the
-      optional password in its body instead of the URL.
+      Emails the certificate with a generated password. A `password` query
+      parameter is refused (400): send it in the body of the POST request,
+      the URL is logged.
     parameters:
       - name: cert_id
         in: path
@@ -140,17 +141,11 @@
         description: '`PRIMARY KEY`'
         schema:
           type: string
-      - name: password
-        in: query
-        required: false
-        deprecated: true
-        description: Optional password of the PKCS-12 file. Use the POST request instead, the URL is logged.
-        schema:
-          type: string
-          format: password
     responses:
       '200':
         $ref: '#/components/responses/PkiCertEmail'
+      '400':
+        $ref: '#/components/responses/BadRequest'
       '401':
         $ref: '#/components/responses/Unauthorized'
       '404':
