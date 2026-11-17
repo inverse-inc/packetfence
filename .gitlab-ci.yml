@@ -1886,8 +1886,9 @@ deploy_docs_pulp_maintenance:
     - build_artifacts_doc_devel_and_branches
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $BUILD_ARTIFACTS_DOC == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_doc=yes/ )'
-    # TEMPORARY (revert after the staging test): a feature branch rehearses the docs publish, never on production.
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && $DEPLOY_DOCS == "yes" && $PF_PACKAGE_ORIGIN != "https://packages.packetfence.com" && ( $BUILD_ARTIFACTS_DOC == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_doc=yes/ )'
+    # TEMPORARY (revert after the staging test): a feature branch rehearses the docs publish on staging only
+    # (an exact origin: the job logs in there, so no other host may receive the credentials).
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && $DEPLOY_DOCS == "yes" && $PF_PACKAGE_ORIGIN == "https://packages-staging.packetfence.com" && ( $BUILD_ARTIFACTS_DOC == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_doc=yes/ )'
 
 ########################################
 # BUILD_PF_IMG JOBS
