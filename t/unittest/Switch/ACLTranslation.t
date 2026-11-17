@@ -23,7 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 243;
+use Test::More tests => 253;
 use Test::MockModule;
 use Data::Dumper;
 use pf::Switch;
@@ -150,6 +150,20 @@ is_deeply([pf::Switch->aclIcmpType('echo')], [8], "an ICMP message name gives it
 is_deeply([pf::Switch->aclIcmpType('host-unreachable')], [3, 1], "an ICMP message name gives its type and code");
 is_deeply([pf::Switch->aclIcmpType('3 1')], [3, 1], "a numeric ICMP qualifier gives its type and code");
 is_deeply([pf::Switch->aclIcmpType('no-such-message')], [], "an unknown ICMP message gives nothing");
+
+# An ICMP type and code are 8-bit numbers: the parser takes any number, and a
+# switch refuses the rule, or the whole RADIUS reply, over one above 255. The
+# line is skipped like any other line that can't be sent, on every switch.
+is_deeply([pf::Switch->aclIcmpType('255 255')], [255, 255], "an ICMP type and code of 255 are kept");
+is_deeply([pf::Switch->aclIcmpType('300')], [], "an ICMP type above 255 gives nothing");
+is_deeply([pf::Switch->aclIcmpType('3 300')], [], "an ICMP code above 255 gives nothing");
+foreach my $case ([Cisco => $cisco], ['Dell N1500' => $dell], ['Aruba CX' => $aruba], [Arista => $arista]) {
+    my ($name, $s) = @$case;
+    is(chew($s, "permit icmp any any 300\npermit ip any any"), chew($s, "permit ip any any"), "$name: a permit with an ICMP type above 255 is skipped");
+}
+is(chew($cisco, "deny icmp any any 3 999\npermit ip any any"), deny_all($cisco), "Cisco: a deny with an ICMP code above 255 ends the ACLs with a deny all");
+is(chew($dell, "deny icmp any any 3 999\npermit ip any any"), deny_all($dell), "Dell N1500: a deny with an ICMP code above 255 ends the ACLs with a deny all");
+ok(defined $arista->_untranslatablePushAcl({ source => {}, destination => {}, icmp_qualifier => '300' }), "Arista push: an ICMP type above 255 is refused");
 {
     my ($acl_ref) = $cisco->format_acl("permit icmp any any 3 1");
     is($acl_ref->{packetfence}{entries}[0]{icmp_qualifier}, "3 1", "format_acl keeps the ICMP code the parser drops");

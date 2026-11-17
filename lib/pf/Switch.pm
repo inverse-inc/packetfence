@@ -4908,7 +4908,9 @@ time-range and option qualifiers of a line without returning them, so the entry
 of "permit ip any any dscp ef" is the one of "permit ip any any". Translating
 it would widen the ACL. An "evaluate" line gives an entry with no action. An
 object group (a service or network object defined on the switch) is given as a
-hash in place of the protocol or the address: no module can send it.
+hash in place of the protocol or the address: no module can send it. The parser
+also takes any number as an ICMP type or code, while a switch refuses the rule,
+or the whole RADIUS reply, over one above 255.
 
 =cut
 
@@ -4919,6 +4921,13 @@ sub untranslatableAclQualifier {
     if (defined($entry->{'icmp_qualifier'}) && defined($entry->{'acl_line'})) {
         my $reason = $self->untranslatableIcmpTrailer($entry->{'acl_line'}, $entry->{'icmp_qualifier'});
         return $reason if defined $reason;
+    }
+    # An ICMP type and code are 8-bit numbers: the parser takes any number,
+    # and a switch refuses the rule, or the whole RADIUS reply, over one
+    # above 255
+    if (($entry->{'icmp_qualifier'} // '') =~ /^\s*\d+(?:\s+\d+)?\s*$/) {
+        my ($type) = $self->aclIcmpType($entry->{'icmp_qualifier'});
+        return "the ICMP type or code '".$entry->{'icmp_qualifier'}."' is above 255" if !defined $type;
     }
     # An object group names an object defined on the switch: the parser gives a
     # hash in place of the protocol (object-group service) or of the address
@@ -5123,7 +5132,8 @@ sub _denyAllAclEntry {
 
 The ICMP type and code of the ICMP qualifier of a Cisco ACL line ("echo",
 "8", "3 1"), as numbers. The code is undef when the qualifier matches every
-code of the type. Returns an empty list for a message name it does not know.
+code of the type. Returns an empty list for a message name it does not know,
+and for a type or a code above 255.
 
 =cut
 
@@ -5178,7 +5188,12 @@ sub aclIcmpType {
     my ($self, $qualifier) = @_;
     return () if !defined $qualifier;
     $qualifier =~ s/^\s+|\s+$//g;
-    return ($1, $2) if $qualifier =~ /^(\d+)(?:\s+(\d+))?$/;
+    if ($qualifier =~ /^(\d+)(?:\s+(\d+))?$/) {
+        my ($type, $code) = ($1, $2);
+        # An ICMP type and code are 8-bit numbers
+        return () if $type > 255 || (defined($code) && $code > 255);
+        return ($type, $code);
+    }
     my $message = $ACL_ICMP_MESSAGES{lc $qualifier} or return ();
     return @$message;
 }
