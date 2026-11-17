@@ -1,0 +1,5 @@
+name: Check access internet on node01
+testcases:
+- name: check_host_internet_access
+  steps:
+  - type: check_internet_access_on_host 

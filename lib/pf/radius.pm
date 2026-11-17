@@ -136,6 +136,27 @@ sub _keep_unregistered {
     $node_obj->{unregdate} = $ZERO_DATE;
 }
 
+=item * _teap_identity
+
+On the outer request of an EAP-TEAP authentication the User-Name is the outer
+(usually anonymous) identity. Use the inner TEAP user identity, or the machine
+identity for a machine-only authentication, as the username so the role,
+the owner and the authentication sources are computed for it.
+
+Returns ($user_name, $stripped_user_name, $realm), unchanged when there is no
+TEAP identity.
+
+=cut
+
+sub _teap_identity {
+    my ($user_name, $stripped_user_name, $realm, $teap_username, $teap_machinename) = @_;
+    my $identity = (defined $teap_username && $teap_username ne '') ? $teap_username : $teap_machinename;
+    return ($user_name, $stripped_user_name, $realm) unless defined $identity && $identity ne '';
+    get_logger()->info("EAP-TEAP: using the inner identity '$identity' instead of the outer identity '" . ($user_name // '') . "'");
+    my ($stripped, $teap_realm) = strip_username($identity);
+    return ($identity, $stripped, $teap_realm // $realm);
+}
+
 =item * authorize - handling the RADIUS authorize call
 
 Returns an arrayref (tuple) with element 0 being a response code for Radius and second element an hash meant
@@ -156,7 +177,18 @@ sub authorize {
     my ($do_auto_reg, %autoreg_node_defaults, $action);
 
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
-    
+
+    # The TEAP identities are only known on the outer request, the outer post-auth
+    # copies them from session-state. An inner TEAP round (the inner tunnel tags
+    # it with PacketFence-TEAP-Identity-Type) passes undef so the locationlog
+    # neither compares nor clears them; an outer request without them passes ''
+    # so a non-TEAP authentication clears the previous ones.
+    my ($teap_username, $teap_machinename);
+    unless (defined $radius_request->{'PacketFence-TEAP-Identity-Type'}) {
+        $teap_username    = listify($radius_request->{'PacketFence-TEAP-User-Name'})->[0] // '';
+        $teap_machinename = listify($radius_request->{'PacketFence-TEAP-Machine-Name'})->[0] // '';
+    }
+
     my $RAD_REPLY_REF;
 
     $self->handleNtlmCaching($radius_request);
@@ -182,6 +214,8 @@ sub authorize {
     }
 
     Log::Log4perl::MDC->put( 'mac', $mac );
+
+    ($user_name, $stripped_user_name, $realm) = _teap_identity($user_name, $stripped_user_name, $realm, $teap_username, $teap_machinename);
 
     if (exists $radius_request->{"Framed-IP-Address"} && valid_ip($radius_request->{"Framed-IP-Address"})) {
         if (isenabled($Config{advanced}{update_iplog_with_authentication})) {
@@ -446,7 +480,7 @@ sub authorize {
     #closes old locationlog entries and create a new one if required
     #TODO: Better deal with INLINE RADIUS
     $switch->synchronize_locationlog($port, $vlan, $mac,
-        $args->{'isPhone'} ? $VOIP : $NO_VOIP, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $args->{'user_role'}, $ifDesc
+        $args->{'isPhone'} ? $VOIP : $NO_VOIP, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $args->{'user_role'}, $ifDesc, $teap_username, $teap_machinename
     ) if ( (!$role->{wasInline}) && ($vlan ne "-1") );
 
     # does the switch support Dynamic VLAN Assignment, bypass if using Inline
@@ -630,7 +664,7 @@ sub update_locationlog_accounting {
             my $vlan;
             $vlan = $radius_request->{'Tunnel-Private-Group-ID'} if ( (defined( $radius_request->{'Tunnel-Type'}) && $radius_request->{'Tunnel-Type'} eq '13') && (defined($radius_request->{'Tunnel-Medium-Type'}) && $radius_request->{'Tunnel-Medium-Type'} eq '6') );
             $port = $switch->getIfIndexByNasPortId($nas_port_id) || $self->_translateNasPortToIfIndex($connection_type, $switch, $port);
-            $switch->synchronize_locationlog($port, $vlan, $mac, undef, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $locationlog_mac->{role}, $ifDesc);
+            $switch->synchronize_locationlog($port, $vlan, $mac, undef, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $locationlog_mac->{role}, $ifDesc, $locationlog_mac->{teap_username}, $locationlog_mac->{teap_machinename});
             return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Update locationlog from accounting ok") ];
         }
     }
@@ -720,7 +754,7 @@ sub _authorizeVoip {
     # computed role/vlan. Skip the VoIP-only locationlog write here to avoid
     # an immediately-overwritten entry.
     if (!isenabled($args->{'switch'}->{_VoIPFullAuthorization})) {
-        $args->{'switch'}->synchronize_locationlog($args->{'ifIndex'}, $args->{'switch'}->getVlanByName($VOICE_ROLE), $args->{'mac'}, $VOIP, $args->{'connection_type'}, $args->{'connection_sub_type'}, $args->{'user_name'}, $args->{'ssid'}, undef, undef, $VOICE_ROLE, $args->{ifDesc});
+        $args->{'switch'}->synchronize_locationlog($args->{'ifIndex'}, $args->{'switch'}->getVlanByName($VOICE_ROLE), $args->{'mac'}, $VOIP, $args->{'connection_type'}, $args->{'connection_sub_type'}, $args->{'user_name'}, $args->{'ssid'}, undef, undef, $VOICE_ROLE, $args->{ifDesc}, undef, undef);
     }
 
     my %RAD_REPLY = $args->{'switch'}->getVoipVsa();
@@ -1094,7 +1128,7 @@ sub vpn {
             $logger->error("Cannot save $mac error ($status)");
         }
         $args->{'switch'}->synchronize_locationlog($port, undef, $mac,
-            $args->{'isPhone'} ? $VOIP : $NO_VOIP, $VIRTUAL_VPN, undef, $user_name, undef, $args->{'stripped_user_name'}, $args->{'realm'}, $args->{'user_role'}, $ifDesc
+            $args->{'isPhone'} ? $VOIP : $NO_VOIP, $VIRTUAL_VPN, undef, $user_name, undef, $args->{'stripped_user_name'}, $args->{'realm'}, $args->{'user_role'}, $ifDesc, undef, undef
         );
     }
     my $source_id = \@$sources;

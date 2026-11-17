@@ -40,6 +40,7 @@ func NewAggregator(o *AggregatorOptions) *Aggregator {
 		networkEventChan: o.NetworkEventChan,
 		events:           make(map[EventKey][]PfFlow),
 		stop:             make(chan struct{}),
+		done:             make(chan struct{}),
 		PfFlowsChan:      ChanPfFlow,
 		Heuristics:       o.Heuristics,
 		db:               o.Db,
@@ -63,6 +64,7 @@ type Aggregator struct {
 	events           map[EventKey][]PfFlow
 	PfFlowsChan      chan []*PfFlows
 	stop             chan struct{}
+	done             chan struct{}
 	networkEventChan chan []*NetworkEvent
 	backlog          int
 	timeout          time.Duration
@@ -408,36 +410,68 @@ func (a *Aggregator) handleEvents() {
 	ticker := time.NewTicker(a.timeout)
 	defer ticker.Stop()
 
-	go a.flusher(ctx)
-	defer close(a.flushChan)
+	flusherDone := make(chan struct{})
+	go func() {
+		defer close(flusherDone)
+		a.flusher(ctx)
+	}()
 
 	stats := newWindowStats()
+	ingest := func(pfflowsArray []*PfFlows) {
+		for _, pfflows := range pfflowsArray {
+			if pfflows.Flows == nil {
+				continue
+			}
+
+			stats.messages++
+			stats.flows += len(*pfflows.Flows)
+			// The agent address is the exporter (switch) IP. Marked as seen
+			// once per window by the flusher, off this goroutine.
+			if id := switchID(pfflows.Header.AgentAddr); id != "" {
+				stats.noteAgent(id)
+			}
+
+			for _, f := range *pfflows.Flows {
+				if a.Heuristics {
+					f.Heuristics()
+				}
+
+				key := f.Key(&pfflows.Header)
+				a.events[key] = append(a.events[key], f)
+			}
+		}
+	}
+
+	// On Stop, the flows still queued in PfFlowsChan and the open window are
+	// flushed, and Stop returns once the flusher is done with them: pfflow
+	// has committed their Kafka offsets, so dropping them here would lose
+	// them for good.
+	defer func() {
+	drain:
+		for {
+			select {
+			case pfflowsArray := <-a.PfFlowsChan:
+				ingest(pfflowsArray)
+			default:
+				break drain
+			}
+		}
+
+		if stats.messages > 0 {
+			a.flushChan <- flushBatch{events: a.events, stats: stats, tickedAt: time.Now()}
+			a.events = make(map[EventKey][]PfFlow)
+		}
+
+		close(a.flushChan)
+		<-flusherDone
+		close(a.done)
+	}()
+
 loop:
 	for {
 		select {
 		case pfflowsArray := <-a.PfFlowsChan:
-			for _, pfflows := range pfflowsArray {
-				if pfflows.Flows == nil {
-					continue
-				}
-
-				stats.messages++
-				stats.flows += len(*pfflows.Flows)
-				// The agent address is the exporter (switch) IP. Marked as seen
-				// once per window by the flusher, off this goroutine.
-				if id := switchID(pfflows.Header.AgentAddr); id != "" {
-					stats.noteAgent(id)
-				}
-
-				for _, f := range *pfflows.Flows {
-					if a.Heuristics {
-						f.Heuristics()
-					}
-
-					key := f.Key(&pfflows.Header)
-					a.events[key] = append(a.events[key], f)
-				}
-			}
+			ingest(pfflowsArray)
 		case <-ticker.C:
 			// Nothing arrived this window. A window whose messages carried no
 			// flows (template/options-only NetFlow packets, an idle switch) is
@@ -465,4 +499,12 @@ loop:
 			break loop
 		}
 	}
+}
+
+// Stop makes handleEvents flush everything it has not flushed yet (see
+// handleEvents) and returns once that is done. handleEvents must be running,
+// and nothing may send to PfFlowsChan any more.
+func (a *Aggregator) Stop() {
+	a.stop <- struct{}{}
+	<-a.done
 }

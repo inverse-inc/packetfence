@@ -6,11 +6,13 @@
   vars:
     test_suites:
       - configurator
+      - proxysql_tiers_ci  # CI-ONLY (revert before merge)
       - global_config
       - wired_mac_auth
       - wired_mac_auth/teardown
       - wireless_mac_auth
       - wireless_mac_auth/teardown
+      - proxysql_tiers_ci_report  # CI-ONLY (revert before merge)
       - global_teardown
 
   tasks:

@@ -1,4 +1,5 @@
 import store from '@/store'
+import { onPremOnly } from '@/utils/router'
 import BasesStoreModule from '../bases/_store'
 
 const TheView = () => import(/* webpackChunkName: "ConfigurationIntegration" */ './_components/TheView')
@@ -20,6 +21,6 @@ export default [
     meta: {
       can
     },
-    beforeEnter
+    beforeEnter: onPremOnly(beforeEnter)
   }
 ]

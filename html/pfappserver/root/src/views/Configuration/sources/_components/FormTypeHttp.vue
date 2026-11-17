@@ -15,14 +15,26 @@
     />
 
     <form-group-protocol-host-port :namespaces="['protocol', 'host', 'port']"
-      :column-label="$i18n.t('File Path')"
+      :column-label="$i18n.t('Host')"
     />
 
-    <form-group-api-username namespace="api_username"
+    <form-group-verify-tls namespace="verify_tls"
+      :column-label="$i18n.t('Verify TLS')"
+      :text="$i18n.t('Verify the certificate and the hostname of the server when using https.')"
+      enabled-value="enabled"
+      disabled-value="disabled"
+    />
+
+    <form-group-content-type namespace="content_type"
+      :column-label="$i18n.t('Request content type')"
+      :text="$i18n.t('The format of the body of the authentication and authorization requests.')"
+    />
+
+    <form-group-api-username namespace="username"
       :column-label="$i18n.t('API username (basic auth)')"
     />
 
-    <form-group-api-password namespace="api_password"
+    <form-group-api-password namespace="password"
       :column-label="$i18n.t('API password (basic auth)')"
     />
 
@@ -49,10 +61,12 @@ import {
   FormGroupApiPassword,
   FormGroupAuthenticationUrl,
   FormGroupAuthorizationUrl,
+  FormGroupContentType,
   FormGroupDescription,
   FormGroupIdentifier,
   FormGroupProtocolHostPort,
   FormGroupRealms,
+  FormGroupVerifyTls,
 } from './'
 
 const components = {
@@ -62,10 +76,12 @@ const components = {
   FormGroupApiPassword,
   FormGroupAuthenticationUrl,
   FormGroupAuthorizationUrl,
+  FormGroupContentType,
   FormGroupDescription,
   FormGroupIdentifier,
   FormGroupProtocolHostPort,
   FormGroupRealms,
+  FormGroupVerifyTls,
 }
 
 import { useForm as setup, useFormProps as props } from '../_composables/useForm'
