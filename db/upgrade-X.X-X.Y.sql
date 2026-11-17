@@ -198,6 +198,16 @@ CALL AddIndexUnlessExists('switch_observability_acls', 'switch_observability_acl
     'KEY `switch_observability_acls_mac_enforcement` (`mac`,`enforcement_timestamp`)');
 
 --
+-- switch_observability_acls: allow several devices (MAC addresses) on the same
+-- switch port. The unique (switch_id, port) key made the upsert of a second
+-- MAB device on a port overwrite the row of the first one.
+--
+\! echo "Making index switch_observability_acls_switch_port non unique...";
+CALL DropIndexIfExists('switch_observability_acls', 'switch_observability_acls_switch_port');
+CALL AddIndexUnlessExists('switch_observability_acls', 'switch_observability_acls_switch_port',
+    'KEY `switch_observability_acls_switch_port` (`switch_id`,`port`)');
+
+--
 -- Remove phantom switch_observability rows written by 15.1 / 15.2: the flow
 -- aggregator upserted the agent address even when the collector had not set
 -- it ("invalid IP") or when it was 0.0.0.0, and pfacct accepted an empty id.
