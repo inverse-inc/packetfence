@@ -8,9 +8,7 @@ use Module::Load;
 use POSIX;
 
 use fingerbank::Config;
-use fingerbank::Constant qw($TRUE $LOCAL_SCHEMA);
 use fingerbank::Log;
-use fingerbank::Model::Device;
 use fingerbank::Model::Endpoint;
 use fingerbank::Util qw(is_enabled is_disabled is_error is_success);
 use fingerbank::SourceMatcher;

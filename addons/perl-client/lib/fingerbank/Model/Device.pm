@@ -56,7 +56,7 @@ sub read {
         while ( $parent_exists ) {
             $logger->debug("Found parent ID '$parent_id' for device ID '$id'");
             my ($parent_status, $parent) = $self->read($parent_id);
-            # The parent can be missing, ex: a local device whose upstream parent was removed by a database update
+            # The parent can be missing, ex: when a database update removed it
             if ( is_error($parent_status) ) {
                 $logger->warn("Cannot read parent ID '$parent_id' of device ID '$id', stopping at the parents found so far");
                 last;

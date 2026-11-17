@@ -23,7 +23,6 @@ use lib qw(t);
 # TODO : This should be reworked to be more dynamic
 runtests(
     "t/Model/Endpoint.t",
-    "t/Model/Combination.t",
 );
 
 =head1 AUTHOR

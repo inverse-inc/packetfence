@@ -420,9 +420,6 @@ sub fix_permissions {
     foreach my $path ( @fingerbank::FilePath::PATHS ) {
         set_permissions($path);
     }
-
-    # Handling specific cases
-    set_permissions($fingerbank::FilePath::INSTALL_PATH . 'db/upgrade.pl', { 'permissions' => 0775 });
 }
 
 =head2

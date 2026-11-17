@@ -17,10 +17,9 @@ use JSON;
 use POSIX qw(strftime);
 
 use fingerbank::Config;
-use fingerbank::Constant qw($TRUE $FALSE $ALL_SCHEMAS_KW $LOCAL_SCHEMA $UPSTREAM_SCHEMA);
-use fingerbank::FilePath qw($INSTALL_PATH $LOCAL_DB_FILE $UPSTREAM_DB_FILE %SCHEMA_DBS);
+use fingerbank::Constant qw($TRUE $FALSE $ALL_SCHEMAS_KW $UPSTREAM_SCHEMA);
+use fingerbank::FilePath qw($INSTALL_PATH $UPSTREAM_DB_FILE %SCHEMA_DBS);
 use fingerbank::Log;
-use fingerbank::Schema::Local;
 use fingerbank::Schema::Upstream;
 use fingerbank::Util qw(is_success is_error is_disabled);
 use fingerbank::DB;
@@ -31,7 +30,7 @@ has 'handle'        => (is => 'rw', builder => 'build_handle', lazy => 1);
 has 'status_code'   => (is => 'rw');
 has 'status_msg'    => (is => 'rw');
 
-our @schemas = ($LOCAL_SCHEMA, $UPSTREAM_SCHEMA);
+our @schemas = ($UPSTREAM_SCHEMA);
 
 our %_HANDLES = ();
 
@@ -130,7 +129,8 @@ sub update_upstream {
 Get the schema(s) to be used based on the parameter provided.
 Will return all schemas if the parameter is undefined or is equals to $ALL_SCHEMAS_KW
 
-Otherwise, will return the schema passed as a parameter.
+Otherwise, will return the schema passed as a parameter when it exists, and no
+schema when it doesn't (ex: the removed 'Local' schema).
 
 =cut
 
@@ -138,7 +138,8 @@ sub get_schemas {
     my ($class, $schema) = @_;
 
     # From which schema do we want the results
-    my @schemas = ( defined($schema) && $schema ne $ALL_SCHEMAS_KW ) ? ($schema) : @fingerbank::DB::schemas;
+    return @fingerbank::DB::schemas if !defined($schema) || $schema eq $ALL_SCHEMAS_KW;
+    my @schemas = grep { $_ eq $schema } @fingerbank::DB::schemas;
 
     return @schemas
 }

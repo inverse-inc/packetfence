@@ -27,9 +27,7 @@ BEGIN {
         $CONFIG_DOC_FILE
         $LOG_CONF_FILE
         $LOG_FILE
-        $LOCAL_DB_FILE
         $UPSTREAM_DB_FILE
-        $COMBINATION_MAP_FILE
         $COLLECTOR_ENDPOINTS_DATA_FILE
         $COLLECTOR_IP_MAPS_FILE
         $COLLECTOR_ENDPOINTS_CACHE_FILE
@@ -53,8 +51,6 @@ BEGIN {
 
 =item $LOG_FILE
 
-=item $LOCAL_DB_FILE
-
 =item $UPSTREAM_DB_FILE
 
 =cut
@@ -65,15 +61,12 @@ our $CONFIG_DEFAULTS_FILE  = catfile($INSTALL_PATH, 'conf/fingerbank.conf.defaul
 our $CONFIG_DOC_FILE       = catfile($INSTALL_PATH, 'conf/fingerbank.conf.doc');
 our $LOG_CONF_FILE         = catfile($INSTALL_PATH, 'conf/log.conf');
 Readonly::Scalar our $LOG_FILE              => catfile($INSTALL_PATH, 'logs/fingerbank.log');
-Readonly::Scalar our $LOCAL_DB_FILE         => catfile($INSTALL_PATH, 'db/fingerbank_Local.db');
 Readonly::Scalar our $UPSTREAM_DB_FILE      => catfile($INSTALL_PATH, 'db/fingerbank_Upstream.db');
-Readonly::Scalar our $COMBINATION_MAP_FILE  => catfile($INSTALL_PATH, 'db/fingerbank_Combination_Map.json');
 Readonly::Scalar our $COLLECTOR_ENDPOINTS_DATA_FILE  => catfile($INSTALL_PATH, 'db/collector_endpoints.db');
 Readonly::Scalar our $COLLECTOR_IP_MAPS_FILE  => catfile($INSTALL_PATH, 'db/collector_ip_maps.db');
 Readonly::Scalar our $COLLECTOR_ENDPOINTS_CACHE_FILE  => catfile($INSTALL_PATH, 'db/collector_endpoints_cache.db');
 
 our %SCHEMA_DBS = (
-    Local => $LOCAL_DB_FILE,
     Upstream => $UPSTREAM_DB_FILE,
 );
 
@@ -89,9 +82,7 @@ Readonly::Array our @FILES => (
     $CONFIG_DEFAULTS_FILE,
     $CONFIG_DOC_FILE,
     $LOG_CONF_FILE,
-    $LOCAL_DB_FILE,
     $UPSTREAM_DB_FILE,
-    $INSTALL_PATH . 'db/upgrade.pl',
     $LOG_FILE,
 );
 
