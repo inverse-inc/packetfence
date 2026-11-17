@@ -151,13 +151,20 @@ mkdir "$NS_TMP/real-run"
 
 export PF WT NS_TMP RUN_DIR SHARED_PFCONFIG
 export PFCONFIG_TIMEOUT=${PF_WT_PFCONFIG_TIMEOUT:-300}
+[[ $PFCONFIG_TIMEOUT =~ ^[0-9]+$ ]] || die "PF_WT_PFCONFIG_TIMEOUT must be a number of seconds"
 export PF_WT_DIRS="${DIRS[*]}" PF_WT_FILES="${CODE_FILES[*]}" PF_WT_OVERLAY_DIRS="${OVERLAY_DIRS[*]}" PF_WT_PFCONFIG_FILES="${PFCONFIG_TEST_FILES[*]}"
 
 # Private mount and PID namespaces: the inner bash is PID 1 of the namespace and
 # the kernel kills every process left in it when it exits. --kill-child kills
-# it if unshare itself is killed.
-unshare -m -p -f --kill-child --mount-proc --propagation private bash -c '
+# it if unshare itself is killed, and --pdeathsig kills unshare if this script
+# is (a SIGTERM or SIGHUP to it alone, a closed terminal): bash runs its own
+# traps only once the foreground command is done, so it can't forward them.
+setpriv --pdeathsig TERM \
+    unshare -m -p -f --kill-child --mount-proc --propagation private bash -c '
 set -euo pipefail
+# PID 1 of a namespace only gets the signals it handles
+trap "exit 130" INT
+trap "exit 143" TERM HUP
 
 skip() { echo "pf-wt-test: $1 not in the worktree or $PF, the one of $PF is used" >&2; }
 
@@ -193,17 +200,21 @@ if [ "$SHARED_PFCONFIG" -eq 0 ]; then
     # test pfconfig: the tests start their own one in the namespace.
     # (Sockets are not reachable through an overlayfs, hence the binds.)
     RUN=$PF/var/run
+    run_perms=$(stat -c "%a %u:%g" "$RUN")
     mount --bind "$RUN" "$NS_TMP/real-run"
-    mount -t tmpfs -o mode=0755 pf-wt-run "$RUN"
+    mount -t tmpfs -o "mode=${run_perms%% *}" pf-wt-run "$RUN"
+    chown "${run_perms#* }" "$RUN"
     shopt -s nullglob dotglob
     for e in "$NS_TMP"/real-run/*; do
         n=${e##*/}
         case " $PF_WT_PFCONFIG_FILES " in *" $n "*) continue ;; esac
+        # Nothing to bind for a dangling symlink
+        [ -e "$e" ] || continue
         if [ -d "$e" ]; then mkdir "$RUN/$n"; else : > "$RUN/$n"; fi
         # An entry can vanish since the glob (a pid file of a service
         # stopping): skip it, fail on any other error
         if ! mount --bind "$e" "$RUN/$n" 2>/dev/null; then
-            if [ -e "$e" ] || [ -L "$e" ]; then
+            if [ -e "$e" ]; then
                 mount --bind "$e" "$RUN/$n"
             else
                 # Empty mount point on the tmpfs, nothing mounted on it
@@ -212,7 +223,6 @@ if [ "$SHARED_PFCONFIG" -eq 0 ]; then
         fi
     done
     shopt -u nullglob dotglob
-    chown --reference="$NS_TMP/real-run" "$RUN"
     mount -t tmpfs -o mode=1777 pf-wt-chi /tmp/chi
     # Private, empty state of the test pfconfigs, same owner and mode:
     # - var/control: pfconfig empties it on start, the tests touch its files
@@ -233,8 +243,17 @@ if [ "$SHARED_PFCONFIG" -eq 0 ]; then
         -s "$RUN/pfconfig-test.sock" -p "$RUN/pfconfig-test.pid" \
         -c "$PF/t/data/pfconfig.conf" > "$PFCONFIG_LOG" 2>&1 &
     PFCONFIG_PID=$!
-    # Stopped gracefully first; whatever is left is killed with the namespace
-    trap "kill $PFCONFIG_PID 2>/dev/null && wait $PFCONFIG_PID 2>/dev/null || true" EXIT
+    # Stopped gracefully first, for 10s at most (it only handles TERM once
+    # preloaded); whatever is left is killed with the namespace
+    stop_pfconfig() {
+        kill "$PFCONFIG_PID" 2>/dev/null || return 0
+        local i
+        for i in $(seq 10); do
+            kill -0 "$PFCONFIG_PID" 2>/dev/null || return 0
+            sleep 1
+        done
+    }
+    trap stop_pfconfig EXIT
     echo "pf-wt-test: starting a private pfconfig-test (log: $PFCONFIG_LOG)" >&2
     waited=0
     until [ -S "$RUN/pfconfig-test.sock" ]; do
@@ -250,5 +269,8 @@ if [ "$SHARED_PFCONFIG" -eq 0 ]; then
 fi
 
 cd "$RUN_DIR"
-"$@"
+# Not the last command, so that bash never execs it as PID 1
+rc=0
+"$@" || rc=$?
+exit "$rc"
 ' pf-wt-test "${ARGS[@]}"
