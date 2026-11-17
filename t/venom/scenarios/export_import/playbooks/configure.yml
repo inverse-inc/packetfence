@@ -25,7 +25,7 @@
   tasks:
     - name: Download packetfence-export package
       get_url:
-        url: 'https://www.inverse.ca/downloads/PacketFence/debian/packetfence-export_branches.deb'
+        url: 'https://packages.packetfence.com/downloads/PacketFence/debian/packetfence-export_branches.deb'
         dest: '/root/packetfence-export_branches.deb'
         mode: '0755'
         force: yes
