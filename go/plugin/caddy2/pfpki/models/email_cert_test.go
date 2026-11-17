@@ -3,7 +3,9 @@ package models_test
 import (
 	"context"
 	"crypto/x509"
+	"encoding/json"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/certutils"
@@ -71,13 +73,32 @@ func TestCertEmail_HonoursP12MailPassword(t *testing.T) {
 			if pw, ok := c.params["mail_password"]; ok && info.Password != pw {
 				t.Errorf("password %q, want the admin's %q", info.Password, pw)
 			}
+			if info.PasswordMailed == nil {
+				t.Fatalf("the API answer has no password_mailed")
+			}
+			body, _ := json.Marshal(info)
+			if want := fmt.Sprintf(`"password_mailed":%v`, c.wantMailed); !strings.Contains(string(body), want) {
+				t.Errorf("the API answer %s has no %s", body, want)
+			}
 			if c.wantMailed {
-				if *mailed != info.Password || !info.PasswordMailed {
-					t.Errorf("mailed password %q (password_mailed=%v), want %q", *mailed, info.PasswordMailed, info.Password)
+				if *mailed != info.Password || !*info.PasswordMailed {
+					t.Errorf("mailed password %q (password_mailed=%v), want %q", *mailed, *info.PasswordMailed, info.Password)
 				}
-			} else if *mailed != "" || info.PasswordMailed {
-				t.Errorf("mailed password %q (password_mailed=%v) with p12_mail_password off", *mailed, info.PasswordMailed)
+			} else if *mailed != "" || *info.PasswordMailed {
+				t.Errorf("mailed password %q (password_mailed=%v) with p12_mail_password off", *mailed, *info.PasswordMailed)
 			}
 		})
+	}
+}
+
+// Only the e-mail answer carries password_mailed: the other answers
+// leave it out.
+func TestInfo_PasswordMailedOnlyWhenSet(t *testing.T) {
+	body, err := json.Marshal(types.Info{Status: 200})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(body), "password_mailed") {
+		t.Errorf("an answer that doesn't set it has password_mailed: %s", body)
 	}
 }
