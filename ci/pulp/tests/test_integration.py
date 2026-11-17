@@ -279,6 +279,24 @@ class ConfigurationTest(unittest.TestCase):
         self.assertEqual(config['.publish_job']['artifacts']['access'], 'developer')
         self.assertNotIn('artifacts', config['deploy_containers'])  # the push leaves no plan to keep
 
+    def test_docs_are_published_after_the_tests_on_release_tags_and_maintenance_docs_builds(self):
+        config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
+        template = config['.deploy_docs_pulp_job']
+        self.assertEqual(template['stage'], 'deploy')  # after every test stage
+        self.assertEqual(template['script'], ['bash ci/pulp/publish-docs.sh'])
+        self.assertEqual(template['artifacts']['access'], 'developer')
+        release, maintenance = config['deploy_docs_pulp_release'], config['deploy_docs_pulp_maintenance']
+        self.assertEqual(release['dependencies'], ['build_artifacts_doc_release'])
+        self.assertEqual(release['rules'], [{'if': '$CI_COMMIT_TAG =~ /^v[0-9]+\\.[0-9]+\\.[0-9]+$/'}])
+        self.assertEqual(maintenance['dependencies'], ['build_artifacts_doc_devel_and_branches'])
+        # Exactly when the maintenance docs are built.
+        self.assertEqual(maintenance['rules'], [r for r in config['.build_artifacts_doc_devel_and_branches_rules']['rules']
+                                                if r['if'].startswith('$CI_COMMIT_REF_NAME =~ /^maintenance')])
+        self.assertIn('PSONO_CI_PULP_DOCS_ID', config['variables'])
+        script = (ROOT/'ci/pulp/publish-docs.sh').read_text()
+        self.assertIn('publish-docs --repository "doc-${release/./-}-0"', script)
+        self.assertIn('sha256sum --check --quiet SHA256SUMS', script)
+
     def test_vendored_helpers_match_recorded_checksums(self):
         vendor = ROOT/'ci/pulp/vendor'
         for line in (vendor/'SHA256SUMS').read_text().splitlines():
