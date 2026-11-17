@@ -4,23 +4,13 @@
       <h4 class="d-flex align-items-center">
         {{ $t('Devices') }}
       </h4>
-      <b-button-group v-if="!parentId" class="mt-3">
-        <b-button v-t="'All'" :variant="(scope === 'all') ? 'primary' : 'outline-secondary'"
-          :to="{ name: 'fingerbankDevicesByScope', params: { scope: 'all' } }"></b-button>
-        <b-button v-t="'Local'" :variant="(scope === 'local') ? 'primary' : 'outline-secondary'"
-          :to="{ name: 'fingerbankDevicesByScope', params: { scope: 'local' } }"></b-button>
-        <b-button v-t="'Upstream'" :variant="(scope === 'upstream') ? 'primary' : 'outline-secondary'"
-          :to="{ name: 'fingerbankDevicesByScope', params: { scope: 'upstream' } }"></b-button>
-      </b-button-group>
     </b-card-header>
     <div class="card-body">
       <base-search v-if="!parentId"
         :use-search="useSearch"
-      >
-        <b-button variant="outline-primary" @click="onNewClicked">{{ $t('New Device') }}</b-button>
-      </base-search>
+      />
       <template v-else>
-        <bread-crumb :key="parentId" :id="parentId" :scope="scope"
+        <bread-crumb :key="parentId" :id="parentId"
           class="mb-3" />
       </template>
       <b-table ref="tableRef"
@@ -31,7 +21,6 @@
         :sort-by="sortBy"
         :sort-desc="sortDesc"
         @sort-changed="setSort"
-        @row-clicked="onRowClicked"
         class="mb-0"
         show-empty
         no-local-sorting
@@ -86,20 +75,6 @@
             @input="setColumns"
           />
         </template>
-        <template #cell(buttons)="{ item }">
-          <span class="float-right text-nowrap text-right">
-            <base-button-confirm v-if="!item.not_deletable"
-              size="sm" variant="outline-danger" class="my-1 mr-1" reverse
-              :disabled="isLoading"
-              :confirm="$t('Delete Device?')"
-              @click="onRemove(item.id)"
-            >{{ $t('Delete') }}</base-button-confirm>
-            <b-button
-              size="sm" variant="outline-primary" class="mr-1"
-              @click.stop.prevent="onCloneClicked(item)"
-            >{{ $t('Clone') }}</b-button>
-          </span>
-        </template>
       </b-table>
       <b-container fluid v-if="selected.length"
         class="mt-3 p-0">
@@ -115,7 +90,6 @@
 </template>
 <script>
 import {
-  BaseButtonConfirm,
   BaseSearch,
   BaseSearchInputColumns,
   BaseTableEmpty
@@ -123,7 +97,6 @@ import {
 import BreadCrumb from './BreadCrumb'
 
 const components = {
-  BaseButtonConfirm,
   BaseSearch,
   BaseSearchInputColumns,
   BaseTableEmpty,
@@ -133,9 +106,6 @@ const components = {
 const props = {
   parentId: {
     type: String
-  },
-  scope: {
-    type: String
   }
 }
 
@@ -143,27 +113,15 @@ import { ref, toRefs, watch } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
-import { useSearch, useStore, useRouter } from '../_composables/useCollection'
+import { useSearch } from '../_composables/useCollection'
 
 const setup = (props, context) => {
 
   const {
-    parentId,
-    scope
+    parentId
   } = toRefs(props)
 
-  const { root: { $router, $store } = {} } = context
-
-  const {
-    deleteItem
-  } = useStore($store)
-
-  const router = useRouter($router)
-  const {
-    goToClone,
-    goToItem,
-    goToNew
-  } = router
+  const { root: { $router } = {} } = context
 
   const search = useSearch()
   const {
@@ -186,18 +144,8 @@ const setup = (props, context) => {
     useDownload(filename, csv, 'text/csv')
   }
 
-  const onRemove = id => {
-    deleteItem({ id })
-      .then(() => reSearch())
-  }
-
-  const onCloneClicked = item => goToClone({ scope: 'local', id: item.id })
-  const onNewClicked = () => goToNew({ scope: scope.value })
-  const onRowClicked = item => goToItem({ scope: 'local', id: item.id })
-
-  watch([parentId, scope], () => {
+  watch(parentId, () => {
     search.requestInterceptor = request => {
-      request.scope = scope.value
       if (parentId.value) {
         // rewrite current request
         request.query = { op: 'and', values: [
@@ -214,12 +162,7 @@ const setup = (props, context) => {
   return {
     useSearch,
     tableRef,
-    onRemove,
     onBulkExport,
-    onCloneClicked,
-    onNewClicked,
-    onRowClicked,
-    ...router,
     ...selected,
     ...toRefs(search)
   }

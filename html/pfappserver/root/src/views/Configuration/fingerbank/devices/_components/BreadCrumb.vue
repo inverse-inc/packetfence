@@ -1,10 +1,10 @@
 <template>
   <div class="d-flex" :key="id">
     <bread-crumb v-if="device.parent_id"
-      :id="device.parent_id" :scope="scope" />
+      :id="device.parent_id" />
     <b-button v-else
       variant="link" class="px-0 mr-2 text-secondary"
-      :to="{ name: 'fingerbankDevicesByScope', params: { scope } }"
+      :to="{ name: 'fingerbankDevices' }"
     >
       <icon name="times" variant="primary" />
     </b-button>
@@ -21,9 +21,6 @@
 <script>
 const props = {
   id: {
-    type: String
-  },
-  scope: {
     type: String
   }
 }
