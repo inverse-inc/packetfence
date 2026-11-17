@@ -70,21 +70,39 @@ func newHTTP01Client() *http.Client {
 		DisableKeepAlives:     true,
 	}
 	return &http.Client{
-		Timeout:   10 * time.Second,
-		Transport: transport,
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			// RFC 8555 §8.3: the server SHOULD follow redirects; stdlib's
-			// 10-hop cap matches the spec. Only http/https targets, and
-			// DialContext re-checks the port and address on every hop.
-			if len(via) >= 10 {
-				return errors.New("http-01: too many redirects")
-			}
-			if req.URL.Scheme != "http" && req.URL.Scheme != "https" {
-				return fmt.Errorf("http-01: redirect to %s:// is not allowed", req.URL.Scheme)
-			}
-			return nil
-		},
+		Timeout:       10 * time.Second,
+		Transport:     transport,
+		CheckRedirect: http01CheckRedirect,
 	}
+}
+
+// http01CheckRedirect follows redirects as RFC 8555 §8.3 says the
+// server SHOULD, but only on the identifier's own host: an http→https
+// upgrade or another path on the same name or address is fine, a jump
+// to another host is not. Otherwise any ACME client could make pfpki
+// connect to arbitrary internal hosts on 80/443. stdlib's 10-hop cap
+// matches the spec, and DialContext re-checks the port and address on
+// every hop.
+func http01CheckRedirect(req *http.Request, via []*http.Request) error {
+	if len(via) >= 10 {
+		return errors.New("http-01: too many redirects")
+	}
+	if req.URL.Scheme != "http" && req.URL.Scheme != "https" {
+		return fmt.Errorf("http-01: redirect to %s:// is not allowed", req.URL.Scheme)
+	}
+	if len(via) > 0 && !sameHTTP01Host(req.URL.Hostname(), via[0].URL.Hostname()) {
+		return fmt.Errorf("http-01: redirect to another host (%s) is not allowed", req.URL.Hostname())
+	}
+	return nil
+}
+
+// sameHTTP01Host compares two URL host names, ignoring case and a
+// trailing dot, and comparing IP literals as addresses.
+func sameHTTP01Host(a, b string) bool {
+	if ipA, ipB := net.ParseIP(a), net.ParseIP(b); ipA != nil || ipB != nil {
+		return ipA != nil && ipB != nil && ipA.Equal(ipB)
+	}
+	return strings.EqualFold(strings.TrimSuffix(a, "."), strings.TrimSuffix(b, "."))
 }
 
 // http01AllowedIP reports whether a challenge fetch may connect to ip.
@@ -129,11 +147,17 @@ func http01URL(identifier, token string) (string, error) {
 	return u.String(), nil
 }
 
+// errHTTP01Failed is the only http-01 failure detail an ACME client
+// gets, whatever went wrong.
+var errHTTP01Failed = errors.New("http-01: the key authorization could not be retrieved")
+
 // http01Validate performs the RFC 8555 §8.3 verification: GET
 // http://<identifier>/.well-known/acme-challenge/<token> and confirm
 // the response body equals "<token>.<accountKeyThumbprint>". Returns
-// nil on success; the returned error message is safe to surface in an
-// ACME problem document.
+// nil on success. The error says why the fetch failed (connection
+// refused, timeout, HTTP status, ...), which would let an ACME client
+// probe the network through pfpki: log it, and give the client
+// errHTTP01Failed instead.
 //
 // The spec mandates HTTP (not HTTPS) on port 80; we honor that for
 // compatibility with off-the-shelf ACME clients. Reverse proxies in

@@ -811,8 +811,12 @@ Binding* settings.
 * *Allowed identifier types*: `dns` and/or `ip`. The challenge is
   `http-01`: PacketFence fetches
   `http://<identifier>/.well-known/acme-challenge/<token>` on port 80
-  (redirects to 443 are followed). It refuses loopback, link-local and
-  other non-routable targets.
+  (redirects on the same host, including to HTTPS on 443, are
+  followed; redirects to another host are not). It refuses loopback,
+  link-local and other non-routable targets. A failed fetch is reported
+  to the client as `the key authorization could not be retrieved`; the
+  reason (connection refused, timeout, HTTP status, ...) is in the
+  pfpki log.
 * *Require External Account Binding*: *on*. `http-01` only shows that
   the client answers for the name on the network, so `dns` and `ip`
   orders are refused with `rejectedIdentifier` on a template without

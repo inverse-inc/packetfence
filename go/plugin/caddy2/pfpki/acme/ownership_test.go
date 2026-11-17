@@ -322,7 +322,7 @@ func TestChallengeFailure_InvalidatesOrder(t *testing.T) {
 	chr := c.post(t, ab.Challenges[0].URL, c.signed(ab.Challenges[0].URL, modeKID, kid, c.fetchNonce(), map[string]any{}))
 	var cb struct {
 		Status string
-		Error  struct{ Type string }
+		Error  struct{ Type, Detail string }
 	}
 	_ = json.NewDecoder(chr.Body).Decode(&cb)
 	chr.Body.Close()
@@ -331,6 +331,11 @@ func TestChallengeFailure_InvalidatesOrder(t *testing.T) {
 	}
 	if cb.Error.Type == "" {
 		t.Fatalf("failed challenge response carries no error problem")
+	}
+	// The mock answered 404: the client must not learn how the fetch
+	// failed, or http-01 becomes a network probe.
+	if cb.Error.Detail != "http-01: the key authorization could not be retrieved" {
+		t.Errorf("challenge error detail=%q, want the generic one", cb.Error.Detail)
 	}
 
 	rr := c.post(t, orderURL, c.signed(orderURL, modeKID, kid, c.fetchNonce(), ""))
