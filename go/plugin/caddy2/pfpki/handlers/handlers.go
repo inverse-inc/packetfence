@@ -616,12 +616,18 @@ func EmailCert(pfpki *types.Handler) http.HandlerFunc {
 		case "GET", "POST":
 			Information.Status = http.StatusOK
 			vars := types.Params(req, "id", "profile", "cn")
-			// Optional admin-supplied password: in the JSON body of a POST
-			// ({"password": "..."}), or in the query string of a GET (kept
-			// for compatibility, but logged with the URL). It is renamed
-			// to "mail_password" so Cert.Download doesn't confuse it with
-			// the binary-download trigger.
-			pw := req.URL.Query().Get("password")
+			// Optional admin-supplied password, only in the JSON body of a
+			// POST ({"password": "..."}): a URL ends up in the access
+			// logs. A GET, as before, always generates the password. It is
+			// renamed to "mail_password" so Cert.Download doesn't confuse
+			// it with the binary-download trigger.
+			var pw string
+			if req.Method == "GET" && req.URL.Query().Has("password") {
+				err = errors.New("send the password in the body of a POST")
+				Error.Message = err.Error()
+				Error.Status = http.StatusBadRequest
+				break
+			}
 			if req.Method == "POST" {
 				var body struct {
 					Password string `json:"password"`

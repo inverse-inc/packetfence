@@ -5,9 +5,13 @@
       size="lg" centered cancel-disabled>
       <template v-slot:modal-title>
         <h4>{{ $t('Email PKCS-12 Certificate') }}</h4>
-        <b-form-text v-t="'Optionally specify a password to encrypt the certificate. Leave empty to generate one automatically — the generated password is included in the email body.'" class="mb-0" />
+        <b-form-text v-t="'Optionally specify a password to encrypt the certificate. Leave empty to generate one automatically. The password is included in the email only when the P12 mail password option of the template is enabled.'" class="mb-0" />
       </template>
-      <b-form-group @submit.prevent="onEmail" class="mb-0">
+      <div v-if="unmailedPassword">
+        <p v-t="'The password was not included in the email. Give it to the user by other means:'" />
+        <pre class="mb-0"><code>{{ unmailedPassword }}</code></pre>
+      </div>
+      <b-form-group v-else @submit.prevent="onEmail" class="mb-0">
         <base-form ref="rootRef"
           :form="form"
           :schema="schema"
@@ -20,8 +24,9 @@
         </base-form>
       </b-form-group>
       <template v-slot:modal-footer>
-        <b-button variant="secondary" class="mr-1" :disabled="isLoading" @click="onHideModal">{{ $t('Cancel') }}</b-button>
-        <b-button variant="primary" :disabled="isLoading || !isValid" @click="onEmail">
+        <b-button v-if="unmailedPassword" variant="primary" @click="onHideModal">{{ $t('Close') }}</b-button>
+        <b-button v-if="!unmailedPassword" variant="secondary" class="mr-1" :disabled="isLoading" @click="onHideModal">{{ $t('Cancel') }}</b-button>
+        <b-button v-if="!unmailedPassword" variant="primary" :disabled="isLoading || !isValid" @click="onEmail">
           <icon v-if="isLoading" class="mr-1" name="circle-notch" spin /> {{ $t('Send Email') }}
         </b-button>
       </template>
@@ -111,19 +116,29 @@ const setup = (props, context) => {
   const form = ref({})
 
   const isShowModal = ref(false)
+  // generated password the email didn't carry (p12_mail_password off)
+  const unmailedPassword = ref(null)
   const onShowModal = () => {
     form.value = {}
+    unmailedPassword.value = null
     isShowModal.value = true
   }
-  const onHideModal = () => { isShowModal.value = false }
+  const onHideModal = () => {
+    isShowModal.value = false
+    unmailedPassword.value = null
+  }
   const isValid = useDebouncedWatchHandler([form, isShowModal], () => (!rootRef.value || rootRef.value.$el.querySelectorAll('.is-invalid').length === 0))
 
   const onEmail = () => {
     const { cn, mail } = cert.value
     const { password } = form.value || {}
-    $store.dispatch('$_pkis/emailCert', { id: id.value, password }).then(() => {
+    $store.dispatch('$_pkis/emailCert', { id: id.value, password }).then(response => {
       $store.dispatch('notification/info', { message: i18n.t('Certificate <code>{cn}</code> emailed to <code>{mail}</code>.', { cn, mail }) })
-      onHideModal()
+      const { password: generated, password_mailed } = response || {}
+      if (!password && generated && !password_mailed)
+        unmailedPassword.value = generated
+      else
+        onHideModal()
     }).catch(e => {
       $store.dispatch('notification/danger', { message: i18n.t('Could not email certificate <code>{cn}</code> to <code>{mail}</code>: ', { cn, mail }) + e })
     })
@@ -138,6 +153,7 @@ const setup = (props, context) => {
     isCsr,
     isValid,
     isShowModal,
+    unmailedPassword,
     onShowModal,
     onHideModal,
     onEmail

@@ -55,8 +55,8 @@ export default {
       if (error) {
         throw error
       } else {
-        const { data: { password } = {} } = response
-        return { password }
+        const { data: { password, password_mailed } = {} } = response
+        return { password, password_mailed }
       }
     })
   },

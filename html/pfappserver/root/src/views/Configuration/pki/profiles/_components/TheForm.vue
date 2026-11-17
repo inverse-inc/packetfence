@@ -86,7 +86,7 @@
       <base-form-tab :title="$i18n.t('PKCS 12')">
         <form-group-p12-mail-password namespace="p12_mail_password"
                                       :column-label="$i18n.t('P12 mail password')"
-                                      :text="$i18n.t('Email the password of the pkcs12 file.')"
+                                      :text="$i18n.t('Include the password of the pkcs12 file in the email that carries it. When disabled, a generated password is shown once the email is sent, to be given to the user by other means.')"
                                       enabled-value="1"
                                       disabled-value="0"
         />

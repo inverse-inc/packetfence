@@ -38,3 +38,24 @@ func TestEmailCert_Post(t *testing.T) {
 		}
 	}
 }
+
+// GET /pki/cert/{id}/email keeps working as before (generated password),
+// but refuses a password in the query string, which would be logged.
+func TestEmailCert_Get(t *testing.T) {
+	env := testutil.NewEnv(t)
+	r := chi.NewRouter()
+	r.Get("/api/v1/pki/cert/{id}/email", handlers.EmailCert(env.Handler))
+
+	for url, want := range map[string]int{
+		"/api/v1/pki/cert/999/email?password=s3cret": http.StatusBadRequest,
+		"/api/v1/pki/cert/999/email?password=":       http.StatusBadRequest,
+		// Reaches the lookup of the (missing) certificate.
+		"/api/v1/pki/cert/999/email": http.StatusNotFound,
+	} {
+		res := httptest.NewRecorder()
+		r.ServeHTTP(res, httptest.NewRequest(http.MethodGet, url, nil))
+		if res.Code != want {
+			t.Errorf("GET %s: status %d, want %d (%s)", url, res.Code, want, res.Body.String())
+		}
+	}
+}
