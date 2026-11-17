@@ -603,8 +603,9 @@ Check in _Configuration -> System Configuration -> Maintenance_:
   default). It does not remove ACME accounts. ACME state grows with
   every enrollment; without this task the `pki_acme_*` tables grow
   unbounded.
-* `pki_revoked_certs_cleanup` (optional): drops revoked certificates
-  once their natural expiry is well past.
+* `pki_revoked_certs_cleanup` (optional, disabled by default): drops
+  revoked certificates that have expired and were revoked more than the
+  task's window ago.
 
 ====== Step 5 — Get the MDM payload
 
