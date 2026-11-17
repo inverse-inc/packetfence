@@ -562,12 +562,12 @@ func (pf *pfdns) detectType(ctx context.Context) error {
 
 func (pf *pfdns) DbInit(ctx context.Context) error {
 
+	// DbFromConfig does no I/O, so an error is a hard DSN/driver error that
+	// retrying cannot fix: fail setup. Outages surface on Ping below.
 	database, err := db.DbFromConfig(ctx)
-
-	for err != nil {
-		log.LoggerWContext(ctx).Error("Error: " + err.Error())
-		time.Sleep(time.Duration(5) * time.Second)
-		database, err = db.DbFromConfig(ctx)
+	if err != nil {
+		log.LoggerWContext(ctx).Error("Invalid database configuration: " + err.Error())
+		return err
 	}
 
 	err = database.Ping()
@@ -575,7 +575,6 @@ func (pf *pfdns) DbInit(ctx context.Context) error {
 		time.Sleep(time.Duration(5) * time.Second)
 		err = database.Ping()
 	}
-	sharedutils.CheckError(err)
 	pf.Db = database
 
 	pf.IP4log, err = pf.Db.Prepare("select mac from ip4log where ip = ?")

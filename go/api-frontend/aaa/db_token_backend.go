@@ -43,24 +43,18 @@ func (tb *DbTokenBackend) getDB() (*sql.DB, error) {
 	tb.Lock()
 	defer tb.Unlock()
 
-	if tb.Db != nil && tb.Db.Ping() == nil {
+	if tb.Db != nil {
 		return tb.Db, nil
 	}
-
-	tb.Db = nil
 
 	var ctx = context.Background()
 	ctx = log.LoggerNewContext(ctx)
 
+	// The pool is shared and reconnects on its own, so it is kept even when
+	// the database is down; queries report outages to the caller.
 	Database, err := db.DbFromConfig(ctx)
 	if err != nil {
 		fmt.Println("Unable to create DB connection from config:", err)
-		return nil, err
-	}
-
-	err = Database.Ping()
-	if err != nil {
-		fmt.Println("Unable to connect to DB:", err)
 		return nil, err
 	}
 

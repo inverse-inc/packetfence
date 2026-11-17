@@ -22,6 +22,13 @@ const (
 	sqlMode   = "NO_ENGINE_SUBSTITUTION"
 )
 
+// DbFromConfig returns the process-wide shared pool for the configured
+// database (or dbName). The handle is shared with every other caller asking for
+// the same DSN: never Close it.
+//
+// An error is a hard DSN/driver error (no connection is attempted here), so
+// callers should fail rather than retry; transient database outages show up on
+// Ping/queries instead, and the pool reconnects on its own.
 func DbFromConfig(ctx context.Context, dbName ...string) (*sql.DB, error) {
 
 	dbConfig := pfconfigdriver.GetType[pfconfigdriver.PfConfDatabase](ctx)
@@ -33,21 +40,28 @@ func DbFromConfig(ctx context.Context, dbName ...string) (*sql.DB, error) {
 	}
 }
 
+// ManualConnectDb opens a new pool that the caller owns and should Close.
 func ManualConnectDb(ctx context.Context, user, pass, host, port, dbName string) (*sql.DB, error) {
 	uri := ReturnURI(ctx, user, pass, host, port, dbName)
 	return ConnectURI(ctx, uri)
 }
 
+// DbLocalFromConfig returns the shared pool for the local database socket.
+// Never Close it (see DbFromConfig).
 func DbLocalFromConfig(ctx context.Context) (*sql.DB, error) {
 	dbConfig := pfconfigdriver.GetType[pfconfigdriver.PfConfDatabase](ctx)
-	return ManualConnectDb(ctx, dbConfig.User, dbConfig.Pass.String(), "localhost", dbConfig.Port, dbConfig.Db)
+	uri := ReturnURI(ctx, dbConfig.User, dbConfig.Pass.String(), "localhost", dbConfig.Port, dbConfig.Db)
+	return cachedConnectURI(ctx, uri)
 }
 
+// ConnectDb returns the shared pool for dbName. Never Close it (see
+// DbFromConfig).
 func ConnectDb(ctx context.Context, dbName string) (*sql.DB, error) {
 	uri := ReturnURIFromConfig(ctx, dbName)
-	return ConnectURI(ctx, uri)
+	return cachedConnectURI(ctx, uri)
 }
 
+// ConnectURI opens a new, uncached pool that the caller owns and should Close.
 func ConnectURI(ctx context.Context, uri string) (*sql.DB, error) {
 	// Open through the comment-wrapping driver so every statement carries the
 	// /* pf:<service>[:<unit>] */ ProxySQL routing remark.

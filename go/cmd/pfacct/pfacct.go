@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net"
+	"os"
 	"runtime"
 	"strconv"
 	"sync"
@@ -93,11 +94,13 @@ func NewPfAcct(logLevel string) *PfAcct {
 	ctx = log.LoggerNewContext(ctx)
 	ctx = log.LoggerSetLevel(ctx, logLevel)
 
+	// DbFromConfig does no I/O, so an error is a hard DSN/driver error that
+	// retrying cannot fix: exit and let systemd restart with fresh config.
+	// Outages surface on Ping below.
 	Database, err := db.DbFromConfig(ctx)
-	for err != nil {
-		logError(ctx, "Error: "+err.Error())
-		time.Sleep(time.Duration(5) * time.Second)
-		Database, err = db.DbFromConfig(ctx)
+	if err != nil {
+		logError(ctx, "Invalid database configuration: "+err.Error())
+		os.Exit(1)
 	}
 
 	err = Database.Ping()

@@ -7,52 +7,17 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/db"
-	"github.com/inverse-inc/packetfence/go/tryableonce"
 )
 
-var dbh *sql.DB
-var dbhOnce tryableonce.TryableOnce
-
+// getDb returns the shared pool for the configured database. Never Close it.
 func getDb() (*sql.DB, error) {
-	err := dbhOnce.Do(
-		func() error {
-			var ctx = context.Background()
-			_dbh, err := db.DbFromConfig(ctx)
-			if err != nil {
-				return err
-			}
-
-			dbh = _dbh
-			return nil
-		},
-	)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return dbh, nil
+	return db.DbFromConfig(context.Background())
 }
 
+// getLocalDb returns the shared pool for the local database socket. Never
+// Close it.
 func getLocalDb() (*sql.DB, error) {
-	err := dbhOnce.Do(
-		func() error {
-			var ctx = context.Background()
-			_dbh, err := db.DbLocalFromConfig(ctx)
-			if err != nil {
-				return err
-			}
-
-			dbh = _dbh
-			return nil
-		},
-	)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return dbh, nil
+	return db.DbLocalFromConfig(context.Background())
 }
 
 func rollBackOnErr(ctx context.Context, tx *sql.Tx, err error) {
