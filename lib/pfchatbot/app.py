@@ -49,7 +49,9 @@ from fastapi import FastAPI, Request, UploadFile, File, Form
 from fastapi.responses import JSONResponse, Response
 
 # ── log ring buffer + persistent 24h log file ────────────────────────────────
-_LOG_FILE = "/home/pfbot/pfchatbot.log"
+# In the pf-chatbot-cache volume: the container is recreated on every start
+# (docker run --rm), so anywhere else the 24h history is lost on restart.
+_LOG_FILE = "/home/pfbot/.cache/pfchatbot.log"
 _LOG_RETENTION_HOURS = 24
 _log_lock = __import__('threading').Lock()
 _log_buffer: deque = deque(maxlen=2000)   # in-memory ring (current run)
