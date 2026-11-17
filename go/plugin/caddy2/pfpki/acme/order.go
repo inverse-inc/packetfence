@@ -371,6 +371,13 @@ func orderFinalizeHandler(h *types.Handler) http.HandlerFunc {
 			_ = WriteProblem(w, http.StatusBadRequest, ErrBadCSR, err.Error())
 			return
 		}
+		// Same duplicate-CN policy as the other issuance paths. A refusal
+		// leaves the order ready: the client can finalize again once the
+		// existing certificate is revoked or close enough to expiry.
+		if err := models.CheckACMEDuplicateCN(h.DB, &prof, strings.TrimSpace(csr.Subject.CommonName)); err != nil {
+			_ = WriteProblem(w, http.StatusForbidden, ErrUnauthorized, err.Error())
+			return
+		}
 
 		// ready → processing, atomically.
 		res := h.DB.Model(&models.AcmeOrder{}).

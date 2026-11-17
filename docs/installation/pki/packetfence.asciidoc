@@ -668,7 +668,7 @@ EAP-TLS.
 | Usage flags | Digital signature (`1`)
 | Key is extractable | Disabled
 | Allow all apps access | Disabled, unless a third-party VPN client needs the identity
-| Redistribute profile | A number of days before expiry (for example 30). Jamf re-pushes the profile and the device enrolls a fresh certificate through ACME; this is how renewal works.
+| Redistribute profile | A number of days before expiry, at most the template's *Days before renewal* (see <<_renewal_and_revocation>>). Jamf re-pushes the profile and the device enrolls a fresh certificate through ACME; this is how renewal works.
 |===
 
 *Network* (Wi-Fi) payload — your SSID, security type *WPA2/WPA3
@@ -789,11 +789,17 @@ error on the profile installation status) and in the pfpki service log
 
 A renewal is a new enrollment: the MDM redistributes the profile, the
 device runs the full attestation flow again and receives a new
-certificate with a new serial number. The previous certificate stays
-valid until it expires, or until it is revoked from the PKI (revoking
-it also makes OCSP answer *revoked* for it). The template's *Days
-before renewal* and the renewal e-mails do not apply to ACME-issued
-certificates.
+certificate with a new serial number. As with SCEP and EST, the
+template's duplicate common name settings apply: unless *Allow
+multiple certificates with same Common Name* permits it, a live
+certificate with the same common name is superseded (revoked) only when it expires within *Days before
+renewal* days, otherwise the finalize is refused with `unauthorized`.
+Set the MDM's redistribution (Jamf *Redistribute profile*) to at most
+*Days before renewal* days before expiry, and size *Days before
+renewal* for the renewal schedule of generic ACME clients (certbot
+renews when a third of the lifetime is left). Revoking a certificate
+from the PKI also makes OCSP answer *revoked* for it. The renewal
+e-mails do not apply to ACME-issued certificates.
 
 A device can also revoke its own certificate through ACME
 (`revoke-cert`), either with its account key or with the certificate
