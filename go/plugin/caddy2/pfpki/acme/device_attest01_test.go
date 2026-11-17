@@ -131,9 +131,9 @@ func TestDeviceAttest01_Happy(t *testing.T) {
 	profName := mustEnableAcmeProfile(t, env, "acme-attest-ok")
 
 	// Boot an account first so we can compute the JWK thumbprint and
-	// build the nonce binding. bootstrapAcmeAccount has the side
-	// effect of setting AcmeEabRequired=0, which we want anyway.
-	client, _ := bootstrapAcmeAccount(t, env, profName)
+	// build the nonce binding. No EAB: Apple devices can't do it, and
+	// permanent-identifier orders don't need it.
+	client, _ := bootstrapAcmeAccountWithoutEAB(t, env, profName)
 	thumb := mustThumbprint(t, client.jwk)
 
 	// We don't know the challenge token until new-order runs, but the

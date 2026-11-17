@@ -531,9 +531,9 @@ Templates_), *ACME* tab:
 |===
 | Setting | Value for Apple Managed Device Attestation
 | *Enable ACME* | On.
-| *Allowed identifier types* | `permanent-identifier`. This is the only identifier type Apple devices order. Add `dns,ip` only if generic ACME clients also use this template.
+| *Allowed identifier types* | `permanent-identifier`. This is the only identifier type Apple devices order. Do not add `dns` or `ip`: they need External Account Binding, which Apple devices cannot do, so generic ACME clients need a template of their own (see <<_generic_acme_clients>>).
 | *Attestation formats* | `apple`. Without it, a `permanent-identifier` order is refused, since no other challenge can prove it.
-| *Require External Account Binding* | *Off*. Apple's ACME client has no EAB support; on an Apple template attestation is the authentication. Keep it on for templates used by generic ACME clients.
+| *Require External Account Binding* | *Off*. Apple's ACME client has no EAB support; on an Apple template attestation is the authentication. Templates used by generic ACME clients keep it on.
 | *Attestation root CAs (PEM)* | Leave empty. PacketFence embeds the Apple Enterprise Attestation Root CA (SHA-256 `CC:F5:9E:F8:FC:B3:01:7D:97:F8:B5:FA:6F:A9:0E:7A:3F:92:83:F7:6B:55:AC:6C:F6:ED:A8:B8:B9:49:F0:5B`, valid until 2047). A value here *replaces* the embedded root; use it only if Apple publishes a new root or for lab attestation chains of your own.
 | *Account / Order / Authorization expiry* | Defaults (365 days / 7 days / 24 hours) are fine. Order and authorization expiries bound how long that ACME state is kept before the cleanup task drops it. An expired account is refused until the device registers its key again (new-account), which renews it; 0 means accounts never expire. Accounts are not removed by the cleanup task.
 |===
@@ -774,6 +774,7 @@ error on the profile installation status) and in the pfpki service log
 | `rejectedIdentifier`: `permanent-identifier requires an attestation format` | *Attestation formats* does not contain `apple`.
 | `rejectedIdentifier`: `identifier type "permanent-identifier" not allowed` | *Allowed identifier types* does not contain `permanent-identifier`.
 | `externalAccountRequired` | *Require External Account Binding* is on for an Apple template.
+| `rejectedIdentifier`: `identifier type "dns" requires an account bound to an external account key` | A generic client ordered a `dns`/`ip` identifier on a template without *Require External Account Binding*, or with an account created without an EAB key. Use a separate template with EAB for generic clients.
 | `device-attest-01: verify chain` | The attestation chain does not chain to the configured root. Clear *Attestation root CAs (PEM)* to use the embedded Apple root, or check the value you pasted.
 | `device-attest-01: identifier mismatch: order=... udid=... serial=...` | The client identifier sent by the device is not its serial number or UDID: the MDM did not substitute the variable (fixed value, wrong token spelling — Intune tokens are case-sensitive).
 | `device-attest-01: nonce does not match` | The attestation was produced for another challenge (replay, or the device retried against a stale order). The device must start a new order.
@@ -801,7 +802,9 @@ key; it can never revoke another device's certificate.
 
 The same server accepts standard ACME clients for hosts that need a
 certificate from the PacketFence PKI (a RADIUS peer, a printer, an
-internal web service):
+internal web service). Use a template of their own, separate from the
+Apple template: the two need opposite *Require External Account
+Binding* settings.
 
 [options="compact"]
 * *Allowed identifier types*: `dns` and/or `ip`. The challenge is
@@ -809,11 +812,13 @@ internal web service):
   `http://<identifier>/.well-known/acme-challenge/<token>` on port 80
   (redirects to 443 are followed). It refuses loopback, link-local and
   other non-routable targets.
-* *Require External Account Binding*: keep it *on*, otherwise any host
-  that can answer an HTTP request for a name can obtain a certificate
-  for it. Mint a key pair per client through the admin API, on the web
-  admin port (1443) with an API token (there is no EAB screen in the
-  web admin):
+* *Require External Account Binding*: *on*. `http-01` only shows that
+  the client answers for the name on the network, so `dns` and `ip`
+  orders are refused with `rejectedIdentifier` on a template without
+  EAB, and from an account that was created without an EAB key (for
+  example before EAB was turned on). Mint a key pair per client
+  through the admin API, on the web admin port (1443) with an API token
+  (there is no EAB screen in the web admin):
 +
  TOKEN=$(curl -s https://<pf-fqdn>:1443/api/v1/login -d '{"username":"admin","password":"<password>"}' | jq -r .token)
  # Mint — the hmac is returned once and never again

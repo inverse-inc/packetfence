@@ -1,6 +1,8 @@
 package acme_test
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -8,6 +10,7 @@ import (
 	"strings"
 	"testing"
 
+	jose "github.com/go-jose/go-jose/v4"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/internal/testutil"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/models"
 )
@@ -15,28 +18,55 @@ import (
 // bootstrapAcmeAccount runs the full new-account dance against the
 // test server and returns the client (cached signer + JWK) together
 // with the freshly-minted account URL (kid). Used by every order/authz
-// test to skip the new-account boilerplate.
+// test to skip the new-account boilerplate. The account is bound to a
+// fresh EAB key: dns/ip orders need one.
 func bootstrapAcmeAccount(t *testing.T, env *testutil.Env, profileName string) (*acmeClient, string) {
 	t.Helper()
-	// Profile starts with AcmeEnabled flipped on but EAB required by
-	// default; the existing helper handles EAB-on so flip it off for
-	// the protocol tests — Phase 1 cares about the order flow, not
-	// EAB-everywhere.
-	if err := env.DB.Model(&models.Profile{}).Where("name = ?", profileName).
-		Update("acme_eab_required", 0).Error; err != nil {
-		t.Fatalf("disable EAB: %v", err)
-	}
 	// The allowed identifier list is empty by default; tests below
 	// rely on dns being allowed so seed it.
 	if err := env.DB.Model(&models.Profile{}).Where("name = ?", profileName).
-		Update("acme_allowed_identifiers", "dns,ip").Error; err != nil {
+		Updates(map[string]any{"acme_allowed_identifiers": "dns,ip", "acme_eab_required": 1}).Error; err != nil {
 		t.Fatalf("set allowed identifiers: %v", err)
 	}
-
 	c := newACMEClient(t, env, profileName)
+	return c, newAccountWithEAB(t, env, c, profileName)
+}
+
+// newAccountWithEAB mints an EAB key on the profile and registers c's
+// key with it, returning the account URL.
+func newAccountWithEAB(t *testing.T, env *testutil.Env, c *acmeClient, profileName string) string {
+	t.Helper()
+	var prof models.Profile
+	if err := env.DB.Where("name = ?", profileName).First(&prof).Error; err != nil {
+		t.Fatalf("load profile: %v", err)
+	}
+	mac := make([]byte, 32)
+	kidRaw := make([]byte, 9)
+	_, _ = rand.Read(mac)
+	_, _ = rand.Read(kidRaw)
+	eab := models.AcmeExternalAccountKey{
+		ProfileID: prof.ID,
+		KeyID:     base64.RawURLEncoding.EncodeToString(kidRaw),
+		HMACKey:   base64.RawURLEncoding.EncodeToString(mac),
+	}
+	if err := env.DB.Create(&eab).Error; err != nil {
+		t.Fatalf("create EAB: %v", err)
+	}
+
 	url := newAccountURL(env, profileName)
+	signer, err := jose.NewSigner(jose.SigningKey{Algorithm: jose.HS256, Key: mac},
+		(&jose.SignerOptions{ExtraHeaders: map[jose.HeaderKey]any{"url": url}}).WithHeader("kid", eab.KeyID))
+	if err != nil {
+		t.Fatalf("EAB signer: %v", err)
+	}
+	jwkJSON, _ := json.Marshal(c.jwk)
+	inner, err := signer.Sign(jwkJSON)
+	if err != nil {
+		t.Fatalf("EAB sign: %v", err)
+	}
 	jws := c.signed(url, modeJWK, "", c.fetchNonce(), map[string]any{
-		"termsOfServiceAgreed": true,
+		"termsOfServiceAgreed":   true,
+		"externalAccountBinding": json.RawMessage(inner.FullSerialize()),
 	})
 	resp := c.post(t, url, jws)
 	defer resp.Body.Close()
@@ -48,7 +78,26 @@ func bootstrapAcmeAccount(t *testing.T, env *testutil.Env, profileName string) (
 	if kid == "" {
 		t.Fatalf("bootstrap: missing Location header")
 	}
-	return c, kid
+	return kid
+}
+
+// bootstrapAcmeAccountWithoutEAB registers a new account on a profile
+// that does not require EAB, as an Apple device would.
+func bootstrapAcmeAccountWithoutEAB(t *testing.T, env *testutil.Env, profileName string) (*acmeClient, string) {
+	t.Helper()
+	if err := env.DB.Model(&models.Profile{}).Where("name = ?", profileName).
+		Updates(map[string]any{"acme_allowed_identifiers": "dns,ip", "acme_eab_required": 0}).Error; err != nil {
+		t.Fatalf("disable EAB: %v", err)
+	}
+	c := newACMEClient(t, env, profileName)
+	url := newAccountURL(env, profileName)
+	resp := c.post(t, url, c.signed(url, modeJWK, "", c.fetchNonce(), map[string]any{"termsOfServiceAgreed": true}))
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusCreated {
+		body, _ := io.ReadAll(resp.Body)
+		t.Fatalf("new-account without EAB: status=%d body=%s", resp.StatusCode, string(body))
+	}
+	return c, resp.Header.Get("Location")
 }
 
 func newOrderURL(env *testutil.Env, profileName string) string {
@@ -295,15 +344,7 @@ func TestAuthzByID_ReturnsChallenges(t *testing.T) {
 func bootstrapAcmeAccountAsNewKey(t *testing.T, env *testutil.Env, profileName string) (*acmeClient, string) {
 	t.Helper()
 	c := newACMEClient(t, env, profileName)
-	url := newAccountURL(env, profileName)
-	jws := c.signed(url, modeJWK, "", c.fetchNonce(), map[string]any{})
-	resp := c.post(t, url, jws)
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusCreated {
-		body, _ := io.ReadAll(resp.Body)
-		t.Fatalf("second bootstrap: status=%d body=%s", resp.StatusCode, string(body))
-	}
-	return c, resp.Header.Get("Location")
+	return c, newAccountWithEAB(t, env, c, profileName)
 }
 
 // TestNewOrder_RejectsValidityHintsAndOversizedOrders: notBefore /
@@ -336,5 +377,38 @@ func TestNewOrder_RejectsValidityHintsAndOversizedOrders(t *testing.T) {
 	env.DB.Model(&models.AcmeOrder{}).Count(&n)
 	if n != 0 {
 		t.Fatalf("%d orders persisted for refused requests", n)
+	}
+}
+
+// TestNewOrder_DNSAndIPNeedEAB: http-01 only shows that the client
+// answers on the network, so dns/ip orders are refused unless the
+// profile requires EAB and the account was bound to an EAB key.
+func TestNewOrder_DNSAndIPNeedEAB(t *testing.T) {
+	env := testutil.NewEnv(t)
+	prof := mustEnableAcmeProfile(t, env, "acme-order-eab")
+	c, kid := bootstrapAcmeAccountWithoutEAB(t, env, prof)
+	url := newOrderURL(env, prof)
+
+	order := func(c *acmeClient, kid, typ, value string) *http.Response {
+		return c.post(t, url, c.signed(url, modeKID, kid, c.fetchNonce(), map[string]any{
+			"identifiers": []map[string]string{{"type": typ, "value": value}},
+		}))
+	}
+	expectProblem(t, order(c, kid, "dns", "host.example.com"), http.StatusForbidden, "rejectedIdentifier")
+	expectProblem(t, order(c, kid, "ip", "192.0.2.10"), http.StatusForbidden, "rejectedIdentifier")
+
+	// Turning EAB on does not promote the account created without it.
+	if err := env.DB.Model(&models.Profile{}).Where("name = ?", prof).
+		Update("acme_eab_required", 1).Error; err != nil {
+		t.Fatalf("enable EAB: %v", err)
+	}
+	expectProblem(t, order(c, kid, "dns", "host.example.com"), http.StatusForbidden, "rejectedIdentifier")
+
+	bound, boundKID := bootstrapAcmeAccountAsNewKey(t, env, prof)
+	resp := order(bound, boundKID, "dns", "host.example.com")
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusCreated {
+		body, _ := io.ReadAll(resp.Body)
+		t.Fatalf("EAB-bound account: status=%d body=%s", resp.StatusCode, body)
 	}
 }

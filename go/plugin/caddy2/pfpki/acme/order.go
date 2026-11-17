@@ -110,6 +110,18 @@ func newOrderHandler(h *types.Handler) http.HandlerFunc {
 				_ = WriteProblem(w, http.StatusBadRequest, ErrRejectedIdentifier, err.Error())
 				return
 			}
+			// http-01 only proves the client answers for the name or
+			// address on the network, which anyone on the portal
+			// network can arrange. dns/ip orders therefore need an
+			// account bound to an admin-issued EAB key. Apple devices
+			// can't do EAB, so permanent-identifier (device-attest-01)
+			// stays open: the attestation itself is the proof.
+			if (ident.Type == "dns" || ident.Type == "ip") &&
+				(jc.Profile.AcmeEabRequired != 1 || jc.Account.ExternalAccountKeyID == "") {
+				_ = WriteProblem(w, http.StatusForbidden, ErrRejectedIdentifier,
+					"identifier type "+strconv.Quote(ident.Type)+" requires an account bound to an external account key on this profile")
+				return
+			}
 			// permanent-identifier can only be proven by device
 			// attestation; without a format on the profile no challenge
 			// could ever validate it (http-01 would treat it as a host).
