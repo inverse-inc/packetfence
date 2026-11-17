@@ -1501,8 +1501,16 @@ def options_meta(target: str) -> dict:
         else:
             return {"error": f"unknown operation_id or path {target!r}",
                     "hint": "pass an operation_id from pf_search_operations, or a path like /nodes"}
+    # a bare path missing its prefix ('/connection_profiles' for
+    # '/config/connection_profiles'): use the shortest spec path ending with it
+    known = {o.get("path") for o in ops.values()}
+    if not op and path not in known:
+        stem = re.sub(r"\{[^}]*\}", "{}", path.rstrip("/"))
+        cands = sorted({p for p in known if p and re.sub(r"\{[^}]*\}", "{}", p).endswith(stem)}, key=len)
+        if cands:
+            path = cands[0]
     # normalise a param name we do not have ({mac} vs {node_id}) to the spec's path
-    if "{" in path and path not in {o.get("path") for o in ops.values()}:
+    if "{" in path and path not in known:
         stem = re.sub(r"\{[^}]*\}", "{}", path)
         for o in ops.values():
             if re.sub(r"\{[^}]*\}", "{}", o.get("path", "")) == stem:
