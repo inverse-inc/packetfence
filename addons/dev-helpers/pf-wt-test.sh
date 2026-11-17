@@ -11,9 +11,11 @@
 # Nothing is mounted outside the namespace.
 #
 # By default the namespace also gets its own pfconfig-test (memory backend),
-# started from the worktree's code before the tests and stopped on exit, and its
-# own /tmp/chi: the worktree's config is built by its own code and the
-# pfconfig-test of /usr/local/pf is left alone.
+# started from the worktree's code before the tests, and its own var/run,
+# var/control, var/cache/pfconfig and /tmp/chi: the worktree's config is built
+# by its own code and the pfconfig-test of /usr/local/pf is left alone.
+# The namespace has its own PIDs too (unshare -p): every process left in it,
+# such as a pfconfig-test-serial a test started, is killed on exit.
 #
 # Must run as root. Example, from a worktree:
 #   addons/dev-helpers/pf-wt-test.sh t/unittest/Switch.t
@@ -24,9 +26,13 @@ set -euo pipefail
 PF=/usr/local/pf
 PROG=$(basename "$0")
 CODE_DIRS=(lib t html/pfappserver/lib html/captive-portal/lib)
+# Single files, as their directory also holds binaries that git ignores
+# (sbin/pfacct, ...): sbin/pfconfig is the daemon of the test pfconfigs
+CODE_FILES=(sbin/pfconfig)
 OVERLAY_DIRS=(conf)
-# Files that git ignores but the tests need: copied into the worktree if missing
-IGNORED_NEEDED=(lib/fingerbank t/data/system_init_key)
+# Files the tests need that a worktree can lack (lib/fingerbank is ignored by
+# git): copied from $PF into the worktree if missing
+NEEDED_FILES=(lib/fingerbank t/data/system_init_key)
 # Runtime files of the test pfconfig, hidden from the namespace for a private one
 PFCONFIG_TEST_FILES=(pfconfig-test.pid pfconfig-test.sock pfconfig-test-serial.pid pfconfig-test-serial.sock)
 
@@ -109,16 +115,18 @@ for i in "${!EXTRA_DIRS[@]}"; do EXTRA_DIRS[i]=$(rel_dir "${EXTRA_DIRS[i]}"); do
 for i in "${!OVERLAY_DIRS[@]}"; do OVERLAY_DIRS[i]=$(rel_dir "${OVERLAY_DIRS[i]}"); done
 DIRS=("${CODE_DIRS[@]}" "${EXTRA_DIRS[@]}")
 
-for f in "${IGNORED_NEEDED[@]}"; do
+for f in "${NEEDED_FILES[@]}"; do
     if [ ! -e "$WT/$f" ] && [ ! -L "$WT/$f" ] && { [ -e "$PF/$f" ] || [ -L "$PF/$f" ]; }; then
         cp -a "$PF/$f" "$WT/$f"
-        echo "$PROG: copied $f (ignored by git) into the worktree" >&2
+        echo "$PROG: copied $f from $PF into the worktree" >&2
     fi
 done
 
-# Run from the same place inside the namespace
-case $PWD/ in
-    "$WT"/*) RUN_DIR=$PF${PWD#"$WT"} ;;
+# Run from the same place inside the namespace. The physical path, as $WT is
+# resolved: a cwd reached through a symlink still matches.
+CWD=$(pwd -P)
+case $CWD/ in
+    "$WT"/*) RUN_DIR=$PF${CWD#"$WT"} ;;
     *) RUN_DIR=$PF ;;
 esac
 
@@ -134,30 +142,38 @@ done
 # Mount points of the namespace (only used inside it)
 NS_TMP=$(mktemp -d /tmp/pf-wt-test.XXXXXX)
 # Only empty mount points and the discarded overlay layers: the mounts are gone
-# with the namespace. /tmp/chi is removed only if this script created it.
-CREATED_CHI=0
-cleanup() {
-    rm -rf --one-file-system "$NS_TMP"
-    if [ "$CREATED_CHI" -eq 1 ]; then rmdir /tmp/chi 2>/dev/null || true; fi
-}
-trap cleanup EXIT
+# with the namespace
+trap 'rm -rf --one-file-system "$NS_TMP"' EXIT
 mkdir "$NS_TMP/real-run"
-# Mount point of the private /tmp/chi
-if [ "$SHARED_PFCONFIG" -eq 0 ] && [ ! -e /tmp/chi ]; then
-    mkdir /tmp/chi
-    CREATED_CHI=1
-fi
+# Mount point of the private /tmp/chi. It is left in place: removing it would
+# also unmount the /tmp/chi of a concurrent run.
+[ "$SHARED_PFCONFIG" -ne 0 ] || mkdir -p /tmp/chi
 
 export PF WT NS_TMP RUN_DIR SHARED_PFCONFIG
 export PFCONFIG_TIMEOUT=${PF_WT_PFCONFIG_TIMEOUT:-300}
-export PF_WT_DIRS="${DIRS[*]}" PF_WT_OVERLAY_DIRS="${OVERLAY_DIRS[*]}" PF_WT_PFCONFIG_FILES="${PFCONFIG_TEST_FILES[*]}"
+export PF_WT_DIRS="${DIRS[*]}" PF_WT_FILES="${CODE_FILES[*]}" PF_WT_OVERLAY_DIRS="${OVERLAY_DIRS[*]}" PF_WT_PFCONFIG_FILES="${PFCONFIG_TEST_FILES[*]}"
 
-unshare -m --propagation private bash -c '
+# Private mount and PID namespaces: the inner bash is PID 1 of the namespace and
+# the kernel kills every process left in it when it exits. --kill-child kills
+# it if unshare itself is killed.
+unshare -m -p -f --kill-child --mount-proc --propagation private bash -c '
 set -euo pipefail
+
+skip() { echo "pf-wt-test: $1 not in the worktree or $PF, the one of $PF is used" >&2; }
 
 for d in $PF_WT_DIRS; do
     if [ -d "$WT/$d" ] && [ -d "$PF/$d" ]; then
         mount --bind "$WT/$d" "$PF/$d"
+    else
+        skip "$d"
+    fi
+done
+
+for f in $PF_WT_FILES; do
+    if [ -f "$WT/$f" ] && [ -f "$PF/$f" ]; then
+        mount --bind "$WT/$f" "$PF/$f"
+    else
+        skip "$f"
     fi
 done
 
@@ -167,6 +183,8 @@ for d in $PF_WT_OVERLAY_DIRS; do
         mkdir -p "$layer/upper" "$layer/work"
         mount -t overlay pf-wt-overlay \
             -o "lowerdir=$WT/$d:$PF/$d,upperdir=$layer/upper,workdir=$layer/work" "$PF/$d"
+    else
+        skip "$d"
     fi
 done
 
@@ -196,12 +214,16 @@ if [ "$SHARED_PFCONFIG" -eq 0 ]; then
     shopt -u nullglob dotglob
     chown --reference="$NS_TMP/real-run" "$RUN"
     mount -t tmpfs -o mode=1777 pf-wt-chi /tmp/chi
-    # pfconfig empties var/control on start and the cache updates of the
-    # tests touch it: keep the control files of $PF out of reach
-    CONTROL=$PF/var/control
-    control_owner=$(stat -c %u:%g "$CONTROL")
-    mount -t tmpfs -o mode=0755 pf-wt-control "$CONTROL"
-    chown "$control_owner" "$CONTROL"
+    # Private, empty state of the test pfconfigs, same owner and mode:
+    # - var/control: pfconfig empties it on start, the tests touch its files
+    # - var/cache/pfconfig: the BDB cache of pfconfig-test-serial, which the
+    #   one of $PF holds open
+    for d in var/control var/cache/pfconfig; do
+        [ -d "$PF/$d" ] || continue
+        perms=$(stat -c "%a %u:%g" "$PF/$d")
+        mount -t tmpfs -o "mode=${perms%% *}" pf-wt-state "$PF/$d"
+        chown "${perms#* }" "$PF/$d"
+    done
 
     # Start the private pfconfig-test here, as t/pfconfig-test would, but in
     # the foreground of this shell: a failure is reported with its log instead
@@ -211,7 +233,8 @@ if [ "$SHARED_PFCONFIG" -eq 0 ]; then
         -s "$RUN/pfconfig-test.sock" -p "$RUN/pfconfig-test.pid" \
         -c "$PF/t/data/pfconfig.conf" > "$PFCONFIG_LOG" 2>&1 &
     PFCONFIG_PID=$!
-    trap "kill $PFCONFIG_PID 2>/dev/null || true" EXIT
+    # Stopped gracefully first; whatever is left is killed with the namespace
+    trap "kill $PFCONFIG_PID 2>/dev/null && wait $PFCONFIG_PID 2>/dev/null || true" EXIT
     echo "pf-wt-test: starting a private pfconfig-test (log: $PFCONFIG_LOG)" >&2
     waited=0
     until [ -S "$RUN/pfconfig-test.sock" ]; do
