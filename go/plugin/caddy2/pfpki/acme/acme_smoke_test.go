@@ -228,3 +228,57 @@ func TestConsumeNonce_HardDeletes(t *testing.T) {
 		t.Fatalf("nonce consumed twice")
 	}
 }
+
+// TestAcme_RefusesPlainHTTP: a request the portal received on port 80
+// (X-Forwarded-Proto http, possibly next to a client-supplied https)
+// is refused without minting a nonce; https and a request without the
+// header (straight to pfpki) are served.
+func TestAcme_RefusesPlainHTTP(t *testing.T) {
+	env := testutil.NewEnv(t)
+	name := mustEnableAcmeProfile(t, env, "acme-https")
+	base := env.Server.URL + "/api/v1/pki/acme/" + name
+
+	do := func(method, path string, protos ...string) *http.Response {
+		t.Helper()
+		req, _ := http.NewRequest(method, base+path, nil)
+		for _, p := range protos {
+			req.Header.Add("X-Forwarded-Proto", p)
+		}
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Fatalf("%s %s: %v", method, path, err)
+		}
+		return resp
+	}
+	nonces := func() int64 {
+		var n int64
+		env.DB.Model(&models.AcmeNonce{}).Count(&n)
+		return n
+	}
+
+	before := nonces()
+	for _, protos := range [][]string{{"http"}, {"https", "http"}, {"https, http"}} {
+		resp := do(http.MethodGet, "/directory", protos...)
+		body, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		if resp.StatusCode != http.StatusForbidden || resp.Header.Get("Content-Type") != "application/problem+json" {
+			t.Errorf("X-Forwarded-Proto %v: status=%d body=%s, want a 403 problem", protos, resp.StatusCode, body)
+		}
+		resp = do(http.MethodHead, "/new-nonce", protos...)
+		resp.Body.Close()
+		if resp.StatusCode != http.StatusForbidden || resp.Header.Get("Replay-Nonce") != "" {
+			t.Errorf("new-nonce over %v: status=%d Replay-Nonce=%q", protos, resp.StatusCode, resp.Header.Get("Replay-Nonce"))
+		}
+	}
+	if n := nonces(); n != before {
+		t.Errorf("refused requests minted %d nonces", n-before)
+	}
+
+	for _, protos := range [][]string{{"https"}, nil} {
+		resp := do(http.MethodGet, "/directory", protos...)
+		resp.Body.Close()
+		if resp.StatusCode != http.StatusOK {
+			t.Errorf("X-Forwarded-Proto %v: status=%d want 200", protos, resp.StatusCode)
+		}
+	}
+}

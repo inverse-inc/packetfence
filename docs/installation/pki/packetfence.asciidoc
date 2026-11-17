@@ -543,7 +543,8 @@ The template's ACME directory is then:
  https://<pf-fqdn>/api/v1/pki/acme/<template_name>/directory
 
 It is served by the captive portal on port 443, not by the web admin
-port (1443): see the requirements above.
+port (1443): see the requirements above. ACME requests the portal
+receives over plain HTTP (port 80) are refused, as RFC 8555 requires.
 
 This URL is deliberately unauthenticated at the web-server level:
 every ACME request is signed by the device (JWS) and validated by the
