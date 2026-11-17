@@ -172,7 +172,6 @@ func newRouter(h *types.Handler) chi.Router {
 			r.Get("/{id}", handlers.GetRevokedByID(h))
 		})
 		r.Get("/pki/checkrenewal", handlers.CheckRenewal(h))
-		r.Get("/pki/process_cloud_revocations", handlers.ProcessCloudRevocations(h))
 		r.Post("/pki/process_cloud_revocations", handlers.ProcessCloudRevocations(h))
 		// ACME (RFC 8555) — mirror the production mount in pfpki.go.
 		r.Mount("/pki/acme", acme.Mount(h))
