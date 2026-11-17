@@ -92,7 +92,7 @@ sub get_bundle {
     }
     my $return;
     $value = eval {
-        $return = pf::api::unifiedapiclient->default_client->call("GET", "/api/v1/pki/cert/$profile/$cn/download/$certpwd");
+        $return = pf::api::unifiedapiclient->default_client->call("POST", "/api/v1/pki/cert/$profile/$cn/download", { password => $certpwd });
     };
     if ($@) {
         $logger->warn("Download certificate failed");
