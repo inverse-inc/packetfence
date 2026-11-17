@@ -788,6 +788,7 @@ error on the profile installation status) and in the pfpki service log
 | `badCSR`: `CSR CN ... not in order identifiers` / `... SAN ... not in order identifiers` | The payload's Subject or SAN uses a different variable than the client identifier, or adds SANs. Set `CN=<same variable>` and no SAN.
 | `badCSR`: `CSR public key does not match the attested device key` | The device presented a CSR for a key other than the attested one; usually a payload without *Hardware bound*/*Attest*.
 | `protected.url mismatch` | URLs rebuilt by PacketFence differ from what the device signed: a reverse proxy is not passing `X-Forwarded-Host`/`X-Forwarded-Proto`, or the directory URL uses a name different from the one PacketFence sees.
+| `429` / `rateLimited` | Too many requests from one address (about 5 per second, bursts of 40, for all ACME requests), or the account already has 20 orders that are not finished. Wait for the `Retry-After` delay; finished or expired orders don't count.
 | RADIUS rejects with a TLS error although the certificate was issued | The RADIUS TLS profile does not trust the PKI CA (Step 3), or the device does not trust the RADIUS server certificate (missing CA payload on the device).
 |===
 
@@ -936,6 +937,11 @@ In the template (_Configuration -> Integration -> PKI -> Templates_),
 | *EST username* | The user name EST clients must present, or empty to accept any user name.
 | *EST password* | The password EST clients must present. Enrollment is refused while it is empty. It is never displayed again; leave it empty when editing the template to keep it.
 |===
+
+Each source address can send about 2 EST requests per second (bursts of 20),
+and an address that sends a wrong user name or password 10 times within 10
+minutes is refused for 15 minutes. Both answer `429` with a `Retry-After`
+delay.
 
 NOTE: TLS is terminated in front of the PKI, so EST clients authenticate
 with HTTP Basic only; TLS client certificate authentication (RFC 7030
