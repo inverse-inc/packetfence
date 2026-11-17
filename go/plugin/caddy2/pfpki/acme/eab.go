@@ -47,23 +47,9 @@ func validateEAB(h *types.Handler, prof *models.Profile, outerJWK *jose.JSONWebK
 		return nil, errors.New("externalAccountBinding missing")
 	}
 
-	innerJWS, err := jose.ParseSigned(string(*raw), eabAllowedAlgs)
+	innerJWS, innerProt, err := parseFlattenedJWS(*raw, eabAllowedAlgs)
 	if err != nil {
 		return nil, errors.New("EAB: parse inner JWS: " + err.Error())
-	}
-	if len(innerJWS.Signatures) != 1 {
-		return nil, errors.New("EAB: exactly one signature required")
-	}
-
-	// Inner protected header carries the KID + alg + url; pull it raw
-	// the same way the outer JWS path does so we see `url`.
-	rawProt, err := extractProtected(string(*raw))
-	if err != nil {
-		return nil, errors.New("EAB: decode protected header: " + err.Error())
-	}
-	var innerProt rawProtected
-	if err := json.Unmarshal(rawProt, &innerProt); err != nil {
-		return nil, errors.New("EAB: parse protected header: " + err.Error())
 	}
 	if innerProt.KID == "" {
 		return nil, errors.New("EAB: missing kid")

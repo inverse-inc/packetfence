@@ -34,23 +34,9 @@ func keyChangeHandler(h *types.Handler) http.HandlerFunc {
 			return
 		}
 
-		sig, err := jose.ParseSigned(string(jc.Payload), acmeAllowedAlgs)
+		sig, protected, err := parseFlattenedJWS(jc.Payload, acmeAllowedAlgs)
 		if err != nil {
 			_ = WriteProblem(w, http.StatusBadRequest, ErrMalformed, "parse inner JWS: "+err.Error())
-			return
-		}
-		if len(sig.Signatures) != 1 {
-			_ = WriteProblem(w, http.StatusBadRequest, ErrMalformed, "inner JWS requires exactly one signature")
-			return
-		}
-		rawProt, err := extractProtected(string(jc.Payload))
-		if err != nil {
-			_ = WriteProblem(w, http.StatusBadRequest, ErrMalformed, "decode inner protected header: "+err.Error())
-			return
-		}
-		var protected rawProtected
-		if err := json.Unmarshal(rawProt, &protected); err != nil {
-			_ = WriteProblem(w, http.StatusBadRequest, ErrMalformed, "parse inner protected header: "+err.Error())
 			return
 		}
 		if protected.JWK == nil || protected.KID != "" {
