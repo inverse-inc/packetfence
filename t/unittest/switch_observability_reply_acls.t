@@ -21,8 +21,9 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 12;
+use Test::More tests => 19;
 use pf::Switch;
+use pf::Switch::Cisco::Cisco_IOS_15_5;
 
 # observabilityAclsFromReply / observabilityReplyAclAttributes keep no instance
 # state, so a bare blessed object avoids ->new (and the DB it reaches for).
@@ -111,6 +112,39 @@ is_deeply(
     ['permit ip source any destination any'],
     "HW-Data-Filter rules are ACLs",
 );
+
+# observabilityAclsRecord: what the row of the device holds after an
+# Access-Accept, or undef when it must have no row. The recorder always drops
+# the previous row of the device first, so undef never leaves a stale one.
+{
+    my %acl_map = (_AccessListMap => 'Y');
+    my $cisco = bless { %acl_map }, 'pf::Switch::Cisco::Cisco_IOS_15_5';
+    my $cisco_push = bless { %acl_map, _UsePushACLs => 'Y' }, 'pf::Switch::Cisco::Cisco_IOS_15_5';
+    my $no_map = bless {}, 'pf::Switch::Cisco::Cisco_IOS_15_5';
+    my $args = { mac => '00:11:22:33:44:55', user_role => 'guest' };
+    my $acl_reply = { 'Cisco-AVPair' => ['ip:inacl#101=deny tcp any any eq 443'] };
+
+    is_deeply(
+        $cisco->observabilityAclsRecord($args, $acl_reply),
+        { role_id => 'guest', acl_type => 'radius', acls => 'ip:inacl#101=deny tcp any any eq 443' },
+        "the ACLs of the reply are recorded",
+    );
+    is_deeply(
+        $cisco->observabilityAclsRecord($args, { 'Cisco-AVPair' => ['shell:priv-lvl=15'] }),
+        { role_id => 'guest', acl_type => 'radius', acls => '' },
+        "a reply without ACLs is recorded with empty acls: an access list was expected",
+    );
+    is($no_map->observabilityAclsRecord($args, $acl_reply), undef, "no row with the Access List Map disabled");
+    is(bless({}, 'pf::Switch')->observabilityAclsRecord($args, $acl_reply), undef, "no row on a switch without access list support");
+    is($cisco->observabilityAclsRecord({ %$args, user_role => '' }, $acl_reply), undef, "no row without a role");
+    is($cisco_push->observabilityAclsRecord($args, { 'Cisco-AVPair' => ['subscriber:role=guest'] }), undef,
+        "no row with Push ACLs when the reply only names the role: the role ACLs are in the switch configuration");
+    is_deeply(
+        $cisco_push->observabilityAclsRecord($args, $acl_reply),
+        { role_id => 'guest', acl_type => 'radius', acls => 'ip:inacl#101=deny tcp any any eq 443' },
+        "with Push ACLs, the access list a reply carries (bypass ACLs, switch entry) is recorded",
+    );
+}
 
 =head1 AUTHOR
 

@@ -1050,19 +1050,51 @@ sub observabilityAclsFromReply {
     return @acls;
 }
 
+=item observabilityAclsRecord
+
+What L</recordReplyObservabilityAcls> records for an Access-Accept: a hash ref
+(role_id, acl_type, acls) for the row of the device, or undef when the device
+must have no row.
+
+The ACLs are the ones of the reply (L</observabilityAclsFromReply>), not the
+role ACLs PacketFence computed. A row with empty acls means the switch was
+expected to get an access list and the reply carried none, which is itself the
+signal an operator needs (e.g. a platform whose encoder produced nothing).
+
+There is no row when the reply cannot carry an access list (the switch does
+not support it or has the Access List Map disabled), when the request has no
+role, and with Push ACLs when the reply carries none: the ACLs of the role are
+then in the switch configuration and recorded, per role, when it is generated
+(L</getRoleAccessListByName>). With Push ACLs, a reply that carries the bypass
+ACLs of the node or the access list of the switch entry is recorded like
+without Push ACLs.
+
+=cut
+
+sub observabilityAclsRecord {
+    my ($self, $args, $reply) = @_;
+    return undef if !isenabled($self->{_AccessListMap}) || !$self->supportsAccessListBasedEnforcement;
+
+    my $role_id = $args->{'user_role'};
+    return undef if !defined $role_id || $role_id eq '';
+
+    my @acls = $self->observabilityAclsFromReply($reply);
+    return undef if !@acls && $self->usePushACLs;
+
+    my $acl_type = (grep { /^ACS:CiscoSecure-Defined-ACL=|^subscriber:service-name=/ } @acls)
+        ? 'downloadable' : 'radius';
+    return { role_id => $role_id, acl_type => $acl_type, acls => join("\n", @acls) };
+}
+
 =item recordReplyObservabilityAcls
 
 Record, in switch_observability_acls, the ACLs that actually reached the switch
-for a RADIUS request: the ACL content of the assembled Access-Accept (see
-L</observabilityAclsFromReply>), not the role ACLs PacketFence computed. Called
-once per reply from pf::radius.
+for a RADIUS request (see L</observabilityAclsRecord>). Called once per reply
+from pf::radius.
 
-It only records for the inline / downloadable path (the switch supports and has
-AccessList enforcement enabled). The Push ACLs path is skipped: there the ACLs
-live in the switch configuration and are recorded, per role, when that
-configuration is generated (L</getRoleAccessListByName>). A row with empty acls
-means enforcement was expected but nothing was put on the wire, which is itself
-the signal an operator needs (e.g. a platform whose encoder produced nothing).
+Every Access-Accept replaces the row of the device: the row of a previous role,
+or of an access list the switch no longer gets, never outlives the reply that
+removed it.
 
 C<$reply_array> is the C<[$status, %reply]> array ref returned by
 returnRadiusAccessAccept.
@@ -1076,34 +1108,24 @@ sub recordReplyObservabilityAcls {
     my ($status, %reply) = @$reply_array;
     return if $status != $RADIUS::RLM_MODULE_OK;
 
-    return if !isenabled($self->{_AccessListMap}) || !$self->supportsAccessListBasedEnforcement;
-    # Push ACLs: the role ACLs are in the switch config, recorded at config
-    # generation time; the reply only names the role.
-    return if $self->usePushACLs;
-
     my $mac = $args->{'mac'};
-    my $role_id = $args->{'user_role'};
-    return if !defined $role_id || $role_id eq '';
+    return if !defined $mac || $mac eq '';
 
-    my @acls = $self->observabilityAclsFromReply(\%reply);
-    my $acl_type = (grep { /^ACS:CiscoSecure-Defined-ACL=|^subscriber:service-name=/ } @acls)
-        ? 'downloadable' : 'radius';
-
-    # A MAC holds a single active role: drop any row for a previous role before
-    # recording the current one (matches the UNIQUE (switch_id, port) key too).
+    # A MAC holds a single active role: drop the row of the device before
+    # recording the current one (matches the UNIQUE (switch_id, port) key too)
     pf::dal::switch_observability_acls->remove_items(
         -where => {
             switch_id => $self->{_id},
             mac => $mac,
         }
     );
+
+    my $record = $self->observabilityAclsRecord($args, \%reply) // return;
     my $dal = pf::dal::switch_observability_acls->new({
         switch_id => $self->{_id},
         mac => $mac,
         port => (defined $args->{'ifIndex'} && $args->{'ifIndex'} ne '') ? $args->{'ifIndex'} : undef,
-        role_id => $role_id,
-        acl_type => $acl_type,
-        acls => join("\n", @acls),
+        %$record,
         enforcement_timestamp => \"NOW()",
     });
     $dal->upsert();
