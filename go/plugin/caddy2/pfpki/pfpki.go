@@ -20,12 +20,22 @@ import (
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/est"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/handlers"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/models"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/ratelimit"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
 	"golang.org/x/text/message"
 	"golang.org/x/text/message/catalog"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+)
+
+// Request rate limits per source of the ACME and EST endpoints. An ACME
+// enrollment takes about ten requests, an EST one two or three.
+const (
+	acmeRequestsPerSecond = 5
+	acmeBurst             = 40
+	estRequestsPerSecond  = 2
+	estBurst              = 20
 )
 
 type Handler struct {
@@ -113,6 +123,9 @@ func (h *Handler) buildPfpkiHandler(ctx context.Context) error {
 
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
+	// Before RealIP, which replaces RemoteAddr by the client-controlled
+	// first X-Forwarded-For entry: the rate limits need the real peer.
+	r.Use(ratelimit.KeepPeer)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
@@ -122,6 +135,12 @@ func (h *Handler) buildPfpkiHandler(ctx context.Context) error {
 	r.MethodNotAllowed(unifiedapierrors.MethodNotAllowed)
 
 	PFPki := &pfpki
+
+	// Every request of the device-facing, unauthenticated ACME and EST
+	// endpoints can write to the database: limit each source (see the
+	// ratelimit package for how it is identified).
+	acmeLimiter := ratelimit.New(acmeRequestsPerSecond, acmeBurst)
+	estLimiter := ratelimit.New(estRequestsPerSecond, estBurst)
 
 	r.Route("/api/v1", func(r chi.Router) {
 		// CAS api endpoint
@@ -196,11 +215,11 @@ func (h *Handler) buildPfpkiHandler(ctx context.Context) error {
 		// /api/v1/pki/acme/{profile}/{directory|new-nonce|…}. ACME
 		// clients only need the /directory URL configured in their MDM
 		// payload; everything else is link-discovered from there.
-		r.Mount("/pki/acme", acme.Mount(PFPki))
+		r.Mount("/pki/acme", acmeLimiter.Middleware(acme.Mount(PFPki)))
 		// EST (RFC 7030). Devices reach /.well-known/est/{profile}/...
 		// through haproxy-portal; /pki/est is the same router on the
 		// API front end.
-		estRouter := est.Mount(PFPki)
+		estRouter := estLimiter.Middleware(est.Mount(PFPki))
 		r.Mount("/.well-known/est", estRouter)
 		r.Mount("/pki/est", estRouter)
 		// SCEP api endpoint

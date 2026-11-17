@@ -919,6 +919,11 @@ the common name, and IP or URI SANs are refused.
 EST requires HTTPS: a request forwarded to the PKI over plain HTTP is
 refused.
 
+The EST and ACME endpoints limit the requests of each client address
+and answer _429 Too Many Requests_ (with `Retry-After`) beyond it. A
+client address that fails the EST authentication 10 times within 10
+minutes is refused for 15 minutes.
+
 ===== Configure PacketFence
 
 In the template (_Configuration -> Integration -> PKI -> Templates_),

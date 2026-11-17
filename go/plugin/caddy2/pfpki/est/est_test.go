@@ -442,3 +442,38 @@ func expiredCertPEM(t *testing.T, cn string) string {
 	}
 	return string(pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: der}))
 }
+
+// A source that keeps failing the HTTP Basic authentication is locked
+// out, even with the right password; other sources aren't.
+func TestESTAuthLockout(t *testing.T) {
+	env := testutil.NewEnv(t)
+	mustEnableESTProfile(t, env, "est-lock")
+	url := env.Server.URL + "/api/v1/.well-known/est/est-lock/simpleenroll"
+	csr, _ := newCSR(t, "device.example.test")
+
+	// Requests without credentials (the client waiting for the
+	// challenge) don't count.
+	for i := 0; i < 15; i++ {
+		wantStatus(t, do(t, http.MethodPost, url, csr, false, ""), http.StatusUnauthorized)
+	}
+	for i := 0; i < 10; i++ {
+		wantStatus(t, do(t, http.MethodPost, url, csr, true, "wrong"), http.StatusUnauthorized)
+	}
+	resp := do(t, http.MethodPost, url, csr, true, estPassword)
+	wantStatus(t, resp, http.StatusTooManyRequests)
+	if resp.Header.Get("Retry-After") == "" {
+		t.Errorf("429 without Retry-After")
+	}
+
+	// The test server is reached from loopback: the last X-Forwarded-For
+	// entry is the client.
+	req, _ := http.NewRequest(http.MethodPost, url, strings.NewReader(csr))
+	req.SetBasicAuth(estUser, estPassword)
+	req.Header.Set("X-Forwarded-For", "192.0.2.50")
+	other, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer other.Body.Close()
+	wantStatus(t, other, http.StatusOK)
+}
