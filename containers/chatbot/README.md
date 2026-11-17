@@ -68,8 +68,9 @@ live api.conf / adminroles.conf mirrors.
 
 ### Packaged install (PacketFence 16+): no script needed
 1. Install the package and run the configurator.
-2. Configuration > System Configuration > Services: enable chatbot, then start
-   it from Status > Services (or `pfcmd service chatbot restart`).
+2. The chatbot service is enabled by default and starts with PacketFence
+   (packetfence.target). To turn it off: Configuration > System Configuration >
+   Services > chatbot.
 3. Configuration > Integration > NACBot: provider, API key, model.
 
 Everything else is built in: the PacketFence schema / db upgrade creates the

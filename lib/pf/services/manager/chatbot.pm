@@ -8,8 +8,8 @@ pf::services::manager::chatbot
 =head1 DESCRIPTION
 
 Manages packetfence-chatbot (NACBot), the pf-chatbot container started by
-conf/systemd/packetfence-chatbot.service. Opt-in: managed only when
-services.chatbot is enabled, which containers/pfchatbot/install.sh sets.
+conf/systemd/packetfence-chatbot.service. Enabled by default
+(services.chatbot); disable it in Configuration > System Configuration > Services.
 
 =cut
 

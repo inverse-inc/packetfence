@@ -484,7 +484,7 @@ pfldapexplorer=enabled
 # services.chatbot
 #
 # Should NACBot (chatbot) be managed by PacketFence?
-chatbot=disabled
+chatbot=enabled
 #
 # services.radiusd
 #
