@@ -1015,6 +1015,12 @@ sub switch_access {
         $return = $self->vpn($args, $options, \@sources, \$extra, \$otp, \$password);
         return $return if (ref($return) eq 'ARRAY');
     } elsif ($connection->isServiceTemplate || $connection->isACLDownload) {
+        # The downloadable ACL of a RADIUS server was proxied to it (see
+        # radius_filter): its answer is sent as is
+        if ($connection->isACLDownload && is_server_downloadable_acl($user_name)) {
+            $logger->info("Downloadable ACL $user_name defined by the RADIUS server, its answer is sent as is");
+            return [ $RADIUS::RLM_MODULE_OK ];
+        }
         return  $self->advancedAccess($args, $options);
     } else {
         $return = $self->cli($args, $options, \@sources, \$extra, \$otp, \$password);
@@ -1552,15 +1558,39 @@ sub radius_filter {
     $options->{'realm'}                    = $args->{'realm'} if (defined($args->{'realm'}));
     $options->{'radius_request'}           = $args->{'radius_request'};
 
+    my $filter = pf::access_filter::radius->new;
+
     # Exception for cisco DACL
     if ($connection->isServiceTemplate || $connection->isACLDownload) {
+        # A downloadable ACL defined by the RADIUS server of a proxied realm
+        # (Cisco ISE and ACS name it #ACSACL#-IP-<name>-<version>, a name
+        # PacketFence never gives to a role) can't be answered here: a filter
+        # can send it to that server with control:Proxy-To-Realm.
+        if ($connection->isACLDownload && is_server_downloadable_acl($user_name)) {
+            my $rule = $filter->test($scope, $args);
+            if (defined $rule) {
+                my ($reply, $status) = $filter->handleAnswerInRule($rule,$args,\%RAD_REPLY_REF);
+                return [$status, %$reply];
+            }
+        }
         return  $self->advancedAccess($args, $options);
     }
 
-    my $filter = pf::access_filter::radius->new;
     my $rule = $filter->test($scope, $args);
     my ($reply, $status) = $filter->handleAnswerInRule($rule,$args,\%RAD_REPLY_REF);
     return [$status, %$reply];
+}
+
+=head2 is_server_downloadable_acl
+
+Whether the downloadable ACL requested by a Cisco device is one defined by a
+RADIUS server (Cisco ISE or ACS) rather than by PacketFence
+
+=cut
+
+sub is_server_downloadable_acl {
+    my ($user_name) = @_;
+    return defined($user_name) && $user_name =~ /^#ACSACL#-IP(?:V6)?-/ ? $TRUE : $FALSE;
 }
 
 =head2 check_lost_stolen
