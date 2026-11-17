@@ -364,10 +364,6 @@ dist-packetfence-upgrade: distclean-packetfence-upgrade
 	-f packetfence-upgrade-$(PF_PATCH_RELEASE).tar packetfence-upgrade-$(PF_PATCH_RELEASE)
 	rm -rf packetfence-upgrade-$(PF_PATCH_RELEASE)
 
-.PHONY: website
-website:
-	$(SRC_CIDIR)/lib/release/publish-to-website.sh
-
 .PHONY: material
 material: DESTDIR=result
 material:
