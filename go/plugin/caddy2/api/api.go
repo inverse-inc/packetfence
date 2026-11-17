@@ -14,7 +14,7 @@ import (
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/db"
-	"github.com/inverse-inc/packetfence/go/db/sqlcomment"
+	"github.com/inverse-inc/packetfence/go/db/dbgorm"
 	"github.com/inverse-inc/packetfence/go/fbcollectorclient"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -22,8 +22,6 @@ import (
 	"github.com/inverse-inc/packetfence/go/uiplugins"
 	"github.com/julienschmidt/httprouter"
 	"golang.org/x/sync/singleflight"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 )
 
 // Register the plugin in caddy
@@ -140,75 +138,19 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 		router.Handle(method, "/api/v1/plugin/:name/*path", m.pluginProxy)
 	}
 
-	var DBP **gorm.DB
-	var DB *gorm.DB
-	var sqlDB *sql.DB
-	var err error
-	done := false
-	wait := false
+	// Blocks provisioning until the database answers, as before, but gives up
+	// on a hard configuration error. The handle is the process-wide shared
+	// pool: it reconnects on its own, so there is no ping/reopen loop, and it
+	// must never be closed.
+	DB, err := dbgorm.WaitFromConfig(ctx, 10*time.Second)
+	if err != nil {
+		log.LoggerWContext(ctx).Error("Unable to open the database for the API plugin: " + err.Error())
+		return err
+	}
+	DBP := &DB
 
-	wg := &sync.WaitGroup{}
-	wg.Add(1)
-
-	go func() {
-		for {
-			if done == false {
-				DB, err = gorm.Open(mysql.New(mysql.Config{DriverName: sqlcomment.DriverName, DSN: db.ReturnURIFromConfig(ctx)}), &gorm.Config{})
-				if DB != nil {
-					DBP = &DB
-					if wait == false {
-						wait = true
-						wg.Done()
-					}
-				}
-
-				if DB == nil {
-					log.LoggerWContext(ctx).Warn("gorm db is nil while trying to open db")
-				}
-				if err != nil {
-					log.LoggerWContext(ctx).Warn(err.Error())
-				}
-				if DB != nil && err == nil {
-					sqlDB, err = DB.DB()
-					if err != nil {
-						log.LoggerWContext(ctx).Warn("Could not get the database handle: " + err.Error())
-					} else {
-						// gorm.Open builds its own *sql.DB, bypassing
-						// db.ConnectURI, so the pool would otherwise run with Go's
-						// defaults: unlimited connections that are never recycled.
-						db.SetPoolLimits(sqlDB)
-						err := sqlDB.Ping()
-						if err == nil {
-							done = true
-						} else {
-							log.LoggerWContext(ctx).Warn(err.Error())
-							err := sqlDB.Close()
-							if err != nil {
-								log.LoggerWContext(ctx).Warn("error occured while closing db: ", err.Error())
-							}
-						}
-					}
-				}
-				time.Sleep(time.Duration(10) * time.Second)
-			} else {
-				sqlDB, err = DB.DB()
-				err := sqlDB.Ping()
-				if err != nil {
-					done = false
-					log.LoggerWContext(ctx).Warn(err.Error())
-					err := sqlDB.Close()
-					if err != nil {
-						log.LoggerWContext(ctx).Warn("error occured while closing db: ", err.Error())
-					}
-				}
-				time.Sleep(time.Duration(5) * time.Second)
-			}
-		}
-	}()
-
-	wg.Wait()
-	// Standalone *sql.DB handle used by handlers that need raw SQL access (e.g. resolving
-	// a node's connector from its locationlog switch IP).
+	// Raw *sql.DB access (e.g. resolving a node's connector from its
+	// locationlog switch IP). Same shared pool as DB above.
 	if sqlHandle, sqlErr := db.DbFromConfig(ctx); sqlErr != nil {
 		log.LoggerWContext(ctx).Warn("Unable to open sql.DB handle for the API plugin: " + sqlErr.Error())
 	} else {
