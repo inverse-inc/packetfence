@@ -7,7 +7,6 @@
     # put your test suites to try here
     test_suites:
       - configurator
-      - proxysql_tiers_ci  # CI-ONLY (revert before merge)
       - inline/l3
       - inline/l3/teardown
       - inline/l2
@@ -16,7 +15,6 @@
       - security_event_suricata/teardown
       - security_event_random_mac
       - security_event_random_mac/teardown
-      - proxysql_tiers_ci_report  # CI-ONLY (revert before merge)
 
   tasks:
     - name: Run Venom testsuites

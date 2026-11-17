@@ -6,7 +6,6 @@
   vars:
     test_suites:
       - configurator
-      - proxysql_tiers_ci  # CI-ONLY (revert before merge)
       - global_config_virtualswitch
       - wired_mac_auth_virtualswitch
       - wired_mac_auth_virtualswitch/teardown
@@ -15,7 +14,6 @@
       - vlan_inheritance_virtualswitch
       - vlan_inheritance_virtualswitch/teardown
       - global_config_virtualswitch/teardown
-      - proxysql_tiers_ci_report  # CI-ONLY (revert before merge)
 
   tasks:
     - name: Run Venom testsuites

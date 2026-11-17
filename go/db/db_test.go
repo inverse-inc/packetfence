@@ -65,7 +65,6 @@ func TestSetPoolLimitsStaysWithinTierBudgetInSaaS(t *testing.T) {
 }
 
 func TestSetPoolLimitsKeepsOnPremCap(t *testing.T) {
-	t.Skip("CI-ONLY (revert before merge): poolMaxOpen is forced to the SaaS cap")
 	// On-prem the database is the deployment's own: keep the previous cap.
 	for _, v := range []string{"", "no", "disabled"} {
 		t.Setenv("PF_SAAS", v)

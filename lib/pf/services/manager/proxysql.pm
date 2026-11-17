@@ -415,10 +415,7 @@ sub generateConfig {
     my $large_hostgroup  = 12;
     my $radius_hostgroup = 13;
 
-    # CI-ONLY (revert before merge): force tier mode so GitLab CI runs every
-    # scenario through the SaaS tiers without setting PF_SAAS, which also
-    # changes switch, connector and pfdns behaviour.
-    my $is_saas = 1;
+    my $is_saas = isenabled($ENV{PF_SAAS});
 
     # Cloud SQL for MySQL allows 4000 connections on every machine type except
     # db-f1-micro and db-g1-small. Google does not publish the per-tier table;
@@ -884,9 +881,7 @@ sub isManaged {
     my ($self) = @_;
     my $name = $self->name;
     if (isenabled($pf::config::Config{'services'}{$name})) {
-        # CI-ONLY (revert before merge): also run on a standalone node when
-        # database_proxysql is enabled, so CI can put ProxySQL in front of it.
-        return $cluster_enabled || isenabled($pf::config::Config{'database_proxysql'}{'status'});
+        return $cluster_enabled;
     } else {
         return 0;
     }

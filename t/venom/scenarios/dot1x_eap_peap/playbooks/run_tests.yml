@@ -6,7 +6,6 @@
   vars:
     test_suites:
     - configurator
-    - proxysql_tiers_ci  # CI-ONLY (revert before merge)
     - global_config
     - wired_dot1x_eap_peap
     - wired_dot1x_eap_peap/teardown
@@ -14,7 +13,6 @@
     - wired_dot1x_eap_peap_firewall_sso_https/teardown
     - wired_dot1x_eap_peap_firewall_sso_radius
     - wired_dot1x_eap_peap_firewall_sso_radius/teardown
-    - proxysql_tiers_ci_report  # CI-ONLY (revert before merge)
     - global_teardown
 
   tasks:
