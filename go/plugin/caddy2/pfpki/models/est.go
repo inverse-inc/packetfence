@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/inverse-inc/go-utils/log"
 	"golang.org/x/crypto/ocsp"
@@ -41,16 +42,20 @@ func GetESTProfile(db *gorm.DB, name string) (*Profile, error) {
 // request may only name its own CN: DNS and email SANs must repeat the
 // CN, IP and URI SANs are refused.
 //
-// simpleenroll applies the same duplicate-CN policy as the other issuance
-// paths (an existing certificate is superseded only when it is within
-// DaysBeforeRenewal of its expiry). simplereenroll renews the live
-// certificate of the CN under the profile whose public key is the one of
-// the CSR: the CSR signature proves the client holds that key, so it can
-// only renew its own certificate (a rekey goes through simpleenroll). The
-// new certificate is issued first and the renewed one is then revoked as
-// superseded, so a failed re-enrollment never leaves the client without a
-// certificate. The client has already been authenticated by the EST
-// handler.
+// For the same reason simpleenroll only issues a certificate for a CN
+// that has no live (unexpired) certificate under the profile, whatever
+// the duplicate-CN and DaysBeforeRenewal settings: otherwise any holder
+// of the shared password could supersede another device's certificate
+// and get one with that device's CN. Expired certificates of the CN are
+// revoked as superseded. Renewing a live certificate is what
+// simplereenroll is for: it renews the live certificate of the CN under
+// the profile whose public key is the one of the CSR. The CSR signature
+// proves the client holds that key, so it can only renew its own
+// certificate (a rekey needs the previous certificate to expire, or an
+// admin to revoke it). The new certificate is issued first and the
+// renewed one is then revoked as superseded, so a failed re-enrollment
+// never leaves the client without a certificate. The client has already
+// been authenticated by the EST handler.
 func IssueESTCert(db *gorm.DB, ctx context.Context, prof Profile, csr *x509.CertificateRequest, reenroll bool) (*Cert, error) {
 	cn := strings.TrimSpace(csr.Subject.CommonName)
 	if cn == "" {
@@ -61,7 +66,11 @@ func IssueESTCert(db *gorm.DB, ctx context.Context, prof Profile, csr *x509.Cert
 	}
 
 	if !reenroll {
-		if _, err := revokeNeeded(cn, &prof, prof.DaysBeforeRenewal, db); err != nil {
+		if err := refuseLiveCN(db, prof, cn); err != nil {
+			return nil, err
+		}
+		// Only expired certificates of the CN are left: revoke them.
+		if _, err := revokeNeeded(cn, &prof, 0, db); err != nil {
 			return nil, fmt.Errorf("%w: %s", ErrESTPolicy, err.Error())
 		}
 		return issueFromCSR(db, ctx, prof, csr, 0)
@@ -110,6 +119,27 @@ func checkESTNames(csr *x509.CertificateRequest, cn string) error {
 	return nil
 }
 
+// refuseLiveCN refuses an enrollment for a CN that has a live
+// certificate under prof. A certificate that can't be parsed counts as
+// live.
+func refuseLiveCN(db *gorm.DB, prof Profile, cn string) error {
+	var existing []Cert
+	if err := db.Where("cn = ? AND profile_name = ?", cn, prof.Name).Find(&existing).Error; err != nil {
+		return err
+	}
+	now := time.Now()
+	for i := range existing {
+		block, _ := pem.Decode([]byte(existing[i].Cert))
+		if block != nil {
+			if cert, err := x509.ParseCertificate(block.Bytes); err == nil && cert.NotAfter.Before(now) {
+				continue
+			}
+		}
+		return fmt.Errorf("%w: a certificate with CN %q is still valid under profile %q; use simplereenroll to renew it", ErrESTPolicy, cn, prof.Name)
+	}
+	return nil
+}
+
 // estCertForKey returns the live certificate with the given CN under
 // prof whose public key is pub.
 func estCertForKey(db *gorm.DB, prof Profile, cn string, pub crypto.PublicKey) (*Cert, error) {
@@ -133,5 +163,5 @@ func estCertForKey(db *gorm.DB, prof Profile, cn string, pub crypto.PublicKey) (
 			return &previous[i], nil
 		}
 	}
-	return nil, fmt.Errorf("%w: the CSR key is not the key of the certificate with CN %q under profile %q; use simpleenroll to enroll a new key", ErrESTPolicy, cn, prof.Name)
+	return nil, fmt.Errorf("%w: the CSR key is not the key of the certificate with CN %q under profile %q; re-enrollment must reuse the key of the certificate", ErrESTPolicy, cn, prof.Name)
 }
