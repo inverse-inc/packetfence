@@ -48,19 +48,28 @@ else
   warn "api-frontend container not found; skipping authz-map check"
 fi
 
-# image
+# image: optional in manage-images.sh, so pull it here, else build it
+KNK_REGISTRY_URL=$(sed -n 's/^KNK_REGISTRY_URL *= *//p' "$PF/config.mk" 2>/dev/null)
+REMOTE_IMAGE="${KNK_REGISTRY_URL:-ghcr.io/inverse-inc/packetfence}/chatbot:${TAG_OR_BRANCH_NAME:-devel}"
 if docker image inspect "$IMAGE" >/dev/null 2>&1; then
   ok "image $IMAGE present"
+elif docker pull -q "$REMOTE_IMAGE" >/dev/null 2>&1 && docker tag "$REMOTE_IMAGE" "$IMAGE"; then
+  ok "pulled $REMOTE_IMAGE"
 else
+  warn "could not pull $REMOTE_IMAGE"
   if [ -f "$PF/.dockerignore" ] || cat > "$PF/.dockerignore" <<'DI'
 *
 !lib/pfchatbot
 !containers/chatbot
+!docs
+!conf/pf-release
 containers/chatbot/docs
 DI
   then ok ".dockerignore in place"; fi
   step "1b. Image $IMAGE absent — building"
-  docker build -t "$IMAGE" -f "$PF/containers/chatbot/Dockerfile" "$PF" \
+  # host network: PF runs dockerd with --iptables=false and container NAT
+  # only exists once packetfence-iptables runs
+  docker build --network host -t "$IMAGE" -f "$PF/containers/chatbot/Dockerfile" "$PF" \
     || die "image build failed"
 fi
 
@@ -71,45 +80,31 @@ for f in /var/lib/mysql/mysql.sock "$PF/conf/local_secret" "$PF/docs/api/spec/op
 done
 ok "all unit mount sources exist"
 
-step "2. One-time DB grant (store.init() needs DDL; pf@localhost already holds DROP+DML)"
-if mysql -S /var/lib/mysql/mysql.sock -e "SHOW GRANTS FOR 'pf'@'localhost'" 2>/dev/null | grep -q 'CREATE.*ON `pf`\.\*'; then
-  ok "grant already present"
+step "2. Conversation tables (created by the PacketFence schema / db upgrade)"
+TABLES_SQL="SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA='pf' AND TABLE_NAME IN ('chatbot_thread','chatbot_message','chatbot_usage','chatbot_file')"
+if [ "$(mysql -S /var/lib/mysql/mysql.sock -N -e "$TABLES_SQL" 2>/dev/null)" = 4 ]; then
+  ok "chatbot tables present; no DB grant needed"
+elif mysql -S /var/lib/mysql/mysql.sock -e "SHOW GRANTS FOR 'pf'@'localhost'" 2>/dev/null | grep -q 'CREATE.*ON `pf`\.\*'; then
+  ok "tables missing (pre-16 schema); the service will create them"
 else
+  warn "tables missing (pre-16 schema): granting DDL so the service can create them"
   mysql -S /var/lib/mysql/mysql.sock -e \
     "GRANT CREATE, ALTER, INDEX ON pf.* TO 'pf'@'localhost'; FLUSH PRIVILEGES;" \
     || die "could not grant — run as a user with MySQL root socket access"
   ok "granted CREATE, ALTER, INDEX on pf.* to pf@localhost"
 fi
 
-step "3. Environment files"
-EX="$PF/lib/pfchatbot/pfchatbot.env.example"
-[ -f "$EX" ] || EX="$PF/containers/chatbot/pfchatbot.env.example"
-if [ ! -f "$PF/conf/pfchatbot.env" ]; then
-  cp "$EX" "$PF/conf/pfchatbot.env"
-  warn "created conf/pfchatbot.env from the example — EDIT IT: PF_ADMIN_URL"
-else
-  ok "conf/pfchatbot.env exists"
-fi
-if [ ! -f "$PF/conf/pfchatbot-testtool.env" ]; then
-  EXT="$PF/lib/pfchatbot/pfchatbot-testtool.env.example"
-  [ -f "$EXT" ] || EXT="$PF/containers/chatbot/pfchatbot-testtool.env.example"
-  cp "$EXT" "$PF/conf/pfchatbot-testtool.env"
-  ok "created conf/pfchatbot-testtool.env (defaults are portable)"
-else
-  ok "conf/pfchatbot-testtool.env exists"
-fi
-chmod 600 "$PF/conf/pfchatbot.env" "$PF/conf/pfchatbot-testtool.env"
-if grep -qE 'REPLACE-ME|sk-REPLACE' "$PF/conf/pfchatbot.env"; then
-  warn "placeholders remain in conf/pfchatbot.env — the service will start, but"
-  warn "the bot ignores them only where pf.conf [pfchatbot] sets the same setting"
-fi
+step "3. Environment files (optional overrides)"
+for f in "$PF/conf/pfchatbot.env" "$PF/conf/pfchatbot-testtool.env"; do
+  if [ -f "$f" ]; then chmod 600 "$f"; ok "$f present (overrides the defaults)"; fi
+done
+ok "defaults match the PacketFence integration (see lib/pfchatbot/*.env.example)"
 
 step "4. Documentation corpus for RAG"
-if ls "$PF/containers/chatbot/docs/"*.txt >/dev/null 2>&1; then
-  ok "docs already fetched"
+if ls "$PF/containers/chatbot/docs/"* >/dev/null 2>&1; then
+  ok "using the guides in containers/chatbot/docs (overrides the built-in ones)"
 else
-  DOCS_DIR="$PF/containers/chatbot/docs" bash "$PF/lib/pfchatbot/fetch_docs.sh" \
-    || warn "doc fetch failed (offline?) — the bot still works; RAG indexes the API spec only"
+  ok "using the guides built into the image for this PacketFence version"
 fi
 
 step "5. Service"

@@ -38,7 +38,8 @@ args="$args -v /usr/local/pf/docs/api/spec/openapi.json:/spec/openapi.json:ro"
 args="$args -v /usr/local/pf/logs:/pflogs:ro"
 args="$args -v /var/lib/mysql/mysql.sock:/var/lib/mysql/mysql.sock"
 args="$args --group-add 2025"
-args="$args --memory 2g --memory-swap 2g"
+# First boot embeds the RAG index and loads the rerank model; 2g is OOM-killed there.
+args="$args --memory 4g --memory-swap 4g"
 
 cd /usr/local/pf/
 

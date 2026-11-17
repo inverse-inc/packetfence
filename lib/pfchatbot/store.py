@@ -184,11 +184,8 @@ def _table_opts() -> str:
     return "ENGINE=InnoDB DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci"
 
 
-def init() -> None:
-    """Create the tables if absent. Safe to call repeatedly."""
-    with _init_lock:
-        if _state["ready"]:
-            return
+def _create_tables() -> None:
+    try:
         pid_ddl = _pid_column_ddl()
         opts = _table_opts()
 
@@ -259,6 +256,31 @@ def init() -> None:
               CONSTRAINT `fk_{PREFIX}file_thread` FOREIGN KEY (`pid`,`thread_id`)
                 REFERENCES `{T_THREAD}` (`pid`,`thread_id`) ON DELETE CASCADE
             ) {opts}""", fetch="none")
+    except pymysql.err.MySQLError as e:
+        if e.args and e.args[0] in (1044, 1142):
+            raise StoreUnavailable(
+                "chatbot tables are missing and the database user may not create them: "
+                "run the PacketFence database upgrade (db/upgrade-*.sql), which creates them") from e
+        raise
+
+
+def _tables_exist() -> bool:
+    names = (T_THREAD, T_MSG, T_USAGE, T_FILE)
+    row = _q("SELECT COUNT(*) AS n FROM information_schema.TABLES "
+             "WHERE TABLE_SCHEMA=%s AND TABLE_NAME IN (%s,%s,%s,%s)",
+             (DB_NAME,) + names, fetch="one")
+    return bool(row) and int(row["n"]) == len(names)
+
+
+def init() -> None:
+    """Create the tables if absent. Safe to call repeatedly."""
+    with _init_lock:
+        if _state["ready"]:
+            return
+        # The PacketFence schema / db upgrade creates these tables, so the pf
+        # DB user needs no DDL grant; create them only on older schemas.
+        if not _tables_exist():
+            _create_tables()
 
         row = _q("SELECT @@innodb_ft_min_token_size AS n", fetch="one")
         _state["ft_min"] = int(row["n"]) if row else 3

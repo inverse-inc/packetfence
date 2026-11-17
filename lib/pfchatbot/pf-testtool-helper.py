@@ -68,11 +68,35 @@ def _radius_target_from_admin_url() -> str:
     return m.group(1) if m else ""
 
 
+def _radius_target_from_pfconf() -> str:
+    """The management interface IP from pf.conf ([interface X] type=management)."""
+    path = os.path.join(os.environ.get("PF_CONF_DIR", "/usr/local/pf/conf"), "pf.conf")
+    sec, ip, mgmt = None, {}, set()
+    try:
+        with open(path, encoding="utf-8", errors="replace") as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith("[") and line.endswith("]"):
+                    sec = line[1:-1].strip()
+                elif sec and sec.startswith("interface ") and "=" in line:
+                    k, v = (x.strip() for x in line.split("=", 1))
+                    if k == "ip":
+                        ip[sec] = v
+                    elif k == "type" and "management" in v:
+                        mgmt.add(sec)
+    except OSError:
+        return ""
+    return next((ip[s] for s in mgmt if ip.get(s)), "")
+
+
 RADIUS_SERVER = os.environ.get("RADIUS_SERVER", "auto").strip()
 if RADIUS_SERVER.lower() in ("", "auto"):
     RADIUS_SERVER = _radius_target_from_admin_url()
     if RADIUS_SERVER:
         print(f"[pf-testtool-helper] RADIUS_SERVER from PF_ADMIN_URL: {RADIUS_SERVER}")
+    elif _radius_target_from_pfconf():
+        RADIUS_SERVER = _radius_target_from_pfconf()
+        print(f"[pf-testtool-helper] RADIUS_SERVER from pf.conf management interface: {RADIUS_SERVER}")
     else:
         RADIUS_SERVER = _detect_host_ip()
         print(f"[pf-testtool-helper] RADIUS_SERVER auto-detected: {RADIUS_SERVER}")
@@ -89,7 +113,8 @@ RADIUS_SECRET = os.environ.get("RADIUS_SECRET", "")
 # The file has no trailing newline in PacketFence, but strip() handles any
 # whitespace/newline regardless. A non-empty RADIUS_SECRET env var, if set,
 # is used as a fallback when the file is missing or unreadable.
-_SECRET_FILE = os.environ.get("RADIUS_SECRET_FILE", "").strip()
+_SECRET_FILE = os.environ.get("RADIUS_SECRET_FILE", "").strip() or (
+    "/usr/local/pf/conf/local_secret" if os.path.exists("/usr/local/pf/conf/local_secret") else "")
 if _SECRET_FILE:
     try:
         with open(_SECRET_FILE, "r", encoding="utf-8", errors="strict") as _f:

@@ -1,3 +1,17 @@
+# The RAG guides, rendered from this PacketFence version's own docs/ the same
+# way `make html` does, so the image needs no download at install or run time.
+FROM asciidoctor/docker-asciidoctor AS docs
+WORKDIR /src
+COPY docs/ docs/
+COPY conf/pf-release conf/pf-release
+RUN v="$(grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' conf/pf-release | head -1)"; \
+    for g in PacketFence_Installation_Guide PacketFence_Upgrade_Guide \
+             PacketFence_Network_Devices_Configuration_Guide PacketFence_Clustering_Guide; do \
+      asciidoctor -n -r ./docs/asciidoctor-html.rb -a release_version="$v" \
+        -a release_minor="${v%.*}" -D /out "docs/$g.asciidoc" || exit 1; \
+    done; \
+    ls -la /out
+
 FROM python:3.12-slim
 
 WORKDIR /app
@@ -29,6 +43,9 @@ COPY lib/pfchatbot/providers/ ./providers/
 COPY lib/pfchatbot/rag/ ./rag/
 COPY lib/pfchatbot/pf-testtool-helper.py .
 COPY containers/chatbot/supervisor.sh .
+COPY --from=docs /out/ /tmp/docs-html/
+COPY lib/pfchatbot/docs_to_text.py /tmp/
+RUN python3 /tmp/docs_to_text.py /tmp/docs-html /app/docs && rm -rf /tmp/docs-html /tmp/docs_to_text.py
 
 # Two identities, because the helper is the only thing allowed to execute the
 # RADIUS tools. The app runs as pfbot and is NOT in the pfhelper group, so even

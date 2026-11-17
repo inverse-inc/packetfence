@@ -17,6 +17,8 @@ the old inode and never sees a change.
 """
 from __future__ import annotations
 
+import base64
+import hashlib
 import os
 
 PF_CONF_DIR = os.environ.get("PF_CONF_DIR", "/usr/local/pf/conf")
@@ -71,11 +73,38 @@ def _path(name: str) -> str:
     return os.path.join(PF_CONF_DIR, name)
 
 
+_derived_key = None
+
+
+def pf_decrypt(value: str) -> str:
+    """Decrypt a PF_ENC[...] value like pf::config::crypt: AES-256-GCM, key =
+    PBKDF2-HMAC-SHA256(system_init_key, "packetfence", 5000, 32). Returns the
+    value unchanged when it is not encrypted or cannot be decrypted."""
+    global _derived_key
+    if not value.startswith("PF_ENC[") or not value.endswith("]"):
+        return value
+    try:
+        from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+        if _derived_key is None:
+            with open(_path("system_init_key"), "rb") as f:
+                _derived_key = hashlib.pbkdf2_hmac("sha256", f.read(), b"packetfence", 5000, 32)
+        tags = {}
+        for part in value[len("PF_ENC["):-1].split(","):
+            k, _, v = part.strip().partition(":")
+            tags[k] = base64.b64decode(v)
+        plain = AESGCM(_derived_key).decrypt(tags["iv"], tags["data"] + tags["tag"],
+                                             tags.get("ad") or None)
+        return plain.decode("utf-8")
+    except Exception as e:
+        print(f"[pf-bot] could not decrypt a PF_ENC value from pf.conf ({e.__class__.__name__})", flush=True)
+        return value
+
+
 def section() -> dict:
     """The [pfchatbot] section, pf.conf layered over pf.conf.defaults."""
     merged = read_ini_section(_path("pf.conf.defaults"), {SECTION})
     merged.update(read_ini_section(_path("pf.conf"), {SECTION}))
-    return merged
+    return {k: pf_decrypt(v) for k, v in merged.items()}
 
 
 def _env_value(key: str, raw: str) -> str:

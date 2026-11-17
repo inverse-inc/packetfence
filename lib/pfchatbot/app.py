@@ -29,6 +29,7 @@ Run:
 from __future__ import annotations
 
 import contextvars
+import http.cookiejar as _cookiejar
 import hashlib
 import json
 import os
@@ -196,12 +197,27 @@ def _detect_pf_version() -> str:
 
 
 PF_OPENAPI    = os.environ.get("PF_OPENAPI_URL", "")
-PF_OPENAPI_F  = os.environ.get("PF_OPENAPI_FILE", "openapi.json")
+PF_OPENAPI_F  = os.environ.get("PF_OPENAPI_FILE") or (
+    "/spec/openapi.json" if os.path.exists("/spec/openapi.json") else "openapi.json")
 VERIFY_TLS    = os.environ.get("PF_VERIFY_TLS", "false").lower() == "true"
+# Guides rendered from this PacketFence version's docs/ at image build time.
+BUILTIN_DOCS_DIR = "/app/docs"
+
+
+def _default_docs_dir() -> str:
+    """/docs when an administrator placed guides there, else the built-in ones."""
+    try:
+        if any(not n.startswith(".") for n in os.listdir("/docs")):
+            return "/docs"
+    except OSError:
+        pass
+    return BUILTIN_DOCS_DIR
+
+
 RAG_FILES     = [p for p in os.environ.get("RAG_LOCAL_FILES", "").split(",") if p.strip()]
 # If no explicit files/dirs are configured, index everything in the docs dir.
 if not RAG_FILES:
-    RAG_FILES = [os.environ.get("RAG_DOCS_DIR", "/docs")]
+    RAG_FILES = [os.environ.get("RAG_DOCS_DIR") or _default_docs_dir()]
 RAG_URLS      = [u for u in os.environ.get("RAG_URLS", "").split(",") if u.strip()]
 RAG_EMBED     = os.environ.get("RAG_EMBED_MODEL", "").strip() or None
 RAG_RERANK    = os.environ.get("RAG_RERANK_MODEL", "").strip() or None
@@ -267,8 +283,12 @@ class _RetryTransport(httpx.HTTPTransport):
         return resp
 
 
+# No cookie jar: PacketFence's /login also sets a token cookie, which would
+# authenticate later calls as the service account and override the caller's
+# own Authorization header.
 http = httpx.Client(
     verify=VERIFY_TLS,
+    cookies=_cookiejar.CookieJar(policy=_cookiejar.DefaultCookiePolicy(allowed_domains=[])),
     timeout=httpx.Timeout(connect=10.0, read=LLM_TIMEOUT, write=30.0, pool=10.0),
     transport=_RetryTransport(verify=VERIFY_TLS, attempts=LLM_RETRIES),
 )
@@ -319,7 +339,16 @@ def login():
     return _state["token"]
 
 
+# The admin UI's token, forwarded by the admin proxy: PacketFence calls made
+# while serving a request run with the caller's own admin permissions. The
+# pf_username service login is only the fallback (no caller, e.g. standalone).
+_caller_token: contextvars.ContextVar = contextvars.ContextVar("caller_token", default=None)
+
+
 def auth():
+    tok = _caller_token.get()
+    if tok:
+        return {"Authorization": tok}
     if not _state["token"] and PF_USERNAME:
         login()
     return {"Authorization": _state["token"]} if _state["token"] else {}
@@ -2388,13 +2417,12 @@ def run_agent(history: list[dict], debug: bool = False,
 # sees only their own threads and a deleted person takes their history with them.
 import store
 
-CHATBOT_USER_HEADER = os.environ.get("CHATBOT_USER_HEADER", "X-PF-Username")
 # PacketFence's AAA layer sets X-PacketFence-Username on the proxied request
-# (go/api-frontend/aaa/authorization.go), so behind the admin API set
-# CHATBOT_USER_HEADER=X-PacketFence-Username.
+# (go/api-frontend/aaa/authorization.go).
+CHATBOT_USER_HEADER = os.environ.get("CHATBOT_USER_HEADER", "X-PacketFence-Username")
 # The admin proxy also passes the caller's admin actions. A user who lacks the
 # write action may ask anything but may not stage or run a change.
-CHATBOT_ROLES_HEADER = os.environ.get("CHATBOT_ROLES_HEADER", "X-PF-Admin-Actions")
+CHATBOT_ROLES_HEADER = os.environ.get("CHATBOT_ROLES_HEADER", "X-PacketFence-Admin-Roles")
 CHATBOT_WRITE_ACTION = os.environ.get("CHATBOT_WRITE_ACTION", "CHATBOT_WRITE")
 # The proxy forwards the caller's admin ROLE NAMES (X-PacketFence-Admin-Roles,
 # set in go/api-frontend/aaa/authorization.go), not expanded actions. Accept the
@@ -2403,8 +2431,9 @@ CHATBOT_WRITE_ACTION = os.environ.get("CHATBOT_WRITE_ACTION", "CHATBOT_WRITE")
 _WRITE_GRANTS = {g.strip().upper() for g in os.environ.get(
     "CHATBOT_WRITE_GRANTS",
     CHATBOT_WRITE_ACTION + ",CHATBOT-ADMIN,ALL,ALL_PF_ONLY").split(",") if g.strip()}
-# Open by default so a standalone install keeps working; the PacketFence
-# integration sets this to 1 so an unproxied request can never write.
+# Off by default: the admin proxy already requires the CHATBOT_WRITE action on
+# every /write/ route, checked against expanded actions (custom roles too),
+# whereas the roles header above only carries role names.
 CHATBOT_REQUIRE_WRITE_ACTION = os.environ.get("CHATBOT_REQUIRE_WRITE_ACTION", "0") == "1"
 
 
@@ -2459,6 +2488,17 @@ def current_pid(request) -> str:
 #
 # ── web app ──────────────────────────────────────────────────────────────────
 app = FastAPI()
+
+
+@app.middleware("http")
+async def _forward_caller_token(request: Request, call_next):
+    tok = request.headers.get("authorization")
+    reset = _caller_token.set(tok) if tok else None
+    try:
+        return await call_next(request)
+    finally:
+        if reset is not None:
+            _caller_token.reset(reset)
 
 
 @app.on_event("startup")

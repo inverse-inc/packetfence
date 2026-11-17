@@ -84,6 +84,10 @@ configure_and_check() {
     # yes=default
     CLEANUP_IMAGES=${CLEANUP_IMAGES:-yes}
 
+    # Opt-in services: pulled best-effort, never fail the install.
+    # containers/chatbot/install.sh pulls or builds the image when enabled.
+    OPTIONAL_IMAGES="chatbot"
+
     # find all directories with Dockerfile
     # excluding non necessary images
     DOCKERFILE_DIRS=$(find ${SCRIPT_DIR} -type f -name "Dockerfile" \
@@ -103,6 +107,7 @@ configure_and_check() {
                            -not -path "*/vagrant-build/*" \
                            -not -path "*/pfconfig-material-builder/*" \
                            -not -path "*/zen-builder/*" \
+                           -not -path "*/chatbot/*" \
                            -printf "%P\n")
 
     for file in ${DOCKERFILE_DIRS}; do
@@ -113,6 +118,9 @@ configure_and_check() {
     echo "$(date) - Images detected:"
     for img in ${CONTAINERS_IMAGES}; do
 	echo "- $img"
+    done
+    for img in ${OPTIONAL_IMAGES}; do
+	echo "- $img (optional)"
     done
 }
 
@@ -158,6 +166,22 @@ pull_images() {
             fi
         fi
     done
+
+    for img in ${OPTIONAL_IMAGES}; do
+        FULL_IMAGE="${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME}"
+        if [ "$OFFLINE" = "yes" ] && docker image inspect "${FULL_IMAGE}" &>/dev/null; then
+            echo "Image already exists locally: ${FULL_IMAGE}"
+            continue
+        fi
+        if docker pull -q "${FULL_IMAGE}" || docker pull -q "${FULL_IMAGE}"; then
+            continue
+        fi
+        if docker image inspect "${FULL_IMAGE}" &>/dev/null; then
+            echo "$(date) - Falling back to pre-existing local image: ${FULL_IMAGE}"
+        else
+            echo "$(date) - WARNING: optional image unavailable: ${FULL_IMAGE} (run containers/${img}/install.sh to pull or build it)"
+        fi
+    done
     echo "$(date) - Pull of images finished"
 }
 
@@ -166,6 +190,12 @@ tag_images() {
 	docker tag ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME} ${LOCAL_REGISTRY}/${img}:${TAG_OR_BRANCH_NAME}
 #	docker tag ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME} ${img}:latest
 # 	docker tag ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME} ${LOCAL_REGISTRY}/${img}:latest
+    done
+
+    for img in ${OPTIONAL_IMAGES}; do
+	if docker image inspect ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME} &>/dev/null; then
+	    docker tag ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME} ${LOCAL_REGISTRY}/${img}:${TAG_OR_BRANCH_NAME}
+	fi
     done
 
     # The pfconnector-server and pfconnector-client images point to the local pfconnector image

@@ -23,12 +23,12 @@
 
     <form-group-pf-username namespace="pf_username"
                             :column-label="$i18n.t('PacketFence API username')"
-                            :text="$i18n.t('The admin API user the assistant uses to read and change PacketFence data. Requires a restart of the assistant.')"
+                            :text="$i18n.t('Optional. Leave empty to use the signed-in admin\'s own permissions. Set only for a dedicated service account. Requires a restart of the assistant.')"
     />
 
     <form-group-pf-password namespace="pf_password"
                             :column-label="$i18n.t('PacketFence API password')"
-                            :text="$i18n.t('Requires a restart of the assistant.')"
+                            :text="$i18n.t('Optional. Password of the service account. Requires a restart of the assistant.')"
     />
 
     <form-group-pf-verify-tls namespace="pf_verify_tls"

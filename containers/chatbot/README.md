@@ -66,6 +66,20 @@ live api.conf / adminroles.conf mirrors.
 
 ## Install
 
+### Packaged install (PacketFence 16+): no script needed
+1. Install the package and run the configurator.
+2. Configuration > System Configuration > Services: enable chatbot, then start
+   it from Status > Services (or `pfcmd service chatbot restart`).
+3. Configuration > Integration > NACBot: provider, API key, model.
+
+Everything else is built in: the PacketFence schema / db upgrade creates the
+chatbot tables (the pf DB user needs no extra grant), the image carries the
+Installation, Upgrade, Network Devices and Clustering guides rendered from
+this version's docs/, the defaults match the admin proxy headers, and the
+assistant calls the PacketFence API with the signed-in admin's own token
+(pf_username / pf_password are an optional service account). install.sh
+remains as a check/repair tool. The steps below are for older installs.
+
 ### 0. Prerequisites
 Containerized PacketFence 15.1/15.2, docker, admin credentials, an LLM API key.
 
@@ -130,6 +144,8 @@ would affect every other build in the repo):
     *
     !lib/pfchatbot
     !containers/chatbot
+    !docs
+    !conf/pf-release
     containers/chatbot/docs
     DI
 
@@ -150,8 +166,9 @@ HARD REQUIREMENTS learned the hard way:
   (docker exec api-frontend getent hosts containers-gateway.internal).
   BIND_HOST=auto picks the PF management IP; on hosts where that is public,
   the bot listens on the internet with no authentication in front.
-- CHATBOT_USER_HEADER=X-PacketFence-Username and
-  CHATBOT_REQUIRE_WRITE_ACTION=1 behind the admin proxy.
+- CHATBOT_USER_HEADER / CHATBOT_ROLES_HEADER default to the headers the
+  admin proxy sets (X-PacketFence-Username / X-PacketFence-Admin-Roles); the
+  proxy itself requires CHATBOT_WRITE on every /write/ route.
 - docker --env-file has NO inline-comment syntax: comments on their own lines.
 
 ### 6. Docs corpus + first boot
@@ -217,7 +234,10 @@ Plus: the UI at https://<host>:1443/admin/#/assistant, Run test (exercises
 the testtool helper), file upload/download.
 
 ## Upgrades
-A PF upgrade re-pulls image tags and replaces packaged files. Re-apply per
+A PF upgrade re-pulls image tags and replaces packaged files. The chatbot
+image is optional in containers/manage-images.sh: if it cannot be pulled the
+upgrade still completes, and re-running containers/chatbot/install.sh pulls
+or builds it. Re-apply per
 addons/pfchatbot/MODIFICATIONS.md: the api-frontend binary overlay and the
 live api.conf/adminroles.conf mirrors.
 The pfchatbot directories themselves are unowned and survive.
