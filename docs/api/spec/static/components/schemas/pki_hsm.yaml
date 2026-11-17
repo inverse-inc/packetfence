@@ -1,0 +1,227 @@
+PkiHsm:
+  type: object
+  description: |
+    A PKCS#11 token (HSM) that can hold the private keys of PKI Certificate
+    Authorities. The token is opened with the module, token label and PIN
+    when the HSM is created or updated; the request fails when it can't be.
+  properties:
+    name:
+      type: string
+      description: Unique name of the HSM.
+      example: hsm1
+    module:
+      type: string
+      description: Path of the PKCS#11 module (shared library) on the PacketFence server.
+      example: /usr/lib/softhsm/libsofthsm2.so
+    token_label:
+      type: string
+      description: Label of the token in the PKCS#11 module.
+      example: packetfence
+    pin:
+      type: string
+      format: password
+      writeOnly: true
+      description: |
+        User PIN of the token. Write-only: it is never returned by the API.
+        On update, leaving it out (or empty) keeps the stored PIN.
+
+PkiHsmForm:
+  allOf:
+    - $ref: '#/components/schemas/PkiHsm'
+    - required:
+      - name
+      - module
+      - token_label
+      - pin
+
+PkiHsmsList:
+  type: object
+  allOf:
+    - $ref: '#/components/schemas/Iterable'
+    - $ref: '#/components/schemas/Gorm'
+    - properties:
+        contentType:
+          type: string
+        error:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PkiHsm'
+        password:
+          type: string
+        raw:
+          type: string
+        serial:
+          type: string
+        status:
+          $ref: '#/components/schemas/Status'
+
+PkiHsmsSearch:
+  allOf:
+    - $ref: '#/components/schemas/Iterable'
+    - $ref: '#/components/schemas/Gorm'
+    - type: object
+      properties:
+        items:
+          description: HSMs.
+          type: array
+          items:
+            $ref: '#/components/schemas/PkiHsm'
+
+PkiHsmsQuery:
+  type: object
+  oneOf:
+    - $ref: '#/components/schemas/PkiHsmsQueryNested'
+    - $ref: '#/components/schemas/PkiHsmsQueryField'
+  discriminator:
+    propertyName: op
+    mapping:
+      and: '#/components/schemas/PkiHsmsQueryNested'
+      or: '#/components/schemas/PkiHsmsQueryNested'
+      contains: '#/components/schemas/PkiHsmsQueryField'
+      not_contains: '#/components/schemas/PkiHsmsQueryField'
+      match: '#/components/schemas/PkiHsmsQueryField'
+      not_match: '#/components/schemas/PkiHsmsQueryField'
+      between: '#/components/schemas/PkiHsmsQueryField'
+      not_between: '#/components/schemas/PkiHsmsQueryField'
+      is: '#/components/schemas/PkiHsmsQueryField'
+      is_not: '#/components/schemas/PkiHsmsQueryField'
+  example:
+    op: and
+    values:
+      - field: id
+        op: contains
+        value: ""
+
+PkiHsmsQueryNested:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - and
+        - or
+    values:
+      description: Nested child search criteria.
+      type: array
+      items:
+        $ref: '#/components/schemas/PkiHsmsQuery'
+
+PkiHsmsQueryField:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - contains
+        - not_contains
+        - match
+        - not_match
+        - between
+        - not_between
+        - is
+        - is_not
+    field:
+      $ref: '#/components/schemas/PkiHsmsField'
+    value:
+      description: Search criteria.
+      type: string
+
+PkiHsmsFields:
+  type: array
+  items:
+    $ref: '#/components/schemas/PkiHsmsField'
+  example:
+    - id
+    - name
+    - module
+    - token_label
+
+PkiHsmsField:
+  type: string
+  example: id
+  enum:
+    - id
+    - name
+    - module
+    - token_label
+
+PkiHsmsSort:
+  type: array
+  items:
+    type: string
+    example: id ASC
+    enum:
+      - id ASC
+      - id DESC
+      - name ASC
+      - name DESC
+      - module ASC
+      - module DESC
+      - token_label ASC
+      - token_label DESC
+
+PkiAcmeEab:
+  type: object
+  description: ACME External Account Binding key (RFC 8555 section 7.3.4) of a PKI Profile.
+  properties:
+    id:
+      type: integer
+      readOnly: true
+      description: '`PRIMARY KEY`'
+      example: 1
+    key_id:
+      type: string
+      readOnly: true
+      description: EAB key identifier (URL-safe base64, 16 random bytes), given to the ACME client as its EAB KID.
+      example: q2fP1x0bW5n9hQ3sXy4ZbA
+    hmac:
+      type: string
+      readOnly: true
+      description: |
+        EAB HMAC key (URL-safe base64, 64 random bytes). Only returned by
+        the request that creates the key; it can't be retrieved afterwards
+        (create a new key if it was lost).
+    reference:
+      type: string
+      description: Free-form label of the key, not used by the protocol.
+      example: fleet-2026Q2
+    bound_account_id:
+      type: integer
+      readOnly: true
+      description: ACME account the key was consumed by (absent while the key is unused).
+    created_at:
+      type: string
+      format: date-time
+      readOnly: true
+      example: '2026-01-01T00:00:00Z'
+
+PkiAcmeEabList:
+  type: object
+  properties:
+    items:
+      type: array
+      description: EAB keys of the profile, newest first. The HMAC keys are never included.
+      items:
+        $ref: '#/components/schemas/PkiAcmeEab'
+
+PkiErrors:
+  type: object
+  description: Error answer of the PKI service.
+  properties:
+    errors:
+      type: array
+      items:
+        type: object
+        properties:
+          field:
+            type: string
+          message:
+            type: string
+    message:
+      type: string
+    status:
+      type: integer

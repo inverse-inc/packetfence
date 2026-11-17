@@ -139,3 +139,63 @@ PkiScepServersSearch:
             minimum: 1
             maximum: 1000
             example: 1
+
+PkiHsm:
+  required: true
+  content:
+    application/json:
+      schema:
+        $ref: '#/components/schemas/PkiHsmForm'
+
+PkiHsmUpdate:
+  required: true
+  description: The fields left out keep their stored value.
+  content:
+    application/json:
+      schema:
+        $ref: '#/components/schemas/PkiHsm'
+
+PkiHsmsSearch:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          cursor:
+            type: integer
+          sort:
+            $ref: '#/components/schemas/PkiHsmsSort'
+          query:
+            $ref: '#/components/schemas/PkiHsmsQuery'
+          limit:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            example: 1
+
+PkiAcmeEabCreate:
+  required: false
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          reference:
+            type: string
+            description: Optional free-form label of the key.
+            example: fleet-2026Q2
+
+PkiCertEmail:
+  required: false
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          password:
+            type: string
+            format: password
+            description: |
+              Optional password of the PKCS-12 file sent by email. When left
+              out, a random password is generated.

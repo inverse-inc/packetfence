@@ -118,7 +118,7 @@ PkiCertDownload:
         example: attachment; filename="certificate.p12"
 
 PkiCertEmail:
-  description: Request successful. The PKI Certificate has been emailed.
+  description: Request successful. The PKI Certificate has been emailed. `password` is the password of the PKCS-12 file.
   content:
     application/json:
       schema:
@@ -186,3 +186,90 @@ PkiScepServersSearch:
     application/json:
       schema:
         $ref: "#/components/schemas/PkiScepServersSearch"
+
+PkiHsm:
+  description: Request successful. The response contains the PKI HSM (without its PIN).
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiHsmsList"
+
+PkiHsmsList:
+  description: Request successful. The response contains the PKI HSMs (without their PIN).
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiHsmsList"
+
+PkiHsmCreate:
+  description: Request successful. The token was opened with the given settings and the PKI HSM has been created.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiHsmsList"
+
+PkiHsmsSearch:
+  description: Request successful. The response contains the search results.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiHsmsSearch"
+
+PkiHsmDelete:
+  description: Request successful. The PKI HSM has been deleted.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiNull"
+
+PkiHsmInUse:
+  description: The PKI HSM holds the key of at least one Certificate Authority and can't be deleted.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiErrors"
+
+PkiError:
+  description: Request failed.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiErrors"
+
+PkiAcmeEabList:
+  description: Request successful. The response contains the EAB keys of the profile, without their HMAC key.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiAcmeEabList"
+
+PkiAcmeEabCreate:
+  description: The EAB key has been created. This is the only answer that contains its HMAC key.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiAcmeEab"
+
+PkiAcmeMobileConfig:
+  description: |
+    Request successful. The response is an unsigned Apple configuration
+    profile with one ACME certificate payload (com.apple.security.acme)
+    pointing to the ACME directory of the profile. Sign and deploy it
+    with your MDM.
+  headers:
+    Content-Disposition:
+      schema:
+        type: string
+      example: attachment; filename="pfpki-acme-default.mobileconfig"
+  content:
+    application/x-apple-aspen-config:
+      schema:
+        type: string
+        description: XML property list.
+
+PkiProcessCloudRevocations:
+  description: Request successful. `total_count` is the number of cloud-side revocations applied.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiNull"
