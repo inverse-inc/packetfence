@@ -183,6 +183,29 @@ func TestAcmeEAB_BadProfileID(t *testing.T) {
 	}
 }
 
+// TestAcmeEAB_UnknownProfile: an id that names no profile is a 404 on
+// mint and list, not a 500 from the foreign key.
+func TestAcmeEAB_UnknownProfile(t *testing.T) {
+	env := testutil.NewEnv(t)
+	url := env.Server.URL + "/api/v1/pki/profile/424242/acme/eab"
+	resp, err := http.Post(url, "application/json", bytes.NewBufferString("{}"))
+	if err != nil {
+		t.Fatalf("POST: %v", err)
+	}
+	resp.Body.Close()
+	if resp.StatusCode != http.StatusNotFound {
+		t.Fatalf("mint: status=%d, want 404", resp.StatusCode)
+	}
+	resp, err = http.Get(url)
+	if err != nil {
+		t.Fatalf("GET: %v", err)
+	}
+	resp.Body.Close()
+	if resp.StatusCode != http.StatusNotFound {
+		t.Fatalf("list: status=%d, want 404", resp.StatusCode)
+	}
+}
+
 func mintEAB(t *testing.T, url, reference string) eabPayload {
 	t.Helper()
 	body := bytes.NewBufferString(`{}`)
