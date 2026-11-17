@@ -1477,6 +1477,36 @@ RADIUS instances:
 /usr/local/pf/bin/pfcmd service radiusd restart
 ----
 
+=== Fingerbank local entries are removed
+
+PacketFence no longer has local Fingerbank entries. The upgrade of the
+`fingerbank` package deletes
+[filename]`/usr/local/fingerbank/db/fingerbank_Local.db`, with every local
+device, DHCP and DHCPv6 fingerprint, DHCPv6 enterprise, DHCP vendor, MAC vendor,
+user agent and combination. Endpoints are profiled by the Fingerbank collector
+only, and the Fingerbank lists of the admin interface show the upstream
+database, read-only. The `/api/v1/fingerbank/local/...` API endpoints return
+404, and the `[query]` section of
+[filename]`/usr/local/fingerbank/conf/fingerbank.conf` is removed.
+
+To keep a copy of the local entries, export them before upgrading, for example
+the combinations:
+
+[source,bash]
+----
+sqlite3 -header -csv /usr/local/fingerbank/db/fingerbank_Local.db 'SELECT * FROM combination' > /root/fingerbank-local-combinations.csv
+----
+
+The local entries had IDs starting with `L` (ex: `L12`). Security event
+triggers, provisioners, scan engines, self service and network behavior
+policies that use such an ID never match it after the upgrade. The upgrade runs
+the following script, which lists them; replace or remove the IDs it reports:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-16.0-fingerbank-local-ids.pl
+----
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]

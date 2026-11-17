@@ -28,8 +28,9 @@ algorithm processing, global database integration, and upstream database queries
 for unknown matches.
 
 Fingerbank is PacketFence's primary device profiling tool, designed for simple
-configuration and use. Working PacketFence systems have Fingerbank ready in
-"local" mode (no upstream interaction).
+configuration and use. Endpoints are profiled by the Fingerbank collector, which
+queries the upstream Fingerbank project: complete the onboarding below to enable
+it.
 
 === Onboarding
 
@@ -43,8 +44,7 @@ Fingerbank features are available.
 Updating Fingerbank data is simple. Requires onboarding for upstream
 interaction. "Update Fingerbank DB" option appears at top of "Fingerbank" menu
 sections. Process takes 1-2 minutes depending on database size and internet
-connectivity. Success or error message displayed afterward. "Local" records
-remain unmodified.
+connectivity. Success or error message displayed afterward.
 
 === Submit Unknown Data
 
@@ -54,19 +54,10 @@ project for analysis and global database integration.
 
 === Upstream Interrogation
 
-By default, PacketFence interrogates the upstream Fingerbank project (after
-onboarding) to fulfill queries with unmatched local results. Unmatched local
-results may indicate older database version or requirement for complex algorithm
-processing. This behavior is transparent and configurable via "Settings" under
-"Fingerbank" in the PacketFence "Configuration" tab.
-
-=== Local Entries
-
-Administrators can customize or create records using "Local" entries. Upstream
-records (DHCP Fingerprint, DHCP Vendor, MAC Vendor, User Agent, Device type,
-Combination) can be cloned and modified locally. Local records are matched first
-to override existing ones. Local combinations can match "Local", "Upstream", or
-both entries for device identification.
+PacketFence interrogates the upstream Fingerbank project (after onboarding)
+through the Fingerbank collector to profile the endpoints. This behavior is
+transparent and configurable via "Settings" under "Fingerbank" in the PacketFence
+"Configuration" tab.
 
 === Settings
 
