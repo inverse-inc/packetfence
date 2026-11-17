@@ -80,6 +80,12 @@ Key usage serverAuth: If you want to install your certificate on a server.
 
 image::packetfence-pki-template_password_email.png[scaledwidth="100%",alt="Template configuration"]
 
+When *P12 mail password* is enabled, the email carrying the PKCS#12 file
+also contains its password. When it is disabled, the email only carries
+the file: the web admin shows the generated password once the email is sent (the
+`password` field of the API answer), to be given to the user by other
+means.
+
 ===== SCEP
 
 You can choose to enable SCEP on this template.

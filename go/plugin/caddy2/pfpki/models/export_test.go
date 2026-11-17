@@ -23,3 +23,11 @@ func SetRenewalMailer(f func(ctx context.Context, cert Cert, prof Profile) (type
 	sendRenewalMail = f
 	return func() { sendRenewalMail = old }
 }
+
+// SetCertMailer replaces the .p12 mail sender until the returned
+// function is called.
+func SetCertMailer(f func(ctx context.Context, cert Cert, prof Profile, file []byte, password string) (types.Info, error)) (restore func()) {
+	old := sendCertMail
+	sendCertMail = f
+	return func() { sendCertMail = old }
+}

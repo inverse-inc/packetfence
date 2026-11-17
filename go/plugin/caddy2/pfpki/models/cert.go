@@ -310,7 +310,9 @@ func (c Cert) Download(params map[string]string) (types.Info, error) {
 	//     .p12, encrypted with that exact password.
 	//   - params["password"] absent   → "email" flow: encrypt with either
 	//     params["mail_password"] (if the admin supplied one) or a freshly
-	//     generated password, then mail the .p12 + that password.
+	//     generated password, then mail the .p12. The password is only in
+	//     the mail when the profile's p12_mail_password switch is on;
+	//     otherwise the admin hands it over (the API answer carries it).
 	var password string
 	if val, ok := params["password"]; ok {
 		password = val
@@ -328,8 +330,16 @@ func (c Cert) Download(params map[string]string) (types.Info, error) {
 		Information.ContentType = "application/x-pkcs12"
 		return Information, err
 	}
+	if err != nil {
+		Information.Error = err.Error()
+		return Information, err
+	}
 
-	mailInfo, err := emailcert(c.Ctx, cert, prof, pkcs12, password)
+	mailedPassword := ""
+	if prof.P12MailPassword == 1 {
+		mailedPassword = password
+	}
+	mailInfo, err := sendCertMail(c.Ctx, cert, prof, pkcs12, mailedPassword)
 	// Carry the password back to the caller — the previous code did
 	// `Information, err = emailcert(...)` which replaced the whole struct
 	// and dropped Password. Keep our Password; merge any error/status.
@@ -339,8 +349,13 @@ func (c Cert) Download(params map[string]string) (types.Info, error) {
 	if mailInfo.Status != 0 {
 		Information.Status = mailInfo.Status
 	}
+	Information.PasswordMailed = err == nil && mailedPassword != ""
 	return Information, err
 }
+
+// sendCertMail mails a .p12 with its password, when not empty (replaced
+// in tests).
+var sendCertMail = emailcert
 
 func (c Cert) Revoke(params map[string]string) (types.Info, error) {
 
