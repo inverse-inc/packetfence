@@ -28,7 +28,7 @@ OVERLAY_DIRS=(conf)
 # Files that git ignores but the tests need: copied into the worktree if missing
 IGNORED_NEEDED=(lib/fingerbank t/data/system_init_key)
 # Runtime files of the test pfconfig, hidden from the namespace for a private one
-PFCONFIG_TEST_FILES=(pfconfig-test.pid pfconfig-test.sock pfconfig-test-serial.sock)
+PFCONFIG_TEST_FILES=(pfconfig-test.pid pfconfig-test.sock pfconfig-test-serial.pid pfconfig-test-serial.sock)
 
 usage() {
     cat <<EOF
@@ -93,10 +93,21 @@ WT=$(realpath "$WT")
 [ "$WT" != "$(realpath $PF)" ] || die "$WT is $PF itself, run the tests directly"
 [ -d "$WT/lib/pf" ] && [ -d "$WT/t" ] || die "$WT is not a PacketFence tree"
 
+# Normalize a directory relative to the worktree root and reject one that
+# escapes it (.., absolute path) or is the root itself: it is also the mount
+# target under $PF. Symlinks are not followed (lib/fingerbank is one).
+rel_dir() {
+    local r
+    r=$(realpath -m -s --relative-to="$WT" "$WT/$1")
+    case $r in
+        .|..|../*|/*) die "$1 is not a directory below the worktree root" ;;
+    esac
+    [ -d "$WT/$r" ] || die "$WT/$r is not a directory"
+    echo "$r"
+}
+for i in "${!EXTRA_DIRS[@]}"; do EXTRA_DIRS[i]=$(rel_dir "${EXTRA_DIRS[i]}"); done
+for i in "${!OVERLAY_DIRS[@]}"; do OVERLAY_DIRS[i]=$(rel_dir "${OVERLAY_DIRS[i]}"); done
 DIRS=("${CODE_DIRS[@]}" "${EXTRA_DIRS[@]}")
-for d in "${EXTRA_DIRS[@]}" "${OVERLAY_DIRS[@]}"; do
-    [ -d "$WT/$d" ] || die "$WT/$d is not a directory"
-done
 
 for f in "${IGNORED_NEEDED[@]}"; do
     if [ ! -e "$WT/$f" ] && [ ! -L "$WT/$f" ] && { [ -e "$PF/$f" ] || [ -L "$PF/$f" ]; }; then
@@ -123,10 +134,19 @@ done
 # Mount points of the namespace (only used inside it)
 NS_TMP=$(mktemp -d /tmp/pf-wt-test.XXXXXX)
 # Only empty mount points and the discarded overlay layers: the mounts are gone
-# with the namespace
-trap 'rm -rf --one-file-system "$NS_TMP"' EXIT
+# with the namespace. /tmp/chi is removed only if this script created it.
+CREATED_CHI=0
+cleanup() {
+    rm -rf --one-file-system "$NS_TMP"
+    if [ "$CREATED_CHI" -eq 1 ]; then rmdir /tmp/chi 2>/dev/null || true; fi
+}
+trap cleanup EXIT
 mkdir "$NS_TMP/real-run"
-mkdir -p /tmp/chi
+# Mount point of the private /tmp/chi
+if [ "$SHARED_PFCONFIG" -eq 0 ] && [ ! -e /tmp/chi ]; then
+    mkdir /tmp/chi
+    CREATED_CHI=1
+fi
 
 export PF WT NS_TMP RUN_DIR SHARED_PFCONFIG
 export PFCONFIG_TIMEOUT=${PF_WT_PFCONFIG_TIMEOUT:-300}
@@ -162,11 +182,26 @@ if [ "$SHARED_PFCONFIG" -eq 0 ]; then
         n=${e##*/}
         case " $PF_WT_PFCONFIG_FILES " in *" $n "*) continue ;; esac
         if [ -d "$e" ]; then mkdir "$RUN/$n"; else : > "$RUN/$n"; fi
-        mount --bind "$e" "$RUN/$n"
+        # An entry can vanish since the glob (a pid file of a service
+        # stopping): skip it, fail on any other error
+        if ! mount --bind "$e" "$RUN/$n" 2>/dev/null; then
+            if [ -e "$e" ] || [ -L "$e" ]; then
+                mount --bind "$e" "$RUN/$n"
+            else
+                # Empty mount point on the tmpfs, nothing mounted on it
+                rmdir "$RUN/$n" 2>/dev/null || rm -f "$RUN/$n"
+            fi
+        fi
     done
     shopt -u nullglob dotglob
     chown --reference="$NS_TMP/real-run" "$RUN"
     mount -t tmpfs -o mode=1777 pf-wt-chi /tmp/chi
+    # pfconfig empties var/control on start and the cache updates of the
+    # tests touch it: keep the control files of $PF out of reach
+    CONTROL=$PF/var/control
+    control_owner=$(stat -c %u:%g "$CONTROL")
+    mount -t tmpfs -o mode=0755 pf-wt-control "$CONTROL"
+    chown "$control_owner" "$CONTROL"
 
     # Start the private pfconfig-test here, as t/pfconfig-test would, but in
     # the foreground of this shell: a failure is reported with its log instead
