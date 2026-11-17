@@ -196,6 +196,7 @@ check_free_space() {
     # it's a bit over than necessary because ad, switch and wireless could have been
     # already provisioned
     MANDATORY_SPACE='32212254'
+    preclean_branch_domains
     AVAILABLE_SPACE=$(df --total -x tmpfs -x vfat -x devtmpfs --output=avail | tail -n 1)
 
     # Low on space: reclaim from old/unused images, then re-measure.
@@ -239,6 +240,49 @@ reclaim_disk_space() {
 # provisioning requirements to the scenario requirements (or back for teardown).
 run_ansible_galaxy_once() {
     prepare_ansible_dependencies "$1" "$(dirname "$1")/ansible.cfg"
+}
+
+# Remove every libvirt domain of this branch (CI_COMMIT_REF_SLUG, or USER
+# locally) and the volumes they leave behind, whatever state they are in.
+# Works at the libvirt level because vagrant destroy cannot handle domains in
+# a saved or paused state, or domains its dotfiles no longer track. The
+# Vagrantfile names domains vagrant-<branch>-<6 hex>-<vm>; matching that whole
+# shape leaves alone a branch whose name only starts with this one's.
+remove_branch_domains() {
+    local branch
+    branch=$(printf '%s' "${CI_COMMIT_REF_SLUG-${USER}}" | sed 's/[][\.*^$(){}+?|]/\\&/g')
+    local prefix="^vagrant-${branch}-[0-9a-f]{6}-"
+    local vm pool vol
+    for vm in $(virsh list --all --name | grep -E "${prefix}[A-Za-z0-9_]+\$" || true); do
+        echo "Destroying ${vm} ($(virsh domstate "${vm}" 2>/dev/null)) and its disk"
+        # destroy stops a running, paused or suspended domain; a shut-off or
+        # saved one fails here and is undefined below all the same
+        virsh destroy "${vm}" >/dev/null 2>&1 || true
+        virsh undefine "${vm}" --remove-all-storage --managed-save \
+            --snapshots-metadata --nvram >/dev/null 2>&1 \
+            || virsh undefine "${vm}" --remove-all-storage || true
+    done
+    # volumes orphaned by an interrupted run (domain gone, disk left behind)
+    for pool in $(virsh pool-list --name 2>/dev/null || true); do
+        for vol in $(virsh vol-list --pool "${pool}" 2>/dev/null | awk 'NR>2 && $1 {print $1}' | grep -E "${prefix}" || true); do
+            echo "Deleting orphaned volume ${vol} (pool ${pool})"
+            virsh vol-delete --pool "${pool}" "${vol}" || true
+        done
+    done
+}
+
+# Pre-cleaning, run before a job creates any VM. Normally after_script has
+# already removed the previous job's VMs, even when that job was canceled, but
+# a second cancel, an after_script timeout or a runner restart can still leave
+# them running. Every CI job gives a VM the same management IP (pfdeb12dev
+# 172.18.200.12, pfel8dev .10, pf1el8dev .20, ...), so a leftover VM answers in
+# place of the new one, and it also holds disk. Only this branch's domains are
+# removed, so other branches' jobs are untouched. CI only: locally, existing
+# VMs may be reused on purpose.
+preclean_branch_domains() {
+    [ -n "${CI:-}" ] && [ -n "${CI_COMMIT_REF_SLUG:-}" ] || return 0
+    log_subsection "Pre-cleaning: remove VMs left on this runner by earlier jobs of ${CI_COMMIT_REF_SLUG}"
+    remove_branch_domains
 }
 
 run() {
@@ -643,20 +687,7 @@ collect_domain_diagnostics() {
 # libvirt directly, scoped to the Vagrantfile prefix. Networks are shared/reused.
 destroy() {
     log_section "Destroy virtual machines"
-    local prefix="vagrant-${CI_COMMIT_REF_SLUG-${USER}}-"
-    local vm pool vol
-    for vm in $(virsh list --all --name | grep -F "${prefix}" || true); do
-        echo "Destroying ${vm} and its disk"
-        virsh destroy "${vm}" >/dev/null 2>&1 || true
-        virsh undefine "${vm}" --remove-all-storage || true
-    done
-    # volumes orphaned by an interrupted run (domain gone, disk left behind)
-    for pool in $(virsh pool-list --name 2>/dev/null || true); do
-        for vol in $(virsh vol-list --pool "${pool}" 2>/dev/null | awk 'NR>2 && $1 {print $1}' | grep -F "${prefix}" || true); do
-            echo "Deleting orphaned volume ${vol} (pool ${pool})"
-            virsh vol-delete --pool "${pool}" "${vol}" || true
-        done
-    done
+    remove_branch_domains
     # Backstop: catch PF + node VMs the prefix sweep missed (domain name not
     # matching the prefix), by UUID from this job's dotfiles, before those
     # dotfiles are deleted below.

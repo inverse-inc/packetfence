@@ -707,6 +707,9 @@ variables:
 .test_script_job:
   variables:
     VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-${CI_COMMIT_REF_SLUG}
+    # after_script gets 5 minutes by default; the cleanup budget
+    # (PIPELINE_TIMEOUT_CLEANUP, 10m) needs more. Runner >= 16.4.
+    RUNNER_AFTER_SCRIPT_TIMEOUT: 12m
   script:
     # Check TEST_ONLY filter (shell-based since GitLab rules don't expand variables in regex)
     - |
@@ -718,9 +721,21 @@ variables:
         exit "$rc"
       fi
       echo "Running: $CI_JOB_NAME (TEST_ONLY='${TEST_ONLY}')"
-    # || EXIT_CODE=$? prevents script to finish at first command
-    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${TESTDIR} MAKE_TARGET=run ${CI_JOB_NAME} || EXIT_CODE=$?
-    - JOB_STATUS=$EXIT_CODE timeout ${PIPELINE_TIMEOUT_CLEANUP} ${TESTCIDIR}/clean-test-environment.sh
+    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${TESTDIR} MAKE_TARGET=run ${CI_JOB_NAME}
+  # Cleanup lives in after_script so it also runs when the job is canceled
+  # (GitLab >= 17.0, runner >= 16.11.1), like the image jobs above. after_script
+  # is a new shell: nothing set in script survives, so the test result comes
+  # from CI_JOB_STATUS (success, failed or canceled). Its exit code does not
+  # change the job status.
+  after_script:
+    - |
+      rc=0; ${TESTCIDIR}/test-only-matches.sh || rc=$?
+      if [ "$rc" != 0 ]; then
+        echo "No cleanup: $CI_JOB_NAME did not run its tests"
+        exit 0
+      fi
+      if [ "${CI_JOB_STATUS}" = "success" ]; then JOB_STATUS=0; else JOB_STATUS=1; fi
+      JOB_STATUS=$JOB_STATUS timeout ${PIPELINE_TIMEOUT_CLEANUP} ${TESTCIDIR}/clean-test-environment.sh
 
 ########################################
 # MATRIX ANCHORS
