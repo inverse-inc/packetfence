@@ -848,7 +848,8 @@ func ProcessCloudRevocations(pfpki *types.Handler) http.HandlerFunc {
 
 		Error := types.Errors{Status: 0}
 		switch req.Method {
-		case "GET", "POST":
+		// POST only: it changes state, here and in the cloud service.
+		case "POST":
 			Information.Status = http.StatusOK
 			Information, err = o.ProcessCloudRevocations()
 			if err != nil {
