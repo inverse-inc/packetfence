@@ -14,6 +14,7 @@ import (
 	"github.com/inverse-inc/go-utils/log"
 	"golang.org/x/crypto/ocsp"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // ErrESTPolicy wraps the EST enrollment refusals that come from the
@@ -66,14 +67,7 @@ func IssueESTCert(db *gorm.DB, ctx context.Context, prof Profile, csr *x509.Cert
 	}
 
 	if !reenroll {
-		if err := refuseLiveCN(db, prof, cn); err != nil {
-			return nil, err
-		}
-		// Only expired certificates of the CN are left: revoke them.
-		if _, err := revokeNeeded(cn, &prof, 0, db); err != nil {
-			return nil, fmt.Errorf("%w: %s", ErrESTPolicy, err.Error())
-		}
-		return issueFromCSR(db, ctx, prof, csr, 0)
+		return enrollNewCN(db, ctx, prof, csr, cn)
 	}
 
 	previous, err := estCertForKey(db, prof, cn, csr.PublicKey)
@@ -119,12 +113,45 @@ func checkESTNames(csr *x509.CertificateRequest, cn string) error {
 	return nil
 }
 
+// enrollNewCN issues the certificate of a simpleenroll: it refuses a CN
+// with a live certificate, revokes the expired ones and issues, in one
+// transaction. Run separately, two enrollments of the same CN could both
+// pass the check, and the second would then revoke the certificate the
+// first one just issued, the takeover the check prevents.
+//
+// The certificates of the CN are read with FOR UPDATE, but a CN that has
+// no certificate has no row to lock: the profile row, which always exists,
+// is locked first, so the enrollments of a profile run one at a time.
+func enrollNewCN(db *gorm.DB, ctx context.Context, prof Profile, csr *x509.CertificateRequest, cn string) (*Cert, error) {
+	var cert *Cert
+	err := db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Select("id").First(&Profile{}, prof.ID).Error; err != nil {
+			return err
+		}
+		if err := refuseLiveCN(tx, prof, cn); err != nil {
+			return err
+		}
+		// Only expired certificates of the CN are left: revoke them.
+		if _, err := revokeNeeded(cn, &prof, 0, tx); err != nil {
+			return fmt.Errorf("%w: %s", ErrESTPolicy, err.Error())
+		}
+		var err error
+		cert, err = issueFromCSR(tx, ctx, prof, csr, 0)
+		return err
+	})
+	if err != nil {
+		return nil, err
+	}
+	return cert, nil
+}
+
 // refuseLiveCN refuses an enrollment for a CN that has a live
 // certificate under prof. A certificate that can't be parsed counts as
-// live.
+// live. The certificates are read with FOR UPDATE: in a transaction, they
+// stay locked until it ends.
 func refuseLiveCN(db *gorm.DB, prof Profile, cn string) error {
 	var existing []Cert
-	if err := db.Where("cn = ? AND profile_name = ?", cn, prof.Name).Find(&existing).Error; err != nil {
+	if err := db.Clauses(clause.Locking{Strength: "UPDATE"}).Where("cn = ? AND profile_name = ?", cn, prof.Name).Find(&existing).Error; err != nil {
 		return err
 	}
 	now := time.Now()

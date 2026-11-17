@@ -349,7 +349,8 @@ func (c Cert) Download(params map[string]string) (types.Info, error) {
 	if mailInfo.Status != 0 {
 		Information.Status = mailInfo.Status
 	}
-	Information.PasswordMailed = err == nil && mailedPassword != ""
+	passwordMailed := err == nil && mailedPassword != ""
+	Information.PasswordMailed = &passwordMailed
 	return Information, err
 }
 

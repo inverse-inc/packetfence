@@ -10,6 +10,7 @@ import (
 	"crypto/x509/pkix"
 	"encoding/base64"
 	"encoding/pem"
+	"fmt"
 	"io"
 	"math/big"
 	"mime"
@@ -18,6 +19,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -25,6 +27,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/internal/testutil"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/models"
 	"github.com/smallstep/pkcs7"
+	"gorm.io/gorm"
 )
 
 const (
@@ -419,6 +422,48 @@ func TestESTSimpleEnrollRefusesLiveCN(t *testing.T) {
 			env.DB.Model(&models.Cert{}).Where("cn = ?", cn).Update("cert", expiredCertPEM(t, cn))
 			wantStatus(t, do(t, http.MethodPost, base+"/simpleenroll", attacker, true, estPassword), http.StatusOK)
 		})
+	}
+}
+
+// simpleenroll checks the CN, revokes the expired certificates and issues
+// in one transaction that locks the profile row and the certificates of
+// the CN first: two enrollments of a CN can't both pass the check. SQLite
+// leaves FOR UPDATE out of the SQL, so the test checks the locks gorm was
+// asked for and that they were taken in a transaction.
+func TestESTSimpleEnrollLocksInATransaction(t *testing.T) {
+	env := testutil.NewEnv(t)
+	mustEnableESTProfile(t, env, "est-lock-cn")
+
+	var mu sync.Mutex
+	var locks []string
+	if err := env.DB.Callback().Query().After("gorm:query").Register("test:locks", func(d *gorm.DB) {
+		if _, ok := d.Statement.Clauses["FOR"]; !ok {
+			return
+		}
+		_, inTx := d.Statement.ConnPool.(gorm.TxCommitter)
+		mu.Lock()
+		locks = append(locks, fmt.Sprintf("%s in transaction=%v", d.Statement.Table, inTx))
+		mu.Unlock()
+	}); err != nil {
+		t.Fatal(err)
+	}
+
+	csr, _ := newCSR(t, "locked.example.test")
+	wantStatus(t, do(t, http.MethodPost, env.Server.URL+"/api/v1/.well-known/est/est-lock-cn/simpleenroll", csr, true, estPassword), http.StatusOK)
+
+	mu.Lock()
+	defer mu.Unlock()
+	for _, want := range []string{"pki_profiles in transaction=true", "pki_certs in transaction=true"} {
+		found := false
+		for _, l := range locks {
+			found = found || l == want
+		}
+		if !found {
+			t.Errorf("no %q lock among %v", want, locks)
+		}
+	}
+	if len(locks) > 0 && locks[0] != "pki_profiles in transaction=true" {
+		t.Errorf("the profile row must be locked first, got %v", locks)
 	}
 }
 

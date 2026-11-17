@@ -22,8 +22,10 @@ type (
 		Status   int    `json:"status"`
 		Password string `json:"password"`
 		// PasswordMailed tells whether the e-mailed .p12 came with its
-		// password (the profile's p12_mail_password switch).
-		PasswordMailed bool        `json:"password_mailed,omitempty"`
+		// password (the profile's p12_mail_password switch). Only the
+		// e-mail answer sets it, and then it is always there, true or
+		// false; the other answers leave it out.
+		PasswordMailed *bool       `json:"password_mailed,omitempty"`
 		Error          string      `json:"error"`
 		ContentType    string      `json:"contentType"`
 		Raw            []byte      `json:"raw"`
