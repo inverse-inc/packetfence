@@ -21,6 +21,11 @@
                                :column-label="$i18n.t('Cluster Configuration')"
     />
 
+    <form-group-broker-only-hosts namespace="general.broker_only_hosts"
+                                  :column-label="$i18n.t('Broker Only Servers')"
+                                  :text="$i18n.t('Servers of the cluster that run Kafka without being part of the controller quorum (e.g. the servers of a secondary zone). Run /usr/local/pf/bin/kafka-init.pl to apply: the controller quorum is fixed when the Kafka cluster is created, changing it requires to remove the Kafka data of every server.')"
+    />
+
     <form-group-host-configs namespace="host_configs"
                              :column-label="$i18n.t('Host Configuration')"
     />
@@ -44,6 +49,7 @@ import schemaFn from '../schema'
 import {
   FormGroupAdminPass,
   FormGroupAdminUser,
+  FormGroupBrokerOnlyHosts,
   FormGroupClusterConfig,
   FormGroupHostConfigs,
   FormGroupAuths,
@@ -55,6 +61,7 @@ const components = {
 
   FormGroupAdminPass,
   FormGroupAdminUser,
+  FormGroupBrokerOnlyHosts,
   FormGroupClusterConfig,
   FormGroupHostConfigs,
   FormGroupAuths,

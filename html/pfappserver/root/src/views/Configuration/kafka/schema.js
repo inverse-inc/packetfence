@@ -32,8 +32,13 @@ const schemaIptables = yup.object({
   cluster_ips: schemaIpv4s,
 })
 
+const schemaGeneral = yup.object({
+  broker_only_hosts: yup.array().ensure().of(yup.string().nullable()),
+})
+
 export const schema = () => yup.object({
   admin: schemaAuth,
+  general: schemaGeneral,
   auths: schemaAuths,
   cluster: schemaClusters,
   iptables: schemaIptables,

@@ -539,6 +539,13 @@ sub config_store {
 our %fields = (
     iptables => undef,
     admin => undef,
+    general => undef,
+);
+
+# The settings stored as a comma separated list
+our %list_fields = (
+    iptables => [qw(clients cluster_ips)],
+    general => [qw(broker_only_hosts)],
 );
 
 sub item {
@@ -556,10 +563,8 @@ sub item {
     for my $id ($cs->_Sections()) {
         if (exists $fields{$id}) {
             my $d = $cs->read($id);
-            if ($id eq 'iptables') {
-                for my $f (qw(clients cluster_ips)) {
-                    $d->{$f} = [split /\s*,\s*/, $d->{$f}];
-                }
+            for my $f (@{ $list_fields{$id} // [] }) {
+                $d->{$f} = [split /\s*,\s*/, $d->{$f} // ''];
             }
             $item{$id} = $d;
             next;
@@ -612,14 +617,19 @@ sub flatten_auth {
     return { section => "auth $config->{user}", params => {pass => $config->{pass}} };
 }
 
-sub flatten_iptables {
-    my ($config) = @_;
+sub flatten_lists {
+    my ($section, $config) = @_;
     my %params;
     while ( my ($k, $v) = each %$config ) {
        $params{$k} = join(",", @{listify($v)});
     }
 
-    return { section => "iptables", params => \%params };
+    return { section => $section, params => \%params };
+}
+
+sub flatten_iptables {
+    my ($config) = @_;
+    return flatten_lists("iptables", $config);
 }
 
 sub flatten_item {
@@ -646,6 +656,11 @@ sub flatten_item {
 
         if ($k eq 'iptables') {
             push @flatten_items, flatten_iptables($value);
+            next;
+        }
+
+        if ($k eq 'general') {
+            push @flatten_items, flatten_lists($k, $value);
             next;
         }
 
