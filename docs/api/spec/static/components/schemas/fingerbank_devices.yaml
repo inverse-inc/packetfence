@@ -60,12 +60,6 @@ FingerbankDeviceDecorated:
     parent_id:
       type: string
 
-FingerbankDeviceForm:
-  allOf:
-    - $ref: '#/components/schemas/FingerbankDevice'
-    - required:
-      - name
-
 FingerbankDevicesSearch:
   allOf:
     - $ref: '#/components/schemas/FingerbankIterable'

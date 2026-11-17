@@ -1,0 +1,48 @@
+# Schemas of the local Fingerbank entries, removed in PacketFence 16.0
+FingerbankScopeLocalOnly:
+  type: string
+  enum:
+    - local
+  default: local
+
+FingerbankDeviceForm:
+  allOf:
+    - $ref: '#/components/schemas/FingerbankDevice'
+    - required:
+      - name
+
+FingerbankDhcp6EnterpriseForm:
+  allOf:
+    - $ref: '#/components/schemas/FingerbankDhcp6Enterprise'
+    - required:
+      - device_id
+
+FingerbankDhcp6FingerprintForm:
+  allOf:
+    - $ref: '#/components/schemas/FingerbankDhcp6Fingerprint'
+    - required:
+      - device_id
+
+FingerbankDhcpFingerprintForm:
+  allOf:
+    - $ref: '#/components/schemas/FingerbankDhcpFingerprint'
+    - required:
+      - device_id
+
+FingerbankDhcpVendorForm:
+  allOf:
+    - $ref: '#/components/schemas/FingerbankDhcpVendor'
+    - required:
+      - device_id
+
+FingerbankMacVendorForm:
+  allOf:
+    - $ref: '#/components/schemas/FingerbankMacVendor'
+    - required:
+      - device_id
+
+FingerbankUserAgentForm:
+  allOf:
+    - $ref: '#/components/schemas/FingerbankUserAgent'
+    - required:
+      - device_id

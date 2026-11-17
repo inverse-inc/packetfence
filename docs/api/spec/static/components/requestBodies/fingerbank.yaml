@@ -1,10 +1,3 @@
-FingerbankDevice:
-  required: true
-  content:
-    application/json:
-      schema:
-        $ref: '#/components/schemas/FingerbankDeviceForm'
-
 FingerbankDevicesSearch:
   required: true
   content:
@@ -20,13 +13,6 @@ FingerbankDevicesSearch:
             $ref: '#/components/schemas/FingerbankDevicesQuery'
           limit:
             $ref: '#/components/schemas/FingerbankPaginatedLimit'
-
-FingerbankDhcpFingerprint:
-  required: true
-  content:
-    application/json:
-      schema:
-        $ref: '#/components/schemas/FingerbankDhcpFingerprintForm'
 
 FingerbankDhcpFingerprintsSearch:
   required: true
@@ -44,13 +30,6 @@ FingerbankDhcpFingerprintsSearch:
           limit:
             $ref: '#/components/schemas/FingerbankPaginatedLimit'
 
-FingerbankDhcpVendor:
-  required: true
-  content:
-    application/json:
-      schema:
-        $ref: '#/components/schemas/FingerbankDhcpVendorForm'
-
 FingerbankDhcpVendorsSearch:
   required: true
   content:
@@ -66,13 +45,6 @@ FingerbankDhcpVendorsSearch:
             $ref: '#/components/schemas/FingerbankDhcpVendorsQuery'
           limit:
             $ref: '#/components/schemas/FingerbankPaginatedLimit'
-
-FingerbankDhcp6Enterprise:
-  required: true
-  content:
-    application/json:
-      schema:
-        $ref: '#/components/schemas/FingerbankDhcp6EnterpriseForm'
 
 FingerbankDhcp6EnterprisesSearch:
   required: true
@@ -90,13 +62,6 @@ FingerbankDhcp6EnterprisesSearch:
           limit:
             $ref: '#/components/schemas/FingerbankPaginatedLimit'
 
-FingerbankDhcp6Fingerprint:
-  required: true
-  content:
-    application/json:
-      schema:
-        $ref: '#/components/schemas/FingerbankDhcp6FingerprintForm'
-
 FingerbankDhcp6FingerprintsSearch:
   required: true
   content:
@@ -112,13 +77,6 @@ FingerbankDhcp6FingerprintsSearch:
             $ref: '#/components/schemas/FingerbankDhcp6FingerprintsQuery'
           limit:
             $ref: '#/components/schemas/FingerbankPaginatedLimit'
-
-FingerbankMacVendor:
-  required: true
-  content:
-    application/json:
-      schema:
-        $ref: '#/components/schemas/FingerbankMacVendorForm'
 
 FingerbankMacVendorsSearch:
   required: true
@@ -136,13 +94,6 @@ FingerbankMacVendorsSearch:
           limit:
             $ref: '#/components/schemas/FingerbankPaginatedLimit'
 
-
-FingerbankUserAgent:
-  required: true
-  content:
-    application/json:
-      schema:
-        $ref: '#/components/schemas/FingerbankUserAgentForm'
 
 FingerbankUserAgentsSearch:
   required: true
