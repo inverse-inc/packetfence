@@ -923,7 +923,7 @@ In the template (_Configuration -> Integration -> PKI -> Templates_),
 | Field | Value
 | *Enable EST* | On.
 | *EST username* | The user name EST clients must present, or empty to accept any user name.
-| *EST password* | The password EST clients must present. Enrollment is refused while it is empty.
+| *EST password* | The password EST clients must present. Enrollment is refused while it is empty. It is never displayed again; leave it empty when editing the template to keep it.
 |===
 
 NOTE: TLS is terminated in front of the PKI, so EST clients authenticate

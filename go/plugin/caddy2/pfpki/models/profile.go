@@ -46,6 +46,15 @@ func (p *Profile) defaultedFields() map[string]*int {
 	}
 }
 
+// withoutESTPasswords clears the EST passwords before profiles are
+// returned by the API: like the HSM PINs, they are write-only.
+func withoutESTPasswords(profiles []Profile) []Profile {
+	for i := range profiles {
+		profiles[i].EstPassword = ""
+	}
+	return profiles
+}
+
 // Profile section
 func NewProfileModel(pfpki *types.Handler) *Profile {
 	Profile := &Profile{}
@@ -136,7 +145,7 @@ func (p Profile) New() (types.Info, error) {
 		Information.Error = err.Error()
 		return Information, errors.New(dbError)
 	}
-	Information.Entries = []Profile{profile}
+	Information.Entries = withoutESTPasswords([]Profile{profile})
 
 	return Information, nil
 }
@@ -213,7 +222,12 @@ func (p Profile) Update(params map[string]string) (types.Info, error) {
 		"acme_authz_expiry":        func() { profile.AcmeAuthzExpiry = p.AcmeAuthzExpiry },
 		"est_enabled":              func() { profile.EstEnabled = p.EstEnabled },
 		"est_username":             func() { profile.EstUsername = p.EstUsername },
-		"est_password":             func() { profile.EstPassword = p.EstPassword },
+		// Write-only: an empty or absent EST password keeps the stored one.
+		"est_password": func() {
+			if p.EstPassword != "" {
+				profile.EstPassword = p.EstPassword
+			}
+		},
 	} {
 		if sent(field) {
 			apply()
@@ -235,7 +249,7 @@ func (p Profile) Update(params map[string]string) (types.Info, error) {
 		return Information, errors.New(dbError)
 	}
 
-	Information.Entries = []Profile{*profile}
+	Information.Entries = withoutESTPasswords([]Profile{*profile})
 
 	return Information, nil
 }
@@ -247,7 +261,7 @@ func (p Profile) GetByID(params map[string]string) (types.Info, error) {
 		allFields := strings.Join(sql.SqlFields(p)[:], ",")
 		p.DB.Select(allFields).Where("`id` = ?", val).First(&profiledb)
 	}
-	Information.Entries = profiledb
+	Information.Entries = withoutESTPasswords(profiledb)
 
 	return Information, nil
 }
@@ -269,7 +283,7 @@ func (p Profile) Paginated(vars sql.Vars) (types.Info, error) {
 		}
 		var profiledb []Profile
 		p.DB.Select(sql.Select).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&profiledb)
-		Information.Entries = profiledb
+		Information.Entries = withoutESTPasswords(profiledb)
 	}
 
 	return Information, nil
@@ -291,9 +305,8 @@ func (p Profile) Search(vars sql.Vars) (types.Info, error) {
 	if vars.Cursor < counter {
 		var profiledb []Profile
 		p.DB.Select(sql.Select).Where(sql.Where.Query, sql.Where.Values...).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&profiledb)
-		Information.Entries = profiledb
+		Information.Entries = withoutESTPasswords(profiledb)
 	}
 
 	return Information, nil
 }
-

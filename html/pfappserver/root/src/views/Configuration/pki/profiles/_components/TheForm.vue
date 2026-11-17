@@ -195,7 +195,9 @@
         />
         <form-group-est-password namespace="est_password"
                                  :column-label="$i18n.t('EST password')"
-                                 :text="$i18n.t('HTTP Basic password EST clients must present to enroll. Enrollment is refused while it is empty.')"
+                                 :text="(!isNew && !isClone)
+                                   ? $i18n.t('HTTP Basic password EST clients must present to enroll. It is never displayed; leave empty to keep the current password.')
+                                   : $i18n.t('HTTP Basic password EST clients must present to enroll. Enrollment is refused while it is empty.')"
         />
       </base-form-tab>
       <base-form-tab :title="$i18n.t('Renewal Configuration')">
