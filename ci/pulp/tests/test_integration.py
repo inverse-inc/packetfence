@@ -331,6 +331,15 @@ class ConfigurationTest(unittest.TestCase):
             sha, filename = line.split()
             self.assertEqual(hashlib.sha256((vendor/filename).read_bytes()).hexdigest(), sha)
 
+    def test_ci_lib_package_chmods_match_files(self):
+        # debuild stops on a chmod glob that matches nothing, e.g. after a ci/lib script is removed.
+        globs = [line.split('$(PREFIX)/$(NAME)/', 1)[1].strip()
+                 for line in (ROOT/'debian/rules').read_text().splitlines()
+                 if 'chmod' in line and 'packetfence-ci-lib' in line]
+        self.assertTrue(globs)
+        for pattern in globs:
+            self.assertTrue(list(ROOT.glob(pattern)), f'debian/rules: chmod {pattern} matches no file')
+
     def test_shell_syntax(self):
         for script in (ROOT/'ci/pulp').rglob('*.sh'):
             subprocess.run(['bash', '-n', str(script)], check=True)
