@@ -69,10 +69,11 @@ func eabRowToResponse(r *models.AcmeExternalAccountKey, includeHMAC bool) eabRes
 // are ordered newest-first so rotation candidates show at the top.
 func AcmeEABList(pfpki *types.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		profileID, ok := eabProfileID(w, r)
+		prof, ok := eabProfile(pfpki, w, r)
 		if !ok {
 			return
 		}
+		profileID := prof.ID
 		var rows []models.AcmeExternalAccountKey
 		if err := pfpki.DB.Where("profile_id = ?", profileID).
 			Order("created_at DESC").Find(&rows).Error; err != nil {
@@ -98,10 +99,11 @@ func AcmeEABList(pfpki *types.Handler) http.HandlerFunc {
 // payloads readably.
 func AcmeEABCreate(pfpki *types.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		profileID, ok := eabProfileID(w, r)
+		prof, ok := eabProfile(pfpki, w, r)
 		if !ok {
 			return
 		}
+		profileID := prof.ID
 		body, _ := io.ReadAll(r.Body)
 		var payload eabCreatePayload
 		_ = json.Unmarshal(body, &payload) // payload is fully optional
@@ -146,10 +148,11 @@ func AcmeEABCreate(pfpki *types.Handler) http.HandlerFunc {
 // 204 so an admin retrying after a network failure doesn't see 404.
 func AcmeEABDelete(pfpki *types.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		profileID, ok := eabProfileID(w, r)
+		prof, ok := eabProfile(pfpki, w, r)
 		if !ok {
 			return
 		}
+		profileID := prof.ID
 		vars := types.Params(r, "eab_id")
 		eabID, err := strconv.ParseUint(vars["eab_id"], 10, 64)
 		if err != nil {
@@ -178,17 +181,27 @@ func AcmeEABDelete(pfpki *types.Handler) http.HandlerFunc {
 	}
 }
 
-// eabProfileID extracts the {id} URL param and confirms the profile
-// exists. Returns (id, true) on success or writes a 4xx and returns
-// (_, false) on failure.
-func eabProfileID(w http.ResponseWriter, r *http.Request) (uint, bool) {
+// eabProfile extracts the {id} URL param and loads that profile.
+// Returns (profile, true) on success or writes a 4xx/5xx and returns
+// (nil, false) on failure; an unknown id is a 404 rather than a foreign
+// key error from the EAB insert.
+func eabProfile(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) (*models.Profile, bool) {
 	vars := types.Params(r, "id")
 	id, err := strconv.ParseUint(vars["id"], 10, 64)
 	if err != nil {
 		writeJSONError(w, http.StatusBadRequest, "bad profile id")
-		return 0, false
+		return nil, false
 	}
-	return uint(id), true
+	var prof models.Profile
+	if err := pfpki.DB.First(&prof, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			writeJSONError(w, http.StatusNotFound, "no such profile")
+			return nil, false
+		}
+		writeJSONError(w, http.StatusInternalServerError, err.Error())
+		return nil, false
+	}
+	return &prof, true
 }
 
 // writeJSONError emits the same shape the rest of pfpki uses for
@@ -230,20 +243,12 @@ func writeJSONError(w http.ResponseWriter, status int, msg string) {
 // ACMECertificate (com.apple.security.acme).
 func AcmeMobileConfig(pfpki *types.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		profileID, ok := eabProfileID(w, r)
+		prof, ok := eabProfile(pfpki, w, r)
 		if !ok {
 			return
 		}
-		var prof models.Profile
-		if err := pfpki.DB.First(&prof, profileID).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				writeJSONError(w, http.StatusNotFound, "no such profile")
-				return
-			}
-			writeJSONError(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-		if problems := appleACMEProfileProblems(prof); len(problems) > 0 {
+		profileID := prof.ID
+		if problems := appleACMEProfileProblems(*prof); len(problems) > 0 {
 			writeJSONError(w, http.StatusConflict,
 				"profile is not set up for Apple ACME enrollment: "+strings.Join(problems, "; "))
 			return
