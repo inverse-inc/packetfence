@@ -1092,9 +1092,9 @@ Record, in switch_observability_acls, the ACLs that actually reached the switch
 for a RADIUS request (see L</observabilityAclsRecord>). Called once per reply
 from pf::radius.
 
-Every Access-Accept replaces the row of the device: the row of a previous role,
-or of an access list the switch no longer gets, never outlives the reply that
-removed it.
+Every Access-Accept replaces the rows of the device, on every switch: the row of
+a previous role, of a previous switch, or of an access list the switch no longer
+gets, never outlives the reply that removed it.
 
 C<$reply_array> is the C<[$status, %reply]> array ref returned by
 returnRadiusAccessAccept.
@@ -1111,13 +1111,12 @@ sub recordReplyObservabilityAcls {
     my $mac = $args->{'mac'};
     return if !defined $mac || $mac eq '';
 
-    # A MAC holds a single active role: drop the row of the device before
-    # recording the current one (matches the UNIQUE (switch_id, port) key too)
+    # A device holds a single active role and is enforced by one switch at a
+    # time: drop its rows on every switch before recording the current one, so
+    # a device that moved is no longer reported on the previous switch. The
+    # role rows of the Push ACLs have an empty MAC and are never matched here.
     pf::dal::switch_observability_acls->remove_items(
-        -where => {
-            switch_id => $self->{_id},
-            mac => $mac,
-        }
+        -where => { mac => $mac },
     );
 
     my $record = $self->observabilityAclsRecord($args, \%reply) // return;
