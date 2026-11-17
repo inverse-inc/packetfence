@@ -841,6 +841,10 @@ it.
 * The validity of the certificate always comes from the template: a
   `new-order` request carrying `notBefore` or `notAfter` is refused.
 * An order carries at most 100 identifiers.
+* An account can have at most 20 orders that are not final yet
+  (pending, ready or processing, and not expired); a further
+  `new-order` is refused with `rateLimited` (HTTP 429) and a
+  `Retry-After` header.
 * Account key rollover (`keyChange`), the list of an account's orders
   and account deactivation are supported.
 

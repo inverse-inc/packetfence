@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	jose "github.com/go-jose/go-jose/v4"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/internal/testutil"
@@ -411,4 +412,47 @@ func TestNewOrder_DNSAndIPNeedEAB(t *testing.T) {
 		body, _ := io.ReadAll(resp.Body)
 		t.Fatalf("EAB-bound account: status=%d body=%s", resp.StatusCode, body)
 	}
+}
+
+// TestNewOrder_OpenOrdersCap: an account with maxOpenOrders orders
+// that are not final gets rateLimited with Retry-After; expired and
+// final orders don't count.
+func TestNewOrder_OpenOrdersCap(t *testing.T) {
+	env := testutil.NewEnv(t)
+	prof := mustEnableAcmeProfile(t, env, "acme-order-cap")
+	c, kid := bootstrapAcmeAccount(t, env, prof)
+	var acct models.AcmeAccount
+	if err := env.DB.Where("key_id = ?", kid).First(&acct).Error; err != nil {
+		t.Fatalf("load account: %v", err)
+	}
+	seed := func(n int, status string, expires time.Time) {
+		for i := 0; i < n; i++ {
+			o := models.AcmeOrder{AccountID: acct.ID, Status: status, ExpiresAt: expires, Identifiers: "[]"}
+			if err := env.DB.Create(&o).Error; err != nil {
+				t.Fatalf("seed order: %v", err)
+			}
+		}
+	}
+	later := time.Now().Add(24 * time.Hour)
+	seed(19, "pending", later)
+	seed(5, "valid", later)
+	seed(5, "invalid", later)
+	seed(5, "pending", time.Now().Add(-time.Minute))
+
+	url := newOrderURL(env, prof)
+	order := func() *http.Response {
+		return c.post(t, url, c.signed(url, modeKID, kid, c.fetchNonce(), map[string]any{
+			"identifiers": []map[string]string{{"type": "dns", "value": "host.example.com"}},
+		}))
+	}
+	resp := order()
+	resp.Body.Close()
+	if resp.StatusCode != http.StatusCreated {
+		t.Fatalf("20th open order: status=%d want 201", resp.StatusCode)
+	}
+	resp = order()
+	if ra := resp.Header.Get("Retry-After"); ra != "3600" {
+		t.Errorf("Retry-After=%q want 3600", ra)
+	}
+	expectProblem(t, resp, http.StatusTooManyRequests, "rateLimited")
 }
