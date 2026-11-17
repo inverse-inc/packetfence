@@ -253,7 +253,8 @@ func (c Cert) Download(params map[string]string) (types.Info, error) {
 
 	if profile, ok := params["profile"]; ok {
 		if val, ok := params["cn"]; ok {
-			if CertDB := c.DB.Preload("Ca").Where("Cn = ? AND profile_id = ?", val, profile).Find(&cert); CertDB.Error != nil {
+			// Several certificates can share the same CN, return the most recent one
+			if CertDB := c.DB.Preload("Ca").Where("Cn = ? AND profile_id = ?", val, profile).Order("id desc").Limit(1).Find(&cert); CertDB.Error != nil {
 				Information.Error = CertDB.Error.Error()
 				return Information, errors.New(dbError)
 			}
@@ -414,6 +415,8 @@ func (c Cert) Revoke(params map[string]string) (types.Info, error) {
 		Information.Error = err.Error()
 		return Information, err
 	}
+
+	c.deregisterNodesOfRevokedCert(cert, intreason)
 
 	return Information, nil
 }
