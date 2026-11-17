@@ -281,6 +281,24 @@ class ConfigurationTest(unittest.TestCase):
         config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
         self.assertEqual(config['publish_ppa']['artifacts']['access'], 'developer')
         self.assertNotIn('artifacts', config['deploy_containers'])  # the push leaves no plan to keep
+    def test_docs_are_published_after_the_tests_on_release_tags_and_maintenance_docs_builds(self):
+        config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
+        job = config['deploy_docs_pulp']
+        self.assertEqual(job['stage'], 'deploy')  # after every test stage
+        self.assertEqual(job['dependencies'], ['build_artifacts_doc'])
+        self.assertEqual(job['script'], ['bash ci/pulp/publish-docs.sh'])
+        self.assertEqual(job['artifacts']['access'], 'developer')
+        rules = job['rules']
+        self.assertEqual(rules[0]['if'], '$CI_COMMIT_TAG =~ /^v[0-9]+\\.[0-9]+\\.[0-9]+$/')
+        self.assertEqual(rules[1], {'if': '$CI_COMMIT_TAG', 'when': 'never'})
+        self.assertEqual(rules[2], {'reference': ['.gated_by_build_artifacts_doc', 'rules']})
+        self.assertIn('^maintenance', rules[3]['if'])
+        self.assertFalse([r for r in rules if 'devel' in r.get('if', '')])  # a devel version has no doc
+        self.assertIn('PSONO_CI_PULP_DOCS_ID', config['variables'])
+        script = (ROOT/'ci/pulp/publish-docs.sh').read_text()
+        self.assertIn('publish-docs --repository "doc-${release/./-}-0"', script)
+        self.assertIn('sha256sum --check --quiet SHA256SUMS', script)
+
     def test_vendored_helpers_match_recorded_checksums(self):
         vendor = ROOT/'ci/pulp/vendor'
         for line in (vendor/'SHA256SUMS').read_text().splitlines():
