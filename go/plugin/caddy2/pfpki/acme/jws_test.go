@@ -369,3 +369,99 @@ func mustThumbprint(t *testing.T, jwk *jose.JSONWebKey) string {
 	}
 	return base64.RawURLEncoding.EncodeToString(tp)
 }
+
+// TestJWS_RefusesNonFlattenedForms: RFC 8555 §6.2 allows only the
+// flattened JSON serialization. A general-serialization body whose
+// top-level `protected` names this URL and a fresh nonce while the
+// signature covers another header (a captured request for a different
+// URL) must not pass, nor may the compact form or several signatures.
+func TestJWS_RefusesNonFlattenedForms(t *testing.T) {
+	env := testutil.NewEnv(t)
+	prof := mustEnableAcmeProfile(t, env, "acme-jws-forms")
+	_ = env.DB.Model(&models.Profile{}).Where("name = ?", prof).
+		Update("acme_eab_required", 0)
+
+	c := newACMEClient(t, env, prof)
+	url := newAccountURL(env, prof)
+
+	expectMalformed := func(name string, body []byte) {
+		t.Helper()
+		resp := c.post(t, url, body)
+		defer resp.Body.Close()
+		if resp.StatusCode != http.StatusBadRequest {
+			b, _ := io.ReadAll(resp.Body)
+			t.Fatalf("%s: status=%d want 400; body=%s", name, resp.StatusCode, b)
+		}
+		var prob map[string]any
+		_ = json.NewDecoder(resp.Body).Decode(&prob)
+		if prob["type"] != "urn:ietf:params:acme:error:malformed" {
+			t.Errorf("%s: problem.type=%v", name, prob["type"])
+		}
+	}
+
+	// Smuggling: the signed header targets another URL; the unsigned
+	// top-level header carries the right url and a fresh nonce.
+	captured := c.signed(url+"-elsewhere", modeJWK, "", c.fetchNonce(), map[string]any{})
+	var flat map[string]string
+	if err := json.Unmarshal(captured, &flat); err != nil {
+		t.Fatalf("decode captured JWS: %v", err)
+	}
+	jwkJSON, _ := json.Marshal(c.jwk)
+	fake, _ := json.Marshal(map[string]any{
+		"alg": "ES256", "jwk": json.RawMessage(jwkJSON), "nonce": c.fetchNonce(), "url": url,
+	})
+	smuggled, _ := json.Marshal(map[string]any{
+		"payload":   flat["payload"],
+		"protected": base64.RawURLEncoding.EncodeToString(fake),
+		"signatures": []map[string]string{
+			{"protected": flat["protected"], "signature": flat["signature"]},
+		},
+	})
+	expectMalformed("general serialization", smuggled)
+
+	// Same thing with the fresh header as the signed one, in compact form.
+	signer, err := jose.NewSigner(jose.SigningKey{Algorithm: jose.ES256, Key: c.key},
+		&jose.SignerOptions{EmbedJWK: true, ExtraHeaders: map[jose.HeaderKey]any{"nonce": c.fetchNonce(), "url": url}})
+	if err != nil {
+		t.Fatalf("signer: %v", err)
+	}
+	sig, err := signer.Sign([]byte("{}"))
+	if err != nil {
+		t.Fatalf("sign: %v", err)
+	}
+	compact, err := sig.CompactSerialize()
+	if err != nil {
+		t.Fatalf("compact: %v", err)
+	}
+	expectMalformed("compact serialization", []byte(compact))
+
+	// Two signatures over the same payload.
+	other, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	multi, err := jose.NewMultiSigner([]jose.SigningKey{
+		{Algorithm: jose.ES256, Key: c.key},
+		{Algorithm: jose.ES256, Key: other},
+	}, &jose.SignerOptions{EmbedJWK: true, ExtraHeaders: map[jose.HeaderKey]any{"nonce": c.fetchNonce(), "url": url}})
+	if err != nil {
+		t.Fatalf("multi signer: %v", err)
+	}
+	msig, err := multi.Sign([]byte("{}"))
+	if err != nil {
+		t.Fatalf("multi sign: %v", err)
+	}
+	expectMalformed("two signatures", []byte(msig.FullSerialize()))
+
+	// An unprotected header next to the flattened members.
+	var withHeader map[string]any
+	_ = json.Unmarshal(c.signed(url, modeJWK, "", c.fetchNonce(), map[string]any{}), &withHeader)
+	withHeader["header"] = map[string]string{"kid": "x"}
+	body, _ := json.Marshal(withHeader)
+	expectMalformed("unprotected header", body)
+
+	// The flattened form still works.
+	resp := c.post(t, url, c.signed(url, modeJWK, "", c.fetchNonce(), map[string]any{}))
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusCreated {
+		b, _ := io.ReadAll(resp.Body)
+		t.Fatalf("flattened: status=%d want 201; body=%s", resp.StatusCode, b)
+	}
+}

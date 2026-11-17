@@ -8,6 +8,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"strconv"
 	"time"
 
 	jose "github.com/go-jose/go-jose/v4"
@@ -66,14 +67,69 @@ var acmeAllowedAlgs = []jose.SignatureAlgorithm{
 }
 
 // rawProtected is the subset of the JWS protected header ACME cares
-// about — we re-decode the protected segment manually because go-jose
-// does not surface the raw `url` parameter through its Header struct.
+// about, filled from the header go-jose verified the signature over
+// (see parseFlattenedJWS).
 type rawProtected struct {
-	Alg   string           `json:"alg"`
-	Nonce string           `json:"nonce"`
-	URL   string           `json:"url"`
-	KID   string           `json:"kid,omitempty"`
-	JWK   *jose.JSONWebKey `json:"jwk,omitempty"`
+	Alg   string
+	Nonce string
+	URL   string
+	KID   string
+	JWK   *jose.JSONWebKey
+}
+
+// parseFlattenedJWS parses an ACME JWS and returns it with its
+// protected header. RFC 8555 §6.2 allows only the flattened JSON
+// serialization with a single signature and no unprotected header, so
+// the compact form and the general form (`signatures` array) are
+// refused: go-jose verifies `signatures[0].protected` of a general
+// JWS, and a stray top-level `protected` next to it must never be what
+// the url/nonce/kid checks read. The header returned is the one bound
+// to the signature go-jose will verify; go-jose keeps `url` in
+// ExtraHeaders.
+func parseFlattenedJWS(body []byte, algs []jose.SignatureAlgorithm) (*jose.JSONWebSignature, rawProtected, error) {
+	var hdr rawProtected
+	var members map[string]json.RawMessage
+	if err := json.Unmarshal(body, &members); err != nil {
+		return nil, hdr, errors.New("JWS must use the flattened JSON serialization")
+	}
+	for k := range members {
+		switch k {
+		case "protected", "payload", "signature":
+		default:
+			return nil, hdr, errors.New("JWS member " + strconv.Quote(k) + " not allowed: flattened serialization with a protected header only")
+		}
+	}
+	if _, ok := members["protected"]; !ok {
+		return nil, hdr, errors.New("JWS has no protected header")
+	}
+	if _, ok := members["signature"]; !ok {
+		return nil, hdr, errors.New("JWS has no signature")
+	}
+	sig, err := jose.ParseSignedJSON(string(body), algs)
+	if err != nil {
+		return nil, hdr, err
+	}
+	if len(sig.Signatures) != 1 {
+		return nil, hdr, errors.New("exactly one signature required")
+	}
+	s := sig.Signatures[0]
+	if s.Unprotected.Algorithm != "" || s.Unprotected.KeyID != "" || s.Unprotected.Nonce != "" ||
+		s.Unprotected.JSONWebKey != nil || len(s.Unprotected.ExtraHeaders) != 0 {
+		return nil, hdr, errors.New("unprotected header not allowed")
+	}
+	p := s.Protected
+	hdr.Alg = p.Algorithm
+	hdr.Nonce = p.Nonce
+	hdr.KID = p.KeyID
+	hdr.JWK = p.JSONWebKey
+	if v, ok := p.ExtraHeaders["url"]; ok {
+		u, isStr := v.(string)
+		if !isStr {
+			return nil, hdr, errors.New("protected url must be a string")
+		}
+		hdr.URL = u
+	}
+	return sig, hdr, nil
 }
 
 // expectedRequestURL reconstructs the canonical URL the client should
@@ -116,27 +172,11 @@ func jwsMiddleware(h *types.Handler, mode jwsMode, next func(http.ResponseWriter
 			return
 		}
 
-		sig, err := jose.ParseSigned(string(body), acmeAllowedAlgs)
+		// The header checked below is the one bound to the signature
+		// verified below; see parseFlattenedJWS.
+		sig, protected, err := parseFlattenedJWS(body, acmeAllowedAlgs)
 		if err != nil {
 			_ = WriteProblem(w, http.StatusBadRequest, ErrMalformed, "parse JWS: "+err.Error())
-			return
-		}
-		if len(sig.Signatures) != 1 {
-			_ = WriteProblem(w, http.StatusBadRequest, ErrMalformed, "ACME requires exactly one signature")
-			return
-		}
-		// go-jose surfaces alg/kid/jwk on a typed Header, but drops the
-		// ACME-mandated `url` field (and anything else not in its known
-		// list). Decode the protected segment ourselves so a single
-		// rawProtected drives every header check.
-		var protected rawProtected
-		rawProt, err := extractProtected(string(body))
-		if err != nil {
-			_ = WriteProblem(w, http.StatusBadRequest, ErrMalformed, "decode protected header: "+err.Error())
-			return
-		}
-		if err := json.Unmarshal(rawProt, &protected); err != nil {
-			_ = WriteProblem(w, http.StatusBadRequest, ErrMalformed, "parse protected header: "+err.Error())
 			return
 		}
 
@@ -267,46 +307,6 @@ func lookupAccountByKID(h *types.Handler, profileID uint, kid string) (*models.A
 		return nil, nil, err
 	}
 	return &acct, &jwk, nil
-}
-
-// extractProtected returns the raw decoded JSON of a flattened JWS's
-// protected header. go-jose parses the header into a typed struct but
-// drops unrecognised fields (notably the ACME-mandated `url`); we
-// re-parse the segment ourselves to get a complete view.
-func extractProtected(jws string) ([]byte, error) {
-	// Flattened form is JSON-shaped already.
-	if len(jws) > 0 && jws[0] == '{' {
-		var outer struct {
-			Protected string `json:"protected"`
-		}
-		if err := json.Unmarshal([]byte(jws), &outer); err != nil {
-			return nil, err
-		}
-		return base64URLDecode(outer.Protected)
-	}
-	// Compact form: header.payload.signature
-	idx := indexByte(jws, '.')
-	if idx < 0 {
-		return nil, errors.New("not a JWS")
-	}
-	return base64URLDecode(jws[:idx])
-}
-
-func indexByte(s string, b byte) int {
-	for i := 0; i < len(s); i++ {
-		if s[i] == b {
-			return i
-		}
-	}
-	return -1
-}
-
-// base64URLDecode handles the URL-safe alphabet with optional padding
-// — RFC 8555 JWSes use unpadded RFC 7515 base64url.
-func base64URLDecode(s string) ([]byte, error) {
-	// stdlib helpers would need a separate import for the encoding pkg;
-	// keep a tiny copy here to avoid bloating the surface.
-	return jwsURLEncoding.DecodeString(s)
 }
 
 // jwsThumbprint returns the RFC 7638 SHA-256 thumbprint of a JWK as a
