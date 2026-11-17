@@ -1178,7 +1178,7 @@ The allowed fields
 
 sub field_allowed {
     my ($self, $field) = @_;
-    if ($field->isa("pfappserver::Form::Field::FingerbankSelect") || $field->isa("pfappserver::Form::Field::FingerbankField")) {
+    if ($field->isa("pfappserver::Form::Field::FingerbankSelect")) {
         return undef;
     }
 
@@ -1235,7 +1235,7 @@ sub field_allowed_lookup {
         return $allowed_lookup;
     }
 
-    if ($field->isa("pfappserver::Form::Field::FingerbankSelect") || $field->isa("pfappserver::Form::Field::FingerbankField")) {
+    if ($field->isa("pfappserver::Form::Field::FingerbankSelect")) {
         my $fingerbank_model = $field->fingerbank_model;
         my $name = $fingerbank_model->_parseClassName;
         my $path = $FB_MODEL_2_PATH{$name};

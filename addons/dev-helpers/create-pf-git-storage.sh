@@ -57,8 +57,8 @@ cd -
 ## End of the commands in the PF dir
 
 cd  $tmpdir/packetfence/addons/perl-client/
-perl db/upgrade.pl --database=db/fingerbank_Local.db
-cp db/fingerbank_Local.db db/fingerbank_Upstream.db
+# Empty placeholder with the tables of the Upstream database
+sqlite3 db/fingerbank_Upstream.db < t/data/upstream_schema.sql
 cd -
 
 cp -a $tmpdir/packetfence/conf $dst_dir/

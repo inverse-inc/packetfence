@@ -50,8 +50,7 @@ our @FILES_TO_SYNC = (
     $pfconfig::constants::CONFIG_FILE_PATH,
     $iptable_custom_config_file,
     $ip6table_custom_config_file,
-    $fingerbank::FilePath::CONF_FILE, 
-    $fingerbank::FilePath::LOCAL_DB_FILE
+    $fingerbank::FilePath::CONF_FILE,
 );
 
 =head1 AUTHOR
