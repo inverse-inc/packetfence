@@ -10,6 +10,7 @@ import (
 	"encoding/hex"
 	"encoding/pem"
 	"errors"
+	"io"
 	"log"
 	"math/big"
 	"net/http"
@@ -34,20 +35,52 @@ type parsedCA struct {
 
 var caCache sync.Map // key: models.CA.ID (uint) → *parsedCA
 
+// hsmKeyPair looks up the certificate and the key of a CA held in an HSM
+// (replaced in tests).
+var hsmKeyPair = func(ca models.CA, db *gorm.DB) (*x509.Certificate, crypto.Signer, error) {
+	return ca.KeyPair(db)
+}
+
+// hsmSigner is the cached key of a CA held in an HSM. A failed signature
+// drops it from the cache: its token session may be gone (the hsm package
+// then closes the context) or the HSM settings changed (the old context
+// is closed), so the next use looks the key up again in a new session.
+type hsmSigner struct {
+	crypto.Signer
+	id    uint
+	entry *parsedCA
+}
+
+func (s hsmSigner) Sign(r io.Reader, digest []byte, opts crypto.SignerOpts) ([]byte, error) {
+	sig, err := s.Signer.Sign(r, digest, opts)
+	if err != nil {
+		caCache.CompareAndDelete(s.id, s.entry)
+	}
+	return sig, err
+}
+
 // loadCAMaterial returns a parsed cert + signer for ca, using a cached copy
 // whenever the row's UpdatedAt hasn't moved. PEM parsing is the dominant
 // CPU cost on the OCSP path (≈5 parses per request before this cache).
-// A key held in an HSM is looked up in its token on every request, so a
-// change of the HSM settings is picked up at once.
+// For a key held in an HSM, the cache saves the HSM row read and the
+// PKCS#11 key lookup; the key is dropped from it when it fails to sign.
 func loadCAMaterial(ca models.CA, db *gorm.DB) (*x509.Certificate, crypto.Signer, error) {
-	if ca.InHSM() {
-		return ca.KeyPair(db)
-	}
 	if v, ok := caCache.Load(ca.ID); ok {
 		p := v.(*parsedCA)
 		if p.updatedAt.Equal(ca.UpdatedAt) {
 			return p.cert, p.key, nil
 		}
+	}
+
+	if ca.InHSM() {
+		cert, key, err := hsmKeyPair(ca, db)
+		if err != nil {
+			return nil, nil, err
+		}
+		p := &parsedCA{cert: cert, updatedAt: ca.UpdatedAt}
+		p.key = hsmSigner{Signer: key, id: ca.ID, entry: p}
+		caCache.Store(ca.ID, p)
+		return cert, p.key, nil
 	}
 
 	certBlock, _ := pem.Decode([]byte(ca.Cert))
@@ -268,6 +301,14 @@ func (ocspr *OCSPResponder) Verify(rawreq []byte) ([]byte, error) {
 
 	// make a response to return
 	resp, err := ocsp.CreateResponse(cacert, cacert, rtemplate, key)
+	if err != nil && ca.InHSM() {
+		// The cached HSM key failed (and was dropped from the cache):
+		// look it up again once, in a new session.
+		if cacert, key, err = loadCAMaterial(ca, ocspr.Handler.DB); err == nil {
+			rtemplate.Certificate = cacert
+			resp, err = ocsp.CreateResponse(cacert, cacert, rtemplate, key)
+		}
+	}
 	if err != nil {
 		return nil, err
 	}
