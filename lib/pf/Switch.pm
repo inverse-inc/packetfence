@@ -855,25 +855,13 @@ sub getAccessListByName {
     my ($self, $access_list_name, $mac, $port, $args) = @_;
     my ($type, $acls) = $self->accessListForRequest($access_list_name, $mac, $args);
     return if !defined $type;
-    # A device is enforced by one switch at a time: drop its rows on every
-    # switch so a device that moved is no longer reported on the previous one.
-    # Without a MAC, stay on this switch: the role rows of the Push ACLs
-    # (getRoleAccessListByName) are stored with an empty MAC on every switch.
-    my %where = (mac => $mac);
-    $where{switch_id} = $self->{_id} if !defined $mac || $mac eq '';
-    my $status = pf::dal::switch_observability_acls->remove_items(
-        -where => \%where,
-    );
-    my $dal = pf::dal::switch_observability_acls->new({
-        switch_id => $self->{_id},
-        mac => $mac,
-        port => (defined $port && $port ne '') ? $port : undef,
-        role_id => $access_list_name,
-        acl_type => $type,
-        acls => $self->observabilityAcls($acls),
-        enforcement_timestamp => \"NOW()",
-    });
-    $dal->upsert();
+    # The switch_observability_acls row is no longer written here: what a module
+    # does with the ACLs it gets back (encode them into the reply, drop them, or
+    # mangle them for the platform) is invisible at this point, so recording the
+    # computed text here reported enforcement that never reached the wire (e.g.
+    # Dell::N1500 sends no ACL attribute, Aruba AOS 16.x sends malformed rules).
+    # The row is now recorded from the assembled RADIUS reply instead, in
+    # L</recordReplyObservabilityAcls> (called once from pf::radius).
     return $acls;
 }
 
@@ -998,6 +986,128 @@ Master), which the table cannot take as is.
 sub observabilityAcls {
     my ($self, $acls) = @_;
     return ref($acls) ? encode_json($acls) : $acls;
+}
+
+=item observabilityReplyAclAttributes
+
+The RADIUS reply attributes that carry actual ACL content (rules or a
+downloadable-ACL reference), as opposed to a role name. Each switch only
+populates the ones of its own platform, so the base list is the union of all
+of them and a module rarely needs to override it.
+
+C<Filter-Id> is deliberately absent: almost every module uses it to carry the
+role name (returnRoleAttribute), which is role-based enforcement tracked
+elsewhere, not an ACL.
+
+=cut
+
+sub observabilityReplyAclAttributes {
+    return qw(
+        Aruba-NAS-Filter-Rule
+        NAS-Filter-Rule
+        HP-NAS-Filter-Rule
+        Juniper-Switching-Filter
+        HW-Data-Filter
+    );
+}
+
+=item observabilityAclsFromReply
+
+The ACL lines actually present in an assembled Access-Accept, in the order they
+appear. It reads the per-platform attributes of L</observabilityReplyAclAttributes>
+and, from C<Cisco-AVPair>, keeps only the entries that are ACL rules
+(C<ip:inacl#>, C<ip:outacl#>, C<in#>, C<out#>) or a downloadable-ACL reference
+(C<ACS:CiscoSecure-Defined-ACL=>, C<subscriber:service-name=>), ignoring the
+other AV pairs (C<shell:priv-lvl>, C<device-traffic-class>, ...).
+
+Takes the reply as a hash ref. Returns the list of ACL strings (possibly empty).
+
+=cut
+
+sub observabilityAclsFromReply {
+    my ($self, $reply) = @_;
+    return () if ref($reply) ne 'HASH';
+
+    my @acls;
+    for my $attr ($self->observabilityReplyAclAttributes) {
+        next if !exists $reply->{$attr};
+        my $v = $reply->{$attr};
+        push @acls, grep { defined && $_ ne '' } (ref($v) eq 'ARRAY' ? @$v : $v);
+    }
+
+    if (exists $reply->{'Cisco-AVPair'}) {
+        my $v = $reply->{'Cisco-AVPair'};
+        for my $pair (ref($v) eq 'ARRAY' ? @$v : $v) {
+            next if !defined $pair || $pair eq '';
+            push @acls, $pair
+                if $pair =~ /^(?:ip:in|ip:out|in|out)acl#/
+                || $pair =~ /^(?:in|out)#/
+                || $pair =~ /^ACS:CiscoSecure-Defined-ACL=/
+                || $pair =~ /^subscriber:service-name=/;
+        }
+    }
+
+    return @acls;
+}
+
+=item recordReplyObservabilityAcls
+
+Record, in switch_observability_acls, the ACLs that actually reached the switch
+for a RADIUS request: the ACL content of the assembled Access-Accept (see
+L</observabilityAclsFromReply>), not the role ACLs PacketFence computed. Called
+once per reply from pf::radius.
+
+It only records for the inline / downloadable path (the switch supports and has
+AccessList enforcement enabled). The Push ACLs path is skipped: there the ACLs
+live in the switch configuration and are recorded, per role, when that
+configuration is generated (L</getRoleAccessListByName>). A row with empty acls
+means enforcement was expected but nothing was put on the wire, which is itself
+the signal an operator needs (e.g. a platform whose encoder produced nothing).
+
+C<$reply_array> is the C<[$status, %reply]> array ref returned by
+returnRadiusAccessAccept.
+
+=cut
+
+sub recordReplyObservabilityAcls {
+    my ($self, $args, $reply_array) = @_;
+    return if ref($reply_array) ne 'ARRAY' || !@$reply_array;
+
+    my ($status, %reply) = @$reply_array;
+    return if $status != $RADIUS::RLM_MODULE_OK;
+
+    return if !isenabled($self->{_AccessListMap}) || !$self->supportsAccessListBasedEnforcement;
+    # Push ACLs: the role ACLs are in the switch config, recorded at config
+    # generation time; the reply only names the role.
+    return if $self->usePushACLs;
+
+    my $mac = $args->{'mac'};
+    my $role_id = $args->{'user_role'};
+    return if !defined $role_id || $role_id eq '';
+
+    my @acls = $self->observabilityAclsFromReply(\%reply);
+    my $acl_type = (grep { /^ACS:CiscoSecure-Defined-ACL=|^subscriber:service-name=/ } @acls)
+        ? 'downloadable' : 'radius';
+
+    # A MAC holds a single active role: drop any row for a previous role before
+    # recording the current one (matches the UNIQUE (switch_id, port) key too).
+    pf::dal::switch_observability_acls->remove_items(
+        -where => {
+            switch_id => $self->{_id},
+            mac => $mac,
+        }
+    );
+    my $dal = pf::dal::switch_observability_acls->new({
+        switch_id => $self->{_id},
+        mac => $mac,
+        port => (defined $args->{'ifIndex'} && $args->{'ifIndex'} ne '') ? $args->{'ifIndex'} : undef,
+        role_id => $role_id,
+        acl_type => $acl_type,
+        acls => join("\n", @acls),
+        enforcement_timestamp => \"NOW()",
+    });
+    $dal->upsert();
+    return;
 }
 
 =item nodeBypassAcls
