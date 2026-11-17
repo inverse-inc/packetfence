@@ -555,7 +555,7 @@ func DownloadCert(pfpki *types.Handler) http.HandlerFunc {
 
 		Error := types.Errors{Status: 0}
 
-		vars := types.Params(req, "id", "cn", "profile", "password")
+		vars := types.Params(req, "id", "cn", "profile")
 		if len(regexp.MustCompile(`^[0-9]+$`).FindStringIndex(vars["id"])) > 0 {
 			delete(vars, "cn")
 		} else {
@@ -563,7 +563,17 @@ func DownloadCert(pfpki *types.Handler) http.HandlerFunc {
 			delete(vars, "id")
 		}
 		switch req.Method {
-		case "GET":
+		case "POST":
+			// The password is in the body, so it doesn't end up in the access logs
+			var body struct {
+				Password string `json:"password"`
+			}
+			if err = json.NewDecoder(req.Body).Decode(&body); err != nil || body.Password == "" {
+				Error.Message = "A password is required"
+				Error.Status = http.StatusBadRequest
+				break
+			}
+			vars["password"] = body.Password
 			Information.Status = http.StatusOK
 			Information, err = o.Download(vars)
 			if err != nil {
