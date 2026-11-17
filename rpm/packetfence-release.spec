@@ -38,7 +38,7 @@ module_hotfixes=1
 
 [packetfence-branches]
 name=PacketFence Branches Repository
-baseurl=http://inverse.ca/downloads/PacketFence/RHEL\$releasever/branches/\$basearch
+baseurl=http://inverse.ca/downloads/PacketFence/RHEL\$releasever/branches/%{pf_minor_release}/\$basearch
 gpgcheck=0
 enabled=0
 module_hotfixes=1
