@@ -152,11 +152,11 @@
         />
         <form-group-acme-allowed-identifiers namespace="acme_allowed_identifiers"
                                              :column-label="$i18n.t('Allowed identifier types')"
-                                             :text="$i18n.t('Comma-separated identifier types accepted in /new-order. dns,ip,email for generic clients; permanent-identifier for Apple managed-device enrollment.')"
+                                             :text="$i18n.t('Comma-separated identifier types accepted in /new-order. dns,ip for generic clients, which also requires External Account Binding; permanent-identifier for Apple managed-device enrollment. Use separate templates for the two.')"
         />
         <form-group-acme-eab-required namespace="acme_eab_required"
                                       :column-label="$i18n.t('Require External Account Binding')"
-                                      :text="$i18n.t('When enabled, /new-account must carry a valid EAB inner JWS. Keys are minted through the API (POST /api/v1/pki/profile/&lt;id&gt;/acme/eab) and distributed via MDM payload, see the PKI documentation.')"
+                                      :text="$i18n.t('When enabled, /new-account must carry a valid EAB inner JWS. Required for dns and ip identifiers; leave it off on Apple templates (permanent-identifier), which cannot use EAB. Keys are minted through the API (POST /api/v1/pki/profile/&lt;id&gt;/acme/eab), see the PKI documentation.')"
                                       :enabled-value="1"
                                       :disabled-value="0"
         />
