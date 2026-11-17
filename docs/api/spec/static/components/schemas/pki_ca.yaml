@@ -35,6 +35,22 @@ PkiCa:
       type: string
     street_address:
       type: string
+    postal_code:
+      type: string
+    ocsp_url:
+      type: string
+    hsm_id:
+      type: string
+      description: |
+        ID of the PKI HSM (see `/api/v1/pki/hsms`) that generates and holds
+        the private key of the CA. The key never leaves the HSM. Leave it
+        out (or 0) to keep the key in the database.
+      example: '1'
+    hsm_key_id:
+      type: string
+      readOnly: true
+      description: Hex CKA_ID of the CA key pair in the HSM, set when the CA is created in an HSM.
+      example: 3f2a9c1e0b7d4e55
 
 PkiCaCertOnly:
   type: object
@@ -47,7 +63,7 @@ PkiCaForm:
     - $ref: '#/components/schemas/PkiCa'
     - required:
       - cn
-      - email
+      - mail
       - organisation
       - country
       - state
@@ -182,6 +198,10 @@ PkiCasFields:
     - organisational_unit
     - state
     - street_address
+    - postal_code
+    - ocsp_url
+    - hsm_id
+    - hsm_key_id
 
 PkiCasField:
   type: string
@@ -205,6 +225,10 @@ PkiCasField:
     - organisational_unit
     - state
     - street_address
+    - postal_code
+    - ocsp_url
+    - hsm_id
+    - hsm_key_id
 
 PkiCasSort:
   type: array
@@ -248,3 +272,5 @@ PkiCasSort:
       - state DESC
       - street_address ASC
       - street_address DESC
+      - hsm_id ASC
+      - hsm_id DESC

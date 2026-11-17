@@ -31,8 +31,89 @@ PkiProfile:
       type: string
     renewal_mail:
       type: string
+    renewal_mail_days:
+      type: string
+      description: |
+        Optional comma-separated list of thresholds, in days before the
+        certificate expires, at which the renewal email is sent (once per
+        threshold). When empty, `days_before_renewal_mail` is used.
+      example: 14,7,1
+    renewal_mail_from:
+      type: string
+    renewal_mail_header:
+      type: string
+    renewal_mail_footer:
+      type: string
     validity:
       type: string
+    acme_enabled:
+      type: integer
+      description: Enable ACME (RFC 8555) enrollment on the profile. The ACME directory is `/api/v1/pki/acme/{profile name}/directory`.
+      enum:
+        - 0
+        - 1
+      default: 0
+    acme_allowed_identifiers:
+      type: string
+      description: |
+        Comma-separated identifier types an ACME order may contain (`dns`,
+        `ip`, `permanent-identifier`). An empty list rejects every order.
+        `permanent-identifier` also needs an attestation format.
+      example: dns,ip
+    acme_eab_required:
+      type: integer
+      description: |
+        Require External Account Binding on new ACME accounts (see
+        `/api/v1/pki/profile/{profile_id}/acme/eab`).
+      enum:
+        - 0
+        - 1
+      default: 1
+    acme_attestation_formats:
+      type: string
+      description: |
+        Comma-separated attestation formats accepted by the
+        device-attest-01 challenge. Only `apple` is implemented. Empty
+        disables device-attest-01.
+      example: apple
+    acme_attestation_roots:
+      type: string
+      description: |
+        Optional PEM bundle of trusted attestation root CAs, replacing the
+        built-in Apple Enterprise Attestation Root CA.
+    acme_account_expiry:
+      type: string
+      description: Lifetime of a new ACME account, in days (0 for no expiry).
+      default: '365'
+    acme_order_expiry:
+      type: string
+      description: Lifetime of an ACME order, in days.
+      default: '7'
+    acme_authz_expiry:
+      type: string
+      description: Lifetime of an ACME authorization, in hours.
+      default: '24'
+    est_enabled:
+      type: integer
+      description: |
+        Enable EST (RFC 7030) enrollment on the profile, at
+        `/.well-known/est/{profile name}/`. Enrollment is refused while
+        `est_password` is not set.
+      enum:
+        - 0
+        - 1
+      default: 0
+    est_username:
+      type: string
+      description: HTTP Basic user name EST clients must present. Empty accepts any user name.
+    est_password:
+      type: string
+      format: password
+      writeOnly: true
+      description: |
+        HTTP Basic password EST clients must present. Write-only: it is
+        never returned by the API. On update, leaving it out keeps the
+        stored password.
 
 PkiProfileForm:
   allOf:
@@ -161,7 +242,17 @@ PkiProfilesField:
     - revoked_valid_until
     - scep_days_before_renewal
     - renewal_mail
+    - renewal_mail_days
     - validity
+    - acme_enabled
+    - acme_allowed_identifiers
+    - acme_eab_required
+    - acme_attestation_formats
+    - acme_account_expiry
+    - acme_order_expiry
+    - acme_authz_expiry
+    - est_enabled
+    - est_username
 
 PkiProfilesSort:
   type: array
@@ -203,3 +294,7 @@ PkiProfilesSort:
       - renewal_mail DESC
       - validity ASC
       - validity DESC
+      - acme_enabled ASC
+      - acme_enabled DESC
+      - est_enabled ASC
+      - est_enabled DESC

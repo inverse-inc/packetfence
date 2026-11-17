@@ -139,7 +139,11 @@
 /api/v1/pki/cert/{cert_id}/email:
   post:
     summary: Email PKI Certificate.
-    description: Emails the certificate and its private key in a PKCS#12 to the email address of the certificate, and returns the password of the PKCS#12. Requires the PKI_CREATE admin role.
+    description: |
+      Emails the certificate and its private key in a PKCS#12 to the email
+      address of the certificate, and returns the password of the PKCS#12.
+      The body is optional; it can set the password of the PKCS#12.
+      Requires the PKI_CREATE admin role.
     parameters:
       - name: cert_id
         in: path
@@ -147,6 +151,8 @@
         description: '`PRIMARY KEY`'
         schema:
           type: string
+    requestBody:
+      $ref: '#/components/requestBodies/PkiCertEmail'
     responses:
       '200':
         $ref: '#/components/responses/PkiCertEmail'
@@ -176,5 +182,22 @@
         $ref: '#/components/responses/PkiCert'
       '401':
         $ref: '#/components/responses/Unauthorized'
+    tags:
+      - PKI
+
+/api/v1/pki/process_cloud_revocations:
+  post:
+    summary: Apply pending cloud revocations.
+    description: |
+      Applies the certificate revocations queued by the cloud services
+      (e.g. Microsoft Intune) of the PKI Profiles that have one. Normally
+      run by a maintenance task.
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiProcessCloudRevocations'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '500':
+        $ref: '#/components/responses/PkiError'
     tags:
       - PKI
