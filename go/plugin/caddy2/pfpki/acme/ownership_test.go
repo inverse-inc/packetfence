@@ -535,3 +535,44 @@ func TestChallenge_MultiAuthzOrderPromotes(t *testing.T) {
 		}
 	}
 }
+
+// TestFinalize_DuplicateCNPolicy: finalize applies the template's
+// duplicate-CN policy like the other issuance paths. A second
+// certificate for a live CN is refused and the order stays ready; once
+// the existing one is within DaysBeforeRenewal of its expiry it is
+// superseded and the new one issued.
+func TestFinalize_DuplicateCNPolicy(t *testing.T) {
+	env := testutil.NewEnv(t)
+	prof := mustEnableAcmeProfile(t, env, "acme-dup-cn")
+	c, kid := bootstrapAcmeAccount(t, env, prof)
+	const name = "dup.example.com"
+	first, _, _ := issueLeaf(t, env, prof, c, kid, name)
+
+	orderURL, finalizeURL := readyOrder(t, env, prof, c, kid, name)
+	key, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	csr := &x509.CertificateRequest{Subject: pkix.Name{CommonName: name}, DNSNames: []string{name}}
+	expectProblem(t, finalizeWith(t, c, kid, finalizeURL, csr, key), http.StatusForbidden, "unauthorized")
+	var order models.AcmeOrder
+	if err := env.DB.First(&order, orderIDFromURL(t, orderURL)).Error; err != nil || order.Status != "ready" {
+		t.Fatalf("order after refusal: status=%q err=%v, want ready", order.Status, err)
+	}
+	if !certStillLive(t, env, first) {
+		t.Fatalf("the refused finalize revoked the existing certificate")
+	}
+
+	// Validity is 90 days: with a 365 day renewal window the existing
+	// certificate is due for renewal and gets superseded.
+	if err := env.DB.Model(&models.Profile{}).Where("name = ?", prof).
+		Update("days_before_renewal", 365).Error; err != nil {
+		t.Fatalf("set days_before_renewal: %v", err)
+	}
+	fr := finalizeWith(t, c, kid, finalizeURL, csr, key)
+	defer fr.Body.Close()
+	if fr.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(fr.Body)
+		t.Fatalf("finalize in the renewal window: status=%d body=%s", fr.StatusCode, body)
+	}
+	if certStillLive(t, env, first) {
+		t.Errorf("the superseded certificate is still live")
+	}
+}

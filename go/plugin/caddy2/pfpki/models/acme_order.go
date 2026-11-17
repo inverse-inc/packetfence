@@ -27,11 +27,11 @@ type AcmeOrder struct {
 	UpdatedAt time.Time      `json:"-"`
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
 
-	AccountID  uint   `gorm:"index;not null"`
-	Status     string `gorm:"size:16;default:'pending'"`
-	ExpiresAt  time.Time `gorm:"index"`
-	NotBefore  time.Time
-	NotAfter   time.Time
+	AccountID uint      `gorm:"index;not null"`
+	Status    string    `gorm:"size:16;default:'pending'"`
+	ExpiresAt time.Time `gorm:"index"`
+	NotBefore time.Time
+	NotAfter  time.Time
 
 	// Identifiers is the JSON-encoded RFC 8555 §7.1.3 identifiers
 	// array, e.g. [{"type":"dns","value":"a.example"}]. Kept opaque
@@ -48,3 +48,14 @@ type AcmeOrder struct {
 }
 
 func (AcmeOrder) TableName() string { return "pki_acme_orders" }
+
+// CheckACMEDuplicateCN applies the template's duplicate-CN policy
+// (AllowDuplicatedCN / MaximumDuplicatedCN) to an ACME finalize, the
+// same way SCEP, EST and admin issuance do: a live certificate with the
+// same CN under the template is superseded (revoked) when it expires
+// within DaysBeforeRenewal days, otherwise the issuance is refused with
+// the returned error.
+func CheckACMEDuplicateCN(db *gorm.DB, prof *Profile, cn string) error {
+	_, err := revokeNeeded(cn, prof, prof.DaysBeforeRenewal, db)
+	return err
+}
