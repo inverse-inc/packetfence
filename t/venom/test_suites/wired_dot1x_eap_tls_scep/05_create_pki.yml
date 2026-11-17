@@ -104,8 +104,8 @@ testcases:
   steps:
   - type: exec
     script: |
-      curl -k --output {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_scep.certs.radius.cn}}.p12 \
-      http://127.0.0.1:22225/api/v1/pki/cert/{{.create_pf_radius_cert.serial_number}}/download/secret
+      curl -k -X POST -d '{"password":"secret"}' --output {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_scep.certs.radius.cn}}.p12 \
+      http://127.0.0.1:22225/api/v1/pki/cert/{{.create_pf_radius_cert.serial_number}}/download
 
 - name: extract_ca_certificate
   steps:
@@ -211,8 +211,8 @@ testcases:
   steps:
   - type: exec
     script: |
-      curl -k --output {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_scep.certs.http.cn}}.p12 \
-      http://127.0.0.1:22225/api/v1/pki/cert/{{.create_pf_http_cert.serial_number}}/download/secret
+      curl -k -X POST -d '{"password":"secret"}' --output {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_scep.certs.http.cn}}.p12 \
+      http://127.0.0.1:22225/api/v1/pki/cert/{{.create_pf_http_cert.serial_number}}/download
 
 - name: extract_ca_certificate
   steps:
