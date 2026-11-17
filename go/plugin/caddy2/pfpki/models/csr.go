@@ -8,6 +8,7 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -144,6 +145,13 @@ func (csr CSR) New(params map[string]string) (types.Info, error) {
 	}
 	// Sign the certificate
 	certByte, err := x509.CreateCertificate(rand.Reader, tmpl, cacert, certRequest.PublicKey, cakey)
+	if err != nil {
+		// An HSM CA fails here when its token refuses to sign (wrong PIN,
+		// lost session); certByte is nil then.
+		Information.Error = err.Error()
+		Information.Status = http.StatusInternalServerError
+		return Information, fmt.Errorf("unable to sign the certificate: %w", err)
+	}
 
 	certBuff := new(bytes.Buffer)
 
@@ -163,6 +171,11 @@ func (csr CSR) New(params map[string]string) (types.Info, error) {
 	attributeMap := certutils.GetDNFromCert(Subject)
 
 	certif, err := x509.ParseCertificate(certByte)
+	if err != nil {
+		Information.Error = err.Error()
+		Information.Status = http.StatusInternalServerError
+		return Information, err
+	}
 	name := certutils.CertName(certif)
 	notfalse := true
 
