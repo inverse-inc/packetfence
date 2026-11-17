@@ -27,10 +27,11 @@ variables:
   # synced with Pipeline timeout in GitLab UI
   PIPELINE_TIMEOUT_SCRIPT: 160m
   PF_PACKAGE_ORIGIN: "https://packages.packetfence.com"
-  # Psono entry IDs of the Pulp CI accounts ci-packages and ci-docker (read with PSONO_CI_API_*).
+  # Psono entry IDs of the Pulp CI accounts ci-packages, ci-docker and ci-docs (read with PSONO_CI_API_*).
   # Set them as protected GitLab variables; the Pulp jobs fail while they are empty.
   PSONO_CI_PULP_PACKAGES_ID: ""
   PSONO_CI_PULP_DOCKER_ID: ""
+  PSONO_CI_PULP_DOCS_ID: ""
   # Runs the Pulp publishing (generate-pages, ci/pulp); built by publish_ppa_img_* in this pipeline.
   PF_PPA_IMAGE: "ghcr.io/inverse-inc/packetfence/publish-ppa:${CI_COMMIT_REF_SLUG}"
   PIPELINE_TIMEOUT_CLEANUP: 10m
@@ -1619,6 +1620,37 @@ deploy_maintenance_pkg_friendly_names:
   extends:
     - .deploy_pkg_friendly_names
     - .deploy_maintenance_rules
+
+
+# The built guides -> doc/X.Y.0 in the packaging Pulp (X.Y from conf/pf-release), after the tests: release tags
+# and maintenance/X.Y pipelines that build the docs; see ci/pulp/publish-docs.sh.
+.deploy_docs_pulp_job:
+  stage: deploy
+  image: $PF_PPA_IMAGE
+  resource_group: pulp-packetfence-docs
+  script:
+    - bash ci/pulp/publish-docs.sh
+  artifacts:
+    access: developer
+    when: always
+    expire_in: 7 days
+    paths: [pulp-docs.json]
+  tags:
+    - docker
+
+deploy_docs_pulp_release:
+  extends: .deploy_docs_pulp_job
+  dependencies:
+    - build_artifacts_doc_release
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/'
+
+deploy_docs_pulp_maintenance:
+  extends: .deploy_docs_pulp_job
+  dependencies:
+    - build_artifacts_doc_devel_and_branches
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_ARTIFACTS_DOC == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_doc=yes/ )'
 
 ########################################
 # BUILD_PF_IMG JOBS
