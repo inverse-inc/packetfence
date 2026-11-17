@@ -9,7 +9,9 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/base64"
+	"encoding/pem"
 	"io"
+	"math/big"
 	"mime"
 	"mime/multipart"
 	"net"
@@ -17,6 +19,7 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/certutils"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/internal/testutil"
@@ -377,4 +380,65 @@ func TestESTRequiresHTTPS(t *testing.T) {
 	}
 	defer resp.Body.Close()
 	wantStatus(t, resp, http.StatusOK)
+}
+
+// simpleenroll never supersedes a live certificate, whatever the
+// renewal window and duplicate-CN settings: with the shared password,
+// that would let any device take over another device's CN. Once the
+// certificate has expired, the CN can be enrolled again.
+func TestESTSimpleEnrollRefusesLiveCN(t *testing.T) {
+	for name, settings := range map[string]map[string]interface{}{
+		"in the renewal window": {"days_before_renewal": 3650},
+		"renewal window 0":      {"days_before_renewal": 0},
+		"duplicated CN allowed": {"allow_duplicated_cn": 1, "maximum_duplicated_cn": 0},
+	} {
+		t.Run(name, func(t *testing.T) {
+			env := testutil.NewEnv(t)
+			mustEnableESTProfile(t, env, "est-live")
+			if err := env.DB.Model(&models.Profile{}).Where("name = ?", "est-live").Updates(settings).Error; err != nil {
+				t.Fatal(err)
+			}
+			base := env.Server.URL + "/api/v1/.well-known/est/est-live"
+			const cn = "victim.example.test"
+
+			victim, _ := newCSR(t, cn)
+			wantStatus(t, do(t, http.MethodPost, base+"/simpleenroll", victim, true, estPassword), http.StatusOK)
+
+			attacker, _ := newCSR(t, cn)
+			wantStatus(t, do(t, http.MethodPost, base+"/simpleenroll", attacker, true, estPassword), http.StatusForbidden)
+			wantStatus(t, do(t, http.MethodPost, base+"/serverkeygen", attacker, true, estPassword), http.StatusForbidden)
+			var live, revoked int64
+			env.DB.Model(&models.Cert{}).Where("cn = ?", cn).Count(&live)
+			env.DB.Model(&models.RevokedCert{}).Where("cn = ?", cn).Count(&revoked)
+			if live != 1 || revoked != 0 {
+				t.Fatalf("%d live and %d revoked certificates after a refused enrollment, want 1 and 0", live, revoked)
+			}
+
+			// Expire the certificate: the CN can be enrolled again and
+			// the expired certificate is superseded.
+			env.DB.Model(&models.Cert{}).Where("cn = ?", cn).Update("cert", expiredCertPEM(t, cn))
+			wantStatus(t, do(t, http.MethodPost, base+"/simpleenroll", attacker, true, estPassword), http.StatusOK)
+		})
+	}
+}
+
+// expiredCertPEM returns a self-signed certificate for cn that expired
+// yesterday.
+func expiredCertPEM(t *testing.T, cn string) string {
+	t.Helper()
+	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tmpl := &x509.Certificate{
+		SerialNumber: big.NewInt(1),
+		Subject:      pkix.Name{CommonName: cn},
+		NotBefore:    time.Now().Add(-48 * time.Hour),
+		NotAfter:     time.Now().Add(-24 * time.Hour),
+	}
+	der, err := x509.CreateCertificate(rand.Reader, tmpl, tmpl, key.Public(), key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return string(pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: der}))
 }

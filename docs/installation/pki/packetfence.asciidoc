@@ -889,15 +889,23 @@ available on the web admin port under `/api/v1/pki/est/<template_name>/`.
 | Operation | Method | Authentication | Description
 | `cacerts` | GET | None | Returns the template's CA certificate.
 | `csrattrs` | GET | None | Answers _204 No Content_: the Subject is built from the template.
-| `simpleenroll` | POST | HTTP Basic | Issues a certificate for the PKCS#10 request.
-| `simplereenroll` | POST | HTTP Basic | Issues a new certificate for a common name that already has one under the template, then revokes the previous certificate(s) as superseded. The CSR must reuse the key of the currently valid certificate; to change the key (rekey), use `simpleenroll`.
-| `serverkeygen` | POST | HTTP Basic | Generates the key pair (template *Key type* and *Key size*) and returns the private key (PKCS#8) and the certificate.
+| `simpleenroll` | POST | HTTP Basic | Issues a certificate for the PKCS#10 request. Refused while the common name has a valid certificate under the template.
+| `simplereenroll` | POST | HTTP Basic | Issues a new certificate for a common name that already has one under the template, then revokes the previous certificate as superseded. The CSR must reuse the key of the currently valid certificate.
+| `serverkeygen` | POST | HTTP Basic | Generates the key pair (template *Key type* and *Key size*) and returns the private key (PKCS#8) and the certificate. Refused, like `simpleenroll`, while the common name has a valid certificate.
 |===
 
 As with SCEP, the common name and Subject Alt Names come from the
 request; the other Subject attributes, key usage, extended key usage,
-validity and digest come from the template. `simpleenroll` follows the
-template's duplicate common name settings and *Days before renewal*.
+validity and digest come from the template.
+
+All the devices of a template share the EST password, so `simpleenroll`
+and `serverkeygen` never replace a valid certificate, whatever the
+template's duplicate common name settings and *Days before renewal*:
+otherwise any device knowing the password could take over the common
+name of another one. An expired certificate is revoked as superseded
+when its common name enrolls again. A device renews its certificate with
+`simplereenroll` and its current key; to give it a new key before its
+certificate expires, revoke the certificate first.
 
 Subject Alt Names are restricted: a DNS or email SAN must be equal to
 the common name, and IP or URI SANs are refused.
