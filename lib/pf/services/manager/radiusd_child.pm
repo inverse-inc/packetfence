@@ -211,7 +211,7 @@ EOT
         $tags{'local_realm'} .=  join(' || ', @realms);
         $tags{'local_realm'} .= ' ) {'."\n";
         $tags{'local_realm'} .= <<"EOT";
-            rest
+            packetfence-post-auth-rest
         }
 EOT
     }

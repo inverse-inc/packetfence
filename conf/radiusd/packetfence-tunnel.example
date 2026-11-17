@@ -284,8 +284,8 @@ post-auth {
 	update {
 		&request:User-Password := "******"
 	}
+	# The Reject is logged by Post-Auth-Type REJECT
 	if ("%{%{control:PacketFence-Authorization-Status}:-Allow}" == "deny") {
-		packetfence-audit-log-reject
 		reject
 	} else {
 		packetfence-audit-log-accept
@@ -639,8 +639,8 @@ post-auth {
 	update {
 		&request:User-Password := "******"
 	}
+	# The Reject is logged by Post-Auth-Type REJECT
 	if ("%{%{control:PacketFence-Authorization-Status}:-Allow}" == "deny") {
-		packetfence-audit-log-reject
 		reject
 	} else {
 		packetfence-audit-log-accept
