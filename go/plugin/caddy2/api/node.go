@@ -150,8 +150,9 @@ func normalizeMac(mac string) string {
 // open locationlog session, read in a single query. Devices without one are absent.
 func (h *APIHandler) switchIPsForMacs(ctx context.Context, macs []string) map[string]string {
 	switchIPs := map[string]string{}
-	database := h.sqlDB()
-	if database == nil {
+	sqlDB, err := h.sqlDB(ctx)
+	if err != nil {
+		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Unable to get the database handle: %s", err))
 		return switchIPs
 	}
 
@@ -166,7 +167,7 @@ func (h *APIHandler) switchIPsForMacs(ctx context.Context, macs []string) map[st
 	}
 
 	// Rows come oldest session first so the most recent open one wins.
-	rows, err := database.QueryContext(
+	rows, err := sqlDB.QueryContext(
 		ctx,
 		"SELECT mac, switch_ip FROM locationlog WHERE mac IN (?"+strings.Repeat(",?", len(args)-1)+") AND end_time = '0000-00-00 00:00:00' ORDER BY start_time",
 		args...,

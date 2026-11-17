@@ -24,10 +24,11 @@ import (
 )
 
 type Handler struct {
-	Handler   types.Handler
-	cancelCtx context.Context
-	cancel    func()
+	Handler types.Handler
 }
+
+// waitForDB is swapped by tests.
+var waitForDB = dbgorm.WaitFromConfig
 
 // Register the plugin in caddy
 func init() {
@@ -58,11 +59,13 @@ func (Handler) CaddyModule() caddy.ModuleInfo {
 }
 
 // Setup the pfpki middleware
-func (m *Handler) Provision(_ caddy.Context) error {
-	m.cancelCtx, m.cancel = context.WithCancel(context.Background())
+func (m *Handler) Provision(cctx caddy.Context) error {
 	ctx := log.LoggerNewContext(context.Background())
 
-	err := m.buildPfpkiHandler(ctx)
+	// Caddy cancels cctx when this config is unloaded or the server stops.
+	// It is only used for the database wait: Cleanup is not called until
+	// Provision returns, so it cannot interrupt the wait.
+	err := m.buildPfpkiHandler(ctx, log.LoggerNewContext(cctx))
 	if err != nil {
 		return err
 	}
@@ -70,14 +73,14 @@ func (m *Handler) Provision(_ caddy.Context) error {
 	return nil
 }
 
-func (h *Handler) buildPfpkiHandler(ctx context.Context) error {
+func (h *Handler) buildPfpkiHandler(ctx, waitCtx context.Context) error {
 
 	pfpki := types.Handler{}
-	// Blocks provisioning until the database answers, but gives up on a hard
-	// configuration error or when the handler is cleaned up. The handle is the
-	// process-wide shared pool: it reconnects on its own and needs no
-	// keepalive, and it must never be closed.
-	Database, err := dbgorm.WaitFromConfig(h.cancelCtx, 5*time.Second)
+	// Blocks provisioning until the database answers, as the previous
+	// open-retry loop did, but gives up on a hard configuration error or when
+	// waitCtx ends. The handle is the process-wide shared pool: it reconnects
+	// on its own and needs no keepalive, and it must never be closed.
+	Database, err := waitForDB(waitCtx, 5*time.Second)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Failed to open the database: %s", err))
 		return err
@@ -218,7 +221,6 @@ func (h *Handler) Validate() error {
 }
 
 func (h *Handler) Cleanup() error {
-	h.cancel()
 	return nil
 }
 

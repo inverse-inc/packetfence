@@ -13,11 +13,11 @@ func TestCachedConnectURIReturnsSamePoolForSameDSN(t *testing.T) {
 	ctx := context.Background()
 	uri := ReturnURI(ctx, "pf", "secret", "100.64.0.1", "6033", "pf_cache_same")
 
-	a, err := cachedConnectURI(ctx, uri)
+	a, err := CachedConnectURI(ctx, uri)
 	if err != nil {
 		t.Fatalf("first open: %v", err)
 	}
-	b, err := cachedConnectURI(ctx, uri)
+	b, err := CachedConnectURI(ctx, uri)
 	if err != nil {
 		t.Fatalf("second open: %v", err)
 	}
@@ -31,7 +31,7 @@ func TestCachedConnectURIReturnsSamePoolForSameDSN(t *testing.T) {
 
 func TestCachedConnectURIDistinguishesDSNs(t *testing.T) {
 	ctx := context.Background()
-	base, err := cachedConnectURI(ctx, ReturnURI(ctx, "pf", "secret", "100.64.0.1", "6033", "pf_cache_a"))
+	base, err := CachedConnectURI(ctx, ReturnURI(ctx, "pf", "secret", "100.64.0.1", "6033", "pf_cache_a"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -41,7 +41,7 @@ func TestCachedConnectURIDistinguishesDSNs(t *testing.T) {
 		"password": ReturnURI(ctx, "pf", "rotated", "100.64.0.1", "6033", "pf_cache_a"),
 		"host":     ReturnURI(ctx, "pf", "secret", "100.64.0.2", "6033", "pf_cache_a"),
 	} {
-		other, err := cachedConnectURI(ctx, uri)
+		other, err := CachedConnectURI(ctx, uri)
 		if err != nil {
 			t.Fatalf("%s: %v", name, err)
 		}
@@ -56,7 +56,7 @@ func TestCachedConnectURIDistinguishesDSNs(t *testing.T) {
 func TestUncachedConstructorsReturnFreshPools(t *testing.T) {
 	ctx := context.Background()
 	uri := ReturnURI(ctx, "pf", "secret", "100.64.0.1", "6033", "pf_cache_uncached")
-	cached, err := cachedConnectURI(ctx, uri)
+	cached, err := CachedConnectURI(ctx, uri)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -96,7 +96,7 @@ func TestCachedConnectURIConcurrent(t *testing.T) {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
-			db, err := cachedConnectURI(ctx, uri)
+			db, err := CachedConnectURI(ctx, uri)
 			if err != nil {
 				t.Error(err)
 				return
@@ -118,7 +118,7 @@ func TestCachedConnectURIDoesNotCacheErrors(t *testing.T) {
 	ctx := context.Background()
 	bad := "user@tcp(bad"
 
-	if db, err := cachedConnectURI(ctx, bad); err == nil {
+	if db, err := CachedConnectURI(ctx, bad); err == nil {
 		t.Fatalf("malformed DSN opened a pool: %v", db)
 	} else if !errors.Is(err, ErrInvalidConfig) {
 		t.Fatalf("malformed DSN error is not ErrInvalidConfig: %v", err)
@@ -129,12 +129,12 @@ func TestCachedConnectURIDoesNotCacheErrors(t *testing.T) {
 	if cached {
 		t.Fatal("malformed DSN was cached")
 	}
-	if _, err := cachedConnectURI(ctx, bad); err == nil {
+	if _, err := CachedConnectURI(ctx, bad); err == nil {
 		t.Fatal("second open of malformed DSN succeeded")
 	}
 
 	good := ReturnURI(ctx, "pf", "secret", "100.64.0.1", "6033", "pf_cache_after_error")
-	if _, err := cachedConnectURI(ctx, good); err != nil {
+	if _, err := CachedConnectURI(ctx, good); err != nil {
 		t.Fatalf("valid DSN after an error: %v", err)
 	}
 }

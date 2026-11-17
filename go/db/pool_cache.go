@@ -30,13 +30,15 @@ var poolCache = struct {
 	pools map[string]*sql.DB
 }{pools: map[string]*sql.DB{}}
 
-// cachedConnectURI returns the shared pool for uri, opening it on first use.
+// CachedConnectURI returns the shared pool for uri, opening it on first use.
+// Never Close it. Prefer DbFromConfig; this is for callers that already built
+// the DSN and need the pool for exactly that DSN.
 //
 // Errors are returned and never cached. sql.Open does no network I/O (it only
 // parses the DSN through the driver's OpenConnector), so an error here is a
 // hard configuration/driver error, not a transient one; holding the lock
 // across it is cheap.
-func cachedConnectURI(ctx context.Context, uri string) (*sql.DB, error) {
+func CachedConnectURI(ctx context.Context, uri string) (*sql.DB, error) {
 	poolCache.mu.Lock()
 	defer poolCache.mu.Unlock()
 

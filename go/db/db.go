@@ -51,14 +51,14 @@ func ManualConnectDb(ctx context.Context, user, pass, host, port, dbName string)
 func DbLocalFromConfig(ctx context.Context) (*sql.DB, error) {
 	dbConfig := pfconfigdriver.GetType[pfconfigdriver.PfConfDatabase](ctx)
 	uri := ReturnURI(ctx, dbConfig.User, dbConfig.Pass.String(), "localhost", dbConfig.Port, dbConfig.Db)
-	return cachedConnectURI(ctx, uri)
+	return CachedConnectURI(ctx, uri)
 }
 
 // ConnectDb returns the shared pool for dbName. Never Close it (see
 // DbFromConfig).
 func ConnectDb(ctx context.Context, dbName string) (*sql.DB, error) {
 	uri := ReturnURIFromConfig(ctx, dbName)
-	return cachedConnectURI(ctx, uri)
+	return CachedConnectURI(ctx, uri)
 }
 
 // ConnectURI opens a new, uncached pool that the caller owns and should Close.

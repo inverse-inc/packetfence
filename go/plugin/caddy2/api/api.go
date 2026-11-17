@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 	"sync"
-	"time"
 
 	"database/sql"
 
@@ -13,15 +12,12 @@ import (
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/inverse-inc/go-utils/log"
-	"github.com/inverse-inc/packetfence/go/db"
-	"github.com/inverse-inc/packetfence/go/db/dbgorm"
 	"github.com/inverse-inc/packetfence/go/fbcollectorclient"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
 	"github.com/inverse-inc/packetfence/go/uiplugins"
 	"github.com/julienschmidt/httprouter"
-	"golang.org/x/sync/singleflight"
 )
 
 // Register the plugin in caddy
@@ -42,22 +38,14 @@ func (APIHandler) CaddyModule() caddy.ModuleInfo {
 
 type APIHandler struct {
 	router *httprouter.Router
-	// the raw SQL handle, only through sqlDB, setSQLDB and pluginDB (guarded
-	// by sqlDBLock)
+	// db overrides the shared pool (tests only); nil means resolve it per use
+	// via sqlDB(). Only through sqlDB and setSQLDB (guarded by sqlDBLock).
 	db *sql.DB
 }
 
-// guards APIHandler.db: written at startup and by a lazy reopen, read by the
-// request handlers. A package lock and not a field: CaddyModule has a value
-// receiver, APIHandler must stay copyable.
+// guards APIHandler.db. A package lock and not a field: CaddyModule has a
+// value receiver, APIHandler must stay copyable.
 var sqlDBLock sync.RWMutex
-
-// sqlDB is the raw SQL handle, nil when it could not be opened
-func (m *APIHandler) sqlDB() *sql.DB {
-	sqlDBLock.RLock()
-	defer sqlDBLock.RUnlock()
-	return m.db
-}
 
 func (m *APIHandler) setSQLDB(database *sql.DB) {
 	sqlDBLock.Lock()
@@ -65,37 +53,17 @@ func (m *APIHandler) setSQLDB(database *sql.DB) {
 	m.db = database
 }
 
-// opens the raw SQL handle, a variable for the tests
-var openPluginDB = db.DbFromConfig
-
-// one open of the raw SQL handle at a time, for the concurrent requests
-var pluginDBOpen singleflight.Group
-
-// pluginDB is the raw SQL handle, opened again when it could not be at
-// startup. Opening it creates the pool without connecting (sql.Open): the
-// singleflight only keeps the concurrent requests from creating a pool each,
-// all but one then left open. It is done without holding sqlDBLock, which
-// the other handlers read the handle with.
+// pluginDB is the raw SQL handle for the UI plugins, nil when the database
+// cannot be opened. It is resolved on each use (a cached lookup in the shared
+// pool cache, which also keeps concurrent requests from opening it twice), so
+// a failure at startup is retried by the next request.
 func (m *APIHandler) pluginDB(ctx context.Context) *sql.DB {
-	if database := m.sqlDB(); database != nil {
-		return database
+	database, err := m.sqlDB(ctx)
+	if err != nil {
+		log.LoggerWContext(ctx).Error("Unable to open the database for the UI plugins: " + err.Error())
+		return nil
 	}
-	opened, _, _ := pluginDBOpen.Do("open", func() (any, error) {
-		if database := m.sqlDB(); database != nil {
-			return database, nil
-		}
-		database, err := openPluginDB(context.WithoutCancel(ctx))
-		if err != nil {
-			log.LoggerWContext(ctx).Error("Unable to open the database for the UI plugins: " + err.Error())
-			return nil, err
-		}
-		m.setSQLDB(database)
-		return database, nil
-	})
-	if database, _ := opened.(*sql.DB); database != nil {
-		return database
-	}
-	return m.sqlDB()
+	return database
 }
 
 // Setup the api middleware
@@ -138,31 +106,17 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 		router.Handle(method, "/api/v1/plugin/:name/*path", m.pluginProxy)
 	}
 
-	// Blocks provisioning until the database answers, as before, but gives up
-	// on a hard configuration error. The handle is the process-wide shared
-	// pool: it reconnects on its own, so there is no ping/reopen loop, and it
-	// must never be closed.
-	DB, err := dbgorm.WaitFromConfig(ctx, 10*time.Second)
-	if err != nil {
-		log.LoggerWContext(ctx).Error("Unable to open the database for the API plugin: " + err.Error())
-		return err
-	}
-	DBP := &DB
-
-	// Raw *sql.DB access (e.g. resolving a node's connector from its
-	// locationlog switch IP). Same shared pool as DB above.
-	if sqlHandle, sqlErr := db.DbFromConfig(ctx); sqlErr != nil {
-		log.LoggerWContext(ctx).Warn("Unable to open sql.DB handle for the API plugin: " + sqlErr.Error())
-	} else {
-		m.setSQLDB(sqlHandle)
-	}
-	NewAdminApiAuditLog(ctx, DBP).AddToRouter(router)
-	NewAuthLog(ctx, DBP).AddToRouter(router)
-	NewDnsAuditLog(ctx, DBP).AddToRouter(router)
-	NewRadacctLog(ctx, DBP).AddToRouter(router)
-	NewRadiusAuditLog(ctx, DBP).AddToRouter(router)
-	NewWrix(ctx, DBP).AddToRouter(router)
-	NewDynamicReport(ctx, DBP).AddToRouter(router)
+	// Nothing here touches the database: provisioning must not wait for it,
+	// or an outage at startup keeps every route of this server down. The DAL
+	// routes resolve the shared GORM handle per request (a cached lookup once
+	// opened) and answer 503 while the database is unreachable.
+	NewAdminApiAuditLog(ctx, gormFromConfig).AddToRouter(router)
+	NewAuthLog(ctx, gormFromConfig).AddToRouter(router)
+	NewDnsAuditLog(ctx, gormFromConfig).AddToRouter(router)
+	NewRadacctLog(ctx, gormFromConfig).AddToRouter(router)
+	NewRadiusAuditLog(ctx, gormFromConfig).AddToRouter(router)
+	NewWrix(ctx, gormFromConfig).AddToRouter(router)
+	NewDynamicReport(ctx, gormFromConfig).AddToRouter(router)
 
 	m.router = router
 	return nil

@@ -87,7 +87,7 @@ type ReportSearchParams struct {
 type reportSearchFieldQuery = map[string]any
 
 type DynamicReport struct {
-	DBP **gorm.DB
+	DB  gormSource
 	Ctx *context.Context
 }
 
@@ -95,9 +95,9 @@ const defaultSearchLimit int = 25
 
 var cachedReportConfig = pfconfigdriver.NewCachedValue(reflect.TypeOf(pfconfigdriver.DynamicReports{}))
 
-func NewDynamicReport(ctx context.Context, dbp **gorm.DB) *DynamicReport {
+func NewDynamicReport(ctx context.Context, db gormSource) *DynamicReport {
 	return &DynamicReport{
-		DBP: dbp,
+		DB:  db,
 		Ctx: &ctx,
 	}
 }
@@ -252,7 +252,12 @@ func (a *DynamicReport) SearchItem(w http.ResponseWriter, r *http.Request, p htt
 		return
 	}
 	cleanedSql := cleanSql(inReport.Sql)
-	items, err := executeSearchQuery(a.DBP, cleanedSql, injectedBindings)
+	gdb, err := a.DB(*a.Ctx)
+	if err != nil {
+		body.QuickError(w, http.StatusServiceUnavailable, "database unavailable: "+err.Error())
+		return
+	}
+	items, err := executeSearchQuery(&gdb, cleanedSql, injectedBindings)
 	if err != nil {
 		body.QuickError(w, http.StatusInternalServerError, "cannot execute search query: "+err.Error())
 		return
@@ -275,7 +280,11 @@ func getDefaultDateRange(a *DynamicReport, interval string) (string, string) {
 	if err != nil {
 		return startDate, endDate
 	}
-	res := (*a.DBP).Raw(
+	gdb, err := a.DB(*a.Ctx)
+	if err != nil {
+		return startDate, endDate
+	}
+	res := gdb.Raw(
 		`SELECT IFNULL(
 			DATE_FORMAT(DATE_SUB(NOW(), INTERVAL ? SECOND), "%Y-%m-%d %T"), '0000-00-00 00:00:00')
 				as default_start_date,
@@ -295,7 +304,11 @@ func getUtcOffset(a *DynamicReport) *int64 {
 	result := struct {
 		Utc_offset *int64
 	}{}
-	res := (*a.DBP).Raw(`SELECT TIMESTAMPDIFF(SECOND, UTC_TIMESTAMP(), NOW()) as utc_offset`).Scan(&result)
+	gdb, err := a.DB(*a.Ctx)
+	if err != nil {
+		return nil
+	}
+	res := gdb.Raw(`SELECT TIMESTAMPDIFF(SECOND, UTC_TIMESTAMP(), NOW()) as utc_offset`).Scan(&result)
 	if res.Error != nil {
 		return nil
 	}

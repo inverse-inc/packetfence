@@ -19,15 +19,20 @@ import (
 
 var errSharedPool = errors.New("dbgorm: the shared pool is not exposed (it must never be closed); use db.DbFromConfig for *sql.DB access")
 
-// sharedConnPool wraps the shared *sql.DB so that gorm.DB.DB() cannot return
-// it. Every method GORM needs (queries, statements, BeginTx, Ping, Conn) is
-// promoted from the embedded *sql.DB.
+// sharedConnPool wraps the shared *sql.DB so that gorm.DB.DB() does not
+// return it. Queries, statements, BeginTx, Ping and Conn are promoted from the
+// embedded *sql.DB.
 //
-// Hiding it matters because gorm.Open Closes the pool when its dialector fails
-// to initialize (the mysql dialector runs SELECT VERSION(), which fails while
-// the database is down): on a raw *sql.DB that would close the pool for every
-// holder in the process, permanently. It also stops callers from doing
-// DB().Close() themselves.
+// The point is gorm.Open's failure path: when the mysql dialector's SELECT
+// VERSION() fails (database down), gorm.Open Closes db.DB(). On a raw shared
+// *sql.DB that would close the pool for every holder in the process,
+// permanently. It also keeps plain DB().Close() calls away from it.
+//
+// Two known gaps, pinned by tests:
+//   - Inside a transaction, gorm.DB.DB() unwraps the *sql.Tx by reflection and
+//     DOES return the shared pool. Never Close what tx.DB() returns.
+//   - gorm.DB.Connection() needs DB() and so fails with errSharedPool on these
+//     handles; use a transaction or db.DbFromConfig(...).Conn instead.
 type sharedConnPool struct {
 	*sql.DB
 }
@@ -37,52 +42,110 @@ func (sharedConnPool) GetDBConn() (*sql.DB, error) {
 	return nil, errSharedPool
 }
 
+// openRetryBackoff is how long a failed open is remembered: callers in that
+// window get the same error without a new attempt, so a dead database costs
+// one connection attempt per window instead of one per request.
+const openRetryBackoff = 2 * time.Second
+
+// Swapped by tests.
+var (
+	now      = time.Now
+	openGorm = func(sqlDB *sql.DB, dsn string) (*gorm.DB, error) {
+		return gorm.Open(mysql.New(mysql.Config{
+			DriverName: sqlcomment.DriverName,
+			DSN:        dsn,
+			Conn:       sharedConnPool{sqlDB},
+		}), &gorm.Config{})
+	}
+)
+
+// entry is the per-pool state. Exactly one of these holds at a time: gdb is
+// set (opened), opening is non-nil (an attempt is in flight; it is closed when
+// the attempt ends), or neither (never tried, or the last attempt failed with
+// lastErr at failedAt).
+type entry struct {
+	gdb      *gorm.DB
+	opening  chan struct{}
+	lastErr  error
+	failedAt time.Time
+}
+
 var cache = struct {
-	mu  sync.Mutex
-	dbs map[*sql.DB]*gorm.DB
-}{dbs: map[*sql.DB]*gorm.DB{}}
+	mu      sync.Mutex
+	entries map[*sql.DB]*entry
+}{entries: map[*sql.DB]*entry{}}
 
 // FromConfig returns the process-wide GORM handle for the configured database.
-// It is safe for concurrent use and shared with every other caller: never
-// Close its pool.
+// It is safe for concurrent use and cheap once opened (a cached lookup), so
+// request handlers can call it per request; doing so also picks up a DSN change
+// in pfconfig. Never Close its pool.
 //
-// Errors wrapping db.ErrInvalidConfig are hard configuration errors that
-// retrying cannot fix. Any other error means the database could not be reached
-// (gorm.Open queries the server version); it is not cached, so retry later.
-// Once a handle is returned it reconnects on its own and needs no pinging.
+// Errors wrapping db.ErrInvalidConfig are hard configuration errors. Any other
+// error means the database could not be reached (gorm.Open queries the server
+// version); call again later.
 func FromConfig(ctx context.Context) (*gorm.DB, error) {
-	sqlDB, err := db.DbFromConfig(ctx)
+	// Build the DSN once so the pool and gorm's parsed settings come from the
+	// same pfconfig read.
+	dsn := db.ReturnURIFromConfig(ctx)
+	sqlDB, err := db.CachedConnectURI(ctx, dsn)
 	if err != nil {
 		return nil, err
 	}
-	return forPool(sqlDB, db.ReturnURIFromConfig(ctx))
+	return forPool(ctx, sqlDB, dsn)
 }
 
 // forPool returns the GORM handle for sqlDB, opening it on first use. dsn is
-// only parsed for its settings (e.g. time location); no connection is opened
-// from it.
+// only parsed for its settings (e.g. time location); the connection comes from
+// sqlDB.
 //
-// The lock is held across gorm.Open, which runs one query. That query is
-// bounded by the DSN's connect timeout, and concurrent callers would only
-// repeat it.
-func forPool(sqlDB *sql.DB, dsn string) (*gorm.DB, error) {
-	cache.mu.Lock()
-	defer cache.mu.Unlock()
+// The lock is never held across the open, which does I/O with no read
+// deadline. Concurrent callers share the in-flight attempt, and a caller whose
+// ctx ends stops waiting for it.
+func forPool(ctx context.Context, sqlDB *sql.DB, dsn string) (*gorm.DB, error) {
+	for {
+		cache.mu.Lock()
+		e := cache.entries[sqlDB]
+		if e == nil {
+			e = &entry{}
+			cache.entries[sqlDB] = e
+		}
+		switch {
+		case e.gdb != nil:
+			gdb := e.gdb
+			cache.mu.Unlock()
+			return gdb, nil
+		case e.opening != nil:
+			opening := e.opening
+			cache.mu.Unlock()
+			select {
+			case <-opening:
+				continue // re-read the outcome
+			case <-ctx.Done():
+				return nil, ctx.Err()
+			}
+		case e.lastErr != nil && now().Sub(e.failedAt) < openRetryBackoff:
+			err := e.lastErr
+			cache.mu.Unlock()
+			return nil, err
+		}
 
-	if gdb, ok := cache.dbs[sqlDB]; ok {
-		return gdb, nil
-	}
+		opening := make(chan struct{})
+		e.opening = opening
+		cache.mu.Unlock()
 
-	gdb, err := gorm.Open(mysql.New(mysql.Config{
-		DriverName: sqlcomment.DriverName,
-		DSN:        dsn,
-		Conn:       sharedConnPool{sqlDB},
-	}), &gorm.Config{})
-	if err != nil {
-		return nil, err
+		gdb, err := openGorm(sqlDB, dsn)
+
+		cache.mu.Lock()
+		e.opening = nil
+		if err != nil {
+			e.lastErr, e.failedAt = err, now()
+		} else {
+			e.gdb, e.lastErr = gdb, nil
+		}
+		cache.mu.Unlock()
+		close(opening)
+		return gdb, err
 	}
-	cache.dbs[sqlDB] = gdb
-	return gdb, nil
 }
 
 // WaitFromConfig calls FromConfig until the database answers, sleeping retry
