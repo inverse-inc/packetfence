@@ -15,5 +15,9 @@ packetfence_install__deb:
   repos:
     - "debian/{{ pf_minor_release }}"
 
+# The role hard-codes inverse.ca for its repository line; the key URLs can point at the packaging Pulp.
+packetfence_install__apt_key_url: '{{ pf_repo_origin }}/downloads/GPG_PUBLIC_KEY'
+packetfence_install__rpm_key_url: '{{ pf_repo_origin }}/downloads/GPG_PUBLIC_KEY'
+
 # we used Venom to pass through configurator
 packetfence_install__configurator_status: 'enabled'
