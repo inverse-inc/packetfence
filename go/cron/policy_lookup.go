@@ -418,7 +418,7 @@ func UpdateNetworkEvents(ctx context.Context, db *sql.DB, events []*NetworkEvent
 
 	roles, complete := nodeRoles(ctx, db, macs)
 	if !complete {
-		log.LogErrorf(ctx, "pfflow: node role lookup failed for part of this window; role-based and implicit policies are not applied to its %d network events, MAC policies still are", len(events))
+		log.LogErrorf(ctx, "pfflow: node role lookup failed for part of this window; role-based policies are not applied to its %d network events, implicit and MAC policies still are", len(events))
 	}
 
 	applyEnforcement(GetPolicyLookup(), events, roles, complete)
