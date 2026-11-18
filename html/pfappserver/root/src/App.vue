@@ -44,18 +44,18 @@
           <b-nav-item @click="toggleDocumentationViewer" :active="showDocumentationViewer" v-b-tooltip.hover.bottom.d300 title="Alt + Shift + H">
             <icon name="question-circle"></icon>
           </b-nav-item>
-          <b-nav-item to="/live-logs" v-b-tooltip.hover.bottom.d300 title="Alt + Shift + L"
-            :active="$route.path.startsWith('/live-logs')">
+          <b-nav-item @click="toggleHeaderPanel(LIVE_LOGS_PANEL)" v-b-tooltip.hover.bottom.d300 title="Alt + Shift + L"
+            :active="headerPanel === LIVE_LOGS_PANEL">
             <icon name="scroll" :class="{ 'text-success': hasRunningSessions }" />
           </b-nav-item>
-          <b-nav-item to="/historical-logs" v-b-tooltip.hover.bottom.d300 :title="$t('Historical Logs')"
-            :active="$route.path.startsWith('/historical-logs')">
+          <b-nav-item @click="toggleHeaderPanel(HISTORICAL_LOGS_PANEL)" v-b-tooltip.hover.bottom.d300 :title="$t('Historical Logs')"
+            :active="headerPanel === HISTORICAL_LOGS_PANEL">
             <icon name="history" />
           </b-nav-item>
         </b-navbar-nav>
         <app-notifications :isAuthenticated="isAuthenticated || isConfiguratorActive" />
         <!-- the buttons of the plugin panels, right of the header icons -->
-        <plugin-navbar-items v-show="isAuthenticated" @toggle="onPluginPanel" />
+        <plugin-navbar-items v-show="isAuthenticated" />
       </b-collapse>
     </b-navbar>
     <app-api-progress />
@@ -97,7 +97,7 @@ import AppNotificationToasts from '@/components/AppNotificationToasts'
 import IconCounter from '@/components/IconCounter'
 import PluginNavbarItems from '@/plugins/components/NavbarItems'
 import PluginNavbarPanels from '@/plugins/components/NavbarPanels'
-import { closePanel } from '@/plugins'
+import { HISTORICAL_LOGS_PANEL, LIVE_LOGS_PANEL, closePanel, openPanel, togglePanel } from '@/plugins'
 
 const components = {
   AppApiProgress,
@@ -138,13 +138,17 @@ const setup = (props, context) => {
   const toggleDocumentationViewer = () => {
     $store.dispatch('documentation/toggleViewer')
   }
-  // a plugin panel opened (UI plugins, navbar-panel mount): one panel at a time
-  // the slide of a plugin panel (NavbarPanels), like the documentation's
+  // the slide of a panel under the header (NavbarPanels), like the documentation's
   const pluginPanelClass = ref(null)
-  const onPluginPanel = (id) => {
+  // the panel open under the header (the logs, a plugin): one at a time with
+  // the documentation viewer
+  const headerPanel = computed(() => openPanel())
+  const toggleHeaderPanel = id => togglePanel(id)
+  watch(headerPanel, id => {
     if (id && showDocumentationViewer.value)
       $store.dispatch('documentation/closeViewer')
-  }
+  })
+
 
   const closeFullscreenDocs = () => {
     if ($store.getters['documentation/fullscreen']) {
@@ -249,8 +253,7 @@ const setup = (props, context) => {
           break
         case keyCode === 76: // L
           e.preventDefault()
-          $router.push('/live-logs')
-            .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+          togglePanel(LIVE_LOGS_PANEL)
           break
         case keyCode === 72: // H
           e.preventDefault()
@@ -310,7 +313,10 @@ const setup = (props, context) => {
     pluginPanelClass,
     showDocumentationViewer,
     toggleDocumentationViewer,
-    onPluginPanel,
+    headerPanel,
+    toggleHeaderPanel,
+    LIVE_LOGS_PANEL,
+    HISTORICAL_LOGS_PANEL,
     closeFullscreenDocs,
   }
 }

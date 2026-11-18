@@ -1,14 +1,15 @@
 <template>
   <div>
-    <div v-for="plugin in opened" :key="plugin.id" v-show="shown === plugin.id" class="plugin-navbar-panel border-bottom mb-3">
-      <bundle-mount :plugin-id="plugin.id" kind="navbar-panel" />
+    <div v-for="panel in opened" :key="panel.id" v-show="shown === panel.id" class="plugin-navbar-panel border-bottom mb-3">
+      <component v-if="panel.component" :is="panel.component" />
+      <bundle-mount v-else :plugin-id="panel.id" kind="navbar-panel" />
     </div>
   </div>
 </template>
 <script>
 /**
- * The panels of the bundle plugins with a "navbar-panel" mount, under the
- * navbar. A panel is mounted when it is first opened, then kept (hidden) so
+ * The panels under the navbar: the ones of core (the logs) and of the bundle
+ * plugins with a "navbar-panel" mount. A panel is mounted when it is first opened, then kept (hidden) so
  * that the plugin keeps its state; one is shown at a time.
  *
  * They slide down and up like the documentation viewer: the "animation" event
@@ -17,7 +18,13 @@
  */
 const SLIDE_OUT_MS = 150 // plugin-panel-leave
 import BundleMount from './BundleMount'
-import { navbarPlugins, openPanel } from '..'
+import { HISTORICAL_LOGS_PANEL, LIVE_LOGS_PANEL, navbarPlugins, openPanel } from '..'
+
+// the panels of core: the logs (their buttons are in App.vue)
+const CORE_PANELS = [
+  { id: LIVE_LOGS_PANEL, component: () => import(/* webpackChunkName: "LiveLogs" */ '@/views/LiveLogs/_components/ThePanel') },
+  { id: HISTORICAL_LOGS_PANEL, component: () => import(/* webpackChunkName: "HistoricalLogs" */ '@/views/HistoricalLogs/_components/ThePanel') }
+]
 
 export default {
   name: 'plugin-navbar-panels',
@@ -26,7 +33,7 @@ export default {
   computed: {
     open: () => openPanel(),
     opened () {
-      return navbarPlugins().filter(plugin => this.mounted.includes(plugin.id))
+      return [...CORE_PANELS, ...navbarPlugins()].filter(panel => this.mounted.includes(panel.id))
     }
   },
   watch: {
@@ -59,6 +66,13 @@ $plugin-panel-height: 50vh;
 .plugin-navbar-panel {
   height: $plugin-panel-height;
   overflow: auto;
+  // the logs fill the panel, not the window
+  .live-logs-page,
+  .historical-logs-page {
+    height: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
 }
 
 // the slide of the documentation viewer (AppDocumentation)

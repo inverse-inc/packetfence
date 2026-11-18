@@ -235,8 +235,14 @@ const panels = Vue.observable({ open: null })
 export const navbarPlugins = () => state.plugins.filter(({ manifest: { template, bundle, menu: { can } } }) => template === 'bundle'
   && hasMount(bundle, 'navbar-panel') && canAcl(can))
 
+// The panels under the header, one open at a time: the plugin ones (their
+// id), and the core ones (CORE_PANELS, "core:" ids no plugin can register).
+// The documentation viewer closes them, and they close it (App.vue).
+export const LIVE_LOGS_PANEL = 'core:live-logs'
+export const HISTORICAL_LOGS_PANEL = 'core:historical-logs'
 export const openPanel = () => panels.open
 export const togglePanel = id => { panels.open = (panels.open === id) ? null : id }
+export const showPanel = id => { panels.open = id }
 export const closePanel = () => { panels.open = null }
 
 /**

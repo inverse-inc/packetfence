@@ -19,44 +19,32 @@
 </template>
 
 <script>
-import { computed, customRef } from '@vue/composition-api'
+import { computed, inject } from '@vue/composition-api'
 
 const setup = (props, context) => {
 
-  const { root: { $router, $store } = {} } = context
+  const { root: { $store } = {} } = context
+  // the header panel shows the session (ThePanel)
+  const logsPanel = inject('logsPanel')
 
   const isLoading = computed(() => $store.getters['$_live_logs/isLoading'])
   // One tab per cluster group (merged view) or standalone session, never per peer.
   const tabs = computed(() => (
     $store.getters['$_live_logs/tabs'].map(tab => ({
-      ...tab,
-      route: { name: 'live_log', params: { id: tab.id } }
+      ...tab
     }))
   ))
-  const tabIndex = customRef((track, trigger) => ({
-    get() {
-      track()
-      const { params: { id } = {} } = $router.currentRoute
-      if (id) {
-        const index = tabs.value.findIndex(tab => tab.id === id)
-        if (index > -1) return index
-      }
-      return -1
-    },
-    set(tabIndex) {
-      if (tabIndex >= 0 && tabs.value[tabIndex]) {
-        $router.push(tabs.value[tabIndex].route)
-          .then(() => trigger())
-          .catch(() => {})
-      }
+  const tabIndex = computed({
+    get: () => tabs.value.findIndex(tab => tab.id === logsPanel.current.value),
+    set: index => {
+      if (index >= 0 && tabs.value[index])
+        logsPanel.open(tabs.value[index].id)
     }
-  }))
+  })
 
   const destroy = (id) => {
-    const { params: { id: routeId } = {} } = $router.currentRoute
-    if (id === routeId) {
-      $router.push({ name: 'live_logs' })
-    }
+    if (id === logsPanel.current.value)
+      logsPanel.open(null)
     $store.dispatch('$_live_logs/destroySession', id)
   }
 
