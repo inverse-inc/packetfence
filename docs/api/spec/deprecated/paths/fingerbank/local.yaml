@@ -1,0 +1,358 @@
+# The local Fingerbank entries were removed in PacketFence 16.0: only the
+# Upstream data can be read, through the all and upstream scopes
+/api/v1/fingerbank/local/devices:
+  post:
+    deprecated: true
+    summary: Create local device.
+    description: 'Deprecated: local Fingerbank entries were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankDevice'
+    responses:
+      '200':
+        $ref: '#/components/responses/Created'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - Fingerbank
+
+/api/v1/fingerbank/local/device/{device_id}:
+  parameters:
+  - name: device_id
+    in: path
+    required: true
+    schema:
+      type: string
+  patch:
+    deprecated: true
+    summary: Update local device.
+    description: 'Deprecated: local Fingerbank entries were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankDevice'
+    responses:
+      '200':
+        $ref: '#/components/responses/Updated'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - Fingerbank
+  delete:
+    deprecated: true
+    summary: Delete local device.
+    description: 'Deprecated: local Fingerbank entries were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
+    responses:
+      '200':
+        $ref: '#/components/responses/Deleted'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - Fingerbank
+
+/api/v1/fingerbank/local/dhcp6_enterprises:
+  post:
+    deprecated: true
+    summary: Create local DHCPv6 Enterprise.
+    description: 'Deprecated: local Fingerbank entries were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankDhcp6Enterprise'
+    responses:
+      '200':
+        $ref: '#/components/responses/Created'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - Fingerbank
+
+/api/v1/fingerbank/local/dhcp6_enterprise/{dhcp6_enterprise_id}:
+  parameters:
+  - name: dhcp6_enterprise_id
+    in: path
+    required: true
+    schema:
+      type: string
+  patch:
+    deprecated: true
+    summary: Update local DHCPv6 Enterprise.
+    description: 'Deprecated: local Fingerbank entries were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankDhcp6Enterprise'
+    responses:
+      '200':
+        $ref: '#/components/responses/Updated'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - Fingerbank
+  delete:
+    deprecated: true
+    summary: Delete local DHCPv6 Enterprise.
+    description: 'Deprecated: local Fingerbank entries were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
+    responses:
+      '200':
+        $ref: '#/components/responses/Deleted'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - Fingerbank
+
+/api/v1/fingerbank/local/dhcp6_fingerprints:
+  post:
+    deprecated: true
+    summary: Create local DHCPv6 Fingerprint.
+    description: 'Deprecated: local Fingerbank entries were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankDhcp6Fingerprint'
+    responses:
+      '200':
+        $ref: '#/components/responses/Created'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - Fingerbank
+
+/api/v1/fingerbank/local/dhcp6_fingerprint/{dhcp6_fingerprint_id}:
+  parameters:
+  - name: dhcp6_fingerprint_id
+    in: path
+    required: true
+    schema:
+      type: string
+  patch:
+    deprecated: true
+    summary: Update local DHCPv6 Fingerprint.
+    description: 'Deprecated: local Fingerbank entries were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankDhcp6Fingerprint'
+    responses:
+      '200':
+        $ref: '#/components/responses/Updated'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - Fingerbank
+  delete:
+    deprecated: true
+    summary: Delete local DHCPv6 Fingerprint.
+    description: 'Deprecated: local Fingerbank entries were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
+    responses:
+      '200':
+        $ref: '#/components/responses/Deleted'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - Fingerbank
+
+/api/v1/fingerbank/local/dhcp_fingerprints:
+  post:
+    deprecated: true
+    summary: Create local DHCP Fingerprint.
+    description: 'Deprecated: local Fingerbank entries were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankDhcpFingerprint'
+    responses:
+      '200':
+        $ref: '#/components/responses/Created'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - Fingerbank
+
+/api/v1/fingerbank/local/dhcp_fingerprint/{dhcp_fingerprint_id}:
+  parameters:
+  - name: dhcp_fingerprint_id
+    in: path
+    required: true
+    schema:
+      type: string
+  patch:
+    deprecated: true
+    summary: Update local DHCP Fingerprint.
+    description: 'Deprecated: local Fingerbank entries were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankDhcpFingerprint'
+    responses:
+      '200':
+        $ref: '#/components/responses/Updated'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - Fingerbank
+  delete:
+    deprecated: true
+    summary: Delete local DHCP Fingerprint.
+    description: 'Deprecated: local Fingerbank entries were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
+    responses:
+      '200':
+        $ref: '#/components/responses/Deleted'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - Fingerbank
+
+/api/v1/fingerbank/local/dhcp_vendors:
+  post:
+    deprecated: true
+    summary: Create local DHCP Vendor.
+    description: 'Deprecated: local Fingerbank entries were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankDhcpVendor'
+    responses:
+      '200':
+        $ref: '#/components/responses/Created'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - Fingerbank
+
+/api/v1/fingerbank/local/dhcp_vendor/{dhcp_vendor_id}:
+  parameters:
+  - name: dhcp_vendor_id
+    in: path
+    required: true
+    schema:
+      type: string
+  patch:
+    deprecated: true
+    summary: Update local DHCP Vendor.
+    description: 'Deprecated: local Fingerbank entries were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankDhcpVendor'
+    responses:
+      '200':
+        $ref: '#/components/responses/Updated'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - Fingerbank
+  delete:
+    deprecated: true
+    summary: Delete local DHCP Vendor.
+    description: 'Deprecated: local Fingerbank entries were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
+    responses:
+      '200':
+        $ref: '#/components/responses/Deleted'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - Fingerbank
+
+/api/v1/fingerbank/local/mac_vendors:
+  post:
+    deprecated: true
+    summary: Create local MAC Vendor.
+    description: 'Deprecated: local Fingerbank entries were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankMacVendor'
+    responses:
+      '200':
+        $ref: '#/components/responses/Created'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - Fingerbank
+
+/api/v1/fingerbank/local/mac_vendor/{mac_vendor_id}:
+  parameters:
+  - name: mac_vendor_id
+    in: path
+    required: true
+    schema:
+      type: string
+  patch:
+    deprecated: true
+    summary: Update local MAC Vendor.
+    description: 'Deprecated: local Fingerbank entries were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankMacVendor'
+    responses:
+      '200':
+        $ref: '#/components/responses/Updated'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - Fingerbank
+  delete:
+    deprecated: true
+    summary: Delete local MAC Vendor.
+    description: 'Deprecated: local Fingerbank entries were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
+    responses:
+      '200':
+        $ref: '#/components/responses/Deleted'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - Fingerbank
+
+/api/v1/fingerbank/local/user_agents:
+  post:
+    deprecated: true
+    summary: Create local User Agent.
+    description: 'Deprecated: local Fingerbank entries were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankUserAgent'
+    responses:
+      '200':
+        $ref: '#/components/responses/Created'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - Fingerbank
+
+/api/v1/fingerbank/local/user_agent/{user_agent_id}:
+  parameters:
+  - name: user_agent_id
+    in: path
+    required: true
+    schema:
+      type: string
+  patch:
+    deprecated: true
+    summary: Update local User Agent.
+    description: 'Deprecated: local Fingerbank entries were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankUserAgent'
+    responses:
+      '200':
+        $ref: '#/components/responses/Updated'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - Fingerbank
+  delete:
+    deprecated: true
+    summary: Delete local User Agent.
+    description: 'Deprecated: local Fingerbank entries were removed in PacketFence 16.0. This endpoint no longer exists and returns 404.'
+    responses:
+      '200':
+        $ref: '#/components/responses/Deleted'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - Fingerbank

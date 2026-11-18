@@ -359,7 +359,6 @@ binary-arch: build install
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/UnifiedApi/Controller/Config/*.t
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/UnifiedApi/Controller/Config/Sources/*.t
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/UnifiedApi/Controller/Config/FilterEngines/*.t
-	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/UnifiedApi/Controller/Fingerbank/*.t
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/UnifiedApi/Search/Builder/*.t
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/cmd/pf/*.t
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/provisioner/*.t

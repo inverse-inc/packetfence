@@ -49,12 +49,6 @@ FingerbankDhcp6FingerprintDecorated:
     value:
       type: string
 
-FingerbankDhcp6FingerprintForm:
-  allOf:
-    - $ref: '#/components/schemas/FingerbankDhcp6Fingerprint'
-    - required:
-      - device_id
-
 FingerbankDhcp6FingerprintsSearch:
   allOf:
     - $ref: '#/components/schemas/FingerbankIterable'

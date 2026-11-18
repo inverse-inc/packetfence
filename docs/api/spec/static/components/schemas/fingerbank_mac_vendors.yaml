@@ -52,12 +52,6 @@ FingerbankMacVendorDecorated:
     name:
       type: string
 
-FingerbankMacVendorForm:
-  allOf:
-    - $ref: '#/components/schemas/FingerbankMacVendor'
-    - required:
-      - device_id
-
 FingerbankMacVendorsSearch:
   allOf:
     - $ref: '#/components/schemas/FingerbankIterable'

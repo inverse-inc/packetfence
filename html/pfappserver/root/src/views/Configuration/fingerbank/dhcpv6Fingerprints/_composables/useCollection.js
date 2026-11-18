@@ -1,39 +1,4 @@
-import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-
-export const useItemProps = {
-  id: {
-    type: String
-  },
-  scope: {
-    type: String
-  }
-}
-
-export const useItemTitle = (props) => {
-  const {
-    id,
-    isClone,
-    isNew
-  } = toRefs(props)
-  return computed(() => {
-    switch (true) {
-      case !isNew.value && !isClone.value:
-        return i18n.t('Fingerbank DHCPv6 Fingerprint <code>{id}</code>', { id: id.value })
-      case isClone.value:
-        return i18n.t('Clone Fingerbank DHCPv6 Fingerprint <code>{id}</code>', { id: id.value })
-      default:
-        return i18n.t('New Fingerbank DHCPv6 Fingerprint')
-    }
-  })
-}
-
-export const useItemTitleBadge = props => props.scope
-
-export { useRouter } from '../_router'
-
-export { useStore } from '../_store'
-
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import makeSearch from '@/store/factory/search'
 import api from '../_api'

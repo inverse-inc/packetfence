@@ -1477,6 +1477,62 @@ RADIUS instances:
 /usr/local/pf/bin/pfcmd service radiusd restart
 ----
 
+=== Fingerbank local entries are removed
+
+PacketFence no longer has local Fingerbank entries. The upgrade of the
+`fingerbank` package deletes
+[filename]`/usr/local/fingerbank/db/fingerbank_Local.db`, with every local
+device, DHCP and DHCPv6 fingerprint, DHCPv6 enterprise, DHCP vendor, MAC vendor,
+user agent and combination. Endpoints are profiled by the Fingerbank collector
+only, and the Fingerbank lists of the admin interface show the upstream
+database, read-only. The `/api/v1/fingerbank/local/...` API endpoints return
+404, and the `[query]` section of
+[filename]`/usr/local/fingerbank/conf/fingerbank.conf` is removed.
+
+To keep a copy of the local entries, export them before upgrading, for example
+the combinations:
+
+[source,bash]
+----
+sqlite3 -header -csv /usr/local/fingerbank/db/fingerbank_Local.db 'SELECT * FROM combination' > /root/fingerbank-local-combinations.csv
+----
+
+The upgrade also removes what is left of them when the configuration is
+restored from an export (the `[query]` section of
+[filename]`fingerbank.conf`, `fingerbank_db_directory` in the `[git_storage]`
+section of [filename]`pfconfig.conf`, the local database file and, with git
+storage, its copy in the repository):
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-16.0-remove-fingerbank-local-config.pl
+----
+
+The local entries had IDs starting with `L` (ex: `L12`). Security event
+triggers, provisioners, scan engines, self service, network behavior policies
+and device class transitions that use such an ID never match it after the
+upgrade, and the admin interface refuses to save a setting that still holds
+one. The upgrade runs the following script, which removes these IDs when it
+doesn't change what the setting matches:
+
+* a security event trigger that requires a local entry is removed, and a
+  `device_is_not` condition on a local entry is removed from the conditions it
+  is combined with
+* the local IDs of a list of devices are removed when the list keeps other IDs
+  (an empty list matches every device)
+* the local IDs of the excluded devices of a network behavior policy are removed
+* the device class transitions that use a local ID are removed
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-16.0-fingerbank-local-ids.pl
+----
+
+It reports the IDs it had to keep, with the reason: a list of devices that only
+has local IDs, a security event whose triggers all use a local entry, or a
+`device_is_not` trigger on a local entry, which matches every device. Replace or
+remove them.
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]

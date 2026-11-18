@@ -1,0 +1,72 @@
+FingerbankCombination:
+  required: true
+  content:
+    application/json:
+      schema:
+        $ref: '#/components/schemas/FingerbankCombinationForm'
+
+FingerbankCombinationsSearch:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          cursor:
+            $ref: '#/components/schemas/FingerbankPaginatedCursor'
+          sort:
+            $ref: '#/components/schemas/FingerbankCombinationsSort'
+          query:
+            $ref: '#/components/schemas/FingerbankCombinationsQuery'
+          limit:
+            $ref: '#/components/schemas/FingerbankPaginatedLimit'
+
+# Bodies of the local Fingerbank entries, removed in PacketFence 16.0
+FingerbankDevice:
+  required: true
+  content:
+    application/json:
+      schema:
+        $ref: '#/components/schemas/FingerbankDeviceForm'
+
+FingerbankDhcpFingerprint:
+  required: true
+  content:
+    application/json:
+      schema:
+        $ref: '#/components/schemas/FingerbankDhcpFingerprintForm'
+
+FingerbankDhcpVendor:
+  required: true
+  content:
+    application/json:
+      schema:
+        $ref: '#/components/schemas/FingerbankDhcpVendorForm'
+
+FingerbankDhcp6Enterprise:
+  required: true
+  content:
+    application/json:
+      schema:
+        $ref: '#/components/schemas/FingerbankDhcp6EnterpriseForm'
+
+FingerbankDhcp6Fingerprint:
+  required: true
+  content:
+    application/json:
+      schema:
+        $ref: '#/components/schemas/FingerbankDhcp6FingerprintForm'
+
+FingerbankMacVendor:
+  required: true
+  content:
+    application/json:
+      schema:
+        $ref: '#/components/schemas/FingerbankMacVendorForm'
+
+FingerbankUserAgent:
+  required: true
+  content:
+    application/json:
+      schema:
+        $ref: '#/components/schemas/FingerbankUserAgentForm'

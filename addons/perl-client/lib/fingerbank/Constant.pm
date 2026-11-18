@@ -26,7 +26,6 @@ BEGIN {
         $DEFAULT_BACKUP_RETENTION 
         $DEFAULT_SCORE
         $SQLITE_DB_TYPE
-        $LOCAL_SCHEMA
         $UPSTREAM_SCHEMA
         $ALL_SCHEMAS_KW
     );
@@ -48,7 +47,7 @@ BEGIN {
 
 =cut
 
-Readonly::Scalar our $VERSION     => "4.3.4";
+Readonly::Scalar our $VERSION     => "4.3.6";
 Readonly::Scalar our $FALSE       => 0;
 Readonly::Scalar our $TRUE        => 1;
 Readonly::Scalar our $YES         => 'yes';
@@ -175,12 +174,6 @@ Readonly our $DEFAULT_SCORE => 1;
 =cut
 
 Readonly our $SQLITE_DB_TYPE => "SQLite";
-
-=item $LOCAL_SCHEMA
-
-=cut
-
-Readonly our $LOCAL_SCHEMA => "Local";
 
 =item $UPSTREAM_SCHEMA
 

@@ -28,18 +28,12 @@ FingerbankPaginatedCursor:
   type: integer
 
 FingerbankScope:
+  description: Both scopes read the Upstream database. The local scope was removed in PacketFence 16.0 with the local Fingerbank entries.
   type: string
   enum:
     - all
-    - local
     - upstream
-  default: local
-
-FingerbankScopeLocalOnly:
-  type: string
-  enum:
-    - local
-  default: local
+  default: all
 
 FingerbankAccountInfo:
   type: object

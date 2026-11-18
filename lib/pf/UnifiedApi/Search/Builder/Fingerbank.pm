@@ -40,7 +40,7 @@ model    The Model of the fingerbank
 
 schema   The schema of the fingerbank
 
-scope     Scope of the query (All/Upstream/Local)
+scope     Scope of the query (All/Upstream, both are the Upstream database)
 
 cursor The cursor of the where start search. (Optional)
 

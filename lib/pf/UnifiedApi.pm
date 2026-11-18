@@ -2160,16 +2160,14 @@ sub setup_api_v1_fingerbank_routes {
     $route->register_sub_action({ action => "can_use_nba_endpoints", method => "GET" });
     $route->register_sub_action({ action => "all_device_classes", method => "GET" });
     my $upstream = $route->any("/upstream")->to(scope => "Upstream")->name( $route->name . ".Upstream");
-    my $local_route = $route->any("/local")->to(scope => "Local")->name( $route->name . ".Local");
     my $all_route = $route->any("/all")->to(scope => "All")->name( $route->name . ".All");
-    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "Combinations", "/combinations", "/combination/#combination_id");
-    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "Devices", "/devices", "/device/#device_id");
-    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "DHCP6Enterprises", "/dhcp6_enterprises", "/dhcp6_enterprise/#dhcp6_enterprise_id");
-    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "DHCP6Fingerprints", "/dhcp6_fingerprints", "/dhcp6_fingerprint/#dhcp6_fingerprint_id");
-    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "DHCPFingerprints", "/dhcp_fingerprints", "/dhcp_fingerprint/#dhcp_fingerprint_id");
-    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "DHCPVendors", "/dhcp_vendors", "/dhcp_vendor/#dhcp_vendor_id");
-    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "MacVendors", "/mac_vendors", "/mac_vendor/#mac_vendor_id");
-    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, $local_route, "UserAgents", "/user_agents", "/user_agent/#user_agent_id");
+    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, "Devices", "/devices", "/device/#device_id");
+    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, "DHCP6Enterprises", "/dhcp6_enterprises", "/dhcp6_enterprise/#dhcp6_enterprise_id");
+    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, "DHCP6Fingerprints", "/dhcp6_fingerprints", "/dhcp6_fingerprint/#dhcp6_fingerprint_id");
+    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, "DHCPFingerprints", "/dhcp_fingerprints", "/dhcp_fingerprint/#dhcp_fingerprint_id");
+    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, "DHCPVendors", "/dhcp_vendors", "/dhcp_vendor/#dhcp_vendor_id");
+    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, "MacVendors", "/mac_vendors", "/mac_vendor/#mac_vendor_id");
+    $self->setup_api_v1_std_fingerbank_routes($all_route, $upstream, "UserAgents", "/user_agents", "/user_agent/#user_agent_id");
     return ;
 }
 
@@ -2180,17 +2178,17 @@ setup_api_v1_std_fingerbank_routes
 =cut
 
 sub setup_api_v1_std_fingerbank_routes {
-    my ($self, $all_route, $upstream_root, $local_root, $name, $collection_path, $resource_path) = @_;
+    my ($self, $all_route, $upstream_root, $name, $collection_path, $resource_path) = @_;
     my $controller = "Fingerbank::${name}";
+    # The Fingerbank data is read-only: there are no local entries anymore
     $self->setup_api_v1_std_readonly_fingerbank_routes($all_route, $name, $controller, $collection_path, $resource_path);
     $self->setup_api_v1_std_readonly_fingerbank_routes($upstream_root, $name, $controller, $collection_path, $resource_path);
-    $self->setup_api_v1_std_local_fingerbank_routes($local_root, $name, $controller, $collection_path, $resource_path);
     return ;
 }
 
-=head2 setup_api_v1_std_upstream_fingerbank_routes
+=head2 setup_api_v1_std_readonly_fingerbank_routes
 
-setup_api_v1_std_upstream_fingerbank_routes
+setup_api_v1_std_readonly_fingerbank_routes
 
 =cut
 
@@ -2202,27 +2200,6 @@ sub setup_api_v1_std_readonly_fingerbank_routes {
     $collection_route->register_sub_action({ method => 'POST', action => 'search'});
     my $resource_route = $root->under($resource_path)->to(controller=> $controller, action => "resource")->name("${root_name}.${name}.resource");
     $resource_route->register_sub_action({ method => 'GET', action => 'get', path => ''});
-    return ;
-}
-
-=head2 setup_api_v1_std_local_fingerbank_routes
-
-setup_api_v1_std_local_fingerbank_routes
-
-=cut
-
-sub setup_api_v1_std_local_fingerbank_routes {
-    my ($self, $root, $name, $controller, $collection_path, $resource_path) = @_;
-    my $root_name = $root->name;
-    my $collection_route = $root->any($collection_path)->to(controller => $controller )->name("${root_name}.${name}");
-    $collection_route->register_sub_action({ method => 'GET', action => 'list', path => ''});
-    $collection_route->register_sub_action({ method => 'POST', action => 'create', path => '', auditable => 1});
-    $collection_route->register_sub_action({ method => 'POST', action => 'search'});
-    my $resource_route = $root->under($resource_path)->to(controller=> $controller, action => "resource")->name("${root_name}.${name}.resource");
-    $resource_route->register_sub_action({ method => 'GET', action => 'get', path => ''});
-    $resource_route->register_sub_action({ method => 'DELETE', action => 'remove', path => '', auditable => 1});
-    $resource_route->register_sub_action({ method => 'PUT', action => 'replace', path => '', auditable => 1});
-    $resource_route->register_sub_action({ method => 'PATCH', action => 'update', path => '', auditable => 1});
     return ;
 }
 

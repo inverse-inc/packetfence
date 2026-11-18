@@ -54,7 +54,7 @@ vlan=registration
 
 #
 # Example config to block a whole class of devices based on their MAC address vendor
-# Trigger format: The number is the ID of the MAC vendor from the 'MAC Vendor' list in Fingerbank (either 'upstream' or 'local' or both)
+# Trigger format: The number is the ID of the MAC vendor from the 'MAC Vendor' list in Fingerbank
 #
 # The below example blocks MAC Vendor ID 42 which is 'IMC Networks corp.'
 #
@@ -67,7 +67,7 @@ enabled=N
 
 #
 # Example config to block a device based on it's type or class
-# Trigger format: The number is the ID of the device (type or class or both) from the 'Device' list in Fingerbank (either 'upstream' or 'local' or both)
+# Trigger format: The number is the ID of the device (type or class or both) from the 'Device' list in Fingerbank
 #
 # The below example blocks Windows 95, 98, 98SE, NT4 and ME.
 #
