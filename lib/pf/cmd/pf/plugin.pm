@@ -9,7 +9,10 @@ pf::cmd::pf::plugin
  pfcmd plugin <command> [options]
 
   Commands:
-   schema | install, check or drop the database tables of a package installed on top of PacketFence
+   list                          | the plugins installed: versions, tables, registration, UI code
+   install <name|package file>   | install the package of a plugin (packetfence-plugin-<name>)
+   uninstall <name> [--purge]    | remove it; --purge also drops its tables
+   schema                        | apply, check or drop the database tables of a plugin
 
 Please view "pfcmd help plugin <command>" for details on each command
 
