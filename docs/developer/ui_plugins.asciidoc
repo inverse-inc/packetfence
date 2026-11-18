@@ -315,6 +315,20 @@ the core views, checked against the admin roles of the admin:
 |`{ "every": ["read syslog", "update syslog"] }` |all of them
 |===
 
+*Plugin actions.* Every plugin shares two admin actions:
+
+[options="header",cols="1,1,3"]
+|===
+|Action |`can` |
+|`PLUGIN_READ` |`read plugin` |reading the plugins
+|`PLUGIN_WRITE` |`write plugin` |changing anything through a plugin. It is not allowed on a read-only cluster member
+|===
+
+They are in the role `ALL`, and can be given to any admin role. A plugin
+uses them in its `can`s like any other action. They cover every plugin: an
+admin with `PLUGIN_READ` can read all of them. A plugin that needs finer
+rules checks `X-PacketFence-Username` and `X-PacketFence-Admin-Roles` itself.
+
 `some` and `every` take `can`s, nested 3 levels at most. The verbs are the
 actions of the admin roles (`read`, `create`, `update`, `delete`,
 `create-multiple`, ..., `acl.verbs` of the catalog, `_` replaced by `-`), the
@@ -419,7 +433,9 @@ after checking the admin and the ACL of the manifest.
 . Pick the *admin roles* the page needs, among the existing ones (a plugin
   cannot add roles): a target and its actions, eg `SYSLOG_READ`,
   `SYSLOG_CREATE`, `SYSLOG_UPDATE`, `SYSLOG_DELETE` are written
-  `read syslog`, `create syslog`, ... in the manifest.
+  `read syslog`, `create syslog`, ... in the manifest. The actions
+  `PLUGIN_READ` and `PLUGIN_WRITE` (`read plugin`, `write plugin`) exist for
+  the plugins themselves, see <<_ui_plugins_acl>>.
 . Write the *manifest*, and check it against
   [filename]`docs/ui-plugins/manifest.schema.json`.
 . Write the *API*: one route per method of the manifest.
