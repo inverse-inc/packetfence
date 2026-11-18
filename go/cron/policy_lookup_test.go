@@ -1016,3 +1016,73 @@ func TestApplyEnforcementIncompleteRolesSkipsRolePolicies(t *testing.T) {
 		t.Fatalf("incomplete roles: expected the MAC policy, got %+v", byMac.EnforcementInfo)
 	}
 }
+
+// TestLookupWithRolesLevelsAreAuthoritative checks that a level (MAC, then
+// role) that has policies ends the lookup even when none of them match the
+// event: the lookup must not fall through to role or implicit policies.
+func TestLookupWithRolesLevelsAreAuthoritative(t *testing.T) {
+	policy := func(ruleID, acl string) Policy {
+		return Policy{
+			EnforcementInfo: []EnforcementInfo{{RuleID: ruleID, Verdict: "allow"}},
+			Acls:            []string{acl},
+		}
+	}
+	const (
+		matching    = "permit tcp any any"
+		notMatching = "permit udp any any"
+	)
+	lookup := &PolicyLookup{
+		ByRoles: map[string][]Policy{
+			"match":   {policy("role-match", matching)},
+			"nomatch": {policy("role-nomatch", notMatching)},
+		},
+		NodesPolicies: map[string][]Policy{
+			"aa:bb:cc:dd:ee:01": {policy("mac-match", matching)},
+			"aa:bb:cc:dd:ee:02": {policy("mac-nomatch", notMatching)},
+		},
+		ImplictPolices: []Policy{policy("implicit", matching)},
+	}
+	lookup.UpdateMatchers()
+
+	const (
+		macMatch   = "aa:bb:cc:dd:ee:01"
+		macNoMatch = "aa:bb:cc:dd:ee:02"
+		macNone    = "aa:bb:cc:dd:ee:03"
+	)
+	tests := []struct {
+		name                             string
+		srcMac, srcRole, dstMac, dstRole string
+		want                             string // RuleID, "" for no enforcement info
+	}{
+		{"src MAC match wins over roles", macMatch, "match", macNone, "match", "mac-match"},
+		{"dst MAC match when src MAC has none", macNone, "match", macMatch, "match", "mac-match"},
+		{"dst MAC match after src MAC no match", macNoMatch, "match", macMatch, "match", "mac-match"},
+		{"src MAC no match stops before roles", macNoMatch, "match", macNone, "match", ""},
+		{"dst MAC no match stops before roles", macNone, "match", macNoMatch, "match", ""},
+		{"src role match without MAC policies", macNone, "match", macNone, "", "role-match"},
+		{"dst role match when src role has none", macNone, "", macNone, "match", "role-match"},
+		{"dst role match after src role no match", macNone, "nomatch", macNone, "match", "role-match"},
+		{"src role no match stops before implicit", macNone, "nomatch", macNone, "", ""},
+		{"dst role no match stops before implicit", macNone, "", macNone, "nomatch", ""},
+		{"implicit without MAC or role policies", macNone, "", macNone, "", "implicit"},
+		{"no implicit without a source MAC", "", "", macNone, "", ""},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ne := &NetworkEvent{
+				SourceIp:   netip.AddrFrom4([4]byte{10, 0, 0, 1}),
+				DestIp:     netip.AddrFrom4([4]byte{10, 0, 0, 2}),
+				IpProtocol: IpProtocolTcp,
+			}
+			ei := lookup.LookupWithRoles(ne, tt.srcMac, tt.srcRole, tt.dstMac, tt.dstRole)
+			got := ""
+			if ei != nil {
+				got = ei.RuleID
+			}
+			if got != tt.want {
+				t.Fatalf("LookupWithRoles: got rule %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
