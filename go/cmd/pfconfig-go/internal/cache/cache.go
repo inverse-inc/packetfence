@@ -22,27 +22,39 @@ type cacheItem[V any] struct {
 	expiresAt int64
 }
 
-type writeRequest[V any] struct {
+type writeRequest[K comparable, V any] struct {
 	value V
-	key   string
+	key   K
 	op    opType
 	ttl   int64
 }
 
-type shard[V any] struct {
-	items   map[string]cacheItem[V]
-	writeCh chan writeRequest[V]
+type shard[K comparable, V any] struct {
+	items   map[K]cacheItem[V]
+	writeCh chan writeRequest[K, V]
 	sync.RWMutex
 }
 
-type ShardedCache[V any] struct {
-	stopCh    chan struct{}
-	shards    []*shard[V]
-	wg        sync.WaitGroup
-	Hits      uint64
-	Misses    uint64
-	stopOnce  sync.Once
-	numShards uint32
+type (
+	HashFunc[K comparable]            func(key K) uint64
+	ShardedCache[K comparable, V any] struct {
+		stopCh    chan struct{}
+		hashFunc  HashFunc[K]
+		shards    []*shard[K, V]
+		wg        sync.WaitGroup
+		Hits      uint64
+		Misses    uint64
+		stopOnce  sync.Once
+		numShards uint32
+	}
+)
+
+func HashString(key string) uint64 {
+	h := uint64(14695981039346656037) // FNV-1a
+	for i := 0; i < len(key); i++ {
+		h = (h ^ uint64(key[i])) * 1099511628211
+	}
+	return h
 }
 
 func nextPowerOfTwo(v uint32) uint32 {
@@ -52,7 +64,7 @@ func nextPowerOfTwo(v uint32) uint32 {
 	return 1 << bits.Len32(v-1)
 }
 
-func NewShardedCache[V any](numShards, bufferSize int) *ShardedCache[V] {
+func NewShardedCache[K comparable, V any](numShards, bufferSize int, hashFunc HashFunc[K]) *ShardedCache[K, V] {
 	if numShards <= 0 {
 		numShards = 1
 	} else if numShards > 256 { // above 256 is not worth it
@@ -67,16 +79,17 @@ func NewShardedCache[V any](numShards, bufferSize int) *ShardedCache[V] {
 	} else {
 		bufferSize = int(nextPowerOfTwo(uint32(bufferSize)))
 	}
-	cache := &ShardedCache[V]{
-		shards:    make([]*shard[V], numShards),
+	cache := &ShardedCache[K, V]{
+		shards:    make([]*shard[K, V], numShards),
 		numShards: uint32(numShards),
 		stopCh:    make(chan struct{}),
+		hashFunc:  hashFunc,
 	}
 	cache.wg.Add(numShards + 1)
 	for i := 0; i < numShards; i++ {
-		s := &shard[V]{
-			items:   make(map[string]cacheItem[V], 64),
-			writeCh: make(chan writeRequest[V], bufferSize),
+		s := &shard[K, V]{
+			items:   make(map[K]cacheItem[V], 64),
+			writeCh: make(chan writeRequest[K, V], bufferSize),
 		}
 		cache.shards[i] = s
 		go cache.worker(s)
@@ -85,20 +98,12 @@ func NewShardedCache[V any](numShards, bufferSize int) *ShardedCache[V] {
 	return cache
 }
 
-func fastHash(key string) uint64 {
-	h := uint64(14695981039346656037) // FNV-1a
-	for i := 0; i < len(key); i++ {
-		h = (h ^ uint64(key[i])) * 1099511628211
-	}
-	return h
+func (c *ShardedCache[K, V]) getShardIndex(key K) uint64 {
+	return c.hashFunc(key) & uint64(c.numShards-1)
 }
 
-func (c *ShardedCache[V]) getShardIndex(key string) uint64 {
-	return fastHash(key) & uint64(c.numShards-1)
-}
-
-func (c *ShardedCache[V]) Set(ctx context.Context, key string, value V, ttlSeconds int64) error {
-	req := writeRequest[V]{op: opSet, key: key, value: value, ttl: ttlSeconds}
+func (c *ShardedCache[K, V]) Set(ctx context.Context, key K, value V, ttlSeconds int64) error {
+	req := writeRequest[K, V]{op: opSet, key: key, value: value, ttl: ttlSeconds}
 	select {
 	case c.shards[c.getShardIndex(key)].writeCh <- req:
 		return nil
@@ -107,8 +112,8 @@ func (c *ShardedCache[V]) Set(ctx context.Context, key string, value V, ttlSecon
 	}
 }
 
-func (c *ShardedCache[V]) Delete(ctx context.Context, key string) error {
-	req := writeRequest[V]{op: opDelete, key: key}
+func (c *ShardedCache[K, V]) Delete(ctx context.Context, key K) error {
+	req := writeRequest[K, V]{op: opDelete, key: key}
 	select {
 	case c.shards[c.getShardIndex(key)].writeCh <- req:
 		return nil
@@ -117,7 +122,7 @@ func (c *ShardedCache[V]) Delete(ctx context.Context, key string) error {
 	}
 }
 
-func (c *ShardedCache[V]) Get(key string) (V, bool) {
+func (c *ShardedCache[K, V]) Get(key K) (V, bool) {
 	s := c.shards[c.getShardIndex(key)]
 	s.RLock()
 	defer s.RUnlock()
@@ -131,7 +136,7 @@ func (c *ShardedCache[V]) Get(key string) (V, bool) {
 	return item.value, true
 }
 
-func (c *ShardedCache[V]) worker(s *shard[V]) {
+func (c *ShardedCache[K, V]) worker(s *shard[K, V]) {
 	defer c.wg.Done()
 	for req := range s.writeCh {
 		s.Lock()
@@ -146,7 +151,7 @@ func (c *ShardedCache[V]) worker(s *shard[V]) {
 	}
 }
 
-func (c *ShardedCache[V]) janitor() {
+func (c *ShardedCache[K, V]) janitor() {
 	defer c.wg.Done()
 	var currentShard uint32 = 0
 	for {
@@ -168,7 +173,7 @@ func (c *ShardedCache[V]) janitor() {
 	}
 }
 
-func (c *ShardedCache[V]) Close() {
+func (c *ShardedCache[K, V]) Close() {
 	c.stopOnce.Do(func() {
 		for _, s := range c.shards {
 			close(s.writeCh)

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/binary"
 	"encoding/json"
 	"errors"
 	"io"
@@ -16,7 +17,6 @@ import (
 	"github.com/inverse-inc/packetfence/go/cmd/pfconfig-go/internal/cache"
 	"github.com/inverse-inc/packetfence/go/cmd/pfconfig-go/internal/loader"
 	"github.com/inverse-inc/packetfence/go/cmd/pfconfig-go/internal/manager"
-	"gopkg.in/ini.v1"
 )
 
 const (
@@ -29,22 +29,20 @@ func main() {
 	ctx := context.Background()
 	logger := slog.Default()
 	slog.SetLogLoggerLevel(slog.LevelDebug)
-
 	// Manage graceful shutdown
 	stopSig := make(chan os.Signal, 1)
 	signal.Notify(stopSig, os.Interrupt,
 		syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGABRT, syscall.SIGINT)
-
 	{
 		logger.InfoContext(ctx, "Preloading all configuration files...")
-		cache := cache.NewShardedCache[*loader.Conf](64, 128)
+		cache := cache.NewShardedCache[string, *loader.Conf](64, 128, cache.HashString)
 		defer cache.Close()
 		manager := manager.NewManager(confFolder, cache)
 		if err := manager.LoadConfigs(ctx, logger); err != nil {
 			logger.ErrorContext(ctx, err.Error())
 			os.Exit(1)
 		}
-		logger.InfoContext(ctx, ".. done!")
+		logger.InfoContext(ctx, "... done!")
 		logger.InfoContext(ctx, "Starting server on UNIX socket...")
 		_ = os.Remove(goPfconfigSocketPath)
 		l, err := net.Listen("unix", goPfconfigSocketPath)
@@ -53,16 +51,22 @@ func main() {
 			os.Exit(1)
 		}
 		defer l.Close() //nolint:errcheck
-		go func() {
+		logger.InfoContext(ctx, "... now listenning on socket "+goPfconfigSocketPath)
+		var wg sync.WaitGroup
+		wg.Go(func() {
 			<-stopSig
 			logger.InfoContext(ctx, "interrupted")
 			l.Close() //nolint:errcheck
-		}()
-		logger.InfoContext(ctx, "... now listenning on socket "+goPfconfigSocketPath)
-		_ = runServer(ctx, logger, l, manager)
+		})
+		wg.Go(func() {
+			if err := runServer(ctx, logger, l, manager); err != nil {
+				logger.ErrorContext(ctx, "server stopped", "err", err.Error())
+			}
+			// TODO: stopSig goroutine
+		})
+		wg.Wait()
+		logger.InfoContext(ctx, "Server stopped!")
 	}
-
-	logger.InfoContext(ctx, "Server stopped!")
 }
 
 func runServer(ctx context.Context, logger *slog.Logger, l net.Listener, m *manager.Manager) error {
@@ -71,14 +75,12 @@ func runServer(ctx context.Context, logger *slog.Logger, l net.Listener, m *mana
 	for {
 		reqConn, err := l.Accept()
 		if err != nil {
-			logger.ErrorContext(ctx, err.Error())
 			return err
 		}
-		logger.InfoContext(ctx, "connection", "addr", reqConn.RemoteAddr())
 		wg.Go(func() {
 			defer reqConn.Close() //nolint:errcheck
 			if err := manageRequest(ctx, logger, reqConn, m); err != nil {
-				logger.ErrorContext(ctx, err.Error())
+				logger.ErrorContext(ctx, "request", "addr", reqConn.RemoteAddr(), "err", err.Error())
 				return
 			}
 		})
@@ -104,6 +106,7 @@ func manageRequest(ctx context.Context, logger *slog.Logger, reqConn net.Conn, m
 			break
 		}
 	}
+	// parse the request
 	var request manager.Request
 	err := json.Unmarshal(data, &request)
 	if err != nil {
@@ -111,13 +114,34 @@ func manageRequest(ctx context.Context, logger *slog.Logger, reqConn net.Conn, m
 		return err
 	}
 	// Treat the request in the new pfconfig
-	_, err = m.Process(ctx, logger, request)
+	element, err := m.Process(ctx, logger, request)
 	if err != nil {
 		if errors.Is(err, errors.ErrUnsupported) {
 			// Proxy the request to pfconfig Perl
+			logger.InfoContext(ctx, "proxy")
 			return proxyRequest(ctx, logger, reqConn, data)
 		}
+		logger.ErrorContext(ctx, "process", "err", err.Error())
 		return err
+	}
+	enc := sereal.NewEncoderV5()
+	enc.PerlCompat = true
+	jr, err := enc.Marshal(element)
+	if err != nil {
+		logger.ErrorContext(ctx, "process", "err", err.Error())
+		return err
+	}
+	var header [4]byte
+	binary.LittleEndian.PutUint32(header[:], uint32(len(jr)))
+	if n, err := reqConn.Write(header[:]); err != nil {
+		return err
+	} else if n != len(header) {
+		return errors.New("sent less bytes than expected")
+	}
+	if n, err := reqConn.Write(jr); err != nil {
+		return err
+	} else if n != len(jr) {
+		return errors.New("sent less bytes than expected")
 	}
 	return nil
 }
@@ -135,29 +159,14 @@ func proxyRequest(ctx context.Context, logger *slog.Logger, reqConn net.Conn, da
 		return err
 	}
 	if n != len(data) {
-		logger.ErrorContext(ctx, "proxy request toperl  pfconfig", "err", "wrote less bytes than request size")
+		logger.ErrorContext(ctx, "proxy request to perl pfconfig", "err", "sent less bytes than expected")
 		return err
 	}
 	// fast proxy
 	_, err = io.Copy(reqConn, c)
 	if err != nil {
-		logger.ErrorContext(ctx, "proxy direct copy perl pfconfig to service", "err", err.Error())
+		logger.ErrorContext(ctx, "proxy request from perl pfconfig to service", "err", err.Error())
 		return err
 	}
 	return nil
 }
-
-func test() {
-	_ = sereal.NewEncoderV3()
-	_ = ini.DefaultSection
-}
-
-/*
-	var header [4]byte
-	binary.LittleEndian.PutUint32(header[:], uint32(len(output)))
-	n, err := c.Write(header[:])
-	if n != len(header) || err != nil {
-		logger.InfoContext(ctx, "write header 1", "err", err.Error())
-		return
-	}
-*/
