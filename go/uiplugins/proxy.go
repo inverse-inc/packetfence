@@ -345,7 +345,8 @@ func checkPassthroughAnswer(resp *http.Response) error {
 // it is passed with fixed headers. A plugin whose manifest is unavailable,
 // that does not answer, or answers something else is a 502.
 //
-// A bundle plugin (template "bundle") is passed through: any path, checked
+// A bundle plugin (template "bundle", accepted only when its package
+// installed a bundle, see BundleInstalled) is passed through: any path, checked
 // with AllowedPassthrough, any content type, for up to its bundle.timeout. A
 // write (IsWrite) is refused while readOnly says the database is read-only.
 func (f *Fetcher) Proxy(w http.ResponseWriter, r *http.Request, registration Registration, path string, identity Identity, readOnly func(context.Context) bool) {
@@ -382,7 +383,23 @@ func (f *Fetcher) Proxy(w http.ResponseWriter, r *http.Request, registration Reg
 		Error(w, http.StatusRequestEntityTooLarge, fmt.Sprintf("A request to a plugin is limited to %d bytes", maxProxyBody))
 		return
 	}
-	r.Body = http.MaxBytesReader(w, r.Body, maxProxyBody)
+	// read whole (at most maxProxyBody): the signature covers its SHA-256
+	body, err := io.ReadAll(http.MaxBytesReader(w, r.Body, maxProxyBody))
+	if err != nil {
+		var tooLarge *http.MaxBytesError
+		if errors.As(err, &tooLarge) {
+			Error(w, http.StatusRequestEntityTooLarge, fmt.Sprintf("A request to a plugin is limited to %d bytes", maxProxyBody))
+			return
+		}
+		Error(w, http.StatusBadRequest, fmt.Sprintf("Plugin %q: the request body could not be read", name))
+		return
+	}
+	bodySHA256 := BodySHA256(body)
+	r.Body = io.NopCloser(bytes.NewReader(body))
+	r.ContentLength = int64(len(body))
+	if len(body) == 0 {
+		r.Body = http.NoBody
+	}
 	target, err := url.Parse(registration.BaseURL())
 	if err != nil {
 		Error(w, http.StatusBadGateway, err.Error())
@@ -421,7 +438,16 @@ func (f *Fetcher) Proxy(w http.ResponseWriter, r *http.Request, registration Reg
 				}
 			}
 			// the plugin checks that the request comes from PacketFence
-			if ts, sig := signHeaders(name, pr.Out.Method, pr.Out.URL.EscapedPath(), pr.Out.URL.RawQuery, identity.Username, actions, time.Now()); sig != "" {
+			signed := SignedRequest{
+				Method:     pr.Out.Method,
+				Path:       pr.Out.URL.EscapedPath(),
+				Query:      pr.Out.URL.RawQuery,
+				Username:   identity.Username,
+				Roles:      strings.Join(identity.Roles, ","),
+				Actions:    actions,
+				BodySHA256: bodySHA256,
+			}
+			if ts, sig := signHeaders(name, signed, time.Now()); sig != "" {
 				pr.Out.Header.Set(TimestampHeader, ts)
 				pr.Out.Header.Set(SignatureHeader, sig)
 			}

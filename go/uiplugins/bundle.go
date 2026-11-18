@@ -53,13 +53,24 @@ func descriptorBundleSHA256(file string) (string, error) {
 	return "", nil
 }
 
+// BundleInstalled tells whether the package of a plugin installed a bundle on
+// this server: its descriptor (<name>.conf of PluginsConfDir) has a [bundle]
+// sha256. Only then is a plugin whose manifest has the template "bundle"
+// accepted (Fetcher), passed through and given the admin token (Proxy).
+func BundleInstalled(name string) bool {
+	if !nameRe.MatchString(name) {
+		return false
+	}
+	sum, err := descriptorBundleSHA256(filepath.Join(PluginsConfDir, name+".conf"))
+	return err == nil && sum != ""
+}
+
 // BundleCode is the code of the bundle of a plugin: <name>.js of
 // PluginsConfDir, served only when its SHA-256 is the sha256 of the [bundle]
 // section of <name>.conf. The package that installs the plugin writes both;
 // a plugin service only registers a host and a port, it does not serve its
-// UI code. The SHA-256 detects a changed or partly written file; it does not
-// prove where the file comes from: like the rest of /usr/local/pf/conf, the
-// directory is writable by the pf user.
+// UI code. The SHA-256 detects a changed or partly written file; the
+// directory is root's (0755), only the packages write there.
 func BundleCode(name string) ([]byte, error) {
 	if !nameRe.MatchString(name) {
 		return nil, fmt.Errorf("invalid name %q", name)

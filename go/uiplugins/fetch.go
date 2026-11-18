@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"path/filepath"
 	"sort"
 	"sync"
 	"time"
@@ -162,7 +163,23 @@ func (f *Fetcher) fetchAndStore(key string, r Registration) <-chan singleflight.
 	})
 }
 
+// get is the manifest of a plugin (cached), refused when it is a bundle and
+// the package of the plugin did not install one on this server: the template
+// a plugin service answers does not choose the bundle mode by itself (any
+// path, the admin token), the package does. Checked at each use, not cached:
+// removing the package ends the bundle mode at once.
 func (f *Fetcher) get(ctx context.Context, r Registration) (*Manifest, error) {
+	m, err := f.cached(ctx, r)
+	if err != nil {
+		return nil, err
+	}
+	if m.IsBundle() && !BundleInstalled(r.Name) {
+		return nil, fmt.Errorf("template \"bundle\" but no bundle installed (the [bundle] sha256 of %s)", filepath.Join(PluginsConfDir, r.Name+".conf"))
+	}
+	return m, nil
+}
+
+func (f *Fetcher) cached(ctx context.Context, r Registration) (*Manifest, error) {
 	key := cacheKey(r)
 	f.lock.Lock()
 	if f.cache == nil {

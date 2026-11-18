@@ -34,7 +34,7 @@ otherwise, with a certificate valid for the host.
 A plugin that crashes without deregistering stays listed: its manifest cannot
 be fetched, so the admin UI leaves it out, its pages answer 502.
 
-See https://github.com/akainverse/packetfence-plugin-example.
+See the Developers Guide, "Admin UI plugins".
 
 =cut
 
@@ -45,7 +45,7 @@ use pf::constants qw($TRUE $FALSE);
 use pf::error qw(is_error is_success);
 use pf::dal::ui_plugin;
 use pf::log;
-use Digest::SHA qw(hmac_sha256 hmac_sha256_hex);
+use Digest::SHA qw(hmac_sha256 hmac_sha256_hex sha256_hex);
 use pf::file_paths qw($system_init_key_file);
 
 # keep in sync with nameRe and hostRe in go/uiplugins/registration.go
@@ -214,11 +214,13 @@ sub proxy_key {
 
 =head2 proxy_signature
 
-    my $hex = pf::ui_plugins::proxy_signature($key, $timestamp, $method, $path, $query, $username, $actions);
+    my $hex = pf::ui_plugins::proxy_signature($key, $timestamp, $method, $path, $query, $username, $roles, $actions, $body_sha256);
 
 The signature of a request of the proxy (go/uiplugins Signature): hex
 HMAC-SHA256 of the values joined by "\n". $path is URL encoded, as the plugin
-receives it.
+receives it; $roles and $actions are the X-PacketFence-Admin-Roles and
+X-PacketFence-Admin-Actions headers; $body_sha256 is the hex SHA-256 of the
+body (of "" without one).
 
 =cut
 
@@ -232,10 +234,13 @@ sub proxy_signature {
     my ($ok, $error) = pf::ui_plugins::check_signature($key, \%request);
 
 For the service of a plugin: true when a request comes from the PacketFence
-proxy. %request: method, path (URL encoded), query, and the headers
-username (X-PacketFence-Username), actions (X-PacketFence-Admin-Actions),
-timestamp (X-PacketFence-Plugin-Timestamp), signature
-(X-PacketFence-Plugin-Signature). Refuses a request older or newer than 120s.
+proxy. %request: method, path (URL encoded), query, body (the raw bytes), and
+the headers username (X-PacketFence-Username), roles
+(X-PacketFence-Admin-Roles), actions (X-PacketFence-Admin-Actions), timestamp
+(X-PacketFence-Plugin-Timestamp), signature (X-PacketFence-Plugin-Signature).
+Refuses a request older or newer than 120s. A signed request can be sent again
+within that time (there is no nonce), but not with other headers or another
+body.
 
 =cut
 
@@ -247,7 +252,7 @@ sub check_signature {
     my $ts = $r->{timestamp} // '';
     return ($FALSE, 'no signature') if $ts !~ /^\d{1,12}\z/ || !defined $r->{signature};
     return ($FALSE, 'expired signature') if abs($now - $ts) > $SIGNATURE_MAX_AGE;
-    my $want = proxy_signature($key, $ts, @{$r}{qw(method path query username actions)});
+    my $want = proxy_signature($key, $ts, @{$r}{qw(method path query username roles actions)}, sha256_hex($r->{body} // ''));
     my $got = lc $r->{signature};
     return ($FALSE, 'invalid signature') if length($got) != length($want);
     my $diff = 0;

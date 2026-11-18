@@ -5,6 +5,8 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
@@ -100,7 +102,23 @@ func TestBundleManifest(t *testing.T) {
 	}
 }
 
+// withBundles is PluginsConfDir with the descriptor of a package that
+// installed a bundle for each name, until the end of the test
+func withBundles(t *testing.T, names ...string) string {
+	dir := t.TempDir()
+	saved := PluginsConfDir
+	PluginsConfDir = dir
+	t.Cleanup(func() { PluginsConfDir = saved })
+	for _, name := range names {
+		if err := os.WriteFile(filepath.Join(dir, name+".conf"), []byte("[bundle]\nsha256="+strings.Repeat("0", 64)+"\n"), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	return dir
+}
+
 func TestPassthroughProxy(t *testing.T) {
+	withBundles(t, "kit")
 	seen := []pluginRequest{}
 	var lock sync.Mutex
 	server := httptest.NewServer(bundleHandler(&seen, &lock))
@@ -240,5 +258,50 @@ func TestManifestProxyReadOnly(t *testing.T) {
 		if got := do(c.method, c.path, all); got != c.status {
 			t.Errorf("read-only %s %s: %d, want %d", c.method, c.path, got, c.status)
 		}
+	}
+}
+
+// a plugin service that answers the template "bundle" while its package
+// installed no bundle on the server: not passed through, never given the
+// admin token, not listed
+func TestBundleNeedsPackage(t *testing.T) {
+	dir := withBundles(t)
+	seen := []pluginRequest{}
+	var lock sync.Mutex
+	server := httptest.NewServer(bundleHandler(&seen, &lock))
+	defer server.Close()
+	registration := registrationOf(t, "kit", server)
+	f := NewFetcher(nil)
+	do := func() *httptest.ResponseRecorder {
+		r := httptest.NewRequest("GET", "/api/v1/plugin/kit/anything", nil)
+		r.Header.Set("Authorization", "Bearer admin-token")
+		path, _ := ProxyPath(r, "kit")
+		w := httptest.NewRecorder()
+		f.Proxy(w, r, registration, path, Identity{Username: "admin", Actions: map[string]bool{"PLUGIN_READ": true}}, nil)
+		return w
+	}
+	if w := do(); w.Code != http.StatusBadGateway {
+		t.Errorf("no bundle installed: %d %s", w.Code, w.Body)
+	}
+	if len(seen) != 0 {
+		t.Errorf("no bundle installed: the plugin got %v", seen)
+	}
+	if plugins := f.Plugins(context.Background(), map[string]Registration{"kit": registration}); len(plugins) != 0 {
+		t.Errorf("no bundle installed: listed %v", plugins)
+	}
+	if f.Manifest(context.Background(), registration) != nil {
+		t.Error("no bundle installed: a manifest")
+	}
+
+	// the package installs its bundle: accepted at once (the manifest is
+	// cached, the descriptor is read at each use)
+	os.WriteFile(filepath.Join(dir, "kit.conf"), []byte("[bundle]\nsha256="+strings.Repeat("0", 64)+"\n"), 0644)
+	if w := do(); w.Code != http.StatusOK || len(seen) != 1 || seen[0].Header.Get(AdminTokenHeader) != "Bearer admin-token" {
+		t.Errorf("bundle installed: %d %v", w.Code, seen)
+	}
+	// and removes it: refused at once
+	os.Remove(filepath.Join(dir, "kit.conf"))
+	if w := do(); w.Code != http.StatusBadGateway || len(seen) != 1 {
+		t.Errorf("bundle removed: %d %v", w.Code, seen)
 	}
 }

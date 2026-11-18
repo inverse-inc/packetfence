@@ -1,13 +1,16 @@
 {
-  "$comment": "The signature of a request of the plugin proxy to a plugin (go/uiplugins/sign.go, pf::ui_plugins::proxy_key): the same values in Go, Perl and the plugins.",
-  "actions": "PLUGIN_READ,PLUGIN_WRITE",
-  "method": "POST",
-  "name": "acme",
-  "path": "/files/upload",
-  "proxy_key": "bf794a4dae39fd077b677924edc2489238e6b186fb7c338494408b97955bc338",
-  "query": "thread_id=3",
-  "signature": "4a3e87a35de643f6dcd86556988f9417077a9699df546bf17909f833a5b08b02",
+  "$comment": "The signature of a request of the plugin proxy to a plugin (go/uiplugins/sign.go, pf::ui_plugins::proxy_key): the same values in Go, Perl and the plugins. body_sha256 is the hex SHA-256 of body.",
   "system_init_key": "0123456789abcdef0123456789abcdef\n",
+  "name": "acme",
+  "proxy_key": "bf794a4dae39fd077b677924edc2489238e6b186fb7c338494408b97955bc338",
   "timestamp": "1763467200",
-  "username": "admin"
+  "method": "POST",
+  "path": "/files/upload",
+  "query": "thread_id=3",
+  "username": "admin",
+  "roles": "ops,reader",
+  "actions": "PLUGIN_READ,PLUGIN_WRITE",
+  "body": "{\"thread_id\":3}",
+  "body_sha256": "817dd70c77281a075583264345bfc3cbe48589b6f74e9cce2b886ca11f49f064",
+  "signature": "4a0f38ea3c65ff5131d02774b965be6267040b59eb626da63d82f101d64ebaed"
 }

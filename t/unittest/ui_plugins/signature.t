@@ -30,15 +30,21 @@ my $v = decode_json(scalar read_file('/usr/local/pf/go/uiplugins/testdata/signat
 local $ENV{PF_SYSTEM_INIT_KEY} = $v->{system_init_key};
 my $key = pf::ui_plugins::proxy_key($v->{name});
 is(unpack('H*', $key), $v->{proxy_key}, 'the key of the plugin');
-is(pf::ui_plugins::proxy_signature($key, @{$v}{qw(timestamp method path query username actions)}), $v->{signature}, 'the signature');
+is(pf::ui_plugins::proxy_signature($key, @{$v}{qw(timestamp method path query username roles actions body_sha256)}), $v->{signature}, 'the signature');
 
-my %request = (%$v{qw(method path query username actions timestamp signature)});
+my %request = (%$v{qw(method path query username roles actions body timestamp signature)});
 my ($ok, $error) = pf::ui_plugins::check_signature($key, \%request, $v->{timestamp} + 10);
 ok($ok, 'a signed request') or diag($error);
 ($ok) = pf::ui_plugins::check_signature($key, { %request, actions => 'PLUGIN_READ,PLUGIN_WRITE,ALL' }, $v->{timestamp});
 ok(!$ok, 'changed actions');
 ($ok) = pf::ui_plugins::check_signature($key, { %request, username => 'other' }, $v->{timestamp});
 ok(!$ok, 'another admin');
+($ok) = pf::ui_plugins::check_signature($key, { %request, roles => 'admin' }, $v->{timestamp});
+ok(!$ok, 'other roles');
+($ok) = pf::ui_plugins::check_signature($key, { %request, body => '{"thread_id":4}' }, $v->{timestamp});
+ok(!$ok, 'another body');
+($ok) = pf::ui_plugins::check_signature($key, { %request, body => undef }, $v->{timestamp});
+ok(!$ok, 'no body');
 ($ok, $error) = pf::ui_plugins::check_signature($key, \%request, $v->{timestamp} + 600);
 ok(!$ok, 'expired');
 ($ok) = pf::ui_plugins::check_signature($key, { %request, signature => undef }, $v->{timestamp});
