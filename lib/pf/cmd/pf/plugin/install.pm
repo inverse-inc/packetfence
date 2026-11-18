@@ -19,6 +19,8 @@ use strict;
 use warnings;
 use pf::ui_plugins::packages;
 use base qw(pf::cmd);
+use Role::Tiny::With;
+with 'pf::cmd::roles::root_only';
 
 sub parseArgs {
     my ($self) = @_;

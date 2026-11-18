@@ -25,24 +25,21 @@ Commands for the packages installed on top of PacketFence (the UI plugins)
 use strict;
 use warnings;
 use base qw(pf::cmd::subcmd);
-use pf::cmd;
-use pf::constants::exit_code qw($EXIT_FAILURE);
+use Role::Tiny::With;
+with 'pf::cmd::roles::root_only';
 
-=head2 _run
+=head2 allowed_without_root
 
 Every command but help is refused unless the caller of pfcmd is root:
 bin/pfcmd is setuid root, and these commands install packages (their scripts
-run as root) and change the database as its root user.
+run as root) and change the database as its root user. Each command also
+refuses on its own (pf::cmd::roles::root_only), when it is loaded directly.
 
 =cut
 
-sub _run {
+sub allowed_without_root {
     my ($self) = @_;
-    if ($self->{subcmd} ne $self->helpActionCmd && pf::cmd::caller_uid() != 0) {
-        print STDERR "pfcmd plugin: only root can run this command\n";
-        return $EXIT_FAILURE;
-    }
-    return $self->SUPER::_run();
+    return $self->{subcmd} eq $self->helpActionCmd;
 }
 
 =head1 AUTHOR

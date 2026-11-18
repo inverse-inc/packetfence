@@ -35,6 +35,8 @@ use Getopt::Long qw(GetOptionsFromArray);
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
 use pf::ui_plugins::schema;
 use base qw(pf::base::cmd::action_cmd);
+use Role::Tiny::With;
+with 'pf::cmd::roles::root_only';
 
 our $EXIT_NO_CONNECTION = 2;
 

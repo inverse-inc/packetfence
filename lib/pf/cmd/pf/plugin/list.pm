@@ -19,6 +19,8 @@ use warnings;
 use pf::constants::exit_code qw($EXIT_SUCCESS);
 use pf::ui_plugins::packages;
 use base qw(pf::cmd);
+use Role::Tiny::With;
+with 'pf::cmd::roles::root_only';
 
 sub _run {
     my ($self) = @_;
