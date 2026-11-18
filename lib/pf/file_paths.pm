@@ -131,6 +131,7 @@ our (
     $git_commit_id_file,
     $pfqueue_backend_socket,
     $kafka_config_dir,
+    $ui_plugins_conf_dir, $ui_plugins_var_dir, $ui_plugins_upgrade_helpers_file,
     $provisioning_filters_config_file,
     $provisioning_filters_config_default_file,
     $provisioning_filters_meta_config_file,
@@ -242,6 +243,7 @@ BEGIN {
         $git_commit_id_file
         $pfqueue_backend_socket
         $kafka_config_dir
+        $ui_plugins_conf_dir $ui_plugins_var_dir $ui_plugins_upgrade_helpers_file
         $provisioning_filters_config_file
         $provisioning_filters_config_default_file
         $provisioning_filters_meta_config_file
@@ -267,6 +269,11 @@ $html_dir = catdir($install_dir, "html");
 $log_dir  = catdir($install_dir, "logs");
 $log_conf_dir  = catdir($conf_dir,"log.conf.d");
 $kafka_config_dir = catdir($conf_dir, "kafka");
+# the descriptors of the installed UI plugin packages, and their files kept
+# until the package is purged (pf::ui_plugins::schema)
+$ui_plugins_conf_dir = catdir($conf_dir, "plugins.d");
+$ui_plugins_var_dir = catdir($var_dir, "plugins");
+$ui_plugins_upgrade_helpers_file = catfile($install_dir, "db", "upgrade-helpers.sql");
 
 $generated_conf_dir   = catdir($var_dir, "conf");
 $generated_iptables_conf_dir   = catdir($generated_conf_dir, "iptables");

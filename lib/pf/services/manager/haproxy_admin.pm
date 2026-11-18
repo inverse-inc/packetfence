@@ -159,6 +159,8 @@ backend api
         balance source
         option httpclose
         option forwardfor
+        # a call to a bundle UI plugin may take up to 300s (go/uiplugins MaxPassthroughTimeout)
+        timeout server 310s
         errorfile 502 /usr/local/pf/html/pfappserver/root/errors/502.json.http
         errorfile 503 /usr/local/pf/html/pfappserver/root/errors/503.json.http
 $mgmt_backend_ip_api_config
@@ -243,6 +245,8 @@ backend api
         balance source
         option httpclose
         option forwardfor
+        # a call to a bundle UI plugin may take up to 300s (go/uiplugins MaxPassthroughTimeout)
+        timeout server 310s
         errorfile 502 /usr/local/pf/html/pfappserver/root/errors/502.json.http
         errorfile 503 /usr/local/pf/html/pfappserver/root/errors/503.json.http
         server $api_frontend_service_host $api_frontend_service_host:$api_frontend_service_port weight 1 maxconn 100 check  ssl verify none

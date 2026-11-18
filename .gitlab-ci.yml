@@ -793,6 +793,23 @@ pre_ci_lint_yaml:
       .gitlab-ci.yml
   allow_failure: false
 
+# The admin UI plugins catalog (html/pfappserver/root/src/plugins/catalog.json)
+# is copied into go/uiplugins/catalog.json and docs/ui-plugins/manifest.schema.json
+# and must match src/plugins/registry.js: fails when one of them drifted.
+# Plain node, no npm install.
+pre_ci_ui_plugins_catalog:
+  extends:
+    - .check_job
+  needs:
+    - job: run_pipeline_if_necessary
+      optional: true
+  image: node:20-alpine
+  rules:
+    - when: always
+  script:
+    - node html/pfappserver/root/build/ui-plugins-catalog.js --check
+  allow_failure: false
+
 # Unit test of clean-test-environment.sh (no VMs): guards that a hung log
 # collection can't skip VM destruction during cleanup.
 pre_ci_test_cleanup:

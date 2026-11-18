@@ -3087,6 +3087,18 @@ msgid "PKI_UPDATE"
 msgstr ""
 
 # pf::admin_roles (Actions groups)
+msgid "PLUGIN"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "PLUGIN_READ"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "PLUGIN_WRITE"
+msgstr ""
+
+# pf::admin_roles (Actions groups)
 msgid "PORTAL_MODULE"
 msgstr "Portal Modules"
 

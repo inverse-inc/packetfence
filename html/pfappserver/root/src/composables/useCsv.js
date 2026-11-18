@@ -26,8 +26,21 @@ export const useTableColumnsItems = (columns, items) => {
   let csvContentArray = []
   const rows = [ header, ...body ]
   rows.forEach(row => {
-    let csvRow = row.map(col => `"${col.toString().replace('"', '\\"')}"`).join(',')
+    let csvRow = row.map(csvCell).join(',')
     csvContentArray.push(csvRow)
   })
   return csvContentArray.join('\r\n')
+}
+
+// A spreadsheet runs a cell that starts with =, +, -, @, a tab or a carriage
+// return as a formula: such a text is prefixed with ' (+cmd|' /C calc'!A0).
+// A plain number keeps its sign (-5, +3.2), it is not a formula.
+const formulaRe = /^[=+\-@\t\r]/
+const numberRe = /^[+-]?(\d+\.?\d*|\.\d+)$/
+
+export const csvCell = value => {
+  let text = `${value}`
+  if (formulaRe.test(text) && !numberRe.test(text))
+    text = `'${text}`
+  return `"${text.replace(/"/g, '""')}"` // RFC 4180: a quote is doubled
 }

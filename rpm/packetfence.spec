@@ -1348,6 +1348,7 @@ fi
 %config                 /usr/local/pf/conf/caddy-services/httpdispatcher.conf
 %config                 /usr/local/pf/conf/caddy-services/httpadmindispatcher.conf
 %dir                    /usr/local/pf/conf/caddy-services/api.conf.d/
+%dir %attr(0755, root, root) /usr/local/pf/conf/plugins.d/
 %dir                    /usr/local/pf/conf/monitoring
 %config(noreplace)      /usr/local/pf/conf/monitoring/netdata.conf
                         /usr/local/pf/conf/monitoring/netdata.conf.example

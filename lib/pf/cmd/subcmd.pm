@@ -38,6 +38,12 @@ sub parseArgs {
         my $module;
         if($action eq 'help') {
             $module = $self->helpActionCmd;
+        } elsif ($action !~ /^[a-z][a-z0-9_]*\z/) {
+            # the action names a module under this command: anything else
+            # (eg "plugin::install") would load a module of another level
+            $self->{help_msg} = "unknown command $action\n";
+            $self->{subcmd} = $self->unknownActionCmd;
+            return 1;
         } else {
             my $base = ref($self) || $self;
             $module = "${base}::${action}";

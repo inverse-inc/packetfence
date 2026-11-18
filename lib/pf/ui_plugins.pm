@@ -1,0 +1,295 @@
+package pf::ui_plugins;
+
+=head1 NAME
+
+pf::ui_plugins - the registry of the admin UI plugins
+
+=head1 SYNOPSIS
+
+    use pf::ui_plugins;
+
+    # when the plugin serves its manifest
+    my ($status, $error) = pf::ui_plugins::register({ name => 'acme', host => 'acme.example', port => 8080 });
+
+    # when the plugin stops
+    ($status, $error) = pf::ui_plugins::deregister('acme');
+
+=head1 DESCRIPTION
+
+A plugin service registers itself when it is ready and deregisters itself when
+it stops. These accessors behave like the Go ones (go/uiplugins Register,
+Deregister, Get, List, Validate): the same rows, the same validation. The
+PacketFence database is used through pf::dal::ui_plugin, its credentials stay
+in the PacketFence configuration, the plugin never handles them.
+
+One row of the ui_plugin table (name, host, port) per plugin, it stays until
+the plugin deregisters.
+
+The manifest of the plugin is then fetched from
+<scheme>://<host>:<port>/manifest.json, GET /api/v1/plugins lists the plugins
+and /api/v1/plugin/<name>/<path> is proxied to <scheme>://<host>:<port>/<path>.
+The scheme is http for a loopback host (127.0.0.0/8, ::1, localhost), https
+otherwise, with a certificate valid for the host.
+
+A plugin that crashes without deregistering stays listed: its manifest cannot
+be fetched, so the admin UI leaves it out, its pages answer 502.
+
+See the Developers Guide, "Admin UI plugins".
+
+=cut
+
+use strict;
+use warnings;
+use Socket qw(inet_pton AF_INET AF_INET6);
+use pf::constants qw($TRUE $FALSE);
+use pf::error qw(is_error is_success);
+use pf::dal::ui_plugin;
+use pf::log;
+use Digest::SHA qw(hmac_sha256 hmac_sha256_hex sha256_hex);
+use pf::file_paths qw($system_init_key_file);
+
+# keep in sync with nameRe and hostRe in go/uiplugins/registration.go
+our $NAME_RE = qr/^[a-z][a-z0-9_-]{0,62}\z/;
+# keep in sync with reservedNames in go/uiplugins/registration.go: the icon
+# namespaces of the admin UI (vue-awesome), the icons of a plugin are
+# registered as "<name>/<icon>" and would replace core icons
+our %RESERVED_NAMES = map { $_ => 1 } qw(regular brands);
+our $HOST_RE = qr/^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*\z/;
+
+=head2 validate
+
+    my ($ok, $error) = pf::ui_plugins::validate({ name => 'acme', host => 'acme', port => 8080 });
+
+Checks a registration without writing it:
+
+=over
+
+=item name: ^[a-z][a-z0-9_-]{0,62}$ (a URL segment), not regular nor brands
+
+=item host: a hostname or an IP address
+
+=item port: 1 to 65535
+
+=back
+
+=cut
+
+sub validate {
+    my ($registration) = @_;
+    return ($FALSE, 'a registration is a hash') if ref($registration) ne 'HASH';
+    my ($name, $host, $port) = @{$registration}{qw(name host port)};
+    if (!defined $name || ref($name) || $name !~ $NAME_RE || $RESERVED_NAMES{$name}) {
+        return ($FALSE, sprintf('invalid name "%s"', $name // ''));
+    }
+    if (!defined $host || ref($host) || !_valid_host($host)) {
+        return ($FALSE, sprintf('invalid host "%s"', $host // ''));
+    }
+    if (!defined $port || ref($port) || $port !~ /^[0-9]{1,5}\z/ || $port < 1 || $port > 65535) {
+        return ($FALSE, sprintf('invalid port "%s"', $port // ''));
+    }
+    return ($TRUE, undef);
+}
+
+sub _valid_host {
+    my ($host) = @_;
+    return $TRUE if inet_pton(AF_INET, $host) || inet_pton(AF_INET6, $host);
+    return length($host) <= 253 && $host =~ $HOST_RE;
+}
+
+=head2 register
+
+    my ($status, $error) = pf::ui_plugins::register({ name => 'acme', host => 'acme', port => 8080 });
+
+Adds or replaces the registration of a plugin: call it once the plugin serves
+its manifest. Returns $STATUS::OK, $STATUS::CREATED, or an error status and
+its reason ($STATUS::UNPROCESSABLE_ENTITY for an invalid registration).
+
+=cut
+
+sub register {
+    my ($registration) = @_;
+    my ($ok, $error) = validate($registration);
+    return ($STATUS::UNPROCESSABLE_ENTITY, $error) if !$ok;
+    my %data = (
+        name => "$registration->{name}",
+        host => "$registration->{host}",
+        port => 0 + $registration->{port},
+    );
+    my $status = pf::dal::ui_plugin->new(\%data)->upsert;
+    if (is_error($status)) {
+        return ($status, "unable to register the UI plugin $data{name}");
+    }
+    return ($status, undef);
+}
+
+=head2 deregister
+
+    my ($status, $error) = pf::ui_plugins::deregister('acme');
+
+Removes the registration of a plugin: call it when the plugin stops. An
+unknown name is not an error ($STATUS::OK).
+
+=cut
+
+sub deregister {
+    my ($name) = @_;
+    return ($STATUS::UNPROCESSABLE_ENTITY, 'missing name') if !defined $name || ref($name);
+    my $status = pf::dal::ui_plugin->remove_by_id({ name => $name });
+    if (is_error($status) && $status != $STATUS::NOT_FOUND) {
+        return ($status, "unable to deregister the UI plugin $name");
+    }
+    return ($STATUS::OK, undef);
+}
+
+# a row is validated again when it is read: it may have been written by hand
+sub _check_row {
+    my ($row) = @_;
+    my %registration = (name => $row->{name}, host => $row->{host}, port => $row->{port});
+    my ($ok, $error) = validate(\%registration);
+    return (undef, "invalid registration \"" . ($row->{name} // '') . "\": $error") if !$ok;
+    $registration{port} += 0;
+    return (\%registration, undef);
+}
+
+=head2 get
+
+    my $registration = pf::ui_plugins::get('acme');
+
+The registration of a plugin, undef when it is not registered or invalid
+
+=cut
+
+sub get {
+    my ($name) = @_;
+    return undef if !defined $name || ref($name);
+    my ($status, $row) = pf::dal::ui_plugin->find({ name => $name });
+    return undef if is_error($status);
+    my ($registration, $error) = _check_row($row);
+    get_logger->warn($error) if $error;
+    return $registration;
+}
+
+=head2 list
+
+    my $registrations = pf::ui_plugins::list();
+
+The valid registrations by name, the invalid rows are logged and skipped.
+Undef when the database cannot be read.
+
+=cut
+
+sub list {
+    my ($status, $iter) = pf::dal::ui_plugin->search(-no_default_join => 1);
+    return undef if is_error($status);
+    my %registrations;
+    while (my $row = $iter->next(undef)) {
+        my ($registration, $error) = _check_row($row);
+        if ($error) {
+            get_logger->warn($error);
+            next;
+        }
+        $registrations{$registration->{name}} = $registration;
+    }
+    return \%registrations;
+}
+
+=head2 proxy_key
+
+    my $key = pf::ui_plugins::proxy_key('acme');
+
+The key the plugin "acme" checks the requests of the PacketFence proxy with
+(raw bytes): HMAC-SHA256 of "packetfence ui plugin proxy <name>" with the
+system init key, the same on every node of a cluster (go/uiplugins
+ProxyKey). The package of a plugin passes it to its service.
+
+=cut
+
+sub proxy_key {
+    my ($name) = @_;
+    my $init = $ENV{PF_SYSTEM_INIT_KEY};
+    if (!$init) {
+        open(my $fh, '<', $system_init_key_file) or die "open($system_init_key_file): $!\n";
+        local $/ = undef;
+        $init = <$fh>;
+        close($fh);
+    }
+    return hmac_sha256("packetfence ui plugin proxy $name", $init);
+}
+
+=head2 proxy_signature
+
+    my $hex = pf::ui_plugins::proxy_signature($key, $timestamp, $method, $path, $query, $username, $roles, $actions, $body_sha256);
+
+The signature of a request of the proxy (go/uiplugins Signature): hex
+HMAC-SHA256 of the values joined by "\n". $path is URL encoded, as the plugin
+receives it; $roles and $actions are the X-PacketFence-Admin-Roles and
+X-PacketFence-Admin-Actions headers; $body_sha256 is the hex SHA-256 of the
+body (of "" without one).
+
+=cut
+
+sub proxy_signature {
+    my ($key, @values) = @_;
+    return hmac_sha256_hex(join("\n", map { $_ // '' } @values), $key);
+}
+
+=head2 check_signature
+
+    my ($ok, $error) = pf::ui_plugins::check_signature($key, \%request);
+
+For the service of a plugin: true when a request comes from the PacketFence
+proxy. %request: method, path (URL encoded), query, body (the raw bytes), and
+the headers username (X-PacketFence-Username), roles
+(X-PacketFence-Admin-Roles), actions (X-PacketFence-Admin-Actions), timestamp
+(X-PacketFence-Plugin-Timestamp), signature (X-PacketFence-Plugin-Signature).
+Refuses a request older or newer than 120s. A signed request can be sent again
+within that time (there is no nonce), but not with other headers or another
+body.
+
+=cut
+
+our $SIGNATURE_MAX_AGE = 120;
+
+sub check_signature {
+    my ($key, $r, $now) = @_;
+    $now //= time;
+    my $ts = $r->{timestamp} // '';
+    return ($FALSE, 'no signature') if $ts !~ /^\d{1,12}\z/ || !defined $r->{signature};
+    return ($FALSE, 'expired signature') if abs($now - $ts) > $SIGNATURE_MAX_AGE;
+    my $want = proxy_signature($key, $ts, @{$r}{qw(method path query username roles actions)}, sha256_hex($r->{body} // ''));
+    my $got = lc $r->{signature};
+    return ($FALSE, 'invalid signature') if length($got) != length($want);
+    my $diff = 0;
+    $diff |= ord(substr($got, $_, 1)) ^ ord(substr($want, $_, 1)) for 0 .. length($want) - 1;
+    return ($FALSE, 'invalid signature') if $diff;
+    return ($TRUE, undef);
+}
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2026 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+
+1;
