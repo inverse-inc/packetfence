@@ -936,11 +936,11 @@ func TestPolicyLookup(t *testing.T) {
 func TestRoleKeyIsCaseInsensitive(t *testing.T) {
 	// node.mac is compared case-insensitively by MariaDB but a Go map is not;
 	// MACs filled in from ip4log keep whatever case the writer used.
-	if roleKey("AA:BB:CC:DD:EE:FF") != roleKey("aa:bb:cc:dd:ee:ff") {
-		t.Fatal("roleKey must normalize case")
+	if macKey("AA:BB:CC:DD:EE:FF") != macKey("aa:bb:cc:dd:ee:ff") {
+		t.Fatal("macKey must normalize case")
 	}
-	if roleKey("aa:bb:cc:dd:ee:ff") != "aa:bb:cc:dd:ee:ff" {
-		t.Fatal("roleKey must leave a lower-case MAC unchanged")
+	if macKey("aa:bb:cc:dd:ee:ff") != "aa:bb:cc:dd:ee:ff" {
+		t.Fatal("macKey must leave a lower-case MAC unchanged")
 	}
 }
 
@@ -1113,5 +1113,75 @@ func TestLookupWithRolesLevels(t *testing.T) {
 				t.Fatalf("LookupWithRoles: got rule %q, want %q", got, tt.want)
 			}
 		})
+	}
+}
+
+// TestLookupByMacIgnoresCase checks that MAC policies are found whatever the
+// case of the event MAC or of the policy map key: MACs filled in from ip4log
+// keep the case their writer used, and a missed MAC policy would let the role
+// policies of that node apply instead.
+func TestLookupByMacIgnoresCase(t *testing.T) {
+	policy := func(ruleID string) Policy {
+		return Policy{
+			EnforcementInfo: []EnforcementInfo{{RuleID: ruleID, Verdict: "allow"}},
+			Acls:            []string{"permit tcp any any"},
+		}
+	}
+	lookup := &PolicyLookup{
+		ByRoles: map[string][]Policy{"IoT": {policy("role")}},
+		NodesPolicies: map[string][]Policy{
+			"aa:bb:cc:dd:ee:01": {policy("lower-key")},
+			"AA:BB:CC:DD:EE:02": {policy("upper-key")},
+		},
+	}
+	lookup.UpdateMatchers()
+	ne := &NetworkEvent{
+		SourceIp:   netip.AddrFrom4([4]byte{10, 0, 0, 1}),
+		DestIp:     netip.AddrFrom4([4]byte{10, 0, 0, 2}),
+		IpProtocol: IpProtocolTcp,
+	}
+
+	tests := []struct {
+		mac, want string
+	}{
+		{"aa:bb:cc:dd:ee:01", "lower-key"},
+		{"AA:BB:CC:DD:EE:01", "lower-key"},
+		{"aa:bb:cc:dd:ee:02", "upper-key"},
+		{"Aa:Bb:Cc:Dd:Ee:02", "upper-key"},
+	}
+	for _, tt := range tests {
+		ei, found := lookup.LookupByMac(tt.mac, ne)
+		if !found || ei == nil || ei.RuleID != tt.want {
+			t.Fatalf("LookupByMac(%q): got %+v found=%v, want rule %q", tt.mac, ei, found, tt.want)
+		}
+		if ei := lookup.LookupWithRoles(ne, tt.mac, "IoT", "", ""); ei == nil || ei.RuleID != tt.want {
+			t.Fatalf("LookupWithRoles(%q): got %+v, want MAC rule %q over the role policy", tt.mac, ei, tt.want)
+		}
+	}
+}
+
+// TestUpdateMatchersMergesMacKeysByCase checks that policy map keys that only
+// differ by case end up under one key, their policies appended in sorted key
+// order so the merge is deterministic.
+func TestUpdateMatchersMergesMacKeysByCase(t *testing.T) {
+	policy := func(ruleID string) Policy {
+		return Policy{
+			EnforcementInfo: []EnforcementInfo{{RuleID: ruleID, Verdict: "allow"}},
+			Acls:            []string{"permit tcp any any"},
+		}
+	}
+	lookup := &PolicyLookup{
+		NodesPolicies: map[string][]Policy{
+			"aa:bb:cc:dd:ee:01": {policy("lower")},
+			"AA:BB:CC:DD:EE:01": {policy("upper")},
+		},
+	}
+	lookup.UpdateMatchers()
+	if len(lookup.NodesPolicies) != 1 {
+		t.Fatalf("expected one normalized key, got %v", lookup.NodesPolicies)
+	}
+	got := lookup.NodesPolicies["aa:bb:cc:dd:ee:01"]
+	if len(got) != 2 || got[0].EnforcementInfo[0].RuleID != "upper" || got[1].EnforcementInfo[0].RuleID != "lower" {
+		t.Fatalf("unexpected merged policies: %+v", got)
 	}
 }

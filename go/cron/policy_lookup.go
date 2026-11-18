@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net"
 	"net/netip"
+	"sort"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -332,7 +333,7 @@ func (l *PolicyLookup) LookupByRoles(role string, ne *NetworkEvent) (*Enforcemen
 // ne. The boolean is true when mac has at least one policy to look up, even
 // if none of them matched: an empty policy list counts as no policies.
 func (l *PolicyLookup) LookupByMac(mac string, ne *NetworkEvent) (*EnforcementInfo, bool) {
-	policies, ok := l.NodesPolicies[mac]
+	policies, ok := l.NodesPolicies[macKey(mac)]
 	if !ok || len(policies) == 0 {
 		return nil, false
 	}
@@ -357,7 +358,12 @@ func (l *PolicyLookup) LookupImplict(ne *NetworkEvent) *EnforcementInfo {
 	return matchEnforcementInfo(l.ImplictPolices, ne)
 }
 
+// UpdateMatchers builds the ACL matchers of every policy and normalizes the
+// NodesPolicies keys with macKey so LookupByMac ignores the MAC case. Keys
+// that only differ by case are merged, their policies appended in sorted key
+// order.
 func (l *PolicyLookup) UpdateMatchers() {
+	l.normalizeNodesPolicies()
 	for _, v := range l.ByRoles {
 		for i := range v {
 			p := &v[i]
@@ -378,6 +384,25 @@ func (l *PolicyLookup) UpdateMatchers() {
 	}
 }
 
+func (l *PolicyLookup) normalizeNodesPolicies() {
+	if len(l.NodesPolicies) == 0 {
+		return
+	}
+
+	keys := make([]string, 0, len(l.NodesPolicies))
+	for k := range l.NodesPolicies {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	normalized := make(map[string][]Policy, len(l.NodesPolicies))
+	for _, k := range keys {
+		nk := macKey(k)
+		normalized[nk] = append(normalized[nk], l.NodesPolicies[k]...)
+	}
+	l.NodesPolicies = normalized
+}
+
 var storePolicyLookup atomic.Value
 
 func GetPolicyLookup() *PolicyLookup {
@@ -390,10 +415,10 @@ func StorePolicyLookup(p *PolicyLookup) {
 
 const nodeRolesLookupChunk = 1000
 
-// roleKey normalizes a MAC for the nodeRoles map. node.mac is compared
-// case-insensitively by MariaDB (utf8mb4_general_ci) but a Go map is not, and
-// MACs filled in from ip4log keep whatever case the writer used.
-func roleKey(mac string) string {
+// macKey normalizes a MAC for the nodeRoles and NodesPolicies maps. node.mac
+// is compared case-insensitively by MariaDB (utf8mb4_general_ci) but a Go map
+// is not, and MACs filled in from ip4log keep whatever case the writer used.
+func macKey(mac string) string {
 	return strings.ToLower(mac)
 }
 
@@ -404,11 +429,11 @@ func UpdateNetworkEvents(ctx context.Context, db *sql.DB, events []*NetworkEvent
 	macSet := make(map[string]struct{}, len(events))
 	for _, ne := range events {
 		if mac := inventoryMac(ne.SourceInventoryItem); mac != "" {
-			macSet[roleKey(mac)] = struct{}{}
+			macSet[macKey(mac)] = struct{}{}
 		}
 
 		if mac := inventoryMac(ne.DestInventoryitem); mac != "" {
-			macSet[roleKey(mac)] = struct{}{}
+			macSet[macKey(mac)] = struct{}{}
 		}
 	}
 
@@ -447,7 +472,7 @@ func applyEnforcement(lookup *PolicyLookup, events []*NetworkEvent, roles map[st
 
 		var ei *EnforcementInfo
 		if rolesComplete {
-			ei = lookup.LookupWithRoles(ne, srcMac, roles[roleKey(srcMac)], dstMac, roles[roleKey(dstMac)])
+			ei = lookup.LookupWithRoles(ne, srcMac, roles[macKey(srcMac)], dstMac, roles[macKey(dstMac)])
 		} else if ei, _ = lookup.LookupByMac(srcMac, ne); ei == nil {
 			ei, _ = lookup.LookupByMac(dstMac, ne)
 		}
@@ -458,10 +483,10 @@ func applyEnforcement(lookup *PolicyLookup, events []*NetworkEvent, roles map[st
 	}
 }
 
-// nodeRoles maps each known MAC (lower-cased, see roleKey) to its role name
+// nodeRoles maps each known MAC (lower-cased, see macKey) to its role name
 // ("" when the node has no role). MACs absent from the node table are absent
 // from the result, which also yields "" on lookup, the same as the per-event
-// query did. macs must already be roleKey-normalized. The boolean is false
+// query did. macs must already be macKey-normalized. The boolean is false
 // when a chunk query failed, in which case up to nodeRolesLookupChunk MACs
 // are missing from the map for a reason other than "unknown node".
 func nodeRoles(ctx context.Context, db *sql.DB, macs []string) (map[string]string, bool) {
