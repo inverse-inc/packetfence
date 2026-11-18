@@ -55,7 +55,7 @@ where db/upgrade-helpers.sql is loaded first. The root user is reached through
 the local socket without a password (as the PacketFence upgrade does), or
 through a client options file (--defaults-file).
 
-See https://github.com/akainverse/packetfence-plugin-example.
+See the Developers Guide, "Admin UI plugins".
 
 =cut
 
@@ -480,7 +480,10 @@ sub _cluster_enabled {
 # lock name is at most 64 characters (MySQL 5.7+).
 sub _lock {
     my ($name) = @_;
-    return undef if _cluster_enabled();
+    if (_cluster_enabled()) {
+        warn "this server is a member of a cluster: the tables of $name are shared by every node and nothing locks them across the nodes; install or upgrade the package on one node at a time\n";
+        return undef;
+    }
     require pf::db;
     require Digest::SHA;
     my $lock_name = 'plugin_schema_' . substr(Digest::SHA::sha256_hex($name), 0, 32);
