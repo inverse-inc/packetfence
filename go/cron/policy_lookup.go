@@ -286,20 +286,30 @@ type PolicyLookup struct {
 // were already looked up, so callers can batch the role queries for many
 // events (see UpdateNetworkEvents).
 func (l PolicyLookup) LookupWithRoles(ne *NetworkEvent, srcMac, srcRole, dstMac, dstRole string) *EnforcementInfo {
-	if ei := l.LookupByMac(srcMac, ne); ei != nil {
+	var srcFound, dstFound bool
+	var ei *EnforcementInfo
+	if ei, srcFound = l.LookupByMac(srcMac, ne); ei != nil {
 		return ei
 	}
 
-	if ei := l.LookupByMac(dstMac, ne); ei != nil {
+	if ei, dstFound = l.LookupByMac(dstMac, ne); ei != nil {
 		return ei
 	}
 
-	if ei := l.LookupByRoles(srcRole, ne); ei != nil {
+	if srcFound || dstFound {
+		return nil
+	}
+
+	if ei, srcFound = l.LookupByRoles(srcRole, ne); ei != nil {
 		return ei
 	}
 
-	if ei := l.LookupByRoles(dstRole, ne); ei != nil {
+	if ei, dstFound = l.LookupByRoles(dstRole, ne); ei != nil {
 		return ei
+	}
+
+	if srcFound || dstFound {
+		return nil
 	}
 
 	if srcMac != "" {
@@ -309,30 +319,28 @@ func (l PolicyLookup) LookupWithRoles(ne *NetworkEvent, srcMac, srcRole, dstMac,
 	return nil
 }
 
-func (l *PolicyLookup) LookupByRoles(role string, ne *NetworkEvent) *EnforcementInfo {
+// LookupByRoles returns the enforcement info of the first policy of role
+// matching ne. The boolean is true when role has policies to look up, even if
+// none of them matched.
+func (l *PolicyLookup) LookupByRoles(role string, ne *NetworkEvent) (*EnforcementInfo, bool) {
 	policies, ok := l.ByRoles[role]
 	if !ok {
-		return nil
+		return nil, false
 	}
 
-	if ei := matchEnforcementInfo(policies, ne); ei != nil {
-		return ei
-	}
-
-	return nil
+	return matchEnforcementInfo(policies, ne), true
 }
 
-func (l *PolicyLookup) LookupByMac(mac string, ne *NetworkEvent) *EnforcementInfo {
+// LookupByMac returns the enforcement info of the first policy of mac matching
+// ne. The boolean is true when mac has policies to look up, even if none of
+// them matched.
+func (l *PolicyLookup) LookupByMac(mac string, ne *NetworkEvent) (*EnforcementInfo, bool) {
 	policies, ok := l.NodesPolicies[mac]
 	if !ok {
-		return nil
+		return nil, false
 	}
 
-	if ei := matchEnforcementInfo(policies, ne); ei != nil {
-		return ei
-	}
-
-	return nil
+	return matchEnforcementInfo(policies, ne), true
 }
 
 func matchEnforcementInfo(policies []Policy, ne *NetworkEvent) *EnforcementInfo {
@@ -435,8 +443,8 @@ func applyEnforcement(lookup *PolicyLookup, events []*NetworkEvent, roles map[st
 		var ei *EnforcementInfo
 		if rolesComplete {
 			ei = lookup.LookupWithRoles(ne, srcMac, roles[roleKey(srcMac)], dstMac, roles[roleKey(dstMac)])
-		} else if ei = lookup.LookupByMac(srcMac, ne); ei == nil {
-			ei = lookup.LookupByMac(dstMac, ne)
+		} else if ei, _ = lookup.LookupByMac(srcMac, ne); ei == nil {
+			ei, _ = lookup.LookupByMac(dstMac, ne)
 		}
 
 		if ei != nil {

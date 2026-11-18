@@ -880,8 +880,13 @@ func TestPolicyLoad(t *testing.T) {
 		},
 	}
 
+	ei, found := lookup.LookupByRoles("IoT-Lighting", &ne)
+	if !found {
+		t.Fatalf("LookupByRoles found no policies for IoT-Lighting")
+	}
+
 	if diff := cmp.Diff(
-		lookup.LookupByRoles("IoT-Lighting", &ne),
+		ei,
 		&EnforcementInfo{
 			RuleID:              "d2cdcbd9-5acd-4021-ba96-fdecbbf77473/",
 			Verdict:             "allow",
