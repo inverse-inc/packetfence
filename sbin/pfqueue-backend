@@ -207,6 +207,9 @@ sub process_data {
     my $args = $item->[1];
     my $task = "pf::task::$type"->new;
 
+    # A task must not log with the device (mac/ip) of the previous task this process ran
+    pf::log::reset_log_context();
+
     # Stamp the work unit so pf::db decorates this task's queries for ProxySQL
     # routing (=> /* pf:pfqueue:<type> */). Cleared after so the idle loop and
     # the next task never inherit a stale unit.
