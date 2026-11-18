@@ -24,6 +24,18 @@ import apiCall from '@/utils/api'
 import i18n from '@/utils/locale'
 import { can } from './acl'
 import nodesApi from '@/views/Nodes/_api'
+import {
+  BaseForm,
+  BaseFormButtonBar,
+  BaseFormGroupChosenOne,
+  BaseFormGroupInput,
+  BaseFormGroupInputNumber,
+  BaseFormGroupInputPassword,
+  BaseFormGroupInputPasswordTest,
+  BaseFormGroupTextarea,
+  BaseFormGroupToggleDisabledEnabled,
+  BaseServices
+} from '@/components/new/'
 import { lookupPersons } from '@/views/Users/_api/lookupPersons'
 import { closePanel } from './'
 
@@ -138,6 +150,15 @@ const scopedApi = id => {
  *   lookup       the lookups of the admin UI forms, with the admin's rights
  *                (none without them): persons(query, limit) and
  *                nodes(query, limit), each [{ value, text }]
+ *   components   the components of the admin UI forms, for a page that looks
+ *                like the core ones: BaseForm (form, meta, isLoading) and its
+ *                BaseFormGroup* (namespace, column-label, text), the button
+ *                bar (BaseFormButtonBar: save, reset, close), the services
+ *                to restart (BaseServices: services, system_services)
+ *   store        the Vuex store of the admin UI: what these components read
+ *                from the $store of the root (the cluster, the services); a
+ *                bundle with a store of its own passes the other namespaces
+ *                to it
  */
 const LEVELS = ['info', 'success', 'warning', 'danger']
 
@@ -152,6 +173,21 @@ const lookupNodes = (query, limit) => nodesApi.search({
   const details = [pid, computername].filter(v => v && v !== 'default').join(', ')
   return { value: mac, text: (details) ? `${mac} (${details})` : mac }
 }))
+
+const formComponents = {
+  BaseForm,
+  BaseFormButtonBar,
+  BaseFormGroupChosenOne,
+  BaseFormGroupInput,
+  BaseFormGroupInputNumber,
+  BaseFormGroupInputPassword,
+  BaseFormGroupInputPasswordTest,
+  BaseFormGroupTextarea,
+  BaseFormGroupToggleDisabledEnabled,
+  BaseServices
+}
+
+const components = Object.freeze(formComponents)
 
 // a lookup the admin may not run gives nothing (no request, no error shown)
 const lookup = Object.freeze({
@@ -171,6 +207,8 @@ export const hostApi = (id, { router, store }) => Object.freeze({
   t: (...args) => i18n.t(...args),
   locale: () => i18n.locale,
   lookup,
+  components,
+  store,
   navigate: to => {
     closePanel()
     return router.push(to).catch(() => {}) // the same route: nothing to do

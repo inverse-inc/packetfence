@@ -66,7 +66,7 @@
         <b-button v-if="warning.to" size="sm" variant="outline-light" class="ml-2" :to="warning.to">{{ warning.toLabel }}</b-button>
       </div>
     </b-container>
-    <b-container :class="[{ 'pt-6': warnings.length === 0, 'documentation-container': isAuthenticated }, documentationViewerClass]" fluid>
+    <b-container :class="[{ 'pt-6': warnings.length === 0, 'documentation-container': isAuthenticated }, documentationViewerClass, pluginPanelClass]" fluid>
       <app-documentation v-show="isAuthenticated">
         <div class="py-1 pl-3" v-show="version">
           <b-form-text v-t="'Packetfence Version'"/> {{ version }}
@@ -78,7 +78,7 @@
           <b-form-text v-t="'Server Hostname'"/> {{ hostname }}
         </div>
       </app-documentation>
-      <plugin-navbar-panels v-if="isAuthenticated" />
+      <plugin-navbar-panels v-if="isAuthenticated" @animation="pluginPanelClass = $event" />
       <router-view/>
     </b-container>
     <!-- Show login if session expires -->
@@ -139,6 +139,8 @@ const setup = (props, context) => {
     $store.dispatch('documentation/toggleViewer')
   }
   // a plugin panel opened (UI plugins, navbar-panel mount): one panel at a time
+  // the slide of a plugin panel (NavbarPanels), like the documentation's
+  const pluginPanelClass = ref(null)
   const onPluginPanel = (id) => {
     if (id && showDocumentationViewer.value)
       $store.dispatch('documentation/closeViewer')
@@ -305,6 +307,7 @@ const setup = (props, context) => {
 
     // documentation
     documentationViewerClass,
+    pluginPanelClass,
     showDocumentationViewer,
     toggleDocumentationViewer,
     onPluginPanel,
