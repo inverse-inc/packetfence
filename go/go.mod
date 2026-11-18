@@ -8,7 +8,6 @@ require (
 	github.com/Azure/go-autorest/autorest/adal v0.9.22 // indirect
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.13 // indirect
 	github.com/OneOfOne/xxhash v1.2.7
-	github.com/Sereal/Sereal v0.0.0-20200729022450-08708a3c86f3
 	github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5
 	github.com/captncraig/cors v0.0.0-20170507232344-153f484dcf3d
 	github.com/coredns/caddy v1.1.4-0.20250930002214-15135a999495
@@ -249,6 +248,7 @@ require (
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.5.0 // indirect
 	github.com/Masterminds/sprig/v3 v3.3.0 // indirect
+	github.com/Sereal/Sereal/Go/sereal v0.0.0-20261115132720-e76cfd6b83a3 // indirect
 	github.com/alecthomas/chroma/v2 v2.27.0 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/aryann/difflib v0.0.0-20210328193216-ff5ff6dc229b // indirect

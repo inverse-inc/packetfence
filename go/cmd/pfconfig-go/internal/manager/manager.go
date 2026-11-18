@@ -4,9 +4,12 @@ package manager
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
+	"maps"
 	"path/filepath"
 	"regexp"
+	"slices"
 
 	"github.com/inverse-inc/packetfence/go/cmd/pfconfig-go/internal/cache"
 	"github.com/inverse-inc/packetfence/go/cmd/pfconfig-go/internal/loader"
@@ -27,11 +30,12 @@ type Request struct {
 
 type Manager struct {
 	namespaces map[string]*ns.NamespaceInfos // read only, done at startup
-	cache      *cache.ShardedCache[*loader.Conf]
+	cache      *cache.ShardedCache[string, *loader.Conf]
+	nsGraph    *Graph
 	confFolder string // folder path of pf conf files (usually /usr/local/pf/conf)
 }
 
-var queryRegex = regexp.MustCompile(`(\w+(?:\:\:\w+)*)(?:\((.*)\))?(?:;(\w+))?`)
+var queryRegex = regexp.MustCompile(`(\w+(?:\:\:\w+)*)(?:\((.*)\))?(?:;([:\w]+))?`)
 
 type Query struct {
 	Namespace string // NAME::SPACE, never empty
@@ -51,7 +55,7 @@ func ExtractQuery(s string) (Query, error) {
 	}, nil
 }
 
-func NewManager(confFolder string, cache *cache.ShardedCache[*loader.Conf]) *Manager {
+func NewManager(confFolder string, cache *cache.ShardedCache[string, *loader.Conf]) *Manager {
 	m := Manager{
 		confFolder: confFolder,
 		namespaces: make(map[string]*ns.NamespaceInfos, len(ns.NamespaceDefinitions)),
@@ -69,23 +73,44 @@ func (m *Manager) getCache(s string) (*loader.Conf, bool) {
 }
 
 func (m *Manager) LoadConfigs(ctx context.Context, logger *slog.Logger) error {
-	for _, v := range m.namespaces {
-		conf, err := loader.LoadConf(v.Path)
+	graph, err := NamespacesToGraph(slices.Collect(maps.Values(m.namespaces)))
+	if err != nil {
+		return err
+	}
+	err = graph.TopologicalOrder()
+	if err != nil {
+		return err
+	}
+	m.nsGraph = graph
+	for _, key := range graph.GetNodes() {
+		tmp, _ := m.namespaces[key] // key exists at this point
+		conf, err := loader.LoadConf(tmp.Path)
 		if err != nil {
 			logger.ErrorContext(ctx, "Manager.Load", "err", err.Error())
 			continue
 		}
-		if v.Build != nil {
+		if tmp.Build != nil {
 			bd := ns.BuildData{
 				Conf: conf,
+				// any overlay params here too
 			}
-			if len(v.DepResources) > 0 {
-				bd.Deps = make(map[string]*loader.Conf, len(v.DepResources))
+			if len(tmp.DepResources) > 0 {
+				bd.Deps = make(map[string]*loader.Conf, len(tmp.DepResources))
+				for _, dep := range tmp.DepResources {
+					c, ok := m.cache.Get(dep)
+					if !ok { // shouldn't happen at first full build, since graph is checked already
+						return fmt.Errorf("not dep %s in cache", dep)
+					}
+					bd.Deps[dep] = c
+				}
 			}
-			if err := v.Build(&bd); err != nil {
+			if err := tmp.Build(&bd); err != nil {
 				logger.ErrorContext(ctx, "Manager.Load", "err", err.Error())
 				continue
 			}
+		}
+		if err := m.cache.Set(ctx, key, conf, 1000); err != nil {
+			return nil
 		}
 	}
 	return nil
@@ -99,15 +124,12 @@ func (m *Manager) Process(ctx context.Context, logger *slog.Logger, request Requ
 	conf, ok := m.getCache(query.Namespace)
 	if !ok {
 		// not in cache or expired, build it
+		logger.InfoContext(ctx, "unsupported", "ns", query.Namespace)
 		return nil, errors.ErrUnsupported
 	}
 	data, err := dispatchMethod(ctx, logger, conf, request)
 	if err != nil {
 		return nil, err
 	}
-	// get the conf from the cache: ns only, no overlay no key
-	// dispatch the method: use of overlay/key
-	// format the output: sereal/json
-	// return the data
 	return data, nil
 }
