@@ -125,7 +125,8 @@ if [ "$FB_NEEDED" = true ]; then
     echo "uid and gid for fingerbank have been applied."
 fi
 
-find /usr/local/pf/ '(' -type d -or -type f ')' -not -name pfcmd -not -path "$PACKETFENCE/logs*" -print0 | xargs -0 chown pf:pf
+# conf/plugins.d stays root's (the descriptors and UI code of the plugin packages)
+find /usr/local/pf/ -path /usr/local/pf/conf/plugins.d -prune -o '(' -type d -or -type f ')' -not -name pfcmd -not -path "$PACKETFENCE/logs*" -print0 | xargs -0 chown pf:pf
 find /usr/local/pf/logs/ -mindepth 1 -print0 | xargs -0 chown root:pf
 chown root:root /usr/local/pf/bin/pfcmd
 chmod ug+s /usr/local/pf/bin/pfcmd

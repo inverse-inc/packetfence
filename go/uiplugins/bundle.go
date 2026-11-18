@@ -69,8 +69,10 @@ func BundleInstalled(name string) bool {
 // PluginsConfDir, served only when its SHA-256 is the sha256 of the [bundle]
 // section of <name>.conf. The package that installs the plugin writes both;
 // a plugin service only registers a host and a port, it does not serve its
-// UI code. The SHA-256 detects a changed or partly written file; the
-// directory is root's (0755), only the packages write there.
+// UI code. The SHA-256 detects a changed or partly written file. The
+// directory is root's (0755) and its files root's (0644): only the packages
+// (run as root) write there, the packetfence package and its upgrade scripts
+// leave it out when they give conf/ to the pf user.
 func BundleCode(name string) ([]byte, error) {
 	if !nameRe.MatchString(name) {
 		return nil, fmt.Errorf("invalid name %q", name)
