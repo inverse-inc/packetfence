@@ -55,7 +55,7 @@ where db/upgrade-helpers.sql is loaded first. The root user is reached through
 the local socket without a password (as the PacketFence upgrade does), or
 through a client options file (--defaults-file).
 
-See docs/developer/ui_plugins.asciidoc.
+See https://github.com/akainverse/packetfence-plugin-example.
 
 =cut
 

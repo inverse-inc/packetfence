@@ -1,6 +1,6 @@
 /**
  * Bundle plugins (manifest template "bundle", see
- * docs/developer/ui_plugins.asciidoc): the plugin's own UI code.
+ * https://github.com/akainverse/packetfence-plugin-example): the plugin's own UI code.
  *
  * The code is the JavaScript module its package installed on the server
  * (conf/plugins.d/<id>.js, checked against the sha256 of its descriptor). The

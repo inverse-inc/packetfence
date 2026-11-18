@@ -8,23 +8,6 @@ import (
 	"testing"
 )
 
-// the examples of docs/ui-plugins must be valid
-func TestExamples(t *testing.T) {
-	for dir, id := range map[string]string{"hello": "hello", "hello-settings": "hello-settings", "go-plugin": "notes-go", "perl-plugin": "notes-perl"} {
-		b, err := os.ReadFile(filepath.Join("..", "..", "docs", "ui-plugins", "examples", dir, "manifest.json"))
-		if err != nil {
-			t.Fatal(err)
-		}
-		m, err := ParseManifest(b)
-		if err != nil {
-			t.Fatalf("%s: %s", id, err)
-		}
-		if err := m.Validate(DefaultCatalog, id); err != nil {
-			t.Errorf("%s: %s", id, err)
-		}
-	}
-}
-
 // the embedded catalog must be the one generated from the UI catalog
 func TestCatalogIsCurrent(t *testing.T) {
 	b, err := os.ReadFile(filepath.Join("..", "..", "html", "pfappserver", "root", "src", "plugins", "catalog.json"))

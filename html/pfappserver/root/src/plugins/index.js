@@ -1,5 +1,5 @@
 /**
- * Admin UI plugins (see docs/developer/ui_plugins.asciidoc).
+ * Admin UI plugins (see https://github.com/akainverse/packetfence-plugin-example).
  *
  * Plugin services register in the database (go/uiplugins, pf::ui_plugins), the
  * API lists the ones whose manifest is valid (GET /api/v1/plugins) and proxies

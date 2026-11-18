@@ -46,10 +46,6 @@ include::developer/code_conventions.asciidoc[]
 
 include::developer/http_json_api.asciidoc[]
 
-== Admin UI plugins
-
-include::developer/ui_plugins.asciidoc[]
-
 == Customizing PacketFence
 
 include::developer/customizing_packetfence.asciidoc[]

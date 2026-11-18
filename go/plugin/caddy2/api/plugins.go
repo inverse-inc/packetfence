@@ -1,6 +1,6 @@
 package api
 
-// The admin UI plugins, see docs/developer/ui_plugins.asciidoc:
+// The admin UI plugins, see https://github.com/akainverse/packetfence-plugin-example:
 //
 //	GET /api/v1/plugins                the plugins whose manifest is reachable and valid
 //	GET /api/v1/plugins/<name>/bundle.js  the code of a bundle plugin, from its package (go/uiplugins BundleCode)

@@ -7,9 +7,10 @@ schema
 =head1 DESCRIPTION
 
 unit test for pf::ui_plugins::schema, the database tables of the packages
-installed on top of PacketFence. The test package "acme" is in
-t/data/ui_plugins. Running the files against MariaDB and MySQL needs the root
-user of a database: see docs/developer/ui_plugins.asciidoc.
+installed on top of PacketFence: the descriptor, the files of a schema
+directory and the plan, with a package "acme" written in a temporary
+directory. Running real files against MariaDB and MySQL needs the root user
+of a database: see the packetfence-plugin-example repository.
 
 =cut
 
@@ -27,8 +28,19 @@ use Test::More;
 use File::Temp qw(tempdir);
 use pf::ui_plugins::schema;
 
-my $data = '/usr/local/pf/t/data/ui_plugins';
+# a package "acme": its descriptor in $data/conf, its files in $acme
+my $data = tempdir(CLEANUP => 1);
 my $acme = "$data/acme";
+mkdir("$data/conf") or die $!;
+mkdir($acme) or die $!;
+sub write_file {
+    my ($file, $content) = @_;
+    open(my $fh, '>', $file) or die "$file: $!";
+    print $fh $content;
+    close($fh);
+}
+write_file("$data/conf/acme.conf", "[plugin]\nversion=1.2\nschema_dir=$acme\n");
+write_file("$acme/$_", "-- $_\n") for qw(acme-schema-1.0.sql acme-schema-1.2.sql upgrade-1.0-1.1.sql upgrade-1.1-1.2.sql teardown.sql);
 
 # version_int
 is(pf::ui_plugins::schema::version_int('1.2'), 1 << 16 | 2 << 8, 'version 1.2');

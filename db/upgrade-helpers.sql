@@ -51,7 +51,7 @@ DELIMITER ;
 -- INSERT ... SELECT of a large table is one transaction, too large for a
 -- Galera cluster (wsrep_max_ws_size) and long to replicate. p_columns is the
 -- column list, the same for both tables.
---   Example, rebuilding a large table (see docs/developer/ui_plugins.asciidoc):
+--   Example, rebuilding a large table (see https://github.com/akainverse/packetfence-plugin-example):
 --   CALL CopyRowsInBatches('acme_item', 'acme_item_new', '`id`, `name`', 'id', 10000);
 --
 DROP PROCEDURE IF EXISTS CopyRowsInBatches;

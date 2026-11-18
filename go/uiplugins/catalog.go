@@ -2,7 +2,7 @@
 // plugin service (the ui_plugin table), the validation of the manifest it
 // serves, and the proxy to its API.
 //
-// See docs/developer/ui_plugins.asciidoc.
+// See https://github.com/akainverse/packetfence-plugin-example.
 package uiplugins
 
 import (

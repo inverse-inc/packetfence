@@ -22,7 +22,7 @@ pf::cmd::pf::plugin::schema
 
 The package declares its name, version and schema directory in
 conf/plugins.d/<name>.conf. See pf::ui_plugins::schema and
-docs/developer/ui_plugins.asciidoc.
+https://github.com/akainverse/packetfence-plugin-example.
 
 apply and drop exit 2 when they cannot connect to the database as a user that
 can create tables: the message gives the command to run by hand.
