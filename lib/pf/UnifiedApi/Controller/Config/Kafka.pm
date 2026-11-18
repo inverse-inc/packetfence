@@ -445,9 +445,25 @@ sub update {
         return $self->render(status => $status, json => $new_data);
     }
 
+    # PATCH: only the settings in the request are updated
+    $new_data = { map { ($_ => $new_data->{$_}) } grep { exists $new_data->{$_} } keys %$data };
     if ($self->save_in_config_store($new_data)) {
         $self->render(status => 200, json => {});
     }
+}
+
+=head2 section_setting
+
+The setting of the item a section of kafka.conf belongs to
+
+=cut
+
+sub section_setting {
+    my ($section) = @_;
+    our %fields;
+    return 'auths' if $section =~ /^auth /;
+    return $section if $section eq 'cluster' || exists $fields{$section};
+    return 'host_configs';
 }
 
 sub save_in_config_store {
@@ -455,7 +471,10 @@ sub save_in_config_store {
     my $items = flatten_item($data);
     my $cs = $self->config_store;
     my $ini = $cs->cachedConfig();
-    $ini->Delete();
+    # Replace the sections of the settings in $data, keep the other ones
+    for my $section ($ini->Sections()) {
+        $ini->DeleteSection($section) if exists $data->{section_setting($section)};
+    }
     for my $item (@$items) {
          $cs->update_or_create($item->{section}, $item->{params} // {});
     }
