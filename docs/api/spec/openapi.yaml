@@ -59711,8 +59711,9 @@ paths:
       summary: Get PKI Certificate.
       tags:
       - PKI
-  /api/v1/pki/cert/{cert_id}/download/{password}:
-    get:
+  /api/v1/pki/cert/{cert_id}/download:
+    post:
+      description: Returns the certificate and its private key in a PKCS#12 protected by the password. Requires the PKI_CREATE admin role.
       parameters:
       - description: '`PRIMARY KEY`'
         in: path
@@ -59720,16 +59721,24 @@ paths:
         required: true
         schema:
           type: string
-      - description: Certificate password.
-        in: path
-        name: password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                password:
+                  description: Password of the PKCS#12.
+                  format: password
+                  type: string
+              required:
+              - password
+              type: object
         required: true
-        schema:
-          format: password
-          type: string
       responses:
         '200':
           $ref: '#/components/responses/PkiCertDownload'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
