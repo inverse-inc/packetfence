@@ -285,10 +285,11 @@ type PolicyLookup struct {
 // LookupWithRoles resolves the MAC and role enforcement info of an event whose
 // node roles were already looked up, so callers can batch the role queries for
 // many events (see UpdateNetworkEvents). The MAC policies of the source then
-// destination are checked first; when either MAC has policies, none matching
-// means no enforcement info and the role policies are not checked. The role
-// policies of the source then destination come next. Implicit policies are
-// not checked here: applyEnforcement checks them before calling it.
+// destination are checked first, then the role policies of the source then
+// destination. MAC policies are authoritative per side: when a node's MAC has
+// policies but none match, that node's role policies are not checked, while
+// the other node's still are. Implicit policies are not checked here:
+// applyEnforcement checks them before calling it.
 func (l PolicyLookup) LookupWithRoles(ne *NetworkEvent, srcMac, srcRole, dstMac, dstRole string) *EnforcementInfo {
 	var srcFound, dstFound bool
 	var ei *EnforcementInfo
@@ -300,16 +301,16 @@ func (l PolicyLookup) LookupWithRoles(ne *NetworkEvent, srcMac, srcRole, dstMac,
 		return ei
 	}
 
-	if srcFound || dstFound {
-		return nil
+	if !srcFound {
+		if ei, _ = l.LookupByRoles(srcRole, ne); ei != nil {
+			return ei
+		}
 	}
 
-	if ei, _ = l.LookupByRoles(srcRole, ne); ei != nil {
-		return ei
-	}
-
-	if ei, _ = l.LookupByRoles(dstRole, ne); ei != nil {
-		return ei
+	if !dstFound {
+		if ei, _ = l.LookupByRoles(dstRole, ne); ei != nil {
+			return ei
+		}
 	}
 
 	return nil

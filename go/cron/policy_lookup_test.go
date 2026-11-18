@@ -1035,8 +1035,9 @@ func TestApplyEnforcementOrder(t *testing.T) {
 }
 
 // TestLookupWithRolesLevels checks the MAC then role order of LookupWithRoles,
-// and that MAC policies are authoritative: when the source or destination MAC
-// has policies but none match the event, the role policies are not checked.
+// and that MAC policies are authoritative per side: when a node's MAC has
+// policies but none match the event, that node's role policies are not
+// checked, while the other node's role policies still are.
 func TestLookupWithRolesLevels(t *testing.T) {
 	policy := func(ruleID, acl string) Policy {
 		return Policy{
@@ -1081,8 +1082,11 @@ func TestLookupWithRolesLevels(t *testing.T) {
 		{"src MAC checked before dst MAC", macMatch, "", macMatch2, "", "mac-match"},
 		{"dst MAC match when src MAC has none", macNone, "match", macMatch, "match", "mac-match"},
 		{"dst MAC match after src MAC no match", macNoMatch, "match", macMatch, "match", "mac-match"},
-		{"src MAC no match stops before roles", macNoMatch, "match", macNone, "match", ""},
-		{"dst MAC no match stops before roles", macNone, "match", macNoMatch, "match", ""},
+		{"src MAC no match skips src role", macNoMatch, "match", macNone, "", ""},
+		{"src MAC no match still checks dst role", macNoMatch, "match", macNone, "match2", "role-match2"},
+		{"dst MAC no match skips dst role", macNone, "", macNoMatch, "match", ""},
+		{"dst MAC no match still checks src role", macNone, "match", macNoMatch, "match2", "role-match"},
+		{"both MACs no match skip both roles", macNoMatch, "match", macNoMatch, "match2", ""},
 		{"src role match without MAC policies", macNone, "match", macNone, "", "role-match"},
 		{"empty src MAC policy list does not stop roles", macEmpty, "match", macNone, "", "role-match"},
 		{"empty dst MAC policy list does not stop roles", macNone, "match", macEmpty, "", "role-match"},
