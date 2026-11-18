@@ -426,8 +426,9 @@ export default {
 }
 ----
 
-Build it as a library with `vue` external: use `host.Vue`, the Vue of the
-admin UI, with its global components (BootstrapVue, `icon`).
+Build it as a library without `vue` or `@vue/composition-api`: use
+`host.Vue` and `host.composition`, the ones of the admin UI, with its global
+components (BootstrapVue, `icon`).
 
 *Mounts* (`bundle.mounts`):
 
@@ -445,7 +446,10 @@ admin UI, with its global components (BootstrapVue, `icon`).
 |Property |
 |`version`, `id` |`1`, the name of the plugin
 |`Vue` |the Vue of the admin UI
-|`api` |`request`, `get`, `options`, `post`, `put`, `patch`, `delete`: the API client of the admin UI, the paths relative to `/api/v1/plugin/<name>/`
+|`composition` |`@vue/composition-api` as installed on that Vue (`ref`, `computed`, `watch`, ...): a bundle cannot ship its own
+|`i18n` |the VueI18n of the admin UI: give it to the root of the bundle (`{ i18n: host.i18n }`) for `$t`
+|`api` |`request`, `get`, `options`, `post`, `put`, `patch`, `delete`: the API client of the admin UI, the paths relative to `/api/v1/plugin/<name>/`. Quiet: the admin UI shows no notification for its answers, unless `{ quiet: false }`
+|`notify(level, message)` |a notification of the admin UI (`info`, `success`, `warning`, `danger`)
 |`can(can)` |the ACL of the admin, a manifest `can` (eg: `host.can('write plugin')`)
 |`t(...)`, `locale()` |the translations and the language of the admin UI
 |`navigate(to)` |a navigation of the admin UI

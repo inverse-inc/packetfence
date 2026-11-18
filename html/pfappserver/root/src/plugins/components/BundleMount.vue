@@ -44,7 +44,7 @@ export default {
         .then(bundle => {
           if (this._isDestroyed || id !== this.pluginId)
             return
-          const unmount = bundle.mount(this.$refs.el, hostApi(id, { router: this.$router }), { kind: this.kind })
+          const unmount = bundle.mount(this.$refs.el, hostApi(id, { router: this.$router, store: this.$store }), { kind: this.kind })
           this.unmountBundle = (typeof unmount === 'function') ? unmount : null
           this.loading = false
         })
