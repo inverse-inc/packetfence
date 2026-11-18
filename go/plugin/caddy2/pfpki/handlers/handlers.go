@@ -568,6 +568,7 @@ func DownloadCert(pfpki *types.Handler) http.HandlerFunc {
 			var body struct {
 				Password string `json:"password"`
 			}
+			req.Body = http.MaxBytesReader(res, req.Body, 4096)
 			if err = json.NewDecoder(req.Body).Decode(&body); err != nil || body.Password == "" {
 				Error.Message = "A password is required"
 				Error.Status = http.StatusBadRequest
