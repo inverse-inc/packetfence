@@ -1025,6 +1025,9 @@ def _preflight_check(oid: str, body: dict | None) -> dict | None:
         result["partially_corrected_body"] = body
     return result
 
+_resolving_roles = contextvars.ContextVar("resolving_roles", default=False)
+
+
 def invoke(oid: str, path_params=None, query_params=None, body=None,
            confirmed: bool = False) -> dict:
     o, err = _resolve_oid(oid)
@@ -1096,13 +1099,17 @@ def invoke(oid: str, path_params=None, query_params=None, body=None,
     result_body = {"status_code": r.status_code, "method": o["method"].upper(),
                    "path": path, "curl": curl, "body": data}
     # Resolve category_id to role names for node responses
-    if r.status_code == 200 and isinstance(data, dict) and "/node" in path:
+    # node endpoints only (/node/{mac}, /nodes, /nodes/search): /node_categories
+    # also matched "/node", so resolving roles re-entered itself ~500 times
+    if (r.status_code == 200 and isinstance(data, dict) and re.search(r"/nodes?(/|$)", path)
+            and not _resolving_roles.get()):
         _items = data.get("items") or ([data.get("item")] if data.get("item") else [])
         _needs_resolve = any(
             isinstance(it, dict) and "category_id" in it and "category" not in it
             for it in _items if isinstance(it, dict)
         )
         if _needs_resolve:
+            token = _resolving_roles.set(True)
             try:
                 _roles = _fetch_roles()
                 _id_to_name = {str(r.get("category_id")): r.get("name", "?")
@@ -1113,6 +1120,8 @@ def invoke(oid: str, path_params=None, query_params=None, body=None,
                         it["category"] = _id_to_name.get(cid, cid)
             except Exception:
                 pass
+            finally:
+                _resolving_roles.reset(token)
     # Service status: add a plain-language state next to alive/enabled/pid
     if r.status_code == 200 and isinstance(data, dict) and "/service" in path:
         for it in (data.get("items") if isinstance(data.get("items"), list) else [data]):
