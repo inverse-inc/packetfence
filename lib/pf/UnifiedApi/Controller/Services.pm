@@ -53,14 +53,14 @@ sub do_update_systemd {
     my $services = $name eq 'pf' ? [ grep {$_ ne 'pf'} @pf::services::ALL_SERVICES ] : [ $name ];
     my @managers = pf::services::getManagers( $services );
 
+    my @failed;
     for my $manager (@managers) {
-        if ( $manager->isManaged ) {
-            $manager->sysdEnable();
-        }
-        else {
-            $manager->sysdDisable();
-        }
+        my $updated = $manager->isManaged ? $manager->sysdEnable() : $manager->sysdDisable();
+        push @failed, $manager->name unless $updated;
     }
+    die "Unable to update systemd for: " . join(', ', @failed) . "\n" if @failed;
+
+    pf::services::promote_default_systemd_target() if $name eq 'pf';
 
     return {message => "Updated systemd for $name"};
 }
@@ -150,7 +150,11 @@ sub do_action {
                         close($fh);
                     }
                 }
-                my $data = $self->$action();
+                my $data = eval { $self->$action() };
+                if (my $err = $@) {
+                    $updater->failed({ message => "$err" });
+                    return;
+                }
                 $updater->completed($data);
             },
             sub {},
@@ -167,6 +171,7 @@ sub do_action {
         },
         sub {
             my ($subprocess, $err, $results) = @_;
+            return $self->render_error(500, "$err") if $err;
             return $self->render(json => $results);
          },
     );
