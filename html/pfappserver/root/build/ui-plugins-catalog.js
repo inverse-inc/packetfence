@@ -87,7 +87,7 @@ const schema = {
   description: 'Generated from html/pfappserver/root/src/plugins/catalog.json by html/pfappserver/root/build/ui-plugins-catalog.js, do not edit. The API also checks that every validator applies to the type of its component, that "when" references another field and that "can" is nested 3 levels at most. See docs/developer/ui_plugins.asciidoc.',
   type: 'object',
   additionalProperties: false,
-  required: ['manifestVersion', 'id', 'title', 'menu', 'template', 'api', 'form'],
+  required: ['manifestVersion', 'id', 'title', 'menu', 'template'],
   properties: {
     manifestVersion: { enum: data.manifestVersions },
     id: { type: 'string', pattern: '^[a-z][a-z0-9_-]{0,62}$', description: 'The name the plugin service registered with.' },
@@ -108,6 +108,26 @@ const schema = {
       }
     },
     template: { enum: data.templates },
+    bundle: {
+      type: 'object',
+      additionalProperties: false,
+      description: 'The page is the plugin\'s own code (template "bundle"): its API is passed through, any path under /api/v1/plugin/<id>/, PLUGIN_READ for GET and OPTIONS, PLUGIN_WRITE for POST, PUT, PATCH and DELETE.',
+      required: ['hostApi', 'mounts'],
+      properties: {
+        hostApi: { enum: data.bundle.hostApi, description: 'The version of the host API of the admin UI the bundle is built for.' },
+        mounts: { type: 'array', minItems: 1, uniqueItems: true, items: { enum: data.bundle.mounts }, description: 'Where the admin UI mounts the bundle: "page" (the route and sidebar item of menu), "navbar-panel" (a navbar button opening a panel).' },
+        navbar: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['icon'],
+          properties: { icon: { type: 'string', pattern: '^[a-z0-9-]+(/[a-z0-9-]+)?$', description: 'A vue-awesome icon already used by core.' } }
+        },
+        timeout: { type: 'integer', minimum: 1, maximum: data.bundle.maxTimeout, description: 'Seconds a call to the plugin may take (default 60).' }
+      },
+      if: { properties: { mounts: { contains: { const: 'navbar-panel' } } }, required: ['mounts'] },
+      then: { required: ['navbar'] },
+      else: { not: { required: ['navbar'] } }
+    },
     api: {
       type: 'object',
       description: `The API of the page, as in the _api.js of the core views: a path relative to /api/v1/plugin/<id>/ (the plugin service) by method, called with a fixed verb (${Object.entries(data.api.verbs).map(([ m, v ]) => `${m}: ${v}`).join(', ')}). A missing method is not offered by the page.`
@@ -149,9 +169,18 @@ const schema = {
       }
     }
   },
-  if: { properties: { template: { const: 'collection' } } },
-  then: { required: ['collection'], properties: { api: { $ref: '#/$defs/apiCollection' } } },
-  else: { not: { required: ['collection'] }, properties: { api: { $ref: '#/$defs/apiResource' } } },
+  allOf: [
+    {
+      if: { properties: { template: { const: 'bundle' } } },
+      then: { required: ['bundle'], not: { anyOf: [{ required: ['api'] }, { required: ['form'] }, { required: ['collection'] }] } },
+      else: { required: ['api', 'form'], not: { required: ['bundle'] } }
+    },
+    {
+      if: { properties: { template: { const: 'collection' } } },
+      then: { required: ['collection'], properties: { api: { $ref: '#/$defs/apiCollection' } } },
+      else: { not: { required: ['collection'] }, properties: { api: { $ref: '#/$defs/apiResource' } } }
+    }
+  ],
   $defs: {
     text,
     can: {

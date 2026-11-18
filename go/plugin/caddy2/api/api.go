@@ -131,6 +131,7 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 	router.GET("/api/v1/elasticsearch", m.handleElasticsearch)
 
 	router.GET("/api/v1/plugins", m.plugins)
+	router.GET("/api/v1/plugins/:name/bundle.js", m.pluginBundle)
 	for _, method := range uiplugins.ProxyMethods {
 		router.Handle(method, "/api/v1/plugin/:name/*path", m.pluginProxy)
 	}

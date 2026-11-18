@@ -102,7 +102,7 @@ func router(f *Fetcher, registrations map[string]Registration) func(w http.Respo
 		for _, a := range strings.Split(r.Header.Get("X-Test-Actions"), ",") {
 			actions[a] = true
 		}
-		f.Proxy(w, r, registration, path, IdentityOf(r, actions))
+		f.Proxy(w, r, registration, path, IdentityOf(r, actions), nil)
 	}
 }
 

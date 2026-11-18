@@ -88,12 +88,16 @@ const ownViews = (id, views) => Object.entries(views).reduce((own, [ kind, view 
 
 // the routes of a plugin, the same as the _router.js of a core view
 const pluginRoutes = (plugin, shared) => {
-  const { id, manifest: { template, api, menu: { can } } } = plugin
+  const { id, manifest: { template, api = {}, bundle, menu: { can } } } = plugin
   const views = ownViews(id, shared)
   const names = pluginRouteNames(plugin)
   const path = `plugins/${id}`
   // vue-browser-acl checks meta.can on every navigation (string or function)
   const meta = { plugin: id, ...((can) ? { can: () => canAcl(can) } : {}) }
+  if (template === 'bundle') // its own code, at the "page" mount
+    return (hasMount(bundle, 'page'))
+      ? [{ path, name: names.collection, component: views.bundle, props: () => ({ pluginId: id, kind: 'page' }), meta }]
+      : []
   const createCan = api.create && api.create.can
   const metaCreate = (createCan) ? { ...meta, can: () => canAcl(can) && canAcl(createCan) } : meta
   if (template === 'resource')
@@ -137,6 +141,10 @@ const usable = ({ id, manifest }) => {
   }
   if (!catalog.areas.includes(manifest.menu && manifest.menu.area)) {
     logError(`${id}: unsupported menu area, ignored`)
+    return false
+  }
+  if (manifest.template === 'bundle' && !(manifest.bundle && catalog.bundle.hostApi.includes(manifest.bundle.hostApi))) {
+    logError(`${id}: unsupported bundle.hostApi, ignored`)
     return false
   }
   return true
@@ -184,6 +192,21 @@ export const loadPlugins = ({ router, token, views }) => {
 }
 
 export const usePlugin = id => state.plugins.find(plugin => plugin.id === id)
+
+/**
+ * Bundle plugins: their mounts, and the panel of the navbar (one open at a time)
+ */
+export const hasMount = (bundle, mount) => !!bundle && Array.isArray(bundle.mounts) && bundle.mounts.includes(mount)
+
+const panels = Vue.observable({ open: null })
+
+// the plugins with a navbar button the admin may use
+export const navbarPlugins = () => state.plugins.filter(({ manifest: { template, bundle, menu: { can } } }) => template === 'bundle'
+  && hasMount(bundle, 'navbar-panel') && canAcl(can))
+
+export const openPanel = () => panels.open
+export const togglePanel = id => { panels.open = (panels.open === id) ? null : id }
+export const closePanel = () => { panels.open = null }
 
 /**
  * The API methods of a manifest the admin may use: a write method with a `can`
@@ -248,7 +271,8 @@ const insertItem = (id, list, item, before, after) => {
  * Reactive: call it in a computed, it is updated once the plugins are loaded.
  */
 export const areaSections = (area, sections) => {
-  const plugins = state.plugins.filter(({ manifest: { menu } }) => menu.area === area)
+  const plugins = state.plugins.filter(({ manifest: { menu, template, bundle } }) => menu.area === area
+    && (template !== 'bundle' || hasMount(bundle, 'page'))) // a bundle without a page has no sidebar item
   if (plugins.length === 0)
     return sections
   const tree = copySections(sections)

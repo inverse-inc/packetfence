@@ -9,6 +9,7 @@ import (
 	"regexp/syntax"
 	"slices"
 	"strings"
+	"time"
 )
 
 // Text is a translatable text: { "en": "...", "fr": "..." }, "en" is required
@@ -80,9 +81,57 @@ type Manifest struct {
 	Description     Text                 `json:"description,omitempty"`
 	Menu            Menu                 `json:"menu"`
 	Template        string               `json:"template"`
-	API             map[string]APIMethod `json:"api"`
+	API             map[string]APIMethod `json:"api,omitempty"`
 	Collection      *Collection          `json:"collection,omitempty"`
 	Form            Form                 `json:"form"`
+	Bundle          *Bundle              `json:"bundle,omitempty"`
+}
+
+// Bundle is the page of a plugin that ships its own UI code (template
+// "bundle"): its API is passed through (Passthrough), any path under
+// /api/v1/plugin/<name>/, PLUGIN_READ for GET and OPTIONS, PLUGIN_WRITE for
+// POST, PUT, PATCH and DELETE
+type Bundle struct {
+	// the version of the host API of the admin UI the code is built for
+	HostAPI int `json:"hostApi"`
+	// where core mounts the code: "page" (a route and its sidebar item, from
+	// menu), "navbar-panel" (a navbar button opening a panel)
+	Mounts []string `json:"mounts"`
+	// the navbar button of the "navbar-panel" mount
+	Navbar *BundleNavbar `json:"navbar,omitempty"`
+	// seconds a call to the plugin may take, DefaultPassthroughTimeout when 0
+	Timeout int `json:"timeout,omitempty"`
+}
+
+// BundleNavbar is the navbar button of a bundle, shown to the admins who
+// satisfy menu.can
+type BundleNavbar struct {
+	Icon string `json:"icon"`
+}
+
+// HasMount tells if core mounts the bundle at mount
+func (b *Bundle) HasMount(mount string) bool {
+	return b != nil && slices.Contains(b.Mounts, mount)
+}
+
+// the time a passed through call to a plugin may take
+const (
+	DefaultPassthroughTimeout = 60
+	MaxPassthroughTimeout     = 300
+)
+
+// IsBundle tells if the page of the manifest is the plugin's own code: its
+// API is passed through
+func (m *Manifest) IsBundle() bool {
+	return m.Template == "bundle"
+}
+
+// PassthroughTimeout is the time a call to a bundle plugin may take
+func (m *Manifest) PassthroughTimeout() time.Duration {
+	if m.Bundle == nil || m.Bundle.Timeout == 0 {
+		return DefaultPassthroughTimeout * time.Second
+	}
+	return time.Duration(m.Bundle.Timeout) * time.Second
 }
 
 var (
@@ -196,6 +245,44 @@ func (m *Manifest) Validate(c *Catalog, id string) error {
 	}
 	if !slices.Contains(c.Templates, m.Template) {
 		return fmt.Errorf("template %q is not one of %v", m.Template, c.Templates)
+	}
+	if m.IsBundle() {
+		if m.Bundle == nil {
+			return errors.New("a bundle needs bundle")
+		}
+		if len(m.API) > 0 || m.Collection != nil || len(m.Form.Fields) > 0 || len(m.Form.Tabs) > 0 {
+			return errors.New("a bundle has no api, collection or form: its API is passed through, its page is its own")
+		}
+		if m.Bundle.Timeout < 0 || m.Bundle.Timeout > MaxPassthroughTimeout {
+			return fmt.Errorf("bundle.timeout %d is not between 1 and %d seconds", m.Bundle.Timeout, MaxPassthroughTimeout)
+		}
+		if !slices.Contains(c.Bundle.HostAPI, m.Bundle.HostAPI) {
+			return fmt.Errorf("unsupported bundle.hostApi %d, supported: %v", m.Bundle.HostAPI, c.Bundle.HostAPI)
+		}
+		if len(m.Bundle.Mounts) == 0 {
+			return errors.New("bundle.mounts is required: where the admin UI mounts the bundle")
+		}
+		seen := map[string]bool{}
+		for _, mount := range m.Bundle.Mounts {
+			if !slices.Contains(c.Bundle.Mounts, mount) {
+				return fmt.Errorf("bundle.mounts: %q is not one of %v", mount, c.Bundle.Mounts)
+			}
+			if seen[mount] {
+				return fmt.Errorf("bundle.mounts: %q twice", mount)
+			}
+			seen[mount] = true
+		}
+		if m.Bundle.HasMount("navbar-panel") {
+			if m.Bundle.Navbar == nil || !iconRe.MatchString(m.Bundle.Navbar.Icon) {
+				return errors.New("the navbar-panel mount needs bundle.navbar.icon")
+			}
+		} else if m.Bundle.Navbar != nil {
+			return errors.New("bundle.navbar is only allowed with the navbar-panel mount")
+		}
+		return nil
+	}
+	if m.Bundle != nil {
+		return fmt.Errorf("bundle is only allowed with the bundle template")
 	}
 	if m.Template == "collection" {
 		if m.Collection == nil || len(m.Collection.Columns) == 0 {

@@ -24,7 +24,8 @@ import { loadPlugins } from '@/plugins'
 const pluginViews = {
   resource: () => import(/* webpackChunkName: "plugins" */ '@/plugins/components/TheViewResource'),
   search: () => import(/* webpackChunkName: "plugins" */ '@/plugins/components/TheSearch'),
-  item: () => import(/* webpackChunkName: "plugins" */ '@/plugins/components/TheViewCollectionItem')
+  item: () => import(/* webpackChunkName: "plugins" */ '@/plugins/components/TheViewCollectionItem'),
+  bundle: () => import(/* webpackChunkName: "plugins" */ '@/plugins/components/BundleMount')
 }
 
 Vue.use(Loading)

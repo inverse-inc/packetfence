@@ -3,6 +3,7 @@ package api
 // The admin UI plugins, see docs/developer/ui_plugins.asciidoc:
 //
 //	GET /api/v1/plugins                the plugins whose manifest is reachable and valid
+//	GET /api/v1/plugins/<name>/bundle.js  the code of a bundle plugin, from its package (go/uiplugins BundleCode)
 //	*   /api/v1/plugin/<name>/<path>   the declared API, proxied to <scheme>://<host>:<port>/<path> (go/uiplugins Proxy)
 //
 // The plugins register themselves in the ui_plugin table (go/uiplugins,
@@ -28,6 +29,58 @@ import (
 var pluginsFetcher = uiplugins.NewFetcher(func(ctx context.Context, msg string) {
 	log.LoggerWContext(ctx).Warn(msg)
 })
+
+// how long the read-only state of the database is reused, as pf::db
+// db_check_readonly does
+const pluginReadOnlyTTL = 5 * time.Second
+
+type pluginReadOnlyCache struct {
+	lock     sync.Mutex
+	readOnly bool
+	expires  time.Time
+}
+
+var pluginReadOnly = &pluginReadOnlyCache{}
+
+// get tells if the database is read-only, as pf::db db_readonly_mode: the
+// read_only flag is set, or a Galera node is not ready (wsrep_ready is not ON
+// while there is a wsrep provider). A database that cannot be read is not
+// read-only: the plugin call fails on its own.
+func (c *pluginReadOnlyCache) get(ctx context.Context, database func(context.Context) *sql.DB) bool {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+	if time.Now().Before(c.expires) {
+		return c.readOnly
+	}
+	qctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), pluginRegistrationsTimeout)
+	defer cancel()
+	c.readOnly = databaseReadOnly(qctx, database(qctx))
+	c.expires = time.Now().Add(pluginReadOnlyTTL)
+	return c.readOnly
+}
+
+// databaseReadOnly is the query of pluginReadOnlyCache, a variable for the tests
+var databaseReadOnly = func(ctx context.Context, database *sql.DB) bool {
+	if database == nil {
+		return false
+	}
+	var readOnly int
+	if err := database.QueryRowContext(ctx, "SELECT @@global.read_only").Scan(&readOnly); err != nil {
+		return false
+	}
+	if readOnly != 0 {
+		return true
+	}
+	var name, provider string
+	if err := database.QueryRowContext(ctx, "SHOW STATUS LIKE 'wsrep_provider_name'").Scan(&name, &provider); err != nil || provider == "" {
+		return false
+	}
+	var ready string
+	if err := database.QueryRowContext(ctx, "SHOW STATUS LIKE 'wsrep_ready'").Scan(&name, &ready); err != nil {
+		return false
+	}
+	return ready != "ON"
+}
 
 // how long the registrations read from the database are reused, also after a
 // failed read (negative caching: a hung database is queried at most once per
@@ -138,6 +191,44 @@ func (h *APIHandler) plugins(w http.ResponseWriter, r *http.Request, p httproute
 	}{Items: plugins, Status: http.StatusOK})
 }
 
+// GET /api/v1/plugins/<name>/bundle.js: the code of a bundle plugin the
+// admin may use (menu.can), as its package installed it. The admin UI loads
+// it with the admin token, then imports it.
+func (h *APIHandler) pluginBundle(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	ctx := r.Context()
+	w.Header().Del("Content-Type")
+	name := p.ByName("name")
+	registrations, err := pluginRegistrations.get(ctx, h.pluginDB)
+	if err != nil {
+		uiplugins.Error(w, http.StatusServiceUnavailable, "Unable to load the plugins")
+		return
+	}
+	registration, found := registrations[name]
+	if !found {
+		uiplugins.Error(w, http.StatusNotFound, fmt.Sprintf("No plugin %q", name))
+		return
+	}
+	manifest := pluginsFetcher.Manifest(ctx, registration)
+	if manifest == nil || !manifest.IsBundle() {
+		uiplugins.Error(w, http.StatusNotFound, fmt.Sprintf("No bundle for the plugin %q", name))
+		return
+	}
+	if !manifest.Menu.Can.Allowed(pluginAdminActions(ctx, uiplugins.AdminRoles(r))) {
+		uiplugins.Error(w, http.StatusForbidden, fmt.Sprintf("Plugin %q: the admin roles do not satisfy menu.can", name))
+		return
+	}
+	code, err := uiplugins.BundleCode(name)
+	if err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("UI plugin %q: bundle refused: %s", name, err))
+		uiplugins.Error(w, http.StatusNotFound, fmt.Sprintf("No bundle for the plugin %q", name))
+		return
+	}
+	w.Header().Set("Content-Type", "text/javascript; charset=utf-8")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.Header().Set("Cache-Control", "no-store")
+	w.Write(code)
+}
+
 // * /api/v1/plugin/<name>/<path>
 func (h *APIHandler) pluginProxy(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	ctx := r.Context()
@@ -162,7 +253,9 @@ func (h *APIHandler) pluginProxy(w http.ResponseWriter, r *http.Request, p httpr
 		return
 	}
 	identity := uiplugins.IdentityOf(r, pluginAdminActions(ctx, uiplugins.AdminRoles(r)))
-	pluginsFetcher.Proxy(w, r, registration, path, identity)
+	pluginsFetcher.Proxy(w, r, registration, path, identity, func(ctx context.Context) bool {
+		return pluginReadOnly.get(ctx, h.pluginDB)
+	})
 }
 
 // the actions of admin roles, as api-aaa computes them, a variable for the

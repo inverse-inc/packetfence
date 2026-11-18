@@ -29,6 +29,7 @@
             <b-dropdown-item to="/login">{{ $t('Login to Administration') }}</b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
+        <plugin-navbar-items v-show="isAuthenticated" @toggle="onPluginPanel" />
         <b-navbar-nav v-show="isAuthenticated">
           <b-nav-item-dropdown right>
             <template v-slot:button-content>
@@ -76,6 +77,7 @@
           <b-form-text v-t="'Server Hostname'"/> {{ hostname }}
         </div>
       </app-documentation>
+      <plugin-navbar-panels v-if="isAuthenticated" />
       <router-view/>
     </b-container>
     <!-- Show login if session expires -->
@@ -92,6 +94,9 @@ import AppLogin from '@/components/AppLogin'
 import AppNotifications from '@/components/AppNotifications'
 import AppNotificationToasts from '@/components/AppNotificationToasts'
 import IconCounter from '@/components/IconCounter'
+import PluginNavbarItems from '@/plugins/components/NavbarItems'
+import PluginNavbarPanels from '@/plugins/components/NavbarPanels'
+import { closePanel } from '@/plugins'
 
 const components = {
   AppApiProgress,
@@ -99,7 +104,9 @@ const components = {
   AppLogin,
   AppNotifications,
   AppNotificationToasts,
-  IconCounter
+  IconCounter,
+  PluginNavbarItems,
+  PluginNavbarPanels
 }
 
 import { computed, ref, watch } from '@vue/composition-api'
@@ -116,8 +123,10 @@ const setup = (props, context) => {
   const documentationViewerClass = ref(null)
   const showDocumentationViewer = computed(() => $store.getters['documentation/showViewer'])
   watch(showDocumentationViewer, (a) => {
-    if (a) // shown
+    if (a) { // shown, one panel at a time
       documentationViewerClass.value = 'documentation-enter'
+      closePanel()
+    }
     else {
       documentationViewerClass.value = 'documentation-leave'
       setTimeout(() => {
@@ -127,6 +136,11 @@ const setup = (props, context) => {
   })
   const toggleDocumentationViewer = () => {
     $store.dispatch('documentation/toggleViewer')
+  }
+  // a plugin panel opened (UI plugins, navbar-panel mount): one panel at a time
+  const onPluginPanel = (id) => {
+    if (id && showDocumentationViewer.value)
+      $store.dispatch('documentation/closeViewer')
   }
 
   const closeFullscreenDocs = () => {
@@ -292,6 +306,7 @@ const setup = (props, context) => {
     documentationViewerClass,
     showDocumentationViewer,
     toggleDocumentationViewer,
+    onPluginPanel,
     closeFullscreenDocs,
   }
 }

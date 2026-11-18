@@ -49,12 +49,18 @@ var RootCAs = func() *x509.CertPool {
 // environment, a short dial, TLS verified against RootCAs, no compression
 // asked by the client passed through (the answer is checked as JSON)
 func newTransport() *http.Transport {
+	return newTransportWith(30 * time.Second)
+}
+
+// newTransportWith is newTransport waiting up to responseHeaderTimeout for
+// the headers of an answer
+func newTransportWith(responseHeaderTimeout time.Duration) *http.Transport {
 	return &http.Transport{
 		Proxy:                 nil,
 		DialContext:           (&net.Dialer{Timeout: 3 * time.Second}).DialContext,
 		TLSClientConfig:       &tls.Config{RootCAs: RootCAs(), MinVersion: tls.VersionTLS12},
 		TLSHandshakeTimeout:   3 * time.Second,
-		ResponseHeaderTimeout: 30 * time.Second,
+		ResponseHeaderTimeout: responseHeaderTimeout,
 		MaxIdleConnsPerHost:   4,
 		IdleConnTimeout:       90 * time.Second,
 	}
@@ -77,6 +83,24 @@ func transport() http.RoundTripper {
 	}
 	sharedTransportOnce.Do(func() { sharedTransport = newTransport() })
 	return sharedTransport
+}
+
+var (
+	passthroughTransportOnce sync.Once
+	passthroughTransport     http.RoundTripper
+)
+
+// passthroughRoundTripper sends the requests to the bundle plugins: their
+// calls may take up to MaxPassthroughTimeout before answering (the context of
+// the request bounds each one to its bundle.timeout)
+type passthroughRoundTripper struct{}
+
+func (passthroughRoundTripper) RoundTrip(r *http.Request) (*http.Response, error) {
+	if pluginTransport != nil {
+		return pluginTransport.RoundTrip(r)
+	}
+	passthroughTransportOnce.Do(func() { passthroughTransport = newTransportWith(MaxPassthroughTimeout * time.Second) })
+	return passthroughTransport.RoundTrip(r)
 }
 
 // roundTripper sends the requests through transport()

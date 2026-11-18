@@ -27,10 +27,44 @@ func Error(w http.ResponseWriter, status int, message string) {
 	}{message, status})
 }
 
-// ProxyMethods are the HTTP methods routed to the proxy, the verbs of the
-// catalog API methods (api-aaa authorizes no other), Allowed refuses the ones
-// the manifest does not declare
-var ProxyMethods = []string{http.MethodGet, http.MethodOptions, http.MethodPost, http.MethodPatch, http.MethodDelete}
+// ProxyMethods are the HTTP methods routed to the proxy: the verbs of the
+// catalog API methods, and PUT for the bundle plugins (api-aaa authorizes no
+// other). Allowed refuses the ones a manifest does not declare
+var ProxyMethods = []string{http.MethodGet, http.MethodOptions, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete}
+
+// the admin actions every plugin shares (lib/pf/constants/admin_roles.pm)
+const (
+	PluginReadAction  = "PLUGIN_READ"
+	PluginWriteAction = "PLUGIN_WRITE"
+)
+
+// the action a passed through request needs, by HTTP method
+var passthroughActions = map[string]string{
+	http.MethodGet:     PluginReadAction,
+	http.MethodOptions: PluginReadAction,
+	http.MethodPost:    PluginWriteAction,
+	http.MethodPut:     PluginWriteAction,
+	http.MethodPatch:   PluginWriteAction,
+	http.MethodDelete:  PluginWriteAction,
+}
+
+// ErrReadOnly refuses a write while the database is read-only (a cluster
+// member that lost the quorum, a read-only replica), like the PacketFence API
+var ErrReadOnly = errors.New("the database is read-only, changes are not allowed")
+
+// IsWrite tells if a request changes something on the plugin: for a bundle
+// the write methods, for a manifest page create, update and delete (a POST
+// search is a read)
+func IsWrite(m *Manifest, method, path string) bool {
+	if m.IsBundle() {
+		return passthroughActions[method] == PluginWriteAction
+	}
+	switch APIMethodOf(m, method, path) {
+	case "create", "update", "delete":
+		return true
+	}
+	return false
+}
 
 // the manifest API methods a request can be, by HTTP method (the fixed verbs
 // of the catalog)
@@ -106,6 +140,30 @@ func Allowed(m *Manifest, method, path string, actions map[string]bool) error {
 	}
 	if a := m.API[apiMethod]; !a.Can.Allowed(actions) {
 		return fmt.Errorf("the admin roles do not satisfy api.%s.can", apiMethod)
+	}
+	return nil
+}
+
+// AllowedPassthrough checks a request to a bundle plugin: the admin must
+// satisfy menu.can, and have PLUGIN_READ for GET and OPTIONS, PLUGIN_WRITE
+// for POST, PUT, PATCH and DELETE. The path cannot hold a "." or ".." segment
+// once decoded.
+func AllowedPassthrough(m *Manifest, method, path string, actions map[string]bool) error {
+	if !m.Menu.Can.Allowed(actions) {
+		return errors.New("the admin roles do not satisfy menu.can")
+	}
+	action, found := passthroughActions[method]
+	if !found {
+		return fmt.Errorf("%s is not allowed", method)
+	}
+	for _, segment := range strings.Split(strings.TrimPrefix(path, "/"), "/") {
+		decoded, err := url.PathUnescape(segment)
+		if err != nil || decoded == "." || decoded == ".." {
+			return fmt.Errorf("invalid path %s", path)
+		}
+	}
+	if !actions[action] {
+		return fmt.Errorf("%s %s needs the admin action %s", method, path, action)
 	}
 	return nil
 }
@@ -217,6 +275,48 @@ func checkAnswer(resp *http.Response) error {
 	return nil
 }
 
+// checkPassthroughAnswer replaces the headers of the answer of a bundle
+// plugin. Redirects and authentication challenges are refused, as for a
+// manifest page. A JSON answer is passed as JSON; anything else is passed as
+// a download (Content-Disposition: attachment, its own media type), never as
+// a page of the PacketFence origin.
+func checkPassthroughAnswer(resp *http.Response) error {
+	switch {
+	case resp.StatusCode >= 300 && resp.StatusCode < 400:
+		return errPluginAnswer{fmt.Sprintf("answered a redirect (%d)", resp.StatusCode)}
+	case resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusProxyAuthRequired:
+		return errPluginAnswer{fmt.Sprintf("answered %d", resp.StatusCode)}
+	case resp.ContentLength > maxProxyBody:
+		return errPluginAnswer{fmt.Sprintf("answer larger than %d bytes", maxProxyBody)}
+	}
+	data, err := io.ReadAll(io.LimitReader(resp.Body, maxProxyBody+1))
+	resp.Body.Close()
+	if err != nil {
+		return err
+	}
+	if len(data) > maxProxyBody {
+		return errPluginAnswer{fmt.Sprintf("answer larger than %d bytes", maxProxyBody)}
+	}
+	h := answerHeaders(int64(len(data)))
+	mediaType, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
+	isJSON := err == nil && (mediaType == "application/json" || strings.HasSuffix(mediaType, "+json"))
+	if len(data) > 0 && !isJSON {
+		if err != nil || mediaType == "" {
+			mediaType = "application/octet-stream"
+		}
+		h.Set("Content-Type", mediaType)
+		disposition := "attachment"
+		if _, params, err := mime.ParseMediaType(resp.Header.Get("Content-Disposition")); err == nil && params["filename"] != "" {
+			disposition = mime.FormatMediaType("attachment", map[string]string{"filename": params["filename"]})
+		}
+		h.Set("Content-Disposition", disposition)
+	}
+	resp.Header = h
+	resp.Body = io.NopCloser(bytes.NewReader(data))
+	resp.ContentLength = int64(len(data))
+	return nil
+}
+
 // Proxy passes a request to the plugin service of a registration: path is the
 // path on the plugin service, URL encoded (ProxyPath), identity the admin
 // api-aaa checked. The request
@@ -225,18 +325,32 @@ func checkAnswer(resp *http.Response) error {
 // headers are only these), never the admin token. Its answer must be JSON:
 // it is passed with fixed headers. A plugin whose manifest is unavailable,
 // that does not answer, or answers something else is a 502.
-func (f *Fetcher) Proxy(w http.ResponseWriter, r *http.Request, registration Registration, path string, identity Identity) {
-	ctx, cancel := context.WithTimeout(r.Context(), maxProxyDuration)
-	defer cancel()
-	r = r.WithContext(ctx)
+//
+// A bundle plugin (template "bundle") is passed through: any path, checked
+// with AllowedPassthrough, any content type, for up to its bundle.timeout. A
+// write (IsWrite) is refused while readOnly says the database is read-only.
+func (f *Fetcher) Proxy(w http.ResponseWriter, r *http.Request, registration Registration, path string, identity Identity, readOnly func(context.Context) bool) {
 	name := registration.Name
-	manifest := f.Manifest(ctx, registration)
+	manifest := f.Manifest(r.Context(), registration)
 	if manifest == nil {
 		Error(w, http.StatusBadGateway, fmt.Sprintf("The plugin %q is unavailable", name))
 		return
 	}
-	if err := Allowed(manifest, r.Method, path, identity.Actions); err != nil {
+	timeout := maxProxyDuration
+	allowed, answer, rt := Allowed, checkAnswer, http.RoundTripper(roundTripper{})
+	if manifest.IsBundle() {
+		timeout = manifest.PassthroughTimeout()
+		allowed, answer, rt = AllowedPassthrough, checkPassthroughAnswer, passthroughRoundTripper{}
+	}
+	ctx, cancel := context.WithTimeout(r.Context(), timeout)
+	defer cancel()
+	r = r.WithContext(ctx)
+	if err := allowed(manifest, r.Method, path, identity.Actions); err != nil {
 		Error(w, http.StatusForbidden, fmt.Sprintf("Plugin %q: %s", name, err))
+		return
+	}
+	if IsWrite(manifest, r.Method, path) && readOnly != nil && readOnly(ctx) {
+		Error(w, http.StatusForbidden, fmt.Sprintf("Plugin %q: %s", name, ErrReadOnly))
 		return
 	}
 	// Allowed decoded each segment: the whole path decodes
@@ -257,7 +371,7 @@ func (f *Fetcher) Proxy(w http.ResponseWriter, r *http.Request, registration Reg
 	}
 	actions := strings.Join(manifest.ActionsFor(f.Catalog, identity.Actions), ",")
 	proxy := &httputil.ReverseProxy{
-		Transport: roundTripper{},
+		Transport: rt,
 		Rewrite: func(pr *httputil.ProxyRequest) {
 			pr.Out.URL.Scheme = target.Scheme
 			pr.Out.URL.Host = target.Host
@@ -281,7 +395,7 @@ func (f *Fetcher) Proxy(w http.ResponseWriter, r *http.Request, registration Reg
 			pr.Out.Header.Set(ActionsHeader, actions)
 			pr.SetXForwarded()
 		},
-		ModifyResponse: checkAnswer,
+		ModifyResponse: answer,
 		ErrorHandler: func(w http.ResponseWriter, r *http.Request, err error) {
 			f.log(ctx, fmt.Sprintf("UI plugin %q: %s", name, err))
 			var tooLarge *http.MaxBytesError

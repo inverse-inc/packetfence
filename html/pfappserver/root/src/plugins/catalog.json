@@ -5,8 +5,20 @@
   ],
   "templates": [
     "resource",
-    "collection"
+    "collection",
+    "bundle"
   ],
+  "bundle": {
+    "$comment": "The \"bundle\" template: the plugin's own UI code (a JavaScript module served from conf/plugins.d/<id>.js), mounted at the \"mounts\" core provides, with the host API of one of the \"hostApi\" versions (src/plugins/bundle.js).",
+    "hostApi": [
+      1
+    ],
+    "mounts": [
+      "page",
+      "navbar-panel"
+    ],
+    "maxTimeout": 300
+  },
   "areas": [
     "configuration",
     "status",

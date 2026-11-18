@@ -40,11 +40,20 @@ type CatalogValidator struct {
 	Args  []string `json:"args"`
 }
 
+// CatalogBundle is what a bundle manifest may use: the versions of the host
+// API of the admin UI and the places core mounts a bundle at
+type CatalogBundle struct {
+	HostAPI    []int    `json:"hostApi"`
+	Mounts     []string `json:"mounts"`
+	MaxTimeout int      `json:"maxTimeout"`
+}
+
 // Catalog lists what a manifest may use: everything else is refused, a
 // plugin can only use what core already provides.
 type Catalog struct {
 	ManifestVersions []int                       `json:"manifestVersions"`
 	Templates        []string                    `json:"templates"`
+	Bundle           CatalogBundle               `json:"bundle"`
 	Areas            []string                    `json:"areas"`
 	API              CatalogAPI                  `json:"api"`
 	ACL              CatalogACL                  `json:"acl"`

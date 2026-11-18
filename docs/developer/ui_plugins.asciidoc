@@ -351,6 +351,106 @@ those calls. `GET /api/v1/plugins` only lists the plugins whose `menu.can`
 the admin satisfies. The `can` of a field or a tab only shapes the form: the
 plugin checks its own rules with `X-PacketFence-Admin-Actions` if it needs to.
 
+[[_ui_plugins_passthrough]]
+=== Bundle plugins: the API passed through
+
+A manifest with `"template": "bundle"` describes a page that is the plugin's
+own code (no `api`, `collection` or `form`). Its API is *passed through*:
+
+[source,json]
+----
+{
+  "manifestVersion": 1,
+  "id": "kit",
+  "title": { "en": "Kit" },
+  "menu": { "area": "status", "can": "read plugin" },
+  "template": "bundle",
+  "bundle": {
+    "hostApi": 1,
+    "mounts": ["page", "navbar-panel"],
+    "navbar": { "icon": "toolbox" },
+    "timeout": 120
+  }
+}
+----
+
+* any path under `/api/v1/plugin/<name>/` reaches the plugin, except a `.`
+  or `..` segment
+* the admin needs `menu.can`, and `PLUGIN_READ` for `GET` and `OPTIONS`,
+  `PLUGIN_WRITE` for `POST`, `PUT`, `PATCH` and `DELETE`: the HTTP method
+  decides, not the path
+* any request body (eg: `multipart/form-data`), at most 10 MB
+* a call may take `bundle.timeout` seconds (60 by default, 300 at most)
+* a JSON answer is passed as JSON. Any other answer is passed with its media
+  type as a download (`Content-Disposition: attachment`, with the filename
+  of the plugin): it is never shown as a page of the PacketFence origin. The
+  answer headers are fixed as for a manifest page (`nosniff`, a sandboxing
+  `Content-Security-Policy`, `no-store`), a redirect or a 401/407 is a 502
+* the plugin gets the same identity headers, never the admin token
+
+*Read-only.* While the database is read-only (the `read_only` flag, or a
+cluster member that is not ready), the writes to every plugin are refused
+(403): the `POST`, `PUT`, `PATCH` and `DELETE` of a bundle plugin, and
+`create`, `update` and `delete` of a manifest page. Reads still pass.
+
+[[_ui_plugins_bundles]]
+=== Bundle plugins: the code of the page
+
+The page of a bundle plugin is a JavaScript module its *package* installs,
+never the plugin service:
+
+[options="header",cols="1,3"]
+|===
+|File |
+|[filename]`/usr/local/pf/conf/plugins.d/<name>.js` |the module
+|[filename]`/usr/local/pf/conf/plugins.d/<name>.conf` |its descriptor, with the SHA-256 of the module: `[bundle]` `sha256=<hex>`
+|===
+
+`GET /api/v1/plugins/<name>/bundle.js` serves the module to the admins who
+satisfy `menu.can`, only when it matches the `sha256` of the descriptor. A
+plugin service only registers a host and a port: it cannot give code to the
+admin UI. The admin UI loads the module with the admin token, once per
+session, and imports it.
+
+*The module.*
+
+[source,javascript]
+----
+export default {
+  hostApi: 1,
+  mount (el, host, { kind }) {
+    const vm = new host.Vue({ render: h => h(Page, { props: { host, kind } }) }).$mount()
+    el.appendChild(vm.$el)
+    return () => vm.$destroy() // the unmount
+  }
+}
+----
+
+Build it as a library with `vue` external: use `host.Vue`, the Vue of the
+admin UI, with its global components (BootstrapVue, `icon`).
+
+*Mounts* (`bundle.mounts`):
+
+[options="header",cols="1,3"]
+|===
+|Mount |
+|`page` |the route `/<area>/plugins/<name>` and its sidebar item, from `menu`
+|`navbar-panel` |a navbar button (`bundle.navbar.icon`, shown to the admins who satisfy `menu.can`) that opens a panel under the navbar. The panel is mounted when it is first opened and kept; one panel, or the documentation, is shown at a time
+|===
+
+*Host API, version 1* (`host`):
+
+[options="header",cols="1,3"]
+|===
+|Property |
+|`version`, `id` |`1`, the name of the plugin
+|`Vue` |the Vue of the admin UI
+|`api` |`request`, `get`, `options`, `post`, `put`, `patch`, `delete`: the API client of the admin UI, the paths relative to `/api/v1/plugin/<name>/`
+|`can(can)` |the ACL of the admin, a manifest `can` (eg: `host.can('write plugin')`)
+|`t(...)`, `locale()` |the translations and the language of the admin UI
+|`navigate(to)` |a navigation of the admin UI
+|===
+
 [[_ui_plugins_database_tables]]
 === Database tables of a plugin
 
