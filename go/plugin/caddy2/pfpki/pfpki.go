@@ -162,6 +162,11 @@ func (h *Handler) buildPfpkiHandler(ctx context.Context) error {
 			r.Get("/{id}/email", handlers.EmailCert(PFPki))
 			r.Delete("/{id}/{reason}", handlers.RevokeCert(PFPki))
 			r.Post("/resign/{id}", handlers.ResignCert(PFPki))
+			// POST /resign/download matches both /{id}/download and
+			// /resign/{id}, and chi prefers /resign/{id}. A certificate is
+			// only re-signed by its numeric id, so it's the download of the
+			// certificate whose CN is "resign".
+			r.Post("/resign/download", handlers.DownloadCertWithID(PFPki, "resign"))
 			r.Delete("/{profile}/{cn}/{reason}", handlers.RevokeCert(PFPki))
 		})
 		// Revoke certs api endpoint
