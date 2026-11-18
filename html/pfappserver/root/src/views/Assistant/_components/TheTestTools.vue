@@ -1,52 +1,56 @@
 <template>
-  <b-modal v-model="show" size="lg" hide-footer @show="onShow">
+  <b-modal v-model="show" size="lg" hide-footer dialog-class="the-test-tools" @show="onShow">
     <template #modal-title>
-      {{ $t('Test tools') }}
-      <b-badge v-if="meta" class="ml-1" :variant="meta.enabled ? 'success' : 'danger'">{{ meta.enabled ? $t('helper online') : $t('helper offline') }}</b-badge>
+      <span class="the-tt-title">{{ $t('Test tools') }}</span>
+      <span v-if="meta" class="the-tt-pill ml-2" :class="meta.enabled ? 'is-online' : 'is-offline'">{{ meta.enabled ? $t('helper online') : $t('helper offline') }}</span>
     </template>
-    <p class="text-muted">
-      {{ $t('Run 802.1X / RADIUS tests and packet captures against PacketFence and see the raw output.') }}
-      <b-link @click="onHealth">{{ showHealth ? $t('hide environment check') : $t('check environment') }}</b-link>
+    <p class="the-tt-intro mb-3">
+      {{ $t('Run 802.1X / RADIUS tests and packet captures against PacketFence and see the raw output.') }}<br>
+      <b-link class="the-tt-link" @click="onHealth">{{ showHealth ? $t('hide environment check') : $t('check environment') }}</b-link>
     </p>
-    <b-card v-if="showHealth" body-class="py-2 small text-monospace" class="mb-3">
+    <div v-if="showHealth" class="the-tt-box mb-3">
       <icon v-if="!health" name="circle-notch" spin />
       <div v-else-if="health.error" class="text-danger">{{ health.error }}</div>
       <template v-else>
-        <div :class="health.ok ? 'text-success' : 'text-danger'">{{ health.ok ? $t('environment ready') : $t('environment not ready, fix the failing items') }}</div>
-        <div v-for="check in health.checks" :key="check.name" :class="check.ok ? 'text-success' : 'text-danger'">
-          <icon :name="check.ok ? 'check' : 'times'" class="mr-1" />{{ check.name }} <span class="text-muted">{{ check.detail }}</span>
+        <div class="mb-1" :class="health.ok ? 'text-success' : 'text-danger'">{{ health.ok ? $t('environment ready') : $t('environment not ready, fix the failing items') }}</div>
+        <div v-for="check in health.checks" :key="check.name" class="the-tt-check">
+          <icon :name="check.ok ? 'check' : 'times'" :class="check.ok ? 'text-success' : 'text-danger'" scale=".8" />
+          <span class="the-tt-check-name">{{ check.name }}</span>
+          <span class="the-tt-check-detail">{{ check.detail }}</span>
         </div>
       </template>
-    </b-card>
+    </div>
     <b-alert :show="!!loadError" variant="danger">{{ $t('Test tools are unavailable.') }} {{ loadError }}</b-alert>
     <div v-if="!meta && !loadError" class="text-center"><icon name="circle-notch" spin /></div>
     <template v-if="meta">
-      <b-form-group :label="$t('Tool')" label-size="sm">
-        <b-form-select :value="tool" :options="toolOptions" size="sm" @change="select" />
-      </b-form-group>
-      <b-form-group :label="$t('Variant')" label-size="sm">
-        <b-form-select :value="variant" :options="variantOptions" size="sm" @change="select(tool, $event)" />
-      </b-form-group>
-      <b-row>
-        <b-col v-for="field in fields" :key="`${tool}-${variant}-${field.name}`" md="6">
-          <b-form-group :label="field.label" label-size="sm">
-            <b-form-select v-if="field.type === 'select'" v-model="params[field.name]" :options="selectOptions(field)" size="sm" />
-            <b-form-input v-else v-model="params[field.name]" :type="(field.type === 'password') ? 'password' : 'text'" size="sm" autocomplete="off" />
-          </b-form-group>
-        </b-col>
-      </b-row>
-      <b-form-group v-if="config !== null" label-size="sm" :description="$t('Edit freely, then run. Target host and secret are fixed by the server.')">
-        <template #label>
+      <div class="the-tt-field">
+        <label for="the-tt-tool">{{ $t('Tool') }}</label>
+        <b-form-select id="the-tt-tool" class="the-tt-primary" :value="tool" :options="toolOptions" @change="select" />
+      </div>
+      <div class="the-tt-field">
+        <label for="the-tt-variant">{{ $t('Variant') }}</label>
+        <b-form-select id="the-tt-variant" :value="variant" :options="variantOptions" @change="select(tool, $event)" />
+      </div>
+      <div v-for="field in fields" :key="`${tool}-${variant}-${field.name}`" class="the-tt-field">
+        <label :for="`the-tt-${field.name}`">{{ field.label }}</label>
+        <b-form-select v-if="field.type === 'select'" :id="`the-tt-${field.name}`" v-model="params[field.name]" :options="selectOptions(field)" />
+        <b-form-input v-else :id="`the-tt-${field.name}`" v-model="params[field.name]" :type="(field.type === 'password') ? 'password' : 'text'" autocomplete="off" />
+      </div>
+      <div v-if="config !== null" class="the-tt-field">
+        <label for="the-tt-config">
           {{ $t('Editable config (runs exactly what is below)') }}
-          <b-link class="ml-1" @click="onPreview">{{ $t('reset to defaults') }}</b-link>
-        </template>
-        <b-form-textarea v-model="config" rows="8" class="text-monospace small" spellcheck="false" />
-      </b-form-group>
-      <b-button variant="outline-secondary" size="sm" class="mr-1" :disabled="!canWrite || isRunning" @click="onPreview">{{ $t('Preview') }}</b-button>
-      <b-button variant="primary" size="sm" :disabled="!canWrite || isRunning" @click="onRun">
-        <icon v-if="isRunning" name="circle-notch" spin class="mr-1" />
-        {{ isCapture ? $t('Run capture') : $t('Run test') }}
-      </b-button>
+          <b-link class="the-tt-link ml-1" @click="onPreview">{{ $t('reset to defaults') }}</b-link>
+        </label>
+        <b-form-textarea id="the-tt-config" v-model="config" rows="8" class="text-monospace small" spellcheck="false" />
+        <small class="text-muted">{{ $t('Edit freely, then run. Target host and secret are fixed by the server.') }}</small>
+      </div>
+      <div class="d-flex mt-4">
+        <b-button variant="outline-secondary" class="the-tt-btn flex-fill mr-3" :disabled="!canWrite || isRunning" @click="onPreview">{{ $t('Preview') }}</b-button>
+        <b-button variant="primary" class="the-tt-btn flex-fill" :disabled="!canWrite || isRunning" @click="onRun">
+          <icon v-if="isRunning" name="circle-notch" spin class="mr-1" />
+          {{ isCapture ? $t('Run capture') : $t('Run test') }}
+        </b-button>
+      </div>
       <small v-if="!canWrite" class="d-block text-danger mt-1" v-t="'Running tests needs the CHATBOT_WRITE admin role.'" />
       <div v-if="message" class="small mt-2" :class="{ 'text-danger': messageBad, 'text-muted text-monospace': !messageBad }">{{ message }}</div>
       <b-alert v-if="verdict !== null" show class="mt-2 mb-0" :variant="verdict ? 'success' : 'danger'">
@@ -135,8 +139,12 @@ const setup = (props, context) => {
   watch(isCapture, capture => {
     if (capture && !interfaces.value.length && canWrite.value) {
       api.testToolsCapture({ preview: true, params: { preset: 'radius' } }).then(({ ok, preview }) => {
-        if (ok && preview && preview.interfaces)
+        if (ok && preview && preview.interfaces) {
           interfaces.value = preview.interfaces
+          // start on the first real interface instead of an empty select
+          if ('iface' in params.value && !params.value.iface && preview.interfaces.length)
+            params.value = { ...params.value, iface: preview.interfaces[0] }
+        }
       }).catch(() => {})
     }
   })
@@ -285,5 +293,74 @@ export default {
   max-height: 20rem;
   overflow-y: auto;
   white-space: pre-wrap;
+}
+.the-test-tools {
+  $mono: $font-family-monospace;
+  .the-tt-title {
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  .the-tt-pill {
+    display: inline-block;
+    padding: .1rem .6rem;
+    font-family: $mono;
+    font-size: .72rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    vertical-align: middle;
+    border: 1px solid currentColor;
+    border-radius: 1rem;
+    &.is-online  { color: $success; background-color: lighten($success, 52%); }
+    &.is-offline { color: $danger;  background-color: lighten($danger, 42%); }
+  }
+  .the-tt-intro {
+    font-family: $mono;
+    font-size: .82rem;
+    color: $gray-600;
+  }
+  .the-tt-link {
+    font-family: $mono;
+    text-decoration: underline;
+  }
+  .the-tt-box {
+    padding: .75rem 1rem;
+    font-family: $mono;
+    font-size: .82rem;
+    background-color: $gray-100;
+    border: 1px solid $gray-300;
+    border-radius: .65rem;
+  }
+  .the-tt-check {
+    display: grid;
+    grid-template-columns: 1.5rem 11rem 1fr;
+    align-items: baseline;
+    padding: .1rem 0;
+    .the-tt-check-name { color: $gray-900; }
+    .the-tt-check-detail { color: $gray-600; }
+  }
+  .the-tt-field {
+    margin-bottom: 1rem;
+    > label {
+      display: block;
+      margin-bottom: .35rem;
+      font-family: $mono;
+      font-size: .74rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: $gray-700;
+    }
+    .form-control, .custom-select {
+      height: calc(1.5em + 1.25rem + 2px);
+      border-radius: .6rem;
+    }
+    textarea.form-control { height: auto; }
+    .the-tt-primary { border-color: $primary; }
+  }
+  .the-tt-btn {
+    min-height: 2.75rem;
+    font-weight: 600;
+    border-radius: .6rem;
+  }
 }
 </style>

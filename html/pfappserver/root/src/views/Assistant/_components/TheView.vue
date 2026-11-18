@@ -232,7 +232,7 @@ export default {
     flex: 1;
     overflow-y: auto;
   }
-  .the-assistant-title { font-weight: 700; }
+  .the-assistant-title { font-weight: 400; }
   .the-assistant-status {
     display: inline-block;
     width: .55rem;

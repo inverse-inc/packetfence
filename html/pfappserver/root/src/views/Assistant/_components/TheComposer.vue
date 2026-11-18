@@ -1,12 +1,12 @@
 <template>
-  <div class="the-composer">
+  <div class="the-composer the-composer-styled">
     <div v-if="isNew" class="mb-2 text-nowrap overflow-auto">
-      <b-button v-for="chip in chips" :key="chip" size="sm" variant="outline-secondary" pill class="mr-1"
+      <b-button v-for="chip in chips" :key="chip" size="sm" variant="outline-secondary" pill class="mr-1 the-chip"
         :disabled="isSending || isUnavailable" @click="$emit('send', chip)">{{ chip }}</b-button>
     </div>
     <b-input-group size="sm" class="mb-2">
       <b-input-group-prepend>
-        <b-button variant="outline-primary" :pressed.sync="showDiagnose">{{ $t('Diagnose') }}</b-button>
+        <b-button variant="outline-primary" class="the-composer-ghost" :pressed.sync="showDiagnose">{{ $t('Diagnose') }}</b-button>
       </b-input-group-prepend>
       <template v-if="showDiagnose">
         <b-form-input v-model="diagnose" class="text-monospace" :placeholder="$t('MAC or username')"
@@ -18,7 +18,7 @@
     </b-input-group>
     <b-input-group>
       <b-input-group-prepend>
-        <b-button variant="outline-secondary" :disabled="isUploading || isUnavailable" @click="$refs.fileRef.click()"
+        <b-button variant="outline-secondary" class="the-composer-ghost" :disabled="isUploading || isUnavailable" @click="$refs.fileRef.click()"
           v-b-tooltip.hover.top.d300 :title="$t('Attach a file (not indexed for search)')">
           <icon :name="isUploading ? 'circle-notch' : 'paperclip'" :spin="isUploading" />
         </b-button>
@@ -38,7 +38,7 @@
     <input type="file" ref="fileRef" class="d-none" multiple @change="onFiles" />
     <div class="d-flex align-items-center mt-2">
       <small class="text-muted d-none d-md-inline" v-t="'Enter to send, Shift+Enter for a new line, click a MAC to copy.'" />
-      <b-dropdown size="sm" variant="outline-secondary" class="ml-auto" right dropup :disabled="!canSetModel"
+      <b-dropdown size="sm" variant="outline-secondary" class="ml-auto the-composer-ghost" right dropup :disabled="!canSetModel"
         @show="onModels" v-b-tooltip.hover.top.d300 :title="canSetModel ? $t('Choose the model') : $t('Changing the model needs the CONFIGURATION_MAIN_UPDATE admin role')">
         <template #button-content>
           {{ $t('model') }}: <strong>{{ settings.model || $t('provider default') }}</strong>
@@ -50,7 +50,7 @@
           {{ model.id }} <b-badge v-if="model.recommended" variant="success" class="ml-1">{{ $t('recommended') }}</b-badge>
         </b-dropdown-item-button>
       </b-dropdown>
-      <b-button size="sm" class="ml-1" :variant="debug ? 'primary' : 'outline-secondary'" :pressed="debug" @click="onDebug"
+      <b-button size="sm" class="ml-1" :class="{ 'the-composer-ghost': !debug }" :variant="debug ? 'primary' : 'outline-secondary'" :pressed="debug" @click="onDebug"
         v-b-tooltip.hover.top.d300 :title="$t('Verbose trace: tool arguments, every API request (LLM and PacketFence), sizes and timing')">
         {{ $t('trace') }}: {{ debug ? $t('verbose') : $t('standard') }}
       </b-button>
@@ -152,3 +152,38 @@ export default {
   setup
 }
 </script>
+
+<style lang="scss">
+.the-composer-styled {
+  .the-chip {
+    color: $gray-800;
+    background-color: $gray-100;
+    border-color: transparent;
+    &:hover:not(:disabled), &:focus {
+      color: $primary;
+      background-color: lighten($primary, 46%);
+    }
+  }
+  .btn.the-composer-ghost,
+  .the-composer-ghost > .btn {
+    color: $gray-800;
+    background-color: $white;
+    border-color: $gray-300;
+    &:hover:not(:disabled), &:focus {
+      color: $primary;
+      background-color: lighten($primary, 46%);
+      border-color: $gray-300;
+    }
+    &.active {
+      color: $primary;
+      background-color: lighten($primary, 46%);
+      border-color: lighten($primary, 25%);
+    }
+  }
+  textarea.form-control {
+    background-color: $gray-100;
+    border-color: $gray-200;
+    &:focus { background-color: $white; border-color: lighten($primary, 25%); }
+  }
+}
+</style>
