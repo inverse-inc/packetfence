@@ -232,6 +232,15 @@ apt-get update
 apt-get install packetfence
 ----
 
+NOTE: If `apt update` reports `Signing key on B022C48D3D6373D7FC256A8CCB2D3A2AA0030E2C is not bound` and
+`SHA1 is not considered secure`, your copy of the PacketFence key is outdated (Debian 13 rejects its old SHA1
+certification). The key itself is unchanged; download it again:
+
+[source,bash]
+----
+curl -fsSL https://packages.packetfence.com/downloads/GPG_PUBLIC_KEY | gpg --dearmor --yes -o /etc/apt/keyrings/packetfence.gpg && apt update
+----
+
 === Installing PacketFence on Linode
 
 PacketFence v12 includes instructions on deploying PacketFence on Linode IaaS. See the <<#_how_to_deploy_packetfence_on_linode,Appendix>> below for details.
