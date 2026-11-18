@@ -112,9 +112,9 @@ function set_upgrade_to() {
 function install_gpg_key(){
   if is_deb_based; then
     apt install gnupg sudo curl
-    curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
+    curl -fsSL https://packages.packetfence.com/downloads/GPG_PUBLIC_KEY | gpg --dearmor --yes -o /etc/apt/keyrings/packetfence.gpg
   elif is_rpm_based; then
-    rpm --import https://inverse.ca/downloads/GPG_PUBLIC_KEY
+    rpm --import https://packages.packetfence.com/downloads/GPG_PUBLIC_KEY
   fi
 }
 
