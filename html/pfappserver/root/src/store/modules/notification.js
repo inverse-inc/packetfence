@@ -66,6 +66,26 @@ const actions = {
     }
     commit('NOTIFICATION', { base: notification, data, commit })
   },
+  // A notification of a task under way, updated in place by its key (data:
+  // { key, message, progress (0-100), done, ok }): its toast stays, with a
+  // progress bar, until it is done; then it shows the result and hides like
+  // the others.
+  progress: ({ state, commit }, { key, message, progress = 0, done = false, ok = true }) => {
+    const variant = (!done) ? 'info' : ((ok) ? 'success' : 'danger')
+    const icon = (!done) ? 'sync' : ((ok) ? 'check' : 'ban')
+    const existing = state.all.find(notification => notification.key === key)
+    if (existing)
+      commit('NOTIFICATION_PROGRESS', { notification: existing, changes: { message, progress, variant, icon, persistent: !done, new: true, unread: true, timestamp: new Date() } })
+    else
+      commit('NOTIFICATION', { base: { variant, icon, new: true, unread: true, timestamp: new Date(), key, progress, persistent: !done }, data: { message }, commit })
+    if (done) {
+      const notification = state.all.find(n => n.key === key)
+      setTimeout(() => {
+        if (notification && !notification.persistent)
+          commit('NOTIFICATION_UNMARK_NEW', notification)
+      }, state.hideDelay * 1000)
+    }
+  },
   status_failed: ({ commit }, data) => {
     let notification = {
       variant: 'danger',
@@ -97,9 +117,13 @@ const mutations = {
       notification.id = uuidv4()
       state.all.splice(0, 0, notification)
       setTimeout(() => {
-        commit('NOTIFICATION_UNMARK_NEW', notification)
+        if (!notification.key) // a task (progress) hides once done, after its own delay
+          commit('NOTIFICATION_UNMARK_NEW', notification)
       }, state.hideDelay * 1000)
     }
+  },
+  NOTIFICATION_PROGRESS: (state, { notification, changes }) => {
+    Object.assign(notification, changes)
   },
   NOTIFICATION_UNMARK_NEW: (state, notification) => {
     notification.new = false

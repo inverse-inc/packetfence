@@ -17,6 +17,7 @@
                     <icon v-else :name="notification.icon" class="mr-1" :class="'text-'+notification.variant" /> <span :class="{ 'font-weight-bold': notification.unread }" v-html="notification.message" />
                   </div>
                   <small class="notification-url text-secondary">{{notification.url}}</small>
+                  <b-progress v-if="notification.persistent" :value="notification.progress" :max="100" height="4px" class="mt-1" />
                 </b-col>
                 <b-col cols="auto" class="ml-3">
                   <b-badge pill v-if="notification.success" variant="success" class="mr-1" v-b-tooltip.hover.top.d300 :title="notification.success + ' ' + $t('succeeded')">{{notification.success}}</b-badge>

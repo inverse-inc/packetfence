@@ -38,7 +38,7 @@ import {
   BaseServices
 } from '@/components/new/'
 import { lookupPersons } from '@/views/Users/_api/lookupPersons'
-import { closePanel } from './'
+import { closePanel, escapeHtml } from './'
 
 const PREFIX = '[pf-ui-plugins]'
 
@@ -144,6 +144,10 @@ const scopedApi = id => {
  *                { quiet: false }
  *   notify       notify(level, message): a notification of the admin UI
  *                (level: info, success, warning, danger)
+ *   progress     progress(key, { message, progress, done, ok }): the
+ *                notification of a task under way (eg uploads), updated in
+ *                place by its key: its toast stays with a progress bar
+ *                (0-100) until done, then shows the result (ok or not)
  *   can          can('read plugin'), the ACL of the admin, as a manifest can
  *   t            i18n.t of the admin UI, locale() its language
  *   navigate     router.push of the admin UI; closes the open navbar panel
@@ -205,7 +209,11 @@ export const hostApi = (id, { router, store }) => Object.freeze({
   composition,
   i18n,
   api: scopedApi(id),
-  notify: (level, message) => store.dispatch(`notification/${(LEVELS.includes(level)) ? level : 'info'}`, { message: `${message}` }),
+  // the messages of a plugin are text: the toasts show HTML
+  notify: (level, message) => store.dispatch(`notification/${(LEVELS.includes(level)) ? level : 'info'}`, { message: escapeHtml(`${message}`) }),
+  progress: (key, { message = '', progress = 0, done = false, ok = true } = {}) => store.dispatch('notification/progress', {
+    key: `plugin:${id}:${key}`, message: escapeHtml(`${message}`), progress: +progress || 0, done: !!done, ok: !!ok
+  }),
   can: expression => can(expression),
   t: (...args) => i18n.t(...args),
   locale: () => i18n.locale,
