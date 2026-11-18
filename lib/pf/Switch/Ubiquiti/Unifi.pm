@@ -54,6 +54,8 @@ sub description { 'Unifi Controller' }
 # access technology supported
 use pf::SwitchSupports qw(
     ExternalPortal
+    RadiusDynamicVlanAssignment
+    WiredDot1x
     WirelessDot1x
     WirelessMacAuth
     Flow
