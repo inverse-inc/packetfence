@@ -341,18 +341,20 @@ CALL AddIndexUnlessExists('node', 'node_status_last_seen',
 
 --
 -- locationlog_synchronize reads the newest open entry of a switchport on every
--- wired authorization (ORDER BY start_time DESC LIMIT 1 on switch, port,
+-- wired authorization (ORDER BY start_time DESC LIMIT 1 on switch, port, voip,
 -- end_time). The old locationlog_view_switchport (switch, port, vlan) does not
 -- contain end_time, so a port that accumulated open entries (no RADIUS
 -- accounting, many endpoints swapped on it) was read through locationlog_end_time
 -- and filesorted on every request: 100 ms for 15k open entries, 1 ms with this
 -- index. Nothing filters locationlog by switch, port and vlan together, and
 -- lookups by switch and port are served by the prefix of the new index.
+-- The new index is added before the old one is dropped, so the switchport
+-- lookups always have one.
 --
 \! echo "Replacing index locationlog_view_switchport by locationlog_open_switchport on locationlog...";
-CALL DropIndexIfExists('locationlog', 'locationlog_view_switchport');
 CALL AddIndexUnlessExists('locationlog', 'locationlog_open_switchport',
-    'KEY `locationlog_open_switchport` (`switch`,`port`,`end_time`,`start_time`)');
+    'KEY `locationlog_open_switchport` (`switch`,`port`,`voip`,`end_time`,`start_time`)');
+CALL DropIndexIfExists('locationlog', 'locationlog_view_switchport');
 
 -- Default User and Machine roles: missing from the schema of fresh installs
 -- until the roles were saved once

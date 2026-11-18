@@ -11,7 +11,8 @@ Unit tests for the per-switch C<host_mode> parameter:
   - pf::SwitchFactory::getSwitchConfig lookup through switch ranges
   - pf::locationlog::_is_multi_auth_switchport lookup
   - pf::Switch::wiredReevaluationDeauthTechnique selection on a multi-auth port
-  - pf::locationlog::locationlog_synchronize keeping one entry per endpoint on a multi-auth port
+  - pf::locationlog::locationlog_synchronize keeping one entry per endpoint on a multi-auth port,
+    and one data entry per port on a single-host port
 
 =cut
 
@@ -23,14 +24,14 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 60;
+use Test::More tests => 71;
 use Test::NoWarnings;
 
 use pf::SwitchFactory;
 use pf::locationlog;
 use pf::Switch::constants;
 use pf::constants::switch qw($HOST_MODE_SINGLE_HOST $HOST_MODE_MULTI_HOST $HOST_MODE_MULTI_AUTH);
-use pf::config qw($WIRED_802_1X $WIRED_MAC_AUTH $VOIP $NO_VOIP);
+use pf::config qw($WIRED_802_1X $WIRED_MAC_AUTH $WIRED_SNMP_TRAPS $VOIP $NO_VOIP);
 use Utils;
 
 # ----------------------------------------------------------------------------
@@ -224,31 +225,86 @@ use Utils;
     is_deeply([map { $_->{mac} } @open], [$mac5],
         'only the last endpoint keeps an open locationlog entry on the multi-host port');
 
-    # single-host: another endpoint with the SAME vlan and role replaces the previous one
-    # too (a swapped device), instead of piling up open entries on the port, and the
-    # entries of the other type (voice) are left alone
+}
+
+# ----------------------------------------------------------------------------
+# pf::locationlog::locationlog_synchronize on a single-host port
+#
+# 172.16.8.28 sets no host_mode, so the switches.conf.defaults single-host applies
+# and the host mode is resolved from the configuration, as on the RPC path.
+# ----------------------------------------------------------------------------
+
+{
+    my $switch = '172.16.8.28';
+    my $ifIndex = 20000 + int(rand(10000));
+    my $otherIfIndex = $ifIndex + 10000;
+
+    my $sync = sub {
+        my ($mac, $role, $voip_status, $connection_type, $port) = @_;
+        return pf::locationlog::locationlog_synchronize(
+            $switch, $switch, undef, $port // $ifIndex, 10, $mac, $voip_status, $connection_type // $WIRED_MAC_AUTH,
+            undef, $mac, undef, undef, undef, $role, undef, $switch, undef,
+        );
+    };
+    my $open_data = sub {
+        return [ sort map { $_->{mac} } pf::locationlog::locationlog_view_open_switchport_no_VoIP($switch, $_[0] // $ifIndex) ];
+    };
+
+    # another endpoint with the SAME vlan and role replaces the previous one too (a
+    # swapped device), instead of piling up open entries on the port, and the entries
+    # of the other type (voice) are left alone
     my $mac6 = Utils::test_mac();
     my $mac7 = Utils::test_mac();
     my $phone = Utils::test_mac();
-    ok($sync->('172.16.8.42', $phone, 'voice', $VOIP, 0), "synchronized the phone $phone on the single-host port");
-    ok($sync->('172.16.8.42', $mac6, 'default', $NO_VOIP, 0), "synchronized $mac6 on the single-host port");
-    ok($sync->('172.16.8.42', $mac6, 'default', $NO_VOIP, 0), "synchronized $mac6 again");
-    @open = pf::locationlog::locationlog_view_open_switchport_no_VoIP('172.16.8.42', $ifIndex);
-    is_deeply([map { $_->{mac} } @open], [$mac6],
-        'an endpoint authenticating again keeps its single open entry');
-    ok($sync->('172.16.8.42', $mac7, 'default', $NO_VOIP, 0), "synchronized $mac7 with the same vlan and role");
-    @open = pf::locationlog::locationlog_view_open_switchport_no_VoIP('172.16.8.42', $ifIndex);
-    is_deeply([map { $_->{mac} } @open], [$mac7],
+    ok($sync->($phone, 'voice', $VOIP), "synchronized the phone $phone on the single-host port");
+    ok($sync->($mac6, 'default', $NO_VOIP), "synchronized $mac6 on the single-host port");
+    ok($sync->($mac6, 'default', $NO_VOIP), "synchronized $mac6 again");
+    is_deeply($open_data->(), [$mac6], 'an endpoint authenticating again keeps its single open entry');
+    ok($sync->($mac7, 'default', $NO_VOIP), "synchronized $mac7 with the same vlan and role");
+    is_deeply($open_data->(), [$mac7],
         'the previous endpoint of the single-host port is closed when another one takes it');
-    is(pf::locationlog::locationlog_view_latest_open_switchport('172.16.8.42', $ifIndex, $NO_VOIP)->{mac}, $mac7,
+    is(pf::locationlog::locationlog_view_latest_open_switchport($switch, $ifIndex, $NO_VOIP)->{mac}, $mac7,
         'locationlog_view_latest_open_switchport returns the newest open data entry');
-    is(pf::locationlog::locationlog_view_latest_open_switchport('172.16.8.42', $ifIndex, $VOIP)->{mac}, $phone,
+    is(pf::locationlog::locationlog_view_latest_open_switchport($switch, $ifIndex, $VOIP)->{mac}, $phone,
         'the phone entry survives the data endpoints being swapped');
-    @open = pf::locationlog::locationlog_view_open_switchport_only_VoIP('172.16.8.42', $ifIndex);
-    is(scalar @open, 1, 'one open voice entry on the port');
-    ok($sync->('172.16.8.42', $mac6, 'default', $NO_VOIP, 0), "synchronized $mac6 back on the port");
-    @open = pf::locationlog::locationlog_view_open_switchport_no_VoIP('172.16.8.42', $ifIndex);
-    is_deeply([map { $_->{mac} } @open], [$mac6], 'the returning endpoint replaces the other one in turn');
+    my @voice = pf::locationlog::locationlog_view_open_switchport_only_VoIP($switch, $ifIndex);
+    is(scalar @voice, 1, 'one open voice entry on the port');
+    ok($sync->($mac6, 'default', $NO_VOIP), "synchronized $mac6 back on the port");
+    is_deeply($open_data->(), [$mac6], 'the returning endpoint replaces the other one in turn');
+
+    # an endpoint moving from another port: the per-MAC handling moves its entry to this
+    # port first, so the newest entry of the port is its own, and the previous occupant
+    # must still be closed
+    my $mover = Utils::test_mac();
+    ok($sync->($mover, 'default', $NO_VOIP, undef, $otherIfIndex), "synchronized $mover on another port");
+    ok($sync->($mover, 'default', $NO_VOIP), "synchronized $mover on the port of $mac6");
+    is_deeply($open_data->(), [$mover], 'an endpoint arriving from another port closes the previous occupant');
+    is_deeply($open_data->($otherIfIndex), [], 'and its entry on the other port is moved, not duplicated');
+
+    # SNMP traps (port-security) report several MACs on one port, each on its own:
+    # none of them closes the others
+    my $learnt1 = Utils::test_mac();
+    my $learnt2 = Utils::test_mac();
+    ok($sync->($learnt1, 'default', $NO_VOIP, $WIRED_SNMP_TRAPS), "synchronized $learnt1 from an SNMP trap");
+    ok($sync->($learnt2, 'default', $NO_VOIP, $WIRED_SNMP_TRAPS), "synchronized $learnt2 from an SNMP trap");
+    is_deeply($open_data->(), [sort $mover, $learnt1, $learnt2],
+        'SNMP-learnt endpoints with the same vlan and role keep their open entries');
+
+    # leftovers of RADIUS endpoints, as the previous code left them on a port without
+    # RADIUS accounting: the endpoint authenticating over RADIUS is the one on the
+    # port, so the next authentication closes them, newest entry or not. The SNMP
+    # entries are left alone, like the other switchport closes do.
+    my @leftovers = (Utils::test_mac(), Utils::test_mac());
+    for my $leftover (@leftovers) {
+        pf::locationlog::locationlog_insert_start($switch, $switch, undef, $ifIndex, 10, $leftover, $WIRED_MAC_AUTH,
+            undef, $leftover, undef, undef, undef, 'default', undef, undef, $NO_VOIP, $switch);
+    }
+    is_deeply($open_data->(), [sort $mover, $learnt1, $learnt2, @leftovers], 'the leftovers are open before');
+    ok($sync->($mover, 'default', $NO_VOIP), "synchronized $mover again over RADIUS");
+    is_deeply($open_data->(), [sort $mover, $learnt1, $learnt2],
+        'a RADIUS authentication closes the leftovers of the other RADIUS endpoints');
+    is(pf::locationlog::locationlog_view_latest_open_switchport($switch, $ifIndex, $VOIP)->{mac}, $phone,
+        'the phone entry is still left alone');
 }
 
 # AOS v16 has its own radiusDisconnect: an empty shared secret skips it like on

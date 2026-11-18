@@ -1007,14 +1007,17 @@ set to `multi-auth` in their switch or switch group configuration, so that each
 endpoint keeps its own locationlog entry and is re-evaluated through a
 per-session RADIUS CoA/Disconnect.
 
-On the other host modes, an endpoint authenticating on a wired port now closes
-the open locationlog entry of the previous endpoint of the same type (data or
-voice) on that port, as a VLAN or role change already did. Before, a port
-without RADIUS accounting kept one open entry for every endpoint ever swapped on
-it, and every authorization on the port got slower as they accumulated. A port
-that is multi-auth on the switch but left in the default `single-host` mode in
-PacketFence would now see its other endpoints' entries closed at each
-authentication: set `host_mode` on those switches before upgrading.
+On the other host modes, an endpoint authenticating over RADIUS (802.1X or MAB)
+on a wired port now closes the open locationlog entries of the other endpoints
+of the same type (data or voice) on that port, as a VLAN or role change already
+did. Before, a port without RADIUS accounting kept one open entry for every
+endpoint ever swapped on it, and every authorization on the port got slower as
+they accumulated; those leftovers are closed by the next authentication on the
+port. Endpoints reported by SNMP traps (port-security) or web authentication are
+not affected. A port that is multi-auth on the switch but left in the default
+`single-host` mode in PacketFence would now see its other endpoints' entries
+closed at each authentication: set `host_mode` on those switches before
+upgrading.
 
 === Local accounts with a zero password expiration are cleaned up
 
