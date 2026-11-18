@@ -351,6 +351,83 @@ those calls. `GET /api/v1/plugins` only lists the plugins whose `menu.can`
 the admin satisfies. The `can` of a field or a tab only shapes the form: the
 plugin checks its own rules with `X-PacketFence-Admin-Actions` if it needs to.
 
+[[_ui_plugins_database_tables]]
+=== Database tables of a plugin
+
+A package installed on top of PacketFence can add tables to the PacketFence
+database. Its schema is kept the way PacketFence keeps its own
+([filename]`db/pf-schema-X.Y.sql`, [filename]`db/upgrade-X.Y-X.Z.sql`), and
+`pfcmd plugin schema` applies it.
+
+*Descriptor.* The package installs [filename]`/usr/local/pf/conf/plugins.d/<name>.conf`:
+
+[source,ini]
+----
+[plugin]
+version=1.2
+schema_dir=/usr/local/acme/db
+----
+
+*Files of `schema_dir`.*
+
+[options="header",cols="1,3"]
+|===
+|File |
+|`<name>-schema-X.Y.sql` |the whole schema of version X.Y, for a fresh install
+|`upgrade-X.Y-X.Z.sql` |from version X.Y to X.Z. Starts with `CALL ValidatePluginVersion('<name>', X << 16 \| Y << 8);`
+|`teardown.sql` |drops the tables, when the package is purged
+|===
+
+Each schema and upgrade file ends by recording its version, like the
+PacketFence files do in `pf_version`:
+
+[source,sql]
+----
+INSERT IGNORE INTO plugin_version (name, id, version, created_at) VALUES ('acme', @VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
+----
+
+Every file must be safe to run again after a failure: `CREATE TABLE IF NOT
+EXISTS`, and the helpers of [filename]`db/upgrade-helpers.sql`
+(`AddColumnUnlessExists`, `DropColumnIfExists`, `AddIndexUnlessExists`,
+`DropIndexIfExists`, `CopyRowsInBatches`, `ValidatePluginVersion`) instead
+of the `IF [NOT] EXISTS` clauses of `ALTER TABLE`, which MySQL does not have.
+They are loaded before each file, in the same session, and dropped after it.
+Do not add foreign keys to the PacketFence tables: they would block the
+upgrades of PacketFence. [filename]`t/data/ui_plugins/acme` is a complete
+example.
+
+*Commands.*
+
+[options="header",cols="2,3"]
+|===
+|Command |
+|`pfcmd plugin schema apply <name> [--defaults-file=<file>]` |runs the schema file (fresh install) or the upgrade files up to the version of the descriptor, as the MariaDB root user through the local socket, or with a mysql client options file. Exits 2 when it cannot connect, with the command to run by hand. Call it from the package postinst / `%post`
+|`pfcmd plugin schema check <name>` |exits 0 when the tables are at the version of the descriptor; it only reads the database. Call it before the service of the package starts
+|`pfcmd plugin schema drop <name> [--defaults-file=<file>] [--force]` |runs `teardown.sql` and forgets the package. Call it when the package is purged: `apply` keeps a copy of `teardown.sql` in [filename]`/usr/local/pf/var/plugins/<name>/`. On a cluster member it refuses without `--force`: every node shares the tables
+|===
+
+On a cluster every node runs `apply`: the first one changes the tables, the
+others find them at the version already. The database is never downgraded:
+`check` fails when it is newer than the package.
+
+*Changing a large table.* An `ALTER TABLE` of a large table locks it, and on
+a Galera cluster blocks every node while it runs. Rebuild it instead
+([filename]`t/data/ui_plugins/acme/upgrade-1.1-1.2.sql`):
+
+. drop the leftovers of a failed run: `DROP TABLE IF EXISTS t_new`, `t_old`
+. `CREATE TABLE t_new LIKE t`, then drop its secondary indexes
+  (`DropIndexIfExists`): the copy keeps its primary key only, Galera needs it
+. change the schema of `t_new` only
+. copy the rows: `CALL CopyRowsInBatches('t', 't_new', '<columns>', '<integer key>', 10000)`,
+  one transaction per batch
+. add the indexes to `t_new` (`AddIndexUnlessExists`)
+. `RENAME TABLE t TO t_old, t_new TO t`: one statement, `t` always exists
+. `DROP TABLE t_old`
+
+The rows written during the copy are lost: stop the service of the package on
+every node before upgrading a package that rebuilds a table. Foreign keys
+follow a renamed table: drop and add them around the rename.
+
 === Examples
 
 * [filename]`docs/ui-plugins/examples/go-plugin` and
