@@ -103,7 +103,7 @@ Dies when it is missing or invalid.
 sub descriptor {
     my ($name, $dir) = @_;
     $dir //= $ui_plugins_conf_dir;
-    _check_name($name);
+    $name = check_name($name);
     my $file = catfile($dir, "$name.conf");
     die "no descriptor $file\n" if !-f $file;
     my $ini = Config::IniFiles->new(-file => $file, -allowempty => 1)
@@ -226,14 +226,15 @@ sub mysql_args {
     my @args;
     if (my $defaults_file = $options{defaults_file}) {
         die "no options file $defaults_file\n" if !-r $defaults_file;
-        push @args, "--defaults-file=$defaults_file";
+        push @args, "--defaults-file=" . _mysql_value('options file', $defaults_file, qr{\A[^\0\n]+\z});
     }
     if (!defined $db->{host} || $db->{host} eq 'localhost') {
-        push @args, "--socket=" . ($db->{unix_socket} || $SOCKET);
+        push @args, "--socket=" . _mysql_value('socket', $db->{unix_socket} || $SOCKET, qr{\A/[^\0\n]+\z});
     } else {
-        push @args, "--host=$db->{host}", "--port=$db->{port}";
+        push @args, "--host=" . _mysql_value('database host', $db->{host}, qr/\A[A-Za-z0-9.:_\[\]-]+\z/),
+          "--port=" . _mysql_value('database port', $db->{port}, qr/\A[0-9]{1,5}\z/);
     }
-    push @args, '--batch', '--database', $db->{db};
+    push @args, '--batch', '--database', _mysql_value('database', $db->{db}, qr/\A[A-Za-z0-9_\$-]+\z/);
     return @args;
 }
 
@@ -334,6 +335,7 @@ when it is purged.
 
 sub apply {
     my ($name, %options) = @_;
+    $name = check_name($name);
     my $descriptor = descriptor($name, $options{conf_dir});
     my $files = schema_files($name, $descriptor->{schema_dir});
     _keep_teardown($name, $files->{teardown}) if $files->{teardown};
@@ -399,7 +401,7 @@ the tables are shared by every node: it refuses unless force is set.
 
 sub drop {
     my ($name, %options) = @_;
-    _check_name($name);
+    $name = check_name($name);
     if (!$options{force} && _cluster_enabled()) {
         die "this server is a member of a cluster, the tables of $name are shared by every node: remove $name from every node, then run: pfcmd plugin schema drop $name --force\n";
     }
@@ -419,9 +421,33 @@ sub drop {
     return 1;
 }
 
-sub _check_name {
+=head2 check_name
+
+    $name = check_name($name);
+
+Dies unless $name is a valid plugin name. Returns it untainted (pfcmd runs
+in taint mode): it names files, directories and packages.
+
+=cut
+
+sub check_name {
     my ($name) = @_;
     die sprintf("invalid name \"%s\"\n", $name // '') if !defined $name || $name !~ $NAME_RE;
+    return _untaint($name);
+}
+
+# a value checked by the caller, untainted
+sub _untaint {
+    my ($value) = @_;
+    ($value) = $value =~ /\A(.*)\z/s;
+    return $value;
+}
+
+# a value of the mysql client arguments, untainted once it matches $re
+sub _mysql_value {
+    my ($what, $value, $re) = @_;
+    die sprintf("invalid %s \"%s\"\n", $what, $value // '') if !defined $value || $value !~ $re;
+    return _untaint($value);
 }
 
 sub _keep_teardown {

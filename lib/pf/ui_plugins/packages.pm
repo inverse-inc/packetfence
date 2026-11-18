@@ -121,9 +121,17 @@ name (acme: packetfence-plugin-acme).
 
 sub package_argument {
     my ($what) = @_;
-    return $what if $what =~ /\.(deb|rpm)\z/ && -f $what;
-    return $what if index($what, $PACKAGE_PREFIX) == 0 && substr($what, length($PACKAGE_PREFIX)) =~ $pf::ui_plugins::schema::NAME_RE;
-    return $PACKAGE_PREFIX . $what if $what =~ $pf::ui_plugins::schema::NAME_RE;
+    die "no plugin name or package file\n" if !defined $what;
+    # untainted once checked (pfcmd runs in taint mode)
+    if ($what =~ /\.(deb|rpm)\z/ && -f $what) {
+        my ($file) = $what =~ /\A([^\0\n]+)\z/ or die "invalid package file name\n";
+        return $file;
+    }
+    if (index($what, $PACKAGE_PREFIX) == 0) {
+        return $PACKAGE_PREFIX . pf::ui_plugins::schema::check_name(substr($what, length($PACKAGE_PREFIX)))
+          if substr($what, length($PACKAGE_PREFIX)) =~ $pf::ui_plugins::schema::NAME_RE;
+    }
+    return $PACKAGE_PREFIX . pf::ui_plugins::schema::check_name($what) if $what =~ $pf::ui_plugins::schema::NAME_RE;
     die sprintf("\"%s\" is not a plugin name or a package file\n", $what);
 }
 
@@ -139,14 +147,15 @@ sub install_command {
     my ($what, %options) = @_;
     my $pm = $options{package_manager} // package_manager() // die "no apt-get or dnf\n";
     my $arg = package_argument($what);
-    $arg = "./$arg" if $arg =~ /\.(deb|rpm)\z/ && $arg !~ m{/};
+    # a relative file name: never read as an option, nor as a package name
+    $arg = "./$arg" if $arg =~ /\.(deb|rpm)\z/ && $arg !~ m{\A\.{0,2}/};
     return ($pm, 'install', '-y', $arg);
 }
 
 sub uninstall_command {
     my ($name, %options) = @_;
     my $pm = $options{package_manager} // package_manager() // die "no apt-get or dnf\n";
-    die sprintf("invalid name \"%s\"\n", $name) if $name !~ $pf::ui_plugins::schema::NAME_RE;
+    $name = pf::ui_plugins::schema::check_name($name);
     my $package = $PACKAGE_PREFIX . $name;
     return ($pm, ($options{purge} ? 'purge' : 'remove'), '-y', $package) if $pm eq 'apt-get';
     return ($pm, 'remove', '-y', $package);
@@ -172,6 +181,7 @@ sub _exit_code {
 
 sub uninstall {
     my ($name, %options) = @_;
+    $name = pf::ui_plugins::schema::check_name($name);
     my @command = uninstall_command($name, %options);
     if ($options{purge} && $command[0] ne 'apt-get') {
         # rpm has no purge: the package drops the tables on erase when flagged
