@@ -40,7 +40,7 @@ my $collection_base_url = '/api/v1/config/switches';
 
 my $base_url = '/api/v1/config/switch';
 
-my @roles = qw(registration isolation inline Machine REJECT User custom1 default gaming guest normal r1 r2 r3 voice);
+my @roles = qw(registration isolation Machine REJECT User custom1 default gaming guest normal r1 r2 r3 voice);
 my $roles_allowed = [ map { {text => $_, value => $_} } @roles];
 my $false = bless( do{\(my $o = 0)}, 'JSON::PP::Boolean' );
 my $true = bless( do{\(my $o = 1)}, 'JSON::PP::Boolean' );
@@ -191,10 +191,6 @@ $t->get_ok( "$base_url/172.16.8.20%2f32" )
         "/item/ControllerRoleMapping",
         [
             {
-                'role'            => 'inline',
-                'controller_role' => 'inline'
-            },
-            {
                 'role'            => 'isolation',
                 'controller_role' => ''
             },
@@ -217,10 +213,6 @@ $t->get_ok( "$base_url/172.16.8.20%2f32" )
       ->status_is(200)
       ->json_is("/item/voiceRole", "zammit")
       ->json_is("/item/ControllerRoleMapping", [
-            {
-                'role'            => 'inline',
-                'controller_role' => 'inline'
-            },
             {
                 'role'            => 'isolation',
                 'controller_role' => ''

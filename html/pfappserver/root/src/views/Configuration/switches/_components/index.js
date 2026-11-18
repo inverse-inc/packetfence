@@ -14,7 +14,6 @@ import {
   BaseInput,
   BaseInputToggleDisabledEnabled
 } from '@/components/new/'
-import BaseFormGroupInlineTrigger from './BaseFormGroupInlineTrigger'
 import BaseFormGroupToggleStaticDynamicDefault from './BaseFormGroupToggleStaticDynamicDefault'
 import BaseFormGroupType from './BaseFormGroupType'
 import BaseInputToggleNetworkFrom from './BaseInputToggleNetworkFrom'
@@ -38,7 +37,6 @@ export {
   BaseFormGroupToggleNYDefault            as FormGroupExternalPortalEnforcement,
   BaseFormGroupChosenOne                  as FormGroupGroup,
   BaseFormGroupInput                      as FormGroupIdentifier,
-  BaseFormGroupInlineTrigger              as FormGroupInlineTrigger,
   BaseFormGroupInput                      as FormGroupMacSearchesMaxNb,
   BaseFormGroupInput                      as FormGroupMacSearchesSleepInterval,
   BaseFormGroupChosenOne                  as FormGroupMode,

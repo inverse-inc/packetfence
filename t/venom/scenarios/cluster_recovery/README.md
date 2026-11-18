@@ -174,7 +174,7 @@ node** (Debian 12 and EL8 dev inventory). Leave `CLUSTER_RUNNER_TAG` at its defa
 for this run. Standalone/bake VM allocations are unchanged. Compare guest steal,
 startup timeouts and scenario A completion before trying the larger runner.
 
-Baked Debian cluster import also defines the unused inline NIC as `inet manual`
+Baked Debian cluster import also defines the unused spare NIC as `inet manual`
 when ifupdown has no definition for it. This addresses `ifup: unknown interface
-eth4` while preserving existing interface definitions and assigning no inline IP.
+eth4` while preserving existing interface definitions.
 The subsequent rolling reboots provide the integration check for this correction.

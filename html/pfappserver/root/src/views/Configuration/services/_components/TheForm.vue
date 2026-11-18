@@ -110,7 +110,7 @@
 
     <form-group-netflow-processor namespace="netflow_processor"
                                   :column-label="$i18n.t('Netflow processor')"
-                                  :text="$i18n.t(`Should pfacct process NetFlow traffic? When disabled, pfacct does not listen for NetFlow traffic and the NetFlow kernel module is not loaded for inline networks. Changing this requires to restart pfacct.`)"
+                                  :text="$i18n.t(`Should pfacct process NetFlow traffic? When disabled, pfacct does not listen for NetFlow traffic. Changing this requires to restart pfacct.`)"
                                   enabled-value="enabled"
                                   disabled-value="disabled"
     />

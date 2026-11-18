@@ -34,7 +34,7 @@
 
     <form-group-network-redirect-delay namespace="network_redirect_delay"
                                        :column-label="$i18n.t('Redirection delay')"
-                                       :text="$i18n.t('How long to display the progress bar during trap release. Default value is based on VLAN enforcement techniques. Inline enforcement only users could lower the value.')"
+                                       :text="$i18n.t('How long to display the progress bar during trap release. Default value is based on VLAN enforcement techniques.')"
     />
 
     <form-group-image-path namespace="image_path"

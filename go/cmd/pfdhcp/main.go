@@ -832,42 +832,13 @@ func (I *Interface) lockTransaction(ctx context.Context, mac net.HardwareAddr, m
 
 // findHandlerAndNetwork finds the appropriate handler and network scope for the given packet
 func (I *Interface) findHandlerAndNetwork(p dhcp.Packet, mac net.HardwareAddr, db *sql.DB) (handler DHCPHandler, NetScope net.IPNet, found bool) {
-	var NodeCache *cache.Cache
-	NodeCache = cache.New(3*time.Second, 5*time.Second)
-	var node NodeInfo
 	for _, v := range I.network {
 		// Check if the handler is for layer 2 and if the packet is from the same network
 		if v.dhcpHandler.layer2 && (p.GIAddr().Equal(net.IPv4zero) || v.network.Contains(p.CIAddr())) {
-			if v.splittednet == true {
-
-				if x, found := NodeCache.Get(p.CHAddr().String()); found {
-					node = x.(NodeInfo)
-				} else {
-					node = NodeInformation(ctx, p.CHAddr(), db)
-					NodeCache.Set(p.CHAddr().String(), node, 3*time.Second)
-				}
-
-				var category string
-				var nodeinfo = node
-				// Undefined role then use the registration one
-				if nodeinfo.Category == "" || nodeinfo.Status == "unreg" {
-					category = "registration"
-				} else {
-					category = nodeinfo.Category
-				}
-
-				if v.dhcpHandler.role == category {
-					handler = *v.dhcpHandler
-					NetScope = v.network
-					break
-				}
-				continue
-			} else {
-				handler = *v.dhcpHandler
-				NetScope = v.network
-				found = true
-				break
-			}
+			handler = *v.dhcpHandler
+			NetScope = v.network
+			found = true
+			break
 		}
 		// Check if the packet is from the same network for layer 3
 		if p.GIAddr().Equal(net.IPv4zero) && v.network.Contains(p.CIAddr()) {

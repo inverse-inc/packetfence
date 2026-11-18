@@ -59,8 +59,6 @@ use pf::SwitchSupports qw(
     RoleBasedEnforcement
 );
 
-# inline capabilities
-sub inlineCapabilities { return ($MAC,$SSID); }
 
 =item getVersion - obtain image version information from switch
 

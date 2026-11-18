@@ -78,8 +78,6 @@ use pf::SwitchSupports qw(
     -Cdp
     -Lldp
 );
-# inline capabilities
-sub inlineCapabilities { return ($MAC,$SSID); }
 
 =item deauthenticateMacDefault
 

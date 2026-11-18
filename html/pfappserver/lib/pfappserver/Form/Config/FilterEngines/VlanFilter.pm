@@ -31,7 +31,6 @@ sub scopes {
           RegistrationRole
           RegisteredRole
           IsolationRole
-          InlineRole
           AutoRegister
           NodeInfoForAutoReg
           IsPhone

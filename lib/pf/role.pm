@@ -97,13 +97,6 @@ sub fetchRoleForNode {
 
     my $node_info = $args->{'node_info'};
 
-    if ($self->isInlineTrigger($args)) {
-        $logger->info("Inline trigger match, the node is in inline mode");
-        my $inline = $self->getInlineRole($args);
-        $logger->info("PID: \"" .$node_info->{pid}. "\", Status: " .$node_info->{status}. ". Returned Role: $inline->{'role'}");
-        return ({ role => "inline", wasInline => 1 });
-    }
-
     # radius floating device handling
     if( $args->{'switch'}->supportsMABFloatingDevices ){
         my $floatingDeviceManager = new pf::floatingdevice::custom();
@@ -125,7 +118,6 @@ sub fetchRoleForNode {
 
     # security_event handling
     my $answer = $self->getIsolationRole($args);
-    $answer->{wasInline} = 0;
     if (defined($answer->{role}) && $answer->{role} ne "0" ) {
         return $answer;
     } elsif (!defined($answer->{role})) {
@@ -498,39 +490,6 @@ sub getRegisteredRole {
     return ({role => $role, source => $source, portal => $portal, action => $action, attributes => $attributes});
 }
 
-=head2 getInlineRole
-
-Handling the Inline VLAN Assignment
-
-=head2 * -1 means kick-out the node (not always supported)
-
-=head2 * 0 means use native vlan
-
-=head2 * undef means there was an error
-
-=head2 * anything else is either a VLAN name string or a VLAN number
-
-=cut
-
-sub getInlineRole {
-    my $timer = pf::StatsD::Timer->new;
-    #$args->{'switch'} is the switch object (pf::Switch)
-    #$args->{'ifIndex'} is the ifIndex of the computer connected to
-    #$args->{'mac'} is the mac connected
-    #$node_info is the node info hashref (result of pf::node's node_attributes on $args->{'mac'})
-    #$conn_type is set to the connnection type expressed as the constant in pf::config
-    #$args->{'user_name'} is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
-    #$args->{'ssid'} is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
-    my ($self, $args) = @_;
-    my $logger = $self->logger;
-
-    my $role = $self->filterVlan('InlineRole',$args);
-    if ( $role ) {
-        return ({role => $role});
-    }
-    return ({role => 'inline'});
-}
-
 =head2 getNodeInfoForAutoReg
 
 Basic information returned for an auto-registered node
@@ -785,45 +744,6 @@ sub shouldAutoRegister {
 
     # otherwise don't autoreg
     return $FALSE;
-}
-
-=head2 isInlineTrigger
-
-Return true if a radius properties match with the inline trigger
-
-=cut
-
-sub isInlineTrigger {
-    my ($self, $args) = @_;
-    my $logger = $self->logger;
-    if (defined($args->{'switch'}->{_inlineTrigger}) && $args->{'switch'}->{_inlineTrigger} ne '') {
-        foreach my $trigger (@{$args->{'switch'}->{_inlineTrigger}})  {
-
-            # TODO we should refactor this into objects where trigger types provide their own matchers
-            # at first, we are liberal in what we accept
-
-            if (!$trigger->{'type'} || !$trigger->{'value'}) {
-                $logger->warn("[$args->{'mac'}] Invalid trigger id ($trigger->{'type'})");
-                return $FALSE;
-            }
-
-            my $type = lc($trigger->{'type'});
-            my $tid = $trigger->{'value'};
-            $tid =~ s/\s+$//; # trim trailing whitespace
-
-            return $TRUE if ($type eq $ALWAYS);
-
-            # make sure trigger is a valid trigger type
-            # TODO refactor into an ListUtil test or an hash lookup (see Perl Best Practices)
-            if ( !grep( { lc($_) eq $type } $args->{'switch'}->inlineCapabilities ) ) {
-                $logger->warn("Invalid trigger type ($type), this is not supported by this switch (" . $args->{'switch'}->{_id} . ")");
-                return $FALSE;
-            }
-            return $TRUE if (($type eq $MAC) && ($args->{'mac'} eq $tid));
-            return $TRUE if (($type eq $PORT) && ($args->{'port'} eq $tid));
-            return $TRUE if (($type eq $SSID) && ($args->{'ssid'} eq $tid));
-        }
-    }
 }
 
 sub _check_bypass {

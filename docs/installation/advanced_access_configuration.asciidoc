@@ -666,7 +666,6 @@ These rules are available in different scopes:
   IsolationRole
   RegistrationRole
   RegisteredRole
-  InlineRole
   AutoRegister
   NodeInfoForAutoReg
 ----

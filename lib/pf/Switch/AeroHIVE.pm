@@ -72,8 +72,6 @@ use pf::SwitchSupports qw(
     Flow
 );
 
-# inline capabilities
-sub inlineCapabilities { return ($MAC,$SSID); }
 # locationlog update capabilities
 
 =item getVersion

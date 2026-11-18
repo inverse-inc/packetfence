@@ -73,8 +73,6 @@ our $ALT_DEFAULT_PORT = 8443;
 # not on every command: "transport://ip" => { url => ..., unifi_os => 0|1 }
 our %DETECTED_CONTROLLERS;
 
-# inline capabilities
-sub inlineCapabilities { return ($MAC,$SSID); }
 
 =head2 getVersion
 

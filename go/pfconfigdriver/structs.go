@@ -344,17 +344,14 @@ type NetworkConf struct {
 	DhcpStart                string `json:"dhcp_start"`
 	Gateway                  string `json:"gateway"`
 	DomainName               string `json:"domain-name"`
-	NatEnabled               string `json:"nat_enabled"`
 	DhcpMaxLeaseTime         string `json:"dhcp_max_lease_time"`
 	Named                    string `json:"named"`
-	FakeMacEnabled           string `json:"fake_mac_enabled"`
 	Dhcpd                    string `json:"dhcpd"`
 	DhcpEnd                  string `json:"dhcp_end"`
 	Type                     string `json:"type"`
 	Netmask                  string `json:"netmask"`
 	DhcpDefaultLeaseTime     string `json:"dhcp_default_lease_time"`
 	NextHop                  string `json:"next_hop"`
-	SplitNetwork             string `json:"split_network"`
 	RegNetwork               string `json:"reg_network"`
 	PortalFQDN               string `json:"portal_fqdn"`
 	Algorithm                string `json:"algorithm"`
@@ -380,17 +377,14 @@ type RessourseNetworkConf struct {
 	DhcpStart                string    `json:"dhcp_start"`
 	Gateway                  string    `json:"gateway"`
 	DomainName               string    `json:"domain-name"`
-	NatEnabled               string    `json:"nat_enabled"`
 	DhcpMaxLeaseTime         string    `json:"dhcp_max_lease_time"`
 	Named                    string    `json:"named"`
-	FakeMacEnabled           string    `json:"fake_mac_enabled"`
 	Dhcpd                    string    `json:"dhcpd"`
 	DhcpEnd                  string    `json:"dhcp_end"`
 	Type                     string    `json:"type"`
 	Netmask                  string    `json:"netmask"`
 	DhcpDefaultLeaseTime     string    `json:"dhcp_default_lease_time"`
 	NextHop                  string    `json:"next_hop"`
-	SplitNetwork             string    `json:"split_network"`
 	RegNetwork               string    `json:"reg_network"`
 	Dnsvip                   string    `json:"dns_vip"`
 	ClusterIPs               string    `json:"cluster_ips"`
@@ -401,7 +395,6 @@ type RessourseNetworkConf struct {
 	PoolBackend              string    `json:"pool_backend"`
 	Algorithm                string    `json:"algorithm"`
 	NetflowAccountingEnabled string    `json:"netflow_accounting_enabled"`
-	NatDNS                   string    `json:"nat_dns"`
 	ForceGatewayVIP          string    `json:"force_gateway_vip"`
 	DhcpReplyIp              string    `json:"dhcp_reply_ip"`
 }
@@ -1167,13 +1160,12 @@ type PfConfSwitch struct {
 	RadiusDeauthUseConnector string              `json:"radiusDeauthUseConnector"`
 
 	//Advanced
-	InlineTrigger            []interface{} `json:"inlineTrigger"`
-	Mode                     string        `json:"mode"`
-	MacSearchesMaxNb         string        `json:"macSearchesMaxNb"`
-	MacSearchesSleepInterval string        `json:"macSearchesSleepInterval"`
-	DeauthOnPrevious         string        `json:"deauthOnPrevious"`
-	HostMode                 string        `json:"host_mode"`
-	Uplink                   []string      `json:"uplink"`
+	Mode                     string   `json:"mode"`
+	MacSearchesMaxNb         string   `json:"macSearchesMaxNb"`
+	MacSearchesSleepInterval string   `json:"macSearchesSleepInterval"`
+	DeauthOnPrevious         string   `json:"deauthOnPrevious"`
+	HostMode                 string   `json:"host_mode"`
+	Uplink                   []string `json:"uplink"`
 }
 
 // PfSwitch struct that will help when fetching multiple switch config from config::Switch

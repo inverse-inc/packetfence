@@ -50,7 +50,7 @@ iface ens6 inet static
 
 allow-hotplug ens7
 iface ens7 inet dhcp
-    alias inline-l3 port
+    alias spare port
 
 EOT
 

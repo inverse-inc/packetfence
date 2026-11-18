@@ -84,6 +84,10 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - Tests: cluster failover and galera-recovery acceptance suites, Trojan Source character detection, test fixes (#9177, #9423, #9247, #9275, #9294, #9303, #9402, #9558, #9569, #9608)
   - Admin UI e2e tests: plain `npm ci` works again, bundling dependencies updated (#9576)
 
+=== Removed
+
+  - Inline enforcement (layer 2 and layer 3) has been removed
+
 === Bug Fixes
 
   - Email authentication sources now check that their rules can register the device before sending the activation email. A source without a matching role and access duration used to grant temporary access and then fail when the link was clicked (#9346)

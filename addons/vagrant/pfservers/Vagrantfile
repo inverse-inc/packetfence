@@ -89,7 +89,7 @@ Vagrant.configure("2") do |config|
                        :libvirt__forward_mode => user_vars['networks'][2]['forward_mode'],
                        auto_config: false
 
-        # inline
+        # spare (unused, kept so NIC indices stay stable)
         srv.vm.network "private_network",
                        :libvirt__network_name => user_vars['networks'][3]['name'],
                        :ip => user_vars['networks'][3]['subnet'],

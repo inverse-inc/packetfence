@@ -56,10 +56,6 @@ include::installation/introduction_to_role_based_access_control.asciidoc[]
 
 include::installation/enforcement/supported_enforcement_modes.asciidoc[]
 
-== Adding Inline Enforcement to Existing Installation
-
-include::installation/enforcement/inline.asciidoc[]
-
 == Adding VLAN Enforcement to Existing Installation
 
 include::installation/enforcement/out-of-band.asciidoc[]

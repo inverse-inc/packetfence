@@ -65,8 +65,6 @@ use pf::SwitchSupports qw(
     WiredMacAuth
     WiredDot1x
 );
-# inline capabilities
-sub inlineCapabilities { return ($MAC,$PORT); }
 
 =item getVersion
 

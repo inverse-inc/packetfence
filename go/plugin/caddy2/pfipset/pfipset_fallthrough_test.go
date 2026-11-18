@@ -20,7 +20,7 @@ func TestPfipsetFallthrough(t *testing.T) {
 	router := mux.NewRouter()
 	api := router.PathPrefix("/api/v1").Subrouter()
 	ok := func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusAccepted) }
-	for _, path := range []string{"mark_layer3", "mark_layer2", "unmark_mac", "unmark_ip", "mark_ip_layer2", "mark_ip_layer3", "passthrough", "passthrough_isolation", "add_ip/{set_name}", "remove_ip/{set_name}"} {
+	for _, path := range []string{"passthrough", "passthrough_isolation", "add_ip/{set_name}", "remove_ip/{set_name}"} {
 		api.HandleFunc("/ipset/"+path, ok).Methods("POST")
 	}
 	h := PfipsetHandler{IPSET: &pfIPSET{}, router: router}
@@ -29,9 +29,9 @@ func TestPfipsetFallthrough(t *testing.T) {
 		status       int
 		next         bool
 	}{
-		{http.MethodPost, "/api/v1/ipset/mark_layer3", http.StatusAccepted, false},
+		{http.MethodPost, "/api/v1/ipset/passthrough", http.StatusAccepted, false},
 		{http.MethodPost, "/api/v1/ipset/x", http.StatusNotFound, false},
-		{http.MethodGet, "/api/v1/ipset/mark_layer3", http.StatusMethodNotAllowed, false},
+		{http.MethodGet, "/api/v1/ipset/passthrough", http.StatusMethodNotAllowed, false},
 		{http.MethodGet, "/other", http.StatusOK, true},
 	} {
 		w := httptest.NewRecorder()

@@ -40,7 +40,6 @@ use pf::web::util;
 use pf::proxypassthrough::constants;
 use pf::Portal::Session;
 use pf::web::externalportal;
-use pf::inline;
 use pf::db;
 
 # Only call pf::web::util::is_certificate_self_signed once
@@ -172,19 +171,14 @@ sub _handler {
     # External captive-portal / Webauth handling
     # In the case of an external captive-portal, we want to use a different URL (the hostname to which the network equipment send the request, which is PacketFence but maybe not the configured hostname in pf.conf)
     # We also need to keep track of the CGI session by setting a cookie
-    my $inline = pf::inline->new();
-    if (!($inline->isInlineIP($ip))) {
-        my $external_portal = pf::web::externalportal->new;
-        my ( $cgi_session_id, $external_portal_destination_url ) = $external_portal->handle($r);
-        if ( $cgi_session_id ) {
-            $logger->debug("We are dealing with an external captive-portal / webauth request. Adjusting the redirect URL accordingly");
-            $r->err_headers_out->add('Set-Cookie' => "CGISESSION_PF=".  $cgi_session_id . "; path=/");
-            $destination_url = $external_portal_destination_url if ( defined($external_portal_destination_url) );
-            
-            redirect_to_portal($r, $destination_url);
-            return Apache2::Const::HTTP_MOVED_TEMPORARILY;
-        }
-        return  Apache2::Const::HTTP_NOT_IMPLEMENTED;
+    my $external_portal = pf::web::externalportal->new;
+    my ( $cgi_session_id, $external_portal_destination_url ) = $external_portal->handle($r);
+    if ( $cgi_session_id ) {
+        $logger->debug("We are dealing with an external captive-portal / webauth request. Adjusting the redirect URL accordingly");
+        $r->err_headers_out->add('Set-Cookie' => "CGISESSION_PF=".  $cgi_session_id . "; path=/");
+        $destination_url = $external_portal_destination_url if ( defined($external_portal_destination_url) );
+        redirect_to_portal($r, $destination_url);
+        return Apache2::Const::HTTP_MOVED_TEMPORARILY;
     }
     return Apache2::Const::HTTP_NOT_IMPLEMENTED;
 }

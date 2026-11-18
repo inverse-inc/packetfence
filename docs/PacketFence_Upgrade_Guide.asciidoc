@@ -1007,6 +1007,40 @@ set to `multi-auth` in their switch or switch group configuration, so that each
 endpoint keeps its own locationlog entry and is re-evaluated through a
 per-session RADIUS CoA/Disconnect.
 
+=== Inline enforcement has been removed
+
+Inline enforcement (layer 2 and layer 3) is no longer supported. The `inlinel2`
+and `inlinel3` network types, the `inline` and `inlinel2`/`inlinel3` interface
+enforcement values, the `[inline]` section of [filename]`pf.conf` and the
+switch `inlineTrigger`, `inlineVlan` and `inlineRole` parameters have been
+removed.
+
+Run the following script to remove the inline configuration:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-16.0-remove-inline.pl
+----
+
+The script removes:
+
+* the `[inline]` section of [filename]`pf.conf`
+* the networks of type `inlinel2` and `inlinel3` from [filename]`networks.conf`
+* the `inline` enforcement of the interfaces in [filename]`pf.conf`
+* the `inlineTrigger`, `inlineVlan` and `inlineRole` parameters of the switches
+  and switch groups in [filename]`switches.conf`
+* the `inline` scope of the DNS filters in [filename]`dns_filters.conf`
+
+Filter rules that use `wasInline`, `InlineRole` or `_inlineTrigger` are not
+modified: review the VLAN, RADIUS, switch and DNS filters manually and remove
+these rules.
+
+`pfcmd checkup` reports any leftover inline configuration as a fatal error.
+
+Devices that were handled by inline enforcement must be migrated to VLAN
+enforcement or to DNS enforcement. The `Inline` connection type is kept so that
+the history of the nodes and of the locationlog is still displayed.
+
 === Local accounts with a zero password expiration are cleaned up
 
 A local account whose password expiration is the zero date (`0000-00-00

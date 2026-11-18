@@ -95,8 +95,8 @@ control.
 To have the ability to isolate a node or to have IP information about a node
 within a network or VLAN, *one* of the following techniques must be used.
 
-NOTE: This is not required for the Registration or Isolation VLANs and inline
-interfaces since PacketFence acts as the DHCP server within these networks.
+NOTE: This is not required for the Registration or Isolation VLANs
+since PacketFence acts as the DHCP server within these networks.
 
 ==== IP Helpers
 
@@ -289,8 +289,6 @@ If the edge switches support 'vlan-isolation' the ACL can also be applied there.
 This has the advantage of preventing machines in Isolation from attacking each other.
 
 === Network Devices Definition
-
-Used only for VLAN enforcement. Inline enforcement can skip this section.
 
 PacketFence needs to know which switches, access points or controllers it manages, their type and configuration. You can modify this configuration directly in [filename]`/usr/local/pf/conf/switches.conf` or from the admin interface in _Configuration -> Policies and Access Control -> Switches_ (recommended).
 

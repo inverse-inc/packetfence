@@ -19,16 +19,10 @@ use base qw(Exporter);
 our @EXPORT_OK = qw(
   $IF_ENFORCEMENT_DNS
   $IF_ENFORCEMENT_VLAN
-  $IF_ENFORCEMENT_INLINE
-  $IF_ENFORCEMENT_INLINE_L2
-  $IF_ENFORCEMENT_INLINE_L3
 
   $NET_TYPE_DNS_ENFORCEMENT
   $NET_TYPE_VLAN_REG
   $NET_TYPE_VLAN_ISOL
-  $NET_TYPE_INLINE
-  $NET_TYPE_INLINE_L2
-  $NET_TYPE_INLINE_L3
   $NET_TYPE_OTHER
 
   $TIME_MODIFIER_RE
@@ -49,7 +43,6 @@ our @EXPORT_OK = qw(
   $SELFREG_MODE_NULL
   $SELFREG_MODE_KICKBOX
   $SELFREG_MODE_BLACKHOLE
-  %NET_INLINE_TYPES
 
   $DEFAULT_SMTP_PORT
   $DEFAULT_SMTP_PORT_SSL
@@ -97,16 +90,10 @@ use Readonly;
 
 Readonly our $IF_ENFORCEMENT_DNS => 'dns';
 Readonly our $IF_ENFORCEMENT_VLAN => 'vlan';
-Readonly our $IF_ENFORCEMENT_INLINE => 'inline';
-Readonly our $IF_ENFORCEMENT_INLINE_L2 => 'inlinel2';
-Readonly our $IF_ENFORCEMENT_INLINE_L3 => 'inlinel3';
 
 Readonly our $NET_TYPE_DNS_ENFORCEMENT => 'dns-enforcement';
 Readonly our $NET_TYPE_VLAN_REG => 'vlan-registration';
 Readonly our $NET_TYPE_VLAN_ISOL => 'vlan-isolation';
-Readonly our $NET_TYPE_INLINE => 'inline';
-Readonly our $NET_TYPE_INLINE_L2 => 'inlinel2';
-Readonly our $NET_TYPE_INLINE_L3 => 'inlinel3';
 Readonly our $NET_TYPE_OTHER => 'other';
 
 Readonly our $TIME_MODIFIER_RE => qr/[smhDWMY]/;
@@ -130,12 +117,6 @@ Readonly our $SELFREG_MODE_NULL   => 'null';
 Readonly our $SELFREG_MODE_KICKBOX   => 'kickbox';
 Readonly our $SELFREG_MODE_BLACKHOLE => 'blackhole';
 
-Readonly our %NET_INLINE_TYPES =>  (
-    $NET_TYPE_INLINE    => undef,
-    $NET_TYPE_INLINE_L2 => undef,
-    $NET_TYPE_INLINE_L3 => undef,
-);
-
 Readonly our $DEFAULT_SMTP_PORT => 25;
 Readonly our $DEFAULT_SMTP_PORT_SSL => 465;
 Readonly our $DEFAULT_SMTP_PORT_TLS => 587;
@@ -151,7 +132,7 @@ Readonly our %ALERTING_PORTS => (
 # 1 : Wireless
 # 2 : Eap
 # 3 : Wired
-# 4 : Inline
+# 4 : Inline (removed feature, kept for historical data only)
 # 5 : SNMP
 # 6 : WebAuth
 # 7 : VIRTUAL
@@ -161,6 +142,8 @@ Readonly our $WIRELESS_MAC_AUTH                 => 0b1000000000000001;
 Readonly our $WIRED_802_1X                      => 0b0110000000000010;
 Readonly our $WIRED_MAC_AUTH                    => 0b0010000000000011;
 Readonly our $WIRED_SNMP_TRAPS                  => 0b0010100000000100;
+# $INLINE and its string mappings below are kept only so that historical
+# locationlog/node rows created by the removed inline enforcement still display.
 Readonly our $INLINE                            => 0b0001000000000101;
 Readonly our $UNKNOWN                           => 0b0000000000000000;
 Readonly our $WEBAUTH_WIRELESS                  => 0b1000010000000111;

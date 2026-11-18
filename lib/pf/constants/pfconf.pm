@@ -21,7 +21,6 @@ our %ALLOWED_SECTIONS = (
     database_advanced             => undef,
     fencing                       => undef,
     general                       => undef,
-    inline                        => undef,
     mse_tab                       => undef,
     network                       => undef,
     node_import                   => undef,

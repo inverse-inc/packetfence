@@ -76,7 +76,7 @@ RADIUS Packet of Disconnect (PoD) also known as Disconnect Messages (DM) or
 Change of Authorization (CoA). You can try the Aruba module if you want to
 verify if RFC3576 is supported by your hardware.
 
-If none of the above worked then you can fallback to inline enforcement or let
+If none of the above worked then let
 us know what equipment you are using on the
 https://lists.sourceforge.net/lists/listinfo/packetfence-devel[packetfence-devel mailing list].
 

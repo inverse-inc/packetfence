@@ -478,8 +478,6 @@ sub getType {
         }
     }
 
-    # we rewrite inline to inlinel2 for backwwards compatibility
-    $type =~ s/inline$/inlinel2/;
     return $type;
 }
 
@@ -742,14 +740,6 @@ sub _prepare_interface_for_pfconf {
             $int_config_ref->{'type'} .= ",radius";
         }
     }
-    elsif ($type eq "inline") {
-        $int_config_ref->{'type'} = 'internal';
-        $int_config_ref->{'enforcement'} = "inlinel2";
-    }
-    elsif ($type =~ /^inlinel\d/i) {
-        $int_config_ref->{'type'} = 'internal';
-        $int_config_ref->{'enforcement'} = $type;
-    }
     elsif ($type =~ /^radius$/i) {
         $int_config_ref->{'type'} = 'radius';
         $int_config_ref->{'enforcement'} = undef;
@@ -848,8 +838,6 @@ sub getEnforcement {
         $enforcement = $interface->{enforcement} // 'none';
     }
 
-    # we rewrite inline to inlinel2 for backwwards compatibility
-    $enforcement =~ s/inline$/inlinel2/;
     return $enforcement;
 }
 

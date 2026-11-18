@@ -47,7 +47,6 @@ has_field 'type' =>
         { value => $pf::config::NET_TYPE_VLAN_ISOL, label => 'Isolation'},
         { value => $pf::config::NET_TYPE_VLAN_REG, label => 'Registration'},
         { value => $pf::config::NET_TYPE_DNS_ENFORCEMENT, label => 'DNS Enforcement'},
-        { value => $pf::config::NET_TYPE_INLINE_L3, label => 'Inline Layer 3'},
         { value => $pf::config::NET_TYPE_OTHER, label => 'Other'},
    ]
   );
@@ -60,39 +59,6 @@ has_field 'next_hop' =>
    tags => { after_element => \&help,
              help => 'IP address of the router to reach this network' },
   );
-
-has_field 'fake_mac_enabled' =>
-  (
-   type => 'Toggle',
-   checkbox_value => 1,
-   unchecked_value => 0,
-   default => 0,
-   label => 'Fake MAC Address',
-   );
-
-has_field 'nat_enabled' => (
-    type => 'Toggle',
-    checkbox_value => 1,
-    unchecked_value => 0,
-    default => 1,
-    label => 'Enable NATting',
-);
-
-has_field 'nat_dns' => (
-    type => 'Toggle',
-    checkbox_value => 1,
-    unchecked_value => 0,
-    default => 1,
-    label => 'Enable DNS NATting',
-);
-
-has_field 'coa' => (
-    type => 'Toggle',
-    checkbox_value => "enabled",
-    unchecked_value => "disabled",
-    default => "disabled",
-    label => 'Enable CoA',
-);
 
 has_field 'dhcpd' =>
   (
@@ -147,11 +113,6 @@ sub validate {
         my $interface = $interface_model->interfaceForDestination($self->value->{next_hop});
         unless ($interface) {
             $self->field('next_hop')->add_error("The router IP has no gateway on a network interface.");
-        }
-        elsif ( $type eq $pf::config::NET_TYPE_INLINE_L3 ) {
-            if ( $interface_model->getEnforcement($interface) ne $pf::config::NET_TYPE_INLINE_L2 ) {
-                 $self->field('next_hop')->add_error("Inline Layer 3 network can only be defined behind a Inline Layer 2 network.");
-            }
         }
     }
 }

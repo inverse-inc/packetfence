@@ -312,8 +312,6 @@ our %FIELD_VALIDATORS = (
     "fencing.passthroughs" => sub { validate_fqdn_not_in_passthroughs(@_, ["passthroughs"]) },
     "fencing.isolation_passthroughs" => sub { validate_fqdn_not_in_passthroughs(@_, ["isolation_passthroughs"]) },
     "fencing.interception_proxy_port" => sub { validate_port_list(@_, 'lines') },
-    "inline.ports_redirect" => sub { validate_port_protocol_list(@_, 'commas') },
-    "inline.interfaceSNAT" => sub { validate_interface_list(@_, 'lines') },
     "network.interfaceSNAT" => sub { validate_interface_list(@_, 'strict') },
 );
 

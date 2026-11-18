@@ -1,10 +1,7 @@
 package pfipset
 
 import (
-	"bytes"
 	"context"
-	"crypto/tls"
-	"database/sql"
 	"io"
 	"io/ioutil"
 	"net"
@@ -12,9 +9,7 @@ import (
 	"regexp"
 	"strconv"
 
-	ipset "github.com/inverse-inc/go-ipset/v2"
 	"github.com/inverse-inc/go-utils/log"
-	"github.com/inverse-inc/go-utils/mac"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
@@ -23,9 +18,7 @@ import (
 var body io.Reader
 
 type pfIPSET struct {
-	Network map[*net.IPNet]string
-	ListALL []ipset.SetPolicy
-	jobs    chan job
+	jobs chan job
 }
 
 func pfIPSETFromContext(ctx context.Context) *pfIPSET {
@@ -94,190 +87,6 @@ func updateClusterRequest(ctx context.Context, origReq *http.Request) {
 			logger.Info("Updated " + member.String())
 		}
 	}
-}
-
-func (IPSET *pfIPSET) mac2ip(ctx context.Context, Mac mac.Mac, Set *ipset.SetPolicy) []*ipset.Entry {
-
-	entries := []*ipset.Entry{}
-	for _, u := range Set.Entries {
-		if bytes.Compare([]byte(u.Ether.Get()), []byte(Mac[:])) == 0 {
-			entries = append(entries, u)
-		}
-	}
-
-	return entries
-}
-
-func post(ctx context.Context, url string, body io.Reader) error {
-	req, err := http.NewRequest("POST", url, body)
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	req.Header.Set("Content-Type", "application/json")
-	cli := &http.Client{Transport: tr}
-	_, err = cli.Do(req)
-	return err
-}
-
-func listAll() ([]ipset.SetPolicy, error) {
-	conn := getConn()
-	defer putConn(conn)
-	return conn.ListAll()
-}
-
-// initIPSet fetch the database to remove already assigned ip addresses
-func (IPSET *pfIPSET) initIPSet(ctx context.Context, db *sql.DB) {
-	logger := log.LoggerWContext(ctx)
-	macCursor := "00:00:00:00:00:00"
-	stmt, err := db.PrepareContext(
-		ctx,
-		`
-		SELECT DISTINCT n.mac, i.ip, n.category_id AS role_id
-		FROM node AS n LEFT JOIN locationlog AS l ON n.mac=l.mac LEFT JOIN ip4log AS i ON n.mac=i.mac
-		WHERE l.connection_type = "inline" and n.status="reg" and n.mac=i.mac and i.end_time > NOW() and n.mac > ?
-		ORDER BY n.mac
-		LIMIT 100
-		`,
-	)
-	if err != nil {
-		// Log here
-		logger.Error("Error while preparing statement: " + err.Error())
-		return
-	}
-
-	defer stmt.Close()
-	IPSET.ListALL, _ = listAll()
-	for {
-		count, err := func() (int, error) {
-			rows, err := stmt.QueryContext(ctx, macCursor)
-			if err != nil {
-				return 0, err
-			}
-			defer rows.Close()
-			var (
-				ipStr  string
-				roleId string
-			)
-			count := 0
-			for rows.Next() {
-				count++
-				err := rows.Scan(&macCursor, &ipStr, &roleId)
-				if err != nil {
-					logger.Error(err.Error())
-					return 0, err
-				}
-				mac, _ := mac.NewFromString(macCursor)
-				for k, v := range IPSET.Network {
-					ip := net.ParseIP(ipStr)
-					if k.Contains(ip) {
-						switch v {
-						case "inlinel2":
-							IPSET.IPSEThandleLayer2(ctx, ip, mac, k.IP.String(), "Reg", roleId)
-							IPSET.IPSEThandleMarkIpL2(ctx, ip, k.IP.String(), roleId)
-						case "inlinel3":
-							IPSET.IPSEThandleLayer3(ctx, ip, k.IP.String(), "Reg", roleId)
-							IPSET.IPSEThandleMarkIpL3(ctx, ip, k.IP.String(), roleId)
-						}
-						break
-					}
-				}
-			}
-
-			if err = rows.Err(); err != nil {
-				return count, err
-			}
-
-			return count, nil
-		}()
-
-		if err != nil {
-			logger.Error("Error while fetching the inline nodes in the database: " + err.Error())
-			return
-		}
-
-		if count < 100 {
-			break
-		}
-	}
-}
-
-// detectType of each network
-func (IPSET *pfIPSET) detectType(ctx context.Context) error {
-	IPSET.ListALL, _ = listAll()
-	var NetIndex net.IPNet
-	IPSET.Network = make(map[*net.IPNet]string)
-
-	var interfaces pfconfigdriver.ListenInts
-	pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
-
-	var keyConfNet pfconfigdriver.PfconfigKeys
-	keyConfNet.PfconfigNS = "config::Network"
-	keyConfNet.PfconfigHostnameOverlay = "yes"
-	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
-
-	var keyConfCluster pfconfigdriver.NetInterface
-	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER," + pfconfigdriver.FindClusterName(ctx) + ")"
-
-	for _, v := range interfaces.Element {
-
-		keyConfCluster.PfconfigHashNS = "interface " + v
-		pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
-		// Nothing in keyConfCluster.Ip so we are not in cluster mode
-
-		eth, _ := net.InterfaceByName(v)
-		adresses, _ := eth.Addrs()
-		for _, adresse := range adresses {
-
-			var NetIP *net.IPNet
-			var IP net.IP
-			IP, NetIP, _ = net.ParseCIDR(adresse.String())
-			if IP.To4() == nil {
-				continue
-			}
-			a, b := NetIP.Mask.Size()
-			if a == b {
-				continue
-			}
-
-			for _, key := range keyConfNet.Keys {
-				var ConfNet pfconfigdriver.NetworkConf
-				ConfNet.PfconfigHashNS = key
-				pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
-				if (NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) || NetIP.Contains(net.ParseIP(ConfNet.NextHop)) {
-					NetIndex.Mask = net.IPMask(net.ParseIP(ConfNet.Netmask))
-					NetIndex.IP = net.ParseIP(key)
-					Index := NetIndex
-					IPSET.Network[&Index] = ConfNet.Type
-				}
-			}
-		}
-	}
-	return nil
-}
-
-func validateMac(macStr string) (mac.Mac, bool) {
-	mac, err := mac.NewFromString(macStr)
-	if err != nil {
-		return mac, false
-	}
-
-	return mac, true
-}
-
-func validateType(_type string) (string, bool) {
-	re := regexp.MustCompile("[a-zA-Z]+")
-	if re.Match([]byte(_type)) {
-		return _type, true
-	}
-	return "", false
-}
-
-func validateRoleId(roleid string) (string, bool) {
-	re := regexp.MustCompile("[0-9]+")
-	if re.Match([]byte(roleid)) {
-		return roleid, true
-	}
-	return "", false
 }
 
 func validatePort(portSpec string) (uint16, byte, bool) {

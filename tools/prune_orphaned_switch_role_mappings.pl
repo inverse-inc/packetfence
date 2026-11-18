@@ -47,13 +47,13 @@ my $SUFFIX_RE = join('|', @SUFFIXES);
 # registrationVlan, ...) and must never be pruned even though they are not
 # listed in roles.conf.
 my @RESERVED_ROLES = qw(
-    normal registration isolation macDetection inline voice default guest gaming REJECT dmz
+    normal registration isolation macDetection voice default guest gaming REJECT dmz
 );
 
 # Build the set of valid role names.
 my %valid;
 $valid{$_} = 1 for @{ pf::ConfigStore::Roles->new->readAllIds };
-$valid{$_} = 1 for @ROLES;             # registration, isolation, inline
+$valid{$_} = 1 for @ROLES;             # registration, isolation, ...
 $valid{$_} = 1 for keys %STANDARD_ROLES; # voice, default, guest, gaming, REJECT
 $valid{$_} = 1 for @RESERVED_ROLES;
 

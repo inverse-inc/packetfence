@@ -10,9 +10,6 @@ SystemSummary:
     hostname:
       type: string
       description: System hostname.
-    is_inline_configured:
-      type: boolean
-      description: PacketFence inline.
     os:
       type: string
       description: Operating system.

@@ -26,9 +26,6 @@ BEGIN {
         { in => 'isolation', out => $pf::constants::config::NET_TYPE_VLAN_ISOL},
         { in => 'registration', out => $pf::constants::config::NET_TYPE_VLAN_REG},
         { in => $pf::constants::config::NET_TYPE_VLAN_ISOL, out => $pf::constants::config::NET_TYPE_VLAN_ISOL},
-        { in => $pf::constants::config::NET_TYPE_INLINE, out => $pf::constants::config::NET_TYPE_INLINE},
-        { in => $pf::constants::config::NET_TYPE_INLINE_L2, out => $pf::constants::config::NET_TYPE_INLINE},
-        { in => $pf::constants::config::NET_TYPE_INLINE_L3, out => $pf::constants::config::NET_TYPE_INLINE},
         { in => $pf::constants::config::NET_TYPE_OTHER, out => $pf::constants::config::NET_TYPE_OTHER},
         { in => undef, out => undef},
         { in => "Garbasge", out => undef},
@@ -37,9 +34,6 @@ BEGIN {
         { in => 'ISOLATION', out => $pf::constants::config::NET_TYPE_VLAN_ISOL},
         { in => 'REGISTRATION', out => $pf::constants::config::NET_TYPE_VLAN_REG},
         { in => uc($pf::constants::config::NET_TYPE_VLAN_ISOL), out => $pf::constants::config::NET_TYPE_VLAN_ISOL},
-        { in => uc($pf::constants::config::NET_TYPE_INLINE), out => $pf::constants::config::NET_TYPE_INLINE},
-        { in => uc($pf::constants::config::NET_TYPE_INLINE_L2), out => $pf::constants::config::NET_TYPE_INLINE},
-        { in => uc($pf::constants::config::NET_TYPE_INLINE_L3), out => $pf::constants::config::NET_TYPE_INLINE},
         { in => uc($pf::constants::config::NET_TYPE_OTHER), out => $pf::constants::config::NET_TYPE_OTHER},
     );
 }

@@ -15,12 +15,6 @@ use warnings;
 use Mojo::Base -role;
 use pf::ConfigStore::Switch;
 
-sub form_parameters {
-    [
-        inactive => [ qw(always_trigger) ],
-    ];
-}
-
 sub cleanupItemForUpdate {
     my ($self, $old_item, $new_data, $data) = @_;
     my %new_item;

@@ -155,7 +155,6 @@
 #     Ethernet-EAP
 #     Ethernet-NoEAP
 #     SNMP-Traps
-#     Inline
 # - radius_request.ATTRIBUTE
 #     All the attributes of the RADIUS request (run FreeRADIUS in debug mode to see them)
 # - params.ATTRIBUTE

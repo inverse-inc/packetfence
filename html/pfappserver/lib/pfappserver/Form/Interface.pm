@@ -84,56 +84,13 @@ has_field 'high_availability' =>
     default => 0,
    );
 
-has_field 'nat_enabled' => (
-    type => 'Toggle',
-    checkbox_value => 1,
-    unchecked_value => 0,
-    default => 1,
-    label => 'Enable NATting',
-);
-
-has_field 'nat_dns' => (
-    type => 'Toggle',
-    checkbox_value => 1,
-    unchecked_value => 0,
-    default => 1,
-    label => 'Enable DNS NATting',
-);
-
-has_field 'split_network' => (
-    type => 'Toggle',
-    checkbox_value => 1,
-    unchecked_value => 0,
-    default => 0,
-    label => 'Split network by role',
-    tags => { after_element => \&help,
-             help => 'This will create a small network for each roles.' },
-);
-
 has_field 'reg_network' =>
   (
    type => 'Text',
    label => 'Registration IP Address CIDR format',
    tags => { after_element => \&help,
-             help => 'When split network by role is enabled then this network will be used as the registration network (example: 192.168.0.1/24).' },
+             help => 'Registration network (example: 192.168.0.1/24).' },
   );
-
-has_field 'coa' => (
-    type => 'Toggle',
-    checkbox_value => "enabled",
-    unchecked_value => "disabled",
-    default => "disabled",
-    label => 'Enable CoA',
-);
-
-has_field 'netflow_accounting_enabled' =>
-  (
-   type => 'Toggle',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
-   default => 'disabled',
-   label => 'Enable Net Flow Accounting'
-   );
 
 =head2 options_type
 
@@ -146,8 +103,6 @@ sub options_type {
     my @types;
     if ( defined $self->types ) {
         for my $type ( @{$self->types} ) {
-            # we remove inline, even though it may still be in pf.conf for backwards compatibility reasons.
-            next if ($type eq 'inline' || $type eq 'inlinel3');
             push @types, ( $type => $self->_localize($type) );
         }
     }
@@ -188,20 +143,14 @@ sub deDup {
 
 =head2 validate
 
-Force DNS to be defined when the 'inline' type is selected
+Make sure the portal, radius, dns and dhcp types are used by a single interface.
 
 =cut
 
 sub validate {
     my $self = shift;
 
-    if (defined $self->value->{type} && ( $self->value->{type} eq 'inlinel2' or $self->value->{type} eq 'inline' ) ) {
-        unless ($self->value->{dns}) {
-            $self->field('dns')->add_error('Please specify your DNS server.');
-        }
-    }
-
-    $self->deDup('portal',qw(vlan-registration vlan-isolation dns-enforcement inline inlinel2 portal));
+    $self->deDup('portal',qw(vlan-registration vlan-isolation dns-enforcement portal));
 
     $self->deDup('radius',qw(radius));
 

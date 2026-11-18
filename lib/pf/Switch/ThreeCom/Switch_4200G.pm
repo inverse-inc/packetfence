@@ -118,8 +118,6 @@ use pf::SwitchSupports qw(
     Flow
 );
 
-# inline capabilities
-sub inlineCapabilities { return ($MAC,$PORT); }
 
 =item NasPortToIfIndex
 

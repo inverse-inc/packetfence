@@ -67,8 +67,6 @@ use pf::SwitchSupports qw(
     RadiusVoip
     Flow
 );
-# inline capabilities
-sub inlineCapabilities { return ($MAC,$PORT); }
 
 #Insert your voice vlan name, not the ID.
 our $VOICEVLANAME = "voip";

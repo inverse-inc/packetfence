@@ -61,8 +61,6 @@ use pf::SwitchSupports qw(
     AccessListBasedEnforcement
     Flow
 );
-# inline capabilities
-sub inlineCapabilities { return ($MAC,$PORT); }
 
 #Insert your voice vlan name, not the ID.
 our $VOICEVLANAME = "voip";

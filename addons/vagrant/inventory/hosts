@@ -410,8 +410,6 @@ all:
           - name: inline_isolated_ci
             subnet: '172.18.203.0/24'
             forward_mode: 'none'
-          - name: inline_l3_ci
-            subnet: '172.18.204.0/24'
         clusters:
           cluster_el8dev:
             ip_mgmt: '172.18.200.23'
@@ -433,10 +431,6 @@ all:
           switch01:
             ip: '172.18.200.201'
             netmask: '255.255.255.0'
-            inline_ip: '172.18.203.3'
-            inline_netmask: '255.255.255.0'
-            inline_l3_ip: '172.18.204.4'
-            inline_l3_netmask: '255.255.255.0'
           node01:
             ip: '172.18.200.251'
             netmask: '255.255.255.0'
@@ -574,8 +568,6 @@ all:
           - name: inline_isolated_nqb
             subnet: '172.18.143.0/24'
             forward_mode: 'none'
-          - name: inline_l3_nqb
-            subnet: '172.18.144.0/24'
         clusters:
           cluster_el8dev:
             ip_mgmt: '172.18.140.23'
@@ -597,10 +589,6 @@ all:
           switch01:
             ip: '172.18.140.201'
             netmask: '255.255.255.0'
-            inline_ip: '172.18.143.3'
-            inline_netmask: '255.255.255.0'
-            inline_l3_ip: '172.18.144.4'
-            inline_l3_netmask: '255.255.255.0'
           node01:
             ip: '172.18.140.251'
             netmask: '255.255.255.0'
@@ -737,8 +725,6 @@ all:
           - name: inline_isolated_jrouzier
             subnet: '172.18.118.0/24'
             forward_mode: 'none'
-          - name: inline_l3_jrouzier
-            subnet: '172.18.119.0/24'
         clusters:
           cluster_el8dev:
             ip_mgmt: '172.18.115.23'
@@ -760,10 +746,6 @@ all:
           switch01:
             ip: '172.18.115.201'
             netmask: '255.255.255.0'
-            inline_ip: '172.18.118.3'
-            inline_netmask: '255.255.255.0'
-            inline_l3_ip: '172.18.119.4'
-            inline_l3_netmask: '255.255.255.0'
           node01:
             ip: '172.18.115.251'
             netmask: '255.255.255.0'
@@ -900,8 +882,6 @@ all:
           - name: inline_isolated_lzammit
             subnet: '172.18.148.0/24'
             forward_mode: 'none'
-          - name: inline_l3_lzammit
-            subnet: '172.18.149.0/24'
         clusters:
           cluster_el8dev:
             ip_mgmt: '172.18.145.23'
@@ -923,10 +903,6 @@ all:
           switch01:
             ip: '172.18.145.201'
             netmask: '255.255.255.0'
-            inline_ip: '172.18.148.3'
-            inline_netmask: '255.255.255.0'
-            inline_l3_ip: '172.18.149.4'
-            inline_l3_netmask: '255.255.255.0'
           node01:
             ip: '172.18.145.251'
             netmask: '255.255.255.0'
@@ -1063,8 +1039,6 @@ all:
           - name: inline_isolated_jgoimard
             subnet: '172.18.123.0/24'
             forward_mode: 'none'
-          - name: inline_l3_jgoimard
-            subnet: '172.18.124.0/24'
         clusters:
           cluster_el8dev:
             ip_mgmt: '172.18.120.23'
@@ -1086,10 +1060,6 @@ all:
           switch01:
             ip: '172.18.120.201'
             netmask: '255.255.255.0'
-            inline_ip: '172.18.123.3'
-            inline_netmask: '255.255.255.0'
-            inline_l3_ip: '172.18.124.4'
-            inline_l3_netmask: '255.255.255.0'
           node01:
             ip: '172.18.120.251'
             netmask: '255.255.255.0'
@@ -1226,8 +1196,6 @@ all:
           - name: inline_isolated_dsatkunas
             subnet: '172.18.128.0/24'
             forward_mode: 'none'
-          - name: inline_l3_dsatkunas
-            subnet: '172.18.119.0/24'
         clusters:
           cluster_el8dev:
             ip_mgmt: '172.18.125.23'
@@ -1249,10 +1217,6 @@ all:
           switch01:
             ip: '172.18.125.201'
             netmask: '255.255.255.0'
-            inline_ip: '172.18.128.3'
-            inline_netmask: '255.255.255.0'
-            inline_l3_ip: '172.18.128.4'
-            inline_l3_netmask: '255.255.255.0'
           node01:
             ip: '172.18.125.251'
             netmask: '255.255.255.0'
@@ -1389,8 +1353,6 @@ all:
           - name: inline_isolated_fdurand
             subnet: '172.18.138.0/24'
             forward_mode: 'none'
-          - name: inline_l3_fdurand
-            subnet: '172.18.139.0/24'
         clusters:
           cluster_el8dev:
             ip_mgmt: '172.18.135.23'
@@ -1412,10 +1374,6 @@ all:
           switch01:
             ip: '172.18.135.201'
             netmask: '255.255.255.0'
-            inline_ip: '172.18.138.3'
-            inline_netmask: '255.255.255.0'
-            inline_l3_ip: '172.18.139.4'
-            inline_l3_netmask: '255.255.255.0'
           node01:
             ip: '172.18.135.251'
             netmask: '255.255.255.0'
@@ -1552,8 +1510,6 @@ all:
           - name: inline_isolated_jsemaan
             subnet: '172.18.158.0/24'
             forward_mode: 'none'
-          - name: inline_l3_jsemaan
-            subnet: '172.18.159.0/24'
         clusters:
           cluster_el8dev:
             ip_mgmt: '172.18.155.23'
@@ -1575,10 +1531,6 @@ all:
           switch01:
             ip: '172.18.155.201'
             netmask: '255.255.255.0'
-            inline_ip: '172.18.158.3'
-            inline_netmask: '255.255.255.0'
-            inline_l3_ip: '172.18.159.4'
-            inline_l3_netmask: '255.255.255.0'
           node01:
             ip: '172.18.155.251'
             netmask: '255.255.255.0'
@@ -1715,8 +1667,6 @@ all:
           - name: inline_isolated_abprasa
             subnet: '172.18.163.0/24'
             forward_mode: 'none'
-          - name: inline_l3_abprasa
-            subnet: '172.18.164.0/24'
         clusters:
           cluster_el8dev:
             ip_mgmt: '172.18.160.23'
@@ -1738,10 +1688,6 @@ all:
           switch01:
             ip: '172.18.160.201'
             netmask: '255.255.255.0'
-            inline_ip: '172.18.163.3'
-            inline_netmask: '255.255.255.0'
-            inline_l3_ip: '172.18.164.4'
-            inline_l3_netmask: '255.255.255.0'
           node01:
             ip: '172.18.160.251'
             netmask: '255.255.255.0'
@@ -1878,8 +1824,6 @@ all:
           - name: inline_isolated_zma
             subnet: '172.18.173.0/24'
             forward_mode: 'none'
-          - name: inline_l3_zma
-            subnet: '172.18.174.0/24'
         clusters:
           cluster_el8dev:
             ip_mgmt: '172.18.170.23'
@@ -1901,10 +1845,6 @@ all:
           switch01:
             ip: '172.18.170.201'
             netmask: '255.255.255.0'
-            inline_ip: '172.18.173.3'
-            inline_netmask: '255.255.255.0'
-            inline_l3_ip: '172.18.174.4'
-            inline_l3_netmask: '255.255.255.0'
           node01:
             ip: '172.18.170.251'
             netmask: '255.255.255.0'

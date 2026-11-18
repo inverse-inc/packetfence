@@ -56,8 +56,6 @@ use pf::SwitchSupports qw(
     ~AccessListBasedEnforcement
     Flow
 );
-# inline capabilities
-sub inlineCapabilities { return ($MAC,$SSID); }
 
 
 =item parseExternalPortalRequest
@@ -295,9 +293,8 @@ sub returnRadiusAccessAccept {
     my $kick = $self->handleRadiusDeny($args);
     return $kick if (defined($kick));
 
-    # Inline Vs. VLAN enforcement
     my $role = "";
-    if ( (!$args->{'wasInline'} || ($args->{'wasInline'} && $args->{'vlan'} != 0) ) && isenabled($self->{_VlanMap})) {
+    if ( isenabled($self->{_VlanMap})) {
         if (($args->{'connection_type'} & $WIRELESS) == $WIRELESS) {
             $radius_reply_ref = {
                 'Mikrotik-Wireless-VLANID' => $args->{'vlan'} . "",

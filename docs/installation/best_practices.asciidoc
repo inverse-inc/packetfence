@@ -34,7 +34,7 @@ PacketFence installation.
 
 === Large Registration Network
 
-Inline or VLAN enforcement in large environments may cause ARP table overflows
+VLAN enforcement in large environments may cause ARP table overflows
 when many devices are on the same layer 2 segment. Symptoms include DHCP not
 assigning IPs properly or failed pings in registration/quarantine VLANs. Check
 `dmesg` log for `Neighbour table overflow` messages.

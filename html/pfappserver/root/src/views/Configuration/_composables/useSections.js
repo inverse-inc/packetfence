@@ -106,7 +106,6 @@ export const useSections = () => {
           items: [
             { name: i18n.t('Network Settings'), path: '/configuration/network' },
             { name: i18n.t('Interfaces'), path: '/configuration/interfaces' },
-            { name: i18n.t('Inline'), path: '/configuration/inline' },
             { name: i18n.t('Fencing'), path: '/configuration/fencing' },
             { name: i18n.t('Device Parking'), path: '/configuration/parking' }
           ]

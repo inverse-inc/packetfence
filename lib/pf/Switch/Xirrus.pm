@@ -72,8 +72,6 @@ use pf::SwitchSupports qw(
     RoleBasedEnforcement
     Flow
 );
-# inline capabilities
-sub inlineCapabilities { return ($MAC,$SSID); }
 
 #
 # %TRAP_NORMALIZERS

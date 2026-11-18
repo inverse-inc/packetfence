@@ -15,8 +15,6 @@
 | Management | 172.17.17.0/24 | 17
 | Registration | 172.17.2.0/24 | 2
 | Isolation | 172.17.3.0/24 | 3 
-| Inline L2 | 172.17.6.0/24 | 6
-| Inline L3 | 172.17.18.0/24 | 18
 | Internet | 192.168.121.0/24 | 100
 |===
 
@@ -39,9 +37,6 @@ put them in a desired state.
 | node02 | Management | 172.17.17.252
 | pf*dev or pf*stable | Registration | 172.17.2.2
 | pf*dev or pf*stable | Isolation    | 172.17.3.2
-| pf*dev or pf*stable | Inline L2    | 172.17.6.2
-| switch01 | Inline L2 | 172.17.6.3
-| switch01 | Inline L3 | 172.17.18.254
 |===
 
 NOTE: First IP address (.1) in each subnet is reserved for `libvirt` hypervisor.

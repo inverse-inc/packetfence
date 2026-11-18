@@ -136,11 +136,5 @@ export const columns = [
     label: 'Portal FQDN', // i18n defer
     sortable: true,
     visible: true
-  },
-  {
-    key: 'netflow_accounting_enabled',
-    label: 'Netflow Accounting Enabled', // i18n defer
-    sortable: true,
-    visible: true
   }
 ]

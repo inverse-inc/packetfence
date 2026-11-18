@@ -15,7 +15,6 @@ use warnings;
 use Digest::SHA qw(sha256_hex);
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use pf::db;
-use pf::config::util qw(is_inline_configured);
 use pf::version;
 use pf::cluster;
 use pf::util qw(safe_pf_run isenabled);
@@ -31,7 +30,6 @@ sub get {
         json => {
            uuid(),
            readonly_mode => db_check_readonly() ? $self->json_true : $self->json_false,
-           is_inline_configured => is_inline_configured() ? $self->json_true : $self->json_false,
            version => pf::version::version_get_current(),
            hostname => pf::UnifiedApi::Controller::Config::System::_get_hostname,
            uptime(),
