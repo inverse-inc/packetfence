@@ -74,11 +74,10 @@ var openPluginDB = db.DbFromConfig
 var pluginDBOpen singleflight.Group
 
 // pluginDB is the raw SQL handle, opened again when it could not be at
-// startup. The connection is opened without holding sqlDBLock, so a slow or
-// unreachable database does not block the other handlers that read the
-// handle; the requests that need it meanwhile wait for a single open
-// (singleflight), not one each. The open does not end with the request that
-// started it: the others wait for it too.
+// startup. Opening it creates the pool without connecting (sql.Open): the
+// singleflight only keeps the concurrent requests from creating a pool each,
+// all but one then left open. It is done without holding sqlDBLock, which
+// the other handlers read the handle with.
 func (m *APIHandler) pluginDB(ctx context.Context) *sql.DB {
 	if database := m.sqlDB(); database != nil {
 		return database

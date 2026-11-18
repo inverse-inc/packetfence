@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/inverse-inc/packetfence/go/uiplugins"
 )
@@ -105,6 +106,36 @@ func TestPluginReadOnlyCache(t *testing.T) {
 	}
 	if calls != 1 {
 		t.Errorf("asked %d times, want 1", calls)
+	}
+	// expired: the known state is answered at once while one query, not
+	// under the lock, refreshes it
+	release := make(chan struct{})
+	refreshed := make(chan struct{})
+	databaseReadOnly = func(context.Context, *sql.DB) bool {
+		<-release
+		defer close(refreshed)
+		return false
+	}
+	c.lock.Lock()
+	c.expires = time.Now().Add(-time.Second)
+	c.lock.Unlock()
+	answered := make(chan bool)
+	go func() { answered <- c.get(context.Background(), db) }()
+	select {
+	case readOnly := <-answered:
+		if !readOnly {
+			t.Error("not the known state while refreshing")
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("waited for the query")
+	}
+	close(release)
+	<-refreshed
+	for i := 0; i < 100 && c.get(context.Background(), db); i++ {
+		time.Sleep(10 * time.Millisecond)
+	}
+	if c.get(context.Background(), db) {
+		t.Error("not refreshed")
 	}
 	// no database handle: not read-only (the call fails on its own)
 	if saved(context.Background(), nil) {

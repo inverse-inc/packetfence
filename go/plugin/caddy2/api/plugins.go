@@ -1,6 +1,6 @@
 package api
 
-// The admin UI plugins, see https://github.com/akainverse/packetfence-plugin-example:
+// The admin UI plugins, see the Developers Guide, "Admin UI plugins":
 //
 //	GET /api/v1/plugins                the plugins whose manifest is reachable and valid
 //	GET /api/v1/plugins/<name>/bundle.js  the code of a bundle plugin, from its package (go/uiplugins BundleCode)
@@ -43,7 +43,10 @@ const pluginReadOnlyTTL = 5 * time.Second
 type pluginReadOnlyCache struct {
 	lock     sync.Mutex
 	readOnly bool
+	known    bool
 	expires  time.Time
+	// one query at a time, never under lock
+	query singleflight.Group
 }
 
 var pluginReadOnly = &pluginReadOnlyCache{}
@@ -52,17 +55,35 @@ var pluginReadOnly = &pluginReadOnlyCache{}
 // read_only flag is set, or a Galera node is not ready (wsrep_ready is not ON
 // while there is a wsrep provider). A database that cannot be read is not
 // read-only: the plugin call fails on its own.
+//
+// The lock is not held during the query. Once the state is known, an expired
+// one is still answered while a single query refreshes it in the background;
+// the first requests wait for that single query.
 func (c *pluginReadOnlyCache) get(ctx context.Context, database func(context.Context) *sql.DB) bool {
 	c.lock.Lock()
-	defer c.lock.Unlock()
-	if time.Now().Before(c.expires) {
-		return c.readOnly
+	readOnly, known, fresh := c.readOnly, c.known, time.Now().Before(c.expires)
+	c.lock.Unlock()
+	if known && fresh {
+		return readOnly
 	}
-	qctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), pluginRegistrationsTimeout)
-	defer cancel()
-	c.readOnly = databaseReadOnly(qctx, database(qctx))
-	c.expires = time.Now().Add(pluginReadOnlyTTL)
-	return c.readOnly
+	refresh := c.query.DoChan("read-only", func() (any, error) {
+		qctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), pluginRegistrationsTimeout)
+		defer cancel()
+		readOnly := databaseReadOnly(qctx, database(qctx))
+		c.lock.Lock()
+		c.readOnly, c.known, c.expires = readOnly, true, time.Now().Add(pluginReadOnlyTTL)
+		c.lock.Unlock()
+		return readOnly, nil
+	})
+	if known {
+		return readOnly
+	}
+	select {
+	case result := <-refresh:
+		return result.Val.(bool)
+	case <-ctx.Done():
+		return false
+	}
 }
 
 // databaseReadOnly is the query of pluginReadOnlyCache, a variable for the tests
