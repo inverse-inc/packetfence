@@ -26,7 +26,7 @@ const setup = (props, context) => {
   const switchGroupsMembers = ref([])
   const isLoadingSwitchGroups = computed(() => $store.getters['config/isLoadingSwitchGroups'])
 
-  const sections = computed(() => areaSections('nodes', [ // add the UI plugins items, see https://github.com/akainverse/packetfence-plugin-example
+  const sections = computed(() => areaSections('nodes', [ // add the UI plugins items, see the Developers Guide, "Admin UI plugins"
     {
       name: i18n.t('Search'),
       path: '/nodes/search',

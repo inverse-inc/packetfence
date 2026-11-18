@@ -19,7 +19,7 @@ import { computed } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import { areaSections } from '@/plugins'
 const setup = () => {
-  const sections = computed(() => areaSections('preferences', [ // add the UI plugins items, see https://github.com/akainverse/packetfence-plugin-example
+  const sections = computed(() => areaSections('preferences', [ // add the UI plugins items, see the Developers Guide, "Admin UI plugins"
     {
       name: i18n.t('Settings'),
       path: '/preferences/settings'

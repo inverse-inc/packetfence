@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://packetfence.org/schemas/ui-plugin-manifest.schema.json",
   "title": "PacketFence admin UI plugin manifest",
-  "description": "Generated from html/pfappserver/root/src/plugins/catalog.json by html/pfappserver/root/build/ui-plugins-catalog.js, do not edit. The API also checks that every validator applies to the type of its component, that \"when\" references another field and that \"can\" is nested 3 levels at most. See https://github.com/akainverse/packetfence-plugin-example.",
+  "description": "Generated from html/pfappserver/root/src/plugins/catalog.json by html/pfappserver/root/build/ui-plugins-catalog.js, do not edit. The API also checks that every validator applies to the type of its component, that \"when\" references another field and that \"can\" is nested 3 levels at most. See the Developers Guide, \"Admin UI plugins\".",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -938,7 +938,7 @@
                   {
                     "type": "string",
                     "maxLength": 256,
-                    "description": "At most 256 characters, run by the browser RegExp (no flags). Only the syntax RE2 and JavaScript share: escapes \\d \\D \\w \\W \\s \\S \\b \\B \\n \\r \\t \\f \\v, \\xHH and an escaped non-alphanumeric character; ( and (?: groups only; no POSIX classes. A repeated group cannot hold a quantifier or an alternation: (a+)+, (a|aa)+ and (\\d+\\.?)+ are refused. See https://github.com/akainverse/packetfence-plugin-example."
+                    "description": "At most 256 characters, run by the browser RegExp (no flags). Only the syntax RE2 and JavaScript share: escapes \\d \\D \\w \\W \\s \\S \\b \\B \\n \\r \\t \\f \\v, \\xHH and an escaped non-alphanumeric character; ( and (?: groups only; no POSIX classes. A repeated group cannot hold a quantifier or an alternation: (a+)+, (a|aa)+ and (\\d+\\.?)+ are refused. See the Developers Guide, \"Admin UI plugins\"."
                   }
                 ],
                 "minItems": 1,

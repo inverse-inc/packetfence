@@ -19,7 +19,7 @@ descriptor conf/plugins.d/<name>.conf. install and uninstall run the package
 manager (apt-get or dnf): the scripts of the package apply the tables, start
 and register the service. list reports what is installed.
 
-See https://github.com/akainverse/packetfence-plugin-example.
+See the Developers Guide, "Admin UI plugins".
 
 =cut
 

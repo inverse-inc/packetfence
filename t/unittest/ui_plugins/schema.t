@@ -9,8 +9,8 @@ schema
 unit test for pf::ui_plugins::schema, the database tables of the packages
 installed on top of PacketFence: the descriptor, the files of a schema
 directory and the plan, with a package "acme" written in a temporary
-directory. Running real files against MariaDB and MySQL needs the root user
-of a database: see the packetfence-plugin-example repository.
+directory. Running the files of a package against MariaDB needs the root
+user of a database: not done here.
 
 =cut
 

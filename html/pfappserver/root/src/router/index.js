@@ -116,7 +116,7 @@ router.beforeEach((to, from, next) => {
           return store.dispatch('system/getSummary') // [5a] ensure summary is loaded before first navigation
         }
       }).then(() => {
-        // [5c] add the routes of the UI plugins, see https://github.com/akainverse/packetfence-plugin-example
+        // [5c] add the routes of the UI plugins, see the Developers Guide, "Admin UI plugins"
         return loadPlugins({ router, token: store.state.session.token, views: pluginViews })
       }).then(() => {
         // [5d] a URL that only matched the default route may now be a plugin route

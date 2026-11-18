@@ -1,0 +1,1152 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Developers_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+//== Admin UI plugins
+
+A plugin adds a page to the admin UI without rebuilding it. The page is
+described by a JSON *manifest* that the plugin serves over HTTP. There are two
+kinds of pages:
+
+* a *manifest page* (templates `resource` and `collection`): the admin UI
+  renders it with its own views and components, and the plugin ships no code
+  to the UI. It can only use the templates, components and validators listed
+  in [filename]`html/pfappserver/root/src/plugins/catalog.json`.
+* a *bundle* (template `bundle`): the page is the plugin's own JavaScript,
+  installed on the server by the package of the plugin, checked against a
+  SHA-256, and mounted by the admin UI with a small host API. Its API calls
+  are passed through to the plugin. See <<_bundle_plugins>>.
+
+This works the same on a systemd host and on Kubernetes: only the
+PacketFence database (the `ui_plugin` table) and HTTP are involved.
+
+<<_writing_a_plugin_service>> builds a plugin service step by step, and
+<<_packaging_a_plugin>> describes the package that installs it on top of
+PacketFence.
+
+=== How it works
+
+----
+plugin service starts, serves <scheme>://<host>:<port>/manifest.json (https unless on the loopback)
+  registers: its row of the ui_plugin table                (Go or Perl accessor)
+
+admin logs in
+  GET /api/v1/plugins               api-frontend, Go "api" handler
+    reads the registrations         ui_plugin table, at most every 5s
+    fetches each manifest           3s timeout, then refreshed in the background (30s, 5s after a failure)
+    validates it against the catalog, leaves out (and logs) unreachable or invalid ones
+  the UI adds the routes and sidebar items of each plugin
+
+admin uses a plugin page
+  * /api/v1/plugin/<name>/<path>    api-frontend, Go "api" handler
+    checks the can of the manifest  (see ACL)
+    signs the request, passes it to <scheme>://<host>:<port>/<path>
+
+plugin service stops
+  deregisters: the row is deleted                         (Go or Perl accessor)
+----
+
+A manifest is fetched once when its plugin is first listed. After that the
+last result is answered at once and refreshed in the background, so a slow or
+dead plugin does not slow down the admin UI. A plugin that stops without
+deregistering (crash, killed pod) stays registered: it disappears from the UI
+once a refresh of its manifest fails, within about 30s, and its pages answer
+502 ("The plugin ... is unavailable") meanwhile. It is listed again as soon as
+its manifest answers, or when it registers again.
+
+The UI loads the plugins once per session, when the admin logs in or reloads
+the page: their routes, menus and stores replace the ones of the previous
+load. A manifest that changes after that needs a reload of the admin UI, or a
+new login, to show. The routes of a plugin that deregisters stay until then:
+they show the unavailable view. If the list of the plugins cannot be loaded,
+the UI has none and tries again at the next navigation.
+
+The registrations are rows of the database: they survive a restart of any
+service, and every api-frontend reads the same ones, whatever the number of
+pods.
+
+`GET /api/v1/plugins` and `/api/v1/plugin/` are allowed to any admin by
+api-aaa. What each admin sees and may call is decided by the `can` of the
+manifest, see <<_acl>>.
+
+=== Registering a plugin
+
+A plugin registers itself when its service serves its manifest, and is
+deregistered when it goes away, with the PacketFence accessors in Go or in
+Perl. Both write the same row and apply the same rules. They reach the
+PacketFence database through the PacketFence configuration: *the plugin never
+handles the database credentials*.
+
+[options="header"]
+|===
+|Operation |Go (`github.com/inverse-inc/packetfence/go/uiplugins`) |Perl (`pf::ui_plugins`)
+|register or update |`uiplugins.Register(ctx, uiplugins.Registration{Name, Host, Port}) error` |`pf::ui_plugins::register({ name => ..., host => ..., port => ... })` returns `($status, $error)`
+|deregister |`uiplugins.Deregister(ctx, name) error` |`pf::ui_plugins::deregister($name)` returns `($status, $error)`
+|get one |`uiplugins.Get(ctx, name) (*Registration, error)`, nil when not registered |`pf::ui_plugins::get($name)` returns a hashref, undef when not registered
+|list all |`uiplugins.List(ctx) (map[string]Registration, error)` |`pf::ui_plugins::list()` returns a hashref, name to registration
+|validate without writing |`Registration.Validate() error` |`pf::ui_plugins::validate($registration)` returns `($ok, $error)`
+|===
+
+[options="header"]
+|===
+|Property |
+|`name` |`^[a-z][a-z0-9_-]{0,62}$`: also the `id` of the manifest and the `<name>` of `/api/v1/plugin/<name>/`
+|`host` |the host name or IP address api-frontend reaches the plugin service at (eg: its Kubernetes Service name, or `containers-gateway.internal`). Plain HTTP on the loopback only, HTTPS with a certificate valid for this host otherwise, see <<_the_api_of_a_plugin>>
+|`port` |1 to 65535
+|===
+
+Register is an upsert: registering again updates the registration.
+Deregistering a plugin that is not registered is not an error. The Go
+functions `RegisterDB`, `DeregisterDB`, `GetDB` and `ListDB` do the same with
+a `*sql.DB` of your own.
+
+The table: `ui_plugin` (`name` primary key, `host`, `port`), one row per
+plugin. A row is validated again when it is read: one written by hand that
+breaks the rules above is logged and left out.
+
+A registration script, eg for a systemd `ExecStartPost=+` (it runs as root,
+with the Perl of PacketFence) or a Kubernetes `postStart` hook. It waits for
+the service to listen, since PacketFence fetches the manifest right after:
+
+[source,perl]
+----
+#!/usr/bin/perl
+use strict;
+use warnings;
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
+use IO::Socket::INET;
+use pf::error qw(is_error);
+use pf::ui_plugins;
+
+my ($action) = @ARGV;
+my ($name, $host, $port) = ('acme', 'containers-gateway.internal', 8810);
+my ($status, $error);
+if (($action // '') eq 'register') {
+    for (1 .. 60) {
+        last if IO::Socket::INET->new(PeerAddr => $host, PeerPort => $port, Proto => 'tcp', Timeout => 2);
+        sleep 1;
+    }
+    ($status, $error) = pf::ui_plugins::register({ name => $name, host => $host, port => $port });
+} elsif (($action // '') eq 'deregister') {
+    ($status, $error) = pf::ui_plugins::deregister($name);
+} else {
+    die "usage: $0 register|deregister\n";
+}
+die "$action $name: $error\n" if is_error($status);
+----
+
+=== The API of a plugin
+
+The plugin serves its manifest at `/manifest.json`, and the API of its page.
+The admin UI reaches that API through api-frontend only:
+`/api/v1/plugin/<name>/<path>` is passed to `<scheme>://<host>:<port>/<path>`,
+with the query string and the body.
+
+*Transport.* A plugin on the loopback of api-frontend (`127.0.0.0/8`, `::1`,
+`localhost`: the same host or pod) is reached over plain HTTP. Any other host
+is reached over *HTTPS*: its certificate must be valid for the registered
+host, and chain to the system authorities or to the authorities in
+[filename]`/usr/local/pf/conf/ssl/ui_plugins_ca.pem` (optional, PEM).
+Redirects are not followed, and the proxy settings of the environment are not
+used. api-frontend reads [filename]`ui_plugins_ca.pem` when it first contacts
+a plugin, and logs whether it was loaded or is absent: restart api-frontend
+after changing it.
+
+*What is passed (manifest page).* Only the API methods the manifest declares:
+the path must match one of its `api` paths, with the verb of that method. The
+fixed parts of a path are compared as sent, still encoded (`items/%73earch` is
+not `items/search`), as a router on the raw path sees them. `{id}` is one
+segment; once decoded it may hold a `/` (the plugin gets it encoded, as the UI
+sent it, eg `items/site%2Fa`), but none of its `/` separated parts may be
+empty, `.` or `..` (`items/x%2F..%2Fadmin` is refused). The verbs: `list` and
+`item`: GET, `listOptions` and `itemOptions`: OPTIONS, `search` and `create`:
+POST, `update`: PATCH, `delete`: DELETE. Anything else is refused (403), and
+so is a call the admin is not allowed (see <<_acl>>).
+
+*The identity of the admin.* The admin token is not passed (`Authorization`
+and `Cookie` are removed). The plugin gets the admin api-aaa checked instead:
+
+* `X-PacketFence-Username`: the admin
+* `X-PacketFence-Admin-Roles`: their admin roles (eg: `ALL`)
+* `X-PacketFence-Admin-Actions`: their actions on the targets the `can`
+  values of the manifest name (eg: `SYSLOG_READ,SYSLOG_UPDATE` for a manifest
+  about `syslog`)
+
+No other `X-PacketFence-*` header reaches the plugin, whatever its spelling
+(`_` for `-`, case). The plugin checks that these headers come from
+PacketFence with the signature of the request, see <<_requests_from_packetfence_the_signature>>.
+
+*Limits.* A request body is limited to 10 MB, a call to a manifest page to
+60s.
+
+*What is answered (manifest page).* The answer must be JSON
+(`application/json` or `+json`, valid, at most 10 MB) or empty. It is passed
+with fixed headers (`Content-Type: application/json`,
+`X-Content-Type-Options: nosniff`, a sandboxing `Content-Security-Policy`,
+`Cache-Control: no-store`): the headers of the plugin (cookies, CORS, ...) are
+not. A redirect, a 401 or 407, anything else than JSON, a plugin whose
+manifest is unavailable or that does not answer is a 502.
+
+The answers follow the PacketFence API, as the core views expect them:
+
+[options="header"]
+|===
+|Method of the manifest |Request |Answer
+|`list` |`GET /notes?cursor=&limit=&sort=&fields=` |`{ "items": [...], "nextCursor": n, "prevCursor": n, "total_count": n }`, no `nextCursor` on the last page
+|`search` |`POST /notes/search`, `{ "query": {...}, "cursor": n, "limit": n, "sort": [...], "fields": [...] }` |like `list`
+|`listOptions`, `itemOptions` |`OPTIONS /notes`, `OPTIONS /notes/<id>` |`{ "meta": { "<field>": { "allowed": [{ "value", "text" }], "default": ... } } }`; `{ "meta": {} }` is fine
+|`item` |`GET /notes/<id>` |`{ "item": {...} }`, 404 when it does not exist
+|`create` |`POST /notes`, the item |201 `{ "id": "...", "message": "..." }`, 409 when it exists
+|`update` |`PATCH /notes/<id>`, the item |200 `{ "message": "..." }`
+|`delete` |`DELETE /notes/<id>` |200 `{ "message": "..." }`
+|errors | |`{ "message": "...", "errors": [{ "field": "<namespace>", "message": "..." }] }` with a 4xx: the field errors show under the form fields
+|===
+
+The UI shows the `message`, `warnings[].message` and `errors[].message` of a
+plugin as text (escaped). It ignores the `pattern` values of an `OPTIONS` meta
+(regular expressions the browser would run): use a `matches` validator of the
+manifest instead.
+
+=== Requests from PacketFence: the signature
+
+A plugin service is reachable by more than PacketFence: on a systemd host it
+listens on the address of the docker bridge, which every container of the
+host can reach. Anyone who can reach it could send the identity headers and
+pass for any admin. So PacketFence *signs* every request it passes to a
+plugin, and a plugin refuses every request that is not signed (its manifest
+excepted):
+
+[options="header"]
+|===
+|Header |
+|`X-PacketFence-Plugin-Timestamp` |the unix time of the request, in seconds
+|`X-PacketFence-Plugin-Signature` |hex HMAC-SHA256, with the key of the plugin, of these values joined by `\n`: the timestamp, the method, the path (URL encoded, as the plugin receives it), the query string, `X-PacketFence-Username`, `X-PacketFence-Admin-Roles`, `X-PacketFence-Admin-Actions`, and the hex SHA-256 of the body (the SHA-256 of an empty string without a body)
+|===
+
+* *The key of a plugin* is the HMAC-SHA256 of the text
+  `packetfence ui plugin proxy <name>` with the system init key of
+  PacketFence ([filename]`/usr/local/pf/conf/system_init_key`), the same on
+  every node of a cluster. In Perl: `pf::ui_plugins::proxy_key($name)` (raw
+  bytes). In Go: `uiplugins.ProxyKey(name)`, after
+  `uiplugins.SystemInitKey = pfcrypt.SystemInitKey`. The package of a plugin
+  passes the key to its service, eg in an environment file readable by root
+  only.
+* *Checking.* Compute the HMAC over the request as received, compare it in
+  constant time, and refuse a timestamp more than 2 minutes off. In Perl,
+  `pf::ui_plugins::check_signature($key, \%request)` does it, with
+  `%request`: `method`, `path` (URL encoded), `query`, `body` (raw bytes), and
+  the headers `username`, `roles`, `actions`, `timestamp`, `signature`. In Go,
+  `uiplugins.Signature(key, uiplugins.SignedRequest{...})` gives the
+  expected signature, `uiplugins.BodySHA256(body)` the hash of the body.
+* *Replays.* There is no nonce: a request captured within the 2 minutes can
+  be sent again, but not with other identity headers or another body.
+* *Test vector.* [filename]`go/uiplugins/testdata/signature.json` holds a
+  system init key, a request and its signature: Go and Perl check it in their
+  tests, a plugin in another language should too.
+
+In Python, for example:
+
+[source,python]
+----
+import hashlib, hmac, time
+
+def proxy_key(name, system_init_key):
+    return hmac.new(system_init_key, b"packetfence ui plugin proxy " + name.encode(), hashlib.sha256).digest()
+
+def from_packetfence(key, method, raw_path, query, headers, body):
+    ts = headers.get("X-PacketFence-Plugin-Timestamp", "")
+    if not ts.isdigit() or abs(time.time() - int(ts)) > 120:
+        return False
+    values = [ts, method, raw_path, query,
+              headers.get("X-PacketFence-Username", ""),
+              headers.get("X-PacketFence-Admin-Roles", ""),
+              headers.get("X-PacketFence-Admin-Actions", ""),
+              hashlib.sha256(body).hexdigest()]
+    want = hmac.new(key, "\n".join(values).encode(), hashlib.sha256).hexdigest()
+    return hmac.compare_digest(want, headers.get("X-PacketFence-Plugin-Signature", "").lower())
+----
+
+=== Manifest
+
+The manifest follows the JSON Schema
+[filename]`docs/ui-plugins/manifest.schema.json` (generated from the catalog,
+see <<_catalog>>). The API also checks that every validator applies to the
+type of its component, that `when` names another field, and that the `api`
+paths have an `{id}` where needed.
+
+[options="header"]
+|===
+|Property |
+|`manifestVersion` |`1`
+|`id` |the registered name
+|`name` |its short name, the sidebar item (the `title` when absent): a translatable text
+|`title`, `description` |translatable texts: `{ "en": "...", "fr": "..." }`, `en` is required
+|`icon` |a vue-awesome icon of the admin UI, or one of `icons` as `<id>/<name>`: the plugin on the Plugins page of Configuration
+|`icons` |the icons the plugin ships, `{ "<name>": { "width", "height", "paths": ["<SVG path data>", ...] } }` (the data of a vue-awesome icon: path commands and numbers only, no markup). The admin UI registers them when it loads the plugin, as `<id>/<name>`: `icon`, `menu.icon`, `bundle.navbar.icon` and the code of a bundle can use them. A plugin never needs an icon added to the admin UI, nor a rebuild
+|`menu` |where the page goes, see below
+|`template` |`resource` (one object, eg: a settings page), `collection` (a list, and items to create, edit, clone, delete) or `bundle` (see <<_bundle_plugins>>)
+|`api` |the API of the page, see below (not for a bundle)
+|`collection` |`collection` template only: `columns` (`key`, `label`, `sortable`) and `searchFields`
+|`form` |`fields`, or `tabs` (`title`, `fields`) (not for a bundle)
+|`bundle` |`bundle` template only, see <<_bundle_plugins>>
+|===
+
+An example, a collection of notes:
+
+[source,json]
+----
+{
+  "manifestVersion": 1,
+  "id": "notes",
+  "name": { "en": "Notes", "fr": "Notes" },
+  "title": { "en": "Notes", "fr": "Notes" },
+  "description": { "en": "A collection of notes, stored by the plugin service.", "fr": "Une collection de notes, enregistrées par le service du plugin." },
+  "icon": "clipboard-list",
+  "menu": { "area": "configuration", "can": "read plugin" },
+  "template": "collection",
+  "api": {
+    "list": "notes",
+    "listOptions": "notes",
+    "search": "notes/search",
+    "create": { "path": "notes", "can": "create syslog" },
+    "item": "notes/{id}",
+    "itemOptions": "notes/{id}",
+    "update": { "path": "notes/{id}", "can": "update syslog" },
+    "delete": { "path": "notes/{id}", "can": "delete syslog" }
+  },
+  "collection": {
+    "columns": [ { "key": "id", "label": { "en": "Name" }, "sortable": true }, { "key": "text", "label": { "en": "Text" } } ],
+    "searchFields": ["id", "text"]
+  },
+  "form": {
+    "fields": [
+      { "namespace": "id", "component": "BaseFormGroupInput", "label": { "en": "Name" },
+        "validators": [ { "fn": "required" }, { "fn": "matches", "args": ["^[a-z0-9-]+$"] } ] },
+      { "namespace": "text", "component": "BaseFormGroupTextarea", "label": { "en": "Text" },
+        "validators": [ { "fn": "required" } ] }
+    ]
+  }
+}
+----
+
+Check a manifest before running anything, with any JSON Schema 2020-12
+validator, eg:
+
+[source,bash]
+----
+npm i ajv@8
+node -e '
+const Ajv = require("ajv/dist/2020").default, fs = require("fs")
+const v = new Ajv({ strict: false }).compile(JSON.parse(fs.readFileSync("/path/to/packetfence/docs/ui-plugins/manifest.schema.json")))
+console.log(v(JSON.parse(fs.readFileSync("manifest.json"))) || v.errors)'
+----
+
+The API applies the few more checks above: a manifest it refuses is logged by
+api-frontend, see <<_troubleshooting>>.
+
+==== Menu
+
+[options="header"]
+|===
+|Property |
+|`area` |`configuration`, `status`, `auditing`, `nodes`, `users` or `preferences`
+|`section` |the path of an existing sidebar section, at any depth (eg: `/configuration/integration`). Without it: in `configuration`, the page goes in the *Plugins* section; in the other areas, it is a new top-level section
+|`group` |the untranslated name of a group of `section` (eg: `Main Configuration`)
+|`before`, `after` |the path of a sibling item
+|`icon` |for a new top-level section (not in `configuration`): a vue-awesome icon of the admin UI, or one of `icons`
+|`can` |*required*: the ACL needed to see the item, open the pages and call the plugin, see <<_acl>>
+|===
+
+The page is at `/<area>/plugins/<id>` (and `/new`, `/<item id>`,
+`/<item id>/clone` for a collection).
+
+*The Plugins section of Configuration.* The plugins of `configuration`
+without a `menu.section` are the items of the Plugins section, each by its
+`name`. Its page, `/configuration/plugins`, lists them like the pages of the
+other sections (Compliance, Integration, ...): the `icon`, the `title` (a link
+to the page of the plugin) and the `description` of each. Give the three: a
+plugin is known by them.
+
+==== API
+
+The same mapping as the `_api.js` of the core views: a path relative to the
+plugin, `/api/v1/plugin/<name>/`, by method, called with a fixed verb. `{id}`
+is the id of the item. A manifest cannot reach a core API.
+
+[options="header"]
+|===
+|Method |Verb |`collection` |`resource`
+|`list` |GET |path |
+|`listOptions` |OPTIONS |path |
+|`search` |POST |path |
+|`create` |POST |path |
+|`item` |GET |path with `{id}`, *required* |path, *required*
+|`itemOptions` |OPTIONS |path with `{id}` |path
+|`update` |PATCH |path with `{id}` |path
+|`delete` |DELETE |path with `{id}` |
+|===
+
+`create`, `update` and `delete` are `{ "path": "...", "can": ... }`: the
+`can` is required, the method is only offered to the admins it allows, and
+the API refuses the call to the others (see <<_acl>>). A path has one `{id}`
+at most, and `search` cannot have the path of `create`.
+
+A collection needs `list` or `search`. A missing method is not offered:
+without `create` there is no New or Clone, without `update` nothing can be
+saved, without `delete` nothing can be deleted. The `OPTIONS` answers give the
+form its meta (allowed values, placeholders, defaults, required fields) as
+for the core views; an empty `{ "meta": {} }` is fine.
+
+==== Form fields
+
+[options="header"]
+|===
+|Property |
+|`namespace` |the property of the item, dots for nested ones (`a.b`); not `__proto__`, `constructor` or `prototype`
+|`component` |a component of the catalog, eg: `BaseFormGroupInput`, `BaseFormGroupChosenOne`, `BaseFormGroupSwitch`
+|`label`, `text`, `placeholder` |translatable texts
+|`props` |other properties of the component (eg: `options`, `enabledValue`). Not the ones set from the field properties or rendered as HTML (`forbiddenProps` of the catalog)
+|`when` |show the field only when another one `equals`, `notEquals` or is `in` a list of values (one value at least); exactly one of the three
+|`can` |show the field only to the admins allowed, see <<_acl>>
+|`validators` |`[{ "fn": "isPort" }, { "fn": "min", "args": [2], "message": { "en": "..." } }]`, the validators of the catalog. A `matches` regular expression follows the rules below
+|===
+
+A tab (`tabs[]`) can also have a `can`: it is only shown to the admins
+allowed.
+
+The texts of a manifest are shown as text: the markup of a `text` or of a
+validator `message` is escaped, a plugin cannot add HTML to the UI.
+
+==== `matches` regular expressions
+
+The browser runs the regular expression (a JavaScript `RegExp` without
+flags) on every keystroke, and the API checks it when it validates the
+manifest. Only the syntax both read the same way is accepted:
+
+* at most 256 characters
+* escapes: `++\d \D \w \W \s \S \b \B \n \r \t \f \v++`, `++\xHH++` (two
+  hexadecimal digits) and an escaped character that is not a letter or a digit
+  (`++\.++`, `++\-++`, `++\/++`, `++\]++`...)
+* groups: `++(...)++` and `++(?:...)++` only: no flags (`++(?i)++`), named groups
+  (`++(?P<id>...)++`, `++(?<id>...)++`), lookarounds (`++(?=...)++`) or
+  backreferences (`++\1++`)
+* no POSIX classes (`++[[:alpha:]]++`, use `++[a-zA-Z]++`), no `++\p{...}++`,
+  `++\A++`, `++\z++`, `++\Q...\E++` or `++\x{...}++`; a `++]++` first in a class is
+  escaped (`++[\]a]++`)
+* no nested quantifiers: a group repeated more than once (`++*++`, `{plus}`,
+  `++{2,}++`, `++{1,3}++`, `++{3}++`) cannot hold a quantifier (`++*++`, `{plus}`, `++?++`,
+  a variable `++{m,n}++`) or an alternation of more than single characters. The
+  browser engine backtracks: `++^(a|aa)+$++`, `++^((a+)b?)*$++` or `++^(\d+\.?)+$++`
+  freeze the page on a 30 characters input. A fixed count and an alternation
+  of single characters are fine: `++^(?:[a-f0-9]{2}:){5}[a-f0-9]{2}$++`,
+  `++^(a|b)+$++`.
+
+A refused regular expression makes the whole manifest invalid: the plugin is
+left out of the UI and the API logs the reason. Rewrite a nested pattern with
+one level of repetition, or use a validator of the catalog:
+
+[options="header"]
+|===
+|Refused |Instead
+|`++^(\d+\.?)+$++` |`++^[\d.]+$++`
+|`++^(\w+-?)+$++` |`++^[\w-]+$++`
+|`++^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$++` |the `isIpv4` validator
+|`++^(?=.*\d).+$++` |`++^.*\d.*$++`
+|`++^(?i)[a-z]+$++` |`++^[a-zA-Z]+$++`
+|===
+
+==== ACL
+
+A `can` is the JSON form of the `acl.$can`, `acl.$some` and `acl.$every` of
+the core views, checked against the admin roles of the admin:
+
+[options="header"]
+|===
+|`can` |
+|`"read syslog"` |`<verb> <target>`: the admin role action `SYSLOG_READ`
+|`{ "some": ["read syslog", "read system"] }` |any of them
+|`{ "every": ["read syslog", "update syslog"] }` |all of them
+|===
+
+`some` and `every` take `can` values, nested 3 levels at most. The verbs are
+the actions of the admin roles (`read`, `create`, `update`, `delete`,
+`create-multiple`, ..., `acl.verbs` of the catalog, `_` replaced by `-`), the
+target is the rest of the action, lowercase (`CONFIGURATION_MAIN_READ` is
+`read configuration_main`).
+
+*Plugin actions.* Every plugin shares two admin role actions:
+
+[options="header"]
+|===
+|Action |`can` |
+|`PLUGIN_READ` |`read plugin` |reading through the plugins
+|`PLUGIN_WRITE` |`write plugin` |changing anything through a plugin. It is not allowed on a read-only cluster member
+|===
+
+They are in the role `ALL`, and can be given to any admin role. A plugin uses
+them in its `can` values like any other action. They cover every plugin: an
+admin with `PLUGIN_READ` can read all of them. A plugin that needs finer rules
+checks `X-PacketFence-Username` and `X-PacketFence-Admin-Roles` itself.
+
+[options="header"]
+|===
+|Where |Without the ACL
+|`menu.can` |no sidebar item, the routes of the plugin are refused (as the `meta.can` of a core route), every call to the plugin is refused
+|`api.create.can` |no New and no Clone, the routes and the call are refused
+|`api.update.can` |no Save, the call is refused
+|`api.delete.can` |no Delete, the call is refused
+|a field or tab `can` |not shown; the plugin checks its own rules with `X-PacketFence-Admin-Actions` if it needs to
+|===
+
+`GET /api/v1/plugins` only lists the plugins whose `menu.can` the admin
+satisfies.
+
+[[_bundle_plugins]]
+=== Bundle plugins
+
+A manifest with `"template": "bundle"` describes a page that is the plugin's
+own code, with no `api`, `collection` or `form`:
+
+[source,json]
+----
+{
+  "manifestVersion": 1,
+  "id": "kit",
+  "title": { "en": "Kit" },
+  "menu": { "area": "status", "can": "read plugin" },
+  "template": "bundle",
+  "bundle": {
+    "hostApi": 1,
+    "mounts": ["page", "navbar-panel"],
+    "navbar": { "icon": "toolbox" },
+    "timeout": 120
+  }
+}
+----
+
+*A bundle is installed by a package.* The template the plugin service answers
+does not make it a bundle by itself: PacketFence accepts a manifest with the
+template `bundle` only when the package of the plugin installed a bundle on
+the server, that is when the descriptor
+[filename]`/usr/local/pf/conf/plugins.d/<name>.conf` has a `[bundle]`
+`sha256` (see <<_the_code_of_the_page>>). Otherwise the manifest is refused
+(and logged), the plugin is not listed and its calls answer 502. This is
+checked at each request: removing the package ends the bundle at once.
+
+==== The API passed through
+
+The API of a bundle is *passed through*:
+
+* any path under `/api/v1/plugin/<name>/` reaches the plugin, except one with
+  a `.` or `..` part once decoded, even behind an encoded `/` (`a%2F..%2Fb`)
+* the admin needs `menu.can`, and `PLUGIN_READ` for `GET` and `OPTIONS`,
+  `PLUGIN_WRITE` for `POST`, `PUT`, `PATCH` and `DELETE`: the HTTP
+  method decides, not the path. A POST that only reads (a search, a question)
+  is a write
+* any request body (eg: `multipart/form-data`), at most 10 MB
+* a call may take `bundle.timeout` seconds (60 by default, 300 at most).
+  haproxy-admin, in front of the API, waits 310s. The answer is buffered
+  whole, nothing is streamed: a long task answers at once and is polled
+* a JSON answer is passed as JSON. Any other answer is passed with its media
+  type as a download (`Content-Disposition: attachment`, with the filename of
+  the plugin): it is never shown as a page of the PacketFence origin. The
+  headers of the answer are fixed as for a manifest page (`nosniff`, a
+  sandboxing `Content-Security-Policy`, `no-store`); a redirect or a 401/407
+  is a 502
+* the plugin gets the same signed identity headers, and also
+  `X-PacketFence-Admin-Token`: the token of the admin. Its own calls to the
+  PacketFence API then run with the admin's token, and api-aaa decides what
+  the admin may read and change. A manifest page plugin never gets it
+
+*Read-only.* While the database is read-only (the `read_only` flag, or a
+cluster member that is not ready), the writes to every plugin are refused
+(403): the `POST`, `PUT`, `PATCH` and `DELETE` of a bundle plugin, and the
+`create`, `update` and `delete` of a manifest page. Reads still pass.
+
+[[_the_code_of_the_page]]
+==== The code of the page
+
+The page of a bundle plugin is a JavaScript module its *package* installs,
+never the plugin service:
+
+[options="header"]
+|===
+|File |
+|[filename]`/usr/local/pf/conf/plugins.d/<name>.js` |the module
+|[filename]`/usr/local/pf/conf/plugins.d/<name>.conf` |its descriptor, with the SHA-256 of the module: `[bundle]` `sha256=<hex>`
+|===
+
+`GET /api/v1/plugins/<name>/bundle.js` serves the module to the admins who
+satisfy `menu.can`, only when it matches the `sha256` of the descriptor (a
+module changed or partly written is not served). The admin UI loads the
+module once per session, and imports it. Installing or removing a plugin
+needs no rebuild of the admin UI.
+
+*A bundle is trusted code.* Its module runs in the admin UI, with the session
+of the admin: what the admin may do, it may do, whatever its `menu.can` and
+the `PLUGIN_*` actions (they decide who gets the module and who may call its
+service, not what the module does). Only root installs it, through a package.
+Install only the plugins you trust as much as PacketFence.
+
+*The module.*
+
+[source,javascript]
+----
+export default {
+  hostApi: 1,
+  mount (el, host, { kind }) {
+    const vm = new host.Vue({ render: h => h(Page, { props: { host, kind } }) }).$mount()
+    el.appendChild(vm.$el)
+    return () => vm.$destroy() // the unmount
+  }
+}
+----
+
+Build it as an ES module library without `vue` or `@vue/composition-api`: use
+`host.Vue` and `host.composition`, the ones of the admin UI, with its global
+components (BootstrapVue, `icon`).
+
+*Mounts* (`bundle.mounts`):
+
+[options="header"]
+|===
+|Mount |
+|`page` |the route `/<area>/plugins/<name>` and its sidebar item, from `menu`
+|`navbar-panel` |a navbar button (`bundle.navbar.icon`, shown to the admins who satisfy `menu.can`, right of the header icons) that opens a panel under the navbar, sliding down and up like the documentation. The panel of a plugin is mounted at login, hidden, and kept: the plugin keeps working while it is closed (and can set its badge). One panel is shown at a time, among the plugin panels, the Live logs and Historical logs panels and the documentation
+|===
+
+*Host API, version 1* (`host`):
+
+[options="header"]
+|===
+|Property |
+|`version`, `id` |`1`, the name of the plugin
+|`Vue` |the Vue of the admin UI
+|`composition` |`@vue/composition-api` as installed on that Vue (`ref`, `computed`, `watch`, ...): a bundle cannot ship its own
+|`i18n` |the VueI18n of the admin UI: give it to the root of the bundle (`{ i18n: host.i18n }`) for `$t`
+|`api` |`request`, `get`, `options`, `post`, `put`, `patch`, `delete`: the API client of the admin UI, the paths relative to `/api/v1/plugin/<name>/`. Quiet: the admin UI shows no notification for its answers, unless `{ quiet: false }`
+|`notify(level, message)` |a notification of the admin UI (`info`, `success`, `warning`, `danger`), the message as text
+|`progress(key, { message, progress, done, ok })` |the notification of a task under way (eg: uploads), updated in place by its `key`: it stays, with a progress bar (`progress`, 0-100), until `done`, then shows the result (`ok` or not) and hides like the others; the message as text
+|`can(can)` |the ACL of the admin, a manifest `can` (eg: `host.can('write plugin')`)
+|`t(...)`, `locale()` |the translations and the language of the admin UI
+|`panel` |the navbar panel of the plugin: `isOpen()` (shown now, reactive), `isFullscreen()` (reactive) and `toggleFullscreen()` (over the whole page under the navbar, like the documentation; a navigation closes it), `setBadge(count)` (a red dot on its navbar button, eg: unread answers; `0` removes it)
+|`navigate(to)` |a navigation of the admin UI; it closes the open navbar panel (eg: a button of a panel opens the plugin's page in Configuration)
+|`lookup` |the lookups of the admin UI forms, with the admin's rights: `persons(query, limit)` (pid, first name, last name, email) and `nodes(query, limit)` (MAC, owner, computer name), each a promise of `[{ value, text }]`; empty without `read users` / `read nodes`
+|`components` |the components of the admin UI forms, for a page that looks like the core ones: `BaseForm` (`form`, `meta`, `isLoading`, `isReadonly`) and its form groups (`BaseFormGroupInput`, `BaseFormGroupInputNumber`, `BaseFormGroupInputPassword`, `BaseFormGroupInputPasswordTest`, `BaseFormGroupChosenOne`, `BaseFormGroupTextarea`, `BaseFormGroupToggleDisabledEnabled`: `namespace`, `column-label`, `text`), the button bar `BaseFormButtonBar` (Save, Reset, and Cancel with a `close` listener), the services to restart `BaseServices` (`services`, `system_services`: the unit of the plugin, eg: `packetfence-plugin-<name>`)
+|`yup` |the yup of the admin UI, with its methods: the `schema` of a `BaseForm`, so that its form groups show the invalid feedback as the core forms do (eg: `yup.object({ name: yup.string().nullable().required('Name required.') })`). A form validates each field alone: a test reads the other fields from the form, not from `this.parent`
+|`store` |the Vuex store of the admin UI. The core components read the `$store` of the root of the bundle (the cluster, the services): a bundle with a Vuex store of its own passes to `host.store` the namespaces it does not have
+|===
+
+A module built for another `hostApi` than the admin UI provides is not
+mounted: the page or the panel shows an error instead.
+
+=== Database tables of a plugin
+
+A package installed on top of PacketFence can add tables to the PacketFence
+database. Its schema is kept the way PacketFence keeps its own
+([filename]`db/pf-schema-X.Y.sql`, [filename]`db/upgrade-X.Y-X.Z.sql`), and
+`pfcmd plugin schema` applies it.
+
+*Descriptor.* The package installs
+[filename]`/usr/local/pf/conf/plugins.d/<name>.conf`, owned by root (the
+directory is root's, mode 0755: a descriptor names the SQL files run as the
+database root user):
+
+[source,ini]
+----
+[plugin]
+version=1.2
+schema_dir=/usr/local/packetfence-plugin-acme/db
+
+# a bundle plugin only
+[bundle]
+sha256=<hex SHA-256 of acme.js>
+----
+
+*Files of `schema_dir`.*
+
+[options="header"]
+|===
+|File |
+|`<name>-schema-X.Y.sql` |the whole schema of version X.Y, for a fresh install
+|`upgrade-X.Y-X.Z.sql` |from version X.Y to X.Z. Starts with `CALL ValidatePluginVersion('<name>', X << 16 \| Y << 8);`
+|`teardown.sql` |drops the tables, when the package is purged
+|===
+
+Each schema and upgrade file ends by recording its version, as the
+PacketFence files do in `pf_version`:
+
+[source,sql]
+----
+INSERT IGNORE INTO plugin_version (name, id, version, created_at) VALUES ('acme', @VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
+----
+
+Every file must be safe to run again after a failure: `CREATE TABLE IF NOT
+EXISTS`, and the procedures of [filename]`db/upgrade-helpers.sql`
+(`AddColumnUnlessExists`, `DropColumnIfExists`, `AddIndexUnlessExists`,
+`DropIndexIfExists`, `CopyRowsInBatches`, `ValidatePluginVersion`) instead of
+the `IF [NOT] EXISTS` clauses of `ALTER TABLE`, which MySQL does not have.
+They are loaded before each file, in the same session, and dropped after it.
+Do not add foreign keys to the PacketFence tables: they would block the
+upgrades of PacketFence (clean up the rows of a deleted `person` yourself).
+
+*Upgrades keep the data*: `apply` runs the upgrade files from the version in
+the database to the version of the descriptor, in order. Nothing is dropped
+and recreated. The database is never downgraded: `check` fails when it is
+newer than the package.
+
+*Changing a large table.* An `ALTER TABLE` of a large table locks it, and on a
+Galera cluster blocks every node while it runs. Rebuild it instead:
+
+[source,sql]
+----
+SET sql_mode = "NO_ENGINE_SUBSTITUTION";
+
+SET @MAJOR_VERSION = 1;
+SET @MINOR_VERSION = 2;
+SET @VERSION_INT = @MAJOR_VERSION << 16 | @MINOR_VERSION << 8;
+
+CALL ValidatePluginVersion('acme', 1 << 16 | 1 << 8);
+
+-- the leftovers of a run that failed
+DROP TABLE IF EXISTS `acme_item_new`;
+DROP TABLE IF EXISTS `acme_item_old`;
+
+-- 1. a copy of the table, with its primary key only (Galera needs it)
+CREATE TABLE `acme_item_new` LIKE `acme_item`;
+CALL DropIndexIfExists('acme_item_new', 'acme_item_name');
+
+-- 2. the change, on the copy only
+ALTER TABLE `acme_item_new` MODIFY `name` VARCHAR(512) NOT NULL;
+
+-- 3. the rows, in batches (one transaction per batch), by an integer key
+CALL CopyRowsInBatches('acme_item', 'acme_item_new', '`id`, `name`, `note`, `created_at`', 'id', 10000);
+
+-- 4. the indexes, on the copy
+CALL AddIndexUnlessExists('acme_item_new', 'acme_item_name', 'KEY `acme_item_name` (`name`)');
+
+-- 5. the copy replaces the table in one statement: the table always exists
+RENAME TABLE `acme_item` TO `acme_item_old`, `acme_item_new` TO `acme_item`;
+
+-- 6. the old table goes
+DROP TABLE `acme_item_old`;
+
+INSERT IGNORE INTO plugin_version (name, id, version, created_at) VALUES ('acme', @VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
+----
+
+The rows written during the copy are lost: stop the service of the package on
+every node before upgrading to a version that rebuilds a table. Foreign keys
+follow a renamed table: drop and add them around the rename.
+
+=== pfcmd plugin
+
+Only root can run these commands (`pfcmd` is setuid root; they install
+packages and change the database as its root user): any other user is
+refused, `help` excepted.
+
+[options="header"]
+|===
+|Command |
+|`pfcmd plugin list` |the installed plugins (their descriptors): package version, version of their tables, registration, state of their UI code (`ok`, `mismatch`, `missing`, `none`)
+|`pfcmd plugin install <name\|file>` |installs `packetfence-plugin-<name>` from the configured repositories, or a package file, with `apt-get`
+|`pfcmd plugin uninstall <name> [--purge]` |removes the package; `--purge` also drops its tables
+|`pfcmd plugin schema apply <name> [--defaults-file=<file>]` |runs the schema file (fresh install) or the upgrade files up to the version of the descriptor, as the MariaDB root user through the local socket, or with a mysql client options file. Exits 2 when it cannot connect, with the command to run by hand. Run it from the package postinst
+|`pfcmd plugin schema check <name>` |exits 0 when the tables are at the version of the descriptor; it only reads the database. Run it before the service of the package starts (`ExecStartPre=+`)
+|`pfcmd plugin schema drop <name> [--defaults-file=<file>] [--force]` |runs `teardown.sql` and forgets the package. Run it when the package is purged: `apply` keeps a copy of `teardown.sql` in [filename]`/usr/local/pf/var/plugins/<name>/`. On a cluster member it refuses without `--force`: every node shares the tables
+|===
+
+[[_writing_a_plugin_service]]
+=== Writing a plugin service
+
+==== Checklist
+
+. Pick a *name*: `^[a-z][a-z0-9_-]{0,62}$`. It is the `id` of the manifest,
+  the URL segment `/api/v1/plugin/<name>/`, the key of the registration and
+  the `<name>` of the package `packetfence-plugin-<name>`.
+. Pick the *admin role actions* the page needs, among the existing ones (a
+  plugin cannot add actions): eg `SYSLOG_READ`, `SYSLOG_UPDATE`, written
+  `read syslog`, `update syslog` in the manifest, or `PLUGIN_READ` and
+  `PLUGIN_WRITE`, see <<_acl>>.
+. Write the *manifest*, and check it against the JSON Schema.
+. Write the *API*: one route per method of the manifest (a manifest page), or
+  the routes of the bundle.
+. *Check the signature* of every request but the manifest.
+. Decide *where it runs* and how PacketFence reaches it: plain HTTP on the
+  loopback of api-frontend only, HTTPS with a trusted certificate otherwise.
+. *Register* once the service listens, with the Go or Perl accessors. The
+  service never handles the database credentials.
+. *Package* it, see <<_packaging_a_plugin>>.
+. *Test* it through the PacketFence API.
+
+==== Go
+
+The accessors are in `github.com/inverse-inc/packetfence/go/uiplugins`. In a
+repository of its own, the module of the plugin uses the one of PacketFence
+with a `replace` (or a `go.work`):
+
+----
+module example.com/notes
+
+go 1.26.4
+
+require github.com/inverse-inc/packetfence/go v0.0.0
+replace github.com/inverse-inc/packetfence/go => /path/to/packetfence/go
+----
+
+The skeleton:
+
+[source,go]
+----
+//go:embed manifest.json
+var manifest []byte
+
+func routes() *http.ServeMux {
+    mux := http.NewServeMux()
+    mux.HandleFunc("GET /manifest.json", func(w http.ResponseWriter, r *http.Request) {
+        w.Header().Set("Content-Type", "application/json")
+        w.Write(manifest)
+    })
+    mux.HandleFunc("GET /notes", signed(list))             // list
+    mux.HandleFunc("POST /notes/search", signed(search))   // search
+    mux.HandleFunc("POST /notes", signed(create))          // create
+    mux.HandleFunc("GET /notes/{id}", signed(item))        // item
+    mux.HandleFunc("PATCH /notes/{id}", signed(update))    // update
+    mux.HandleFunc("DELETE /notes/{id}", signed(remove))   // delete
+    mux.HandleFunc("OPTIONS /notes", signed(options))      // listOptions
+    mux.HandleFunc("OPTIONS /notes/{id}", signed(options)) // itemOptions
+    return mux
+}
+
+// signed refuses a request that does not come from PacketFence
+func signed(next http.HandlerFunc) http.HandlerFunc {
+    key := uiplugins.ProxyKey("notes")
+    return func(w http.ResponseWriter, r *http.Request) {
+        body, err := io.ReadAll(http.MaxBytesReader(w, r.Body, 10<<20))
+        if err != nil {
+            http.Error(w, `{"message":"invalid body"}`, http.StatusBadRequest)
+            return
+        }
+        r.Body = io.NopCloser(bytes.NewReader(body))
+        ts := r.Header.Get(uiplugins.TimestampHeader)
+        n, err := strconv.ParseInt(ts, 10, 64)
+        want := uiplugins.Signature(key, uiplugins.SignedRequest{
+            Timestamp: ts, Method: r.Method, Path: r.URL.EscapedPath(), Query: r.URL.RawQuery,
+            Username: r.Header.Get(uiplugins.UsernameHeader), Roles: r.Header.Get(uiplugins.RolesHeader),
+            Actions: r.Header.Get(uiplugins.ActionsHeader), BodySHA256: uiplugins.BodySHA256(body),
+        })
+        if err != nil || time.Since(time.Unix(n, 0)).Abs() > uiplugins.SignatureMaxAge ||
+            !hmac.Equal([]byte(want), []byte(strings.ToLower(r.Header.Get(uiplugins.SignatureHeader)))) {
+            http.Error(w, `{"message":"not from PacketFence"}`, http.StatusUnauthorized)
+            return
+        }
+        next(w, r)
+    }
+}
+
+func main() {
+    uiplugins.SystemInitKey = pfcrypt.SystemInitKey
+    listener, _ := net.Listen("tcp", "127.0.0.1:8092")
+    server := &http.Server{Handler: routes()}
+    go server.Serve(listener) // or ServeTLS, see "Where it runs, and HTTPS"
+
+    // register once the service answers
+    r := uiplugins.Registration{Name: "notes", Host: "127.0.0.1", Port: 8092}
+    if err := uiplugins.Register(ctx, r); err != nil {
+        log.Fatal(err)
+    }
+
+    stop := make(chan os.Signal, 1)
+    signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
+    <-stop
+    server.Shutdown(ctx)
+}
+----
+
+`uiplugins.Register` reads the database settings from pfconfig, like the
+other PacketFence Go services: `PFCONFIG_PROTO`, `PFCONFIG_TCP_HOST` and
+`PFCONFIG_TCP_PORT` in the environment, and `PF_SYSTEM_INIT_KEY` or
+[filename]`conf/system_init_key`.
+
+==== Perl
+
+The plugin runs with the Perl of PacketFence, which ships Mojolicious, on a
+host or in a container that has the PacketFence tree
+([filename]`/usr/local/pf/lib`, [filename]`/usr/local/pf/lib_perl`) and
+reaches pfconfig. The skeleton:
+
+[source,perl]
+----
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
+use Mojolicious::Lite;
+use Mojo::Server::Daemon;
+use pf::error qw(is_error);
+use pf::ui_plugins;
+
+my $key = pf::ui_plugins::proxy_key('notes');
+
+# every request but the manifest comes from PacketFence
+under sub {
+    my ($c) = @_;
+    return 1 if $c->req->url->path eq '/manifest.json';
+    my $h = $c->req->headers;
+    my ($ok, $error) = pf::ui_plugins::check_signature($key, {
+        method    => $c->req->method,
+        path      => $c->req->url->path->to_string,
+        query     => $c->req->url->query->to_string,
+        body      => $c->req->body,
+        username  => $h->header('X-PacketFence-Username'),
+        roles     => $h->header('X-PacketFence-Admin-Roles'),
+        actions   => $h->header('X-PacketFence-Admin-Actions'),
+        timestamp => $h->header('X-PacketFence-Plugin-Timestamp'),
+        signature => $h->header('X-PacketFence-Plugin-Signature'),
+    });
+    return 1 if $ok;
+    $c->render(status => 401, json => { message => $error });
+    return undef;
+};
+
+get '/manifest.json' => sub { my ($c) = @_; $c->res->headers->content_type('application/json'); $c->render(data => $manifest) };
+get     '/notes'        => \&list;     # list
+post    '/notes/search' => \&search;   # search
+post    '/notes'        => \&create;   # create
+get     '/notes/:id'    => \&item;     # item
+patch   '/notes/:id'    => \&update;   # update
+del     '/notes/:id'    => \&remove;   # delete
+options '/notes'        => sub { $_[0]->render(json => { meta => {} }) };
+
+my $daemon = Mojo::Server::Daemon->new(app => app, listen => ['http://127.0.0.1:8093']);
+$daemon->start;
+
+# register once the service answers
+my ($status, $error) = pf::ui_plugins::register({ name => 'notes', host => '127.0.0.1', port => 8093 });
+die "$error\n" if is_error($status);
+Mojo::IOLoop->start;
+----
+
+==== Where it runs, and HTTPS
+
+PacketFence reaches a plugin over plain HTTP *only on the loopback of
+api-frontend* (`127.0.0.0/8`, `::1`, `localhost`). Anywhere else it uses HTTPS
+and verifies the certificate.
+
+[options="header"]
+|===
+|Deployment |Host to register |Transport
+|Kubernetes, the plugin is a container of the api-frontend pod |`127.0.0.1` |HTTP
+|Kubernetes, the plugin has its own Service |the Service name, eg `notes.packetfence.svc` |HTTPS, a certificate for that name
+|systemd host: api-frontend runs in a container, the plugin on the host |`containers-gateway.internal` (the host, as the containers see it) |HTTPS, a certificate for `containers-gateway.internal`
+|another server |its name |HTTPS, a certificate for that name
+|===
+
+On a systemd host the plugin listens on the address
+`containers-gateway.internal` resolves to, never on `0.0.0.0`.
+
+The certificate must chain to a system authority, or to an authority of
+[filename]`/usr/local/pf/conf/ssl/ui_plugins_ca.pem`. A package can create a
+self-signed certificate for the name PacketFence reaches it at, and add it to
+that file between markers of its own, so that several plugins add theirs:
+
+[source,bash]
+----
+openssl req -x509 -newkey rsa:3072 -nodes -days 3650 \
+  -subj "/CN=containers-gateway.internal" \
+  -addext "subjectAltName=DNS:containers-gateway.internal" \
+  -addext "extendedKeyUsage=serverAuth" \
+  -keyout /usr/local/packetfence-plugin-acme/conf/tls.key \
+  -out /usr/local/packetfence-plugin-acme/conf/tls.crt
+{
+  echo "# BEGIN packetfence-plugin-acme"
+  cat /usr/local/packetfence-plugin-acme/conf/tls.crt
+  echo "# END packetfence-plugin-acme"
+} >> /usr/local/pf/conf/ssl/ui_plugins_ca.pem
+systemctl restart packetfence-api-frontend
+----
+
+Removing the package deletes its block from the file, and restarts
+api-frontend.
+
+==== Testing it
+
+With an admin token (`POST /api/v1/login`):
+
+[source,bash]
+----
+TOKEN=...
+API=https://<packetfence>:1443/api/v1
+curl -sk -H "Authorization: Bearer $TOKEN" $API/plugins | jq '[.items[].id]'
+curl -sk -H "Authorization: Bearer $TOKEN" $API/plugin/notes/notes
+curl -sk -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+  -X POST $API/plugin/notes/notes -d '{"id":"first","text":"hello"}'
+----
+
+Then open Configuration > Plugins > Notes in the admin UI.
+`pfcmd plugin list` shows the plugins installed and their registration.
+
+[[_troubleshooting]]
+==== Troubleshooting
+
+[options="header"]
+|===
+|Symptom |Where to look
+|The plugin is not in `GET /api/v1/plugins` |api-frontend logs `UI plugin "<name>" ignored: ...` with the reason (manifest refused, fetch failed, certificate not trusted, a bundle with no bundle installed). An admin without the `menu.can` does not get it either
+|403 `... is not an API method of the manifest` |the path or the verb is not a method of the manifest (eg `PUT` instead of `PATCH`, a path with two segments for `{id}`)
+|403 `... do not satisfy ...can` |the admin lacks the actions of the `can`
+|502 `The plugin "<name>" is unavailable` |the service does not answer, its certificate is not trusted, or it answered something else than JSON, a redirect, a 401/407, or more than 10 MB (api-frontend logs which)
+|401 from the plugin |the signature: the key of the plugin (the system init key), the clock of the server, or a body or path changed between PacketFence and the service (a proxy in between)
+|The page shows but a field is missing |the `can` of the field or its tab, or its `when`
+|===
+
+[[_packaging_a_plugin]]
+=== Packaging a plugin
+
+A plugin is installed as a Debian package, `packetfence-plugin-<name>`, on
+top of PacketFence. Everything it needs is in the package: nothing is
+downloaded at install.
+
+==== What the package installs
+
+[options="header"]
+|===
+|Path |
+|[filename]`/usr/local/packetfence-plugin-<name>/` |the plugin: its service, its manifest, its schema files (`db/`), its scripts, its `VERSION`
+|[filename]`/usr/local/pf/conf/plugins.d/<name>.conf` |its *descriptor*, owned by root, mode 0644: the version of its tables and where its schema files are (`[plugin]`), the SHA-256 of its UI code (`[bundle]`, a bundle plugin only)
+|[filename]`/usr/local/pf/conf/plugins.d/<name>.js` |its UI code (a bundle plugin only)
+|[filename]`/usr/lib/systemd/system/packetfence-plugin-<name>.service` |its service
+|===
+
+The unit of the service:
+
+[source,ini]
+----
+[Unit]
+Description=PacketFence plugin: acme
+Wants=packetfence-base.target packetfence-config.service
+After=packetfence-base.target packetfence-config.service packetfence-mariadb.service packetfence-api-frontend.service
+
+[Service]
+Type=simple
+User=pf
+# "+": as root, the commands of pfcmd plugin are root only
+ExecStartPre=+/usr/local/pf/bin/pfcmd plugin schema check acme
+ExecStart=/usr/local/packetfence-plugin-acme/bin/service
+# registered once it listens (as root: the registry is written with the
+# database layer of PacketFence), see "Registering a plugin"
+ExecStartPost=+/usr/local/packetfence-plugin-acme/bin/register register
+Restart=on-failure
+RestartSec=15
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target
+----
+
+The plugin is deregistered when the package is removed, not when the service
+stops: the registration is shared by the nodes of a cluster, and a node that
+restarts must not take the plugin away from the others.
+
+==== Which PacketFence versions
+
+The package says which PacketFence it works with in the `Depends` of
+[filename]`debian/control`, with the relations of Debian: `>=`, `<=`, `<<`
+(lower than), `>>` (greater than), `=`. A lower bound, the PacketFence that
+first has what the plugin uses, and an upper bound, the next major version,
+pre-releases included (`~` sorts before anything):
+
+----
+Depends: ${misc:Depends}, packetfence (>= 16.0.0), packetfence (<< 17.0.0~)
+----
+
+apt checks the range when the plugin is installed, and again when PacketFence
+is upgraded: an upgrade of PacketFence out of the range has apt remove the
+plugin, or refuse, until a plugin that allows the new version is installed.
+
+PacketFence checks the rest when it loads the plugin: the `manifestVersion` of
+the manifest and, for a bundle, its `hostApi`. A plugin built for a version
+the admin UI does not provide is left out, and logged.
+
+==== What the package does
+
+[options="header"]
+|===
+|When |What
+|install, upgrade (`postinst configure`) |loads its container image, if it ships one; creates its TLS certificate and adds it to [filename]`ui_plugins_ca.pem`, then restarts api-frontend; applies its tables (`pfcmd plugin schema apply <name>`); enables its service, and starts it if PacketFence runs
+|before an upgrade (`prerm upgrade`) |stops its service: an upgrade that rebuilds a table must not lose the rows written meanwhile
+|remove (`prerm remove`) |stops and disables its service, deregisters the plugin, removes its certificate from [filename]`ui_plugins_ca.pem` and restarts api-frontend. *Its tables stay*: a reinstall finds its data
+|purge (`postrm purge`) |drops its tables (`pfcmd plugin schema drop <name>`), its docker volumes and the files it created at run time
+|===
+
+When `pfcmd plugin schema apply` cannot connect as a user that can create
+tables (exit code 2: no root socket, an external database), the install goes
+on with a warning and the command to run: the service does not start until
+`pfcmd plugin schema check <name>` passes.
+
+==== Database user
+
+A plugin uses *PacketFence's own database user* (pf.conf `[database]`),
+through the database layer of PacketFence (`pf::db`, the Go `db` package) or
+an environment its package writes from `pf::config`, never a user of its own.
+Only `pfcmd plugin schema` creates and alters tables, as the MariaDB root
+user, at package install.
+
+==== Backup
+
+The PacketFence backup ([filename]`addons/backup-and-maintenance.sh`)
+includes:
+
+* the tables of a plugin and its `plugin_version` and `ui_plugin` rows: they
+  are in the PacketFence database;
+* its descriptor and UI code ([filename]`/usr/local/pf/conf/plugins.d/`) and
+  [filename]`ui_plugins_ca.pem`: the configuration archive takes
+  [filename]`/usr/local/pf` (without [filename]`logs/` and [filename]`var/`).
+
+Not included: the package itself (reinstall it) and its TLS key (the package
+creates another). Keep the data of a plugin in its tables, not in files or
+docker volumes: these are not backed up, nor shared by the nodes of a
+cluster.
+
+==== Cluster
+
+* The tables are shared by every node. The first node that installs (or
+  upgrades) the package applies the files, the others find them at the
+  version already. Nothing locks the tables across the nodes: install or
+  upgrade the package *on one node at a time* (`pfcmd plugin schema apply`
+  warns about it on a cluster member).
+* An upgrade that only adds (tables, nullable columns, indexes) can be rolled
+  node by node. One that rebuilds a table needs the service stopped on every
+  node first.
+* Purge refuses to drop the tables on a cluster member. Once the plugin is
+  removed from every node, run `pfcmd plugin schema drop <name> --force`.
+* Every node registers the plugin under the same name: the registry holds the
+  last one.
+
+[[_catalog]]
+=== Catalog
+
+[filename]`html/pfappserver/root/src/plugins/catalog.json` is the only list of
+what a manifest may use. After changing it:
+
+[source,bash]
+----
+node html/pfappserver/root/build/ui-plugins-catalog.js
+----
+
+regenerates [filename]`go/uiplugins/catalog.json` (embedded in the API) and
+[filename]`docs/ui-plugins/manifest.schema.json`, and checks that
+[filename]`src/plugins/registry.js` has a loader for every component and a
+builder for every validator. Every component of the catalog is referenced by a
+lazy loader in the registry, so it is always in the build, even if no core
+view used it anymore.

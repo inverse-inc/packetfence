@@ -28,7 +28,7 @@ const setup = (props, context) => {
     return { name: host, path: `/status/monitoring/${host}`, class: 'no-saas' }
   }))
 
-  const sections = computed(() => areaSections('status', [ // add the UI plugins items, see https://github.com/akainverse/packetfence-plugin-example
+  const sections = computed(() => areaSections('status', [ // add the UI plugins items, see the Developers Guide, "Admin UI plugins"
     {
       name: i18n.t('About'),
       path: '/status/about'

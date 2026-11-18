@@ -1,6 +1,6 @@
 /**
  * Admin UI plugins registry: the core components and validators a plugin
- * manifest may name (see https://github.com/akainverse/packetfence-plugin-example and catalog.json).
+ * manifest may name (see the Developers Guide, "Admin UI plugins" and catalog.json).
  *
  * A plugin page is built at runtime from its manifest, webpack cannot see which
  * components it uses. Every component of the catalog is referenced here by a
