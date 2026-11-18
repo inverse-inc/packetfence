@@ -21,7 +21,13 @@
     "id": {
       "type": "string",
       "pattern": "^[a-z][a-z0-9_-]{0,62}$",
-      "description": "The name the plugin service registered with."
+      "not": {
+        "enum": [
+          "regular",
+          "brands"
+        ]
+      },
+      "description": "The name the plugin service registered with (not regular nor brands, the icon namespaces of vue-awesome)."
     },
     "name": {
       "$ref": "#/$defs/text",

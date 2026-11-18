@@ -86,6 +86,13 @@ const actions = {
       }, state.hideDelay * 1000)
     }
   },
+  // The tasks whose key starts with prefix are no longer followed (eg the
+  // plugin that started them is unmounted): their toasts hide, without a
+  // progress bar.
+  finishProgress: ({ state, commit }, prefix) => {
+    state.all.filter(({ key, persistent }) => persistent && typeof key === 'string' && key.startsWith(prefix))
+      .forEach(notification => commit('NOTIFICATION_PROGRESS', { notification, changes: { persistent: false, new: false, icon: 'info-circle' } }))
+  },
   status_failed: ({ commit }, data) => {
     let notification = {
       variant: 'danger',

@@ -90,7 +90,7 @@ const schema = {
   required: ['manifestVersion', 'id', 'title', 'menu', 'template'],
   properties: {
     manifestVersion: { enum: data.manifestVersions },
-    id: { type: 'string', pattern: '^[a-z][a-z0-9_-]{0,62}$', description: 'The name the plugin service registered with.' },
+    id: { type: 'string', pattern: '^[a-z][a-z0-9_-]{0,62}$', not: { enum: ['regular', 'brands'] }, description: 'The name the plugin service registered with (not regular nor brands, the icon namespaces of vue-awesome).' },
     name: { $ref: '#/$defs/text', description: 'The short name of the plugin: its item in the sidebar (the title when absent).' },
     title: { $ref: '#/$defs/text' },
     description: { $ref: '#/$defs/text' },

@@ -50,6 +50,10 @@ use pf::file_paths qw($system_init_key_file);
 
 # keep in sync with nameRe and hostRe in go/uiplugins/registration.go
 our $NAME_RE = qr/^[a-z][a-z0-9_-]{0,62}\z/;
+# keep in sync with reservedNames in go/uiplugins/registration.go: the icon
+# namespaces of the admin UI (vue-awesome), the icons of a plugin are
+# registered as "<name>/<icon>" and would replace core icons
+our %RESERVED_NAMES = map { $_ => 1 } qw(regular brands);
 our $HOST_RE = qr/^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*\z/;
 
 =head2 validate
@@ -60,7 +64,7 @@ Checks a registration without writing it:
 
 =over
 
-=item name: ^[a-z][a-z0-9_-]{0,62}$ (a URL segment)
+=item name: ^[a-z][a-z0-9_-]{0,62}$ (a URL segment), not regular nor brands
 
 =item host: a hostname or an IP address
 
@@ -74,7 +78,7 @@ sub validate {
     my ($registration) = @_;
     return ($FALSE, 'a registration is a hash') if ref($registration) ne 'HASH';
     my ($name, $host, $port) = @{$registration}{qw(name host port)};
-    if (!defined $name || ref($name) || $name !~ $NAME_RE) {
+    if (!defined $name || ref($name) || $name !~ $NAME_RE || $RESERVED_NAMES{$name}) {
         return ($FALSE, sprintf('invalid name "%s"', $name // ''));
     }
     if (!defined $host || ref($host) || !_valid_host($host)) {

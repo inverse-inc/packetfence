@@ -29,6 +29,11 @@ const ManifestPath = "/manifest.json"
 // keep in sync with $NAME_RE in lib/pf/ui_plugins.pm
 var nameRe = regexp.MustCompile(`^[a-z][a-z0-9_-]{0,62}$`)
 
+// keep in sync with %RESERVED_NAMES in lib/pf/ui_plugins.pm: the icon
+// namespaces of the admin UI (vue-awesome), the icons of a plugin are
+// registered as "<name>/<icon>" and would replace core icons
+var reservedNames = map[string]bool{"regular": true, "brands": true}
+
 // keep in sync with $HOST_RE in lib/pf/ui_plugins.pm: a hostname (RFC 1123)
 var hostRe = regexp.MustCompile(`^[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$`)
 
@@ -78,11 +83,11 @@ func (r Registration) ManifestURL() string {
 
 // Validate checks a registration without writing it, the same rules as
 // pf::ui_plugins::validate:
-//   - name: ^[a-z][a-z0-9_-]{0,62}$ (a URL segment)
+//   - name: ^[a-z][a-z0-9_-]{0,62}$ (a URL segment), not regular nor brands
 //   - host: a hostname or an IP address
 //   - port: 1 to 65535
 func (r Registration) Validate() error {
-	if !nameRe.MatchString(r.Name) {
+	if !nameRe.MatchString(r.Name) || reservedNames[r.Name] {
 		return fmt.Errorf("invalid name %q", r.Name)
 	}
 	if net.ParseIP(r.Host) == nil && (len(r.Host) > 253 || !hostRe.MatchString(r.Host)) {

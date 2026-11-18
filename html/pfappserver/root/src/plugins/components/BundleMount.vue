@@ -46,6 +46,7 @@ export default {
             return
           const unmount = bundle.mount(this.$refs.el, hostApi(id, { router: this.$router, store: this.$store }), { kind: this.kind })
           this.unmountBundle = (typeof unmount === 'function') ? unmount : null
+          this.mountedId = id
           this.loading = false
         })
         .catch(() => {
@@ -62,6 +63,12 @@ export default {
           console.error('[pf-ui-plugins]', `${this.pluginId}: unmount failed`, err)
         }
         this.unmountBundle = null
+      }
+      // its tasks (host.progress) that never got done: their toasts do not
+      // stay until a reload (after a logout, the panels are unmounted)
+      if (this.mountedId) {
+        this.$store.dispatch('notification/finishProgress', `plugin:${this.mountedId}:`)
+        this.mountedId = null
       }
     }
   }

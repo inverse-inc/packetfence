@@ -138,9 +138,13 @@ const addRoutes = (router, plugins, views) => {
   }
 }
 
+// the icon namespaces of vue-awesome ("regular/square"), refused by the API
+// (go/uiplugins, pf::ui_plugins) as plugin ids
+const RESERVED_IDS = ['regular', 'brands']
+
 // a manifest the UI cannot use (the API validates them, this is a safeguard)
 const usable = ({ id, manifest }) => {
-  if (!manifest || manifest.id !== id) {
+  if (!manifest || manifest.id !== id || RESERVED_IDS.includes(id)) {
     logError(`${id}: invalid manifest, ignored`)
     return false
   }
@@ -173,7 +177,8 @@ let loadedFor = null
 // The icons a plugin ships (manifest icons, validated by the API), registered
 // as "<id>/<name>": a plugin never needs an icon added to the admin UI, nor a
 // rebuild. Under its own id, a plugin cannot replace a core icon or another
-// plugin's.
+// plugin's: the core icons are "<name>", "regular/<name>" or "brands/<name>",
+// and no plugin id can be regular or brands (RESERVED_IDS).
 const registerIcons = ({ id, manifest: { icons = {} } }) => {
   const own = Object.entries(icons).reduce((all, [name, { width, height, paths = [] }]) => ({
     ...all,
@@ -208,7 +213,8 @@ export const loadPlugins = ({ router, token, views }) => {
   if (failedFor === token && Date.now() < retryAt)
     return Promise.resolve(false)
   loadedFor = token
-  closePanel() // another session: no panel of the previous admin
+  closePanel() // another session: no panel nor badge of the previous admin
+  panels.badges = {}
   loading = apiCall.getQuiet('plugins')
     .then(response => {
       if (loadedFor !== token) // another session meanwhile

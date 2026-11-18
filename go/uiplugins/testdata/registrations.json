@@ -13,6 +13,8 @@
     {"name": "1acme", "host": "acme", "port": 8080},
     {"name": "acme/x", "host": "acme", "port": 8080},
     {"name": "ac.me", "host": "acme", "port": 8080},
+    {"name": "regular", "host": "acme", "port": 8080},
+    {"name": "brands", "host": "acme", "port": 8080},
     {"name": "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz01", "host": "h", "port": 80},
     {"name": "acme", "host": "", "port": 8080},
     {"name": "acme", "host": "acme:8080", "port": 8080},
