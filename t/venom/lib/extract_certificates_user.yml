@@ -12,8 +12,8 @@ steps:
 # download_p12_file
 - type: exec
   script: |
-    curl -k --output {{.input.extract_directory}}.p12 \
-    http://127.0.0.1:22225/api/v1/pki/cert/{{.input.serial_number}}/download/secret
+    curl -k -X POST -d '{"password":"secret"}' --output {{.input.extract_directory}}.p12 \
+    http://127.0.0.1:22225/api/v1/pki/cert/{{.input.serial_number}}/download
 
 # extract_ca_certificate
 - type: exec

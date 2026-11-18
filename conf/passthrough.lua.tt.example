@@ -10,6 +10,33 @@ end)
 
 local string = require("string");
 
+-- The pfpki endpoints a device may reach through the portal: SCEP and OCSP.
+-- The pki backend sends the request to the PKI API without authentication,
+-- so any other path, such as the certificates or their keys, must not get
+-- there: match the whole path, not a part of it.
+local pki_paths = {
+    '^/pki/ocsp/?$',
+    '^/pki/scep/?$',
+    '^/pki/scep/[^/]+/?$',
+    '^/pki/scep/[^/]+/pkiclient%.exe$',
+    '^/scep/?$',
+    '^/scep/[^/]+$',
+    '^/scep/[^/]+/pkiclient%.exe$',
+}
+
+local function is_pki_path(path)
+    -- no dot segments: the PKI API routes the path as it is
+    if string.find(path, "/%.") then
+        return false
+    end
+    for _, pattern in ipairs(pki_paths) do
+        if string.match(path, pattern) then
+            return true
+        end
+    end
+    return false
+end
+
 core.register_action("select", { "http-req" }, function(txn)
 
     if ( string.match(txn.sf:path(), '/profile.xml')) then
@@ -18,7 +45,7 @@ core.register_action("select", { "http-req" }, function(txn)
         txn:set_var("req.action","static")
     elseif ( string.match(txn.sf:path(), '/rfc7710') ) then
         txn:set_var("req.action","proxy")
-    elseif ( string.match(txn.sf:path(), '/pki/scep') or string.match(txn.sf:path(), '/scep') or string.match(txn.sf:path(), '/pki/ocsp') ) then
+    elseif ( is_pki_path(txn.sf:path()) ) then
         txn:set_var("req.action","pki")
     elseif ( not ([% FOREACH host IN portal_host %] string.match(txn.sf:req_fhdr("Host"):lower(), '^[% host FILTER lower %][0-9:]*$') or[% END %] false ) ) then
         txn:set_var("req.action","proxy")
