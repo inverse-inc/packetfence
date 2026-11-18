@@ -289,31 +289,58 @@ const insertItem = (id, list, item, before, after) => {
   list.push(item)
 }
 
+// the plugins with a page in an area that the admin may open
+const pagePlugins = area => state.plugins.filter(({ manifest: { menu, template, bundle } }) => menu.area === area
+  && (template !== 'bundle' || hasMount(bundle, 'page')) // a bundle without a page has no sidebar item
+  && canAcl(menu.can))
+
+// the Plugins section of Configuration: its page lists them (TheSectionPlugins)
+export const PLUGINS_SECTION_PATH = '/configuration/plugins'
+
+/**
+ * The plugins of the Plugins section of Configuration (no menu.section), for
+ * its page: { id, path, name, title, description, icon }, translated.
+ */
+export const sectionPlugins = () => pagePlugins('configuration')
+  .filter(({ manifest: { menu: { section } } }) => !section)
+  .map(plugin => {
+    const { id, manifest: { name, title, description, icon } } = plugin
+    return { id, path: pluginPath(plugin), name: translate(name || title), title: translate(title), description: translate(description), icon }
+  })
+
 /**
  * Add the sidebar items of the plugins of an area (the route name of a
- * top-level view: 'configuration', 'status', ...) to its core sections.
+ * top-level view: 'configuration', 'status', ...) to its core sections. The
+ * item is the manifest `name` (the `title` when absent).
  *
  * The manifest `menu`:
  *  - `section`: the path of an existing section, at any depth, the item is
  *    added to its items, in its group named `group` (untranslated) if any
- *  - without `section`: the item is a new top-level section
+ *  - without `section`: in 'configuration', the item goes in the Plugins
+ *    section (added after the core ones); in the other areas, it is a new
+ *    top-level section (with `menu.icon`)
  *  - `before`/`after`: the path of a sibling
  *
  * Reactive: call it in a computed, it is updated once the plugins are loaded.
  */
 export const areaSections = (area, sections) => {
-  const plugins = state.plugins.filter(({ manifest: { menu, template, bundle } }) => menu.area === area
-    && (template !== 'bundle' || hasMount(bundle, 'page'))) // a bundle without a page has no sidebar item
+  const plugins = pagePlugins(area)
   if (plugins.length === 0)
     return sections
   const tree = copySections(sections)
+  let pluginsSection = null
   for (const plugin of plugins) {
-    const { id, manifest: { title, menu: { section, group, before, after, icon, can } } } = plugin
-    if (!canAcl(can)) // the sidebar items only take a '<verb> <target>' can
-      continue
-    const item = { name: translate(title), path: pluginPath(plugin), plugin: id }
+    const { id, manifest: { name, title, menu: { section, group, before, after, icon } } } = plugin
+    const item = { name: translate(name || title), path: pluginPath(plugin), plugin: id }
     let list = tree
-    if (section) {
+    if (!section && area === 'configuration') {
+      if (!pluginsSection) {
+        pluginsSection = { name: i18n.t('Plugins'), path: PLUGINS_SECTION_PATH, icon: 'plug', collapsable: true, items: [] }
+        tree.push(pluginsSection)
+      }
+      list = pluginsSection.items
+    }
+    else if (section) {
       const found = findItem(tree, section)
       if (!found || !Array.isArray(found.list[found.index].items)) {
         logError(`${id}: sidebar section "${section}" not found, "${item.name}" ignored`)
@@ -321,8 +348,8 @@ export const areaSections = (area, sections) => {
       }
       list = found.list[found.index].items
       if (group) {
-        const name = i18n.t(group)
-        const groupItem = list.find(sibling => !sibling.path && Array.isArray(sibling.items) && [name, group].includes(sibling.name))
+        const groupName = i18n.t(group)
+        const groupItem = list.find(sibling => !sibling.path && Array.isArray(sibling.items) && [groupName, group].includes(sibling.name))
         if (!groupItem) {
           logError(`${id}: sidebar group "${group}" not found, "${item.name}" ignored`)
           continue

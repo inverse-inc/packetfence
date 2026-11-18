@@ -113,6 +113,8 @@ func TestManifestValidate(t *testing.T) {
 		{"manifest version", func(m map[string]any) { m["manifestVersion"] = 2 }, "unsupported manifestVersion"},
 		{"other id", func(m map[string]any) { m["id"] = "other" }, "does not match"},
 		{"title without en", func(m map[string]any) { m["title"] = map[string]any{"fr": "Acme"} }, "\"en\""},
+		{"name without en", func(m map[string]any) { m["name"] = map[string]any{"fr": "Acme"} }, "\"en\""},
+		{"invalid icon", func(m map[string]any) { m["icon"] = "Acme Icon" }, "invalid icon"},
 		{"area", func(m map[string]any) { m["menu"].(map[string]any)["area"] = "reports" }, "menu.area"},
 		{"section of another area", func(m map[string]any) { m["menu"].(map[string]any)["section"] = "/status/x" }, "must be a path under /configuration/"},
 		{"can", func(m map[string]any) { m["menu"].(map[string]any)["can"] = "read" }, "menu.can"},

@@ -29,7 +29,6 @@
             <b-dropdown-item to="/login">{{ $t('Login to Administration') }}</b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
-        <plugin-navbar-items v-show="isAuthenticated" @toggle="onPluginPanel" />
         <b-navbar-nav v-show="isAuthenticated">
           <b-nav-item-dropdown right>
             <template v-slot:button-content>
@@ -55,6 +54,8 @@
           </b-nav-item>
         </b-navbar-nav>
         <app-notifications :isAuthenticated="isAuthenticated || isConfiguratorActive" />
+        <!-- the buttons of the plugin panels, right of the header icons -->
+        <plugin-navbar-items v-show="isAuthenticated" @toggle="onPluginPanel" />
       </b-collapse>
     </b-navbar>
     <app-api-progress />

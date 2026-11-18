@@ -77,8 +77,10 @@ type Form struct {
 type Manifest struct {
 	ManifestVersion int                  `json:"manifestVersion"`
 	ID              string               `json:"id"`
+	Name            Text                 `json:"name,omitempty"`
 	Title           Text                 `json:"title"`
 	Description     Text                 `json:"description,omitempty"`
+	Icon            string               `json:"icon,omitempty"`
 	Menu            Menu                 `json:"menu"`
 	Template        string               `json:"template"`
 	API             map[string]APIMethod `json:"api,omitempty"`
@@ -216,8 +218,14 @@ func (m *Manifest) Validate(c *Catalog, id string) error {
 	if m.ID != id {
 		return fmt.Errorf("manifest id %q does not match the registered id %q", m.ID, id)
 	}
+	if err := m.Name.validate("name", false); err != nil {
+		return err
+	}
 	if err := m.Title.validate("title", true); err != nil {
 		return err
+	}
+	if m.Icon != "" && !iconRe.MatchString(m.Icon) {
+		return fmt.Errorf("invalid icon %q", m.Icon)
 	}
 	if err := m.Description.validate("description", false); err != nil {
 		return err

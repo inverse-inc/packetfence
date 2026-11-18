@@ -23,6 +23,9 @@ import * as composition from '@vue/composition-api'
 import apiCall from '@/utils/api'
 import i18n from '@/utils/locale'
 import { can } from './acl'
+import nodesApi from '@/views/Nodes/_api'
+import { lookupPersons } from '@/views/Users/_api/lookupPersons'
+import { closePanel } from './'
 
 const PREFIX = '[pf-ui-plugins]'
 
@@ -130,9 +133,31 @@ const scopedApi = id => {
  *                (level: info, success, warning, danger)
  *   can          can('read plugin'), the ACL of the admin, as a manifest can
  *   t            i18n.t of the admin UI, locale() its language
- *   navigate     router.push of the admin UI
+ *   navigate     router.push of the admin UI; closes the open navbar panel
+ *                (the admin goes to another page)
+ *   lookup       the lookups of the admin UI forms, with the admin's rights
+ *                (none without them): persons(query, limit) and
+ *                nodes(query, limit), each [{ value, text }]
  */
 const LEVELS = ['info', 'success', 'warning', 'danger']
+
+// the nodes whose MAC, owner or computer name contains query: { value: mac, text }
+const lookupNodes = (query, limit) => nodesApi.search({
+  query: { op: 'and', values: [{ op: 'or', values: ['mac', 'pid', 'computername'].map(field => ({ field, op: 'contains', value: query })) }] },
+  fields: ['mac', 'pid', 'computername'],
+  sort: ['mac'],
+  cursor: 0,
+  limit
+}).then(({ items = [] } = {}) => items.map(({ mac, pid, computername }) => {
+  const details = [pid, computername].filter(v => v && v !== 'default').join(', ')
+  return { value: mac, text: (details) ? `${mac} (${details})` : mac }
+}))
+
+// a lookup the admin may not run gives nothing (no request, no error shown)
+const lookup = Object.freeze({
+  persons: (query, limit = 10) => (can('read users') ? lookupPersons(`${query}`, false, limit) : Promise.resolve([])),
+  nodes: (query, limit = 10) => (can('read nodes') ? lookupNodes(`${query}`, limit) : Promise.resolve([]))
+})
 
 export const hostApi = (id, { router, store }) => Object.freeze({
   version: 1,
@@ -145,5 +170,9 @@ export const hostApi = (id, { router, store }) => Object.freeze({
   can: expression => can(expression),
   t: (...args) => i18n.t(...args),
   locale: () => i18n.locale,
-  navigate: to => router.push(to).catch(() => {}) // the same route: nothing to do
+  lookup,
+  navigate: to => {
+    closePanel()
+    return router.push(to).catch(() => {}) // the same route: nothing to do
+  }
 })

@@ -91,15 +91,17 @@ const schema = {
   properties: {
     manifestVersion: { enum: data.manifestVersions },
     id: { type: 'string', pattern: '^[a-z][a-z0-9_-]{0,62}$', description: 'The name the plugin service registered with.' },
+    name: { $ref: '#/$defs/text', description: 'The short name of the plugin: its item in the sidebar (the title when absent).' },
     title: { $ref: '#/$defs/text' },
     description: { $ref: '#/$defs/text' },
+    icon: { type: 'string', pattern: '^[a-z0-9-]+(/[a-z0-9-]+)?$', description: 'A vue-awesome icon already used by core: the plugin on the Plugins page of Configuration.' },
     menu: {
       type: 'object',
       additionalProperties: false,
       required: ['area', 'can'],
       properties: {
         area: { enum: data.areas },
-        section: { type: 'string', description: 'Path of an existing sidebar section of the area, without it the item is a new section.' },
+        section: { type: 'string', description: 'Path of an existing sidebar section of the area. Without it, the item goes in the Plugins section in "configuration", it is a new section in the other areas.' },
         group: { type: 'string', description: 'Untranslated name of a group of the section.' },
         before: { type: 'string', description: 'Path of a sidebar item to insert before.' },
         after: { type: 'string', description: 'Path of a sidebar item to insert after.' },
