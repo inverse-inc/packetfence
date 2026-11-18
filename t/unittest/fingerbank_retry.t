@@ -18,12 +18,12 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 21;
+use Test::More tests => 28;
 use Test::MockModule;
 use Test::NoWarnings;
 use DateTime;
 use pf::fingerbank;
-use pf::constants::fingerbank qw($MAX_RETRIES);
+use pf::constants::fingerbank qw($MAX_RETRIES $RETRY_DELAY);
 
 my $mac = '00:11:22:33:55:46';
 
@@ -64,11 +64,12 @@ ok(!pf::fingerbank::process($mac, undef, { hostname => 'host1' }), 'failed looku
 is(scalar @queued, 1, 'a retry is scheduled');
 is_deeply([ @{ $queued[0] }[1, 2, 3] ], [ 'fingerbank_process_retry', $mac, { hostname => 'host1' } ], 'the retry processes the same device with the same attributes');
 is($cache->get($retry_key), 1, 'one retry counted');
+ok($queued[0][0] >= $RETRY_DELAY && $queued[0][0] < 2 * $RETRY_DELAY, 'the first retry is due in 1 to 2 times $RETRY_DELAY');
 
-# The other callers keep the freshness guard and the rate limiting cache
+# The other callers are served the cached failure by the rate limiting cache
 $queries = 0;
-ok(pf::fingerbank::process($mac), 'a regular process right after the failure');
-is($queries, 0, 'is skipped without new data');
+ok(!pf::fingerbank::process($mac), 'a regular process right after the failure is not profiled');
+is($queries, 0, 'and is served the cached failure');
 pf::fingerbank::process($mac, 1);
 is($queries, 0, 'a forced process (portal, #9526) is served the cached failure');
 is(scalar @queued, 1, 'which does not queue another retry while one is queued');
@@ -86,6 +87,25 @@ is(scalar @queued, 1, 'no new retry after success');
 $queries = 0;
 ok(pf::fingerbank::process($mac), 'next process without new data');
 is($queries, 0, 'no query without new data');
+
+# Once the cached failure expires, a regular call without new data (re-authentication)
+# looks up a device whose lookup failed instead of skipping it until new data comes
+$query_ok = 0;
+$cache->remove($query_cache_key);
+ok(!pf::fingerbank::process($mac, 1), 'a forced lookup fails');
+$query_ok = 1;
+$queries = 0;
+$recorded = 0;
+$cache->remove($query_cache_key);
+ok(pf::fingerbank::process($mac), 'a regular process without new data after a failed lookup');
+is($queries, 1, 'looks the device up again');
+is($recorded, 1, 'and records the result');
+$cache->remove($_) for ($retry_key, pf::fingerbank::_retry_pending_cache_key($mac), $query_cache_key);
+@queued = ();
+
+# The retry delay doubles with each retry and has a random part
+my @delays = map { pf::fingerbank::_retry_delay($_) } 0 .. 2;
+ok((!grep { $delays[$_] < $RETRY_DELAY * 2**$_ || $delays[$_] >= $RETRY_DELAY * 2**($_ + 1) } 0 .. 2), 'retry delays between 1 and 2 times $RETRY_DELAY * 2^retries');
 
 # Retries are bounded, also across the regular calls made after giving up
 $query_ok = 0;
@@ -105,6 +125,7 @@ $cache->remove($retry_key);
 $fingerbank->mock('endpoint_attributes', sub { undef });
 pf::fingerbank::process($mac);
 is(scalar @queued, 1, 'collector failure schedules a retry');
+ok(!defined($cache->get("pf::fingerbank::process($mac)")), 'collector failure leaves the device to be looked up by the next call');
 pf::fingerbank::process($mac);
 is(scalar @queued, 1, 'a second failure while the retry is queued does not queue another one');
 $cache->remove($_) for ("pf::fingerbank::process($mac)", $retry_key, pf::fingerbank::_retry_pending_cache_key($mac), $query_cache_key);

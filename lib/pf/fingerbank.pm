@@ -150,6 +150,8 @@ sub process {
 
     unless(defined($query_args)) {
         $logger->error("Unable to fetch query arguments for Fingerbank query. Aborting.");
+        # Not profiled: the next call looks the device up again (see the failed lookup below)
+        $cache->remove($cache_key);
         _retry_later($mac, $overrides, $options{retry});
         return $FALSE;
     }
@@ -208,6 +210,10 @@ sub process {
         unless(defined($query_result)) {
             $logger->warn("Unable to perform a Fingerbank lookup for device with MAC address '$mac'");
             $query_success = $FALSE;
+            # The device wasn't profiled: without a process timestamp, the next call (re-authentication,
+            # DHCP, ...) looks it up again instead of waiting for new data from the collector.
+            # The rate limiting cache above keeps these lookups to one per $RATE_LIMIT seconds.
+            $cache->remove($cache_key);
             _retry_later($mac, $overrides, $options{retry});
         }
 
@@ -268,7 +274,24 @@ an hour after giving up and is cleared by a successful lookup. A device has at
 most one retry queued: the other failures in the meantime don't queue one, and
 a failed retry queues the next one
 
+The delay doubles with each retry and has a random part, so that the devices
+that failed together (many devices plugged at the same time) are not retried
+all at once, and the retries cover an outage of a few minutes
+
 =cut
+
+=head2 _retry_delay
+
+The delay in milliseconds before the retry following $retries retries:
+between 1 and 2 times $RETRY_DELAY * 2^$retries
+
+=cut
+
+sub _retry_delay {
+    my ($retries) = @_;
+    my $base = $RETRY_DELAY * (2 ** $retries);
+    return $base + int(rand($base));
+}
 
 sub _retry_later {
     my ($mac, $overrides, $from_retry) = @_;
@@ -294,12 +317,13 @@ sub _retry_later {
         }
         return;
     }
+    my $delay = _retry_delay($retries);
     $cache->set($retry_key, $retries + 1, {expires_in => $RETRY_PERIOD});
     # Expires a minute after the retry is due, in case the queued task is lost
-    $cache->set($pending_key, 1, {expires_in => int($RETRY_DELAY / 1000) + 60});
-    $logger->info("Will retry the Fingerbank lookup for $mac in " . ($RETRY_DELAY / 1000) . " seconds");
+    $cache->set($pending_key, 1, {expires_in => int($delay / 1000) + 60});
+    $logger->info("Will retry the Fingerbank lookup for $mac in " . int($delay / 1000) . " seconds");
     eval {
-        pf::api::queue->new(queue => 'general')->notify_delayed($RETRY_DELAY, 'fingerbank_process_retry', $mac, $overrides);
+        pf::api::queue->new(queue => 'general')->notify_delayed($delay, 'fingerbank_process_retry', $mac, $overrides);
     };
     if ($@) {
         $logger->error("Error submitting the Fingerbank retry to the queue: $@");
