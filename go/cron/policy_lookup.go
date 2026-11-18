@@ -282,9 +282,13 @@ type PolicyLookup struct {
 	ImplictPolices []Policy
 }
 
-// LookupWithRoles resolves the enforcement info of an event whose node roles
-// were already looked up, so callers can batch the role queries for many
-// events (see UpdateNetworkEvents).
+// LookupWithRoles resolves the MAC and role enforcement info of an event whose
+// node roles were already looked up, so callers can batch the role queries for
+// many events (see UpdateNetworkEvents). The MAC policies of the source then
+// destination are checked first; when either MAC has policies, none matching
+// means no enforcement info and the role policies are not checked. The role
+// policies of the source then destination come next. Implicit policies are
+// not checked here: applyEnforcement checks them before calling it.
 func (l PolicyLookup) LookupWithRoles(ne *NetworkEvent, srcMac, srcRole, dstMac, dstRole string) *EnforcementInfo {
 	var srcFound, dstFound bool
 	var ei *EnforcementInfo
@@ -300,20 +304,12 @@ func (l PolicyLookup) LookupWithRoles(ne *NetworkEvent, srcMac, srcRole, dstMac,
 		return nil
 	}
 
-	if ei, srcFound = l.LookupByRoles(srcRole, ne); ei != nil {
+	if ei, _ = l.LookupByRoles(srcRole, ne); ei != nil {
 		return ei
 	}
 
-	if ei, dstFound = l.LookupByRoles(dstRole, ne); ei != nil {
+	if ei, _ = l.LookupByRoles(dstRole, ne); ei != nil {
 		return ei
-	}
-
-	if srcFound || dstFound {
-		return nil
-	}
-
-	if srcMac != "" {
-		return l.LookupImplict(ne)
 	}
 
 	return nil
@@ -429,16 +425,24 @@ func UpdateNetworkEvents(ctx context.Context, db *sql.DB, events []*NetworkEvent
 }
 
 // applyEnforcement sets the enforcement info of every event from the
-// pre-resolved roles. When rolesComplete is false a role query failed for
-// some chunk of MACs and an absent role can no longer be told from "no role":
-// only the MAC policies, which do not depend on the lookup, are applied, and
-// the role-based and implicit policies are skipped rather than evaluated with
+// pre-resolved roles. Implicit policies are checked first for any event with a
+// source MAC, then the MAC and role policies (see LookupWithRoles). When
+// rolesComplete is false a role query failed for some chunk of MACs and an
+// absent role can no longer be told from "no role": after the implicit
+// policies, only the MAC policies, which do not depend on the lookup, are
+// applied, and the role-based policies are skipped rather than evaluated with
 // a role that may be wrong. Events then go out without enforcement info for
 // this window, as they do when no policy matches.
 func applyEnforcement(lookup *PolicyLookup, events []*NetworkEvent, roles map[string]string, rolesComplete bool) {
 	for _, ne := range events {
 		srcMac := inventoryMac(ne.SourceInventoryItem)
 		dstMac := inventoryMac(ne.DestInventoryitem)
+		if srcMac != "" {
+			if ei := lookup.LookupImplict(ne); ei != nil {
+				ne.EnforcementInfo = ei
+				continue
+			}
+		}
 
 		var ei *EnforcementInfo
 		if rolesComplete {
