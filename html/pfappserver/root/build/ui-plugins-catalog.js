@@ -94,7 +94,23 @@ const schema = {
     name: { $ref: '#/$defs/text', description: 'The short name of the plugin: its item in the sidebar (the title when absent).' },
     title: { $ref: '#/$defs/text' },
     description: { $ref: '#/$defs/text' },
-    icon: { type: 'string', pattern: '^[a-z0-9-]+(/[a-z0-9-]+)?$', description: 'A vue-awesome icon already used by core: the plugin on the Plugins page of Configuration.' },
+    icon: { type: 'string', pattern: '^[a-z0-9-]+(/[a-z0-9-]+)?$', description: 'A vue-awesome icon of core, or one of icons as "<id>/<name>": the plugin on the Plugins page of Configuration.' },
+    icons: {
+      type: 'object',
+      maxProperties: 32,
+      propertyNames: { pattern: '^[a-z0-9-]{1,40}$' },
+      additionalProperties: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['width', 'height', 'paths'],
+        properties: {
+          width: { type: 'integer', minimum: 1, maximum: 4096 },
+          height: { type: 'integer', minimum: 1, maximum: 4096 },
+          paths: { type: 'array', minItems: 1, maxItems: 32, items: { type: 'string', maxLength: 20000, pattern: '^[MmZzLlHhVvCcSsQqTtAa0-9eE.,+\\- \\n]+$' } }
+        }
+      },
+      description: 'The icons the plugin ships (vue-awesome data: SVG path data, no markup), registered by the admin UI as "<id>/<name>": icon, menu.icon, bundle.navbar.icon and the bundle can use them. A plugin never needs an icon added to the admin UI.'
+    },
     menu: {
       type: 'object',
       additionalProperties: false,

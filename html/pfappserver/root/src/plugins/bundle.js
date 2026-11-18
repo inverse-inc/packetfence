@@ -38,7 +38,7 @@ import {
   BaseServices
 } from '@/components/new/'
 import { lookupPersons } from '@/views/Users/_api/lookupPersons'
-import { closePanel, escapeHtml } from './'
+import { closePanel, escapeHtml, isPanelFullscreen, openPanel, setPanelBadge, togglePanelFullscreen } from './'
 
 const PREFIX = '[pf-ui-plugins]'
 
@@ -152,6 +152,11 @@ const scopedApi = id => {
  *   t            i18n.t of the admin UI, locale() its language
  *   navigate     router.push of the admin UI; closes the open navbar panel
  *                (the admin goes to another page)
+ *   panel        the navbar panel of the plugin: isOpen() (reactive, shown
+ *                now), isFullscreen() (reactive), toggleFullscreen() (over the
+ *                whole page under the navbar, like the documentation),
+ *                setBadge(count) (a red dot on its navbar button, eg unread
+ *                answers; 0 removes it)
  *   lookup       the lookups of the admin UI forms, with the admin's rights
  *                (none without them): persons(query, limit) and
  *                nodes(query, limit), each [{ value, text }]
@@ -218,6 +223,12 @@ export const hostApi = (id, { router, store }) => Object.freeze({
   t: (...args) => i18n.t(...args),
   locale: () => i18n.locale,
   lookup,
+  panel: Object.freeze({
+    isOpen: () => openPanel() === id,
+    isFullscreen: isPanelFullscreen,
+    toggleFullscreen: togglePanelFullscreen,
+    setBadge: count => setPanelBadge(id, count)
+  }),
   components,
   yup,
   store,

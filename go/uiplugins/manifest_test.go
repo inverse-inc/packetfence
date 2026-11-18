@@ -115,6 +115,16 @@ func TestManifestValidate(t *testing.T) {
 		{"title without en", func(m map[string]any) { m["title"] = map[string]any{"fr": "Acme"} }, "\"en\""},
 		{"name without en", func(m map[string]any) { m["name"] = map[string]any{"fr": "Acme"} }, "\"en\""},
 		{"invalid icon", func(m map[string]any) { m["icon"] = "Acme Icon" }, "invalid icon"},
+		{"icon path with markup", func(m map[string]any) {
+			m["icons"] = map[string]any{"bell": map[string]any{"width": 16, "height": 16, "paths": []any{`M0 0"/><script>`}}}
+		}, "invalid path data"},
+		{"icon size", func(m map[string]any) {
+			m["icons"] = map[string]any{"bell": map[string]any{"width": 0, "height": 16, "paths": []any{"M0 0h16v16z"}}}
+		}, "width and height"},
+		{"icon name", func(m map[string]any) {
+			m["icons"] = map[string]any{"Bell": map[string]any{"width": 16, "height": 16, "paths": []any{"M0 0h16v16z"}}}
+		}, "invalid name"},
+		{"own icon not shipped", func(m map[string]any) { m["icon"] = "acme/bell" }, "has no icons.bell"},
 		{"area", func(m map[string]any) { m["menu"].(map[string]any)["area"] = "reports" }, "menu.area"},
 		{"section of another area", func(m map[string]any) { m["menu"].(map[string]any)["section"] = "/status/x" }, "must be a path under /configuration/"},
 		{"can", func(m map[string]any) { m["menu"].(map[string]any)["can"] = "read" }, "menu.can"},
@@ -282,5 +292,27 @@ func TestValidateRegex(t *testing.T) {
 		if !strings.Contains(err.Error(), msg) {
 			t.Errorf("%s: error %q, expected %q", re, err, msg)
 		}
+	}
+}
+
+// a plugin ships its icons: the manifest names them as "<id>/<name>"
+func TestManifestIcons(t *testing.T) {
+	var raw map[string]any
+	if err := json.Unmarshal([]byte(valid), &raw); err != nil {
+		t.Fatal(err)
+	}
+	raw["icons"] = map[string]any{"bell": map[string]any{"width": 448, "height": 512, "paths": []any{"M224 512c35.3 0 64-28.7 64-64H160c0 35.3 28.7 64 64 64z", "M0 0h448v400H0z"}}}
+	raw["icon"] = "acme/bell"
+	raw["menu"].(map[string]any)["icon"] = "acme/bell"
+	b, _ := json.Marshal(raw)
+	m, err := ParseManifest(b)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := m.Validate(DefaultCatalog, "acme"); err != nil {
+		t.Fatalf("a manifest with its own icon refused: %s", err)
+	}
+	if got := m.Icons["bell"]; got.Width != 448 || len(got.Paths) != 2 {
+		t.Fatalf("icons not parsed: %+v", got)
 	}
 }

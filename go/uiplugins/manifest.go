@@ -81,6 +81,7 @@ type Manifest struct {
 	Title           Text                 `json:"title"`
 	Description     Text                 `json:"description,omitempty"`
 	Icon            string               `json:"icon,omitempty"`
+	Icons           map[string]IconData  `json:"icons,omitempty"`
 	Menu            Menu                 `json:"menu"`
 	Template        string               `json:"template"`
 	API             map[string]APIMethod `json:"api,omitempty"`
@@ -103,6 +104,16 @@ type Bundle struct {
 	Navbar *BundleNavbar `json:"navbar,omitempty"`
 	// seconds a call to the plugin may take, DefaultPassthroughTimeout when 0
 	Timeout int `json:"timeout,omitempty"`
+}
+
+// IconData is an icon a plugin ships (the format of vue-awesome): the admin UI
+// registers it when it loads the plugin, as "<plugin id>/<name>", so a plugin
+// never needs an icon added to the admin UI (no rebuild). The paths are SVG
+// path data, rendered as the d attribute of a path: no markup.
+type IconData struct {
+	Width  int      `json:"width"`
+	Height int      `json:"height"`
+	Paths  []string `json:"paths"`
 }
 
 // BundleNavbar is the navbar button of a bundle, shown to the admins who
@@ -142,6 +153,8 @@ var (
 	namespaceRe = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$`)
 	langRe      = regexp.MustCompile(`^[a-z]{2}([_-][A-Za-z]{2})?$`)
 	iconRe      = regexp.MustCompile(`^[a-z0-9-]+(/[a-z0-9-]+)?$`)
+	iconNameRe  = regexp.MustCompile(`^[a-z0-9-]{1,40}$`)
+	iconPathRe  = regexp.MustCompile(`^[MmZzLlHhVvCcSsQqTtAa0-9eE.,+\- \n]+$`)
 )
 
 // the namespace segments that reach the prototype of an object in the UI
@@ -222,6 +235,9 @@ func (m *Manifest) Validate(c *Catalog, id string) error {
 		return err
 	}
 	if err := m.Title.validate("title", true); err != nil {
+		return err
+	}
+	if err := m.validateIcons(); err != nil {
 		return err
 	}
 	if m.Icon != "" && !iconRe.MatchString(m.Icon) {
@@ -620,6 +636,51 @@ func validateRegex(re string) error {
 	}
 	if nestedRepetition(tree) {
 		return errors.New("nested quantifiers are not allowed in a regular expression: a repeated group cannot hold a quantifier or an alternation")
+	}
+	return nil
+}
+
+// the limits of the icons a manifest ships
+const (
+	maxIcons         = 32
+	maxIconSize      = 4096
+	maxIconPaths     = 32
+	maxIconPathBytes = 20000
+)
+
+// validateIcons checks the icons the manifest ships, and that an icon of the
+// plugin it names ("<id>/<name>": icon, menu.icon, bundle.navbar.icon) is one
+// of them
+func (m *Manifest) validateIcons() error {
+	if len(m.Icons) > maxIcons {
+		return fmt.Errorf("icons: %d icons, %d at most", len(m.Icons), maxIcons)
+	}
+	for name, icon := range m.Icons {
+		if !iconNameRe.MatchString(name) {
+			return fmt.Errorf("icons: invalid name %q", name)
+		}
+		if icon.Width < 1 || icon.Width > maxIconSize || icon.Height < 1 || icon.Height > maxIconSize {
+			return fmt.Errorf("icons.%s: width and height from 1 to %d", name, maxIconSize)
+		}
+		if len(icon.Paths) < 1 || len(icon.Paths) > maxIconPaths {
+			return fmt.Errorf("icons.%s: from 1 to %d paths", name, maxIconPaths)
+		}
+		for _, path := range icon.Paths {
+			if len(path) > maxIconPathBytes || !iconPathRe.MatchString(path) {
+				return fmt.Errorf("icons.%s: invalid path data (SVG path commands and numbers, %d bytes at most)", name, maxIconPathBytes)
+			}
+		}
+	}
+	names := map[string]string{"icon": m.Icon, "menu.icon": m.Menu.Icon}
+	if m.Bundle != nil && m.Bundle.Navbar != nil {
+		names["bundle.navbar.icon"] = m.Bundle.Navbar.Icon
+	}
+	for field, name := range names {
+		if own, found := strings.CutPrefix(name, m.ID+"/"); found {
+			if _, shipped := m.Icons[own]; !shipped {
+				return fmt.Errorf("%s %q: the manifest has no icons.%s", field, name, own)
+			}
+		}
 	}
 	return nil
 }

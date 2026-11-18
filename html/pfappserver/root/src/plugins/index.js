@@ -20,6 +20,7 @@ import yup from '@/utils/yup'
 import { types, validators } from './registry'
 import catalog from './catalog.json'
 import { can as canAcl } from './acl'
+import Icon from 'vue-awesome/components/Icon'
 
 const PREFIX = '[pf-ui-plugins]'
 
@@ -169,6 +170,19 @@ const deepFreeze = o => {
 let loading = null
 let loadedFor = null
 
+// The icons a plugin ships (manifest icons, validated by the API), registered
+// as "<id>/<name>": a plugin never needs an icon added to the admin UI, nor a
+// rebuild. Under its own id, a plugin cannot replace a core icon or another
+// plugin's.
+const registerIcons = ({ id, manifest: { icons = {} } }) => {
+  const own = Object.entries(icons).reduce((all, [name, { width, height, paths = [] }]) => ({
+    ...all,
+    [`${id}/${name}`]: { width, height, paths: paths.map(d => ({ d })) }
+  }), {})
+  if (Object.keys(own).length)
+    Icon.register(own)
+}
+
 // after a failed load, the next ones wait: 1s, 2s, 4s... up to a minute, so
 // that a server that keeps failing does not add a request to every navigation
 let failedFor = null
@@ -201,6 +215,7 @@ export const loadPlugins = ({ router, token, views }) => {
         return
       const { data: { items = [] } = {} } = response
       const plugins = items.filter(usable).map(deepFreeze)
+      plugins.forEach(registerIcons)
       generation += 1
       plugins.forEach(({ manifest }) => generations.set(manifest, generation))
       failedFor = null
@@ -229,7 +244,7 @@ export const usePlugin = id => state.plugins.find(plugin => plugin.id === id)
  */
 export const hasMount = (bundle, mount) => !!bundle && Array.isArray(bundle.mounts) && bundle.mounts.includes(mount)
 
-const panels = Vue.observable({ open: null })
+const panels = Vue.observable({ open: null, fullscreen: false, badges: {} })
 
 // the plugins with a navbar button the admin may use
 export const navbarPlugins = () => state.plugins.filter(({ manifest: { template, bundle, menu: { can } } }) => template === 'bundle'
@@ -241,9 +256,25 @@ export const navbarPlugins = () => state.plugins.filter(({ manifest: { template,
 export const LIVE_LOGS_PANEL = 'core:live-logs'
 export const HISTORICAL_LOGS_PANEL = 'core:historical-logs'
 export const openPanel = () => panels.open
-export const togglePanel = id => { panels.open = (panels.open === id) ? null : id }
-export const showPanel = id => { panels.open = id }
-export const closePanel = () => { panels.open = null }
+export const togglePanel = id => {
+  panels.open = (panels.open === id) ? null : id
+  panels.fullscreen = false
+}
+export const showPanel = id => {
+  if (panels.open !== id)
+    panels.fullscreen = false
+  panels.open = id
+}
+export const closePanel = () => {
+  panels.open = null
+  panels.fullscreen = false
+}
+// the badge of the navbar button of a plugin (eg unread answers): a red dot
+export const panelBadge = id => panels.badges[id] || 0
+export const setPanelBadge = (id, count) => { Vue.set(panels.badges, id, Math.max(0, +count || 0)) }
+// the open panel over the whole page under the navbar, like the documentation
+export const isPanelFullscreen = () => !!panels.open && panels.fullscreen
+export const togglePanelFullscreen = () => { panels.fullscreen = !!panels.open && !panels.fullscreen }
 
 /**
  * The API methods of a manifest the admin may use: a write method with a `can`

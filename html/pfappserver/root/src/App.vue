@@ -97,7 +97,7 @@ import AppNotificationToasts from '@/components/AppNotificationToasts'
 import IconCounter from '@/components/IconCounter'
 import PluginNavbarItems from '@/plugins/components/NavbarItems'
 import PluginNavbarPanels from '@/plugins/components/NavbarPanels'
-import { HISTORICAL_LOGS_PANEL, LIVE_LOGS_PANEL, closePanel, openPanel, togglePanel } from '@/plugins'
+import { HISTORICAL_LOGS_PANEL, LIVE_LOGS_PANEL, closePanel, isPanelFullscreen, openPanel, togglePanel, togglePanelFullscreen } from '@/plugins'
 
 const components = {
   AppApiProgress,
@@ -151,6 +151,8 @@ const setup = (props, context) => {
 
 
   const closeFullscreenDocs = () => {
+    if (isPanelFullscreen())
+      togglePanelFullscreen()
     if ($store.getters['documentation/fullscreen']) {
       $store.dispatch('documentation/closeViewer')
     }
