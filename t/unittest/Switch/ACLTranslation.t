@@ -80,7 +80,7 @@ is(chew($aruba, "permit tcp any any range 100 200"), "in|permit in tcp from any 
 
 is(
     chew($aruba, "permit tcp any any gt 1024"),
-    "in|deny in ip from any to any \n",
+    "in|deny in ip from any to any\n",
     "Aruba CX: a role whose ACLs are all skipped is denied everything, not sent no ACL"
 );
 
@@ -103,17 +103,17 @@ is(chew($arista, "permit tcp any any range 100 200"), deny_all($arista), "Arista
 
 is(
     chew($aruba, "permit udp any any eq 53\ndeny ip host 10.1.1.1 any\npermit ip any any"),
-    "in|permit in udp from any to any 53\nin|deny in ip from any to any \n",
+    "in|permit in udp from any to any 53\nin|deny in ip from any to any\n",
     "Aruba CX: the permit after the deny does not allow what it blocks"
 );
 is(
     chew($arista, "deny tcp any any established\npermit ip any any"),
-    "in|deny in ip from any to any \n",
+    "in|deny in ip from any to any\n",
     "Arista: a deny with TCP flags ends the ACLs with a deny all"
 );
 is(
     chew($aos, "deny udp any eq 53 any\npermit ip any any"),
-    "in|deny in ip from any to any \n",
+    "in|deny in ip from any to any\n",
     "AOS: a deny with a source port ends the ACLs with a deny all"
 );
 
