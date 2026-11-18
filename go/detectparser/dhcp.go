@@ -2,11 +2,13 @@ package detectparser
 
 import (
 	"regexp"
+	"strings"
 
 	"github.com/inverse-inc/go-utils/sharedutils"
 )
 
-var dhcpRegexPattern1 = regexp.MustCompile(`(DHCPDISCOVER|DHCPOFFER|DHCPREQUEST|DHCPACK|DHCPRELEASE|DHCPINFORM|DHCPEXPIRE) on ([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+) to ([0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2})`)
+// The hostname in parentheses is only logged when the client sent one (option 12)
+var dhcpRegexPattern1 = regexp.MustCompile(`(DHCPDISCOVER|DHCPOFFER|DHCPREQUEST|DHCPACK|DHCPRELEASE|DHCPINFORM|DHCPEXPIRE) on ([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+) to ([0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2})(?: \(([^)]*)\))?`)
 
 var dhcpRegexPattern2 = regexp.MustCompile(`(DHCPDISCOVER|DHCPOFFER|DHCPREQUEST|DHCPACK|DHCPRELEASE|DHCPINFORM|DHCPEXPIRE) to ([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+) \(([0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2})\)`)
 
@@ -32,7 +34,7 @@ func (s *DhcpParser) Parse(line string) ([]ApiCall, error) {
 				return nil, err
 			}
 
-			return []ApiCall{
+			apiCalls := []ApiCall{
 				&PfqueueApiCall{
 					Method: "update_ip4log",
 					Params: []interface{}{
@@ -40,7 +42,22 @@ func (s *DhcpParser) Parse(line string) ([]ApiCall, error) {
 						"ip", ip,
 					},
 				},
-			}, nil
+			}
+
+			// Only the "DHCPACK on <ip> to <mac> (<hostname>)" format carries a hostname
+			if len(matches) > 4 {
+				if hostname := strings.TrimSpace(matches[4]); hostname != "" {
+					apiCalls = append(apiCalls, &PfqueueApiCall{
+						Method: "modify_node",
+						Params: []interface{}{
+							"mac", mac,
+							"computername", hostname,
+						},
+					})
+				}
+			}
+
+			return apiCalls, nil
 		}
 	}
 
