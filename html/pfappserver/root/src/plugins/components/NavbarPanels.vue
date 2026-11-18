@@ -76,8 +76,11 @@ $plugin-panel-height: 50vh;
 }
 
 // the slide of the documentation viewer (AppDocumentation)
+// "backwards", not "both": once in, the container keeps no transform, which
+// would make it the containing block of the position: fixed elements of the
+// panels (the menus that must not be clipped by the panel)
 .plugin-panel-enter {
-  animation: plugin-panel-slide-in 0.3s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+  animation: plugin-panel-slide-in 0.3s cubic-bezier(0.250, 0.460, 0.450, 0.940) backwards;
 }
 .plugin-panel-leave {
   animation: plugin-panel-slide-out 0.15s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;

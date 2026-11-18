@@ -24,6 +24,7 @@ import apiCall from '@/utils/api'
 import i18n from '@/utils/locale'
 import { can } from './acl'
 import nodesApi from '@/views/Nodes/_api'
+import yup from '@/utils/yup'
 import {
   BaseForm,
   BaseFormButtonBar,
@@ -155,6 +156,8 @@ const scopedApi = id => {
  *                BaseFormGroup* (namespace, column-label, text), the button
  *                bar (BaseFormButtonBar: save, reset, close), the services
  *                to restart (BaseServices: services, system_services)
+ *   yup          the yup of the admin UI (its methods included): the schema of
+ *                a BaseForm, for the invalid feedback of its form groups
  *   store        the Vuex store of the admin UI: what these components read
  *                from the $store of the root (the cluster, the services); a
  *                bundle with a store of its own passes the other namespaces
@@ -208,6 +211,7 @@ export const hostApi = (id, { router, store }) => Object.freeze({
   locale: () => i18n.locale,
   lookup,
   components,
+  yup,
   store,
   navigate: to => {
     closePanel()
