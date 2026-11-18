@@ -316,11 +316,11 @@ func (l PolicyLookup) LookupWithRoles(ne *NetworkEvent, srcMac, srcRole, dstMac,
 }
 
 // LookupByRoles returns the enforcement info of the first policy of role
-// matching ne. The boolean is true when role has policies to look up, even if
-// none of them matched.
+// matching ne. The boolean is true when role has at least one policy to look
+// up, even if none of them matched.
 func (l *PolicyLookup) LookupByRoles(role string, ne *NetworkEvent) (*EnforcementInfo, bool) {
 	policies, ok := l.ByRoles[role]
-	if !ok {
+	if !ok || len(policies) == 0 {
 		return nil, false
 	}
 
@@ -328,11 +328,11 @@ func (l *PolicyLookup) LookupByRoles(role string, ne *NetworkEvent) (*Enforcemen
 }
 
 // LookupByMac returns the enforcement info of the first policy of mac matching
-// ne. The boolean is true when mac has policies to look up, even if none of
-// them matched.
+// ne. The boolean is true when mac has at least one policy to look up, even
+// if none of them matched: an empty policy list counts as no policies.
 func (l *PolicyLookup) LookupByMac(mac string, ne *NetworkEvent) (*EnforcementInfo, bool) {
 	policies, ok := l.NodesPolicies[mac]
-	if !ok {
+	if !ok || len(policies) == 0 {
 		return nil, false
 	}
 

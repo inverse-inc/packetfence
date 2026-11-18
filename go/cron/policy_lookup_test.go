@@ -1058,6 +1058,7 @@ func TestLookupWithRolesLevels(t *testing.T) {
 			"aa:bb:cc:dd:ee:01": {policy("mac-match", matching)},
 			"aa:bb:cc:dd:ee:02": {policy("mac-nomatch", notMatching)},
 			"aa:bb:cc:dd:ee:04": {policy("mac-match2", matching)},
+			"aa:bb:cc:dd:ee:05": {},
 		},
 		// LookupWithRoles must ignore implicit policies.
 		ImplictPolices: []Policy{policy("implicit", matching)},
@@ -1069,6 +1070,7 @@ func TestLookupWithRolesLevels(t *testing.T) {
 		macNoMatch = "aa:bb:cc:dd:ee:02"
 		macNone    = "aa:bb:cc:dd:ee:03"
 		macMatch2  = "aa:bb:cc:dd:ee:04"
+		macEmpty   = "aa:bb:cc:dd:ee:05" // empty policy list
 	)
 	tests := []struct {
 		name                             string
@@ -1082,6 +1084,8 @@ func TestLookupWithRolesLevels(t *testing.T) {
 		{"src MAC no match stops before roles", macNoMatch, "match", macNone, "match", ""},
 		{"dst MAC no match stops before roles", macNone, "match", macNoMatch, "match", ""},
 		{"src role match without MAC policies", macNone, "match", macNone, "", "role-match"},
+		{"empty src MAC policy list does not stop roles", macEmpty, "match", macNone, "", "role-match"},
+		{"empty dst MAC policy list does not stop roles", macNone, "match", macEmpty, "", "role-match"},
 		{"src role checked before dst role", macNone, "match", macNone, "match2", "role-match"},
 		{"dst role match when src role has none", macNone, "", macNone, "match", "role-match"},
 		{"dst role match after src role no match", macNone, "nomatch", macNone, "match", "role-match"},
