@@ -412,6 +412,25 @@ server packetfence-tunnel-fast {
 #  need to setup hints for the remote radius server
 authorize {
 	#
+	#  EAP-TEAP: rlm_eap_teap only adds FreeRADIUS-EAP-TEAP-Identity-Type
+	#  to the inner request that starts a round (the EAP-Identity
+	#  response), not to the later requests of that round. Keep it in
+	#  outer.session-state for the post-auth capture below, and tag every
+	#  inner TEAP request with PacketFence-TEAP-Identity-Type so
+	#  pf::radius::authorize knows it is an inner round.
+	#
+	if (&outer.EAP-Type == TEAP) {
+		if (&FreeRADIUS-EAP-TEAP-Identity-Type) {
+			update outer.session-state {
+				&PacketFence-TEAP-Identity-Type := "%{FreeRADIUS-EAP-TEAP-Identity-Type}"
+			}
+		}
+		update request {
+			&PacketFence-TEAP-Identity-Type := "%{%{outer.session-state:PacketFence-TEAP-Identity-Type}:-Unknown}"
+		}
+	}
+
+	#
 	#  Take a User-Name, and perform some checks on it, for spaces and other
 	#  invalid characters.  If the User-Name appears invalid, reject the
 	#  request.
@@ -419,7 +438,6 @@ authorize {
 	#  See policy.d/filter for the definition of the filter_username policy.
 	#
 	filter_username
-
 
 	#
 	#  If the users are logging in with an MS-CHAP-Challenge
@@ -626,6 +644,24 @@ post-auth {
 		reject
 	} else {
 		packetfence-audit-log-accept
+
+		# Capture the inner TEAP identity into outer.session-state; the
+		# outer post-auth copies it into the request for
+		# pf::radius::authorize. Done here so only an accepted round is
+		# recorded. The identity type of the round was kept in
+		# outer.session-state by the authorize section. With EAP-TLS the
+		# User-Name is only what the client claims, so the common name of
+		# the authenticated certificate is used instead.
+		if (&outer.session-state:PacketFence-TEAP-Identity-Type == "Machine") {
+			update outer.session-state {
+				&PacketFence-TEAP-Machine-Name := "%{%{TLS-Client-Cert-Common-Name}:-%{User-Name}}"
+			}
+		}
+		elsif (&outer.session-state:PacketFence-TEAP-Identity-Type == "User") {
+			update outer.session-state {
+				&PacketFence-TEAP-User-Name := "%{%{TLS-Client-Cert-Common-Name}:-%{User-Name}}"
+			}
+		}
 	}
 
 	#

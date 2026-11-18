@@ -18,6 +18,13 @@ import (
 var (
 	aggregatorMu      sync.Mutex
 	aggregatorStarted bool
+	// The flow pipeline SetupKafka started, drained by DrainFlowPipeline.
+	// pipelineMu, not aggregatorMu: SetupKafka holds aggregatorMu while it
+	// retries the database forever, and the drain must not wait for that.
+	pipelineMu         sync.Mutex
+	pipelineAggregator *Aggregator
+	pipelineSubmitter  *KafkaSubmiter
+	fingerprintingJob  *FingerPrintingJob
 )
 
 type KafkaSubmiterOptions struct {
@@ -34,6 +41,7 @@ type KafkaSubmiter struct {
 	batchSubmitChan chan []*NetworkEvent
 	writer          *kafka.Writer
 	stop            chan struct{}
+	done            chan struct{}
 	filterEvents    bool
 }
 
@@ -59,6 +67,8 @@ func NewKafkaSubmiter(o *KafkaSubmiterOptions) (*KafkaSubmiter, error) {
 
 	return &KafkaSubmiter{
 		batchSubmitChan: o.SubmitChan,
+		stop:            make(chan struct{}),
+		done:            make(chan struct{}),
 		writer: &kafka.Writer{
 			Addr:                   kafka.TCP(o.Hosts...),
 			Topic:                  o.Topic,
@@ -84,13 +94,21 @@ func NewKafkaSubmiter(o *KafkaSubmiterOptions) (*KafkaSubmiter, error) {
 	}, nil
 }
 
+// Run sends the batches of batchSubmitChan until the channel is closed (or
+// Stop is called and the channel is then closed), then closes the writer,
+// which flushes what it still holds, and closes done.
 func (s *KafkaSubmiter) Run() {
+	defer close(s.done)
 LOOP:
 	for {
 		select {
 		case <-s.stop:
 			break LOOP
-		case events := <-s.batchSubmitChan:
+		case events, ok := <-s.batchSubmitChan:
+			if !ok {
+				break LOOP
+			}
+
 			s.send(events)
 		}
 	}
@@ -222,6 +240,9 @@ func SetupKafka(config map[string]interface{}) {
 	}
 
 	go submitter.Run()
+	pipelineMu.Lock()
+	pipelineSubmitter = submitter
+	pipelineMu.Unlock()
 
 	aggregator := NewAggregator(
 		&AggregatorOptions{
@@ -232,8 +253,76 @@ func SetupKafka(config map[string]interface{}) {
 		},
 	)
 	go aggregator.handleEvents()
+	pipelineMu.Lock()
+	pipelineAggregator = aggregator
+	pipelineMu.Unlock()
 
 	// Mark as successfully started only after everything is set up
 	aggregatorStarted = true
 	log.LogInfof(ctx, "SetupKafka: aggregator and submitter started successfully")
+}
+
+// pipelineDrainTimeout bounds DrainFlowPipeline, within pfcron's default
+// 90s stop timeout (TimeoutStopSec).
+const pipelineDrainTimeout = 60 * time.Second
+
+var drainOnce sync.Once
+
+// DrainFlowPipeline processes every flow pfflow has handed over and not yet
+// processed: the ones queued for the fingerprinting and the aggregator, the
+// aggregator's open window and the network events waiting for the submitter.
+// pfflow calls it on shutdown, after it stopped handing flows over and before
+// its reader commits their offsets, so a flow is not committed and then lost.
+// The pipeline cannot be used afterwards. It returns false if the pipeline did
+// not drain within timeout; flows still in it are then lost. It does nothing
+// when the pipeline was never started.
+func DrainFlowPipeline(ctx context.Context, timeout time.Duration) bool {
+	drained := true
+	drainOnce.Do(func() {
+		pipelineMu.Lock()
+		aggregator, submitter, fingerprinting := pipelineAggregator, pipelineSubmitter, fingerprintingJob
+		pipelineMu.Unlock()
+
+		if aggregator == nil && submitter == nil && fingerprinting == nil {
+			return
+		}
+
+		done := make(chan struct{})
+		go func() {
+			defer close(done)
+			var wg sync.WaitGroup
+			if fingerprinting != nil {
+				wg.Add(1)
+				go func() {
+					defer wg.Done()
+					close(fingerprintChan)
+					fingerprinting.Stop()
+				}()
+			}
+
+			if aggregator != nil {
+				// The aggregator's flusher sends to the submitter: the
+				// submitter's channel is closed only once it is done.
+				aggregator.Stop()
+			}
+
+			if submitter != nil {
+				close(submitter.batchSubmitChan)
+				<-submitter.done
+			}
+
+			wg.Wait()
+		}()
+
+		log.LogInfof(ctx, "pfflow: processing the flows already read before stopping")
+		select {
+		case <-done:
+			log.LogInfof(ctx, "pfflow: all flows read were processed")
+		case <-time.After(timeout):
+			drained = false
+			log.LogWarnf(ctx, "pfflow: flows read were not all processed within %s, the ones still in the pipeline are lost (their offsets are committed)", timeout)
+		}
+	})
+
+	return drained
 }

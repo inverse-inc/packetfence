@@ -52,6 +52,8 @@ my %values = (
     start_time          => '0000-00-00 00:00:01',
     end_time            => '0000-00-00 00:00:02',
     voip                => 'no',
+    teap_username       => '',
+    teap_machinename    => '',
 );
 use Test::More tests => 91;
 

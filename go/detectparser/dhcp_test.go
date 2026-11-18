@@ -29,7 +29,31 @@ func TestDhcpParse(t *testing.T) {
 						"ip", "10.16.86.122",
 					},
 				},
+				&PfqueueApiCall{
+					Method: "modify_node",
+					Params: []interface{}{
+						"mac", "00:11:22:33:44:55",
+						"computername", "blabla-computer",
+					},
+				},
 			},
+		},
+		{
+			// No hostname sent by the client, the trailing (RENEW) must not be taken for one
+			Line: "Sep  1 03:27:06 172.26.0.139 dhcpd[14557]: DHCPACK on 10.16.86.123 to 00:11:22:33:44:55 via eth2 relay 10.16.86.1 lease-duration 14400 (RENEW) uid 01:00:11:22:33:44:55",
+			Calls: []ApiCall{
+				&PfqueueApiCall{
+					Method: "update_ip4log",
+					Params: []interface{}{
+						"mac", "00:11:22:33:44:55",
+						"ip", "10.16.86.123",
+					},
+				},
+			},
+		},
+		{
+			Line:  "Sep  1 03:27:05 172.26.0.139 dhcpd[14557]: DHCPOFFER on 10.16.86.122 to 00:11:22:33:44:55 (blabla-computer) via eth2",
+			Calls: nil,
 		},
 	}
 	RunParseTests(parser, parseTests, t)

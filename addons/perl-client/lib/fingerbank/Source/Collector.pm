@@ -18,8 +18,6 @@ use JSON;
 use fingerbank::Config;
 use fingerbank::Constant qw($TRUE);
 use fingerbank::Log;
-use fingerbank::Model::Combination;
-use fingerbank::Model::Device;
 use fingerbank::Util qw(is_enabled is_disabled is_error is_success);
 use fingerbank::Collector;
 
@@ -32,13 +30,6 @@ Check whether or not the arguments match this source
 sub match {
     my ( $self, $args, $other_results ) = @_;
     my $logger = fingerbank::Log::get_logger;
-
-    foreach my $discoverer_id (keys %$other_results){
-        if($discoverer_id eq "fingerbank::Source::LocalDB"){
-            $logger->debug("Found a good hit in the Fingerbank local databases. Will not interrogate Upstream.");
-            return $fingerbank::Status::NOT_FOUND;
-        }
-    }
 
     $logger->debug("Attempting to interrogate Fingerbank Collector");
 

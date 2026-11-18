@@ -26,23 +26,6 @@
         $ref: '#/components/responses/Unauthorized'
     tags:
       - Fingerbank
-  post:
-    summary: Create local device.
-    parameters:
-    - name: scope
-      in: path
-      required: true
-      schema:
-        $ref: '#/components/schemas/FingerbankScopeLocalOnly'
-    requestBody:
-      $ref: '#/components/requestBodies/FingerbankDevice'
-    responses:
-      '200':
-        $ref: '#/components/responses/Created'
-      '401':
-        $ref: '#/components/responses/Unauthorized'
-    tags:
-      - Fingerbank
 
 /api/v1/fingerbank/{scope}/devices/search:
   parameters:
@@ -52,7 +35,7 @@
     schema:
       $ref: '#/components/schemas/FingerbankScope'
   post:
-    summary: Search local devices.
+    summary: Search devices.
     requestBody:
       $ref: '#/components/requestBodies/FingerbankDevicesSearch'
     responses:
@@ -69,41 +52,17 @@
     in: path
     required: true
     schema:
-      $ref: '#/components/schemas/FingerbankScopeLocalOnly'
+      $ref: '#/components/schemas/FingerbankScope'
   - name: device_id
     in: path
     required: true
     schema:
       type: string
   get:
-    summary: Get local device.
+    summary: Get device.
     responses:
       '200':
         $ref: '#/components/responses/FingerbankDevice'
-      '401':
-        $ref: '#/components/responses/Unauthorized'
-      '404':
-        $ref: '#/components/responses/NotFound'
-    tags:
-      - Fingerbank
-  patch:
-    summary: Update local device.
-    requestBody:
-      $ref: '#/components/requestBodies/FingerbankDevice'
-    responses:
-      '200':
-        $ref: '#/components/responses/Updated'
-      '401':
-        $ref: '#/components/responses/Unauthorized'
-      '404':
-        $ref: '#/components/responses/NotFound'
-    tags:
-      - Fingerbank
-  delete:
-    summary: Delete local device.
-    responses:
-      '200':
-        $ref: '#/components/responses/Deleted'
       '401':
         $ref: '#/components/responses/Unauthorized'
       '404':

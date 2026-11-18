@@ -28,7 +28,6 @@ export {
   BaseFormGroupInputNumber            as FormGroupCollectorDatabasePersistenceInterval,
   BaseFormGroupInputNumber            as FormGroupCollectorClusterResyncInterval,
   BaseFormGroupTextarea               as FormGroupCollectorAdditionalEnv,
-  BaseFormGroupSwitch                 as FormGroupQueryRecordUnmatched,
   BaseFormGroupSwitch                 as FormGroupProxyUseProxy,
   BaseFormGroupInput                  as FormGroupProxyHost,
   BaseFormGroupInputNumber            as FormGroupProxyPort,

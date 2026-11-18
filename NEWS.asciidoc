@@ -27,6 +27,9 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
+  - EAP-TEAP support — new TEAP profiles with MSCHAPv2 or TLS as the inner method, configurable separately for the user and machine identities; the TEAP identities are recorded on the node and in the locationlog. Disabled by default, see the Installation Guide (#8431)
+  - Push ACLs on Aruba controllers (Controller 200, Mobility Master) — the role pushed as `pf-role-<role>` is named through the Role Map (Role by Switch Role), also when the reply carries a VLAN (#8756, #9649)
+  - HTTP authentication source — the authorization API receives the RADIUS request attributes (ex: EAP-TLS certificate attributes) and can trigger a RADIUS or portal MFA; new `verify_tls` option (enabled for new sources, existing sources unchanged) and requests can be sent as JSON (`content_type`) (#9661)
   - Per-switch port host mode — new `host_mode` on switches and switch groups (`single-host`, `multi-host`, `multi-auth`, `multi-domain`); `multi-auth` keeps one locationlog entry and one CoA/Disconnect per endpoint, so access re-evaluation works on shared ports. Replaces the no-op `advanced.multihost` (#9400)
   - MySQL 8.4 / Cloud SQL support (#9338)
   - Firewall SSO for VPN sessions (#9386)
@@ -38,10 +41,11 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - Saved searches in every admin sidebar section, collapsible (#9570, #9571)
   - New pfcron task `pki_revoked_certs_cleanup` (disabled by default) purges expired revoked PKI certificates (#9436)
   - The pfacct netflow processor can be disabled (#9418)
-  - Support for NEC QX-S series switches (Comware 7): MAC authentication, 802.1X (including EAP-TLS), dynamic VLAN assignment, dynamic ACL assignment through Filter-Id (numbered ACL), PushACLs (the ACL of a role is pushed as the advanced ACL, 3000 to 3999, the role is mapped to), VoIP (device-traffic-class=voice, tagged voice VLAN), RADIUS disconnect and CLI login. The switch permits the traffic an authorization ACL does not match, so every pushed ACL ends with `rule deny ip`, and each ACL is built under a staging name and copied in so connected endpoints keep their rules while it is pushed. Validated on a QX-S4148GT-4G-PW running Comware 7.2.8
-  - PushACLs: `conf/pfsetacls/ansible.cfg` now uses the `collections_path` key (the deprecated `collections_paths` key kept the collections bundled with PacketFence from loading), and `ansible.netcommon` is pinned to 8.2.0 in `conf/pfsetacls/collections/requirements.yml`
+  - Support for NEC QX-S series switches (Comware 7): MAC authentication, 802.1X (including EAP-TLS), dynamic VLAN assignment, dynamic ACL assignment through Filter-Id (numbered ACL), PushACLs (the ACL of a role is pushed as the advanced ACL, 3000 to 3999, the role is mapped to), VoIP (device-traffic-class=voice, tagged voice VLAN), RADIUS disconnect and CLI login. The switch permits the traffic an authorization ACL does not match, so every pushed ACL ends with `rule deny ip`, and each ACL is built under a staging name and copied in so connected endpoints keep their rules while it is pushed. Validated on a QX-S4148GT-4G-PW running Comware 7.2.8 (#9343)
+  - PushACLs: `conf/pfsetacls/ansible.cfg` now uses the `collections_path` key (the deprecated `collections_paths` key kept the collections bundled with PacketFence from loading), and `ansible.netcommon` is pinned to 8.2.0 in `conf/pfsetacls/collections/requirements.yml` (#9343)
   - Juniper EX switches running Junos 18.x or later (`Juniper::Junos_v18_x`) can now enforce role ACLs. PacketFence translates the ACLs of the role into `Juniper-Switching-Filter` attributes and sends them inline in the Access-Accept, so no filter has to be pre-provisioned on the switch. Set `AccessListMap` to `Y` on the switch to enable it (#9297)
-  - Huawei CloudEngine S5735 (YunShan/V600) dynamic ACLs — the new `Huawei::S5735` switch type pushes the access list of a role inline in the Access-Accept with the `HW-Data-Filter` RADIUS attribute, so no ACL has to be pre-configured on the switch. Access re-evaluation disconnects the endpoint by MAC address (`Calling-Station-Id`) only: the switch silently ignored the Disconnect-Request PacketFence sent for Huawei switches, which carried no `Calling-Station-Id` and an `Acct-Session-Id` that is empty or stale
+  - Huawei CloudEngine S5735 (YunShan/V600) dynamic ACLs — the new `Huawei::S5735` switch type pushes the access list of a role inline in the Access-Accept with the `HW-Data-Filter` RADIUS attribute, so no ACL has to be pre-configured on the switch. Access re-evaluation disconnects the endpoint by MAC address (`Calling-Station-Id`) only: the switch silently ignored the Disconnect-Request PacketFence sent for Huawei switches, which carried no `Calling-Station-Id` and an `Acct-Session-Id` that is empty or stale (#9342)
+  - Email authentication sources have a new `Wait for activation` option (`wait_for_activation`). When enabled, the device is not granted temporary network access after registering: it stays on the captive portal and is registered automatically once the activation link is clicked, typically from another device such as a phone. The email activation timeout then only bounds the validity of the link (#9346)
 
 === Enhancements
 
@@ -52,6 +56,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - pfflow — no consumer throughput ceiling, recovery from a stranded Kafka group offset, and `network_events` carry the switch id (#9272, #9328)
   - LDAP sources run the username lookup once per authentication instead of once per rule (#9351)
   - Fingerbank lookups go only to the collector next to the device's pfconnector (#9106)
+  - Fingerbank local entries and combinations are removed — endpoints are profiled by the Fingerbank collector only and the Fingerbank lists are read-only; the upgrade deletes the local Fingerbank database (see the Upgrade Guide) (#9337)
   - Intune provisioner finds devices by Azure AD / Intune device ID or name, not only by MAC (#9517)
   - OpenID attributes from the provider response are passed to rule matching (#9426)
   - Switch controllers — a FQDN is accepted as the Controller IP Address, and the UniFi controller API port is configurable (`controllerPort`) (#9523, #9246)
@@ -63,6 +68,12 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - Certificates: a full chain can be pasted in the certificate field (#9497)
   - Clearer errors: Let's Encrypt test failures, unresolvable LDAP server names, unloadable SAML keys/certificates/metadata, and why a CoA falls back to a Disconnect-Request (#9513, #9483, #9489, #9381)
   - Users search shows local and remote users apart (#9427)
+  - SaaS: ProxySQL splits the shared cloud database into per-service capacity tiers (RADIUS, web services and API, httpd.aaa/pfacct/pfconfig, catch-all), each with its own connection cap and query timeout; on-premises installs are unchanged (#9295)
+  - Database indexes for guest and registered device counts, and the authentication source and source type are recorded on the node; captive portal logins no longer scan `auth_log` to complete an authentication (#9302)
+  - pfconnector-server advertises the PacketFence version in an `X-PacketFence-Version` response header, documented in the OpenAPI specification (#9591, #9592)
+  - Admin UI: the Kafka configuration page has a restart/start/stop button for the kafka service (#9336)
+  - Admin UI: date pickers of the fields the backend validates (node unregistration date, user validity and expiration, `set_unreg_date` actions) are limited to 1970-01-01 to 2038-01-18 (#9333)
+  - Added a security policy (`SECURITY.md`) describing how to report vulnerabilities privately (#9666)
   - Created users: the AUP is included when printing or sending them, and the email uses the admin UI language (#9468, #9494)
   - The admin UI no longer suggests restarting disabled services (#9434)
   - Upgrades log their full output to a file (#9422)
@@ -71,12 +82,13 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - Documentation: Cisco Nexus 9000, Cisco IE3400 and FortiSwitch sections; Cisco IOS XE, Aruba CX and Arista configs validated in the lab (#9290, #9539, #9377, #9327)
   - Documentation: cluster upgrade, custom HTTP certificate, PKI (sscep), MFA, inline and switch filters updates; guides rebuilt when an included file changes (#9415, #9480, #9530, #9484, #9514, #9519, #9521, #9561, #9458)
   - CI: Vagrant box baked once per pipeline, faster test job order, shared Ansible Galaxy cache, vet-gated Go builds with advisory security scans (#9067, #9178, #9401, #9403)
-  - Tests: cluster failover and galera-recovery acceptance suites, Trojan Source character detection, test fixes (#9177, #9423, #9247, #9275, #9294, #9303, #9402, #9558, #9569)
+  - Tests: cluster failover and galera-recovery acceptance suites, Trojan Source character detection, test fixes (#9177, #9423, #9247, #9275, #9294, #9303, #9402, #9558, #9569, #9608)
   - Admin UI e2e tests: plain `npm ci` works again, bundling dependencies updated (#9576)
 
 === Bug Fixes
 
   - Wired single-host ports no longer accumulate open locationlog entries: an endpoint swapped on a port closes the previous one's entry, and the authorization path reads only the newest entry of the port through a new index, so RADIUS authorizations don't slow down as entries pile up (#9606)
+  - Email authentication sources now check that their rules can register the device before sending the activation email. A source without a matching role and access duration used to grant temporary access and then fail when the link was clicked (#9346)
   - Authentication rule conditions on switch, switch group, MAC and computer name now apply to 802.1X and MAB — review these rules before upgrading (#9363)
   - RADIUS: a failed post-auth call to httpd.aaa leaves MAB/PAP requests unanswered instead of rejecting them, and authorize answers 503 instead of 401 when the request can't be evaluated (#9288)
   - CoA and Disconnect use the switch's `coaPort` and `disconnectPort` on every switch module (#9378)
@@ -87,6 +99,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - pfconfig — restarts even when a client grabbed its port (now reserved), the git pull child no longer restarts packetfence-config, and log signal handlers survive (#9510, #9335, #9340)
   - `www.gstatic.com` is no longer a portal detection URL, which broke Google sign-in (#9511)
   - Isolation passthroughs go to the isolation passthrough set instead of the registration one (#9504)
+  - Container images: the pfdebian base image upgrades its Debian packages at build time, so the images carry the current Debian security revisions (#9585)
   - Inline: pfipset starts again on layer 2 networks with registered or isolated nodes (#9350)
   - iptables — `services.iptables` / `services.ip6tables` disabled is now honoured, and the admin UI shows the right ip6tables status (#9466, #9322)
   - pfconnector — switches defined by subnet reach the remote connectors, LDAP sources with a hostname work through the connector, and in Kubernetes dynreverse dials the right instance and connector env vars reach mod_perl (#9409, #9394, #9301, #9334)
@@ -123,8 +136,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - Kickbox source uses `api.kickbox.com` — allow it in outbound filters (#9518)
   - SAML: an empty attribute value no longer breaks the login; the ACS URL is in the request (#9388, #9432)
   - Email: SMTP authentication picks a mechanism the server offers (#9492)
-  - Fingerbank — device parents for local combinations, profiling retried after a failed lookup, recreated nodes profiled, the API key tested with the submitted settings, and the packetfence package conflicts with fingerbank-collector-remote (#9464, #9465, #9526, #9525, #9257)
-  - Git storage: local Fingerbank entries are saved and restored (#9407)
+  - Fingerbank — profiling retried after a failed lookup, recreated nodes profiled, the API key tested with the submitted settings, and the packetfence package conflicts with fingerbank-collector-remote (#9465, #9526, #9525, #9257)
   - Domains: "Force LDAP" kept on creation (#9349)
   - User and Machine roles are seeded in the database (#9397)
   - Node `regdate` set when a node is registered outside `node_register` (#9358)
@@ -142,12 +154,21 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - Admin forms — no 500 when creating a connection profile without `advanced_filter`, DNS enforcement interfaces no longer saved as type `other`, source time balance choices from `access_duration_choices`, Jamf Cloud provisioner switches and rule condition values displayed correctly, Fingerbank tab selection fixed (#9435, #9417, #9419, #9507, #9508, #9479)
   - Admin UI — MAC column not truncated, readable status chart colors, single condition kept when switching filter modes, server time for report date ranges, scrollable portal module palette, portal module delete and Save fixed (#9437, #9438, #9439, #9442, #9451, #9502)
   - i18n: admin strings extracted as looked up at runtime (en.po passes `msgfmt -c`) (#9547)
+  - Active Directory: `sticky_dc` is honoured again by the NTLM auth API (only the listed DCs, or the listed DCs first with `dc1,*`), and disabled domains no longer get an NTLM auth container — check `sticky_dc` before upgrading, see the Upgrade Guide (#9575)
+  - Node bypass ACLs are translated for the switch like role ACLs, and sent also when Push ACLs is enabled — review them before upgrading, see the Upgrade Guide (#9616)
+  - pfconfig: a resource derived from several namespaces is rebuilt after all of them, so `pfcmd configreload` no longer leaves it with stale data (#9596)
+  - pfflow never joins its consumer group before the Kafka topic exists, and a reader left with no partition is recreated, so flows are consumed after a restart without restarting pfcron (#9638)
+  - Azure AD / Entra ID source: users with more than 100 group memberships match their group rules (Graph pagination) (#9601)
+  - pfcron: role ACLs with a `range` port operator are no longer skipped (#9595)
+  - HTTP authentication source — basic-auth credentials saved from the admin UI, objects no longer sent as `HASH(0x...)`, and an invalid authorization reply or an unknown MFA no longer crashes it (#9661)
   - Connectors: saving an existing DNS server with a pfconnector port no longer fails with "Port should be unique" (#9584)
 
 === Security Fixes
 
   - Role ACLs translated for switches could allow more than the role; unexpressible rules are now skipped or end with a deny all (#9325)
   - Admin SSO re-authenticates on every login and requires an access level (#9493)
+  - Admin SSO: admin passwords are no longer sent to the portal token endpoint, where httpd.portal logged them. Where admin SSO was enabled, purge `logs/httpd.apache` (rotated files included) and the journal, and change the passwords of the admins who logged in with a password (#9577)
+  - HTTP authentication source: passwords, MS-CHAP/EAP values and PSK/DPSK handshake attributes are no longer sent to the authorization API (#9661)
   - Email: a failed STARTTLS stops the send instead of continuing in cleartext (#9492)
   - httpd.portal no longer logs the MAC/IP of another client (#9433)
   - Kickbox source: the API key is no longer written to packetfence.log (#9518)

@@ -15,6 +15,7 @@ use warnings;
 use HTML::FormHandler::Moose;
 use pf::ConfigStore::Radiusd::TLSProfile;
 use pf::ConfigStore::Radiusd::FastProfile;
+use pf::ConfigStore::Radiusd::TeapProfile;
 extends 'pfappserver::Base::Form';
 with qw(pfappserver::Base::Form::Role::Help);
 ## Definition
@@ -30,7 +31,7 @@ has_field default_eap_type => (
     label    => 'Default EAP Type',
     options  => [
         map { { value => lc($_), label => $_ } }
-          qw(GTC MD5 MSCHAPv2 LEAP PEAP FAST TLS TTLS)
+          qw(GTC MD5 MSCHAPv2 LEAP PEAP FAST TLS TTLS TEAP)
     ],
 );
 
@@ -56,7 +57,7 @@ has_field eap_authentication_types => (
     multiple => 1,
     options  => [
         map { { value => $_, label => $_ } }
-          qw(GTC MD5 MSCHAPv2 LEAP PEAP FAST TLS TTLS)
+          qw(GTC MD5 MSCHAPv2 LEAP PEAP FAST TLS TTLS TEAP)
     ]
 );
 
@@ -72,12 +73,41 @@ has_field fast_config => (
     options_method => \&options_fast,
 );
 
+has_field teap_config => (
+    type => 'Select',
+    options_method => \&options_teap,
+);
+
 sub options_tls {
     return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Radiusd::TLSProfile->new->readAllIds};
 }
 
 sub options_fast {
     return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Radiusd::FastProfile->new->readAllIds};
+}
+
+sub options_teap {
+    return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Radiusd::TeapProfile->new->readAllIds};
+}
+
+=head2 validate
+
+A method listed in eap_authentication_types is rendered into eap.conf from
+its profile: an empty profile renders an invalid module block, which stops
+every radiusd instance.
+
+=cut
+
+sub validate {
+    my ($self) = @_;
+    my $value = $self->value;
+    my %enabled = map { $_ => 1 } @{ $value->{eap_authentication_types} // [] };
+    for my $check ([TEAP => 'teap_config'], [FAST => 'fast_config']) {
+        my ($type, $field) = @$check;
+        next unless $enabled{$type};
+        next if defined $value->{$field} && length $value->{$field};
+        $self->field($field)->add_error("A $type profile is required when $type is in the EAP authentication types.");
+    }
 }
 
 =head1 AUTHOR

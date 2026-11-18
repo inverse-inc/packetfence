@@ -92,6 +92,10 @@
 # ---------------------------------------------------------------------------
 /.github/CODEOWNERS                     @inverse-inc/inverse-security-reviewers
 
+# Vulnerability disclosure policy — the published reporting channel and
+# response commitments cannot be changed without security-reviewer approval.
+/SECURITY.md                            @inverse-inc/inverse-security-reviewers
+
 # ---------------------------------------------------------------------------
 # Deliberate exclusions (recorded so the scope is auditable rather than accidental):
 #   /html/pfappserver/, /html/captive-portal/ — security-relevant but large and

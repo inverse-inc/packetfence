@@ -126,6 +126,18 @@ our %DATA_FILTER_PROTOCOLS = (
     17 => 'udp',
 );
 
+=head2 aclsInRadiusReply
+
+L</returnRadiusAccessAccept> adds the access list of the role to the reply
+when the Access List Map is enabled.
+
+=cut
+
+sub aclsInRadiusReply {
+    my ($self, $args) = @_;
+    return $self->accessListMapEnabled;
+}
+
 =head2 returnRadiusAccessAccept
 
 Add the access list of the role to the Access-Accept as C<Huawei-Data-Filter>
@@ -149,7 +161,7 @@ sub returnRadiusAccessAccept {
     if (isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement) {
         my $role = $args->{'user_role'};
         if (defined($role) && $role ne "") {
-            my $access_list = $self->getAccessListByName($role, $args->{'mac'}, $args->{'ifIndex'});
+            my $access_list = $self->getAccessListByName($role, $args->{'mac'}, $args->{'ifIndex'}, $args);
             if ($access_list) {
                 my @rules = $self->_dataFilterRules($access_list, $role);
                 $radius_reply_ref->{'Huawei-Data-Filter'} = \@rules if @rules;
@@ -233,10 +245,10 @@ sub deauthenticateWiredMacRadius {
 Return the numbered C<Huawei-Data-Filter> rules for an access list, catch all
 included.
 
-Only the role path of L<pf::Switch/_getAccessListByName> runs the access list
-through L</acl_chewer>: a node's bypass_acls and the access lists defined on the
-switch entry itself are returned untouched, so they arrive here in Cisco syntax
-and are translated. Rules are numbered here rather than in L</acl_chewer> so the
+L<pf::Switch/_getAccessListByName> runs the role ACLs and a node's bypass_acls
+through L</acl_chewer>, so they arrive here as rules. The access lists defined
+on the switch entry itself are sent as the administrator wrote them: a line
+still in Cisco syntax is translated here. Rules are numbered here rather than in L</acl_chewer> so the
 numbering stays contiguous and in the order the administrator wrote the access
 list, which is the order the switch evaluates them in.
 

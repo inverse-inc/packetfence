@@ -31,7 +31,8 @@ const tabs = {
   },
   monit: {
     title: 'Monit', // i18n defer
-    component: MonitView
+    component: MonitView,
+    class: 'no-saas'
   },
   advanced: {
     title: 'Advanced', // i18n defer
