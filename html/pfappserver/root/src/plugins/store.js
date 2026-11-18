@@ -10,7 +10,8 @@ import i18n from '@/utils/locale'
 import { makeApi } from './api'
 import { allowedApi } from './'
 
-export const storeName = id => `$_plugin_${id.replace(/-/g, '_')}`
+// the id unchanged: acme-x and acme_x are two plugins
+export const storeName = id => `$_plugin_${id}`
 
 const makeModule = api => {
   const state = () => ({
@@ -94,11 +95,21 @@ export const pluginApi = manifest => {
   return apis.get(manifest)
 }
 
-// register the store module of a plugin, in a route beforeEnter
+// the manifest each store module was built from, by module name
+const moduleManifests = {}
+
+// register the store module of a plugin, in a route beforeEnter. A module
+// built from a manifest that was reloaded since is replaced (its api and its
+// cache are the ones of the old manifest).
 export const registerStore = ($store, { id, manifest }) => {
   const name = storeName(id)
-  if (!$store.state[name])
-    $store.registerModule(name, makeModule(pluginApi(manifest)))
+  if ($store.state[name]) {
+    if (moduleManifests[name] === manifest)
+      return
+    $store.unregisterModule(name)
+  }
+  $store.registerModule(name, makeModule(pluginApi(manifest)))
+  moduleManifests[name] = manifest
 }
 
 /**

@@ -13,6 +13,7 @@
  * router is being built.
  */
 import Vue from 'vue'
+import Router from 'vue-router'
 import apiCall from '@/utils/api'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
@@ -59,11 +60,36 @@ export const pluginRouteNames = ({ id }) => ({
   clone: `plugin-${id}-clone`
 })
 
+// the names of the plugin routes added to the router
 const addedRoutes = new Set()
 
+// remove the plugin routes: the matcher of the router is built again from its
+// own routes (vue-router 3 cannot remove a route). An abstract router does not
+// touch the location.
+const removeRoutes = router => {
+  if (addedRoutes.size === 0)
+    return
+  router.matcher = new Router({ ...router.options, mode: 'abstract' }).matcher
+  addedRoutes.clear()
+}
+
+// The views of a plugin: its own components, extending the shared ones. The
+// router-views of the areas have no key, a component shared by two plugins
+// would be reused, with the setup of the first plugin, when the admin goes
+// from the page of one to the page of the other.
+const ownViews = (id, views) => Object.entries(views).reduce((own, [ kind, view ]) => {
+  let loaded
+  own[kind] = () => {
+    loaded = loaded || Promise.resolve(view()).then(m => ({ extends: m.default || m, name: `plugin-${id}-${kind}` }))
+    return loaded
+  }
+  return own
+}, {})
+
 // the routes of a plugin, the same as the _router.js of a core view
-const pluginRoutes = (plugin, views) => {
+const pluginRoutes = (plugin, shared) => {
   const { id, manifest: { template, api, menu: { can } } } = plugin
+  const views = ownViews(id, shared)
   const names = pluginRouteNames(plugin)
   const path = `plugins/${id}`
   // vue-browser-acl checks meta.can on every navigation (string or function)
@@ -85,7 +111,10 @@ const pluginRoutes = (plugin, views) => {
   ]
 }
 
+// the routes of the plugins replace the ones of the last load: a manifest may
+// have changed its area, template or api, or a plugin may be gone
 const addRoutes = (router, plugins, views) => {
+  removeRoutes(router)
   for (const plugin of plugins) {
     for (const route of pluginRoutes(plugin, views)) {
       if (addedRoutes.has(route.name))
@@ -126,7 +155,7 @@ let loadedFor = null
 
 /**
  * Load the plugins once per session token and add their routes. A failure
- * leaves the UI without plugins.
+ * leaves the UI without plugins until the next navigation, which tries again.
  */
 export const loadPlugins = ({ router, token, views }) => {
   if (!token)
@@ -136,6 +165,8 @@ export const loadPlugins = ({ router, token, views }) => {
   loadedFor = token
   loading = apiCall.getQuiet('plugins')
     .then(response => {
+      if (loadedFor !== token) // another session meanwhile
+        return
       const { data: { items = [] } = {} } = response
       const plugins = items.filter(usable).map(deepFreeze)
       addRoutes(router, plugins, views)
@@ -143,6 +174,10 @@ export const loadPlugins = ({ router, token, views }) => {
     })
     .catch(err => {
       logWarning('unable to load the plugins', err)
+      if (loadedFor !== token)
+        return
+      loadedFor = null // the next navigation loads them again
+      removeRoutes(router)
       state.plugins = []
     })
   return loading

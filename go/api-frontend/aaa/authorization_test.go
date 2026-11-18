@@ -356,4 +356,14 @@ func TestUiPluginsAllowedToAnyAdmin(t *testing.T) {
 	if res, _ := m.isAuthorizedAdminActions(ctx, "GET", "/api/v1/config/admin_roles", map[string]bool{"NODES_READ": true}); res {
 		t.Error("/api/v1/config/admin_roles was authorized without ADMIN_ROLES_READ")
 	}
+	// the list is matched exactly: a path that only starts with it falls to
+	// the SYSTEM role
+	for _, path := range []string{"/api/v1/pluginsX", "/api/v1/plugins/../config/admin_roles", "/api/v1/plugins/x"} {
+		if res, _ := m.isAuthorizedAdminActions(ctx, "GET", path, map[string]bool{"NODES_READ": true}); res {
+			t.Errorf("%s was authorized to any admin", path)
+		}
+		if res, err := m.isAuthorizedAdminActions(ctx, "GET", path, map[string]bool{"SYSTEM_READ": true}); !res {
+			t.Errorf("%s was not authorized with SYSTEM_READ: %v", path, err)
+		}
+	}
 }

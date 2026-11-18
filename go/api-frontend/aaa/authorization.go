@@ -21,6 +21,15 @@ type adminRoleMapping struct {
 	prefix     string
 	role       string
 	roleSuffix string
+	// the path must be the prefix itself, not only start with it
+	exact bool
+}
+
+func (o adminRoleMapping) matches(path string) bool {
+	if o.exact {
+		return path == o.prefix
+	}
+	return strings.HasPrefix(path, o.prefix)
 }
 
 const ALLOW_ANY = "*"
@@ -30,8 +39,9 @@ var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: apiPrefix + "/radius_attributes", role: ALLOW_ANY},
 	// the admin UI plugins: the UI filters the menu entries with the manifest
 	// menu.can, the api handler checks each request to a plugin against the
-	// can of its manifest (go/uiplugins Allowed)
-	adminRoleMapping{prefix: apiPrefix + "/plugins", role: ALLOW_ANY},
+	// can of its manifest (go/uiplugins Allowed). The list is matched exactly,
+	// GET /api/v1/plugins is its only route.
+	adminRoleMapping{prefix: apiPrefix + "/plugins", role: ALLOW_ANY, exact: true},
 	adminRoleMapping{prefix: apiPrefix + "/plugin/", role: ALLOW_ANY},
 
 	adminRoleMapping{prefix: apiPrefix + "/preference/", role: ALLOW_ANY},
@@ -225,9 +235,8 @@ func (tam *TokenAuthorizationMiddleware) isAuthorizedAdminActions(ctx context.Co
 	var baseAdminRole string
 	var suffix string
 	for _, o := range pathAdminRolesMap {
-		base := o.prefix
 		role := o.role
-		if strings.HasPrefix(path, base) && role != "" {
+		if o.matches(path) && role != "" {
 			baseAdminRole = role
 			suffix = o.roleSuffix
 			break

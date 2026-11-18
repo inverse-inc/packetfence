@@ -45,11 +45,13 @@ once a refresh of its manifest fails, within about 30s, and its pages answer
 502 ("The plugin … is unavailable") meanwhile. It is listed again as soon as
 its manifest answers, or when it registers again.
 
-The UI adds the routes of the plugins once per session, when the admin logs
-in or reloads the page: a manifest that gains a page after that (an
-`api.create` adds New and Clone) needs a reload of the admin UI to show it.
-The routes of a plugin that deregisters stay until the reload, they show the
-unavailable view.
+The UI loads the plugins once per session, when the admin logs in or reloads
+the page: their routes, menus and stores replace the ones of the previous
+load. A manifest that changes after that (an `api.create` adds New and
+Clone) needs a reload of the admin UI, or a new login, to show it. The routes
+of a plugin that deregisters stay until then, they show the unavailable
+view. If the list of the plugins cannot be loaded, the UI has none and tries
+again at the next navigation.
 
 The registrations are rows of the database: they survive a restart of any
 service and every api-frontend reads the same ones, whatever the number of
@@ -119,10 +121,11 @@ rotating it, restart api-frontend.
 
 **What is passed.** Only the API methods the manifest declares: the path must
 match one of its `api` paths (`{id}` is one segment, never empty, `.` or
-`..`) with the verb of that method (`list`/`item`: GET or HEAD,
-`listOptions`/`itemOptions`: OPTIONS, `search`/`create`: POST, `update`:
-PATCH, `delete`: DELETE). Anything else is refused (403), and so is a call
-the admin is not allowed (see [ACL](#acl)).
+`..` once decoded: an id the UI encoded may hold a `/`, the plugin gets it
+encoded as the UI sent it, eg `items/site%2Fa`) with the verb of that method
+(`list`/`item`: GET, `listOptions`/`itemOptions`: OPTIONS,
+`search`/`create`: POST, `update`: PATCH, `delete`: DELETE). Anything else is
+refused (403), and so is a call the admin is not allowed (see [ACL](#acl)).
 
 - the admin token is not passed (`Authorization`, `Cookie` are removed), the
   plugin gets the admin api-aaa checked instead:

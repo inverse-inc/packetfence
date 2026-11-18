@@ -27,23 +27,37 @@ func Error(w http.ResponseWriter, status int, message string) {
 	}{message, status})
 }
 
-// ProxyMethods are the HTTP methods routed to the proxy, Allowed refuses the
-// ones the manifest does not declare
-var ProxyMethods = []string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete}
+// ProxyMethods are the HTTP methods routed to the proxy, the verbs of the
+// catalog API methods (api-aaa authorizes no other), Allowed refuses the ones
+// the manifest does not declare
+var ProxyMethods = []string{http.MethodGet, http.MethodOptions, http.MethodPost, http.MethodPatch, http.MethodDelete}
 
 // the manifest API methods a request can be, by HTTP method (the fixed verbs
-// of the catalog: HEAD is a GET without a body)
+// of the catalog)
 var apiMethodsByVerb = map[string][]string{
 	http.MethodGet:     {"list", "item"},
-	http.MethodHead:    {"list", "item"},
 	http.MethodOptions: {"listOptions", "itemOptions"},
 	http.MethodPost:    {"search", "create"},
 	http.MethodPatch:   {"update"},
 	http.MethodDelete:  {"delete"},
 }
 
-// does a request path match a manifest API path, {id} is one segment that is
-// not empty, "." or ".."
+// ProxyPath is the path of a request to a plugin, on the plugin service:
+// what follows /api/v1/plugin/<name>, still URL encoded (an item id the UI
+// encoded can hold a "/", eg: items/site%2Fa). false when the request is not
+// for that plugin.
+func ProxyPath(r *http.Request, name string) (string, bool) {
+	prefix := "/api/v1/plugin/" + name + "/"
+	escaped := r.URL.EscapedPath()
+	if !strings.HasPrefix(escaped, prefix) {
+		return "", false
+	}
+	return escaped[len(prefix)-1:], true
+}
+
+// does a request path (URL encoded) match a manifest API path, segment by
+// segment once decoded: {id} is one segment that is not empty, "." or ".."
+// (once decoded, it may hold a "/")
 func pathMatches(template, path string) bool {
 	t := strings.Split(strings.TrimPrefix(template, "/"), "/")
 	s := strings.Split(strings.TrimPrefix(path, "/"), "/")
@@ -51,13 +65,17 @@ func pathMatches(template, path string) bool {
 		return false
 	}
 	for i := range t {
+		segment, err := url.PathUnescape(s[i])
+		if err != nil {
+			return false
+		}
 		if t[i] == "{id}" {
-			if s[i] == "" || s[i] == "." || s[i] == ".." {
+			if segment == "" || segment == "." || segment == ".." {
 				return false
 			}
 			continue
 		}
-		if t[i] != s[i] {
+		if t[i] != segment {
 			return false
 		}
 	}
@@ -193,18 +211,15 @@ func checkAnswer(resp *http.Response) error {
 			return errPluginAnswer{"answered invalid JSON"}
 		}
 	}
-	length := int64(len(data))
-	if resp.Request.Method == http.MethodHead {
-		length = -1
-	}
-	resp.Header = answerHeaders(length)
+	resp.Header = answerHeaders(int64(len(data)))
 	resp.Body = io.NopCloser(bytes.NewReader(data))
 	resp.ContentLength = int64(len(data))
 	return nil
 }
 
 // Proxy passes a request to the plugin service of a registration: path is the
-// path on the plugin service, identity the admin api-aaa checked. The request
+// path on the plugin service, URL encoded (ProxyPath), identity the admin
+// api-aaa checked. The request
 // is checked with Allowed against the manifest of the plugin, from the cache
 // of the Fetcher. The plugin gets the identity headers (its X-PacketFence-*
 // headers are only these), never the admin token. Its answer must be JSON:
@@ -224,6 +239,12 @@ func (f *Fetcher) Proxy(w http.ResponseWriter, r *http.Request, registration Reg
 		Error(w, http.StatusForbidden, fmt.Sprintf("Plugin %q: %s", name, err))
 		return
 	}
+	// Allowed decoded each segment: the whole path decodes
+	decoded, err := url.PathUnescape(path)
+	if err != nil {
+		Error(w, http.StatusBadRequest, fmt.Sprintf("Plugin %q: invalid path", name))
+		return
+	}
 	if r.ContentLength > maxProxyBody {
 		Error(w, http.StatusRequestEntityTooLarge, fmt.Sprintf("A request to a plugin is limited to %d bytes", maxProxyBody))
 		return
@@ -234,14 +255,15 @@ func (f *Fetcher) Proxy(w http.ResponseWriter, r *http.Request, registration Reg
 		Error(w, http.StatusBadGateway, err.Error())
 		return
 	}
-	actions := strings.Join(manifest.ActionsFor(identity.Actions), ",")
+	actions := strings.Join(manifest.ActionsFor(f.Catalog, identity.Actions), ",")
 	proxy := &httputil.ReverseProxy{
 		Transport: roundTripper{},
 		Rewrite: func(pr *httputil.ProxyRequest) {
 			pr.Out.URL.Scheme = target.Scheme
 			pr.Out.URL.Host = target.Host
-			pr.Out.URL.Path = path
-			pr.Out.URL.RawPath = ""
+			// the encoding of the admin request is kept (an id with a "/")
+			pr.Out.URL.Path = decoded
+			pr.Out.URL.RawPath = path
 			pr.Out.URL.RawQuery = pr.In.URL.RawQuery
 			pr.Out.Host = target.Host
 			for _, header := range pluginDroppedHeaders {

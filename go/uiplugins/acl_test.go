@@ -22,9 +22,24 @@ func TestActionsForExact(t *testing.T) {
 		"CONFIGURATION_MAIN_READ": true,
 		"USERS_DELETE":            false,
 	}
-	got := m.ActionsFor(actions)
+	got := m.ActionsFor(DefaultCatalog, actions)
 	want := []string{"SYSLOG", "SYSLOG_READ", "USERS", "USERS_CREATE_MULTIPLE", "USERS_READ", "USERS_SET_ACCESS_LEVEL"}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("ActionsFor: got %v, want %v", got, want)
+	}
+}
+
+// the actions follow the catalog the manifest was validated with: a verb only
+// a custom catalog has is passed when that catalog is used
+func TestActionsForCatalog(t *testing.T) {
+	custom := *DefaultCatalog
+	custom.ACL.Verbs = append(append([]string{}, DefaultCatalog.ACL.Verbs...), "approve")
+	m := &Manifest{Menu: Menu{Can: &Can{Rule: "approve widgets"}}}
+	actions := map[string]bool{"WIDGETS_APPROVE": true}
+	if got := m.ActionsFor(DefaultCatalog, actions); len(got) != 0 {
+		t.Errorf("ActionsFor(DefaultCatalog): got %v, want none", got)
+	}
+	if got, want := m.ActionsFor(&custom, actions), []string{"WIDGETS_APPROVE"}; !reflect.DeepEqual(got, want) {
+		t.Errorf("ActionsFor(custom): got %v, want %v", got, want)
 	}
 }

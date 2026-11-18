@@ -83,7 +83,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - CI: Vagrant box baked once per pipeline, faster test job order, shared Ansible Galaxy cache, vet-gated Go builds with advisory security scans (#9067, #9178, #9401, #9403)
   - Tests: cluster failover and galera-recovery acceptance suites, Trojan Source character detection, test fixes (#9177, #9423, #9247, #9275, #9294, #9303, #9402, #9558, #9569, #9608)
   - Admin UI e2e tests: plain `npm ci` works again, bundling dependencies updated (#9576)
-  - Admin UI CSV exports quote every cell per RFC 4180 (every `"` in a value is doubled; before, only the first one was escaped, as `\"`, which spreadsheets misread), and a cell that starts with `=` or `@` is prefixed with `'` so a spreadsheet does not run it as a formula. A value starting with `+` or `-` is exported as is (#9646)
+  - Admin UI CSV exports quote every cell per RFC 4180 (every `"` in a value is doubled; before, only the first one was escaped, as `\"`, which spreadsheets misread), and a cell that starts with `=`, `+`, `-`, `@`, a tab or a carriage return is prefixed with `'` so a spreadsheet does not run it as a formula (for example `-lab-01` and `+1 514 555 0100` are exported as `'-lab-01` and `'+1 514 555 0100`). A plain number keeps its sign (`-5`) (#9646)
 
 === Bug Fixes
 

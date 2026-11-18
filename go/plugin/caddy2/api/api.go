@@ -66,22 +66,34 @@ func (m *APIHandler) setSQLDB(database *sql.DB) {
 	m.db = database
 }
 
+// opens the raw SQL handle, a variable for the tests
+var openPluginDB = db.DbFromConfig
+
 // pluginDB is the raw SQL handle, opened again when it could not be at
-// startup
+// startup. The connection is opened without holding sqlDBLock, so a slow or
+// unreachable database does not block the other handlers that read the
+// handle: when two requests open it at once, the first one stored is kept and
+// the other is closed.
 func (m *APIHandler) pluginDB(ctx context.Context) *sql.DB {
 	if database := m.sqlDB(); database != nil {
 		return database
 	}
-	sqlDBLock.Lock()
-	defer sqlDBLock.Unlock()
-	if m.db == nil {
-		if database, err := db.DbFromConfig(ctx); err == nil {
-			m.db = database
-		} else {
-			log.LoggerWContext(ctx).Error("Unable to open the database for the UI plugins: " + err.Error())
-		}
+	database, err := openPluginDB(ctx)
+	if err != nil {
+		log.LoggerWContext(ctx).Error("Unable to open the database for the UI plugins: " + err.Error())
+		return m.sqlDB()
 	}
-	return m.db
+	sqlDBLock.Lock()
+	stored := m.db
+	if stored == nil {
+		m.db = database
+	}
+	sqlDBLock.Unlock()
+	if stored != nil {
+		database.Close()
+		return stored
+	}
+	return database
 }
 
 // Setup the api middleware

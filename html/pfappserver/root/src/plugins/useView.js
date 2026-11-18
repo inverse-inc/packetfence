@@ -66,6 +66,18 @@ export const useResource = plugin => {
 /**
  * The search of a collection, as the makeSearch of a core view
  */
+
+// The uuid of a search store. makeSearch makes the pinia store id with
+// toKebabCase, which drops "-" and "_" (acme-x and acme_x would share a store)
+// and splits on digits: only lowercase letters go through unchanged, so the
+// uuid is spelled with them ("z" escapes the other characters). Each manifest
+// gets its own store: pinia keeps a store by id, a manifest reloaded with
+// other columns or api must not get the store of the old one.
+const escapes = '0123456789_-z'
+const spell = s => [...s].map(c => ((c >= 'a' && c < 'z') ? c : `z${'abcdefghijklm'[escapes.indexOf(c)]}`)).join('')
+let searchStores = 0
+export const searchUuid = (id, generation) => `plugin${spell(`${id}-${generation}`)}`
+
 const searches = new WeakMap()
 export const useSearch = plugin => {
   const { id, manifest } = plugin
@@ -73,7 +85,7 @@ export const useSearch = plugin => {
     const { list, search } = pluginApi(manifest)
     const { collection: { columns = [], searchFields = [] } } = manifest
     const keys = columns.map(({ key }) => key)
-    searches.set(manifest, makeSearch(`plugin_${id}`, {
+    searches.set(manifest, makeSearch(searchUuid(id, ++searchStores), {
       api: { ...((list) ? { list } : {}), ...((search) ? { search } : {}) },
       columns: [
         { key: 'selected', thStyle: 'width: 40px;', tdClass: 'text-center', locked: true },

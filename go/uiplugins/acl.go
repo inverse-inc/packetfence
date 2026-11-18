@@ -225,13 +225,13 @@ func (m *Manifest) Targets() map[string]bool {
 
 // ActionsFor are the actions of the admin on the targets the manifest names,
 // exactly the actions a rule "<verb> <target>" can be (Role) for a verb of
-// the catalog: <TARGET>_<VERB>, or <TARGET> for an access role. USERS_READ
-// belongs to the target users, USERS_SOURCES_READ does not (it is the target
-// users_sources).
-func (m *Manifest) ActionsFor(actions map[string]bool) []string {
+// the catalog the manifest was validated with: <TARGET>_<VERB>, or <TARGET>
+// for an access role. USERS_READ belongs to the target users,
+// USERS_SOURCES_READ does not (it is the target users_sources).
+func (m *Manifest) ActionsFor(c *Catalog, actions map[string]bool) []string {
 	roles := map[string]bool{}
 	for target := range m.Targets() {
-		for _, verb := range DefaultCatalog.ACL.Verbs {
+		for _, verb := range c.ACL.Verbs {
 			roles[Role(verb+" "+strings.ToLower(target))] = true
 		}
 	}

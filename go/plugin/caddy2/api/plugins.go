@@ -155,8 +155,14 @@ func (h *APIHandler) pluginProxy(w http.ResponseWriter, r *http.Request, p httpr
 		uiplugins.Error(w, http.StatusNotFound, fmt.Sprintf("No plugin %q", name))
 		return
 	}
+	// the path as the admin sent it, not decoded: an item id can hold a "/"
+	path, ok := uiplugins.ProxyPath(r, name)
+	if !ok {
+		uiplugins.Error(w, http.StatusNotFound, fmt.Sprintf("No plugin %q", name))
+		return
+	}
 	identity := uiplugins.IdentityOf(r, pluginAdminActions(ctx, uiplugins.AdminRoles(r)))
-	pluginsFetcher.Proxy(w, r, registration, p.ByName("path"), identity)
+	pluginsFetcher.Proxy(w, r, registration, path, identity)
 }
 
 // the actions of admin roles, as api-aaa computes them, a variable for the

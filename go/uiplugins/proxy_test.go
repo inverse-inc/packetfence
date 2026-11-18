@@ -32,6 +32,7 @@ const pluginManifest = `{
 type pluginRequest struct {
 	Method, Path, Query, Body string
 	Header                    http.Header
+	EscapedPath               string
 }
 
 // a plugin service: its manifest, a JSON echo, and the answers a plugin must
@@ -44,7 +45,7 @@ func pluginHandler(seen *[]pluginRequest) http.Handler {
 			return
 		}
 		b, _ := io.ReadAll(r.Body)
-		*seen = append(*seen, pluginRequest{r.Method, r.URL.Path, r.URL.RawQuery, string(b), r.Header.Clone()})
+		*seen = append(*seen, pluginRequest{r.Method, r.URL.Path, r.URL.RawQuery, string(b), r.Header.Clone(), r.URL.EscapedPath()})
 		switch r.URL.Path {
 		case "/items/html":
 			w.Header().Set("Content-Type", "text/html")
@@ -86,9 +87,14 @@ func registrationOf(t *testing.T, name string, server *httptest.Server) Registra
 // admin of the test is in X-Test-Actions
 func router(f *Fetcher, registrations map[string]Registration) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		name, path, _ := strings.Cut(strings.TrimPrefix(r.URL.Path, "/api/v1/plugin/"), "/")
+		name, _, _ := strings.Cut(strings.TrimPrefix(r.URL.Path, "/api/v1/plugin/"), "/")
 		registration, found := registrations[name]
 		if !found {
+			Error(w, http.StatusNotFound, "unknown")
+			return
+		}
+		path, ok := ProxyPath(r, name)
+		if !ok {
 			Error(w, http.StatusNotFound, "unknown")
 			return
 		}
@@ -96,7 +102,7 @@ func router(f *Fetcher, registrations map[string]Registration) func(w http.Respo
 		for _, a := range strings.Split(r.Header.Get("X-Test-Actions"), ",") {
 			actions[a] = true
 		}
-		f.Proxy(w, r, registration, "/"+path, IdentityOf(r, actions))
+		f.Proxy(w, r, registration, path, IdentityOf(r, actions))
 	}
 }
 
@@ -168,12 +174,21 @@ func TestPluginProxy(t *testing.T) {
 		t.Errorf("unexpected identity headers: %v", got.Header)
 	}
 
+	// an item id with a "/" reaches the plugin as the UI encoded it
+	seen = seen[:0]
+	if w := do("PATCH", "/api/v1/plugin/acme/items/site%2Fa", "SYSLOG_READ,SYSLOG_UPDATE", `{}`); w.Code != http.StatusCreated {
+		t.Fatalf("PATCH items/site%%2Fa: %d %s", w.Code, w.Body.String())
+	}
+	if len(seen) != 1 || seen[0].EscapedPath != "/items/site%2Fa" || seen[0].Path != "/items/site/a" {
+		t.Errorf("the encoded id did not reach the plugin: %+v", seen)
+	}
+
 	for _, c := range []struct {
 		method, target, actions string
 		code                    int
 	}{
 		{"GET", "/api/v1/plugin/acme/items", "SYSLOG_READ", 201},
-		{"HEAD", "/api/v1/plugin/acme/items/a", "SYSLOG_READ", 201},
+		{"GET", "/api/v1/plugin/acme/items/site%2Fa", "SYSLOG_READ", 201}, // an id with a "/"
 		{"OPTIONS", "/api/v1/plugin/acme/items", "SYSLOG_READ", 201},
 		{"POST", "/api/v1/plugin/acme/items/search", "SYSLOG_READ", 201}, // search is a read
 		{"PATCH", "/api/v1/plugin/acme/items/a", "SYSLOG_READ,SYSLOG_UPDATE", 201},
@@ -182,6 +197,9 @@ func TestPluginProxy(t *testing.T) {
 		{"PATCH", "/api/v1/plugin/acme/items/a", "SYSLOG_READ,SYSLOG_CREATE", 403}, // api.update.can
 		{"DELETE", "/api/v1/plugin/acme/items/a", all + ",SYSLOG_DELETE", 403},     // no api.delete
 		{"PUT", "/api/v1/plugin/acme/items/a", all, 403},                           // update is PATCH
+		{"HEAD", "/api/v1/plugin/acme/items/a", all, 403},                          // not a verb of the catalog
+		{"GET", "/api/v1/plugin/acme/items/%2E%2E", all, 403},                      // ".." encoded
+		{"GET", "/api/v1/plugin/acme/items/%2e", all, 403},                         // "." encoded
 		{"OPTIONS", "/api/v1/plugin/acme/items/a", all, 403},                       // no api.itemOptions
 		{"GET", "/api/v1/plugin/acme/other", all, 403},                             // not an API path
 		{"GET", "/api/v1/plugin/acme/items/a/b", all, 403},
@@ -271,6 +289,10 @@ func TestPathMatches(t *testing.T) {
 		{"items", "/items/search", false},
 		{"items/search", "//items/search", false},
 		{"items/search", "/items/search/", false},
+		{"items/{id}", "/items/site%2Fa", true},
+		{"items/{id}", "/items/%2e", false},
+		{"items/{id}", "/items/%zz", false},
+		{"items/search", "/items/%73earch", true},
 	} {
 		if pathMatches(c.template, c.path) != c.match {
 			t.Errorf("%s %s: expected %v", c.template, c.path, c.match)
