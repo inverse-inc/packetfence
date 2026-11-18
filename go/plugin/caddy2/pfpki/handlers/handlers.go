@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/admin_api_audit_log"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/models"
@@ -570,21 +569,7 @@ func DownloadCert(pfpki *types.Handler) http.HandlerFunc {
 				Password string `json:"password"`
 			}
 			req.Body = http.MaxBytesReader(res, req.Body, 4096)
-			if err = json.NewDecoder(req.Body).Decode(&body); err != nil {
-				var tooLarge *http.MaxBytesError
-				if errors.Is(err, io.EOF) {
-					Error.Message = "A password is required"
-					Error.Status = http.StatusBadRequest
-				} else if errors.As(err, &tooLarge) {
-					Error.Message = "The request body is too large"
-					Error.Status = http.StatusRequestEntityTooLarge
-				} else {
-					Error.Message = `The request body must be a JSON object with a "password": ` + err.Error()
-					Error.Status = http.StatusBadRequest
-				}
-				break
-			}
-			if body.Password == "" {
+			if err = json.NewDecoder(req.Body).Decode(&body); err != nil || body.Password == "" {
 				Error.Message = "A password is required"
 				Error.Status = http.StatusBadRequest
 				break
@@ -605,18 +590,6 @@ func DownloadCert(pfpki *types.Handler) http.HandlerFunc {
 			break
 		}
 		manageAnswer(Information, Error, pfpki, res, req, nil)
-	})
-}
-
-// DownloadCertWithID is DownloadCert for a route where the certificate id is a
-// fixed path segment instead of an {id} parameter.
-func DownloadCertWithID(pfpki *types.Handler, id string) http.HandlerFunc {
-	download := DownloadCert(pfpki)
-	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		if rctx := chi.RouteContext(req.Context()); rctx != nil {
-			rctx.URLParams.Add("id", id)
-		}
-		download(res, req)
 	})
 }
 
