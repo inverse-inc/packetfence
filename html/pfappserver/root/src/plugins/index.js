@@ -1,5 +1,5 @@
 /**
- * Admin UI plugins (see docs/ui-plugins/README.md).
+ * Admin UI plugins (see docs/developer/ui_plugins.asciidoc).
  *
  * Plugin services register in the database (go/uiplugins, pf::ui_plugins), the
  * API lists the ones whose manifest is valid (GET /api/v1/plugins) and proxies

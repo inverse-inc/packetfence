@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Admin UI plugins catalog (see docs/ui-plugins/README.md).
+ * Admin UI plugins catalog (see docs/developer/ui_plugins.asciidoc).
  *
  * src/plugins/catalog.json lists what a plugin manifest may use. This script
  * generates from it:
@@ -74,7 +74,7 @@ const validatorSchemas = Object.entries(data.validators).map(([fn, { args }]) =>
     ...((args.length) ? { required: ['args'] } : {}),
     properties: {
       args: (args.length)
-        ? { type: 'array', prefixItems: args.map(kind => ((fn === 'matches') ? { type: 'string', maxLength: 256, description: 'At most 256 characters, run by the browser RegExp (no flags). Only the syntax RE2 and JavaScript share: escapes \\d \\D \\w \\W \\s \\S \\b \\B \\n \\r \\t \\f \\v, \\xHH and an escaped non-alphanumeric character; ( and (?: groups only; no POSIX classes. A repeated group cannot hold a quantifier or an alternation: (a+)+, (a|aa)+ and (\\d+\\.?)+ are refused. See docs/ui-plugins/README.md.' } : argSchema[kind])), minItems: args.length, maxItems: args.length }
+        ? { type: 'array', prefixItems: args.map(kind => ((fn === 'matches') ? { type: 'string', maxLength: 256, description: 'At most 256 characters, run by the browser RegExp (no flags). Only the syntax RE2 and JavaScript share: escapes \\d \\D \\w \\W \\s \\S \\b \\B \\n \\r \\t \\f \\v, \\xHH and an escaped non-alphanumeric character; ( and (?: groups only; no POSIX classes. A repeated group cannot hold a quantifier or an alternation: (a+)+, (a|aa)+ and (\\d+\\.?)+ are refused. See docs/developer/ui_plugins.asciidoc.' } : argSchema[kind])), minItems: args.length, maxItems: args.length }
         : { type: 'array', maxItems: 0 }
     }
   }
@@ -84,7 +84,7 @@ const schema = {
   $schema: 'https://json-schema.org/draft/2020-12/schema',
   $id: 'https://packetfence.org/schemas/ui-plugin-manifest.schema.json',
   title: 'PacketFence admin UI plugin manifest',
-  description: 'Generated from html/pfappserver/root/src/plugins/catalog.json by html/pfappserver/root/build/ui-plugins-catalog.js, do not edit. The API also checks that every validator applies to the type of its component, that "when" references another field and that "can" is nested 3 levels at most. See docs/ui-plugins/README.md.',
+  description: 'Generated from html/pfappserver/root/src/plugins/catalog.json by html/pfappserver/root/build/ui-plugins-catalog.js, do not edit. The API also checks that every validator applies to the type of its component, that "when" references another field and that "can" is nested 3 levels at most. See docs/developer/ui_plugins.asciidoc.',
   type: 'object',
   additionalProperties: false,
   required: ['manifestVersion', 'id', 'title', 'menu', 'template', 'api', 'form'],

@@ -26,7 +26,7 @@ const setup = (props, context) => {
   const switchGroupsMembers = ref([])
   const isLoadingSwitchGroups = computed(() => $store.getters['config/isLoadingSwitchGroups'])
 
-  const sections = computed(() => areaSections('nodes', [ // add the UI plugins items, see docs/ui-plugins/README.md
+  const sections = computed(() => areaSections('nodes', [ // add the UI plugins items, see docs/developer/ui_plugins.asciidoc
     {
       name: i18n.t('Search'),
       path: '/nodes/search',

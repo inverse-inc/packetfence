@@ -2,7 +2,7 @@
 // plugin service (the ui_plugin table), the validation of the manifest it
 // serves, and the proxy to its API.
 //
-// See docs/ui-plugins/README.md.
+// See docs/developer/ui_plugins.asciidoc.
 package uiplugins
 
 import (

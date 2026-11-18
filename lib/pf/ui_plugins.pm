@@ -34,7 +34,7 @@ otherwise, with a certificate valid for the host.
 A plugin that crashes without deregistering stays listed: its manifest cannot
 be fetched, so the admin UI leaves it out, its pages answer 502.
 
-See docs/ui-plugins/README.md.
+See docs/developer/ui_plugins.asciidoc.
 
 =cut
 

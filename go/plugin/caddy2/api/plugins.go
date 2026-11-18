@@ -1,6 +1,6 @@
 package api
 
-// The admin UI plugins, see docs/ui-plugins/README.md:
+// The admin UI plugins, see docs/developer/ui_plugins.asciidoc:
 //
 //	GET /api/v1/plugins                the plugins whose manifest is reachable and valid
 //	*   /api/v1/plugin/<name>/<path>   the declared API, proxied to <scheme>://<host>:<port>/<path> (go/uiplugins Proxy)

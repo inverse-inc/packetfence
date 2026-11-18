@@ -3,7 +3,7 @@ import i18n from '@/utils/locale'
 import { areaSections } from '@/plugins'
 
 export const useSections = () => {
-  const sections = computed(() => areaSections('configuration', [ // add the UI plugins items, see docs/ui-plugins/README.md
+  const sections = computed(() => areaSections('configuration', [ // add the UI plugins items, see docs/developer/ui_plugins.asciidoc
     {
       name: i18n.t('Policies and Access Control'),
       path: '/configuration/policies_access_control',

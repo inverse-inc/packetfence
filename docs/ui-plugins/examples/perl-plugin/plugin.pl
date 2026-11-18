@@ -14,7 +14,7 @@ plugin.pl - a complete admin UI plugin service in Perl
 
 =head1 DESCRIPTION
 
-The scaffold of docs/ui-plugins/SCAFFOLDING.md: a Mojolicious (shipped with
+The scaffold of docs/developer/ui_plugins.asciidoc ("Writing a plugin from scratch"): a Mojolicious (shipped with
 PacketFence) service that serves its manifest (manifest.json, next to this
 script) and the API of its page, a collection of notes kept in memory, then
 registers itself with the PacketFence Perl accessors (pf::ui_plugins) and

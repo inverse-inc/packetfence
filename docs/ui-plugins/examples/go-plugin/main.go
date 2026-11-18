@@ -1,5 +1,5 @@
 // A complete admin UI plugin service in Go: the scaffold of
-// docs/ui-plugins/SCAFFOLDING.md.
+// docs/developer/ui_plugins.asciidoc ("Writing a plugin from scratch").
 //
 // It serves its manifest (manifest.json, embedded) and the API of its page, a
 // collection of notes kept in memory, then registers itself with the
