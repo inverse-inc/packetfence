@@ -30,8 +30,13 @@ Calls the api call
 
 sub doTask {
     my ($self, $args) = @_;
+    my $method = ref($args) eq 'ARRAY' ? $args->[0] : undef;
+    unless (pf::api->isAllowedInQueue($method)) {
+        $logger->error("Refusing api task " . ($method // ''));
+        return ({ message => "Api method not allowed", status => 403 }, undef);
+    }
+
     my $api_client = pf::api::can_fork->new();
-    my $method = $args->[0];
     $logger->info("Calling api task $method");
     $api_client->notify(@$args);
     return (undef, undef);

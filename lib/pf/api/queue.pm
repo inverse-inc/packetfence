@@ -60,6 +60,19 @@ sub call {
     die "call not implemented $method failed\n";
 }
 
+=head2 check_method
+
+Dies if the api method cannot be run from the queue (see pf::api::attributes::isAllowedInQueue)
+
+=cut
+
+sub check_method {
+    my ($method) = @_;
+    require pf::api;
+    return if pf::api->isAllowedInQueue($method);
+    die "api method " . ($method // '') . " is not allowed in the queue\n";
+}
+
 =head2 notify
 
 calls the pf api ignoring the return value
@@ -68,6 +81,7 @@ calls the pf api ignoring the return value
 
 sub notify {
     my ($self, $method, @args) = @_;
+    check_method($method);
     $self->client->submit($self->queue, api => [$method, @args]);
     return;
 }
@@ -80,6 +94,7 @@ calls the pf api ignoring the return value with a delay
 
 sub notify_delayed {
     my ($self, $delay, $method, @args) = @_;
+    check_method($method);
     $self->client->submit_delayed($self->queue, 'api', $delay, [$method, @args]);
     return;
 }

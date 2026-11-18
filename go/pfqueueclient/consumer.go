@@ -102,15 +102,41 @@ func (c *Consumer) ProcessNextQueueItem(ctx context.Context, queues []string) er
 			return err
 		}
 
-		if statusUpdater != nil && out != nil {
-			data, _ := json.Marshal(out)
-			statusUpdater.Complete(ctx, data)
+		if statusUpdater != nil {
+			results, failed := taskReply(out)
+			if failed {
+				data, _ := json.Marshal(results)
+				statusUpdater.Failed(ctx, data)
+			} else if results != nil {
+				data, _ := json.Marshal(results)
+				statusUpdater.Complete(ctx, data)
+			}
 		}
 
 		break
 	}
 
 	return nil
+}
+
+// taskReply reads the reply of pfqueue-backend: {"error": ...} when the task
+// can't be decoded or failed, {"item": ...} with the result otherwise.
+// A reply in another shape is a result.
+func taskReply(out interface{}) (interface{}, bool) {
+	reply, ok := out.(map[string]interface{})
+	if !ok || len(reply) != 1 {
+		return out, false
+	}
+
+	if err, found := reply["error"]; found {
+		return err, true
+	}
+
+	if item, found := reply["item"]; found {
+		return item, false
+	}
+
+	return out, false
 }
 
 func (c *Consumer) nextTaskID(ctx context.Context, queues []string) (string, error) {
