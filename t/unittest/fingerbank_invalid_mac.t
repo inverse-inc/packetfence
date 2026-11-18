@@ -21,7 +21,7 @@ BEGIN {
 use Test::More tests => 8;
 use Test::MockModule;
 
-#This test will running last
+#This test will run last
 use Test::NoWarnings;
 use pf::fingerbank;
 
