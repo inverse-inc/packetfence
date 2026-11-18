@@ -44,11 +44,11 @@
           <b-nav-item @click="toggleDocumentationViewer" :active="showDocumentationViewer" v-b-tooltip.hover.bottom.d300 title="Alt + Shift + H">
             <icon name="question-circle"></icon>
           </b-nav-item>
-          <b-nav-item @click="toggleHeaderPanel(LIVE_LOGS_PANEL)" v-b-tooltip.hover.bottom.d300 title="Alt + Shift + L"
+          <b-nav-item v-if="canRoute('/live-logs')" @click="toggleHeaderPanel(LIVE_LOGS_PANEL)" v-b-tooltip.hover.bottom.d300 title="Alt + Shift + L"
             :active="headerPanel === LIVE_LOGS_PANEL">
             <icon name="scroll" :class="{ 'text-success': hasRunningSessions }" />
           </b-nav-item>
-          <b-nav-item @click="toggleHeaderPanel(HISTORICAL_LOGS_PANEL)" v-b-tooltip.hover.bottom.d300 :title="$t('Historical Logs')"
+          <b-nav-item v-if="canRoute('/historical-logs')" @click="toggleHeaderPanel(HISTORICAL_LOGS_PANEL)" v-b-tooltip.hover.bottom.d300 :title="$t('Historical Logs')"
             :active="headerPanel === HISTORICAL_LOGS_PANEL">
             <icon name="history" />
           </b-nav-item>
@@ -253,7 +253,7 @@ const setup = (props, context) => {
           $router.push('/configuration')
             .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
           break
-        case keyCode === 76: // L
+        case keyCode === 76 && canRoute('/live-logs'): // L
           e.preventDefault()
           togglePanel(LIVE_LOGS_PANEL)
           break
