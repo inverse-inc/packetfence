@@ -46,7 +46,7 @@ export const loadBundle = (id, token) => {
       method: 'get',
       url: `plugins/${encodeURIComponent(id)}/bundle.js`,
       responseType: 'text',
-      transformResponse: [data => data]
+      transformResponse: [data => ((data === undefined) ? { quiet: true } : data)]
     })
       .then(({ data }) => {
         const url = URL.createObjectURL(new Blob([data], { type: 'text/javascript' }))
@@ -74,7 +74,11 @@ export const loadBundle = (id, token) => {
 
 // a quiet request: the plugin handles its own errors, core shows no
 // notification for it (an array answer stays an array)
+// (the error interceptor of the admin UI calls it without data: a network
+// error, a timeout)
 const quietTransform = data => {
+  if (data === undefined)
+    return { quiet: true }
   if (typeof data !== 'string')
     return data // a blob, an arraybuffer
   let parsed
@@ -83,8 +87,9 @@ const quietTransform = data => {
   } catch (e) {
     return data
   }
+  // not enumerable: not in the data a plugin sends back or shows
   if (parsed && typeof parsed === 'object')
-    Object.defineProperty(parsed, 'quiet', { value: true, enumerable: !Array.isArray(parsed) })
+    Object.defineProperty(parsed, 'quiet', { value: true, enumerable: false })
   return parsed
 }
 
@@ -140,5 +145,5 @@ export const hostApi = (id, { router, store }) => Object.freeze({
   can: expression => can(expression),
   t: (...args) => i18n.t(...args),
   locale: () => i18n.locale,
-  navigate: to => router.push(to)
+  navigate: to => router.push(to).catch(() => {}) // the same route: nothing to do
 })

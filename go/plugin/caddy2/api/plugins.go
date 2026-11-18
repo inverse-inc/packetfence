@@ -21,6 +21,7 @@ import (
 
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/api-frontend/aaa"
+	"github.com/inverse-inc/packetfence/go/config/pfcrypt"
 	"github.com/inverse-inc/packetfence/go/uiplugins"
 	"github.com/julienschmidt/httprouter"
 	"golang.org/x/sync/singleflight"
@@ -29,6 +30,11 @@ import (
 var pluginsFetcher = uiplugins.NewFetcher(func(ctx context.Context, msg string) {
 	log.LoggerWContext(ctx).Warn(msg)
 })
+
+func init() {
+	// the key of the signature of the requests to the plugins
+	uiplugins.SystemInitKey = pfcrypt.SystemInitKey
+}
 
 // how long the read-only state of the database is reused, as pf::db
 // db_check_readonly does
@@ -75,9 +81,11 @@ var databaseReadOnly = func(ctx context.Context, database *sql.DB) bool {
 	if err := database.QueryRowContext(ctx, "SHOW STATUS LIKE 'wsrep_provider_name'").Scan(&name, &provider); err != nil || provider == "" {
 		return false
 	}
+	// a node with a wsrep provider that cannot tell it is ready is read-only,
+	// as pf::db db_wsrep_healthy
 	var ready string
 	if err := database.QueryRowContext(ctx, "SHOW STATUS LIKE 'wsrep_ready'").Scan(&name, &ready); err != nil {
-		return false
+		return true
 	}
 	return ready != "ON"
 }

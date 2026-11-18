@@ -171,6 +171,7 @@ export const loadPlugins = ({ router, token, views }) => {
   if (loadedFor === token)
     return loading
   loadedFor = token
+  closePanel() // another session: no panel of the previous admin
   loading = apiCall.getQuiet('plugins')
     .then(response => {
       if (loadedFor !== token) // another session meanwhile

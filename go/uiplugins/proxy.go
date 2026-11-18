@@ -393,6 +393,19 @@ func (f *Fetcher) Proxy(w http.ResponseWriter, r *http.Request, registration Reg
 			pr.Out.Header.Set(UsernameHeader, identity.Username)
 			pr.Out.Header.Set(RolesHeader, strings.Join(identity.Roles, ","))
 			pr.Out.Header.Set(ActionsHeader, actions)
+			// a bundle plugin is the code of a package installed on the
+			// server: its own calls to the PacketFence API run with the token,
+			// and the rights, of the admin
+			if manifest.IsBundle() {
+				if token := pr.In.Header.Get("Authorization"); token != "" {
+					pr.Out.Header.Set(AdminTokenHeader, token)
+				}
+			}
+			// the plugin checks that the request comes from PacketFence
+			if ts, sig := signHeaders(name, pr.Out.Method, pr.Out.URL.EscapedPath(), pr.Out.URL.RawQuery, identity.Username, actions, time.Now()); sig != "" {
+				pr.Out.Header.Set(TimestampHeader, ts)
+				pr.Out.Header.Set(SignatureHeader, sig)
+			}
 			pr.SetXForwarded()
 		},
 		ModifyResponse: answer,

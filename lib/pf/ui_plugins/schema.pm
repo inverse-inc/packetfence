@@ -229,7 +229,7 @@ sub mysql_args {
         push @args, "--defaults-file=$defaults_file";
     }
     if (!defined $db->{host} || $db->{host} eq 'localhost') {
-        push @args, "--socket=$SOCKET";
+        push @args, "--socket=" . ($db->{unix_socket} || $SOCKET);
     } else {
         push @args, "--host=$db->{host}", "--port=$db->{port}";
     }
@@ -280,7 +280,15 @@ sub run_file {
     open(my $mysql, '|-', $MYSQL, @args) or die "cannot run $MYSQL: $!\n";
     print $mysql $script;
     close($mysql);
-    die sprintf("%s failed (exit code %d)\n", basename($file), $? >> 8) if $? != 0;
+    if ($? != 0) {
+        my $code = $? >> 8;
+        # the client stopped at the error, before dropping the helpers
+        if (open(my $cleanup, '|-', $MYSQL, @args)) {
+            print $cleanup join("\n", (map { "DROP PROCEDURE IF EXISTS $_;" } @HELPER_PROCEDURES), '');
+            close($cleanup);
+        }
+        die sprintf("%s failed (exit code %d)\n", basename($file), $code);
+    }
     return 1;
 }
 
@@ -439,16 +447,21 @@ sub _cluster_enabled {
     return $pf::config::cluster::cluster_enabled;
 }
 
-# one apply or drop of a package at a time on this server. GET_LOCK is local
-# to a server, also on a Galera cluster: there the files being idempotent and
-# ValidatePluginVersion keep two nodes from applying the same step twice
+# one apply or drop of a package at a time on this server. GET_LOCK is not
+# supported by Galera (as in pf::freeradius): on a cluster there is no lock,
+# the package is installed on one node at a time (the files are idempotent,
+# and ValidatePluginVersion keeps a node from applying an upgrade twice). The
+# lock name is at most 64 characters (MySQL 5.7+).
 sub _lock {
     my ($name) = @_;
+    return undef if _cluster_enabled();
     require pf::db;
+    require Digest::SHA;
+    my $lock_name = 'plugin_schema_' . substr(Digest::SHA::sha256_hex($name), 0, 32);
     my $dbh = pf::db::db_connect() or die "cannot connect to the database\n";
-    my ($locked) = $dbh->selectrow_array('SELECT GET_LOCK(?, 0)', undef, "plugin_schema_$name");
-    die "pfcmd plugin schema is already running for $name\n" if !$locked;
-    return pf::ui_plugins::schema::lock->new($dbh, "plugin_schema_$name");
+    my ($locked) = $dbh->selectrow_array('SELECT GET_LOCK(?, 0)', undef, $lock_name);
+    die "cannot lock the schema of $name: " . ($dbh->errstr // 'pfcmd plugin schema is already running for it') . "\n" if !$locked;
+    return pf::ui_plugins::schema::lock->new($dbh, $lock_name);
 }
 
 package pf::ui_plugins::schema::lock;

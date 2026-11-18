@@ -358,7 +358,14 @@ func TestUiPluginsAllowedToAnyAdmin(t *testing.T) {
 	}
 	// the list is matched exactly: a path that only starts with it falls to
 	// the SYSTEM role
-	for _, path := range []string{"/api/v1/pluginsX", "/api/v1/plugins/../config/admin_roles", "/api/v1/plugins/x"} {
+	// the UI code of a bundle plugin: any admin, the handler checks menu.can
+	for _, path := range []string{"/api/v1/plugins/acme/bundle.js", "/api/v1/plugins/a-b_c/bundle.js"} {
+		if res, err := m.isAuthorizedAdminActions(ctx, "GET", path, map[string]bool{"NODES_READ": true}); !res {
+			t.Errorf("%s was not authorized to any admin: %v", path, err)
+		}
+	}
+	for _, path := range []string{"/api/v1/pluginsX", "/api/v1/plugins/../config/admin_roles", "/api/v1/plugins/x",
+		"/api/v1/plugins/Acme/bundle.js", "/api/v1/plugins/acme/bundle.jsx", "/api/v1/plugins/../bundle.js", "/api/v1/plugins/a/b/bundle.js"} {
 		if res, _ := m.isAuthorizedAdminActions(ctx, "GET", path, map[string]bool{"NODES_READ": true}); res {
 			t.Errorf("%s was authorized to any admin", path)
 		}

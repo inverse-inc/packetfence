@@ -1,0 +1,13 @@
+{
+  "$comment": "The signature of a request of the plugin proxy to a plugin (go/uiplugins/sign.go, pf::ui_plugins::proxy_key): the same values in Go, Perl and the plugins.",
+  "actions": "PLUGIN_READ,PLUGIN_WRITE",
+  "method": "POST",
+  "name": "acme",
+  "path": "/files/upload",
+  "proxy_key": "bf794a4dae39fd077b677924edc2489238e6b186fb7c338494408b97955bc338",
+  "query": "thread_id=3",
+  "signature": "4a3e87a35de643f6dcd86556988f9417077a9699df546bf17909f833a5b08b02",
+  "system_init_key": "0123456789abcdef0123456789abcdef\n",
+  "timestamp": "1763467200",
+  "username": "admin"
+}

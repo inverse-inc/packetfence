@@ -160,7 +160,14 @@ Run the package manager, return its exit code.
 
 sub install {
     my ($what, %options) = @_;
-    return system(install_command($what, %options)) >> 8;
+    return _exit_code(system(install_command($what, %options)));
+}
+
+# the exit code of system(): 1 when the command could not run
+sub _exit_code {
+    my ($status) = @_;
+    return 1 if $status == -1 || ($status & 127);
+    return $status >> 8;
 }
 
 sub uninstall {
@@ -174,7 +181,12 @@ sub uninstall {
         open(my $fh, '>', catfile($dir, 'purge-on-erase')) or die "cannot flag $name for purge: $!\n";
         close($fh);
     }
-    return system(@command) >> 8;
+    my $code = _exit_code(system(@command));
+    if ($code != 0 && $options{purge} && $command[0] ne 'apt-get') {
+        # not removed: the flag must not drop the tables at a later erase
+        unlink(catfile($ui_plugins_var_dir, $name, 'purge-on-erase'));
+    }
+    return $code;
 }
 
 =head1 AUTHOR

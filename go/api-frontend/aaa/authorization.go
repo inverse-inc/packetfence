@@ -23,9 +23,14 @@ type adminRoleMapping struct {
 	roleSuffix string
 	// the path must be the prefix itself, not only start with it
 	exact bool
+	// the path must match this expression (the prefix is then not used)
+	re *regexp.Regexp
 }
 
 func (o adminRoleMapping) matches(path string) bool {
+	if o.re != nil {
+		return o.re.MatchString(path)
+	}
 	if o.exact {
 		return path == o.prefix
 	}
@@ -40,8 +45,10 @@ var pathAdminRolesMap = []adminRoleMapping{
 	// the admin UI plugins: the UI filters the menu entries with the manifest
 	// menu.can, the api handler checks each request to a plugin against the
 	// can of its manifest (go/uiplugins Allowed). The list is matched exactly,
-	// GET /api/v1/plugins is its only route.
+	// and the UI code of a bundle plugin by its exact shape: its handler checks
+	// the menu.can of the manifest.
 	adminRoleMapping{prefix: apiPrefix + "/plugins", role: ALLOW_ANY, exact: true},
+	adminRoleMapping{re: regexp.MustCompile(`^/api/v1/plugins/[a-z][a-z0-9_-]{0,62}/bundle\.js$`), role: ALLOW_ANY},
 	adminRoleMapping{prefix: apiPrefix + "/plugin/", role: ALLOW_ANY},
 
 	adminRoleMapping{prefix: apiPrefix + "/preference/", role: ALLOW_ANY},

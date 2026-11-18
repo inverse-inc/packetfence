@@ -45,6 +45,8 @@ use pf::constants qw($TRUE $FALSE);
 use pf::error qw(is_error is_success);
 use pf::dal::ui_plugin;
 use pf::log;
+use Digest::SHA qw(hmac_sha256 hmac_sha256_hex);
+use pf::file_paths qw($system_init_key_file);
 
 # keep in sync with nameRe and hostRe in go/uiplugins/registration.go
 our $NAME_RE = qr/^[a-z][a-z0-9_-]{0,62}\z/;
@@ -185,6 +187,73 @@ sub list {
         $registrations{$registration->{name}} = $registration;
     }
     return \%registrations;
+}
+
+=head2 proxy_key
+
+    my $key = pf::ui_plugins::proxy_key('acme');
+
+The key the plugin "acme" checks the requests of the PacketFence proxy with
+(raw bytes): HMAC-SHA256 of "packetfence ui plugin proxy <name>" with the
+system init key, the same on every node of a cluster (go/uiplugins
+ProxyKey). The package of a plugin passes it to its service.
+
+=cut
+
+sub proxy_key {
+    my ($name) = @_;
+    my $init = $ENV{PF_SYSTEM_INIT_KEY};
+    if (!$init) {
+        open(my $fh, '<', $system_init_key_file) or die "open($system_init_key_file): $!\n";
+        local $/ = undef;
+        $init = <$fh>;
+        close($fh);
+    }
+    return hmac_sha256("packetfence ui plugin proxy $name", $init);
+}
+
+=head2 proxy_signature
+
+    my $hex = pf::ui_plugins::proxy_signature($key, $timestamp, $method, $path, $query, $username, $actions);
+
+The signature of a request of the proxy (go/uiplugins Signature): hex
+HMAC-SHA256 of the values joined by "\n". $path is URL encoded, as the plugin
+receives it.
+
+=cut
+
+sub proxy_signature {
+    my ($key, @values) = @_;
+    return hmac_sha256_hex(join("\n", map { $_ // '' } @values), $key);
+}
+
+=head2 check_signature
+
+    my ($ok, $error) = pf::ui_plugins::check_signature($key, \%request);
+
+For the service of a plugin: true when a request comes from the PacketFence
+proxy. %request: method, path (URL encoded), query, and the headers
+username (X-PacketFence-Username), actions (X-PacketFence-Admin-Actions),
+timestamp (X-PacketFence-Plugin-Timestamp), signature
+(X-PacketFence-Plugin-Signature). Refuses a request older or newer than 120s.
+
+=cut
+
+our $SIGNATURE_MAX_AGE = 120;
+
+sub check_signature {
+    my ($key, $r, $now) = @_;
+    $now //= time;
+    my $ts = $r->{timestamp} // '';
+    return ($FALSE, 'no signature') if $ts !~ /^\d{1,12}\z/ || !defined $r->{signature};
+    return ($FALSE, 'expired signature') if abs($now - $ts) > $SIGNATURE_MAX_AGE;
+    my $want = proxy_signature($key, $ts, @{$r}{qw(method path query username actions)});
+    my $got = lc $r->{signature};
+    return ($FALSE, 'invalid signature') if length($got) != length($want);
+    my $diff = 0;
+    $diff |= ord(substr($got, $_, 1)) ^ ord(substr($want, $_, 1)) for 0 .. length($want) - 1;
+    return ($FALSE, 'invalid signature') if $diff;
+    return ($TRUE, undef);
 }
 
 =head1 AUTHOR

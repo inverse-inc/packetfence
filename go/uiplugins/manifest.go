@@ -254,7 +254,7 @@ func (m *Manifest) Validate(c *Catalog, id string) error {
 			return errors.New("a bundle has no api, collection or form: its API is passed through, its page is its own")
 		}
 		if m.Bundle.Timeout < 0 || m.Bundle.Timeout > MaxPassthroughTimeout {
-			return fmt.Errorf("bundle.timeout %d is not between 1 and %d seconds", m.Bundle.Timeout, MaxPassthroughTimeout)
+			return fmt.Errorf("bundle.timeout %d is not between 1 and %d seconds (0 or none: %d)", m.Bundle.Timeout, MaxPassthroughTimeout, DefaultPassthroughTimeout)
 		}
 		if !slices.Contains(c.Bundle.HostAPI, m.Bundle.HostAPI) {
 			return fmt.Errorf("unsupported bundle.hostApi %d, supported: %v", m.Bundle.HostAPI, c.Bundle.HostAPI)
