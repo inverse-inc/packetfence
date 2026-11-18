@@ -21,6 +21,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
 	"github.com/inverse-inc/packetfence/go/uiplugins"
 	"github.com/julienschmidt/httprouter"
+	"golang.org/x/sync/singleflight"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -69,31 +70,35 @@ func (m *APIHandler) setSQLDB(database *sql.DB) {
 // opens the raw SQL handle, a variable for the tests
 var openPluginDB = db.DbFromConfig
 
+// one open of the raw SQL handle at a time, for the concurrent requests
+var pluginDBOpen singleflight.Group
+
 // pluginDB is the raw SQL handle, opened again when it could not be at
 // startup. The connection is opened without holding sqlDBLock, so a slow or
 // unreachable database does not block the other handlers that read the
-// handle: when two requests open it at once, the first one stored is kept and
-// the other is closed.
+// handle; the requests that need it meanwhile wait for a single open
+// (singleflight), not one each. The open does not end with the request that
+// started it: the others wait for it too.
 func (m *APIHandler) pluginDB(ctx context.Context) *sql.DB {
 	if database := m.sqlDB(); database != nil {
 		return database
 	}
-	database, err := openPluginDB(ctx)
-	if err != nil {
-		log.LoggerWContext(ctx).Error("Unable to open the database for the UI plugins: " + err.Error())
-		return m.sqlDB()
+	opened, _, _ := pluginDBOpen.Do("open", func() (any, error) {
+		if database := m.sqlDB(); database != nil {
+			return database, nil
+		}
+		database, err := openPluginDB(context.WithoutCancel(ctx))
+		if err != nil {
+			log.LoggerWContext(ctx).Error("Unable to open the database for the UI plugins: " + err.Error())
+			return nil, err
+		}
+		m.setSQLDB(database)
+		return database, nil
+	})
+	if database, _ := opened.(*sql.DB); database != nil {
+		return database
 	}
-	sqlDBLock.Lock()
-	stored := m.db
-	if stored == nil {
-		m.db = database
-	}
-	sqlDBLock.Unlock()
-	if stored != nil {
-		database.Close()
-		return stored
-	}
-	return database
+	return m.sqlDB()
 }
 
 // Setup the api middleware

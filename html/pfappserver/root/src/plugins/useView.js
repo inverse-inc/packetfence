@@ -7,7 +7,7 @@ import { computed, toRefs } from '@vue/composition-api'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import makeSearch from '@/store/factory/search'
 import i18n from '@/utils/locale'
-import { allowedApi, escapeHtml as escape, pluginRouteNames, translate, usePlugin } from './'
+import { allowedApi, escapeHtml as escape, manifestGeneration, pluginRouteNames, translate, usePlugin } from './'
 import { pluginApi, useStore } from './store'
 
 export const useRouter = plugin => {
@@ -63,10 +63,6 @@ export const useResource = plugin => {
   }
 }
 
-/**
- * The search of a collection, as the makeSearch of a core view
- */
-
 // The uuid of a search store. makeSearch makes the pinia store id with
 // toKebabCase, which drops "-" and "_" (acme-x and acme_x would share a store)
 // and splits on digits: only lowercase letters go through unchanged, so the
@@ -78,10 +74,23 @@ const spell = s => [...s].map(c => ((c >= 'a' && c < 'z') ? c : `z${'abcdefghijk
 let searchStores = 0
 export const searchUuid = (id, generation) => `plugin${spell(`${id}-${generation}`)}`
 
+// the search store of the newest manifest of each plugin: the one of an older
+// manifest is disposed when a newer one gets its own (pinia keeps a store
+// until it is disposed); never the other way around (a page of an earlier
+// load still mounted after a new login)
+const latestSearches = new Map()
+
+/**
+ * The search of a collection, as the makeSearch of a core view
+ */
 const searches = new WeakMap()
 export const useSearch = plugin => {
   const { id, manifest } = plugin
   if (!searches.has(manifest)) {
+    const previous = latestSearches.get(id)
+    const newest = !previous || manifestGeneration(manifest) >= manifestGeneration(previous.manifest)
+    if (previous && newest)
+      previous.useSearchStore().$dispose()
     const { list, search } = pluginApi(manifest)
     const { collection: { columns = [], searchFields = [] } } = manifest
     const keys = columns.map(({ key }) => key)
@@ -106,6 +115,8 @@ export const useSearch = plugin => {
       }),
       sortBy: keys[0]
     }))
+    if (newest)
+      latestSearches.set(id, { manifest, useSearchStore: searches.get(manifest) })
   }
   return searches.get(manifest)
 }

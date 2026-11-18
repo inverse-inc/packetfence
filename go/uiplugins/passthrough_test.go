@@ -148,6 +148,9 @@ func TestPassthroughProxy(t *testing.T) {
 		{"GET", "/api/v1/plugin/kit/threads", "PLUGIN_WRITE", 403}, // menu.can is read plugin
 		{"GET", "/api/v1/plugin/kit/a/%2e%2e/b", read, 403},
 		{"GET", "/api/v1/plugin/kit/a/./b", read, 403},
+		{"GET", "/api/v1/plugin/kit/a%2F..%2F..%2Fb", read, 403}, // ".." behind an encoded "/"
+		{"GET", "/api/v1/plugin/kit/files/site%2Fa", read, 200},  // an encoded "/" alone is fine
+		{"GET", "/api/v1/plugin/kit/threads/", read, 200},
 	} {
 		if w := do(c.method, c.path, c.actions, "", ""); w.Code != c.status {
 			t.Errorf("%s %s with %q: %d, want %d: %s", c.method, c.path, c.actions, w.Code, c.status, w.Body)

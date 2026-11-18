@@ -65,7 +65,9 @@ const addedRoutes = new Set()
 
 // remove the plugin routes: the matcher of the router is built again from its
 // own routes (vue-router 3 cannot remove a route). An abstract router does not
-// touch the location.
+// touch the location. This drops every route added at run time with
+// addRoute, not only the plugin ones: nothing else in core adds routes; if
+// something does one day, it must add them again after a plugin load.
 const removeRoutes = router => {
   if (addedRoutes.size === 0)
     return
@@ -80,7 +82,13 @@ const removeRoutes = router => {
 const ownViews = (id, views) => Object.entries(views).reduce((own, [ kind, view ]) => {
   let loaded
   own[kind] = () => {
-    loaded = loaded || Promise.resolve(view()).then(m => ({ extends: m.default || m, name: `plugin-${id}-${kind}` }))
+    // a failed load is not kept: the next navigation loads the chunk again
+    loaded = loaded || Promise.resolve(view())
+      .then(m => ({ extends: m.default || m, name: `plugin-${id}-${kind}` }))
+      .catch(err => {
+        loaded = undefined
+        throw err
+      })
     return loaded
   }
   return own
@@ -161,15 +169,30 @@ const deepFreeze = o => {
 let loading = null
 let loadedFor = null
 
+// after a failed load, the next ones wait: 1s, 2s, 4s... up to a minute, so
+// that a server that keeps failing does not add a request to every navigation
+let failedFor = null
+let failures = 0
+let retryAt = 0
+
+// the load each manifest comes from: a page of an earlier load can still be
+// mounted after a new login (store.js keeps the module of the newer one)
+let generation = 0
+const generations = new WeakMap()
+export const manifestGeneration = manifest => generations.get(manifest) || 0
+
 /**
  * Load the plugins once per session token and add their routes. A failure
- * leaves the UI without plugins until the next navigation, which tries again.
+ * leaves the UI without plugins until a later navigation, which tries again
+ * once the backoff has passed.
  */
 export const loadPlugins = ({ router, token, views }) => {
   if (!token)
     return Promise.resolve(false)
   if (loadedFor === token)
     return loading
+  if (failedFor === token && Date.now() < retryAt)
+    return Promise.resolve(false)
   loadedFor = token
   closePanel() // another session: no panel of the previous admin
   loading = apiCall.getQuiet('plugins')
@@ -178,6 +201,10 @@ export const loadPlugins = ({ router, token, views }) => {
         return
       const { data: { items = [] } = {} } = response
       const plugins = items.filter(usable).map(deepFreeze)
+      generation += 1
+      plugins.forEach(({ manifest }) => generations.set(manifest, generation))
+      failedFor = null
+      failures = 0
       addRoutes(router, plugins, views)
       state.plugins = plugins
     })
@@ -185,7 +212,10 @@ export const loadPlugins = ({ router, token, views }) => {
       logWarning('unable to load the plugins', err)
       if (loadedFor !== token)
         return
-      loadedFor = null // the next navigation loads them again
+      loadedFor = null // a later navigation loads them again
+      failures = (failedFor === token) ? failures + 1 : 1
+      failedFor = token
+      retryAt = Date.now() + Math.min(60000, 1000 * 2 ** (failures - 1))
       removeRoutes(router)
       state.plugins = []
     })

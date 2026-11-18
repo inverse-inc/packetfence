@@ -8,7 +8,7 @@ import { computed } from '@vue/composition-api'
 import { types } from '@/store'
 import i18n from '@/utils/locale'
 import { makeApi } from './api'
-import { allowedApi } from './'
+import { allowedApi, manifestGeneration } from './'
 
 // the id unchanged: acme-x and acme_x are two plugins
 export const storeName = id => `$_plugin_${id}`
@@ -98,13 +98,16 @@ export const pluginApi = manifest => {
 // the manifest each store module was built from, by module name
 const moduleManifests = {}
 
-// register the store module of a plugin, in a route beforeEnter. A module
-// built from a manifest that was reloaded since is replaced (its api and its
-// cache are the ones of the old manifest).
+// register the store module of a plugin, before each dispatch. A module built
+// from an older manifest is replaced (its api and its cache are the ones of
+// the old manifest); never by an older one: after a new login, a page of the
+// previous load still mounted would swap it back and forth with the new page,
+// and a request in flight would commit into a module gone.
 export const registerStore = ($store, { id, manifest }) => {
   const name = storeName(id)
   if ($store.state[name]) {
-    if (moduleManifests[name] === manifest)
+    const registered = moduleManifests[name]
+    if (registered === manifest || manifestGeneration(manifest) < manifestGeneration(registered))
       return
     $store.unregisterModule(name)
   }

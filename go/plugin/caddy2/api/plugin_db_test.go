@@ -22,7 +22,7 @@ func unconnectedDB(t *testing.T) *sql.DB {
 }
 
 // a slow reopen of the database does not block the handlers that read the
-// handle, and two reopens at once keep a single handle
+// handle, and two requests at once open it once
 func TestPluginDBReopen(t *testing.T) {
 	saved := openPluginDB
 	defer func() { openPluginDB = saved }()
@@ -65,12 +65,8 @@ func TestPluginDBReopen(t *testing.T) {
 		t.Fatalf("expected one handle for both requests, got %p %p (stored %p)", results[0], results[1], h.sqlDB())
 	}
 	close(opened)
-	for database := range opened {
-		if database != results[0] {
-			if err := database.Ping(); err == nil || err.Error() != "sql: database is closed" {
-				t.Errorf("the handle that lost the race is not closed: %v", err)
-			}
-		}
+	if n := len(opened); n != 1 {
+		t.Errorf("the database was opened %d times, expected once", n)
 	}
 }
 

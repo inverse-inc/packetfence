@@ -79,19 +79,43 @@ var apiMethodsByVerb = map[string][]string{
 // ProxyPath is the path of a request to a plugin, on the plugin service:
 // what follows /api/v1/plugin/<name>, still URL encoded (an item id the UI
 // encoded can hold a "/", eg: items/site%2Fa). false when the request is not
-// for that plugin.
+// for that plugin. The name is the router's, decoded: it is compared with the
+// decoded name segment (acm%65 is acme).
 func ProxyPath(r *http.Request, name string) (string, bool) {
-	prefix := "/api/v1/plugin/" + name + "/"
+	const prefix = "/api/v1/plugin/"
 	escaped := r.URL.EscapedPath()
 	if !strings.HasPrefix(escaped, prefix) {
 		return "", false
 	}
-	return escaped[len(prefix)-1:], true
+	rest := escaped[len(prefix):]
+	end := strings.Index(rest, "/")
+	if end < 0 {
+		return "", false
+	}
+	if segment, err := url.PathUnescape(rest[:end]); err != nil || segment != name {
+		return "", false
+	}
+	return rest[end:], true
+}
+
+// a decoded path, or a decoded {id}, that cannot move out of where it is
+// sent: none of its "/" separated parts is "." or "..", nor empty unless
+// allowEmpty. The plugin gets the decoded path too, and a router or a
+// path.Clean of it must not land on another endpoint than the one allowed.
+func safeDecoded(decoded string, allowEmpty bool) bool {
+	for _, part := range strings.Split(decoded, "/") {
+		if part == "." || part == ".." || (part == "" && !allowEmpty) {
+			return false
+		}
+	}
+	return true
 }
 
 // does a request path (URL encoded) match a manifest API path, segment by
-// segment once decoded: {id} is one segment that is not empty, "." or ".."
-// (once decoded, it may hold a "/")
+// segment: a literal segment is compared with the raw text, as the plugin
+// gets it (items/%73earch is not items/search); {id} is one raw segment that
+// decodes to a safe value: it may hold a "/" (site%2Fa), no empty, "." or ".."
+// part (x%2F..%2F..)
 func pathMatches(template, path string) bool {
 	t := strings.Split(strings.TrimPrefix(template, "/"), "/")
 	s := strings.Split(strings.TrimPrefix(path, "/"), "/")
@@ -99,17 +123,14 @@ func pathMatches(template, path string) bool {
 		return false
 	}
 	for i := range t {
-		segment, err := url.PathUnescape(s[i])
-		if err != nil {
-			return false
-		}
-		if t[i] == "{id}" {
-			if segment == "" || segment == "." || segment == ".." {
+		if t[i] != "{id}" {
+			if t[i] != s[i] {
 				return false
 			}
 			continue
 		}
-		if t[i] != segment {
+		id, err := url.PathUnescape(s[i])
+		if err != nil || !safeDecoded(id, false) {
 			return false
 		}
 	}
@@ -146,8 +167,8 @@ func Allowed(m *Manifest, method, path string, actions map[string]bool) error {
 
 // AllowedPassthrough checks a request to a bundle plugin: the admin must
 // satisfy menu.can, and have PLUGIN_READ for GET and OPTIONS, PLUGIN_WRITE
-// for POST, PUT, PATCH and DELETE. The path cannot hold a "." or ".." segment
-// once decoded.
+// for POST, PUT, PATCH and DELETE. The path, once decoded, cannot hold a "."
+// or ".." part, even from an encoded "/" (x%2F..%2Fother).
 func AllowedPassthrough(m *Manifest, method, path string, actions map[string]bool) error {
 	if !m.Menu.Can.Allowed(actions) {
 		return errors.New("the admin roles do not satisfy menu.can")
@@ -156,11 +177,9 @@ func AllowedPassthrough(m *Manifest, method, path string, actions map[string]boo
 	if !found {
 		return fmt.Errorf("%s is not allowed", method)
 	}
-	for _, segment := range strings.Split(strings.TrimPrefix(path, "/"), "/") {
-		decoded, err := url.PathUnescape(segment)
-		if err != nil || decoded == "." || decoded == ".." {
-			return fmt.Errorf("invalid path %s", path)
-		}
+	decoded, err := url.PathUnescape(path)
+	if err != nil || !safeDecoded(strings.TrimPrefix(decoded, "/"), true) {
+		return fmt.Errorf("invalid path %s", path)
 	}
 	if !actions[action] {
 		return fmt.Errorf("%s %s needs the admin action %s", method, path, action)
@@ -353,7 +372,7 @@ func (f *Fetcher) Proxy(w http.ResponseWriter, r *http.Request, registration Reg
 		Error(w, http.StatusForbidden, fmt.Sprintf("Plugin %q: %s", name, ErrReadOnly))
 		return
 	}
-	// Allowed decoded each segment: the whole path decodes
+	// Allowed and AllowedPassthrough decoded it: the whole path decodes
 	decoded, err := url.PathUnescape(path)
 	if err != nil {
 		Error(w, http.StatusBadRequest, fmt.Sprintf("Plugin %q: invalid path", name))

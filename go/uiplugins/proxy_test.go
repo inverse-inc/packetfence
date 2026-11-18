@@ -189,6 +189,7 @@ func TestPluginProxy(t *testing.T) {
 	}{
 		{"GET", "/api/v1/plugin/acme/items", "SYSLOG_READ", 201},
 		{"GET", "/api/v1/plugin/acme/items/site%2Fa", "SYSLOG_READ", 201}, // an id with a "/"
+		{"GET", "/api/v1/plugin/acm%65/items", "SYSLOG_READ", 201},        // an encoded name
 		{"OPTIONS", "/api/v1/plugin/acme/items", "SYSLOG_READ", 201},
 		{"POST", "/api/v1/plugin/acme/items/search", "SYSLOG_READ", 201}, // search is a read
 		{"PATCH", "/api/v1/plugin/acme/items/a", "SYSLOG_READ,SYSLOG_UPDATE", 201},
@@ -206,11 +207,13 @@ func TestPluginProxy(t *testing.T) {
 		{"GET", "/api/v1/plugin/acme/items/..", all, 403},
 		{"GET", "/api/v1/plugin/acme/items/.", all, 403},
 		{"POST", "/api/v1/plugin/acme/items/search/x", all, 403},
-		{"GET", "/api/v1/plugin/acme/items/html", all, 502},         // not JSON
-		{"GET", "/api/v1/plugin/acme/items/sniff", all, 502},        // no Content-Type
-		{"GET", "/api/v1/plugin/acme/items/redirect", all, 502},     // redirect
-		{"GET", "/api/v1/plugin/acme/items/unauthorized", all, 502}, // would end the admin session
-		{"GET", "/api/v1/plugin/acme/items/big", all, 502},          // larger than the limit
+		{"GET", "/api/v1/plugin/acme/items/x%2F..%2F..%2Finternal%2Fpurge", all, 403}, // an id that leaves items/
+		{"POST", "/api/v1/plugin/acme/items/%73earch", all, 403},                      // not items/search for the plugin
+		{"GET", "/api/v1/plugin/acme/items/html", all, 502},                           // not JSON
+		{"GET", "/api/v1/plugin/acme/items/sniff", all, 502},                          // no Content-Type
+		{"GET", "/api/v1/plugin/acme/items/redirect", all, 502},                       // redirect
+		{"GET", "/api/v1/plugin/acme/items/unauthorized", all, 502},                   // would end the admin session
+		{"GET", "/api/v1/plugin/acme/items/big", all, 502},                            // larger than the limit
 		{"GET", "/api/v1/plugin/unknown/items", all, 404},
 		{"GET", "/api/v1/plugin/down/items", all, 502},
 	} {
@@ -292,10 +295,41 @@ func TestPathMatches(t *testing.T) {
 		{"items/{id}", "/items/site%2Fa", true},
 		{"items/{id}", "/items/%2e", false},
 		{"items/{id}", "/items/%zz", false},
-		{"items/search", "/items/%73earch", true},
+		// a literal is the raw text the plugin gets: not a search for a
+		// router on the raw path
+		{"items/search", "/items/%73earch", false},
+		{"items/{id}", "/items/%73earch", true},
+		// a decoded {id} cannot leave items/: no ".", ".." or empty part
+		{"items/{id}", "/items/x%2F..%2F..%2Finternal%2Fpurge", false},
+		{"items/{id}", "/items/x%2F.", false},
+		{"items/{id}", "/items/..%2Fx", false},
+		{"items/{id}", "/items/%2Fa", false},
+		{"items/{id}", "/items/a%2F", false},
+		{"items/{id}", "/items/a%2F%2Fb", false},
+		{"items/{id}", "/items/a..b", true},
 	} {
 		if pathMatches(c.template, c.path) != c.match {
 			t.Errorf("%s %s: expected %v", c.template, c.path, c.match)
+		}
+	}
+}
+
+func TestProxyPath(t *testing.T) {
+	for _, c := range []struct {
+		target, name, path string
+		ok                 bool
+	}{
+		{"/api/v1/plugin/acme/items", "acme", "/items", true},
+		{"/api/v1/plugin/acme/items/site%2Fa", "acme", "/items/site%2Fa", true},
+		{"/api/v1/plugin/acm%65/items", "acme", "/items", true},
+		{"/api/v1/plugin/acme", "acme", "", false},
+		{"/api/v1/plugin/acmex/items", "acme", "", false},
+		{"/api/v1/plugin/other/items", "acme", "", false},
+	} {
+		r := httptest.NewRequest("GET", c.target, nil)
+		path, ok := ProxyPath(r, c.name)
+		if path != c.path || ok != c.ok {
+			t.Errorf("%s: %q %v, expected %q %v", c.target, path, ok, c.path, c.ok)
 		}
 	}
 }
