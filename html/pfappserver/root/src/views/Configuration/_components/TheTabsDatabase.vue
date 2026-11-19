@@ -5,7 +5,7 @@
     </b-card-header>
     <b-tabs ref="tabs" v-model="tabIndex" card lazy>
       <b-tab v-for="(tab, index) in tabs" :key="index"
-        :title="$t(tab.title)" @click="tabIndex = index">
+        :title-item-class="tab.class" :title="$t(tab.title)" @click="tabIndex = index">
         <component :is="tab.component" />
       </b-tab>
     </b-tabs>
@@ -22,13 +22,20 @@ const tabs = {
     title: 'General Configuration', // i18n defer
     component: DatabaseGeneralView
   },
+  // Both tabs are hidden in cloud. Every setting under Advanced applies only to
+  // a locally running MySQL server, and in cloud the database is remote; ProxySQL
+  // is set for the customer there, including its connection tiers (see
+  // lib/pf/services/manager/proxysql.pm). The class goes on the tab's <li>, as in
+  // TheTabsMain, so a hidden tab leaves no empty nav item behind.
   database_advanced: {
     title: 'Advanced Configuration', // i18n defer
-    component: DatabaseAdvancedView
+    component: DatabaseAdvancedView,
+    class: 'no-saas'
   },
   database_proxysql: {
     title: 'ProxySQL Configuration', // i18n defer
-    component: DatabaseProxySQLView
+    component: DatabaseProxySQLView,
+    class: 'no-saas'
   }
 }
 

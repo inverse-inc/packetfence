@@ -1131,14 +1131,6 @@ type FingerbankSettingsCollector struct {
 	AdditionalEnv               string      `json:"additional_env"`
 }
 
-type FingerbankSettingsQuery struct {
-	StructConfig
-	PfconfigMethod  string `val:"hash_element"`
-	PfconfigNS      string `val:"config::FingerbankSettings"`
-	PfconfigHashNS  string `val:"collector"`
-	RecordUnmatched string `json:"record_unmatched"`
-}
-
 type FingerbankSettingsProxy struct {
 	StructConfig
 	PfconfigMethod string      `val:"hash_element"`
@@ -1157,7 +1149,6 @@ type FingerbankSettings struct {
 	PfconfigHashNS string `val:"collector"`
 	Upstream       FingerbankSettingsUpstream
 	Collector      FingerbankSettingsCollector
-	Query          FingerbankSettingsQuery
 	Proxy          FingerbankSettingsProxy
 }
 

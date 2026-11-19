@@ -3,7 +3,7 @@ import {
   BaseFormButtonBar,
   BaseFormGroupChosenMultiple,
   BaseFormGroupInput,
-  BaseFormGroupInputDate,
+  BaseFormGroupInputDateEpoch,
   BaseFormGroupToggleFalseTrue,
 } from '@/components/new/'
 import BaseFormGroupAclAllowedActions from './BaseFormGroupAclAllowedActions'
@@ -21,7 +21,7 @@ export {
   BaseFormGroupChosenMultiple         as FormGroupAllowedAccessLevels,
   BaseFormGroupChosenMultiple         as FormGroupAllowedRoles,
   BaseFormGroupInput                  as FormGroupAllowedAccessDurations,
-  BaseFormGroupInputDate              as FormGroupAllowedUnregDate,
+  BaseFormGroupInputDateEpoch         as FormGroupAllowedUnregDate,
   BaseFormGroupAclAllowedActions      as FormGroupAllowedActions,
   BaseFormGroupChosenMultiple         as FormGroupAllowedNodeRoles,
   BaseFormGroupChosenMultiple         as FormGroupAllowedNodeBypassRoles,

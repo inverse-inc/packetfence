@@ -233,11 +233,14 @@ our @ADMIN_ACTIONS = qw(
     PROVISIONING_FILTER_READ
     PROVISIONING_FILTER_UPDATE
 
+    PLUGIN_READ
+    PLUGIN_WRITE
+
 );
 
 # Actions not allowed in readonly mode
 # Any actions that will update the database is not allowed
-our %ADMIN_NOT_IN_READONLY = map { $_ => 1} grep { !/_READ$/ && /^(NODES_|SWITCHES_|SECURITY_EVENTS_|WRIX_|USERS_|USERS_ROLES_)/ && !/^USERS_SOURCES_/ && $_ ne 'USERS_READ_SPONSORED' } @ADMIN_ACTIONS ;
+our %ADMIN_NOT_IN_READONLY = map { $_ => 1} grep { !/_READ$/ && /^(NODES_|SWITCHES_|SECURITY_EVENTS_|WRIX_|USERS_|USERS_ROLES_|PLUGIN_)/ && !/^USERS_SOURCES_/ && $_ ne 'USERS_READ_SPONSORED' } @ADMIN_ACTIONS ;
 
 =head1 AUTHOR
 

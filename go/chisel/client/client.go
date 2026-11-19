@@ -90,6 +90,8 @@ type Client struct {
 	stop      func()
 	eg        *errgroup.Group
 	tunnel    *tunnel.Tunnel
+	// bindPortMap remaps the remote binds (PFCONNECTOR_BIND_PORT_MAP)
+	bindPortMap map[string]string
 
 	// siteNetwork applies the connector's VLAN interfaces and static routes
 	// to the host; siteNetworkVersion is the last payload version applied so
@@ -206,6 +208,17 @@ func NewClient(c *Config) (*Client, error) {
 		}
 		client.computed.Remotes = append(client.computed.Remotes, r)
 	}
+	//validate remote binds
+	ports := strings.Split(os.Getenv("PFCONNECTOR_BIND_PORT_MAP"), ",")
+	remapped, err := settings.ValidateRemappedRemoteBinds(ports)
+	if err != nil {
+		return nil, fmt.Errorf("PFCONNECTOR_BIND_PORT_MAP: %w", err)
+	}
+	client.bindPortMap = remapped
+	for from, to := range client.bindPortMap {
+		client.Infof("Bind port map: %s -> %s", from, to)
+	}
+
 	//outbound proxy
 	if p := c.Proxy; p != "" {
 		client.proxyURL, err = url.Parse(p)
@@ -370,7 +383,15 @@ func (c *Client) bindRemotesFromAPI(ctx context.Context) {
 			remotes = append(remotes, remote)
 		}
 	}
-	if err := c.tunnel.BindRemotes(ctx, remotes); err != nil {
+	remappedRemotes, conflicts := settings.RemapRemoteBinds(c.bindPortMap, remotes)
+	for _, conflict := range conflicts {
+		c.Infof("PFCONNECTOR_BIND_PORT_MAP: skipping remote bind %s", conflict)
+	}
+	if len(remappedRemotes) == 0 {
+		fmt.Println("No remote remapped bounds available")
+		return
+	}
+	if err := c.tunnel.BindRemotes(ctx, remappedRemotes); err != nil {
 		fmt.Println("Error binding remotes obtained from the pfconnector server", err)
 	}
 }

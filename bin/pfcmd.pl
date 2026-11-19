@@ -15,6 +15,10 @@ use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 
+# the real uid of the caller, kept before it is forced to root below (pfcmd is
+# setuid root): the commands only root may run check it (pfcmd plugin)
+$pf::cmd::CALLER_UID = $<;
+
 # force UID/EUID to root to allow socket binds, etc
 # required for non-root (and GUI) service restarts to work
 $> = 0;

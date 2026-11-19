@@ -38,3 +38,8 @@ func init() {
 
 	dervivedKey = makeDerivedKey()
 }
+
+// SystemInitKey is the system init key of PacketFence (a copy)
+func SystemInitKey() []byte {
+	return append([]byte(nil), systemInitKey...)
+}

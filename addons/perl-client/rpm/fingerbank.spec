@@ -1,6 +1,6 @@
 %global     fb_prefix %{_prefix}/local/%{name}
 Name:       fingerbank
-Version:    4.3.4
+Version:    4.3.6
 Release:    1%{?dist}
 BuildArch:  noarch
 Summary:    An exhaustive device profiling tool
@@ -67,9 +67,9 @@ touch %{buildroot}/usr/local/fingerbank/logs/fingerbank.log
 
 # Scriptlet that is executed just after the package is installed on the target system.
 %post
-# Local database initialization
 cd /usr/local/fingerbank/
-make init-db-local
+# The local database was removed in 4.3.6
+rm -f /usr/local/fingerbank/db/fingerbank_Local.db
 
 # Log file handling
 if [ ! -e /usr/local/fingerbank/logs/fingerbank.log ]; then
@@ -107,7 +107,6 @@ rm -rf %{buildroot}
 %defattr(664,fingerbank,fingerbank,2775)
 %dir                                /usr/local/fingerbank
 /usr/local/fingerbank/*
-%attr(775,fingerbank,fingerbank)    /usr/local/fingerbank/db/upgrade.pl
 %attr(775,fingerbank,fingerbank)    /usr/local/fingerbank/conf/upgrade/*
 %if 0%{?el6}
     %dir                            %{_sysconfdir}/logrotate.d
@@ -118,6 +117,8 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Sep 23 2026 Inverse Inc. <info@inverse.ca> - 4.3.6-1
+- Remove the local database: the Fingerbank data is read-only from the Upstream database, local entries and combinations are removed
 * Mon Jun 15 2026 Inverse Inc. <info@inverse.ca> - 4.3.4-1
 - Fix collector.port field type from numeric to text to allow the env variable default
 * Tue Apr 15 2025 Inverse Inc. <info@inverse.ca> - 4.3.3-1

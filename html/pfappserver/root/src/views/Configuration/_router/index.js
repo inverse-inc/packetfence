@@ -14,6 +14,7 @@ import ConnectionProfilesRoutes from '../connectionProfiles/_router'
 
 /* Compliance */
 const ComplianceSection = () => import(/* webpackChunkName: "ConfigurationCompliance" */ '../_components/TheSectionCompliance')
+const PluginsSection = () => import(/* webpackChunkName: "ConfigurationPlugins" */ '../_components/TheSectionPlugins')
 import FingerbankRoutes from '../fingerbank/_router'
 import NetworkBehaviorPoliciesRoutes from '../networkBehaviorPolicy/_router'
 import ScanEnginesRoutes from '../scanEngines/_router'
@@ -110,6 +111,15 @@ const route = {
     {
       path: 'compliance',
       component: ComplianceSection
+    },
+
+    /**
+     * Plugins: the pages of the plugins are added at run time
+     * (src/plugins), under plugins/<id>
+     */
+    {
+      path: 'plugins',
+      component: PluginsSection
     },
     ...FingerbankRoutes,
     ...NetworkBehaviorPoliciesRoutes,

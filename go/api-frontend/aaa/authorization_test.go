@@ -441,3 +441,44 @@ func TestConfigConnectorsAdminRoleMapping(t *testing.T) {
 		}
 	}
 }
+
+// Any admin can list the UI plugins and reach them (the UI filters their
+// menus, the api handler checks the can of the manifests), this does not need
+// pfconfig, unlike the test above
+func TestUiPluginsAllowedToAnyAdmin(t *testing.T) {
+	ctx := context.Background()
+	m := &TokenAuthorizationMiddleware{}
+	for _, roles := range []map[string]bool{{}, {"NODES_READ": true}} {
+		for _, c := range []struct{ method, path string }{
+			{"GET", "/api/v1/plugins"},
+			{"GET", "/api/v1/plugin/acme/items"},
+			{"POST", "/api/v1/plugin/acme/items"},
+			{"DELETE", "/api/v1/plugin/acme/items/a"},
+		} {
+			if res, err := m.isAuthorizedAdminActions(ctx, c.method, c.path, roles); !res {
+				t.Errorf("%s %s was unauthorized, error: %v", c.method, c.path, err)
+			}
+		}
+	}
+	// the other paths keep their admin role
+	if res, _ := m.isAuthorizedAdminActions(ctx, "GET", "/api/v1/config/admin_roles", map[string]bool{"NODES_READ": true}); res {
+		t.Error("/api/v1/config/admin_roles was authorized without ADMIN_ROLES_READ")
+	}
+	// the list is matched exactly: a path that only starts with it falls to
+	// the SYSTEM role
+	// the UI code of a bundle plugin: any admin, the handler checks menu.can
+	for _, path := range []string{"/api/v1/plugins/acme/bundle.js", "/api/v1/plugins/a-b_c/bundle.js"} {
+		if res, err := m.isAuthorizedAdminActions(ctx, "GET", path, map[string]bool{"NODES_READ": true}); !res {
+			t.Errorf("%s was not authorized to any admin: %v", path, err)
+		}
+	}
+	for _, path := range []string{"/api/v1/pluginsX", "/api/v1/plugins/../config/admin_roles", "/api/v1/plugins/x",
+		"/api/v1/plugins/Acme/bundle.js", "/api/v1/plugins/acme/bundle.jsx", "/api/v1/plugins/../bundle.js", "/api/v1/plugins/a/b/bundle.js"} {
+		if res, _ := m.isAuthorizedAdminActions(ctx, "GET", path, map[string]bool{"NODES_READ": true}); res {
+			t.Errorf("%s was authorized to any admin", path)
+		}
+		if res, err := m.isAuthorizedAdminActions(ctx, "GET", path, map[string]bool{"SYSTEM_READ": true}); !res {
+			t.Errorf("%s was not authorized with SYSTEM_READ: %v", path, err)
+		}
+	}
+}

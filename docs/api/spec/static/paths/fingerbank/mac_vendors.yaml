@@ -26,23 +26,6 @@
         $ref: '#/components/responses/Unauthorized'
     tags:
       - Fingerbank
-  post:
-    summary: Create local MAC Vendor.
-    parameters:
-    - name: scope
-      in: path
-      required: true
-      schema:
-        $ref: '#/components/schemas/FingerbankScopeLocalOnly'
-    requestBody:
-      $ref: '#/components/requestBodies/FingerbankMacVendor'
-    responses:
-      '200':
-        $ref: '#/components/responses/Created'
-      '401':
-        $ref: '#/components/responses/Unauthorized'
-    tags:
-      - Fingerbank
 
 /api/v1/fingerbank/{scope}/mac_vendors/search:
   parameters:
@@ -52,7 +35,7 @@
     schema:
       $ref: '#/components/schemas/FingerbankScope'
   post:
-    summary: Search local MAC Vendors.
+    summary: Search MAC Vendors.
     requestBody:
       $ref: '#/components/requestBodies/FingerbankMacVendorsSearch'
     responses:
@@ -69,41 +52,17 @@
     in: path
     required: true
     schema:
-      $ref: '#/components/schemas/FingerbankScopeLocalOnly'
+      $ref: '#/components/schemas/FingerbankScope'
   - name: mac_vendor_id
     in: path
     required: true
     schema:
       type: string
   get:
-    summary: Get local MAC Vendor.
+    summary: Get MAC Vendor.
     responses:
       '200':
         $ref: '#/components/responses/FingerbankMacVendor'
-      '401':
-        $ref: '#/components/responses/Unauthorized'
-      '404':
-        $ref: '#/components/responses/NotFound'
-    tags:
-      - Fingerbank
-  patch:
-    summary: Update local MAC Vendor.
-    requestBody:
-      $ref: '#/components/requestBodies/FingerbankMacVendor'
-    responses:
-      '200':
-        $ref: '#/components/responses/Updated'
-      '401':
-        $ref: '#/components/responses/Unauthorized'
-      '404':
-        $ref: '#/components/responses/NotFound'
-    tags:
-      - Fingerbank
-  delete:
-    summary: Delete local MAC Vendor.
-    responses:
-      '200':
-        $ref: '#/components/responses/Deleted'
       '401':
         $ref: '#/components/responses/Unauthorized'
       '404':

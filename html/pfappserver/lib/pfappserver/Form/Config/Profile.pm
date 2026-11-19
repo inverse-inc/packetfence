@@ -231,6 +231,8 @@ sub options_field_names {
           last_start_timestamp
           last_switch
           last_switch_mac
+          last_teap_machinename
+          last_teap_username
           last_vlan
           mac
           machine_account

@@ -15,6 +15,26 @@ use warnings;
 use Role::Tiny::With;
 with 'pf::cmd::roles::show_help';
 
+=head2 $CALLER_UID
+
+The real uid of the process that ran pfcmd, set by bin/pfcmd.pl before it
+switches to root (bin/pfcmd is setuid root). Undefined when the commands are
+not run through bin/pfcmd: the real uid of the process is then the caller's.
+
+=cut
+
+our $CALLER_UID;
+
+=head2 caller_uid
+
+The real uid of the caller of pfcmd (see $CALLER_UID).
+
+=cut
+
+sub caller_uid {
+    return $CALLER_UID // $<;
+}
+
 sub new {
     my ($class,$args) = @_;
     my $self = bless $args,$class;

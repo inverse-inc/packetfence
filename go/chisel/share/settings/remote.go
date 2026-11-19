@@ -162,6 +162,117 @@ func DecodeRemote(s string) (*Remote, error) {
 	return r, nil
 }
 
+// ValidateRemappedRemoteBinds parses PFCONNECTOR_BIND_PORT_MAP entries such as
+// "443=8443", "53/udp=5353" or "80=-" into a map of source to target. A source
+// without a protocol applies to both tcp and udp; a port/proto source overrides it.
+// Chains and cycles (a target that is also a source) and two sources landing on the
+// same target port/proto are rejected.
+func ValidateRemappedRemoteBinds(ports []string) (map[string]string, error) {
+	portMap := map[string]string{}
+	targetPorts := map[string]string{} // "port/proto" -> source mapped onto it
+	sources := []string{}              // input order, so errors are stable
+
+	for _, entry := range ports {
+		entry = strings.TrimSpace(entry)
+		if entry == "" {
+			continue
+		}
+		from, to, ok := strings.Cut(entry, "=")
+		if !ok {
+			return nil, fmt.Errorf("invalid entry %q: expected port[/proto]=port|-", entry)
+		}
+		port, proto, hasProto := strings.Cut(from, "/")
+		if port == "0" || !isPort(port) || (hasProto && proto != "udp" && proto != "tcp") {
+			return nil, fmt.Errorf("invalid source port or protocol: %s", from)
+		}
+		if (to != "-" && !isPort(to)) || to == "0" {
+			return nil, fmt.Errorf("invalid target port: %s", to)
+		}
+		target, ok := portMap[from]
+		if ok {
+			return nil, fmt.Errorf("cannot bind port %s which is already bound to %s", from, target)
+		}
+		// duplicate targets, per protocol; "-" drops the bind so it is never a target
+		if to != "-" {
+			for _, p := range sourceProtos(proto, hasProto) {
+				other, ok := targetPorts[to+"/"+p]
+				// 53=5353,53/udp=5353 is an override of the same source, not a collision
+				if ok && strings.Split(other, "/")[0] != port {
+					return nil, fmt.Errorf("cannot bind %s and %s to the same target %s/%s", other, from, to, p)
+				}
+				targetPorts[to+"/"+p] = from
+			}
+		}
+		portMap[from] = to
+		sources = append(sources, from)
+	}
+	// detect chains and cycles: a target that is also a source on the same protocol
+	for _, from := range sources {
+		to := portMap[from]
+		if to == "-" {
+			continue
+		}
+		port, proto, hasProto := strings.Cut(from, "/")
+		for _, p := range sourceProtos(proto, hasProto) {
+			// i.e. 80=443,443/tcp=8443: a port/proto rule overrides a plain port rule
+			cycledFrom, ok := portMap[to+"/"+p]
+			if !ok {
+				// i.e. 80=443,443=80
+				cycledFrom, ok = portMap[to]
+			}
+			if !ok {
+				continue
+			}
+			if cycledFrom == port {
+				return nil, fmt.Errorf("port map has a cycle: %s=%s and %s/%s=%s", from, to, to, p, cycledFrom)
+			}
+			return nil, fmt.Errorf("port map has a chain: %s=%s but %s/%s is also remapped", from, to, to, p)
+		}
+	}
+	return portMap, nil
+}
+
+// sourceProtos returns the protocols a source applies to: a source without a
+// protocol applies to both tcp and udp.
+func sourceProtos(proto string, hasProto bool) []string {
+	if hasProto {
+		return []string{proto}
+	}
+	return []string{"tcp", "udp"}
+}
+
+// RemapRemoteBinds rewrites the local port of remotes fetched from the pfconnector
+// server so they don't collide with host services. Remotes mapped to "-" are dropped.
+// A remote remapped onto a port/proto that is already in remotes is skipped and
+// described in conflicts, so the remaining remotes can still bind.
+func RemapRemoteBinds(bindPortMap map[string]string, remotes []*Remote) (remapped []*Remote, conflicts []string) {
+	// Snapshot the original binds before any LocalPort is rewritten below.
+	existing := map[string]bool{}
+	for _, remote := range remotes {
+		existing[remote.LocalPort+"/"+remote.LocalProto] = true
+	}
+
+	remapped = make([]*Remote, 0, len(remotes))
+	for _, remote := range remotes {
+		to, ok := bindPortMap[remote.LocalPort+"/"+remote.LocalProto]
+		if !ok {
+			to, ok = bindPortMap[remote.LocalPort]
+		}
+		switch {
+		case !ok:
+			remapped = append(remapped, remote)
+		case to == "-":
+			// dropped; rules are logged at startup
+		case existing[to+"/"+remote.LocalProto]:
+			conflicts = append(conflicts, fmt.Sprintf("%s/%s -> %s: %s/%s is already bound", remote.LocalPort, remote.LocalProto, to, to, remote.LocalProto))
+		default:
+			remote.LocalPort = to
+			remapped = append(remapped, remote)
+		}
+	}
+	return remapped, conflicts
+}
+
 func (r *Remote) setupLocalPort() error {
 	if r.LocalProto == "tcp" {
 		addr, err := net.ResolveTCPAddr("tcp", r.Local())

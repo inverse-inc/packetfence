@@ -32,25 +32,25 @@ use pf::UnifiedApi::Search::Builder::Fingerbank;
 use pf::error qw(is_error);
 use pf::constants qw($ZERO_DATE);
 my $model = "fingerbank::Model::MAC_Vendor";
-my $db =  fingerbank::DB_Factory->instantiate(schema => 'Local');
+my $db =  fingerbank::DB_Factory->instantiate(schema => 'Upstream');
 my $schema = $db->handle;
 my $source = $schema->source($model->_parseClassName);
 
 my $sb = pf::UnifiedApi::Search::Builder::Fingerbank->new();
 
 {
-    my ($status, $col) = $sb->make_columns({ source => $source , model => $model,  fields => [qw(mac $garbage ip4log.ip)], scope => 'Local'});
+    my ($status, $col) = $sb->make_columns({ source => $source , model => $model,  fields => [qw(mac $garbage ip4log.ip)], scope => 'Upstream'});
     ok(is_error($status), "Do no accept invalid columns");
 }
 
 {
-    my ($status, $col) = $sb->make_columns({ model => $model, source => $source,  fields => [qw(mac id)], scope => 'Local'});
+    my ($status, $col) = $sb->make_columns({ model => $model, source => $source,  fields => [qw(mac id)], scope => 'Upstream'});
     ok(!is_error($status), "Accept valid columns");
     is_deeply([qw(mac id)], $col, "Columns the same");
 }
 
 {
-    my ($status, $col) = $sb->make_columns({ model => $model, source => $source,  fields => [], scope => 'Local'});
+    my ($status, $col) = $sb->make_columns({ model => $model, source => $source,  fields => [], scope => 'Upstream'});
     ok(!is_error($status), "Accept valid columns");
     is_deeply([qw(id name mac created_at updated_at)], $col, "All columns ");
 }

@@ -86,6 +86,7 @@ Readonly::Scalar our $URL_NODE_MANAGER                => '/node/manager/(.+)';
 Readonly::Scalar our $URL_SAML_REDIRECT               => '/saml/redirect';
 Readonly::Scalar our $URL_SAML                        => '/saml/(.+)';
 Readonly::Scalar our $URL_SPONSOR_CHECK               => '/sponsor/check';
+Readonly::Scalar our $URL_EMAIL_CHECK                 => '/email/check';
 Readonly::Scalar our $URL_SWITCH                      => '/switchto/(.+)';
 Readonly::Scalar our $URL_RECORD_DESTINATION          => '/record_destination_url';
 Readonly::Scalar our $URL_CHALLENGE                   => '/challenge';

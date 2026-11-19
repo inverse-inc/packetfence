@@ -411,6 +411,23 @@ sub extractSsid {
     return;
 }
 
+=item returnPushAclsRoleAttributes
+
+Push ACLs creates the role of a PacketFence role on an Aruba controller as
+C<pf-role-E<lt>roleE<gt>> (conf/pfsetacls), with its ACLs in
+C<pf-policy-E<lt>roleE<gt>>. The reply names the role the administrator maps
+the PacketFence role to in the Role Map of the switch (C<pf-role-E<lt>roleE<gt>>
+for the pushed one), and no role when there is no mapping.
+
+=cut
+
+sub returnPushAclsRoleAttributes {
+    my ($self, $role) = @_;
+    my $mapped = $self->getRoleByName($role);
+    return () if !defined($mapped) || $mapped eq '';
+    return $self->returnRoleAttributes($mapped);
+}
+
 =item returnRoleAttribute
 
 What RADIUS Attribute (usually VSA) should the role returned into.
@@ -659,6 +676,30 @@ sub returnAuthorizeRead {
    return [$status, %$radius_reply_ref];
 }
 
+=item untranslatableControllerAcl
+
+Why a parsed ACL entry cannot be sent to a controller (Controller 200,
+Mobility Master), or undef when it can. The controller takes what a filter
+rule takes (L<pf::Switch/untranslatableFilterRule>, with the source address
+and port ranges): no TCP flags, no source port, no ICMP type, a destination
+port as one port or a range, a contiguous mask, a protocol with a number. A
+port name the protocol does not know has no number. Dropping any of them
+would widen the ACL.
+
+=cut
+
+sub untranslatableControllerAcl {
+    my ($self, $entry) = @_;
+    my $reason = $self->untranslatableFilterRule($entry, ranges => 1, source => 1);
+    return $reason if defined $reason;
+    my $port = $entry->{'destination'}->{'port'};
+    return undef if !defined $port;
+    foreach my $name ($port =~ m{\s(\S+)}g) {
+        return "the port name '$name' has no number" if !defined $self->aclPortNumber($name, $entry->{'protocol'});
+    }
+    return undef;
+}
+
 =item returnRadiusAccessAccept
 
 Prepares the RADIUS Access-Accept response for the network device.
@@ -682,40 +723,9 @@ sub returnRadiusAccessAccept {
     my $radius_reply_ref = \%radius_reply;
     return [$status, %$radius_reply_ref] if($status == $RADIUS::RLM_MODULE_USERLOCK);
 
-    # Inline Vs. VLAN enforcement
-    my $role = "";
-    if ( (!$args->{'wasInline'} || ($args->{'wasInline'} && $args->{'vlan'} != 0) ) && isenabled($self->{_VlanMap})) {
-        if(defined($args->{'vlan'}) && $args->{'vlan'} ne "" && $args->{'vlan'} ne 0){
-            $logger->info("(".$self->{'_id'}.") Added VLAN $args->{'vlan'} to the returned RADIUS Access-Accept");
-            $radius_reply_ref = {
-                'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
-                'Tunnel-Type' => $RADIUS::VLAN,
-                'Tunnel-Private-Group-ID' => $args->{'vlan'} . "",
-            };
-        }
-        else {
-            $logger->debug("(".$self->{'_id'}.") Received undefined VLAN. No VLAN added to RADIUS Access-Accept");
-        }
-    }
-
-    if ( isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
-        $logger->debug("Network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
-        if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" ) {
-            $role = $self->getRoleByName($args->{'user_role'});
-        }
-        if ( defined($role) && $role ne "" ) {
-            $radius_reply_ref = {
-                %$radius_reply_ref,
-                $self->returnRoleAttributes($role),
-            };
-            $logger->info(
-                "(".$self->{'_id'}.") Added role $role to the returned RADIUS Access-Accept"
-            );
-        }
-        else {
-            $logger->debug("(".$self->{'_id'}.") Received undefined role. No Role added to RADIUS Access-Accept");
-        }
-    }
+    # The reply of pf::Switch already carries the VLAN and the role, the pushed
+    # role with Push ACLs: rebuilding them here dropped the role whenever a
+    # VLAN was returned (#9648)
 
     if ($args->{profile}->dpskEnabled()) {
         if (defined($args->{owner}->{psk})) {

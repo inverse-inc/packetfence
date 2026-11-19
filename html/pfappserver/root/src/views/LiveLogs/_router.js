@@ -1,63 +1,34 @@
-import store from '@/store'
-import { loadClusterConfig } from '@/utils/cluster'
-import StoreModule from './_store/sessions'
+import { LIVE_LOGS_PANEL, showPanel } from '@/plugins'
 
-const TheForm = () => import(/* webpackChunkName: "LiveLogs" */ './_components/TheForm')
-const TheView = () => import(/* webpackChunkName: "LiveLogs" */ './_components/TheView')
+/**
+ * Live logs are a panel under the header (_components/ThePanel). Their URLs
+ * open it, over the page the admin is on (or the default page when the
+ * address is entered).
+ */
+// no page to stay on: /login, and its aliases /logout and /expire. After the
+// login, a bookmark of the panel opens it over the default page.
+const NO_PAGE = ['login']
 
-export const beforeEnter = (to, from, next = () => {}) => {
-  if (!store.state.$_live_logs) {
-    store.registerModule('$_live_logs', StoreModule)
-  }
-  loadClusterConfig()
-  const isFromLiveLogs = from && from.path && from.path.startsWith('/live-logs')
-  if (to && to.name === 'live_logs' && !isFromLiveLogs) {
-    const liveLogsState = store.state.$_live_logs
-    if (liveLogsState && liveLogsState._lastSessionId) {
-      const id = liveLogsState._lastSessionId
-      // Resolve either a single-session id (legacy) or a group_id (cluster).
-      if (id in liveLogsState || (liveLogsState._groups && id in liveLogsState._groups)) {
-        next({ name: 'live_log', params: { id } })
-        return
-      }
-    }
-  }
-  next()
+const openPanel = (to, from, next) => {
+  showPanel(LIVE_LOGS_PANEL)
+  next((from && from.matched.length && !NO_PAGE.includes(from.name)) ? false : '/')
 }
 
 export default [
   {
     path: '/live-logs',
     name: 'live_logs',
-    component: TheForm,
     meta: {
-      can: 'read system',
-      isFailRoute: true
+      can: 'read system'
     },
-    beforeEnter
+    beforeEnter: openPanel
   },
   {
     path: '/live-logs/:id',
     name: 'live_log',
-    component: TheView,
-    props: route => ({ id: route.params.id }),
-    beforeEnter: (to, from, next) => {
-      beforeEnter()
-      const liveLogsState = store.state.$_live_logs
-      const id = to.params.id
-      const known = liveLogsState && (
-        id in liveLogsState ||
-        (liveLogsState._groups && id in liveLogsState._groups)
-      )
-      if (!known) {
-        next('/live-logs')
-      } else {
-        store.commit('$_live_logs/SET_LAST_SESSION', id)
-        next()
-      }
-    },
     meta: {
       can: 'read system'
-    }
+    },
+    beforeEnter: openPanel
   }
 ]

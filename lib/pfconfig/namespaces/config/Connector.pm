@@ -35,6 +35,8 @@ sub init {
         # derived from the connectors' dns_servers (see pf::connector::dns)
         'config::DnsConnectors',
         'config::DomainsConnectors',
+        'resource::connectors_config',
+        'resource::pfconnector_static_connections',
     ];
 }
 

@@ -1,0 +1,239 @@
+/**
+ * Bundle plugins (manifest template "bundle", see the Developers Guide,
+ * "Admin UI plugins"): the plugin's own UI code.
+ *
+ * The code is the JavaScript module its package installed on the server
+ * (conf/plugins.d/<id>.js, checked against the sha256 of its descriptor). The
+ * API serves it at GET /api/v1/plugins/<id>/bundle.js with the admin token: it
+ * is loaded with apiCall, then imported from a Blob URL. It is loaded once per
+ * session token.
+ *
+ * The module exports:
+ *
+ *   export default {
+ *     hostApi: 1,
+ *     mount (el, host, { kind }) { ...; return () => { ... } } // the unmount
+ *   }
+ *
+ * mount renders the plugin in el, kind is the mount ("page", "navbar-panel"),
+ * host is the host API below. It returns the function that undoes it.
+ */
+import Vue from 'vue'
+import * as composition from '@vue/composition-api'
+import apiCall from '@/utils/api'
+import i18n from '@/utils/locale'
+import { can } from './acl'
+import nodesApi from '@/views/Nodes/_api'
+import yup from '@/utils/yup'
+import {
+  BaseForm,
+  BaseFormButtonBar,
+  BaseFormGroupChosenOne,
+  BaseFormGroupInput,
+  BaseFormGroupInputNumber,
+  BaseFormGroupInputPassword,
+  BaseFormGroupInputPasswordTest,
+  BaseFormGroupTextarea,
+  BaseFormGroupToggleDisabledEnabled,
+  BaseServices
+} from '@/components/new/'
+import { lookupPersons } from '@/views/Users/_api/lookupPersons'
+import { closePanel, escapeHtml, isPanelFullscreen, openPanel, setPanelBadge, togglePanelFullscreen } from './'
+
+const PREFIX = '[pf-ui-plugins]'
+
+// the versions of the host API this admin UI provides (catalog.json bundle.hostApi)
+export const HOST_API_VERSIONS = [1]
+
+// the modules, by plugin id, for the session they were loaded in
+const modules = new Map()
+let loadedFor = null
+
+/**
+ * The module of a bundle plugin: a Promise of its default export.
+ */
+export const loadBundle = (id, token) => {
+  if (loadedFor !== token) {
+    modules.clear()
+    loadedFor = token
+  }
+  if (!modules.has(id)) {
+    const loading = apiCall.request({
+      method: 'get',
+      url: `plugins/${encodeURIComponent(id)}/bundle.js`,
+      responseType: 'text',
+      transformResponse: [data => ((data === undefined) ? { quiet: true } : data)]
+    })
+      .then(({ data }) => {
+        const url = URL.createObjectURL(new Blob([data], { type: 'text/javascript' }))
+        return import(/* webpackIgnore: true */ url)
+          .finally(() => URL.revokeObjectURL(url))
+      })
+      .then(module => {
+        const bundle = module && module.default
+        if (!bundle || typeof bundle.mount !== 'function')
+          throw new Error(`${id}: the bundle has no default export with a mount function`)
+        if (!HOST_API_VERSIONS.includes(bundle.hostApi))
+          throw new Error(`${id}: the bundle needs the host API ${bundle.hostApi}, this admin UI provides ${HOST_API_VERSIONS.join(', ')}`)
+        return bundle
+      })
+      .catch(err => {
+        modules.delete(id) // the next mount tries again
+        // eslint-disable-next-line no-console
+        console.error(PREFIX, err)
+        throw err
+      })
+    modules.set(id, loading)
+  }
+  return modules.get(id)
+}
+
+// a quiet request: the plugin handles its own errors, core shows no
+// notification for it (an array answer stays an array)
+// (the error interceptor of the admin UI calls it without data: a network
+// error, a timeout)
+const quietTransform = data => {
+  if (data === undefined)
+    return { quiet: true }
+  if (typeof data !== 'string')
+    return data // a blob, an arraybuffer
+  let parsed
+  try {
+    parsed = JSON.parse(data)
+  } catch (e) {
+    return data
+  }
+  // not enumerable: not in the data a plugin sends back or shows
+  if (parsed && typeof parsed === 'object')
+    Object.defineProperty(parsed, 'quiet', { value: true, enumerable: false })
+  return parsed
+}
+
+// apiCall, its paths relative to /api/v1/plugin/<id>/, quiet unless
+// config.quiet is false
+const scopedApi = id => {
+  const scoped = path => `plugin/${encodeURIComponent(id)}/${`${path}`.replace(/^\/+/, '')}`
+  const request = ({ quiet = true, ...config }) => apiCall.request({
+    ...config,
+    url: scoped(config.url || ''),
+    ...((quiet) ? { transformResponse: [quietTransform] } : {})
+  })
+  return Object.freeze({
+    request,
+    get: (path, config = {}) => request({ ...config, method: 'get', url: path }),
+    options: (path, config = {}) => request({ ...config, method: 'options', url: path }),
+    post: (path, data, config = {}) => request({ ...config, method: 'post', url: path, data }),
+    put: (path, data, config = {}) => request({ ...config, method: 'put', url: path, data }),
+    patch: (path, data, config = {}) => request({ ...config, method: 'patch', url: path, data }),
+    delete: (path, config = {}) => request({ ...config, method: 'delete', url: path })
+  })
+}
+
+/**
+ * The host API, version 1: what the admin UI gives a bundle.
+ *
+ *   id           the plugin id
+ *   Vue          the Vue of the admin UI (its global components: BootstrapVue,
+ *                icon (vue-awesome), ...)
+ *   composition  @vue/composition-api, as installed on that Vue (ref,
+ *                computed, watch, ...): a bundle cannot ship its own
+ *   i18n         the VueI18n of the admin UI: give it to the root of the
+ *                bundle ({ i18n: host.i18n }) for $t
+ *   api          apiCall for /api/v1/plugin/<id>/<path>: request, get, options,
+ *                post, put, patch, delete. Quiet: no notification, unless
+ *                { quiet: false }
+ *   notify       notify(level, message): a notification of the admin UI
+ *                (level: info, success, warning, danger)
+ *   progress     progress(key, { message, progress, done, ok }): the
+ *                notification of a task under way (eg uploads), updated in
+ *                place by its key: its toast stays with a progress bar
+ *                (0-100) until done, then shows the result (ok or not)
+ *   can          can('read plugin'), the ACL of the admin, as a manifest can
+ *   t            i18n.t of the admin UI, locale() its language
+ *   navigate     router.push of the admin UI; closes the open navbar panel
+ *                (the admin goes to another page)
+ *   panel        the navbar panel of the plugin: isOpen() (reactive, shown
+ *                now), isFullscreen() (reactive), toggleFullscreen() (over the
+ *                whole page under the navbar, like the documentation),
+ *                setBadge(count) (a red dot on its navbar button, eg unread
+ *                answers; 0 removes it)
+ *   lookup       the lookups of the admin UI forms, with the admin's rights
+ *                (none without them): persons(query, limit) and
+ *                nodes(query, limit), each [{ value, text }]
+ *   components   the components of the admin UI forms, for a page that looks
+ *                like the core ones: BaseForm (form, meta, isLoading) and its
+ *                BaseFormGroup* (namespace, column-label, text), the button
+ *                bar (BaseFormButtonBar: save, reset, close), the services
+ *                to restart (BaseServices: services, system_services)
+ *   yup          the yup of the admin UI (its methods included): the schema of
+ *                a BaseForm, for the invalid feedback of its form groups
+ *   store        the Vuex store of the admin UI: what these components read
+ *                from the $store of the root (the cluster, the services); a
+ *                bundle with a store of its own passes the other namespaces
+ *                to it
+ */
+const LEVELS = ['info', 'success', 'warning', 'danger']
+
+// the nodes whose MAC, owner or computer name contains query: { value: mac, text }
+const lookupNodes = (query, limit) => nodesApi.search({
+  query: { op: 'and', values: [{ op: 'or', values: ['mac', 'pid', 'computername'].map(field => ({ field, op: 'contains', value: query })) }] },
+  fields: ['mac', 'pid', 'computername'],
+  sort: ['mac'],
+  cursor: 0,
+  limit
+}).then(({ items = [] } = {}) => items.map(({ mac, pid, computername }) => {
+  const details = [pid, computername].filter(v => v && v !== 'default').join(', ')
+  return { value: mac, text: (details) ? `${mac} (${details})` : mac }
+}))
+
+const formComponents = {
+  BaseForm,
+  BaseFormButtonBar,
+  BaseFormGroupChosenOne,
+  BaseFormGroupInput,
+  BaseFormGroupInputNumber,
+  BaseFormGroupInputPassword,
+  BaseFormGroupInputPasswordTest,
+  BaseFormGroupTextarea,
+  BaseFormGroupToggleDisabledEnabled,
+  BaseServices
+}
+
+const components = Object.freeze(formComponents)
+
+// a lookup the admin may not run gives nothing (no request, no error shown)
+const lookup = Object.freeze({
+  persons: (query, limit = 10) => (can('read users') ? lookupPersons(`${query}`, false, limit) : Promise.resolve([])),
+  nodes: (query, limit = 10) => (can('read nodes') ? lookupNodes(`${query}`, limit) : Promise.resolve([]))
+})
+
+export const hostApi = (id, { router, store }) => Object.freeze({
+  version: 1,
+  id,
+  Vue,
+  composition,
+  i18n,
+  api: scopedApi(id),
+  // the messages of a plugin are text: the toasts show HTML
+  notify: (level, message) => store.dispatch(`notification/${(LEVELS.includes(level)) ? level : 'info'}`, { message: escapeHtml(`${message}`) }),
+  progress: (key, { message = '', progress = 0, done = false, ok = true } = {}) => store.dispatch('notification/progress', {
+    key: `plugin:${id}:${key}`, message: escapeHtml(`${message}`), progress: +progress || 0, done: !!done, ok: !!ok
+  }),
+  can: expression => can(expression),
+  t: (...args) => i18n.t(...args),
+  locale: () => i18n.locale,
+  lookup,
+  panel: Object.freeze({
+    isOpen: () => openPanel() === id,
+    isFullscreen: isPanelFullscreen,
+    toggleFullscreen: togglePanelFullscreen,
+    setBadge: count => setPanelBadge(id, count)
+  }),
+  components,
+  yup,
+  store,
+  navigate: to => {
+    closePanel()
+    return router.push(to).catch(() => {}) // the same route: nothing to do
+  }
+})

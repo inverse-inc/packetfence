@@ -30,9 +30,19 @@ type adminRoleMapping struct {
 	// altRoles are other base roles accepted, with the same suffix, for the
 	// forms of another section that use the endpoint.
 	altRoles []string
+	// the path must be the prefix itself, not only start with it
+	exact bool
+	// the path must match this expression (the prefix is then not used)
+	re *regexp.Regexp
 }
 
 func (o adminRoleMapping) matches(path string) bool {
+	if o.re != nil {
+		return o.re.MatchString(path)
+	}
+	if o.exact {
+		return path == o.prefix
+	}
 	return strings.HasPrefix(path, o.prefix) && (o.pathSuffix == "" || strings.HasSuffix(path, o.pathSuffix))
 }
 
@@ -54,6 +64,14 @@ var pathAdminRolesMap = []adminRoleMapping{
 	// POST on a connector-remote (restart, upgrade) acts on an existing
 	// connector, it does not create anything.
 	adminRoleMapping{prefix: apiPrefix + "/pfconnector-remotes", role: "CONNECTORS", methodSuffixes: map[string]string{"POST": "_UPDATE"}},
+	// the admin UI plugins: the UI filters the menu entries with the manifest
+	// menu.can, the api handler checks each request to a plugin against the
+	// can of its manifest (go/uiplugins Allowed). The list is matched exactly,
+	// and the UI code of a bundle plugin by its exact shape: its handler checks
+	// the menu.can of the manifest.
+	adminRoleMapping{prefix: apiPrefix + "/plugins", role: ALLOW_ANY, exact: true},
+	adminRoleMapping{re: regexp.MustCompile(`^/api/v1/plugins/[a-z][a-z0-9_-]{0,62}/bundle\.js$`), role: ALLOW_ANY},
+	adminRoleMapping{prefix: apiPrefix + "/plugin/", role: ALLOW_ANY},
 
 	adminRoleMapping{prefix: apiPrefix + "/preference/", role: ALLOW_ANY},
 	adminRoleMapping{prefix: apiPrefix + "/preferences", role: ALLOW_ANY},

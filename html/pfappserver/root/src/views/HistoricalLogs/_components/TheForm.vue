@@ -79,7 +79,7 @@
 </template>
 
 <script>
-import { computed, ref, onMounted } from '@vue/composition-api'
+import { computed, inject, ref, onMounted } from '@vue/composition-api'
 import Multiselect from 'vue-multiselect'
 import i18n from '@/utils/locale'
 
@@ -104,7 +104,9 @@ const isoToLocal = (s) => {
 }
 
 const setup = (props, context) => {
-  const { root: { $router, $store } = {} } = context
+  const { root: { $store } = {} } = context
+  // the header panel shows the results (ThePanel)
+  const logsPanel = inject('logsPanel')
 
   const fileOptions = ref([])
   const selectedFiles = ref([])
@@ -176,7 +178,7 @@ const setup = (props, context) => {
     $store.dispatch('$_historical_logs/createSession', form).then(response => {
       const { session_id } = response
       if (session_id) {
-        $router.push({ name: 'historical_log', params: { id: session_id } })
+        logsPanel.open(session_id)
       }
     })
   }

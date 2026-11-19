@@ -79,7 +79,6 @@ binary-arch: build install
 	dh_compress
 	# PERMISSIONS
 	# Executables
-	chmod 0775 $(CURDIR)/debian/fingerbank$(PREFIX)/$(NAME)/db/upgrade.pl
 	chmod 0775 $(CURDIR)/debian/fingerbank$(PREFIX)/$(NAME)/conf/upgrade/*
 #	dh_fixperms
 #	dh_perl

@@ -26,23 +26,6 @@
         $ref: '#/components/responses/Unauthorized'
     tags:
       - Fingerbank
-  post:
-    summary: Create local User Agent.
-    parameters:
-    - name: scope
-      in: path
-      required: true
-      schema:
-        $ref: '#/components/schemas/FingerbankScopeLocalOnly'
-    requestBody:
-      $ref: '#/components/requestBodies/FingerbankUserAgent'
-    responses:
-      '200':
-        $ref: '#/components/responses/Created'
-      '401':
-        $ref: '#/components/responses/Unauthorized'
-    tags:
-      - Fingerbank
 
 /api/v1/fingerbank/{scope}/user_agents/search:
   parameters:
@@ -52,7 +35,7 @@
     schema:
       $ref: '#/components/schemas/FingerbankScope'
   post:
-    summary: Search local User Agents.
+    summary: Search User Agents.
     requestBody:
       $ref: '#/components/requestBodies/FingerbankUserAgentsSearch'
     responses:
@@ -69,41 +52,17 @@
     in: path
     required: true
     schema:
-      $ref: '#/components/schemas/FingerbankScopeLocalOnly'
+      $ref: '#/components/schemas/FingerbankScope'
   - name: user_agent_id
     in: path
     required: true
     schema:
       type: string
   get:
-    summary: Get local User Agent.
+    summary: Get User Agent.
     responses:
       '200':
         $ref: '#/components/responses/FingerbankUserAgent'
-      '401':
-        $ref: '#/components/responses/Unauthorized'
-      '404':
-        $ref: '#/components/responses/NotFound'
-    tags:
-      - Fingerbank
-  patch:
-    summary: Update local User Agent.
-    requestBody:
-      $ref: '#/components/requestBodies/FingerbankUserAgent'
-    responses:
-      '200':
-        $ref: '#/components/responses/Updated'
-      '401':
-        $ref: '#/components/responses/Unauthorized'
-      '404':
-        $ref: '#/components/responses/NotFound'
-    tags:
-      - Fingerbank
-  delete:
-    summary: Delete local User Agent.
-    responses:
-      '200':
-        $ref: '#/components/responses/Deleted'
       '401':
         $ref: '#/components/responses/Unauthorized'
       '404':

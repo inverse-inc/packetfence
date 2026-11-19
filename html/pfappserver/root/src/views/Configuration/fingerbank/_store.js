@@ -13,73 +13,17 @@ import {
 } from './generalSettings/_store'
 
 import {
-  state as stateCombinations,
-  getters as gettersCombinations,
-  actions as actionsCombinations,
-  mutations as mutationsCombinations
-} from './combinations/_store'
-
-import {
   state as stateDevices,
   getters as gettersDevices,
   actions as actionsDevices,
   mutations as mutationsDevices
 } from './devices/_store'
 
-import {
-  state as stateDhcpFingerprints,
-  getters as gettersDhcpFingerprints,
-  actions as actionsDhcpFingerprints,
-  mutations as mutationsDhcpFingerprints
-} from './dhcpFingerprints/_store'
-
-import {
-  state as stateDhcpVendors,
-  getters as gettersDhcpVendors,
-  actions as actionsDhcpVendors,
-  mutations as mutationsDhcpVendors
-} from './dhcpVendors/_store'
-
-import {
-  state as stateDhcpv6Fingerprints,
-  getters as gettersDhcpv6Fingerprints,
-  actions as actionsDhcpv6Fingerprints,
-  mutations as mutationsDhcpv6Fingerprints
-} from './dhcpv6Fingerprints/_store'
-
-import {
-  state as stateDhcpv6Enterprises,
-  getters as gettersDhcpv6Enterprises,
-  actions as actionsDhcpv6Enterprises,
-  mutations as mutationsDhcpv6Enterprises
-} from './dhcpv6Enterprises/_store'
-
-import {
-  state as stateMacVendors,
-  getters as gettersMacVendors,
-  actions as actionsMacVendors,
-  mutations as mutationsMacVendors
-} from './macVendors/_store'
-
-import {
-  state as stateUserAgents,
-  getters as gettersUserAgents,
-  actions as actionsUserAgents,
-  mutations as mutationsUserAgents
-} from './userAgents/_store'
-
 // Default values
 const state = () => {
   return {
     ...stateGeneralSettings(),
-    ...stateCombinations(),
     ...stateDevices(),
-    ...stateDhcpFingerprints(),
-    ...stateDhcpVendors(),
-    ...stateDhcpv6Fingerprints(),
-    ...stateDhcpv6Enterprises(),
-    ...stateMacVendors(),
-    ...stateUserAgents(),
 
     accountInfo: {
       cache: false,
@@ -100,14 +44,7 @@ const state = () => {
 
 const getters = {
   ...gettersGeneralSettings,
-  ...gettersCombinations,
   ...gettersDevices,
-  ...gettersDhcpFingerprints,
-  ...gettersDhcpVendors,
-  ...gettersDhcpv6Fingerprints,
-  ...gettersDhcpv6Enterprises,
-  ...gettersMacVendors,
-  ...gettersUserAgents,
 
   accountInfo: state => state.accountInfo.cache,
   isAccountInfoWaiting: state => [types.LOADING, types.DELETING].includes(state.accountInfo.status),
@@ -121,14 +58,7 @@ const getters = {
 
 const actions = {
   ...actionsGeneralSettings,
-  ...actionsCombinations,
   ...actionsDevices,
-  ...actionsDhcpFingerprints,
-  ...actionsDhcpVendors,
-  ...actionsDhcpv6Fingerprints,
-  ...actionsDhcpv6Enterprises,
-  ...actionsMacVendors,
-  ...actionsUserAgents,
 
   getAccountInfo: ({ state, commit }) => {
     if (state.accountInfo.cache) {
@@ -170,14 +100,7 @@ const actions = {
 
 const mutations = {
   ...mutationsGeneralSettings,
-  ...mutationsCombinations,
   ...mutationsDevices,
-  ...mutationsDhcpFingerprints,
-  ...mutationsDhcpVendors,
-  ...mutationsDhcpv6Fingerprints,
-  ...mutationsDhcpv6Enterprises,
-  ...mutationsMacVendors,
-  ...mutationsUserAgents,
 
   ACCOUNT_INFO_REQUEST: (state, type) => {
     state.accountInfo.status = type || types.LOADING
