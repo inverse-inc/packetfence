@@ -117,6 +117,12 @@ sub process {
         return $FALSE;
     }
 
+    # e.g. a portal request from an IP address without a known MAC address (pf::ip4log::ip2mac returns 0)
+    unless(valid_mac($mac)) {
+        $logger->debug("Skipping Fingerbank processing of an invalid MAC address '" . ($mac // 'undef') . "'");
+        return $FALSE;
+    }
+
     $force //= $FALSE;
     # A retry scheduled after a failed lookup runs even without new data from the collector
     if ($options{retry}) {
