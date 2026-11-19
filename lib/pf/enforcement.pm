@@ -44,6 +44,7 @@ use pf::config qw(
     $WIRELESS
     $WEBAUTH
     $VIRTUAL
+    $INLINE
     %ConfigNetworks
     %ConfigFirewallSSO
 );
@@ -114,6 +115,13 @@ sub reevaluate_access {
         $logger->warn("Can't re-evaluate access because no open locationlog entry was found");
         return;
 
+    }
+
+    my $conn_type = str_to_connection_type( $locationlog_entry->{'connection_type'} );
+    if ( !defined $conn_type || $conn_type == $INLINE ) {
+        # Legacy inline locationlog entries (inline enforcement was removed) have nothing to re-evaluate
+        $logger->debug("$mac open locationlog entry has no re-evaluable connection type, nothing to do");
+        return 1;
     }
 
     return _vlan_reevaluation( $mac, $locationlog_entry, %opts );

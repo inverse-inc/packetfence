@@ -438,10 +438,11 @@ sub inline_removed {
     my %switches_conf;
     pf::ConfigStore::Switch->new->cachedConfig->toHash(\%switches_conf);
     foreach my $section (sort keys %switches_conf) {
-        my $trigger = $switches_conf{$section}{'inlineTrigger'};
-        if (defined($trigger) && length($trigger)) {
+        foreach my $param (qw(inlineTrigger inlineVlan inlineRole)) {
+            my $value = $switches_conf{$section}{$param};
+            next unless defined($value) && length($value);
             add_problem( $FATAL,
-                "switches.conf: $section uses inlineTrigger but inline enforcement is no longer supported. $hint"
+                "switches.conf: $section uses $param but inline enforcement is no longer supported. $hint"
             );
         }
     }
