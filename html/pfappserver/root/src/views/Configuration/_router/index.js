@@ -51,7 +51,6 @@ import NetworksRoutes from '../networks/_router'
 import SnmpTrapsRoutes from '../snmpTraps/_router'
 import FloatingDevicesRoutes from '../floatingDevices/_router'
 import SslCertificatesRoutes from '../sslCertificates/_router'
-import ConnectorsRoutes from '../connectors/_router'
 
 /* System Configuration */
 const SystemConfigurationSection = () => import(/* webpackChunkName: "ConfigurationSystem" */ '../_components/TheSectionSystemConfiguration')
@@ -169,7 +168,6 @@ const route = {
       component: NetworkConfigurationSection
     },
     ...NetworksRoutes,
-    ...ConnectorsRoutes,
     ...FloatingDevicesRoutes,
     ...SnmpTrapsRoutes,
 

@@ -10,7 +10,7 @@
       <template v-else-if="connectorId">
         <p class="mb-1">
           <strong>{{ $i18n.t('Connector') }}</strong>
-          <router-link :to="{ name: 'connectorsConnector', params: { id: connectorId }, query: { tab: 'services' } }" class="text-monospace ml-1">{{ connectorId }}</router-link>
+          <router-link :to="{ path: '/configuration/plugins/pfconnector', query: { connector: connectorId, tab: 'services' } }" class="text-monospace ml-1">{{ connectorId }}</router-link>
           {{ $i18n.t('serves {ip}.', { ip: adServer }) }}
           <b-badge v-if="remote" :variant="remote.connected ? 'success' : 'danger'" class="ml-1">{{ remote.connected ? $i18n.t('Connected') : $i18n.t('Disconnected') }}</b-badge>
         </p>
@@ -46,7 +46,7 @@
 <script>
 import { computed, onBeforeUnmount, ref, watch } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import connectorsApi from '../../connectors/connectors/_api'
+import api from '../_api'
 
 const props = {
   // The Active Directory server IP entered in the form.
@@ -93,7 +93,7 @@ const setup = (props, context) => {
 
   const refreshRemote = () => {
     if (!connectorId.value) return Promise.resolve()
-    return connectorsApi.remoteStatus(connectorId.value).then(response => {
+    return api.connectorStatus(connectorId.value).then(response => {
       remote.value = response
     }).catch(() => {
       remote.value = null
@@ -110,7 +110,7 @@ const setup = (props, context) => {
     if (!visible.value) return
     const seq = ++lookupSeq
     isLooking.value = true
-    connectorsApi.forIp(props.adServer).then(response => {
+    api.connectorForIp(props.adServer).then(response => {
       if (seq !== lookupSeq) return
       connectorId.value = response.connector_id
       return refreshRemote()
@@ -129,7 +129,7 @@ const setup = (props, context) => {
 
   const install = () => {
     isInstalling.value = true
-    connectorsApi.remoteInstall(connectorId.value, ['packetfence-ntlm-auth-join-remote']).then(() => {
+    api.connectorInstall(connectorId.value, ['packetfence-ntlm-auth-join-remote']).then(() => {
       $store.dispatch('notification/info', { message: i18n.t('Install started on the connector host; the state below updates as it progresses. Join the domain once the services are installed.') })
       let polls = 0
       if (poll) clearInterval(poll)
