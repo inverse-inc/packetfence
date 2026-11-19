@@ -36,3 +36,11 @@ RUN chown -R pf: /usr/local/pf
 
 # To be removed
 RUN apt-get install -y libcisco-accesslist-parser-perl libparse-eyapp-perl
+
+# Current Debian revisions (security updates) of the installed packages.
+# BUILD_DATE changes the cache key of this layer once a day, so a rebuild
+# picks them up even when the dependencies above didn't change.
+ARG BUILD_DATE
+RUN echo "Upgrading the Debian packages on ${BUILD_DATE}" && \
+    apt-get -qq update && \
+    apt-get -qq -y upgrade
