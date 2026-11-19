@@ -17,7 +17,9 @@ what is left of it in the configuration:
 enforcement lose their enforcement parameter, they are not enforcement
 interfaces anymore (a warning is printed for each of them).
 
-=item networks.conf: the networks of type inlinel2, inlinel3 and inline are removed.
+=item networks.conf: the networks of type inlinel2, inlinel3 and inline are removed, and the
+inline only parameters (split_network, nat_enabled, nat_dns, fake_mac_enabled, coa) are removed
+from the other networks.
 
 =item switches.conf: inlineTrigger, inlineVlan and inlineRole are removed from every section.
 
@@ -49,6 +51,7 @@ use pf::file_paths qw(
 use pf::util;
 
 our @SWITCH_INLINE_PARAMS = qw(inlineTrigger inlineVlan inlineRole);
+our @NETWORK_INLINE_PARAMS = qw(split_network nat_enabled nat_dns fake_mac_enabled coa);
 our $FILTER_INLINE_RE = qr/(wasInline|InlineRole|_inlineTrigger)/;
 
 main() if not caller();
@@ -114,7 +117,7 @@ sub remove_from_pf_conf {
 
 =head2 remove_inline_networks
 
-Remove the networks of type inline from networks.conf
+Remove the networks of type inline from networks.conf and the inline only parameters from the other networks
 
 =cut
 
@@ -124,10 +127,18 @@ sub remove_inline_networks {
     my $changes = 0;
     for my $section ($ini->Sections()) {
         my $type = $ini->val($section, 'type');
-        next unless defined $type && $type =~ /^\s*inline/i;
-        $ini->DeleteSection($section);
-        print("networks.conf: removed the network $section of type $type\n");
-        $changes++;
+        if (defined $type && $type =~ /^\s*inline/i) {
+            $ini->DeleteSection($section);
+            print("networks.conf: removed the network $section of type $type\n");
+            $changes++;
+            next;
+        }
+        for my $param (@NETWORK_INLINE_PARAMS) {
+            next unless $ini->exists($section, $param);
+            $ini->delval($section, $param);
+            print("networks.conf: removed $param from [$section]\n");
+            $changes++;
+        }
     }
     $ini->RewriteConfig() if $changes;
     return $changes;

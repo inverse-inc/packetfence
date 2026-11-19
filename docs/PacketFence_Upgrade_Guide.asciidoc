@@ -1026,6 +1026,8 @@ The script removes:
 
 * the `[inline]` section of [filename]`pf.conf`
 * the networks of type `inlinel2` and `inlinel3` from [filename]`networks.conf`
+* the inline only parameters `split_network`, `nat_enabled`, `nat_dns`,
+  `fake_mac_enabled` and `coa` from the other networks in [filename]`networks.conf`
 * the `inline` enforcement of the interfaces in [filename]`pf.conf`
 * the `inlineTrigger`, `inlineVlan` and `inlineRole` parameters of the switches
   and switch groups in [filename]`switches.conf`

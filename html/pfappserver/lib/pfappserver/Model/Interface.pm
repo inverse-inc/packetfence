@@ -270,11 +270,6 @@ sub get {
             if (is_success($status)) {
                 $result->{"$interface"}->{'dns'} = $network->{dns};
                 $result->{"$interface"}->{'dhcpd_enabled'} = $network->{dhcpd};
-                $result->{"$interface"}->{'nat_enabled'} = $network->{nat_enabled};
-                $result->{"$interface"}->{'nat_dns'} = $network->{nat_dns};
-                $result->{"$interface"}->{'split_network'} = $network->{split_network};
-                $result->{"$interface"}->{'coa'} = $network->{coa};
-                $result->{"$interface"}->{'netflow_accounting_enabled'} = $network->{netflow_accounting_enabled};
                 $result->{"$interface"}->{'reg_network'} = $network->{reg_network};
                 $result->{"$interface"}->{'network_iseditable'} = $TRUE;
             }
@@ -550,11 +545,6 @@ sub setType {
                 $network_ref->{dns} = $interface_ref->{'dns'};
             }
             $network_ref->{dhcpd} = isenabled($interface_ref->{'dhcpd_enabled'}) ? 'enabled' : 'disabled';
-            $network_ref->{nat_enabled} = isenabled($interface_ref->{'nat_enabled'}) ? 'enabled' : 'disabled';
-            $network_ref->{nat_dns} = isenabled($interface_ref->{'nat_dns'}) ? 'enabled' : 'disabled';
-            $network_ref->{split_network} = isenabled($interface_ref->{'split_network'}) ? 'enabled' : 'disabled';
-            $network_ref->{coa} = isenabled($interface_ref->{'coa'}) ? 'enabled' : 'disabled';
-            $network_ref->{netflow_accounting_enabled} = isenabled($interface_ref->{'netflow_accounting_enabled'}) ? 'enabled' : 'disabled';
             $network_ref->{reg_network} = $interface_ref->{'reg_network'};
             $network_ref->{dhcp_start} = Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(10);
             $network_ref->{dhcp_end} = Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(-10);

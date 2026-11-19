@@ -16,7 +16,6 @@ use strict;
 use warnings;
 use Moo;
 use IPC::Cmd qw[can_run run];
-use POSIX;
 use pf::config qw(
     %Config
     %ConfigNetworks
@@ -31,7 +30,6 @@ use pf::log;
 use pf::util;
 use pf::constants qw($SPACE $SPACE_NUMBERS);
 use pf::cluster;
-use pf::nodecategory qw(nodecategory_view_all);
 
 my $host_id = $pf::config::cluster::host_id;
 
@@ -194,32 +192,6 @@ sub generateRoutes {
         my $dev = $NetworkConfig{$network}{'interface'}{'int'};
         if ( defined($net{'next_hop'}) && ($net{'next_hop'} =~ /^(?:\d{1,3}\.){3}\d{1,3}$/) && defined($dev) ) {
             $routes .= "$current_network via $net{'next_hop'} dev $dev\n"
-        } else {
-            if ( isenabled($NetworkConfig{$network}{'dhcpd'}) ) {
-                if (isenabled($NetworkConfig{$network}{'split_network'})) {
-                    my @categories = nodecategory_view_all();
-                    my $count = @categories;
-                    $count++;
-                    push @categories, {'name' => 'registration'};
-                    my $len = $current_network->masklen;
-                    my $cidr = (ceil(log($count)/log(2)) + $len);
-                    if ($cidr > 30) {
-                        $logger->error("Can't split network");
-                        next;
-                    }
-                    if ($NetworkConfig{$network}{'reg_network'}) {
-                        $ips .= "$NetworkConfig{$network}{'reg_network'} dev $dev\n";
-                    }
-                    my @sub_net = $current_network->split($cidr);
-                    foreach my $net (@sub_net) {
-                        my $role = pop @categories;
-                        next unless $role->{'name'};
-                        my $pf_ip = $net + 1;
-                        $ips .= "$pf_ip dev $dev\n";
-                        my $first = $net + 2;
-                    }
-                }
-            }
         }
     }
     return $routes, $ips;
