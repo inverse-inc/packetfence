@@ -17,6 +17,8 @@ use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::dal::radius_audit_log;
 use pf::radius_audit_log;
+use pf::config;
+use DateTime::Format::Strptime;
 
 has dal => 'pf::dal::radius_audit_log';
 has url_param_name => 'radius_audit_log_id';
@@ -35,6 +37,26 @@ sub cleanup_item {
         my $value = $item->{$key};
         $value =~ s/=([a-fA-F0-9]{2})/chr(hex($1))/ge;
         $item->{$key} = $value;
+    }
+
+    if (
+        defined $item->{created_at}
+        && $item->{created_at} =~ /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/
+    ) {
+        my $timezone = $pf::config::Config{'general'}{'timezone'};
+        $timezone = 'local' if !defined $timezone || $timezone eq '';
+
+        my $parser = DateTime::Format::Strptime->new(
+            pattern   => '%Y-%m-%d %H:%M:%S',
+            time_zone => $timezone,
+            on_error  => 'undef',
+        );
+
+        my $datetime = $parser->parse_datetime($item->{created_at});
+        if ($datetime) {
+            $datetime->set_time_zone('UTC');
+            $item->{created_at} = $datetime->strftime('%Y-%m-%d %H:%M:%S');
+        }
     }
 
     return $item;
