@@ -36,7 +36,6 @@ my %FIELDS = (
     reg_network => undef,
     vip => undef,
     vlan => undef,
-    coa => undef,
 );
 
 my %FIELDS_TO_REMOVE_FROM_UPDATE = (
