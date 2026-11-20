@@ -374,7 +374,10 @@ func orderFinalizeHandler(h *types.Handler) http.HandlerFunc {
 		// Same duplicate-CN policy as the other issuance paths. A refusal
 		// leaves the order ready: the client can finalize again once the
 		// existing certificate is revoked or close enough to expiry.
-		if err := models.CheckACMEDuplicateCN(h.DB, &prof, strings.TrimSpace(csr.Subject.CommonName)); err != nil {
+		// Use CertRowCN so a SAN-only CSR (empty CN) is checked under
+		// the name that issueFromCSR will store in the row.
+		cn := models.CertRowCN(csr)
+		if err := models.CheckACMEDuplicateCN(h.DB, &prof, cn); err != nil {
 			_ = WriteProblem(w, http.StatusForbidden, ErrUnauthorized, err.Error())
 			return
 		}
@@ -412,6 +415,8 @@ func orderFinalizeHandler(h *types.Handler) http.HandlerFunc {
 			_ = WriteProblem(w, http.StatusInternalServerError, ErrServerInternal, err.Error())
 			return
 		}
+		// New cert is persisted: now revoke any cert it supersedes.
+		models.RevokeSupersededCN(h.DB, &prof, cn, cert.ID)
 		// Refresh the in-memory copy so the response reflects the new
 		// state.
 		order.Status = "valid"

@@ -580,6 +580,42 @@ func maybeRevokeExpiring(c *Cert, allowTime int) bool {
 	return false
 }
 
+// certExpiresWithin is the read-only half of maybeRevokeExpiring: it
+// returns true when the cert would be revoked by maybeRevokeExpiring(c,
+// allowTime), without actually revoking anything.
+func certExpiresWithin(c *Cert, allowTime int) bool {
+	store := make(map[pemutil.BlockType]interface{})
+	if err := pemutil.Decode(store, []byte(c.Cert)); err != nil {
+		return true
+	}
+	threshold := time.Now().Add(time.Duration(allowTime) * 24 * time.Hour)
+	for _, v := range store {
+		cert, ok := v.(*x509.Certificate)
+		if !ok {
+			continue
+		}
+		return allowTime == 0 || cert.NotAfter.Before(threshold)
+	}
+	return false
+}
+
+// RevokeSupersededCN revokes the certs for cn under prof that were
+// expiring (the ones CheckACMEDuplicateCN allowed the issuance through).
+// It excludes the cert with id newID — the cert that was just issued —
+// so a concurrent call cannot accidentally revoke the new cert.
+// Call after SignCSRForACME succeeds and the order is marked valid.
+func RevokeSupersededCN(db *gorm.DB, prof *Profile, cn string, newID uint) {
+	if cn == "" {
+		return
+	}
+	var certifs []Cert
+	db.Where("cn = ? AND profile_name = ? AND id != ?", cn, prof.Name, newID).Find(&certifs)
+	for i := range certifs {
+		certifs[i].DB = db
+		maybeRevokeExpiring(&certifs[i], prof.DaysBeforeRenewal)
+	}
+}
+
 // SCEP Verify
 func (c CA) Verify(m *scep.CSRReqMessage) (bool, error) {
 	log.LoggerWContext(c.Ctx).Info("SCEP request for device " + m.CSR.Subject.CommonName)

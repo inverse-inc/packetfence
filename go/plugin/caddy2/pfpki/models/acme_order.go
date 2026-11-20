@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"time"
 
 	"gorm.io/gorm"
@@ -49,13 +50,41 @@ type AcmeOrder struct {
 
 func (AcmeOrder) TableName() string { return "pki_acme_orders" }
 
-// CheckACMEDuplicateCN applies the template's duplicate-CN policy
-// (AllowDuplicatedCN / MaximumDuplicatedCN) to an ACME finalize, the
-// same way SCEP, EST and admin issuance do: a live certificate with the
-// same CN under the template is superseded (revoked) when it expires
-// within DaysBeforeRenewal days, otherwise the issuance is refused with
-// the returned error.
+// CheckACMEDuplicateCN checks the template's duplicate-CN policy for an
+// ACME finalize without revoking anything. Returns an error when issuance
+// must be refused, nil when it is allowed. The caller must call
+// RevokeSupersededCN(db, prof, cn, newCert.ID) after the new cert is
+// successfully persisted, so a failed signing cannot leave the device
+// with only a revoked certificate.
 func CheckACMEDuplicateCN(db *gorm.DB, prof *Profile, cn string) error {
-	_, err := revokeNeeded(cn, prof, prof.DaysBeforeRenewal, db)
-	return err
+	allowTime := prof.DaysBeforeRenewal
+	if prof.AllowDuplicatedCN == 1 {
+		if prof.MaximumDuplicatedCN == 0 {
+			return nil
+		}
+		var certifs []Cert
+		certDB := db.Where("cn = ? AND profile_name = ?", cn, prof.Name).Find(&certifs)
+		if certDB.Error != nil {
+			return nil
+		}
+		willBeRevoked := 0
+		for i := range certifs {
+			if certExpiresWithin(&certifs[i], allowTime) {
+				willBeRevoked++
+			}
+		}
+		if int(certDB.RowsAffected)-willBeRevoked >= prof.MaximumDuplicatedCN {
+			return errors.New("Certificate with this Subject already exist: " + cn)
+		}
+		return nil
+	}
+	var certif Cert
+	certDB := db.Where("Cn = ? AND profile_name = ?", cn, prof.Name).Find(&certif)
+	if certDB.Error != nil || certDB.RowsAffected == 0 {
+		return nil
+	}
+	if certExpiresWithin(&certif, allowTime) {
+		return nil
+	}
+	return errors.New("Certificate with this Subject already exist: " + certif.Cn)
 }

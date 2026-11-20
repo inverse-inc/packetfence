@@ -640,6 +640,23 @@ func issueFromCSR(db *gorm.DB, ctx context.Context, prof Profile, csr *x509.Cert
 	return &row, nil
 }
 
+// CertRowCN returns the CN that issueFromCSR stores in the database row
+// for csr: the trimmed CSR CN if non-empty, otherwise the first DNS SAN,
+// otherwise the first IP SAN. The duplicate-CN check must use this, not
+// csr.Subject.CommonName directly, so the check and the row agree on the
+// key.
+func CertRowCN(csr *x509.CertificateRequest) string {
+	cn := strings.TrimSpace(csr.Subject.CommonName)
+	if cn == "" {
+		if len(csr.DNSNames) > 0 {
+			cn = csr.DNSNames[0]
+		} else if len(csr.IPAddresses) > 0 {
+			cn = csr.IPAddresses[0].String()
+		}
+	}
+	return cn
+}
+
 func strDeref(s *string) string {
 	if s == nil {
 		return ""
