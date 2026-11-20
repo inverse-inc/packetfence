@@ -1,6 +1,7 @@
 import {BaseViewResource} from '../../_components/new/'
 import {
   BaseFormButtonBar,
+  BaseFormGroupChosenMultiple,
   BaseFormGroupInput,
   BaseFormGroupInputPassword,
 } from '@/components/new/'
@@ -16,6 +17,7 @@ export {
   BaseFormButtonBar as FormButtonBar,
 
   BaseFormGroupInputPassword  as FormGroupAdminPass,
+  BaseFormGroupChosenMultiple as FormGroupBrokerOnlyHosts,
   BaseFormGroupInput          as FormGroupAdminUser,
   BaseFormGroupClusterConfig  as FormGroupClusterConfig,
   BaseFormGroupHostConfigs    as FormGroupHostConfigs,

@@ -13,6 +13,7 @@ pfappserver::Form::Config::Kafka
 use strict;
 use warnings;
 use HTML::FormHandler::Moose;
+use pf::cluster qw(@db_cluster_hosts);
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
 
@@ -36,6 +37,21 @@ has_field 'iptables.cluster_ips' => (
 has_field 'iptables.cluster_ips.contains' => (
    type   => 'IPAddress',
    accept => ['%mgmtip%'],
+);
+
+has_field 'general' => (
+    type => 'Compound',
+);
+
+has_field 'general.broker_only_hosts' => (
+   type => 'Select',
+   multiple => 1,
+   options_method => \&options_cluster_hosts,
+   no_option_validation => 1,
+   tags => {
+       after_element => \&help,
+       help => 'Servers of the cluster that run Kafka without being part of the controller quorum (e.g. the servers of a secondary zone). Run /usr/local/pf/bin/kafka-init.pl to apply: the controller quorum is fixed when the Kafka cluster is created, changing it requires to remove the Kafka data of every server.',
+   },
 );
 
 has_field 'admin' => (
@@ -77,6 +93,16 @@ has_field 'cluster' => (
 has_field 'cluster.contains' => (
    type => 'NameVal',
 );
+
+=head2 options_cluster_hosts
+
+The servers of the cluster, all the zones included
+
+=cut
+
+sub options_cluster_hosts {
+    return map { +{ value => $_, label => $_ } } sort @db_cluster_hosts;
+}
 
 =head1 AUTHOR
 
