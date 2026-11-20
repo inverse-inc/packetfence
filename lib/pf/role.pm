@@ -628,6 +628,12 @@ sub getNodeInfoForAutoReg {
             my $bandwidth_balance =  $values->{$Actions::SET_BANDWIDTH_BALANCE};
             $node_info{'time_balance'} = pf::util::normalize_time($time_balance) if (defined($time_balance));
             $node_info{'bandwidth_balance'} = pf::util::unpretty_bandwidth($bandwidth_balance) if (defined($bandwidth_balance));
+            # The bypass VLAN returned by the source (HTTP source), an empty one removes it.
+            # It is merged in the node before the role is fetched, so it applies to this request.
+            if (exists $values->{$Actions::SET_BYPASS_VLAN}) {
+                $node_info{'bypass_vlan'} = $values->{$Actions::SET_BYPASS_VLAN};
+                $logger->info("Bypass VLAN from the source " . ($source // '') . ": " . ($node_info{'bypass_vlan'} eq '' ? "none" : $node_info{'bypass_vlan'}));
+            }
 
             if ($source) {
                 pf::person::person_modify($args->{'user_name'},
@@ -642,10 +648,14 @@ sub getNodeInfoForAutoReg {
 
             if (defined $unregdate) {
                 $node_info{'unregdate'} = $unregdate;
-                if (defined $role) {
-                    %node_info = (%node_info, (category => $role));
-                }
                 %node_info = (%node_info, (source  => $source, portal => $profile->getName));
+            }
+            # A role without an unregistration date is applied too, like in getRegisteredRole:
+            # the node keeps its unregistration date. Only a source that builds its actions
+            # at match time (HTTP source) can return one, since the rules of a source
+            # require an unregistration date with the role.
+            if (defined $role) {
+                $node_info{'category'} = $role;
             }
             if (!defined($role) && isenabled($profile->dot1xUnsetOnUnmatch)) {
                 %node_info = (%node_info, (category => ''));
