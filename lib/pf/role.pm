@@ -615,6 +615,8 @@ sub getNodeInfoForAutoReg {
             my $source = $matched->{source_id};
 
             my $values = $matched->{values};
+            # Whether the role comes from the matched source, not from the VLAN filter
+            my $role_from_source = $FALSE;
             # Don't override vlan filter role
             if (!defined($role)) {
                 $role = $values->{$Actions::SET_ROLE};
@@ -622,12 +624,19 @@ sub getNodeInfoForAutoReg {
                     $role = $values->{$Actions::SET_ROLE_FROM_SOURCE};
                     $action = $Actions::SET_ROLE_FROM_SOURCE;
                 }
+                $role_from_source = defined($role) ? $TRUE : $FALSE;
             }
             my $unregdate = $values->{$Actions::SET_UNREG_DATE};
             my $time_balance =  $values->{$Actions::SET_TIME_BALANCE};
             my $bandwidth_balance =  $values->{$Actions::SET_BANDWIDTH_BALANCE};
             $node_info{'time_balance'} = pf::util::normalize_time($time_balance) if (defined($time_balance));
             $node_info{'bandwidth_balance'} = pf::util::unpretty_bandwidth($bandwidth_balance) if (defined($bandwidth_balance));
+            # The bypass VLAN returned by the source (HTTP source), an empty one removes it.
+            # It is merged in the node before the role is fetched, so it applies to this request.
+            if (exists $values->{$Actions::SET_BYPASS_VLAN}) {
+                $node_info{'bypass_vlan'} = $values->{$Actions::SET_BYPASS_VLAN};
+                $logger->info("Bypass VLAN from the source " . ($source // '') . ": " . ($node_info{'bypass_vlan'} eq '' ? "none" : $node_info{'bypass_vlan'}));
+            }
 
             if ($source) {
                 pf::person::person_modify($args->{'user_name'},
@@ -646,6 +655,12 @@ sub getNodeInfoForAutoReg {
                     %node_info = (%node_info, (category => $role));
                 }
                 %node_info = (%node_info, (source  => $source, portal => $profile->getName));
+            }
+            elsif ($role_from_source && _is_http_source($source)) {
+                # The role returned by an HTTP source without an unregistration date is
+                # applied too, like in getRegisteredRole: the node keeps its unregistration
+                # date. The other sources keep requiring an unregistration date with the role.
+                $node_info{'category'} = $role;
             }
             if (!defined($role) && isenabled($profile->dot1xUnsetOnUnmatch)) {
                 %node_info = (%node_info, (category => ''));
@@ -702,6 +717,19 @@ sub getNodeInfoForAutoReg {
     }
 
     return ($attributes, $action, %node_info);
+}
+
+=head2 _is_http_source
+
+Whether the authentication source with this ID is an HTTP source
+
+=cut
+
+sub _is_http_source {
+    my ($source_id) = @_;
+    return $FALSE if !defined $source_id;
+    my $source = pf::authentication::getAuthenticationSource($source_id);
+    return (defined $source && $source->type eq 'HTTP') ? $TRUE : $FALSE;
 }
 
 =head2 shouldAutoRegister

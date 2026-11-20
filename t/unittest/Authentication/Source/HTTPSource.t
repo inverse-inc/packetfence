@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 85;
+use Test::More tests => 138;
 use WWW::Curl::Easy;
 use URI;
 use JSON::MaybeXS qw(decode_json);
@@ -232,6 +232,81 @@ is_deeply(
     { $Actions::SET_ACCESS_DURATION => '1D' },
     "attributes that are not strings or numbers are ignored"
 );
+
+# bypass_vlan
+
+for my $vlan (qw(1 252 4094 vlan_guest Guest-VLAN guest.vlan 1a _guest), 'a' x 50) {
+    ok(pf::Authentication::Source::HTTPSource::is_valid_bypass_vlan($vlan), "'$vlan' is a valid bypass VLAN");
+}
+
+for my $vlan (undef, '', 0, 4095, 99999, '252.5', '-1', '.guest', '-guest', 'guest vlan', 'guest/vlan', 'a' x 51, "guest\n", "252\n", [], {}) {
+    my $name = defined $vlan ? (ref $vlan ? ref($vlan) . ' ref' : "'" . ($vlan =~ s/\n/\\n/gr) . "'") : 'undef';
+    ok(!pf::Authentication::Source::HTTPSource::is_valid_bypass_vlan($vlan), "$name is not a valid bypass VLAN");
+}
+
+is_deeply(
+    match_actions('{"bypass_vlan":252}'),
+    { $Actions::SET_BYPASS_VLAN => '252' },
+    "a numeric bypass_vlan is returned as an action"
+);
+
+is_deeply(
+    match_actions('{"bypass_vlan":"0252"}'),
+    { $Actions::SET_BYPASS_VLAN => '252' },
+    "the leading zeros of a bypass_vlan VLAN ID are removed"
+);
+
+is_deeply(
+    match_actions('{"bypass_vlan":"vlan_guest","category":"default"}'),
+    { $Actions::SET_BYPASS_VLAN => 'vlan_guest', $Actions::SET_ROLE => 'default' },
+    "a bypass_vlan VLAN name is returned with the other actions"
+);
+
+is_deeply(
+    match_actions('{"bypass_vlan":null}'),
+    { $Actions::SET_BYPASS_VLAN => '' },
+    "a null bypass_vlan removes the bypass VLAN"
+);
+
+is_deeply(
+    match_actions('{"bypass_vlan":""}'),
+    { $Actions::SET_BYPASS_VLAN => '' },
+    "an empty bypass_vlan removes the bypass VLAN"
+);
+
+is_deeply(
+    match_actions('{"category":"default"}'),
+    { $Actions::SET_ROLE => 'default' },
+    "a reply without bypass_vlan leaves the bypass VLAN as it is"
+);
+
+is_deeply(
+    match_actions('{"bypass_vlan":"000000252"}'),
+    { $Actions::SET_BYPASS_VLAN => '252' },
+    "all the leading zeros of a bypass_vlan VLAN ID are removed"
+);
+
+is_deeply(
+    match_actions('{"bypass_vlan":252.0}'),
+    { $Actions::SET_BYPASS_VLAN => '252' },
+    "a JSON number bypass_vlan without a fraction is a VLAN ID"
+);
+
+for my $reply ('{"bypass_vlan":5000}', '{"bypass_vlan":"0"}', '{"bypass_vlan":"0000"}', '{"bypass_vlan":"252.5"}', '{"bypass_vlan":"guest vlan"}', '{"bypass_vlan":"guest\\n"}', '{"bypass_vlan":"252\\n"}', '{"bypass_vlan":true}', '{"bypass_vlan":{"id":252}}', '{"bypass_vlan":[252]}') {
+    my @warnings;
+    my $logger = Test::MockModule->new('pf::Authentication::Source::HTTPSource');
+    $logger->mock('get_logger', sub { bless { warnings => \@warnings }, 'HTTPSourceTestLogger' });
+    is_deeply(match_actions($reply), {}, "an invalid bypass_vlan is ignored: $reply");
+    is(scalar(grep { /Ignoring bypass_vlan/ } @warnings), 1, "an invalid bypass_vlan is logged: $reply");
+}
+
+{
+    package HTTPSourceTestLogger;
+    sub warn { my ($self, $message) = @_; push @{$self->{warnings}}, $message }
+    our $AUTOLOAD;
+    sub AUTOLOAD { }
+    sub DESTROY { }
+}
 
 for my $reply ('<html>Error</html>', '', '[]', '"ok"') {
     is(match_actions($reply), undef, "an authorization reply that is not a JSON object is a failure: '$reply'");
