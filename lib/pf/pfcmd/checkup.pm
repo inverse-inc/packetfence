@@ -401,9 +401,11 @@ sub network {
 
 Inline enforcement is not supported anymore. Report as FATAL any leftover of it in the configuration:
 an interface with an inline enforcement, a network of type inline, the [inline] section of pf.conf
-or a switch using inlineTrigger, inlineVlan or inlineRole.
+or a switch using inlineTrigger or a mapping of the inline role (inlineVlan, inlineRole, inlineUrl, ...).
 
 =cut
+
+our $SWITCH_INLINE_PARAM_RE = qr/^inline(?:Trigger|(?:Vlan|Role|AccessList|Url|Vpn|Interface|Network|NetworkFrom)(?:Enabled)?)$/;
 
 sub inline_removed {
     my $hint = "Inline enforcement has been removed from PacketFence, run addons/upgrade/to-16.0-remove-inline.pl to clean up your configuration.";
@@ -438,7 +440,7 @@ sub inline_removed {
     my %switches_conf;
     pf::ConfigStore::Switch->new->cachedConfig->toHash(\%switches_conf);
     foreach my $section (sort keys %switches_conf) {
-        foreach my $param (qw(inlineTrigger inlineVlan inlineRole)) {
+        foreach my $param (sort grep { $_ =~ $SWITCH_INLINE_PARAM_RE } keys %{$switches_conf{$section}}) {
             my $value = $switches_conf{$section}{$param};
             next unless defined($value) && length($value);
             add_problem( $FATAL,

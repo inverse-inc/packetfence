@@ -165,7 +165,7 @@ sub _vlan_reevaluation {
         switch_mac => $locationlog_entry->{'switch_mac'},
         switch_ip => $locationlog_entry->{'switch_ip'},
         stripped_user_name => $locationlog_entry->{'stripped_user_name'},
-        realm => $locationlog_entry->{'$realm'},
+        realm => $locationlog_entry->{'realm'},
         mac => $mac,
         ifIndex => $locationlog_entry->{'port'},
         ifDesc => $locationlog_entry->{'ifDesc'},

@@ -72,12 +72,11 @@ sub generateConfig {
     $tags{'vrrp'} = '';
 
 
-    my ($routes,$ips) = $self->generateRoutes();
+    my $routes = $self->generateRoutes();
     $tags{'vrrp'} .= <<"EOT";
 
 static_ipaddress {
     $internal_portal_ip dev lo scope link
-    $ips
 }
 
 static_routes {
@@ -185,7 +184,6 @@ sub generateRoutes {
     my ($self) = @_;
     my $logger = get_logger();
     my $routes = '';
-    my $ips = '';
     foreach my $network ( keys %NetworkConfig ) {
         my %net = %{$NetworkConfig{$network}};
         my $current_network = NetAddr::IP->new( $network, $net{'netmask'} );
@@ -194,7 +192,7 @@ sub generateRoutes {
             $routes .= "$current_network via $net{'next_hop'} dev $dev\n"
         }
     }
-    return $routes, $ips;
+    return $routes;
 }
 
 

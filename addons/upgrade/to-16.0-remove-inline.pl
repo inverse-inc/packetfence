@@ -14,14 +14,17 @@ what is left of it in the configuration:
 =over
 
 =item pf.conf: the [inline] section is removed. The interfaces with an inline
-enforcement lose their enforcement parameter, they are not enforcement
-interfaces anymore (a warning is printed for each of them).
+enforcement lose their enforcement parameter and the internal type (an internal
+interface requires an enforcement), they are not enforcement interfaces anymore
+(a warning is printed for each of them). An interface left without a type gets the type other.
 
 =item networks.conf: the networks of type inlinel2, inlinel3 and inline are removed, and the
 inline only parameters (split_network, nat_enabled, nat_dns, fake_mac_enabled, coa) are removed
 from the other networks.
 
-=item switches.conf: inlineTrigger, inlineVlan and inlineRole are removed from every section.
+=item switches.conf: inlineTrigger and the mappings of the inline role (inlineVlan, inlineRole,
+inlineAccessList, inlineUrl, inlineVpn, inlineInterface, inlineNetwork, inlineNetworkFrom and
+their *Enabled flags) are removed from every section.
 
 =item dns_filters.conf: the inline scope is removed from the rules.
 
@@ -50,7 +53,7 @@ use pf::file_paths qw(
 );
 use pf::util;
 
-our @SWITCH_INLINE_PARAMS = qw(inlineTrigger inlineVlan inlineRole);
+our $SWITCH_INLINE_PARAM_RE = qr/^inline(?:Trigger|(?:Vlan|Role|AccessList|Url|Vpn|Interface|Network|NetworkFrom)(?:Enabled)?)$/;
 our @NETWORK_INLINE_PARAMS = qw(split_network nat_enabled nat_dns fake_mac_enabled coa);
 our $FILTER_INLINE_RE = qr/(wasInline|InlineRole|_inlineTrigger)/;
 
@@ -103,8 +106,19 @@ sub remove_from_pf_conf {
         my $enforcement = $ini->val($section, 'enforcement');
         next unless defined $enforcement && $enforcement =~ /^\s*inline/i;
         $ini->delval($section, 'enforcement');
-        print("pf.conf: removed enforcement=$enforcement from $section. WARNING: interface $name is not an enforcement interface anymore, set enforcement=vlan (or dns) on it if it must be one\n");
+        print("pf.conf: removed enforcement=$enforcement from $section. WARNING: interface $name is not an enforcement interface anymore, set type=internal and enforcement=vlan (or dns) on it if it must be one\n");
         $changes++;
+        my $type = $ini->val($section, 'type');
+        if (defined $type) {
+            my @types = split(/\s*,\s*/, $type);
+            if (grep { lc($_) eq 'internal' } @types) {
+                my @kept = grep { lc($_) ne 'internal' && length($_) } @types;
+                my $new_type = @kept ? join(',', @kept) : 'other';
+                $ini->setval($section, 'type', $new_type);
+                print("pf.conf: changed type=$type to type=$new_type in $section, an internal interface requires an enforcement\n");
+                $changes++;
+            }
+        }
     }
     if ($ini->SectionExists('inline')) {
         $ini->DeleteSection('inline');
@@ -146,7 +160,7 @@ sub remove_inline_networks {
 
 =head2 remove_from_switches
 
-Remove inlineTrigger, inlineVlan and inlineRole from every section of switches.conf
+Remove inlineTrigger and the mappings of the inline role from every section of switches.conf
 
 =cut
 
@@ -155,8 +169,7 @@ sub remove_from_switches {
     my $ini = load_ini($file) or return 0;
     my $changes = 0;
     for my $section ($ini->Sections()) {
-        for my $param (@SWITCH_INLINE_PARAMS) {
-            next unless $ini->exists($section, $param);
+        for my $param (grep { $_ =~ $SWITCH_INLINE_PARAM_RE } $ini->Parameters($section)) {
             my $value = $ini->val($section, $param);
             $ini->delval($section, $param);
             print("switches.conf: removed $param" . (defined $value && length $value ? " = $value" : "") . " from [$section]\n");
