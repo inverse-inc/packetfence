@@ -88,8 +88,9 @@ $queries = 0;
 ok(pf::fingerbank::process($mac), 'next process without new data');
 is($queries, 0, 'no query without new data');
 
-# Once the cached failure expires, a regular call without new data (re-authentication)
-# looks up a device whose lookup failed instead of skipping it until new data comes
+# After a failed lookup the process timestamp is kept: regular calls without new data
+# are still skipped by the freshness guard. Only the queued retry (retry=>1) forces a
+# re-lookup, so RADIUS workers are not blocked on collector calls during an outage.
 $query_ok = 0;
 $cache->remove($query_cache_key);
 ok(!pf::fingerbank::process($mac, 1), 'a forced lookup fails');
@@ -97,9 +98,9 @@ $query_ok = 1;
 $queries = 0;
 $recorded = 0;
 $cache->remove($query_cache_key);
-ok(pf::fingerbank::process($mac), 'a regular process without new data after a failed lookup');
-is($queries, 1, 'looks the device up again');
-is($recorded, 1, 'and records the result');
+ok(pf::fingerbank::process($mac), 'a regular process without new data after a failed lookup is skipped');
+is($queries, 0, 'the freshness guard applies: no query without new data');
+is($recorded, 0, 'nothing recorded');
 $cache->remove($_) for ($retry_key, pf::fingerbank::_retry_pending_cache_key($mac), $query_cache_key);
 @queued = ();
 
@@ -125,7 +126,7 @@ $cache->remove($retry_key);
 $fingerbank->mock('endpoint_attributes', sub { undef });
 pf::fingerbank::process($mac);
 is(scalar @queued, 1, 'collector failure schedules a retry');
-ok(!defined($cache->get("pf::fingerbank::process($mac)")), 'collector failure leaves the device to be looked up by the next call');
+ok(defined($cache->get("pf::fingerbank::process($mac)")), 'collector failure keeps the process timestamp (queued retry handles re-lookup)');
 pf::fingerbank::process($mac);
 is(scalar @queued, 1, 'a second failure while the retry is queued does not queue another one');
 $cache->remove($_) for ("pf::fingerbank::process($mac)", $retry_key, pf::fingerbank::_retry_pending_cache_key($mac), $query_cache_key);

@@ -150,8 +150,8 @@ sub process {
 
     unless(defined($query_args)) {
         $logger->error("Unable to fetch query arguments for Fingerbank query. Aborting.");
-        # Not profiled: the next call looks the device up again (see the failed lookup below)
-        $cache->remove($cache_key);
+        # The process timestamp is kept so regular RADIUS/DHCP calls go through the
+        # freshness check as usual; only the queued retry (retry=>1) is forced.
         _retry_later($mac, $overrides, $options{retry});
         return $FALSE;
     }
@@ -210,10 +210,9 @@ sub process {
         unless(defined($query_result)) {
             $logger->warn("Unable to perform a Fingerbank lookup for device with MAC address '$mac'");
             $query_success = $FALSE;
-            # The device wasn't profiled: without a process timestamp, the next call (re-authentication,
-            # DHCP, ...) looks it up again instead of waiting for new data from the collector.
-            # The rate limiting cache above keeps these lookups to one per $RATE_LIMIT seconds.
-            $cache->remove($cache_key);
+            # The process timestamp is kept: regular RADIUS/DHCP calls go through the
+            # freshness check as usual and don't block a worker on a collector call during
+            # an outage. The queued retry (retry=>1) forces a re-lookup.
             _retry_later($mac, $overrides, $options{retry});
         }
 
