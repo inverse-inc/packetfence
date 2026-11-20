@@ -155,6 +155,17 @@ func TestPacketToMap(t *testing.T) {
 	}
 }
 
+func TestPacketToMapSkipsProxyState(t *testing.T) {
+	packet := radius.New(radius.CodeAccountingRequest, []byte("bob"))
+	rfc2865.UserName_SetString(packet, "tim")
+	rfc2865.ProxyState_Add(packet, []byte{0x01, 0x02, 0x03})
+	attributeMap := packetToMap(context.Background(), packet)
+	expected := map[string]interface{}{"User-Name": "tim"}
+	if reflect.DeepEqual(expected, attributeMap) == false {
+		t.Errorf("expected : %v, got : %v", expected, attributeMap)
+	}
+}
+
 // vendorVSA builds an attribute-26 Vendor-Specific value the way RADIUSSecret
 // sees it after radius.ParseAttributes:
 // [vendor-id:4][vendor-type:1][vendor-length:1][data...].
