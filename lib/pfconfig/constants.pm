@@ -28,6 +28,10 @@ Readonly::Scalar our $UPGRADE_IN_PROCESS_MAX_CONNECT_TIMES => 7200;
 
 Readonly::Scalar our $MAX_CONNECT_TIMES => 600;
 
+# How many times pfconfig::util::fetch_decode_socket sends a request that
+# pfconfig closed without replying to, 0.1 second apart
+our $MAX_EMPTY_REPLY_TIMES = 100;
+
 Readonly::Scalar our $DEFAULT_BACKEND => "mysql";
 
 our $LAST_TOUCH_CACHE_STALENESS = 5;
