@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/hsm"
@@ -71,6 +72,11 @@ func (h HSM) DelByID(params map[string]string) (types.Info, error) {
 	if !ok {
 		return Information, nil
 	}
+	if _, err := strconv.ParseUint(val, 10, 64); err != nil {
+		err = errors.New("invalid id")
+		Information.Error = err.Error()
+		return Information, err
+	}
 	var used int64
 	h.DB.Model(&CA{}).Where("hsm_id = ?", val).Count(&used)
 	if used > 0 {
@@ -114,6 +120,11 @@ func (h HSM) Search(vars sql.Vars) (types.Info, error) {
 // left out are kept) once the token can be opened with them.
 func (h HSM) Update(params map[string]string) (types.Info, error) {
 	Information := types.Info{}
+	if _, err := strconv.ParseUint(params["id"], 10, 64); err != nil {
+		err = errors.New("invalid id")
+		Information.Error = err.Error()
+		return Information, err
+	}
 	var hsmdb HSM
 	if err := h.DB.First(&hsmdb, params["id"]).Error; err != nil {
 		Information.Error = err.Error()
