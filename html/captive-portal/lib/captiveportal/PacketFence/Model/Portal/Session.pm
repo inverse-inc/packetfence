@@ -7,17 +7,11 @@ use pf::ip6log;
 use pf::config qw(
     $management_network
     %CAPTIVE_PORTAL
-    %ConfigNetworks
-    $NO_PORT
-    $NO_VLAN
-    $NO_VOIP
-    $INLINE
 );
 use constant LOOPBACK_IPV4 => '127.0.0.1';
 use pf::log;
 use pf::util;
 use pf::config::util;
-use pf::locationlog qw(locationlog_synchronize);
 use NetAddr::IP;
 use pf::Connection::ProfileFactory;
 use File::Spec::Functions qw(catdir);
@@ -221,41 +215,6 @@ sub _build_clientMac {
     my $clientIP = $self->clientIP;
     my $mac;
     if (defined $clientIP) {
-        while ( my ($network,$network_config) = each %ConfigNetworks ) {
-            next unless defined $network_config->{'fake_mac_enabled'} && isenabled($network_config->{'fake_mac_enabled'});
-            next if !pf::config::is_network_type_inline($network);
-            my $net_addr = NetAddr::IP->new($network,$network_config->{'netmask'});
-            my $ip = new NetAddr::IP::Lite $clientIP->normalizedIP;
-            if ($net_addr->contains($ip)) {
-                my $fake_mac = '00:00:' . join(':', map { sprintf("%02x", $_) } split /\./, $ip->addr());
-                my $gateway = $network_config->{'gateway'};
-                locationlog_synchronize(
-                    $gateway,
-                    $gateway,
-                    undef,
-                    $NO_PORT,
-                    $NO_VLAN,
-                    $fake_mac,
-                    $NO_VOIP,
-                    $INLINE,
-                    undef,
-                    undef,
-                    undef,
-                    undef,
-                    undef,
-                    undef,
-                    undef,
-                    $gateway,
-                );
-                if ( $clientIP->type eq $pf::IPv6::TYPE ) {
-                    pf::ip6log::open($clientIP->normalizedIP, $fake_mac);
-                } else {
-                    pf::ip4log::open($clientIP->normalizedIP, $fake_mac);
-                }
-                $mac = $fake_mac;
-                last;
-            }
-        }
         if ( $clientIP->type eq $pf::IPv6::TYPE ) {
             $mac = pf::ip6log::ip2mac( $clientIP->normalizedIP ) unless defined $mac;
         } else {

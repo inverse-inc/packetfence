@@ -52,7 +52,6 @@ BEGIN {
         locationlog_set_session
         locationlog_get_session
         locationlog_last_entry_mac
-        locationlog_last_entry_non_inline_mac
         locationlog_last_entry_previous_switch
 
         locationlog_unique_ssids
@@ -63,7 +62,6 @@ use pf::config qw(
     $WIRED
     $NO_VOIP
     $VOIP
-    $INLINE
     %connection_type_to_str
 );
 use pf::db;
@@ -248,7 +246,7 @@ sub locationlog_insert_start {
     }
 
     # An undefined TEAP identity means the caller does not know it (pfsnmp,
-    # VoIP, VPN, inline, the inner rounds of a TEAP authentication): keep the
+    # VoIP, VPN, the inner rounds of a TEAP authentication): keep the
     # one of the previous row when the connection type and the identity are
     # unchanged, so a vlan/role change does not blank it. A row for another
     # identity (the inner rounds of a new TEAP session authenticate the
@@ -378,14 +376,6 @@ sub locationlog_synchronize {
             # did something changed?
             if (!_is_locationlog_accurate($locationlog_mac, $switch, $ifIndex, $vlan,
                 $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $role, $switch_mac, $teap_username, $teap_machinename)) {
-
-                #If the last connection was inline then make sure to clean ipset
-                if ( ( (str_to_connection_type($locationlog_mac->{connection_type}) & $pf::config::INLINE) == $pf::config::INLINE ) && !($connection_type && ($connection_type & $pf::config::INLINE) == $pf::config::INLINE) ) {
-                    $logger->debug("Unmark node in ipset session since the connection type changed from inline to something else");
-                    my $inline = new pf::inline::custom();
-                    my $mark = $inline->{_technique}->get_mangle_mark_for_mac($mac);
-                    $inline->{_technique}->iptables_unmark_node($mac,$mark) if (defined($mark));
-                }
 
                 locationlog_insert_start($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $locationlog_mac, $ifDesc, $voip_status, $switch_id, $teap_username, $teap_machinename);
 
@@ -656,23 +646,6 @@ sub locationlog_unique_ssids {
         },
         -order_by => 'ssid',
     });
-}
-
-=item locationlog_last_entry_non_inline_mac
-
-Return the last locationlog entry for a mac that is not inline even if it's open or close.
-
-=cut
-
-sub locationlog_last_entry_non_inline_mac {
-    my ($mac) = @_;
-    $mac = clean_mac($mac);
-    my %where = (
-        mac             => $mac,
-        connection_type => { "!=" => $connection_type_to_str{$INLINE} },
-    );
-    my $columns = pf::dal::locationlog->table_field_names;
-    return _locationlog_last(\%where, $columns);
 }
 
 sub _locationlog_last {

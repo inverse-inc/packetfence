@@ -20,11 +20,10 @@ use pf::constants qw($TRUE $FALSE);
 extends 'Catalyst::Model';
 
 # TODO: Should migrate theses into a database table with some flags for the mechanisms
-my @mechanisms           = qw/vlan inline option webauth/;
+my @mechanisms           = qw/vlan option webauth/;
 # TODO once we display option we should move 'other' over to there
 my %types   = (
     vlan        => [ 'management', 'vlan-registration', 'vlan-isolation' ],
-    inline      => [ 'management', 'inline', 'inlinel2', 'inlinel3' ], # inline is kept for backwards compat.
     webauth     => ['management', 'portal'],
     other       => ['dns-enforcement', 'dhcp-listener'],
     radius      => ['management'],
@@ -32,7 +31,6 @@ my %types   = (
 
 my %required_types   = (
     vlan        => [ 'management', 'vlan-registration' ],
-    inline      => [ 'management', 'inline', 'inlinel2', 'inlinel3' ], # inline is kept for backwards compat.
     webauth     => ['management', 'portal'],
     other       => ['dns-enforcement'],
     radius      => ['management'],

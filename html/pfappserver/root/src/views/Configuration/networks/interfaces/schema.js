@@ -44,6 +44,5 @@ export default (props) => {
     ipaddress: yup.string().nullable().isIpv4('Invalid IPv4 Address.'),
     ipv6_address: yup.string().nullable().isIpv6('Invalid IPv6 Address.'),
     netmask: yup.string().nullable().isIpv4('Invalid Netmask.'),
-    reg_network: yup.string().nullable().isCIDR('Invalid CIDR.'),
   })
 }

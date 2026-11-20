@@ -2,7 +2,6 @@ package pfipset
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"net/http"
 	"strings"
@@ -15,9 +14,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/go-utils/log"
-	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/api-frontend/unifiedapierrors"
-	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
@@ -45,9 +42,8 @@ func (PfipsetHandler) CaddyModule() caddy.ModuleInfo {
 }
 
 type PfipsetHandler struct {
-	IPSET    *pfIPSET
-	database *sql.DB
-	router   *mux.Router
+	IPSET  *pfIPSET
+	router *mux.Router
 }
 
 func (p *PfipsetHandler) Validate() error {
@@ -107,54 +103,8 @@ func (m *PfipsetHandler) buildPfipsetHandler(ctx context.Context) error {
 	// Default http timeout
 	http.DefaultClient.Timeout = 10 * time.Second
 
-	m.IPSET.detectType(ctx)
-
-	db, err := db.DbFromConfig(ctx)
-	sharedutils.CheckError(err)
-	m.database = db
-
-	// Reload the set from the database each 5 minutes
-	// TODO: have this time configurable
-	go func() {
-		// Create a new context just for this goroutine
-		ctx := context.WithValue(ctx, "dummy", "dummy")
-		for {
-			var Inline bool
-			Inline = false
-			var keyConfNet pfconfigdriver.PfconfigKeys
-			keyConfNet.PfconfigNS = "config::Network"
-			keyConfNet.PfconfigHostnameOverlay = "yes"
-
-			pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
-
-			for _, key := range keyConfNet.Keys {
-				var ConfNet pfconfigdriver.RessourseNetworkConf
-				ConfNet.PfconfigHashNS = key
-
-				pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
-
-				if ConfNet.Type == "inlinel2" || ConfNet.Type == "inlinel3" || ConfNet.Type == "inline" {
-					Inline = true
-				}
-			}
-			if Inline {
-				m.IPSET.initIPSet(ctx, m.database)
-				log.LoggerWContext(ctx).Info("Reloading ipsets")
-			} else {
-				log.LoggerWContext(ctx).Info("No Inline Network bypass ipsets reload")
-			}
-			time.Sleep(300 * time.Second)
-		}
-	}()
-
 	m.router = mux.NewRouter()
 	api := m.router.PathPrefix("/api/v1").Subrouter()
-	api.HandleFunc("/ipset/mark_layer3", handleLayer3).Methods("POST")
-	api.HandleFunc("/ipset/mark_layer2", handleLayer2).Methods("POST")
-	api.HandleFunc("/ipset/unmark_mac", m.IPSET.handleUnmarkMac).Methods("POST")
-	api.HandleFunc("/ipset/unmark_ip", m.IPSET.handleUnmarkIp).Methods("POST")
-	api.HandleFunc("/ipset/mark_ip_layer2", handleMarkIpL2).Methods("POST")
-	api.HandleFunc("/ipset/mark_ip_layer3", handleMarkIpL3).Methods("POST")
 	api.HandleFunc("/ipset/passthrough", handlePassthrough).Methods("POST")
 	api.HandleFunc("/ipset/passthrough_isolation", handleIsolationPassthrough).Methods("POST")
 	api.HandleFunc("/ipset/add_ip/{set_name}", handleAddIp).Methods("POST")

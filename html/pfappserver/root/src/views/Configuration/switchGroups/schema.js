@@ -17,8 +17,6 @@ yup.addMethod(yup.string, 'switchGroupIdNotExistsExcept', function (exceptId = '
   })
 })
 
-import { schemaInlineTriggers } from '../switches/schema'
-
 export const schema = (props, roles) => {
   const {
     isNew,
@@ -39,7 +37,6 @@ export const schema = (props, roles) => {
       .nullable()
       .required(i18n.t('Description required.'))
       .label(i18n.t('Description')),
-    inlineTrigger: schemaInlineTriggers.meta({ invalidFeedback: i18n.t('Inline conditions contains one or more errors.') }),
     type: yup.string().nullable().label(i18n.t('Type')),
     mode: yup.string().nullable().label(i18n.t('Mode')),
     group: yup.string().nullable().label(i18n.t('Group')),

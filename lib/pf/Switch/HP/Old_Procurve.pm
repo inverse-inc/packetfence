@@ -46,8 +46,6 @@ use pf::SwitchSupports qw(
     WiredDot1x
     FloatingDevice
 );
-# inline capabilities
-sub inlineCapabilities { return ($MAC,$PORT); }
 
 =head2 _connect
 

@@ -13,15 +13,13 @@ import (
 func TestShuffleDNS(t *testing.T) {
 	// Mock configuration for testing
 	confNet := pfconfigdriver.RessourseNetworkConf{
-		Type:       "inlinel2",
-		NatDNS:     "disabled",
 		Dns:        "8.8.8.8,8.8.4.4",
 		ClusterIPs: "192.168.1.1,192.168.1.2",
 		Dnsvip:     "192.168.1.100",
 		Interface:  pfconfigdriver.Interface{InterfaceName: "eth0"},
 	}
 
-	// Test case 1: Inline L2 type with NAT DNS disabled
+	// Test case 1: Plain DNS list
 	result := ShuffleDNS(context.Background(), confNet)
 	if len(result) == 0 {
 		t.Errorf("Expected non-empty DNS list, got empty")
@@ -76,17 +74,6 @@ func TestShuffleGateway(t *testing.T) {
 		t.Errorf("Expected non-empty gateway list, got empty")
 	}
 
-	// Test case 4: Inline L2 type with NAT disabled
-	confNet = pfconfigdriver.RessourseNetworkConf{
-		Type:       "inlinel2",
-		NatEnabled: "disabled",
-		Gateway:    "192.168.1.1",
-	}
-	result = ShuffleGateway(context.Background(), confNet)
-	expected = net.ParseIP("192.168.1.1").To4()
-	if string(result) != string(expected) {
-		t.Errorf("Expected gateway %v, got %v", expected, result)
-	}
 }
 
 func TestShuffleNetIP(t *testing.T) {

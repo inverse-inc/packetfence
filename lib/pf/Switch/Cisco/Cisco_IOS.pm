@@ -131,8 +131,6 @@ use pf::SwitchSupports qw(
     Lldp
     Flow
 );
-# inline capabilities
-sub inlineCapabilities { return ($MAC,$PORT); }
 
 sub getMinOSVersion {
     my $self   = shift;

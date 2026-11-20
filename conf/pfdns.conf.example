@@ -30,8 +30,6 @@
         fallthrough
     }
 
-[% inline %]
-
     # Default to system resolv.conf file
     forward . /etc/resolv.conf
     log stdout

@@ -146,8 +146,6 @@ use pf::SwitchSupports qw(
     PushACLs
     Flow
 );
-# inline capabilities
-sub inlineCapabilities { return ($MAC,$SSID); }
 
 =item extractSSIDFromCalledStationId
 

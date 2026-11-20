@@ -24,8 +24,6 @@ use pf::access_filter::dhcp;
 use pf::client;
 use pf::config qw(
     %ConfigNetworks
-    %connection_type_to_str
-    $INLINE
     %ConfigFirewallSSO
     %ConfigScan
 );
@@ -148,7 +146,6 @@ sub _get_local_dhcp_servers {
 Different IP based tasks processing part of the DHCP flow
 
 - Firewall SSO
-- Inline enforcement
 - Conformity scan
 - Parking security_event
 - iplog
@@ -192,16 +189,6 @@ sub processIPTasks {
         unless ($sso_refresh_cache->get($sso_refresh_key)) {
             $self->apiClient->notify( 'firewallsso', (method => 'Update', mac => $sso_mac, ip => $sso_ip, timeout => $sso_timeout, source => $DHCP) );
             $sso_refresh_cache->set($sso_refresh_key, 1, int($sso_timeout / 2));
-        }
-    }
-
-    # Inline enforcement
-    # 2017.03.20 - dwuelfrath@inverse.ca - There is currently no ipv6 support for inline enforcement. Remove the condition once "resolved"
-    unless ( $iptasks_arguments{'ipversion'} eq $IPV6 ) {
-        if ( $iptasks_arguments{'oldip'} && $iptasks_arguments{'oldip'} ne $iptasks_arguments{'ip'} ) {
-            my $node_view = node_view($iptasks_arguments{'mac'});
-            my $last_connection_type = $node_view->{'last_connection_type'};
-            $self->apiClient->notify('ipset_node_update', $iptasks_arguments{'oldip'}, $iptasks_arguments{'ip'}, $iptasks_arguments{'mac'}) if (defined $last_connection_type && $last_connection_type eq $connection_type_to_str{$INLINE});
         }
     }
 

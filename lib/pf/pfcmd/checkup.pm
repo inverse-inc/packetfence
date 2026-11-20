@@ -28,14 +28,13 @@ use pf::config qw(
     $management_network
     $IF_INTERNAL
     $IF_ENFORCEMENT_VLAN
-    $IF_ENFORCEMENT_INLINE
+    $IF_ENFORCEMENT_DNS
     %ConfigNetworks
     $monitor_int
     %ConfigAuthentication
     %ConfigNetworks
     @internal_nets
     %Doc_Config
-    $INLINE_API_LEVEL
     $ROLE_API_LEVEL
     $RADIUS_API_LEVEL
     $ROLES_API_LEVEL
@@ -44,7 +43,6 @@ use pf::config qw(
     $SELFREG_MODE_EMAIL
     $SELFREG_MODE_SMS
     $SELFREG_MODE_SPONSOR
-    is_inline_enforcement_enabled
 );
 use pf::security_event_config;
 use pf::util;
@@ -149,7 +147,7 @@ sub sanity_check {
     authentication();
     network();
     fingerbank();
-    inline() if (is_inline_enforcement_enabled());
+    inline_removed();
     apache();
     web_admin();
     registration();
@@ -245,7 +243,7 @@ sub interfaces {
                 add_problem( $FATAL,
                     "Incomplete network information for $device. " .
                     "Enforcement technique must be defined on an internal interface. " .
-                    "Your choices are: $IF_ENFORCEMENT_VLAN or $IF_ENFORCEMENT_INLINE. " .
+                    "Your choices are: $IF_ENFORCEMENT_VLAN or $IF_ENFORCEMENT_DNS. " .
                     "If unsure refer to the documentation."
                 );
             }
@@ -256,19 +254,6 @@ sub interfaces {
                     "You should use the 'management' keyword instead. " .
                     "Seen on interface $interface."
                 );
-            }
-        }
-        my $ip = new NetAddr::IP::Lite clean_ip($Config{$device}{'ip'});
-        if (defined($Config{$device}{'enforcement'}) && ($Config{$device}{'enforcement'} eq $IF_ENFORCEMENT_INLINE)) {
-            foreach my $network (keys %ConfigNetworks) {
-                my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
-                if ($net_addr->contains($ip)) {
-                    if ($Config{$device}{'enforcement'} ne $ConfigNetworks{$network}{'type'}) {
-                        add_problem( $WARN,
-                            "You defined an inline interface ($Config{$device}{'ip'}) but no inline network"
-                        );
-                    }
-                }
             }
         }
     }
@@ -408,78 +393,60 @@ sub network {
                 add_problem( $WARN, "networks.conf: Incomplete DHCP information for network $network" );
             }
         }
-
-        # run inline network tests
-        network_inline($network) if (pf::config::is_network_type_inline($network));
     }
 }
 
 
-=item network_inline
+=item inline_removed
 
-Tests that validate the configuration of an inline network.
-
-=cut
-
-sub network_inline {
-    my ($network) = @_;
-    # shorter, more convenient accessor
-    my %net = %{$ConfigNetworks{$network}};
-
-    # inline interface with named=disabled is not what you want
-    if ( $net{'named'} =~ /disabled/i ) {
-        add_problem( $WARN,
-                "networks.conf type inline with named disabled is *not* what you want. " .
-                "Since we're DNATTING DNS if in an unreg or isolated state, you'll want to change that to enabled."
-        );
-    }
-
-    # inline interfaces should have at least one local gateway
-    my $found = 0;
-    foreach my $int (@internal_nets) {
-        my $net_addr = NetAddr::IP->new($Config{ 'interface ' . $int->tag('int') }{'ip'},$Config{ 'interface ' . $int->tag('int') }{'mask'});
-        my $ip = new NetAddr::IP::Lite clean_ip($net{'next_hop'}) if defined($net{'next_hop'});
-        if ( $Config{ 'interface ' . $int->tag('int') }{'ip'} eq $net{'gateway'} || (defined($Config{ 'interface ' . $int->tag('int') }{'vip'}) && $Config{ 'interface ' . $int->tag('int') }{'vip'} eq $net{'gateway'} ) || (defined($net{'next_hop'}) && $net_addr->contains($ip) ) ) {
-
-            $found = 1;
-            next;
-        }
-    }
-    # That check is useless in a cluster because the gateway is returned automagically by pfdhcp
-    if ( !$cluster_enabled && !$found ) {
-        add_problem( $WARN,
-            "networks.conf $network gateway ($net{'gateway'}) is not bound to an internal interface. " .
-            "Assume your configuration is wrong unless you know what you are doing."
-        );
-    }
-    my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
-    foreach my $int (@internal_nets) {
-        my $ip = new NetAddr::IP::Lite clean_ip($Config{ 'interface ' . $int->tag('int') }{'ip'});
-        if ($net_addr->contains($ip)) {
-            if ($Config{ 'interface ' . $int->tag('int') }{'enforcement'} ne $ConfigNetworks{$network}{'type'}) {
-                add_problem( $WARN,
-                    "You defined a inline network ($int) but no inline interface."
-                );
-            }
-         next;
-        }
-    }
-}
-
-=item inline
-
-If some interfaces are configured to run in inline enforcement then these tests will run
+Inline enforcement is not supported anymore. Report as FATAL any leftover of it in the configuration:
+an interface with an inline enforcement, a network of type inline, the [inline] section of pf.conf
+or a switch using inlineTrigger or a mapping of the inline role (inlineVlan, inlineRole, inlineUrl, ...).
 
 =cut
 
-sub inline {
+our $SWITCH_INLINE_PARAM_RE = qr/^inline(?:Trigger|(?:Vlan|Role|AccessList|Url|Vpn|Interface|Network|NetworkFrom)(?:Enabled)?)$/;
 
-    my $result = safe_pf_run(qw(cat /proc/sys/net/ipv4/ip_forward));
-    if ($result ne "1\n") {
-        add_problem( $WARN,
-            "inline mode needs ip_forward enabled to work properly. " .
-            "Refer to the administration guide to enable ip_forward."
+sub inline_removed {
+    my $hint = "Inline enforcement has been removed from PacketFence, run addons/upgrade/to-16.0-remove-inline.pl to clean up your configuration.";
+
+    foreach my $section (sort keys %Config) {
+        next unless $section =~ /^interface (.+)$/;
+        my $int = $1;
+        my $enforcement = ref($Config{$section}) eq 'HASH' ? $Config{$section}{'enforcement'} : undef;
+        if (defined($enforcement) && $enforcement =~ /^inline/i) {
+            add_problem( $FATAL,
+                "pf.conf: interface $int uses the enforcement '$enforcement' but inline enforcement is no longer supported. $hint"
+            );
+        }
+    }
+
+    foreach my $network (sort keys %ConfigNetworks) {
+        my $type = $ConfigNetworks{$network}{'type'};
+        if (defined($type) && $type =~ /^inline/i) {
+            add_problem( $FATAL,
+                "networks.conf: network $network has the type '$type' but inline networks are no longer supported. $hint"
+            );
+        }
+    }
+
+    if (exists $Config{'inline'}) {
+        add_problem( $FATAL,
+            "pf.conf: the [inline] section is present but inline enforcement is no longer supported. $hint"
         );
+    }
+
+    require pf::ConfigStore::Switch;
+    my %switches_conf;
+    pf::ConfigStore::Switch->new->cachedConfig->toHash(\%switches_conf);
+    foreach my $section (sort keys %switches_conf) {
+        foreach my $param (sort grep { $_ =~ $SWITCH_INLINE_PARAM_RE } keys %{$switches_conf{$section}}) {
+            my $value = $switches_conf{$section}{$param};
+            next unless defined($value) && length($value);
+            add_problem( $FATAL,
+                "switches.conf: $section uses $param but inline enforcement is no longer supported. $hint"
+            );
+        }
     }
 }
 
@@ -628,7 +595,6 @@ Performs version checking of the extension points.
 sub extensions {
 
     my @extensions = (
-        { 'name' => 'Inline', 'module' => 'pf::inline::custom', 'api' => $INLINE_API_LEVEL, },
         { 'name' => 'Role', 'module' => 'pf::role::custom', 'api' => $ROLE_API_LEVEL, },
         { 'name' => 'RADIUS', 'module' => 'pf::radius::custom', 'api' => $RADIUS_API_LEVEL, },
         { 'name' => 'Roles', 'module' => 'pf::roles::custom', 'api' => $ROLES_API_LEVEL, },

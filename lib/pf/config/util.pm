@@ -26,7 +26,6 @@ use pf::config qw(
     $fqdn
     @routed_isolation_nets
     @routed_registration_nets
-    @inline_nets
     %connection_type
     $UNKNOWN
     $management_network
@@ -69,7 +68,7 @@ BEGIN {
     ip2interface ip2device
     pfmailer send_email get_all_internal_ips
     get_internal_nets get_routed_isolation_nets
-    get_routed_registration_nets get_inline_nets
+    get_routed_registration_nets
     get_internal_devs get_internal_devs_phy
     get_internal_macs get_internal_info
     get_translatable_time trappable_mac
@@ -79,7 +78,6 @@ BEGIN {
     get_captive_portal_uri
     get_send_email_config
     send_mime_lite
-    is_inline_configured
     strip_username_if_needed
   );
 }
@@ -319,24 +317,6 @@ sub get_routed_isolation_nets {
 sub get_routed_registration_nets {
     my @nets;
     foreach my $interface (@routed_registration_nets) {
-        push @nets, $interface->desc();
-    }
-    return (@nets);
-}
-
-=head2 is_inline_configured
-
-return the number of inline networks
-
-=cut
-
-sub is_inline_configured {
-    return scalar @inline_nets;
-}
-
-sub get_inline_nets {
-    my @nets;
-    foreach my $interface (@inline_nets) {
         push @nets, $interface->desc();
     }
     return (@nets);

@@ -54,7 +54,7 @@ iface ens7 inet dhcp
 
 allow-hotplug ens8
 iface ens8 inet dhcp
-    alias inline port
+    alias spare port
 
 EOT
 

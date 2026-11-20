@@ -67,9 +67,6 @@ const api = {
   getBaseGuestsAdminRegistration () {
     return apiCall({ url: 'config/base/guests_admin_registration', method: 'get' })
   },
-  getBaseInline () {
-    return apiCall({ url: 'config/base/inline', method: 'get' })
-  },
   getBaseMseTab () {
     return apiCall({ url: 'config/base/mse_tab', method: 'get' })
   },
@@ -299,8 +296,6 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     baseGeneralStatus: '',
     baseGuestsAdminRegistration: false,
     baseGuestsAdminRegistrationStatus: '',
-    baseInline: false,
-    baseInlineStatus: '',
     baseMseTab: false,
     baseMseTabStatus: '',
     baseNetwork: false,
@@ -481,9 +476,6 @@ const getters = {
   },
   isLoadingBaseGuestsAdminRegistration: state => {
     return state.baseGuestsAdminRegistrationStatus === types.LOADING
-  },
-  isLoadingBaseInline: state => {
-    return state.baseInlineStatus === types.LOADING
   },
   isLoadingBaseMseTab: state => {
     return state.baseMseTabStatus === types.LOADING
@@ -950,20 +942,6 @@ const actions = {
     } else {
       commit('BASE_GUESTS_ADMIN_REGISTRATION_UPDATED', {})
       return Promise.resolve(state.baseGuestsAdminRegistration)
-    }
-  },
-  getBaseInline: ({ state, getters, commit }) => {
-    if (getters.isLoadingBaseInline) {
-      return Promise.resolve(state.baseInline)
-    }
-    if (!state.baseInline) {
-      commit('BASE_INLINE_REQUEST')
-      return api.getBaseInline().then(response => {
-        commit('BASE_INLINE_UPDATED', response.data.item)
-        return state.baseInline
-      })
-    } else {
-      return Promise.resolve(state.baseInline)
     }
   },
   getBaseMseTab: ({ state, getters, commit }) => {
@@ -1942,13 +1920,6 @@ const mutations = {
   },
   BASE_GUESTS_ADMIN_REGISTRATION_DELETED: (state) => {
     state.baseGuestsAdminRegistration = false
-  },
-  BASE_INLINE_REQUEST: (state) => {
-    state.baseInlineStatus = types.LOADING
-  },
-  BASE_INLINE_UPDATED: (state, baseInline) => {
-    state.baseInline = baseInline
-    state.baseInlineStatus = types.SUCCESS
   },
   BASE_MSE_TAB_REQUEST: (state) => {
     state.baseMseTabStatus = types.LOADING

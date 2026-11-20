@@ -20,12 +20,6 @@ with qw(
 use File::Find qw(find);
 use File::Spec::Functions;
 
-use pf::config qw(
-    $PORT
-    $MAC
-    $SSID
-    $ALWAYS
-);
 use Cisco::AccessList::Parser;
 use pf::Switch::constants;
 use pf::constants::role qw(@ROLES);
@@ -253,50 +247,6 @@ has_field 'uplink' =>
    label => 'Uplinks',
    tags => { after_element => \&help,
              help => 'Comma-separated list of the switch uplinks' },
-  );
-
-## Inline mode
-has_field 'inlineTrigger' =>
-  (
-   type => 'Repeatable',
-   num_extra => 1, # add extra row that serves as a template
-  );
-has_field 'inlineTrigger.type' =>
-  (
-   type => 'Select',
-   widget_wrapper => 'None',
-   localize_labels => 1,
-   options_method => \&options_inlineTrigger,
-  );
-has_field 'inlineTrigger.value' =>
-  (
-   type => 'Hidden',
-  );
-has_field "${ALWAYS}_trigger" =>
-  (
-   type => 'Hidden',
-   default => 1,
-  );
-has_field "${PORT}_trigger" =>
-  (
-   type => 'PosInteger',
-   do_label => 0,
-   wrapper => 0,
-   element_class => ['input-mini'],
-  );
-has_field "${MAC}_trigger" =>
-  (
-   type => 'MACAddress',
-   do_label => 0,
-   wrapper => 0,
-   #element_class => ['span5'],
-  );
-has_field "${SSID}_trigger" =>
-  (
-   type => 'Text',
-   do_label => 0,
-   wrapper => 0,
-   #element_class => ['span5'],
   );
 
 has_field 'radiusSecret' =>
@@ -706,18 +656,6 @@ sub options_roles {
 
 =head1 METHODS
 
-=head2 options_inlineTrigger
-
-=cut
-
-sub options_inlineTrigger {
-    my $self = shift;
-
-    my @triggers = map { $_ => $self->_localize($_) } ($ALWAYS, $PORT, $MAC, $SSID);
-
-    return @triggers;
-}
-
 =head2 update_fields
 
 When editing the default switch, set as required the VLANs mapping of the base roles.
@@ -872,12 +810,6 @@ sub options_ACLs {
 
 =head2 validate
 
-If one of the inline triggers is $ALWAYS, ignore any other trigger.
-
-Make sure the selected switch type supports the selected inline triggers.
-
-Validate the MAC address format of the inline triggers.
-
 Validate the list of uplink ports.
 
 =cut
@@ -889,28 +821,10 @@ sub validate {
     tie my %TemplateSwitches, 'pfconfig::cached_hash', 'config::TemplateSwitches';
     my $value = $self->value;
 
-    my @triggers;
-    my $always = any { $_->{type} eq $ALWAYS } @{$value->{inlineTrigger}};
     my $type = $value->{type};
     if ($type) {
         my $switch = $self->getSwitch();
         if ($switch) {
-            @triggers = map { $_->{type} } @{$value->{inlineTrigger}};
-            if ( @triggers && !$always) {
-                # Make sure the selected switch type supports the selected inline triggers.
-                my %capabilities;
-                @capabilities{$switch->inlineCapabilities()} = ();
-                if (keys %capabilities) {
-                    my @unsupported = grep {!exists $capabilities{$_} } @triggers;
-                    if (@unsupported) {
-                        $self->field('type')->add_error("The chosen type doesn't support the following trigger(s): "
-                                                        . join(', ', @unsupported));
-                    }
-                } else {
-                    $self->field('type')->add_error("The chosen type doesn't support inline mode.");
-                }
-            }
-
             my $warnings = $switch->checkRolesACLs(\%ConfigRoles);
             if (defined $warnings) {
                 $self->add_pf_warning(@$warnings);
@@ -935,17 +849,6 @@ sub validate {
         }
         my $type = $group->{type} // $default->{type};
         $self->validateFqdnId($value->{id}, $type);
-    }
-
-    unless ($self->has_errors) {
-        # Valide the MAC address format of the inline triggers.
-        @triggers = grep { $_->{type} eq $MAC } @{$value->{inlineTrigger}};
-        foreach my $trigger (@triggers) {
-            unless (valid_mac($trigger->{value})) {
-                $self->field('inlineTrigger')->add_error("Verify the format of the MAC address(es).");
-                last;
-            }
-        }
     }
 
     # Temporarily disabled as new admin sends uplink_dynamic as undef which has this evaluated everytime although the inherited value might be 'dynamic'

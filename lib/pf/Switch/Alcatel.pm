@@ -66,8 +66,6 @@ use pf::SwitchSupports qw(
 );
 
 sub isVoIPEnabled { return $_[0]->{_VoIPEnabled} }
-# inline capabilities
-sub inlineCapabilities { return ($MAC,$PORT); }
 
 =head2 getVoipVsa
 

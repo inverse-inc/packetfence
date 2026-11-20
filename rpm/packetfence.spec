@@ -114,8 +114,6 @@ Requires: perl(Crypt::PBKDF2), perl(Digest::SHA3)
 Requires: perl(Const::Fast)
 # Perl core modules but still explicitly defined just in case distro's core perl get stripped
 Requires: perl(Time::HiRes)
-# Required for inline mode.
-#Requires: ipset = 6.38, ipset-symlink
 Requires: ipt-netflow >= 2.4, dkms-ipt-netflow >= 2.4
 Requires: sudo
 Requires: perl(File::Which), perl(NetAddr::IP)
@@ -1406,7 +1404,6 @@ fi
                         /usr/local/pf/lib/pfconfig/*
 %config(noreplace)      /usr/local/pf/lib/pf/billing/custom_hook.pm
 %config(noreplace)      /usr/local/pf/lib/pf/floatingdevice/custom.pm
-%config(noreplace)      /usr/local/pf/lib/pf/inline/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/lookup/node.pm
 %config(noreplace)      /usr/local/pf/lib/pf/lookup/person.pm
 %dir                    /usr/local/pf/lib/pf/cmd

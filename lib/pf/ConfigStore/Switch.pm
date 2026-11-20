@@ -105,11 +105,6 @@ sub cleanupAfterRead {
     } elsif (defined $switch->{uplink_dynamic} && $switch->{uplink_dynamic} eq '0') {
         $switch->{uplink_dynamic} = undef;
     }
-    $self->expand_list( $switch, 'inlineTrigger' );
-    if ( exists $switch->{inlineTrigger} ) {
-        $switch->{inlineTrigger} =
-          [ map { _splitInlineTrigger($_) } @{ $switch->{inlineTrigger} } ];
-    }
 
     _expandMapping($switch);
 }
@@ -164,12 +159,6 @@ sub _expandMapping {
 
 }
 
-sub _splitInlineTrigger {
-    my ($trigger) = @_;
-    my ( $type, $value ) = split( /::/, $trigger );
-    return { type => $type, value => $value };
-}
-
 =item cleanupBeforeCommit
 
 Clean data before update or creating
@@ -179,7 +168,6 @@ Clean data before update or creating
 sub cleanupBeforeCommit {
     my ( $self, $id, $switch ) = @_;
     $self->_normalizeUplink($switch);
-    $self->_normalizeInlineTrigger($switch);
     _flattenRoleMappings($switch);
     _deleteRoleMappings($switch);
 }
@@ -240,28 +228,6 @@ sub parentSections {
     }
 
     return @parents, $self->SUPER::parentSections($id, $item);
-}
-
-=head2 _normalizeInlineTrigger
-
-_normalizeInlineTrigger
-
-=cut
-
-sub _normalizeInlineTrigger {
-    my ($self, $switch) = @_;
-    if ( exists $switch->{inlineTrigger} ) {
-
-        # Build string definition for inline triggers (see pf::role::isInlineTrigger)
-        my $has_always;
-        my @triggers = map {
-            $has_always = 1 if $_->{type} eq 'always';
-            $_->{type} . '::' . ( $_->{value} || '1' )
-        } @{ $switch->{inlineTrigger} };
-        @triggers = ('always::1') if $has_always;
-        $switch->{inlineTrigger} = join( ',', @triggers );
-    }
-    return ;
 }
 
 =item remove

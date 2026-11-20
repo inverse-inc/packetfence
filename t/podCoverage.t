@@ -23,7 +23,6 @@ pod_coverage_ok("pf::enforcement");
 pod_coverage_ok("pf::floatingdevice");
 pod_coverage_ok("pf::freeradius");
 pod_coverage_ok("pf::import");
-pod_coverage_ok("pf::inline");
 pod_coverage_ok("pf::radius");
 pod_coverage_ok("pf::services::apache");
 pod_coverage_ok("pf::services::dhcpd");

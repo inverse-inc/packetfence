@@ -24,17 +24,13 @@ use pf::constants;
 use pf::constants::dhcp qw($DEFAULT_LEASE_LENGTH);
 use pf::constants::IP qw($IPV4);
 use pf::config qw(
-    $INLINE_API_LEVEL
     %ConfigNetworks
     %Config
-    @inline_nets
     $NO_VOIP
     $NO_PORT
     %connection_type_to_str
-    $INLINE
 );
 use pf::db;
-use pf::inline::custom $INLINE_API_LEVEL;
 use pf::ip4log;
 use pf::lookup::node;
 use pf::node;
@@ -65,15 +61,12 @@ has 'src_mac' => ('is' => 'ro');
 has 'dest_mac' => ('is' => 'ro');
 has 'src_ip' => ('is' => 'ro');
 has 'dest_ip' => ('is' => 'ro');
-has 'is_inline_vlan' => ('is' => 'ro');
 has 'interface' => ('is' => 'ro');
 has 'interface_ip' => ('is' => 'ro');
 has 'interface_vlan' => ('is' => 'ro');
 has 'net_type' => ('is' => 'ro');
-has 'inline_sub_connection_type' => ('is' => 'ro');
 has 'dhcp' => ('is' => 'ro');
 
-has 'accessControl' => (is => 'ro', builder => '_build_accessControl');
 has 'dhcp_networks' => (is => 'ro', builder => '_build_DHCP_networks');
 has 'managed_networks' => (is => 'ro', builder => '_build_managed_networks');
 
@@ -113,9 +106,6 @@ Create a new DHCP processor
 #    my $self = bless {}, $class;
 #    foreach my $attr (keys %argv){
 #        $self->{$attr} = $argv{$attr};
-#    }
-#    if($self->{is_inline_vlan}){
-#        $self->{accessControl} = new pf::inline::custom();
 #    }
 #    $self->apiClient = pf::client::getClient();
 #    $self->_build_DHCP_networks();
@@ -166,11 +156,6 @@ sub _build_managed_networks {
     }
 
     return \@managed_networks;
-}
-
-sub _build_accessControl {
-    my ( $self ) = @_;
-    return new pf::inline::custom();
 }
 
 =head2 _get_redis_client
@@ -461,11 +446,6 @@ sub parse_dhcp_ack {
         isenabled $Config{network}{force_listener_update_on_ack} ){
         $self->processIPTasks( (client_mac => $client_mac, client_ip => $client_ip, lease_length => $lease_length, is_dhcp => $is_dhcp) );
         $self->apiClient->notify('update_switch_role_network', ( mac => $client_mac, ip => $client_ip, mask => $client_mask, lease_length => $lease_length) ) unless (isdisabled($Config{'network'}{'learn_network_cidr_by_role'}));
-        if ($self->{is_inline_vlan}) {
-            $self->apiClient->notify('synchronize_locationlog',$self->{interface_ip},$self->{interface_ip},undef, $NO_PORT, $self->{interface_vlan}, $dhcp->{'chaddr'}, $NO_VOIP, $INLINE, $self->{inline_sub_connection_type});
-            $self->{accessControl}->performInlineEnforcement($dhcp->{'chaddr'});
-        }
-
     }
     else {
         $logger->debug("Not acting on DHCPACK");

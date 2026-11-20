@@ -120,10 +120,6 @@ is($new->{voiceVlan}, $oldVoiceVlan, "delete inherited values");
                 'controller_role' => 'restricted'
             },
             {
-                'role'            => 'inline',
-                'controller_role' => 'inline'
-            },
-            {
                 'role'            => 'isolation',
                 'controller_role' => ''
             },
@@ -153,10 +149,6 @@ is($new->{voiceVlan}, $oldVoiceVlan, "delete inherited values");
             {
                 'role'            => 'guest',
                 'controller_role' => 'restricted'
-            },
-            {
-                'role'            => 'inline',
-                'controller_role' => 'inline'
             },
             {
                 'role'            => 'isolation',
@@ -191,10 +183,6 @@ is($new->{voiceVlan}, $oldVoiceVlan, "delete inherited values");
                     'controller_role' => 'restricted'
                 },
                 {
-                    'role'            => 'inline',
-                    'controller_role' => 'inline'
-                },
-                {
                     'role'            => 'isolation',
                     'controller_role' => ''
                 },
@@ -215,7 +203,6 @@ is($new->{voiceVlan}, $oldVoiceVlan, "delete inherited values");
             voiceRole => 'voice',
             registrationRole => '',
             normalRole => '',
-            inlineRole => 'inline',
             guestRole => 'restricted',
             isolationRole => '',
         },
@@ -243,10 +230,6 @@ is($new->{voiceVlan}, $oldVoiceVlan, "delete inherited values");
             {
                 'role' => 'guest',
                 'vlan' => '5'
-            },
-            {
-                'role' => 'inline',
-                'vlan' => '6'
             },
             {
                 'role' => 'isolation',
@@ -295,10 +278,6 @@ is($new->{voiceVlan}, $oldVoiceVlan, "delete inherited values");
             {
                 'role' => 'guest',
                 'vlan' => '5'
-            },
-            {
-                'role' => 'inline',
-                'vlan' => '6'
             },
             {
                 'role' => 'isolation',

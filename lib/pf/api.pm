@@ -40,7 +40,6 @@ use pf::security_event();
 use pf::util();
 use pf::node();
 use pf::locationlog();
-use pf::ipset();
 use pfconfig::util;
 use pfconfig::manager;
 use pfconfig::cached_hash;
@@ -347,12 +346,6 @@ sub close_iplog : Public {
     return (pf::ip4log::close($ip));
 }
 
-sub ipset_node_update : Public {
-    my ( $class, $oldip, $srcip, $srcmac ) = @_;
-
-    return(pf::ipset->update_node($oldip, $srcip, $srcmac));
-}
-
 sub firewallsso : Public {
     my ( $class, %postdata ) = @_;
     my @require = qw(method mac ip timeout);
@@ -464,19 +457,6 @@ sub desAssociate_in_queue : Public {
     my ($class, $postdata )  = @_;
     my $client = pf::api::queue->new(queue => 'priority');
     $client->notify( 'desAssociate', $postdata );
-}
-
-
-sub firewall : Public {
-    my ($class, %postdata )  = @_;
-    my @require = qw(mac);
-    my @found = grep {exists $postdata{$_}} @require;
-    return unless pf::util::validate_argv(\@require,  \@found);
-
-
-    # verify if firewall rule is ok
-    my $inline = new pf::inline::custom();
-    $inline->performInlineEnforcement($postdata{'mac'});
 }
 
 
@@ -1371,7 +1351,7 @@ The UDP payload must be base 64 encoded.
 
 sub process_dhcpv4 : Public {
     my ($class, %postdata) = @_;
-    my @require = qw(src_mac src_ip dest_mac dest_ip is_inline_vlan interface interface_ip interface_vlan net_type);
+    my @require = qw(src_mac src_ip dest_mac dest_ip interface interface_ip interface_vlan net_type);
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,\@found);
 
@@ -1406,9 +1386,8 @@ which relays it over the webservices JSON-RPC endpoint.
 
 Unlike pfdhcplistener, the collector has no listening interface, so it cannot
 provide the interface/VLAN context process_dhcpv4 normally receives. We
-synthesize it: collector-forwarded traffic is never inline (is_inline_vlan=0),
-which is the only code path that reads interface/interface_ip/interface_vlan;
-the remaining uses are log/statsd strings. net_type is set to 'internal' so
+synthesize it: interface/interface_ip/interface_vlan only appear in
+log/statsd strings, so they get safe sentinels. net_type is set to 'internal' so
 pf::util::is_prod_interface() returns false and DHCP packets do not trigger
 per-packet post-registration conformity scans (which is how pfdhcplistener
 behaved on a normal 'internal' capture interface).
@@ -1483,12 +1462,11 @@ sub process_dhcp_event : Public {
         dest_mac => $dhcp->{'dest_mac'},
         src_ip   => $dhcp->{'src_ip'},
         dest_ip  => $dhcp->{'dest_ip'},
-        # Collector-forwarded DHCP carries no interface/VLAN context. It is never
-        # inline, so interface/interface_ip/interface_vlan (only read in the
-        # inline branch and in log/statsd strings) get safe sentinels. net_type
+        # Collector-forwarded DHCP carries no interface/VLAN context, so
+        # interface/interface_ip/interface_vlan (only used in log/statsd
+        # strings) get safe sentinels. net_type
         # is 'internal' (not 'dhcp-listener') so is_prod_interface() is false and
         # DHCP traffic does not trigger per-packet post-registration scans.
-        is_inline_vlan => 0,
         interface      => 'dhcp-listener',
         interface_ip   => undef,
         interface_vlan => $pf::config::NO_VLAN,

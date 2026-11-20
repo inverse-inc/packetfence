@@ -1,7 +1,7 @@
 name: Stop iptables and crash-looping services (all nodes)
 testcases:
 # doc "Stop iptables (all servers)"; it also crash-loops pre-configuration
-# (get_inline_snat_interface FATALs while no mgmt interface is defined)
+# (it may FATAL while no mgmt interface is defined)
 - name: stop_iptables
   steps:
   - type: exec

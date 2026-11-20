@@ -33,7 +33,6 @@ use pf::constants qw($TRUE $FALSE);
 use pf::util;
 use pf::security_event;
 use pf::constants::scan qw($POST_SCAN_SECURITY_EVENT_ID);
-use pf::inline;
 use pf::Portal::Session;
 use pf::SwitchFactory;
 use pf::enforcement qw(reevaluate_access);
@@ -107,14 +106,11 @@ Handle release done through a form posted for web authentication
 
 sub handle_web_form_release {
     my ($self) = @_;
-    my $inline = pf::inline->new();
     my $node = $self->node_info;
     my $switch;
-    if (!($inline->isInlineIP($self->current_ip))) {
-        my $last_switch_id = $node->{last_switch};
-        if( defined $last_switch_id ) {
-            $switch = pf::SwitchFactory->instantiate($last_switch_id);
-        }
+    my $last_switch_id = $node->{last_switch};
+    if( defined $last_switch_id ) {
+        $switch = pf::SwitchFactory->instantiate($last_switch_id);
     }
     if (!$switch) {
         return $FALSE;

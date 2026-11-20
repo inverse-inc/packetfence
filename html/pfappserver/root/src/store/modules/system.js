@@ -62,7 +62,6 @@ const initialState = () => {
 
 const getters = {
   hostname: state => state.summary ? state.summary.hostname : state.hostname,
-  isInline: state => state.summary.is_inline_configured,
   isLoading: state => state.requestStatus === types.LOADING,
   readonlyMode: state => state.summary.readonly_mode,
   version: state => state.summary.version,

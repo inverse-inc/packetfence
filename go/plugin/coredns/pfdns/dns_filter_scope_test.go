@@ -4,8 +4,6 @@ import "testing"
 
 func TestDnsFilterScope(t *testing.T) {
 	for networkType, want := range map[string]string{
-		"inlinel2":                    "inline",
-		"inlinel3":                    "inline",
 		"vlan-isolation":              "isolation",
 		"vlan-registration":           "registration",
 		"vlan-registration,radius":    "registration",

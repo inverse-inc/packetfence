@@ -462,7 +462,6 @@ sub authorize {
     $args->{'node_info'}{'portal'} = $role->{'portal'} if (defined($role->{'portal'}) && $role->{'portal'} ne '');
     $info{source} = $args->{node_info}{source};
     $info{portal} = $args->{node_info}{portal};
-    $args->{'wasInline'} = $role->{wasInline};
     $args->{'user_role'} = $role->{role};
 
     my $switch_filter = pf::access_filter::switch->new;
@@ -478,13 +477,12 @@ sub authorize {
     $args->{'vlan'} = $vlan;
 
     #closes old locationlog entries and create a new one if required
-    #TODO: Better deal with INLINE RADIUS
     $switch->synchronize_locationlog($port, $vlan, $mac,
         $args->{'isPhone'} ? $VOIP : $NO_VOIP, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $args->{'user_role'}, $ifDesc, $teap_username, $teap_machinename
-    ) if ( (!$role->{wasInline}) && ($vlan ne "-1") );
+    ) if ( $vlan ne "-1" );
 
-    # does the switch support Dynamic VLAN Assignment, bypass if using Inline
-    if (!$switch->supportsRadiusDynamicVlanAssignment() && !$role->{wasInline}) {
+    # does the switch support Dynamic VLAN Assignment
+    if (!$switch->supportsRadiusDynamicVlanAssignment()) {
         $logger->info(
             "Switch doesn't support Dynamic VLAN assignment. " .
             "Setting VLAN with SNMP on ($switch_id) ifIndex $port to $vlan"

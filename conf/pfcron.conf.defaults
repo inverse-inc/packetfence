@@ -13,7 +13,7 @@ status=enabled
 # description
 #
 # The description of task
-description=Task that controls the inline accounting maintenance (bandwidth checks).
+description=Task that controls the accounting maintenance (bandwidth checks).
 #
 # schedule
 #

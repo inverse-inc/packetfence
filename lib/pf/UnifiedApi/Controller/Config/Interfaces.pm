@@ -32,13 +32,10 @@ my %FIELDS = (
     ipv6_prefix => undef,
     is_running => undef,
     master => undef,
-    nat_enabled => undef,
     networks => [],
     reg_network => undef,
-    split_network => undef,
     vip => undef,
     vlan => undef,
-    coa => undef,
 );
 
 my %FIELDS_TO_REMOVE_FROM_UPDATE = (

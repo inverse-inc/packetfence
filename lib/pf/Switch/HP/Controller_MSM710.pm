@@ -54,8 +54,6 @@ use pf::SwitchSupports qw(
     WirelessMacAuth
     Flow
 );
-# inline capabilities
-sub inlineCapabilities { return ($MAC,$SSID); }
 
 =item getVersion - obtain image version information from switch
 

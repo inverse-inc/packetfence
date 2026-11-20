@@ -54,8 +54,6 @@ use pf::SwitchSupports qw(
     WirelessDot1x
     WirelessMacAuth
 );
-# inline capabilities
-sub inlineCapabilities { return ($MAC,$SSID); }
 
 =item getVersion
 

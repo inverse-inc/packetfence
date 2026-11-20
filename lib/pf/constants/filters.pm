@@ -77,7 +77,6 @@ our @BASE_FIELDS = qw(
   username
   ssid
   vlan
-  wasInline
   user_role
   time
   action
@@ -159,7 +158,6 @@ our @SWITCH_FIELDS = qw(
   switch._deauthMethod
   switch._disconnectPort
   switch._id
-  switch._inlineTrigger
   switch._ip
   switch._macSearchesMaxNb
   switch._macSearchesSleepInterval

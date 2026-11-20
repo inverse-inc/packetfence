@@ -82,7 +82,6 @@ func TestNetworkCreation(t *testing.T) {
 			start:      net.IPv4(192, 168, 1, 100),
 			leaseRange: 50,
 		},
-		splittednet: false,
 	}
 
 	if network.network.String() != "192.168.1.0/24" {
@@ -90,9 +89,6 @@ func TestNetworkCreation(t *testing.T) {
 	}
 	if network.dhcpHandler == nil {
 		t.Error("Expected dhcpHandler to be set")
-	}
-	if network.splittednet {
-		t.Error("Expected splittednet to be false")
 	}
 }
 

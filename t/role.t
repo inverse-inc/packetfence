@@ -127,10 +127,10 @@ is($role, 'registration', "obtain registration role for the device");
 $role = $role_obj->filterVlan('RegistrationRole',{switch => $switch, IfIndex => '10000', mac => 'aa:bb:cc:dd:ee:ff', node_info => $node_attributes, connection_type => 'Wireless-802.11-NoEAP', username => 'pf', ssid => 'TEST'});
 is($role, 'registration2', "obtain registration role for the device");
 
-#($vlan,$wasInline) = $role_obj->getRegisteredRole($switch);
+#($vlan,$unused) = $role_obj->getRegisteredRole($switch);
 #is($vlan, 1, "obtain normalVlan on a switch with no normalVlan override");
 
-#($vlan,$wasInline) = $role_obj->getRegisteredRole($switch_vlan_override);
+#($vlan,$unused) = $role_obj->getRegisteredRole($switch_vlan_override);
 #is($vlan, 15, "obtain normalVlan on a switch with normalVlan override");
 
 # doWeActOnThisTrap tests

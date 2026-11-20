@@ -17,7 +17,6 @@ Utilities function for pfconfig
 use strict;
 use warnings;
 use base qw(Exporter);
-use pf::constants::config qw(%NET_INLINE_TYPES);
 use pf::util::networking qw(syswrite_all sysread_all read_data_with_length);
 use pfconfig::constants;
 use pfconfig::undef_element;
@@ -31,7 +30,6 @@ use pfconfig::config;
 use pf::k8s;
 
 our @EXPORT_OK = qw(
-    is_type_inline
     $undef_element
     normalize_namespace_query
 );
@@ -137,15 +135,6 @@ Returns the control file path for a namespace
 sub control_file_path {
     my ($namespace) = @_;
     return "$pfconfig::constants::CONTROL_FILE_DIR/" . $namespace . "-control";
-}
-
-=head2 is_type_inline
-
-=cut
-
-sub is_type_inline {
-    my ($type) = @_;
-    return exists $NET_INLINE_TYPES{$type};
 }
 
 =head2 normalize_namespace_query

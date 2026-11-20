@@ -327,14 +327,11 @@ networks:
 ----
   [DC1 CLUSTER network 192.168.11.0]
   dns=192.168.11.10
-  split_network=disabled
   dhcp_start=192.168.11.10
   gateway=192.168.11.10
   domain-name=vlan-registration.example.com
-  nat_enabled=disabled
   named=enabled
   dhcp_max_lease_time=30
-  fake_mac_enabled=disabled
   dhcpd=enabled
   dhcp_end=192.168.11.246
   type=vlan-registration
@@ -343,14 +340,11 @@ networks:
 
   [DC2 CLUSTER network 192.168.22.0]
   dns=192.168.22.10
-  split_network=disabled
   dhcp_start=192.168.22.10
   gateway=192.168.22.10
   domain-name=vlan-registration.example.com
-  nat_enabled=disabled
   named=enabled
   dhcp_max_lease_time=30
-  fake_mac_enabled=disabled
   dhcpd=enabled
   dhcp_end=192.168.22.246
   type=vlan-registration
@@ -369,11 +363,9 @@ parameters for the clients in both zones
   gateway=192.168.100.1
   dhcp_start=192.168.100.20
   domain-name=vlan-registration.example.com
-  nat_enabled=0
   named=enabled
   dhcp_max_lease_time=30
   dhcpd=enabled
-  fake_mac_enabled=disabled
   netmask=255.255.255.0
   type=vlan-registration
   dhcp_end=192.168.100.254

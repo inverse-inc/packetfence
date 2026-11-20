@@ -14,7 +14,7 @@ type Answer struct {
 	D     dhcp.Packet
 	IP    net.IP
 	MAC   net.HardwareAddr
-	SrcIP net.IP //Only for inline splitted network
+	SrcIP net.IP
 	DstIP string
 }
 

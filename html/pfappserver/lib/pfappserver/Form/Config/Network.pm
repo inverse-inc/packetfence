@@ -127,7 +127,7 @@ has_field 'dns' =>
    required_when => { 'dhcpd' => sub { $_[0] eq 'enabled' } },
    messages => { required => "Please specify the DNS server's IP address(es)." },
    tags => { after_element => \&help,
-             help => 'Should match the IP of a registration interface or the production DNS server(s) if the network is Inline L2/L3 (space delimited list of IP addresses)' },
+             help => 'Should match the IP of a registration interface or the production DNS server(s) (space delimited list of IP addresses)' },
   );
 
 has_field 'portal_fqdn' =>
@@ -138,15 +138,6 @@ has_field 'portal_fqdn' =>
    tags => { after_element => \&help,
              help => 'Define the FQDN of the portal for this network. Leaving empty will use the FQDN of the PacketFence server' },
   );
-
-has_field 'netflow_accounting_enabled' =>
-  (
-   type => 'Toggle',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
-   default => 'disabled',
-   label => 'Enable Net Flow Accounting'
-   );
 
 =head2 validate
 

@@ -105,7 +105,6 @@
 /usr/local/pf/conf/monitoring/netdata.conf
 /usr/local/pf/conf/fingerbank-collector.env.defaults
 /usr/local/pf/lib/pf/floatingdevice/custom.pm
-/usr/local/pf/lib/pf/inline/custom.pm
 /usr/local/pf/lib/pf/lookup/node.pm
 /usr/local/pf/lib/pf/lookup/person.pm
 /usr/local/pf/lib/pf/radius/custom.pm

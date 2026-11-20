@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;
+use Test::More tests => 9;
 use Test::MockModule;
 
 #This test will running last
@@ -61,6 +61,13 @@ $ip = '192.168.60.10';
 @warnings = ();
 pf::enforcement::reevaluate_access('00:11:22:33:44:55', 'manage_register');
 is_deeply(\@warnings, ["Can't re-evaluate access because no open locationlog entry was found"], 'other node without locationlog still warns');
+
+# Legacy inline locationlog entries (inline enforcement was removed) are skipped
+my $vlan_reevaluated = 0;
+$mock->mock('locationlog_view_open_mac', sub { { connection_type => 'Inline', switch_ip => '127.0.0.1' } });
+$mock->mock('_vlan_reevaluation', sub { $vlan_reevaluated++; 0 });
+is(pf::enforcement::reevaluate_access('00:11:22:33:44:55', 'manage_register'), 1, 'legacy Inline locationlog entry: no error');
+is($vlan_reevaluated, 0, 'legacy Inline locationlog entry is not VLAN re-evaluated');
 
 =head1 AUTHOR
 

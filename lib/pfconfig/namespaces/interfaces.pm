@@ -16,9 +16,7 @@ use strict;
 use warnings;
 
 use pf::log;
-use pf::constants::config qw(%NET_INLINE_TYPES);
 use pfconfig::namespaces::config::Pf;
-use pfconfig::util qw(is_type_inline);
 use pfconfig::objects::Net::Netmask;
 use Net::Interface;
 use Socket;
@@ -36,7 +34,6 @@ sub init {
         dhcplistener_ints       => [],
         ha_ints                 => [],
         internal_nets           => [],
-        inline_enforcement_nets => [],
         vlan_enforcement_nets   => [],
         portal_ints             => [],
         radius_ints             => [],
@@ -48,9 +45,9 @@ sub init {
     $self->{child_resources} = [
         'interfaces::listen_ints',             'interfaces::dhcplistener_ints',
         'interfaces::ha_ints',                 'interfaces::internal_nets',
-        'interfaces::inline_enforcement_nets', 'interfaces::vlan_enforcement_nets',
+        'interfaces::vlan_enforcement_nets',
         'interfaces::monitor_int',             'interfaces::management_network',
-        'interfaces::portal_ints',             'interfaces::inline_nets',
+        'interfaces::portal_ints',
         'interfaces::routed_isolation_nets',   'interfaces::routed_registration_nets',
         'interfaces::radius_ints',             'resource::network_config',
         'interfaces::dhcp_ints',               'interfaces::dns_ints',
@@ -114,9 +111,7 @@ sub build {
                 if ( $Config{$interface}{'enforcement'} eq $pf::constants::config::IF_ENFORCEMENT_VLAN ) {
                     push @{ $self->{_interfaces}->{vlan_enforcement_nets} }, $int_obj;
                 }
-                elsif ( is_type_inline( $Config{$interface}{'enforcement'} ) ) {
-                    push @{ $self->{_interfaces}->{inline_enforcement_nets} }, $int_obj;
-                }
+                # an interface with a leftover (removed) inline enforcement is in no enforcement list
                 if ( $int =~ m/(\w+):\d+/ ) {
                     $int = $1;
                 }

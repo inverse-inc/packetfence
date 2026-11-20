@@ -91,7 +91,6 @@
 #},
 #'switch' => {
 #    '_vlans' => {
-#        'inline' => '6',
 #        'isolation' => '2',
 #        'normal' => '1',
 #        'default' => '1',
@@ -101,7 +100,6 @@
 #    '_portalURL' => 'http://192.168.1.2',
 #    ....
 #},
-#'wasInline' => 0,
 #...
 #
 # Then PacketFence will evaluate the answer.3 to Cisco-AVPair = url-redirect-acl=default;url-redirect=http://192.168.1.2/cepab23bc
@@ -212,7 +210,6 @@
 #     username
 #     ssid
 #     vlan
-#     wasInline
 #     user_role
 #     radius_request
 #     security_event
@@ -249,7 +246,6 @@
 #    Ethernet-EAP
 #    Ethernet-NoEAP
 #    SNMP-Traps
-#    Inline
 #    Ethernet-NoEAP
 #
 #
