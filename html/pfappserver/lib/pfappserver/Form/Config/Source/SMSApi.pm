@@ -72,6 +72,8 @@ has_field 'api_key' => (
 has_field 'timeout' => (
     type         => 'PosInteger',
     label        => 'Timeout',
+    # 0 would make LWP wait forever on an unresponsive gateway
+    range_start  => 1,
     element_attr => {
         placeholder => $META->get_attribute('timeout')->default,
     },

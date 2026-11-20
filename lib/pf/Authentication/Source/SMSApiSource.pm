@@ -137,7 +137,10 @@ sub sendSMS {
 
     # Never follow redirects: the apiKey is in the query string and would be
     # re-sent to wherever the gateway points (possibly over plain http)
-    my $ua = LWP::UserAgent->new(timeout => $self->timeout, max_redirect => 0);
+    # A timeout below 1 (hand edited configuration) would make LWP wait forever
+    my $timeout = $self->timeout;
+    $timeout = $self->meta->get_attribute('timeout')->default unless defined $timeout && $timeout >= 1;
+    my $ua = LWP::UserAgent->new(timeout => $timeout, max_redirect => 0);
     my $response = $ua->get($uri);
 
     unless($response->is_success) {

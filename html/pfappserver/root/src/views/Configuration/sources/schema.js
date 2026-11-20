@@ -108,6 +108,7 @@ export const schema = (props) => {
     paypal_cert_file_upload,
     sp_cert_path_upload,
     sp_key_path_upload,
+    type,
   } = form || {}
 
   return yup.object({
@@ -128,7 +129,7 @@ export const schema = (props) => {
     api_protocol: yup.string().nullable().label(i18n.t('API Protocol')),
     api_url: yup.string().nullable().label(i18n.t('API URL'))
       .required(i18n.t('API URL required.'))
-      .matches(/^(?![a-z][a-z0-9+.-]*:\/\/)[^/?#\s]+\S*$/i,i18n.t('Invalid URL, must not include the protocol.')),
+      .matches(/^(?![a-z][a-z0-9+.-]*:\/\/)(?:[^@/?#\s]*@)?(?:\[[0-9a-f:.]+\]|[^:/?#@[\]\s]+)(?::\d{1,5})?(?:[/?#]\S*)?$/i,i18n.t('Invalid URL, must be a host (with an optional numeric port) and path, without the protocol.')),
     api_login_id: yup.string().label(i18n.t('ID')),
     auth_token: yup.string().label(i18n.t('Token')),
     authenticate_realm: yup.string().label(i18n.t('Realm')),
@@ -231,6 +232,13 @@ export const schema = (props) => {
       }),
     tenant_id: yup.string().label(i18n.t('Tenant ID')),
     terminal_id: yup.string().label(i18n.t('ID')),
+    ...((type === 'SMSApi')
+      ? {
+        timeout: yup.string().nullable().label(i18n.t('Timeout'))
+          .matches(/^([1-9]\d*)?$/, i18n.t('Timeout must be at least 1 second.'))
+      }
+      : {}
+    ),
     transaction_key: yup.string().label(i18n.t('Key')),
     twilio_phone_number: yup.string().label(i18n.t('Phone')),
     user_header: yup.string().label(i18n.t('Header')),

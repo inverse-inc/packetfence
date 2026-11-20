@@ -21,6 +21,7 @@ use pf::IniFiles;
 use pf::file_paths qw($portal_modules_config_file);
 
 our $SMSAPI_CLASS = 'pf::Authentication::Source::SMSApiSource';
+our $SMSSOURCE_CLASS = 'pf::Authentication::Source::SMSSource';
 our %SMS_CLASSES = map { ("pf::Authentication::Source::${_}Source" => undef) } qw(SMS Twilio Clickatell);
 
 main() if not caller();
@@ -40,23 +41,27 @@ sub main {
 =head2 addSMSApiSource
 
 Returns the updated config and the list of updated sections, or (undef, undef)
-when nothing needs to change
+when nothing needs to change or the file doesn't exist
 
 =cut
 
 sub addSMSApiSource {
     my ($file) = @_;
+    return (undef, undef) unless -e $file;
     my $cs = pf::IniFiles->new(-file => $file, -allowempty => 1);
+    return (undef, undef) unless $cs;
     my @updated;
     for my $section ( grep {/^\S+$/} $cs->Sections() ) {
         next unless $cs->exists($section, 'multi_source_object_classes');
         my $list = $cs->val($section, 'multi_source_object_classes') // '';
         my @classes = grep { length } split(/\s*,\s*/, $list);
         next if grep { $_ eq $SMSAPI_CLASS } @classes;
-        my ($last_sms) = grep { exists $SMS_CLASSES{$classes[$_]} } reverse 0..$#classes;
-        next unless defined $last_sms;
-        # Insert right after the last SMS source class, like the shipped default
-        splice(@classes, $last_sms + 1, 0, $SMSAPI_CLASS);
+        # Insert right after SMSSource like the shipped default,
+        # or after the last SMS source class when SMSSource isn't listed
+        my ($after) = grep { $classes[$_] eq $SMSSOURCE_CLASS } 0..$#classes;
+        ($after) = grep { exists $SMS_CLASSES{$classes[$_]} } reverse 0..$#classes unless defined $after;
+        next unless defined $after;
+        splice(@classes, $after + 1, 0, $SMSAPI_CLASS);
         $cs->setval($section, 'multi_source_object_classes', join(",", @classes));
         push @updated, $section;
     }

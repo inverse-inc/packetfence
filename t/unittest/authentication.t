@@ -24,7 +24,7 @@ use Date::Parse;
 use Test::MockModule;
 use HTTP::Response;
 
-use Test::More tests => 85;                      # last test to print
+use Test::More tests => 87;                      # last test to print
 
 use Test::NoWarnings;
 
@@ -603,7 +603,7 @@ is_deeply(
         my $mock = Test::MockModule->new('LWP::UserAgent');
         $mock->mock(get => sub {
             my ($ua, $uri) = @_;
-            push @requests, { uri => "$uri", max_redirect => $ua->max_redirect };
+            push @requests, { uri => "$uri", max_redirect => $ua->max_redirect, timeout => $ua->timeout };
             return HTTP::Response->new(200, 'OK');
         });
         $source->api_url('sms.example.com/send?foo=bar');
@@ -615,6 +615,10 @@ is_deeply(
             "SMSApi query is encoded like Clickatell and merged into the configured query"
         );
         is($requests[0]{max_redirect}, 0, "SMSApi source does not follow redirects");
+        is($requests[0]{timeout}, 10, "SMSApi source uses the configured timeout");
+        $source->timeout(0);
+        $source->sendSMS({ to => '1', message => 'x' });
+        is($requests[1]{timeout}, 10, "SMSApi source falls back to the default timeout when it is below 1");
     }
     $source->api_url('data://hello');
     ok(

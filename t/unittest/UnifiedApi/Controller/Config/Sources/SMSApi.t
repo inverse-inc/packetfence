@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 26;
+use Test::More tests => 28;
 
 #This test will running last
 use Test::NoWarnings;
@@ -93,6 +93,14 @@ $t->patch_ok("$base_url/$id1" =>
     }
   )
   ->status_is(422, "api_protocol 'ftp' is rejected")
+  ;
+
+$t->patch_ok("$base_url/$id1" =>
+    json => {
+        timeout => 0,
+    }
+  )
+  ->status_is(422, "timeout 0 is rejected")
   ;
 
 $t->get_ok("$base_url/$id1")

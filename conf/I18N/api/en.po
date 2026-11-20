@@ -8845,8 +8845,8 @@ msgstr ""
 msgid "Invalid OUI."
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/sources/schema.js:131
-msgid "Invalid URL, must not include the protocol."
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:132
+msgid "Invalid URL, must be a host (with an optional numeric port) and path, without the protocol."
 msgstr ""
 
 #: html/pfappserver/root/src/utils/yup.js:497
@@ -18126,6 +18126,10 @@ msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeSMSApi.vue:33
 msgid "Timeout in seconds of the HTTP request to the SMS gateway."
+msgstr ""
+
+#: html/pfappserver/root/src/views/Configuration/sources/schema.js:238
+msgid "Timeout must be at least 1 second."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/discoverNetworkDevices/_components/TheForm.vue:242

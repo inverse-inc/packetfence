@@ -21,7 +21,7 @@ BEGIN {
 }
 use pf::file_paths qw($install_dir);
 require "$install_dir/addons/upgrade/to-16.0-add-smsapi-source-to-portal-modules.pl";
-use Test::More tests => 8;
+use Test::More tests => 11;
 
 #This test will running last
 use Test::NoWarnings;
@@ -29,11 +29,16 @@ use Test::NoWarnings;
 {
     my ($cs, $updated) = addSMSApiSource("$install_dir/t/data/update-16.0/portal_modules.conf");
     ok($cs, "portal modules updated");
-    is_deeply($updated, [qw(default_guest_policy sms_only)], "Only the sections listing an SMS source without SMSApi are updated");
+    is_deeply($updated, [qw(default_guest_policy sms_only twilio_clickatell)], "Only the sections listing an SMS source without SMSApi are updated");
     is(
         $cs->val('default_guest_policy', 'multi_source_object_classes'),
-        'pf::Authentication::Source::ClickatellSource,pf::Authentication::Source::EmailSource,pf::Authentication::Source::SMSSource,pf::Authentication::Source::TwilioSource,pf::Authentication::Source::SMSApiSource,pf::Authentication::Source::SponsorEmailSource,pf::Authentication::Source::NullSource',
-        "SMSApiSource is inserted after the last SMS source class"
+        'pf::Authentication::Source::ClickatellSource,pf::Authentication::Source::EmailSource,pf::Authentication::Source::SMSSource,pf::Authentication::Source::SMSApiSource,pf::Authentication::Source::TwilioSource,pf::Authentication::Source::SponsorEmailSource,pf::Authentication::Source::NullSource',
+        "SMSApiSource is inserted right after SMSSource, like the shipped default"
+    );
+    is(
+        $cs->val('twilio_clickatell', 'multi_source_object_classes'),
+        'pf::Authentication::Source::TwilioSource,pf::Authentication::Source::ClickatellSource,pf::Authentication::Source::SMSApiSource,pf::Authentication::Source::EmailSource',
+        "Without SMSSource, SMSApiSource is inserted after the last SMS source class"
     );
     is(
         $cs->val('sms_only', 'multi_source_object_classes'),
@@ -51,6 +56,12 @@ use Test::NoWarnings;
     my ($cs, $updated) = addSMSApiSource("$install_dir/t/data/update-16.0/portal_modules_nothing_to_be_done.conf");
     is($cs, undef, "Nothing to do");
     is($updated, undef, "Nothing updated");
+}
+
+{
+    my ($cs, $updated) = addSMSApiSource("$install_dir/t/data/update-16.0/does-not-exist.conf");
+    is($cs, undef, "Missing file: nothing to do");
+    is($updated, undef, "Missing file: nothing updated");
 }
 
 =head1 AUTHOR
