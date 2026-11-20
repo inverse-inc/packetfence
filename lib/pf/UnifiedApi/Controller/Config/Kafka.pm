@@ -445,8 +445,10 @@ sub update {
         return $self->render(status => $status, json => $new_data);
     }
 
-    # PATCH: only the settings in the request are updated
-    $new_data = { map { ($_ => $new_data->{$_}) } grep { exists $new_data->{$_} } keys %$data };
+    # PATCH: only the settings in the request are updated. Each setting is
+    # replaced as a whole (e.g. {"iptables":{...}} replaces the whole iptables
+    # section). A null value is treated as a no-op for that setting.
+    $new_data = { map { ($_ => $new_data->{$_}) } grep { defined $new_data->{$_} } keys %$data };
     if ($self->save_in_config_store($new_data)) {
         $self->render(status => 200, json => {});
     }
