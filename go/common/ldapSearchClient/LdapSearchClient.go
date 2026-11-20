@@ -45,9 +45,9 @@ var (
 )
 
 func (sc LdapSearchClient) SearchLdap(query *SearchQuery) (map[string]map[string]interface{}, error) {
-	conn := sc.connect()
+	conn, lastErr := sc.connect()
 	if conn == nil {
-		return nil, errors.New("failed to connect to the LDAP server")
+		return nil, fmt.Errorf("failed to connect to the LDAP server: %w", lastErr)
 	}
 
 	defer conn.Close()
@@ -99,50 +99,65 @@ func (sc LdapSearchClient) searchRequestFromSearchQuery(query *SearchQuery) (*ld
 	}, nil
 }
 
-func (sc LdapSearchClient) connect() ldapClient.ILdapConnection {
+func (sc LdapSearchClient) connect() (ldapClient.ILdapConnection, error) {
 	ctx := log.LoggerNewContext(context.Background())
 	sources := sc.LdapServer.Host
 	sslEnabled := sc.LdapServer.Encryption == "ssl"
 	tlsEnabled := sc.LdapServer.Encryption == "starttls"
+	var lastErr error
 
 	for _, src := range sources {
 		serverSocketAddress := fmt.Sprintf("%s:%s", src, sc.LdapServer.Port)
+		var tlsConfig *tls.Config
+		if sslEnabled || tlsEnabled {
+			var err error
+			tlsConfig, err = ldapClient.TLSConfig(sc.LdapServer.AuthenticationSourceLdap, src)
+			if err != nil {
+				log.LogWarn(ctx, "Invalid TLS settings for the LDAP source: "+err.Error())
+				lastErr = err
+				continue
+			}
+		}
 		ldapClient := sc.LdapClientFactory.NewLdapClient("tcp", serverSocketAddress, sc.Timeout)
-		conn, err := sc.checkConnection(serverSocketAddress, sslEnabled, ldapClient)
+		conn, err := sc.checkConnection(serverSocketAddress, sslEnabled, ldapClient, tlsConfig)
 
 		if err != nil {
-			log.LogInfo(ctx, "Failed to connect to the LDAP server: "+err.Error())
+			log.LogWarn(ctx, "Failed to connect to the LDAP server: "+err.Error())
+			lastErr = err
 			continue
 		}
 
 		if tlsEnabled {
 			//TODO this uses the exact same port. what about negotiation? we need 2 ports? 389 and 636? was this tested?
-			err = conn.StartTLS(&tls.Config{InsecureSkipVerify: true})
+			err = conn.StartTLS(tlsConfig)
 		}
 
 		if err != nil {
-			log.LogInfo(ctx, "Failed to re-connect to an LDAP server using TLS: "+err.Error())
+			log.LogWarn(ctx, "Failed to re-connect to an LDAP server using TLS: "+err.Error())
 			conn.Close()
+			lastErr = err
 			continue
 		}
 
 		if err = conn.Bind(sc.LdapServer.BindDN, sc.LdapServer.Password.String()); err != nil {
-			log.LogInfo(ctx, "Failed to authenticate to an LDAP server: "+err.Error())
+			log.LogWarn(ctx, "Failed to authenticate to an LDAP server: "+err.Error())
 			conn.Close()
+			lastErr = err
 			continue
 		}
 
-		return conn
+		return conn, nil
 	}
 
-	return nil
+	if lastErr == nil {
+		lastErr = errors.New("no LDAP servers configured")
+	}
+	return nil, lastErr
 }
 
-func (sc LdapSearchClient) checkConnection(serverSocketAddress string, sslEnabled bool, ldapClient ldapClient.ILdapClient) (conn ldapClient.ILdapConnection, err error) {
+func (sc LdapSearchClient) checkConnection(serverSocketAddress string, sslEnabled bool, ldapClient ldapClient.ILdapClient, tlsConfig *tls.Config) (conn ldapClient.ILdapConnection, err error) {
 	if sslEnabled {
-		conn, err = ldapClient.DialTLS(&tls.Config{
-			InsecureSkipVerify: true,
-		})
+		conn, err = ldapClient.DialTLS(tlsConfig)
 	} else {
 		conn, err = ldapClient.Dial()
 	}
