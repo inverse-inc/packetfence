@@ -26,7 +26,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/chisel/share/ccrypto"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cio"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cnet"
-	"github.com/inverse-inc/packetfence/go/chisel/share/connauth"
+	"github.com/inverse-inc/packetfence/go/connector/connauth"
 	"github.com/inverse-inc/packetfence/go/chisel/share/dhcprelay"
 	"github.com/inverse-inc/packetfence/go/chisel/share/dnsresponder"
 	"github.com/inverse-inc/packetfence/go/chisel/share/settings"

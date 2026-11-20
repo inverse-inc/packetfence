@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/inverse-inc/packetfence/go/chisel/share/connauth"
+	"github.com/inverse-inc/packetfence/go/connector/connauth"
 )
 
 // The master relays a whitelisted tunnel API call for a backup: the request

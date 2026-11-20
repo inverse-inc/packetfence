@@ -10,7 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/inverse-inc/go-utils/log"
-	"github.com/inverse-inc/packetfence/go/chisel/share/connauth"
+	"github.com/inverse-inc/packetfence/go/connector/connauth"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	"github.com/redis/go-redis/v9"
@@ -49,7 +49,8 @@ func (c *Connector) init() error {
 
 func (c *Connector) connectorServerApiClient(ctx context.Context) (*unifiedapiclient.Client, error) {
 	ctx = context.Background()
-	res := redisClient.Get(ctx, fmt.Sprintf("%s%s", redisTunnelsNamespace, c.PfconfigHashNS))
+	tunnels, namespace := tunnelsRedis()
+	res := tunnels.Get(ctx, fmt.Sprintf("%s%s", namespace, c.PfconfigHashNS))
 	client := unifiedapiclient.NewFromConfig(ctx)
 	if s, err := res.Result(); err != nil && err != redis.Nil {
 		err := fmt.Errorf("Unable to find active tunnel %s via Redis: %s", c.PfconfigHashNS, err)

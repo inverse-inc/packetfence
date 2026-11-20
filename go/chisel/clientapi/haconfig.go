@@ -16,7 +16,7 @@ import (
 	"time"
 
 	"github.com/inverse-inc/go-utils/log"
-	"github.com/inverse-inc/packetfence/go/chisel/share/connauth"
+	"github.com/inverse-inc/packetfence/go/connector/connauth"
 )
 
 // Configuration relay for the HA backups (docs/design/pfconnector-remote-ha.md,

@@ -263,7 +263,7 @@ func ReadUptime(ctx context.Context, connectorID, window string, now time.Time) 
 	start := end.Add(-w.Length)
 
 	var since *time.Time
-	if v, err := redisClient.Get(ctx, uptimeSinceKeyPrefix+connectorID).Int64(); err == nil {
+	if v, err := tunnelsRedisClient().Get(ctx, uptimeSinceKeyPrefix+connectorID).Int64(); err == nil {
 		t := time.Unix(v, 0).UTC()
 		since = &t
 	} else if err != redis.Nil {
@@ -278,7 +278,7 @@ func ReadUptime(ctx context.Context, connectorID, window string, now time.Time) 
 	for _, d := range days {
 		keys = append(keys, uptimeDayKey(uptimeKeyPrefix+connectorID+":", d), uptimeDayKey(uptimeServerKeyPrefix, d))
 	}
-	values, err := redisClient.MGet(ctx, keys...).Result()
+	values, err := tunnelsRedisClient().MGet(ctx, keys...).Result()
 	if err != nil {
 		return nil, err
 	}
@@ -368,7 +368,7 @@ func computeUptime(start, end time.Time, bucket time.Duration, since *time.Time,
 
 // readHostsUptime reads the history of the hosts of an HA connector.
 func readHostsUptime(ctx context.Context, connectorID string, start, end time.Time, bucket time.Duration, days []time.Time) ([]HostUptime, error) {
-	hosts, err := redisClient.HGetAll(ctx, uptimeHostsKeyPrefix+connectorID).Result()
+	hosts, err := tunnelsRedisClient().HGetAll(ctx, uptimeHostsKeyPrefix+connectorID).Result()
 	if err != nil && err != redis.Nil {
 		return nil, err
 	}
@@ -383,7 +383,7 @@ func readHostsUptime(ctx context.Context, connectorID string, start, end time.Ti
 		for _, d := range days {
 			keys = append(keys, uptimeDayKey(uptimeHostKeyPrefix+connectorID+":"+address+":", d))
 		}
-		values, err := redisClient.MGet(ctx, keys...).Result()
+		values, err := tunnelsRedisClient().MGet(ctx, keys...).Result()
 		if err != nil {
 			return nil, err
 		}
