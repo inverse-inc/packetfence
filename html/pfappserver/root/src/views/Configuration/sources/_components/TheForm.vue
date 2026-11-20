@@ -46,6 +46,7 @@ import FormTypePotd from './FormTypePotd'
 import FormTypeRadius from './FormTypeRadius'
 import FormTypeSaml from './FormTypeSaml'
 import FormTypeSms from './FormTypeSms'
+import FormTypeSMSApi from './FormTypeSMSApi'
 import FormTypeSponsorEmail from './FormTypeSponsorEmail'
 import FormTypeStripe from './FormTypeStripe'
 import FormTypeTwilio from './FormTypeTwilio'
@@ -79,6 +80,7 @@ const components = {
   FormTypeRadius,
   FormTypeSaml,
   FormTypeSms,
+  FormTypeSMSApi,
   FormTypeSponsorEmail,
   FormTypeStripe,
   FormTypeTwilio,
@@ -121,6 +123,7 @@ export const setup = (props) => {
       case 'RADIUS':              return FormTypeRadius //break
       case 'SAML':                return FormTypeSaml //break
       case 'SMS':                 return FormTypeSms //break
+      case 'SMSApi':              return FormTypeSMSApi //break
       case 'SponsorEmail':        return FormTypeSponsorEmail //break
       case 'Stripe':              return FormTypeStripe //break
       case 'Twilio':              return FormTypeTwilio //break

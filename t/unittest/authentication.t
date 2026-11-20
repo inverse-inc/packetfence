@@ -21,8 +21,10 @@ BEGIN {
 }
 
 use Date::Parse;
+use Test::MockModule;
+use HTTP::Response;
 
-use Test::More tests => 63;                      # last test to print
+use Test::More tests => 85;                      # last test to print
 
 use Test::NoWarnings;
 
@@ -565,6 +567,59 @@ is_deeply(
     is_deeply(
         $source->{message},
         "line1 \$pin\nline2",
+    );
+}
+
+{
+    my $source = pf::authentication::getAuthenticationSource("SMSApiSource");
+    is_deeply(
+        $source->{message},
+        "line1 \$pin\nline2",
+    );
+    is(
+        $source->{api_url},
+        'sms.example.com/messages/http/send',
+        "SMSApi source api_url is read from the configuration"
+    );
+    is($source->api_protocol, 'https', "SMSApi source api_protocol defaults to https");
+    is($source->timeout, 10, "SMSApi source timeout defaults to 10 seconds");
+    my $build = \&pf::Authentication::Source::SMSApiSource::build_api_url;
+    is($build->('https', 'sms.example.com/send')->as_string, 'https://sms.example.com/send', "SMSApi https protocol");
+    is($build->('http', 'sms.example.com/send')->as_string, 'http://sms.example.com/send', "SMSApi http protocol");
+    is($build->('ftp', 'sms.example.com/send')->as_string, 'https://sms.example.com/send', "SMSApi unknown protocol falls back to https");
+    is($build->(undef, 'sms.example.com/send')->as_string, 'https://sms.example.com/send', "SMSApi missing protocol falls back to https");
+    ok(!defined $build->('http', 'ftp://sms.example.com/send'), "SMSApi api_url with its own protocol is refused");
+    ok(!defined $build->('https', '/send'), "SMSApi api_url without a host is refused");
+    ok(!defined $build->('https', ' sms.example.com/send'), "SMSApi api_url with leading whitespace is refused");
+    ok(!defined $build->('https', 'sms example.com/send'), "SMSApi api_url with whitespace in the host is refused");
+    ok(!defined $build->('https', 'sms.example.com/send me'), "SMSApi api_url with whitespace in the path is refused");
+    ok(!defined $build->('https', 'sms.example.com:abc/send'), "SMSApi api_url with a non numeric port is refused");
+    ok(!defined $build->('https', 'sms.example.com:70000/send'), "SMSApi api_url with an out of range port is refused");
+    ok(!defined $build->('https', 'sms.example.com:/send'), "SMSApi api_url with an empty port is refused");
+    is($build->('https', 'sms.example.com:8443/send')->as_string, 'https://sms.example.com:8443/send', "SMSApi api_url with a numeric port");
+    is($build->('https', '[::1]:8443/send')->as_string, 'https://[::1]:8443/send', "SMSApi api_url with an IPv6 host");
+    {
+        my @requests;
+        my $mock = Test::MockModule->new('LWP::UserAgent');
+        $mock->mock(get => sub {
+            my ($ua, $uri) = @_;
+            push @requests, { uri => "$uri", max_redirect => $ua->max_redirect };
+            return HTTP::Response->new(200, 'OK');
+        });
+        $source->api_url('sms.example.com/send?foo=bar');
+        $source->api_key('k e+y');
+        ok($source->sendSMS({ to => '+15145551234', message => 'PIN: 1234' }), "SMSApi source sends an SMS");
+        is(
+            $requests[0]{uri},
+            'https://sms.example.com/send?foo=bar&apiKey=k%20e%2By&to=%2B15145551234&content=PIN%3A%201234',
+            "SMSApi query is encoded like Clickatell and merged into the configured query"
+        );
+        is($requests[0]{max_redirect}, 0, "SMSApi source does not follow redirects");
+    }
+    $source->api_url('data://hello');
+    ok(
+        !$source->sendSMS({ to => '5145551234', message => 'PIN: 1234' }),
+        "SMSApi source refuses to send an SMS when api_url carries a protocol"
     );
 }
 
