@@ -37,7 +37,7 @@ BEGIN {
         locationlog_history_switchport
 
         locationlog_view_open_mac
-        locationlog_view_open_switchport
+        locationlog_view_latest_open_switchport
         locationlog_view_open_switchport_no_VoIP
         locationlog_view_open_switchport_only_VoIP
 
@@ -47,6 +47,7 @@ BEGIN {
         locationlog_update_end_mac
         locationlog_update_end_switchport_no_VoIP
         locationlog_update_end_switchport_only_VoIP
+        locationlog_update_end_switchport_other_macs
         locationlog_synchronize
 
         locationlog_set_session
@@ -61,6 +62,8 @@ BEGIN {
 
 use pf::config qw(
     $WIRED
+    $WIRED_802_1X
+    $WIRED_MAC_AUTH
     $NO_VOIP
     $VOIP
     $INLINE
@@ -181,16 +184,30 @@ sub locationlog_history_switchport {
     }));
 }
 
-sub locationlog_view_open_switchport {
+=item locationlog_view_latest_open_switchport
+
+Returns the newest open locationlog entry of the given VoIP status on a
+switchport, or undef when the port has none.
+
+This is the lookup of the authorization path: C<locationlog_synchronize> only
+needs the entry that currently describes the port, and the ORDER BY ... LIMIT 1
+is served by the C<locationlog_open_switchport> index, so the cost does not grow
+with the number of entries the port accumulated. Entries opened in the same second
+are ordered by MAC, so the pick is stable from one request to the next.
+
+=cut
+
+sub locationlog_view_latest_open_switchport {
     my ( $switch, $ifIndex, $voip ) = @_;
-    return _db_list({
+    return _db_item({
         -where => {
             switch => $switch,
             port => $ifIndex,
             voip => $voip,
             end_time => $ZERO_DATE,
         },
-        -order_by => { -desc => 'start_time' },
+        -limit => 1,
+        -order_by => [{ -desc => 'start_time' }, { -desc => 'mac' }],
     });
 }
 
@@ -324,6 +341,31 @@ sub locationlog_update_end_switchport_only_VoIP {
     return ($rows);
 }
 
+=item locationlog_update_end_switchport_other_macs
+
+Closes the open entries of the given VoIP status on a switchport that belong to
+another MAC than the given one, and returns how many were closed.
+
+=cut
+
+sub locationlog_update_end_switchport_other_macs {
+    my ($switch, $ifIndex, $mac, $voip) = @_;
+    my ($status, $rows) = pf::dal::locationlog->update_items(
+        -set => {
+            end_time => \'NOW()',
+        },
+        -where => {
+            switch => $switch,
+            port   => $ifIndex,
+            voip   => $voip,
+            end_time => $ZERO_DATE,
+            connection_type => { -like => 'Ethernet%'},
+            mac    => { "!=" => lc($mac) },
+        },
+    );
+    return ($rows);
+}
+
 sub locationlog_update_end_mac {
     my ($mac) = @_;
     my %options = (
@@ -429,14 +471,16 @@ sub locationlog_synchronize {
             }
         }
         else {
-            my @locationlog_switchport = locationlog_view_open_switchport($switch, $ifIndex, $voip_status);
-            if (!(@locationlog_switchport && scalar(@locationlog_switchport) > 0)) {
+            # Only the newest entry describes the port: one endpoint of each type (data, voice)
+            # is connected at a time
+            my $locationlog_switchport = locationlog_view_latest_open_switchport($switch, $ifIndex, $voip_status);
+            if (!defined($locationlog_switchport)) {
                 # there was no locationlog open we must insert a new one
                 $mustInsert = 1;
 
-            } elsif ( (defined($vlan) && ($locationlog_switchport[0]->{vlan} ne $vlan)) # vlan changed
-                || (defined($mac) && (!defined($locationlog_switchport[0]->{mac})))
-                || (defined($locationlog_switchport[0]->{role}) && ($locationlog_switchport[0]->{role} ne $role) ) ) { # or Role changed
+            } elsif ( (defined($vlan) && ($locationlog_switchport->{vlan} ne $vlan)) # vlan changed
+                || (defined($mac) && (!defined($locationlog_switchport->{mac})))
+                || (defined($locationlog_switchport->{role}) && ($locationlog_switchport->{role} ne $role) ) ) { # or Role changed
 
                 # close entries of same voip status
                 if ($voip_status eq $NO_VOIP) {
@@ -445,6 +489,18 @@ sub locationlog_synchronize {
                     locationlog_update_end_switchport_only_VoIP($switch, $ifIndex);
                 }
                 $mustInsert = 1;
+
+            } elsif ( defined($mac) && _is_radius_wired($connection_type) ) {
+                # The endpoint authenticating over RADIUS is the one on the port: close the
+                # entries of the other endpoints of the same type. A port without RADIUS
+                # accounting otherwise keeps one open entry for every endpoint ever swapped
+                # on it, and the newest entry can be this endpoint's own, just moved here
+                # from another port by the per-MAC handling above. Its own entry needs no
+                # insert: the per-MAC handling above leaves it open on this port.
+                # SNMP traps and web authentication are left alone: a port-security port
+                # legitimately carries several MACs, each reported on its own.
+                my $closed = locationlog_update_end_switchport_other_macs($switch, $ifIndex, $mac, $voip_status);
+                $logger->debug("closed $closed locationlog entries of other endpoints on ifIndex $ifIndex") if $closed;
             }
         }
     }
@@ -456,6 +512,19 @@ sub locationlog_synchronize {
     }
 
     return 1;
+}
+
+=item * _is_radius_wired
+
+Returns true for a wired connection authenticated over RADIUS (802.1X or MAB),
+where the endpoint authenticating is the one connected to the port.
+
+=cut
+
+sub _is_radius_wired {
+    my ($connection_type) = @_;
+    return defined($connection_type)
+        && ($connection_type == $WIRED_802_1X || $connection_type == $WIRED_MAC_AUTH);
 }
 
 =item * _is_multi_auth_switchport
