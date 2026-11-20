@@ -9,7 +9,7 @@ bypass_vlan
 The bypass VLAN returned by an authentication source (the set_bypass_vlan
 action of the HTTP source) is applied to the node by the autoregistration
 (pf::role::getNodeInfoForAutoReg), and a role returned without an
-unregistration date is applied too.
+unregistration date is applied when it comes from an HTTP source.
 
 =cut
 
@@ -21,12 +21,17 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 16;
+use Test::More tests => 25;
 use Test::NoWarnings;
 use pf::role;
 use pf::Authentication::constants;
 use pf::config qw($WIRED_MAC_AUTH);
+use pf::constants::role qw($VOICE_ROLE);
 
+{
+    package StubSourceBypassVlan;
+    sub type { $_[0]{type} }
+}
 {
     package StubProfileBypassVlan;
     sub new { bless {}, shift }
@@ -39,12 +44,18 @@ use pf::config qw($WIRED_MAC_AUTH);
 }
 
 # Run the MAB autoregistration with the given values matched by the source and
-# return the node info
+# return the node info. Options: source_type (HTTP by default), filter_role (the
+# role of the VLAN filter) and is_phone
+my @person_modified;
 sub node_info_for {
-    my ($values) = @_;
-    my @person_modified;
+    my ($values, %options) = @_;
+    my $source_type = $options{source_type} // 'HTTP';
+    @person_modified = ();
     no warnings qw(redefine once);
-    local *pf::role::filterVlan = sub { return undef };
+    local *pf::role::filterVlan = sub { return $options{filter_role} };
+    local *pf::authentication::getAuthenticationSource = sub {
+        return $_[0] eq 'http_bypass' ? bless({ type => $source_type }, 'StubSourceBypassVlan') : undef;
+    };
     local *pf::authentication::match2 = sub {
         return $values && { source_id => 'http_bypass', values => $values, actions => [], rule_id => 'default' };
     };
@@ -54,6 +65,7 @@ sub node_info_for {
         user_name       => '02000000b101',
         connection_type => $WIRED_MAC_AUTH,
         node_info       => { pid => 'default', category => '' },
+        isPhone         => $options{is_phone},
         profile         => StubProfileBypassVlan->new,
     });
     return \%node_info;
@@ -61,6 +73,7 @@ sub node_info_for {
 
 my $node_info = node_info_for({ $Actions::SET_BYPASS_VLAN => '252', $Actions::SET_ROLE => 'default' });
 is($node_info->{bypass_vlan}, '252', 'a bypass VLAN ID from the source is set in the node');
+is_deeply([map { $_->[0] } @person_modified], ['02000000b101'], 'the source of the person is set');
 is($node_info->{category}, 'default', 'the role from the source is set with the bypass VLAN');
 
 $node_info = node_info_for({ $Actions::SET_BYPASS_VLAN => 'vlan_guest', $Actions::SET_ROLE => 'default' });
@@ -81,15 +94,36 @@ $node_info = node_info_for(undef);
 ok(!exists $node_info->{bypass_vlan}, 'no bypass VLAN is set when no source matches');
 ok(!exists $node_info->{category}, 'no role is set when no source matches');
 
-# A role without an unregistration date (only an HTTP source can return one)
+# A role without an unregistration date
 $node_info = node_info_for({ $Actions::SET_ROLE => 'default' });
-is($node_info->{category}, 'default', 'a role without an unregistration date is applied');
+is($node_info->{category}, 'default', 'a role without an unregistration date from an HTTP source is applied');
 ok(!exists $node_info->{unregdate}, 'a role without an unregistration date keeps the unregistration date of the node');
 ok(!exists $node_info->{source}, 'a role without an unregistration date does not set the source of the node');
 
 $node_info = node_info_for({ $Actions::SET_ROLE => 'default', $Actions::SET_UNREG_DATE => '2030-01-01' });
 is($node_info->{category}, 'default', 'a role with an unregistration date is applied');
 is($node_info->{unregdate}, '2030-01-01', 'the unregistration date from the source is set in the node');
+
+$node_info = node_info_for({ $Actions::SET_ROLE_FROM_SOURCE => 'guest' });
+is($node_info->{category}, 'guest', 'a role from source without an unregistration date from an HTTP source is applied');
+
+for my $type (qw(Authorization Blackhole SQL)) {
+    $node_info = node_info_for({ $Actions::SET_ROLE => 'default' }, source_type => $type);
+    ok(!exists $node_info->{category}, "a role without an unregistration date from a $type source is not applied, as before");
+}
+
+$node_info = node_info_for({ $Actions::SET_ROLE => 'default', $Actions::SET_UNREG_DATE => '2030-01-01' }, source_type => 'Authorization');
+is($node_info->{category}, 'default', 'a role with an unregistration date from another source is applied, as before');
+
+# The role of the VLAN filter
+$node_info = node_info_for(undef, filter_role => 'filtered', is_phone => 1);
+is($node_info->{category}, $VOICE_ROLE, 'the voice role of a phone is kept when no source matches');
+
+$node_info = node_info_for({ $Actions::SET_ROLE => 'default' }, filter_role => 'filtered', is_phone => 1);
+is($node_info->{category}, $VOICE_ROLE, 'the voice role of a phone is kept when the source returns a role without an unregistration date');
+
+$node_info = node_info_for({ $Actions::SET_ROLE => 'default' }, filter_role => 'filtered');
+is($node_info->{category}, 'filtered', 'the role of the VLAN filter is kept over the role of the source');
 
 =head1 AUTHOR
 

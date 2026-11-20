@@ -406,8 +406,8 @@ and C<->) with at least one letter, so that a number like 252.5 is not a name
 sub is_valid_bypass_vlan {
     my ($vlan) = @_;
     return $FALSE if !defined $vlan || ref $vlan;
-    return ($vlan >= 1 && $vlan <= 4094) ? $TRUE : $FALSE if $vlan =~ /^[0-9]+$/;
-    return ($vlan =~ /^[A-Za-z0-9_][A-Za-z0-9_.-]{0,49}$/ && $vlan =~ /[A-Za-z]/) ? $TRUE : $FALSE;
+    return ($vlan >= 1 && $vlan <= 4094) ? $TRUE : $FALSE if $vlan =~ /\A[0-9]+\z/;
+    return ($vlan =~ /\A[A-Za-z0-9_][A-Za-z0-9_.-]{0,49}\z/ && $vlan =~ /[A-Za-z]/) ? $TRUE : $FALSE;
 }
 
 =head2 mfa_exists
@@ -517,7 +517,8 @@ bypass_vlan is the bypass VLAN of the device, applied instead of the VLAN of
 its role when the connection profile autoregisters the devices (see
 L<pf::role/getNodeInfoForAutoReg>). A null or empty bypass_vlan removes the
 bypass VLAN of the device, and a reply without bypass_vlan leaves it as it is.
-An invalid value (see L</is_valid_bypass_vlan>) is ignored.
+An invalid value (see L</is_valid_bypass_vlan>), or one that is not a string or
+a number, is ignored and logged.
 
 Sample JSON response, note that not all attributes are necessary, only send back what you need.
 {"access_duration":"1D","access_level":"ALL","sponsor":1,"unregdate":"2030-01-01","category":"default"}
@@ -609,10 +610,13 @@ sub match {
 
     # A null or empty bypass_vlan removes the bypass VLAN, while a reply without
     # bypass_vlan leaves it as it is: undefined values are not in %values
-    if (exists $result->{bypass_vlan} && !ref $result->{bypass_vlan}) {
+    if (exists $result->{bypass_vlan} && ref $result->{bypass_vlan}) {
+        get_logger->warn("Ignoring bypass_vlan from the authorization reply of ".$self->host.": not a string or a number");
+    }
+    elsif (exists $result->{bypass_vlan}) {
         my $bypass_vlan = $result->{bypass_vlan} // '';
         # 0252 and 252 are the same VLAN ID
-        $bypass_vlan += 0 if $bypass_vlan =~ /^[0-9]{1,5}$/;
+        $bypass_vlan =~ s/\A0+(?=[0-9])// if $bypass_vlan =~ /\A[0-9]+\z/;
         if ($bypass_vlan eq '' || is_valid_bypass_vlan($bypass_vlan)) {
             push @actions, pf::Authentication::Action->new({type => $Actions::SET_BYPASS_VLAN, value => "$bypass_vlan"});
         } else {
