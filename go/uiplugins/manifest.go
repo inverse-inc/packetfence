@@ -104,6 +104,10 @@ type Bundle struct {
 	Navbar *BundleNavbar `json:"navbar,omitempty"`
 	// seconds a call to the plugin may take, DefaultPassthroughTimeout when 0
 	Timeout int `json:"timeout,omitempty"`
+	// the code may open WebSockets on /api/v1/plugin/<name>/<path> (a GET,
+	// PLUGIN_READ, authenticated by the token cookie of the admin UI): they
+	// are passed through, without the timeout, see Fetcher.Proxy
+	WebSockets bool `json:"websockets,omitempty"`
 }
 
 // IconData is an icon a plugin ships (the format of vue-awesome): the admin UI
