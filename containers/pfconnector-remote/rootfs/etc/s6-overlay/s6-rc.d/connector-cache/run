@@ -1,4 +1,0 @@
-#!/command/execlineb -P
-with-contenv
-fdmove -c 2 1
-/usr/sbin/connector-cache

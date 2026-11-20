@@ -215,12 +215,13 @@ our @SyslogInfo = (
     {
         'description' => 'pfconnector client log',
         'name'       => 'pfconnector-client.log',
-        'conditions' => [ '$programname == "pfconnector-client-docker-wrapper"' ]
+        # the service of packetfence-plugin-pfconnector, the container before
+        'conditions' => [ '$programname == "pfconnector-client"', '$programname == "pfconnector-client-docker-wrapper"' ]
     },
     {
         'description' => 'pfconnector server log',
         'name'       => 'pfconnector-server.log',
-        'conditions' => [ '$programname == "pfconnector-server-docker-wrapper"' ]
+        'conditions' => [ '$programname == "pfconnector-server"', '$programname == "pfconnector-server-docker-wrapper"' ]
     },
     {
         'description' => 'keepalived log',

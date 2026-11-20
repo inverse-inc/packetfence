@@ -2,7 +2,7 @@ include ../config.mk
 GO ?= go
 CGO_ENABLED=1
 # to change the arch a binary is compiled for.
-# make GOARCH=arm64 pfconnector
+# make GOARCH=arm64 pfdhcp
 GOARCH=
 # NOTE: $(ARGS) is expanded after -C in the build recipes (go requires -C to
 # be the first flag).
@@ -13,7 +13,7 @@ STATICCHECK_VERSION = v0.8.1
 GOVULNCHECK_VERSION = v1.8.0
 GOSEC_VERSION = v2.28.0
 # Check the whole module on the build host, including packages requiring cgo.
-# Do not inherit pfconnector's CGO_ENABLED=0 or cross-compilation settings.
+# Do not inherit a binary's CGO_ENABLED=0 or cross-compilation settings.
 check_cmd = CGO_ENABLED=1 GOOS= GOARCH= $(GO)
 
 .PHONY: all
@@ -46,12 +46,6 @@ CMDS = $(wildcard cmd/*)
 ALL_BINARIES = $(patsubst cmd/%, %, $(CMDS))
 .PHONY: $(ALL_BINARIES)
 
-pfconnector: CGO_ENABLED=0
-# Embed the PF release as the connector build version (reported by the
-# admin UI remote status panel). Falls back to the in-source default
-# (0.0.0-src) when conf/pf-release isn't available.
-pfconnector: ARGS += $(if $(PF_PATCH_RELEASE),-ldflags "-X github.com/inverse-inc/packetfence/go/chisel/share.BuildVersion=$(PF_PATCH_RELEASE)")
-
 $(ALL_BINARIES):
 	$(build_cmd) -C cmd/$@ $(ARGS) -o ../../$@
 
@@ -81,6 +75,3 @@ clean-coredns-src:
 	find coredns/ -type f -exec sed -i.bak "s'github.com/coredns/coredns'github.com/inverse-inc/packetfence/go/coredns'g" {} \; ; find . -name '*.bak' -delete
 	find coredns/ -name '*_test.go' -delete
 
-.PHONY: clean-chisel-src
-clean-chisel-src:
-	find chisel/ -type f -exec sed -i.bak "s'github.com/jpillora/chisel'github.com/inverse-inc/packetfence/go/chisel'g" {} \; ; find . -name '*.bak' -delete

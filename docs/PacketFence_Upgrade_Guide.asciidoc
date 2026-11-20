@@ -1473,6 +1473,40 @@ it is upgraded. If the connectors can't be upgraded at the same time, set
 `captive_portal.connector_proxy_protocol` to `disabled` before upgrading the
 server, and enable it once all the connectors are upgraded.
 
+=== The PacketFence Connector is a plugin
+
+The PacketFence Connector is no longer part of PacketFence: the server of the
+connector tunnels (`packetfence-pfconnector-server`), the connector of the
+PacketFence server (`packetfence-pfconnector-client`) and the _Cloud
+Connectors_ section of the administration interface are installed by the
+plugin `packetfence-plugin-pfconnector`, from
+https://github.com/akainverse/pfconnector, as is the package of the remote
+connectors, `packetfence-pfconnector-remote`.
+
+If you use connectors, install the plugin on each PacketFence server right
+after the upgrade: until then, the connectors are disconnected and the traffic
+of the settings that use them (_Use connector_) is sent directly.
+
+[source,bash]
+----
+pfcmd plugin install ./packetfence-plugin-pfconnector_<version>_amd64.deb
+----
+
+* The services are started with PacketFence: `services.pfconnector-server` and
+  `services.pfconnector-client` of [filename]`pf.conf` are removed.
+* Their containers (`pfconnector-server`, `pfconnector-client`) are replaced by
+  the binary of the plugin, run by the same systemd units.
+* The API of the connector-remotes (status, services, cache, logs, terminal,
+  topology) moves from `/api/v1/pfconnector-remotes` and `/api/v1/terminal` to
+  `/api/v1/plugin/pfconnector/`. The configuration of the connectors stays at
+  `/api/v1/config/connectors`.
+* The _Cloud Connectors_ section needs the `CONNECTORS_READ` admin action, as
+  before, and the `PLUGIN_READ` and `PLUGIN_WRITE` actions of the UI plugins.
+  Grant these to the admin roles that manage the connectors. The connector of a
+  domain controller is no longer shown in the domain form to the admins
+  without them.
+* The remote terminal opens in the page instead of a new tab.
+
 === HTTP source basic authentication credentials
 
 The `API username (basic auth)` and `API password (basic auth)` fields of an

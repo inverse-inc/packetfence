@@ -1318,7 +1318,8 @@ sub iptables_netdata_rules {
 
 =item iptables_pfconnector_server_rules
 
-Iptable rules for pfconnector server service
+Iptable rules for pfconnector server service (packetfence-pfconnector-server,
+installed by packetfence-plugin-pfconnector, whose unit calls this)
 
 =cut
 

@@ -172,15 +172,15 @@ is reported but does not fail the build.
 
 Checks cover the entire module using the build host's OS and architecture with
 cgo enabled. Install the native dependencies described above even when building
-the static `pfconnector` binary. This is a host validation pass; it does not
+a static binary. This is a host validation pass; it does not
 validate code selected only by another OS, architecture, race tag, or custom
 build flags passed through `ARGS`. Use `GOFLAGS` for build tags shared by checks
 and compilation. The integration tests remain available through
 [command]`make test`; they require a running test pfconfig process.
 
 Review and fix reported findings; any analyzer suppression should be narrow and
-explain why the finding is safe. No blanket exclusions are provided, including
-for the vendored `chisel/` fork. `gopls check` is not needed in this gate: vet
+explain why the finding is safe. No blanket exclusions are provided.
+`gopls check` is not needed in this gate: vet
 and Staticcheck provide the batch analysis, while gopls remains useful in the
 editor.
 

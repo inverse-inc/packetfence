@@ -82,7 +82,6 @@ sbin/pfqueue-go
 sbin/pfudpproxy
 sbin/galera-autofix
 sbin/mysql-probe
-sbin/pfconnector
 sbin/sdnotify-proxy
 src/pfcmd
 !conf/nessus/remotescan.nessus
