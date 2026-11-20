@@ -949,8 +949,16 @@ was authorized by PacketFence after the server accepted it, even when
 role, VLAN and ACLs computed by PacketFence. With the option enabled,
 PacketFence authorized it twice, which sent the role ACLs twice. The option is
 now honored: when it is disabled, the switch gets the answer of the RADIUS
-server only. Enable *Authorize from PacketFence* on the realms whose devices
-must get their role from PacketFence.
+server only. PacketFence no longer creates or updates the node or its
+locationlog at post-auth in that case — only accounting updates them. Enable
+*Authorize from PacketFence* on the realms whose devices must get their role,
+VLAN or ACLs from PacketFence, or whose node and locationlog records must be
+kept up to date at authentication time.
+
+If you kept a customized [filename]`conf/radiusd/packetfence` or
+[filename]`conf/radiusd/packetfence-tunnel`, merge the new `post-auth` and
+`Post-Auth-Type REJECT` blocks of the corresponding `.example` files into
+your copies. Without them, proxied requests are still authorized twice.
 
 === Bypass ACLs are translated like role ACLs
 
