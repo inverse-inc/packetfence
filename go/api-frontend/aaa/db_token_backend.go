@@ -19,7 +19,6 @@ type DbTokenBackend struct {
 	sync.Mutex
 	maxExpiration     time.Duration
 	inActivityTimeout time.Duration
-	Db                *sql.DB
 }
 
 func NewDbTokenBackend(expiration time.Duration, maxExpiration time.Duration, args []string) TokenBackend {
@@ -39,32 +38,20 @@ func (tb *DbTokenBackend) Type() string {
 	return "db"
 }
 
+// dbFromConfig is swapped by tests.
+var dbFromConfig = db.DbFromConfig
+
+// getDB resolves the shared pool on every call. Pools are cached per DSN, so
+// this is a lookup, and resolving it each time (rather than pinning the first
+// one) picks up a database DSN change in pfconfig without a restart. The pool
+// reconnects on its own; queries report outages to the caller. Never Close it.
 func (tb *DbTokenBackend) getDB() (*sql.DB, error) {
-	tb.Lock()
-	defer tb.Unlock()
-
-	if tb.Db != nil && tb.Db.Ping() == nil {
-		return tb.Db, nil
-	}
-
-	tb.Db = nil
-
-	var ctx = context.Background()
-	ctx = log.LoggerNewContext(ctx)
-
-	Database, err := db.DbFromConfig(ctx)
+	ctx := log.LoggerNewContext(context.Background())
+	Database, err := dbFromConfig(ctx)
 	if err != nil {
 		fmt.Println("Unable to create DB connection from config:", err)
 		return nil, err
 	}
-
-	err = Database.Ping()
-	if err != nil {
-		fmt.Println("Unable to connect to DB:", err)
-		return nil, err
-	}
-
-	tb.Db = Database
 	return Database, nil
 }
 

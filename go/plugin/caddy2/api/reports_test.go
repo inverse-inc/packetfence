@@ -353,7 +353,7 @@ func initRouterAndDb() (*httprouter.Router, error) {
 		return nil, fmt.Errorf("Cannot open db %s", err.Error())
 	}
 	tmpRouter := httprouter.New()
-	reportHandler := NewDynamicReport(context.Background(), &DB)
+	reportHandler := NewDynamicReport(context.Background(), fixedGorm(DB))
 	reportHandler.AddToRouter(tmpRouter)
 	return tmpRouter, nil
 }

@@ -14,23 +14,26 @@ import (
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/sql"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
 	"github.com/julienschmidt/httprouter"
-	"gorm.io/gorm"
 )
 
 type DnsAuditLog struct {
-	DBP **gorm.DB
+	DB  gormSource
 	Ctx *context.Context
 }
 
-func NewDnsAuditLog(ctx context.Context, dbp **gorm.DB) *DnsAuditLog {
+func NewDnsAuditLog(ctx context.Context, db gormSource) *DnsAuditLog {
 	return &DnsAuditLog{
-		DBP: dbp,
+		DB:  db,
 		Ctx: &ctx,
 	}
 }
 
 func (a *DnsAuditLog) List(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewDnsAuditLogModel(a.DBP, a.Ctx)
+	dbp, ok := gormForRequest(*a.Ctx, w, a.DB)
+	if !ok {
+		return
+	}
+	model := models.NewDnsAuditLogModel(dbp, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -53,7 +56,11 @@ func (a *DnsAuditLog) List(w http.ResponseWriter, r *http.Request, p httprouter.
 }
 
 func (a *DnsAuditLog) Search(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewDnsAuditLogModel(a.DBP, a.Ctx)
+	dbp, ok := gormForRequest(*a.Ctx, w, a.DB)
+	if !ok {
+		return
+	}
+	model := models.NewDnsAuditLogModel(dbp, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -81,7 +88,11 @@ func (a *DnsAuditLog) Search(w http.ResponseWriter, r *http.Request, p httproute
 }
 
 func (a *DnsAuditLog) GetItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewDnsAuditLogModel(a.DBP, a.Ctx)
+	dbp, ok := gormForRequest(*a.Ctx, w, a.DB)
+	if !ok {
+		return
+	}
+	model := models.NewDnsAuditLogModel(dbp, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -108,7 +119,11 @@ func (a *DnsAuditLog) GetItem(w http.ResponseWriter, r *http.Request, p httprout
 }
 
 func (a *DnsAuditLog) DeleteItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewDnsAuditLogModel(a.DBP, a.Ctx)
+	dbp, ok := gormForRequest(*a.Ctx, w, a.DB)
+	if !ok {
+		return
+	}
+	model := models.NewDnsAuditLogModel(dbp, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -137,7 +152,11 @@ func (a *DnsAuditLog) DeleteItem(w http.ResponseWriter, r *http.Request, p httpr
 }
 
 func (a *DnsAuditLog) UpdateItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewDnsAuditLogModel(a.DBP, a.Ctx)
+	dbp, ok := gormForRequest(*a.Ctx, w, a.DB)
+	if !ok {
+		return
+	}
+	model := models.NewDnsAuditLogModel(dbp, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK

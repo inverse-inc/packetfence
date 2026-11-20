@@ -248,7 +248,12 @@ func TestPluginRegistrationsCache(t *testing.T) {
 // the SQL handle is read by the node handlers while the plugins may open it
 // again: every access goes through the guarded accessors (go test -race)
 func TestSQLDBAccess(t *testing.T) {
-	database := locationlogHandler(t, &locationlogDriver{switchIPs: map[string]string{"00:11:22:33:44:55": "10.1.2.3"}}).sqlDB()
+	saved := sqlDBFromConfig
+	defer func() { sqlDBFromConfig = saved }()
+	sqlDBFromConfig = func(ctx context.Context, _ ...string) (*sql.DB, error) {
+		return nil, errors.New("no database in this test")
+	}
+	database := locationlogHandler(t, &locationlogDriver{switchIPs: map[string]string{"00:11:22:33:44:55": "10.1.2.3"}}).db
 	h := &APIHandler{}
 	var wg sync.WaitGroup
 	for i := 0; i < 20; i++ {
@@ -262,7 +267,7 @@ func TestSQLDBAccess(t *testing.T) {
 			// no MAC: reads the handle, no query (the test driver is not
 			// safe for concurrent queries)
 			h.switchIPsForMacs(context.Background(), nil)
-			h.sqlDB()
+			h.sqlDB(context.Background())
 		}()
 	}
 	wg.Wait()

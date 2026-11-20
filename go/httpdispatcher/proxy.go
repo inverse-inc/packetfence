@@ -70,13 +70,15 @@ var successDBConnect = false
 // NewProxy creates a new instance of proxy.
 // It sets request logger using rLogPath as output file or os.Stdout by default.
 // If whitePath of blackPath is not empty they are parsed to set endpoint lists.
-func NewProxy(ctx context.Context) *Proxy {
+func NewProxy(ctx context.Context) (*Proxy, error) {
 	p := &Proxy{}
 
 	passThrough = newProxyPassthrough(ctx)
 	passThrough.readConfig(ctx)
-	p.Configure(ctx)
-	return p
+	if err := p.Configure(ctx); err != nil {
+		return nil, err
+	}
+	return p, nil
 }
 
 // Refresh the configuration
@@ -266,7 +268,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // Configure add default target in the deny list
-func (p *Proxy) Configure(ctx context.Context) {
+func (p *Proxy) Configure(ctx context.Context) error {
 	p.addToEndpointList(ctx, "localhost")
 	p.addToEndpointList(ctx, "127.0.0.1")
 	p.addToEndpointList(ctx, "127.1")
@@ -284,14 +286,12 @@ func (p *Proxy) Configure(ctx context.Context) {
 	p.addToEndpointList(ctx, "0x7f000001")
 	// protection against SSRF obfuscation in order to trigger the localhost vhost.
 
+	// DbFromConfig does no I/O, so an error is a hard DSN/driver error that
+	// retrying cannot fix: fail provisioning. Outages surface on Ping below.
 	Database, err := db.DbFromConfig(ctx)
-	for err != nil {
-		if err != nil {
-			log.LoggerWContext(ctx).Error(fmt.Sprintf("Failed to connect to the database: %s", err))
-			time.Sleep(time.Duration(5) * time.Second)
-		}
-
-		Database, err = db.DbFromConfig(ctx)
+	if err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("Invalid database configuration: %s", err))
+		return err
 	}
 
 	for !successDBConnect {
@@ -332,16 +332,7 @@ func (p *Proxy) Configure(ctx context.Context) {
 
 	p.ShowParkingPortal = sharedutils.IsEnabled(parking.ShowParkingPortal)
 
-	go func() {
-		for {
-			err = p.Db.Ping()
-			if err != nil {
-				p.Db, err = db.DbFromConfig(ctx)
-			}
-			time.Sleep(time.Duration(5) * time.Second)
-		}
-	}()
-
+	return nil
 }
 
 func (p *passthrough) readConfig(ctx context.Context) {
