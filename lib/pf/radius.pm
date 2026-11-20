@@ -1015,9 +1015,13 @@ sub switch_access {
         $return = $self->vpn($args, $options, \@sources, \$extra, \$otp, \$password);
         return $return if (ref($return) eq 'ARRAY');
     } elsif ($connection->isServiceTemplate || $connection->isACLDownload) {
-        # The downloadable ACL of a RADIUS server was proxied to it (see
-        # radius_filter): its answer is sent as is
         if ($connection->isACLDownload && is_server_downloadable_acl($user_name)) {
+            if (!isenabled($Config{radius_configuration}{filter_in_packetfence_authorize})) {
+                $logger->warn("Downloadable ACL $user_name defined by a RADIUS server rejected: "
+                    . "enable filter_in_packetfence_authorize in pf.conf and configure ProxyServerDownloadableACL in radius_filters.conf");
+                return [ $RADIUS::RLM_MODULE_REJECT ];
+            }
+            # The request was proxied through the authorize filter (see radius_filter): send the server's answer as is
             $logger->info("Downloadable ACL $user_name defined by the RADIUS server, its answer is sent as is");
             return [ $RADIUS::RLM_MODULE_OK ];
         }
@@ -1567,11 +1571,18 @@ sub radius_filter {
         # PacketFence never gives to a role) can't be answered here: a filter
         # can send it to that server with control:Proxy-To-Realm.
         if ($connection->isACLDownload && is_server_downloadable_acl($user_name)) {
-            my $rule = $filter->test($scope, $args);
-            if (defined $rule) {
-                my ($reply, $status) = $filter->handleAnswerInRule($rule,$args,\%RAD_REPLY_REF);
-                return [$status, %$reply];
+            if ($scope eq 'packetfence.authorize') {
+                my $rule = $filter->test($scope, $args);
+                if (defined $rule) {
+                    my ($reply, $status) = $filter->handleAnswerInRule($rule,$args,\%RAD_REPLY_REF);
+                    return [$status, %$reply];
+                }
+                $logger->warn("No packetfence.authorize rule matched downloadable ACL $user_name. "
+                    . "Enable ProxyServerDownloadableACL in radius_filters.conf and ensure filter_in_packetfence_authorize=enabled in pf.conf");
+                return [ $RADIUS::RLM_MODULE_REJECT ];
             }
+            # In pre-proxy/post-proxy scopes the server's reply is in-flight; don't fall through to advancedAccess
+            return [ $RADIUS::RLM_MODULE_NOOP ];
         }
         return  $self->advancedAccess($args, $options);
     }

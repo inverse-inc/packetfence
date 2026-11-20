@@ -38,7 +38,7 @@ scopes=preProcess
 
 [ProxyServerDownloadableACL]
 status=disabled
-description=Send the downloadable ACLs of the RADIUS server of a proxied realm (e.g. Cisco ISE) to that server: set the realm in the answer
+description=Send the downloadable ACLs of the RADIUS server of a proxied realm (e.g. Cisco ISE) to that server: set the realm in the answer. Requires filter_in_packetfence_authorize=enabled in pf.conf (Configuration > RADIUS > General) and a radiusd restart.
 scopes=packetfence.authorize
 merge_answer=no
 condition=user_name =~ "^#ACSACL#-IP(V6)?-"

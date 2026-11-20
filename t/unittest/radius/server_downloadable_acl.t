@@ -23,19 +23,24 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 12;
+use Test::More tests => 16;
 use pf::radius;
 use pf::radius::constants;
+use pf::config qw(%Config);
 use pf::SwitchFactory;
 use pf::Switch::Cisco::Cisco_IOS_15_5;
 use pf::access_filter::radius;
+use pf::dal::node;
 use Test::NoWarnings;
 
-my (@advanced, @filter_tests);
+my (@advanced, @filter_tests, $rule_to_return);
 {
     no warnings qw(redefine once);
     *pf::SwitchFactory::instantiate = sub {
         return pf::Switch::Cisco::Cisco_IOS_15_5->new({ id => '192.0.2.24', ip => '192.0.2.24' });
+    };
+    *pf::dal::node::find_or_create = sub {
+        return (200, bless {}, 'pf::dal::node');
     };
     *pf::radius::advancedAccess = sub {
         my ($self, $args) = @_;
@@ -45,7 +50,7 @@ my (@advanced, @filter_tests);
     *pf::access_filter::radius::test = sub {
         my ($self, $scope, $args) = @_;
         push @filter_tests, $args->{user_name};
-        return { _rule => 'proxy_dacl' };
+        return $rule_to_return;
     };
     *pf::access_filter::radius::handleAnswerInRule = sub {
         return ({ 'control:Proxy-To-Realm' => 'ise.lab' }, $RADIUS::RLM_MODULE_UPDATED);
@@ -68,21 +73,50 @@ sub acl_download {
 
 my $radius = pf::radius->new;
 
+# authorize: matching rule → proxy to realm
+$rule_to_return = { _rule => 'proxy_dacl' };
 @advanced = (); @filter_tests = ();
 my $reply = $radius->radius_filter('packetfence.authorize', acl_download('#ACSACL#-IP-PERMIT_ALL-5f7e1a0b'));
 is_deeply(\@filter_tests, ['#ACSACL#-IP-PERMIT_ALL-5f7e1a0b'], 'authorize: the filters are tested for a downloadable ACL of a RADIUS server');
 is({ @{$reply}[1 .. $#$reply] }->{'control:Proxy-To-Realm'}, 'ise.lab', 'authorize: the answer of the matching filter is used');
 is(scalar @advanced, 0, 'authorize: the switch module does not answer it');
 
+# authorize: no matching rule → reject (don't fall through to advancedAccess / crash)
+$rule_to_return = undef;
+@advanced = (); @filter_tests = ();
+$reply = $radius->radius_filter('packetfence.authorize', acl_download('#ACSACL#-IP-PERMIT_ALL-5f7e1a0b'));
+is($reply->[0], $RADIUS::RLM_MODULE_REJECT, 'authorize: no matching rule rejects instead of crashing in advancedAccess');
+
+# authorize: PF-named ACL goes to the switch module, filters not tested
+$rule_to_return = { _rule => 'proxy_dacl' };
 @advanced = (); @filter_tests = ();
 $reply = $radius->radius_filter('packetfence.authorize', acl_download('guest-1a2b3c'));
 is(scalar @filter_tests, 0, 'authorize: the filters are not tested for a downloadable ACL of PacketFence');
 is_deeply(\@advanced, ['guest-1a2b3c'], 'authorize: the switch module answers it');
 
-@advanced = ();
-$reply = $radius->switch_access(acl_download('#ACSACL#-IP-PERMIT_ALL-5f7e1a0b'));
-is_deeply($reply, [ $RADIUS::RLM_MODULE_OK ], 'post-auth: the answer of the RADIUS server is sent as is');
+# pre-proxy scope: server ACL returns NOOP without crashing in advancedAccess
+@advanced = (); @filter_tests = ();
+$reply = $radius->radius_filter('packetfence.pre-proxy', acl_download('#ACSACL#-IP-PERMIT_ALL-5f7e1a0b'));
+is($reply->[0], $RADIUS::RLM_MODULE_NOOP, 'pre-proxy: server ACL download returns NOOP');
+is(scalar @advanced, 0, 'pre-proxy: the switch module is not called');
 
+# post-auth: filter_in_packetfence_authorize enabled → server answer sent as is
+{
+    local $Config{radius_configuration}{filter_in_packetfence_authorize} = 'enabled';
+    @advanced = ();
+    $reply = $radius->switch_access(acl_download('#ACSACL#-IP-PERMIT_ALL-5f7e1a0b'));
+    is_deeply($reply, [ $RADIUS::RLM_MODULE_OK ], 'post-auth: the answer of the RADIUS server is sent as is');
+}
+
+# post-auth: filter_in_packetfence_authorize disabled → reject (not an empty Accept)
+{
+    local $Config{radius_configuration}{filter_in_packetfence_authorize} = 'disabled';
+    @advanced = ();
+    $reply = $radius->switch_access(acl_download('#ACSACL#-IP-PERMIT_ALL-5f7e1a0b'));
+    is($reply->[0], $RADIUS::RLM_MODULE_REJECT, 'post-auth: server ACL rejected when filter_in_packetfence_authorize is disabled');
+}
+
+# post-auth: PF-named ACL still goes to the switch module
 @advanced = ();
 $radius->switch_access(acl_download('guest-1a2b3c'));
 is_deeply(\@advanced, ['guest-1a2b3c'], 'post-auth: the switch module answers a downloadable ACL of PacketFence');
