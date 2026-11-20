@@ -31,13 +31,9 @@ sub build_child {
     my ($self) = @_;
     my %ConfigKafka = %{ $self->{cfg} };
     $self->cleanup_whitespaces( \%ConfigKafka );
-    return \%ConfigKafka if !exists $ConfigKafka{iptables};
 
-    my $iptables = $ConfigKafka{iptables};
-    for my $f (qw(cluster_ips clients)) {
-        next if !exists $iptables->{$f};
-        $iptables->{$f} = [split /\s*,\s*/, ($iptables->{$f} // "")];
-    }
+    # auths is built regardless of iptables so that a kafka.conf without an
+    # [iptables] section (e.g. after a partial PATCH) still has valid JAAS users
     my @auths = ($ConfigKafka{admin});
     while (my ($key, $val) = each %ConfigKafka) {
         if ($key =~ /^auth (.*)$/) {
@@ -45,8 +41,16 @@ sub build_child {
             push @auths, {user => $1, pass => $e->{pass}};
         }
     }
-
     $ConfigKafka{auths} = \@auths;
+
+    return \%ConfigKafka if !exists $ConfigKafka{iptables};
+
+    my $iptables = $ConfigKafka{iptables};
+    for my $f (qw(cluster_ips clients)) {
+        next if !exists $iptables->{$f};
+        $iptables->{$f} = [split /\s*,\s*/, ($iptables->{$f} // "")];
+    }
+
     return \%ConfigKafka;
 }
 
