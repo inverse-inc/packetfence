@@ -1,7 +1,0 @@
-pfconnector_remote_id:
-  name: connector_id
-  in: path
-  required: true
-  schema:
-    type: string
-  description: The id of the connector (as in the Connectors configuration).

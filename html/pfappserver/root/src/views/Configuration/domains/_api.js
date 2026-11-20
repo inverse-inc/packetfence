@@ -55,20 +55,21 @@ export default {
     })
   },
   // the connector that reaches an Active Directory server, and its NTLM
-  // services (the Cloud Connectors section is the packetfence-plugin-pfconnector
-  // plugin, the API of the connectors stays in PacketFence)
+  // services: the API of the connector-remotes is the one of the plugin
+  // pfconnector (packetfence-plugin-pfconnector). Without the plugin, or the
+  // rights on it (read connectors, PLUGIN_READ), there is none.
   connectorForIp: ip => {
-    return apiCall.getQuiet(['pfconnector-remotes', 'for-ip', ip]).then(response => {
+    return apiCall.getQuiet(['plugin', 'pfconnector', 'pfconnector-remotes', 'for-ip', ip]).then(response => {
       return response.data
     })
   },
   connectorStatus: id => {
-    return apiCall.get(['pfconnector-remotes', id, 'status']).then(response => {
+    return apiCall.get(['plugin', 'pfconnector', 'pfconnector-remotes', id, 'status']).then(response => {
       return response.data
     })
   },
   connectorInstall: (id, packages) => {
-    return apiCall.post(['pfconnector-remotes', id, 'install'], { packages }).then(response => {
+    return apiCall.post(['plugin', 'pfconnector', 'pfconnector-remotes', id, 'install'], { packages }).then(response => {
       return response.data
     })
   }

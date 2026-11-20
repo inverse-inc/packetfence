@@ -45,12 +45,9 @@ func (APIHandler) CaddyModule() caddy.ModuleInfo {
 
 type APIHandler struct {
 	router *chi.Mux
-	ctx    context.Context
 	// the raw SQL handle, only through sqlDB, setSQLDB and pluginDB (guarded
 	// by sqlDBLock)
 	db *sql.DB
-	// connectors is shared by all the requests, see pfconnector()
-	connectors *sharedConnectors
 }
 
 // guards APIHandler.db: written at startup and by a lazy reopen, read by the
@@ -124,13 +121,10 @@ func (m *APIHandler) Provision(_ caddy.Context) error {
 
 // Build the Handler which will initialize the routes
 func (m *APIHandler) buildHandler(ctx context.Context) error {
-	m.ctx = ctx
-	m.connectors = &sharedConnectors{}
 	router := chi.NewRouter()
 	m.router = router
 
-	// No RealIP/Logger: Caddy already writes the access log, and the request
-	// URLs carry terminal session uuids and TOTP codes.
+	// No RealIP/Logger: Caddy already writes the access log.
 	m.router.Use(middleware.RequestID)
 	m.router.Use(middleware.Recoverer)
 
@@ -159,36 +153,6 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 		for _, method := range uiplugins.ProxyMethods {
 			r.MethodFunc(method, "/plugin/{name}/*", m.pluginProxy())
 		}
-		r.Post("/terminal", m.pfconnectorTerminalGet())
-		r.Get("/terminal/{connectorID}/authorize/{uuid}", m.proxyTerminalAuthorize())
-		// Session recordings (see pfconnector_terminal_recordings.go); the
-		// static segment wins over the terminal catch-all below.
-		r.Get("/terminal/{connectorID}/recordings", m.pfconnectorTerminalRecordings())
-		r.Get("/terminal/{connectorID}/recordings/{name}", m.proxyTerminalRecording())
-		r.Get("/terminal/{connectorID}", m.redirectTerminal())
-		r.HandleFunc("/terminal/{connectorID}/", m.proxyTerminal())
-		r.HandleFunc("/terminal/{connectorID}/*", m.proxyTerminal())
-		r.Route("/pfconnector-remotes", func(r chi.Router) {
-			r.Get("/topology", m.pfconnectorTopology())
-			r.Get("/traffic", m.pfconnectorTraffic())
-			r.Get("/{connectorID}/status", m.pfconnectorRemoteStatus())
-			r.Get("/{connectorID}/uptime", m.pfconnectorRemoteUptime())
-			r.Post("/{connectorID}/restart", m.pfconnectorRemoteRestart())
-			r.Post("/{connectorID}/upgrade", m.pfconnectorRemoteUpgrade())
-			r.Post("/{connectorID}/install", m.pfconnectorRemoteInstall())
-			r.Post("/{connectorID}/ha/switch", m.pfconnectorRemoteHaSwitch())
-			// NTLM authentication services of the remote's host (see pfconnector_services.go)
-			r.Post("/{connectorID}/services/{action}", m.pfconnectorRemoteService())
-			// FreeRADIUS and RADIUS cache of the connector container (see pfconnector_services.go)
-			r.Post("/{connectorID}/container-services/restart", m.pfconnectorRemoteContainerServiceRestart())
-			// connector-cache management (see pfconnector_cache.go)
-			m.mountPfconnectorCacheRoutes(r)
-			r.Get("/for-ip/{ip}", m.pfconnectorForIPHandler())
-			// HandleFunc (like the terminal routes) so the websocket
-			// upgrade GET flows through to the reverse proxy untouched.
-			r.HandleFunc("/{connectorID}/logs/{name}", m.proxyConnectorLogs())
-			r.Post("/dns-lookup", m.pfconnectorDnsLookup())
-		})
 	})
 
 	var DBP **gorm.DB

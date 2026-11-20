@@ -18,18 +18,9 @@ var configApiPrefix = apiPrefix + "/config"
 var configNamespaceRe = regexp.MustCompile("^" + regexp.QuoteMeta(configApiPrefix))
 
 type adminRoleMapping struct {
-	prefix string
-	// pathSuffix, when set, restricts the mapping to the paths under prefix
-	// ending with it (an id sits between the two).
-	pathSuffix string
+	prefix     string
 	role       string
 	roleSuffix string
-	// methodSuffixes overrides methodSuffixMap for some methods on this
-	// prefix, when roleSuffix is not set
-	methodSuffixes map[string]string
-	// altRoles are other base roles accepted, with the same suffix, for the
-	// forms of another section that use the endpoint.
-	altRoles []string
 	// the path must be the prefix itself, not only start with it
 	exact bool
 	// the path must match this expression (the prefix is then not used)
@@ -43,7 +34,7 @@ func (o adminRoleMapping) matches(path string) bool {
 	if o.exact {
 		return path == o.prefix
 	}
-	return strings.HasPrefix(path, o.prefix) && (o.pathSuffix == "" || strings.HasSuffix(path, o.pathSuffix))
+	return strings.HasPrefix(path, o.prefix)
 }
 
 const ALLOW_ANY = "*"
@@ -51,19 +42,6 @@ const ALLOW_ANY = "*"
 var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: apiPrefix + "/current_user", role: ALLOW_ANY},
 	adminRoleMapping{prefix: apiPrefix + "/radius_attributes", role: ALLOW_ANY},
-	// Opening a terminal gives a root shell on the connector-remote, so every
-	// terminal route (create, authorize and the proxied websocket, all GET or
-	// POST) requires the write privilege on connectors.
-	adminRoleMapping{prefix: apiPrefix + "/terminal", role: "CONNECTORS", roleSuffix: "_UPDATE"},
-	adminRoleMapping{prefix: apiPrefix + "/pfconnector-remotes/dns-lookup", role: "CONNECTORS", roleSuffix: "_READ"},
-	// The domain form looks up the connector serving a domain controller
-	// and shows the state of its NTLM services: an admin of the domains
-	// reads these without the connectors section.
-	adminRoleMapping{prefix: apiPrefix + "/pfconnector-remotes/for-ip/", role: "CONNECTORS", roleSuffix: "_READ", altRoles: []string{"DOMAINS"}},
-	adminRoleMapping{prefix: apiPrefix + "/pfconnector-remotes/", pathSuffix: "/status", role: "CONNECTORS", roleSuffix: "_READ", altRoles: []string{"DOMAINS"}},
-	// POST on a connector-remote (restart, upgrade) acts on an existing
-	// connector, it does not create anything.
-	adminRoleMapping{prefix: apiPrefix + "/pfconnector-remotes", role: "CONNECTORS", methodSuffixes: map[string]string{"POST": "_UPDATE"}},
 	// the admin UI plugins: the UI filters the menu entries with the manifest
 	// menu.can, the api handler checks each request to a plugin against the
 	// can of its manifest (go/uiplugins Allowed). The list is matched exactly,
@@ -264,16 +242,12 @@ func (tam *TokenAuthorizationMiddleware) IsAuthorized(ctx context.Context, metho
 func (tam *TokenAuthorizationMiddleware) isAuthorizedAdminActions(ctx context.Context, method, path string, roles map[string]bool) (bool, error) {
 
 	var baseAdminRole string
-	var altAdminRoles []string
 	var suffix string
 	for _, o := range pathAdminRolesMap {
-		if o.matches(path) && o.role != "" {
-			baseAdminRole = o.role
-			altAdminRoles = o.altRoles
+		role := o.role
+		if o.matches(path) && role != "" {
+			baseAdminRole = role
 			suffix = o.roleSuffix
-			if suffix == "" {
-				suffix = o.methodSuffixes[method]
-			}
 			break
 		}
 	}
@@ -309,16 +283,11 @@ func (tam *TokenAuthorizationMiddleware) isAuthorizedAdminActions(ctx context.Co
 	if _, ok := roles[adminRole]; ok {
 		log.LoggerWContext(ctx).Debug("Access is authorized for this request")
 		return true, nil
+	} else {
+		msg := fmt.Sprintf("Unauthorized access, lacking the %s administrative role", adminRole)
+		log.LoggerWContext(ctx).Debug(msg)
+		return false, errors.New(msg)
 	}
-	for _, alt := range altAdminRoles {
-		if _, ok := roles[alt+suffix]; ok {
-			log.LoggerWContext(ctx).Debug(fmt.Sprintf("Access is authorized for this request through %s", alt+suffix))
-			return true, nil
-		}
-	}
-	msg := fmt.Sprintf("Unauthorized access, lacking the %s administrative role", adminRole)
-	log.LoggerWContext(ctx).Debug(msg)
-	return false, errors.New(msg)
 }
 
 func (tam *TokenAuthorizationMiddleware) GetTokenInfoFromBearerRequest(ctx context.Context, r *http.Request) (*TokenInfo, time.Time) {
