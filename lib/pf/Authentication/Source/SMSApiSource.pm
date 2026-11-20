@@ -15,6 +15,7 @@ use pf::constants qw($TRUE $FALSE);
 use pf::log;
 use LWP::UserAgent;
 use URI;
+use URI::Escape::XS qw(uri_escape);
 
 use Moose;
 
@@ -83,7 +84,8 @@ sub match_in_subclass {
 Build the full URL from api_protocol and api_url.
 Anything other than 'http' in api_protocol is sent over https, so a hand edited
 configuration can't select another scheme.
-Returns undef when api_url is empty, contains whitespace, carries its own scheme or has no host
+Returns undef when api_url is empty, contains whitespace, carries its own scheme,
+has no host or has a non numeric port
 
 =cut
 
@@ -94,8 +96,13 @@ sub build_api_url {
     return undef if $url =~ m{^[a-z][a-z0-9+.-]*://}i;
     my $scheme = (defined $protocol && $protocol eq 'http') ? 'http' : 'https';
     my $uri = URI->new("$scheme://$url");
-    my $host = $uri->host;
-    return (defined $host && length $host) ? $uri : undef;
+    # [userinfo@]host[:port] where host is a name, an IPv4 or a bracketed IPv6
+    # address and the port, when present, is numeric and in range
+    my $authority = $uri->authority // '';
+    return undef unless $authority =~ m{^(?:[^@]*@)?(?:\[[0-9A-Fa-f:.]+\]|[^:\[\]@]+)(?::(\d{1,5}))?$};
+    my $port = $1;
+    return undef if defined $port && ($port < 1 || $port > 65535);
+    return $uri;
 }
 
 =head2 sendSMS
@@ -110,28 +117,27 @@ sub sendSMS {
     my $message = $info->{message};
     my $logger = pf::log::get_logger;
 
-    my $url = $self->api_url;
-    unless ($url) {
-        $logger->error("Can't send SMS to '$to': no api_url configured on source " . $self->id);
-        return $FALSE;
-    }
-
+    my $url = $self->api_url // '';
     my $uri = build_api_url($self->api_protocol, $url);
     unless ($uri) {
         $logger->error("Can't send SMS to '$to': api_url '$url' on source " . $self->id . " is not a valid URL without a protocol");
         return $FALSE;
     }
 
-    # Merge into any query the configured URL already carries; a fragment would swallow the query
+    # Merge into any query the configured URL already carries; a fragment would swallow the query.
+    # Encoded with uri_escape (space as %20) to stay byte identical with ClickatellSource
     $uri->fragment(undef);
-    $uri->query_form(
-        $uri->query_form,
-        apiKey  => $self->api_key,
-        to      => $to,
-        content => $message,
+    my $query = join('&',
+        "apiKey=" . uri_escape($self->api_key // ''),
+        "to=" . uri_escape($to // ''),
+        "content=" . uri_escape($message // ''),
     );
+    my $existing = $uri->query;
+    $uri->query(defined $existing && length $existing ? "$existing&$query" : $query);
 
-    my $ua = LWP::UserAgent->new(timeout => $self->timeout);
+    # Never follow redirects: the apiKey is in the query string and would be
+    # re-sent to wherever the gateway points (possibly over plain http)
+    my $ua = LWP::UserAgent->new(timeout => $self->timeout, max_redirect => 0);
     my $response = $ua->get($uri);
 
     unless($response->is_success) {

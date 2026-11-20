@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 24;
+use Test::More tests => 26;
 
 #This test will running last
 use Test::NoWarnings;
@@ -77,7 +77,7 @@ $t->patch_ok("$base_url/$id1" =>
   ->status_is(200)
   ;
 
-for my $api_url ('https://sms.example.com/send', 'ftp://sms.example.com/send', '/send') {
+for my $api_url ('https://sms.example.com/send', 'ftp://sms.example.com/send', '/send', 'sms.example.com:abc/send') {
     $t->patch_ok("$base_url/$id1" =>
         json => {
             api_url => $api_url,
