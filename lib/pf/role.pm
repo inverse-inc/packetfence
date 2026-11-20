@@ -615,6 +615,8 @@ sub getNodeInfoForAutoReg {
             my $source = $matched->{source_id};
 
             my $values = $matched->{values};
+            # Whether the role comes from the matched source, not from the VLAN filter
+            my $role_from_source = $FALSE;
             # Don't override vlan filter role
             if (!defined($role)) {
                 $role = $values->{$Actions::SET_ROLE};
@@ -622,6 +624,7 @@ sub getNodeInfoForAutoReg {
                     $role = $values->{$Actions::SET_ROLE_FROM_SOURCE};
                     $action = $Actions::SET_ROLE_FROM_SOURCE;
                 }
+                $role_from_source = defined($role) ? $TRUE : $FALSE;
             }
             my $unregdate = $values->{$Actions::SET_UNREG_DATE};
             my $time_balance =  $values->{$Actions::SET_TIME_BALANCE};
@@ -648,13 +651,15 @@ sub getNodeInfoForAutoReg {
 
             if (defined $unregdate) {
                 $node_info{'unregdate'} = $unregdate;
+                if (defined $role) {
+                    %node_info = (%node_info, (category => $role));
+                }
                 %node_info = (%node_info, (source  => $source, portal => $profile->getName));
             }
-            # A role without an unregistration date is applied too, like in getRegisteredRole:
-            # the node keeps its unregistration date. Only a source that builds its actions
-            # at match time (HTTP source) can return one, since the rules of a source
-            # require an unregistration date with the role.
-            if (defined $role) {
+            elsif ($role_from_source && _is_http_source($source)) {
+                # The role returned by an HTTP source without an unregistration date is
+                # applied too, like in getRegisteredRole: the node keeps its unregistration
+                # date. The other sources keep requiring an unregistration date with the role.
                 $node_info{'category'} = $role;
             }
             if (!defined($role) && isenabled($profile->dot1xUnsetOnUnmatch)) {
@@ -712,6 +717,19 @@ sub getNodeInfoForAutoReg {
     }
 
     return ($attributes, $action, %node_info);
+}
+
+=head2 _is_http_source
+
+Whether the authentication source with this ID is an HTTP source
+
+=cut
+
+sub _is_http_source {
+    my ($source_id) = @_;
+    return $FALSE if !defined $source_id;
+    my $source = pf::authentication::getAuthenticationSource($source_id);
+    return (defined $source && $source->type eq 'HTTP') ? $TRUE : $FALSE;
 }
 
 =head2 shouldAutoRegister

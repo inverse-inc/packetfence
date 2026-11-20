@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 121;
+use Test::More tests => 138;
 use WWW::Curl::Easy;
 use URI;
 use JSON::MaybeXS qw(decode_json);
@@ -239,8 +239,8 @@ for my $vlan (qw(1 252 4094 vlan_guest Guest-VLAN guest.vlan 1a _guest), 'a' x 5
     ok(pf::Authentication::Source::HTTPSource::is_valid_bypass_vlan($vlan), "'$vlan' is a valid bypass VLAN");
 }
 
-for my $vlan (undef, '', 0, 4095, 99999, '252.5', '-1', '.guest', '-guest', 'guest vlan', 'guest/vlan', 'a' x 51, [], {}) {
-    my $name = defined $vlan ? (ref $vlan ? ref($vlan) . ' ref' : "'$vlan'") : 'undef';
+for my $vlan (undef, '', 0, 4095, 99999, '252.5', '-1', '.guest', '-guest', 'guest vlan', 'guest/vlan', 'a' x 51, "guest\n", "252\n", [], {}) {
+    my $name = defined $vlan ? (ref $vlan ? ref($vlan) . ' ref' : "'" . ($vlan =~ s/\n/\\n/gr) . "'") : 'undef';
     ok(!pf::Authentication::Source::HTTPSource::is_valid_bypass_vlan($vlan), "$name is not a valid bypass VLAN");
 }
 
@@ -280,8 +280,32 @@ is_deeply(
     "a reply without bypass_vlan leaves the bypass VLAN as it is"
 );
 
-for my $reply ('{"bypass_vlan":5000}', '{"bypass_vlan":"0"}', '{"bypass_vlan":"252.5"}', '{"bypass_vlan":"guest vlan"}', '{"bypass_vlan":true}', '{"bypass_vlan":{"id":252}}', '{"bypass_vlan":[252]}') {
+is_deeply(
+    match_actions('{"bypass_vlan":"000000252"}'),
+    { $Actions::SET_BYPASS_VLAN => '252' },
+    "all the leading zeros of a bypass_vlan VLAN ID are removed"
+);
+
+is_deeply(
+    match_actions('{"bypass_vlan":252.0}'),
+    { $Actions::SET_BYPASS_VLAN => '252' },
+    "a JSON number bypass_vlan without a fraction is a VLAN ID"
+);
+
+for my $reply ('{"bypass_vlan":5000}', '{"bypass_vlan":"0"}', '{"bypass_vlan":"0000"}', '{"bypass_vlan":"252.5"}', '{"bypass_vlan":"guest vlan"}', '{"bypass_vlan":"guest\\n"}', '{"bypass_vlan":"252\\n"}', '{"bypass_vlan":true}', '{"bypass_vlan":{"id":252}}', '{"bypass_vlan":[252]}') {
+    my @warnings;
+    my $logger = Test::MockModule->new('pf::Authentication::Source::HTTPSource');
+    $logger->mock('get_logger', sub { bless { warnings => \@warnings }, 'HTTPSourceTestLogger' });
     is_deeply(match_actions($reply), {}, "an invalid bypass_vlan is ignored: $reply");
+    is(scalar(grep { /Ignoring bypass_vlan/ } @warnings), 1, "an invalid bypass_vlan is logged: $reply");
+}
+
+{
+    package HTTPSourceTestLogger;
+    sub warn { my ($self, $message) = @_; push @{$self->{warnings}}, $message }
+    our $AUTOLOAD;
+    sub AUTOLOAD { }
+    sub DESTROY { }
 }
 
 for my $reply ('<html>Error</html>', '', '[]', '"ok"') {
