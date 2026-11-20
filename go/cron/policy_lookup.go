@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net"
 	"net/netip"
+	"sort"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -282,57 +283,62 @@ type PolicyLookup struct {
 	ImplictPolices []Policy
 }
 
-// LookupWithRoles resolves the enforcement info of an event whose node roles
-// were already looked up, so callers can batch the role queries for many
-// events (see UpdateNetworkEvents).
+// LookupWithRoles resolves the MAC and role enforcement info of an event whose
+// node roles were already looked up, so callers can batch the role queries for
+// many events (see UpdateNetworkEvents). The MAC policies of the source then
+// destination are checked first, then the role policies of the source then
+// destination. MAC policies are authoritative per side: when a node's MAC has
+// policies but none match, that node's role policies are not checked, while
+// the other node's still are. Implicit policies are not checked here:
+// applyEnforcement checks them before calling it.
 func (l PolicyLookup) LookupWithRoles(ne *NetworkEvent, srcMac, srcRole, dstMac, dstRole string) *EnforcementInfo {
-	if ei := l.LookupByMac(srcMac, ne); ei != nil {
+	var srcFound, dstFound bool
+	var ei *EnforcementInfo
+	if ei, srcFound = l.LookupByMac(srcMac, ne); ei != nil {
 		return ei
 	}
 
-	if ei := l.LookupByMac(dstMac, ne); ei != nil {
+	if ei, dstFound = l.LookupByMac(dstMac, ne); ei != nil {
 		return ei
 	}
 
-	if ei := l.LookupByRoles(srcRole, ne); ei != nil {
-		return ei
+	if !srcFound {
+		if ei, _ = l.LookupByRoles(srcRole, ne); ei != nil {
+			return ei
+		}
 	}
 
-	if ei := l.LookupByRoles(dstRole, ne); ei != nil {
-		return ei
-	}
-
-	if srcMac != "" {
-		return l.LookupImplict(ne)
+	if !dstFound {
+		if ei, _ = l.LookupByRoles(dstRole, ne); ei != nil {
+			return ei
+		}
 	}
 
 	return nil
 }
 
-func (l *PolicyLookup) LookupByRoles(role string, ne *NetworkEvent) *EnforcementInfo {
+// LookupByRoles returns the enforcement info of the first policy of role
+// matching ne. The boolean is true when role has at least one policy to look
+// up, even if none of them matched.
+func (l *PolicyLookup) LookupByRoles(role string, ne *NetworkEvent) (*EnforcementInfo, bool) {
 	policies, ok := l.ByRoles[role]
-	if !ok {
-		return nil
+	if !ok || len(policies) == 0 {
+		return nil, false
 	}
 
-	if ei := matchEnforcementInfo(policies, ne); ei != nil {
-		return ei
-	}
-
-	return nil
+	return matchEnforcementInfo(policies, ne), true
 }
 
-func (l *PolicyLookup) LookupByMac(mac string, ne *NetworkEvent) *EnforcementInfo {
-	policies, ok := l.NodesPolicies[mac]
-	if !ok {
-		return nil
+// LookupByMac returns the enforcement info of the first policy of mac matching
+// ne. The boolean is true when mac has at least one policy to look up, even
+// if none of them matched: an empty policy list counts as no policies.
+func (l *PolicyLookup) LookupByMac(mac string, ne *NetworkEvent) (*EnforcementInfo, bool) {
+	policies, ok := l.NodesPolicies[macKey(mac)]
+	if !ok || len(policies) == 0 {
+		return nil, false
 	}
 
-	if ei := matchEnforcementInfo(policies, ne); ei != nil {
-		return ei
-	}
-
-	return nil
+	return matchEnforcementInfo(policies, ne), true
 }
 
 func matchEnforcementInfo(policies []Policy, ne *NetworkEvent) *EnforcementInfo {
@@ -352,7 +358,12 @@ func (l *PolicyLookup) LookupImplict(ne *NetworkEvent) *EnforcementInfo {
 	return matchEnforcementInfo(l.ImplictPolices, ne)
 }
 
+// UpdateMatchers builds the ACL matchers of every policy and normalizes the
+// NodesPolicies keys with macKey so LookupByMac ignores the MAC case. Keys
+// that only differ by case are merged, their policies appended in sorted key
+// order.
 func (l *PolicyLookup) UpdateMatchers() {
+	l.normalizeNodesPolicies()
 	for _, v := range l.ByRoles {
 		for i := range v {
 			p := &v[i]
@@ -373,6 +384,25 @@ func (l *PolicyLookup) UpdateMatchers() {
 	}
 }
 
+func (l *PolicyLookup) normalizeNodesPolicies() {
+	if len(l.NodesPolicies) == 0 {
+		return
+	}
+
+	keys := make([]string, 0, len(l.NodesPolicies))
+	for k := range l.NodesPolicies {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	normalized := make(map[string][]Policy, len(l.NodesPolicies))
+	for _, k := range keys {
+		nk := macKey(k)
+		normalized[nk] = append(normalized[nk], l.NodesPolicies[k]...)
+	}
+	l.NodesPolicies = normalized
+}
+
 var storePolicyLookup atomic.Value
 
 func GetPolicyLookup() *PolicyLookup {
@@ -385,10 +415,10 @@ func StorePolicyLookup(p *PolicyLookup) {
 
 const nodeRolesLookupChunk = 1000
 
-// roleKey normalizes a MAC for the nodeRoles map. node.mac is compared
-// case-insensitively by MariaDB (utf8mb4_general_ci) but a Go map is not, and
-// MACs filled in from ip4log keep whatever case the writer used.
-func roleKey(mac string) string {
+// macKey normalizes a MAC for the nodeRoles and NodesPolicies maps. node.mac
+// is compared case-insensitively by MariaDB (utf8mb4_general_ci) but a Go map
+// is not, and MACs filled in from ip4log keep whatever case the writer used.
+func macKey(mac string) string {
 	return strings.ToLower(mac)
 }
 
@@ -399,11 +429,11 @@ func UpdateNetworkEvents(ctx context.Context, db *sql.DB, events []*NetworkEvent
 	macSet := make(map[string]struct{}, len(events))
 	for _, ne := range events {
 		if mac := inventoryMac(ne.SourceInventoryItem); mac != "" {
-			macSet[roleKey(mac)] = struct{}{}
+			macSet[macKey(mac)] = struct{}{}
 		}
 
 		if mac := inventoryMac(ne.DestInventoryitem); mac != "" {
-			macSet[roleKey(mac)] = struct{}{}
+			macSet[macKey(mac)] = struct{}{}
 		}
 	}
 
@@ -414,29 +444,37 @@ func UpdateNetworkEvents(ctx context.Context, db *sql.DB, events []*NetworkEvent
 
 	roles, complete := nodeRoles(ctx, db, macs)
 	if !complete {
-		log.LogErrorf(ctx, "pfflow: node role lookup failed for part of this window; role-based and implicit policies are not applied to its %d network events, MAC policies still are", len(events))
+		log.LogErrorf(ctx, "pfflow: node role lookup failed for part of this window; role-based policies are not applied to its %d network events, implicit and MAC policies still are", len(events))
 	}
 
 	applyEnforcement(GetPolicyLookup(), events, roles, complete)
 }
 
 // applyEnforcement sets the enforcement info of every event from the
-// pre-resolved roles. When rolesComplete is false a role query failed for
-// some chunk of MACs and an absent role can no longer be told from "no role":
-// only the MAC policies, which do not depend on the lookup, are applied, and
-// the role-based and implicit policies are skipped rather than evaluated with
+// pre-resolved roles. Implicit policies are checked first for any event with a
+// source MAC, then the MAC and role policies (see LookupWithRoles). When
+// rolesComplete is false a role query failed for some chunk of MACs and an
+// absent role can no longer be told from "no role": after the implicit
+// policies, only the MAC policies, which do not depend on the lookup, are
+// applied, and the role-based policies are skipped rather than evaluated with
 // a role that may be wrong. Events then go out without enforcement info for
 // this window, as they do when no policy matches.
 func applyEnforcement(lookup *PolicyLookup, events []*NetworkEvent, roles map[string]string, rolesComplete bool) {
 	for _, ne := range events {
 		srcMac := inventoryMac(ne.SourceInventoryItem)
 		dstMac := inventoryMac(ne.DestInventoryitem)
+		if srcMac != "" {
+			if ei := lookup.LookupImplict(ne); ei != nil {
+				ne.EnforcementInfo = ei
+				continue
+			}
+		}
 
 		var ei *EnforcementInfo
 		if rolesComplete {
-			ei = lookup.LookupWithRoles(ne, srcMac, roles[roleKey(srcMac)], dstMac, roles[roleKey(dstMac)])
-		} else if ei = lookup.LookupByMac(srcMac, ne); ei == nil {
-			ei = lookup.LookupByMac(dstMac, ne)
+			ei = lookup.LookupWithRoles(ne, srcMac, roles[macKey(srcMac)], dstMac, roles[macKey(dstMac)])
+		} else if ei, _ = lookup.LookupByMac(srcMac, ne); ei == nil {
+			ei, _ = lookup.LookupByMac(dstMac, ne)
 		}
 
 		if ei != nil {
@@ -445,10 +483,10 @@ func applyEnforcement(lookup *PolicyLookup, events []*NetworkEvent, roles map[st
 	}
 }
 
-// nodeRoles maps each known MAC (lower-cased, see roleKey) to its role name
+// nodeRoles maps each known MAC (lower-cased, see macKey) to its role name
 // ("" when the node has no role). MACs absent from the node table are absent
 // from the result, which also yields "" on lookup, the same as the per-event
-// query did. macs must already be roleKey-normalized. The boolean is false
+// query did. macs must already be macKey-normalized. The boolean is false
 // when a chunk query failed, in which case up to nodeRolesLookupChunk MACs
 // are missing from the map for a reason other than "unknown node".
 func nodeRoles(ctx context.Context, db *sql.DB, macs []string) (map[string]string, bool) {
