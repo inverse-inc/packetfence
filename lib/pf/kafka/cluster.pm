@@ -55,6 +55,9 @@ sub plan {
             delete $node_ids{$server->{host}};
         }
     }
+    # IDs of servers no longer in the cluster are also off-limits so a new server
+    # won't reuse them and collide with their stale KRaft registration
+    $used{$_} = 1 for grep { /^\d+$/ } grep { defined } values %node_ids;
     my $next_id = max(0, keys %used) + 1;
 
     my $controller_listener_names = $args{controller_listener_names} || $DEFAULT_CONTROLLER_LISTENER_NAMES;
@@ -89,7 +92,7 @@ sub plan {
     return {
         members => \@members,
         quorum_voters => join(",", map { "$_->{node_id}\@$_->{mgmtip}:9093" } sort { $a->{node_id} <=> $b->{node_id} } @controllers),
-        replication_factor => int(@members / 2) + 1,
+        replication_factor => int(@controllers / 2) + 1,
         warnings => \@warnings,
     };
 }

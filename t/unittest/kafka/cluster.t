@@ -21,7 +21,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 20;
+use Test::More tests => 21;
 use Test::Exception;
 use pf::kafka::cluster;
 
@@ -48,7 +48,7 @@ my $plan = pf::kafka::cluster::plan(servers => \@servers, listeners => $listener
 is_deeply([map { $_->{host} } @{$plan->{members}}], [qw(pf1 pf2 pf3 pf4)], 'every server of every zone is a member');
 is_deeply([map { $_->{node_id} } @{$plan->{members}}], [1, 2, 3, 4], 'node IDs follow the host names');
 is($plan->{quorum_voters}, '1@192.0.2.1:9093,2@192.0.2.2:9093,3@192.0.2.3:9093,4@198.51.100.4:9093', 'every server votes');
-is($plan->{replication_factor}, 3, 'replication factor: majority of the brokers');
+is($plan->{replication_factor}, 3, 'replication factor: majority of the controllers');
 is(by_host($plan)->{pf4}{advertised_listeners}, 'INTERNAL://198.51.100.4:29092,EXTERNAL://198.51.100.4:9092,PF://198.51.100.4:9095,PFCONNECTOR://127.0.0.1:9096', 'brokers advertise their management IP');
 ok(!exists by_host($plan)->{pf1}{process_roles}, 'a controller keeps the roles of the cluster section');
 
@@ -58,8 +58,22 @@ my $pf4 = by_host($plan)->{pf4};
 is($plan->{quorum_voters}, '1@192.0.2.1:9093,2@192.0.2.2:9093,3@192.0.2.3:9093', 'a broker only server does not vote');
 is($pf4->{process_roles}, 'broker', 'a broker only server has the broker role only');
 is($pf4->{listeners}, 'INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092,PF://0.0.0.0:9095,PFCONNECTOR://0.0.0.0:9096', 'a broker only server has no controller listener');
-is($plan->{replication_factor}, 3, 'a broker only server still holds replicas');
+is($plan->{replication_factor}, 2, 'replication factor is a majority of the controllers, not all brokers');
 is(scalar @{$plan->{members}}, 4, 'a broker only server is still a member');
+
+# DR scenario: 3 controllers in DC1, 3 broker-only in DC2
+# The replication factor must not exceed the controller count so topics can be
+# created with DC2 down (only the 3 DC1 controllers available)
+my @dr_servers = (
+    { host => 'dc1a', management_ip => '192.0.2.1' },
+    { host => 'dc1b', management_ip => '192.0.2.2' },
+    { host => 'dc1c', management_ip => '192.0.2.3' },
+    { host => 'dc2a', management_ip => '198.51.100.1' },
+    { host => 'dc2b', management_ip => '198.51.100.2' },
+    { host => 'dc2c', management_ip => '198.51.100.3' },
+);
+$plan = pf::kafka::cluster::plan(servers => \@dr_servers, listeners => $listeners, broker_only_hosts => [qw(dc2a dc2b dc2c)]);
+is($plan->{replication_factor}, 2, 'DR: replication factor is a majority of the 3 DC1 controllers, not all 6 brokers');
 
 # The node IDs already assigned are kept, a new server gets the next one
 $plan = pf::kafka::cluster::plan(
@@ -68,7 +82,7 @@ $plan = pf::kafka::cluster::plan(
     node_ids => { pf1 => 3, pf2 => 1, pf3 => 2, gone => 7 },
 );
 my $members = by_host($plan);
-is_deeply([map { $members->{$_}{node_id} } qw(pf1 pf2 pf3 pf4)], [3, 1, 2, 4], 'existing node IDs are kept, the new server gets the next free one');
+is_deeply([map { $members->{$_}{node_id} } qw(pf1 pf2 pf3 pf4)], [3, 1, 2, 8], 'existing node IDs are kept, the new server gets an ID above the highest ever assigned (including removed servers)');
 
 # A duplicated or invalid node ID is reassigned
 $plan = pf::kafka::cluster::plan(servers => \@servers, listeners => $listeners, node_ids => { pf1 => 1, pf2 => 1, pf3 => 'x' });

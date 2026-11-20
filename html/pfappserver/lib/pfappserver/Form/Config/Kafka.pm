@@ -47,6 +47,7 @@ has_field 'general.broker_only_hosts' => (
    type => 'Select',
    multiple => 1,
    options_method => \&options_cluster_hosts,
+   no_option_validation => 1,
    tags => {
        after_element => \&help,
        help => 'Servers of the cluster that run Kafka without being part of the controller quorum (e.g. the servers of a secondary zone). Run /usr/local/pf/bin/kafka-init.pl to apply: the controller quorum is fixed when the Kafka cluster is created, changing it requires to remove the Kafka data of every server.',

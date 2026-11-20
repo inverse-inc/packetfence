@@ -81,6 +81,9 @@ if ($cluster_enabled) {
     # The other sections (cluster, iptables, general, ...) are left as is.
     my %node_ids;
     for my $section ($ini->Sections) {
+        # Never delete the core sections: they hold settings kafka-init doesn't regenerate
+        next if $section eq 'cluster' || $section eq 'admin' || $section eq 'iptables'
+             || $section eq 'general' || $section =~ /^auth /;
         my $node_id = $ini->val($section, 'KAFKA_NODE_ID');
         next if !defined $node_id && !$servers{$section};
         $node_ids{$section} = $node_id if defined $node_id;
@@ -88,13 +91,21 @@ if ($cluster_enabled) {
         $ini->DeleteSection($section);
     }
 
-    my $plan = pf::kafka::cluster::plan(
-        servers => \@servers,
-        node_ids => \%node_ids,
-        broker_only_hosts => [ split /\s*,\s*/, ($ini->val('general', 'broker_only_hosts') // '') ],
-        listeners => $ini->val('cluster', 'KAFKA_LISTENERS'),
-        controller_listener_names => $ini->val('cluster', 'KAFKA_CONTROLLER_LISTENER_NAMES'),
-    );
+    my $plan = eval {
+        pf::kafka::cluster::plan(
+            servers => \@servers,
+            node_ids => \%node_ids,
+            broker_only_hosts => [ split /\s*,\s*/, ($ini->val('general', 'broker_only_hosts') // '') ],
+            listeners => scalar($ini->val('cluster', 'KAFKA_LISTENERS')),
+            controller_listener_names => scalar($ini->val('cluster', 'KAFKA_CONTROLLER_LISTENER_NAMES')),
+        )
+    };
+    if ($@) {
+        chomp(my $err = $@);
+        $ini->RewriteConfig() if $changed;
+        print STDERR "kafka-init: $err\n";
+        exit 1;
+    }
     print STDERR "$_\n" for @{$plan->{warnings}};
 
     set_or_create($ini, 'cluster', 'KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR', $plan->{replication_factor});
