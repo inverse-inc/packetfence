@@ -941,6 +941,25 @@ Internet Explorer 11 on Windows 7 when an RSA certificate is in use.
 
 == Upgrading from a version prior to X.Y.Z
 
+=== Realms with "Authorize from PacketFence" disabled
+
+A request proxied to the RADIUS server of a realm (EAP-TLS, or without EAP)
+was authorized by PacketFence after the server accepted it, even when
+*Authorize from PacketFence* was disabled on the realm: the switch got the
+role, VLAN and ACLs computed by PacketFence. With the option enabled,
+PacketFence authorized it twice, which sent the role ACLs twice. The option is
+now honored: when it is disabled, the switch gets the answer of the RADIUS
+server only. PacketFence no longer creates or updates the node or its
+locationlog at post-auth in that case — only accounting updates them. Enable
+*Authorize from PacketFence* on the realms whose devices must get their role,
+VLAN or ACLs from PacketFence, or whose node and locationlog records must be
+kept up to date at authentication time.
+
+If you kept a customized [filename]`conf/radiusd/packetfence` or
+[filename]`conf/radiusd/packetfence-tunnel`, merge the new `post-auth` and
+`Post-Auth-Type REJECT` blocks of the corresponding `.example` files into
+your copies. Without them, proxied requests are still authorized twice.
+
 === Bypass ACLs are translated like role ACLs
 
 The _Bypass ACLs_ of a node (Node > Advanced) were sent to the switch as

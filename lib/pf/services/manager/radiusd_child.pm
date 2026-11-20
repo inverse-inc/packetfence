@@ -198,7 +198,7 @@ EOT
     $tags{'local_realm'} = '';
     my @realms;
     foreach my $realm ( @pf::config::ConfigOrderedRealm ) {
-        if (isenabled($pf::config::ConfigRealm{$realm}->{'radius_auth_compute_in_pf'})) {
+        if (isenabled($pf::config::ConfigRealm{$realm}->{'radius_auth_compute_in_pf'} // 'enabled')) {
             if (defined $pf::config::ConfigRealm{$realm}->{'regex'} && $pf::config::ConfigRealm{$realm}->{'regex'} ne '') {
                 push (@realms, "Realm =~ /$pf::config::ConfigRealm{$realm}->{'regex'}/");
             } else {
@@ -211,7 +211,7 @@ EOT
         $tags{'local_realm'} .=  join(' || ', @realms);
         $tags{'local_realm'} .= ' ) {'."\n";
         $tags{'local_realm'} .= <<"EOT";
-            rest
+            packetfence-post-auth-rest
         }
 EOT
     }
