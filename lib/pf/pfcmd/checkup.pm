@@ -401,7 +401,7 @@ sub network {
 
 Inline enforcement is not supported anymore. Report as FATAL any leftover of it in the configuration:
 an interface with an inline enforcement, a network of type inline, the [inline] section of pf.conf
-or a switch using inlineTrigger.
+or a switch using inlineTrigger, inlineVlan or inlineRole.
 
 =cut
 
