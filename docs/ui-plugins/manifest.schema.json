@@ -181,6 +181,10 @@
           "minimum": 1,
           "maximum": 300,
           "description": "Seconds a call to the plugin may take (default 60)."
+        },
+        "websockets": {
+          "type": "boolean",
+          "description": "The code may open WebSockets on /api/v1/plugin/<name>/<path>: a GET (PLUGIN_READ), from a page of the PacketFence origin, without the timeout."
         }
       },
       "if": {
