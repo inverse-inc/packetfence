@@ -5035,14 +5035,6 @@ msgstr ""
 msgid "Should pfacct be managed by PacketFence?"
 msgstr ""
 
-# conf/documentation.conf (services.pfconnector-client)
-msgid "Should pfconnector-client be managed by PacketFence?"
-msgstr ""
-
-# conf/documentation.conf (services.pfconnector-server)
-msgid "Should pfconnector-server be managed by PacketFence?"
-msgstr ""
-
 # conf/documentation.conf (services.pfcron)
 msgid ""
 "Should pfcron be started? Keep enabled unless you know what you're doing."
@@ -7994,8 +7986,6 @@ msgstr ""
 # conf/documentation.conf (services.netdata options)
 # conf/documentation.conf (services.ntlm-auth-api options)
 # conf/documentation.conf (services.pfacct options)
-# conf/documentation.conf (services.pfconnector-client options)
-# conf/documentation.conf (services.pfconnector-server options)
 # conf/documentation.conf (services.pfcron options)
 # conf/documentation.conf (services.pfdhcp options)
 # conf/documentation.conf (services.pfdhcplistener options)
@@ -8220,8 +8210,6 @@ msgstr ""
 # conf/documentation.conf (services.netdata options)
 # conf/documentation.conf (services.ntlm-auth-api options)
 # conf/documentation.conf (services.pfacct options)
-# conf/documentation.conf (services.pfconnector-client options)
-# conf/documentation.conf (services.pfconnector-server options)
 # conf/documentation.conf (services.pfcron options)
 # conf/documentation.conf (services.pfdhcp options)
 # conf/documentation.conf (services.pfdhcplistener options)
@@ -9771,14 +9759,6 @@ msgstr ""
 
 # conf/documentation.conf
 msgid "services.pfacct_binary"
-msgstr ""
-
-# conf/documentation.conf
-msgid "services.pfconnector-client"
-msgstr ""
-
-# conf/documentation.conf
-msgid "services.pfconnector-server"
 msgstr ""
 
 # conf/documentation.conf

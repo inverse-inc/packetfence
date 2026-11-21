@@ -179,10 +179,9 @@ and compilation. The integration tests remain available through
 [command]`make test`; they require a running test pfconfig process.
 
 Review and fix reported findings; any analyzer suppression should be narrow and
-explain why the finding is safe. No blanket exclusions are provided, including
-for the vendored `chisel/` fork. `gopls check` is not needed in this gate: vet
-and Staticcheck provide the batch analysis, while gopls remains useful in the
-editor.
+explain why the finding is safe. No blanket exclusions are provided. `gopls
+check` is not needed in this gate: vet and Staticcheck provide the batch
+analysis, while gopls remains useful in the editor.
 
 ==== Creating a service
 
