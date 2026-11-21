@@ -215,12 +215,12 @@ our @SyslogInfo = (
     {
         'description' => 'pfconnector client log',
         'name'       => 'pfconnector-client.log',
-        'conditions' => [ '$programname == "pfconnector-client-docker-wrapper"' ]
+        'conditions' => [ '$programname == "pfconnector-client"' ]
     },
     {
         'description' => 'pfconnector server log',
         'name'       => 'pfconnector-server.log',
-        'conditions' => [ '$programname == "pfconnector-server-docker-wrapper"' ]
+        'conditions' => [ '$programname == "pfconnector-server"' ]
     },
     {
         'description' => 'keepalived log',

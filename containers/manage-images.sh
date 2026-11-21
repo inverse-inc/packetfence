@@ -89,7 +89,6 @@ configure_and_check() {
     DOCKERFILE_DIRS=$(find ${SCRIPT_DIR} -type f -name "Dockerfile" \
                            -not -path "*/pfdebian/*" \
                            -not -path "*/radiusd/*" \
-                           -not -path "*/pfconnector-*/*" \
                            -not -path "*/kaniko-build/*" \
                            -not -path "*/packetfence-perl/*" \
                            -not -path "*/git-sync/*" \
@@ -167,10 +166,6 @@ tag_images() {
 #	docker tag ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME} ${img}:latest
 # 	docker tag ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME} ${LOCAL_REGISTRY}/${img}:latest
     done
-
-    # The pfconnector-server and pfconnector-client images point to the local pfconnector image
-    docker tag ${LOCAL_REGISTRY}/pfconnector:${TAG_OR_BRANCH_NAME} ${LOCAL_REGISTRY}/pfconnector-server:${TAG_OR_BRANCH_NAME}
-    docker tag ${LOCAL_REGISTRY}/pfconnector:${TAG_OR_BRANCH_NAME} ${LOCAL_REGISTRY}/pfconnector-client:${TAG_OR_BRANCH_NAME}
 
     echo "$(date) - Tag of images finished"
 }
