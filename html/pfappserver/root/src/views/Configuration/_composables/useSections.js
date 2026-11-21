@@ -73,7 +73,8 @@ export const useSections = () => {
             { name: i18n.t('Templates'), path: '/configuration/pki/profiles', saveSearchNamespace: 'pkiProfiles' },
             { name: i18n.t('Certificates'), path: '/configuration/pki/certs', saveSearchNamespace: 'pkiCerts' },
             { name: i18n.t('Revoked Certificates'), path: '/configuration/pki/revokedcerts', saveSearchNamespace: 'pkiRevokedCerts' },
-            { name: i18n.t('SCEP Servers'), path: '/configuration/pki/scepservers', saveSearchNamespace: 'pkiScepServers' }
+            { name: i18n.t('SCEP Servers'), path: '/configuration/pki/scepservers', saveSearchNamespace: 'pkiScepServers' },
+            { name: i18n.t('HSMs'), path: '/configuration/pki/hsms', saveSearchNamespace: 'pkiHsms' }
           ]
         },
         { name: i18n.t('Multi-Factor Authentication'), path: '/configuration/mfas', saveSearchNamespace: 'mfas' }

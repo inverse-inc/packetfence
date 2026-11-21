@@ -1,0 +1,109 @@
+/api/v1/pki/hsms:
+  get:
+    summary: Get PKI HSMs.
+    description: The PINs are never returned.
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiHsmsList'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - PKI
+  post:
+    summary: Create PKI HSM.
+    description: |
+      The PKCS#11 token is opened with the given module, token label and
+      PIN before the HSM is saved; the request fails when it can't be.
+    requestBody:
+      $ref: '#/components/requestBodies/PkiHsm'
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiHsmCreate'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+      '500':
+        $ref: '#/components/responses/BadRequest'
+    tags:
+      - PKI
+
+/api/v1/pki/hsms/search:
+  post:
+    summary: Search PKI HSMs.
+    requestBody:
+      $ref: '#/components/requestBodies/PkiHsmsSearch'
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiHsmsSearch'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/BadRequest'
+      '500':
+        $ref: '#/components/responses/BadRequest'
+    tags:
+      - PKI
+
+/api/v1/pki/hsm/{hsm_id}:
+  get:
+    summary: Get PKI HSM.
+    parameters:
+      - name: hsm_id
+        in: path
+        required: true
+        description: '`PRIMARY KEY`'
+        schema:
+          type: string
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiHsm'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - PKI
+  patch:
+    summary: Update PKI HSM.
+    description: |
+      Changes the module, token label or PIN of the HSM; the fields left
+      out keep their stored value. The token is opened with the resulting
+      settings before they are saved.
+    parameters:
+      - name: hsm_id
+        in: path
+        required: true
+        description: '`PRIMARY KEY`'
+        schema:
+          type: string
+    requestBody:
+      $ref: '#/components/requestBodies/PkiHsmUpdate'
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiHsm'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+      '500':
+        $ref: '#/components/responses/BadRequest'
+    tags:
+      - PKI
+  delete:
+    summary: Delete PKI HSM.
+    description: Refused while the key of a Certificate Authority is held in the HSM.
+    parameters:
+      - name: hsm_id
+        in: path
+        required: true
+        description: '`PRIMARY KEY`'
+        schema:
+          type: string
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiHsmDelete'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '409':
+        $ref: '#/components/responses/PkiHsmInUse'
+    tags:
+      - PKI

@@ -130,6 +130,10 @@
 /api/v1/pki/cert/{cert_id}/email:
   get:
     summary: Email PKI Certificate.
+    description: |
+      Emails the certificate with a generated password. A `password` query
+      parameter is refused (400): send it in the body of the POST request,
+      the URL is logged.
     parameters:
       - name: cert_id
         in: path
@@ -140,6 +144,34 @@
     responses:
       '200':
         $ref: '#/components/responses/PkiCertEmail'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - PKI
+  post:
+    summary: Email PKI Certificate.
+    description: |
+      Emails the certificate, as a PKCS-12 file, to the address of the
+      certificate. The body is optional; it can set the password of the
+      PKCS-12 file.
+    parameters:
+      - name: cert_id
+        in: path
+        required: true
+        description: '`PRIMARY KEY`'
+        schema:
+          type: string
+    requestBody:
+      $ref: '#/components/requestBodies/PkiCertEmail'
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiCertEmail'
+      '400':
+        $ref: '#/components/responses/BadRequest'
       '401':
         $ref: '#/components/responses/Unauthorized'
       '404':
@@ -164,5 +196,22 @@
         $ref: '#/components/responses/PkiCert'
       '401':
         $ref: '#/components/responses/Unauthorized'
+    tags:
+      - PKI
+
+/api/v1/pki/process_cloud_revocations:
+  post:
+    summary: Apply pending cloud revocations.
+    description: |
+      Applies the certificate revocations queued by the cloud services
+      (e.g. Microsoft Intune) of the PKI Profiles that have one. Normally
+      run by a maintenance task.
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiProcessCloudRevocations'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '500':
+        $ref: '#/components/responses/PkiError'
     tags:
       - PKI

@@ -47,9 +47,21 @@
       :disabled="disableInputsRegular"
     />
     -->
+    <form-group-hsm-id v-if="isHsmEditable || isInHsm"
+      namespace="hsm_id"
+      :column-label="$i18n.t('HSM')"
+      :text="$i18n.t('Generate the CA key in this HSM. The key never leaves the HSM; only RSA and ECDSA keys are supported. Leave empty to store the key in the database.')"
+      :disabled="!isHsmEditable"
+    />
+    <form-group-hsm-key-id v-if="!isHsmEditable && hasHsmKeyId"
+      namespace="hsm_key_id"
+      :column-label="$i18n.t('HSM key ID')"
+      disabled
+    />
     <form-group-key-type namespace="key_type"
       :column-label="$i18n.t('Key type')"
       :disabled="disableInputsKeys"
+      :options="keyTypeOptions"
     />
     <form-group-key-size namespace="key_size"
       :column-label="$i18n.t('Key size')"
@@ -102,6 +114,8 @@ import {
   FormGroupLocality,
   FormGroupStreetAddress,
   // FormGroupPostalCode,
+  FormGroupHsmId,
+  FormGroupHsmKeyId,
   FormGroupKeyType,
   FormGroupKeySize,
   FormGroupDigest,
@@ -123,6 +137,8 @@ const components = {
   FormGroupLocality,
   FormGroupStreetAddress,
   // FormGroupPostalCode,
+  FormGroupHsmId,
+  FormGroupHsmKeyId,
   FormGroupKeyType,
   FormGroupKeySize,
   FormGroupDigest,
@@ -159,7 +175,7 @@ export const props = {
   }
 }
 
-import { keyTypes, keySizes } from '../../config'
+import { keyTypes, keySizes, hsmKeyTypes } from '../../config'
 
 export const setup = (props) => {
 
@@ -180,6 +196,24 @@ export const setup = (props) => {
     return keySizes
   })
 
+  const isHsmEditable = computed(() => (isNew.value || isClone.value) && !isResign.value && !isCsr.value)
+  const isInHsm = computed(() => {
+    const { hsm_id } = form.value || {}
+    return !!hsm_id && `${hsm_id}` !== '0'
+  })
+
+  const hasHsmKeyId = computed(() => {
+    const { hsm_key_id } = form.value || {}
+    return !!hsm_key_id
+  })
+
+  // only RSA and ECDSA keys can be generated in an HSM
+  const keyTypeOptions = computed(() => {
+    return (isHsmEditable.value && isInHsm.value)
+      ? keyTypes.filter(({ value }) => hsmKeyTypes.includes(value))
+      : keyTypes
+  })
+
   const apiFeedback = computed(() => {
     return (isResign.value || isCsr.value)
       ? i18n.t('Changing this value will invalidate the previously signed certificates using EAP-TLS.')
@@ -192,7 +226,11 @@ export const setup = (props) => {
 
   return {
     keySizeOptions,
+    keyTypeOptions,
     apiFeedback,
+    isHsmEditable,
+    isInHsm,
+    hasHsmKeyId,
 
     disableInputsRegular,
     disableInputsSpecial,

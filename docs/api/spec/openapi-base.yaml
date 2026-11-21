@@ -59,7 +59,14 @@ tags:
   - name: Pfqueue
     description: PacketFence Queue.
   - name: PKI
-    description: PacketFence Public Key Infrastructure.
+    description: |
+      PacketFence Public Key Infrastructure.
+
+      The enrollment protocols served by the PKI are standard and not
+      described here: SCEP (`/api/v1/pki/scep/{profile name}`), ACME
+      (RFC 8555, directory at `/api/v1/pki/acme/{profile name}/directory`)
+      and EST (RFC 7030, `/.well-known/est/{profile name}/`). They are
+      enabled per PKI Profile.
   - name: RADIUS
     description: RADIUS Helpers.
   - name: SecurityEvents
