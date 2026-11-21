@@ -82,7 +82,7 @@ has 'client_cert_file' => ( isa => 'Maybe[Str]', is => 'rw', default => "");
 has 'client_key_file' => ( isa => 'Maybe[Str]', is => 'rw', default => "");
 has 'ca_file' => (isa => 'Maybe[Str]', is => 'rw', default => '');
 has 'verify' => ( isa => 'Str', is => 'rw', default => 'none');
-has 'use_connector' => (isa => 'Bool', is => 'rw', default => 1);
+has 'use_connector' => (isa => 'Bool', is => 'rw', default => 0);
 has '_ldap_attributes' => ( isa => 'ArrayRef', is => 'rw', default => sub { [] });
 
 our $logger = get_logger();

@@ -987,6 +987,41 @@ If you kept a customized [filename]`conf/radiusd/packetfence` or
 `Post-Auth-Type REJECT` blocks of the corresponding `.example` files into
 your copies. Without them, proxied requests are still authorized twice.
 
+=== PacketFence Connector moved to a plugin
+
+The PacketFence Connector is not part of PacketFence anymore: the
+`packetfence-pfconnector-server` and `packetfence-pfconnector-client` services
+and the `packetfence-pfconnector-remote` package are provided by the
+`packetfence-plugin-pfconnector` plugin, which requires PacketFence 16.0.
+
+Without the plugin, nothing answers the connections sent through a connector,
+so the parameters using it are now disabled by default: _Use Connector_ of the
+LDAP, Active Directory, eDirectory, Google Workspace LDAP and RADIUS sources and
+of the firewall SSO, and `SNMPUseConnector` and `radiusDeauthUseConnector` of
+the switches. They were enabled by default and sent these connections through
+the local connector of the PacketFence server.
+
+The upgrade runs [filename]`/usr/local/pf/addons/upgrade/to-16.0-disable-use-connector.pl`,
+which disables these parameters in
+[filename]`/usr/local/pf/conf/switches.conf`,
+[filename]`/usr/local/pf/conf/authentication.conf` and
+[filename]`/usr/local/pf/conf/firewall_sso.conf`, and prints each value it
+changes. It runs before
+[filename]`/usr/local/pf/addons/upgrade/add-default-params-to-auth.pl`. When
+upgrading manually, run them in this order:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-16.0-disable-use-connector.pl
+/usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
+----
+
+The connectors defined in [filename]`/usr/local/pf/conf/connectors.conf` and
+the domains joined through a connector are not changed. If you use remote
+connectors, install the `packetfence-plugin-pfconnector` plugin after the
+upgrade, then enable these parameters again on the switches, sources and
+firewalls reached through a connector.
+
 === Bypass ACLs are translated like role ACLs
 
 The _Bypass ACLs_ of a node (Node > Advanced) were sent to the switch as

@@ -116,7 +116,7 @@ has_field 'use_connector',
    type => 'Toggle',
    checkbox_value => '1',
    unchecked_value => '0',
-   default => '1',
+   default => '0',
   );
 
 has_field 'act_on_accounting_stop',
