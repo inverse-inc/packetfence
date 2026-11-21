@@ -26,7 +26,7 @@ ALL_IMAGES="
     haproxy-portal ntlm-auth-api pfldapexplorer pfdns-connector radiusd-acct
     radiusd-eduroam radiusd-load-balancer radiusd-cli pfperl-api httpd.portal
     pfsso api-frontend httpd.dispatcher pfacct radiusd-auth httpd.webservices
-    pfsetacls pfpki pfconnector proxysql pfqueue fingerbank-db netdata kafka
+    pfsetacls pfpki proxysql pfqueue fingerbank-db netdata kafka
     pfdhcp
 "
 

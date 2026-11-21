@@ -79,9 +79,6 @@ install: build
 	install -d $(CURDIR)/debian/packetfence-archive-keyring/usr/share/keyrings/
 	cp debian/keyrings/monitoring-scripts-keyring.gpg $(CURDIR)/debian/packetfence-archive-keyring/usr/share/keyrings/
 
-	# packetfence-pfconnector-remote package
-	make DESTDIR=$(CURDIR)/debian/packetfence-pfconnector-remote pfconnector_remote_install
-
 	# packetfence-ntlm-auth-api remote package
 	make DESTDIR=$(CURDIR)/debian/packetfence-ntlm-auth-api-remote ntlm_auth_api_remote_install
 
@@ -406,7 +403,7 @@ binary-arch: build install
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/db/*.pl
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/sbin/*
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/containers/*.sh
-	dh_fixperms -X$(NAME)/bin -X$(NAME)/sbin -X$(NAME)/addons -X$(PREFIX)/$(NAME)/conf/ -X$(PREFIX)/pfconnector-remote
+	dh_fixperms -X$(NAME)/bin -X$(NAME)/sbin -X$(NAME)/addons -X$(PREFIX)/$(NAME)/conf/
 	# Configuration files are installed without permissions for others
 	find $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf -type f -exec chmod 0660 '{}' +
 	chmod 2775 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/run

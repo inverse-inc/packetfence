@@ -171,8 +171,8 @@ database. While those three stay advisory, a tool that fails to download or run
 is reported but does not fail the build.
 
 Checks cover the entire module using the build host's OS and architecture with
-cgo enabled. Install the native dependencies described above even when building
-the static `pfconnector` binary. This is a host validation pass; it does not
+cgo enabled, so the native dependencies described above must be installed.
+This is a host validation pass; it does not
 validate code selected only by another OS, architecture, race tag, or custom
 build flags passed through `ARGS`. Use `GOFLAGS` for build tags shared by checks
 and compilation. The integration tests remain available through

@@ -1,8 +1,0 @@
-# logrotate file for PacketFence Connector
-/usr/local/pfconnector-remote/logs/*.log {
-    daily
-    rotate 7
-    missingok
-    compress
-    copytruncate
-}
