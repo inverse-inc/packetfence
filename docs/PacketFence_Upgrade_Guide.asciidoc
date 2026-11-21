@@ -970,11 +970,30 @@ upgrading manually, run them in this order:
 /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
 ----
 
+WARNING: The script disables these parameters on every switch, source and
+firewall, including when remote connectors are defined in
+[filename]`/usr/local/pf/conf/connectors.conf`: the plugin can only be
+installed once PacketFence is upgraded, so the connectors are not usable during
+the upgrade. Until the parameters are enabled again, PacketFence sends SNMP,
+RADIUS CoA/Disconnect, LDAP, RADIUS and firewall SSO requests directly to the
+equipment, which fails for the equipment only reachable through a remote
+connector.
+
+If you use remote connectors:
+
+. Keep the output of the upgrade: it lists each switch, switch group, source
+and firewall the script changed. The automated upgrade logs it in
+[filename]`/usr/local/pf/logs/upgrade/`. When upgrading manually, save it, for
+example with `to-16.0-disable-use-connector.pl | tee /root/disable-use-connector.log`.
+. After the upgrade, install the `packetfence-plugin-pfconnector` plugin on
+each PacketFence server.
+. Enable the parameters again on the listed switches, switch groups, sources
+and firewalls. To use the connectors by default for all the switches, set
+`SNMPUseConnector=Y` and `radiusDeauthUseConnector=Y` in the `[default]`
+section of [filename]`/usr/local/pf/conf/switches.conf`.
+
 The connectors defined in [filename]`/usr/local/pf/conf/connectors.conf` and
-the domains joined through a connector are not changed. If you use remote
-connectors, install the `packetfence-plugin-pfconnector` plugin after the
-upgrade, then enable these parameters again on the switches, sources and
-firewalls reached through a connector.
+the domains joined through a connector are not changed.
 
 === Bypass ACLs are translated like role ACLs
 

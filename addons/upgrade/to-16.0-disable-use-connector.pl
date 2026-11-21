@@ -26,6 +26,11 @@ on its previous default.
 
 =back
 
+The parameters are disabled even when remote connectors are defined in
+connectors.conf, since the plugin can only be installed once PacketFence is
+upgraded. Each changed value is printed, so they can be enabled again after
+installing the plugin.
+
 It runs before add-default-params-to-auth.pl, which would write the defaults
 of the new sources in them.
 
