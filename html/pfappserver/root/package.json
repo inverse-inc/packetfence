@@ -22,7 +22,7 @@
     "messageformat": "^2.3.0",
     "mime-types": "^2.1.35",
     "mixpanel-browser": "^2.56.0",
-    "papaparse": "5.4.1",
+    "papaparse": "5.7.1",
     "pinia": "2.2.8",
     "plotly.js": "^3.7.0",
     "plotly.js-locales": "^2.35.2",
