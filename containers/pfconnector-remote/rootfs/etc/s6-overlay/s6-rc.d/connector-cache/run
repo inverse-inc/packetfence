@@ -1,3 +1,0 @@
-#!/command/execlineb -P
-with-contenv
-/usr/sbin/connector-cache
