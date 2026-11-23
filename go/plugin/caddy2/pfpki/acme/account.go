@@ -160,6 +160,12 @@ func newAccountHandler(h *types.Handler) http.HandlerFunc {
 				writeAccount(w, r, &winner, http.StatusOK)
 				return
 			}
+			// Another key bound the one-time EAB key first: as for
+			// an EAB key that is already bound (validateEAB).
+			if errors.Is(err, errEABBindRaced) {
+				_ = WriteProblem(w, http.StatusUnauthorized, ErrExternalAccountRequired, err.Error())
+				return
+			}
 			_ = WriteProblem(w, http.StatusInternalServerError, ErrServerInternal, err.Error())
 			return
 		}

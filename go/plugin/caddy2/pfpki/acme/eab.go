@@ -117,10 +117,14 @@ func bindEABToAccount(tx *gorm.DB, eabID, accountID uint) error {
 		return res.Error
 	}
 	if res.RowsAffected != 1 {
-		return errors.New("EAB: bind raced with another request")
+		return errEABBindRaced
 	}
 	return nil
 }
+
+// errEABBindRaced: another account bound the EAB key between its
+// validation and the bind.
+var errEABBindRaced = errors.New("the external account key is already bound to an account")
 
 // sameJSON returns true iff both byte slices decode to identical JSON
 // values, ignoring whitespace and field ordering.
