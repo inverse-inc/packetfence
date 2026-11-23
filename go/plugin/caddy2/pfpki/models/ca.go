@@ -582,11 +582,12 @@ func maybeRevokeExpiring(c *Cert, allowTime int) bool {
 
 // certExpiresWithin is the read-only half of maybeRevokeExpiring: it
 // returns true when the cert would be revoked by maybeRevokeExpiring(c,
-// allowTime), without actually revoking anything.
+// allowTime), without actually revoking anything. A cert that can't be
+// decoded is not revoked by maybeRevokeExpiring, so it counts as live.
 func certExpiresWithin(c *Cert, allowTime int) bool {
 	store := make(map[pemutil.BlockType]interface{})
 	if err := pemutil.Decode(store, []byte(c.Cert)); err != nil {
-		return true
+		return false
 	}
 	threshold := time.Now().Add(time.Duration(allowTime) * 24 * time.Hour)
 	for _, v := range store {
@@ -601,11 +602,15 @@ func certExpiresWithin(c *Cert, allowTime int) bool {
 
 // RevokeSupersededCN revokes the certs for cn under prof that were
 // expiring (the ones CheckACMEDuplicateCN allowed the issuance through).
-// It excludes the cert with id newID — the cert that was just issued —
-// so a concurrent call cannot accidentally revoke the new cert.
-// Call after SignCSRForACME succeeds and the order is marked valid.
+// It excludes the cert with id newID, the cert that was just issued.
+// Like the check, it leaves the certs alone on a profile that allows
+// unlimited duplicates. Called by IssueACMECert once the new cert is
+// persisted.
 func RevokeSupersededCN(db *gorm.DB, prof *Profile, cn string, newID uint) {
 	if cn == "" {
+		return
+	}
+	if prof.AllowDuplicatedCN == 1 && prof.MaximumDuplicatedCN == 0 {
 		return
 	}
 	var certifs []Cert

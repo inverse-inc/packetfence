@@ -395,7 +395,17 @@ func orderFinalizeHandler(h *types.Handler) http.HandlerFunc {
 			return
 		}
 
-		cert, err := models.SignCSRForACME(h.DB, r.Context(), prof, csrDER, ids, jc.Account.ID)
+		// The policy is checked again, under the profile lock, with the
+		// issuance and the revocation of the superseded certificates.
+		cert, err := models.IssueACMECert(h.DB, r.Context(), prof, csrDER, ids, jc.Account.ID, cn)
+		if errors.Is(err, models.ErrACMEDuplicateCN) {
+			// A concurrent finalize got there first: the order goes
+			// back to ready, as when the check above refuses it.
+			_ = h.DB.Model(&models.AcmeOrder{}).Where("id = ? AND status = ?", order.ID, "processing").
+				Update("status", "ready").Error
+			_ = WriteProblem(w, http.StatusForbidden, ErrUnauthorized, err.Error())
+			return
+		}
 		if err != nil {
 			problem := Problem{Type: ErrServerInternal, Detail: err.Error(), Status: http.StatusInternalServerError}
 			pb, _ := json.Marshal(problem)
@@ -415,8 +425,6 @@ func orderFinalizeHandler(h *types.Handler) http.HandlerFunc {
 			_ = WriteProblem(w, http.StatusInternalServerError, ErrServerInternal, err.Error())
 			return
 		}
-		// New cert is persisted: now revoke any cert it supersedes.
-		models.RevokeSupersededCN(h.DB, &prof, cn, cert.ID)
 		// Refresh the in-memory copy so the response reflects the new
 		// state.
 		order.Status = "valid"

@@ -1,11 +1,18 @@
 package models
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
+
+// ErrACMEDuplicateCN wraps the refusal of an ACME issuance by the
+// duplicate-CN policy of the template.
+var ErrACMEDuplicateCN = errors.New("duplicate CN")
 
 // AcmeOrder is an RFC 8555 §7.1.3 "order" object — the device's request
 // to be issued one or more certs. State machine:
@@ -50,12 +57,40 @@ type AcmeOrder struct {
 
 func (AcmeOrder) TableName() string { return "pki_acme_orders" }
 
+// IssueACMECert issues the cert of an ACME finalize under the
+// duplicate-CN policy of prof. The check, the issuance and the revocation
+// of the certs the new one supersedes run in one transaction that locks
+// the profile row first, so two finalizes for the same CN can't both pass
+// the check, and a failed signing revokes nothing. A refusal by the policy
+// is returned wrapped in ErrACMEDuplicateCN.
+func IssueACMECert(db *gorm.DB, ctx context.Context, prof Profile, csrDER []byte, identifiers []AcmeIdentifier, accountID uint, cn string) (*Cert, error) {
+	var cert *Cert
+	err := db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Select("id").First(&Profile{}, prof.ID).Error; err != nil {
+			return err
+		}
+		if err := CheckACMEDuplicateCN(tx, &prof, cn); err != nil {
+			return fmt.Errorf("%w: %s", ErrACMEDuplicateCN, err.Error())
+		}
+		var err error
+		cert, err = SignCSRForACME(tx, ctx, prof, csrDER, identifiers, accountID)
+		if err != nil {
+			return err
+		}
+		RevokeSupersededCN(tx, &prof, cn, cert.ID)
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	cert.DB = db
+	return cert, nil
+}
+
 // CheckACMEDuplicateCN checks the template's duplicate-CN policy for an
 // ACME finalize without revoking anything. Returns an error when issuance
-// must be refused, nil when it is allowed. The caller must call
-// RevokeSupersededCN(db, prof, cn, newCert.ID) after the new cert is
-// successfully persisted, so a failed signing cannot leave the device
-// with only a revoked certificate.
+// must be refused, nil when it is allowed. RevokeSupersededCN then revokes
+// what the new cert supersedes, once it is persisted (see IssueACMECert).
 func CheckACMEDuplicateCN(db *gorm.DB, prof *Profile, cn string) error {
 	allowTime := prof.DaysBeforeRenewal
 	if prof.AllowDuplicatedCN == 1 {
