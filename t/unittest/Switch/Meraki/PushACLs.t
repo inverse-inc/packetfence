@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 30;
+use Test::More tests => 32;
 use Test::MockModule;
 use pf::Switch::Meraki::MS;
 use pf::Switch::Meraki::MS_v15;
@@ -105,6 +105,12 @@ is_deeply(rules("permit icmp any any echo"), $deny_all, "an ICMP type is not dro
 is_deeply(rules("permit 47 any any"), $deny_all, "a protocol a rule cannot match is not sent as any");
 is_deeply(rules("permit tcp any any eq nosuchservice"), $deny_all, "a port without a number is not dropped");
 is_deeply(rules("permit ip any 10.0.0.0 0.255.0.255"), $deny_all, "a non contiguous mask is not sent as a prefix");
+is_deeply(rules("permit ip any 10.1.2.0 255.255.255.0"), $deny_all, "a netmask written as the wildcard is not a prefix (and doesn't stop the push)");
+is_deeply(
+    rules("permit ip any 10.1.2.0 255.255.255.0\npermit ip any 10.1.2.0 0.0.0.255"),
+    [rule('allow', 'any', 'any', '10.1.2.0/24', 'PacketFence role testrole: permit ip any 10.1.2.0 0.0.0.255'), $implicit_deny],
+    "only the line with a netmask is skipped"
+);
 is_deeply(rules("accept any any"), $deny_all, "ACLs that cannot be parsed deny everything");
 
 is_deeply(
@@ -154,7 +160,7 @@ is_deeply([$no_push->returnRoleAttributes('normal')], ['Filter-Id', 'normal'], "
 
 {
     my $disabled = pf::Switch::Meraki::MS->new({%args, UsePushACLs => 'Y', r4AccessListEnabled => 'N'});
-    is_deeply([$disabled->returnRoleAttributes('r4')], [], "Push ACLs: no Filter-Id for a role whose ACLs are disabled on the switch, its group policy is deleted");
+    is_deeply([$disabled->returnRoleAttributes('r4')], [], "Push ACLs: no Filter-Id for a role whose ACLs are disabled on the switch");
 }
 
 =head1 AUTHOR

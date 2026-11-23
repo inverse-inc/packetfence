@@ -446,7 +446,7 @@ sub untranslatableMerakiAcl {
     return "a group policy rule has no source port match" if defined $entry->{'source'}->{'port'};
     return "a group policy rule has no TCP flags match ('".$entry->{'tcp_flags'}."')" if defined $entry->{'tcp_flags'};
     return "a group policy rule has no ICMP type match ('".$entry->{'icmp_qualifier'}."')" if defined $entry->{'icmp_qualifier'};
-    return "the destination mask '".$entry->{'destination'}->{'wildcard'}."' is not contiguous" if !$self->aclWildcardIsContiguous($entry->{'destination'}->{'wildcard'});
+    return "the destination '".join(' ', grep { defined } @{$entry->{'destination'}}{qw(ipv4_addr wildcard)})."' is not an address and a wildcard mask covering a prefix (a netmask such as 255.255.255.0 is not a wildcard)" if !defined $self->_merakiDestCidr($entry->{'destination'});
     my $port = $entry->{'destination'}->{'port'};
     if (defined $port) {
         my @ports = $port =~ /^eq\s+(\S+)$/ ? ($1) : $port =~ /^range\s+(\S+)\s+(\S+)$/ ? ($1, $2) : ();
@@ -468,14 +468,7 @@ sub merakiL3FirewallRule {
     my ($self, $entry, $role) = @_;
     my $protocol = $self->_merakiProtocol($entry);
     my $destination = $entry->{'destination'};
-    my $cidr = 'any';
-    if (($destination->{'ipv4_addr'} // '0.0.0.0') ne '0.0.0.0') {
-        if (($destination->{'wildcard'} // '0.0.0.0') eq '0.0.0.0') {
-            $cidr = $destination->{'ipv4_addr'} . '/32';
-        } else {
-            $cidr = NetAddr::IP->new($destination->{'ipv4_addr'}, norm_net_mask($destination->{'wildcard'}))->network->cidr;
-        }
-    }
+    my $cidr = $self->_merakiDestCidr($destination);
     my $port = 'any';
     if (defined $destination->{'port'}) {
         if ($destination->{'port'} =~ /^eq\s+(\S+)$/) {
@@ -496,6 +489,26 @@ sub merakiL3FirewallRule {
         destPort => $port,
         destCidr => $cidr,
     };
+}
+
+# The destination of a parsed ACL entry as the destCidr of a rule ('any', or
+# the prefix of the address and its wildcard mask), or undef when the mask is
+# not a wildcard covering a prefix (a run of low bits). In Cisco syntax a
+# netmask written as the wildcard, such as 255.255.255.0, is not a prefix.
+sub _merakiDestCidr {
+    my ($self, $destination) = @_;
+    my $addr = $destination->{'ipv4_addr'} // '0.0.0.0';
+    return 'any' if $addr eq '0.0.0.0';
+    my @octets = split(/\./, $destination->{'wildcard'} // '0.0.0.0');
+    return undef if @octets != 4 || grep { !/^\d+$/ || $_ > 255 } @octets;
+    my $bits = unpack('N', pack('C4', @octets));
+    return undef if (($bits + 1) & $bits) != 0;
+    my $prefix = 32;
+    for (my $b = $bits; $b; $b >>= 1) {
+        $prefix--;
+    }
+    my $ip = NetAddr::IP->new($addr, $prefix);
+    return defined($ip) ? $ip->network->cidr : undef;
 }
 
 sub _merakiProtocol {
