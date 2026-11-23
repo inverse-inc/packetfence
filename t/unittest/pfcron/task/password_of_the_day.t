@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 5;
+use Test::More tests => 7;
 use Test::MockModule;
 use pf::pfcron::task::password_of_the_day;
 
@@ -62,6 +62,12 @@ is_deeply(\@generated, [], 'a POTD person with a valid password keeps it');
 $passwords{potd1}{expiration} = '2000-01-01 00:00:00';
 run_task();
 is_deeply(\@generated, ['potd1'], 'an expired POTD password is still rotated');
+
+# user1: a local user created with the id of a source, whose password expired (#9549)
+$passwords{user1} = { pid => 'user1', expiration => '2000-01-01 00:00:00' };
+run_task();
+is_deeply(\@generated, ['potd1'], 'the expired password of a non-POTD person with the id of a source is not rotated');
+is_deeply(\@emails, ['potd1'], 'and nothing is sent to the source address for it');
 
 =head1 AUTHOR
 
