@@ -290,7 +290,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 				}
 			}
 
-			cacheKey := pf.MakeKeyCache(mac, category, securityEvent, state.QName())
+			cacheKey := pf.MakeKeyCache(mac, category, securityEvent, state.QName()) + "|" + srcIP
 			reply, found := pfdnsRefreshableConfig.DNSFilter.Get(cacheKey)
 			if found && reply != "null" {
 				log.LoggerWContext(ctx).Debug("Get answer from the cache for " + state.QName())
