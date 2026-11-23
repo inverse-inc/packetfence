@@ -94,3 +94,74 @@ func TestOpenUsesConnectorAndWraps(t *testing.T) {
 	}
 	var _ driver.DriverContext = wrapDriver{}
 }
+
+// fakeConn records the statements executed on it.
+type fakeConn struct {
+	execs []string
+	begun bool
+}
+
+func (c *fakeConn) Prepare(string) (driver.Stmt, error) { return nil, driver.ErrSkip }
+func (c *fakeConn) Close() error                        { return nil }
+func (c *fakeConn) Begin() (driver.Tx, error)           { c.begun = true; return nil, nil }
+func (c *fakeConn) BeginTx(context.Context, driver.TxOptions) (driver.Tx, error) {
+	c.begun = true
+	return nil, nil
+}
+func (c *fakeConn) ExecContext(_ context.Context, q string, _ []driver.NamedValue) (driver.Result, error) {
+	c.execs = append(c.execs, q)
+	return driver.RowsAffected(0), nil
+}
+
+func TestBeginTxIsDecorated(t *testing.T) {
+	old := log.ProcessName
+	log.ProcessName = "pfhttpd"
+	defer func() { log.ProcessName = old }()
+
+	fc := &fakeConn{}
+	tx, err := wrapConn{fc}.BeginTx(context.Background(), driver.TxOptions{})
+	if err != nil {
+		t.Fatalf("BeginTx: %v", err)
+	}
+	if err := tx.Commit(); err != nil {
+		t.Fatalf("Commit: %v", err)
+	}
+	if err := tx.Commit(); err == nil {
+		t.Fatalf("second Commit must fail")
+	}
+	want := []string{"/* pf:pfhttpd */ START TRANSACTION", "COMMIT"}
+	if strings.Join(fc.execs, "|") != strings.Join(want, "|") || fc.begun {
+		t.Fatalf("execs = %q (driver BeginTx used: %v), want %q", fc.execs, fc.begun, want)
+	}
+}
+
+func TestBeginTxReadOnlyAndRollback(t *testing.T) {
+	old := log.ProcessName
+	log.ProcessName = "pfacct"
+	defer func() { log.ProcessName = old }()
+
+	fc := &fakeConn{}
+	ctx := WithQueryUnit(context.Background(), "bandwidth")
+	tx, err := wrapConn{fc}.BeginTx(ctx, driver.TxOptions{ReadOnly: true})
+	if err != nil {
+		t.Fatalf("BeginTx: %v", err)
+	}
+	if err := tx.Rollback(); err != nil {
+		t.Fatalf("Rollback: %v", err)
+	}
+	want := []string{"/* pf:pfacct:bandwidth */ START TRANSACTION READ ONLY", "ROLLBACK"}
+	if strings.Join(fc.execs, "|") != strings.Join(want, "|") {
+		t.Fatalf("execs = %q, want %q", fc.execs, want)
+	}
+}
+
+func TestBeginTxNonDefaultIsolationUsesDriver(t *testing.T) {
+	fc := &fakeConn{}
+	if _, err := (wrapConn{fc}).BeginTx(context.Background(),
+		driver.TxOptions{Isolation: driver.IsolationLevel(sql.LevelSerializable)}); err != nil {
+		t.Fatalf("BeginTx: %v", err)
+	}
+	if !fc.begun || len(fc.execs) != 0 {
+		t.Fatalf("non-default isolation must use the driver's BeginTx, got execs %q begun %v", fc.execs, fc.begun)
+	}
+}

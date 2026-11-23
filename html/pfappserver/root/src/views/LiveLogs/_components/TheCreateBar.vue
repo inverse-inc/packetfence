@@ -44,7 +44,7 @@ const components = {
   BaseInputToggleFalseTrue
 }
 
-import { computed, ref } from '@vue/composition-api'
+import { computed, inject, ref } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
@@ -56,7 +56,9 @@ const schema = yup.object({
 })
 
 const setup = (props, context) => {
-  const { root: { $router, $store } = {} } = context
+  const { root: { $store } = {} } = context
+  // the header panel shows the session (ThePanel)
+  const logsPanel = inject('logsPanel')
 
   const form = ref({
     name: i18n.t('New Session'),
@@ -94,7 +96,7 @@ const setup = (props, context) => {
         form.value.files = []
         form.value.filter = null
         form.value.filter_is_regexp = false
-        $router.push({ name: 'live_log', params: { id } })
+        logsPanel.open(id)
       }
     })
   }

@@ -271,7 +271,7 @@ const sizes = [
   { text: '5000', value: 5000 }
 ]
 
-import { computed, customRef, ref, toRefs } from '@vue/composition-api'
+import { computed, customRef, inject, ref, toRefs } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import { useLogSearch } from '@/composables/useLogSearch'
 import i18n from '@/utils/locale'
@@ -290,7 +290,9 @@ const setup = (props, context) => {
     id
   } = toRefs(props)
 
-  const { root: { $router, $store } = {} } = context
+  const { root: { $store } = {} } = context
+  // the header panel shows the session (ThePanel)
+  const logsPanel = inject('logsPanel')
 
   // Resolve URL :id to one or more session submodule namespaces.
   // - Standalone / SaaS: peerIds = [id], primary = id (legacy behaviour).
@@ -426,7 +428,7 @@ const setup = (props, context) => {
           : [response.session_id]
         fresh.forEach(pid => $store.dispatch(`$_live_logs/${pid}/setSize`, size.value))
         $store.dispatch('$_live_logs/destroySession', id.value)
-        $router.push({ name: 'live_log', params: { id: newId } })
+        logsPanel.open(newId)
       }
     }).finally(() => {
       isStarting.value = false

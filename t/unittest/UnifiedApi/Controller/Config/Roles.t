@@ -85,10 +85,6 @@ $t->options_ok($collection_base_url)
                                     'value' => 'guest'
                                   },
                                   {
-                                    'value' => 'macDetection',
-                                    'text' => 'macDetection'
-                                  },
-                                  {
                                     'text' => 'normal',
                                     'value' => 'normal'
                                   },

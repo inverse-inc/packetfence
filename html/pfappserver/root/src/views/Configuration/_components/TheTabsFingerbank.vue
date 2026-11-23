@@ -19,7 +19,6 @@
 <script>
 import FingerbankGeneralSettingView from '../fingerbank/generalSettings/_components/TheView'
 import FingerbankDeviceChangeDetectionView from '../fingerbank/deviceChangeDetection/_components/TheView'
-import FingerbankCombinationsSearch from '../fingerbank/combinations/_components/TheSearch'
 import FingerbankDevicesSearch from '../fingerbank/devices/_components/TheSearch'
 import FingerbankDhcpFingerprintsSearch from '../fingerbank/dhcpFingerprints/_components/TheSearch'
 import FingerbankDhcpVendorsSearch from '../fingerbank/dhcpVendors/_components/TheSearch'
@@ -37,44 +36,34 @@ const tabs = {
     title: 'Device change detection', // i18n defer
     component: FingerbankDeviceChangeDetectionView
   },
-  fingerbankCombinations: {
-    title: 'Combinations', // i18n defer
-    component: FingerbankCombinationsSearch
-  },
   fingerbankDevices: {
     title: 'Devices', // i18n defer
     component: FingerbankDevicesSearch,
-    props: ({ parentId, scope }) => ({ parentId, scope })
+    props: ({ parentId }) => ({ parentId })
   },
   fingerbankDhcpFingerprints: {
     title: 'DHCP Fingerprints', // i18n defer
-    component: FingerbankDhcpFingerprintsSearch,
-    props: ({ scope }) => ({ scope })
+    component: FingerbankDhcpFingerprintsSearch
   },
   fingerbankDhcpVendors: {
     title: 'DHCP Vendors', // i18n defer
-    component: FingerbankDhcpVendorsSearch,
-    props: ({ scope }) => ({ scope })
+    component: FingerbankDhcpVendorsSearch
   },
   fingerbankDhcpv6Fingerprints: {
     title: 'DHCPv6 Fingerprints', // i18n defer
-    component: FingerbankDhcpv6FingerprintsSearch,
-    props: ({ scope }) => ({ scope })
+    component: FingerbankDhcpv6FingerprintsSearch
   },
   fingerbankDhcpv6Enterprises: {
     title: 'DHCPv6 Enterprises', // i18n defer
-    component: FingerbankDhcpv6EnterprisesSearch,
-    props: ({ scope }) => ({ scope })
+    component: FingerbankDhcpv6EnterprisesSearch
   },
   fingerbankMacVendors: {
     title: 'MAC Vendors', // i18n defer
-    component: FingerbankMacVendorsSearch,
-    props: ({ scope }) => ({ scope })
+    component: FingerbankMacVendorsSearch
   },
   fingerbankUserAgents: {
     title: 'User Agents', // i18n defer
-    component: FingerbankUserAgentsSearch,
-    props: ({ scope }) => ({ scope })
+    component: FingerbankUserAgentsSearch
   }
 }
 
@@ -85,10 +74,6 @@ const props = {
   },
   parentId: {
     type: String
-  },
-  scope: {
-    type: String,
-    default: 'all'
   }
 }
 

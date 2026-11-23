@@ -14,6 +14,7 @@ use strict;
 use warnings;
 use pf::AtFork;
 use DBI;
+use pf::db::dbi;
 use pf::log;
 use pf::IniFiles;
 use List::MoreUtils qw(uniq);
@@ -49,8 +50,10 @@ sub db_connect {
     my ($dsn, $user, $pass, $config) = db_data_source_info();
     $pass = pf::config::crypt::pf_decrypt($pass);
     my $compression = ($config->{host} // '') eq 'localhost' ? 0 : 1;
-    # make sure we have a database handle
-    if ($DBH = DBI->connect($dsn, $user, $pass, { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1, mysql_compression => $compression})) {
+    # make sure we have a database handle. RootClass prepends the ProxySQL
+    # routing remark (see pf::db::dbi): chi_cache is read on every RADIUS
+    # request, so it must be routed with the service that issued it.
+    if ($DBH = DBI->connect($dsn, $user, $pass, { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1, mysql_compression => $compression, RootClass => 'pf::db::dbi' })) {
         $logger->debug("connected");
         return $DBH;
     }

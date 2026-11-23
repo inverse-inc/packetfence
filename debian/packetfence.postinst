@@ -37,8 +37,10 @@ case "$1" in
         setup_system_init_key
         export PACKETFENCE=/usr/local/pf
         export PERL5LIB=/usr/local/pf/lib
-        find $PACKETFENCE/conf -type f -exec chmod 664 '{}' \;
-        find $PACKETFENCE/conf -type d -exec chmod 775 '{}' \;
+        # conf/plugins.d (the descriptors and UI code of the plugin
+        # packages) stays root's 0755, its files 0644: left out here and below
+        find $PACKETFENCE/conf -path $PACKETFENCE/conf/plugins.d -prune -o -type f -exec chmod 664 '{}' \;
+        find $PACKETFENCE/conf -path $PACKETFENCE/conf/plugins.d -prune -o -type d -exec chmod 775 '{}' \;
         chmod 2775 -R $PACKETFENCE/var
         find $PACKETFENCE/var/conf -type f -exec chmod 664 '{}' \;
         find $PACKETFENCE/var/conf -type d -exec chmod 775 '{}' \;
@@ -51,7 +53,7 @@ case "$1" in
         chmod ug+s $PACKETFENCE/bin/pfcmd
 
         chown pf:pf $PACKETFENCE
-        find $PACKETFENCE '(' -type d -or -type f ')' -not -name pfcmd -not -path "$PACKETFENCE/logs*" -print0 | xargs -0 chown pf:pf
+        find $PACKETFENCE -path $PACKETFENCE/conf/plugins.d -prune -o '(' -type d -or -type f ')' -not -name pfcmd -not -path "$PACKETFENCE/logs*" -print0 | xargs -0 chown pf:pf
         chgrp pf $PACKETFENCE/logs
 
         touch $PACKETFENCE/var/run/pkg_install_in_progress
@@ -157,8 +159,6 @@ case "$1" in
           echo "" >> /etc/hosts
           echo "100.64.0.1 containers-gateway.internal" >> /etc/hosts
         fi
-
-        perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
 
         /usr/local/pf/addons/upgrade/to-15.0-replace-kafka-values.sh
 

@@ -1,8 +1,9 @@
 import { computed } from '@vue/composition-api'
 import i18n from '@/utils/locale'
+import { areaSections } from '@/plugins'
 
 export const useSections = () => {
-  const sections = computed(() => ([
+  const sections = computed(() => areaSections('configuration', [ // add the UI plugins items, see the Developers Guide, "Admin UI plugins"
     {
       name: i18n.t('Policies and Access Control'),
       path: '/configuration/policies_access_control',
@@ -37,7 +38,6 @@ export const useSections = () => {
           items: [
             { name: i18n.t('General Settings'), path: '/configuration/fingerbank/general_settings' },
             { name: i18n.t('Device change detection'), path: '/configuration/fingerbank/device_change_detection' },
-            { name: i18n.t('Combinations'), path: '/configuration/fingerbank/combinations', saveSearchNamespace: 'fingerbankCombinations' },
             { name: i18n.t('Devices'), path: '/configuration/fingerbank/devices', saveSearchNamespace: 'fingerbankDevices' },
             { name: i18n.t('DHCP Fingerprints'), path: '/configuration/fingerbank/dhcp_fingerprints', saveSearchNamespace: 'fingerbankDhcpFingerprints' },
             { name: i18n.t('DHCP Vendors'), path: '/configuration/fingerbank/dhcp_vendors', saveSearchNamespace: 'fingerbankDhcpVendors' },
@@ -152,6 +152,7 @@ export const useSections = () => {
             { name: i18n.t('EAP Profiles'), path: '/configuration/radius/eap', saveSearchNamespace: 'radiusEap' },
             { name: i18n.t('TLS Profiles'), path: '/configuration/radius/tls', saveSearchNamespace: 'radiusTls' },
             { name: i18n.t('Fast Profiles'), path: '/configuration/radius/fast', saveSearchNamespace: 'radiusFast' },
+            { name: i18n.t('TEAP Profiles'), path: '/configuration/radius/teap', saveSearchNamespace: 'radiusTeap' },
             { name: i18n.t('PKI SSL Certificates'), path: '/configuration/radius/ssl', saveSearchNamespace: 'radiusSsl' },
             { name: i18n.t('OCSP Profiles'), path: '/configuration/radius/ocsp', saveSearchNamespace: 'radiusOcsp' }
           ]

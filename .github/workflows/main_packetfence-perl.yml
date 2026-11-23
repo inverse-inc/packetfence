@@ -1,4 +1,4 @@
-name: packetfence-perl_debian_rhel8_package
+name: packetfence-perl_debian_package
 on:
   workflow_dispatch:
   push:
@@ -66,10 +66,6 @@ jobs:
               - '.github/workflows/packetfence-perl_build_image_package.yml'
               - '.github/workflows/reusable_sign_packages.yml'
               - '.github/workflows/reusable_upload_packages.yml'
-              - 'containers/packetfence-perl/rhel8/**'
-              # debian12, not debian/: there is no containers/packetfence-perl/debian
-              # directory, so the old glob matched nothing and changes to the Debian
-              # image never triggered this workflow. Kept in step with the build matrix.
               - 'containers/packetfence-perl/debian12/**'
       - run:  | 
           echo ${{ steps.filters.outputs.src }}
@@ -94,7 +90,7 @@ jobs:
     if: ${{ contains( github.event.head_commit.message, '[perl]') || needs.build_preparation.outputs.path_changes == 'true' && needs.build_preparation.outputs.regex_match_branch != '' }}
     strategy:
       matrix:
-        images: ['debian12', 'rhel8']
+        images: ['debian12']
     uses:  ./.github/workflows/packetfence-perl_build_image_package.yml
     needs: ['build_preparation']
     with:
@@ -103,11 +99,11 @@ jobs:
       _OUTPUT_DIRECTORY: ${{needs.build_preparation.outputs.output_directory}}
       _BRANCH_NAME: ${{ needs.build_preparation.outputs.branch_name }}
     secrets: inherit
-  
+
   unit_tests_packages:
     strategy:
       matrix:
-        images: ['debian12', 'rhel8']
+        images: ['debian12']
     uses:  ./.github/workflows/reusable_unit_test.yml
     needs: ['build_preparation', 'build_images_and_packages']
     with:
@@ -118,7 +114,7 @@ jobs:
   sign_package:
     strategy:
       matrix:
-        images: ['debian12', 'rhel8']
+        images: ['debian12']
     uses:  ./.github/workflows/reusable_sign_packages.yml
     needs: ['build_preparation', 'build_images_and_packages', 'unit_tests_packages']
     with:
@@ -131,7 +127,7 @@ jobs:
   upload_packages:
     strategy:
       matrix:
-        images: ['debian12', 'rhel8']
+        images: ['debian12']
     uses:  ./.github/workflows/reusable_upload_packages.yml
     needs: ['build_preparation', 'build_images_and_packages', 'unit_tests_packages', 'sign_package']
     with:

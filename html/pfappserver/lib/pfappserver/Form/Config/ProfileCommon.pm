@@ -354,6 +354,8 @@ has_field 'provisioners.contains' =>
 has_field 'reuse_dot1x_credentials' =>
   (
     type => 'Checkbox',
+    # Left out of the profile when not sent, so the default profile applies
+    input_without_param => undef,
     checkbox_value => 'enabled',
     unchecked_value => 'disabled',
     tags => {
@@ -369,6 +371,8 @@ has_field 'reuse_dot1x_credentials' =>
 has_field 'dot1x_recompute_role_from_portal' =>
   (
     type => 'Checkbox',
+    # Left out of the profile when not sent, so the default profile applies
+    input_without_param => undef,
     checkbox_value => 'enabled',
     unchecked_value => 'disabled',
     default => 'enabled',
@@ -383,6 +387,8 @@ has_field 'dot1x_recompute_role_from_portal' =>
 has_field 'mac_auth_recompute_role_from_portal' =>
   (
     type => 'Checkbox',
+    # Left out of the profile when not sent, so the default profile applies
+    input_without_param => undef,
     checkbox_value => 'enabled',
     unchecked_value => 'disabled',
     default => 'disabled',
@@ -397,6 +403,8 @@ has_field 'mac_auth_recompute_role_from_portal' =>
 has_field 'dot1x_unset_on_unmatch' =>
   (
     type => 'Checkbox',
+    # Left out of the profile when not sent, so the default profile applies
+    input_without_param => undef,
     checkbox_value => 'enabled',
     unchecked_value => 'disabled',
     default => 'disabled',
@@ -411,6 +419,8 @@ has_field 'dot1x_unset_on_unmatch' =>
 has_field 'show_manage_devices_on_max_nodes' =>
   (
     type => 'Checkbox',
+    # Left out of the profile when not sent, so the default profile applies
+    input_without_param => undef,
     checkbox_value => 'enabled',
     unchecked_value => 'disabled',
     default => 'disabled',

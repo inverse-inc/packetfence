@@ -35,6 +35,7 @@ pfcmd <command> [options]
   pfconfig                    | interact with pfconfig
   pfcron                      | run pfcron tasks
   pfqueue                     | query/modify pfqueue tasks and counters
+  plugin                      | manage the packages installed on top of PacketFence
   reload                      | rebuild fingerprint or security events tables without restart
   reloadiptablesrules         | rebuild iptables rules without restart
   reloadip6tablesrules        | rebuild ip6tables rules without restart

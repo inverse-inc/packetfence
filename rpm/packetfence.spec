@@ -318,7 +318,7 @@ Requires: docker-ce docker-ce-cli containerd.io
 # For managing the number of connections per device
 Requires: haproxy >= 2.2.0, keepalived >= 2.0.0
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
-Requires: fingerbank >= 4.3.3, fingerbank < 5.0.0
+Requires: fingerbank >= 4.3.6, fingerbank < 5.0.0
 Requires: fingerbank-collector >= 1.4.1, fingerbank-collector < 2.0.0
 # fingerbank-collector-remote ships /etc/systemd/system/packetfence-fingerbank-collector.service, which shadows the on-prem unit from fingerbank-collector
 Conflicts: fingerbank-collector-remote
@@ -672,11 +672,6 @@ if ! grep 'containers-gateway.internal' /etc/hosts > /dev/null; then
     echo "100.64.0.1 containers-gateway.internal" >> /etc/hosts
 fi
 
-# Run actions only on upgrade
-if [ "$1" = "2" ]; then
-    perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
-fi
-
 echo "Generate values in kafka.conf"
 /usr/local/pf/addons/upgrade/to-15.0-replace-kafka-values.sh
 
@@ -979,6 +974,7 @@ fi
 %attr(6755, root, root) /usr/local/pf/bin/pfcrypt
 %attr(6755, root, root) /usr/local/pf/bin/pfkafka
 %attr(0755, pf, pf)     /usr/local/pf/bin/kafka-init.pl
+%attr(0755, pf, pf)     /usr/local/pf/bin/kafka-create-topics
 %attr(0755, root, root) /usr/local/pf/bin/ntlm_auth_wrapper
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd.pl
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
@@ -1274,6 +1270,9 @@ fi
 %config(noreplace)      /usr/local/pf/conf/radiusd/fast.conf
 %config                 /usr/local/pf/conf/radiusd/fast.conf.defaults
                         /usr/local/pf/conf/radiusd/fast.conf.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/teap.conf
+%config                 /usr/local/pf/conf/radiusd/teap.conf.defaults
+                        /usr/local/pf/conf/radiusd/teap.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/ocsp.conf
 %config                 /usr/local/pf/conf/radiusd/ocsp.conf.defaults
                         /usr/local/pf/conf/radiusd/ocsp.conf.example
@@ -1349,6 +1348,7 @@ fi
 %config                 /usr/local/pf/conf/caddy-services/httpdispatcher.conf
 %config                 /usr/local/pf/conf/caddy-services/httpadmindispatcher.conf
 %dir                    /usr/local/pf/conf/caddy-services/api.conf.d/
+%dir %attr(0755, root, root) /usr/local/pf/conf/plugins.d/
 %dir                    /usr/local/pf/conf/monitoring
 %config(noreplace)      /usr/local/pf/conf/monitoring/netdata.conf
                         /usr/local/pf/conf/monitoring/netdata.conf.example

@@ -1,0 +1,6 @@
+name: Stop NTLM Auth API Service
+testcases:
+  - name: stop_ntlm_auth_api_service
+    steps:
+      - type: pf_api_service_stop
+        service: "ntlm-auth-api"

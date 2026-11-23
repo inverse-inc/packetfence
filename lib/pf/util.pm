@@ -1686,7 +1686,8 @@ sub ping {
 
 =head2 run_as_pf
 
-Sets the UID and GID of the currently running process to pf
+Sets the UID, the GID and the supplementary groups of the currently running
+process to the ones of pf
 
 =cut
 
@@ -1695,6 +1696,16 @@ sub run_as_pf {
 
     # Early return if we're already running as pf
     return $TRUE if($uid == $<);
+
+    # Take the supplementary groups of pf (e.g. fingerbank, to read
+    # fingerbank.conf) instead of keeping the ones of the caller
+    my @groups = ($gid);
+    setgrent();
+    while (my (undef, undef, $group_id, $members) = getgrent()) {
+        push @groups, $group_id if grep { $_ eq 'pf' } split / /, $members;
+    }
+    endgrent();
+    $) = join(' ', $gid, @groups);
 
     unless(setgid($gid)) {
         my $msg = "Cannot switch process user to pf. setgid to $gid has failed";

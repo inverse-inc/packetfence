@@ -1,7 +1,7 @@
 <template>
   <div class="historical-logs-page">
     <div class="historical-logs-header px-3 py-2 border-bottom d-flex align-items-center">
-      <b-button variant="outline-secondary" size="sm" class="mr-3" :to="{ name: 'historical_logs' }">
+      <b-button variant="outline-secondary" size="sm" class="mr-3" @click="logsPanel.open(null)">
         <icon name="arrow-left" class="mr-1" />{{ $t('Edit query') }}
       </b-button>
       <h4 class="mb-0" v-t="'Historical Logs'" />
@@ -109,7 +109,7 @@
 
 <script>
 import { BaseTableEmpty } from '@/components/new/'
-import { computed, ref, toRefs } from '@vue/composition-api'
+import { computed, inject, ref, toRefs } from '@vue/composition-api'
 import { basename, hostColorIndex } from '@/utils/logEvents'
 import { useLogSearch } from '@/composables/useLogSearch'
 
@@ -119,6 +119,8 @@ const props = { id: { type: String } }
 const setup = (props, context) => {
   const { id } = toRefs(props)
   const { root: { $store } = {} } = context
+  // the header panel shows the query again (ThePanel)
+  const logsPanel = inject('logsPanel')
 
   const session = computed(() => $store.getters[`$_historical_logs/${id.value}/session`])
   const options = computed(() => $store.getters[`$_historical_logs/${id.value}/options`])
@@ -154,6 +156,7 @@ const setup = (props, context) => {
   })
 
   return {
+    logsPanel,
     session, options, events, scopes, lines, isLoading, exhausted, message,
     onLoadMore, onClearEvents, onToggleFilter,
     logRef, searchInput, searchIsRegex, searchError,

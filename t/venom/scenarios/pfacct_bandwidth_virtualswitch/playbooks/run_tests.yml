@@ -6,10 +6,12 @@
   vars:
     test_suites:
       - configurator
+      - proxysql_tiers_ci  # CI-ONLY (revert before merge)
       - global_config_virtualswitch
       - pfacct_bandwidth_virtualswitch
       - pfacct_bandwidth_virtualswitch/teardown
       - global_config_virtualswitch/teardown
+      - proxysql_tiers_ci_report  # CI-ONLY (revert before merge)
 
   tasks:
     - name: Run Venom testsuites

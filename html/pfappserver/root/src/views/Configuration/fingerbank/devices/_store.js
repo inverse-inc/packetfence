@@ -1,17 +1,6 @@
 import Vue from 'vue'
-import { computed } from '@vue/composition-api'
 import { types } from '@/store'
 import api from './_api'
-
-export const useStore = $store => {
-  return {
-    isLoading: computed(() => $store.getters['$_fingerbank/isDevicesLoading']),
-    createItem: params => $store.dispatch('$_fingerbank/createDevice', params),
-    getItem: params => $store.dispatch('$_fingerbank/getDevice', params.id),
-    updateItem: params => $store.dispatch('$_fingerbank/updateDevice', params),
-    deleteItem: params => $store.dispatch('$_fingerbank/deleteDevice', params.id),
-  }
-}
 
 // Default values
 export const state = () => {
@@ -69,37 +58,6 @@ export const actions = {
       commit('DEVICE_ERROR', err.response)
       throw err
     })
-  },
-  createDevice: ({ commit }, data) => {
-    commit('DEVICE_REQUEST')
-    return api.create(data).then(response => {
-      data.id = response.id
-      commit('DEVICE_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('DEVICE_ERROR', err.response)
-      throw err
-    })
-  },
-  updateDevice: ({ commit }, data) => {
-    commit('DEVICE_REQUEST')
-    return api.update(data).then(response => {
-      commit('DEVICE_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('DEVICE_ERROR', err.response)
-      throw err
-    })
-  },
-  deleteDevice: ({ commit }, id) => {
-    commit('DEVICE_REQUEST', types.DELETING)
-    return api.delete(id).then(response => {
-      commit('DEVICE_DESTROYED', id)
-      return response
-    }).catch(err => {
-      commit('DEVICE_ERROR', err.response)
-      throw err
-    })
   }
 }
 
@@ -111,10 +69,6 @@ export const mutations = {
   DEVICE_REPLACED: (state, data) => {
     state.devices.status = types.SUCCESS
     Vue.set(state.devices.cache, data.id, data)
-  },
-  DEVICE_DESTROYED: (state, id) => {
-    state.devices.status = types.SUCCESS
-    Vue.set(state.devices.cache, id, null)
   },
   DEVICE_ERROR: (state, response) => {
     state.devices.status = types.ERROR

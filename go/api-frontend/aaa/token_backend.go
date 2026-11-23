@@ -39,16 +39,26 @@ type TokenInfo struct {
 }
 
 func (ti *TokenInfo) AdminActions(ctx context.Context) map[string]bool {
-	adminRolesMap := make(map[string]bool)
-	AdminRoles := pfconfigdriver.GetStruct(ctx, "AdminRoles").(*pfconfigdriver.AdminRoles)
+	roles := make([]string, 0, len(ti.AdminRoles))
+	for role := range ti.AdminRoles {
+		roles = append(roles, role)
+	}
+	return ActionsForRoles(ctx, roles)
+}
 
-	for role, _ := range ti.AdminRoles {
-		for role, _ := range AdminRoles.Element[role].Actions {
-			adminRolesMap[role] = true
+// ActionsForRoles are the actions of admin roles (conf/adminroles.conf), the
+// union of the actions of each role. An unknown role has no action.
+func ActionsForRoles(ctx context.Context, roles []string) map[string]bool {
+	actions := make(map[string]bool)
+	adminRoles := pfconfigdriver.GetStruct(ctx, "AdminRoles").(*pfconfigdriver.AdminRoles)
+
+	for _, role := range roles {
+		for action := range adminRoles.Element[role].Actions {
+			actions[action] = true
 		}
 	}
 
-	return adminRolesMap
+	return actions
 }
 
 func ValidTokenExpiration(ti *TokenInfo, expiration time.Time, max time.Duration) (*TokenInfo, time.Time) {

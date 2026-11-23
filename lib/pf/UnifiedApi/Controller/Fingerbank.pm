@@ -8,6 +8,9 @@ pf::UnifiedApi::Controller::Fingerbank -
 
 pf::UnifiedApi::Controller::Fingerbank
 
+Read-only access to the Fingerbank data of the Upstream database. There are no
+local entries: they were removed with the local Fingerbank database.
+
 =cut
 
 use strict;
@@ -18,9 +21,9 @@ use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use pf::UnifiedApi::Search::Builder::Fingerbank;
 use List::MoreUtils qw(any);
 use fingerbank::API;
+use fingerbank::DB_Factory;
 use fingerbank::Model::Device;
 use pf::cluster;
-use pf::fingerbank;
 use pf::constants;
 
 =head2 url_param_name
@@ -72,10 +75,6 @@ sub account_info {
 
 sub resource {
     my ($self) = @_;
-    # An edit (update, remove) reads the item: get the shared local database first
-    if ($self->req->method ne 'GET') {
-        return undef unless $self->_restore_local_db_before_edit;
-    }
     my $id = $self->stash($self->url_param_name);
     my $model = $self->fingerbank_model;
     my ($status, $item ) = $model->read_hashref($id);
@@ -85,22 +84,6 @@ sub resource {
 
     push @{$self->stash->{item}}, $item;
     return 1;
-}
-
-=head2 _restore_local_db_before_edit
-
-Make sure the local database is the shared one before an edit, see
-L<pf::fingerbank/restore_local_db_from_storage>. Renders an error and returns
-false when it can't.
-
-=cut
-
-sub _restore_local_db_before_edit {
-    my ($self) = @_;
-    my ($res, $msg) = pf::fingerbank::restore_local_db_from_storage();
-    return 1 if $res;
-    $self->render_error(500, "Unable to get the current local Fingerbank database before the change: $msg");
-    return 0;
 }
 
 =head2 list
@@ -129,69 +112,6 @@ sub list {
     return $self->render(json => $response);
 }
 
-=head2 create
-
-create
-
-=cut
-
-sub create {
-    my ($self) = @_;
-    my ($status, $json) = $self->parse_json;
-    if (is_error($status)) {
-        return $self->render(json => $json, status => $status);
-    }
-
-    return unless $self->_restore_local_db_before_edit;
-
-    my $model = $self->fingerbank_model;
-    my $db = fingerbank::DB_Factory->instantiate(schema => 'Local');
-    my $source =  $db->handle->source($model->_parseClassName);
-    my %data;
-    for my $c ($source->columns) {
-        next if !exists $json->{$c};
-        $data{$c} = $json->{$c};
-    }
-
-    ($status, my $return) = $model->create(\%data);
-    if (is_error($status)) {
-        return $self->render_error($status, $return);
-    }
-
-    my $id = $return->{id};
-    my ($sync_res, $sync_msg) = pf::fingerbank::sync_local_db();
-    if (!$sync_res) {
-        return $self->render_error(500, "'$id' was created but syncing the local Fingerbank database failed: $sync_msg");
-    }
-
-    my $parent_route = $self->match->endpoint->parent->name;
-    my $url = $self->url_for("$parent_route.resource.get", {$self->url_param_name => $id});
-    $self->res->headers->location($url);
-    return $self->render(json => {id => $id, message => "'$id' created"});
-}
-
-=head2 remove
-
-remove
-
-=cut
-
-sub remove {
-    my ($self) = @_;
-    my $id = $self->id;
-    my ($status, $msg) = $self->fingerbank_model->delete($id);
-    if (is_error($status)) {
-        return $self->render_error($status, $msg);
-    }
-
-    my ($sync_res, $sync_msg) = pf::fingerbank::sync_local_db();
-    if (!$sync_res) {
-        return $self->render_error(500, "'$id' was deleted but syncing the local Fingerbank database failed: $sync_msg");
-    }
-
-    return $self->render(json => {message => "Deleted $id successfully"});
-}
-
 =head2 id
 
 Get id of current resource
@@ -208,7 +128,7 @@ sub build_list_search_info {
     my $params = $self->req->query_params->to_hash;
     my $scope = $self->stash->{scope};
     my $model = $self->fingerbank_model;
-    my $db = fingerbank::DB_Factory->instantiate(schema => 'Local');
+    my $db = fingerbank::DB_Factory->instantiate(schema => 'Upstream');
     my $source =  $db->handle->source($model->_parseClassName);
     my %args = (
         query => undef,
@@ -269,8 +189,6 @@ sub cleanup_item {
         $new_item{$k} = defined $v ? "$v" : undef;
     }
 
-    my $id = $new_item{id};
-    $new_item{not_deletable} = $new_item{not_updatable} =  ($id =~ /^L/) ? $self->json_false :  $self->json_true;
     return \%new_item;
 }
 
@@ -282,7 +200,7 @@ sub build_search_info {
     }
 
     my $model = $self->fingerbank_model;
-    my $db = fingerbank::DB_Factory->instantiate(schema => 'Local');
+    my $db = fingerbank::DB_Factory->instantiate(schema => 'Upstream');
     my $source =  $db->handle->source($model->_parseClassName);
     return 200, {
         model => $self->fingerbank_model,
@@ -323,38 +241,6 @@ sub item {
 sub search_builder {
     my ($self) = @_;
     return $self->search_builder_class->new();
-}
-
-sub update {
-    my ($self) = @_;
-    my ($error, $new_data) = $self->get_json;
-    if (defined $error) {
-        return $self->render_error(400, "Bad Request : $error");
-    }
-
-    my $old_item = $self->item;
-    my $new_item = {%$old_item, %$new_data};
-    my $model = $self->fingerbank_model;
-    my $db = fingerbank::DB_Factory->instantiate(schema => 'Local');
-    my $source =  $db->handle->source($model->_parseClassName);
-    my %data;
-    for my $c ($source->columns) {
-        next if !exists $new_item->{$c};
-        $data{$c} = $new_item->{$c};
-    }
-
-    my $id = $self->id;
-    my ($status, $message) = $model->update($id, \%data);
-    if (is_error($status)) {
-        return $self->render_error($status, $message);
-    }
-
-    my ($sync_res, $sync_msg) = pf::fingerbank::sync_local_db();
-    if (!$sync_res) {
-        return $self->render_error(500, "'$id' was updated but syncing the local Fingerbank database failed: $sync_msg");
-    }
-
-    $self->render(status => 200, json => { message => "$id updated"});
 }
 
 =head2 update_upstream_db

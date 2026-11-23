@@ -27,10 +27,16 @@ case "$1" in
     configure)
         export FINGERBANK=/usr/local/fingerbank
         cd /usr/local/fingerbank
-        make init-db-local
+        # The local database was removed in 4.3.6
+        rm -f /usr/local/fingerbank/db/fingerbank_Local.db
         make fixpermissions
         /usr/local/fingerbank/conf/upgrade/*
         chown fingerbank:fingerbank /usr/local/fingerbank/conf/fingerbank.conf
+        # On an upgrade, flush the Fingerbank cache if running with PacketFence
+        if [ -n "$2" ] && [ -x /usr/local/pf/bin/pfcmd ]; then
+            /usr/local/pf/bin/pfcmd cache fingerbank clear || true
+            echo "Cleared the PacketFence Fingerbank cache"
+        fi
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

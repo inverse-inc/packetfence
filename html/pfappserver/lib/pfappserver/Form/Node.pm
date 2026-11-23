@@ -146,6 +146,16 @@ has_field 'last_dot1x_username' =>
    type => 'Uneditable',
    label => '802.1X Username',
   );
+has_field 'last_teap_username' =>
+    (
+        type => 'Uneditable',
+        label => 'TEAP Username',
+    );
+has_field 'last_teap_machinename' =>
+    (
+        type => 'Uneditable',
+        label => 'TEAP Machine Name',
+    );
 has_field 'bypass_vlan' =>
   (
    type => 'Text',

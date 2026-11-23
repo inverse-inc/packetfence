@@ -16,7 +16,7 @@ use warnings;
 use fingerbank::IniFiles;
 
 use fingerbank::Constant qw($TRUE $FALSE);
-use fingerbank::FilePath qw($CONF_FILE $CONFIG_DEFAULTS_FILE $CONFIG_DOC_FILE $COMBINATION_MAP_FILE);
+use fingerbank::FilePath qw($CONF_FILE $CONFIG_DEFAULTS_FILE $CONFIG_DOC_FILE);
 use fingerbank::Log;
 use fingerbank::Status;
 use fingerbank::Util qw(is_enabled is_success);

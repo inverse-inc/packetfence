@@ -4,24 +4,29 @@ testcases:
   steps:
   - type: get_login_token
 
+# The Fingerbank data is read-only: look up the ID of the fingerprint in the
+# Upstream database
 - name: seed_dhcp_fingerprint
   steps:
   - type: http
     method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/fingerbank/local/dhcp_fingerprints'
+    url: '{{.pfserver_webadmin_url}}/api/v1/fingerbank/all/dhcp_fingerprints/search'
     ignore_verify_ssl: true
     body: >-
       {
-        "value": "{{.security_event_autoreg.node.dhcp_fingerprint}}"
+        "query": {"op": "equals", "field": "value", "value": "{{.security_event_autoreg.node.dhcp_fingerprint}}"},
+        "fields": ["id", "value"],
+        "limit": 1
       }
     headers:
       "Content-Type": "application/json"
       "Authorization": "{{.get_login_token.json.result.token}}"
     assertions:
       - result.statuscode ShouldEqual 200
+      - result.bodyjson.items.items0.value ShouldEqual "{{.security_event_autoreg.node.dhcp_fingerprint}}"
     vars:
       id:
-        from: result.bodyjson.id
+        from: result.bodyjson.items.items0.id
 
 - name: create_security_event
   steps:

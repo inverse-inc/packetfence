@@ -48,12 +48,6 @@ FingerbankUserAgentDecorated:
     value:
       type: string
 
-FingerbankUserAgentForm:
-  allOf:
-    - $ref: '#/components/schemas/FingerbankUserAgent'
-    - required:
-      - device_id
-
 FingerbankUserAgentsSearch:
   allOf:
     - $ref: '#/components/schemas/FingerbankIterable'

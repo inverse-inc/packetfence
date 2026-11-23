@@ -19,7 +19,9 @@ import (
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
+	"github.com/inverse-inc/packetfence/go/uiplugins"
 	"github.com/julienschmidt/httprouter"
+	"golang.org/x/sync/singleflight"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -42,7 +44,60 @@ func (APIHandler) CaddyModule() caddy.ModuleInfo {
 
 type APIHandler struct {
 	router *httprouter.Router
-	db     *sql.DB
+	// the raw SQL handle, only through sqlDB, setSQLDB and pluginDB (guarded
+	// by sqlDBLock)
+	db *sql.DB
+}
+
+// guards APIHandler.db: written at startup and by a lazy reopen, read by the
+// request handlers. A package lock and not a field: CaddyModule has a value
+// receiver, APIHandler must stay copyable.
+var sqlDBLock sync.RWMutex
+
+// sqlDB is the raw SQL handle, nil when it could not be opened
+func (m *APIHandler) sqlDB() *sql.DB {
+	sqlDBLock.RLock()
+	defer sqlDBLock.RUnlock()
+	return m.db
+}
+
+func (m *APIHandler) setSQLDB(database *sql.DB) {
+	sqlDBLock.Lock()
+	defer sqlDBLock.Unlock()
+	m.db = database
+}
+
+// opens the raw SQL handle, a variable for the tests
+var openPluginDB = db.DbFromConfig
+
+// one open of the raw SQL handle at a time, for the concurrent requests
+var pluginDBOpen singleflight.Group
+
+// pluginDB is the raw SQL handle, opened again when it could not be at
+// startup. Opening it creates the pool without connecting (sql.Open): the
+// singleflight only keeps the concurrent requests from creating a pool each,
+// all but one then left open. It is done without holding sqlDBLock, which
+// the other handlers read the handle with.
+func (m *APIHandler) pluginDB(ctx context.Context) *sql.DB {
+	if database := m.sqlDB(); database != nil {
+		return database
+	}
+	opened, _, _ := pluginDBOpen.Do("open", func() (any, error) {
+		if database := m.sqlDB(); database != nil {
+			return database, nil
+		}
+		database, err := openPluginDB(context.WithoutCancel(ctx))
+		if err != nil {
+			log.LoggerWContext(ctx).Error("Unable to open the database for the UI plugins: " + err.Error())
+			return nil, err
+		}
+		m.setSQLDB(database)
+		return database, nil
+	})
+	if database, _ := opened.(*sql.DB); database != nil {
+		return database
+	}
+	return m.sqlDB()
 }
 
 // Setup the api middleware
@@ -79,6 +134,12 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 	router.POST("/api/v1/fleetdm-events/cve", m.CVE)
 	router.GET("/api/v1/elasticsearch", m.handleElasticsearch)
 
+	router.GET("/api/v1/plugins", m.plugins)
+	router.GET("/api/v1/plugins/:name/bundle.js", m.pluginBundle)
+	for _, method := range uiplugins.ProxyMethods {
+		router.Handle(method, "/api/v1/plugin/:name/*path", m.pluginProxy)
+	}
+
 	var DBP **gorm.DB
 	var DB *gorm.DB
 	var sqlDB *sql.DB
@@ -109,14 +170,22 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 				}
 				if DB != nil && err == nil {
 					sqlDB, err = DB.DB()
-					err := sqlDB.Ping()
-					if err == nil {
-						done = true
+					if err != nil {
+						log.LoggerWContext(ctx).Warn("Could not get the database handle: " + err.Error())
 					} else {
-						log.LoggerWContext(ctx).Warn(err.Error())
-						err := sqlDB.Close()
-						if err != nil {
-							log.LoggerWContext(ctx).Warn("error occured while closing db: ", err.Error())
+						// gorm.Open builds its own *sql.DB, bypassing
+						// db.ConnectURI, so the pool would otherwise run with Go's
+						// defaults: unlimited connections that are never recycled.
+						db.SetPoolLimits(sqlDB)
+						err := sqlDB.Ping()
+						if err == nil {
+							done = true
+						} else {
+							log.LoggerWContext(ctx).Warn(err.Error())
+							err := sqlDB.Close()
+							if err != nil {
+								log.LoggerWContext(ctx).Warn("error occured while closing db: ", err.Error())
+							}
 						}
 					}
 				}
@@ -143,7 +212,7 @@ func (m *APIHandler) buildHandler(ctx context.Context) error {
 	if sqlHandle, sqlErr := db.DbFromConfig(ctx); sqlErr != nil {
 		log.LoggerWContext(ctx).Warn("Unable to open sql.DB handle for the API plugin: " + sqlErr.Error())
 	} else {
-		m.db = sqlHandle
+		m.setSQLDB(sqlHandle)
 	}
 	NewAdminApiAuditLog(ctx, DBP).AddToRouter(router)
 	NewAuthLog(ctx, DBP).AddToRouter(router)

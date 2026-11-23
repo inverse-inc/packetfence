@@ -62,6 +62,9 @@ install: build
 	done
 
 	install -d -m2775 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/caddy-services/api.conf.d
+	# root only: a descriptor names the SQL files pfcmd plugin schema runs as
+	# the database root user
+	install -d -m0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/plugins.d
 
 	# packetfence-test package
 	make DESTDIR=$(CURDIR)/debian/packetfence-test test_install
@@ -359,7 +362,6 @@ binary-arch: build install
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/UnifiedApi/Controller/Config/*.t
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/UnifiedApi/Controller/Config/Sources/*.t
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/UnifiedApi/Controller/Config/FilterEngines/*.t
-	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/UnifiedApi/Controller/Fingerbank/*.t
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/UnifiedApi/Search/Builder/*.t
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/cmd/pf/*.t
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/provisioner/*.t

@@ -144,6 +144,12 @@ sub process_fingerbank {
         return $FALSE;
     }
 
+    # The client IP has no known MAC address (pf::ip4log::ip2mac returns 0)
+    unless(valid_mac($self->current_mac)) {
+        get_logger->debug("Skipping Fingerbank processing: no valid MAC address for this client");
+        return $FALSE;
+    }
+
     my $attributes = pf::fingerbank::endpoint_attributes($self->current_mac);
     if (($attributes->{most_accurate_user_agent} // '') ne $self->current_user_agent) {
         pf::fingerbank::update_collector_endpoint_data($self->current_mac, {

@@ -14,6 +14,7 @@ import ConnectionProfilesRoutes from '../connectionProfiles/_router'
 
 /* Compliance */
 const ComplianceSection = () => import(/* webpackChunkName: "ConfigurationCompliance" */ '../_components/TheSectionCompliance')
+const PluginsSection = () => import(/* webpackChunkName: "ConfigurationPlugins" */ '../_components/TheSectionPlugins')
 import FingerbankRoutes from '../fingerbank/_router'
 import NetworkBehaviorPoliciesRoutes from '../networkBehaviorPolicy/_router'
 import ScanEnginesRoutes from '../scanEngines/_router'
@@ -69,6 +70,7 @@ import ConnectorsRoutes from '../connectors/_router'
 import KafkaRoutes from '../kafka/_router'
 
 import store from '@/store'
+import { onPremOnly } from '@/utils/router'
 import BasesStoreModule from '../bases/_store'
 export const beforeEnter = (to, from, next = () => { }) => {
   if (!store.state.$_bases) {
@@ -112,6 +114,15 @@ const route = {
     {
       path: 'compliance',
       component: ComplianceSection
+    },
+
+    /**
+     * Plugins: the pages of the plugins are added at run time
+     * (src/plugins), under plugins/<id>
+     */
+    {
+      path: 'plugins',
+      component: PluginsSection
     },
     ...FingerbankRoutes,
     ...NetworkBehaviorPoliciesRoutes,
@@ -161,7 +172,8 @@ const route = {
       component: NetworkConfigurationSection,
       meta: {
         can
-      }
+      },
+      beforeEnter: onPremOnly(beforeEnter)
     },
     ...NetworksRoutes,
     ...FloatingDevicesRoutes,

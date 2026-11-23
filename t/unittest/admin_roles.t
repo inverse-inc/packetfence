@@ -19,7 +19,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 14;                      # last test to print
+use Test::More tests => 17;                      # last test to print
 
 use Test::NoWarnings;
 
@@ -30,6 +30,12 @@ ok(admin_can(["User Manager"],'USERS_CREATE'),"User Manager can create a user");
 ok(!admin_can(["User Manager"],'NODES_READ'),"User Manager cannot read a node");
 
 ok(admin_can(["ALL"],'USERS_CREATE'),"ALL can create a user");
+
+ok(admin_can(["ALL"],'PLUGIN_READ', 'PLUGIN_WRITE'),"ALL can read and write the UI plugins");
+
+ok(exists $pf::constants::admin_roles::ADMIN_NOT_IN_READONLY{PLUGIN_WRITE}, "PLUGIN_WRITE is not allowed in readonly mode");
+
+ok(!exists $pf::constants::admin_roles::ADMIN_NOT_IN_READONLY{PLUGIN_READ}, "PLUGIN_READ is allowed in readonly mode");
 
 is_deeply(
     [admin_allowed_options(["User Manager"], 'allowed_access_levels')],

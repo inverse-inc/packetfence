@@ -397,6 +397,8 @@ CREATE TABLE `locationlog` (
   `session_id` VARCHAR(255) DEFAULT NULL,
   `ifDesc` VARCHAR(255) DEFAULT NULL,
   `voip` enum('no','yes') NOT NULL DEFAULT 'no',
+  `teap_username` VARCHAR(255) NOT NULL DEFAULT '',
+  `teap_machinename` VARCHAR(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`mac`),
   KEY `locationlog_end_time` ( `end_time`),
   KEY `locationlog_view_switchport` (`switch`,`port`,`vlan`),
@@ -427,6 +429,8 @@ CREATE TABLE `locationlog_history` (
   `session_id` VARCHAR(255) DEFAULT NULL,
   `ifDesc` VARCHAR(255) DEFAULT NULL,
   `voip` enum('no','yes') NOT NULL DEFAULT 'no',
+  `teap_username` VARCHAR(255) NOT NULL DEFAULT '',
+  `teap_machinename` VARCHAR(255) NOT NULL DEFAULT '',
   KEY `locationlog_view_mac` (`mac`, `end_time`),
   KEY `locationlog_end_time` ( `end_time`),
   KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`),
@@ -461,6 +465,8 @@ BEGIN
             switch_ip = OLD.switch_ip,
             switch_mac = OLD.switch_mac,
             switch_id = OLD.switch_id,
+            teap_username = OLD.teap_username,
+            teap_machinename = OLD.teap_machinename,
             stripped_user_name = OLD.stripped_user_name,
             realm = OLD.realm,
             session_id = OLD.session_id,
@@ -1278,6 +1284,32 @@ CREATE TABLE `chi_cache` (
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
+-- Creating ui_plugin table: the registry of the admin UI plugins, one row per
+-- plugin service (go/uiplugins, pf::ui_plugins)
+--
+
+CREATE TABLE `ui_plugin` (
+  `name` VARCHAR(63) NOT NULL,
+  `host` VARCHAR(253) NOT NULL,
+  `port` SMALLINT UNSIGNED NOT NULL,
+  PRIMARY KEY (`name`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+--
+-- Creating plugin_version table: the schema versions of the packages that
+-- add tables to the database, one row per version applied
+-- (pfcmd plugin schema, pf::ui_plugins::schema)
+--
+
+CREATE TABLE `plugin_version` (
+  `name` VARCHAR(63) NOT NULL,
+  `id` INT NOT NULL,
+  `version` VARCHAR(11) NOT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`name`, `id`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
+
+--
 -- Dumping routines for database 'pf'
 --
 DROP FUNCTION IF EXISTS `FREERADIUS_DECODE`;
@@ -1697,7 +1729,7 @@ CREATE TABLE switch_observability_acls (
   `acls` MEDIUMTEXT NOT NULL,
   `enforcement_timestamp` DATETIME default NULL,
   PRIMARY KEY (`switch_id`, `mac`, `role_id`),
-  UNIQUE KEY `switch_observability_acls_switch_port` (`switch_id`, `port`),
+  KEY `switch_observability_acls_switch_port` (`switch_id`, `port`),
   KEY `switch_observability_acls_mac_enforcement` (`mac`, `enforcement_timestamp`)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 

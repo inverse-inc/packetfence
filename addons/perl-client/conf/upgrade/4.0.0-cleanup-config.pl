@@ -36,6 +36,9 @@ $tConfig->DeleteSection("tcp_fingerprinting");
 $tConfig->DeleteSection("redis");
 $tConfig->DeleteSection("mysql");
 
+# The local matcher, the only user of the [query] section, was removed in 4.3.6
+$tConfig->DeleteSection("query");
+
 $tConfig->RewriteConfig() || die "Couldn't rewrite Fingerbank settings";
 
 # Rewrite the config using the Fingerbank lib to cleanup any defaults

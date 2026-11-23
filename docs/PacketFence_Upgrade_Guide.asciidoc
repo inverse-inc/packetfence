@@ -941,6 +941,75 @@ Internet Explorer 11 on Windows 7 when an RSA certificate is in use.
 
 == Upgrading from a version prior to X.Y.Z
 
+=== Realms with "Authorize from PacketFence" disabled
+
+A request proxied to the RADIUS server of a realm (EAP-TLS, or without EAP)
+was authorized by PacketFence after the server accepted it, even when
+*Authorize from PacketFence* was disabled on the realm: the switch got the
+role, VLAN and ACLs computed by PacketFence. With the option enabled,
+PacketFence authorized it twice, which sent the role ACLs twice. The option is
+now honored: when it is disabled, the switch gets the answer of the RADIUS
+server only. PacketFence no longer creates or updates the node or its
+locationlog at post-auth in that case — only accounting updates them. Enable
+*Authorize from PacketFence* on the realms whose devices must get their role,
+VLAN or ACLs from PacketFence, or whose node and locationlog records must be
+kept up to date at authentication time.
+
+If you kept a customized [filename]`conf/radiusd/packetfence` or
+[filename]`conf/radiusd/packetfence-tunnel`, merge the new `post-auth` and
+`Post-Auth-Type REJECT` blocks of the corresponding `.example` files into
+your copies. Without them, proxied requests are still authorized twice.
+
+=== Bypass ACLs are translated like role ACLs
+
+The _Bypass ACLs_ of a node (Node > Advanced) were sent to the switch as
+written, while the ACLs of a role are translated to the syntax of the switch
+type (Aruba CX, Arista, Juniper, Huawei, Dell, FortiSwitch, ...). They are now
+translated the same way on every switch type, Cisco included, so they must be
+written in the Cisco extended ACL syntax used for role ACLs. The access lists
+defined on a switch or switch group (`<role>AccessList` in
+[filename]`switches.conf`) are still sent as written.
+
+The bypass ACLs follow the rules of role ACLs:
+
+* A line the switch type cannot express is skipped when it is a `permit`. When
+it is a `deny`, the ACLs end there with a deny of everything, because skipping
+it would let the lines after it through. This covers a DSCP match, an
+`object-group`, and a source address on every switch type but FortiSwitch:
+the source of a per-user ACL is the endpoint, and a Cisco switch does not apply
+an ACL with another source. On Cisco it also covers a source port; on the other
+switch types, a source port or an ICMP type, which their `NAS-Filter-Rule`
+cannot express.
+* When none of the lines can be sent, or when the parser cannot read them (for
+example ACLs written in the native syntax of the switch), the device is denied
+everything.
+
+Before upgrading, review the bypass ACLs of the nodes:
+
+[source,bash]
+----
+mysql pf -e "SELECT mac, bypass_acls FROM node WHERE bypass_acls IS NOT NULL AND bypass_acls <> ''"
+----
+
+Rewrite the ones in the native syntax of the switch in the Cisco syntax, and
+remove the source addresses (except on FortiSwitch, which keeps them).
+
+With _Push ACLs_ enabled on a switch, the bypass ACLs of a node and the access
+list of the switch entry were ignored for a role known to PacketFence, as only
+the ACLs of the roles are pushed to the switch configuration. They are now sent
+in the RADIUS reply and replace the pushed ACLs of the role for that device.
+With _Push ACLs_ enabled and the _Role Map_ disabled, no reply names the pushed
+role: the RADIUS reply now carries the ACLs of the role, as without _Push ACLs_,
+where most switch types used to send no ACL at all.
+
+A Cisco switch now receives the ICMP type of an ACL (`permit icmp any any
+echo`); such a line used to be skipped.
+
+The role ACLs pushed to an Aruba Controller, an Aruba Mobility Master or a
+Cisco WLC (AireOS) follow the same rules: a line with TCP flags used to be sent
+without them, which allowed more than the line did. It is now skipped when it is
+a `permit`, and ends the ACLs with a deny of everything when it is a `deny`.
+
 === advanced.multihost replaced by the per-switch host_mode
 
 The `advanced.multihost` parameter had no effect and is removed. Remove it from
@@ -1331,6 +1400,157 @@ back to any available domain controller when none of the listed ones is reachabl
 Before upgrading, check the `sticky_dc` value of each domain in
 [filename]`/usr/local/pf/conf/domain.conf`, and set it back to `*` if you don't
 want to pin a domain controller.
+
+=== HTTP source basic authentication credentials
+
+The `API username (basic auth)` and `API password (basic auth)` fields of an
+HTTP authentication source were not saved when entered in the administration
+interface, so PacketFence called the external API without basic authentication.
+Credentials already present in [filename]`/usr/local/pf/conf/authentication.conf`
+(`username` and `password` of the source) were used, but were shown empty in the
+form.
+
+After upgrading, open each HTTP source in the administration interface and enter
+the basic authentication credentials again if the external API requires them.
+
+=== HTTP source TLS verification
+
+HTTP sources have a new *Verify TLS* option to verify the certificate and the
+hostname of the API server when using `https`. It is enabled by default,
+including for the sources created through the REST API or by editing
+[filename]`/usr/local/pf/conf/authentication.conf`.
+Existing sources keep their previous behavior and do not verify TLS: the
+upgrade runs [filename]`/usr/local/pf/addons/upgrade/to-16.0-http-source-defaults.pl`,
+which writes `verify_tls=disabled` and
+`content_type=application/x-www-form-urlencoded` in each existing HTTP source of
+[filename]`/usr/local/pf/conf/authentication.conf`, before
+[filename]`/usr/local/pf/addons/upgrade/add-default-params-to-auth.pl` adds the
+defaults of the other new parameters. When upgrading manually, run them in
+this order:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-16.0-http-source-defaults.pl
+/usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
+----
+
+After upgrading, enable the option on each HTTP source whose API certificate is
+trusted by the PacketFence server.
+
+=== HTTP source requests
+
+The authorization request of an HTTP source now carries attributes of the
+RADIUS request: as `radius_request.Attribute-Name` fields in a URL-encoded body
+(the values of a multi-valued attribute as `radius_request.Attribute-Name:0`,
+`radius_request.Attribute-Name:1`, ...), or in a `radius_request` object with
+the new JSON content type, the default of the new sources (the existing sources
+keep sending a URL-encoded body). Only an allowed list of attributes is sent (see the
+External API Authentication section of the Installation Guide): passwords,
+CHAP/MS-CHAP and digest values, `EAP-Message`, `State`,
+`Message-Authenticator`, the PSK/DPSK and WPA handshake attributes
+(`Ruckus-DPSK-*`, `Eleven-EAPOL-*`, `FreeRADIUS-802.1X-*`) and the vendor
+attributes not in the list are not sent. The `owner` and `node_info` records
+are not sent either.
+
+A `trigger_radius_mfa` or `trigger_portal_mfa` naming an MFA that is not
+configured is ignored, as is any attribute of the authorization reply whose
+value is not a string or a number.
+
+The `result` of the authentication reply must now be `1`, `true`, `"1"` or
+`"true"` for a success: any other value (for example `"false"` or `"0.0"`,
+which were accepted before) is a failure.
+
+=== EAP-TEAP support in the RADIUS configuration
+
+EAP-TEAP changes the following package configuration files:
+
+* [filename]`/usr/local/pf/conf/radiusd/eap.conf`
+* [filename]`/usr/local/pf/conf/radiusd/mschap.conf`
+* [filename]`/usr/local/pf/conf/radiusd/packetfence`
+* [filename]`/usr/local/pf/conf/radiusd/packetfence-tunnel`
+
+They are updated automatically unless you modified them (see the general
+procedure above). [filename]`/usr/local/pf/raddb/policy.d/packetfence` is
+always replaced by the package. If you kept a customized [filename]`eap.conf`
+or [filename]`mschap.conf`, the following script adds the TEAP block and the
+`chrooted_mschap_mppe` module to them. Without it, TEAP with EAP-MSCHAPv2
+against a domain fails:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-16.0-radiusd-teap.pl
+----
+
+If you kept a customized [filename]`packetfence` or [filename]`packetfence-tunnel`,
+merge the TEAP sections of the new version (`.rpmnew` on RHEL, `.dpkg-dist` on
+Debian) into your file. Without
+them, RADIUS keeps working but the TEAP machine and user identities are not
+passed to PacketFence.
+
+TEAP is not enabled after the upgrade: add it to the EAP profiles that should
+offer it, see the EAP-TEAP section of the Installation Guide. Then restart all
+RADIUS instances:
+
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service radiusd restart
+----
+
+=== Fingerbank local entries are removed
+
+PacketFence no longer has local Fingerbank entries. The upgrade of the
+`fingerbank` package deletes
+[filename]`/usr/local/fingerbank/db/fingerbank_Local.db`, with every local
+device, DHCP and DHCPv6 fingerprint, DHCPv6 enterprise, DHCP vendor, MAC vendor,
+user agent and combination. Endpoints are profiled by the Fingerbank collector
+only, and the Fingerbank lists of the admin interface show the upstream
+database, read-only. The `/api/v1/fingerbank/local/...` API endpoints return
+404, and the `[query]` section of
+[filename]`/usr/local/fingerbank/conf/fingerbank.conf` is removed.
+
+To keep a copy of the local entries, export them before upgrading, for example
+the combinations:
+
+[source,bash]
+----
+sqlite3 -header -csv /usr/local/fingerbank/db/fingerbank_Local.db 'SELECT * FROM combination' > /root/fingerbank-local-combinations.csv
+----
+
+The upgrade also removes what is left of them when the configuration is
+restored from an export (the `[query]` section of
+[filename]`fingerbank.conf`, `fingerbank_db_directory` in the `[git_storage]`
+section of [filename]`pfconfig.conf`, the local database file and, with git
+storage, its copy in the repository):
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-16.0-remove-fingerbank-local-config.pl
+----
+
+The local entries had IDs starting with `L` (ex: `L12`). Security event
+triggers, provisioners, scan engines, self service, network behavior policies
+and device class transitions that use such an ID never match it after the
+upgrade, and the admin interface refuses to save a setting that still holds
+one. The upgrade runs the following script, which removes these IDs when it
+doesn't change what the setting matches:
+
+* a security event trigger that requires a local entry is removed, and a
+  `device_is_not` condition on a local entry is removed from the conditions it
+  is combined with
+* the local IDs of a list of devices are removed when the list keeps other IDs
+  (an empty list matches every device)
+* the local IDs of the excluded devices of a network behavior policy are removed
+* the device class transitions that use a local ID are removed
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-16.0-fingerbank-local-ids.pl
+----
+
+It reports the IDs it had to keep, with the reason: a list of devices that only
+has local IDs, a security event whose triggers all use a local entry, or a
+`device_is_not` trigger on a local entry, which matches every device. Replace or
+remove them.
 
 == Troubleshooting Upgrades
 

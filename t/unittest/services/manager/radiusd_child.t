@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 17;
+use Test::More tests => 20;
 use Test::NoWarnings;
 
 use_ok('pf::services::manager::radiusd_child');
@@ -115,6 +115,42 @@ like($authorize, qr{if \(Realm =~ /rx9154\\\.example\$/\) \{\s*update control \{
 like($authorize, qr{elsif \(Realm =~ /\^plain\.example\$/\) \{\s*oauth2\s*\}}, "a plain realm calls oauth2 without selecting a section");
 is(() = $authorize =~ /OAuth2-Config-Section/g, 1, "the section is only selected for the regex realm");
 is(() = $authorize =~ /^\s*if \(/mg, 1, "one if, then elsif for the other realms");
+
+# --- generate_radiusd_sitesconf: realm with no key defaults to Authorize from PF ---
+{
+    no warnings qw(redefine once);
+    *pf::services::manager::radiusd_child::multi_domain_disabled_reason = sub { undef };
+    *pf::services::manager::radiusd_child::generate_eap_choice = sub {};
+    *pf::services::manager::radiusd_child::generate_ldap_choice = sub {};
+    *pf::cluster::isSlaveMode = sub { 0 };
+}
+
+{
+    local *pf::config::ConfigOrderedRealm = [qw(realm_enabled realm_disabled realm_nokey)];
+    local *pf::config::ConfigRealm = {
+        realm_enabled  => { radius_auth_compute_in_pf => 'enabled' },
+        realm_disabled => { radius_auth_compute_in_pf => 'disabled' },
+        realm_nokey    => {},
+    };
+    local *pf::config::Config = {
+        radius_configuration => {
+            record_accounting_in_sql                  => 'disabled',
+            filter_in_packetfence_authorize           => 'disabled',
+            filter_in_packetfence_pre_proxy           => 'disabled',
+            filter_in_packetfence_post_proxy          => 'disabled',
+            filter_in_packetfence_preacct             => 'disabled',
+            'filter_in_packetfence-tunnel_authorize'  => 'disabled',
+            ntlm_redis_cache                          => 'disabled',
+            local_auth                                => 'disabled',
+        },
+        services => { pfacct => 'disabled' },
+    };
+    my $tt2 = FakeTT->new;
+    pf::services::manager::radiusd_child->generate_radiusd_sitesconf($tt2);
+    like($tt2->{packetfence}{local_realm},   qr/realm_enabled/,  'realm with radius_auth_compute_in_pf=enabled is in the Authorize from PacketFence list');
+    unlike($tt2->{packetfence}{local_realm}, qr/realm_disabled/, 'realm with radius_auth_compute_in_pf=disabled is excluded');
+    like($tt2->{packetfence}{local_realm},   qr/realm_nokey/,    'realm with no radius_auth_compute_in_pf key defaults to enabled');
+}
 
 =head1 COPYRIGHT
 

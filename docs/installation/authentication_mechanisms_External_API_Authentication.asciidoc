@@ -18,50 +18,103 @@ endif::[]
 
 === External API Authentication
 
-PacketFence also supports calling an external HTTP API as an authentication source. The external API needs to implement an authentication action and an authorization action.
+PacketFence also supports calling an external HTTP API as an authentication source (source type `HTTP`). The external API needs to implement an authentication action and an authorization action.
+
+Both actions are called with an HTTP `POST` request. Depending on the *Request content type* of the source, the body is a JSON object (`application/json`, the default) or URL-encoded (`application/x-www-form-urlencoded`). The fields described below are the same in both formats. The API must reply with HTTP status code `200` and a JSON body. Any other status code, or a connection error, is treated as a failure.
 
 ==== Authentication
 
-This should provide the information about whether or not the username/password combination is valid
+This should tell whether or not the username/password combination is valid.
 
-These information are available through the POST fields of the request
-
-The server should reply with two attributes in a JSON response
+The following fields are sent:
 
 [options="compact"]
- * *result* : should be 1 for success, 0 for failure
+ * *username* : the username entered by the user
+ * *password* : the password entered by the user
+
+The server should reply with two attributes in a JSON response:
+
+[options="compact"]
+ * *result* : should be `1` or `true` for success, `0` or `false` for failure. Any other value (for example `"false"`, `"0.0"`, `2`, an array or an object) is a failure.
  * *message* : should be the reason it succeeded or failed
 
-Example JSON response :
-[source,bash]
+Example JSON response:
+[source,json]
 ----
   {"result":1,"message":"Valid username and password"}
 ----
 
+A response that is not a valid JSON object is treated as a failed authentication.
+
 ==== Authorization
 
-This should provide the actions to apply on a user based on it's attributes
+This should provide the actions to apply to a user, based on their attributes.
 
-The following attributes are available for the reply : *access_duration*, *access_level*, *sponsor*, *unregdate*, *category*.
+The request contains the context of the user as fields of the body. These include *username*, *stripped_user_name*, *mac*, *SSID*, *connection_type*, *realm*, *switch_id*, *switch_group*, *computer_name*, *context* (`portal`, `admin` or `radius`) and *rule_class*. Fields without a value are sent empty. The fields depend on where the source is used: for example, some RADIUS paths (switch CLI login, VPN, MFA) send the SSID as *ssid* along with fields like *user_name*, *switch_ip* and *switch_mac*, so an API should not rely on a field being always present.
+
+When the source is used during a RADIUS authentication, attributes of the RADIUS request are also sent, prefixed by `radius_request.`, with the same names as in the conditions of the authentication rules. For example, with EAP-TLS, the client certificate is available in *radius_request.TLS-Client-Cert-Common-Name*, *radius_request.TLS-Client-Cert-Serial*, *radius_request.TLS-Client-Cert-Issuer*, and so on. The values of a multi-valued attribute are sent as *radius_request.Attribute-Name:0*, *radius_request.Attribute-Name:1*, and so on.
+
+Only the following attributes of the RADIUS request are sent. Any other attribute, including the passwords, the CHAP/MS-CHAP and digest values, *EAP-Message*, *State*, *Message-Authenticator*, the PSK/DPSK and WPA handshake (EAPOL) attributes and the vendor attributes not listed here, is never sent, since it could hold a secret:
+
+[options="compact"]
+ * *User-Name*, *Stripped-User-Name*, *Realm*
+ * *Calling-Station-Id*, *Called-Station-Id*, *Called-Station-SSID*
+ * *NAS-IP-Address*, *NAS-IPv6-Address*, *NAS-Identifier*, *NAS-Port*, *NAS-Port-Id*, *NAS-Port-Type*
+ * *Service-Type*, *Framed-Protocol*, *Framed-IP-Address*, *Framed-IPv6-Address*, *Framed-MTU*
+ * *Connect-Info*, *Acct-Session-Id*, *Acct-Multi-Session-Id*, *Event-Timestamp*
+ * *EAP-Type*, *FreeRADIUS-Client-IP-Address*, *FreeRADIUS-Client-Shortname*
+ * *Cisco-AVPair*, *Airespace-Wlan-Id*, *Aruba-Essid-Name*, *Aruba-AP-Group*, *Aruba-Location-Id*, *Ruckus-SSID*
+ * the *TLS-Client-Cert-** and *TLS-Cert-** attributes (EAP-TLS client certificate and its issuer)
+ * the *PacketFence-** attributes added by PacketFence, except the passwords, hashes and credentials (*PacketFence-UserPassword*, *PacketFence-NTCacheHash*, *PacketFence-RPC-User*, *PacketFence-RPC-Pass*, ...)
+
+The other local records used to evaluate the rules, like the *owner* (user) and *node_info* (device) records, are not sent.
+
+NOTE: PHP replaces the dots of the field names of a URL-encoded body with underscores (*radius_request.User-Name* is available as `$_POST["radius_request_User-Name"]`). Use the JSON content type with an API written in PHP.
+
+With the JSON content type, a field without a value is `null`, the attributes of the RADIUS request are in the *radius_request* object (without the prefix), and a multi-valued attribute is an array. For example:
+
+[source,json]
+----
+  {"username":"bob","mac":"00:11:22:33:44:55","context":"radius","rule_class":"authentication",
+    "radius_request":{"EAP-Type":"13","TLS-Client-Cert-Common-Name":"bob.example.com",
+    "Cisco-AVPair":["a=1","b=2"]}}
+----
+
+The following attributes are available for the reply:
+
+[options="compact"]
+ * *access_duration* : the access duration (for example `1D`)
+ * *access_level* : the administrative access level
+ * *sponsor* : set to `1` or `true` to mark the user as a sponsor
+ * *unregdate* : the unregistration date (for example `2030-01-01`). It is ignored when *access_duration* is also returned.
+ * *category* : the role to assign
+ * *time_balance* : the time balance
+ * *bandwidth_balance* : the bandwidth balance
+ * *trigger_radius_mfa* : the ID of the multi-factor authentication (as defined in [filename]`conf/mfa.conf`) to trigger during RADIUS authentication
+ * *trigger_portal_mfa* : the ID of the multi-factor authentication (as defined in [filename]`conf/mfa.conf`) to trigger on the captive portal
 
 Sample JSON response, note that not all attributes are necessary, only send back what you need.
 
-[source,bash]
+[source,json]
 ----
   {"access_duration":"1D","access_level":"ALL","sponsor":1
     ,"unregdate":"2030-01-01","category":"default"}
 ----
 
-NOTE: See [filename]`/usr/local/pf/addons/example_external_auth` for an example implementation compatible with PacketFence.
+NOTE: See [filename]`/usr/local/pf/addons/example_external_auth` and [filename]`/usr/local/pf/t/mock_servers/external_HTTP_API.py` for example implementations compatible with PacketFence. They are meant for testing only.
 
 ==== PacketFence Configuration
 
 In PacketFence, you need to configure an HTTP source in order to use an external API.
 
-Here is a brief description of the fields :
+Here is a brief description of the fields:
 
 [options="compact"]
- * *Host* : First, the protocol, then the IP address or hostname of the API and lastly the port to connect to the API.
+ * *Host* : the encryption (`http` or `https`), then the IP address or hostname of the API, and lastly the port to connect to the API.
+ * *Verify TLS* : When using `https`, verify the certificate and the hostname of the API server. Enabled by default. The certificate must be issued by a certificate authority trusted by the CA bundle of the PacketFence containers: a certificate authority added to the operating system of the PacketFence server is not used.
+ * *Request content type* : the format of the body of the requests: `application/json` (default) or `application/x-www-form-urlencoded`.
  * *API username and password* : If the API implements HTTP basic authentication (RFC 2617) these can be added in these fields. Leaving any of those two fields empty will make PacketFence do the requests without any authentication.
  * *Authentication URL* : URL relative to the host to call when doing the authentication of a user. Note that it is automatically prefixed by a slash.
  * *Authorization URL* : URL relative to the host to call when doing the authorization of a user. Note that it is automatically prefixed by a slash.
+
+WARNING: When *Verify TLS* is disabled, PacketFence does not verify the certificate or the hostname of the API server. Only disable it for an API reachable over a trusted network.
