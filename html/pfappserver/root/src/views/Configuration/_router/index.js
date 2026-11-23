@@ -66,7 +66,6 @@ import RadiusRoutes from '../radius/_router'
 import DnsRoutes from '../dns/_router'
 import AdminLoginRoutes from '../adminLogin/_router'
 import AdminRolesRoutes from '../adminRoles/_router'
-import ConnectorsRoutes from '../connectors/_router'
 import KafkaRoutes from '../kafka/_router'
 
 import store from '@/store'
@@ -199,7 +198,6 @@ const route = {
     ...AdminLoginRoutes,
     ...AdminRolesRoutes,
     ...SslCertificatesRoutes,
-    ...ConnectorsRoutes,
     ...KafkaRoutes,
   ]
 }
