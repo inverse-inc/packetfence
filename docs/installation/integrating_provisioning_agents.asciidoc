@@ -35,6 +35,10 @@ include::provisioner/sentinelone.asciidoc[]
 include::provisioner/intune.asciidoc[]
 
 
+=== Generic HTTP
+
+include::provisioner/generic_http.asciidoc[]
+
 === Google Chromebook Provisioner
 
 include::provisioner/google_chrome_provisioner.asciidoc[]
