@@ -489,6 +489,23 @@ attestation gets an ACME problem document and its order is
 invalidated; a CSR that is refused leaves the order open so the device
 can retry with a correct one.
 
+IMPORTANT: An Apple template enrolls *any* managed Apple device that can
+reach its ACME directory URL, including devices managed by another
+organization's MDM. Attestation proves that the device is genuine Apple
+hardware and that its serial number or UDID is the one it ordered; it
+does not prove that the device belongs to your organization: Apple
+attests the devices of every MDM, and the Apple root is shared by all of
+them. Anyone who supervises an Apple device in an MDM of their own can
+push an ACME payload pointing at
+`https://<pf-fqdn>/api/v1/pki/acme/<template>/directory` and get a
+certificate from the template's CA. Plan for it: let only the networks
+your devices enroll from reach that URL, don't let the RADIUS server
+trust this CA for more access than such a certificate should get, base
+the access of these devices on more than the certificate alone (for
+example their registration or MDM compliance in PacketFence), and review
+the certificates the template issues (the Common Name is the serial
+number), revoking the ones of devices you don't manage.
+
 ===== Requirements
 
 [options="compact"]
