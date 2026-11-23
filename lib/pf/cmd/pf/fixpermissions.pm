@@ -10,7 +10,8 @@ pf::cmd::pf::fixpermissions add documentation
  Commands :
   all                             | executes a fix on the permissions on all PF files
   file file1 [file2, file3, ...]  | executes a fix on the permissions on a list of files (absolute paths)
-    (File(s) must exist and located in /usr/local/pf or /usr/local/fingerbank)
+    (File(s) must exist and located in /usr/local/pf or /usr/local/fingerbank,
+    not in /usr/local/pf/conf/plugins.d: the plugin descriptors stay root's)
 
 =head1 DESCRIPTION
 
@@ -38,6 +39,8 @@ use pf::file_paths qw(
     $lib_dir
     $config_version_file
 );
+# the plugin descriptors, left to root (see _is_plugin_descriptor)
+use pf::file_paths qw($ui_plugins_conf_dir);
 use pf::log;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
 use pf::constants qw($DIR_MODE $PFCMD_MODE);
@@ -100,8 +103,29 @@ sub parse_file {
             print STDERR "File $file is not in an allowed directory \n";
             return 0;
         }
+        if (_is_plugin_descriptor($file)) {
+            print STDERR "File $file is in $ui_plugins_conf_dir: the plugin descriptors stay root's \n";
+            return 0;
+        }
     }
     return 1;
+}
+
+=head2 _is_plugin_descriptor
+
+Is the file in the directory of the plugin descriptors (conf/plugins.d)?
+They are installed by the package manager and trusted as root's
+(go/uiplugins/bundle.go): fixpermissions must not give them to pf. The paths
+are canonicalized, so another spelling (//, ..) or a symlink pointing into the
+directory is caught too (chown follows symlinks).
+
+=cut
+
+sub _is_plugin_descriptor {
+    my ($file) = @_;
+    my $dir = abs_path($ui_plugins_conf_dir) // $ui_plugins_conf_dir;
+    my $path = abs_path($file) // $file;
+    return $path eq $dir || index($path, "$dir/") == 0;
 }
 
 =head2 action_file
