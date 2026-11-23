@@ -472,13 +472,14 @@ func (c CA) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCer
 		// device to enroll again within seconds. The queue cannot be
 		// consulted in time: Intune enforces a 60-minute cool-down
 		// after every download. But this request already passed
-		// Intune's challenge validation (c.Cloud is only set on that
-		// path), which means Intune itself vouches that the device is
-		// still targeted by the profile — so the certificate it holds
-		// is superseded by definition. Revoke it locally and issue;
-		// the scheduled queue sweep later finds it already revoked and
+		// Intune's challenge validation (the SCEP verifier runs
+		// Verify, which validates it with Intune, before the signer
+		// gets here), which means Intune itself vouches that the
+		// device is still targeted by the profile, so the certificate
+		// it holds is superseded. Revoke it locally and issue; the
+		// scheduled queue sweep later finds it already revoked and
 		// acknowledges Intune's request.
-		n, rerr := supersedeCertsForCloudReissue(c.Ctx, cn, &prof, c.DB)
+		n, rerr := supersedeCertsForCloudReissue(c.Ctx, cn, cert, &prof, c.DB)
 		if rerr != nil {
 			return false, rerr
 		}
@@ -491,13 +492,55 @@ func (c CA) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCer
 	return ok, err
 }
 
-// supersedeCertsForCloudReissue revokes (reason: superseded) every live
-// certificate with the given CN under prof and returns how many it
-// revoked. Used by HasCN for cloud-validated SCEP re-enrollments.
-func supersedeCertsForCloudReissue(ctx context.Context, cn string, prof *Profile, db *gorm.DB) (int, error) {
-	var certs []Cert
-	if err := db.Where("cn = ? AND profile_name = ?", cn, prof.Name).Find(&certs).Error; err != nil {
+// supersedeCertsForCloudReissue revokes (reason: superseded) the live
+// certificates with the given CN under prof that a cloud-validated SCEP
+// re-enrollment replaces, and returns how many it revoked. newCert is the
+// certificate the request is about to get.
+//
+//   - When newCert carries an Intune device ID (an IntuneDeviceId:// URI
+//     SAN), the certificates with the same device ID are revoked, and
+//     those of another device never are.
+//   - The certificates without a device ID are revoked as needed by the
+//     duplicate-CN policy: with duplicates allowed, only the oldest ones
+//     to make room for the new one (none when unlimited); with
+//     duplicates off, all of them, the CN standing for one device.
+//
+// HasCN then checks the policy again with what is left.
+func supersedeCertsForCloudReissue(ctx context.Context, cn string, newCert *x509.Certificate, prof *Profile, db *gorm.DB) (int, error) {
+	var live []Cert
+	if err := db.Where("cn = ? AND profile_name = ?", cn, prof.Name).Order("id").Find(&live).Error; err != nil {
 		return 0, err
+	}
+	deviceID := ""
+	if newCert != nil {
+		deviceID = intuneDeviceID(newCert)
+	}
+	var certs, unknown []Cert
+	for _, c := range live {
+		id := ""
+		if parsed, err := parseCertPEM(c.Cert); err == nil {
+			id = intuneDeviceID(parsed)
+		}
+		switch {
+		case id == "":
+			unknown = append(unknown, c)
+		case deviceID != "" && id == deviceID:
+			certs = append(certs, c)
+		}
+	}
+	if prof.AllowDuplicatedCN == 1 {
+		if prof.MaximumDuplicatedCN > 0 {
+			// Room for the new certificate: at most max-1 left.
+			excess := len(live) - len(certs) - (prof.MaximumDuplicatedCN - 1)
+			if excess > len(unknown) {
+				excess = len(unknown)
+			}
+			if excess > 0 {
+				certs = append(certs, unknown[:excess]...)
+			}
+		}
+	} else {
+		certs = append(certs, unknown...)
 	}
 	revoked := 0
 	for i := range certs {
@@ -512,6 +555,26 @@ func supersedeCertsForCloudReissue(ctx context.Context, cn string, prof *Profile
 		revoked++
 	}
 	return revoked, nil
+}
+
+// intuneDeviceID returns the Intune device ID of cert, from its
+// IntuneDeviceId://<id> URI SAN, or "" when it has none.
+func intuneDeviceID(cert *x509.Certificate) string {
+	for _, u := range cert.URIs {
+		if strings.EqualFold(u.Scheme, "IntuneDeviceId") {
+			return strings.ToLower(u.Host)
+		}
+	}
+	return ""
+}
+
+// parseCertPEM parses the first certificate of a PEM string.
+func parseCertPEM(s string) (*x509.Certificate, error) {
+	block, _ := pem.Decode([]byte(s))
+	if block == nil {
+		return nil, errors.New("no PEM block")
+	}
+	return x509.ParseCertificate(block.Bytes)
 }
 
 // revokeNeeded decides whether a fresh leaf with the given CN can be issued

@@ -402,7 +402,21 @@ PacketFence handles this in two complementary ways.
   a valid certificate with the same Common Name exists, PacketFence
   revokes that certificate (reason _superseded_) and issues the new
   one. No manual deletion is needed and the device enrolls on its
-  first attempt.
+  first attempt. Only what the new certificate replaces is revoked:
++
+--
+** Add the URI subject alternative name `IntuneDeviceId://{{DeviceId}}`
+   to the Intune SCEP profile, in particular when the Common Name is
+   shared by several devices (for example `{{UserPrincipalName}}`):
+   PacketFence then only revokes the certificates of the same device,
+   never those of another device.
+** For the certificates without that SAN, the duplicate Common Name
+   settings of the template apply: with duplicates allowed, only the
+   oldest certificates are revoked to make room for the new one under
+   *Maximum duplicated CN* (none when it is 0, unlimited); with
+   duplicates not allowed, the Common Name stands for one device and its
+   certificate is revoked.
+--
 * *Scheduled queue processing.* The `pki_process_cloud_revocations`
   maintenance task (_Configuration -> System Configuration ->
   Maintenance_) downloads the revocation queue of every cloud-enabled
