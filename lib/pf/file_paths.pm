@@ -51,6 +51,7 @@ our (
     $unified_api_system_pass_file,
     $system_init_key_file,
     @secret_config_files,
+    @private_key_files,
     #profiles.conf variables
     $profiles_config_file, $profiles_default_config_file,
     #Other configuraton files variables
@@ -165,6 +166,7 @@ BEGIN {
         $unified_api_system_pass_file
         $system_init_key_file
         @secret_config_files
+        @private_key_files
         $profiles_config_file $profiles_default_config_file
         $switches_config_file $switches_default_config_file
         $template_switches_config_file $template_switches_default_config_file
@@ -361,6 +363,8 @@ $cluster_config_file = catfile($conf_dir,"cluster.conf");
 $server_key = catfile($conf_dir,"ssl/server.key");
 $server_cert = catfile($conf_dir,"ssl/server.crt");
 $server_pem = catfile($conf_dir,"ssl/server.pem");
+# The files that hold the private key of the HTTPS certificate
+@private_key_files = ($server_key, $server_pem);
 $radius_server_key = catfile($install_dir, "raddb/certs/server.key");
 $radius_server_cert = catfile($install_dir, "raddb/certs/server.crt");
 $radius_ca_cert = catfile($install_dir, "raddb/certs/ca.pem");

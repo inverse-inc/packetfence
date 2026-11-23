@@ -38,6 +38,8 @@ use pf::file_paths qw(
     $lib_dir
     $config_version_file
     @secret_config_files
+    @private_key_files
+    $ui_plugins_conf_dir
 );
 use pf::log;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
@@ -83,6 +85,7 @@ sub action_all {
         $pfcmd,
     );
     chmod($PFCMD_MODE, $pfcmd);
+    _restrictPrivateKeyFiles();
     _removeOthersPermissions($conf_dir);
     chmod($CONF_FILE_MODE, @stored_config_files, $config_version_file);
     my @secret_files = grep { -f $_ } @secret_config_files;
@@ -150,9 +153,9 @@ sub action_file {
 
 =head2 _file_mode
 
-The mode to apply to a single file: files in the configuration directory and
-the configuration version file are not readable by others, and secret files are
-only readable by the pf group.
+The mode to apply to a single file: files in the configuration directory, the
+configuration version file and fingerbank.conf (it contains the Fingerbank API key)
+are not readable by others, and secret files are only readable by the pf group.
 The path is canonicalized first, so that a path like /usr/local/pf//conf/pf.conf
 gets the same mode as /usr/local/pf/conf/pf.conf
 
@@ -161,8 +164,8 @@ gets the same mode as /usr/local/pf/conf/pf.conf
 sub _file_mode {
     my ($file) = @_;
     my $path = _canonical_path($file);
-    return $SECRET_FILE_MODE if grep { $path eq _canonical_path($_) } @secret_config_files;
-    return $CONF_FILE_MODE if $path eq _canonical_path($config_version_file);
+    return $SECRET_FILE_MODE if grep { $path eq _canonical_path($_) } @secret_config_files, @private_key_files;
+    return $CONF_FILE_MODE if grep { $path eq _canonical_path($_) } ($config_version_file, $fingerbank::FilePath::CONF_FILE);
     return $CONF_FILE_MODE if index($path, _canonical_path($conf_dir) . "/") == 0;
     return $FILE_MODE;
 }
@@ -172,11 +175,34 @@ sub _canonical_path {
     return abs_path($path) // $path;
 }
 
+=head2 _restrictPrivateKeyFiles
+
+The files that hold the private key of the HTTPS certificate (server.key,
+server.pem) belong to pf and are not readable by others: the install scripts
+used to create server.pem as root:root 0644, which the owner check of
+_removeOthersPermissions skips. The mode is limited to $SECRET_FILE_MODE, never
+widened: a 0644 server.pem becomes 0640, a 0600 server.key stays 0600.
+
+=cut
+
+sub _restrictPrivateKeyFiles {
+    my @files = grep { -f $_ && !-l $_ } @private_key_files;
+    return unless @files;
+    _changeFilesToOwner('pf', @files);
+    for my $file (@files) {
+        my $mode = (stat($file))[2];
+        chmod($mode & $SECRET_FILE_MODE, untaint_chain($file))
+            or warn qq(Couldn't change the mode of "$file"\n);
+    }
+}
+
 =head2 _removeOthersPermissions
 
 Remove the permissions of others on the regular files under the given directories,
 as the Debian package does on the files in the configuration directory.
 Only the files owned by the pf user or the pf group are changed, so that pf can still read them.
+The plugins directory (conf/plugins.d) is left out: it stays root's, as the
+package scripts leave it.
 
 =cut
 
@@ -184,8 +210,13 @@ sub _removeOthersPermissions {
     my (@paths) = @_;
     my ($pf_uid, $pf_gid) = ($pf::constants::user::PF_UID, $pf::constants::user::PF_GID);
     return unless defined $pf_uid && defined $pf_gid;
-    finddepth({no_chdir => 1, untaint => 1, wanted => sub {
+    my $plugins_dir = _canonical_path($ui_plugins_conf_dir);
+    find({no_chdir => 1, untaint => 1, wanted => sub {
         my $file = $File::Find::name;
+        if (-d $file && _canonical_path($file) eq $plugins_dir) {
+            $File::Find::prune = 1;
+            return;
+        }
         return if -l $file;
         my ($mode, $uid, $gid) = (lstat($file))[2, 4, 5];
         return unless defined $mode && -f _;

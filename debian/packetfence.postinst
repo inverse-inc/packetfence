@@ -73,8 +73,10 @@ case "$1" in
         cd /usr/local/pf
 
         #Make ssl certificate
-        make conf/ssl/server.pem
-        chown pf $PACKETFENCE/conf/ssl/server.key
+        make conf/ssl/server.key conf/ssl/server.crt
+        # server.pem holds the private key: not readable by others
+        (umask 0027; make conf/ssl/server.pem)
+        chown pf:pf $PACKETFENCE/conf/ssl/server.key $PACKETFENCE/conf/ssl/server.pem
 
         #Make configurable logo in default profile templates
         make html/captive-portal/profile-templates/default/logo.png

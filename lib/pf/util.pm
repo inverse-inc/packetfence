@@ -569,7 +569,8 @@ sub safe_file_update {
 =item restrict_mode($mode, $fixed_mode)
 
 Limit $mode to the read and write permissions of $fixed_mode, the mode set by
-C<pfcmd fixpermissions file>. The execute permissions of $mode are kept.
+C<pfcmd fixpermissions file>. The execute permissions of $mode are kept, the
+setuid, setgid and sticky bits are dropped, whether $fixed_mode is known or not.
 A mode coming from another server (cluster sync) can then be stricter than the
 local one, but not looser: a configuration file that is 0664 on the source
 becomes 0660 here.
@@ -578,7 +579,7 @@ becomes 0660 here.
 
 sub restrict_mode {
     my ($mode, $fixed_mode) = @_;
-    return $mode & 07777 unless defined $fixed_mode;
+    return $mode & 0777 unless defined $fixed_mode;
     return $mode & ($fixed_mode | 0111) & 0777;
 }
 

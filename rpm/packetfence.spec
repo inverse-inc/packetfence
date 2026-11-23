@@ -696,8 +696,10 @@ rm -f /etc/systemd/system/multi-user.target.wants/monit.service
 cd /usr/local/pf
 
 #Make ssl certificate
-make conf/ssl/server.pem
-chown pf /usr/local/pf/conf/ssl/server.key
+make conf/ssl/server.key conf/ssl/server.crt
+# server.pem holds the private key: not readable by others
+(umask 0027; make conf/ssl/server.pem)
+chown pf:pf /usr/local/pf/conf/ssl/server.key /usr/local/pf/conf/ssl/server.pem
 
 #Make configurable logo in default profile templates
 make html/captive-portal/profile-templates/default/logo.png
