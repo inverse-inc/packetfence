@@ -1913,8 +1913,7 @@ sub bouncePortSNMP {
     my $logger = $self->logger;
 
     if ( !$self->setAdminStatus( $ifIndex, $SNMP::DOWN ) ) {
-        $logger->error("Unable to shut down ifIndex $ifIndex on $self->{_id}: the port was not bounced");
-        return $FALSE;
+        $logger->error("Unable to shut down ifIndex $ifIndex on $self->{_id}: still trying to bring it up");
     }
     sleep($Config{'snmp_traps'}{'bounce_duration'});
     if ( !$self->setAdminStatus( $ifIndex, $SNMP::UP ) ) {
