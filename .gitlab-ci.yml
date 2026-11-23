@@ -744,6 +744,9 @@ pre_ci_test_cleanup:
       optional: true
   image: ${PFBUILD_DEB_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
   rules:
+    # Skipped while (re)building the toolchain images: its pfbuild image may not exist yet.
+    - if: '$BUILD_TOOLCHAIN_IMAGES == "yes" || $CI_COMMIT_MESSAGE =~ /build_toolchain_images=yes/'
+      when: never
     - when: always
   script:
     - ${TESTCIDIR}/clean-test-environment.test.sh
