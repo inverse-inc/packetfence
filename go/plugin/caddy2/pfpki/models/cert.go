@@ -351,8 +351,15 @@ func (c Cert) Download(params map[string]string) (types.Info, error) {
 	}
 	passwordMailed := err == nil && mailedPassword != ""
 	Information.PasswordMailed = &passwordMailed
+	if err != nil {
+		err = fmt.Errorf("%w: %w", ErrCertMail, err)
+	}
 	return Information, err
 }
+
+// ErrCertMail wraps the failure to e-mail a certificate that was found,
+// as opposed to a certificate that can't be found or loaded.
+var ErrCertMail = errors.New("unable to e-mail the certificate")
 
 // sendCertMail mails a .p12 with its password, when not empty (replaced
 // in tests).

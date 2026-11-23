@@ -670,7 +670,12 @@ func EmailCert(pfpki *types.Handler) http.HandlerFunc {
 			Information, err = o.Download(vars)
 			if err != nil {
 				Error.Message = err.Error()
+				// 404 for a certificate that can't be found or
+				// loaded, not for a mail server that can't be reached
 				Error.Status = http.StatusNotFound
+				if errors.Is(err, models.ErrCertMail) {
+					Error.Status = http.StatusInternalServerError
+				}
 				break
 			}
 

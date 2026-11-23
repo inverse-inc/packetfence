@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/x509"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"testing"
@@ -100,5 +101,37 @@ func TestInfo_PasswordMailedOnlyWhenSet(t *testing.T) {
 	}
 	if strings.Contains(string(body), "password_mailed") {
 		t.Errorf("an answer that doesn't set it has password_mailed: %s", body)
+	}
+}
+
+// A certificate that can't be mailed is told apart from one that can't
+// be found: the API answers 500, not 404, when the mail server fails.
+func TestCertEmail_MailFailureIsErrCertMail(t *testing.T) {
+	env := testutil.NewEnv(t)
+	ca := mustCreateCA(t, env, "mailfail-ca", certutils.KEY_ECDSA, 256, x509.ECDSAWithSHA256)
+	p := profileTemplate("mailfail-prof", ca, certutils.KEY_ECDSA, 256, x509.ECDSAWithSHA256)
+	p.DB, p.Ctx = env.DB, env.Ctx
+	pinfo, err := p.New()
+	if err != nil {
+		t.Fatalf("Profile.New: %v", err)
+	}
+	profile := pinfo.Entries.([]models.Profile)[0]
+	leaf := models.Cert{DB: env.DB, Ctx: env.Ctx, Cn: "mailfail-leaf", Mail: "user@example.test", ProfileID: profile.ID}
+	cinfo, err := leaf.New()
+	if err != nil {
+		t.Fatalf("Cert.New: %v", err)
+	}
+	id := fmt.Sprint(cinfo.Entries.([]models.Cert)[0].ID)
+
+	restore := models.SetCertMailer(func(context.Context, models.Cert, models.Profile, []byte, string) (types.Info, error) {
+		return types.Info{}, errors.New("dial tcp 192.0.2.25:25: connection refused")
+	})
+	defer restore()
+
+	if _, err := (models.Cert{DB: env.DB, Ctx: env.Ctx}).Download(map[string]string{"id": id}); !errors.Is(err, models.ErrCertMail) {
+		t.Fatalf("mail failure: err=%v, want ErrCertMail", err)
+	}
+	if _, err := (models.Cert{DB: env.DB, Ctx: env.Ctx}).Download(map[string]string{"id": "999999"}); err == nil || errors.Is(err, models.ErrCertMail) {
+		t.Fatalf("missing certificate: err=%v, want an error other than ErrCertMail", err)
 	}
 }
