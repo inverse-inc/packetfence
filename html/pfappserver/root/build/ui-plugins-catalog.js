@@ -140,7 +140,8 @@ const schema = {
           required: ['icon'],
           properties: { icon: { type: 'string', pattern: '^[a-z0-9-]+(/[a-z0-9-]+)?$', description: 'A vue-awesome icon already used by core.' } }
         },
-        timeout: { type: 'integer', minimum: 1, maximum: data.bundle.maxTimeout, description: 'Seconds a call to the plugin may take (default 60).' }
+        timeout: { type: 'integer', minimum: 1, maximum: data.bundle.maxTimeout, description: 'Seconds a call to the plugin may take (default 60).' },
+        websockets: { type: 'boolean', description: 'The code may open WebSockets on /api/v1/plugin/<name>/<path>: a GET (PLUGIN_READ), from a page of the PacketFence origin, without the timeout.' }
       },
       if: { properties: { mounts: { contains: { const: 'navbar-panel' } } }, required: ['mounts'] },
       then: { required: ['navbar'] },
