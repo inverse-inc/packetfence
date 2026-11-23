@@ -218,7 +218,7 @@ sub _get_from_socket {
         $logger->error($message);
         print STDERR "$message\n";
         select( undef, undef, undef, 0.1 );
-        my $max_times = (-f $pfconfig::constants::UPGRADE_IN_PROCESS_PATH) ? $pfconfig::constants::UPGRADE_IN_PROCESS_MAX_CONNECT_TIMES : $pfconfig::constants::MAX_CONNECT_TIMES;
+        my $max_times = pfconfig::util::max_connect_times();
         if ( $times >= $max_times ) {
             die("Cannot connect to service pfconfig!") ;
         }

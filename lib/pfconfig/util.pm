@@ -55,15 +55,23 @@ sub fetch_socket {
     return $1;
 }
 
-sub fetch_decode_socket {
-    my ($payload, %opts) = @_;
+=head2 max_connect_times
 
-    my $config = $pfconfig::config::INI_CONFIG;
-    my $proto = $config->get_proto();
+How many times a client tries to reach pfconfig, 0.1 second apart, before
+giving up. Longer while a package upgrade is in progress.
 
+=cut
+
+sub max_connect_times {
+    return (-f $pfconfig::constants::UPGRADE_IN_PROCESS_PATH)
+      ? $pfconfig::constants::UPGRADE_IN_PROCESS_MAX_CONNECT_TIMES
+      : $pfconfig::constants::MAX_CONNECT_TIMES;
+}
+
+sub _connect_socket {
+    my ($config, %opts) = @_;
     my ($socket, $error);
-    my $socket_path = $pfconfig::constants::SOCKET_PATH;
-    if(${proto} eq "tcp") {
+    if ($config->get_proto() eq "tcp") {
         ($socket, $error) = connect_tcp(
             host => ($opts{tcp_host} // $config->section('general')->{tcp_host}),
             port => ($opts{tcp_port} // $config->section('general')->{tcp_port}),
@@ -73,15 +81,64 @@ sub fetch_decode_socket {
     else {
         $socket = IO::Socket::UNIX->new(
             Type => SOCK_STREAM,
-            Peer => $socket_path,
+            Peer => $pfconfig::constants::SOCKET_PATH,
         );
         $error = "$!";
     }
     die "cannot connect to the server: $error\n" unless $socket;
-
-    my $response = fetch_socket($socket, $payload);
-    return sereal_decode_safe($response);
+    return $socket;
 }
+
+=head2 fetch_decode_socket
+
+Send a request to pfconfig and decode its reply.
+
+A connection can be accepted and then closed without a reply, e.g. by the
+proxy in front of a pfconfig that isn't accepting connections at that moment.
+
+By default the request is sent once and an empty reply dies with a clear
+message. A caller whose request can safely be sent more than once passes
+C<< retry_empty_reply => 1 >>: the request is then sent again, 0.1 second
+apart, up to C<max_times> times (default: max_connect_times, the same budget
+pfconfig::cached uses for the configuration reads).
+
+A failed connection dies right away in both cases.
+
+=cut
+
+sub fetch_decode_socket {
+    my ($payload, %opts) = @_;
+
+    my $config = $pfconfig::config::INI_CONFIG;
+    my $max_times = $opts{retry_empty_reply} ? ($opts{max_times} // max_connect_times()) : 1;
+    $max_times = 1 if $max_times < 1;
+    my $logger = get_logger;
+
+    for my $times (1 .. $max_times) {
+        my $socket = _connect_socket($config, %opts);
+        my $response = fetch_socket($socket, $payload);
+        close($socket);
+        if (defined($response) && length($response)) {
+            $logger->info("pfconfig replied after $times tries") if $times > 1;
+            return sereal_decode_safe($response);
+        }
+
+        if ($times < $max_times) {
+            $logger->warn("pfconfig closed the connection without replying, retrying") if $times == 1;
+            select(undef, undef, undef, 0.1);
+        }
+    }
+
+    die "pfconfig closed the connection without replying"
+      . ($max_times > 1 ? " ($max_times tries)" : "") . "\n";
+}
+
+=head2 socket_expire
+
+Ask pfconfig to expire a namespace (__all__ by default).
+Expiring twice only rebuilds the same data, so an empty reply is retried.
+
+=cut
 
 sub socket_expire {
     my (%opts) = @_;
@@ -93,9 +150,17 @@ sub socket_expire {
         light => $light,
     };
 
-    my $response = pfconfig::util::fetch_decode_socket(encode_json($payload), %opts);
+    my $response = pfconfig::util::fetch_decode_socket(encode_json($payload), retry_empty_reply => 1, %opts);
     return ($response->{status} // "") eq "OK.";
 }
+
+=head2 socket_pull_expire
+
+Ask pfconfig to pull the git storage and expire.
+Each request forks a git pull in pfconfig, so it is never sent twice: an
+empty reply dies and the caller decides what to do.
+
+=cut
 
 sub socket_pull_expire {
     my (%opts) = @_;
@@ -106,8 +171,8 @@ sub socket_pull_expire {
         light => $light,
         namespace => $namespace,
     };
-    my $response = pfconfig::util::fetch_decode_socket(encode_json($payload), %opts);
-    return $response->{status} eq "accepted";
+    my $response = pfconfig::util::fetch_decode_socket(encode_json($payload), %opts, retry_empty_reply => 0);
+    return ($response->{status} // "") eq "accepted";
 }
 
 sub parse_namespace {
