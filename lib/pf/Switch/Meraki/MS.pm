@@ -379,6 +379,20 @@ sub pushAclsName {
     return $direction eq 'out' ? undef : $role;
 }
 
+=head2 getRoleAccessListByName
+
+The group policy of a role is named after the role, also when the role
+inherits the ACLs of a parent role: the rules are labelled with the role, not
+the parent, as the push expects of a group policy PacketFence created.
+
+=cut
+
+sub getRoleAccessListByName {
+    my ($self, $role, @args) = @_;
+    local $self->{_merakiGroupPolicy} = $role;
+    return $self->SUPER::getRoleAccessListByName($role, @args);
+}
+
 =head2 acl_chewer
 
 For the push (L<pf::Switch/getRoleAccessListByName>), the L3 firewall rules of
@@ -390,12 +404,17 @@ a permit is skipped, a deny ends the rules with a deny of everything.
 Outside of the push, the ACLs are returned as they are: the switch does not
 take ACLs in the RADIUS reply.
 
+The rule comments name the group policy (see L</getRoleAccessListByName>),
+which is how the push recognizes the group policies PacketFence created.
+
 =cut
 
 sub acl_chewer {
     my ($self, $acl, $role) = @_;
     return $acl if !$self->aclsForPush;
     my $logger = $self->logger;
+    # a role without ACLs of its own gets those of its parent, under its name
+    $role = $self->{_merakiGroupPolicy} // $role;
 
     my ($acl_ref, @direction) = $self->format_acl($acl);
     my $entries = $acl_ref->{'packetfence'}->{'entries'} // [];

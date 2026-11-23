@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 32;
+use Test::More tests => 33;
 use Test::MockModule;
 use pf::Switch::Meraki::MS;
 use pf::Switch::Meraki::MS_v15;
@@ -148,6 +148,22 @@ is($switch->acl_chewer("permit tcp any any", 'testrole'), "permit tcp any any", 
         "getRoleAccessListByName gives the rules of the group policy"
     );
     is($switch->getRoleAccessListByName('normal'), undef, "a role without ACLs gets no group policy");
+
+    # A role with an empty acls (as saved from the admin UI) gets the ACLs of
+    # its parent: _getRoleAccessListByName recurses and formats them under the
+    # name of the parent. The group policy is still the child's, and its rules
+    # must name it, or the next push takes it for a group policy PacketFence
+    # did not create.
+    my $ms = Test::MockModule->new('pf::Switch::Meraki::MS');
+    $ms->mock(_getRoleAccessListByName => sub {
+        my ($self, $role) = @_;
+        return $self->acl_chewer("permit tcp any any", 'parentrole');
+    });
+    is_deeply(
+        $switch->getRoleAccessListByName('childrole'),
+        [rule('allow', 'tcp', 'any', 'any', 'PacketFence role childrole: permit tcp any any'), rule('deny', 'any', 'any', 'any', 'PacketFence role childrole: implicit deny')],
+        "a role inheriting the ACLs of its parent gets them in a group policy labelled with its own name"
+    );
 }
 
 # Filter-Id: the switch drops the traffic of a client whose Filter-Id matches no
