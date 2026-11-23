@@ -50,10 +50,13 @@ work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 if [[ "$MODE" == branches ]]; then
     : "${GPG_KEY_FINGERPRINT:?Set the approved signing fingerprint explicitly}"
-    python3 "$helper" merge-apt --repository "debian-branches-$dashed" --tree "$PUBLIC_DIR/debian" \
-        --content-url "$PF_PACKAGE_ORIGIN/downloads/PacketFence/debian/branches/$release" \
-        --work "$work/deb" --apply --output pulp-branches-deb.json
-    echo "Published to $PF_PACKAGE_ORIGIN/downloads/PacketFence/debian/branches/$release"
+    (( ${#suites[@]} )) || { echo "No Debian suite in the generated tree" >&2; exit 1; }
+    for suite in "${suites[@]}"; do
+        python3 "$helper" merge-apt --repository "debian-branches-$dashed" --tree "$PUBLIC_DIR/debian" \
+            --content-url "$PF_PACKAGE_ORIGIN/downloads/PacketFence/debian/branches/$release" --codename "$suite" \
+            --work "$work/deb-$suite" --apply --output "pulp-branches-deb-$suite.json"
+        echo "Published to $PF_PACKAGE_ORIGIN/downloads/PacketFence/debian/branches/$release ($suite)"
+    done
     for n in "${el_versions[@]}"; do
         [[ -d "$PUBLIC_DIR/centos/$n/x86_64/repodata" ]] || continue
         python3 "$helper" merge-rpm --repository "rhel$n-branches-$dashed" --tree "$PUBLIC_DIR/centos/$n/x86_64" \
@@ -76,10 +79,10 @@ for n in "${el_versions[@]}"; do
     python3 ci/pulp/vendor/pulp_publish.py rpm "$native_rpm" "${rpms[@]}" --release "$release" > "pulp-release-rpm-el$n.json"
     echo "Published ${#rpms[@]} packages to $PF_PACKAGE_ORIGIN/downloads/PacketFence/RHEL$n/$release/x86_64 (native)"
 done
-merge_tree=0
+merge_suites=()
 for suite in "${suites[@]}"; do
     if ! native=$(python3 ci/pulp/native.py deb "$release" "$suite"); then
-        merge_tree=1
+        merge_suites+=("$suite")
         continue
     fi
     # Exactly the packages this suite's index lists (a pool can hold several suites).
@@ -90,9 +93,11 @@ for suite in "${suites[@]}"; do
         --codename "$suite" --component "$suite" --release "$release" > "pulp-release-$suite.json"
     echo "Published ${#debs[@]} packages to $PF_PACKAGE_ORIGIN/downloads/PacketFence/debian/$release ($suite, native)"
 done
-(( merge_tree )) || exit 0
+(( ${#merge_suites[@]} )) || exit 0
 : "${GPG_KEY_FINGERPRINT:?Set the approved signing fingerprint explicitly}"
-python3 "$helper" merge-apt --repository "debian-$dashed" --tree "$PUBLIC_DIR/debian" \
-    --content-url "$PF_PACKAGE_ORIGIN/downloads/PacketFence/debian/$release" \
-    --work "$work/deb" --apply --output pulp-release.json
-echo "Published to $PF_PACKAGE_ORIGIN/downloads/PacketFence/debian/$release (file tree)"
+for suite in "${merge_suites[@]}"; do
+    python3 "$helper" merge-apt --repository "debian-$dashed" --tree "$PUBLIC_DIR/debian" \
+        --content-url "$PF_PACKAGE_ORIGIN/downloads/PacketFence/debian/$release" --codename "$suite" \
+        --work "$work/deb-$suite" --apply --output "pulp-release-tree-$suite.json"
+    echo "Published to $PF_PACKAGE_ORIGIN/downloads/PacketFence/debian/$release ($suite, file tree)"
+done
