@@ -32,10 +32,16 @@ use pf::person;
 use pf::util qw(isenabled);
 
 use Encode qw(encode);
+use CHI;
+use Date::Parse qw(str2time);
+
+our $CHI_CACHE = CHI->new(driver => 'RawMemory', datastore => {});
 
 
 Readonly our $JAMF_COMPUTERS_INVENTORY => 'computers';
 Readonly our $JAMF_MOBILEDEVICES_INVENTORY => 'mobiledevices';
+# Lifetime of a token whose expiration date can't be read
+Readonly our $JAMF_DEFAULT_TOKEN_LIFETIME => 30 * 60;
 
 
 =head1 Atrributes
@@ -111,6 +117,83 @@ Option to sync PID from provisioner
 =cut
 
 has sync_pid => (is => 'rw', required => 1);
+
+=head2 expires_jitter
+
+Seconds removed from the lifetime of the cached API token
+
+=cut
+
+has expires_jitter => (is => 'rw', default => sub { 10 } );
+
+=head2 access_token
+
+The Jamf Pro API bearer token, or undef when the server doesn't issue one
+
+=cut
+
+sub access_token {
+    my ($self) = @_;
+    my $id = $self->{id};
+    my $token = $CHI_CACHE->get($id);
+    return $token->{token} if defined $token;
+    $token = $self->get_access_token;
+    if (defined $token) {
+        my $ttl = $token->{expires_in} - $self->expires_jitter;
+        $CHI_CACHE->set($id, $token, $ttl) if $ttl > 0;
+        return $token->{token};
+    }
+    return undef;
+}
+
+=head2 clear_access_token
+
+Remove the cached API token, so the next request gets a new one
+
+=cut
+
+sub clear_access_token {
+    my ($self) = @_;
+    $CHI_CACHE->remove($self->{id});
+}
+
+=head2 get_access_token
+
+Get a bearer token from the Jamf Pro API (/api/v1/auth/token) with the API
+credentials. Jamf Pro 10.42 and later no longer accept basic authentication
+on the API itself.
+
+=cut
+
+sub get_access_token {
+    my ($self) = @_;
+    my $logger = get_logger;
+
+    my $ua = LWP::UserAgent->new();
+    my $request = POST $self->protocol . "://" . $self->host . "/api/v1/auth/token";
+    $request->authorization_basic($self->api_username, $self->api_password);
+    $request->header( 'Accept' => 'application/json' );
+
+    my $response = $ua->request($request);
+    unless ($response->is_success) {
+        $logger->warn("Unable to get an API token from the Jamf server " . $self->host . " (" . $response->status_line . "): falling back to basic authentication, which Jamf Pro 10.42 and later reject");
+        return undef;
+    }
+    my $data = eval { decode_json($response->decoded_content) };
+    unless (ref($data) eq 'HASH' && $data->{token}) {
+        $logger->warn("Invalid API token answer from the Jamf server " . $self->host . ": falling back to basic authentication");
+        return undef;
+    }
+    # The answer carries the expiration date of the token, not its lifetime
+    my $expires = defined $data->{expires} ? str2time($data->{expires}) : undef;
+    if (defined $expires && $expires > time) {
+        $data->{expires_in} = int($expires - time);
+    } else {
+        $logger->warn("Unable to read the expiration date of the API token from the Jamf server " . $self->host . ": caching it for " . $JAMF_DEFAULT_TOKEN_LIFETIME . " seconds");
+        $data->{expires_in} = $JAMF_DEFAULT_TOKEN_LIFETIME;
+    }
+    return $data;
+}
 
 
 =head1 Methods
@@ -239,12 +322,15 @@ sub execute_request {
     my $logger = get_logger;
 
     my $ua = LWP::UserAgent->new();
-    my $request = GET $self->build_request_uri($mac, $realm);
-    $request->authorization_basic($self->api_username, $self->api_password);
-    $request->header( 'content-type' => 'application/json' );
-    $request->header( 'Accept'       => 'application/json' );
-
-    my $response = $ua->request($request);
+    my $token = $self->access_token;
+    my $response = $ua->request($self->build_request($mac, $realm, $token));
+    if (defined $token && $response->code == $STATUS::UNAUTHORIZED) {
+        # The token was invalidated, or expired before its cache entry: get a new one and retry once
+        $logger->info("The Jamf server " . $self->host . " refused the cached API token, getting a new one");
+        $self->clear_access_token;
+        $token = $self->access_token;
+        $response = $ua->request($self->build_request($mac, $realm, $token));
+    }
 
     if ( $response->is_success ) {
         $logger->info("Successfully queried JAMF API for '$realm' with MAC address '$mac'");
@@ -253,6 +339,28 @@ sub execute_request {
     }
 
     return ( $response->code, $response->decoded_content );
+}
+
+
+=head2 build_request
+
+Build the request querying the JAMF realm for the MAC address, with the bearer
+token when there is one, basic authentication otherwise
+
+=cut
+
+sub build_request {
+    my ( $self, $mac, $realm, $token ) = @_;
+
+    my $request = GET $self->build_request_uri($mac, $realm);
+    if (defined $token) {
+        $request->header( 'Authorization' => "Bearer $token" );
+    } else {
+        $request->authorization_basic($self->api_username, $self->api_password);
+    }
+    $request->header( 'content-type' => 'application/json' );
+    $request->header( 'Accept'       => 'application/json' );
+    return $request;
 }
 
 
