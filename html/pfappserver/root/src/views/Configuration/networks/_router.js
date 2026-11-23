@@ -34,15 +34,6 @@ const routes = [
     props: () => ({ tab: 'network' })
   },
   {
-    path: 'inline',
-    name: 'inline',
-    component: TheTabs,
-    meta: {
-      can
-    },
-    props: () => ({ tab: 'inline' })
-  },
-  {
     path: 'fencing',
     name: 'fencing',
     component: TheTabs,

@@ -512,7 +512,7 @@ self-service portal. In _Configuration -> Advanced Access Configuration -> Self
 Service Portal_, choose a _Self Service Portal_, specify the _"Self Service
 Portal -> Allowed roles"_, then click Save.
 
-Status page is available by default, even if a self service policy is not configured. Optionally, it can be disabled in all but the PacketFence management network (registration, isolation, inline) by enabling *Status URI only on management interface* in _Configuration -> Advanced Access Configuration -> Captive Portal_.
+Status page is available by default, even if a self service policy is not configured. Optionally, it can be disabled in all but the PacketFence management network (registration, isolation) by enabling *Status URI only on management interface* in _Configuration -> Advanced Access Configuration -> Captive Portal_.
 
 The status page can also be disabled per connection profile by disabling
 _"Self service status page"_ in _Configuration -> Policies and Access Control ->

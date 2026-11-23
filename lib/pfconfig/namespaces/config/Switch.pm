@@ -78,8 +78,8 @@ sub build_child {
     my %roleReverseLookup;
     while ( my ($name, $switch) = each %tmp_cfg) {
 
-        # transforming uplink and inlineTrigger to arrays
-        foreach my $key (qw(uplink inlineTrigger)) {
+        # transforming uplink to an array
+        foreach my $key (qw(uplink)) {
             my $value = $switch->{$key} || "";
             $switch->{$key} = [ split /\s*,\s*/, $value ];
         }
@@ -208,15 +208,6 @@ sub cleanup_after_read {
         $switch->{uplink_dynamic} = 'dynamic';
         $switch->{uplink}         = undef;
     }
-    if ( exists $switch->{inlineTrigger} ) {
-        $switch->{inlineTrigger} = [ map { _splitInlineTrigger($_) } @{ $switch->{inlineTrigger} } ];
-    }
-}
-
-sub _splitInlineTrigger {
-    my ($trigger) = @_;
-    my ( $type, $value ) = split( /::/, $trigger );
-    return { type => $type, value => $value };
 }
 
 =head1 AUTHOR

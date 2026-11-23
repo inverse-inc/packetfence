@@ -48,11 +48,10 @@ are involved.
 
 `node01` is a Debian Buster virtual machine used as node to test wired
 PacketFence
-features like 802.1X, MAC authentification, registration, isolation and inline
+features like 802.1X, MAC authentification, registration and isolation
 scenarios.
 
-`node02` is identical to `node01` but is only used to test inline L3 features of
-PacketFence.
+`node02` is identical to `node01` and is used as a second wired node.
 
 These machines have an Internet access only during its first boot to emulate a
 node connected to a switch controlled by PacketFence. After the reboot, machines

@@ -250,9 +250,9 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 		Type = dnsFilterScope(v.Type)
 
 		if k.Contains(bIP) {
-			// Register and inline or dns enforcement then resolv
+			// Register or dns enforcement then resolv
 			switch Type {
-			case "dnsenforcement", "inline":
+			case "dnsenforcement":
 				var status = "unreg"
 
 				err = pf.Nodedb.QueryRow(mac).Scan(&status, &category)
@@ -807,8 +807,6 @@ func (pf *pfdns) logreply(ctx context.Context, config *pfdnsRefreshableConfig, i
 // dns-enforcement,radius): only its first part is the network type.
 func dnsFilterScope(networkType string) string {
 	switch strings.SplitN(networkType, ",", 2)[0] {
-	case "inlinel2", "inlinel3":
-		return "inline"
 	case "vlan-isolation":
 		return "isolation"
 	case "vlan-registration":

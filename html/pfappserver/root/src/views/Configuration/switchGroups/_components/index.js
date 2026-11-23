@@ -13,7 +13,6 @@ import {
   BaseInput,
   BaseInputToggleDisabledEnabled
 } from '@/components/new/'
-import BaseFormGroupInlineTrigger from '../../switches/_components/BaseFormGroupInlineTrigger'
 import BaseFormGroupToggleStaticDynamicDefault from '../../switches/_components/BaseFormGroupToggleStaticDynamicDefault'
 import BaseFormGroupType from '../../switches/_components/BaseFormGroupType'
 import BaseInputToggleNetworkFrom from '../../switches/_components/BaseInputToggleNetworkFrom'
@@ -37,7 +36,6 @@ export {
   BaseFormGroupToggleNYDefault            as FormGroupExternalPortalEnforcement,
   BaseFormGroupChosenOne                  as FormGroupGroup,
   BaseFormGroupInput                      as FormGroupIdentifier,
-  BaseFormGroupInlineTrigger              as FormGroupInlineTrigger,
   BaseFormGroupInput                      as FormGroupMacSearchesMaxNb,
   BaseFormGroupInput                      as FormGroupMacSearchesSleepInterval,
   BaseFormGroupChosenOne                  as FormGroupMode,

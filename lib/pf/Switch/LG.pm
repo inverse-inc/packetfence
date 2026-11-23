@@ -75,8 +75,6 @@ use pf::SwitchSupports qw(
     WiredDot1x
     WiredMacAuth
 );
-# inline capabilities
-sub inlineCapabilities { return ($MAC,$PORT); }
 
 =head1 SUBROUTINES
 

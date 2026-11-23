@@ -23,7 +23,7 @@ export const connectionTypeToAttributes = (connectionType) => {
     is8021X: false,
     isMacAuth: false
   }
-  if (/inline/i.test(cType)) {
+  if (/inline/i.test(cType)) { // legacy connection type, history only
     return attributes
   }
   if (/^wireless-802\.11/i.test(cType)) {

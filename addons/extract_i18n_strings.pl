@@ -310,8 +310,7 @@ sub extract_modules {
     }
 
     const('pf::config', 'VALID_TRIGGER_TYPES', keys(%pf::factory::condition::security_event::TRIGGER_TYPE_TO_CONDITION_TYPE));
-    const('pf::config', 'Inline triggers', [$pf::config::MAC, $pf::config::PORT, $pf::config::SSID, $pf::config::ALWAYS]);
-    const('pf::config', 'Network types', [$pf::config::NET_TYPE_VLAN_REG, $pf::config::NET_TYPE_VLAN_ISOL, $pf::config::NET_TYPE_INLINE, 'management', 'other']);
+    const('pf::config', 'Network types', [$pf::config::NET_TYPE_VLAN_REG, $pf::config::NET_TYPE_VLAN_ISOL, 'management', 'other']);
     const('pf::radius_audit_log', 'RADIUS Audit Log', \@pf::radius_audit_log::FIELDS);
     const('pf::dhcp_option82', 'DHCP Option 82', [values %pf::dhcp_option82::HEADINGS]);
     const('pf::factory::detect::parser', 'Detect Parsers', [map { "pfdetect_type_$_"  } @pf::constants::pfdetect::TYPES]);

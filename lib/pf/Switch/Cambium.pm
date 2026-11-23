@@ -50,7 +50,6 @@ use pf::SwitchSupports qw(
     ExternalPortal
     WebFormRegistration
 );
-sub inlineCapabilities { return ($MAC,$PORT); }
 
 sub getVersion {
     my ($self)       = @_;

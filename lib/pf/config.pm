@@ -42,16 +42,10 @@ use pf::config::cluster;
 use pf::constants::config qw(
   $IF_ENFORCEMENT_DNS
   $IF_ENFORCEMENT_VLAN
-  $IF_ENFORCEMENT_INLINE
-  $IF_ENFORCEMENT_INLINE_L2
-  $IF_ENFORCEMENT_INLINE_L3
 
   $NET_TYPE_DNS_ENFORCEMENT
   $NET_TYPE_VLAN_REG
   $NET_TYPE_VLAN_ISOL
-  $NET_TYPE_INLINE
-  $NET_TYPE_INLINE_L2
-  $NET_TYPE_INLINE_L3
   $NET_TYPE_OTHER
 
   $TIME_MODIFIER_RE
@@ -72,7 +66,6 @@ use pf::constants::config qw(
   $SELFREG_MODE_NULL
   $SELFREG_MODE_KICKBOX
   $SELFREG_MODE_BLACKHOLE
-  %NET_INLINE_TYPES
 
   $WIRELESS_802_1X
   $WIRELESS_MAC_AUTH
@@ -108,8 +101,8 @@ use pf::util;
 # Categorized by feature, pay attention when modifying
 our (
     @listen_ints, @dhcplistener_ints, @ha_ints, $monitor_int,
-    @internal_nets, @routed_isolation_nets, @routed_registration_nets, @inline_nets, @portal_ints,@radius_ints,
-    @inline_enforcement_nets, @vlan_enforcement_nets, $management_network, @dhcp_ints, @dns_ints,
+    @internal_nets, @routed_isolation_nets, @routed_registration_nets, @portal_ints,@radius_ints,
+    @vlan_enforcement_nets, $management_network, @dhcp_ints, @dns_ints,
 #pf.conf.default variables
     %Default_Config,
 #pf.conf variables
@@ -131,7 +124,6 @@ our (
 #profiles.conf variables
     @Profile_Filters, %Profiles_Config,
 
-    %mark_type_to_str, %mark_type,
     $thread, $fqdn, $reverse_fqdn,
     %CAPTIVE_PORTAL,
 #realm.conf
@@ -195,10 +187,8 @@ BEGIN {
     # Categorized by feature, pay attention when modifying
     @EXPORT_OK = qw(
         @listen_ints @dhcplistener_ints @ha_ints $monitor_int
-        @internal_nets @routed_isolation_nets @routed_registration_nets @inline_nets $management_network @portal_ints @radius_ints
-        @inline_enforcement_nets @vlan_enforcement_nets @dhcp_ints @dns_ints
-        $IPTABLES_MARK_UNREG $IPTABLES_MARK_REG $IPTABLES_MARK_ISOLATION
-        %mark_type_to_str %mark_type
+        @internal_nets @routed_isolation_nets @routed_registration_nets $management_network @portal_ints @radius_ints
+        @vlan_enforcement_nets @dhcp_ints @dns_ints
         $MAC $PORT $SSID $ALWAYS
         %Default_Config
         %Config
@@ -206,22 +196,22 @@ BEGIN {
         %ConfigFloatingDevices
         $ACCOUNTING_POLICY_TIME $ACCOUNTING_POLICY_BANDWIDTH
         $WIPS_SECURITY_EVENT_ID $thread $fqdn $reverse_fqdn
-        $IF_INTERNAL $IF_ENFORCEMENT_VLAN $IF_ENFORCEMENT_INLINE $IF_ENFORCEMENT_DNS
+        $IF_INTERNAL $IF_ENFORCEMENT_VLAN $IF_ENFORCEMENT_DNS
         $WIRELESS_802_1X $WIRELESS_MAC_AUTH $WIRED_802_1X $WIRED_MAC_AUTH $WIRED_SNMP_TRAPS $UNKNOWN $INLINE $WEBAUTH $WEBAUTH_WIRED $WEBAUTH_WIRELESS $VIRTUAL_VPN $VIRTUAL_CLI
-        $NET_TYPE_INLINE $NET_TYPE_INLINE_L2 $NET_TYPE_INLINE_L3 $NET_TYPE_OTHER
+        $NET_TYPE_OTHER
         $WIRELESS $WIRED $EAP $VIRTUAL
         $WEB_ADMIN_NONE $WEB_ADMIN_ALL
         $VOIP $NO_VOIP $NO_PORT $NO_VLAN
         %connection_type %connection_type_to_str %connection_type_explained %connection_type_explained_to_str
         %connection_group %connection_group_to_str @connection_wired_types
-        $RADIUS_API_LEVEL $ROLE_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL $BILLING_API_LEVEL
+        $RADIUS_API_LEVEL $ROLE_API_LEVEL $AUTHENTICATION_API_LEVEL $BILLING_API_LEVEL
         $ROLES_API_LEVEL
         $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS $SELFREG_MODE_SPONSOR $SELFREG_MODE_GOOGLE $SELFREG_MODE_FACEBOOK $SELFREG_MODE_GITHUB $SELFREG_MODE_INSTAGRAM $SELFREG_MODE_LINKEDIN $SELFREG_MODE_PRINTEREST $SELFREG_MODE_WIN_LIVE $SELFREG_MODE_TWITTER $SELFREG_MODE_NULL $SELFREG_MODE_KICKBOX $SELFREG_MODE_BLACKHOLE
         %CAPTIVE_PORTAL
         $HTTP $HTTPS
         access_duration
         $BANDWIDTH_DIRECTION_RE $BANDWIDTH_UNITS_RE
-        is_vlan_enforcement_enabled is_inline_enforcement_enabled is_dns_enforcement_enabled is_type_inline
+        is_vlan_enforcement_enabled is_dns_enforcement_enabled
         netflow_enabled
         $LOG4PERL_RELOAD_TIMER
         @Profile_Filters %Profiles_Config
@@ -269,7 +259,6 @@ tie %Config, 'pfconfig::cached_hash', "config::Pf($host_id)";
 tie @dhcplistener_ints,  'pfconfig::cached_array', "interfaces::dhcplistener_ints($host_id)";
 tie @ha_ints, 'pfconfig::cached_array', "interfaces::ha_ints($host_id)";
 tie @listen_ints, 'pfconfig::cached_array', "interfaces::listen_ints($host_id)";
-tie @inline_enforcement_nets, 'pfconfig::cached_array', "interfaces::inline_enforcement_nets($host_id)";
 tie @internal_nets, 'pfconfig::cached_array', "interfaces::internal_nets($host_id)";
 tie @portal_ints, 'pfconfig::cached_array', "interfaces::portal_ints($host_id)";
 tie @radius_ints, 'pfconfig::cached_array', "interfaces::radius_ints($host_id)";
@@ -280,7 +269,6 @@ tie $management_network, 'pfconfig::cached_scalar', "interfaces::management_netw
 tie $monitor_int, 'pfconfig::cached_scalar', "interfaces::monitor_int($host_id)";
 tie @routed_isolation_nets, 'pfconfig::cached_array', "interfaces::routed_isolation_nets($host_id)";
 tie @routed_registration_nets, 'pfconfig::cached_array', "interfaces::routed_registration_nets($host_id)";
-tie @inline_nets, 'pfconfig::cached_array', "interfaces::inline_nets($host_id)";
 tie %ConfigDomain, 'pfconfig::cached_hash', "config::Domain($host_id)";
 tie %ConfigDomains, 'pfconfig::cached_hash', "resource::domains";
 tie %ConfigNetworks, 'pfconfig::cached_hash', "config::Network($host_id)";
@@ -383,33 +371,12 @@ Readonly our $NO_VOIP => 'no';
 # API version constants
 Readonly::Scalar our $RADIUS_API_LEVEL => 1.02;
 Readonly::Scalar our $ROLE_API_LEVEL => 1.04;
-Readonly::Scalar our $INLINE_API_LEVEL => 1.01;
 Readonly::Scalar our $AUTHENTICATION_API_LEVEL => 1.11;
 Readonly::Scalar our $BILLING_API_LEVEL => 1.00;
 Readonly::Scalar our $ROLES_API_LEVEL => 0.90;
 
 # to shut up strict warnings
 $ENV{PATH} = '/sbin:/bin:/usr/bin:/usr/sbin';
-
-# Inline related
-# Ip mash marks
-# Warning: make sure to verify conf/iptables.conf for hard-coded marks if you change the marks here.
-Readonly::Scalar our $IPTABLES_MARK_REG => "1";
-Readonly::Scalar our $IPTABLES_MARK_ISOLATION => "2";
-Readonly::Scalar our $IPTABLES_MARK_UNREG => "3";
-
-%mark_type = (
-    'Reg'   => $IPTABLES_MARK_REG,
-    'Isol' => $IPTABLES_MARK_ISOLATION,
-    'Unreg'          => $IPTABLES_MARK_UNREG,
-);
-
-# Their string equivalent for database storage
-%mark_type_to_str = (
-    $IPTABLES_MARK_REG => 'Reg',
-    $IPTABLES_MARK_ISOLATION => 'Isol',
-    $IPTABLES_MARK_UNREG => 'Unreg',
-);
 
 # Use for match radius attributes
 
@@ -427,7 +394,6 @@ Readonly our $LOG4PERL_RELOAD_TIMER => 5 * 60;
 
 # simple cache for faster config lookup
 my $cache_vlan_enforcement_enabled;
-my $cache_inline_enforcement_enabled;
 my $cache_dns_enforcement_enabled;
 
 # Bandwdith accounting values
@@ -673,33 +639,6 @@ sub is_vlan_enforcement_enabled {
     return $FALSE;
 }
 
-=item is_inline_enforcement_enabled
-
-Returns true or false based on if inline enforcement is enabled or not
-
-=cut
-
-sub is_inline_enforcement_enabled {
-
-    # cache hit
-    return $cache_inline_enforcement_enabled if (defined($cache_inline_enforcement_enabled));
-
-    foreach my $interface (@internal_nets) {
-        my $device = "interface " . $interface->tag("int");
-
-        if (defined($Config{$device}{'enforcement'}) && is_type_inline($Config{$device}{'enforcement'})) {
-            # cache the answer for future access
-            $cache_inline_enforcement_enabled = $TRUE;
-            return $TRUE;
-        }
-    }
-
-    # if we haven't exited at this point, it means there are no vlan enforcement
-    # cache the answer for future access
-    $cache_inline_enforcement_enabled = $FALSE;
-    return $FALSE;
-}
-
 =item is_dns_enforcement_enabled
 
 Returns true or false based on if dns enforcement is enabled or not
@@ -725,15 +664,6 @@ sub is_dns_enforcement_enabled {
     # cache the answer for future access
     $cache_dns_enforcement_enabled = $FALSE;
     return $FALSE;
-}
-
-=item is_type_inline
-
-=cut
-
-sub is_type_inline {
-    my ($type) = @_;
-    return exists $NET_INLINE_TYPES{$type};
 }
 
 =item get_network_type
@@ -764,10 +694,6 @@ sub get_network_type {
 
         # dns-enforcement
         return $NET_TYPE_DNS_ENFORCEMENT;
-
-    } elsif (is_type_inline($type)) {
-        # inline
-        return $NET_TYPE_INLINE;
 
     } elsif ($type =~ /^registration$/i) {
         # deprecated registration
@@ -838,23 +764,6 @@ sub is_network_type_vlan_isol {
     }
 }
 
-=item is_network_type_inline
-
-Returns true if given network is of type inline and false otherwise.
-
-=cut
-
-sub is_network_type_inline {
-    my ($network) = @_;
-
-    my $result = get_network_type($network);
-    if (defined($result) && $result eq $NET_TYPE_INLINE) {
-        return $TRUE;
-    } else {
-        return $FALSE;
-    }
-}
-
 =item configreload
 
 Reload the config
@@ -913,14 +822,6 @@ sub netflow_enabled {
 
     if (isenabled($Config{advanced}{netflow_on_all_networks})) {
         return $TRUE;
-    }
-
-    # keys rather than each: returning from an each loop would leave the hash
-    # iterator half way for the next call
-    foreach my $network (keys %ConfigNetworks) {
-        # We skip non-inline networks/interfaces
-        next if ( !pf::config::is_network_type_inline($network) );
-        return $TRUE if isenabled($ConfigNetworks{$network}{netflow_accounting_enabled} || 'disabled');
     }
 
     return $FALSE;

@@ -2814,7 +2814,6 @@ components:
           fleetdm: '#/components/schemas/ConfigBaseSubTypeFleetdm'
           general: '#/components/schemas/ConfigBaseSubTypeGeneral'
           guests_admin_registration: '#/components/schemas/ConfigBaseSubTypeGuestsAdminRegistration'
-          inline: '#/components/schemas/ConfigBaseSubTypeInline'
           mse_tab: '#/components/schemas/ConfigBaseSubTypeMseTab'
           network: '#/components/schemas/ConfigBaseSubTypeNetwork'
           node_import: '#/components/schemas/ConfigBaseSubTypeNodeImport'
@@ -2839,7 +2838,6 @@ components:
       - $ref: '#/components/schemas/ConfigBaseSubTypeFleetdm'
       - $ref: '#/components/schemas/ConfigBaseSubTypeGeneral'
       - $ref: '#/components/schemas/ConfigBaseSubTypeGuestsAdminRegistration'
-      - $ref: '#/components/schemas/ConfigBaseSubTypeInline'
       - $ref: '#/components/schemas/ConfigBaseSubTypeMseTab'
       - $ref: '#/components/schemas/ConfigBaseSubTypeNetwork'
       - $ref: '#/components/schemas/ConfigBaseSubTypeNodeImport'
@@ -2865,7 +2863,6 @@ components:
           fleetdm: '#/components/schemas/ConfigBaseMetaSubTypeFleetdm'
           general: '#/components/schemas/ConfigBaseMetaSubTypeGeneral'
           guests_admin_registration: '#/components/schemas/ConfigBaseMetaSubTypeGuestsAdminRegistration'
-          inline: '#/components/schemas/ConfigBaseMetaSubTypeInline'
           mse_tab: '#/components/schemas/ConfigBaseMetaSubTypeMseTab'
           network: '#/components/schemas/ConfigBaseMetaSubTypeNetwork'
           node_import: '#/components/schemas/ConfigBaseMetaSubTypeNodeImport'
@@ -2890,7 +2887,6 @@ components:
       - $ref: '#/components/schemas/ConfigBaseMetaSubTypeFleetdm'
       - $ref: '#/components/schemas/ConfigBaseMetaSubTypeGeneral'
       - $ref: '#/components/schemas/ConfigBaseMetaSubTypeGuestsAdminRegistration'
-      - $ref: '#/components/schemas/ConfigBaseMetaSubTypeInline'
       - $ref: '#/components/schemas/ConfigBaseMetaSubTypeMseTab'
       - $ref: '#/components/schemas/ConfigBaseMetaSubTypeNetwork'
       - $ref: '#/components/schemas/ConfigBaseMetaSubTypeNodeImport'
@@ -3233,20 +3229,6 @@ components:
             default_access_duration_add:
               $ref: '#/components/schemas/Meta'
             id:
-              $ref: '#/components/schemas/Meta'
-          type: object
-      type: object
-    ConfigBaseMetaSubTypeInline:
-      properties:
-        meta:
-          properties:
-            id:
-              $ref: '#/components/schemas/Meta'
-            interfaceSNAT:
-              $ref: '#/components/schemas/Meta'
-            ports_redirect:
-              $ref: '#/components/schemas/Meta'
-            should_reauth_on_vlan_change:
               $ref: '#/components/schemas/Meta'
           type: object
       type: object
@@ -3929,8 +3911,7 @@ components:
           type: object
         network_redirect_delay:
           description: How long to display the progress bar during trap release. Default
-            value is based on VLAN enforcement techniques. Inline enforcement only
-            users could lower the value.
+            value is based on VLAN enforcement techniques.
           properties:
             interval:
               description: Interval
@@ -4149,9 +4130,7 @@ components:
           type: integer
         whitelist:
           description: Comma-delimited list of MAC addresses that are immune to isolation.
-            In inline Level 2 enforcement, the firewall is opened for them as if they
-            were registered. This <i>feature</i> will probably be reworked in the
-            future.
+            This <i>feature</i> will probably be reworked in the future.
           type: string
       type: object
     ConfigBaseSubTypeFingerbankDeviceChange:
@@ -4310,27 +4289,6 @@ components:
           type: object
         id:
           description: Id
-          type: string
-      type: object
-    ConfigBaseSubTypeInline:
-      properties:
-        id:
-          description: Id
-          type: string
-        interfaceSNAT:
-          description: Comma-delimited list of interfaces used to SNAT inline level
-            2 traffic
-          type: string
-        ports_redirect:
-          description: Ports to intercept and redirect for trapped and unregistered
-            systems.  Defaults to 80/tcp (HTTP), 443/tcp (HTTPS). Redirecting 443/tcp
-            (SSL) will work, although users might get certificate errors if you didn‘t
-            install a valid certificate or if you don’t use DNS (although IP-based
-            certificates supposedly exist). Redirecting 53/udp (DNS) seems to have
-            issues and is also not recommended.
-          type: string
-        should_reauth_on_vlan_change:
-          description: Should have to reauthenticate the node if vlan change
           type: string
       type: object
     ConfigBaseSubTypeMseTab:
@@ -10049,12 +10007,6 @@ components:
         name:
           description: The name of the interface
           type: string
-        nat_enabled:
-          description: Whether or not NAT is enabled for this interface
-          enum:
-          - 1
-          - 0
-          type: string
         netmask:
           description: The netmask of the interface
           type: string
@@ -10072,9 +10024,6 @@ components:
           type: boolean
         reg_network:
           description: Registration IP Address CIDR format
-          type: string
-        split_network:
-          description: Whether or not to perform network split by role
           type: string
         type:
           description: The network type of the interface
@@ -10259,8 +10208,7 @@ components:
           type: string
         dns:
           description: Should match the IP of a registration interface or the production
-            DNS server(s) if the network is Inline L2/L3 (space delimited list of
-            IP addresses)
+            DNS server(s) (space delimited list of IP addresses)
           type: string
         ip_assigned:
           description: List like 00:11:22:33:44:55:192.168.0.12,11:22:33:44:55:66:192.168.0.13
@@ -10268,9 +10216,6 @@ components:
         ip_reserved:
           description: Range like 192.168.0.1-192.168.0.20 and or IP like 192.168.0.22,192.168.0.24
             will be excluded from the DHCP pool
-          type: string
-        netflow_accounting_enabled:
-          description: Enable Net Flow Accounting
           type: string
         netmask:
           description: Netmask
@@ -10309,8 +10254,6 @@ components:
             ip_assigned:
               $ref: '#/components/schemas/Meta'
             ip_reserved:
-              $ref: '#/components/schemas/Meta'
-            netflow_accounting_enabled:
               $ref: '#/components/schemas/Meta'
             netmask:
               $ref: '#/components/schemas/Meta'
@@ -17934,9 +17877,6 @@ components:
         algorithm:
           description: DHCP Algorithm
           type: string
-        coa:
-          description: Enable CoA
-          type: string
         description:
           description: Description
           type: string
@@ -17960,11 +17900,7 @@ components:
           type: string
         dns:
           description: Should match the IP of a registration interface or the production
-            DNS server(s) if the network is Inline L2/L3 (space delimited list of
-            IP addresses)
-          type: string
-        fake_mac_enabled:
-          description: Fake MAC Address
+            DNS server(s) (space delimited list of IP addresses)
           type: string
         gateway:
           description: Client Gateway
@@ -17975,15 +17911,6 @@ components:
         ip_reserved:
           description: Range like 192.168.0.1-192.168.0.20 and or IP like 192.168.0.22,192.168.0.24
             will be excluded from the DHCP pool
-          type: string
-        nat_dns:
-          description: Enable DNS NATting
-          type: string
-        nat_enabled:
-          description: Enable NATting
-          type: string
-        netflow_accounting_enabled:
-          description: Enable Net Flow Accounting
           type: string
         netmask:
           description: Netmask
@@ -18015,8 +17942,6 @@ components:
           properties:
             algorithm:
               $ref: '#/components/schemas/Meta'
-            coa:
-              $ref: '#/components/schemas/Meta'
             description:
               $ref: '#/components/schemas/Meta'
             dhcp_default_lease_time:
@@ -18033,19 +17958,11 @@ components:
               $ref: '#/components/schemas/Meta'
             dns:
               $ref: '#/components/schemas/Meta'
-            fake_mac_enabled:
-              $ref: '#/components/schemas/Meta'
             gateway:
               $ref: '#/components/schemas/Meta'
             ip_assigned:
               $ref: '#/components/schemas/Meta'
             ip_reserved:
-              $ref: '#/components/schemas/Meta'
-            nat_dns:
-              $ref: '#/components/schemas/Meta'
-            nat_enabled:
-              $ref: '#/components/schemas/Meta'
-            netflow_accounting_enabled:
               $ref: '#/components/schemas/Meta'
             netmask:
               $ref: '#/components/schemas/Meta'
@@ -18349,8 +18266,7 @@ components:
           type: integer
         post_registration:
           description: If this option is enabled, the PF system will scan host after
-            on the production vlan. This will not work for devices that are in an
-            inline VLAN.
+            on the production vlan.
           type: string
         pre_registration:
           description: If this option is enabled, the PF system will scan host before
@@ -18416,8 +18332,7 @@ components:
           type: integer
         post_registration:
           description: If this option is enabled, the PF system will scan host after
-            on the production vlan. This will not work for devices that are in an
-            inline VLAN.
+            on the production vlan.
           type: string
         pre_registration:
           description: If this option is enabled, the PF system will scan host before
@@ -18495,8 +18410,7 @@ components:
           type: integer
         post_registration:
           description: If this option is enabled, the PF system will scan host after
-            on the production vlan. This will not work for devices that are in an
-            inline VLAN.
+            on the production vlan.
           type: string
         pre_registration:
           description: If this option is enabled, the PF system will scan host before
@@ -18563,8 +18477,7 @@ components:
           type: integer
         post_registration:
           description: If this option is enabled, the PF system will scan host after
-            on the production vlan. This will not work for devices that are in an
-            inline VLAN.
+            on the production vlan.
           type: string
         pre_registration:
           description: If this option is enabled, the PF system will scan host before
@@ -25656,42 +25569,20 @@ components:
         id:
           description: IP Address/MAC Address/Range (CIDR)
           type: string
-        inlineTrigger:
-          description: InlineTrigger
-          items:
-            description: InlineTrigger
-            properties:
-              type:
-                description: Type
-                type: string
-              value:
-                description: Value
-                type: string
-            type: object
-          type: array
         macSearchesMaxNb:
           description: Maximum number of MAC addresses retrived from a port
           type: integer
         macSearchesSleepInterval:
           description: Sleep interval between queries of MAC addresses
           type: integer
-        mac_trigger:
-          description: Mac trigger
-          type: string
         mode:
           description: Mode
           type: string
-        port_trigger:
-          description: Port trigger
-          type: integer
         radiusDeauthUseConnector:
           description: RadiusDeauthUseConnector
           type: string
         radiusSecret:
           description: Secret Passphrase
-          type: string
-        ssid_trigger:
-          description: Ssid trigger
           type: string
         type:
           description: Type
@@ -26000,42 +25891,20 @@ components:
         id:
           description: Group name
           type: string
-        inlineTrigger:
-          description: InlineTrigger
-          items:
-            description: InlineTrigger
-            properties:
-              type:
-                description: Type
-                type: string
-              value:
-                description: Value
-                type: string
-            type: object
-          type: array
         macSearchesMaxNb:
           description: Maximum number of MAC addresses retrived from a port
           type: integer
         macSearchesSleepInterval:
           description: Sleep interval between queries of MAC addresses
           type: integer
-        mac_trigger:
-          description: Mac trigger
-          type: string
         mode:
           description: Mode
           type: string
-        port_trigger:
-          description: Port trigger
-          type: integer
         radiusDeauthUseConnector:
           description: RadiusDeauthUseConnector
           type: string
         radiusSecret:
           description: Secret Passphrase
-          type: string
-        ssid_trigger:
-          description: Ssid trigger
           type: string
         type:
           description: Type
@@ -26205,23 +26074,15 @@ components:
               $ref: '#/components/schemas/Meta'
             id:
               $ref: '#/components/schemas/Meta'
-            inlineTrigger:
-              $ref: '#/components/schemas/Meta'
             macSearchesMaxNb:
               $ref: '#/components/schemas/Meta'
             macSearchesSleepInterval:
               $ref: '#/components/schemas/Meta'
-            mac_trigger:
-              $ref: '#/components/schemas/Meta'
             mode:
-              $ref: '#/components/schemas/Meta'
-            port_trigger:
               $ref: '#/components/schemas/Meta'
             radiusDeauthUseConnector:
               $ref: '#/components/schemas/Meta'
             radiusSecret:
-              $ref: '#/components/schemas/Meta'
-            ssid_trigger:
               $ref: '#/components/schemas/Meta'
             type:
               $ref: '#/components/schemas/Meta'
@@ -26389,23 +26250,15 @@ components:
               $ref: '#/components/schemas/Meta'
             id:
               $ref: '#/components/schemas/Meta'
-            inlineTrigger:
-              $ref: '#/components/schemas/Meta'
             macSearchesMaxNb:
               $ref: '#/components/schemas/Meta'
             macSearchesSleepInterval:
               $ref: '#/components/schemas/Meta'
-            mac_trigger:
-              $ref: '#/components/schemas/Meta'
             mode:
-              $ref: '#/components/schemas/Meta'
-            port_trigger:
               $ref: '#/components/schemas/Meta'
             radiusDeauthUseConnector:
               $ref: '#/components/schemas/Meta'
             radiusSecret:
-              $ref: '#/components/schemas/Meta'
-            ssid_trigger:
               $ref: '#/components/schemas/Meta'
             type:
               $ref: '#/components/schemas/Meta'
@@ -32007,9 +31860,6 @@ components:
         hostname:
           description: System hostname.
           type: string
-        is_inline_configured:
-          description: PacketFence inline.
-          type: boolean
         os:
           description: Operating system.
           type: string
@@ -34211,7 +34061,6 @@ paths:
           - fleetdm
           - general
           - guests_admin_registration
-          - inline
           - lets_encrypt
           - monit
           - network
@@ -34267,7 +34116,6 @@ paths:
           - fleetdm
           - general
           - guests_admin_registration
-          - inline
           - lets_encrypt
           - monit
           - network
@@ -34322,7 +34170,6 @@ paths:
           - fleetdm
           - general
           - guests_admin_registration
-          - inline
           - lets_encrypt
           - monit
           - network
@@ -34377,7 +34224,6 @@ paths:
           - fleetdm
           - general
           - guests_admin_registration
-          - inline
           - lets_encrypt
           - monit
           - network
@@ -34437,7 +34283,6 @@ paths:
           - fleetdm
           - general
           - guests_admin_registration
-          - inline
           - lets_encrypt
           - monit
           - network
@@ -51890,7 +51735,6 @@ paths:
           - fleetdm
           - general
           - guests_admin_registration
-          - inline
           - lets_encrypt
           - monit
           - network
@@ -51946,7 +51790,6 @@ paths:
           - fleetdm
           - general
           - guests_admin_registration
-          - inline
           - lets_encrypt
           - monit
           - network
@@ -52001,7 +51844,6 @@ paths:
           - fleetdm
           - general
           - guests_admin_registration
-          - inline
           - lets_encrypt
           - monit
           - network
@@ -52056,7 +51898,6 @@ paths:
           - fleetdm
           - general
           - guests_admin_registration
-          - inline
           - lets_encrypt
           - monit
           - network
@@ -52116,7 +51957,6 @@ paths:
           - fleetdm
           - general
           - guests_admin_registration
-          - inline
           - lets_encrypt
           - monit
           - network
@@ -57033,90 +56873,6 @@ paths:
       summary: Add an IP to a specific ipset
       tags:
       - Ipset
-  /api/v1/ipset/mark_ip_layer2:
-    post:
-      description: Mark IP layer2
-      parameters:
-      - $ref: '#/components/parameters/local'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/IpsetIp'
-        required: true
-      responses:
-        '200':
-          $ref: '#/components/responses/IpsetIp'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-      summary: Mark IP layer2
-      tags:
-      - Ipset
-  /api/v1/ipset/mark_ip_layer3:
-    post:
-      description: Mark IP layer3
-      parameters:
-      - $ref: '#/components/parameters/local'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/IpsetIp'
-        required: true
-      responses:
-        '200':
-          $ref: '#/components/responses/IpsetIp'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-      summary: Mark IP layer3
-      tags:
-      - Ipset
-  /api/v1/ipset/mark_layer2:
-    post:
-      description: '...'
-      parameters:
-      - $ref: '#/components/parameters/local'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/IpsetMac'
-        required: true
-      responses:
-        '200':
-          $ref: '#/components/responses/IpsetMac'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-      summary: '...'
-      tags:
-      - Ipset
-  /api/v1/ipset/mark_layer3:
-    post:
-      description: '...'
-      parameters:
-      - $ref: '#/components/parameters/local'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/IpsetIp'
-        required: true
-      responses:
-        '200':
-          $ref: '#/components/responses/IpsetIp'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-      summary: '...'
-      tags:
-      - Ipset
   /api/v1/ipset/passthrough:
     post:
       description: Passthrough
@@ -57179,48 +56935,6 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
       summary: Removes an IP from a specific ipset
-      tags:
-      - Ipset
-  /api/v1/ipset/umark_ip:
-    post:
-      description: '...'
-      parameters:
-      - $ref: '#/components/parameters/local'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/IpsetIp'
-        required: true
-      responses:
-        '200':
-          $ref: '#/components/responses/IpsetIp'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-      summary: '...'
-      tags:
-      - Ipset
-  /api/v1/ipset/unmark_mac:
-    post:
-      description: '...'
-      parameters:
-      - $ref: '#/components/parameters/local'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/IpsetMac'
-        required: true
-      responses:
-        '200':
-          $ref: '#/components/responses/IpsetMac'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-      summary: '...'
       tags:
       - Ipset
   /api/v1/ldap/search:

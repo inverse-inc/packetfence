@@ -11,12 +11,12 @@
         - "network"
 
   # Indices match configurator vars in t/venom/vars/all.yml (dhcp_listener=2,
-  # mgmt=3, reg=4, iso=5, inline=6). Index 1 is loopback. PCI slot order is
+  # mgmt=3, reg=4, iso=5, spare=6). Index 1 is loopback. PCI slot order is
   # deterministic across vagrant up runs so names track indices, but the OS
-  # leaves auto_config:false interfaces (reg/iso/inline) down when they have
+  # leaves auto_config:false interfaces (reg/iso/spare) down when they have
   # no IP — same workaround as configurator step 1.
   tasks:
-    - name: Bring up PF private network interfaces (mgmt, reg, iso, inline)
+    - name: Bring up PF private network interfaces (mgmt, reg, iso, spare)
       ansible.builtin.shell: |
         for idx in 3 4 5 6; do
           iface=$(ip -o link show | awk -F': ' -v i="${idx}" '$1 == i {print $2}' | awk '{print $1}')

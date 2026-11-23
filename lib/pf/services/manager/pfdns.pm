@@ -62,19 +62,6 @@ sub generateConfig {
 EOT
     }
 
-    foreach my $network ( keys %ConfigNetworks ) {
-        # We skip non-inline networks/interfaces
-        next if ( !pf::config::is_network_type_inline($network) );
-        my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
-        my $cidr = $net_addr->cidr();
-        my $dns =  join ' ',split(',',$ConfigNetworks{$network}{'dns'});
-        $tags{'inline'} .= <<"EOT";
-    forward . $dns {
-        network_source $cidr
-    }
-EOT
-    }
-
     my $content = '';
     $tt->process("$conf_dir/pfdns.conf", \%tags, \$content) or die $tt->error();
     # The forward plugin refuses to start when pointed to a resolv.conf without a nameserver

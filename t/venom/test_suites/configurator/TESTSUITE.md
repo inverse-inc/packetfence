@@ -84,9 +84,6 @@ Can certainly be done during step4
 
 ### Additional notes
 
-- Only a VLAN enforcement setup is configured even if an inline interface can
-  be configured. A dedicated inline scenario will take care of that.
-
 - No `Authorization` header because configurator is token-less.
 
 - This test suite need to be self-contained to test everything before going

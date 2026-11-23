@@ -40,7 +40,7 @@ use NetPacket::IP;
 use NetPacket::IPv6;
 use NetPacket::UDP;
 use pf::constants qw($TRUE);
-use pf::config qw(%Config @listen_ints @dhcplistener_ints $NO_VLAN %ConfigNetworks @inline_enforcement_nets);
+use pf::config qw(%Config @listen_ints @dhcplistener_ints $NO_VLAN %ConfigNetworks);
 use NetAddr::IP;
 use Net::Pcap qw(pcap_open_offline pcap_loop);
 use Pod::Usage;
@@ -60,27 +60,13 @@ start_processing($options{interface}, $options{pcap});
 sub start_processing {
     my ($interface, $filename) = @_;
     my $logger = get_logger();
-    my ($net_type, $interface_ip, $interface_vlan, $is_inline_vlan);
+    my ($net_type, $interface_ip, $interface_vlan);
     my $net_addr = NetAddr::IP->new($Config{"interface $interface"}{'ip'},$Config{"interface $interface"}{'mask'});
     my %user_data = (interface => $interface);
     if (any {$_ eq $interface} @listen_ints, @dhcplistener_ints) {
         $user_data{net_type}       = $Config{"interface $interface"}{'type'};
         $user_data{interface_ip}   = $Config{"interface $interface"}{'ip'};
         $user_data{interface_vlan} = get_vlan_from_int($interface) || $NO_VLAN;
-        foreach my $network (keys %ConfigNetworks) {
-            my %net = %{$ConfigNetworks{$network}};
-            my $network_obj = NetAddr::IP->new($network, $ConfigNetworks{$network}{netmask});
-
-            # are we listening on an inline interface ?
-            next if (!pf::config::is_network_type_inline($network));
-            my $ip = new NetAddr::IP::Lite clean_ip($net{'next_hop'}) if defined($net{'next_hop'});
-            if (grep({$_->tag("int") eq $interface} @inline_enforcement_nets) != 0
-                || (defined($net{'next_hop'}) && $net_addr->contains($ip)))
-            {
-                $logger->warn("DHCP detector on an inline interface");
-                $user_data{is_inline_vlan} = $TRUE;
-            }
-        }
         $logger->info("DHCP detector on $interface enabled");
         my $err;
         my $pcap = pcap_open_offline($filename, \$err)
@@ -100,7 +86,6 @@ sub process_pkt {
             dest_mac => clean_mac($l2->{'dest_mac'}),
             src_ip => $l3->{'src_ip'},
             dest_ip => $l3->{'dest_ip'},
-            is_inline_vlan => $user_data->{is_inline_vlan},
             interface => $user_data->{interface},
             interface_ip => $user_data->{interface_ip},
             interface_vlan => $user_data->{interface_vlan},

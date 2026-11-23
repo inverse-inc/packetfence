@@ -68,8 +68,6 @@ use pf::SwitchSupports qw(
     ?WebFormRegistration
 );
 
-# inline capabilities
-sub inlineCapabilities { return ($MAC,$SSID); }
 
 =item supportsWebFormRegistration
 

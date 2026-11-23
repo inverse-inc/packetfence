@@ -5,7 +5,6 @@ export const types = {
   none:                 i18n.t('None'),
   'dhcp-listener':      i18n.t('DHCP Listener'),
   'dns-enforcement':    i18n.t('DNS Enforcement'),
-  inlinel2:             i18n.t('Inline Layer 2'),
   management:           i18n.t('Management'),
   portal:               i18n.t('Portal'),
   'vlan-isolation':     i18n.t('Isolation'),

@@ -100,8 +100,6 @@ use pf::SwitchSupports qw(
     ~AccessListBasedEnforcement
     Flow
 );
-# inline capabilities
-sub inlineCapabilities { return ($MAC,$PORT); }
 
 =item getVersion
 

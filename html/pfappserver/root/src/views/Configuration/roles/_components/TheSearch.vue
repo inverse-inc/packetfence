@@ -228,8 +228,6 @@ const setup = (props, context) => {
       })
   }
 
-  const isInline = computed(() => $store.getters['system/isInline'])
-
   const {
     collapsedNodes,
     clearExpandedNodes,
@@ -252,7 +250,6 @@ const setup = (props, context) => {
     reassignableRoles,
     reasons,
     reAssign,
-    isInline,
 
     collapsedNodes,
     clearExpandedNodes,

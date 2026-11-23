@@ -127,9 +127,6 @@ our %TRAP_NORMALIZERS = (
 
 =cut
 
-# inline capabilities
-sub inlineCapabilities { return; }
-
 sub vpnAttributes { return $FALSE; }
 
 sub switchDriverId { 'none' }
@@ -189,7 +186,6 @@ sub new {
         '_VoIPFullAuthorization'        => 'disabled',
         '_host_mode'                    => $HOST_MODE_SINGLE_HOST,
         '_roles'                        => undef,
-        '_inlineTrigger'                => undef,
         '_deauthMethod'                 => undef,
         '_useCoA'                       => 'enabled',
         '_radiusDeauthUseConnector'     => 'enabled',
@@ -814,13 +810,6 @@ sub getVlanByName {
         $pf::StatsD::statsd->increment(called() . ".error" );
         $logger->warn("No parameter ${vlanName}Vlan found in conf/switches.conf for the switch " . $self->{_id});
         return undef;
-    }
-
-    if ($vlanName eq "inline" && length($self->{'_vlans'}{$vlanName}) == 0) {
-        # VLAN empty, return 0 for Inline
-        $logger->trace("No parameter ${vlanName}Vlan found in conf/switches.conf for the switch " . $self->{_id} .
-                      ". Please ignore if your intentions were to use the native VLAN");
-        return 0;
     }
 
     if (length $self->{'_vlans'}{$vlanName} < 1 ) {
@@ -3457,7 +3446,7 @@ sub returnRadiusAccessAccept {
     return $kick if (defined($kick));
 
     my $role = "";
-    if ( (!$args->{'wasInline'} || ($args->{'wasInline'} && $args->{'vlan'} != 0) ) && isenabled($self->{_VlanMap})) {
+    if ( isenabled($self->{_VlanMap})) {
         if(defined($args->{'vlan'}) && $args->{'vlan'} ne "" && $args->{'vlan'} ne 0){
             $logger->info("(".$self->{'_id'}.") Added VLAN $args->{'vlan'} to the returned RADIUS Access-Accept");
             $radius_reply_ref = {

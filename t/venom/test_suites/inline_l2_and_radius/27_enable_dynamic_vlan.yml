@@ -1,6 +1,0 @@
-name: Enable dynamic VLAN on switch01
-testcases:
-- name: enable_dynamic_vlan_on_switch01
-  steps:
-  - type: run_cumulus_command
-    command: "add dot1x dynamic-vlan"

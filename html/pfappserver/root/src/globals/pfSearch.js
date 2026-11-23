@@ -184,7 +184,7 @@ pfSearchConditionValues[pfSearchConditionType.CONNECTION_TYPE] = [
     value: 'SNMP-Traps',
     text: i18n.t('Wired SNMP')
   },
-  {
+  { // kept so historical locationlog/node rows can still be searched
     value: 'Inline',
     text: i18n.t('Inline')
   },

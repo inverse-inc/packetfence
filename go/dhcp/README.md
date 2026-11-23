@@ -57,7 +57,7 @@ curl http://127.0.0.1:22222/api/v1/dhcp/stats/eth1.137 | python -m json.tool
         ],
         "network": "192.168.0.0/24",
         "options": {
-            "optionDomainName": "inlinel2.fabianfence",
+            "optionDomainName": "l2.fabianfence",
             "optionDomainNameServer": "10.10.0.1",
             "optionIPAddressLeaseTime": "123",
             "optionNetBIOSOverTCPIPNameServer": "172.20.135.2",

@@ -49,9 +49,8 @@ sub returnRadiusAccessAccept {
     my $kick = $self->handleRadiusDeny($args);
     return $kick if (defined($kick));
 
-    # Inline Vs. VLAN enforcement
     my $role = "";
-    if ( (!$args->{'wasInline'} || ($args->{'wasInline'} && $args->{'vlan'} != 0) ) && isenabled($self->{_VlanMap})) {
+    if ( isenabled($self->{_VlanMap})) {
         if(defined($args->{'vlan'}) && $args->{'vlan'} ne "" && $args->{'vlan'} ne 0){
             if ( $args->{'vlan'} =~ /^[-\d]+$/ ) {
                 $radius_reply_ref = {

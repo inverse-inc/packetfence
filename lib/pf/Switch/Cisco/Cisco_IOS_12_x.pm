@@ -138,8 +138,6 @@ use pf::SwitchSupports qw(
     RadiusVoip
     Lldp
 );
-# inline capabilities
-sub inlineCapabilities { return ($MAC,$PORT); }
 
 sub getMinOSVersion {
     my $self   = shift;

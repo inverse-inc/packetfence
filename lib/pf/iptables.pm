@@ -85,16 +85,10 @@ use pf::config qw(
     %ConfigNetworks
     %Config
     %ConfigProvisioning
-    $IPTABLES_MARK_UNREG
     $IF_ENFORCEMENT_VLAN
     $IF_ENFORCEMENT_DNS
-    $IPTABLES_MARK_ISOLATION
-    $IPTABLES_MARK_REG
-    is_inline_enforcement_enabled
-    is_type_inline
     netflow_enabled
     $management_network
-    @inline_enforcement_nets
     @vlan_enforcement_nets
     @internal_nets
     @listen_ints
@@ -103,11 +97,10 @@ use pf::config qw(
     @dhcp_ints
     @dhcplistener_ints
     @dns_ints
-    $NET_TYPE_INLINE_L3
-    %mark_type_to_str
 );
 
 use pf::log;
+use pf::ipset ();
 use pf::constants;
 use pf::config::cluster;
 use pf::file_paths qw(
@@ -460,18 +453,6 @@ sub iptables_haproxy_portal_rules {
         $logger->warn("Service $service_name: Portal Ints are not set.");
     }
 
-    if ( @inline_enforcement_nets ) {
-        # 'portal' interfaces handling
-        $chains->{'name'} = $service_name;
-        foreach my $network ( @inline_enforcement_nets ) {
-            my $tint =  $network->{Tint};
-            util_safe_push( "-i $tint -p tcp -m tcp --dport 80 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-            util_safe_push( "-i $tint -p tcp -m tcp --dport 443 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-        }
-    } else {
-        $logger->warn("Service $service_name: Inline Enforcement Nets are not set.");
-    }
-
     if ( @vlan_enforcement_nets ) {
         # 'portal' interfaces handling
         $chains->{'name'} = $service_name;
@@ -522,11 +503,6 @@ sub iptables_keepalived_rules {
                 if ($tint =~ m/(\w+):\d+/) {
                     $tint = $1;
                 }
-                $chains->{name} = $service_name;
-                util_safe_push( "-i $tint -d 224.0.0.0/8 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-                util_safe_push( "-i $tint -p vrrp -j ACCEPT", $chains->{'filter'}{'INPUT'} ) if ($cluster_enabled);
-            # inline enforcement
-            } elsif (is_type_inline($enforcement_type)) {
                 $chains->{name} = $service_name;
                 util_safe_push( "-i $tint -d 224.0.0.0/8 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
                 util_safe_push( "-i $tint -p vrrp -j ACCEPT", $chains->{'filter'}{'INPUT'} ) if ($cluster_enabled);
@@ -960,16 +936,6 @@ sub iptables_pfdns_rules {
     } else {
         $logger->warn("Service $service_name: DNS Ints are not set.");
     }
-    if ( @inline_enforcement_nets ) {
-        $chains->{name} = $service_name;
-        foreach my $network ( @inline_enforcement_nets ) {
-            my $tint =  $network->{Tint};
-            util_safe_push( "-i $tint -p udp -m udp --dport 53 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-            util_safe_push( "-i $tint -p tcp -m tcp --dport 53 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-        }
-    } else {
-        $logger->warn("Service $service_name: Inline Enforcement Nets are not set.");
-    }
     if ( @vlan_enforcement_nets ) {
         $chains->{name} = $service_name;
         foreach my $network ( @vlan_enforcement_nets ) {
@@ -978,7 +944,7 @@ sub iptables_pfdns_rules {
             util_safe_push( "-i $tint -p tcp -m tcp --dport 53 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
         }
     } else {
-        $logger->warn("Service $service_name: Inline Enforcement Nets are not set.");
+        $logger->warn("Service $service_name: Vlan Enforcement Nets are not set.");
     }
     if ( @vlan_enforcement_nets ) {
         $chains->{name} = $service_name;
@@ -1028,7 +994,6 @@ sub dns_interception_rules {
         if ($enforcement_type eq $IF_ENFORCEMENT_VLAN) {
             # send everything from vlan interfaces to the vlan chain
             foreach my $network ( keys %ConfigNetworks ) {
-                next if (pf::config::is_network_type_inline($network));
                 my %net = %{$ConfigNetworks{$network}};
                 my $ip;
                 if (defined($net{'next_hop'})) {
@@ -1048,19 +1013,6 @@ sub dns_interception_rules {
                     util_safe_push( "-i $tint $rule -j DNAT --to $destination", $chains->{'nat'}{'PREROUTING'} );
                     $rule    = "-p tcp --dport 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
                     util_safe_push( "-i $tint $rule -j DNAT --to $destination", $chains->{'nat'}{'PREROUTING'} );
-                }
-            }
-        }
-    }
-    if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
-        my $internal_portal_ip = $Config{captive_portal}{ip_address};
-        foreach my $intercept_port ( split( ',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
-            foreach my $interface (@internal_nets) {
-                my $tint = $interface->tag("int");
-                my $enforcement_type = $Config{"interface $tint"}{'enforcement'};
-                if (is_type_inline($enforcement_type)) {
-                    my $rule = "-p tcp --dport $intercept_port";
-                    util_safe_push( "-i $tint -d $internal_portal_ip $rule -j ACCEPT", $chains->{'filter'}{'INPUT'} );
                 }
             }
         }
@@ -1114,14 +1066,7 @@ sub dns_oauth_passthrough_rules {
         if ($SNAT_ip) {
             foreach my $network ( keys %ConfigNetworks ) {
                 my $network_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
-                if ( pf::config::is_network_type_inline($network) ) {
-                    my $nat = $ConfigNetworks{$network}{'nat_enabled'};
-                    if (defined ($nat) && (isenabled($nat))) {
-                        util_safe_push( "-s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip", $chains->{'nat'}{'POSTROUTING'} );
-                    }
-                } else {
-                   util_safe_push( "-s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip", $chains->{'nat'}{'POSTROUTING'} );
-                }
+                util_safe_push( "-s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip", $chains->{'nat'}{'POSTROUTING'} );
             }
         }
         # Enable nat if we defined another interface to route to internet
@@ -1131,14 +1076,7 @@ sub dns_oauth_passthrough_rules {
             next unless defined($if);
             foreach my $network ( keys %ConfigNetworks ) {
                 my $network_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
-                if ( pf::config::is_network_type_inline($network) ) {
-                    my $nat = $ConfigNetworks{$network}{'nat_enabled'};
-                    if (defined ($nat) && (isenabled($nat))) {
-                        util_safe_push( "-s $network/$network_obj->{BITS} -o $int -j SNAT --to ".$if->address , $chains->{'nat'}{'POSTROUTING'} );
-                    }
-                } else {
-                    util_safe_push( "-s $network/$network_obj->{BITS} -o $int -j SNAT --to ".$if->address , $chains->{'nat'}{'POSTROUTING'} );
-                }
+                util_safe_push( "-s $network/$network_obj->{BITS} -o $int -j SNAT --to ".$if->address , $chains->{'nat'}{'POSTROUTING'} );
             }
         }
         $logger->info("Service $chains->{name}: DNS oauth rules are done.");
@@ -1177,16 +1115,6 @@ sub iptables_pfdhcp_rules {
         }
     } else {
         $logger->warn("Service $service_name: DHCP Listener Ints are not set.");
-    }
-
-    if ( @inline_enforcement_nets ) {
-        $chains->{name} = $service_name;
-        foreach my $network ( @inline_enforcement_nets ) {
-            my $tint =  $network->{Tint};
-            util_safe_push( "-i $tint -p udp -m udp --dport 67 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-        }
-    } else {
-        $logger->warn("Service $service_name: Inline Enforcement Nets are not set.");
     }
 
     if ( @vlan_enforcement_nets ) {
@@ -1232,22 +1160,6 @@ sub iptables_pfdhcp_rules {
                     }
                     util_safe_push( "-i $tint -d 255.255.255.255 -p tcp -m tcp --dport 67 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
                     util_safe_push( "-i $tint -d 255.255.255.255 -p udp -m udp --dport 67 -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-                }
-            } elsif (is_type_inline($enforcement_type)) {
-                if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
-                    $logger->info("Adding Proxy interception rules");
-                    my $cluster_ip = $ConfigCluster{$CLUSTER}->{"interface $tint"}->{ip};
-                    foreach my $intercept_port ( split(',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
-                        util_safe_push( "-i $tint -d $cluster_ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-                        util_safe_push( "-i $tint -d $cluster_ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-                        util_safe_push( "-i $tint -d $cluster_ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_REG   -j DROP", $chains->{'filter'}{'INPUT'} );
-                        util_safe_push( "-i $tint -d $ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-                        util_safe_push( "-i $tint -d $ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-                        util_safe_push( "-i $tint -d $ip -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_REG   -j DROP", $chains->{'filter'}{'INPUT'} );
-                        util_safe_push( "-i $tint -d 255.255.255.255 -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-                        util_safe_push( "-i $tint -d 255.255.255.255 -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_UNREG -j ACCEPT", $chains->{'filter'}{'INPUT'} );
-                        util_safe_push( "-i $tint -d 255.255.255.255 -p tcp -m tcp --dport $intercept_port -m mark -m 0x$IPTABLES_MARK_REG   -j DROP", $chains->{'filter'}{'INPUT'} );
-                    }
                 }
             }
         }
@@ -1593,8 +1505,8 @@ sub iptables_radiusd_eduroam_rules {
 =item iptables_pfipset_rules
 
 Iptable rules for pfipset service
-Since this service is a requirement for inline, this part also include inline rules
-So related to lib/pf/ipset.pm
+This (re)creates the passthrough ipsets (see lib/pf/ipset.pm) and the forwarding rules
+that use them for the VLAN and DNS enforcement
 
 =cut
 
@@ -1640,7 +1552,6 @@ sub iptables_pfipset_rules {
         }
     }
     pfipset_provisioning_passthroughs();
-    pfipset_inline_rules($service_name, $chains);
     if ($chains->{name} ne "") {
         # Convert to JSON and save to file
         util_create_service_rules($chains);
@@ -1697,402 +1608,6 @@ sub pfipset_provisioning_passthroughs {
     }
 }
 
-sub pfipset_inline_rules {
-    my ($service_name, $chains) = @_;
-    inline_nat_back_rules($service_name, $chains);
-    # Note: I'm giving references to this guy here so he can directly mess with the tables
-    inline_generate_rules($service_name, $chains);
-    # NAT
-    inline_nat_if_src_rules($service_name, $chains);
-    inline_nat_redirect_rules($service_name, $chains);
-    # Mangle
-    inline_mangle_rules($service_name, $chains);
-}
-
-sub inline_nat_back_rules {
-    my ($service_name, $chains) = @_;
-    my $logger = get_logger();
-
-    # Allow the NAT back inside through the forwarding table if inline is enabled
-    if ( is_inline_enforcement_enabled() ) {
-        $logger->info("Nat back inline rules to forward is starting.");
-        $chains->{name} = $service_name;
-        my @values = split( ',' , get_inline_snat_interface() );
-        foreach my $tint (@values) {
-            foreach my $network ( keys %ConfigNetworks ) {
-                next if ( !pf::config::is_network_type_inline($network) );
-                my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
-                my $nat = $ConfigNetworks{$network}{'nat_enabled'};
-                if ( defined ( $nat ) && ( isdisabled($nat) ) ) {
-                  util_safe_push( "-d $network/$inline_obj->{BITS} -i $tint -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
-                }
-            }
-            util_safe_push( "-i $tint -m state --state ESTABLISHED,RELATED -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
-        }
-        if($management_network) {
-            my $mgmt_int = $management_network->tag("int");
-            util_safe_push( "-i $mgmt_int -m state --state ESTABLISHED,RELATED -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
-        } else {
-            $logger->info("NO Action taken on nat back inline rules to forwaard for management network.");
-        }
-        $logger->info("Nat back inline rules to forward are done.");
-    } else {
-        $logger->info("NO Action taken on nat back inline rules to forward.");
-    }
-}
-
-sub inline_generate_rules {
-    my ($service_name, $chains) = @_;
-    my $logger = get_logger();
-
-    if ( is_inline_enforcement_enabled() ) {
-        $logger->info("Inline rules are starting.");
-        $chains->{name} = $service_name;
-        foreach my $network ( keys %ConfigNetworks ) {
-            # We skip non-inline networks/interfaces
-            next if ( !pf::config::is_network_type_inline($network) );
-            # Set the correct gateway if it is an inline Layer 3 network
-            my $tint = $NetworkConfig{$network}{'interface'}{'int'};
-            my $gateway = $Config{"interface $tint"}{'ip'};
-
-            my $rule = "-p udp --dport 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
-            util_safe_push( "-i $tint $rule -m mark --mark 0x$IPTABLES_MARK_UNREG -j DNAT --to $gateway", $chains->{'nat'}{'PREROUTING'} );
-            util_safe_push( "-i $tint $rule -m mark --mark 0x$IPTABLES_MARK_ISOLATION -j DNAT --to $gateway", $chains->{'nat'}{'PREROUTING'} );
-
-            if (isenabled($ConfigNetworks{$network}{'split_network'}) && defined($ConfigNetworks{$network}{'reg_network'}) && $ConfigNetworks{$network}{'reg_network'} ne '') {
-                $rule = "-p udp --dport 53 -s $ConfigNetworks{$network}{'reg_network'}";
-                util_safe_push( "-i $tint $rule -m mark --mark 0x$IPTABLES_MARK_UNREG -j DNAT --to $gateway", $chains->{'nat'}{'PREROUTING'} );
-                util_safe_push( "-i $tint $rule -m mark --mark 0x$IPTABLES_MARK_ISOLATION -j DNAT --to $gateway", $chains->{'nat'}{'PREROUTING'} );
-            }
-
-            if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
-                $logger->info("Adding Proxy interception rules");
-                foreach my $intercept_port ( split(',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
-                    my $rule = "-p tcp --dport $intercept_port -s $network/$ConfigNetworks{$network}{'netmask'}";
-                    util_safe_push( "-i $tint $rule -m mark --mark 0x$IPTABLES_MARK_UNREG -j DNAT --to $gateway", $chains->{'nat'}{'PREROUTING'} );
-                    util_safe_push( "-i $tint $rule -m mark --mark 0x$IPTABLES_MARK_ISOLATION -j DNAT --to $gateway", $chains->{'nat'}{'PREROUTING'} );
-                }
-            }
-        }
-
-        $logger->info("building firewall to accept registered users through inline interface");
-        my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
-        foreach my $network ( keys %ConfigNetworks ) {
-            # We skip non-inline networks/interfaces
-            next if ( !pf::config::is_network_type_inline($network) );
-            # Set the correct gateway if it is an inline Layer 3 network
-            my $tint = $NetworkConfig{$network}{'interface'}{'int'};
-            if ($passthrough_enabled) {
-                util_safe_push( "-i $tint -m mark --mark 0x$IPTABLES_MARK_UNREG -m set --match-set pfsession_passthrough dst,dst -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
-                util_safe_push( "-i $tint -m mark --mark 0x$IPTABLES_MARK_ISOLATION -m set --match-set pfsession_isol_passthrough dst,dst -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
-            }
-            util_safe_push( "-i $tint -m mark --mark 0x$IPTABLES_MARK_REG -j ACCEPT", $chains->{'filter'}{'FORWARD'} );
-        }
-        $logger->info("Inline rules are done.");
-    } else {
-        $logger->info("NO Action taken on DNS DNAT rules for unregistered and isolated inline clients.");
-    }
-}
-
-sub inline_nat_if_src_rules {
-    my ($service_name, $chains) = @_;
-    my $logger = get_logger();
-
-    if ( is_inline_enforcement_enabled() ) {
-        $logger->info("Inline if src rules are starting for NAT.");
-        $chains->{name} = $service_name;
-        # internal interfaces handling
-        foreach my $interface (@internal_nets) {
-            my $tint = $interface->tag("int");
-            my $enforcement_type = $Config{"interface $tint"}{'enforcement'};
-
-            # inline enforcement
-            if (is_type_inline($enforcement_type)) {
-                # send everything from inline interfaces to the inline chain
-                util_safe_push( "-o $tint -j MASQUERADE", $chains->{'nat'}{'POSTROUTING'} );
-            }
-        }
-
-        # NAT POSTROUTING
-        # Every marked packet should be NATed
-        # Note that here we don't wonder if they should be allowed or not. This is a filtering step done in FORWARD.
-        foreach ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
-            my @values = split(',', get_inline_snat_interface());
-            foreach my $tint (@values) {
-                foreach my $network ( keys %ConfigNetworks ) {
-                    next if ( !pf::config::is_network_type_inline($network) );
-                    my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
-                    my $nat = $ConfigNetworks{$network}{'nat_enabled'};
-                    if (defined ($nat) && (isdisabled($nat))) {
-                        util_safe_push( "-s $network/$inline_obj->{BITS} -o $tint -m mark --mark 0x$_ -j ACCEPT", $chains->{'nat'}{'POSTROUTING'} );
-                    }
-                }
-                util_safe_push( "-o $tint -m mark --mark 0x$_ -j MASQUERADE", $chains->{'nat'}{'POSTROUTING'} );
-            }
-            my $mgmt_int = $management_network->tag("int");
-            util_safe_push( "-o $mgmt_int -m mark --mark 0x$_ -j MASQUERADE", $chains->{'nat'}{'POSTROUTING'} );
-        }
-        $logger->info("Inline if src rules are done for NAT.");
-    } else {
-        $logger->info("NO Action taken on inline clients for table NAT.");
-    }
-}
-
-sub inline_mangle_rules {
-    my ($service_name, $chains) = @_;
-    my $logger = get_logger();
-
-    if ( is_inline_enforcement_enabled() ) {
-        $logger->info("Mangle rules are starting.");
-        $chains->{name} = $service_name;
-        # pfdhcplistener in most cases will be enforcing access
-        # however we insert these marks on startup in case PacketFence is restarted
-        # default catch all: mark unreg
-        foreach my $network ( keys %ConfigNetworks ) {
-            next if ( !pf::config::is_network_type_inline($network) );
-            my $tint = $NetworkConfig{$network}{'interface'}{'int'};
-            util_safe_push( "-i $tint -j MARK --set-mark 0x$IPTABLES_MARK_UNREG", $chains->{'mangle'}{'PREROUTING'} );
-            foreach my $IPTABLES_MARK ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
-                my $rule = "";
-                if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                    $rule = " -m set --match-set pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network src ";
-                } else {
-                    $rule .= " -m set --match-set pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network src,src ";
-                }
-                $rule .= "-j MARK --set-mark 0x$IPTABLES_MARK";
-                util_safe_push( "-i $tint $rule", $chains->{'mangle'}{'PREROUTING'} );
-            }
-            util_safe_push( "-o $tint -j ACCEPT", $chains->{'mangle'}{'POSTROUTING'} );
-        }
-
-        # Build lookup table for MAC/IP mapping
-        my @iplog_open = pf::ip4log::list_open();
-        my %iplog_lookup = map { $_->{'mac'} => $_->{'ip'} } @iplog_open;
-
-        my @ops = ();
-        # mark registered nodes that should not be isolated
-        # TODO performance: mark all *inline* registered users only
-        my @registered = nodes_registered_not_violators();
-        foreach my $row (@registered) {
-            foreach my $network ( keys %ConfigNetworks ) {
-                next if ( !pf::config::is_network_type_inline($network) );
-                my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
-                my $mac = $row->{'mac'};
-                my $iplog = $iplog_lookup{clean_mac($mac)};
-                if (defined $iplog) {
-                    my $ip = new NetAddr::IP::Lite clean_ip($iplog);
-                    if ($net_addr->contains($ip)) {
-                        push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network " . _inline_session_entry($network, $IPTABLES_MARK_REG, $iplog, $mac));
-                        my $category_id = $row->{'category_id'};
-                        if (defined($category_id) && $category_id ne '') {
-                            my $prefix = ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) ? "PF-iL3_ID" : "PF-iL2_ID";
-                            push(@ops, "add ${prefix}${category_id}_$network $iplog");
-                        } else {
-                            $logger->debug("$mac is registered without a role: no PF-iL set to add $iplog to on $network");
-                        }
-                    }
-                }
-            }
-        }
-
-        # mark all open security_events
-        # TODO performance: only those whose's last connection_type is inline?
-        require pf::security_event;
-        my @macarray = pf::security_event::security_event_view_open_uniq();
-        if ( $macarray[0] ) {
-            foreach my $row (@macarray) {
-                foreach my $network ( keys %ConfigNetworks ) {
-                    next if ( !pf::config::is_network_type_inline($network) );
-                    my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
-                    my $mac = $row->{'mac'};
-                    my $iplog = $iplog_lookup{clean_mac($mac)};
-                    if (defined $iplog) {
-                        my $ip = new NetAddr::IP::Lite clean_ip($iplog);
-                        if ($net_addr->contains($ip)) {
-                            push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_ISOLATION}\_$network " . _inline_session_entry($network, $IPTABLES_MARK_ISOLATION, $iplog, $mac));
-                        }
-                    }
-                }
-            }
-        }
-
-        if (@ops) {
-            _ipset_restore(uniq @ops);
-        }
-        $logger->info("Mangle rules are done.");
-    } else {
-        $logger->info("NO Inline Action taken on mangle rules.");
-    }
-
-    my @values = split(',', get_inline_snat_interface());
-    if ( @values ) {
-        $logger->info("Mangle rules inline snat interface starts.");
-        $chains->{name} = $service_name;
-        foreach my $tint (@values) {
-            util_safe_push( "-o $tint -j ACCEPT", $chains->{'mangle'}{'POSTROUTING'} );
-        }
-        $logger->info("Mangle rules inline snat interface are done.");
-    }
-}
-
-=head2 _inline_session_entry
-
-The entry to add to the pfsession_<mark>_<network> set for an endpoint, in
-the format of the set type pf::ipset::iptables_generate creates: bitmap:ip
-(an address), except the unreg set of a split layer 2 network which is
-bitmap:ip,mac (address,mac). Feeding "ip,mac" to a bitmap:ip set is an ipset
-syntax error that aborts the whole restore.
-
-inline_mangle_rules only pre-populates the reg and isolation sets, so it never
-gets the address,mac form; the unreg case mirrors the pfipset daemon, which
-adds to that set too.
-
-=cut
-
-sub _inline_session_entry {
-    my ($network, $mark, $ip, $mac) = @_;
-    if (   $ConfigNetworks{$network}{'type'} !~ /^$NET_TYPE_INLINE_L3$/i
-        && isenabled($ConfigNetworks{$network}{'split_network'})
-        && $mark eq $IPTABLES_MARK_UNREG) {
-        return "$ip,$mac";
-    }
-    return $ip;
-}
-
-=head2 _ipset_restore
-
-Feed "add <set> <entry>" lines to ipset restore to pre-populate the inline
-sets. Entries already present are tolerated (-exist), lines for sets that do
-not exist are skipped with a warning (ipset restore stops at the first bad
-line, so one of them used to silently drop every entry after it), and a
-failure is logged with ipset's own message instead of killing the service:
-the sets are only pre-populated here and pfipset keeps them up to date
-afterwards. Returns true when every line was applied.
-
-=cut
-
-sub _ipset_restore {
-    my (@ops) = @_;
-    my $logger = get_logger();
-
-    # Only filter when the listing succeeded: an empty but successful listing
-    # means no set exists at all, while a failed one tells nothing
-    my $list_status;
-    my @names = safe_pf_run(qw(sudo ipset list -n), { status_ref => \$list_status });
-    my $listed = defined($list_status) && $list_status == 0;
-    my %sets = map { chomp(my $name = $_); ($name => 1) } @names;
-
-    my @lines;
-    my %skipped;
-    foreach my $op (@ops) {
-        my ($set) = $op =~ /^add\s+(\S+)/;
-        if ($listed && defined($set) && !$sets{$set}) {
-            push @{$skipped{$set}}, $op;
-            next;
-        }
-        push @lines, $op;
-    }
-    # One warning per missing set: a missing role set would otherwise log one
-    # line per node of that role
-    foreach my $set (sort keys %skipped) {
-        my $count = scalar(@{$skipped{$set}});
-        $logger->warn("ipset $set does not exist, skipping $count " . ($count == 1 ? "entry" : "entries") . " (first: '$skipped{$set}[0]')");
-    }
-    return 1 unless @lines;
-
-    my ($fh, $tmpfile) = tempfile();
-    print $fh map { "$_\n" } @lines;
-    close($fh);
-    my $status;
-    my $output = safe_pf_run(qw(sudo ipset restore -exist),
-        { stdin => $tmpfile, redirect_stderr_to_stdout => 1, status_ref => \$status, accepted_exit_status => [1] });
-    unlink $tmpfile;
-
-    if (!defined($status) || $status != 0) {
-        $output //= '';
-        $output =~ s/^\s+|\s+$//g;
-        $output =~ s/\s*\n\s*/ | /g;
-        $logger->error("ipset restore failed (" . _exit_description($status) . ") while pre-populating " . scalar(@lines) . " inline entries: $output");
-        return 0;
-    }
-    $logger->info("ipset restore pre-populated " . scalar(@lines) . " inline entries");
-    return 1;
-}
-
-=head2 _exit_description
-
-How a command ended, from its wait status: its exit code, or the signal that
-killed it (the exit code is then 0).
-
-=cut
-
-sub _exit_description {
-    my ($status) = @_;
-    return 'exit unknown' if !defined($status);
-    return 'could not be run' if $status == -1;
-    return 'killed by signal ' . ($status & 127) if $status & 127;
-    return 'exit ' . ($status >> 8);
-}
-
-sub inline_nat_redirect_rules {
-    my ($service_name, $chains) = @_;
-    my $logger = get_logger();
-    if ( is_inline_enforcement_enabled() ) {
-        $logger->info("Nat redirect rules are starting.");
-        $chains->{name} = $service_name;
-        my $rule = '';
-
-        # Exclude the OAuth from the DNAT
-        my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
-        foreach my $network ( keys %ConfigNetworks ) {
-            next if ( !pf::config::is_network_type_inline($network) );
-            my $tint = $NetworkConfig{$network}{'interface'}{'int'};
-            if ($passthrough_enabled) {
-                $rule = " -m set --match-set pfsession_passthrough dst,dst -m mark --mark 0x$IPTABLES_MARK_UNREG -j ACCEPT";
-                util_safe_push( "-i $tint $rule", $chains->{'nat'}{'PREROUTING'} );
-                $rule = " -m set --match-set pfsession_isol_passthrough dst,dst -m mark --mark 0x$IPTABLES_MARK_ISOLATION -j ACCEPT";
-                util_safe_push( "-i $tint $rule", $chains->{'nat'}{'PREROUTING'} );
-            }
-        }
-        # Now, do your magic
-        foreach my $redirectport ( split( /\s*,\s*/, $Config{'inline'}{'ports_redirect'} ) ) {
-            my ( $port, $protocol ) = split( "/", $redirectport );
-            foreach my $network ( keys %ConfigNetworks ) {
-                # We skip non-inline networks/interfaces
-                next if ( !pf::config::is_network_type_inline($network) );
-                # Set the correct gateway if it is an inline Layer 3 network
-                my $tint = $NetworkConfig{$network}{'interface'}{'int'};
-                my $gateway = $Config{"interface $tint"}{'ip'};
-
-                # Destination NAT to the portal on the ISOLATION mark
-                $rule =
-                " -p $protocol --dport $port -s $network/$ConfigNetworks{$network}{'netmask'} " .
-                " -m mark --mark 0x$IPTABLES_MARK_ISOLATION -j DNAT --to $gateway";
-                util_safe_push( "-i $tint $rule", $chains->{'nat'}{'PREROUTING'} );
-            }
-        }
-        $logger->info("Nat redirect rules are done.");
-    } else {
-        $logger->info("NO Action taken nat redirect rules.");
-    }
-}
-
-=item get_inline_snat_interface
-
-Return the list of network interface to enable SNAT.
-
-=cut
-
-sub get_inline_snat_interface {
-    my ($self) = @_;
-    my $logger = get_logger();
-    if (defined ($Config{'inline'}{'interfaceSNAT'}) && $Config{'inline'}{'interfaceSNAT'} ne '') {
-        return $Config{'inline'}{'interfaceSNAT'};
-    } else {
-        return $management_network->tag("int");
-    }
-}
-
 =item get_network_snat_interface
 
 Return the list of network interface to enable SNAT for passthrough.
@@ -2120,8 +1635,6 @@ sub get_network_type_and_chain {
     my $type = $pf::config::NET_TYPE_VLAN_REG;
     my $chain = "input-internal-vlan-if";
     foreach my $network ( keys %ConfigNetworks ) {
-        # We skip inline networks/interfaces
-        next if ( pf::config::is_network_type_inline($network) );
         if ( $ConfigNetworks{$network}{'type'} eq $pf::config::NET_TYPE_VLAN_ISOL ) {
             my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
             my $ip_test = new NetAddr::IP::Lite clean_ip($ip);

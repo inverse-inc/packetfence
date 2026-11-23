@@ -33,14 +33,12 @@ use Fcntl qw(:flock);
 use Try::Tiny;
 use pf::util::dhcp;
 use pf::constants;
-use pf::constants::config qw( $NET_TYPE_INLINE_L2 $NET_TYPE_INLINE_L3 );
 use pf::config qw(
     %Config
     @listen_ints
     @dhcplistener_ints
     $NO_VLAN
     %ConfigNetworks
-    @inline_enforcement_nets
 );
 use pf::file_paths qw($var_dir);
 use pf::util;
@@ -99,8 +97,6 @@ our %NET_TYPES_FOR_EXTERNAL_QUEUE = (
 );
 
 
-my $is_inline_vlan;
-my $inline_sub_connection_type;
 my $interface_ip;
 my $interface_vlan;
 my $pcap;
@@ -178,10 +174,6 @@ sub setup_global {
     $send_queue = queue_for_net_type($net_type);
     $net_addr = NetAddr::IP->new($Config{"interface $interface"}{'ip'},$Config{"interface $interface"}{'mask'});
 
-    if (grep( { $_->tag("int") eq $interface} @inline_enforcement_nets) != 0 ) {
-        $logger->warn("DHCP detector on an inline interface");
-        $is_inline_vlan = $TRUE;
-    }
     $logger->info("DHCP detector on $interface enabled");
     return ;
 }
@@ -273,12 +265,10 @@ sub process_pkt {
                 dest_mac => clean_mac($l2->{'dest_mac'}),
                 src_ip => $l3->{'src_ip'},
                 dest_ip => $l3->{'dest_ip'},
-                is_inline_vlan => $is_inline_vlan,
                 interface => $interface,
                 interface_ip => $interface_ip,
                 interface_vlan => $interface_vlan,
                 net_type => $net_type,
-                inline_sub_connection_type => $inline_sub_connection_type,
             );
 
             my $statsd_interface = $interface;
@@ -328,15 +318,6 @@ sub process_pkt {
                     return;
                 }
 
-
-                if ($is_inline_vlan) {
-                    my $ip = new NetAddr::IP::Lite clean_ip($l3->{'src_ip'});
-                    if ($net_addr->contains($ip) || ($ip->addr eq '0.0.0.0')) {
-                        $args{inline_sub_connection_type} = $NET_TYPE_INLINE_L2;
-                    } else {
-                        $args{inline_sub_connection_type} = $NET_TYPE_INLINE_L3;
-                   }
-                }
 
                 # If its a DHCPREQUEST, we take the IP address from the option
                 my $dhcp_ip;

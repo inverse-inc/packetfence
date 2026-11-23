@@ -2,7 +2,6 @@ import i18n from '@/utils/locale'
 
 export const routedNetworkList = [
   { value: 'dns-enforcement', text: i18n.t('DNS Enforcement') },
-  { value: 'inlinel3', text: i18n.t('Inline Layer 3') },
   { value: 'vlan-isolation', text: i18n.t('Isolation') },
   { value: 'vlan-registration', text: i18n.t('Registration') },
   { value: 'other', text: i18n.t('Other Networks') }
@@ -69,12 +68,6 @@ export const columns = [
     label: 'Backend', // i18n defer
     sortable: false,
     visible: true,
-  },
-  {
-    key: 'netflow_accounting_enabled',
-    label: 'Netflow Accounting Enabled', // i18n defer
-    sortable: true,
-    visible: true
   },
   {
     key: 'buttons',

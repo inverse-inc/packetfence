@@ -147,7 +147,6 @@ sub cleanupBeforeCommit {
         if ($network->{type} ne $pf::config::NET_TYPE_OTHER) {
             $network->{named} = 'enabled' unless ($network->{named});
             $network->{dhcpd} = 'enabled' unless ($network->{dhcpd});
-            $network->{fake_mac_enabled} = 'disabled' if ($network->{type} ne $pf::config::NET_TYPE_INLINE_L3);
             if (defined($network->{'portal_fqdn'}) && $network->{'portal_fqdn'} ne "") {
                 $network->{'domain-name'} = $types[0] . "." . $network->{'portal_fqdn'};
             }
@@ -156,9 +155,6 @@ sub cleanupBeforeCommit {
         }
 
     } else {
-        if ($network->{type} && $network->{type} eq $pf::config::NET_TYPE_INLINE_L3) {
-            $network->{dhcpd} = isenabled($network->{'fake_mac_enabled'}) ? 'disabled' : 'enabled';
-        }
         if (defined($network->{'portal_fqdn'}) && $network->{'portal_fqdn'} ne "") {
             $network->{'domain-name'} = $types[0] . "." . $network->{'portal_fqdn'};
         }

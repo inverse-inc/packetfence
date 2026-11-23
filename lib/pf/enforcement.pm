@@ -37,20 +37,18 @@ BEGIN {
 
 use pf::constants;
 use pf::config qw(
-    $INLINE_API_LEVEL
     $ROLE_API_LEVEL
     %Config
-    $INLINE
     %connection_type_explained
     $WIRED
     $WIRELESS
     $WEBAUTH
     $VIRTUAL
+    $INLINE
     %ConfigNetworks
     %ConfigFirewallSSO
 );
 use pf::api::jsonrpcclient;
-use pf::inline::custom $INLINE_API_LEVEL;
 use pf::iptables;
 use pf::locationlog;
 use pf::node;
@@ -120,47 +118,13 @@ sub reevaluate_access {
     }
 
     my $conn_type = str_to_connection_type( $locationlog_entry->{'connection_type'} );
-    if ( defined $conn_type && $conn_type != $INLINE ) {
-        return _vlan_reevaluation( $mac, $locationlog_entry, %opts );
+    if ( !defined $conn_type || $conn_type == $INLINE ) {
+        # Legacy inline locationlog entries (inline enforcement was removed) have nothing to re-evaluate
+        $logger->debug("$mac open locationlog entry has no re-evaluable connection type, nothing to do");
+        return 1;
     }
 
-    my $inline = new pf::inline::custom();
-    my %data = (
-        'switch' => '127.0.0.1',
-        'mac'    => $mac,
-    );
-    if ( $inline->isInlineEnforcementRequired($mac) ) {
-        if ($sync) {
-            my $client = pf::api::jsonrpcclient->new;
-            $client->call( 'firewall', %data );
-        } else {
-            my $client = pf::client::getClient();
-            $client->notify( 'firewall', %data );
-        }
-        $ip = new NetAddr::IP::Lite clean_ip($ip);
-        foreach my $network ( keys %ConfigNetworks ) {
-
-            next if ( !pf::config::is_network_type_inline($network) );
-            my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
-            my $reg_net = NetAddr::IP->new('127.0.0.1','255.0.0.0');
-            if (exists($ConfigNetworks{$network}{'reg_network'})) {
-                my $reg_ip = NetAddr::IP->new($ConfigNetworks{$network}{'reg_network'});
-                $reg_net = NetAddr::IP->new($reg_ip->network());
-            }
-            if ($net_addr->contains($ip) || $reg_net->contains($ip)) {
-                if (isenabled($ConfigNetworks{$network}{'coa'})) {
-                    my $locationlog = locationlog_last_entry_non_inline_mac($mac);
-                    if ( $locationlog ) {
-                        return _vlan_reevaluation($mac, $locationlog,  %opts);
-                    }
-                }
-            }
-        }
-    } else {
-        $logger->debug("is already properly enforced in firewall, no change required");
-    }
-
-    return 1;
+    return _vlan_reevaluation( $mac, $locationlog_entry, %opts );
 }
 
 =item _vlan_reevaluation
@@ -201,7 +165,7 @@ sub _vlan_reevaluation {
         switch_mac => $locationlog_entry->{'switch_mac'},
         switch_ip => $locationlog_entry->{'switch_ip'},
         stripped_user_name => $locationlog_entry->{'stripped_user_name'},
-        realm => $locationlog_entry->{'$realm'},
+        realm => $locationlog_entry->{'realm'},
         mac => $mac,
         ifIndex => $locationlog_entry->{'port'},
         ifDesc => $locationlog_entry->{'ifDesc'},

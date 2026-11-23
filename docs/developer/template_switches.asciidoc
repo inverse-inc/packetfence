@@ -253,7 +253,6 @@ So here is mini templating language to format values.
 ** switch._deauthMethod
 ** switch._disconnectPort
 ** switch._id
-** switch._inlineTrigger
 ** switch._ip
 ** switch._macSearchesMaxNb
 ** switch._macSearchesSleepInterval
@@ -273,7 +272,6 @@ So here is mini templating language to format values.
 ** user_name
 ** user_role
 ** vlan
-** wasInline
 
 [options="compact"]
 * coa
@@ -368,7 +366,6 @@ So here is mini templating language to format values.
 ** switch._deauthMethod
 ** switch._disconnectPort
 ** switch._id
-** switch._inlineTrigger
 ** switch._ip
 ** switch._macSearchesMaxNb
 ** switch._macSearchesSleepInterval
@@ -421,7 +418,6 @@ So here is mini templating language to format values.
 ** switch._disconnectPort
 ** switch._ExternalPortalEnforcement
 ** switch._id
-** switch._inlineTrigger
 ** switch._ip
 ** switch._macSearchesMaxNb
 ** switch._macSearchesSleepInterval

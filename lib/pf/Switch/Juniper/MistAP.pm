@@ -65,8 +65,6 @@ use pf::SwitchSupports qw(
     -Cdp
     -Lldp
 );
-# inline capabilities
-sub inlineCapabilities { return ($MAC,$SSID); }
 
 =item getVersion - obtain image version information from switch
 

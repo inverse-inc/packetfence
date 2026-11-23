@@ -224,13 +224,6 @@ func NodeInformation(ctx context.Context, target net.HardwareAddr, db *sql.DB) (
 
 // ShuffleDNS return the dns list
 func ShuffleDNS(ctx context.Context, ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
-	matched, _ := regexp.MatchString(`inlinel[2-3]`, ConfNet.Type)
-	if matched {
-		if !sharedutils.IsEnabled(ConfNet.NatDNS) {
-			var excluded []string
-			return Shuffle(ctx, ConfNet.Dns, excluded)
-		}
-	}
 	if ConfNet.ClusterIPs != "" {
 		if ConfNet.Dnsvip != "" {
 			return []byte(net.ParseIP(ConfNet.Dnsvip).To4())
@@ -250,9 +243,6 @@ func ShuffleGateway(ctx context.Context, ConfNet pfconfigdriver.RessourseNetwork
 	if ConfNet.NextHop != "" {
 		return []byte(net.ParseIP(ConfNet.Gateway).To4())
 	} else if ConfNet.ClusterIPs != "" {
-		if ConfNet.Type == "inlinel2" && ConfNet.NatEnabled == "disabled" {
-			return []byte(net.ParseIP(ConfNet.Gateway).To4())
-		}
 		if ConfNet.ForceGatewayVIP != "" {
 			return []byte(net.ParseIP(ConfNet.ForceGatewayVIP).To4())
 		}

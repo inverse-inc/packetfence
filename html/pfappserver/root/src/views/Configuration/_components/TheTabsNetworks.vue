@@ -15,7 +15,6 @@
 <script>
 import NetworkView from '../networks/network/_components/TheView'
 import InterfacesList from '../networks/interfaces/_components/TheList'
-import InlineView from '../networks/inline/_components/TheView'
 import FencingView from '../networks/fencing/_components/TheView'
 import ParkingView from '../networks/parking/_components/TheView'
 
@@ -27,10 +26,6 @@ const tabs = {
   interfaces: {
     title: 'Interfaces', // i18n defer
     component: InterfacesList
-  },
-  inline: {
-    title: 'Inline', // i18n defer
-    component: InlineView
   },
   fencing: {
     title: 'Fencing', // i18n defer

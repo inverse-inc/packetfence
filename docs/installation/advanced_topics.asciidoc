@@ -473,11 +473,8 @@ restarted to apply changes.
 
 ==== NetFlow traffic
 
-`pfacct` can get NetFlow traffic from two kind of sources:
-
-[options="compact"]
-* network devices which send directly NetFlow traffic to PacketFence
-* inline L2/L3 networks (using NetFlow kernel module)
+`pfacct` gets NetFlow traffic from network devices which send it directly to
+PacketFence.
 
 By default, `pfacct` listens NetFlow traffic on localhost, using `udp/2056`
 port to not conflict with the `fingerbank-collector` (which listens NetFlow
@@ -485,19 +482,13 @@ traffic on all interfaces).
 
 `pfacct` must be able to map an IP address to a MAC address (from NetFlow
 traffic) in order to create a record in `bandwidth_accounting` table. It means
-that PacketFence needs to be aware of IP addresses of the nodes (default
-behavior on inline L2/L3 networks).
-
-Adjust `pfacct` configuration based on the NetFlow traffic source.
+that PacketFence needs to be aware of IP addresses of the nodes.
 
 When PacketFence does not need to process NetFlow traffic, for example when an
 external NetFlow collector is used, disable _Netflow processor_ in
 _Configuration -> System Configuration -> Services_ menu: `pfacct` no longer
-listens for NetFlow traffic and the NetFlow kernel module is not loaded for
-inline networks. Then restart `packetfence-pfacct` and `packetfence-iptables`
-services for it to take effect.
-
-===== NetFlow traffic from network devices
+listens for NetFlow traffic. Then restart the `packetfence-pfacct` service for
+it to take effect.
 
 Configure the following:
 
@@ -507,18 +498,6 @@ Configure the following:
   Configuration -> Services_ menu
 [options="compact"]
 * enable _NetFlow on all networks_ in _Configuration -> System Configuration -> Advanced_ menu
-
-Then restart `packetfence-pfacct` services for it to take effect.
-
-===== NetFlow traffic from inline L2/L3 networks
-
-Enable _Netflow Accounting Enabled_ setting when defining an
-inline network.
-
-If _NetFlow on all networks_ is enabled in _Configuration -> System
-configuration -> Advanced_ menu, `pfacct` will collect NetFlow bandwidth usage
-for all networks instead of the ones defined in
-[filename]`/usr/local/pf/conf/networks.conf`.
 
 Then restart `packetfence-pfacct` services for it to take effect.
 

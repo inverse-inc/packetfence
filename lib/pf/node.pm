@@ -95,7 +95,6 @@ use pf::nodecategory;
 use pf::constants::scan qw($SCAN_SECURITY_EVENT_ID $POST_SCAN_SECURITY_EVENT_ID);
 use pf::util;
 use pf::Connection::ProfileFactory;
-use pf::ipset;
 use pf::api::unifiedapiclient;
 
 =head1 SUBROUTINES
@@ -664,11 +663,6 @@ sub node_modify {
         if (defined $new_mac && $new_mac ne $mac) {
             return (0);
         }
-    }
-
-    my $node_info = node_view($mac);
-    if (defined($data{'category_id'}) && defined($obj->{'category_id'}) && ($obj->{'category_id'} ne $data{'category_id'}) && ($obj->{'status'} eq $STATUS_REGISTERED) && defined($node_info->{'last_connection_type'}) && $node_info->{'last_connection_type'} eq $connection_type_to_str{$INLINE}) {
-        pf::ipset::iptables_update_set($mac, $obj->{'category_id'}, $data{'category_id'});
     }
 
     $obj->merge(\%data);

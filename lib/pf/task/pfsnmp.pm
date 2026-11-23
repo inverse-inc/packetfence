@@ -19,7 +19,6 @@ use pf::log;
 use pf::SwitchFactory;
 use pf::role::custom;
 use pf::locationlog;
-use pf::inline::custom;
 use pf::floatingdevice::custom;
 use pf::config qw(
     $NO_VOIP
@@ -289,7 +288,6 @@ sub handleMacTrap {
     my $trapType = $trap->{trapType};
     my $mac  = lc($trapMac);
     my $vlan = $trapVlan;
-    my $wasInline;
 
     $logger->info("$trapOperation trap received on $switch_id ifIndex $switch_port for $mac in VLAN $vlan");
 

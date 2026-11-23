@@ -147,10 +147,9 @@ sub returnRadiusAccessAccept {
     my $kick = $self->handleRadiusDeny($args);
     return $kick if (defined($kick));
 
-    # Inline Vs. VLAN enforcement
     my %tmp_args = %$args;
     my $role = "";
-    if ( (!$tmp_args{'wasInline'} || ($tmp_args{'wasInline'} && $tmp_args{'vlan'} != 0) ) && isenabled($self->{_VlanMap})) {
+    if ( isenabled($self->{_VlanMap})) {
         my $vlanTemplate = $self->{_template}{acceptVlan};
         if ( defined $vlanTemplate &&  defined($tmp_args{'vlan'}) && $tmp_args{'vlan'} ne "" && $tmp_args{'vlan'} ne 0) {
             $self->updateArgsVariablesForSet(\%tmp_args, $vlanTemplate);

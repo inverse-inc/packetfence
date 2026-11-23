@@ -181,18 +181,6 @@ dot1x_eap_teap_deb12:
 	SCENARIOS_TO_RUN=dot1x_eap_teap \
 	$(MAKE_TARGET)
 
-inline_deb12:
-	make \
-	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
-	SCENARIOS_TO_RUN=inline \
-	$(MAKE_TARGET)
-
-inline_el8:
-	make \
-	PF_VM_NAMES=pfel8$(DEV_ENV) \
-	SCENARIOS_TO_RUN=inline \
-	$(MAKE_TARGET)
-
 fingerbank_invalid_db_deb12:
 	make \
 	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
@@ -238,20 +226,6 @@ captive_portal_deb12:
 	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
 	INT_TEST_VM_NAMES="switch01 node01" \
 	SCENARIOS_TO_RUN=captive_portal \
-	$(MAKE_TARGET)
-
-inline_l2_and_radius_el8:
-	make \
-	PF_VM_NAMES=pfel8$(DEV_ENV) \
-	INT_TEST_VM_NAMES="switch01 node01 node03" \
-	SCENARIOS_TO_RUN=inline_l2_and_radius \
-	$(MAKE_TARGET)
-
-inline_l2_and_radius_deb12:
-	make \
-	PF_VM_NAMES=pfdeb12$(DEV_ENV) \
-	INT_TEST_VM_NAMES="switch01 node01 node03" \
-	SCENARIOS_TO_RUN=inline_l2_and_radius \
 	$(MAKE_TARGET)
 
 pfappserver_el8:
@@ -396,8 +370,6 @@ dot1x_eap_tls_deb12_branches: dot1x_eap_tls_deb12
 dot1x_eap_tls_el8_branches: dot1x_eap_tls_el8
 external_integrations_deb12_branches: external_integrations_deb12
 fingerbank_invalid_db_deb12_branches: fingerbank_invalid_db_deb12
-inline_deb12_branches: inline_deb12
-inline_el8_branches: inline_el8
 mac_auth_deb12_branches: mac_auth_deb12
 mac_auth_el8_branches: mac_auth_el8
 security_events_deb12_branches: security_events_deb12

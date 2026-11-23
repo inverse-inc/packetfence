@@ -404,14 +404,6 @@
 
         </b-tabs>
       </base-form-tab>
-      <base-form-tab :title="$i18n.t('Inline')">
-
-        <form-group-inline-trigger namespace="inlineTrigger"
-                                   :column-label="$i18n.t('Inline Conditions')"
-                                   :text="$i18n.t('Set inline mode if any of the conditions are met.')"
-        />
-
-      </base-form-tab>
       <base-form-tab :title="$i18n.t('RADIUS')"
                      v-if="supports(['WiredMacAuth', 'WiredDot1x', 'WirelessMacAuth', 'WirelessDot1x', 'VPN'])">
 
@@ -737,7 +729,6 @@ import {
   FormGroupExternalPortalEnforcement,
   FormGroupGroup,
   FormGroupIdentifier,
-  FormGroupInlineTrigger,
   FormGroupMacSearchesMaxNb,
   FormGroupMacSearchesSleepInterval,
   FormGroupMode,
@@ -829,7 +820,6 @@ const components = {
   FormGroupExternalPortalEnforcement,
   FormGroupGroup,
   FormGroupIdentifier,
-  FormGroupInlineTrigger,
   FormGroupMacSearchesMaxNb,
   FormGroupMacSearchesSleepInterval,
   FormGroupMode,

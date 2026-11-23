@@ -120,7 +120,7 @@
   tasks:
     # configurator disables itself at the end of its suite, so on a re-run
     # (pf1 already configured) every configurator API call returns 401.
-    # Same guard as inline_l2_and_radius: run the configurator suite only
+    # Run the configurator suite only
     # when it's still enabled; cluster_first_server always runs.
     - name: Check configurator state
       uri:

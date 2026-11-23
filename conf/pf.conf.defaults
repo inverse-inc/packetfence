@@ -118,9 +118,8 @@ wait_for_redirect = 1
 #
 # fencing.whitelist
 #
-# Comma-delimited list of MAC addresses that are immune to isolation. In
-# inline level 2 enforcement, the firewall is opened for them as if they were
-# registered. This "feature" will probably be reworked in the future.
+# Comma-delimited list of MAC addresses that are immune to isolation.
+# This "feature" will probably be reworked in the future.
 whitelist=
 #
 # fencing.range
@@ -846,25 +845,6 @@ trap_limit_threshold = 100
 # specified.
 trap_limit_action =
 
-[inline]
-# inline.ports_redirect
-#
-# Ports to intercept and redirect for trapped and unregistered systems.  Defaults to 80/tcp (HTTP), 443/tcp (HTTPS).
-# Redirecting 443/tcp (SSL) will work, although users might get certificate errors if you didn't install a valid
-# certificate or if you don't use DNS (although IP-based certificates supposedly exist)
-# Redirecting 53/udp (DNS) seems to have issues and is also not recommended.
-# We also have experimental IMAP and POP3 listeners which give fake emails telling users to open their browsers.
-# Enable them via the ports.listeners parameter and add the IMAP (143/tcp) and POP3 (110/tcp) here.
-ports_redirect=80/tcp,443/tcp
-#
-# inline.should_reauth_on_vlan_change
-# Should have to reauthenticate the node if it change vlan
-should_reauth_on_vlan_change = disabled
-#
-# inline.interfaceSNAT
-# Choose the interface(s) you want to use to enable snat (by default it´s the management interface)
-interfaceSNAT=
-
 [captive_portal]
 #
 # captive_portal.ip_address
@@ -902,8 +882,7 @@ network_detection_retry_delay = 2s
 # captive_portal.network_redirect_delay
 #
 # How long to display the progress bar during trap release. Default value is
-# based on VLAN enforcement techniques. Inline enforcement only users could
-# lower the value.
+# based on VLAN enforcement techniques.
 network_redirect_delay = 90s
 #
 # captive_portal.image_path

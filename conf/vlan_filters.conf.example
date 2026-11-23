@@ -9,7 +9,6 @@
 # - RegistrationRole: Used when an endpoint is in an *UNREGISTERED* state
 # - RegisteredRole: Used when an endpoint is in a *REGISTERED* state
 # - IsolationRole: Used when a security event is open on an endpoint
-# - InlineRole: Used when the endpoint is detected connecting from an inline VLAN
 # - AutoRegister: Used to determine whether or not an endpoint should be autoregistered
 # - NodeInfoForAutoReg: Used to specify endpoint parameters when autoregistering
 # - IsPhone: (only available on RADIUS based switches)

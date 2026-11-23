@@ -7,7 +7,7 @@
         <p v-t="'PacketFence allows you to configure network-related settings. Among the configuration options:'"></p>
         <dl>
             <dt v-t="'Networks:'"></dt>
-            <dd v-t="'Configure networks managed by PacketFence, including network settings, interfaces, inline mode, fencing parameters, and device parking.'"></dd>
+            <dd v-t="'Configure networks managed by PacketFence, including network settings, interfaces, fencing parameters, and device parking.'"></dd>
             <dt v-t="'SNMP:'"></dt>
             <dd v-t="'Configure the SNMP traps engine used by PacketFence for switch and device communication.'"></dd>
             <dt v-t="'Floating Devices:'"></dt>

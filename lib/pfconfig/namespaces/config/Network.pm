@@ -22,7 +22,6 @@ use pfconfig::namespaces::config;
 use pf::constants;
 use pf::file_paths qw($network_config_file);
 use pf::constants::config;
-use pfconfig::util qw(is_type_inline);
 use List::MoreUtils qw(any);
 
 use base 'pfconfig::namespaces::config';
@@ -34,10 +33,6 @@ my %lookupNetworkType = (
         $pf::constants::config::NET_TYPE_VLAN_REG,
         $pf::constants::config::NET_TYPE_VLAN_ISOL,
         $pf::constants::config::NET_TYPE_OTHER,
-    ),
-    (
-        map { $_ => $pf::constants::config::NET_TYPE_INLINE}
-        keys %pf::constants::config::NET_INLINE_TYPES,
     ),
     registration => $pf::constants::config::NET_TYPE_VLAN_REG,
     isolation    => $pf::constants::config::NET_TYPE_VLAN_ISOL,
@@ -146,25 +141,6 @@ sub is_network_type_vlan_isol {
         return $FALSE;
     }
 }
-
-=head2 is_network_type_inline
-
-Returns true if given network is of type inline and false otherwise.
-
-=cut
-
-sub is_network_type_inline {
-    my ($type) = @_;
-
-    my $result = get_network_type($type);
-    if ( defined($result) && $result eq $pf::constants::config::NET_TYPE_INLINE ) {
-        return $TRUE;
-    }
-    else {
-        return $FALSE;
-    }
-}
-
 
 sub get_network_type {
     my ($type) = @_;

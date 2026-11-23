@@ -528,40 +528,6 @@ const actions = {
       throw err
     })
   },
-  getInline: ({ state, commit }) => {
-    if (state.cache['inline']) {
-      return Promise.resolve(state.cache['inline']).then(cache => JSON.parse(JSON.stringify(cache)))
-    }
-    commit('ITEM_REQUEST')
-    return api.base('inline').then(item => {
-      commit('ITEM_REPLACED', item)
-      return JSON.parse(JSON.stringify(item))
-    }).catch((err) => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  optionsInline: ({ commit }) => {
-    commit('ITEM_REQUEST')
-    return api.baseOptions('inline').then(response => {
-      commit('ITEM_SUCCESS')
-      return response
-    }).catch((err) => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  updateInline: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    data.id = 'inline'
-    return api.updateBase(data).then(response => {
-      commit('ITEM_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
   getMonit: ({ state, commit }) => {
     if (state.cache['monit']) {
       return Promise.resolve(state.cache['monit']).then(cache => JSON.parse(JSON.stringify(cache)))

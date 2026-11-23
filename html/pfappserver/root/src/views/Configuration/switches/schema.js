@@ -17,17 +17,6 @@ yup.addMethod(yup.string, 'switchIdNotExistsExcept', function (exceptId = '', me
   })
 })
 
-const schemaInlineTrigger = yup.object({
-  type: yup.string().nullable().required(i18n.t('Type required.')),
-  value: yup.string()
-    .when('type', type => ((!type || type === 'always')
-      ? yup.string().nullable()
-      : yup.string().nullable().required(i18n.t('Value required.'))
-    ))
-})
-
-export const schemaInlineTriggers = yup.array().ensure().unique(i18n.t('Duplicate condition.')).of(schemaInlineTrigger)
-
 export const schema = (props, roles) => {
   const {
     isNew,
@@ -48,7 +37,6 @@ export const schema = (props, roles) => {
     description: yup.string()
       .nullable()
       .label(i18n.t('Description')),
-    inlineTrigger: schemaInlineTriggers,
     type: yup.string().nullable().label(i18n.t('Type')),
     mode: yup.string().nullable().label(i18n.t('Mode')),
     group: yup.string().nullable().label(i18n.t('Group')),

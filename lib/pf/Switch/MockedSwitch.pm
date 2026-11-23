@@ -120,8 +120,6 @@ use pf::SwitchSupports qw(
   -PushACLs
 );
 # VoIP technology supported
-# inline capabilities
-sub inlineCapabilities { return ($MAC,$PORT,$SSID); }
 
 # first, we are re-implementing all of pf::Switch that has effects on switches to make sure it doesn't do anything
 

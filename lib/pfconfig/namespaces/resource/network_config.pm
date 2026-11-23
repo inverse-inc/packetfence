@@ -16,7 +16,6 @@ use strict;
 use warnings;
 use NetAddr::IP;
 use pf::util;
-use pf::constants::config qw(%NET_INLINE_TYPES);
 use pf::constants::dhcp;
 use List::MoreUtils qw(uniq);
 
@@ -58,12 +57,11 @@ sub build {
             $interface{'mask'} = $interface->mask();
             $interface{'int'} = $interface->tag("int");
             $interface{'cidr'} = $interface->desc();
-            $ConfigNetwork{$network}{'nat_dns'} = $self->{networks}{$network}{'nat_dns'} // "enabled";
             if ( defined($self->{networks}{$network}{'next_hop'})) {
                 my $ip = new NetAddr::IP::Lite clean_ip($self->{networks}{$network}{'next_hop'});
                 if ($net_addr->contains($ip)) {
                     $ConfigNetwork{$network}{'cluster_ips'} = join(',', map { $_->{"interface ".$interface{'int'}}->{ip}} @{$self->{cluster_resource}->{_servers}->{$self->{cluster_name}}});
-                    if(isenabled($self->{config_pf}->{active_active}->{dns_on_vip_only})||exists $NET_INLINE_TYPES{$ConfigNetwork{$network}{'type'}}) {
+                    if(isenabled($self->{config_pf}->{active_active}->{dns_on_vip_only})) {
                         $ConfigNetwork{$network}{'dns_vip'} = $self->{cluster_resource}->{cfg}->{CLUSTER}->{'interface '. $interface{'int'}}->{ip} || $interface{'ip'};
                     }
                     $ConfigNetwork{$network}{'vip'} = $self->{cluster_resource}->{cfg}->{CLUSTER}->{'interface '. $interface{'int'}}->{ip} || $interface{'ip'};
@@ -73,7 +71,7 @@ sub build {
                 my $ip = new NetAddr::IP::Lite clean_ip($self->{networks}{$network}{'gateway'});
                 if ($net_addr->contains($ip)) {
                     $ConfigNetwork{$network}{'cluster_ips'} = join(',', map { $_->{"interface ".$interface{'int'}}->{ip}} @{$self->{cluster_resource}->{_servers}->{$self->{cluster_name}}});
-                    if(isenabled($self->{config_pf}->{active_active}->{dns_on_vip_only})||exists $NET_INLINE_TYPES{$ConfigNetwork{$network}{'type'}}) {
+                    if(isenabled($self->{config_pf}->{active_active}->{dns_on_vip_only})) {
                         $ConfigNetwork{$network}{'dns_vip'} = $self->{cluster_resource}->{cfg}->{CLUSTER}->{'interface '. $interface{'int'}}->{ip} || $interface{'ip'};
                     }
                     if(isenabled($self->{config_pf}->{active_active}->{gateway_on_vip_only})) {
