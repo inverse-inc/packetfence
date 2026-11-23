@@ -374,3 +374,40 @@ func TestUiPluginsAllowedToAnyAdmin(t *testing.T) {
 		}
 	}
 }
+
+func TestPkiAdminRoleMapping(t *testing.T) {
+	ctx := log.LoggerNewContext(context.Background())
+
+	m := NewTokenAuthorizationMiddleware(NewMemTokenBackend(1*time.Second, 1*time.Second, []string{}))
+
+	for _, c := range []struct {
+		method, path, role string
+	}{
+		{"GET", "/api/v1/pki/certs", "PKI_READ"},
+		{"POST", "/api/v1/pki/certs/search", "PKI_READ"},
+		{"GET", "/api/v1/pki/cert/3", "PKI_READ"},
+		{"POST", "/api/v1/pki/cert/3/download", "PKI_CREATE"},
+		{"POST", "/api/v1/pki/cert/3/email", "PKI_CREATE"},
+		{"POST", "/api/v1/pki/certs", "PKI_CREATE"},
+		{"PATCH", "/api/v1/pki/profile/1", "PKI_UPDATE"},
+		{"DELETE", "/api/v1/pki/cert/3/1", "PKI_DELETE"},
+		{"GET", "/api/v1/pki/scepservers", "PKI_READ"},
+	} {
+		if _, err := m.isAuthorizedAdminActions(ctx, c.method, c.path, map[string]bool{c.role: true}); err != nil {
+			t.Errorf("%s %s with %s should be authorized, error: %s", c.method, c.path, c.role, err)
+		}
+
+		// The PKI API used to fall through to the SYSTEM role
+		systemRole := "SYSTEM" + c.role[len("PKI"):]
+		if _, err := m.isAuthorizedAdminActions(ctx, c.method, c.path, map[string]bool{systemRole: true}); err == nil {
+			t.Errorf("%s %s with %s must be denied", c.method, c.path, systemRole)
+		}
+	}
+
+	// Building a PKCS#12 with the private key is not a read
+	for _, path := range []string{"/api/v1/pki/cert/3/download", "/api/v1/pki/cert/3/email"} {
+		if _, err := m.isAuthorizedAdminActions(ctx, "POST", path, map[string]bool{"PKI_READ": true}); err == nil {
+			t.Errorf("POST %s with only PKI_READ must be denied", path)
+		}
+	}
+}

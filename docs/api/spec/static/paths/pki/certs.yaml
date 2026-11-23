@@ -100,9 +100,10 @@
     tags:
       - PKI
 
-/api/v1/pki/cert/{cert_id}/download/{password}:
-  get:
+/api/v1/pki/cert/{cert_id}/download:
+  post:
     summary: Download Passworded PKI Certificate.
+    description: Returns the certificate and its private key in a PKCS#12 protected by the password. Requires the PKI_CREATE admin role.
     parameters:
       - name: cert_id
         in: path
@@ -110,16 +111,24 @@
         description: '`PRIMARY KEY`'
         schema:
           type: string
-      - name: password
-        in: path
-        required: true
-        description: Certificate password.
-        schema:
-          type: string
-          format: password
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - password
+            properties:
+              password:
+                type: string
+                format: password
+                description: Password of the PKCS#12.
     responses:
       '200':
         $ref: '#/components/responses/PkiCertDownload'
+      '400':
+        $ref: '#/components/responses/BadRequest'
       '401':
         $ref: '#/components/responses/Unauthorized'
       '404':
@@ -128,8 +137,9 @@
       - PKI
 
 /api/v1/pki/cert/{cert_id}/email:
-  get:
+  post:
     summary: Email PKI Certificate.
+    description: Emails the certificate and its private key in a PKCS#12 to the email address of the certificate, and returns the password of the PKCS#12. Requires the PKI_CREATE admin role.
     parameters:
       - name: cert_id
         in: path
@@ -140,6 +150,8 @@
     responses:
       '200':
         $ref: '#/components/responses/PkiCertEmail'
+      '400':
+        $ref: '#/components/responses/BadRequest'
       '401':
         $ref: '#/components/responses/Unauthorized'
       '404':

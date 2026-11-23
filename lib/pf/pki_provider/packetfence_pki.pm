@@ -96,7 +96,7 @@ sub get_bundle {
     my $cert = (defined($id) && $id =~ /^\d+$/) ? $id : $cn;
     my $return;
     my $value = eval {
-        $return = pf::api::unifiedapiclient->default_client->call("GET", "/api/v1/pki/cert/$profile/$cert/download/$certpwd");
+        $return = pf::api::unifiedapiclient->default_client->call("POST", "/api/v1/pki/cert/$profile/$cert/download", { password => $certpwd });
     };
     if ($@) {
         $logger->warn("Download certificate failed");

@@ -31,7 +31,7 @@ export default {
   },
   download: data => {
     const { id, password } = data
-    return apiCall.getArrayBuffer(['pki', 'cert', id, 'download', password]).then(response => {
+    return apiCall.post(['pki', 'cert', id, 'download'], { password }, { responseType: 'arraybuffer' }).then(response => {
       const { data, data: { error } = {} } = response
       if (error) {
         throw error
@@ -47,7 +47,7 @@ export default {
     })
   },
   email: id => {
-    return apiCall.get(['pki', 'cert', id, 'email']).then(response => {
+    return apiCall.post(['pki', 'cert', id, 'email']).then(response => {
       const { data: { error } = {} } = response
       if (error) {
         throw error

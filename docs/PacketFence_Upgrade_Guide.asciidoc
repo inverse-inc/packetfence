@@ -941,6 +941,33 @@ Internet Explorer 11 on Windows 7 when an RSA certificate is in use.
 
 == Upgrading from a version prior to X.Y.Z
 
+=== PKI API admin roles and certificate download
+
+The PKI API (`/api/v1/pki/...`: certificate authorities, templates,
+certificates, revoked certificates and SCEP servers) used to require the
+`SYSTEM` admin roles. It now requires the `PKI` admin roles: `PKI_READ` to view,
+`PKI_CREATE` to create, and to download or email a certificate with its
+private key, `PKI_UPDATE` to modify and `PKI_DELETE` to revoke. The built-in
+`ALL` and `ALL_PF_ONLY` admin roles have them. The upgrade runs
+[filename]`/usr/local/pf/addons/upgrade/to-16.0-adds-pki-admin-roles.pl`, which
+gives each custom admin role the PKI action matching each SYSTEM action it has
+(`SYSTEM_READ` gives `PKI_READ`, and so on). An admin role that only had
+`SYSTEM_READ` can no longer download or email a certificate with its private
+key: add `PKI_CREATE` to it if it must. When upgrading manually, run:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-16.0-adds-pki-admin-roles.pl
+----
+
+A certificate is now downloaded with `POST /api/v1/pki/cert/{id}/download` and
+the PKCS#12 password in a JSON body (`{"password": "..."}`) instead of
+`GET /api/v1/pki/cert/{id}/download/{password}`, so the password no longer
+appears in the access logs. A certificate is now emailed with
+`POST /api/v1/pki/cert/{id}/email` instead of `GET`, and only by its numeric
+id. Scripts that download or email certificates through the API must be
+updated.
+
 === Realms with "Authorize from PacketFence" disabled
 
 A request proxied to the RADIUS server of a realm (EAP-TLS, or without EAP)
