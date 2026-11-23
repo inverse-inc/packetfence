@@ -1,7 +1,7 @@
 import store from '@/store'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
-import { keyTypes, hsmKeyTypes } from '../config'
+import { keyTypeOf, hsmKeyTypes } from '../config'
 
 yup.addMethod(yup.string, 'pkiCaCnNotExistsExcept', function (exceptId = '', message) {
   return this.test({
@@ -68,7 +68,7 @@ export default (props) => {
         return last
       }
       const _schema = yup.string().nullable().required(i18n.t('Key size required.'))
-      const { [key_type]: { text: type, sizes } = {} } = keyTypes
+      const { text: type, sizes } = keyTypeOf(key_type) || {}
       if (sizes)
         return _schema.in(sizes, i18n.t('Invalid key size. {type} only supports {list}', { type, list: arrToLocale(sizes) }))
       return _schema

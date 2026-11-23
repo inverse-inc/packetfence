@@ -317,7 +317,7 @@ import {
   FormGroupEstPassword
 } from './'
 import {computed, toRefs} from '@vue/composition-api'
-import {keySizes, keyTypes} from '../../config'
+import {keySizes, keyTypeOf} from '../../config'
 
 const components = {
   BaseForm,
@@ -413,8 +413,8 @@ export const setup = (props, context) => {
 
   const keySizeOptions = computed(() => {
     const {key_type} = form.value || {}
-    if (key_type) {
-      const {[+key_type]: {sizes = []} = {}} = keyTypes
+    const {sizes} = keyTypeOf(key_type) || {}
+    if (sizes) {
       return sizes.map(size => ({text: `${size}`, value: `${size}`}))
     }
     return keySizes

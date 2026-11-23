@@ -66,7 +66,7 @@ export const props = {
   }
 }
 
-import { keyTypes, keySizes } from '../../config'
+import { keyTypeOf, keySizes } from '../../config'
 
 export const setup = (props) => {
 
@@ -78,8 +78,8 @@ export const setup = (props) => {
 
   const keySizeOptions = computed(() => {
     const { key_type } = form.value || {}
-    if (key_type) {
-      const { [+key_type]: { sizes = [] } = {} } = keyTypes
+    const { sizes } = keyTypeOf(key_type) || {}
+    if (sizes) {
       return sizes.map(size => ({ text: `${size}`, value: `${size}` }))
     }
     return keySizes

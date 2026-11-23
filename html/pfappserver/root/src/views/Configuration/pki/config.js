@@ -24,6 +24,11 @@ export const keyTypes = [
   { value: '3', text: 'KEY_ED25519', sizes: [ '256' ] }
 ]
 
+// keyTypes entry of a key_type value, looked up by value: the values are not
+// array positions (no '2' since DSA was removed). undefined for an unknown
+// type, such as the DSA of an existing CA or template.
+export const keyTypeOf = key_type => keyTypes.find(({ value }) => value === `${key_type}`)
+
 // key types that can be generated in an HSM (ECDSA, RSA)
 export const hsmKeyTypes = [ '0', '1' ]
 
