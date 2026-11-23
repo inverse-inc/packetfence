@@ -214,6 +214,18 @@ func TestHSM_CA(t *testing.T) {
 	if status, body = doJSON(t, env, "PATCH", fmt.Sprintf("/api/v1/pki/hsm/%d", h.ID), fmt.Sprintf(`{"module":%q,"token_label":%q}`, cfg.Module, cfg.TokenLabel)); status != http.StatusOK {
 		t.Fatalf("PATCH without a PIN -> %d:\n%s", status, body)
 	}
+	// Another token that opens but doesn't hold the CA key is refused,
+	// so the CA doesn't stop signing (PFPKI_TEST_PKCS11_TOKEN2, same PIN).
+	if other := os.Getenv("PFPKI_TEST_PKCS11_TOKEN2"); other != "" {
+		if status, body = doJSON(t, env, "PATCH", fmt.Sprintf("/api/v1/pki/hsm/%d", h.ID), fmt.Sprintf(`{"token_label":%q}`, other)); status != http.StatusUnprocessableEntity || !strings.Contains(body, "hsm-rsa-ca") {
+			t.Fatalf("PATCH to a token without the CA key -> %d, want 422 naming the CA:\n%s", status, body)
+		}
+		var kept models.HSM
+		env.DB.First(&kept, h.ID)
+		if kept.TokenLabel != cfg.TokenLabel {
+			t.Fatalf("token_label changed to %q by a refused PATCH", kept.TokenLabel)
+		}
+	}
 	if status, body = doJSON(t, env, "PATCH", fmt.Sprintf("/api/v1/pki/hsm/%d", h.ID), `{"pin":"wrong-pin"}`); status != http.StatusUnprocessableEntity {
 		t.Fatalf("PATCH with only a wrong PIN -> %d, want 422:\n%s", status, body)
 	}

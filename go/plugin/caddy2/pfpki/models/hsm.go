@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"strconv"
@@ -149,6 +150,15 @@ func (h HSM) Update(params map[string]string) (types.Info, error) {
 		Information.Error = err.Error()
 		return Information, err
 	}
+	// Another module or token must still hold the keys of the CAs of
+	// this HSM, or they would stop signing.
+	if hsmdb.Module != previous.Module || hsmdb.TokenLabel != previous.TokenLabel {
+		if err := h.checkCAKeys(hsmdb); err != nil {
+			hsm.Release(hsmdb.Config())
+			Information.Error = err.Error()
+			return Information, err
+		}
+	}
 	if err := h.DB.Save(&hsmdb).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, errors.New(dbError)
@@ -180,4 +190,32 @@ func (h HSM) Paginated(vars sql.Vars) (types.Info, error) {
 	}
 
 	return Information, nil
+}
+
+// checkCAKeys checks that the token of hsmdb holds the key of every CA
+// whose key is in this HSM: found by its id and matching the public key
+// of the CA certificate.
+func (h HSM) checkCAKeys(hsmdb HSM) error {
+	var cas []CA
+	if err := h.DB.Where("hsm_id = ?", hsmdb.ID).Find(&cas).Error; err != nil {
+		return err
+	}
+	for _, ca := range cas {
+		id, err := hex.DecodeString(ca.HsmKeyID)
+		if err != nil {
+			return fmt.Errorf("the key id of the CA %q is invalid: %w", ca.Cn, err)
+		}
+		signer, err := hsm.FindKey(hsmdb.Config(), id)
+		if err != nil {
+			return fmt.Errorf("the key of the CA %q is not in token %q: %w", ca.Cn, hsmdb.TokenLabel, err)
+		}
+		cert, err := ca.Certificate()
+		if err != nil {
+			return err
+		}
+		if err := sameKey(cert.PublicKey, signer.Public()); err != nil {
+			return fmt.Errorf("the key of the CA %q in token %q: %w", ca.Cn, hsmdb.TokenLabel, err)
+		}
+	}
+	return nil
 }
