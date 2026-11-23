@@ -47,7 +47,7 @@ export default {
     })
   },
   email: id => {
-    return apiCall.get(['pki', 'cert', id, 'email']).then(response => {
+    return apiCall.post(['pki', 'cert', id, 'email']).then(response => {
       const { data: { error } = {} } = response
       if (error) {
         throw error

@@ -59747,7 +59747,8 @@ paths:
       tags:
       - PKI
   /api/v1/pki/cert/{cert_id}/email:
-    get:
+    post:
+      description: Emails the certificate and its private key in a PKCS#12 to the email address of the certificate, and returns the password of the PKCS#12. Requires the PKI_CREATE admin role.
       parameters:
       - description: '`PRIMARY KEY`'
         in: path
@@ -59758,6 +59759,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/PkiCertEmail'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':

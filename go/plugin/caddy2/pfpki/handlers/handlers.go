@@ -19,6 +19,9 @@ import (
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
 )
 
+// numericID matches a certificate id, as opposed to a CN
+var numericID = regexp.MustCompile(`^[0-9]+$`)
+
 func SearchCA(pfpki *types.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
@@ -556,7 +559,7 @@ func DownloadCert(pfpki *types.Handler) http.HandlerFunc {
 		Error := types.Errors{Status: 0}
 
 		vars := types.Params(req, "id", "cn", "profile")
-		if len(regexp.MustCompile(`^[0-9]+$`).FindStringIndex(vars["id"])) > 0 {
+		if numericID.MatchString(vars["id"]) {
 			delete(vars, "cn")
 		} else {
 			vars["cn"] = vars["id"]
@@ -569,7 +572,18 @@ func DownloadCert(pfpki *types.Handler) http.HandlerFunc {
 				Password string `json:"password"`
 			}
 			req.Body = http.MaxBytesReader(res, req.Body, 4096)
-			if err = json.NewDecoder(req.Body).Decode(&body); err != nil || body.Password == "" {
+			if err = json.NewDecoder(req.Body).Decode(&body); err != nil && !errors.Is(err, io.EOF) {
+				var tooLarge *http.MaxBytesError
+				if errors.As(err, &tooLarge) {
+					Error.Message = "The request body is too large"
+					Error.Status = http.StatusRequestEntityTooLarge
+				} else {
+					Error.Message = `The request body must be a JSON object with a "password": ` + err.Error()
+					Error.Status = http.StatusBadRequest
+				}
+				break
+			}
+			if body.Password == "" {
 				Error.Message = "A password is required"
 				Error.Status = http.StatusBadRequest
 				break
@@ -603,9 +617,15 @@ func EmailCert(pfpki *types.Handler) http.HandlerFunc {
 		Error := types.Errors{Status: 0}
 
 		switch req.Method {
-		case "GET":
+		// POST, as it returns the password of the PKCS#12 it emails
+		case "POST":
+			vars := types.Params(req, "id")
+			if !numericID.MatchString(vars["id"]) {
+				Error.Message = "Invalid certificate id"
+				Error.Status = http.StatusBadRequest
+				break
+			}
 			Information.Status = http.StatusOK
-			vars := types.Params(req, "id", "profile", "cn")
 			Information, err = o.Download(vars)
 			if err != nil {
 				Error.Message = err.Error()
@@ -671,6 +691,14 @@ func ResignCert(pfpki *types.Handler) http.HandlerFunc {
 
 		case "POST":
 			vars := types.Params(req, "id")
+			// A certificate is re-signed by its numeric id only. This also
+			// keeps POST /resign/download, which chi routes here rather than to
+			// the download, from re-signing anything.
+			if !numericID.MatchString(vars["id"]) {
+				Error.Message = "Invalid certificate id"
+				Error.Status = http.StatusBadRequest
+				break
+			}
 			Information.Status = http.StatusCreated
 			body, err := io.ReadAll(req.Body)
 			if err != nil {

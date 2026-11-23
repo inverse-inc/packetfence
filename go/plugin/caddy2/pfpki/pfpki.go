@@ -159,7 +159,7 @@ func (h *Handler) buildPfpkiHandler(ctx context.Context) error {
 			r.Get("/{id}", handlers.GetCertByID(PFPki))
 			r.Post("/{id}/download", handlers.DownloadCert(PFPki))
 			r.Post("/{profile}/{id}/download", handlers.DownloadCert(PFPki))
-			r.Get("/{id}/email", handlers.EmailCert(PFPki))
+			r.Post("/{id}/email", handlers.EmailCert(PFPki))
 			r.Delete("/{id}/{reason}", handlers.RevokeCert(PFPki))
 			r.Post("/resign/{id}", handlers.ResignCert(PFPki))
 			r.Delete("/{profile}/{cn}/{reason}", handlers.RevokeCert(PFPki))

@@ -387,6 +387,7 @@ func TestPkiAdminRoleMapping(t *testing.T) {
 		{"POST", "/api/v1/pki/certs/search", "PKI_READ"},
 		{"GET", "/api/v1/pki/cert/3", "PKI_READ"},
 		{"POST", "/api/v1/pki/cert/3/download", "PKI_CREATE"},
+		{"POST", "/api/v1/pki/cert/3/email", "PKI_CREATE"},
 		{"POST", "/api/v1/pki/certs", "PKI_CREATE"},
 		{"PATCH", "/api/v1/pki/profile/1", "PKI_UPDATE"},
 		{"DELETE", "/api/v1/pki/cert/3/1", "PKI_DELETE"},
@@ -404,7 +405,9 @@ func TestPkiAdminRoleMapping(t *testing.T) {
 	}
 
 	// Building a PKCS#12 with the private key is not a read
-	if _, err := m.isAuthorizedAdminActions(ctx, "POST", "/api/v1/pki/cert/3/download", map[string]bool{"PKI_READ": true}); err == nil {
-		t.Error("POST /api/v1/pki/cert/3/download with only PKI_READ must be denied")
+	for _, path := range []string{"/api/v1/pki/cert/3/download", "/api/v1/pki/cert/3/email"} {
+		if _, err := m.isAuthorizedAdminActions(ctx, "POST", path, map[string]bool{"PKI_READ": true}); err == nil {
+			t.Errorf("POST %s with only PKI_READ must be denied", path)
+		}
 	}
 }
