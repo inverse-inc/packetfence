@@ -849,7 +849,10 @@ Binding* settings.
 and pass `key_id` / `hmac` to the client (`certbot --eab-kid ...
 --eab-hmac-key ...`, `step ca certificate --acme ... --eab-key-id ...
 --eab-key-secret ...`). Each key binds to the first account that uses
-it.
+it. Deleting a key deactivates the account bound to it: the client
+can't order certificates any more, and needs a new key and a new
+account key to register again. The certificates already issued stay
+valid until they are revoked.
 * The certificate Common Name and DNS/IP SANs must be identifiers of
   the order; the Subject attributes come from the template.
 

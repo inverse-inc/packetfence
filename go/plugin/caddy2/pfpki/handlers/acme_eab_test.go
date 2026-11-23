@@ -261,3 +261,68 @@ func looksBase64URL(s string) bool {
 		return !strings.ContainsRune(ok, r)
 	}) == -1
 }
+
+// TestAcmeEAB_DeleteDeactivatesBoundAccount: deleting an EAB key takes
+// away the access it granted. The account bound to it is deactivated and
+// its open orders cancelled; another account is left alone.
+func TestAcmeEAB_DeleteDeactivatesBoundAccount(t *testing.T) {
+	env := testutil.NewEnv(t)
+	caRow := mustCreateCAFromHTTP(t, env, "eab-del-ca", certutils.KEY_RSA, 2048, x509.SHA256WithRSA)
+	prof := mustCreateProfileFromHTTP(t, env, "eab-del-prof", caRow, certutils.KEY_RSA, 2048, x509.SHA256WithRSA)
+	mintURL := fmt.Sprintf("%s/api/v1/pki/profile/%d/acme/eab", env.Server.URL, prof.ID)
+
+	key := mintEAB(t, mintURL, "contractor")
+	bound := models.AcmeAccount{ProfileID: prof.ID, KeyID: "kid-bound", KeyThumbprint: "thumb-bound", Status: "valid", ExternalAccountKeyID: key.KeyID}
+	other := models.AcmeAccount{ProfileID: prof.ID, KeyID: "kid-other", KeyThumbprint: "thumb-other", Status: "valid"}
+	for _, a := range []*models.AcmeAccount{&bound, &other} {
+		if err := env.DB.Create(a).Error; err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := env.DB.Model(&models.AcmeExternalAccountKey{}).Where("id = ?", key.ID).Update("bound_account_id", bound.ID).Error; err != nil {
+		t.Fatal(err)
+	}
+	orders := []models.AcmeOrder{
+		{AccountID: bound.ID, Status: "pending"},
+		{AccountID: bound.ID, Status: "ready"},
+		{AccountID: bound.ID, Status: "valid"},
+		{AccountID: other.ID, Status: "pending"},
+	}
+	for i := range orders {
+		if err := env.DB.Create(&orders[i]).Error; err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	req, _ := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/%d", mintURL, key.ID), nil)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatalf("DELETE: %v", err)
+	}
+	resp.Body.Close()
+	if resp.StatusCode != http.StatusNoContent {
+		t.Fatalf("revoke status=%d, want 204", resp.StatusCode)
+	}
+
+	for _, want := range []struct {
+		id     uint
+		status string
+	}{{bound.ID, "deactivated"}, {other.ID, "valid"}} {
+		var a models.AcmeAccount
+		if err := env.DB.First(&a, want.id).Error; err != nil {
+			t.Fatal(err)
+		}
+		if a.Status != want.status {
+			t.Fatalf("account %d status=%q, want %q", want.id, a.Status, want.status)
+		}
+	}
+	for i, want := range []string{"invalid", "invalid", "valid", "pending"} {
+		var o models.AcmeOrder
+		if err := env.DB.First(&o, orders[i].ID).Error; err != nil {
+			t.Fatal(err)
+		}
+		if o.Status != want {
+			t.Fatalf("order %d status=%q, want %q", i, o.Status, want)
+		}
+	}
+}

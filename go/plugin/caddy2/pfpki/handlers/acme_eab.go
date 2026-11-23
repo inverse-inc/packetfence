@@ -142,7 +142,10 @@ func AcmeEABCreate(pfpki *types.Handler) http.HandlerFunc {
 
 // AcmeEABDelete serves DELETE /api/v1/pki/profile/{id}/acme/eab/{eab_id}.
 // Soft-delete via gorm so audit history stays correlatable; the EAB
-// validator already filters DeletedAt.
+// validator already filters DeletedAt. The account bound to the key is
+// deactivated in the same transaction, and its pending and ready orders
+// cancelled: deleting the key takes away the access it granted, and a
+// deactivated account can't be renewed (RFC 8555 §7.3.6).
 //
 // Idempotent: deleting a non-existent or already-revoked key returns
 // 204 so an admin retrying after a network failure doesn't see 404.
@@ -170,13 +173,29 @@ func AcmeEABDelete(pfpki *types.Handler) http.HandlerFunc {
 			writeJSONError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		if err := pfpki.DB.Delete(&row).Error; err != nil {
+		err = pfpki.DB.Transaction(func(tx *gorm.DB) error {
+			if err := tx.Delete(&row).Error; err != nil {
+				return err
+			}
+			if row.BoundAccountID == 0 {
+				return nil
+			}
+			if err := tx.Model(&models.AcmeAccount{}).
+				Where("id = ? AND profile_id = ?", row.BoundAccountID, profileID).
+				Update("status", "deactivated").Error; err != nil {
+				return err
+			}
+			return tx.Model(&models.AcmeOrder{}).
+				Where("account_id = ? AND status IN ?", row.BoundAccountID, []string{"pending", "ready"}).
+				Update("status", "invalid").Error
+		})
+		if err != nil {
 			writeJSONError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 		writeAdminAuditFromRequest(pfpki, r, "pfpki.AcmeEABDelete",
 			strconv.FormatUint(eabID, 10), http.StatusNoContent,
-			map[string]any{"profile_id": profileID, "key_id": row.KeyID})
+			map[string]any{"profile_id": profileID, "key_id": row.KeyID, "deactivated_account_id": row.BoundAccountID})
 		w.WriteHeader(http.StatusNoContent)
 	}
 }
