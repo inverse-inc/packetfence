@@ -23,6 +23,7 @@ use Module::Pluggable
   require     => 1;
 
 use pf::config qw(%ConfigMfa);
+use pf::log;
 
 sub factory_for { 'pf::mfa' }
 
@@ -41,20 +42,24 @@ foreach ( @MODULES ) {
 =head2 new
 
 Will create a new pf::mfa sub class based off the name
-If no provider is found the return undef
+If no MFA with this name is configured, or its type is invalid, returns undef
 
 =cut
 
 sub new {
     my ($class,$name) = @_;
-    my $object;
-    my $data = $ConfigMfa{$name};
-    $data->{id} = $name;
-    if ($data) {
-        my $subclass = $class->getModuleName($name,$data);
-        $object = $subclass->new($data);
+    return undef if !defined $name;
+    # A single fetch: the config can disappear between two lookups (pfconfig reload)
+    my $config = $ConfigMfa{$name};
+    return undef if ref($config) ne 'HASH';
+    # Copy the config: do not add the id to the shared MFA config
+    my $data = { %$config, id => $name };
+    my $subclass = eval { $class->getModuleName($name,$data) };
+    if (!defined $subclass) {
+        get_logger->error("Cannot build the MFA $name: $@");
+        return undef;
     }
-    return $object;
+    return $subclass->new($data);
 }
 
 
@@ -68,8 +73,8 @@ sub getModuleName {
     my ($class,$name,$data) = @_;
     my $mainClass = $class->factory_for;
     my $type = $data->{type};
-    my $subclass = "${mainClass}::${type}";
     die "type is not defined for $name" unless defined $type;
+    my $subclass = "${mainClass}::${type}";
     die "$type is not a valid type" unless any { $_ eq $subclass  } @MODULES;
     $subclass;
 }
