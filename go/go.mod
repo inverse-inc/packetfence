@@ -185,11 +185,9 @@ require (
 	github.com/Azure/go-autorest/autorest/to v0.2.0 // indirect
 	github.com/DataDog/zstd v1.5.7 // indirect
 	github.com/golang/snappy v1.0.0 // indirect
-	github.com/jpillora/ansi v1.0.2 // indirect
 	github.com/miekg/pkcs11 v1.1.2 // indirect
 	github.com/philhofer/fwd v1.2.0 // indirect
 	github.com/thales-e-security/pool v0.0.2 // indirect
-	github.com/tomasen/realip v0.0.0-20180522021738-f0c99a92ddce // indirect
 	golang.org/x/term v0.46.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
