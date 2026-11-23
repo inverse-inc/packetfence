@@ -125,14 +125,21 @@ const pluginRoutes = (plugin, shared) => {
 }
 
 // the routes of the plugins replace the ones of the last load: a manifest may
-// have changed its area, template or api, or a plugin may be gone
+// have changed its area, template or api, or a plugin may be gone.
+// They are added to the matcher, not with router.addRoute: once the router has
+// started, router.addRoute navigates again to the current location. The plugins
+// load in the beforeEach guard, while a navigation is pending and the current
+// location is still the previous one: after a login, that new navigation to
+// /login cancelled the one to the home page, and the login route reset the
+// session. The guard resolves the pending URL again once the plugins are
+// loaded (router/index.js, [5d]).
 const addRoutes = (router, plugins, views) => {
   removeRoutes(router)
   for (const plugin of plugins) {
     for (const route of pluginRoutes(plugin, views)) {
       if (addedRoutes.has(route.name))
         continue
-      router.addRoute(plugin.manifest.menu.area, route)
+      router.matcher.addRoute(plugin.manifest.menu.area, route)
       addedRoutes.add(route.name)
     }
   }
