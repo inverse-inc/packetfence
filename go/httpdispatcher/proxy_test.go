@@ -48,7 +48,10 @@ func TestMain(m *testing.M) {
 }
 
 func TestSimpleRedirect(t *testing.T) {
-	testproxy := NewProxy(ctx)
+	testproxy, err := NewProxy(ctx)
+	if err != nil {
+		t.Fatalf("NewProxy: %v", err)
+	}
 	req := httptest.NewRequest("GET", "http://www.inverse.ca", bytes.NewBuffer([]byte("")))
 	recorder := httptest.NewRecorder()
 	testproxy.ServeHTTP(recorder, req)
@@ -58,7 +61,10 @@ func TestSimpleRedirect(t *testing.T) {
 }
 
 func TestSimpleNotImplemented(t *testing.T) {
-	testproxy := NewProxy(ctx)
+	testproxy, err := NewProxy(ctx)
+	if err != nil {
+		t.Fatalf("NewProxy: %v", err)
+	}
 	req := httptest.NewRequest("POST", "http://www.packetfence.org", bytes.NewBuffer([]byte("")))
 	recorder := httptest.NewRecorder()
 	testproxy.ServeHTTP(recorder, req)
@@ -68,7 +74,10 @@ func TestSimpleNotImplemented(t *testing.T) {
 }
 
 func TestSimpleProxy(t *testing.T) {
-	testproxy := NewProxy(ctx)
+	testproxy, err := NewProxy(ctx)
+	if err != nil {
+		t.Fatalf("NewProxy: %v", err)
+	}
 	req := httptest.NewRequest("GET", "http://detectportal.firefox.com", bytes.NewBuffer([]byte("")))
 	req.Host = "detectportal.firefox.com"
 	recorder := httptest.NewRecorder()

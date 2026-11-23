@@ -14,23 +14,21 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/api-frontend/unifiedapierrors"
-	"github.com/inverse-inc/packetfence/go/db"
-	"github.com/inverse-inc/packetfence/go/db/sqlcomment"
+	"github.com/inverse-inc/packetfence/go/db/dbgorm"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/handlers"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/models"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/utils"
 	"golang.org/x/text/message"
 	"golang.org/x/text/message/catalog"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 )
 
 type Handler struct {
-	Handler   types.Handler
-	cancelCtx context.Context
-	cancel    func()
+	Handler types.Handler
 }
+
+// waitForDB is swapped by tests.
+var waitForDB = dbgorm.WaitFromConfig
 
 // Register the plugin in caddy
 func init() {
@@ -61,11 +59,13 @@ func (Handler) CaddyModule() caddy.ModuleInfo {
 }
 
 // Setup the pfpki middleware
-func (m *Handler) Provision(_ caddy.Context) error {
-	m.cancelCtx, m.cancel = context.WithCancel(context.Background())
+func (m *Handler) Provision(cctx caddy.Context) error {
 	ctx := log.LoggerNewContext(context.Background())
 
-	err := m.buildPfpkiHandler(ctx)
+	// Caddy cancels cctx when this config is unloaded or the server stops.
+	// It is only used for the database wait: Cleanup is not called until
+	// Provision returns, so it cannot interrupt the wait.
+	err := m.buildPfpkiHandler(ctx, log.LoggerNewContext(cctx))
 	if err != nil {
 		return err
 	}
@@ -73,29 +73,17 @@ func (m *Handler) Provision(_ caddy.Context) error {
 	return nil
 }
 
-func (h *Handler) buildPfpkiHandler(ctx context.Context) error {
+func (h *Handler) buildPfpkiHandler(ctx, waitCtx context.Context) error {
 
 	pfpki := types.Handler{}
-	var Database *gorm.DB
-	var err error
-
-	var successDBConnect = false
-	for !successDBConnect {
-		Database, err = gorm.Open(mysql.New(mysql.Config{DriverName: sqlcomment.DriverName, DSN: db.ReturnURIFromConfig(ctx)}), &gorm.Config{})
-		if err != nil {
-			log.LoggerWContext(ctx).Error(fmt.Sprintf("Failed to connect to the database: %s", err))
-			time.Sleep(time.Duration(5) * time.Second)
-		} else {
-			// gorm.Open builds its own *sql.DB, bypassing db.ConnectURI, so the
-			// pool would otherwise run with Go's defaults: unlimited
-			// connections that are never recycled.
-			if sqlDB, dbErr := Database.DB(); dbErr == nil {
-				db.SetPoolLimits(sqlDB)
-			} else {
-				log.LoggerWContext(ctx).Warn(fmt.Sprintf("Could not apply pool limits: %s", dbErr))
-			}
-			successDBConnect = true
-		}
+	// Blocks provisioning until the database answers, as the previous
+	// open-retry loop did, but gives up on a hard configuration error or when
+	// waitCtx ends. The handle is the process-wide shared pool: it reconnects
+	// on its own and needs no keepalive, and it must never be closed.
+	Database, err := waitForDB(waitCtx, 5*time.Second)
+	if err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("Failed to open the database: %s", err))
+		return err
 	}
 
 	if log.LoggerGetLevel(ctx) == "DEBUG" {
@@ -215,19 +203,6 @@ func (h *Handler) buildPfpkiHandler(ctx context.Context) error {
 
 	pfpki.Router = r
 
-	go func() {
-		ticker := time.NewTicker(5 * time.Second)
-		for {
-			select {
-			case <-ticker.C:
-				sqlDB, _ := pfpki.DB.DB()
-				sqlDB.Ping()
-			case <-h.cancelCtx.Done():
-				return
-			}
-		}
-	}()
-
 	h.Handler = pfpki
 	return nil
 }
@@ -246,7 +221,6 @@ func (h *Handler) Validate() error {
 }
 
 func (h *Handler) Cleanup() error {
-	h.cancel()
 	return nil
 }
 

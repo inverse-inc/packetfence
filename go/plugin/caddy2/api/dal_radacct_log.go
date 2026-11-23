@@ -14,23 +14,26 @@ import (
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/sql"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
 	"github.com/julienschmidt/httprouter"
-	"gorm.io/gorm"
 )
 
 type RadacctLog struct {
-	DBP **gorm.DB
+	DB  gormSource
 	Ctx *context.Context
 }
 
-func NewRadacctLog(ctx context.Context, dbp **gorm.DB) *RadacctLog {
+func NewRadacctLog(ctx context.Context, db gormSource) *RadacctLog {
 	return &RadacctLog{
-		DBP: dbp,
+		DB:  db,
 		Ctx: &ctx,
 	}
 }
 
 func (a *RadacctLog) List(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewRadacctLogModel(a.DBP, a.Ctx)
+	dbp, ok := gormForRequest(*a.Ctx, w, a.DB)
+	if !ok {
+		return
+	}
+	model := models.NewRadacctLogModel(dbp, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -53,7 +56,11 @@ func (a *RadacctLog) List(w http.ResponseWriter, r *http.Request, p httprouter.P
 }
 
 func (a *RadacctLog) Search(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewRadacctLogModel(a.DBP, a.Ctx)
+	dbp, ok := gormForRequest(*a.Ctx, w, a.DB)
+	if !ok {
+		return
+	}
+	model := models.NewRadacctLogModel(dbp, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -81,7 +88,11 @@ func (a *RadacctLog) Search(w http.ResponseWriter, r *http.Request, p httprouter
 }
 
 func (a *RadacctLog) GetItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewRadacctLogModel(a.DBP, a.Ctx)
+	dbp, ok := gormForRequest(*a.Ctx, w, a.DB)
+	if !ok {
+		return
+	}
+	model := models.NewRadacctLogModel(dbp, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -108,7 +119,11 @@ func (a *RadacctLog) GetItem(w http.ResponseWriter, r *http.Request, p httproute
 }
 
 func (a *RadacctLog) DeleteItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewRadacctLogModel(a.DBP, a.Ctx)
+	dbp, ok := gormForRequest(*a.Ctx, w, a.DB)
+	if !ok {
+		return
+	}
+	model := models.NewRadacctLogModel(dbp, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -137,7 +152,11 @@ func (a *RadacctLog) DeleteItem(w http.ResponseWriter, r *http.Request, p httpro
 }
 
 func (a *RadacctLog) UpdateItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewRadacctLogModel(a.DBP, a.Ctx)
+	dbp, ok := gormForRequest(*a.Ctx, w, a.DB)
+	if !ok {
+		return
+	}
+	model := models.NewRadacctLogModel(dbp, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK

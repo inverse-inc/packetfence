@@ -36,7 +36,10 @@ func (h *HttpDispatcherHandler) Provision(_ caddy.Context) error {
 	pfconfigdriver.AddType[pfconfigdriver.PfConfGeneral](ctx)
 	pfconfigdriver.AddType[pfconfigdriver.PfConfCaptivePortal](ctx)
 	pfconfigdriver.AddType[pfconfigdriver.PfConfParking](ctx)
-	proxy := httpdispatcher.NewProxy(ctx)
+	proxy, err := httpdispatcher.NewProxy(ctx)
+	if err != nil {
+		return err
+	}
 	h.proxy = proxy
 
 	return nil

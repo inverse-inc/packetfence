@@ -79,7 +79,7 @@ func dalDnsAuditLog() http.HandlerFunc {
 		fmt.Println("error occured while connecting to mysql, ", err.Error())
 	}
 
-	NewDnsAuditLog(ctx, &dbs).AddToRouter(router)
+	NewDnsAuditLog(ctx, fixedGorm(dbs)).AddToRouter(router)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if handle, params, _ := router.Lookup(r.Method, r.URL.Path); handle != nil {
 			// We always default to application/json

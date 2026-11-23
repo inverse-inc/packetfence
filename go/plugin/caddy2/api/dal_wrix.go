@@ -13,23 +13,26 @@ import (
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/sql"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
 	"github.com/julienschmidt/httprouter"
-	"gorm.io/gorm"
 )
 
 type Wrix struct {
-	DBP **gorm.DB
+	DB  gormSource
 	Ctx *context.Context
 }
 
-func NewWrix(ctx context.Context, dbp **gorm.DB) *Wrix {
+func NewWrix(ctx context.Context, db gormSource) *Wrix {
 	return &Wrix{
-		DBP: dbp,
+		DB:  db,
 		Ctx: &ctx,
 	}
 }
 
 func (a *Wrix) List(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewWrixModel(a.DBP, a.Ctx)
+	dbp, ok := gormForRequest(*a.Ctx, w, a.DB)
+	if !ok {
+		return
+	}
+	model := models.NewWrixModel(dbp, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -52,7 +55,11 @@ func (a *Wrix) List(w http.ResponseWriter, r *http.Request, p httprouter.Params)
 }
 
 func (a *Wrix) Search(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewWrixModel(a.DBP, a.Ctx)
+	dbp, ok := gormForRequest(*a.Ctx, w, a.DB)
+	if !ok {
+		return
+	}
+	model := models.NewWrixModel(dbp, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -80,7 +87,11 @@ func (a *Wrix) Search(w http.ResponseWriter, r *http.Request, p httprouter.Param
 }
 
 func (a *Wrix) GetItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewWrixModel(a.DBP, a.Ctx)
+	dbp, ok := gormForRequest(*a.Ctx, w, a.DB)
+	if !ok {
+		return
+	}
+	model := models.NewWrixModel(dbp, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -101,7 +112,11 @@ func (a *Wrix) GetItem(w http.ResponseWriter, r *http.Request, p httprouter.Para
 }
 
 func (a *Wrix) DeleteItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewWrixModel(a.DBP, a.Ctx)
+	dbp, ok := gormForRequest(*a.Ctx, w, a.DB)
+	if !ok {
+		return
+	}
+	model := models.NewWrixModel(dbp, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -124,7 +139,11 @@ func (a *Wrix) DeleteItem(w http.ResponseWriter, r *http.Request, p httprouter.P
 }
 
 func (a *Wrix) UpdateItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewWrixModel(a.DBP, a.Ctx)
+	dbp, ok := gormForRequest(*a.Ctx, w, a.DB)
+	if !ok {
+		return
+	}
+	model := models.NewWrixModel(dbp, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
