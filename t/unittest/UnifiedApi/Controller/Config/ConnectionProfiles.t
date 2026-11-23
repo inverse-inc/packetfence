@@ -34,7 +34,7 @@ use pf::ConfigStore::Profile;
 use Utils;
 my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Profile");
 
-use Test::More tests => 57;
+use Test::More tests => 64;
 use Test::Mojo;
 use MIME::Base64 qw(encode_base64 decode_base64);
 #This test will running last
@@ -61,6 +61,15 @@ sub test_file_patch {
 $t->post_ok($collection_base_url => json => { id => $test_profile_name, root_module => 'default_policy', advanced_filter => undef, filter => [ {type => 'ssid', match => 'bob'}], })
   ->status_is(201)
   ->json_is({message =>"'$test_profile_name' created", status => 201, id => $test_profile_name});
+
+# The options left out of the request keep the defaults of the profiles
+$t->get_ok("$base_url/$test_profile_name")
+  ->status_is(200)
+  ->json_is('/item/dot1x_recompute_role_from_portal', 'enabled')
+  ->json_is('/item/mac_auth_recompute_role_from_portal', 'disabled')
+  ->json_is('/item/dot1x_unset_on_unmatch', 'disabled')
+  ->json_is('/item/show_manage_devices_on_max_nodes', 'disabled')
+  ->json_is('/item/reuse_dot1x_credentials', '0');
 
 $t->put_ok("$base_url/$test_profile_name/files/bob.html" => {} => encode_base64("bob"))
   ->status_is(200);

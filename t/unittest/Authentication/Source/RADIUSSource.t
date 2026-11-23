@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 3;
+use Test::More tests => 4;
 use pf::Authentication::Source::RADIUSSource;
 use Authen::Radius;
 
@@ -48,6 +48,14 @@ my $source = pf::Authentication::Source::RADIUSSource->new({
 my ($result) = $source->authenticate('bob', 'password');
 is($client_args{Host}, '192.0.2.10:1812', "RADIUS client for the server of the source");
 ok($client_args{Rfc3579MessageAuth}, "the Access-Request carries a Message-Authenticator");
+
+# A source saved without options (e.g. created through the API) is still usable
+my $source_without_options = pf::Authentication::Source::RADIUSSource->new({
+    id => 'radius_no_options',
+    host => '192.0.2.10',
+    secret => 'secret',
+});
+is($source_without_options->options, 'type = auth+acct', "options default to the home server type of the form");
 
 =head1 AUTHOR
 
