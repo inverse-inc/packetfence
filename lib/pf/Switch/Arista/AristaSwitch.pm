@@ -314,9 +314,19 @@ sub returnRadiusAccessAccept {
             $redirect_url .= $args->{'session_id'};
             # EOS 802.1X web authentication: the host is held in the WEB-AUTH-START state and
             # its web requests are redirected to the captive portal URL. The pre-authentication
-            # ACL is the one named by Filter-Id (role map) or, failing that, the
+            # ACL is the one named by Filter-Id or, failing that, the
             # "dot1x captive-portal access-list" configured on the switch; it must trap the
             # web traffic with "deny tcp ... copy captive-portal" entries.
+            # Filter-Id names the ACL the admin mapped the role to, and nothing else: with
+            # Push ACLs, pf::Switch sends the PacketFence role name instead, whose ACL traps
+            # nothing or doesn't exist on the switch. Without a mapping, the switch uses its
+            # captive-portal access-list.
+            my $mapped_role = isenabled($self->{_RoleMap}) ? $self->getRoleByName($args->{'user_role'}) : undef;
+            if (defined($mapped_role) && $mapped_role ne '') {
+                %$radius_reply_ref = (%$radius_reply_ref, $self->returnRoleAttributes($mapped_role));
+            } else {
+                delete $radius_reply_ref->{$self->returnRoleAttribute()};
+            }
             $logger->info("Adding web authentication redirection to reply using URL: '$redirect_url'");
             $radius_reply_ref->{'Arista-WebAuth'} = 'start';
             $radius_reply_ref->{'Arista-Captive-Portal'} = $redirect_url;

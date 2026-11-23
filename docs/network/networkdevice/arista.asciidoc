@@ -192,7 +192,11 @@ PacketFence portal:
 
 Then enable the captive portal under `dot1x`. The `url` is the fallback when
 the RADIUS reply carries none, and the ACL is used when the reply does not name
-one in `Filter-Id`:
+one in `Filter-Id`. With the redirection, PacketFence sends `Filter-Id` only
+when the role is mapped to an ACL in the *Roles* tab (*Role by Switch Role*),
+and then it names that ACL, which must have the `copy captive-portal` entries
+like `PF-WEBAUTH` below. Without a mapping, even with *Push ACLs* on, no
+`Filter-Id` is sent and the switch uses this ACL:
 
   dot1x
      captive-portal url http://192.168.1.5 ssl profile PF-WEBAUTH
