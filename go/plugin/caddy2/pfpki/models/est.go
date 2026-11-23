@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/inverse-inc/go-utils/log"
 	"golang.org/x/crypto/ocsp"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -54,9 +53,10 @@ func GetESTProfile(db *gorm.DB, name string) (*Profile, error) {
 // proves the client holds that key, so it can only renew its own
 // certificate (a rekey needs the previous certificate to expire, or an
 // admin to revoke it). The new certificate is issued first and the
-// renewed one is then revoked as superseded, so a failed re-enrollment
-// never leaves the client without a certificate. The client has already
-// been authenticated by the EST handler.
+// renewed one is then revoked as superseded, in one transaction, so a
+// failed re-enrollment never leaves the client without a certificate,
+// and two re-enrollments with the same key can't both renew it. The
+// client has already been authenticated by the EST handler.
 func IssueESTCert(db *gorm.DB, ctx context.Context, prof Profile, csr *x509.CertificateRequest, reenroll bool) (*Cert, error) {
 	cn := strings.TrimSpace(csr.Subject.CommonName)
 	if cn == "" {
@@ -69,25 +69,42 @@ func IssueESTCert(db *gorm.DB, ctx context.Context, prof Profile, csr *x509.Cert
 	if !reenroll {
 		return enrollNewCN(db, ctx, prof, csr, cn)
 	}
+	return reenrollCN(db, ctx, prof, csr, cn)
+}
 
-	previous, err := estCertForKey(db, prof, cn, csr.PublicKey)
+// reenrollCN issues the certificate of a simplereenroll and revokes the
+// one it renews, in one transaction locked like enrollNewCN: run
+// separately, two re-enrollments with the same key would both find the
+// same certificate and both issue, leaving the CN with two live
+// certificates. A failed revocation fails the re-enrollment.
+func reenrollCN(db *gorm.DB, ctx context.Context, prof Profile, csr *x509.CertificateRequest, cn string) (*Cert, error) {
+	var cert *Cert
+	err := db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Select("id").First(&Profile{}, prof.ID).Error; err != nil {
+			return err
+		}
+		previous, err := estCertForKey(tx, prof, cn, csr.PublicKey)
+		if err != nil {
+			return err
+		}
+		cert, err = issueFromCSR(tx, ctx, prof, csr, 0)
+		if err != nil {
+			return err
+		}
+		previous.DB = tx
+		previous.Ctx = ctx
+		if _, err := previous.Revoke(map[string]string{
+			"id":     strconv.Itoa(int(previous.ID)),
+			"reason": strconv.Itoa(ocsp.Superseded),
+		}); err != nil {
+			return fmt.Errorf("revoke the renewed certificate %d: %w", previous.ID, err)
+		}
+		return nil
+	})
 	if err != nil {
 		return nil, err
 	}
-
-	cert, err := issueFromCSR(db, ctx, prof, csr, 0)
-	if err != nil {
-		return nil, err
-	}
-
-	previous.DB = db
-	previous.Ctx = ctx
-	if _, err := previous.Revoke(map[string]string{
-		"id":     strconv.Itoa(int(previous.ID)),
-		"reason": strconv.Itoa(ocsp.Superseded),
-	}); err != nil {
-		log.LoggerWContext(ctx).Error(fmt.Sprintf("EST: unable to revoke superseded certificate %d (CN %q): %s", previous.ID, cn, err))
-	}
+	cert.DB = db
 	return cert, nil
 }
 
@@ -167,16 +184,19 @@ func refuseLiveCN(db *gorm.DB, prof Profile, cn string) error {
 	return nil
 }
 
-// estCertForKey returns the live certificate with the given CN under
-// prof whose public key is pub.
+// estCertForKey returns the live (unexpired) certificate with the given
+// CN under prof whose public key is pub. The certificates are read with
+// FOR UPDATE: in a transaction, they stay locked until it ends.
 func estCertForKey(db *gorm.DB, prof Profile, cn string, pub crypto.PublicKey) (*Cert, error) {
 	var previous []Cert
-	if err := db.Where("cn = ? AND profile_name = ?", cn, prof.Name).Find(&previous).Error; err != nil {
+	if err := db.Clauses(clause.Locking{Strength: "UPDATE"}).Where("cn = ? AND profile_name = ?", cn, prof.Name).Find(&previous).Error; err != nil {
 		return nil, err
 	}
 	if len(previous) == 0 {
 		return nil, fmt.Errorf("%w: no certificate with CN %q to re-enroll under profile %q", ErrESTPolicy, cn, prof.Name)
 	}
+	now := time.Now()
+	expired := false
 	for i := range previous {
 		block, _ := pem.Decode([]byte(previous[i].Cert))
 		if block == nil {
@@ -186,9 +206,17 @@ func estCertForKey(db *gorm.DB, prof Profile, cn string, pub crypto.PublicKey) (
 		if err != nil {
 			continue
 		}
-		if sameKey(cert.PublicKey, pub) == nil {
-			return &previous[i], nil
+		if sameKey(cert.PublicKey, pub) != nil {
+			continue
 		}
+		if cert.NotAfter.Before(now) {
+			expired = true
+			continue
+		}
+		return &previous[i], nil
+	}
+	if expired {
+		return nil, fmt.Errorf("%w: the certificate with CN %q under profile %q has expired; use simpleenroll to get a new one", ErrESTPolicy, cn, prof.Name)
 	}
 	return nil, fmt.Errorf("%w: the CSR key is not the key of the certificate with CN %q under profile %q; re-enrollment must reuse the key of the certificate", ErrESTPolicy, cn, prof.Name)
 }
