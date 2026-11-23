@@ -49,12 +49,24 @@ sub new {
     my $credentials = delete $args{credentials} // [];
     my $logger = get_logger();
     return $CHI_CACHE->compute(
-        [$server, %args],
+        cache_key($server, \%args),
         {
             expire_if => sub { $class->expire_if(@_, $credentials)}
         },
         sub { $class->compute_connection($server, \%args, $credentials) }
     );
+}
+
+=head2 cache_key
+
+Build the cache key for a connection; hash keys are sorted so the same
+arguments always map to the same cached connection.
+
+=cut
+
+sub cache_key {
+    my ($server, $args) = @_;
+    return [$server, map { ($_ => $args->{$_}) } sort keys %$args];
 }
 
 =head2 log_error_msg
