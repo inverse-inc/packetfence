@@ -20,11 +20,15 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;
+use Test::More tests => 15;
 use Test::Mojo;
 use Test2::Tools::Compare qw(bag end item subset);
 use pf::UnifiedApi::Controller::Config::Kafka;
 use pf::util qw(listify);
+use pf::IniFiles;
+use Utils;
+
+my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Kafka");
 
 #This test will running last
 use Test::NoWarnings;
@@ -267,6 +271,46 @@ Test2::Tools::Compare::is(
         end();
     },
 );
+
+# A PATCH only replaces the settings it contains
+open(my $out, '>', $filename) or die "Cannot write $filename: $!";
+print $out <<'CONF';
+[iptables]
+clients=192.0.2.10
+cluster_ips=192.0.2.1,192.0.2.2
+
+[admin]
+user=admin
+pass=admin-pass
+
+[auth olduser]
+pass=old-pass
+
+[cluster]
+CLUSTER_ID=test-cluster-id
+
+[pf1.example.com]
+KAFKA_NODE_ID=1
+CONF
+close($out);
+
+$t->patch_ok($base_url => json => { auths => [ { user => 'newuser', pass => 'new-pass' } ] })
+  ->status_is(200);
+
+my $ini = pf::IniFiles->new(-file => $filename, -allowempty => 1);
+Test2::Tools::Compare::is(
+    [ sort $ini->Sections ],
+    [ 'admin', 'auth newuser', 'cluster', 'iptables', 'pf1.example.com' ],
+    "PATCH of auths replaces the auth sections and keeps the other ones",
+);
+is($ini->val('iptables', 'cluster_ips'), '192.0.2.1,192.0.2.2', "iptables kept");
+is($ini->val('pf1.example.com', 'KAFKA_NODE_ID'), '1', "host config kept");
+
+$t->patch_ok($base_url => json => { iptables => { clients => ['192.0.2.20'], cluster_ips => [] } })
+  ->status_is(200);
+
+$ini = pf::IniFiles->new(-file => $filename, -allowempty => 1);
+ok($ini->SectionExists('auth newuser'), "auths kept on a PATCH of iptables");
 
 =head1 AUTHOR
 
