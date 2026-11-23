@@ -21,8 +21,8 @@ COPY addons/dev-helpers/debian/install-pf-dependencies.sh /usr/local/pf/addons/d
 COPY addons/dev-helpers/create-python-venv.sh /usr/local/pf/addons/dev-helpers/create-python-venv.sh
 
 # Prepare Repos
-RUN curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg && \
-    /bin/bash -c "echo 'deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/${PF_VERSION} trixie trixie' > /etc/apt/sources.list.d/packetfence_deps.list"  && \
+RUN curl -fsSL https://packages.packetfence.com/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg && \
+    /bin/bash -c "echo 'deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://packages.packetfence.com/downloads/PacketFence/debian/${PF_VERSION} trixie trixie' > /etc/apt/sources.list.d/packetfence_deps.list"  && \
     curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource-repo.gpg && \
     /bin/bash -c "echo 'deb [signed-by=/etc/apt/keyrings/nodesource-repo.gpg] https://deb.nodesource.com/node_20.x nodistro main' > /etc/apt/sources.list.d/nodejs.list" && \
     apt-get -qq update
