@@ -2,7 +2,6 @@ import store from '@/store'
 import StoreModule from './_store'
 
 const TheTabs = () => import(/* webpackChunkName: "ConfigurationSystem" */ '../_components/TheTabsConnectors')
-import ConnectorsRoutes from './connectors/_router'
 import ConnectorsDnsRoutes from './dns/_router'
 import ConnectorsDomainsRoutes from './domains/_router'
 
@@ -17,10 +16,9 @@ export default [
     path: 'connectors',
     name: 'connectors',
     component: TheTabs,
-    props: () => ({ tab: 'connectorsConnectors' }),
+    props: () => ({ tab: 'connectorsDomains' }),
     beforeEnter
   },
-  ...ConnectorsRoutes,
   ...ConnectorsDnsRoutes,
   ...ConnectorsDomainsRoutes
 ]
