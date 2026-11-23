@@ -172,8 +172,22 @@ Each time the switch or a role is saved, PacketFence pushes the ACLs of every
 role (`Switch_ACLS_<switch IP>` in the pfsetacls Semaphore, its log in
 [filename]`/usr/local/pf/var/conf/pfsetacls/<switch IP>/`). A group policy with
 the name of the role is created, or its L3 firewall rules are replaced (its
-other settings are kept). The group policy of a role is deleted when the ACLs
-of the role are disabled on the switch, or when the switch is deleted.
+other settings are kept).
+
+Group policies belong to the Meraki network, which other switches, access
+points (the `Meraki MR` type also names a group policy after the role), MX
+appliances or administrators may share:
+
+* PacketFence only replaces the rules of a group policy it created, whose L3
+  firewall rule comments all start with `PacketFence role <role>:`. If the
+  network already has a group policy named after a role that PacketFence did
+  not create, it is left as is and the push fails, naming it: rename the role
+  or that group policy. Don't edit the rules of a pushed group policy in the
+  dashboard: edit the ACLs of the role.
+* PacketFence never deletes a group policy, since another switch of the network
+  may still name it. When the ACLs of a role are disabled on a switch, that
+  switch stops returning it in `Filter-Id`; when no switch uses a pushed group
+  policy any more, delete it in the dashboard.
 
 The L3 firewall rules of a group policy match the protocol (`tcp`, `udp`,
 `icmp` or `ip`), the destination address and the destination port (`eq` or

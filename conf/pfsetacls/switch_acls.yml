@@ -224,10 +224,15 @@
 [% END %]
 [% END %]
 
-[% IF type.match('Meraki::') %]
+[% IF type.match('Meraki::') && delete < 1 %]
 # Meraki: the ACLs of a role are the Layer 3 firewall rules of a group policy
 # named after the role, created or updated through the Dashboard API. The
 # access policy of the ports returns the group policy named by Filter-Id.
+# Group policies belong to the network, which other switches, access points or
+# admins may share: PacketFence only updates a group policy it created (every
+# L3 rule comment is "PacketFence role <name>: ..."), never one of the same
+# name made by someone else, and never deletes one, since another switch of
+# the network may still use it.
 
     - name: Meraki Dashboard API
       ansible.builtin.set_fact:
@@ -280,19 +285,21 @@
     - name: Index the group policies by name
       ansible.builtin.set_fact:
         meraki_group_policy_ids: "{{ dict(meraki_group_policies.json | map(attribute='name') | zip(meraki_group_policies.json | map(attribute='groupPolicyId'))) }}"
+        meraki_pf_group_policies: []
+
+    - name: Find the group policies PacketFence created
+      ansible.builtin.set_fact:
+        meraki_pf_group_policies: "{{ meraki_pf_group_policies + [item.name] }}"
+      loop: "{{ meraki_group_policies.json }}"
+      loop_control:
+        label: "{{ item.name }}"
+      vars:
+        meraki_rules: "{{ (item.firewallAndTrafficShaping | default({})).l3FirewallRules | default([]) }}"
+      when: >-
+        meraki_rules | length > 0 and
+        meraki_rules | map(attribute='comment', default='') | select('match', '^PacketFence role ' ~ (item.name | regex_escape) ~ ': ') | list | length == meraki_rules | length
 
 [% FOREACH key IN acls_array.keys %]
-[% IF delete >= 1 %]
-    - name: Delete the group policy [% key %]
-      ansible.builtin.uri:
-        method: DELETE
-        url: "{{ meraki_api_url }}/networks/{{ meraki_network_id }}/groupPolicies/{{ meraki_group_policy_ids['[% key %]'] }}"
-        headers: "{{ meraki_headers }}"
-        follow_redirects: all
-        status_code: [200, 204]
-      changed_when: true
-      when: "'[% key %]' in meraki_group_policy_ids"
-[% ELSE %]
     - name: Update the group policy [% key %]
       ansible.builtin.uri:
         method: PUT
@@ -313,7 +320,7 @@
                 destCidr: "[% rule.destCidr %]"
 [% END %]
       changed_when: true
-      when: "'[% key %]' in meraki_group_policy_ids"
+      when: "'[% key %]' in meraki_pf_group_policies"
 
     - name: Create the group policy [% key %]
       ansible.builtin.uri:
@@ -346,21 +353,14 @@
           splashAuthSettings: network default
       changed_when: true
       when: "'[% key %]' not in meraki_group_policy_ids"
-[% END %]
 
 [% END %]
-[% FOREACH role IN AccessListEnabled.keys %]
-    - name: Delete the group policy [% role %], the ACLs of the role were disabled on the switch
-      ansible.builtin.uri:
-        method: DELETE
-        url: "{{ meraki_api_url }}/networks/{{ meraki_network_id }}/groupPolicies/{{ meraki_group_policy_ids['[% role %]'] }}"
-        headers: "{{ meraki_headers }}"
-        follow_redirects: all
-        status_code: [200, 204]
-      changed_when: true
-      when: "'[% role %]' in meraki_group_policy_ids"
-
-[% END %]
+    - name: Refuse the group policies PacketFence did not create
+      ansible.builtin.fail:
+        msg: "The Meraki network already has a group policy named {{ meraki_foreign | join(', ') }} that PacketFence did not create: it was left as is, and the clients of the role get its rules. Rename the role or the group policy."
+      vars:
+        meraki_foreign: "{{ [[% FOREACH key IN acls_array.keys %]'[% key %]', [% END %]] | select('in', meraki_group_policy_ids) | reject('in', meraki_pf_group_policies) | list }}"
+      when: meraki_foreign | length > 0
 [% END %]
 
 [% FOREACH role IN interfaces_delete.keys %]
