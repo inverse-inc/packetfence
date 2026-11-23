@@ -27,6 +27,7 @@ ALL_IMAGES="
     radiusd-eduroam radiusd-load-balancer radiusd-cli pfperl-api httpd.portal
     pfsso api-frontend httpd.dispatcher pfacct radiusd-auth httpd.webservices
     pfsetacls pfpki pfconnector proxysql pfqueue fingerbank-db netdata kafka
+    pfdhcp
 "
 
 RETRY_LIMIT=3
