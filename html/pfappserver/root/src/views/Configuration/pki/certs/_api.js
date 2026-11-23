@@ -46,14 +46,17 @@ export default {
       return { id, ...decomposeCert(item) }
     })
   },
-  email: id => {
-    return apiCall.post(['pki', 'cert', id, 'email']).then(response => {
+  email: (id, password) => {
+    const body = password
+      ? { password }
+      : {}
+    return apiCall.post(['pki', 'cert', id, 'email'], body).then(response => {
       const { data: { error } = {} } = response
       if (error) {
         throw error
       } else {
-        const { data: { password } = {} } = response
-        return { password }
+        const { data: { password, password_mailed } = {} } = response
+        return { password, password_mailed }
       }
     })
   },

@@ -27,7 +27,7 @@
       <mj-section padding-top="0">
         <mj-column>
           <mj-text>
-            <p style="padding-bottom: 20px">{{translate "msg_password"}} {{.Password}}</p>
+            {{if .Password}}<p style="padding-bottom: 20px">{{translate "msg_password"}} {{.Password}}</p>{{end}}
             <p style="padding-bottom: 20px">{{translate .Footer }}</p>
           </mj-text>
         </mj-column>

@@ -10,7 +10,8 @@ end)
 
 local string = require("string");
 
--- The pfpki endpoints a device may reach through the portal: SCEP and OCSP.
+-- The pfpki endpoints a device may reach through the portal: SCEP, OCSP
+-- and EST.
 -- The pki backend sends the request to the PKI API without authentication,
 -- so any other path, such as the certificates or their keys, must not get
 -- there: match the whole path, not a part of it.
@@ -22,11 +23,23 @@ local pki_paths = {
     '^/scep/?$',
     '^/scep/[^/]+$',
     '^/scep/[^/]+/pkiclient%.exe$',
+    '^/%.well%-known/est/[^/]+$',
+    '^/%.well%-known/est/[^/]+/[^/]+$',
 }
 
+-- The PKI API routes the path as it is: a dot segment must not move a
+-- request to another endpoint.
+local function has_dot_segment(path)
+    for segment in string.gmatch(path, "[^/]+") do
+        if segment == "." or segment == ".." then
+            return true
+        end
+    end
+    return false
+end
+
 local function is_pki_path(path)
-    -- no dot segments: the PKI API routes the path as it is
-    if string.find(path, "/%.") then
+    if has_dot_segment(path) then
         return false
     end
     for _, pattern in ipairs(pki_paths) do
@@ -45,6 +58,12 @@ core.register_action("select", { "http-req" }, function(txn)
         txn:set_var("req.action","static")
     elseif ( string.match(txn.sf:path(), '/rfc7710') ) then
         txn:set_var("req.action","proxy")
+    elseif ( string.match(txn.sf:path(), '^/api/v1/pki/acme/') and not has_dot_segment(txn.sf:path()) ) then
+        -- ACME clients use the URLs pfpki builds from the request
+        -- (https://<host>/api/v1/pki/acme/...): the pki backend adds
+        -- /api/v1 back, so pfpki sees the path the client signed.
+        txn.http:req_set_path(string.sub(txn.sf:path(), 8))
+        txn:set_var("req.action","pki")
     elseif ( is_pki_path(txn.sf:path()) ) then
         txn:set_var("req.action","pki")
     elseif ( not ([% FOREACH host IN portal_host %] string.match(txn.sf:req_fhdr("Host"):lower(), '^[% host FILTER lower %][0-9:]*$') or[% END %] false ) ) then

@@ -1,7 +1,7 @@
 import store from '@/store'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
-import { keyTypes } from '../config'
+import { keyTypeOf } from '../config'
 
 yup.addMethod(yup.string, 'pkiProfileNameNotExistsExcept', function (exceptName = '', message) {
   return this.test({
@@ -62,7 +62,7 @@ export default (props) => {
         return last
       }
       const _schema = yup.string().required(i18n.t('Key size required.'))
-      const { [key_type]: { text: type, sizes } = {} } = keyTypes
+      const { text: type, sizes } = keyTypeOf(key_type) || {}
       if (sizes)
         return _schema.in(sizes, i18n.t('Invalid key size. {type} only supports {list}', { type, list: arrToLocale(sizes) }))
       return _schema

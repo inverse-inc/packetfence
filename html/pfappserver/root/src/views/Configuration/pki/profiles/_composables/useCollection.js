@@ -20,8 +20,13 @@ export const useItemDefaults = (meta, props) => {
     renewal_mail: '1',
     days_before_renewal: '14',
     days_before_renewal_mail: '14',
+    renewal_mail_days: '',
     renewal_mail_subject: 'Certificate expiration',
-    revoked_valid_until: '14'
+    revoked_valid_until: '14',
+    acme_eab_required: 1,
+    acme_account_expiry: '365',
+    acme_order_expiry: '7',
+    acme_authz_expiry: '24'
   }
 }
 

@@ -124,3 +124,129 @@
         $ref: '#/components/responses/BadRequest'
     tags:
       - PKI
+
+/api/v1/pki/profile/{profile_id}/acme/eab:
+  get:
+    summary: Get the ACME EAB keys of a PKI Profile.
+    description: |
+      Lists the External Account Binding keys (RFC 8555 section 7.3.4) of
+      the profile, newest first. The HMAC keys are never returned here.
+    parameters:
+      - name: profile_id
+        in: path
+        required: true
+        description: '`PRIMARY KEY`'
+        schema:
+          type: integer
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiAcmeEabList'
+      '400':
+        $ref: '#/components/responses/PkiError'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - PKI
+  post:
+    summary: Create an ACME EAB key for a PKI Profile.
+    description: |
+      Generates a new External Account Binding key pair (key ID and HMAC
+      key). The HMAC key is returned only in this answer; distribute it to
+      the ACME clients (e.g. in their MDM payload) together with the key ID.
+      A key binds the first ACME account created with it.
+    parameters:
+      - name: profile_id
+        in: path
+        required: true
+        description: '`PRIMARY KEY`'
+        schema:
+          type: integer
+    requestBody:
+      $ref: '#/components/requestBodies/PkiAcmeEabCreate'
+    responses:
+      '201':
+        $ref: '#/components/responses/PkiAcmeEabCreate'
+      '400':
+        $ref: '#/components/responses/PkiError'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '500':
+        $ref: '#/components/responses/PkiError'
+    tags:
+      - PKI
+
+/api/v1/pki/profile/{profile_id}/acme/eab/{eab_id}:
+  delete:
+    summary: Delete an ACME EAB key of a PKI Profile.
+    description: |
+      Revokes the External Account Binding key: no new ACME account can be
+      created with it. Idempotent: deleting a key that doesn't exist (or
+      was already deleted) also answers 204.
+    parameters:
+      - name: profile_id
+        in: path
+        required: true
+        description: '`PRIMARY KEY`'
+        schema:
+          type: integer
+      - name: eab_id
+        in: path
+        required: true
+        description: ID of the EAB key.
+        schema:
+          type: integer
+    responses:
+      '204':
+        description: The EAB key has been deleted (or didn't exist).
+      '400':
+        $ref: '#/components/responses/PkiError'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+    tags:
+      - PKI
+
+/api/v1/pki/profile/{profile_id}/acme/mobileconfig:
+  get:
+    summary: Download the Apple ACME configuration profile of a PKI Profile.
+    description: |
+      Returns an unsigned Apple configuration profile (.mobileconfig) with
+      one ACME certificate payload that enrolls the device through ACME
+      device attestation (device-attest-01) at
+      `https://{host}/api/v1/pki/acme/{profile name}/directory`, where
+      `{host}` is the host name the request was sent to.
+
+      The PKI Profile must be set up for Apple devices: ACME enabled,
+      `permanent-identifier` among `acme_allowed_identifiers`, `apple`
+      among `acme_attestation_formats` and `acme_eab_required` off (the
+      Apple ACME client doesn't support External Account Binding);
+      otherwise the request answers 409 with the list of problems.
+    parameters:
+      - name: profile_id
+        in: path
+        required: true
+        description: '`PRIMARY KEY`'
+        schema:
+          type: integer
+      - name: client_identifier
+        in: query
+        required: false
+        description: |
+          Value of the ClientIdentifier of the payload, which the device
+          sends as its permanent identifier (serial number or UDID). It must
+          be an MDM substitution variable resolved per device.
+        schema:
+          type: string
+          default: $SERIALNUMBER
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiAcmeMobileConfig'
+      '400':
+        $ref: '#/components/responses/PkiError'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/PkiError'
+      '409':
+        $ref: '#/components/responses/PkiError'
+    tags:
+      - PKI

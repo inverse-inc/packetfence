@@ -1,16 +1,47 @@
 <template>
-  <b-button v-if="!isClone && !isNew && !isScep && !isCsr"
-    :size="size" variant="outline-primary" :disabled="disabled || isLoading" @click.stop.prevent="onEmail">{{ $t('Email') }}</b-button>
+  <b-button-group v-if="!isClone && !isNew && !isScep && !isCsr">
+    <b-button :size="size" variant="outline-primary" :disabled="disabled || isLoading" @click="onShowModal">{{ $t('Email') }}</b-button>
+    <b-modal v-model="isShowModal"
+      size="lg" centered cancel-disabled>
+      <template v-slot:modal-title>
+        <h4>{{ $t('Email PKCS-12 Certificate') }}</h4>
+        <b-form-text v-t="'Optionally specify a password to encrypt the certificate. Leave empty to generate one automatically. The password is included in the email only when the P12 mail password option of the template is enabled.'" class="mb-0" />
+      </template>
+      <div v-if="unmailedPassword">
+        <p v-t="'The password was not included in the email. Give it to the user by other means:'" />
+        <pre class="mb-0"><code>{{ unmailedPassword }}</code></pre>
+      </div>
+      <b-form-group v-else @submit.prevent="onEmail" class="mb-0">
+        <base-form ref="rootRef"
+          :form="form"
+          :schema="schema"
+          :isLoading="isLoading"
+        >
+          <form-group-password namespace="password"
+            :column-label="$i18n.t('Password')"
+            :text="$i18n.t('The certificate will be encrypted with this password. Leave empty to auto-generate.')"
+          />
+        </base-form>
+      </b-form-group>
+      <template v-slot:modal-footer>
+        <b-button v-if="unmailedPassword" variant="primary" @click="onHideModal">{{ $t('Close') }}</b-button>
+        <b-button v-if="!unmailedPassword" variant="secondary" class="mr-1" :disabled="isLoading" @click="onHideModal">{{ $t('Cancel') }}</b-button>
+        <b-button v-if="!unmailedPassword" variant="primary" :disabled="isLoading || !isValid" @click="onEmail">
+          <icon v-if="isLoading" class="mr-1" name="circle-notch" spin /> {{ $t('Send Email') }}
+        </b-button>
+      </template>
+    </b-modal>
+  </b-button-group>
 </template>
 <script>
 import {
   BaseForm,
-  BaseFormGroupChosenOne as FormGroupReason
+  BaseFormGroupInputPassword as FormGroupPassword
 } from '@/components/new/'
 
 const components = {
   BaseForm,
-  FormGroupReason
+  FormGroupPassword
 }
 
 const props = {
@@ -33,8 +64,21 @@ const props = {
   }
 }
 
-import { computed, ref, toRefs, watch } from '@vue/composition-api'
 import i18n from '@/utils/locale'
+import yup from '@/utils/yup'
+
+// Password is optional here (empty → server auto-generates). When supplied
+// it must be at least 8 characters to match the Download form's policy.
+const schema = yup.object({
+  password: yup.string().notRequired().test(
+    'min-when-set',
+    i18n.t('Password must be at least 8 characters.'),
+    value => !value || value.length >= 8
+  )
+})
+
+import { computed, ref, toRefs, watch } from '@vue/composition-api'
+import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import StoreModule from '../../_store'
 
 const setup = (props, context) => {
@@ -66,11 +110,35 @@ const setup = (props, context) => {
     const { csr } = cert.value
     return csr
   })
+
   const isLoading = computed(() => $store.getters['$_pkis/isLoading'])
+  const rootRef = ref(null)
+  const form = ref({})
+
+  const isShowModal = ref(false)
+  // generated password the email didn't carry (p12_mail_password off)
+  const unmailedPassword = ref(null)
+  const onShowModal = () => {
+    form.value = {}
+    unmailedPassword.value = null
+    isShowModal.value = true
+  }
+  const onHideModal = () => {
+    isShowModal.value = false
+    unmailedPassword.value = null
+  }
+  const isValid = useDebouncedWatchHandler([form, isShowModal], () => (!rootRef.value || rootRef.value.$el.querySelectorAll('.is-invalid').length === 0))
+
   const onEmail = () => {
-    const { id, cn, mail } = cert.value
-    $store.dispatch('$_pkis/emailCert', id).then(() => {
+    const { cn, mail } = cert.value
+    const { password } = form.value || {}
+    $store.dispatch('$_pkis/emailCert', { id: id.value, password }).then(response => {
       $store.dispatch('notification/info', { message: i18n.t('Certificate <code>{cn}</code> emailed to <code>{mail}</code>.', { cn, mail }) })
+      const { password: generated, password_mailed } = response || {}
+      if (!password && generated && !password_mailed)
+        unmailedPassword.value = generated
+      else
+        onHideModal()
     }).catch(e => {
       $store.dispatch('notification/danger', { message: i18n.t('Could not email certificate <code>{cn}</code> to <code>{mail}</code>: ', { cn, mail }) + e })
     })
@@ -78,8 +146,16 @@ const setup = (props, context) => {
 
   return {
     isLoading,
+    rootRef,
+    form,
+    schema: ref(schema),
     isScep,
     isCsr,
+    isValid,
+    isShowModal,
+    unmailedPassword,
+    onShowModal,
+    onHideModal,
     onEmail
   }
 }
