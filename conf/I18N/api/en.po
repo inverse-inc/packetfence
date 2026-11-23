@@ -19133,7 +19133,7 @@ msgid "Use the RADIUS username instead of the TLS certificate common name when d
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeEdir.vue:96
-msgid "Use the available PacketFence connectors to connect to this authentication source. By default, a local connector is hosted on this server."
+msgid "Use the available PacketFence connectors to connect to this authentication source. Requires the PacketFence Connector plugin."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/firewalls/_components/FormTypeCheckpoint.vue:55
@@ -19150,25 +19150,25 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/firewalls/_components/FormTypeWatchGuard.vue:55
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeLdap.vue:109
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:43
-msgid "Use the available PacketFence connectors to connect to this authentication source. By default, a local connector is hosted on this server. Using remote connectors is only supported on a standalone instance at the moment."
+msgid "Use the available PacketFence connectors to connect to this authentication source. Requires the PacketFence Connector plugin. Using remote connectors is only supported on a standalone instance at the moment."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/domains/_components/TheForm.vue:85
-msgid "Use the available PacketFence connectors to connect to this domain."
+msgid "Use the available PacketFence connectors to connect to this domain. Requires the PacketFence Connector plugin."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/firewalls/_components/FormTypeBarracudaNg.vue:59
-msgid "Use the available PacketFence connectors to connect to this firewall."
+msgid "Use the available PacketFence connectors to connect to this firewall. Requires the PacketFence Connector plugin."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheForm.vue:341
 #: html/pfappserver/root/src/views/Configuration/switches/_components/TheForm.vue:346
-msgid "Use the available PacketFence connectors to connect to this switch in SNMP. By default, a local connector is hosted on this server."
+msgid "Use the available PacketFence connectors to connect to this switch in SNMP. Requires the PacketFence Connector plugin."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheForm.vue:300
 #: html/pfappserver/root/src/views/Configuration/switches/_components/TheForm.vue:305
-msgid "Use the available PacketFence connectors to perform RADIUS deauth (access reevaluation). By default, a local connector is hosted on this server."
+msgid "Use the available PacketFence connectors to perform RADIUS deauth (access reevaluation). Requires the PacketFence Connector plugin."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/advanced/_components/TheForm.vue:108
