@@ -123,6 +123,11 @@ func http01AllowedIP(ip net.IP) bool {
 		if v4[0] == 0 || v4.Equal(net.IPv4bcast) {
 			return false
 		}
+		// 100.64.0.0/10: the internal network of the PacketFence
+		// containers and proxies (see ratelimit's trusted proxies).
+		if v4[0] == 100 && v4[1]&0xc0 == 64 {
+			return false
+		}
 	}
 	return true
 }

@@ -412,6 +412,28 @@ func TestNewOrder_DNSAndIPNeedEAB(t *testing.T) {
 		body, _ := io.ReadAll(resp.Body)
 		t.Fatalf("EAB-bound account: status=%d body=%s", resp.StatusCode, body)
 	}
+
+	// An ip identifier is stored in its canonical form (RFC 8738 §3),
+	// the one the CSR IP SANs are compared with at finalize.
+	for value, want := range map[string]string{
+		"2001:DB8:0::1":    "2001:db8::1",
+		"::ffff:192.0.2.7": "192.0.2.7",
+	} {
+		resp := order(bound, boundKID, "ip", value)
+		body, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		if resp.StatusCode != http.StatusCreated {
+			t.Fatalf("ip %s: status=%d body=%s", value, resp.StatusCode, body)
+		}
+		var got struct {
+			Identifiers []struct{ Type, Value string }
+		}
+		if err := json.Unmarshal(body, &got); err != nil || len(got.Identifiers) != 1 || got.Identifiers[0].Value != want {
+			t.Fatalf("ip %s: identifiers=%+v err=%v, want %s", value, got.Identifiers, err, want)
+		}
+	}
+	// The internal container network can't be an http-01 target.
+	expectProblem(t, order(bound, boundKID, "ip", "100.64.0.5"), http.StatusBadRequest, "rejectedIdentifier")
 }
 
 // TestNewOrder_OpenOrdersCap: an account with maxOpenOrders orders

@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"strconv"
 	"strings"
@@ -140,6 +141,12 @@ func newOrderHandler(h *types.Handler) http.HandlerFunc {
 			if err := validateIdentifier(ident.Type, ident.Value); err != nil {
 				_ = WriteProblem(w, http.StatusBadRequest, ErrRejectedIdentifier, err.Error())
 				return
+			}
+			// RFC 8738 §3: an ip identifier is in its canonical form
+			// (RFC 5952 for IPv6). Store that form, which is the one
+			// the CSR IP SANs are compared with at finalize.
+			if ident.Type == "ip" {
+				ident.Value = net.ParseIP(ident.Value).String()
 			}
 			// http-01 only proves the client answers for the name or
 			// address on the network, which anyone on the portal
