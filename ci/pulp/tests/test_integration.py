@@ -131,7 +131,7 @@ class ConfigurationTest(unittest.TestCase):
                             'case "$*" in "inspect "*) case "$*" in *pfcmd:p-7*|*radiusd:p-7*|*pfcmd:v16.0.0*|*radiusd:v16.0.0*) exit 0;; '
                             '*pfqueue:*) echo "requested access to the resource is denied" >&2; exit 1;; '
                             '*) echo "manifest unknown" >&2; exit 1;; esac;; '
-                            '"login "*) cat > "$TEST_LOGIN";; esac\n')
+                            '"login "*) python3 -c \'import json, sys; json.load(open(sys.argv[1]))\' "$3" || exit 1; cat > "$TEST_LOGIN";; esac\n')
             fake.chmod(0o700)
             script = push_tree(work)
             calls, login, psono = work/'calls', work/'login', work/'psono'
@@ -378,7 +378,7 @@ class ConfigurationTest(unittest.TestCase):
             fake = work/'skopeo'
             fake.write_text('#!/bin/sh\nprintf "%s\\n" "$*" >> "$TEST_CALLS"\n'
                             'case "$*" in "inspect "*) case "$*" in *pfcmd:feature-x-p7*) exit 0;; '
-                            '*) echo "manifest unknown" >&2; exit 1;; esac;; "login "*) cat > /dev/null;; esac\n')
+                            '*) echo "manifest unknown" >&2; exit 1;; esac;; "login "*) python3 -c \'import json, sys; json.load(open(sys.argv[1]))\' "$3" || exit 1; cat > /dev/null;; esac\n')
             fake.chmod(0o700)
             script, calls = push_tree(work), work/'calls'
             calls.write_text('')
