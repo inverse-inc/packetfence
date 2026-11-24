@@ -808,7 +808,13 @@ func (c CA) Resign(params map[string]string) (types.Info, error) {
 	var cadb []CA
 	var err error
 	if val, ok := params["id"]; ok {
-		if err = c.DB.First(&cadb, val).Error; err != nil {
+		var id uint
+		if id, err = parseID(val); err != nil {
+			Information.Status = http.StatusBadRequest
+			Information.Error = err.Error()
+			return Information, err
+		}
+		if err = c.DB.First(&cadb, id).Error; err != nil {
 			Information.Error = err.Error()
 			return Information, err
 		}
@@ -913,7 +919,13 @@ func (c CA) GenerateCSR(params map[string]string) (types.Info, error) {
 	var cadb []CA
 	var err error
 	if val, ok := params["id"]; ok {
-		if err = c.DB.First(&cadb, val).Error; err != nil {
+		var id uint
+		if id, err = parseID(val); err != nil {
+			Information.Status = http.StatusBadRequest
+			Information.Error = err.Error()
+			return Information, err
+		}
+		if err = c.DB.First(&cadb, id).Error; err != nil {
 			Information.Status = http.StatusNotFound
 			Information.Error = err.Error()
 			return Information, err
@@ -954,7 +966,13 @@ func (c CA) Update(params map[string]string) (types.Info, error) {
 	var cadb []CA
 	var err error
 	if val, ok := params["id"]; ok {
-		if err = c.DB.First(&cadb, val).Error; err != nil {
+		var id uint
+		if id, err = parseID(val); err != nil {
+			Information.Status = http.StatusBadRequest
+			Information.Error = err.Error()
+			return Information, err
+		}
+		if err = c.DB.First(&cadb, id).Error; err != nil {
 			Information.Status = http.StatusNotFound
 			Information.Error = err.Error()
 			return Information, err
@@ -1076,7 +1094,13 @@ func (p Profile) Update(params map[string]string) (types.Info, error) {
 	}
 
 	if val, ok := params["id"]; ok {
-		if ProfileDB := p.DB.First(&profile, val).Find(&profile); ProfileDB.Error != nil {
+		id, err := parseID(val)
+		if err != nil {
+			Information.Status = http.StatusBadRequest
+			Information.Error = err.Error()
+			return Information, err
+		}
+		if ProfileDB := p.DB.First(&profile, id).Find(&profile); ProfileDB.Error != nil {
 			Information.Error = ProfileDB.Error.Error()
 			return Information, ProfileDB.Error
 		}
@@ -1393,7 +1417,13 @@ func (c Cert) Download(params map[string]string) (types.Info, error) {
 		}
 	} else {
 		if val, ok := params["id"]; ok {
-			if CertDB := c.DB.Preload("Ca").First(&cert, val); CertDB.Error != nil {
+			id, err := parseID(val)
+			if err != nil {
+				Information.Status = http.StatusBadRequest
+				Information.Error = err.Error()
+				return Information, err
+			}
+			if CertDB := c.DB.Preload("Ca").First(&cert, id); CertDB.Error != nil {
 				Information.Error = CertDB.Error.Error()
 				return Information, errors.New(dbError)
 			}
@@ -1558,7 +1588,13 @@ func (c Cert) Resign(params map[string]string) (types.Info, error) {
 	var err error
 	//Search the existing cert in the db
 	if val, ok := params["id"]; ok {
-		if err = c.DB.Preload("Ca").Preload("Profile").First(&certdb, val).Error; err != nil {
+		var id uint
+		if id, err = parseID(val); err != nil {
+			Information.Status = http.StatusBadRequest
+			Information.Error = err.Error()
+			return Information, err
+		}
+		if err = c.DB.Preload("Ca").Preload("Profile").First(&certdb, id).Error; err != nil {
 			Information.Error = err.Error()
 			return Information, err
 		}
@@ -1846,8 +1882,13 @@ func (csr CSR) New(params map[string]string) (types.Info, error) {
 	// Find the profile
 	var prof Profile
 	if val, ok := params["id"]; ok {
-
-		if profDB := csr.DB.First(&prof, val); profDB.Error != nil {
+		id, err := parseID(val)
+		if err != nil {
+			Information.Status = http.StatusBadRequest
+			Information.Error = err.Error()
+			return Information, err
+		}
+		if profDB := csr.DB.First(&prof, id); profDB.Error != nil {
 			Information.Error = profDB.Error.Error()
 			return Information, errors.New(dbError)
 		}
@@ -2260,7 +2301,13 @@ func (s SCEPServer) DelByID(params map[string]string) (types.Info, error) {
 	Information := types.Info{}
 	var scepserverdb []SCEPServer
 	if val, ok := params["id"]; ok {
-		s.DB.Delete(&SCEPServer{}, val)
+		id, err := parseID(val)
+		if err != nil {
+			Information.Status = http.StatusBadRequest
+			Information.Error = err.Error()
+			return Information, err
+		}
+		s.DB.Delete(&SCEPServer{}, id)
 	}
 	Information.Entries = scepserverdb
 	return Information, nil
