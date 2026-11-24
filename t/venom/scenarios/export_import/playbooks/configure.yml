@@ -21,18 +21,9 @@
     - role: inverse_inc.gitlab_buildpkg_tools
     - role: apt_preferences
 
-  # temp: do that in Venom tests to use same command as defined in manual
+  # This pipeline's build, from its PPA (gitlab_buildpkg_tools), not a file another pipeline published.
   tasks:
-    - name: Download packetfence-export package
-      get_url:
-        url: 'https://packages.packetfence.com/downloads/PacketFence/debian/packetfence-export_branches.deb'
-        dest: '/root/packetfence-export_branches.deb'
-        mode: '0755'
-        force: yes
-        owner: 'root'
-        group: 'root'
-
     - name: Install packetfence-export package
       apt:
-        deb: '/root/packetfence-export_branches.deb'
+        name: packetfence-export
         state: present
