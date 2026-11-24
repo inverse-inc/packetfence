@@ -19,7 +19,7 @@ configure_and_check() {
     BUILD_ID_FILE=${PF_SRC_DIR}/conf/build_id
 
     # release tag, feature branch pipeline tag, or branch slug
-    TAG_OR_BRANCH_NAME=$(sh ${PF_SRC_DIR}/ci/lib/common/image-tag.sh)
+    TAG_OR_BRANCH_NAME=$(sh "${PF_SRC_DIR}/ci/lib/common/image-tag.sh")
     TAG_OR_BRANCH_NAME=${TAG_OR_BRANCH_NAME:-localdev}
 
     declare -p TAG_OR_BRANCH_NAME

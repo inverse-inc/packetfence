@@ -24,7 +24,7 @@ configure_and_check() {
     CONTAINER_NAME=pfconfig_material
 
     # release tag, feature branch pipeline tag, or branch slug
-    IMAGE_TAG=$(sh ${PF_SRC_DIR}/ci/lib/common/image-tag.sh)
+    IMAGE_TAG=$(sh "${PF_SRC_DIR}/ci/lib/common/image-tag.sh")
     IMAGE_TAG=${IMAGE_TAG:-localdev}
 
     declare -p CI_COMMIT_TAG CI_COMMIT_REF_SLUG
