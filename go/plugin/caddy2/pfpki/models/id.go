@@ -13,7 +13,7 @@ var ErrInvalidID = errors.New("invalid id")
 // Delete(&X{}, id) uses a non-numeric string as a raw WHERE clause, so a
 // string id from the URL would end up in the SQL.
 func parseID(val string) (uint, error) {
-	id, err := strconv.ParseUint(val, 10, 64)
+	id, err := strconv.ParseUint(val, 10, strconv.IntSize)
 	if err != nil {
 		return 0, ErrInvalidID
 	}
