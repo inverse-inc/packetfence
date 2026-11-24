@@ -64,12 +64,13 @@ On `devel` and `maintenance/X.Y`, the service images (`pfdebian`, `radiusd` and 
 `*_related` matrices) are pushed to GHCR only as `<slug>-p<pipeline>`
 (`ci/lib/common/pipeline-image-tag.sh`). The test VMs pull that tag: provisioning writes
 `/etc/packetfence-ci-image-tag` and `manage-images.sh` retags the images locally with the
-package's `TAG_OR_BRANCH_NAME`, so the packages themselves keep their branch tag. After the
-tests pass, `deploy_containers` (deploy stage) copies the manifests to the branch tags on
+package's `TAG_OR_BRANCH_NAME`, so the packages themselves keep their branch tag.
+`deploy_containers` (deploy stage) then copies the manifests to the branch tags on
 GitHub (`devel,latest` or `maintenance-X-Y`; `ci/lib/upload/promote-images.py`), then pushes
 the same images to the registry on `PF_PACKAGE_ORIGIN` under the same tags
-(`ci/pulp/container-push.sh`). It runs only in pipelines that run tests, so a pipeline without
-tests leaves the branch tags unchanged. A release tag `vX.Y.Z` builds its images on GHCR as
+(`ci/pulp/container-push.sh`). It runs on the same pipelines as the package deploy, so the branch
+tags and the published packages always come from one pipeline; when a pipeline does run tests, the
+deploy stage keeps both behind them. A release tag `vX.Y.Z` builds its images on GHCR as
 `vX.Y.Z` and keeps them there: nothing is pushed to the registry on `PF_PACKAGE_ORIGIN`. Builder images (`pfbuild-*`, `kaniko-build`, `signing-packages`, `publish-ppa`) keep
 their branch tags (`BUILDER_TAG` in the Dockerfiles). Pipeline tags are not deleted automatically.
 

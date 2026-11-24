@@ -48,7 +48,7 @@ class ConfigurationTest(unittest.TestCase):
         self.assertIn('container-push.sh "$pipeline_tag" "$PROMOTE_TAGS"', script)
         self.assertNotIn('CI_COMMIT_TAG', script)
 
-    def test_service_images_are_promoted_only_after_tests(self):
+    def test_service_images_are_promoted_whenever_packages_are_published(self):
         config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
         service = config['.build_img_service_rules']['rules']
         for name in ('pfdebian', 'pfdebian_related', 'radiusd', 'radiusd_related'):
@@ -59,10 +59,18 @@ class ConfigurationTest(unittest.TestCase):
                 self.assertEqual(rule['variables']['BUILDER_TAG'], '${CI_COMMIT_REF_SLUG}')
         job = config['deploy_containers']
         self.assertEqual(job['stage'], 'deploy')
-        self.assertNotIn('needs', job)  # waits for every test stage
-        branches = job['rules'][1:]
+        # No needs: the deploy stage waits for the tests when a pipeline runs them, and the gates
+        # below keep promotion out of pipelines that built no images or deploy nothing.
+        self.assertNotIn('needs', job)
+        self.assertEqual(job['rules'][:2], [{'reference': ['.gated_by_build_img_container', 'rules']},
+                                            {'reference': ['.gated_by_deploy_pkg', 'rules']}])
+        branches = job['rules'][2:]
+        packages = [r['if'] for r in config['deploy_debian_pulp']['rules'] if 'if' in r]
+        # Promotion matches the packages condition for condition: a pipeline that publishes one
+        # publishes the other, with or without tests. The tag guard is promotion's alone.
+        self.assertEqual([r['if'] for r in branches], [packages[0] + ' && $CI_COMMIT_TAG == null'] + packages[1:])
         for rule in branches:
-            self.assertIn('$TEST == "yes"', rule['if'])
+            self.assertNotIn('$TEST', rule['if'])
             self.assertIn('$CI_COMMIT_TAG == null', rule['if'])
         self.assertEqual([r['variables']['PROMOTE_TAGS'] for r in branches],
                          ['${CI_COMMIT_REF_SLUG},latest', '$CI_COMMIT_REF_SLUG'])

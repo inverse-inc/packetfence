@@ -1564,11 +1564,12 @@ deploy_debian_pulp:
         DEPLOY_ENV_NAME: maintenance
         IMAGE_TAG: $CI_COMMIT_REF_SLUG
 
-# devel and maintenance/X.Y: service images are pushed only as <slug>-p<pipeline>. Once the
-# tests pass, give them their branch tags on GitHub (devel,latest / maintenance-X-Y; manifests
-# are copied, nothing is rebuilt), then push them to packages.packetfence.com under the same
-# tags as ci-docker (ci/pulp/container-push.sh). Runs only when tests ran; a release tag keeps its
-# vX.Y.Z images on GitHub. The environment lets GitLab skip an older pipeline that finishes after a newer one.
+# devel and maintenance/X.Y: service images are pushed only as <slug>-p<pipeline>. Give them their
+# branch tags on GitHub (devel,latest / maintenance-X-Y; manifests are copied, nothing is rebuilt),
+# then push them to packages.packetfence.com under the same tags as ci-docker (ci/pulp/container-push.sh).
+# Same conditions as deploy_debian_pulp, so a pipeline never publishes packages without the images they
+# expect; when tests run, the deploy stage keeps both behind them. A release tag keeps its vX.Y.Z images
+# on GitHub. The environment lets GitLab skip an older pipeline that finishes after a newer one.
 deploy_containers:
   stage: deploy
   image: $PF_PPA_IMAGE
@@ -1587,11 +1588,12 @@ deploy_containers:
     - docker
   rules:
     - !reference [.gated_by_build_img_container, rules]
-    - if: '$CI_COMMIT_REF_NAME == "devel" && $CI_COMMIT_TAG == null && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" || $TEST_CLUSTER == "yes" || $CI_COMMIT_MESSAGE =~ /test_cluster=yes/ )'
+    - !reference [.gated_by_deploy_pkg, rules]
+    - if: '$CI_COMMIT_REF_NAME == "devel" && $CI_COMMIT_TAG == null'
       variables:
         IMAGE_TAG: latest
         PROMOTE_TAGS: "${CI_COMMIT_REF_SLUG},latest"
-    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" || $TEST_CLUSTER == "yes" || $CI_COMMIT_MESSAGE =~ /test_cluster=yes/ )'
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule")'
       variables:
         IMAGE_TAG: $CI_COMMIT_REF_SLUG
         PROMOTE_TAGS: $CI_COMMIT_REF_SLUG
