@@ -251,6 +251,7 @@ conf/build_id:
 rpm/.rpmmacros:
 	echo "%systemddir /usr/lib/systemd" > $(SRC_RPMDIR)/.rpmmacros
 	echo "%pf_minor_release $(PF_MINOR_RELEASE)" >> $(SRC_RPMDIR)/.rpmmacros
+	echo "%pf_branches_dir branches/$(PF_MINOR_RELEASE)$(if $(PF_BRANCHES_PIPELINE),/$(PF_BRANCHES_PIPELINE))" >> $(SRC_RPMDIR)/.rpmmacros
 
 .PHONY: build_rpm
 build_rpm: conf/git_commit_id conf/build_id rpm/.rpmmacros dist-packetfence-test dist-packetfence-export dist-packetfence-upgrade dist

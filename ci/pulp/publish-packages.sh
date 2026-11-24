@@ -1,8 +1,8 @@
 #!/bin/bash
 # Publish CI packages to the packaging Pulp through its API.
 #   ppa       public/                 -> gitlab/<pipeline>/                every pipeline, for the CI tests
-#   branches  public/debian           -> debian/branches/<X.Y>/            feature branches with DEPLOY_PKG=yes
-#             public/centos/<N>       -> RHEL<N>/branches/<X.Y>/x86_64/    (rhel<N>-branches-X-Y)
+#   branches  public/debian           -> debian/branches/<X.Y>/<pipeline>/          feature branches with DEPLOY_PKG=yes
+#             public/centos/<N>       -> RHEL<N>/branches/<X.Y>/<pipeline>/x86_64/  (rhel<N>-branches-X-Y)
 #   release   public/debian, suite S  -> the native X.Y repository serving S   devel, maintenance/X.Y
 #             public/centos/<N>       -> native packetfence-X-Y-el<N>
 #   files     result/                 -> debian/ and RHEL<N>/ file snapshots: packetfence-release/-export/
@@ -49,20 +49,37 @@ fi
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 if [[ "$MODE" == branches ]]; then
-    : "${GPG_KEY_FINGERPRINT:?Set the approved signing fingerprint explicitly}"
+    # A lasting copy of this pipeline's PPA (gitlab/<pipeline>/, signed by generate-pages), one folder per
+    # pipeline, with the release/export/upgrade/ci-lib files under their branches names (*_DEST_NAME) and
+    # pipeline.json, which the packaging side reads to keep the newest pipelines of each branch.
+    : "${CI_COMMIT_REF_NAME:?}" "${CI_COMMIT_REF_SLUG:?}"
     (( ${#suites[@]} )) || { echo "No Debian suite in the generated tree" >&2; exit 1; }
-    for suite in "${suites[@]}"; do
-        python3 "$helper" merge-apt --repository "debian-branches-$dashed" --tree "$PUBLIC_DIR/debian" \
-            --content-url "$PF_PACKAGE_ORIGIN/downloads/PacketFence/debian/branches/$release" --codename "$suite" \
-            --work "$work/deb-$suite" --apply --output "pulp-branches-deb-$suite.json"
-        echo "Published to $PF_PACKAGE_ORIGIN/downloads/PacketFence/debian/branches/$release ($suite)"
-    done
+    python3 ci/pulp/publish-files.py --release "$release" --result "${RESULT_DIR:-result}" --stage "$work/files"
+    python3 - "$work/pipeline.json" "$release" <<'EOF'
+import json, os, sys
+from datetime import datetime, timezone
+with open(sys.argv[1], 'w') as out:
+    json.dump({'branch': os.environ['CI_COMMIT_REF_NAME'], 'slug': os.environ['CI_COMMIT_REF_SLUG'],
+               'pipeline': int(os.environ['CI_PIPELINE_ID']), 'commit': os.environ.get('CI_COMMIT_SHA', ''),
+               'release': sys.argv[2], 'created': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')},
+              out, indent=1, sort_keys=True)
+EOF
+    branch_tree() {  # <folder> <built tree to copy> <staged files>
+        mkdir -p "$1"
+        cp -R "$2" "$1/"
+        cp "$PUBLIC_DIR/GPG_PUBLIC_KEY" "$work/pipeline.json" "$1/"
+        [[ ! -d "$3" ]] || cp "$3"/* "$1/"
+    }
+    branch_tree "$work/deb" "$PUBLIC_DIR/debian/." "$work/files/debian"
+    python3 "$helper" publish --repository "debian-branches-$dashed" --pipeline "$CI_PIPELINE_ID" \
+        --tree "$work/deb" --no-lock --apply --output pulp-branches-deb.json
+    echo "Published to $PF_PACKAGE_ORIGIN/downloads/PacketFence/debian/branches/$release/$CI_PIPELINE_ID/"
     for n in "${el_versions[@]}"; do
         [[ -d "$PUBLIC_DIR/centos/$n/x86_64/repodata" ]] || continue
-        python3 "$helper" merge-rpm --repository "rhel$n-branches-$dashed" --tree "$PUBLIC_DIR/centos/$n/x86_64" \
-            --content-url "$PF_PACKAGE_ORIGIN/downloads/PacketFence/RHEL$n/branches/$release" \
-            --work "$work/rpm$n" --apply --output "pulp-branches-rpm-el$n.json"
-        echo "Published to $PF_PACKAGE_ORIGIN/downloads/PacketFence/RHEL$n/branches/$release"
+        branch_tree "$work/rpm$n" "$PUBLIC_DIR/centos/$n/x86_64" "$work/files/rhel$n"
+        python3 "$helper" publish --repository "rhel$n-branches-$dashed" --pipeline "$CI_PIPELINE_ID" \
+            --tree "$work/rpm$n" --no-lock --apply --output "pulp-branches-rpm-el$n.json"
+        echo "Published to $PF_PACKAGE_ORIGIN/downloads/PacketFence/RHEL$n/branches/$release/$CI_PIPELINE_ID/"
     done
     exit 0
 fi
