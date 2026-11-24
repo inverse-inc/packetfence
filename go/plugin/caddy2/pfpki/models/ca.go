@@ -730,7 +730,13 @@ func (c CA) Resign(params map[string]string) (types.Info, error) {
 	var cadb []CA
 	var err error
 	if val, ok := params["id"]; ok {
-		if err = c.DB.First(&cadb, val).Error; err != nil {
+		var id uint
+		if id, err = parseID(val); err != nil {
+			Information.Status = http.StatusBadRequest
+			Information.Error = err.Error()
+			return Information, err
+		}
+		if err = c.DB.First(&cadb, id).Error; err != nil {
 			Information.Error = err.Error()
 			return Information, err
 		}
@@ -834,7 +840,13 @@ func (c CA) GenerateCSR(params map[string]string) (types.Info, error) {
 	var cadb []CA
 	var err error
 	if val, ok := params["id"]; ok {
-		if err = c.DB.First(&cadb, val).Error; err != nil {
+		var id uint
+		if id, err = parseID(val); err != nil {
+			Information.Status = http.StatusBadRequest
+			Information.Error = err.Error()
+			return Information, err
+		}
+		if err = c.DB.First(&cadb, id).Error; err != nil {
 			Information.Status = http.StatusNotFound
 			Information.Error = err.Error()
 			return Information, err
@@ -878,7 +890,13 @@ func (c CA) Update(params map[string]string) (types.Info, error) {
 	var cadb []CA
 	var err error
 	if val, ok := params["id"]; ok {
-		if err = c.DB.First(&cadb, val).Error; err != nil {
+		var id uint
+		if id, err = parseID(val); err != nil {
+			Information.Status = http.StatusBadRequest
+			Information.Error = err.Error()
+			return Information, err
+		}
+		if err = c.DB.First(&cadb, id).Error; err != nil {
 			Information.Status = http.StatusNotFound
 			Information.Error = err.Error()
 			return Information, err

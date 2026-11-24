@@ -157,7 +157,12 @@ func (p Profile) Update(params map[string]string) (types.Info, error) {
 	profile := &Profile{}
 
 	if val, ok := params["id"]; ok {
-		if err := p.DB.First(profile, val).Error; err != nil {
+		id, err := parseID(val)
+		if err != nil {
+			Information.Error = err.Error()
+			return Information, err
+		}
+		if err := p.DB.First(profile, id).Error; err != nil {
 			Information.Error = err.Error()
 			return Information, err
 		}

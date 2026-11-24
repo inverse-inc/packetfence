@@ -177,7 +177,7 @@ func ResignCA(pfpki *types.Handler) http.HandlerFunc {
 			}
 			if Information, err = o.Resign(vars); err != nil {
 				Error.Message = err.Error()
-				Error.Status = http.StatusUnprocessableEntity
+				Error.Status = idErrorStatus(err, http.StatusUnprocessableEntity)
 				break
 			}
 			auditLog = makeAdminApiAuditLog(pfpki, req, Information, body, "pfpki.ResignCA")
@@ -219,7 +219,7 @@ func GenerateCSR(pfpki *types.Handler) http.HandlerFunc {
 			}
 			if Information, err = o.GenerateCSR(vars); err != nil {
 				Error.Message = err.Error()
-				Error.Status = http.StatusUnprocessableEntity
+				Error.Status = idErrorStatus(err, http.StatusUnprocessableEntity)
 				break
 			}
 			auditLog = makeAdminApiAuditLog(pfpki, req, Information, body, "pfpki.GenerateCSR")
@@ -270,7 +270,7 @@ func CAByID(pfpki *types.Handler) http.HandlerFunc {
 			}
 			if Information, err = o.Update(vars); err != nil {
 				Error.Message = err.Error()
-				Error.Status = http.StatusUnprocessableEntity
+				Error.Status = idErrorStatus(err, http.StatusUnprocessableEntity)
 				break
 			}
 			auditLog = makeAdminApiAuditLog(pfpki, req, Information, body, "pfpki.UpdateCA")
@@ -433,7 +433,7 @@ func GetProfileByID(pfpki *types.Handler) http.HandlerFunc {
 			}
 			if Information, err = o.Update(vars); err != nil {
 				Error.Message = err.Error()
-				Error.Status = http.StatusUnprocessableEntity
+				Error.Status = idErrorStatus(err, http.StatusUnprocessableEntity)
 				break
 			}
 			auditLog = makeAdminApiAuditLog(pfpki, req, Information, body, "pfpki.UpdateProfile")
@@ -614,7 +614,7 @@ func DownloadCert(pfpki *types.Handler) http.HandlerFunc {
 			Information, err = o.Download(vars)
 			if err != nil {
 				Error.Message = err.Error()
-				Error.Status = http.StatusNotFound
+				Error.Status = idErrorStatus(err, http.StatusNotFound)
 				break
 			}
 
@@ -672,7 +672,7 @@ func EmailCert(pfpki *types.Handler) http.HandlerFunc {
 				Error.Message = err.Error()
 				// 404 for a certificate that can't be found or
 				// loaded, not for a mail server that can't be reached
-				Error.Status = http.StatusNotFound
+				Error.Status = idErrorStatus(err, http.StatusNotFound)
 				if errors.Is(err, models.ErrCertMail) {
 					Error.Status = http.StatusInternalServerError
 				}
@@ -759,7 +759,7 @@ func ResignCert(pfpki *types.Handler) http.HandlerFunc {
 			}
 			if Information, err = o.Resign(vars); err != nil {
 				Error.Message = err.Error()
-				Error.Status = http.StatusUnprocessableEntity
+				Error.Status = idErrorStatus(err, http.StatusUnprocessableEntity)
 				break
 			}
 			auditLog = makeAdminApiAuditLog(pfpki, req, Information, body, "pfpki.ResignCert")
@@ -980,6 +980,15 @@ func SignCSR(pfpki *types.Handler) http.HandlerFunc {
 	})
 }
 
+// idErrorStatus answers 400 when the {id} of the URL isn't a number,
+// and status for any other error.
+func idErrorStatus(err error, status int) int {
+	if errors.Is(err, models.ErrInvalidID) {
+		return http.StatusBadRequest
+	}
+	return status
+}
+
 func manageAnswer(Information types.Info, Error types.Errors, pfpki *types.Handler, res http.ResponseWriter, req *http.Request, alog *admin_api_audit_log.AdminApiAuditLog) {
 	var err error
 
@@ -1163,7 +1172,7 @@ func SCEPServerByID(pfpki *types.Handler) http.HandlerFunc {
 			Information, err = o.DelByID(vars)
 			if err != nil {
 				Error.Message = err.Error()
-				Error.Status = http.StatusNotFound
+				Error.Status = idErrorStatus(err, http.StatusNotFound)
 				break
 			}
 

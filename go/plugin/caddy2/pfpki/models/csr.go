@@ -49,8 +49,13 @@ func (csr CSR) New(params map[string]string) (types.Info, error) {
 	// Find the profile
 	var prof Profile
 	if val, ok := params["id"]; ok {
-
-		if profDB := csr.DB.First(&prof, val); profDB.Error != nil {
+		id, err := parseID(val)
+		if err != nil {
+			Information.Status = http.StatusBadRequest
+			Information.Error = err.Error()
+			return Information, err
+		}
+		if profDB := csr.DB.First(&prof, id); profDB.Error != nil {
 			Information.Error = profDB.Error.Error()
 			return Information, errors.New(dbError)
 		}

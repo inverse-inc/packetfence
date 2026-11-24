@@ -48,7 +48,12 @@ func (s SCEPServer) DelByID(params map[string]string) (types.Info, error) {
 	Information := types.Info{}
 	var scepserverdb []SCEPServer
 	if val, ok := params["id"]; ok {
-		s.DB.Delete(&SCEPServer{}, val)
+		id, err := parseID(val)
+		if err != nil {
+			Information.Error = err.Error()
+			return Information, err
+		}
+		s.DB.Delete(&SCEPServer{}, id)
 	}
 	Information.Entries = scepserverdb
 	return Information, nil
