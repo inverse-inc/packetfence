@@ -13,6 +13,7 @@ import argparse
 import hashlib
 import json
 import os
+import shutil
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -98,10 +99,16 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--release', required=True)
     parser.add_argument('--result', type=Path, default=Path('result'))
+    parser.add_argument('--stage', type=Path, help='Copy to <stage>/<snapshot>/<name> instead of publishing')
     args = parser.parse_args(argv)
     items = plan(args.result, args.release, os.environ)
     if not items:
         raise SystemExit('Nothing built to publish under ' + str(args.result))
+    if args.stage:
+        for snapshot, source, name in items:
+            (args.stage / snapshot).mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(source, args.stage / snapshot / name)
+        return
     client = Pulp(os.environ['PULP_URL'], os.environ['PULP_USERNAME'], os.environ['PULP_PASSWORD'])
     for snapshot in sorted({item[0] for item in items}):
         publish(client, snapshot, [item for item in items if item[0] == snapshot])
