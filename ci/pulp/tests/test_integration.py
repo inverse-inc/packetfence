@@ -86,6 +86,9 @@ class ConfigurationTest(unittest.TestCase):
                        if any(l.startswith('FROM') and '/pfbuild-' in l and '${IMAGE_TAG}' in l
                               for l in p.read_text().splitlines()))
         self.assertEqual(wrong, [], 'use FROM .../pfbuild-*:${BUILDER_TAG} (with ARG BUILDER_TAG)')
+        # kanikobuild passes only the DOCKFILE_VARS as build arguments: without it, BUILDER_TAG is empty.
+        passed = re.search(r"^DOCKFILE_VARS='([^']*)'", (ROOT/'containers/kaniko_vars').read_text(), re.M).group(1).split()
+        self.assertIn('BUILDER_TAG', passed)
 
     def test_pipeline_image_tag_contexts(self):
         helper = ROOT/'ci/lib/common/pipeline-image-tag.sh'
