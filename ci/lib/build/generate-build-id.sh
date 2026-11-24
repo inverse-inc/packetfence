@@ -18,15 +18,9 @@ configure_and_check() {
     CI_COMMIT_REF_SLUG=${CI_COMMIT_REF_SLUG:-}
     BUILD_ID_FILE=${PF_SRC_DIR}/conf/build_id
 
-    if [ -n "${CI_COMMIT_TAG}" ]; then
-        # release
-        TAG_OR_BRANCH_NAME=${CI_COMMIT_TAG}
-    elif [ -n "${CI_COMMIT_REF_SLUG}" ]; then
-        # all branches (maintenance included and devel)
-        TAG_OR_BRANCH_NAME=${CI_COMMIT_REF_SLUG}
-    else
-        TAG_OR_BRANCH_NAME=localdev
-    fi
+    # release tag, feature branch pipeline tag, or branch slug
+    TAG_OR_BRANCH_NAME=$(sh ${PF_SRC_DIR}/ci/lib/common/image-tag.sh)
+    TAG_OR_BRANCH_NAME=${TAG_OR_BRANCH_NAME:-localdev}
 
     declare -p TAG_OR_BRANCH_NAME
 }

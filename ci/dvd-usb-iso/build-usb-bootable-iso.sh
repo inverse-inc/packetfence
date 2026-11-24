@@ -32,10 +32,10 @@ PF_RELEASE_VERSION="${PF_RELEASE_VERSION:-$(sed -r 's/.*\b([0-9]+\.[0-9]+)\.[0-9
 
 # Docker image tag for PacketFence containers
 if [ -z "${TAG_OR_BRANCH_NAME:-}" ]; then
-    if [ -n "${CI_COMMIT_TAG:-}" ]; then
-        export TAG_OR_BRANCH_NAME="${CI_COMMIT_TAG}"
-    elif [ -n "${CI_COMMIT_REF_SLUG:-}" ]; then
-        export TAG_OR_BRANCH_NAME="${CI_COMMIT_REF_SLUG}"
+    if [ -n "${CI_COMMIT_REF_SLUG:-}${CI_COMMIT_TAG:-}" ]; then
+        # release tag, feature branch pipeline tag, or branch slug: the tag the packages pull
+        TAG_OR_BRANCH_NAME=$(sh "${PF_ROOT}/ci/lib/common/image-tag.sh")
+        export TAG_OR_BRANCH_NAME
     elif [ -f "${PF_ROOT}/conf/build_id" ]; then
         # shellcheck disable=SC1091
         source "${PF_ROOT}/conf/build_id"

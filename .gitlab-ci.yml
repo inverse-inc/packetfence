@@ -240,10 +240,11 @@ variables:
         IMAGE_TAG: latest
         IMAGE_TAGS: "${CI_COMMIT_REF_SLUG},latest"
 
-# Service images (pfdebian, radiusd and their *_related matrices). devel and maintenance/X.Y
-# push them only as <slug>-p<pipeline>; deploy_containers gives them their branch tags after
-# the tests. IMAGE_TAG stays the branch tag (kaniko-build job image) and BUILDER_TAG pins the
-# pfbuild-* builder. Keep in step with ci/lib/common/pipeline-image-tag.sh.
+# Service images (pfdebian, radiusd and their *_related matrices). Every branch pushes them only
+# as <slug>-p<pipeline>: devel and maintenance/X.Y get their branch tags from deploy_containers
+# after the tests, a feature branch keeps the pipeline tag (its packages name it, see
+# ci/lib/common/image-tag.sh). IMAGE_TAG stays the branch tag (kaniko-build job image) and
+# BUILDER_TAG pins the pfbuild-* builder. Keep in step with ci/lib/common/pipeline-image-tag.sh.
 .build_img_service_rules:
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
@@ -254,7 +255,8 @@ variables:
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
       variables:
         IMAGE_TAG: ${CI_COMMIT_REF_SLUG}
-        IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
+        BUILDER_TAG: ${CI_COMMIT_REF_SLUG}
+        IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}-p${CI_PIPELINE_ID}
     - if: '$CI_COMMIT_TAG'
       variables:
         IMAGE_TAG: ${CI_COMMIT_TAG}

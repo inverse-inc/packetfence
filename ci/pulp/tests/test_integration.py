@@ -90,9 +90,24 @@ class ConfigurationTest(unittest.TestCase):
                    'CI_PIPELINE_SOURCE': 'web'}, 'maintenance-15-2-p42'),
                  ({'CI_COMMIT_REF_NAME': 'maintenance/15.2', 'CI_COMMIT_REF_SLUG': 'maintenance-15-2',
                    'CI_PIPELINE_SOURCE': 'push'}, ''),
-                 ({'CI_COMMIT_REF_NAME': 'feature/x', 'CI_COMMIT_REF_SLUG': 'feature-x', 'CI_PIPELINE_SOURCE': 'web'}, ''),
+                 ({'CI_COMMIT_REF_NAME': 'feature/x', 'CI_COMMIT_REF_SLUG': 'feature-x', 'CI_PIPELINE_SOURCE': 'web'}, 'feature-x-p42'),
+                 ({'CI_COMMIT_REF_NAME': 'feature/x', 'CI_COMMIT_REF_SLUG': 'feature-x', 'CI_PIPELINE_SOURCE': 'push'}, ''),
                  ({'CI_COMMIT_REF_NAME': 'devel', 'CI_COMMIT_REF_SLUG': 'devel', 'BUILD_IMG_CONTAINER': 'no'}, ''),
                  ({'CI_COMMIT_REF_NAME': 'v16.0.0', 'CI_COMMIT_TAG': 'v16.0.0'}, '')]
+        for env, expected in cases:
+            result = subprocess.run(['sh', str(helper)], env={**base, **env}, capture_output=True, text=True)
+            self.assertEqual((result.returncode, result.stdout.strip()), (0, expected), env)
+
+    def test_packages_pull_the_tag_their_images_keep(self):
+        # A feature branch's images keep the pipeline tag; devel/maintenance get their branch tag.
+        helper = ROOT/'ci/lib/common/image-tag.sh'
+        base = {'PATH': os.environ['PATH'], 'CI_PIPELINE_ID': '42', 'CI_PIPELINE_SOURCE': 'web'}
+        cases = [({'CI_COMMIT_REF_NAME': 'feature/x', 'CI_COMMIT_REF_SLUG': 'feature-x'}, 'feature-x-p42'),
+                 ({'CI_COMMIT_REF_NAME': 'feature/x', 'CI_COMMIT_REF_SLUG': 'feature-x', 'BUILD_IMG_CONTAINER': 'no'}, 'feature-x'),
+                 ({'CI_COMMIT_REF_NAME': 'devel', 'CI_COMMIT_REF_SLUG': 'devel'}, 'devel'),
+                 ({'CI_COMMIT_REF_NAME': 'maintenance/15.2', 'CI_COMMIT_REF_SLUG': 'maintenance-15-2'}, 'maintenance-15-2'),
+                 ({'CI_COMMIT_REF_NAME': 'v16.0.0', 'CI_COMMIT_TAG': 'v16.0.0'}, 'v16.0.0'),
+                 ({}, '')]
         for env, expected in cases:
             result = subprocess.run(['sh', str(helper)], env={**base, **env}, capture_output=True, text=True)
             self.assertEqual((result.returncode, result.stdout.strip()), (0, expected), env)

@@ -16,8 +16,8 @@
         gather_subset:
           - network
 
-    # devel and maintenance/X.Y pipelines push their images under a pipeline tag until the
-    # tests pass (deploy_containers); manage-images.sh pulls that tag when this file exists.
+    # Pipelines push their images under a pipeline tag (devel and maintenance/X.Y get their branch
+    # tag after the tests, deploy_containers); manage-images.sh pulls that tag when this file exists.
     - name: Select this pipeline's container images
       ansible.builtin.set_fact:
         pf_ci_image_tag: "{{ lookup('pipe', playbook_dir ~ '/../../../ci/lib/common/pipeline-image-tag.sh') }}"
