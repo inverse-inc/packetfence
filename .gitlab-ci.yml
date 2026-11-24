@@ -1838,9 +1838,13 @@ deploy_containers:
 deploy_maintenance_pulp:
   extends:
     - .deploy_pulp_job
-    - .deploy_maintenance_rules
   environment:
     name: maintenance
+  rules:
+    # No images built, no packages: a server would install them against the previous build's containers.
+    - if: '$BUILD_IMG_CONTAINER == "no" || $CI_COMMIT_MESSAGE =~ /build_img_container=no/'
+      when: never
+    - !reference [.deploy_maintenance_rules, rules]
 
 deploy_branches_pkg_friendly_names:
   extends:
