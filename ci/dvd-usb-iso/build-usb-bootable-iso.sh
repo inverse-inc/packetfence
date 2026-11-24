@@ -53,6 +53,9 @@ if [ -z "${TAG_OR_BRANCH_NAME:-}" ]; then
     fi
 fi
 
+# Fail before the downloads when the packages this ISO installs are not deployed.
+"${PF_ROOT}/ci/lib/common/deployed-repo.sh" --check "${PF_RELEASE_VERSION}" >/dev/null
+
 # Resolve absolute paths used as ISO_IN/ISO_OUT for stage 3
 if [[ "${ISO_IN}" != /* ]]; then ISO_IN="${SCRIPT_DIR}/${ISO_IN}"; fi
 if [[ "${ISO_OUT}" != /* ]]; then ISO_OUT="${SCRIPT_DIR}/${ISO_OUT}"; fi

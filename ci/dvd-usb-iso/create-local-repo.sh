@@ -30,29 +30,10 @@ else
     echo "WARNING: DEBIAN_SNAPSHOT_DATE not set, using current mirror (may cause version conflicts)"
 fi
 
-# PacketFence repository URL configuration
-# Available options:
-#   - debian-branches: Branch builds (default, for devel/feature branches)
-#   - debian-lastrelease: Last release builds (for maintenance releases)
-#   - gitlab/PIPELINE_ID: Specific CI pipeline builds
-PF_REPO_TYPE=${PF_REPO_TYPE:-debian-branches}
-
-# Build URL based on repo type
-# gitlab pipelines use: https://packages.packetfence.com/downloads/PacketFence/gitlab/PIPELINE_ID/debian bookworm main
-# branches use: https://packages.packetfence.com/downloads/PacketFence/debian-branches/VERSION bookworm bookworm
-# Note: packetfence packages are in debian-branches repo, fingerbank/docker are in debian repo
-if [[ "${PF_REPO_TYPE}" == gitlab/* ]]; then
-    PF_REPO_BASE_URL="https://packages.packetfence.com/downloads/PacketFence/${PF_REPO_TYPE}/debian"
-    PF_REPO_COMPONENT="main"
-else
-    # Use the PF_REPO_TYPE in the URL (e.g., debian-branches or debian)
-    PF_REPO_BASE_URL="https://packages.packetfence.com/downloads/PacketFence/${PF_REPO_TYPE}/${PF_RELEASE_VERSION}"
-    PF_REPO_COMPONENT="bookworm"
-fi
-
-# URL for dependency packages (fingerbank, docker, freeradius are in debian/VERSION repo)
-PF_DEPS_BASE_URL="https://packages.packetfence.com/downloads/PacketFence/debian/${PF_RELEASE_VERSION}"
-PF_SIGNING_KEY_URL=https://packages.packetfence.com/downloads/GPG_PUBLIC_KEY
+# The deployed repositories users install from (ci/lib/common/deployed-repo.sh): debian/X.Y, or a feature
+# branch's branches/X.Y/<pipeline>/ (PF_BRANCHES_PIPELINE) followed by debian/X.Y for its dependencies.
+PF_APT_SOURCES=$("${PF_ROOT}/ci/lib/common/deployed-repo.sh" --check "${PF_RELEASE_VERSION}")
+PF_SIGNING_KEY_URL=${PF_PACKAGE_ORIGIN:-https://packages.packetfence.com}/downloads/GPG_PUBLIC_KEY
 
 echo "=============================================="
 echo "Creating PacketFence Package Repository"
@@ -60,9 +41,8 @@ echo "(Will be appended to DVD repo on ISO)"
 echo "=============================================="
 echo "REPO_DIR: ${REPO_DIR}"
 echo "PF_RELEASE_VERSION: ${PF_RELEASE_VERSION}"
-echo "PF_REPO_TYPE: ${PF_REPO_TYPE}"
-echo "PF_REPO_BASE_URL: ${PF_REPO_BASE_URL}"
-echo "PF_DEPS_BASE_URL: ${PF_DEPS_BASE_URL}"
+echo "PacketFence repositories:"
+echo "${PF_APT_SOURCES}"
 echo "=============================================="
 
 # Use absolute path for REPO_DIR
@@ -95,22 +75,10 @@ fi
 echo "===> Configuring PacketFence repository in chroot"
 ${SUDO} mkdir -p ${CHROOT_DIR}/etc/apt/keyrings
 curl -fsS "$PF_SIGNING_KEY_URL" | gpg --dearmor | ${SUDO} tee ${CHROOT_DIR}/etc/apt/keyrings/packetfence.gpg > /dev/null
-${SUDO} tee ${CHROOT_DIR}/etc/apt/sources.list.d/packetfence.list > /dev/null << EOF
-deb [signed-by=/etc/apt/keyrings/packetfence.gpg] ${PF_REPO_BASE_URL} bookworm ${PF_REPO_COMPONENT}
-EOF
-
-echo "Configured PacketFence repo: ${PF_REPO_BASE_URL}"
-
-# Add dependencies repo for fingerbank, freeradius, docker packages
-# These are always in debian/VERSION repo, separate from packetfence packages
-# (packetfence packages are in debian-branches/VERSION or gitlab/PIPELINE_ID repos)
-if [[ "${PF_REPO_BASE_URL}" != "${PF_DEPS_BASE_URL}" ]]; then
-    echo "===> Adding dependencies repository (fingerbank, freeradius, etc.)"
-    ${SUDO} tee ${CHROOT_DIR}/etc/apt/sources.list.d/packetfence_deps.list > /dev/null << EOF
-deb [signed-by=/etc/apt/keyrings/packetfence.gpg] ${PF_DEPS_BASE_URL} bookworm bookworm
-EOF
-    echo "Configured dependencies repo: ${PF_DEPS_BASE_URL}"
-fi
+sed 's|^|deb [signed-by=/etc/apt/keyrings/packetfence.gpg] |' <<< "${PF_APT_SOURCES}" | \
+    ${SUDO} tee ${CHROOT_DIR}/etc/apt/sources.list.d/packetfence.list
+# The installed system keeps the same repositories for its updates (postinst-offline.sh).
+${SUDO} cp ${CHROOT_DIR}/etc/apt/sources.list.d/packetfence.list ${REPO_DIR}/packetfence-online.list
 
 # Copy GPG key to repo for later use
 ${SUDO} cp ${CHROOT_DIR}/etc/apt/keyrings/packetfence.gpg ${REPO_DIR}/packetfence.gpg

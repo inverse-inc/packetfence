@@ -582,12 +582,58 @@ class ConfigurationTest(unittest.TestCase):
         arms = [r.get('variables', {}).get('PF_BRANCHES_PIPELINE') for r in config['build_pf_img_zen']['rules']]
         self.assertEqual(arms, [None, None, None, '$CI_PIPELINE_ID'])  # tag, devel, maintenance, feature
         if shutil.which('make'):
-            base = 'https://packages.packetfence.com/downloads/PacketFence/debian/'
-            for pipeline, repo in (('', '15.2'), ('42', 'branches/15.2/42')):
+            for pipeline in ('', '42'):
                 dry = subprocess.run(['make', '-n', '-C', str(zen), 'zen-deb12', 'PF_MINOR_RELEASE=15.2',
                                       f'PF_BRANCHES_PIPELINE={pipeline}'], capture_output=True, text=True)
-                self.assertIn(f'curl -fsS -o /dev/null "{base}{repo}/dists/bookworm/InRelease"', dry.stdout)
+                self.assertIn(f'PF_BRANCHES_PIPELINE="{pipeline}"', dry.stdout)
+                self.assertIn('../lib/common/deployed-repo.sh --check 15.2', dry.stdout)
                 self.assertIn(f'PKR_VAR_pf_branches_pipeline="{pipeline}"', dry.stdout)
+
+    def deployed_repo(self, *args, pipeline='', origin='', published=True):
+        with tempfile.TemporaryDirectory() as tmp:
+            curl = Path(tmp)/'curl'
+            curl.write_text('#!/bin/sh\necho "$@" >> "%s/calls"\nexit %d\n' % (tmp, 0 if published else 22))
+            curl.chmod(0o755)
+            env = dict(os.environ, PATH=f'{tmp}:{os.environ["PATH"]}', PF_BRANCHES_PIPELINE=pipeline, PF_PACKAGE_ORIGIN=origin)
+            run = subprocess.run([str(ROOT/'ci/lib/common/deployed-repo.sh'), *args], env=env, capture_output=True, text=True)
+            calls = (Path(tmp)/'calls').read_text() if (Path(tmp)/'calls').exists() else ''
+        return run, calls
+
+    def test_deployed_repo_names_what_users_install(self):
+        base = 'https://packages.packetfence.com/downloads/PacketFence/debian/'
+        run, calls = self.deployed_repo('16.0')
+        self.assertEqual((run.returncode, run.stdout, calls), (0, f'{base}16.0 bookworm bookworm\n', ''))
+        run, _ = self.deployed_repo('16.0', pipeline='42', origin='https://staging.example')
+        self.assertEqual(run.stdout, 'https://staging.example/downloads/PacketFence/debian/branches/16.0/42 bookworm main\n'
+                                     'https://staging.example/downloads/PacketFence/debian/16.0 bookworm bookworm\n')
+        run, calls = self.deployed_repo('--check', '16.0', pipeline='42')
+        self.assertEqual(run.returncode, 0)
+        self.assertIn(f'{base}branches/16.0/42/dists/bookworm/InRelease', calls)
+        run, _ = self.deployed_repo('--check', '16.0', pipeline='42', published=False)
+        self.assertEqual((run.returncode, run.stdout), (1, ''))
+        self.assertIn(f'{base}branches/16.0/42 is not deployed', run.stderr)
+        self.assertIn('DEPLOY_PKG=yes', run.stderr)
+
+    def test_isos_are_built_from_the_deployed_repository(self):
+        # Both ISOs install what users install and wait for the deploys by stage order; no inverse.ca, no gitlab/ PPA.
+        config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
+        for job, arms in (('build_pf_img_dvd_usb_iso', [None, '$CI_PIPELINE_ID']),
+                          ('build_pf_img_cd_iso', [None, None, None, '$CI_PIPELINE_ID'])):
+            self.assertNotIn('needs', config[job])
+            self.assertNotIn('PF_REPO_TYPE', config[job].get('variables', {}))
+            self.assertEqual([r.get('variables', {}).get('PF_BRANCHES_PIPELINE') for r in config[job]['rules']], arms)
+        self.assertFalse([r for r in config['.gated_by_publish_ppa']['rules'] if 'dvd_usb_iso' in r['if'].lower()])
+        for path in ('ci/dvd-usb-iso/create-local-repo.sh', 'ci/dvd-usb-iso/build-usb-bootable-iso.sh', 'ci/cd-iso/build-and-upload.sh'):
+            self.assertIn('lib/common/deployed-repo.sh" --check' if 'dvd' in path else 'lib/common/deployed-repo.sh --check',
+                          (ROOT/path).read_text())
+        self.assertIn('-e PF_PACKAGE_ORIGIN \\', (ROOT/'ci/dvd-usb-iso/step2-create-local-repo.sh').read_text())
+        self.assertIn('-e PF_BRANCHES_PIPELINE \\', (ROOT/'ci/dvd-usb-iso/step2-create-local-repo.sh').read_text())
+        self.assertIn('-e PF_APT_SOURCES -e PF_KEY_URL', (ROOT/'ci/cd-iso/build-and-upload.sh').read_text())
+        for path in ('ci/dvd-usb-iso', 'ci/cd-iso'):
+            for script in (ROOT/path).iterdir():
+                if script.is_file():
+                    self.assertNotIn('inverse.ca/downloads', script.read_text(), script)
+                    self.assertNotIn('debian-branches', script.read_text(), script)
 
     def test_requested_tests_build_images_and_packages_but_publish_nothing(self):
         text = (ROOT/'.gitlab-ci.yml').read_text()

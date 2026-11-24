@@ -40,7 +40,10 @@ upload_to_linode() {
 mkdir -p ${SF_RESULT_DIR}
 
 echo "===> Build ISO for release $PF_RELEASE"
-docker run --rm -e PF_RELEASE=$PF_RELEASE -e DEBIAN_VERSION=$DEBIAN_VERSION -e ISO_OUT="${SF_RESULT_DIR}/${ISO_NAME}" -v `pwd`:/cd-iso debian:12 /cd-iso/create-debian-installer-docker.sh
+PF_APT_SOURCES=$(../lib/common/deployed-repo.sh --check "$PF_RELEASE")
+PF_KEY_URL=${PF_PACKAGE_ORIGIN:-https://packages.packetfence.com}/downloads/GPG_PUBLIC_KEY
+export PF_APT_SOURCES PF_KEY_URL
+docker run --rm -e PF_RELEASE=$PF_RELEASE -e PF_APT_SOURCES -e PF_KEY_URL -e DEBIAN_VERSION=$DEBIAN_VERSION -e ISO_OUT="${SF_RESULT_DIR}/${ISO_NAME}" -v `pwd`:/cd-iso debian:12 /cd-iso/create-debian-installer-docker.sh
 
 echo "===> Upload to Linode"
 upload_to_linode

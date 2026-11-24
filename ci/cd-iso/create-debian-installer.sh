@@ -26,7 +26,7 @@ fi
 
 rm -fr isofiles/
 
-cat preseed.cfg.tmpl | sed "s/%%PF_VERSION%%/$PF_RELEASE/g"  > preseed.cfg
+sed "s|%%PF_KEY_URL%%|${PF_KEY_URL:?}|g" preseed.cfg.tmpl > preseed.cfg
 
 xorriso -osirrox on -indev $ISO_IN -extract / isofiles
 
@@ -44,6 +44,7 @@ cp grub.cfg isofiles/boot/grub/grub.cfg
 chmod 0444 isofiles/isolinux/*
 
 cp postinst-debian-installer.sh isofiles/
+sed 's|^|deb [signed-by=/etc/apt/keyrings/packetfence.gpg] |' <<< "${PF_APT_SOURCES:?}" > isofiles/packetfence.list
 cd isofiles
 chmod +w md5sum.txt
 # The '|| echo' is there so that it always exits with 0 because find returns a non-zero status because there is debian symlink in isofiles that points to '.'

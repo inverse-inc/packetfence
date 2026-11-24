@@ -20,11 +20,11 @@ PKR_ON_ERROR=cleanup
 # packer configuration lives under packer/. See zen-in-docker.sh.
 # Built from the deployed packages: debian/X.Y, or a feature branch's branches/X.Y/<pipeline>/ (DEPLOY_PKG=yes).
 PF_PACKAGE_ORIGIN ?= https://packages.packetfence.com
-ZEN_REPO = $(PF_PACKAGE_ORIGIN)/downloads/PacketFence/debian/$(if $(PF_BRANCHES_PIPELINE),branches/$(PF_MINOR_RELEASE)/$(PF_BRANCHES_PIPELINE),$(PF_MINOR_RELEASE))
 
 .PHONY: zen-deb12
 zen-deb12:
-	@curl -fsS -o /dev/null "$(ZEN_REPO)/dists/bookworm/InRelease" || { echo "$(ZEN_REPO) is not deployed; Zen is built from the deployed packages$(if $(PF_BRANCHES_PIPELINE),: run this feature branch with DEPLOY_PKG=yes)" >&2; exit 1; }
+	@PF_PACKAGE_ORIGIN="$(PF_PACKAGE_ORIGIN)" PF_BRANCHES_PIPELINE="$(PF_BRANCHES_PIPELINE)" \
+	  ../lib/common/deployed-repo.sh --check $(PF_MINOR_RELEASE) >/dev/null
 	PF_VERSION="$(PF_VERSION)" \
 	PKR_VAR_pf_version="$(PKR_VAR_pf_version)" \
 	PKR_VAR_pf_package_origin="$(PF_PACKAGE_ORIGIN)" \
