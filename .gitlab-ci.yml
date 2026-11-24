@@ -1325,8 +1325,10 @@ deploy_debian_pulp:
         DEPLOY_ENV_NAME: maintenance
         IMAGE_TAG: $CI_COMMIT_REF_SLUG
 
-# maintenance/X.Y: once the tests pass, copy the maintenance-X-Y images the pipeline built on GHCR to
-# packages.packetfence.com under the same tag (ci/pulp/container-push.sh, same digests). A release tag
+# maintenance/X.Y: copy the maintenance-X-Y images the pipeline built on GHCR to
+# packages.packetfence.com under the same tag (ci/pulp/container-push.sh, same digests). Runs on the
+# same pipelines as the package deploy, so neither is published without the other; when tests run,
+# the deploy stage keeps both behind them. A release tag
 # keeps its images on GitHub. The environment lets GitLab skip an older pipeline that finishes after a newer one.
 deploy_containers:
   stage: deploy
@@ -1342,7 +1344,8 @@ deploy_containers:
     - docker
   rules:
     - !reference [.gated_by_build_img_container, rules]
-    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" || $TEST_CLUSTER == "yes" || $CI_COMMIT_MESSAGE =~ /test_cluster=yes/ )'
+    - !reference [.gated_by_deploy_pkg, rules]
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule")'
       variables:
         IMAGE_TAG: $CI_COMMIT_REF_SLUG
 
