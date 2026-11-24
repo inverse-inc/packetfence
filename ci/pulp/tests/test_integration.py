@@ -66,6 +66,13 @@ class ConfigurationTest(unittest.TestCase):
         self.assertEqual([r['variables']['PROMOTE_TAGS'] for r in branches],
                          ['${CI_COMMIT_REF_SLUG},latest', '$CI_COMMIT_REF_SLUG'])
 
+    def test_service_images_build_from_the_builder_branch_tag(self):
+        # Service images get a pipeline tag (IMAGE_TAG); pfbuild-* builders only have their branch tag.
+        wrong = sorted(str(p.relative_to(ROOT)) for p in (ROOT/'containers').glob('*/Dockerfile')
+                       if any(l.startswith('FROM') and '/pfbuild-' in l and '${IMAGE_TAG}' in l
+                              for l in p.read_text().splitlines()))
+        self.assertEqual(wrong, [], 'use FROM .../pfbuild-*:${BUILDER_TAG} (with ARG BUILDER_TAG)')
+
     def test_pipeline_image_tag_contexts(self):
         helper = ROOT/'ci/lib/common/pipeline-image-tag.sh'
         base = {'PATH': os.environ['PATH'], 'CI_PIPELINE_ID': '42'}
