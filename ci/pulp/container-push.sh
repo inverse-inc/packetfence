@@ -46,6 +46,7 @@ destination=$registry/inverse-inc/packetfence
 # The password goes through a private temporary file, never on a command line.
 auth=$(mktemp)
 trap 'rm -f "$auth"' EXIT
+printf '{}' > "$auth"  # skopeo reads the auth file as JSON before writing the login
 printf '%s' "$password" | skopeo login --authfile "$auth" --username "$username" --password-stdin "$registry" >/dev/null
 
 pushed=0
