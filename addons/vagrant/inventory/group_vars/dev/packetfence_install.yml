@@ -1,6 +1,6 @@
 ---
 # set to package name to avoid installing packetfence-release
-# from inverse.ca website (already installed based on pipeline
+# from the package origin (already installed based on pipeline
 # artifacts)
 packetfence_install__centos_release_rpm: 'packetfence-release'
 
