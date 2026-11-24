@@ -813,7 +813,6 @@ func (I *Interface) lockTransaction(ctx context.Context, mac net.HardwareAddr, m
 	return true
 }
 
-// findHandlerAndNetwork finds the appropriate handler and network scope for the given packet
 // routedNetworkContains returns true if ip is in one of the routed (not layer 2)
 // networks of the interface.
 func (I *Interface) routedNetworkContains(ip net.IP) bool {
@@ -828,6 +827,7 @@ func (I *Interface) routedNetworkContains(ip net.IP) bool {
 	return false
 }
 
+// findHandlerAndNetwork finds the appropriate handler and network scope for the given packet
 func (I *Interface) findHandlerAndNetwork(p dhcp.Packet, mac net.HardwareAddr, db *sql.DB) (handler DHCPHandler, NetScope net.IPNet, found bool) {
 	var NodeCache *cache.Cache
 	NodeCache = cache.New(3*time.Second, 5*time.Second)
