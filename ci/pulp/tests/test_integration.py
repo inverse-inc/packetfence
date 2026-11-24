@@ -512,6 +512,52 @@ class ConfigurationTest(unittest.TestCase):
             self.assertIn('protected branches only', refused.stderr)
             self.assertEqual(calls.read_text(), '')
 
+    def test_a_branch_deploy_without_pulp_credentials_says_why_before_the_key_import(self):
+        config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
+        script = '\n'.join(config['deploy_branches_pulp']['before_script'])
+        with tempfile.TemporaryDirectory() as folder:
+            work = Path(folder)
+            (work/'addons/packetfence-perl').mkdir(parents=True)
+            (work/'addons/packetfence-perl/psono.py').write_text('print("key")\n')
+            (work/'gpg').write_text('#!/bin/sh\necho imported >> "$TEST_CALLS"\ncat > /dev/null\n')
+            (work/'gpg').chmod(0o700)
+            calls = work/'calls'
+            full = {'PATH': str(work) + os.pathsep + os.environ['PATH'], 'TEST_CALLS': str(calls),
+                    'PSONO_CI_API_KEY_ID': 'k', 'PSONO_CI_API_SECRET_KEY_HEX': 's', 'PSONO_GPG_PRIVATE_KEY_SECRET_ID': 'g',
+                    'PSONO_CI_PULP_PACKAGES_ID': 'p'}
+            for empty in ('PSONO_CI_API_KEY_ID', 'PSONO_GPG_PRIVATE_KEY_SECRET_ID', 'PSONO_CI_PULP_PACKAGES_ID'):
+                result = subprocess.run(['bash', '-c', script], cwd=work, env={**full, empty: ''}, capture_output=True, text=True)
+                self.assertNotEqual(result.returncode, 0, empty)
+                self.assertIn(empty + ' is empty', result.stderr)
+                self.assertIn('protected branches only', result.stderr)
+                self.assertFalse(calls.exists(), empty)
+            result = subprocess.run(['bash', '-c', script], cwd=work, env=full, capture_output=True, text=True)
+            self.assertEqual((result.returncode, calls.read_text()), (0, 'imported\n'), result.stderr)
+
+    def test_only_a_feature_build_ships_the_packetfence_branches_repository(self):
+        # The Makefile names the pipeline only when CI sets it (feature branches, .context_rules), and the spec
+        # writes [packetfence-branches] only then, pointing at that pipeline's folder (extra_vars_branches.yml).
+        makefile = (ROOT/'Makefile').read_text()
+        self.assertIn('$(if $(PF_BRANCHES_PIPELINE),echo "%pf_branches_pipeline $(PF_BRANCHES_PIPELINE)"', makefile)
+        self.assertNotIn('pf_branches_dir', makefile)
+        spec = (ROOT/'rpm/packetfence-release.spec').read_text()
+        stanza = spec[spec.index('%if 0%{?pf_branches_pipeline:1}'):]
+        stanza = stanza[:stanza.index('%endif')]
+        self.assertIn('[packetfence-branches]', stanza)
+        self.assertIn('/branches/%{pf_minor_release}/%{pf_branches_pipeline}/\\$basearch', stanza)
+        self.assertEqual(spec.count('[packetfence-branches]'), 1)
+        config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
+        branches = [r for r in config['.context_rules']['rules'] if r.get('variables', {}).get('CONTEXT') == 'branches']
+        self.assertEqual([r['variables']['PF_BRANCHES_PIPELINE'] for r in branches], ['$CI_PIPELINE_ID'])
+        self.assertFalse([r for r in config['.context_rules']['rules']
+                          if r.get('variables', {}).get('CONTEXT') != 'branches' and 'PF_BRANCHES_PIPELINE' in r.get('variables', {})])
+        if shutil.which('make'):
+            for pipeline, wanted in (('42', '%pf_branches_pipeline 42'), ('', None)):
+                dry = subprocess.run(['make', '-s', '-n', '-C', str(ROOT), 'rpm/.rpmmacros'] +
+                                     ([f'PF_BRANCHES_PIPELINE={pipeline}'] if pipeline else []), capture_output=True, text=True)
+                lines = [l for l in dry.stdout.splitlines() if 'pf_branches' in l]
+                self.assertEqual([wanted in l for l in lines] if wanted else lines, [True] if wanted else [])
+
     def test_shell_syntax(self):
         for script in (ROOT/'ci/pulp').rglob('*.sh'):
             subprocess.run(['bash', '-n', str(script)], check=True)
