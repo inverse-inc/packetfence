@@ -50,11 +50,11 @@ four packages carry no container reference.
 | Variable | Values | Default | What it gates | Consequence |
 |---|---|---|---|---|
 | `DEPLOY_PKG` | `no`, `false` | unset = deploy | `deploy_debian_pulp`, `deploy_files_pulp`, `deploy_containers`, `deploy_branches_pulp` | `no` publishes nothing to Pulp. The pipeline still builds, signs and tests. |
-| `PUBLISH_PPA` | `yes`, `true` | unset | alias of `DEPLOY_PKG` for feature branches; also forces `publish_ppa` | On a feature branch, `yes` is what makes it deploy at all. |
-| `BUILD_IMG_CONTAINER` | `no` | unset = build | every service image job, `deploy_containers`, **and `deploy_debian_pulp`** | `no` skips the images *and* the packages, so a server can never install packages built against the previous pipeline's containers. The helper packages still publish. |
+| `BUILD_IMG_CONTAINER` | `no` | unset = build | every service image job, `deploy_containers`, **`deploy_debian_pulp` and `deploy_branches_pulp`** | `no` skips the images *and* the packages, so a server can never install packages built against the previous pipeline's containers. The helper packages still publish. |
 | `BUILD_ARTIFACTS_PKG` | `no` | unset = build | `publish_ppa` and the package builds | `no` leaves the pipeline with nothing to sign or publish. |
 
-Commit-message equivalents: `build_img_container=no`, `deploy_pkg=yes|true`, `publish_ppa=yes|true`.
+Commit-message equivalents: `build_img_container=no`, `deploy_pkg=yes|true`. On a feature branch,
+`DEPLOY_PKG=yes` is what makes it deploy at all (`ci/pulp/README.md`, Feature branches).
 
 ## Test switches
 
@@ -119,7 +119,7 @@ On `devel` the service images are pushed to GHCR only as `<slug>-p<pipeline>`
 exactly that tag — provisioning writes `/etc/packetfence-ci-image-tag`
 (`addons/vagrant/playbooks/install_pf.yml`) and `manage-images.sh` retags locally — so the tests
 exercise the images their own pipeline built, not whatever last landed on `devel`. `deploy_containers`
-then copies those manifests onto the branch tags. The `maintenance/X.Y` branches do not use this: they
-build straight to GHCR as `maintenance-X-Y` and `deploy_containers` only mirrors GHCR to Pulp.
+then copies those manifests onto the branch tags. `maintenance/X.Y` does the same with `maintenance-X-Y`.
+A feature branch keeps the pipeline tag: its packages name it, and a deploying feature branch pushes it to Pulp.
 
 See `ci/pulp/README.md` for what each deploy job writes into Pulp.

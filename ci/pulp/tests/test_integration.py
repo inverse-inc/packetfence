@@ -214,6 +214,7 @@ class ConfigurationTest(unittest.TestCase):
         for rule in feature:
             for wanted in ('$DEPLOY_PKG == "yes"', '$DEPLOY_PKG == "true"'):
                 self.assertIn(wanted, rule)
+        self.assertNotIn('PUBLISH_PPA', (ROOT/'.gitlab-ci.yml').read_text())  # DEPLOY_PKG is the only switch
         self.assertEqual(config['.gated_by_deploy_pkg']['rules'][0]['if'], '$DEPLOY_PKG == "no" || $DEPLOY_PKG == "false"')
         self.assertIn({'reference': ['.gated_by_build_img_container', 'rules']}, config['deploy_branches_pulp']['rules'])
         # Never into the release repositories nor the debian/ and RHEL<N>/ roots.
