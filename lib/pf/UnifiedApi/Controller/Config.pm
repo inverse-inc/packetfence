@@ -289,6 +289,7 @@ reset_form
 sub reset_form {
     my ($self, $form, $item, @args) = @_;
     $form->clear_fields;
+    $form->_repeatable_fields([]);
     my %all_args = (
         @{$self->form_parameters($item)},
         @args,
