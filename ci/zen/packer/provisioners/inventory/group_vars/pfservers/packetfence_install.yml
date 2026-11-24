@@ -3,7 +3,12 @@ pf_minor_release: '{{ lookup("env", "PF_MINOR_RELEASE") | default("99.9", true) 
 
 packetfence_install__configurator_status: 'enabled'
 
-packetfence_install__centos_release_rpm: "https://packages.packetfence.com/downloads/PacketFence/RHEL8/packetfence-release-{{ pf_minor_release }}.el8.noarch.rpm"
+packetfence_install__centos_release_rpm: "{{ packetfence_install__download_url }}/PacketFence/RHEL8/packetfence-release-{{ pf_minor_release }}.el8.noarch.rpm"
+# The deployed packages users install, on the package origin CI publishes to: debian/X.Y (devel,
+# maintenance/X.Y, tags); a feature branch's own branches/X.Y/<pipeline>/ (component main), dependencies from debian/X.Y.
+packetfence_install__package_origin: '{{ lookup("env", "PF_PACKAGE_ORIGIN") | default("https://packages.packetfence.com", true) }}'
+pf_branches_pipeline: '{{ lookup("env", "PF_BRANCHES_PIPELINE") }}'
 packetfence_install__deb:
-  repos:
-    - 'debian/{{ pf_minor_release }}'
+  repos: >-
+    {{ ([{'path': 'debian/branches/' ~ pf_minor_release ~ '/' ~ pf_branches_pipeline, 'component': 'main'}]
+        if pf_branches_pipeline else []) + ['debian/' ~ pf_minor_release] }}

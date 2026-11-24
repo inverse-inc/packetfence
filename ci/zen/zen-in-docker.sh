@@ -67,6 +67,8 @@ docker run --rm \
   -e PF_VERSION \
   -e PKR_VAR_pf_version \
   -e PKR_VAR_vm_name \
+  -e PKR_VAR_pf_package_origin \
+  -e PKR_VAR_pf_branches_pipeline \
   -e PKR_ON_ERROR \
   -e VM_NAME \
   -e ANSIBLE_FORCE_COLOR \

@@ -1730,6 +1730,9 @@ build_pf_img_zen:
     - if: '$CI_COMMIT_REF_NAME == "devel" && ($BUILD_PF_IMG_ZEN == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_zen=yes/)'
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ($BUILD_PF_IMG_ZEN == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_zen=yes/)'
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ($BUILD_PF_IMG_ZEN == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_zen=yes/)'
+      variables:
+        # Built from this pipeline's deployed branches/X.Y/<pipeline>/ (DEPLOY_PKG=yes), see ci/zen/Makefile.
+        PF_BRANCHES_PIPELINE: $CI_PIPELINE_ID
 
 build_pf_img_cd_iso:
   extends:

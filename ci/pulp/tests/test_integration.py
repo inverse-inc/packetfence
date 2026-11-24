@@ -566,6 +566,29 @@ class ConfigurationTest(unittest.TestCase):
                 lines = [l for l in dry.stdout.splitlines() if 'pf_branches' in l]
                 self.assertEqual([wanted in l for l in lines] if wanted else lines, [True] if wanted else [])
 
+    def test_zen_is_built_from_the_deployed_repository(self):
+        # Zen installs what users install: debian/X.Y, or a feature branch's deployed branches/X.Y/<pipeline>/.
+        zen = ROOT/'ci/zen'
+        requirements = yaml.safe_load((zen/'packer/provisioners/requirements.yml').read_text())
+        version = [c['version'] for c in requirements['collections'] if c['name'] == 'inverse_inc.packetfence']
+        self.assertEqual(version, ['1.3.0'])  # first release with packetfence_install__package_origin
+        inventory = (zen/'packer/provisioners/inventory/group_vars/pfservers/packetfence_install.yml').read_text()
+        self.assertIn('packetfence_install__package_origin: \'{{ lookup("env", "PF_PACKAGE_ORIGIN")', inventory)
+        self.assertNotIn('https://', inventory.replace('default("https://packages.packetfence.com"', ''))
+        for name in ('PF_PACKAGE_ORIGIN', 'PF_BRANCHES_PIPELINE'):
+            self.assertIn(f'"{name}=${{var.{name.lower()}}}"', (zen/'packer/build.pkr.hcl').read_text())
+            self.assertIn(f'-e PKR_VAR_{name.lower()} \\', (zen/'zen-in-docker.sh').read_text())
+        config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
+        arms = [r.get('variables', {}).get('PF_BRANCHES_PIPELINE') for r in config['build_pf_img_zen']['rules']]
+        self.assertEqual(arms, [None, None, None, '$CI_PIPELINE_ID'])  # tag, devel, maintenance, feature
+        if shutil.which('make'):
+            base = 'https://packages.packetfence.com/downloads/PacketFence/debian/'
+            for pipeline, repo in (('', '15.2'), ('42', 'branches/15.2/42')):
+                dry = subprocess.run(['make', '-n', '-C', str(zen), 'zen-deb12', 'PF_MINOR_RELEASE=15.2',
+                                      f'PF_BRANCHES_PIPELINE={pipeline}'], capture_output=True, text=True)
+                self.assertIn(f'curl -fsS -o /dev/null "{base}{repo}/dists/bookworm/InRelease"', dry.stdout)
+                self.assertIn(f'PKR_VAR_pf_branches_pipeline="{pipeline}"', dry.stdout)
+
     def test_requested_tests_build_images_and_packages_but_publish_nothing(self):
         text = (ROOT/'.gitlab-ci.yml').read_text()
         config = yaml.load(text, Loader=GitLabLoader)
