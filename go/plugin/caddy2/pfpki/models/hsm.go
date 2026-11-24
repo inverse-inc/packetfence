@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/hsm"
@@ -74,6 +75,7 @@ func (h HSM) DelByID(params map[string]string) (types.Info, error) {
 	}
 	id, err := parseID(val)
 	if err != nil {
+		Information.Status = http.StatusBadRequest
 		Information.Error = err.Error()
 		return Information, err
 	}
@@ -122,6 +124,7 @@ func (h HSM) Update(params map[string]string) (types.Info, error) {
 	Information := types.Info{}
 	id, err := parseID(params["id"])
 	if err != nil {
+		Information.Status = http.StatusBadRequest
 		Information.Error = err.Error()
 		return Information, err
 	}

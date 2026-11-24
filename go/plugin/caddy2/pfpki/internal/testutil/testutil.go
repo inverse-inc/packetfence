@@ -156,8 +156,8 @@ func newRouter(h *types.Handler) chi.Router {
 		})
 		r.Route("/pki/cert", func(r chi.Router) {
 			r.Get("/{id}", handlers.GetCertByID(h))
-			r.Get("/{id}/download/{password}", handlers.DownloadCert(h))
-			r.Get("/{profile}/{id}/download/{password}", handlers.DownloadCert(h))
+			r.Post("/{id}/download", handlers.DownloadCert(h))
+			r.Post("/{profile}/{id}/download", handlers.DownloadCert(h))
 			r.Get("/{id}/email", handlers.EmailCert(h))
 			r.Post("/{id}/email", handlers.EmailCert(h))
 			r.Delete("/{id}/{reason}", handlers.RevokeCert(h))

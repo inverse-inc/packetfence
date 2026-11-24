@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"net/http"
 	"strings"
 
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/sql"
@@ -50,6 +51,7 @@ func (s SCEPServer) DelByID(params map[string]string) (types.Info, error) {
 	if val, ok := params["id"]; ok {
 		id, err := parseID(val)
 		if err != nil {
+			Information.Status = http.StatusBadRequest
 			Information.Error = err.Error()
 			return Information, err
 		}

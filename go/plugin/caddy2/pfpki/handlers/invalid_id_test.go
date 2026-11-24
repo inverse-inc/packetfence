@@ -10,7 +10,8 @@ import (
 
 // TestNonNumericIDIsRejected covers issue #9722: an {id} that isn't a
 // number must never reach gorm as an inline condition, where it would be
-// used as a raw WHERE clause. Each route answers 400 instead.
+// used as a raw WHERE clause. Each route answers 400 instead, except the
+// download, which looks a non-numeric {id} up as a CN.
 func TestNonNumericIDIsRejected(t *testing.T) {
 	env := testutil.NewEnv(t)
 
@@ -23,23 +24,27 @@ func TestNonNumericIDIsRejected(t *testing.T) {
 	const injected = "1%20OR%201=1"
 	cases := []struct {
 		method, path, body string
+		want               int
 	}{
-		{http.MethodDelete, "/api/v1/pki/scepserver/" + injected, ""},
-		{http.MethodPatch, "/api/v1/pki/ca/" + injected, "{}"},
-		{http.MethodPost, "/api/v1/pki/ca/resign/" + injected, "{}"},
-		{http.MethodPost, "/api/v1/pki/ca/csr/" + injected, "{}"},
-		{http.MethodPatch, "/api/v1/pki/profile/" + injected, "{}"},
-		{http.MethodPost, "/api/v1/pki/profile/" + injected + "/sign_csr", "{}"},
-		{http.MethodPost, "/api/v1/pki/cert/" + injected + "/email", "{}"},
-		{http.MethodPost, "/api/v1/pki/cert/resign/" + injected, "{}"},
-		{http.MethodPatch, "/api/v1/pki/hsm/" + injected, "{}"},
-		{http.MethodDelete, "/api/v1/pki/hsm/" + injected, ""},
+		{http.MethodDelete, "/api/v1/pki/scepserver/" + injected, "", http.StatusBadRequest},
+		{http.MethodPatch, "/api/v1/pki/ca/" + injected, "{}", http.StatusBadRequest},
+		{http.MethodPost, "/api/v1/pki/ca/resign/" + injected, "{}", http.StatusBadRequest},
+		{http.MethodPost, "/api/v1/pki/ca/csr/" + injected, "{}", http.StatusBadRequest},
+		{http.MethodPatch, "/api/v1/pki/profile/" + injected, "{}", http.StatusBadRequest},
+		{http.MethodPost, "/api/v1/pki/profile/" + injected + "/sign_csr", "{}", http.StatusBadRequest},
+		{http.MethodPost, "/api/v1/pki/cert/" + injected + "/email", "{}", http.StatusBadRequest},
+		{http.MethodPost, "/api/v1/pki/cert/resign/" + injected, "{}", http.StatusBadRequest},
+		{http.MethodPatch, "/api/v1/pki/hsm/" + injected, "{}", http.StatusBadRequest},
+		{http.MethodDelete, "/api/v1/pki/hsm/" + injected, "", http.StatusBadRequest},
+		// The download turns a non-numeric {id} into a CN, passed to gorm
+		// as a bind value: no certificate has that CN, so 404.
+		{http.MethodPost, "/api/v1/pki/cert/" + injected + "/download", `{"password":"secret"}`, http.StatusNotFound},
 	}
 	for _, c := range cases {
 		t.Run(c.method+" "+c.path, func(t *testing.T) {
 			status, body := doJSON(t, env, c.method, c.path, c.body)
-			if status != http.StatusBadRequest {
-				t.Fatalf("status = %d, want 400; body: %s", status, body)
+			if status != c.want {
+				t.Fatalf("status = %d, want %d; body: %s", status, c.want, body)
 			}
 		})
 	}

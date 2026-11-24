@@ -269,6 +269,7 @@ func (c Cert) Download(params map[string]string) (types.Info, error) {
 		if val, ok := params["id"]; ok {
 			id, err := parseID(val)
 			if err != nil {
+				Information.Status = http.StatusBadRequest
 				Information.Error = err.Error()
 				return Information, err
 			}
@@ -1106,6 +1107,7 @@ func (c Cert) Resign(params map[string]string) (types.Info, error) {
 	}
 	id, err := parseID(val)
 	if err != nil {
+		Information.Status = http.StatusBadRequest
 		Information.Error = err.Error()
 		return Information, err
 	}
