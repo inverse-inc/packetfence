@@ -1627,6 +1627,11 @@ deploy_branches_pulp:
   before_script:
     - |
       set -euo pipefail
+      # Protected variables: an unprotected feature branch gets them empty; say so before the key import fails.
+      for name in PSONO_CI_API_KEY_ID PSONO_CI_API_SECRET_KEY_HEX PSONO_GPG_PRIVATE_KEY_SECRET_ID PSONO_CI_PULP_PACKAGES_ID; do
+        eval "value=\${$name:-}"
+        [ -n "$value" ] || { echo "$name is empty. GitLab gives the Pulp credentials to protected branches only: protect this branch, or deploy from one that is" >&2; exit 1; }
+      done
       python3 addons/packetfence-perl/psono.py \
         --api_key_id="$PSONO_CI_API_KEY_ID" \
         --api_key_secret_key="$PSONO_CI_API_SECRET_KEY_HEX" \
