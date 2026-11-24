@@ -179,7 +179,8 @@ func newRouter(h *types.Handler) chi.Router {
 		r.Mount("/.well-known/est", estRouter)
 		r.Mount("/pki/est", estRouter)
 		r.Route("/pki/ocsp", func(r chi.Router) {
-			r.Get("/", handlers.ManageOcsp(h))
+			// GET carries the request in the path (RFC 6960 appendix A.1)
+			r.Get("/*", handlers.ManageOcsp(h))
 			r.Post("/", handlers.ManageOcsp(h))
 		})
 		r.Route("/pki/scep", func(r chi.Router) {

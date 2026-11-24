@@ -227,6 +227,13 @@ certificate, since PacketFence PKI certificates do not carry one. With OCSP
 enabled, the authentication of a revoked certificate is rejected with
 `eap_tls: ocsp: Cert status: revoked` in the RADIUS audit log.
 
+The responder accepts the request as the body of a POST, as FreeRADIUS sends
+it, and in the URL of a GET (`/api/v1/pki/ocsp/<base64 request>`, RFC 6960
+appendix A.1), as the operating systems and browsers send it when they check a
+certificate against the OCSP URL it carries (the `OCSP URL` of the
+certificate profile). The answer to a GET carries the cache headers of
+RFC 5019, so a proxy can serve it again until its `nextUpdate`.
+
 NOTE: With the URL override, every client certificate is checked against the
 PacketFence PKI. If your endpoints also use certificates from another CA,
 create a separate OCSP profile for them (pointing to the OCSP responder of that

@@ -17,6 +17,8 @@ local string = require("string");
 -- there: match the whole path, not a part of it.
 local pki_paths = {
     '^/pki/ocsp/?$',
+    -- GET: the base64 request, maybe URL-encoded, in the path (RFC 6960 A.1)
+    '^/pki/ocsp/[%w%+/=%%]+$',
     '^/pki/scep/?$',
     '^/pki/scep/[^/]+/?$',
     '^/pki/scep/[^/]+/pkiclient%.exe$',

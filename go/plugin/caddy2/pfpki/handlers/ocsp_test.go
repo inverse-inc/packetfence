@@ -3,12 +3,15 @@ package handlers_test
 import (
 	"bytes"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/pem"
 	"fmt"
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/certutils"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/internal/testutil"
@@ -69,6 +72,130 @@ func TestOCSP_GoodAndRevoked(t *testing.T) {
 	if resp3 := postOCSP(t, env, superseded, caCert); resp3.Status != xocsp.Good {
 		t.Fatalf("superseded OCSP status = %d, want Good during the grace period", resp3.Status)
 	}
+}
+
+// TestOCSP_GET sends the request in the path (RFC 6960 appendix A.1:
+// {url}/{url-encoded base64 DER request}), as the OS and browser
+// validators do for small requests, with no Content-Type.
+func TestOCSP_GET(t *testing.T) {
+	env := testutil.NewEnv(t)
+
+	caKT := certutils.KEY_RSA
+	caRow := mustCreateCAFromHTTP(t, env, "ocsp-get-ca", caKT, 2048, x509.SHA256WithRSA)
+	prof := mustCreateProfileFromHTTP(t, env, "ocsp-get-prof", caRow, caKT, 2048, x509.SHA256WithRSA)
+	_, leafID := mustIssueLeafFromHTTP(t, env, prof, "ocsp-get-leaf")
+	caCert := parsePEMCert(t, caRow.Cert)
+	leafCert := loadLeafFromDB(t, env, leafID)
+
+	reqDER, err := xocsp.CreateRequest(leafCert, caCert, nil)
+	if err != nil {
+		t.Fatalf("CreateRequest: %v", err)
+	}
+	b64 := base64.StdEncoding.EncodeToString(reqDER)
+
+	// The base64 as is, and with every byte percent-encoded: both are
+	// valid URL encodings, and the second one has the '/', '+' and '='
+	// escaped whatever the request looks like.
+	for name, tail := range map[string]string{"raw": b64, "escaped": percentEncodeAll(b64)} {
+		t.Run(name, func(t *testing.T) {
+			resp := getOCSP(t, env, "/api/v1/pki/ocsp/"+tail)
+			defer resp.Body.Close()
+			if resp.StatusCode != http.StatusOK {
+				t.Fatalf("GET OCSP -> %d", resp.StatusCode)
+			}
+			if ct := resp.Header.Get("Content-Type"); ct != "application/ocsp-response" {
+				t.Errorf("Content-Type=%q", ct)
+			}
+			respDER, err := io.ReadAll(resp.Body)
+			if err != nil {
+				t.Fatal(err)
+			}
+			parsed, err := xocsp.ParseResponseForCert(respDER, leafCert, caCert)
+			if err != nil {
+				t.Fatalf("ParseResponse: %v", err)
+			}
+			if parsed.Status != xocsp.Good {
+				t.Fatalf("status=%d, want Good", parsed.Status)
+			}
+
+			// RFC 5019 section 6.2 cache headers
+			lastModified, err := http.ParseTime(resp.Header.Get("Last-Modified"))
+			if err != nil || !lastModified.Equal(parsed.ThisUpdate.Truncate(time.Second)) {
+				t.Errorf("Last-Modified=%q, want thisUpdate %s (%v)", resp.Header.Get("Last-Modified"), parsed.ThisUpdate, err)
+			}
+			expires, err := http.ParseTime(resp.Header.Get("Expires"))
+			if err != nil || !expires.Equal(parsed.NextUpdate.Truncate(time.Second)) {
+				t.Errorf("Expires=%q, want nextUpdate %s (%v)", resp.Header.Get("Expires"), parsed.NextUpdate, err)
+			}
+			if etag := resp.Header.Get("ETag"); len(etag) != 42 || !strings.HasPrefix(etag, `"`) {
+				t.Errorf("ETag=%q, want a quoted SHA-1", etag)
+			}
+			cc := resp.Header.Get("Cache-Control")
+			if !strings.HasPrefix(cc, "max-age=") || !strings.Contains(cc, "must-revalidate") {
+				t.Errorf("Cache-Control=%q", cc)
+			}
+		})
+	}
+
+	// Revoked through GET too.
+	if err := revokeLeaf(t, env, leafID, xocsp.KeyCompromise); err != nil {
+		t.Fatalf("revoke: %v", err)
+	}
+	resp := getOCSP(t, env, "/api/v1/pki/ocsp/"+b64)
+	respDER, _ := io.ReadAll(resp.Body)
+	resp.Body.Close()
+	if parsed, err := xocsp.ParseResponseForCert(respDER, leafCert, caCert); err != nil || parsed.Status != xocsp.Revoked {
+		t.Fatalf("post-revoke GET: status=%v err=%v, want Revoked", parsed, err)
+	}
+
+	// Not an OCSP request in the path: 400, not a signed answer.
+	for _, path := range []string{"/api/v1/pki/ocsp", "/api/v1/pki/ocsp/", "/api/v1/pki/ocsp/not-base64!", "/api/v1/pki/ocsp/" + base64.StdEncoding.EncodeToString([]byte("junk"))} {
+		resp := getOCSP(t, env, path)
+		resp.Body.Close()
+		if resp.StatusCode != http.StatusBadRequest {
+			t.Errorf("GET %s -> %d, want 400", path, resp.StatusCode)
+		}
+	}
+
+	// A POST still needs its Content-Type; a GET answer carries no cache
+	// headers on a POST.
+	req, _ := http.NewRequest("POST", env.Server.URL+"/api/v1/pki/ocsp/", bytes.NewReader(reqDER))
+	resp, err = http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp.Body.Close()
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Errorf("POST without Content-Type -> %d, want 400", resp.StatusCode)
+	}
+	req.Header.Set("Content-Type", "application/ocsp-request")
+	req.Body = io.NopCloser(bytes.NewReader(reqDER))
+	resp, err = http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp.Body.Close()
+	if resp.StatusCode != http.StatusOK || resp.Header.Get("ETag") != "" {
+		t.Errorf("POST -> %d, ETag=%q; want 200 without cache headers", resp.StatusCode, resp.Header.Get("ETag"))
+	}
+}
+
+func getOCSP(t *testing.T, env *testutil.Env, path string) *http.Response {
+	t.Helper()
+	resp, err := http.Get(env.Server.URL + path)
+	if err != nil {
+		t.Fatalf("GET %s: %v", path, err)
+	}
+	return resp
+}
+
+// percentEncodeAll URL-encodes every byte of s.
+func percentEncodeAll(s string) string {
+	var b strings.Builder
+	for i := 0; i < len(s); i++ {
+		fmt.Fprintf(&b, "%%%02X", s[i])
+	}
+	return b.String()
 }
 
 // --- HTTP-driven helpers (also exercise the JSON handlers) ---

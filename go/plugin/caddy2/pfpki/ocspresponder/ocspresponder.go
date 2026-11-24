@@ -1,19 +1,16 @@
 package ocspresponder
 
 import (
-	"bytes"
 	"crypto"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/asn1"
-	"encoding/base64"
 	"encoding/hex"
 	"encoding/pem"
 	"errors"
 	"io"
 	"log"
 	"math/big"
-	"net/http"
 	"sync"
 	"time"
 
@@ -125,49 +122,18 @@ func parseSigner(block *pem.Block) (crypto.Signer, error) {
 	return nil, errors.New("ocsp: unsupported CA key encoding")
 }
 
-// OCSPResponder struct
+// OCSPResponder answers OCSP requests for the CAs of the PKI.
 type OCSPResponder struct {
-	RespKeyFile string
-	Strict      bool
-	CaCert      *x509.Certificate
-	RespCert    *x509.Certificate
-	NonceList   [][]byte
-	Handler     *types.Handler
+	CaCert  *x509.Certificate
+	Handler *types.Handler
 }
 
-// Creates an OCSP http handler and returns it
-func (ocspr *OCSPResponder) makeHandler() func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if ocspr.Strict && r.Header.Get("Content-Type") != "application/ocsp-request" {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		b := new(bytes.Buffer)
-		switch r.Method {
-		case "POST":
-			b.ReadFrom(r.Body)
-		case "GET":
-			gd, err := base64.StdEncoding.DecodeString(r.URL.Path[1:])
-			if err != nil {
-				w.WriteHeader(http.StatusBadRequest)
-				return
-			}
-			r := bytes.NewReader(gd)
-			b.ReadFrom(r)
-		default:
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/ocsp-response")
-		resp, err := ocspr.Verify(b.Bytes())
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		w.Write(resp)
-	}
+// Answer is a signed OCSP response with the validity window it carries,
+// which the HTTP handler turns into the cache headers of RFC 5019.
+type Answer struct {
+	DER        []byte
+	ThisUpdate time.Time
+	NextUpdate time.Time
 }
 
 // I only know of two types, but more can be added later
@@ -236,7 +202,17 @@ func (ocspr *OCSPResponder) verifyIssuer(req *ocsp.Request) (models.CA, error) {
 	return ca, nil
 }
 
+// Verify answers the DER OCSP request rawreq with a signed DER response.
 func (ocspr *OCSPResponder) Verify(rawreq []byte) ([]byte, error) {
+	a, err := ocspr.Respond(rawreq)
+	if err != nil {
+		return nil, err
+	}
+	return a.DER, nil
+}
+
+// Respond answers the DER OCSP request rawreq.
+func (ocspr *OCSPResponder) Respond(rawreq []byte) (*Answer, error) {
 	var status int
 	var revokedAt time.Time
 	var reason int
@@ -287,6 +263,7 @@ func (ocspr *OCSPResponder) Verify(rawreq []byte) ([]byte, error) {
 
 	// construct response template
 	now := time.Now().UTC()
+	thisUpdate, nextUpdate := now.AddDate(0, 0, -1), now.AddDate(0, 0, 1)
 	rtemplate := ocsp.Response{
 		Status:           status,
 		SerialNumber:     req.SerialNumber,
@@ -294,8 +271,8 @@ func (ocspr *OCSPResponder) Verify(rawreq []byte) ([]byte, error) {
 		RevocationReason: reason,
 		IssuerHash:       req.HashAlgorithm,
 		RevokedAt:        revokedAt,
-		ThisUpdate:       now.AddDate(0, 0, -1),
-		NextUpdate:       now.AddDate(0, 0, 1),
+		ThisUpdate:       thisUpdate,
+		NextUpdate:       nextUpdate,
 		Extensions:       responseExtensions,
 	}
 
@@ -313,5 +290,5 @@ func (ocspr *OCSPResponder) Verify(rawreq []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	return resp, err
+	return &Answer{DER: resp, ThisUpdate: thisUpdate, NextUpdate: nextUpdate}, nil
 }

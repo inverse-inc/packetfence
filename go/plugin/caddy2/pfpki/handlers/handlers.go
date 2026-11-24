@@ -2,14 +2,19 @@ package handlers
 
 import (
 	"bytes"
+	"crypto/sha1"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"regexp"
+	"time"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/admin_api_audit_log"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/models"
@@ -1032,47 +1037,90 @@ func manageAnswer(Information types.Info, Error types.Errors, pfpki *types.Handl
 	}
 }
 
+// ManageOcsp answers OCSP requests (RFC 6960 appendix A.1): the DER
+// request is the body of a POST, or, for a GET, the rest of the path after
+// /pki/ocsp/, base64 then URL encoded. A GET answer carries the cache
+// headers of RFC 5019 section 6.2, so proxies and clients can keep it
+// until nextUpdate.
 func ManageOcsp(pfpki *types.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		log.LoggerWContext(*pfpki.Ctx).Info(fmt.Sprintf("Got %s request from %s", req.Method, req.RemoteAddr))
-		if req.Header.Get("Content-Type") != "application/ocsp-request" {
-			log.LoggerWContext(*pfpki.Ctx).Info("Strict mode requires correct Content-Type header")
-			res.WriteHeader(http.StatusBadRequest)
-			return
-		}
+		logger := log.LoggerWContext(*pfpki.Ctx)
+		logger.Info(fmt.Sprintf("Got %s request from %s", req.Method, req.RemoteAddr))
 
-		b := new(bytes.Buffer)
+		var rawreq []byte
 		switch req.Method {
-		case "POST":
-			b.ReadFrom(req.Body)
-		case "GET":
-			log.LoggerWContext(*pfpki.Ctx).Info(req.URL.Path)
-			gd, err := base64.StdEncoding.DecodeString(req.URL.Path[1:])
-			if err != nil {
-				log.LoggerWContext(*pfpki.Ctx).Info(err.Error())
+		case http.MethodPost:
+			if req.Header.Get("Content-Type") != "application/ocsp-request" {
+				logger.Info("OCSP POST requires the Content-Type application/ocsp-request")
 				res.WriteHeader(http.StatusBadRequest)
 				return
 			}
-			r := bytes.NewReader(gd)
-			b.ReadFrom(r)
+			var err error
+			if rawreq, err = io.ReadAll(req.Body); err != nil {
+				logger.Info(err.Error())
+				res.WriteHeader(http.StatusBadRequest)
+				return
+			}
+		case http.MethodGet:
+			var err error
+			if rawreq, err = ocspRequestFromPath(chi.URLParam(req, "*")); err != nil {
+				logger.Info("OCSP GET: " + err.Error())
+				res.WriteHeader(http.StatusBadRequest)
+				return
+			}
 		default:
-			log.LoggerWContext(*pfpki.Ctx).Info("Unsupported request method")
-			res.WriteHeader(http.StatusBadRequest)
+			logger.Info("Unsupported request method")
+			res.WriteHeader(http.StatusMethodNotAllowed)
 			return
 		}
-		oscp := Responder(pfpki)
+
 		// parse request, verify, create response
-		res.Header().Set("Content-Type", "application/ocsp-response")
-		resp, err := oscp.Verify(b.Bytes())
+		answer, err := Responder(pfpki).Respond(rawreq)
 		if err != nil {
-			log.LoggerWContext(*pfpki.Ctx).Info(err.Error())
+			logger.Info(err.Error())
 			// technically we should return an ocsp error response. but this is probably fine
 			res.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		log.LoggerWContext(*pfpki.Ctx).Info("Writing response")
-		res.Write(resp)
+		res.Header().Set("Content-Type", "application/ocsp-response")
+		if req.Method == http.MethodGet {
+			setOCSPCacheHeaders(res.Header(), answer)
+		}
+		logger.Info("Writing response")
+		res.Write(answer.DER)
 	})
+}
+
+// ocspRequestFromPath decodes the request of an OCSP GET: the DER request,
+// base64 encoded, then URL encoded, as the rest of the path after
+// /pki/ocsp/. chi hands the tail of the path as the client sent it, so the
+// '/', '+' and '=' of the base64 may still be percent-encoded; a decoded
+// tail is left as is, since base64 has no '%'.
+func ocspRequestFromPath(tail string) ([]byte, error) {
+	b64, err := url.PathUnescape(tail)
+	if err != nil {
+		return nil, err
+	}
+	if b64 == "" {
+		return nil, errors.New("no OCSP request in the path")
+	}
+	return base64.StdEncoding.DecodeString(b64)
+}
+
+// setOCSPCacheHeaders adds the headers of RFC 5019 section 6.2 to the
+// answer of an OCSP GET: the response is valid from Last-Modified
+// (thisUpdate) to Expires (nextUpdate), and its ETag is the SHA-1 of its
+// bytes.
+func setOCSPCacheHeaders(h http.Header, a *ocspresponder.Answer) {
+	maxAge := int(time.Until(a.NextUpdate).Seconds())
+	if maxAge < 0 {
+		maxAge = 0
+	}
+	sum := sha1.Sum(a.DER)
+	h.Set("Last-Modified", a.ThisUpdate.UTC().Format(http.TimeFormat))
+	h.Set("Expires", a.NextUpdate.UTC().Format(http.TimeFormat))
+	h.Set("ETag", `"`+hex.EncodeToString(sum[:])+`"`)
+	h.Set("Cache-Control", fmt.Sprintf("max-age=%d, public, no-transform, must-revalidate", maxAge))
 }
 
 func ManageSCEP(pfpki *types.Handler) http.HandlerFunc {
@@ -1082,16 +1130,9 @@ func ManageSCEP(pfpki *types.Handler) http.HandlerFunc {
 	})
 }
 
-// I decided on these defaults based on what I was using
+// Responder returns the OCSP responder of the PKI.
 func Responder(pfpki *types.Handler) *ocspresponder.OCSPResponder {
-	return &ocspresponder.OCSPResponder{
-		RespKeyFile: "responder.key",
-		Strict:      false,
-		CaCert:      nil,
-		RespCert:    nil,
-		NonceList:   nil,
-		Handler:     pfpki,
-	}
+	return &ocspresponder.OCSPResponder{Handler: pfpki}
 }
 
 func SearchSCEPServer(pfpki *types.Handler) http.HandlerFunc {
