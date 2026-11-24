@@ -267,7 +267,13 @@ func (c Cert) Download(params map[string]string) (types.Info, error) {
 		}
 	} else {
 		if val, ok := params["id"]; ok {
-			if CertDB := c.DB.Preload("Ca").First(&cert, val); CertDB.Error != nil {
+			id, err := parseID(val)
+			if err != nil {
+				Information.Status = http.StatusBadRequest
+				Information.Error = err.Error()
+				return Information, err
+			}
+			if CertDB := c.DB.Preload("Ca").First(&cert, id); CertDB.Error != nil {
 				Information.Error = CertDB.Error.Error()
 				return Information, errors.New(dbError)
 			}
@@ -1095,9 +1101,15 @@ func sortAscending(xs []int) {
 func (c Cert) Resign(params map[string]string) (types.Info, error) {
 	Information := types.Info{}
 
-	id, ok := params["id"]
+	val, ok := params["id"]
 	if !ok {
 		return Information, errors.New("missing cert id")
+	}
+	id, err := parseID(val)
+	if err != nil {
+		Information.Status = http.StatusBadRequest
+		Information.Error = err.Error()
+		return Information, err
 	}
 
 	var existing Cert

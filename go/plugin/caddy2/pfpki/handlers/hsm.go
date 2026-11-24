@@ -136,7 +136,7 @@ func HSMByID(pfpki *types.Handler) http.HandlerFunc {
 			}
 			if Information, err = o.Update(vars); err != nil {
 				Error.Message = err.Error()
-				Error.Status = http.StatusUnprocessableEntity
+				Error.Status = idErrorStatus(err, http.StatusUnprocessableEntity)
 				break
 			}
 			auditLog = makeAdminApiAuditLog(pfpki, req, Information, body, "pfpki.UpdateHSM")
@@ -145,7 +145,7 @@ func HSMByID(pfpki *types.Handler) http.HandlerFunc {
 			Information.Status = http.StatusOK
 			if Information, err = o.DelByID(vars); err != nil {
 				Error.Message = err.Error()
-				Error.Status = http.StatusConflict
+				Error.Status = idErrorStatus(err, http.StatusConflict)
 				break
 			}
 			auditLog = makeAdminApiAuditLog(pfpki, req, Information, nil, "pfpki.DeleteHSM")

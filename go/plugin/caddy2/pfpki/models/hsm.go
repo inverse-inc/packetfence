@@ -4,7 +4,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"strconv"
+	"net/http"
 	"strings"
 
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/hsm"
@@ -73,23 +73,24 @@ func (h HSM) DelByID(params map[string]string) (types.Info, error) {
 	if !ok {
 		return Information, nil
 	}
-	if _, err := strconv.ParseUint(val, 10, 64); err != nil {
-		err = errors.New("invalid id")
+	id, err := parseID(val)
+	if err != nil {
+		Information.Status = http.StatusBadRequest
 		Information.Error = err.Error()
 		return Information, err
 	}
 	var used int64
-	h.DB.Model(&CA{}).Where("hsm_id = ?", val).Count(&used)
+	h.DB.Model(&CA{}).Where("hsm_id = ?", id).Count(&used)
 	if used > 0 {
 		err := fmt.Errorf("the keys of %d CA(s) are held in this HSM", used)
 		Information.Error = err.Error()
 		return Information, err
 	}
 	var hsmdb HSM
-	if err := h.DB.First(&hsmdb, val).Error; err == nil {
+	if err := h.DB.First(&hsmdb, id).Error; err == nil {
 		hsm.Release(hsmdb.Config())
 	}
-	h.DB.Delete(&HSM{}, val)
+	h.DB.Delete(&HSM{}, id)
 	return Information, nil
 }
 
@@ -121,13 +122,14 @@ func (h HSM) Search(vars sql.Vars) (types.Info, error) {
 // left out are kept) once the token can be opened with them.
 func (h HSM) Update(params map[string]string) (types.Info, error) {
 	Information := types.Info{}
-	if _, err := strconv.ParseUint(params["id"], 10, 64); err != nil {
-		err = errors.New("invalid id")
+	id, err := parseID(params["id"])
+	if err != nil {
+		Information.Status = http.StatusBadRequest
 		Information.Error = err.Error()
 		return Information, err
 	}
 	var hsmdb HSM
-	if err := h.DB.First(&hsmdb, params["id"]).Error; err != nil {
+	if err := h.DB.First(&hsmdb, id).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, err
 	}
