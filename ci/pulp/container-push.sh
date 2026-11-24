@@ -1,33 +1,44 @@
 #!/bin/bash
 # Push this pipeline's service images to the registry on PF_PACKAGE_ORIGIN (deploy_containers):
-# tested devel/maintenance images under their branch tags, after the GitHub promotion. The runner
-# copies them, Pulp fetches nothing. The ci-docker account's username and password come from Psono.
+# tested devel/maintenance images under their branch tags, after the GitHub promotion; a feature
+# branch's under its pipeline tag. The runner copies them, Pulp fetches nothing. The ci-docker
+# account's username and password come from Psono.
 # Usage: container-push.sh <source image tag> <destination tags, comma-separated>
 set -euo pipefail
 ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
 cd "$ROOT"
 
-# Only from a protected ref: tested devel and real maintenance/X.Y pipelines (never a release tag).
-[[ ${CI_COMMIT_REF_PROTECTED:-false} == true ]] || { echo 'Container push requires a protected ref' >&2; exit 1; }
+# devel and real maintenance/X.Y (protected refs) push their branch tags; any other branch only its
+# own pipeline tag (<slug>-p<pipeline>). A release tag pushes nothing.
 source_tag=${1:?source image tag}
 tags=${2:?comma-separated destination tags}
 [[ -z ${CI_COMMIT_TAG:-} ]] || { echo 'A release tag keeps its images on GitHub: nothing is pushed here' >&2; exit 1; }
-[[ ( ${CI_COMMIT_BRANCH:-} == devel ||
-    ( ${CI_COMMIT_BRANCH:-} =~ ^maintenance/[0-9]+\.[0-9]+$ && ${CI_COMMIT_BRANCH} != maintenance/99.9 ) ) ]] || {
-    echo 'Container push requires devel or a real maintenance/X.Y branch' >&2; exit 1;
-}
-case ${CI_PIPELINE_SOURCE:-} in
-    web|api|schedule) ;;
-    push) [[ $CI_COMMIT_BRANCH == devel ]] || { echo 'Maintenance push requires web/API/schedule' >&2; exit 1; } ;;
-    *) echo 'Unsupported pipeline source for container push' >&2; exit 1 ;;
-esac
+[[ -n ${CI_COMMIT_BRANCH:-} ]] || { echo 'Container push requires a branch pipeline' >&2; exit 1; }
+if [[ $CI_COMMIT_BRANCH == devel || $CI_COMMIT_BRANCH =~ ^maintenance/[0-9]+\.[0-9]+$ ]]; then
+    [[ ${CI_COMMIT_REF_PROTECTED:-false} == true ]] || { echo 'Container push requires a protected ref' >&2; exit 1; }
+    [[ $CI_COMMIT_BRANCH != maintenance/99.9 ]] || { echo 'Container push requires a real maintenance/X.Y branch' >&2; exit 1; }
+    allowed='devel|latest|maintenance-[0-9]+-[0-9]+'
+    case ${CI_PIPELINE_SOURCE:-} in
+        web|api|schedule) ;;
+        push) [[ $CI_COMMIT_BRANCH == devel ]] || { echo 'Maintenance push requires web/API/schedule' >&2; exit 1; } ;;
+        *) echo 'Unsupported pipeline source for container push' >&2; exit 1 ;;
+    esac
+else
+    allowed="${CI_COMMIT_REF_SLUG:?}-p${CI_PIPELINE_ID:?}"
+    [[ $source_tag == "$allowed" ]] || { echo "A feature branch pushes only its pipeline tag $allowed" >&2; exit 1; }
+    case ${CI_PIPELINE_SOURCE:-} in
+        web|api|schedule) ;;
+        *) echo 'A feature branch pushes from web/API/schedule pipelines only' >&2; exit 1 ;;
+    esac
+fi
 for tag in ${tags//,/ }; do
-    [[ $tag =~ ^(devel|latest|maintenance-[0-9]+-[0-9]+)$ ]] || { echo "Refusing tag $tag" >&2; exit 1; }
+    [[ $tag =~ ^($allowed)$ ]] || { echo "Refusing tag $tag" >&2; exit 1; }
 done
 : "${PF_PACKAGE_ORIGIN:?}"
 [[ $PF_PACKAGE_ORIGIN =~ ^https://([a-zA-Z0-9.-]+(:[0-9]+)?)$ ]] || { echo 'PF_PACKAGE_ORIGIN must be an HTTPS origin' >&2; exit 1; }
 registry=${BASH_REMATCH[1]}
-username=$(bash ci/pulp/psono-field.sh "${PSONO_CI_PULP_DOCKER_ID:?}" username)
+[[ -n ${PSONO_CI_PULP_DOCKER_ID:-} ]] || { echo 'PSONO_CI_PULP_DOCKER_ID is empty. GitLab gives the Pulp credentials to protected branches only: protect this branch, or deploy from one that is' >&2; exit 1; }
+username=$(bash ci/pulp/psono-field.sh "$PSONO_CI_PULP_DOCKER_ID" username)
 password=$(bash ci/pulp/psono-field.sh "$PSONO_CI_PULP_DOCKER_ID" password)
 source=ghcr.io/inverse-inc/packetfence
 destination=$registry/inverse-inc/packetfence

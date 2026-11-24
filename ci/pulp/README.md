@@ -1,6 +1,6 @@
 # CI publishing to the packaging Pulp
 
-PacketFence CI publishes its packages and its `maintenance` container images to the
+PacketFence CI publishes its packages and its container images to the
 packaging Pulp behind packages.packetfence.com. Pulp serves the same `/downloads/PacketFence/`
 paths, signed with the same key. Other names (inverse.ca, packetfence.org) reach it once their
 DNS points at it; until then they still serve the older hosts.
@@ -12,10 +12,10 @@ DNS points at it; until then they still serve the older hosts.
 | Job | When | Destination |
 |---|---|---|
 | `check_pulp_release` | release tags, first | stops the pipeline unless the tag matches `conf/pf-release`, Pulp has this version's repositories (prepared by the release on the packaging side) and, for `vX.Y.0`, the new devel carries every package of X.Y (a later `vX.Y.Z` only warns); it publishes nothing |
-| `publish_ppa` | pipelines that build packages | `gitlab/<pipeline>/`, used by the CI tests |
+| `publish_ppa` | pipelines that build packages | `gitlab/<pipeline>/`, used by the CI tests (pruned after 3 days) |
 | `deploy_debian_pulp` | `maintenance/X.Y`, after the tests | `debian/X.Y/`, `RHEL<N>/X.Y/x86_64/` |
-| `deploy_branches_pulp` | feature branches with `DEPLOY_PKG=yes` (or `true`; `PUBLISH_PPA` is an alias), after the tests | `debian/branches/X.Y/`, `RHEL<N>/branches/X.Y/x86_64/` |
-| `deploy_files_pulp` | `maintenance/X.Y`, feature branches with `DEPLOY_PKG=yes` | `packetfence-release/-export/-upgrade/-ci-lib` in `debian/`, `RHEL<N>/` |
+| `deploy_branches_pulp` | feature branches with `DEPLOY_PKG=yes` (or `true`), after the tests | `debian/branches/X.Y/<pipeline>/`, `RHEL<N>/branches/X.Y/<pipeline>/x86_64/` |
+| `deploy_files_pulp` | `maintenance/X.Y` | `packetfence-release/-export/-upgrade/-ci-lib` in `debian/`, `RHEL<N>/` |
 
 - The OS comes from what was built: each Debian suite goes to the X.Y repository serving it (a newer
   Debian is a suite in the same repository, same URL), each `centos/<N>` to `packetfence-X-Y-el<N>`;
@@ -24,9 +24,7 @@ DNS points at it; until then they still serve the older hosts.
 - A new OS: add it to `OS_SUPPORTED` (`ci/lib/common/functions.sh`) once the packaging side serves it;
   CI then builds it, and `check_pulp_release` requires its repositories on tags.
 - `packetfence-export/-upgrade/-ci-lib` are `Architecture: all`: one copy serves every Debian release.
-- A `*_DEST_NAME` may contain `{release}` and, for an RPM, `{n}` (the EL version). The branches
-  `packetfence-release` uses both: its branches baseurl points at `branches/X.Y`, so every X.Y
-  publishes its own `packetfence-release-branches-X.Y.el<N>.noarch.rpm` instead of sharing one file.
+- A `*_DEST_NAME` may contain `{release}` and, for an RPM, `{n}` (the EL version).
 - The `latest-<channel>-<OS>.txt` markers are not published by CI: they follow the release on the
   packaging side.
 - The jobs share `resource_group: pulp-packetfence-pipelines`, so two pipelines never write
@@ -46,27 +44,55 @@ signing, `publish_ppa` and image steps succeed. `DEPLOY_PKG` decides whether a p
 |---|---|---|
 | `maintenance/X.Y` (web, API, schedule) | by default | `DEPLOY_PKG=no` |
 | release tag `vX.Y.Z` | never: its packages are already there from `maintenance/X.Y`; the tag runs the tests (configurator included), and ISO, ZEN and Vagrant stay manual jobs | — |
-| feature branch (web, API, schedule) | only when asked, to `debian/branches/X.Y` and `RHEL<N>/branches/X.Y` (never images to the registry) | `DEPLOY_PKG=yes`, or `deploy_pkg=yes` in the commit message |
+| feature branch (web, API, schedule) | only when asked, to `debian/branches/X.Y/<pipeline>/` and `RHEL<N>/branches/X.Y/<pipeline>/`, its images under their pipeline tag | `DEPLOY_PKG=yes`, or `deploy_pkg=yes` in the commit message |
 
-`PUBLISH_PPA=yes` (or `publish_ppa=yes` in the commit message) still works as an alias for feature branches.
-`publish_ppa` itself (the pipeline's `gitlab/<pipeline>/` tree) runs whenever the pipeline builds packages,
+`publish_ppa` (the pipeline's `gitlab/<pipeline>/` tree) runs whenever the pipeline builds packages,
 since the tests install from it.
 
-## Container images (`maintenance/X.Y`)
+### Feature branches
 
-On `maintenance/X.Y`, the service images (`pfdebian`, `radiusd` and their `*_related` matrices) are built
-straight to GHCR as `maintenance-X-Y`, and the test VMs pull that tag. After the tests pass,
-`deploy_containers` (deploy stage) copies the same `maintenance-X-Y` images to the registry on
-`PF_PACKAGE_ORIGIN` under the same tag (`ci/pulp/container-push.sh`). It runs only in pipelines that run
-tests, so the registry only gets tested images. A release tag `vX.Y.Z` keeps its images on GHCR: nothing is
-pushed to the registry on `PF_PACKAGE_ORIGIN`. Builder images (`pfbuild-*`, `kaniko-build`,
-`signing-packages`, `publish-ppa`) are not in the push list.
+`gitlab/<pipeline>/` is pruned after 3 days. A feature branch that deploys keeps that same tree in
+`debian/branches/X.Y/<pipeline>/` and `RHEL<N>/branches/X.Y/<pipeline>/` (the `x86_64/` repository), with:
+
+- `packetfence-release-branches.el<N>.noarch.rpm`, `packetfence-export-branches.el<N>.noarch.rpm`,
+  `packetfence-upgrade-branches.el<N>.noarch.rpm`, `packetfence-export_branches.deb`,
+  `packetfence-upgrade_branches.deb` and `packetfence-ci-lib_branches.deb`: this build's files under fixed names;
+  nothing of a feature branch goes to the `debian/` and `RHEL<N>/` roots;
+- `pipeline.json`: branch, slug, pipeline, commit, X.Y and date.
+
+Its `packetfence-release` points `packetfence-branches` at that folder (`%pf_branches_pipeline`, `Makefile`; a
+maintenance build has no such repository), and its
+packages pull the images under their pipeline tag (`conf/build_id`, `ci/lib/common/image-tag.sh`), which
+`deploy_containers` pushes to the registry too. The packaging side keeps the 2 newest pipelines of each branch,
+packages and images alike. To install one by hand: `addons/vagrant/extra_vars_branches.yml` with
+`-e pf_branches_pipeline=<pipeline>`.
+
+## Container images
+
+On every branch, the service images (`pfdebian`, `radiusd` and their
+`*_related` matrices) are pushed to GHCR only as `<slug>-p<pipeline>`
+(`ci/lib/common/pipeline-image-tag.sh`). The test VMs pull that tag: provisioning writes
+`/etc/packetfence-ci-image-tag` and `manage-images.sh` retags the images locally with the
+package's `TAG_OR_BRANCH_NAME`. On `maintenance/X.Y` the packages keep their branch tag:
+`deploy_containers` (deploy stage) then copies the manifests to the branch tags on
+GitHub (`maintenance-X-Y`; `ci/lib/upload/promote-images.py`), then pushes
+the same images to the registry on `PF_PACKAGE_ORIGIN` under the same tags
+(`ci/pulp/container-push.sh`). It runs on the same pipelines as the package deploy, so the branch
+tags and the published packages always come from one pipeline; when a pipeline does run tests, the
+deploy stage keeps both behind them. A release tag `vX.Y.Z` builds its images on GHCR as
+`vX.Y.Z` and keeps them there: nothing is pushed to the registry on `PF_PACKAGE_ORIGIN`. A feature branch's
+packages name the pipeline tag itself: a deploying feature branch promotes nothing on GitHub and pushes that
+tag to the registry. Builder images (`pfbuild-*`, `kaniko-build`, `signing-packages`, `publish-ppa`) keep
+their branch tags (`BUILDER_TAG` in the Dockerfiles). The registry keeps a feature branch's pipeline tags
+with its `branches/` folders (the 2 newest pipelines); GHCR keeps every pipeline tag.
 
 The push runs on the runner with `skopeo` (in the `publish-ppa` image): for each image of
 `ci/pulp/container-images.json` that carries this pipeline's tag, `skopeo copy --all
 --preserve-digests` from GHCR to `<registry>/inverse-inc/packetfence/<image>:<tag>`,
-so the digests match GitHub's. Pulp fetches nothing. It needs a protected ref; a branch pipeline
-may push only `devel`, `latest` and `maintenance-X-Y`; a tag pipeline pushes nothing. If it fails, `deploy_containers` fails.
+so the digests match GitHub's. Pulp fetches nothing. `devel` and `maintenance/X.Y` need a protected ref
+and may push only `devel`, `latest` and `maintenance-X-Y`; any other branch only its own `<slug>-p<pipeline>`;
+a tag pipeline pushes nothing. If it fails, `deploy_containers` fails (the
+GitHub tags are already moved).
 
 The push runs as `ci-docker` (credentials from Psono); the password reaches `skopeo` through a private temporary
 auth file. `ci-docker` may push tags and add images under `inverse-inc/` only; it cannot
@@ -120,7 +146,8 @@ version's docs never moves them.
 The `ci-packages`, `ci-docker` and `ci-docs` usernames and passwords are read from Psono at run time
 (`ci/pulp/psono-field.sh`, with the pipeline's `PSONO_CI_API_*`), like the signing key;
 their entry IDs are the protected GitLab variables `PSONO_CI_PULP_PACKAGES_ID`,
-`PSONO_CI_PULP_DOCKER_ID` and `PSONO_CI_PULP_DOCS_ID` (empty by default in `.gitlab-ci.yml`). The infrastructure provisions the accounts from the same entries, so a
+`PSONO_CI_PULP_DOCKER_ID` and `PSONO_CI_PULP_DOCS_ID` (empty by default in `.gitlab-ci.yml`): a feature
+branch deploys only where GitLab gives it those variables (a protected branch). The infrastructure provisions the accounts from the same entries, so a
 password changed in Psono applies to both after the next packaging deploy. Disable debug tracing
 (`CI_DEBUG_TRACE`, `CI_DEBUG_SERVICES`) for these jobs, and never collect environment dumps,
 signing homes or credential files as artifacts. Publishing artifacts require Developer

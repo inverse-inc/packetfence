@@ -36,13 +36,15 @@ gpgcheck=0
 enabled=0
 module_hotfixes=1
 
+%if 0%{?pf_branches_pipeline:1}
 [packetfence-branches]
 name=PacketFence Branches Repository
-baseurl=http://inverse.ca/downloads/PacketFence/RHEL\$releasever/branches/%{pf_minor_release}/\$basearch
+baseurl=http://inverse.ca/downloads/PacketFence/RHEL\$releasever/branches/%{pf_minor_release}/%{pf_branches_pipeline}/\$basearch
 gpgcheck=0
 enabled=0
 module_hotfixes=1
 
+%endif
 EOF
 
 %{__cat} <<EOF > %{_builddir}/RPM-GPG-KEY-PACKETFENCE-CENTOS

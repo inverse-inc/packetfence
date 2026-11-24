@@ -3,7 +3,6 @@ import hashlib
 import importlib.util
 import json
 import os
-import re
 import shutil
 import subprocess
 import tempfile
@@ -42,31 +41,81 @@ class ConfigurationTest(unittest.TestCase):
         config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
         job = config['deploy_containers']
         self.assertEqual(job['resource_group'], 'pulp-packetfence-containers')
-        # Images are built straight to GHCR as maintenance-X-Y; the same tag is copied, unchanged.
-        self.assertEqual(job['script'], ['bash ci/pulp/container-push.sh "$CI_COMMIT_REF_SLUG" "$CI_COMMIT_REF_SLUG"'])
+        script = '\n'.join(job['script'])
+        # GitHub first, then the same tags pushed to PF_PACKAGE_ORIGIN; a release tag pushes nothing there.
+        # A feature branch promotes nothing and pushes its pipeline tag.
+        self.assertLess(script.index('promote-images.py'), script.index('container-push.sh "$pipeline_tag"'))
+        self.assertIn('container-push.sh "$pipeline_tag" "${PROMOTE_TAGS:-$pipeline_tag}"', script)
+        feature = [r for r in job['rules'] if isinstance(r, dict) and '$CI_COMMIT_REF_NAME != "devel"' in r.get('if', '')]
+        self.assertEqual([r['variables']['PROMOTE_TAGS'] for r in feature], [''])
+        self.assertIn('$DEPLOY_PKG == "yes"', feature[0]['if'])
+        self.assertNotIn('CI_COMMIT_TAG', script)
+
+    def test_service_images_are_promoted_whenever_packages_are_published(self):
+        config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
+        service = config['.build_img_service_rules']['rules']
+        for name in ('pfdebian', 'pfdebian_related', 'radiusd', 'radiusd_related'):
+            self.assertIn({'reference': ['.build_img_service_rules', 'rules']}, config[name]['rules'])
+        for rule in service:
+            if rule['if'] != '$CI_COMMIT_TAG':  # every branch: devel, maintenance/X.Y, feature branches
+                self.assertEqual(rule['variables']['IMAGE_TAGS'], '${CI_COMMIT_REF_SLUG}-p${CI_PIPELINE_ID}')
+                self.assertEqual(rule['variables']['BUILDER_TAG'], '${CI_COMMIT_REF_SLUG}')
+        job = config['deploy_containers']
         self.assertEqual(job['stage'], 'deploy')
         # No needs: the deploy stage waits for the tests when a pipeline runs them.
         self.assertNotIn('needs', job)
+        self.assertEqual(job['rules'][:2], [{'reference': ['.gated_by_build_img_container', 'rules']},
+                                            {'reference': ['.gated_by_deploy_pkg', 'rules']}])
+        branches = job['rules'][2:4]
+        packages = [r['if'] for r in config['deploy_debian_pulp']['rules'] if 'if' in r]
+        # Promotion matches the packages condition for condition: a pipeline that publishes one
+        # publishes the other, with or without tests. The tag guard is promotion's alone.
+        self.assertEqual([r['if'] for r in branches], [packages[0] + ' && $CI_COMMIT_TAG == null'] + packages[1:])
+        feature = [r['if'] for r in config['deploy_branches_pulp']['rules'] if 'if' in r]
+        self.assertEqual([r['if'] for r in job['rules'][4:]], feature)
+        for rule in branches:
+            self.assertNotIn('$TEST', rule['if'])
+            self.assertIn('$CI_COMMIT_TAG == null', rule['if'])
+        self.assertEqual([r['variables']['PROMOTE_TAGS'] for r in branches],
+                         ['${CI_COMMIT_REF_SLUG},latest', '$CI_COMMIT_REF_SLUG'])
 
-        def gated_by(template, inline):
-            refs = [r for r in job['rules'] if (r.get('reference') or [None])[0] == template]
-            own = [r for r in job['rules'] if r.get('when') == 'never' and r.get('if') == inline]
-            return bool(refs or own)
+    def test_service_images_build_from_the_builder_branch_tag(self):
+        # Service images get a pipeline tag (IMAGE_TAG); pfbuild-* builders only have their branch tag.
+        wrong = sorted(str(p.relative_to(ROOT)) for p in (ROOT/'containers').glob('*/Dockerfile')
+                       if any(l.startswith('FROM') and '/pfbuild-' in l and '${IMAGE_TAG}' in l
+                              for l in p.read_text().splitlines()))
+        self.assertEqual(wrong, [], 'use FROM .../pfbuild-*:${BUILDER_TAG} (with ARG BUILDER_TAG)')
 
-        # Nothing built or nothing deployed: no push. Otherwise the packages decide.
-        self.assertTrue(gated_by('.gated_by_build_img_container',
-                                 '$BUILD_IMG_CONTAINER == "no" || $CI_COMMIT_MESSAGE =~ /build_img_container=no/'))
-        self.assertTrue(gated_by('.gated_by_deploy_pkg', '$DEPLOY_PKG == "no" || $DEPLOY_PKG == "false"'))
-        arms = [r for r in job['rules'] if 'if' in r and r.get('when') != 'never']
-        self.assertEqual(len(arms), 1)
-        self.assertTrue(arms[0]['if'].startswith('$CI_COMMIT_REF_NAME =~ /^maintenance'))
-        self.assertNotIn('$TEST', arms[0]['if'])  # published with the packages, tests or not
-        self.assertIn('$CI_COMMIT_TAG == null', arms[0]['if'])
-        # The same pipeline sources the package deploy accepts.
-        packages = config.get('deploy_debian_pulp', {}).get('rules') or config['.deploy_maintenance_rules']['rules']
-        sources = lambda text: set(re.findall(r'\$CI_PIPELINE_SOURCE == "(\w+)"', text))  # noqa: E731
-        wanted = set().union(*(sources(r['if']) for r in packages if 'maintenance' in (r.get('if') or '')))
-        self.assertEqual(sources(arms[0]['if']), wanted)
+    def test_pipeline_image_tag_contexts(self):
+        helper = ROOT/'ci/lib/common/pipeline-image-tag.sh'
+        base = {'PATH': os.environ['PATH'], 'CI_PIPELINE_ID': '42'}
+        cases = [({'CI_COMMIT_REF_NAME': 'devel', 'CI_COMMIT_REF_SLUG': 'devel', 'CI_PIPELINE_SOURCE': 'push'}, 'devel-p42'),
+                 ({'CI_COMMIT_REF_NAME': 'maintenance/15.2', 'CI_COMMIT_REF_SLUG': 'maintenance-15-2',
+                   'CI_PIPELINE_SOURCE': 'web'}, 'maintenance-15-2-p42'),
+                 ({'CI_COMMIT_REF_NAME': 'maintenance/15.2', 'CI_COMMIT_REF_SLUG': 'maintenance-15-2',
+                   'CI_PIPELINE_SOURCE': 'push'}, ''),
+                 ({'CI_COMMIT_REF_NAME': 'feature/x', 'CI_COMMIT_REF_SLUG': 'feature-x', 'CI_PIPELINE_SOURCE': 'web'}, 'feature-x-p42'),
+                 ({'CI_COMMIT_REF_NAME': 'feature/x', 'CI_COMMIT_REF_SLUG': 'feature-x', 'CI_PIPELINE_SOURCE': 'push'}, ''),
+                 ({'CI_COMMIT_REF_NAME': 'devel', 'CI_COMMIT_REF_SLUG': 'devel', 'BUILD_IMG_CONTAINER': 'no'}, ''),
+                 ({'CI_COMMIT_REF_NAME': 'v16.0.0', 'CI_COMMIT_TAG': 'v16.0.0'}, '')]
+        for env, expected in cases:
+            result = subprocess.run(['sh', str(helper)], env={**base, **env}, capture_output=True, text=True)
+            self.assertEqual((result.returncode, result.stdout.strip()), (0, expected), env)
+
+    def test_packages_pull_the_tag_their_images_keep(self):
+        # A feature branch's images keep the pipeline tag; devel/maintenance get their branch tag.
+        helper = ROOT/'ci/lib/common/image-tag.sh'
+        base = {'PATH': os.environ['PATH'], 'CI_PIPELINE_ID': '42', 'CI_PIPELINE_SOURCE': 'web'}
+        cases = [({'CI_COMMIT_REF_NAME': 'feature/x', 'CI_COMMIT_REF_SLUG': 'feature-x'}, 'feature-x-p42'),
+                 ({'CI_COMMIT_REF_NAME': 'feature/x', 'CI_COMMIT_REF_SLUG': 'feature-x', 'BUILD_IMG_CONTAINER': 'no'}, 'feature-x'),
+                 ({'CI_COMMIT_REF_NAME': 'devel', 'CI_COMMIT_REF_SLUG': 'devel'}, 'devel'),
+                 ({'CI_COMMIT_REF_NAME': 'maintenance/15.2', 'CI_COMMIT_REF_SLUG': 'maintenance-15-2'}, 'maintenance-15-2'),
+                 ({'CI_COMMIT_REF_NAME': 'v16.0.0', 'CI_COMMIT_TAG': 'v16.0.0'}, 'v16.0.0'),
+                 ({}, '')]
+        for env, expected in cases:
+            result = subprocess.run(['sh', str(helper)], env={**base, **env}, capture_output=True, text=True)
+            self.assertEqual((result.returncode, result.stdout.strip()), (0, expected), env)
+
     def test_container_push_routes_only_trusted_pipelines_and_never_shows_the_password(self):
         with tempfile.TemporaryDirectory() as folder:
             work = Path(folder)
@@ -155,18 +204,21 @@ class ConfigurationTest(unittest.TestCase):
 
     def test_feature_branches_deploy_with_deploy_pkg_yes_or_true(self):
         config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
-        branch_rules = [r['if'] for r in config['deploy_branches_pulp']['rules'] if 'if' in r and '$CI_COMMIT_TAG == null' in r['if']]
-        file_rules = [r['if'] for r in config['.deploy_pkg_rules']['rules'] if 'if' in r and 'pf-branches' == r.get('variables', {}).get('DEPLOY_ENV_NAME')]
-        for rule in branch_rules + file_rules:
-            for wanted in ('$DEPLOY_PKG == "yes"', '$DEPLOY_PKG == "true"', '$PUBLISH_PPA == "yes"', '$PUBLISH_PPA == "true"'):
+        # Its packages (deploy_branches_pulp) and its pipeline-tagged images (deploy_containers), on request only.
+        feature = [r['if'] for job in ('deploy_branches_pulp', 'deploy_containers') for r in config[job]['rules']
+                   if isinstance(r, dict) and '$CI_COMMIT_REF_NAME != "devel"' in r.get('if', '')]
+        self.assertEqual(len(feature), 2)
+        for rule in feature:
+            for wanted in ('$DEPLOY_PKG == "yes"', '$DEPLOY_PKG == "true"'):
                 self.assertIn(wanted, rule)
-        self.assertEqual((len(branch_rules), len(file_rules)), (1, 1))
+        self.assertNotIn('PUBLISH_PPA', (ROOT/'.gitlab-ci.yml').read_text())  # DEPLOY_PKG is the only switch
         self.assertEqual(config['.gated_by_deploy_pkg']['rules'][0]['if'], '$DEPLOY_PKG == "no" || $DEPLOY_PKG == "false"')
-        # A feature branch never deploys images to the registry nor packages to the release repositories.
-        for job in ('deploy_containers', 'deploy_debian_pulp'):
-            for rule in config[job]['rules']:
+        self.assertIn({'reference': ['.gated_by_build_img_container', 'rules']}, config['deploy_branches_pulp']['rules'])
+        # Never into the release repositories nor the debian/ and RHEL<N>/ roots.
+        for rules in (config['deploy_debian_pulp']['rules'], config['.deploy_pkg_rules']['rules']):
+            for rule in rules:
                 condition = rule.get('if', '') if isinstance(rule, dict) else ''
-                self.assertTrue(not condition or 'devel' in condition or 'maintenance' in condition or 'CI_COMMIT_TAG' in condition, (job, condition))
+                self.assertTrue(not condition or 'devel' in condition or 'maintenance' in condition or 'CI_COMMIT_TAG' in condition, condition)
                 self.assertNotIn('$CI_COMMIT_REF_NAME != "devel"', condition)
 
     def test_files_keep_their_published_names_for_every_os(self):
@@ -201,16 +253,18 @@ class ConfigurationTest(unittest.TestCase):
             shutil.rmtree(result/'centos'/'9')
             named = {name for _, _, name in module.plan(result, '16.0', {'PF_CI_LIB_DEB_DEST_NAME': 'packetfence-ci-lib_devel.deb'})}
             self.assertIn('packetfence-ci-lib_devel.deb', named)
-            # The branches packetfence-release carries an X.Y-specific baseurl, so every X.Y must
-            # publish its own file instead of overwriting one name shared with the other versions.
-            text = (ROOT/'.gitlab-ci.yml').read_text()
-            wanted = {v for v in re.findall(r'PKG_DEST_NAME: (\S+)', text) if 'branches' in v}
-            self.assertTrue(wanted)
-            for value in wanted:
-                named = {name for _, _, name in module.plan(result, '16.0', {'PKG_DEST_NAME': value})}
-                self.assertIn('packetfence-release-branches-16.0.el8.noarch.rpm', named)
-            self.assertIn('packetfence-release-branches-{{ pf_minor_release }}.el8.noarch.rpm',
-                          (ROOT/'addons/vagrant/extra_vars_branches.yml').read_text())
+            # A feature branch stages them, under their branches names, for its branches/X.Y/<pipeline>/ folder.
+            config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
+            stage = Path(folder)/'stage'
+            with mock.patch.dict(os.environ, config['deploy_branches_pulp']['variables']):
+                module.main(['--release', '16.0', '--result', str(result), '--stage', str(stage)])
+            self.assertEqual(sorted(str(p.relative_to(stage)) for p in stage.rglob('*.*')), [
+                'debian/packetfence-ci-lib_branches.deb', 'debian/packetfence-export_branches.deb',
+                'debian/packetfence-upgrade_branches.deb', 'rhel8/packetfence-export-branches.el8.noarch.rpm',
+                'rhel8/packetfence-release-branches.el8.noarch.rpm', 'rhel8/packetfence-upgrade-branches.el8.noarch.rpm'])
+            # No feature branch file lands in the debian/ and RHEL<N>/ roots any more.
+            for rule in config['.deploy_pkg_rules']['rules']:
+                self.assertNotIn('$CI_COMMIT_REF_NAME != "devel"', rule.get('if', ''))
 
     def test_published_files_join_the_listing(self):
         spec = importlib.util.spec_from_file_location('publish_files', ROOT/'ci/pulp/publish-files.py')
@@ -298,11 +352,49 @@ class ConfigurationTest(unittest.TestCase):
     def test_container_push_refuses_other_tags(self):
         env = dict(os.environ, **PSONO_ENV, CI_COMMIT_BRANCH='devel', CI_PIPELINE_SOURCE='web',
                    CI_COMMIT_REF_PROTECTED='true', CI_COMMIT_TAG='')
-        for tags in ('v16.0.0', 'devel,feature-x', 'maintenance-15'):
+        for tags in ('v16.0.0', 'devel,feature-x', 'maintenance-15', 'devel-p7'):
             result = subprocess.run(['bash', str(ROOT/'ci/pulp/container-push.sh'), 'p-7', tags],
                                     env=env, capture_output=True, text=True)
             self.assertNotEqual(result.returncode, 0, tags)
             self.assertIn('Refusing tag', result.stderr)
+        feature = dict(env, CI_COMMIT_BRANCH='feature/x', CI_COMMIT_REF_SLUG='feature-x', CI_PIPELINE_ID='7',
+                       CI_COMMIT_REF_PROTECTED='false')
+        for source, tags in (('feature-x-p7', 'feature-x'), ('feature-x-p7', 'latest'), ('feature-x-p7', 'feature-x-p7,devel'),
+                             ('feature-x-p6', 'feature-x-p6'), ('devel-p7', 'devel')):
+            result = subprocess.run(['bash', str(ROOT/'ci/pulp/container-push.sh'), source, tags],
+                                    env=feature, capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0, (source, tags))
+
+    def test_container_push_feature_branch_pushes_only_its_pipeline_tag(self):
+        with tempfile.TemporaryDirectory() as folder:
+            work = Path(folder)
+            fake = work/'skopeo'
+            fake.write_text('#!/bin/sh\nprintf "%s\\n" "$*" >> "$TEST_CALLS"\n'
+                            'case "$*" in "inspect "*) case "$*" in *pfcmd:feature-x-p7*) exit 0;; '
+                            '*) echo "manifest unknown" >&2; exit 1;; esac;; "login "*) cat > /dev/null;; esac\n')
+            fake.chmod(0o700)
+            script, calls = push_tree(work), work/'calls'
+            calls.write_text('')
+            env = dict(os.environ, **PSONO_ENV, PATH=str(work)+os.pathsep+os.environ['PATH'], TEST_CALLS=str(calls),
+                       TEST_PSONO=str(work/'psono'), CI_COMMIT_BRANCH='feature/x', CI_COMMIT_REF_SLUG='feature-x',
+                       CI_PIPELINE_ID='7', CI_PIPELINE_SOURCE='web', CI_COMMIT_REF_PROTECTED='false', CI_COMMIT_TAG='')
+            result = subprocess.run(['bash', str(script), 'feature-x-p7', 'feature-x-p7'], env=env, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            copies = [row for row in calls.read_text().splitlines() if row.startswith('copy ')]
+            self.assertEqual(len(copies), 1)
+            self.assertIn('docker://ghcr.io/inverse-inc/packetfence/pfcmd:feature-x-p7 '
+                          'docker://registry.example/inverse-inc/packetfence/pfcmd:feature-x-p7', copies[0])
+            calls.write_text('')
+            refused = subprocess.run(['bash', str(script), 'feature-x-p7', 'feature-x-p7'],
+                                     env=dict(env, PSONO_CI_PULP_DOCKER_ID=''), capture_output=True, text=True)
+            self.assertIn('protected branches only', refused.stderr)
+            self.assertEqual(calls.read_text(), '')
+            for source in ('push', 'merge_request_event'):
+                calls.write_text('')
+                result = subprocess.run(['bash', str(script), 'feature-x-p7', 'feature-x-p7'],
+                                        env=dict(env, CI_PIPELINE_SOURCE=source), capture_output=True, text=True)
+                self.assertNotEqual(result.returncode, 0, source)
+                self.assertEqual(calls.read_text(), '')
 
     def test_publishing_artifacts_require_project_developer_access(self):
         config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
@@ -340,6 +432,117 @@ class ConfigurationTest(unittest.TestCase):
         self.assertTrue(globs)
         for pattern in globs:
             self.assertTrue(list(ROOT.glob(pattern)), f'debian/rules: chmod {pattern} matches no file')
+
+    def test_a_feature_branch_keeps_its_pipeline_ppa_in_branches(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)/'repo'
+            (root/'ci/pulp/vendor').mkdir(parents=True)
+            (root/'conf').mkdir()
+            (root/'conf/pf-release').write_text('PacketFence 16.0.0\n')
+            for name in ('publish-packages.sh', 'publish-files.py', 'psono-field.sh'):
+                shutil.copy(ROOT/'ci/pulp'/name, root/'ci/pulp'/name)
+            shutil.copy(ROOT/'ci/pulp/vendor/pulp_publish.py', root/'ci/pulp/vendor/pulp_publish.py')
+            # The Pulp helper records each publish: its arguments and the tree it would upload.
+            (root/'ci/pulp/vendor/pipeline_repository.py').write_text(
+                'import json, os, sys\nfrom pathlib import Path\n'
+                'args = sys.argv[1:]; tree = Path(args[args.index("--tree") + 1])\n'
+                'files = sorted(str(p.relative_to(tree)) for p in tree.rglob("*") if p.is_file())\n'
+                'with open(os.environ["TEST_CALLS"], "a") as out:\n'
+                '    out.write(json.dumps({"args": args, "files": files, '
+                '"marker": json.loads((tree/"pipeline.json").read_text())}) + "\\n")\n')
+            vendor = root/'ci/pulp/vendor'
+            (vendor/'SHA256SUMS').write_text(''.join(f'{hashlib.sha256((vendor/n).read_bytes()).hexdigest()}  {n}\n'
+                                                     for n in ('pulp_publish.py', 'pipeline_repository.py')))
+            (root/'addons/packetfence-perl').mkdir(parents=True)
+            (root/'addons/packetfence-perl/psono.py').write_text(
+                'print(\'{"website_password_username": "ci-packages", "website_password_password": "secret"}\')\n')
+            public, result = root/'public', root/'result'
+            for path in ('GPG_PUBLIC_KEY', 'debian/dists/bookworm/InRelease', 'debian/pool/main/p/packetfence_16.0.0_all.deb',
+                         'centos/8/x86_64/repodata/repomd.xml', 'centos/8/x86_64/RPMS/packetfence-16.0.0.el8.noarch.rpm',
+                         'centos/8/x86_64/RPMS/packetfence-release-2.4.1.el8.noarch.rpm'):
+                (public/path).parent.mkdir(parents=True, exist_ok=True)
+                (public/path).write_text('x')
+            for path in ('centos/8/packetfence-release-2.4.1.el8.noarch.rpm', 'centos/8/packetfence-upgrade-16.0.0.el8.noarch.rpm',
+                         'centos/8/packetfence-export-16.0.0.el8.noarch.rpm', 'debian/bookworm/packetfence-upgrade_16.0.0_all.deb',
+                         'debian/bookworm/packetfence-export_16.0.0_all.deb', 'debian/bookworm/packetfence-ci-lib_16.0.0_all.deb'):
+                (result/path).parent.mkdir(parents=True, exist_ok=True)
+                (result/path).write_text('x')
+            calls = Path(folder)/'calls'
+            config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
+            env = dict(os.environ, **PSONO_ENV, **config['deploy_branches_pulp']['variables'], TEST_CALLS=str(calls),
+                       PSONO_CI_PULP_PACKAGES_ID='packages-entry', CI_PIPELINE_ID='42', CI_COMMIT_REF_NAME='feature/x',
+                       CI_COMMIT_REF_SLUG='feature-x', CI_COMMIT_SHA='abc')
+            run = subprocess.run(['bash', str(root/'ci/pulp/publish-packages.sh'), 'branches'], cwd=root, env=env,
+                                 capture_output=True, text=True)
+            self.assertEqual(run.returncode, 0, run.stderr)
+            deb, rpm = [json.loads(line) for line in calls.read_text().splitlines()]
+            for call, repository in ((deb, 'debian-branches-16-0'), (rpm, 'rhel8-branches-16-0')):
+                self.assertEqual(call['args'][:5], ['publish', '--repository', repository, '--pipeline', '42'])
+                self.assertIn('--no-lock', call['args'])
+                self.assertEqual({k: call['marker'][k] for k in ('branch', 'slug', 'pipeline', 'release')},
+                                 {'branch': 'feature/x', 'slug': 'feature-x', 'pipeline': 42, 'release': '16.0'})
+            self.assertEqual(deb['files'], ['GPG_PUBLIC_KEY', 'dists/bookworm/InRelease', 'packetfence-ci-lib_branches.deb',
+                                            'packetfence-export_branches.deb', 'packetfence-upgrade_branches.deb',
+                                            'pipeline.json', 'pool/main/p/packetfence_16.0.0_all.deb'])
+            self.assertEqual(rpm['files'], ['GPG_PUBLIC_KEY', 'packetfence-export-branches.el8.noarch.rpm',
+                                            'packetfence-release-branches.el8.noarch.rpm',
+                                            'packetfence-upgrade-branches.el8.noarch.rpm', 'pipeline.json',
+                                            'x86_64/RPMS/packetfence-16.0.0.el8.noarch.rpm',
+                                            'x86_64/RPMS/packetfence-release-2.4.1.el8.noarch.rpm', 'x86_64/repodata/repomd.xml'])
+            self.assertIn('debian/branches/16.0/42/', run.stdout)
+            # A feature branch GitLab gives no Pulp credentials (unprotected) is told why.
+            calls.write_text('')
+            refused = subprocess.run(['bash', str(root/'ci/pulp/publish-packages.sh'), 'branches'], cwd=root, capture_output=True,
+                                     text=True, env=dict(env, PSONO_CI_PULP_PACKAGES_ID=''))
+            self.assertNotEqual(refused.returncode, 0)
+            self.assertIn('protected branches only', refused.stderr)
+            self.assertEqual(calls.read_text(), '')
+
+    def test_a_branch_deploy_without_pulp_credentials_says_why_before_the_key_import(self):
+        config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
+        script = '\n'.join(config['deploy_branches_pulp']['before_script'])
+        with tempfile.TemporaryDirectory() as folder:
+            work = Path(folder)
+            (work/'addons/packetfence-perl').mkdir(parents=True)
+            (work/'addons/packetfence-perl/psono.py').write_text('print("key")\n')
+            (work/'gpg').write_text('#!/bin/sh\necho imported >> "$TEST_CALLS"\ncat > /dev/null\n')
+            (work/'gpg').chmod(0o700)
+            calls = work/'calls'
+            full = {'PATH': str(work) + os.pathsep + os.environ['PATH'], 'TEST_CALLS': str(calls),
+                    'PSONO_CI_API_KEY_ID': 'k', 'PSONO_CI_API_SECRET_KEY_HEX': 's', 'PSONO_GPG_PRIVATE_KEY_SECRET_ID': 'g',
+                    'PSONO_CI_PULP_PACKAGES_ID': 'p'}
+            for empty in ('PSONO_CI_API_KEY_ID', 'PSONO_GPG_PRIVATE_KEY_SECRET_ID', 'PSONO_CI_PULP_PACKAGES_ID'):
+                result = subprocess.run(['bash', '-c', script], cwd=work, env={**full, empty: ''}, capture_output=True, text=True)
+                self.assertNotEqual(result.returncode, 0, empty)
+                self.assertIn(empty + ' is empty', result.stderr)
+                self.assertIn('protected branches only', result.stderr)
+                self.assertFalse(calls.exists(), empty)
+            result = subprocess.run(['bash', '-c', script], cwd=work, env=full, capture_output=True, text=True)
+            self.assertEqual((result.returncode, calls.read_text()), (0, 'imported\n'), result.stderr)
+
+    def test_only_a_feature_build_ships_the_packetfence_branches_repository(self):
+        # The Makefile names the pipeline only when CI sets it (feature branches, .context_rules), and the spec
+        # writes [packetfence-branches] only then, pointing at that pipeline's folder (extra_vars_branches.yml).
+        makefile = (ROOT/'Makefile').read_text()
+        self.assertIn('$(if $(PF_BRANCHES_PIPELINE),echo "%pf_branches_pipeline $(PF_BRANCHES_PIPELINE)"', makefile)
+        self.assertNotIn('pf_branches_dir', makefile)
+        spec = (ROOT/'rpm/packetfence-release.spec').read_text()
+        stanza = spec[spec.index('%if 0%{?pf_branches_pipeline:1}'):]
+        stanza = stanza[:stanza.index('%endif')]
+        self.assertIn('[packetfence-branches]', stanza)
+        self.assertIn('/branches/%{pf_minor_release}/%{pf_branches_pipeline}/\\$basearch', stanza)
+        self.assertEqual(spec.count('[packetfence-branches]'), 1)
+        config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
+        branches = [r for r in config['.context_rules']['rules'] if r.get('variables', {}).get('CONTEXT') == 'branches']
+        self.assertEqual([r['variables']['PF_BRANCHES_PIPELINE'] for r in branches], ['$CI_PIPELINE_ID'])
+        self.assertFalse([r for r in config['.context_rules']['rules']
+                          if r.get('variables', {}).get('CONTEXT') != 'branches' and 'PF_BRANCHES_PIPELINE' in r.get('variables', {})])
+        if shutil.which('make'):
+            for pipeline, wanted in (('42', '%pf_branches_pipeline 42'), ('', None)):
+                dry = subprocess.run(['make', '-s', '-n', '-C', str(ROOT), 'rpm/.rpmmacros'] +
+                                     ([f'PF_BRANCHES_PIPELINE={pipeline}'] if pipeline else []), capture_output=True, text=True)
+                lines = [l for l in dry.stdout.splitlines() if 'pf_branches' in l]
+                self.assertEqual([wanted in l for l in lines] if wanted else lines, [True] if wanted else [])
 
     def test_shell_syntax(self):
         for script in (ROOT/'ci/pulp').rglob('*.sh'):
