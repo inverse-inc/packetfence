@@ -66,7 +66,8 @@ since the tests install from it.
   nothing of a feature branch goes to the `debian/` and `RHEL<N>/` roots;
 - `pipeline.json`: branch, slug, pipeline, commit, X.Y and date.
 
-Its `packetfence-release` points `packetfence-branches` at that folder (`%pf_branches_dir`, `Makefile`), and its
+Its `packetfence-release` points `packetfence-branches` at that folder (`%pf_branches_pipeline`, `Makefile`; a devel or
+maintenance build has no such repository), and its
 packages pull the images under their pipeline tag (`conf/build_id`, `ci/lib/common/image-tag.sh`), which
 `deploy_containers` pushes to the registry too. The packaging side keeps the 2 newest pipelines of each branch,
 packages and images alike. To install one by hand: `addons/vagrant/extra_vars_branches.yml` with
