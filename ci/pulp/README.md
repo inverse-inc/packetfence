@@ -25,6 +25,9 @@ DNS points at it; until then they still serve the older hosts.
 - A new OS: add it to `OS_SUPPORTED` (`ci/lib/common/functions.sh`) once the packaging side serves it;
   CI then builds it, and `check_pulp_release` requires its repositories on tags.
 - `packetfence-export/-upgrade/-ci-lib` are `Architecture: all`: one copy serves every Debian release.
+- A `*_DEST_NAME` may contain `{release}` and, for an RPM, `{n}` (the EL version). The branches
+  `packetfence-release` uses both: its branches baseurl points at `branches/X.Y`, so every X.Y
+  publishes its own `packetfence-release-branches-X.Y.el<N>.noarch.rpm` instead of sharing one file.
 - The `latest-<channel>-<OS>.txt` markers are not published by CI: they follow the release on the
   packaging side.
 - The jobs share `resource_group: pulp-packetfence-pipelines`, so two pipelines never write

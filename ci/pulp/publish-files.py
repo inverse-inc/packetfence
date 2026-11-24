@@ -2,7 +2,8 @@
 """Publish packetfence-release/-export/-upgrade/-ci-lib into the debian/ and RHEL<N>/ file snapshots.
 
 Published names follow the context (devel, maintenance, release, branches) through the *_DEST_NAME
-variables .deploy_pkg_rules sets: RPMs from result/centos/<N>/ go to the rhel<N> snapshot, debs from
+variables .deploy_pkg_rules sets, which may carry a {release} (and {n}, the EL version, for an RPM)
+placeholder: RPMs from result/centos/<N>/ go to the rhel<N> snapshot, debs from
 result/debian/<suite>/ to the debian one: they are Architecture: all with no dependencies, so one copy
 serves every Debian release (the first suite built). A file already published with the same bytes is left alone;
 otherwise it replaces the one at that path, the snapshot is republished and the listing labels follow.
@@ -41,12 +42,12 @@ def plan(result, release, environ):
     for directory in sorted((result / 'centos').glob('*')):
         if directory.is_dir() and directory.name.isdigit():
             for prefix, variable, default in RPM_FILES:
-                name = environ.get(variable) or default.format(release=release, n=directory.name)
+                name = (environ.get(variable) or default).format(release=release, n=directory.name)
                 out.append(('rhel' + directory.name, built_file(directory, prefix), name))
     for directory in sorted((result / 'debian').glob('*')):
         if directory.is_dir():
             for prefix, variable, default in DEB_FILES:
-                name = environ.get(variable) or default.format(release=release)
+                name = (environ.get(variable) or default).format(release=release)
                 if ('debian', name) not in {(s, n) for s, _, n in out}:
                     out.append(('debian', built_file(directory, prefix), name))
     names = [(snapshot, name) for snapshot, _, name in out]
