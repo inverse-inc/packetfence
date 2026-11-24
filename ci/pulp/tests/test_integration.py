@@ -553,6 +553,34 @@ class ConfigurationTest(unittest.TestCase):
                 lines = [l for l in dry.stdout.splitlines() if 'pf_branches' in l]
                 self.assertEqual([wanted in l for l in lines] if wanted else lines, [True] if wanted else [])
 
+    def test_requested_tests_build_images_and_packages_but_publish_nothing(self):
+        text = (ROOT/'.gitlab-ci.yml').read_text()
+        config = yaml.load(text, Loader=GitLabLoader)
+        # The deploys' gate (where they share one) never lets tests through: BUILD_IMG_CONTAINER=no publishes nothing.
+        deploy_gate = {r['if'] for r in config.get('.gated_by_build_img_container', {}).get('rules', [])}
+        builds = [line.split("if: '", 1)[1].rstrip("'") for line in text.splitlines()
+                  if re.match(r"\s*- if: '\$(BUILD_IMG_CONTAINER == \"no\"|CI_COMMIT_MESSAGE =~ /build_img_container=no/|BUILD_ARTIFACTS_PKG == \"no\")", line)]
+        self.assertTrue(builds)
+        for condition in builds:
+            if condition in deploy_gate or ' || ' in condition:  # a deploy's gate (one-line form in the older layout)
+                self.assertNotIn('TEST', condition)
+            else:  # a build: tests requested build this pipeline's images and packages
+                self.assertIn('$TEST != "yes"', condition)
+                self.assertIn('$CI_COMMIT_MESSAGE !~ /test=yes/', condition)
+                if '$TEST_ONLY != ""' in text:
+                    self.assertIn('$TEST_ONLY == ""', condition)
+        for name in ('deploy_branches_pulp', 'deploy_containers'):
+            for rule in config[name].get('rules', []):
+                if 'BUILD_IMG_CONTAINER' in rule.get('if', ''):
+                    self.assertNotIn('TEST', rule['if'], name)
+        helper = ROOT/'ci/lib/common/pipeline-image-tag.sh'
+        base = {'PATH': os.environ['PATH'], 'CI_PIPELINE_ID': '42', 'CI_COMMIT_REF_NAME': 'feature/x',
+                'CI_COMMIT_REF_SLUG': 'feature-x', 'CI_PIPELINE_SOURCE': 'web'}
+        for env, expected in (({'BUILD_IMG_CONTAINER': 'no'}, ''), ({'BUILD_IMG_CONTAINER': 'no', 'TEST': 'yes'}, 'feature-x-p42'),
+                              ({'CI_COMMIT_MESSAGE': 'fix\n\nbuild_img_container=no test=yes'}, 'feature-x-p42')):
+            result = subprocess.run(['sh', str(helper)], env={**base, **env}, capture_output=True, text=True)
+            self.assertEqual(result.stdout.strip(), expected, env)
+
     def test_shell_syntax(self):
         for script in (ROOT/'ci/pulp').rglob('*.sh'):
             subprocess.run(['bash', '-n', str(script)], check=True)
