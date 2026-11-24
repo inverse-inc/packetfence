@@ -3,6 +3,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import re
 import shutil
 import subprocess
 import tempfile
@@ -184,6 +185,16 @@ class ConfigurationTest(unittest.TestCase):
             shutil.rmtree(result/'centos'/'9')
             named = {name for _, _, name in module.plan(result, '16.0', {'PF_CI_LIB_DEB_DEST_NAME': 'packetfence-ci-lib_devel.deb'})}
             self.assertIn('packetfence-ci-lib_devel.deb', named)
+            # The branches packetfence-release carries an X.Y-specific baseurl, so every X.Y must
+            # publish its own file instead of overwriting one name shared with the other versions.
+            text = (ROOT/'.gitlab-ci.yml').read_text()
+            wanted = {v for v in re.findall(r'PKG_DEST_NAME: (\S+)', text) if 'branches' in v}
+            self.assertTrue(wanted)
+            for value in wanted:
+                named = {name for _, _, name in module.plan(result, '16.0', {'PKG_DEST_NAME': value})}
+                self.assertIn('packetfence-release-branches-16.0.el8.noarch.rpm', named)
+            self.assertIn('packetfence-release-branches-{{ pf_minor_release }}.el8.noarch.rpm',
+                          (ROOT/'addons/vagrant/extra_vars_branches.yml').read_text())
 
     def test_published_files_join_the_listing(self):
         spec = importlib.util.spec_from_file_location('publish_files', ROOT/'ci/pulp/publish-files.py')

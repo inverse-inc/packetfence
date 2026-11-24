@@ -128,7 +128,8 @@ variables:
         CONTEXT: branches
         IMAGE_TAG: $CI_COMMIT_REF_SLUG
         DEPLOY_ENV_NAME: pf-branches
-        PKG_DEST_NAME: packetfence-release-branches.el8.noarch.rpm
+        # Per version: the branches baseurl it carries is X.Y-specific, so every X.Y needs its own file.
+        PKG_DEST_NAME: packetfence-release-branches-{release}.el{n}.noarch.rpm
         PF_EXPORT_RPM_DEST_NAME: packetfence-export-branches.el8.noarch.rpm
         PF_EXPORT_DEB_DEST_NAME: packetfence-export_branches.deb
         PF_CI_LIB_DEB_DEST_NAME: packetfence-ci-lib_branches.deb
@@ -290,8 +291,9 @@ variables:
         # Feature branches deploy only when asked: DEPLOY_PKG=yes|true (PUBLISH_PPA is an alias).
         # release/export/ci-lib deploy into the shared debian/ + RHEL* dirs; the
         # *-branches filenames keep feature-branch builds from overwriting the
-        # versioned release artifacts that live alongside them.
-        PKG_DEST_NAME: packetfence-release-branches.el8.noarch.rpm
+        # versioned release artifacts; packetfence-release is also per X.Y, the branches
+        # baseurl it carries being X.Y-specific.
+        PKG_DEST_NAME: packetfence-release-branches-{release}.el{n}.noarch.rpm
         PF_EXPORT_RPM_DEST_NAME: packetfence-export-branches.el8.noarch.rpm
         PF_EXPORT_DEB_DEST_NAME: packetfence-export_branches.deb
         PF_CI_LIB_DEB_DEST_NAME: packetfence-ci-lib_branches.deb
