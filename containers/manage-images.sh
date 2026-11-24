@@ -14,6 +14,19 @@ source <(grep 'KNK_REGISTRY_URL' ${PF_SRC_DIR}/config.mk | tr -d ' ')
 source <(grep 'LOCAL_REGISTRY' ${PF_SRC_DIR}/config.mk | tr -d ' ')
 source ${PF_SRC_DIR}/conf/build_id
 
+# CI test VMs only: devel and maintenance/X.Y pipelines push their images under a pipeline
+# tag until deploy_containers promotes them; pull that tag and keep the package's tag locally.
+PULL_TAG=${TAG_OR_BRANCH_NAME}
+if [ -s /etc/packetfence-ci-image-tag ]; then
+    PULL_TAG=$(tr -d '[:space:]' < /etc/packetfence-ci-image-tag)
+    if ! [[ "${PULL_TAG}" =~ ^[a-z0-9][a-z0-9._-]{0,127}$ ]]; then
+        echo "Invalid tag in /etc/packetfence-ci-image-tag" >&2
+        exit 1
+    fi
+    # Only for this branch's packages (an upgrade test first installs an older release).
+    [[ "${PULL_TAG}" == "${TAG_OR_BRANCH_NAME}-p"* ]] || PULL_TAG=${TAG_OR_BRANCH_NAME}
+fi
+
 function proxy_config_systemd {
     service_name=$1
     HTTP_PROXY=${HTTP_PROXY:-}
@@ -109,18 +122,21 @@ pull_images() {
     RETRY_LIMIT=2
     for img in ${CONTAINERS_IMAGES}; do
         for attempt in $(seq 1 $RETRY_LIMIT); do
-            docker pull -q ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME}
+            docker pull -q ${KNK_REGISTRY_URL}/${img}:${PULL_TAG}
             if [ $? -eq 0 ]; then
                 break
             else
                 if [ $attempt -le $RETRY_LIMIT ]; then
                     sleep 3
-                    echo "Retry downloading image: ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME}"
+                    echo "Retry downloading image: ${KNK_REGISTRY_URL}/${img}:${PULL_TAG}"
                 else
-                    echo "Failed downloading image: ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME}"
+                    echo "Failed downloading image: ${KNK_REGISTRY_URL}/${img}:${PULL_TAG}"
                 fi
             fi
         done
+        if [ "${PULL_TAG}" != "${TAG_OR_BRANCH_NAME}" ]; then
+            docker tag "${KNK_REGISTRY_URL}/${img}:${PULL_TAG}" "${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME}"
+        fi
     done
     echo "$(date) - Pull of images finished"
 }

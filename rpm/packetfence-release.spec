@@ -1,3 +1,5 @@
+# Where CI publishes (PF_PACKAGE_ORIGIN, Makefile); inverse.ca does not serve branches/X.Y/<pipeline>/.
+%{!?pf_package_origin:%global pf_package_origin https://packages.packetfence.com}
 Name:       packetfence-release
 Version:    2.4.1
 Release:    1%{?dist}
@@ -36,13 +38,15 @@ gpgcheck=0
 enabled=0
 module_hotfixes=1
 
+%if 0%{?pf_branches_pipeline:1}
 [packetfence-branches]
 name=PacketFence Branches Repository
-baseurl=http://inverse.ca/downloads/PacketFence/RHEL\$releasever/branches/\$basearch
+baseurl=%{pf_package_origin}/downloads/PacketFence/RHEL\$releasever/branches/%{pf_minor_release}/%{pf_branches_pipeline}/\$basearch
 gpgcheck=0
 enabled=0
 module_hotfixes=1
 
+%endif
 EOF
 
 %{__cat} <<EOF > %{_builddir}/RPM-GPG-KEY-PACKETFENCE-CENTOS
