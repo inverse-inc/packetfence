@@ -29,8 +29,9 @@ type Request struct {
 }
 
 type Manager struct {
+	logger     *slog.Logger
 	namespaces map[string]*ns.NamespaceInfos // read only, done at startup
-	cache      *cache.ShardedCache[string, *loader.Conf]
+	cache      *cache.ShardedCache[string, any]
 	nsGraph    *Graph
 	confFolder string // folder path of pf conf files (usually /usr/local/pf/conf)
 }
@@ -55,24 +56,37 @@ func ExtractQuery(s string) (Query, error) {
 	}, nil
 }
 
-func NewManager(confFolder string, cache *cache.ShardedCache[string, *loader.Conf]) *Manager {
+func NewManager(logger *slog.Logger, confFolder string, cache *cache.ShardedCache[string, any]) *Manager {
 	m := Manager{
 		confFolder: confFolder,
 		namespaces: make(map[string]*ns.NamespaceInfos, len(ns.NamespaceDefinitions)),
 		cache:      cache,
+		logger:     logger,
 	}
 	for _, ns := range ns.NamespaceDefinitions {
-		ns.Path = filepath.Clean(filepath.Join(confFolder, ns.Path))
+		if ns.Path != nil { // not a conf::
+			ns.Path = new(filepath.Clean(filepath.Join(confFolder, *ns.Path)))
+		}
 		m.namespaces[ns.Name] = &ns
 	}
 	return &m
 }
 
-func (m *Manager) getCache(s string) (*loader.Conf, bool) {
+func (m *Manager) getCache(s string) (any, bool) {
 	return m.cache.Get(s)
 }
 
-func (m *Manager) LoadConfigs(ctx context.Context, logger *slog.Logger) error {
+func loadBaseConf(nsInfos *ns.NamespaceInfos) (any, error) {
+	switch nsInfos.Type() {
+	case ns.NamespaceConfig:
+		// .Path pointer has been checked already
+		return loader.LoadConf(*nsInfos.Path)
+	default:
+		return nil, nil
+	}
+}
+
+func (m *Manager) LoadConfigs(ctx context.Context) error {
 	graph, err := NamespacesToGraph(slices.Collect(maps.Values(m.namespaces)))
 	if err != nil {
 		return err
@@ -84,18 +98,18 @@ func (m *Manager) LoadConfigs(ctx context.Context, logger *slog.Logger) error {
 	m.nsGraph = graph
 	for _, key := range graph.GetNodes() {
 		tmp, _ := m.namespaces[key] // key exists at this point
-		conf, err := loader.LoadConf(tmp.Path)
+		conf, err := loadBaseConf(tmp)
 		if err != nil {
-			logger.ErrorContext(ctx, "Manager.Load", "err", err.Error())
+			m.logger.ErrorContext(ctx, "Manager.Load", "err", err.Error())
 			continue
 		}
+		var data any
 		if tmp.Build != nil {
 			bd := ns.BuildData{
-				Conf: conf,
-				// any overlay params here too
+				Data: conf,
 			}
 			if len(tmp.DepResources) > 0 {
-				bd.Deps = make(map[string]*loader.Conf, len(tmp.DepResources))
+				bd.Deps = make(map[string]any, len(tmp.DepResources))
 				for _, dep := range tmp.DepResources {
 					c, ok := m.cache.Get(dep)
 					if !ok { // shouldn't happen at first full build, since graph is checked already
@@ -104,31 +118,32 @@ func (m *Manager) LoadConfigs(ctx context.Context, logger *slog.Logger) error {
 					bd.Deps[dep] = c
 				}
 			}
-			if err := tmp.Build(&bd); err != nil {
-				logger.ErrorContext(ctx, "Manager.Load", "err", err.Error())
-				continue
+			data, err = tmp.Build(&bd)
+			if err != nil {
+				return err
 			}
 		}
-		if err := m.cache.Set(ctx, key, conf, 1000); err != nil {
-			return nil
+		if err := m.cache.Set(ctx, key, data, 1000); err != nil {
+			return err
 		}
 	}
 	return nil
 }
 
-func (m *Manager) Process(ctx context.Context, logger *slog.Logger, request Request) (any, error) {
+func (m *Manager) Process(ctx context.Context, request Request) (any, error) {
 	query, err := ExtractQuery(request.Key)
 	if err != nil {
 		return nil, err
 	}
-	conf, ok := m.getCache(query.Namespace)
+	namespace, ok := m.getCache(query.Namespace)
 	if !ok {
 		// not in cache or expired, build it
-		logger.InfoContext(ctx, "unsupported", "ns", query.Namespace)
+		m.logger.InfoContext(ctx, "unsupported", "ns", query.Namespace)
 		return nil, errors.ErrUnsupported
 	}
-	data, err := dispatchMethod(ctx, logger, conf, request)
+	data, err := m.dispatchMethod(ctx, request, namespace)
 	if err != nil {
+		m.logger.InfoContext(ctx, "unsupported", request.Key, request.Method)
 		return nil, err
 	}
 	return data, nil

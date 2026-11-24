@@ -4,6 +4,7 @@ package utils
 import (
 	"os"
 	"reflect"
+	"slices"
 	"time"
 	"unsafe"
 )
@@ -57,4 +58,11 @@ func LastFileUpdate(path string) (time.Time, error) {
 		return time.Now().UTC(), err
 	}
 	return fileInfo.ModTime().UTC(), nil
+}
+
+func RemoveIfExists[S ~[]E, E comparable](s S, v E) S {
+	if i := slices.Index(s, v); i != -1 {
+		s = append(s[:i], s[i+1:]...)
+	}
+	return s
 }

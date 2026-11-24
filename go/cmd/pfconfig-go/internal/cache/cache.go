@@ -85,7 +85,7 @@ func NewShardedCache[K comparable, V any](numShards, bufferSize int, hashFunc Ha
 		stopCh:    make(chan struct{}),
 		hashFunc:  hashFunc,
 	}
-	cache.wg.Add(numShards + 1)
+	cache.wg.Add(numShards)
 	for i := 0; i < numShards; i++ {
 		s := &shard[K, V]{
 			items:   make(map[K]cacheItem[V], 64),
@@ -94,7 +94,7 @@ func NewShardedCache[K comparable, V any](numShards, bufferSize int, hashFunc Ha
 		cache.shards[i] = s
 		go cache.worker(s)
 	}
-	go cache.janitor()
+	//go cache.janitor()
 	return cache
 }
 
@@ -102,7 +102,7 @@ func (c *ShardedCache[K, V]) getShardIndex(key K) uint64 {
 	return c.hashFunc(key) & uint64(c.numShards-1)
 }
 
-func (c *ShardedCache[K, V]) Set(ctx context.Context, key K, value V, ttlSeconds int64) error {
+func (c *ShardedCache[K, V]) SetAsync(ctx context.Context, key K, value V, ttlSeconds int64) error {
 	req := writeRequest[K, V]{op: opSet, key: key, value: value, ttl: ttlSeconds}
 	select {
 	case c.shards[c.getShardIndex(key)].writeCh <- req:
@@ -112,7 +112,16 @@ func (c *ShardedCache[K, V]) Set(ctx context.Context, key K, value V, ttlSeconds
 	}
 }
 
-func (c *ShardedCache[K, V]) Delete(ctx context.Context, key K) error {
+func (c *ShardedCache[K, V]) Set(ctx context.Context, key K, value V, ttlSeconds int64) error {
+	s := c.shards[c.getShardIndex(key)]
+	s.Lock()
+	defer s.Unlock()
+	exp := time.Now().Unix() + ttlSeconds
+	s.items[key] = cacheItem[V]{value: value, expiresAt: exp}
+	return nil
+}
+
+func (c *ShardedCache[K, V]) DeleteAsync(ctx context.Context, key K) error {
 	req := writeRequest[K, V]{op: opDelete, key: key}
 	select {
 	case c.shards[c.getShardIndex(key)].writeCh <- req:
@@ -120,6 +129,14 @@ func (c *ShardedCache[K, V]) Delete(ctx context.Context, key K) error {
 	case <-ctx.Done():
 		return ctx.Err()
 	}
+}
+
+func (c *ShardedCache[K, V]) Delete(ctx context.Context, key K) error {
+	s := c.shards[c.getShardIndex(key)]
+	s.Lock()
+	defer s.Unlock()
+	delete(s.items, key)
+	return nil
 }
 
 func (c *ShardedCache[K, V]) Get(key K) (V, bool) {

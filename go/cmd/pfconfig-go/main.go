@@ -15,7 +15,6 @@ import (
 
 	"github.com/Sereal/Sereal/Go/sereal"
 	"github.com/inverse-inc/packetfence/go/cmd/pfconfig-go/internal/cache"
-	"github.com/inverse-inc/packetfence/go/cmd/pfconfig-go/internal/loader"
 	"github.com/inverse-inc/packetfence/go/cmd/pfconfig-go/internal/manager"
 )
 
@@ -35,10 +34,10 @@ func main() {
 		syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGABRT, syscall.SIGINT)
 	{
 		logger.InfoContext(ctx, "Preloading all configuration files...")
-		cache := cache.NewShardedCache[string, *loader.Conf](64, 128, cache.HashString)
+		cache := cache.NewShardedCache[string, any](32, 64, cache.HashString)
 		defer cache.Close()
-		manager := manager.NewManager(confFolder, cache)
-		if err := manager.LoadConfigs(ctx, logger); err != nil {
+		manager := manager.NewManager(logger, confFolder, cache)
+		if err := manager.LoadConfigs(ctx); err != nil {
 			logger.ErrorContext(ctx, err.Error())
 			os.Exit(1)
 		}
@@ -77,6 +76,7 @@ func runServer(ctx context.Context, logger *slog.Logger, l net.Listener, m *mana
 		if err != nil {
 			return err
 		}
+		//logger.InfoContext(ctx, "new connection")
 		wg.Go(func() {
 			defer reqConn.Close() //nolint:errcheck
 			if err := manageRequest(ctx, logger, reqConn, m); err != nil {
@@ -113,8 +113,9 @@ func manageRequest(ctx context.Context, logger *slog.Logger, reqConn net.Conn, m
 		logger.ErrorContext(ctx, err.Error())
 		return err
 	}
+	// logger.InfoContext(ctx, "new request", "req", request)
 	// Treat the request in the new pfconfig
-	element, err := m.Process(ctx, logger, request)
+	element, err := m.Process(ctx, request)
 	if err != nil {
 		if errors.Is(err, errors.ErrUnsupported) {
 			// Proxy the request to pfconfig Perl
