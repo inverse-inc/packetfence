@@ -5054,10 +5054,6 @@ msgstr ""
 msgid "Should pfdns be managed by PacketFence?"
 msgstr ""
 
-# conf/documentation.conf (services.pfdns-connector)
-msgid "Should pfdns-connector be managed by PacketFence?"
-msgstr ""
-
 # conf/documentation.conf (services.pffilter)
 msgid "Should pffilter be managed by PacketFence?"
 msgstr ""
@@ -7990,7 +7986,6 @@ msgstr ""
 # conf/documentation.conf (services.pfdhcp options)
 # conf/documentation.conf (services.pfdhcplistener options)
 # conf/documentation.conf (services.pfdns options)
-# conf/documentation.conf (services.pfdns-connector options)
 # conf/documentation.conf (services.pffilter options)
 # conf/documentation.conf (services.pfipset options)
 # conf/documentation.conf (services.pfperl-api options)
@@ -8214,7 +8209,6 @@ msgstr ""
 # conf/documentation.conf (services.pfdhcp options)
 # conf/documentation.conf (services.pfdhcplistener options)
 # conf/documentation.conf (services.pfdns options)
-# conf/documentation.conf (services.pfdns-connector options)
 # conf/documentation.conf (services.pffilter options)
 # conf/documentation.conf (services.pfipset options)
 # conf/documentation.conf (services.pfperl-api options)
@@ -9783,10 +9777,6 @@ msgstr ""
 
 # conf/documentation.conf
 msgid "services.pfdns"
-msgstr ""
-
-# conf/documentation.conf
-msgid "services.pfdns-connector"
 msgstr ""
 
 # conf/documentation.conf

@@ -413,7 +413,6 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-pfdetect.service %{buildroot}%{_unitdir}/packetfence-pfdetect.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdhcplistener.service %{buildroot}%{_unitdir}/packetfence-pfdhcplistener.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdns.service %{buildroot}%{_unitdir}/packetfence-pfdns.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfdns-connector.service %{buildroot}%{_unitdir}/packetfence-pfdns-connector.service
 %{__install} -D -m0644 conf/systemd/packetfence-pffilter.service %{buildroot}%{_unitdir}/packetfence-pffilter.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfcron.service %{buildroot}%{_unitdir}/packetfence-pfcron.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfqueue-go.service %{buildroot}%{_unitdir}/packetfence-pfqueue-go.service
@@ -1053,7 +1052,6 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfperl-api-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfpki-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfcron-docker-wrapper
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns-connector-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/proxysql-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfacct-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfldapexplorer-docker-wrapper
@@ -1076,7 +1074,6 @@ fi
 %config(noreplace)      /usr/local/pf/conf/config.toml
 %config(noreplace)      /usr/local/pf/conf/nexpose-responses.txt
 %config(noreplace)      /usr/local/pf/conf/pfdns.conf
-%config(noreplace)      /usr/local/pf/conf/pfdns-connector.conf
 %config(noreplace)      /usr/local/pf/conf/pfdhcp.conf
 %config(noreplace)      /usr/local/pf/conf/portal_modules.conf
 %config                 /usr/local/pf/conf/portal_modules.conf.defaults

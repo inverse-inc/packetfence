@@ -28,7 +28,6 @@ sub init {
     $self->{file} = $dns_connectors_config_file;
 
     $self->{child_resources} = [
-        'resource::connectors_config',
         'resource::pfconnector_static_connections'
     ];
 }

@@ -756,7 +756,6 @@ variables:
   - github-apps-token
   - pfstats
   - caddy-l4
-  - pfdns-connector
   - pfdhcp
 
 ################################################################################

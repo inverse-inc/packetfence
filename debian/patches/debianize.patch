@@ -454,19 +454,6 @@ index deba9b6843..81bc9e40b7 100644
  
  [Install]
  WantedBy=packetfence.target
-diff --git a/conf/systemd/packetfence-pfdns-connector.service b/conf/systemd/packetfence-pfdns-connector.service
-index 2375f241b5..6ed4756587 100644
---- a/conf/systemd/packetfence-pfdns-connector.service
-+++ b/conf/systemd/packetfence-pfdns-connector.service
-@@ -10,7 +10,7 @@ Type=notify
- TimeoutStopSec=60
- NotifyAccess=all
- Environment=LOG_LEVEL=INFO
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfdns_connector' -e 'pf::services::manager::pfdns_connector->new()->generateConfig()'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfdns_connector' -e 'pf::services::manager::pfdns_connector->new()->generateConfig()'
- ExecStart=/usr/local/pf/sbin/pfdns-connector-docker-wrapper
- ExecStop=/bin/bash -c "docker stop pfdns-connector ; echo Stopped"
- Restart=on-failure
 diff --git a/conf/systemd/packetfence-pfdns.service b/conf/systemd/packetfence-pfdns.service
 index 16524507dd..8773106fa3 100644
 --- a/conf/systemd/packetfence-pfdns.service

@@ -990,9 +990,12 @@ your copies. Without them, proxied requests are still authorized twice.
 === PacketFence Connector moved to a plugin
 
 The PacketFence Connector is not part of PacketFence anymore: the
-`packetfence-pfconnector-server` and `packetfence-pfconnector-client` services
-and the `packetfence-pfconnector-remote` package are provided by the
-`packetfence-plugin-pfconnector` plugin, which requires PacketFence 16.0.
+`packetfence-pfconnector-server`, `packetfence-pfconnector-client` and
+`packetfence-pfdns-connector` services and the `packetfence-pfconnector-remote`
+package are provided by the `packetfence-plugin-pfconnector` plugin, which
+requires PacketFence 16.0. The `[pfdns_connector]` section of
+[filename]`/usr/local/pf/conf/pf.conf` stays: it is the address of the DNS
+server the plugin provides, used to resolve the hosts behind the connectors.
 
 Without the plugin, nothing answers the connections sent through a connector,
 so the parameters using it are now disabled by default: _Use Connector_ of the

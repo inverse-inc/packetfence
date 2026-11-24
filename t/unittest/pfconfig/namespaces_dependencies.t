@@ -39,7 +39,7 @@ sub children {
 }
 
 my $connector = children('pfconfig::namespaces::config::Connector');
-for my $child (qw(resource::connectors_config resource::pfconnector_static_connections)) {
+for my $child (qw(resource::connectors_ordered resource::pfconnector_static_connections)) {
     ok((grep { $_ eq $child } @$connector), "$child is rebuilt after config::Connector");
 }
 

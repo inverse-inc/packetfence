@@ -5067,10 +5067,6 @@ msgstr "Est-ce que pfdhcplistener doit être démarré ? Gardez le activé sauf 
 msgid "Should pfdns be managed by PacketFence?"
 msgstr "Est-ce que pfdns doit être géré par PacketFence ?"
 
-# conf/documentation.conf (services.pfdns-connector)
-msgid "Should pfdns-connector be managed by PacketFence?"
-msgstr "Le connecteur pfdns-connector doit-il être géré par PacketFence ?"
-
 # conf/documentation.conf (services.pffilter)
 msgid "Should pffilter be managed by PacketFence?"
 msgstr "Est-ce que pffilter doit être géré par PacketFence ?"
@@ -8003,7 +7999,6 @@ msgstr "dhcplistener"
 # conf/documentation.conf (services.pfdhcp options)
 # conf/documentation.conf (services.pfdhcplistener options)
 # conf/documentation.conf (services.pfdns options)
-# conf/documentation.conf (services.pfdns-connector options)
 # conf/documentation.conf (services.pffilter options)
 # conf/documentation.conf (services.pfipset options)
 # conf/documentation.conf (services.pfperl-api options)
@@ -8227,7 +8222,6 @@ msgstr "en_US"
 # conf/documentation.conf (services.pfdhcp options)
 # conf/documentation.conf (services.pfdhcplistener options)
 # conf/documentation.conf (services.pfdns options)
-# conf/documentation.conf (services.pfdns-connector options)
 # conf/documentation.conf (services.pffilter options)
 # conf/documentation.conf (services.pfipset options)
 # conf/documentation.conf (services.pfperl-api options)
@@ -9797,10 +9791,6 @@ msgstr "Taille des paquets de pfdhcplistener"
 # conf/documentation.conf
 msgid "services.pfdns"
 msgstr "pfdns"
-
-# conf/documentation.conf
-msgid "services.pfdns-connector"
-msgstr "services.pfdns-connector"
 
 # conf/documentation.conf
 msgid "services.pfdns_binary"

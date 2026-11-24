@@ -26,14 +26,12 @@ conf/event_loggers.conf
 conf/pf.conf
 conf/monitoring/go.d/*.conf
 conf/monitoring/go.d.conf
-conf/pfdns-connector.conf
 conf/*.lock
 conf/*.lockonce
 conf/git_commit_id
 conf/build_id
 conf/log.conf.d/*.conf
 conf/nessus/
-conf/pfdns-connector.conf
 conf/dns_connectors.conf
 conf/domains_connectors.conf
 conf/currently-at
