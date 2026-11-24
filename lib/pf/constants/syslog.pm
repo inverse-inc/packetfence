@@ -223,6 +223,11 @@ our @SyslogInfo = (
         'conditions' => [ '$programname == "pfconnector-server"' ]
     },
     {
+        'description' => 'pfdns-connector log',
+        'name'       => 'pfdns-connector.log',
+        'conditions' => [ '$programname == "pfdns-connector"' ]
+    },
+    {
         'description' => 'keepalived log',
         'name'       => 'keepalived.log',
         'conditions' => [ '$programname contains "Keepalived"' ]

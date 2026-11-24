@@ -65,6 +65,10 @@ sub main {
             next;
         }
         my $ini = pf::IniFiles->new(-file => $path, -allowempty => 1);
+        unless ($ini) {
+            print "$path cannot be read: @Config::IniFiles::errors\n";
+            next;
+        }
         if (my $count = $disable->($ini)) {
             $ini->RewriteConfig();
             $updated += $count;

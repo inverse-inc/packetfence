@@ -441,11 +441,14 @@ func (f *Fetcher) Proxy(w http.ResponseWriter, r *http.Request, registration Reg
 		}
 		answer = checkWebSocketAnswer
 	}
-	ctx, cancel := context.WithTimeout(r.Context(), timeout)
+	var ctx context.Context
+	var cancel context.CancelFunc
 	if webSocket {
 		// the connection lasts as long as the admin keeps it open: canceling
 		// the context would close it
 		ctx, cancel = context.WithCancel(r.Context())
+	} else {
+		ctx, cancel = context.WithTimeout(r.Context(), timeout)
 	}
 	defer cancel()
 	r = r.WithContext(ctx)

@@ -428,7 +428,7 @@ $connectors_config_file = catdir($conf_dir,"connectors.conf");
   redis_queue.log redis_server.log mariadb.log
   mysql-probe.log galera-autofix.log haproxy_portal.log
   haproxy.log haproxy_db.log haproxy_admin.log proxysql.log
-  firewall.log pfconnector-client.log pfconnector-server.log keepalived.log
+  firewall.log pfconnector-client.log pfconnector-server.log pfdns-connector.log keepalived.log
   innobackup.log
 );
 
