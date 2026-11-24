@@ -19,7 +19,8 @@ MODE=${1:?ppa, branches, release or files}
 [[ "$PF_PACKAGE_ORIGIN" =~ ^https://[a-zA-Z0-9.-]+(:[0-9]+)?$ ]] || { echo 'PF_PACKAGE_ORIGIN must be an HTTPS origin' >&2; exit 1; }
 [[ "$CI_PIPELINE_ID" =~ ^[1-9][0-9]*$ ]] || exit 2
 # The ci-packages account: username and password read from Psono.
-PULP_USERNAME=$(bash ci/pulp/psono-field.sh "${PSONO_CI_PULP_PACKAGES_ID:?}" username)
+[[ -n ${PSONO_CI_PULP_PACKAGES_ID:-} ]] || { echo 'PSONO_CI_PULP_PACKAGES_ID is empty. GitLab gives the Pulp credentials to protected branches only: protect this branch, or deploy from one that is' >&2; exit 1; }
+PULP_USERNAME=$(bash ci/pulp/psono-field.sh "$PSONO_CI_PULP_PACKAGES_ID" username)
 PULP_PASSWORD=$(bash ci/pulp/psono-field.sh "$PSONO_CI_PULP_PACKAGES_ID" password)
 export PULP_URL=$PF_PACKAGE_ORIGIN PULP_USERNAME PULP_PASSWORD
 # Fail before any upload if the vendored helper snapshot was edited.
@@ -55,7 +56,7 @@ if [[ "$MODE" == branches ]]; then
     : "${CI_COMMIT_REF_NAME:?}" "${CI_COMMIT_REF_SLUG:?}"
     (( ${#suites[@]} )) || { echo "No Debian suite in the generated tree" >&2; exit 1; }
     python3 ci/pulp/publish-files.py --release "$release" --result "${RESULT_DIR:-result}" --stage "$work/files"
-    python3 - "$work/pipeline.json" "$release" <<'EOF'
+    python3 -I - "$work/pipeline.json" "$release" <<'EOF'
 import json, os, sys
 from datetime import datetime, timezone
 with open(sys.argv[1], 'w') as out:
@@ -64,11 +65,13 @@ with open(sys.argv[1], 'w') as out:
                'release': sys.argv[2], 'created': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')},
               out, indent=1, sort_keys=True)
 EOF
-    branch_tree() {  # <folder> <built tree to copy> <staged files>
+    # <folder> <built tree to copy> <staged files>. Debian copies the contents of debian/ (dists/, pool/ at the
+    # folder's top); RPM copies x86_64/ itself, which stays in the published path (RHEL<N>/branches/X.Y/<pipeline>/x86_64/).
+    branch_tree() {
         mkdir -p "$1"
         cp -R "$2" "$1/"
         cp "$PUBLIC_DIR/GPG_PUBLIC_KEY" "$work/pipeline.json" "$1/"
-        [[ ! -d "$3" ]] || cp "$3"/* "$1/"
+        [[ ! -d "$3" ]] || cp -R "$3/." "$1/"
     }
     branch_tree "$work/deb" "$PUBLIC_DIR/debian/." "$work/files/debian"
     python3 "$helper" publish --repository "debian-branches-$dashed" --pipeline "$CI_PIPELINE_ID" \

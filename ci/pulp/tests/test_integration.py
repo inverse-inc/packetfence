@@ -388,6 +388,11 @@ class ConfigurationTest(unittest.TestCase):
             self.assertEqual(len(copies), 1)
             self.assertIn('docker://ghcr.io/inverse-inc/packetfence/pfcmd:feature-x-p7 '
                           'docker://registry.example/inverse-inc/packetfence/pfcmd:feature-x-p7', copies[0])
+            calls.write_text('')
+            refused = subprocess.run(['bash', str(script), 'feature-x-p7', 'feature-x-p7'],
+                                     env=dict(env, PSONO_CI_PULP_DOCKER_ID=''), capture_output=True, text=True)
+            self.assertIn('protected branches only', refused.stderr)
+            self.assertEqual(calls.read_text(), '')
             for source in ('push', 'merge_request_event'):
                 calls.write_text('')
                 result = subprocess.run(['bash', str(script), 'feature-x-p7', 'feature-x-p7'],
@@ -499,6 +504,13 @@ class ConfigurationTest(unittest.TestCase):
                                             'x86_64/RPMS/packetfence-16.0.0.el8.noarch.rpm',
                                             'x86_64/RPMS/packetfence-release-2.4.1.el8.noarch.rpm', 'x86_64/repodata/repomd.xml'])
             self.assertIn('debian/branches/16.0/42/', run.stdout)
+            # A feature branch GitLab gives no Pulp credentials (unprotected) is told why.
+            calls.write_text('')
+            refused = subprocess.run(['bash', str(root/'ci/pulp/publish-packages.sh'), 'branches'], cwd=root, capture_output=True,
+                                     text=True, env=dict(env, PSONO_CI_PULP_PACKAGES_ID=''))
+            self.assertNotEqual(refused.returncode, 0)
+            self.assertIn('protected branches only', refused.stderr)
+            self.assertEqual(calls.read_text(), '')
 
     def test_shell_syntax(self):
         for script in (ROOT/'ci/pulp').rglob('*.sh'):

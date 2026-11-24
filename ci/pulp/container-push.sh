@@ -37,7 +37,8 @@ done
 : "${PF_PACKAGE_ORIGIN:?}"
 [[ $PF_PACKAGE_ORIGIN =~ ^https://([a-zA-Z0-9.-]+(:[0-9]+)?)$ ]] || { echo 'PF_PACKAGE_ORIGIN must be an HTTPS origin' >&2; exit 1; }
 registry=${BASH_REMATCH[1]}
-username=$(bash ci/pulp/psono-field.sh "${PSONO_CI_PULP_DOCKER_ID:?}" username)
+[[ -n ${PSONO_CI_PULP_DOCKER_ID:-} ]] || { echo 'PSONO_CI_PULP_DOCKER_ID is empty. GitLab gives the Pulp credentials to protected branches only: protect this branch, or deploy from one that is' >&2; exit 1; }
+username=$(bash ci/pulp/psono-field.sh "$PSONO_CI_PULP_DOCKER_ID" username)
 password=$(bash ci/pulp/psono-field.sh "$PSONO_CI_PULP_DOCKER_ID" password)
 source=ghcr.io/inverse-inc/packetfence
 destination=$registry/inverse-inc/packetfence
