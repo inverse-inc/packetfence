@@ -152,7 +152,11 @@ class ConfigurationTest(unittest.TestCase):
                 self.assertNotIn('.release_only_rules', job.get('extends', []), name)
         self.assertEqual(config['.deploy_pulp_job']['script'][-1], 'bash ci/pulp/publish-packages.sh release')
         self.assertEqual(config['.deploy_pkg_friendly_names']['script'], ['bash ci/pulp/publish-packages.sh files'])
-        self.assertEqual(config['deploy_maintenance_pulp']['extends'], ['.deploy_pulp_job', '.deploy_maintenance_rules'])
+        pulp = config['deploy_maintenance_pulp']
+        self.assertEqual(pulp['extends'], ['.deploy_pulp_job'])
+        # No images built, no packages; the maintenance conditions still come from the template.
+        self.assertEqual(pulp['rules'][0], {'if': '$BUILD_IMG_CONTAINER == "no" || $CI_COMMIT_MESSAGE =~ /build_img_container=no/', 'when': 'never'})
+        self.assertEqual(pulp['rules'][1], {'reference': ['.deploy_maintenance_rules', 'rules']})
     def test_feature_branches_deploy_with_deploy_pkg_yes_or_true(self):
         config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
         rules = [r['if'] for r in config['.deploy_branches_rules']['rules'] if 'when' not in r]
