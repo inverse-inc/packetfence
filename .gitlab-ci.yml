@@ -146,9 +146,10 @@ variables:
 # short-circuit. Concrete jobs compose them via `!reference [.gated_by_X, rules]`
 # together with `!reference [.context_rules, rules]`.
 
+# Requested tests need this pipeline's packages: they override BUILD_ARTIFACTS_PKG=no.
 .gated_by_build_artifacts_pkg:
   rules:
-    - if: '$BUILD_ARTIFACTS_PKG == "no"'
+    - if: '$BUILD_ARTIFACTS_PKG == "no" && $TEST != "yes" && $CI_COMMIT_MESSAGE !~ /test=yes/ && $TEST_ONLY == "" && $TEST_CLUSTER != "yes" && $CI_COMMIT_MESSAGE !~ /test_cluster=yes/'
       when: never
 
 .gated_by_build_img_container:
@@ -156,6 +157,15 @@ variables:
     - if: '$BUILD_IMG_CONTAINER == "no"'
       when: never
     - if: '$CI_COMMIT_MESSAGE =~ /build_img_container=no/'
+      when: never
+
+# Image builds: skipped by BUILD_IMG_CONTAINER=no unless tests are requested (they need this pipeline's
+# images); the deploys keep .gated_by_build_img_container, so such a pipeline still publishes nothing.
+.gated_by_build_img_container_unless_tested:
+  rules:
+    - if: '$BUILD_IMG_CONTAINER == "no" && $TEST != "yes" && $CI_COMMIT_MESSAGE !~ /test=yes/ && $TEST_ONLY == "" && $TEST_CLUSTER != "yes" && $CI_COMMIT_MESSAGE !~ /test_cluster=yes/'
+      when: never
+    - if: '$CI_COMMIT_MESSAGE =~ /build_img_container=no/ && $TEST != "yes" && $CI_COMMIT_MESSAGE !~ /test=yes/ && $TEST_ONLY == "" && $TEST_CLUSTER != "yes" && $CI_COMMIT_MESSAGE !~ /test_cluster=yes/'
       when: never
 
 .gated_by_build_img_docker:
@@ -811,7 +821,7 @@ pfdebian:
     IMAGE_NAME: "pfdebian"
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   rules:
-    - !reference [.gated_by_build_img_container, rules]
+    - !reference [.gated_by_build_img_container_unless_tested, rules]
     - !reference [.build_img_service_rules, rules]
 
 pfdebian_related:
@@ -830,7 +840,7 @@ pfdebian_related:
       - IMAGE_NAME:
           - "fingerbank-db"
   rules:
-    - !reference [.gated_by_build_img_container, rules]
+    - !reference [.gated_by_build_img_container_unless_tested, rules]
     - !reference [.build_img_service_rules, rules]
 
 radiusd:
@@ -841,7 +851,7 @@ radiusd:
     IMAGE_NAME: "radiusd"
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   rules:
-    - !reference [.gated_by_build_img_container, rules]
+    - !reference [.gated_by_build_img_container_unless_tested, rules]
     - !reference [.build_img_service_rules, rules]
 
 radiusd_related:
@@ -865,7 +875,7 @@ radiusd_related:
           - "radiusd-eduroam"
           - "pfconnector-remote"
   rules:
-    - !reference [.gated_by_build_img_container, rules]
+    - !reference [.gated_by_build_img_container_unless_tested, rules]
     - !reference [.build_img_service_rules, rules]
 
 ########################################
@@ -913,7 +923,7 @@ zen_builder:
     IMAGE_NAME: "zen-builder"
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   rules:
-    - !reference [.gated_by_build_img_container, rules]
+    - !reference [.gated_by_build_img_container_unless_tested, rules]
     - if: '$CI_COMMIT_TAG'
       variables:
         IMAGE_TAG: ${CI_COMMIT_TAG}
