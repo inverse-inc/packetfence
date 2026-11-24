@@ -1577,9 +1577,10 @@ deploy_branches_pulp:
   environment:
     name: pf-branches
 
-# maintenance/X.Y: once the tests pass, copy the maintenance-X-Y images the pipeline built on GHCR to
-# packages.packetfence.com under the same tag (ci/pulp/container-push.sh, same digests). A release tag
-# keeps its images on GitHub.
+# maintenance/X.Y: copy the maintenance-X-Y images the pipeline built on GHCR to
+# packages.packetfence.com under the same tag (ci/pulp/container-push.sh, same digests). Runs on the
+# same pipelines as the package deploy, so neither is published without the other; when tests run,
+# the deploy stage keeps both behind them. A release tag keeps its images on GitHub.
 deploy_containers:
   stage: deploy
   image: $PF_PPA_IMAGE
@@ -1595,7 +1596,9 @@ deploy_containers:
   rules:
     - if: '$BUILD_IMG_CONTAINER == "no" || $CI_COMMIT_MESSAGE =~ /build_img_container=no/'
       when: never
-    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "schedule") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
+    - if: '$DEPLOY_PKG == "no" || $DEPLOY_PKG == "false"'
+      when: never
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "schedule")'
 
 deploy_maintenance_pulp:
   extends:
