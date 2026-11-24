@@ -1555,7 +1555,8 @@ deploy_branches_pkg_friendly_names:
   environment:
     name: pf-branches
   variables:
-    PKG_DEST_NAME: packetfence-release-branches.el8.noarch.rpm
+    # Per version: the branches baseurl it carries is X.Y-specific, so every X.Y needs its own file.
+    PKG_DEST_NAME: packetfence-release-branches-{release}.el{n}.noarch.rpm
     PF_EXPORT_RPM_DEST_NAME: packetfence-export-branches.el8.noarch.rpm
     PF_EXPORT_DEB_DEST_NAME: packetfence-export_branches.deb
     PF_CI_LIB_DEB_DEST_NAME: packetfence-ci-lib_branches.deb
