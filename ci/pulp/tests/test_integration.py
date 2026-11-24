@@ -38,19 +38,35 @@ PSONO_ENV = {'PSONO_CI_API_KEY_ID': 'key', 'PSONO_CI_API_SECRET_KEY_HEX': 'key-s
 
 
 class ConfigurationTest(unittest.TestCase):
-    def test_container_push_runs_in_deploy_containers_after_the_tests(self):
+    def test_container_push_runs_in_deploy_containers_with_the_packages(self):
         config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
         job = config['deploy_containers']
         self.assertEqual(job['resource_group'], 'pulp-packetfence-containers')
-        # 15.2 builds its images straight to GHCR as maintenance-X-Y; the same tag is copied, unchanged.
+        # Images are built straight to GHCR as maintenance-X-Y; the same tag is copied, unchanged.
         self.assertEqual(job['script'], ['bash ci/pulp/container-push.sh "$CI_COMMIT_REF_SLUG" "$CI_COMMIT_REF_SLUG"'])
         self.assertEqual(job['stage'], 'deploy')
-        self.assertNotIn('needs', job)  # waits for every test stage
-        rules = job['rules'][1:]
-        self.assertEqual(len(rules), 1)
-        self.assertTrue(rules[0]['if'].startswith('$CI_COMMIT_REF_NAME =~ /^maintenance'))
-        self.assertIn('$TEST == "yes"', rules[0]['if'])
-        self.assertIn('$CI_COMMIT_TAG == null', rules[0]['if'])
+        # No needs: the deploy stage waits for the tests when a pipeline runs them.
+        self.assertNotIn('needs', job)
+
+        def gated_by(template, inline):
+            refs = [r for r in job['rules'] if (r.get('reference') or [None])[0] == template]
+            own = [r for r in job['rules'] if r.get('when') == 'never' and r.get('if') == inline]
+            return bool(refs or own)
+
+        # Nothing built or nothing deployed: no push. Otherwise the packages decide.
+        self.assertTrue(gated_by('.gated_by_build_img_container',
+                                 '$BUILD_IMG_CONTAINER == "no" || $CI_COMMIT_MESSAGE =~ /build_img_container=no/'))
+        self.assertTrue(gated_by('.gated_by_deploy_pkg', '$DEPLOY_PKG == "no" || $DEPLOY_PKG == "false"'))
+        arms = [r for r in job['rules'] if 'if' in r and r.get('when') != 'never']
+        self.assertEqual(len(arms), 1)
+        self.assertTrue(arms[0]['if'].startswith('$CI_COMMIT_REF_NAME =~ /^maintenance'))
+        self.assertNotIn('$TEST', arms[0]['if'])  # published with the packages, tests or not
+        self.assertIn('$CI_COMMIT_TAG == null', arms[0]['if'])
+        # The same pipeline sources the package deploy accepts.
+        packages = config.get('deploy_debian_pulp', {}).get('rules') or config['.deploy_maintenance_rules']['rules']
+        sources = lambda text: set(re.findall(r'\$CI_PIPELINE_SOURCE == "(\w+)"', text))  # noqa: E731
+        wanted = set().union(*(sources(r['if']) for r in packages if 'maintenance' in (r.get('if') or '')))
+        self.assertEqual(sources(arms[0]['if']), wanted)
     def test_container_push_routes_only_trusted_pipelines_and_never_shows_the_password(self):
         with tempfile.TemporaryDirectory() as folder:
             work = Path(folder)
