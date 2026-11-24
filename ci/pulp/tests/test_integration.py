@@ -539,6 +539,10 @@ class ConfigurationTest(unittest.TestCase):
         stanza = stanza[:stanza.index('%endif')]
         self.assertIn('[packetfence-branches]', stanza)
         self.assertIn('/branches/%{pf_minor_release}/%{pf_branches_pipeline}/\\$basearch', stanza)
+        # Served by the package origin CI publishes to (Pulp), not inverse.ca (no branches/X.Y/<pipeline>/ there).
+        self.assertIn('baseurl=%{pf_package_origin}/downloads/PacketFence/RHEL', stanza)
+        self.assertIn('%{!?pf_package_origin:%global pf_package_origin https://packages.packetfence.com}', spec)
+        self.assertIn('$(if $(PF_PACKAGE_ORIGIN),echo "%pf_package_origin $(PF_PACKAGE_ORIGIN)"', makefile)
         self.assertEqual(spec.count('[packetfence-branches]'), 1)
         config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
         self.assertEqual(config['build_artifacts_pkg_branches_centos_8']['variables']['PF_BRANCHES_PIPELINE'], '$CI_PIPELINE_ID')
