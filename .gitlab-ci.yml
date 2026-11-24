@@ -1554,6 +1554,8 @@ deploy_debian_pulp:
   tags:
     - docker
   rules:
+    # No images built, no packages: a server would install them against the previous build's containers.
+    - !reference [.gated_by_build_img_container, rules]
     - !reference [.gated_by_deploy_pkg, rules]
     - if: '$CI_COMMIT_REF_NAME == "devel"'
       variables:
