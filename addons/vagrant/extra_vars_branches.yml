@@ -1,12 +1,19 @@
 ---
-# Add branches repository
-packetfence_install__centos_release_rpm: 'https://packages.packetfence.com/downloads/PacketFence/RHEL8/packetfence-release-branches-{{ pf_minor_release }}.el8.noarch.rpm'
+# Install a feature branch build kept in branches/X.Y/<pipeline>/ (deploy_branches_pulp):
+#   -e @extra_vars_branches.yml -e pf_branches_pipeline=<GitLab pipeline id>
+# The folder is that pipeline's PPA, so it is added as the packetfence-ppa repository.
+pf_branches_rpm: '{{ pf_repo_origin }}/downloads/PacketFence/RHEL8/branches/{{ pf_minor_release }}/{{ pf_branches_pipeline }}'
+pf_branches_deb: '{{ pf_repo_origin }}/downloads/PacketFence/debian/branches/{{ pf_minor_release }}/{{ pf_branches_pipeline }}'
+
+gitlab_buildpkg_tools__ppa_url_deb: '{{ pf_branches_deb }}'
+gitlab_buildpkg_tools__rpm_ppa:
+  - name: 'packetfence-ppa'
+    baseurl: '{{ pf_branches_rpm }}/$basearch'
+    gpgkey: '{{ pf_repo_origin }}/downloads/GPG_PUBLIC_KEY'
+    priority: 1
+
+# Its packetfence-release: the packetfence-branches repository points at the same folder.
+packetfence_install__centos_release_rpm: '{{ pf_branches_rpm }}/packetfence-release-branches.el8.noarch.rpm'
 packetfence_install__centos:
   repos:
     - packetfence-branches
-
-packetfence_install__deb:
-  repos:
-    - 'debian/{{ pf_minor_release }}'
-    - 'debian/branches/{{ pf_minor_release }}'
-

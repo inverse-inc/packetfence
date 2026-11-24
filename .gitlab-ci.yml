@@ -185,7 +185,6 @@ variables:
 
 .publish_ppa_rules:
   rules:
-    - if: '$PUBLISH_PPA == "yes" || $PUBLISH_PPA == "true" || $CI_COMMIT_MESSAGE =~ /publish_ppa=(yes|true)/'
     - if: '$CI_COMMIT_TAG'
     - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
     - if: '$CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
@@ -267,8 +266,8 @@ variables:
   rules:
     - if: '$DEPLOY_PKG == "no" || $DEPLOY_PKG == "false"'
       when: never
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ($DEPLOY_PKG == "yes" || $DEPLOY_PKG == "true" || $PUBLISH_PPA == "yes" || $PUBLISH_PPA == "true" || $CI_COMMIT_MESSAGE =~ /(deploy_pkg|publish_ppa)=(yes|true)/)'
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "schedule" && ($DEPLOY_PKG == "yes" || $DEPLOY_PKG == "true" || $PUBLISH_PPA == "yes" || $PUBLISH_PPA == "true" || $CI_COMMIT_MESSAGE =~ /(deploy_pkg|publish_ppa)=(yes|true)/)'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ($DEPLOY_PKG == "yes" || $DEPLOY_PKG == "true" || $CI_COMMIT_MESSAGE =~ /deploy_pkg=(yes|true)/)'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "schedule" && ($DEPLOY_PKG == "yes" || $DEPLOY_PKG == "true" || $CI_COMMIT_MESSAGE =~ /deploy_pkg=(yes|true)/)'
 
 # don't run if DEPLOY_PKG is equals to 'no'
 # run only on maintenance jobs (schedule and web, not on push)
@@ -471,7 +470,8 @@ variables:
   tags:
     - docker
 
-# Feature branches: merge this build into debian/branches/X.Y and RHEL<N>/branches/X.Y.
+# Feature branches: keep this pipeline's PPA in debian/branches/X.Y/<pipeline>/ and RHEL<N>/branches/X.Y/<pipeline>/,
+# with its packetfence-*_branches / -branches files; the packaging side keeps the newest pipelines of each branch.
 .deploy_branches_pulp_job:
   stage: deploy
   image: $PF_PPA_IMAGE
@@ -481,6 +481,11 @@ variables:
   before_script:
     - |
       set -euo pipefail
+      # Protected variables: an unprotected feature branch gets them empty; say so before the key import fails.
+      for name in PSONO_CI_API_KEY_ID PSONO_CI_API_SECRET_KEY_HEX PSONO_GPG_PRIVATE_KEY_SECRET_ID PSONO_CI_PULP_PACKAGES_ID; do
+        eval "value=\${$name:-}"
+        [ -n "$value" ] || { echo "$name is empty. GitLab gives the Pulp credentials to protected branches only: protect this branch, or deploy from one that is" >&2; exit 1; }
+      done
       python3 addons/packetfence-perl/psono.py \
         --api_key_id="$PSONO_CI_API_KEY_ID" \
         --api_key_secret_key="$PSONO_CI_API_SECRET_KEY_HEX" \
@@ -497,6 +502,14 @@ variables:
     paths: [pulp-branches-*.json]
   tags:
     - docker
+  variables:
+    # Names inside branches/X.Y/<pipeline>/ (ci/pulp/publish-files.py --stage).
+    PKG_DEST_NAME: packetfence-release-branches.el{n}.noarch.rpm
+    PF_UPGRADE_RPM_DEST_NAME: packetfence-upgrade-branches.el{n}.noarch.rpm
+    PF_EXPORT_RPM_DEST_NAME: packetfence-export-branches.el{n}.noarch.rpm
+    PF_UPGRADE_DEB_DEST_NAME: packetfence-upgrade_branches.deb
+    PF_EXPORT_DEB_DEST_NAME: packetfence-export_branches.deb
+    PF_CI_LIB_DEB_DEST_NAME: packetfence-ci-lib_branches.deb
 
 # packetfence-release/-export/-upgrade/-ci-lib into Pulp's debian/ and RHEL<N>/ file snapshots, under their
 # published names (the *_DEST_NAME variables of each job).
@@ -745,9 +758,13 @@ pfdeb_br_maint:
     - .build_img_container_job_br_maint
     - .build_img_container_branches_and_maintenance_rules
   needs: ["kaniko_br_maint"]
+  # Service images are pushed only as <slug>-p<pipeline>: maintenance-X-Y is given after the tests
+  # (deploy_containers), a feature branch keeps the pipeline tag its packages pull (ci/lib/common/image-tag.sh).
   variables:
     IMAGE_NAME: "pfdebian"
-    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
+    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}-p${CI_PIPELINE_ID}
+    # pfbuild-* builders keep their branch tag (BUILDER_TAG in the Dockerfiles).
+    BUILDER_TAG: ${CI_COMMIT_REF_SLUG}
 
 pfdeb_based_br_maint:
   extends:
@@ -755,7 +772,9 @@ pfdeb_based_br_maint:
     - .build_img_container_branches_and_maintenance_rules
   needs: ["pfdeb_br_maint"]
   variables:
-    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
+    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}-p${CI_PIPELINE_ID}
+    # pfbuild-* builders keep their branch tag (BUILDER_TAG in the Dockerfiles).
+    BUILDER_TAG: ${CI_COMMIT_REF_SLUG}
   parallel:
     # /!\ Be sure to update this list in all other matrix /!\
     matrix:
@@ -796,7 +815,9 @@ img_br_maint:
     - .build_img_container_branches_and_maintenance_rules
   needs: ["pfdeb_br_maint"]
   variables:
-    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
+    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}-p${CI_PIPELINE_ID}
+    # pfbuild-* builders keep their branch tag (BUILDER_TAG in the Dockerfiles).
+    BUILDER_TAG: ${CI_COMMIT_REF_SLUG}
   parallel:
     # /!\ Be sure to update this list in all other matrix /!\
     matrix:
@@ -809,7 +830,9 @@ rad_based_br_maint:
     - .build_img_container_branches_and_maintenance_rules
   needs: ["pfdeb_br_maint"]
   variables:
-    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
+    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}-p${CI_PIPELINE_ID}
+    # pfbuild-* builders keep their branch tag (BUILDER_TAG in the Dockerfiles).
+    BUILDER_TAG: ${CI_COMMIT_REF_SLUG}
   parallel:
     # /!\ Be sure to update this list in all other matrix /!\
     matrix:
@@ -822,7 +845,9 @@ rad_extend_br_maint:
     - .build_img_container_branches_and_maintenance_rules
   needs: ["rad_based_br_maint"]
   variables:
-    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
+    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}-p${CI_PIPELINE_ID}
+    # pfbuild-* builders keep their branch tag (BUILDER_TAG in the Dockerfiles).
+    BUILDER_TAG: ${CI_COMMIT_REF_SLUG}
   parallel:
     # /!\ Be sure to update this list in all other matrix /!\
     matrix:
@@ -1164,6 +1189,9 @@ build_artifacts_pkg_branches_centos_8:
     - .build_artifacts_pkg_job
     - .rpm_script_job
     - .build_artifacts_pkg_branches_rules
+  variables:
+    # packetfence-release's packetfence-branches repository: branches/X.Y/<pipeline> (Makefile).
+    PF_BRANCHES_PIPELINE: $CI_PIPELINE_ID
 
 build_artifacts_pkg_branches_debian_bookworm:
   image: ${PFBUILD_DEB_IMG}:${CI_COMMIT_REF_SLUG}
@@ -1808,14 +1836,20 @@ configurator_deb12_pristine:
 deploy_branches_pulp:
   extends:
     - .deploy_branches_pulp_job
-    - .deploy_branches_rules
+  rules:
+    # Its packages pull this pipeline's images: none built, nothing kept.
+    - if: '$BUILD_IMG_CONTAINER == "no" || $CI_COMMIT_MESSAGE =~ /build_img_container=no/'
+      when: never
+    - !reference [.deploy_branches_rules, rules]
   environment:
     name: pf-branches
 
-# maintenance/X.Y: copy the maintenance-X-Y images the pipeline built on GHCR to
-# packages.packetfence.com under the same tag (ci/pulp/container-push.sh, same digests). Runs on the
-# same pipelines as the package deploy, so neither is published without the other; when tests run,
-# the deploy stage keeps both behind them. A release tag keeps its images on GitHub.
+# Service images are pushed only as <slug>-p<pipeline>. maintenance/X.Y: give them maintenance-X-Y on GitHub
+# (manifests copied, nothing rebuilt, ci/lib/upload/promote-images.py), then push them to packages.packetfence.com
+# under that tag as ci-docker (ci/pulp/container-push.sh). A feature branch with DEPLOY_PKG=yes keeps the pipeline
+# tag its branches/X.Y/<pipeline>/ packages pull and pushes it there too; the packaging side prunes them with those
+# packages. Same conditions as the package deploys; when tests run, the deploy stage keeps both behind them. A release
+# tag keeps its images on GitHub.
 deploy_containers:
   stage: deploy
   image: $PF_PPA_IMAGE
@@ -1825,7 +1859,13 @@ deploy_containers:
   environment:
     name: containers/$CI_COMMIT_REF_SLUG
   script:
-    - bash ci/pulp/container-push.sh "$CI_COMMIT_REF_SLUG" "$CI_COMMIT_REF_SLUG"
+    - |
+      pipeline_tag=$(sh ci/lib/common/pipeline-image-tag.sh)
+      test -n "$pipeline_tag" || { echo 'This pipeline has no pipeline-tagged images' >&2; exit 1; }
+      if [ -n "$PROMOTE_TAGS" ]; then
+        python3 ci/lib/upload/promote-images.py --source "$pipeline_tag" --tags "$PROMOTE_TAGS" --apply
+      fi
+      bash ci/pulp/container-push.sh "$pipeline_tag" "${PROMOTE_TAGS:-$pipeline_tag}"
   tags:
     - docker
   rules:
@@ -1834,6 +1874,11 @@ deploy_containers:
     - if: '$DEPLOY_PKG == "no" || $DEPLOY_PKG == "false"'
       when: never
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule")'
+      variables:
+        PROMOTE_TAGS: $CI_COMMIT_REF_SLUG
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_REF_NAME !~ /^cloud-nac\// && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule") && ($DEPLOY_PKG == "yes" || $DEPLOY_PKG == "true" || $CI_COMMIT_MESSAGE =~ /deploy_pkg=(yes|true)/)'
+      variables:
+        PROMOTE_TAGS: ''
 
 deploy_maintenance_pulp:
   extends:
@@ -1845,19 +1890,6 @@ deploy_maintenance_pulp:
     - if: '$BUILD_IMG_CONTAINER == "no" || $CI_COMMIT_MESSAGE =~ /build_img_container=no/'
       when: never
     - !reference [.deploy_maintenance_rules, rules]
-
-deploy_branches_pkg_friendly_names:
-  extends:
-    - .deploy_pkg_friendly_names
-    - .deploy_branches_rules
-  environment:
-    name: pf-branches
-  variables:
-    # Per version: the branches baseurl it carries is X.Y-specific, so every X.Y needs its own file.
-    PKG_DEST_NAME: packetfence-release-branches-{release}.el{n}.noarch.rpm
-    PF_EXPORT_RPM_DEST_NAME: packetfence-export-branches.el8.noarch.rpm
-    PF_EXPORT_DEB_DEST_NAME: packetfence-export_branches.deb
-    PF_CI_LIB_DEB_DEST_NAME: packetfence-ci-lib_branches.deb
 
 deploy_maintenance_pkg_friendly_names:
   extends:
