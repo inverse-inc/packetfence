@@ -3,6 +3,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import re
 import shutil
 import subprocess
 import tempfile
@@ -184,10 +185,12 @@ class ConfigurationTest(unittest.TestCase):
             self.assertIn('packetfence-ci-lib_devel.deb', named)
             # The branches packetfence-release carries an X.Y-specific baseurl, so every X.Y must
             # publish its own file instead of overwriting one name shared with the other versions.
-            config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
-            branches = config['deploy_branches_pkg_friendly_names']['variables']['PKG_DEST_NAME']
-            named = {name for _, _, name in module.plan(result, '16.0', {'PKG_DEST_NAME': branches})}
-            self.assertIn('packetfence-release-branches-16.0.el8.noarch.rpm', named)
+            text = (ROOT/'.gitlab-ci.yml').read_text()
+            wanted = {v for v in re.findall(r'PKG_DEST_NAME: (\S+)', text) if 'branches' in v}
+            self.assertTrue(wanted)
+            for value in wanted:
+                named = {name for _, _, name in module.plan(result, '16.0', {'PKG_DEST_NAME': value})}
+                self.assertIn('packetfence-release-branches-16.0.el8.noarch.rpm', named)
             self.assertIn('packetfence-release-branches-{{ pf_minor_release }}.el8.noarch.rpm',
                           (ROOT/'addons/vagrant/extra_vars_branches.yml').read_text())
 
