@@ -400,6 +400,9 @@ sub generate_csr {
 Get a certificate, its private key and its CA from the PacketFence PKI.
 With mode 'cert' an existing pfpki certificate is exported.
 With mode 'csr' a CSR is built from the provided private key and signed by a pfpki profile.
+Instead of a private key, the csr mode accepts the certificate_id of a
+certificate resource: the CSR is built from its stored private key, which is
+not returned (a replace without a private key keeps the current one).
 Nothing is installed, the result is meant to be saved through the regular certificate APIs.
 
 The call to pfpki is made with the system API user, so pfpki's own ACL does
@@ -441,8 +444,17 @@ sub pki_import {
 
     if ($mode eq 'csr') {
         return $self->render_error(422, "Missing profile_id parameter") unless $data->{profile_id};
-        return $self->render_error(422, "Missing private_key parameter") unless $data->{private_key};
-        my $rsa = eval { pf::ssl::rsa_from_string($data->{private_key}) };
+        my $private_key = $data->{private_key};
+        my $stored_key;
+        if (!$private_key && defined(my $certificate_id = $data->{certificate_id})) {
+            my $config = ref($certificate_id) ? undef : $self->resource_config($certificate_id);
+            return $self->render_error(422, "Invalid certificate_id parameter") unless $config;
+            $private_key = eval { read_file($config->{key_file}) };
+            return $self->render_error(422, "The certificate has no private key") unless defined($private_key) && $private_key =~ /\S/;
+            $stored_key = 1;
+        }
+        return $self->render_error(422, "Missing private_key parameter") unless $private_key;
+        my $rsa = eval { pf::ssl::rsa_from_string($private_key) };
         return $self->render_error(422, "Failed to parse the private key, only RSA keys are supported") unless $rsa;
 
         my ($res, $csr) = pf::ssl::generate_csr($rsa, $data);
@@ -450,13 +462,14 @@ sub pki_import {
 
         ($res, my $signed) = pf::pfpki_client::sign_csr($data->{profile_id}, $csr->get_pem_req());
         return $self->render_error(422, $signed) unless $res;
-        return $self->render(json => {
+        my $result = {
             certificate => $signed->{certificate},
-            private_key => $data->{private_key},
             intermediate_cas => [],
             ca => $signed->{ca},
             warnings => $signed->{warnings},
-        }, status => 200);
+        };
+        $result->{private_key} = $private_key unless $stored_key;
+        return $self->render(json => $result, status => 200);
     }
 
     return $self->render_error(422, "Invalid mode, must be one of: cert, csr");

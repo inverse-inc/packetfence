@@ -56,8 +56,10 @@ my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Pf");
 
 #insert known data
 #run tests
-use Test::More tests => 92;
+use Test::More tests => 101;
 use Test::Mojo;
+use pf::pfpki_client;
+use Crypt::OpenSSL::PKCS10;
 use Mojo::JSON;
 use Test::NoWarnings;
 
@@ -337,6 +339,36 @@ $t->post_ok('/api/v1/config/certificates/pki/import' => { $roles_header => 'ALL'
   ->json_is('/message' => 'Missing profile_id parameter');
 $t->post_ok('/api/v1/config/certificates/pki/import' => { $roles_header => 'Node Manager' } => json => { mode => 'bogus' })
   ->status_is(422);
+
+# pki_import csr with the stored private key of a certificate resource: the
+# CSR is built from that key, and the key is not returned
+{
+    my $signed_csr;
+    no warnings 'redefine';
+    local *pf::pfpki_client::sign_csr = sub {
+        $signed_csr = $_[1];
+        return (1, { certificate => 'SIGNED', ca => 'PKI-CA', warnings => [] });
+    };
+    my %csr_info = (
+        mode => 'csr', profile_id => 1, country => 'CA', state => 'Quebec',
+        locality => 'Montreal', organization_name => 'Inverse Inc.', common_name => 'csrtest.inverse.ca',
+    );
+    $t->post_ok('/api/v1/config/certificates/pki/import' => { $roles_header => 'ALL' } => json => { %csr_info, certificate_id => 'bogus' })
+      ->status_is(422)
+      ->json_is('/message' => 'Invalid certificate_id parameter');
+    $t->post_ok('/api/v1/config/certificates/pki/import' => { $roles_header => 'ALL' } => json => { %csr_info, certificate_id => 'radius' })
+      ->status_is(200)
+      ->json_is('/certificate' => 'SIGNED')
+      ->json_is('/ca' => 'PKI-CA')
+      ->json_hasnt('/private_key');
+    my $key = pf::ssl::rsa_from_string(scalar read_file(pf::ssl::certs_map()->{radius}{key_file}));
+    my $csr_file = File::Temp->new(SUFFIX => '.csr');
+    print $csr_file $signed_csr;
+    close $csr_file;
+    my $req = Crypt::OpenSSL::PKCS10->new_from_file($csr_file->filename);
+    is($req->get_pem_pubkey, $key->get_public_key_x509_string,
+       'the CSR is built from the stored private key of the certificate');
+}
 
 =head1 AUTHOR
 
