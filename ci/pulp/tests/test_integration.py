@@ -415,12 +415,54 @@ class ConfigurationTest(unittest.TestCase):
                     self.assertIn(message, result.stderr)
                     self.assertFalse((work/'copies').exists(), 'nothing is pushed before every image is checked')
 
-    def test_a_release_publish_requires_every_native_el_repository(self):
-        script = (ROOT/'ci/pulp/publish-packages.sh').read_text()
-        block = script[script.index('native_rpm=$(python3 ci/pulp/native.py rpm'):]
-        block = block[:block.index('\ndone\n')]
-        self.assertIn('if [[ "${CI_COMMIT_REF_NAME:-}" != devel ]]; then', block)
-        self.assertLess(block.index('exit 1'), block.index('continue'))
+    def test_a_release_publish_resolves_every_repository_before_uploading(self):
+        # maintenance/X.Y: a missing or unreadable native repository (EL or Debian) stops before any upload;
+        # devel may run ahead (EL skipped, Debian merged into its file tree).
+        with tempfile.TemporaryDirectory() as folder:
+            work = Path(folder)
+            repo = work/'repo'
+            (repo/'ci/pulp').mkdir(parents=True)
+            (repo/'conf').mkdir()
+            (repo/'addons/packetfence-perl').mkdir(parents=True)
+            for name in ('publish-packages.sh', 'psono-field.sh'):
+                shutil.copy(ROOT/'ci/pulp'/name, repo/'ci/pulp'/name)
+            shutil.copytree(ROOT/'ci/pulp/vendor', repo/'ci/pulp/vendor')
+            shutil.copy(ROOT/'conf/pf-release', repo/'conf/pf-release')
+            (repo/'addons/packetfence-perl/psono.py').write_text(
+                'print(\'{"website_password_username": "ci-packages", "website_password_password": "secret"}\')\n')
+            (repo/'ci/pulp/native.py').write_text(
+                'import os, sys\nvalue = os.environ["FAKE_" + sys.argv[1].upper()]\n'
+                'sys.exit(1) if value == "missing" else sys.exit(2) if value == "error" else print(value)\n')
+            shim = work/'bin'
+            shim.mkdir()
+            (shim/'python3').write_text('#!/bin/sh\ncase "$1" in ci/pulp/vendor/*) echo "$*" >> "$PUBLISH_LOG"; '
+                                        'echo "{}"; exit 0;; esac\nexec ' + sys.executable + ' "$@"\n')
+            (shim/'python3').chmod(0o700)
+            public = work/'public'
+            (public/'debian/dists/bookworm/bookworm/binary-amd64').mkdir(parents=True)
+            (public/'debian/dists/bookworm/bookworm/binary-amd64/Packages').write_text('Filename: pool/p.deb\n')
+            (public/'centos/8/x86_64/repodata').mkdir(parents=True)
+            (public/'centos/8/x86_64/p.rpm').write_text('x')
+            (public/'GPG_PUBLIC_KEY').write_text('key')
+            log = work/'publish.log'
+            base = {'PATH': str(shim) + os.pathsep + os.environ['PATH'], 'PF_PACKAGE_ORIGIN': 'https://pulp.example',
+                    'CI_PIPELINE_ID': '7', 'PSONO_CI_PULP_PACKAGES_ID': 'entry', 'PSONO_CI_API_KEY_ID': 'k',
+                    'PSONO_CI_API_SECRET_KEY_HEX': 's', 'PUBLIC_DIR': str(public), 'PUBLISH_LOG': str(log),
+                    'GPG_KEY_FINGERPRINT': 'F'}
+            for ref, rpm, deb, code, published in (
+                    ('maintenance/1.0', 'el', 'missing', 1, []), ('maintenance/1.0', 'missing', 'deb', 1, []),
+                    ('maintenance/1.0', 'el', 'error', 1, []), ('maintenance/1.0', 'error', 'deb', 1, []),
+                    ('maintenance/1.0', 'el', 'deb', 0, ['pulp_publish.py rpm el', 'pulp_publish.py deb deb']),
+                    ('devel', 'missing', 'missing', 0, ['pipeline_repository.py merge-apt --repository'])):
+                with self.subTest(ref=ref, rpm=rpm, deb=deb):
+                    log.write_text('')
+                    result = subprocess.run(['bash', str(repo/'ci/pulp/publish-packages.sh'), 'release'],
+                                            env={**base, 'CI_COMMIT_REF_NAME': ref, 'FAKE_RPM': rpm, 'FAKE_DEB': deb},
+                                            capture_output=True, text=True)
+                    self.assertEqual(result.returncode, code, result.stderr)
+                    calls = [' '.join(line.split()[:3]).replace('ci/pulp/vendor/', '') for line in log.read_text().splitlines()]
+                    self.assertEqual(sorted(calls), sorted(published), result.stderr)
+                    self.assertNotIn('secret', result.stdout + result.stderr)
 
     def test_every_ansible_requirement_installs_from_the_package_origin(self):
         # inverse_inc.packetfence before 1.3.0 hard-codes inverse.ca in its repository line.
