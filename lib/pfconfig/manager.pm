@@ -114,7 +114,7 @@ sub get_namespace {
     my $full_name = $name;
 
     unless (is_valid_namespace($name)) {
-        $logger->error("Invalid namespace name " . ($name // 'undef'));
+        $logger->warn("Invalid namespace name " . ($name // 'undef'));
         return undef;
     }
 
@@ -286,7 +286,7 @@ sub get_cache {
 
     my $logger = get_logger;
     unless (is_valid_namespace($what)) {
-        $logger->error("Invalid namespace name " . ($what // 'undef'));
+        $logger->warn("Invalid namespace name " . ($what // 'undef'));
         return undef;
     }
 
@@ -321,7 +321,7 @@ sub get_cache_ordered {
     my ($self, $what) = @_;
 
     unless (is_valid_namespace($what)) {
-        get_logger->error("Invalid namespace name " . ($what // 'undef'));
+        get_logger->warn("Invalid namespace name " . ($what // 'undef'));
         return undef;
     }
 
@@ -501,7 +501,7 @@ sub expire_namespaces {
     };
     for my $what (@$namespaces) {
         unless (is_valid_namespace($what)) {
-            get_logger->error("Invalid namespace name " . ($what // 'undef'));
+            get_logger->warn("Invalid namespace name " . ($what // 'undef'));
             next;
         }
         $visit->( normalize_namespace_query($what) );

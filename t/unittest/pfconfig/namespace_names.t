@@ -18,7 +18,7 @@ BEGIN {
     use test_paths;
 }
 
-use Test::More tests => 29;
+use Test::More tests => 30;
 use Test::NoWarnings;
 
 use pfconfig::util qw(is_valid_namespace);
@@ -47,6 +47,7 @@ my @invalid = (
     'config::Pf ',
     "config::Pf\n",
     'config::Pf-x',
+    "config::Pf\x{e9}",
 );
 
 ok(is_valid_namespace($_), "'$_' is a valid namespace") for @valid;

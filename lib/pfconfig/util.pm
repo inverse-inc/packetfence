@@ -141,7 +141,7 @@ sub is_valid_namespace {
     my ($query) = @_;
     return 0 unless defined $query;
     my ($name) = parse_namespace($query);
-    return $name =~ /\A[A-Za-z_]\w*(?:::[A-Za-z_]\w*)*\z/ ? 1 : 0;
+    return $name =~ /\A[A-Za-z_][A-Za-z0-9_]*(?:::[A-Za-z_][A-Za-z0-9_]*)*\z/ ? 1 : 0;
 }
 
 =head2 control_file_path
