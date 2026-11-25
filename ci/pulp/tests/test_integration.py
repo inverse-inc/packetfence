@@ -235,6 +235,17 @@ class ConfigurationTest(unittest.TestCase):
         self.assertIn('if [[ "${CI_COMMIT_REF_NAME:-}" != devel ]]; then', block)
         self.assertLess(block.index('exit 1'), block.index('continue'))
 
+    def test_a_pulp_error_is_not_a_missing_native_repository(self):
+        # Unreachable Pulp: exit 2, which every caller turns into a failure (never the devel skip or the file tree).
+        env = {'PATH': os.environ['PATH'], 'PULP_URL': 'http://127.0.0.1:9', 'PULP_USERNAME': 'u', 'PULP_PASSWORD': 'p'}
+        result = subprocess.run([sys.executable, str(ROOT/'ci/pulp/native.py'), 'deb', '14.0', 'bookworm'],
+                                env=env, capture_output=True, text=True, timeout=60)
+        self.assertEqual(result.returncode, 2, result.stderr)
+        self.assertNotIn('p@', result.stderr)
+        script = (ROOT/'ci/pulp/publish-packages.sh').read_text()
+        self.assertEqual(script.count('python3 ci/pulp/native.py'), 2)
+        self.assertEqual(script.count('(( status < 2 )) || exit 1'), 2)
+
     def test_every_service_image_is_in_the_push_list(self):
         # A service image missing from container-images.json would never reach the registry.
         config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
