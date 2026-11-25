@@ -1,3 +1,4 @@
+import escape from 'lodash/escape'
 import { BaseFormGroupTextareaTest, BaseFormGroupTextareaTestProps } from '@/components/new/'
 import store from '@/store'
 import i18n from '@/utils/locale'
@@ -9,15 +10,16 @@ export const props = {
     type: Function,
     default: (value, form) => {
       const test = Object.assign({}, form, { lines: form.lines.split('\n') }) // split lines by '\n', dereference
+      // the result is HTML (shown as the feedback of the field): the values of the API are escaped
       return store.dispatch('$_event_handlers/dryRunEventHandler', test).then(response => {
         let html = []
         html.push('<pre style="color: inherit;">')
         response.items.forEach((item, index) => {
-          html.push(`<code>${i18n.t('Line')} ${index + 1}\t- <strong>${item.line}</strong></code><br/>`)
+          html.push(`<code>${i18n.t('Line')} ${index + 1}\t- <strong>${escape(item.line)}</strong></code><br/>`)
           if (item.matches.length > 0) {
             item.matches.forEach(match => {
               match.actions.forEach(action => {
-                html.push(`\t- ${match.rule.name}: ${action.api_method}(${action.api_parameters.map(param => '\'' + param + '\'').join(', ')})<br/>`)
+                html.push(`\t- ${escape(match.rule.name)}: ${escape(action.api_method)}(${action.api_parameters.map(param => '\'' + escape(param) + '\'').join(', ')})<br/>`)
               })
             })
           } else {
@@ -36,7 +38,7 @@ export const props = {
             case 'path': error.field = i18n.t('Alert pipe'); break
             case 'rules': error.field = i18n.t('Rules'); break
           }
-          html.push(i18n.t('<strong>Server Error "{field}"</strong>: {message}', error) + '<br/>')
+          html.push(i18n.t('<strong>Server Error "{field}"</strong>: {message}', { field: escape(error.field), message: escape(error.message) }) + '<br/>')
         })
         html.sort((a, b) => a.localeCompare(b))
         throw ['<pre style="color: inherit;">', ...html, '</pre>'].join('')
