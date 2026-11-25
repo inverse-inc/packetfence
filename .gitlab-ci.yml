@@ -1855,7 +1855,14 @@ deploy_containers:
   image: $PF_PPA_IMAGE
   # One Pulp container writer at a time, across branches.
   resource_group: pulp-packetfence-containers
-  dependencies: []
+  # After its packages (same rules): a failed package deploy keeps the previous images; a push can be retried.
+  needs:
+    - job: deploy_maintenance_pulp
+      optional: true
+      artifacts: false
+    - job: deploy_branches_pulp
+      optional: true
+      artifacts: false
   environment:
     name: containers/$CI_COMMIT_REF_SLUG
   script:
