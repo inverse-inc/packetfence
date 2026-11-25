@@ -77,7 +77,7 @@ sub FETCH {
     return $subcache_value if defined($subcache_value);
 
     my $reply = $self->_get_from_socket("$self->{_namespace}");
-    my $result = defined($reply) ? $self->_get_from_socket("$self->{_namespace}")->{element} : undef;
+    my $result = defined($reply) ? $reply->{element} : undef;
 
     $self->set_in_subcache( "myself", $result );
 
