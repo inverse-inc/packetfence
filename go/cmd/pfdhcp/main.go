@@ -813,14 +813,32 @@ func (I *Interface) lockTransaction(ctx context.Context, mac net.HardwareAddr, m
 	return true
 }
 
+// routedNetworkContains returns true if ip is in one of the routed (not layer 2)
+// networks of the interface.
+func (I *Interface) routedNetworkContains(ip net.IP) bool {
+	if ip == nil || ip.Equal(net.IPv4zero) {
+		return false
+	}
+	for _, v := range I.network {
+		if !v.dhcpHandler.layer2 && v.network.Contains(ip) {
+			return true
+		}
+	}
+	return false
+}
+
 // findHandlerAndNetwork finds the appropriate handler and network scope for the given packet
 func (I *Interface) findHandlerAndNetwork(p dhcp.Packet, mac net.HardwareAddr, db *sql.DB) (handler DHCPHandler, NetScope net.IPNet, found bool) {
 	var NodeCache *cache.Cache
 	NodeCache = cache.New(3*time.Second, 5*time.Second)
 	var node NodeInfo
 	for _, v := range I.network {
-		// Check if the handler is for layer 2 and if the packet is from the same network
-		if v.dhcpHandler.layer2 && (p.GIAddr().Equal(net.IPv4zero) || v.network.Contains(p.CIAddr())) {
+		// Check if the handler is for layer 2 and if the packet is from the same network.
+		// A packet that did not go through a relay (giaddr 0.0.0.0) is caught by
+		// the layer 2 network, unless the client already has an address in a
+		// routed network of this interface: a client behind a relay renews its
+		// lease by unicast straight to the server, without a relay address.
+		if v.dhcpHandler.layer2 && ((p.GIAddr().Equal(net.IPv4zero) && !I.routedNetworkContains(p.CIAddr())) || v.network.Contains(p.CIAddr())) {
 			if v.splittednet == true {
 
 				if x, found := NodeCache.Get(p.CHAddr().String()); found {
