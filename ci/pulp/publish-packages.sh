@@ -90,7 +90,9 @@ fi
 # release: the native repository serving each OS (Pulp signs its own index); a Debian suite may live in
 # another suite's repository (a newer Debian added to the same URL).
 for n in "${el_versions[@]}"; do
-    if ! native_rpm=$(python3 ci/pulp/native.py rpm "$release" "$n"); then
+    status=0; native_rpm=$(python3 ci/pulp/native.py rpm "$release" "$n") || status=$?
+    (( status < 2 )) || exit 1
+    if (( status )); then
         # Only devel may run ahead of the packaging side (an unreleased X.Y); a release must reach every OS it built.
         if [[ "${CI_COMMIT_REF_NAME:-}" != devel ]]; then
             echo "No native EL$n repository for $release: create packetfence-$dashed-el$n on the packaging side" >&2
@@ -106,7 +108,9 @@ for n in "${el_versions[@]}"; do
 done
 merge_suites=()
 for suite in "${suites[@]}"; do
-    if ! native=$(python3 ci/pulp/native.py deb "$release" "$suite"); then
+    status=0; native=$(python3 ci/pulp/native.py deb "$release" "$suite") || status=$?
+    (( status < 2 )) || exit 1
+    if (( status )); then
         merge_suites+=("$suite")
         continue
     fi
