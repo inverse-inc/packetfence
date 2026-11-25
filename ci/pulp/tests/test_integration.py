@@ -166,7 +166,7 @@ def merged(config, name):
 class Pipelines:
     """Which jobs a pipeline holds, for any context (variables), from .gitlab-ci.yml."""
     def __init__(self, config):
-        self.jobs = {}
+        self.jobs, self.dependencies = {}, {}
         for name, job in config.items():
             if name.startswith('.') or name in RESERVED or not isinstance(job, dict):
                 continue
@@ -182,6 +182,7 @@ class Pipelines:
                                [n if isinstance(n, dict) else {'job': n} for n in needs or []
                                 if not (isinstance(n, dict) and ('pipeline' in n or 'project' in n))],
                                full.get('stage'))
+            self.dependencies[name] = list(expand(config, full.get('dependencies')) or [])
 
     def included(self, env):
         out = set()
@@ -197,11 +198,12 @@ class Pipelines:
         return out
 
 
-def contexts(release):
+def contexts(release, devel_file):
     """Pipelines worth checking: every ref and source, one or two switches, a few commit messages."""
-    refs = [{'CI_COMMIT_REF_NAME': 'devel'}, {'CI_COMMIT_REF_NAME': f'maintenance/{release}'},
-            {'CI_COMMIT_REF_NAME': 'feature/x'},
-            {'CI_COMMIT_REF_NAME': f'v{release}.1', 'CI_COMMIT_TAG': f'v{release}.1'}]
+    # A maintenance branch's file never runs on devel (devel has its own).
+    refs = [{'CI_COMMIT_REF_NAME': 'devel'}] if devel_file else []
+    refs += [{'CI_COMMIT_REF_NAME': f'maintenance/{release}'}, {'CI_COMMIT_REF_NAME': 'feature/x'},
+             {'CI_COMMIT_REF_NAME': f'v{release}.1', 'CI_COMMIT_TAG': f'v{release}.1'}]
     switches = [('TEST', 'yes'), ('TEST_ONLY', 'dot1x'), ('TEST_CLUSTER', 'yes'), ('BUILD_IMG_CONTAINER', 'no'),
                 ('BUILD_ARTIFACTS_PKG', 'no'), ('DEPLOY_PKG', 'no'), ('DEPLOY_PKG', 'false'), ('DEPLOY_PKG', 'yes'),
                 ('DEPLOY_PKG', 'true'), ('BUILD_IMG_DOCKER', 'yes'), ('BUILD_IMG_DOCKER', 'no'),
@@ -213,7 +215,7 @@ def contexts(release):
     messages = ['build_img_container=no', 'test=yes', 'build_img_container=no test=yes', 'deploy_pkg=yes',
                 'build_pf_img_vagrant=yes', 'test_cluster=yes']
     for ref in refs:
-        for source in ('push', 'web', 'schedule', 'api'):
+        for source in ('push', 'web', 'schedule', 'api', 'trigger', 'pipeline', 'merge_request_event'):
             base = {**ref, 'CI_PIPELINE_SOURCE': source, 'CI_COMMIT_MESSAGE': 'fix'}
             for switch in sets:
                 yield {**base, **switch}
@@ -490,21 +492,32 @@ class ConfigurationTest(unittest.TestCase):
         # Every ref, source, one or two switches and a few commit messages: no required need on an absent job
         # (GitLab refuses such a pipeline), no deploy job left waiting on nothing, and no deploy when switched off.
         config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
+        self.maxDiff = None
         pipelines = Pipelines(config)
         release = re.search(r'[0-9]+[.][0-9]+', (ROOT/'conf/pf-release').read_text()).group(0)
         defaults = {k: (v.get('value') if isinstance(v, dict) else v) for k, v in config.get('variables', {}).items()}
         deploys = {n for n in pipelines.jobs if n.startswith('deploy_') and not n.startswith('deploy_docs')}
         problems = {}
         count = 0
-        for context in contexts(release):
+        for context in contexts(release, devel_file=False):  # this file is devel's: False
             env = {**{k: str(v) for k, v in defaults.items()}, **context}
             jobs = pipelines.included(env)
             count += 1
             for name in jobs:
                 _, needs, stage = pipelines.jobs[name]
                 for need in needs:
-                    if need['job'] in pipelines.jobs and need['job'] not in jobs and not need.get('optional'):
+                    if need['job'] not in pipelines.jobs:
+                        problems.setdefault((name, 'needs an undefined job ' + need['job']), context)
+                    elif need['job'] not in jobs and not need.get('optional'):
                         problems.setdefault((name, 'needs ' + need['job']), context)
+                # GitLab tolerates an absent dependency, but a job none of whose dependencies run gets no artifacts.
+                dependencies = pipelines.dependencies[name]
+                if dependencies and not set(dependencies) & jobs:
+                    problems.setdefault((name, 'depends only on absent ' + ','.join(dependencies)), context)
+            ppa = {n for n in pipelines.jobs if n.startswith('publish_ppa') and '_img' not in n}
+            tests = {n for n in jobs if (pipelines.jobs[n][2] or '').startswith('test')}
+            if tests and not ppa & jobs:
+                problems.setdefault((sorted(tests)[0], 'tests without the pipeline PPA'), context)
                 if needs and stage and stage.startswith('deploy') and not any(n['job'] in jobs for n in needs):
                     problems.setdefault((name, 'starts before every earlier stage'), context)
             off = (env.get('BUILD_IMG_CONTAINER') == 'no' or env.get('BUILD_ARTIFACTS_PKG') == 'no'
