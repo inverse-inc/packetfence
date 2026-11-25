@@ -583,6 +583,16 @@ class ConfigurationTest(unittest.TestCase):
             result = subprocess.run(['sh', str(helper)], env={**base, **env}, capture_output=True, text=True)
             self.assertEqual(result.stdout.strip(), expected, env)
 
+    def test_psono_all_is_json_for_psono_field(self):
+        # psono-field.sh parses --return_value=all as JSON; a Python dict repr fails before any publish.
+        import ast
+        tree = ast.parse((ROOT/'addons/packetfence-perl/psono.py').read_text())
+        func = next(n for n in tree.body if getattr(n, 'name', '') == 'return_data')
+        namespace = {'json': json}
+        exec(compile(ast.Module(body=[func], type_ignores=[]), 'psono.py', 'exec'), namespace)
+        entry = {'application_password_username': 'u', 'application_password_password': "p'x"}
+        self.assertEqual(json.loads(namespace['return_data']('all', entry)), entry)
+
     def test_shell_syntax(self):
         for script in (ROOT/'ci/pulp').rglob('*.sh'):
             subprocess.run(['bash', '-n', str(script)], check=True)
