@@ -27,10 +27,7 @@ sub init {
     my ($self) = @_;
     $self->{file} = $domains_connectors_config_file;
 
-    $self->{child_resources} = [
-        'resource::connectors_config'
-    ];
-
+    $self->{child_resources} = [];
 }
 
 sub build_child {

@@ -454,9 +454,9 @@ sub expire {
 Expire the given namespaces and everything that derives from them (child
 resources, overlayed namespaces), each once, a namespace only after all the
 namespaces it derives from in this run: a resource with several parents (e.g.
-resource::connectors_config, built from config::DnsConnectors and
-config::DomainsConnectors) is otherwise rebuilt as soon as its first parent
-is, from the previous value of the others, and skipped when they are rebuilt.
+resource::pfconnector_static_connections, built from config::Connector and
+config::DnsConnectors) is otherwise rebuilt as soon as its first parent is,
+from the previous value of the others, and skipped when they are rebuilt.
 
 =cut
 

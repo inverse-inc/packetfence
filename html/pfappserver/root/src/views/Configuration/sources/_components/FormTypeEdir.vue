@@ -93,7 +93,7 @@
 
     <form-group-use-connector namespace="use_connector"
                               :column-label="$i18n.t('Use Connector')"
-                              :text="$i18n.t('Use the available PacketFence connectors to connect to this authentication source. By default, a local connector is hosted on this server.')"
+                              :text="$i18n.t('Use the available PacketFence connectors to connect to this authentication source. Requires the PacketFence Connector plugin.')"
                               enabled-value="1"
                               disabled-value="0"
     />

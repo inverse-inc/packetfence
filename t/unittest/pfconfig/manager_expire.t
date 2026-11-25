@@ -60,25 +60,25 @@ sub position {
     return $i;
 }
 
-# The connectors case: resource::connectors_config derives from both
-# config::DnsConnectors and config::DomainsConnectors, themselves derived
-# from config::Connector.
+# The connectors case: resource::pfconnector_static_connections derives from
+# both config::Connector and config::DnsConnectors, itself derived from
+# config::Connector.
 my %connectors = (
-    'config::Connector' => ['resource::connectors_ordered', 'config::DnsConnectors', 'config::DomainsConnectors'],
-    'config::DnsConnectors' => ['resource::connectors_config', 'resource::pfconnector_static_connections'],
-    'config::DomainsConnectors' => ['resource::connectors_config'],
+    'config::Connector' => ['resource::connectors_ordered', 'config::DnsConnectors', 'config::DomainsConnectors', 'resource::pfconnector_static_connections'],
+    'config::DnsConnectors' => ['resource::pfconnector_static_connections'],
+    'config::DomainsConnectors' => [],
 );
 my $expired = expired_after(\%connectors, 'config::Connector');
 
 is_deeply(
     [sort @$expired],
-    [sort qw(config::Connector resource::connectors_ordered config::DnsConnectors config::DomainsConnectors resource::connectors_config resource::pfconnector_static_connections)],
+    [sort qw(config::Connector resource::connectors_ordered config::DnsConnectors config::DomainsConnectors resource::pfconnector_static_connections)],
     'every derived namespace is expired, once',
 );
 
 ok(
-    position($expired, 'resource::connectors_config') > position($expired, 'config::DomainsConnectors')
-      && position($expired, 'resource::connectors_config') > position($expired, 'config::DnsConnectors'),
+    position($expired, 'resource::pfconnector_static_connections') > position($expired, 'config::Connector')
+      && position($expired, 'resource::pfconnector_static_connections') > position($expired, 'config::DnsConnectors'),
     'a namespace with two parents is expired after both',
 );
 

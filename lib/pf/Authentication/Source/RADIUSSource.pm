@@ -34,7 +34,7 @@ has 'timeout' => ( isa => 'Maybe[Int]', is => 'rw', default  => 1 );
 has 'secret'  => ( isa => 'Str',        is => 'rw', required => 1 );
 has 'monitor' => ( isa => 'Bool',       is => 'rw', default  => 1 );
 has 'options' => ( isa => 'Str',        is => 'rw', default  => 'type = auth+acct' );
-has 'use_connector'    => ( isa => 'Bool',       is => 'rw', default => 1 );
+has 'use_connector'    => ( isa => 'Bool',       is => 'rw', default => 0 );
 has 'nas_ip_address'   => ( isa => 'Maybe[Str]', is => 'rw', default => '' );
 has 'pfconnector_port' => ( isa => 'Maybe[Int]', is => 'rw' );
 

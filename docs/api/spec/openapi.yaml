@@ -168,7 +168,6 @@ components:
         - pfdhcp
         - pfdhcplistener
         - pfdns
-        - pfdns-connector
         - pffilter
         - pfipset
         - pfldapexplorer
@@ -3488,10 +3487,6 @@ components:
               $ref: '#/components/schemas/Meta'
             pfdns:
               $ref: '#/components/schemas/Meta'
-            pfdns-connector:
-              $ref: '#/components/schemas/Meta'
-            pfdns-connector_binary:
-              $ref: '#/components/schemas/Meta'
             pffilter:
               $ref: '#/components/schemas/Meta'
             pfipset:
@@ -4725,12 +4720,6 @@ components:
           type: integer
         pfdns:
           description: Should pfdns be managed by PacketFence?
-          type: string
-        pfdns-connector:
-          description: Should pfdns-connector be managed by PacketFence?
-          type: string
-        pfdns-connector_binary:
-          description: services.pfdns-connector_binary
           type: string
         pffilter:
           description: Should pffilter be managed by PacketFence?

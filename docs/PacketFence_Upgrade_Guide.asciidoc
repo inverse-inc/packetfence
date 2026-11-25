@@ -987,6 +987,63 @@ If you kept a customized [filename]`conf/radiusd/packetfence` or
 `Post-Auth-Type REJECT` blocks of the corresponding `.example` files into
 your copies. Without them, proxied requests are still authorized twice.
 
+=== PacketFence Connector moved to a plugin
+
+The PacketFence Connector is not part of PacketFence anymore: the
+`packetfence-pfconnector-server`, `packetfence-pfconnector-client` and
+`packetfence-pfdns-connector` services and the `packetfence-pfconnector-remote`
+package are provided by the `packetfence-plugin-pfconnector` plugin, which
+requires PacketFence 16.0. The `[pfdns_connector]` section of
+[filename]`/usr/local/pf/conf/pf.conf` stays: it is the address of the DNS
+server the plugin provides, used to resolve the hosts behind the connectors.
+
+Without the plugin, nothing answers the connections sent through a connector,
+so the parameters using it are now disabled by default: _Use Connector_ of the
+LDAP, Active Directory, eDirectory, Google Workspace LDAP and RADIUS sources and
+of the firewall SSO, and `SNMPUseConnector` and `radiusDeauthUseConnector` of
+the switches. They were enabled by default and sent these connections through
+the local connector of the PacketFence server.
+
+The upgrade runs [filename]`/usr/local/pf/addons/upgrade/to-16.0-disable-use-connector.pl`,
+which disables these parameters in
+[filename]`/usr/local/pf/conf/switches.conf`,
+[filename]`/usr/local/pf/conf/authentication.conf` and
+[filename]`/usr/local/pf/conf/firewall_sso.conf`, and prints each value it
+changes. It runs before
+[filename]`/usr/local/pf/addons/upgrade/add-default-params-to-auth.pl`. When
+upgrading manually, run them in this order:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-16.0-disable-use-connector.pl
+/usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
+----
+
+WARNING: The script disables these parameters on every switch, source and
+firewall, including when remote connectors are defined in
+[filename]`/usr/local/pf/conf/connectors.conf`: the plugin can only be
+installed once PacketFence is upgraded, so the connectors are not usable during
+the upgrade. Until the parameters are enabled again, PacketFence sends SNMP,
+RADIUS CoA/Disconnect, LDAP, RADIUS and firewall SSO requests directly to the
+equipment, which fails for the equipment only reachable through a remote
+connector.
+
+If you use remote connectors:
+
+. Keep the output of the upgrade: it lists each switch, switch group, source
+and firewall the script changed. The automated upgrade logs it in
+[filename]`/usr/local/pf/logs/upgrade/`. When upgrading manually, save it, for
+example with `to-16.0-disable-use-connector.pl | tee /root/disable-use-connector.log`.
+. After the upgrade, install the `packetfence-plugin-pfconnector` plugin on
+each PacketFence server.
+. Enable the parameters again on the listed switches, switch groups, sources
+and firewalls. To use the connectors by default for all the switches, set
+`SNMPUseConnector=Y` and `radiusDeauthUseConnector=Y` in the `[default]`
+section of [filename]`/usr/local/pf/conf/switches.conf`.
+
+The connectors defined in [filename]`/usr/local/pf/conf/connectors.conf` and
+the domains joined through a connector are not changed.
+
 === Bypass ACLs are translated like role ACLs
 
 The _Bypass ACLs_ of a node (Node > Advanced) were sent to the switch as

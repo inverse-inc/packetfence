@@ -572,6 +572,23 @@ The API of a bundle is *passed through*:
   PacketFence API then run with the admin's token, and api-aaa decides what
   the admin may read and change. A manifest page plugin never gets it
 
+*WebSockets.* With `"websockets": true` in `bundle`, the code may also open
+WebSockets on `/api/v1/plugin/<name>/<path>`
+(`new WebSocket('wss://' + location.host + '/api/v1/plugin/<name>/<path>')`):
+
+* the browser cannot add the token to a WebSocket: api-aaa authenticates it
+  with the `token` cookie of the admin UI. So it is only accepted from a page
+  of the PacketFence origin (its `Origin`), never from another site the admin
+  visits
+* it is a `GET`: the admin needs `menu.can` and `PLUGIN_READ`. The plugin gets
+  the signed identity headers (no token, no cookie, no `Origin`) and decides
+  from `X-PacketFence-Admin-Actions` what the admin may do on it
+* only the switch to the WebSocket protocol is passed (`101`, with its
+  `Sec-WebSocket-*` headers); any other answer is passed as a call answer
+* `bundle.timeout` does not apply: the connection lasts until either end
+  closes it. haproxy-admin closes it after 50 seconds without any message
+  (`timeout client`): the plugin sends a ping more often than that
+
 *Read-only.* While the database is read-only (the `read_only` flag, or a
 cluster member that is not ready), the writes to every plugin are refused
 (403): the `POST`, `PUT`, `PATCH` and `DELETE` of a bundle plugin, and the

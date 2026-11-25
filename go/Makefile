@@ -2,7 +2,6 @@ include ../config.mk
 GO ?= go
 CGO_ENABLED=1
 # to change the arch a binary is compiled for.
-# make GOARCH=arm64 pfconnector
 GOARCH=
 build_cmd = CGO_ENABLED=$(CGO_ENABLED) $(if $(GOARCH),GOARCH=$(GOARCH),) $(GO) build $(ARGS)
 
@@ -11,7 +10,6 @@ STATICCHECK_VERSION = v0.8.1
 GOVULNCHECK_VERSION = v1.8.0
 GOSEC_VERSION = v2.28.0
 # Check the whole module on the build host, including packages requiring cgo.
-# Do not inherit pfconnector's CGO_ENABLED=0 or cross-compilation settings.
 check_cmd = CGO_ENABLED=1 GOOS= GOARCH= $(GO)
 
 .PHONY: all
@@ -44,8 +42,6 @@ CMDS = $(wildcard cmd/*)
 ALL_BINARIES = $(patsubst cmd/%, %, $(CMDS))
 .PHONY: $(ALL_BINARIES)
 
-pfconnector: CGO_ENABLED=0
-
 $(ALL_BINARIES):
 	$(build_cmd) -C cmd/$@ -o ../../$@
 
@@ -74,7 +70,3 @@ clean-coredns-src:
 	find coredns/ -type f -exec sed -i.bak "s'github.com/mholt/caddy'github.com/inverse-inc/packetfence/go/caddy/caddy'g" {} \; ; find . -name '*.bak' -delete
 	find coredns/ -type f -exec sed -i.bak "s'github.com/coredns/coredns'github.com/inverse-inc/packetfence/go/coredns'g" {} \; ; find . -name '*.bak' -delete
 	find coredns/ -name '*_test.go' -delete
-
-.PHONY: clean-chisel-src
-clean-chisel-src:
-	find chisel/ -type f -exec sed -i.bak "s'github.com/jpillora/chisel'github.com/inverse-inc/packetfence/go/chisel'g" {} \; ; find . -name '*.bak' -delete

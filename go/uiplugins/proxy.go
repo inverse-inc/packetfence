@@ -336,6 +336,66 @@ func checkPassthroughAnswer(resp *http.Response) error {
 	return nil
 }
 
+// IsWebSocket tells if a request opens a WebSocket
+func IsWebSocket(r *http.Request) bool {
+	return r.Method == http.MethodGet &&
+		strings.EqualFold(r.Header.Get("Upgrade"), "websocket") &&
+		headerHasToken(r.Header, "Connection", "upgrade")
+}
+
+func headerHasToken(h http.Header, name, token string) bool {
+	for _, value := range h.Values(name) {
+		for _, t := range strings.Split(value, ",") {
+			if strings.EqualFold(strings.TrimSpace(t), token) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// SameOrigin tells if a request was sent by a page of the origin it is sent
+// to (the Origin header the browser sets), as the host the admin reached, or
+// the one a reverse proxy in front of PacketFence forwarded
+func SameOrigin(r *http.Request) bool {
+	origin, err := url.Parse(r.Header.Get("Origin"))
+	if err != nil || origin.Host == "" {
+		return false
+	}
+	if strings.EqualFold(origin.Host, r.Host) {
+		return true
+	}
+	for _, host := range r.Header.Values("X-Forwarded-Host") {
+		if strings.EqualFold(origin.Host, strings.TrimSpace(host)) {
+			return true
+		}
+	}
+	return false
+}
+
+// the headers of the answer of a plugin accepting a WebSocket
+var webSocketAnswerHeaders = []string{"Upgrade", "Connection", "Sec-WebSocket-Accept", "Sec-WebSocket-Protocol", "Sec-WebSocket-Extensions"}
+
+// checkWebSocketAnswer passes the answer of a plugin to a WebSocket request:
+// the switch to the WebSocket protocol with only its own headers (no cookie),
+// anything else as checkPassthroughAnswer
+func checkWebSocketAnswer(resp *http.Response) error {
+	if resp.StatusCode != http.StatusSwitchingProtocols {
+		return checkPassthroughAnswer(resp)
+	}
+	if !strings.EqualFold(resp.Header.Get("Upgrade"), "websocket") {
+		return errPluginAnswer{fmt.Sprintf("switched to %q, not a WebSocket", resp.Header.Get("Upgrade"))}
+	}
+	h := http.Header{}
+	for _, name := range webSocketAnswerHeaders {
+		if values := resp.Header.Values(name); len(values) > 0 {
+			h[http.CanonicalHeaderKey(name)] = values
+		}
+	}
+	resp.Header = h
+	return nil
+}
+
 // Proxy passes a request to the plugin service of a registration: path is the
 // path on the plugin service, URL encoded (ProxyPath), identity the admin
 // api-aaa checked. The request
@@ -349,6 +409,11 @@ func checkPassthroughAnswer(resp *http.Response) error {
 // installed a bundle, see BundleInstalled) is passed through: any path, checked
 // with AllowedPassthrough, any content type, for up to its bundle.timeout. A
 // write (IsWrite) is refused while readOnly says the database is read-only.
+//
+// A bundle plugin whose manifest sets bundle.websockets also gets the
+// WebSockets its code opens (IsWebSocket, from a page of the same origin):
+// checked and signed as a GET, without the timeout of the calls, its answer
+// is the switch to the WebSocket protocol (checkWebSocketAnswer).
 func (f *Fetcher) Proxy(w http.ResponseWriter, r *http.Request, registration Registration, path string, identity Identity, readOnly func(context.Context) bool) {
 	name := registration.Name
 	manifest := f.Manifest(r.Context(), registration)
@@ -362,7 +427,29 @@ func (f *Fetcher) Proxy(w http.ResponseWriter, r *http.Request, registration Reg
 		timeout = manifest.PassthroughTimeout()
 		allowed, answer, rt = AllowedPassthrough, checkPassthroughAnswer, passthroughRoundTripper{}
 	}
-	ctx, cancel := context.WithTimeout(r.Context(), timeout)
+	webSocket := IsWebSocket(r)
+	if webSocket {
+		// the browser authenticates a WebSocket with the token cookie: it is
+		// sent whatever page opened it, only one of the admin UI may
+		if !manifest.IsBundle() || manifest.Bundle == nil || !manifest.Bundle.WebSockets {
+			Error(w, http.StatusBadRequest, fmt.Sprintf("Plugin %q: no WebSockets", name))
+			return
+		}
+		if !SameOrigin(r) {
+			Error(w, http.StatusForbidden, fmt.Sprintf("Plugin %q: cross-origin WebSocket refused", name))
+			return
+		}
+		answer = checkWebSocketAnswer
+	}
+	var ctx context.Context
+	var cancel context.CancelFunc
+	if webSocket {
+		// the connection lasts as long as the admin keeps it open: canceling
+		// the context would close it
+		ctx, cancel = context.WithCancel(r.Context())
+	} else {
+		ctx, cancel = context.WithTimeout(r.Context(), timeout)
+	}
 	defer cancel()
 	r = r.WithContext(ctx)
 	if err := allowed(manifest, r.Method, path, identity.Actions); err != nil {
@@ -418,6 +505,11 @@ func (f *Fetcher) Proxy(w http.ResponseWriter, r *http.Request, registration Reg
 			pr.Out.Host = target.Host
 			for _, header := range pluginDroppedHeaders {
 				pr.Out.Header.Del(header)
+			}
+			// the origin of a WebSocket is checked here (SameOrigin): the
+			// plugin, reached at another host, would refuse it
+			if webSocket {
+				pr.Out.Header.Del("Origin")
 			}
 			// only the identity set here: not the client's, whatever their
 			// spelling, and not lost to a Connection header listing them

@@ -21467,11 +21467,10 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeEdir.vue:96
 msgid ""
 "Use the available PacketFence connectors to connect to this authentication "
-"source. By default, a local connector is hosted on this server."
+"source. Requires the PacketFence Connector plugin."
 msgstr ""
-"Utilisez les connecteurs PacketFence disponibles pour vous connecter à cette"
-" source d'authentification. Par défaut, un connecteur local est hébergé sur "
-"ce serveur."
+"Utilisez les connecteurs PacketFence disponibles pour vous connecter à cette "
+"source d'authentification. Nécessite le plugin PacketFence Connector."
 
 #: html/pfappserver/root/src/views/Configuration/firewalls/_components/FormTypeCheckpoint.vue:55
 #: html/pfappserver/root/src/views/Configuration/firewalls/_components/FormTypeCiscoIsePic.vue:51
@@ -21489,45 +21488,47 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:43
 msgid ""
 "Use the available PacketFence connectors to connect to this authentication "
-"source. By default, a local connector is hosted on this server. Using remote"
-" connectors is only supported on a standalone instance at the moment."
+"source. Requires the PacketFence Connector plugin. Using remote connectors "
+"is only supported on a standalone instance at the moment."
 msgstr ""
-"Utilisez les connecteurs PacketFence disponibles pour vous connecter à cette"
-" source d'authentification. Par défaut, un connecteur local est hébergé sur "
-"ce serveur. L'utilisation de connecteurs distants n'est actuellement prise "
-"en charge que sur une instance autonome."
+"Utilisez les connecteurs PacketFence disponibles pour vous connecter à cette "
+"source d'authentification. Nécessite le plugin PacketFence Connector. "
+"L'utilisation de connecteurs distants n'est actuellement prise en charge que "
+"sur une instance autonome."
 
 #: html/pfappserver/root/src/views/Configuration/domains/_components/TheForm.vue:85
-msgid "Use the available PacketFence connectors to connect to this domain."
+msgid ""
+"Use the available PacketFence connectors to connect to this domain. Requires "
+"the PacketFence Connector plugin."
 msgstr ""
 "Utilisez les connecteurs PacketFence disponibles pour vous connecter à ce "
-"domaine."
+"domaine. Nécessite le plugin PacketFence Connector."
 
 #: html/pfappserver/root/src/views/Configuration/firewalls/_components/FormTypeBarracudaNg.vue:59
-msgid "Use the available PacketFence connectors to connect to this firewall."
+msgid ""
+"Use the available PacketFence connectors to connect to this firewall. "
+"Requires the PacketFence Connector plugin."
 msgstr ""
-"Utilise les connecteurs PacketFence disponibles pour se connecter au pare-"
-"feu."
+"Utilise les connecteurs PacketFence disponibles pour se connecter au "
+"pare-feu. Nécessite le plugin PacketFence Connector."
 
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheForm.vue:341
 #: html/pfappserver/root/src/views/Configuration/switches/_components/TheForm.vue:346
 msgid ""
 "Use the available PacketFence connectors to connect to this switch in SNMP. "
-"By default, a local connector is hosted on this server."
+"Requires the PacketFence Connector plugin."
 msgstr ""
 "Utilisez les connecteurs PacketFence disponibles pour vous connecter à ce "
-"commutateur en SNMP. Par défaut, un connecteur local est hébergé sur ce "
-"serveur."
+"commutateur en SNMP. Nécessite le plugin PacketFence Connector."
 
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheForm.vue:300
 #: html/pfappserver/root/src/views/Configuration/switches/_components/TheForm.vue:305
 msgid ""
 "Use the available PacketFence connectors to perform RADIUS deauth (access "
-"reevaluation). By default, a local connector is hosted on this server."
+"reevaluation). Requires the PacketFence Connector plugin."
 msgstr ""
 "Utilisez les connecteurs PacketFence disponibles pour réaliser une deauth "
-"RADIUS (réévaluation d'accès). Par défaut, un connecteur est hébergé sur ce "
-"serveur."
+"RADIUS (réévaluation d'accès). Nécessite le plugin PacketFence Connector."
 
 #: html/pfappserver/root/src/views/Configuration/advanced/_components/TheForm.vue:108
 msgid "Use the information included in the accounting to update the iplog."

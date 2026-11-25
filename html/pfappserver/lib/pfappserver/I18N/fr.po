@@ -5048,14 +5048,6 @@ msgstr "Faut-il démarrer ntlm-auth-api ? Gardez-le activé à moins que vous ne
 msgid "Should pfacct be managed by PacketFence?"
 msgstr "Pfacct doit-il être géré par PacketFence?"
 
-# conf/documentation.conf (services.pfconnector-client)
-msgid "Should pfconnector-client be managed by PacketFence?"
-msgstr "Pfconnector-client doit-il être géré par PacketFence?"
-
-# conf/documentation.conf (services.pfconnector-server)
-msgid "Should pfconnector-server be managed by PacketFence?"
-msgstr "Pfconnector-server doit-il être géré par PacketFence?"
-
 # conf/documentation.conf (services.pfcron)
 msgid ""
 "Should pfcron be started? Keep enabled unless you know what you're doing."
@@ -5074,10 +5066,6 @@ msgstr "Est-ce que pfdhcplistener doit être démarré ? Gardez le activé sauf 
 # conf/documentation.conf (services.pfdns)
 msgid "Should pfdns be managed by PacketFence?"
 msgstr "Est-ce que pfdns doit être géré par PacketFence ?"
-
-# conf/documentation.conf (services.pfdns-connector)
-msgid "Should pfdns-connector be managed by PacketFence?"
-msgstr "Le connecteur pfdns-connector doit-il être géré par PacketFence ?"
 
 # conf/documentation.conf (services.pffilter)
 msgid "Should pffilter be managed by PacketFence?"
@@ -8007,13 +7995,10 @@ msgstr "dhcplistener"
 # conf/documentation.conf (services.netdata options)
 # conf/documentation.conf (services.ntlm-auth-api options)
 # conf/documentation.conf (services.pfacct options)
-# conf/documentation.conf (services.pfconnector-client options)
-# conf/documentation.conf (services.pfconnector-server options)
 # conf/documentation.conf (services.pfcron options)
 # conf/documentation.conf (services.pfdhcp options)
 # conf/documentation.conf (services.pfdhcplistener options)
 # conf/documentation.conf (services.pfdns options)
-# conf/documentation.conf (services.pfdns-connector options)
 # conf/documentation.conf (services.pffilter options)
 # conf/documentation.conf (services.pfipset options)
 # conf/documentation.conf (services.pfperl-api options)
@@ -8233,13 +8218,10 @@ msgstr "en_US"
 # conf/documentation.conf (services.netdata options)
 # conf/documentation.conf (services.ntlm-auth-api options)
 # conf/documentation.conf (services.pfacct options)
-# conf/documentation.conf (services.pfconnector-client options)
-# conf/documentation.conf (services.pfconnector-server options)
 # conf/documentation.conf (services.pfcron options)
 # conf/documentation.conf (services.pfdhcp options)
 # conf/documentation.conf (services.pfdhcplistener options)
 # conf/documentation.conf (services.pfdns options)
-# conf/documentation.conf (services.pfdns-connector options)
 # conf/documentation.conf (services.pffilter options)
 # conf/documentation.conf (services.pfipset options)
 # conf/documentation.conf (services.pfperl-api options)
@@ -9787,14 +9769,6 @@ msgid "services.pfacct_binary"
 msgstr "services.pfacct_binary"
 
 # conf/documentation.conf
-msgid "services.pfconnector-client"
-msgstr "services.pfconnector-client"
-
-# conf/documentation.conf
-msgid "services.pfconnector-server"
-msgstr "services.pfconnector-server"
-
-# conf/documentation.conf
 msgid "services.pfcron"
 msgstr "pfcron"
 
@@ -9817,10 +9791,6 @@ msgstr "Taille des paquets de pfdhcplistener"
 # conf/documentation.conf
 msgid "services.pfdns"
 msgstr "pfdns"
-
-# conf/documentation.conf
-msgid "services.pfdns-connector"
-msgstr "services.pfdns-connector"
 
 # conf/documentation.conf
 msgid "services.pfdns_binary"

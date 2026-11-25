@@ -1,3 +1,10 @@
+                systemctl stop $unit.service 2>/dev/null || true
+                # what dh_systemd_enable recorded for them, and their links
+                if [ -x /usr/bin/deb-systemd-helper ]; then
+                    deb-systemd-helper purge $unit.service >/dev/null 2>&1 || true
+                    deb-systemd-helper unmask $unit.service >/dev/null 2>&1 || true
+                fi
+                rm -f /etc/systemd/system/packetfence.target.wants/$unit.service /etc/systemd/system/packetfence-cluster.target.wants/$unit.service
 #!/bin/sh
 # postinst script for packetfence
 #
@@ -179,6 +186,21 @@ case "$1" in
             echo "Setting packetfence.target as the default systemd target."
            /bin/systemctl set-default packetfence.target
         fi
+
+        # The connector services moved to the packetfence-plugin-pfconnector
+        # plugin, which installs their units under the same names: without
+        # it, the units are gone and what enabled them is removed.
+        for unit in packetfence-pfconnector-server packetfence-pfconnector-client packetfence-pfdns-connector; do
+            if [ ! -e /usr/lib/systemd/system/$unit.service ] && [ ! -e /lib/systemd/system/$unit.service ] && [ ! -e /etc/systemd/system/$unit.service ]; then
+                systemctl stop $unit.service 2>/dev/null || true
+                # what dh_systemd_enable recorded for them, and their links
+                if [ -x /usr/bin/deb-systemd-helper ]; then
+                    deb-systemd-helper purge $unit.service >/dev/null 2>&1 || true
+                    deb-systemd-helper unmask $unit.service >/dev/null 2>&1 || true
+                fi
+                rm -f /etc/systemd/system/packetfence.target.wants/$unit.service /etc/systemd/system/packetfence-cluster.target.wants/$unit.service
+            fi
+        done
 
         systemctl daemon-reload
         echo "Restarting journald to enable persistent logging"

@@ -49,7 +49,7 @@ cliEnablePwd =
 
 # PacketFence -> Switch
 useSNMP=Y
-SNMPUseConnector=Y
+SNMPUseConnector=N
 SNMPVersion = 1
 SNMPCommunityRead = public
 SNMPCommunityWrite = private
@@ -95,7 +95,7 @@ VoIPFullAuthorization=N
 AccessListMap=N
 UrlMap=N
 useCoA=Y
-radiusDeauthUseConnector=Y
+radiusDeauthUseConnector=N
 VoIPLLDPDetect=Y
 PostMfaValidation=N
 deauthOnPrevious=N

@@ -1,3 +1,0 @@
-#!/command/execlineb -P
-with-contenv
-/usr/sbin/freeradius -d /usr/local/pf/raddb -n auth -fm -lstdout

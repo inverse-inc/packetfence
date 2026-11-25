@@ -413,7 +413,6 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-pfdetect.service %{buildroot}%{_unitdir}/packetfence-pfdetect.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdhcplistener.service %{buildroot}%{_unitdir}/packetfence-pfdhcplistener.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdns.service %{buildroot}%{_unitdir}/packetfence-pfdns.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfdns-connector.service %{buildroot}%{_unitdir}/packetfence-pfdns-connector.service
 %{__install} -D -m0644 conf/systemd/packetfence-pffilter.service %{buildroot}%{_unitdir}/packetfence-pffilter.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfcron.service %{buildroot}%{_unitdir}/packetfence-pfcron.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfqueue-go.service %{buildroot}%{_unitdir}/packetfence-pfqueue-go.service
@@ -437,8 +436,6 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-netdata.service %{buildroot}%{_unitdir}/packetfence-netdata.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfstats.service %{buildroot}%{_unitdir}/packetfence-pfstats.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfpki.service %{buildroot}%{_unitdir}/packetfence-pfpki.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfconnector-server.service %{buildroot}%{_unitdir}/packetfence-pfconnector-server.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfconnector-client.service %{buildroot}%{_unitdir}/packetfence-pfconnector-client.service
 %{__install} -D -m0644 conf/systemd/packetfence-proxysql.service %{buildroot}%{_unitdir}/packetfence-proxysql.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfldapexplorer.service %{buildroot}%{_unitdir}/packetfence-pfldapexplorer.service
 %{__install} -D -m0644 conf/systemd/packetfence-ntlm-auth-api.service %{buildroot}%{_unitdir}/packetfence-ntlm-auth-api.service
@@ -1019,7 +1016,6 @@ fi
 %exclude                /usr/local/pf/bin/pyntlm_auth/test_sticky_dc.py
 %attr(0755, pf, pf)     /usr/local/pf/sbin/galera-autofix
 %attr(0755, pf, pf)     /usr/local/pf/sbin/mysql-probe
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfconnector
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfacct
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfhttpd
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
@@ -1054,11 +1050,8 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/haproxy-admin-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/haproxy-portal-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfperl-api-docker-wrapper
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfconnector-server-docker-wrapper
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfconnector-client-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfpki-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfcron-docker-wrapper
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns-connector-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/proxysql-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfacct-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfldapexplorer-docker-wrapper
@@ -1081,7 +1074,6 @@ fi
 %config(noreplace)      /usr/local/pf/conf/config.toml
 %config(noreplace)      /usr/local/pf/conf/nexpose-responses.txt
 %config(noreplace)      /usr/local/pf/conf/pfdns.conf
-%config(noreplace)      /usr/local/pf/conf/pfdns-connector.conf
 %config(noreplace)      /usr/local/pf/conf/pfdhcp.conf
 %config(noreplace)      /usr/local/pf/conf/portal_modules.conf
 %config                 /usr/local/pf/conf/portal_modules.conf.defaults

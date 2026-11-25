@@ -699,16 +699,6 @@ pfdns=enabled
 #
 # Location of the pfdns binary.
 pfdns_binary=/usr/local/pf/sbin/pfdns
-#
-# services.pfdns-connector
-#
-# Should pfdns-connector be managed by PacketFence?
-pfdns-connector=enabled
-#
-# services.pfdns-connector_binary
-#
-# Location of the pfdns-connector binary.
-pfdns-connector_binary=/usr/local/pf/sbin/pfdns
 
 # services.pfacct
 #
@@ -780,15 +770,6 @@ netflow_target_host_port=[% ENV.env_or_default("NETFLOW_TARGET_HOST_PORT", "cont
 # Should mysql-probe be managed by PacketFence?
 mysql-probe=enabled
 
-# services.pfconnector-client
-#
-# Should pfconnector-client be managed by PacketFence?
-pfconnector-client=enabled
-
-# services.pfconnector-server
-#
-# Should pfconnector-server be managed by PacketFence?
-pfconnector-server=enabled
 #
 # services.proxysql
 #
