@@ -155,7 +155,7 @@ yum install kernel-devel-$(uname -r)
 yum remove runc podman
 
 # Import PacketFence GPG key (required for EL8)
-rpm --import https://inverse.ca/downloads/GPG_PUBLIC_KEY
+rpm --import https://packages.packetfence.com/downloads/GPG_PUBLIC_KEY
 ----
 
 ===== PacketFence Software Installation
@@ -164,7 +164,7 @@ rpm --import https://inverse.ca/downloads/GPG_PUBLIC_KEY
 ----
 # Install PacketFence repository
 yum localinstall
-https://www.packetfence.org/downloads/PacketFence/RHEL8/packetfence-release-{release_minor}.el8.noarch.rpm
+https://packages.packetfence.com/downloads/PacketFence/RHEL8/packetfence-release-{release_minor}.el8.noarch.rpm
 
 # Install PacketFence with all dependencies
 # Includes: MariaDB, FreeRADIUS, DHCP server
@@ -222,10 +222,10 @@ development packages. Reboot if kernel was updated.
 ----
 # Install repository tools and GPG key
 apt install gnupg sudo curl
-curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
+curl -fsSL https://packages.packetfence.com/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
 
 # Add PacketFence repository (Debian 12 bookworm)
-echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] https://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm bookworm" > /etc/apt/sources.list.d/packetfence.list
+echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] https://packages.packetfence.com/downloads/PacketFence/debian/{release_minor} bookworm bookworm" > /etc/apt/sources.list.d/packetfence.list
 
 # Install PacketFence with all dependencies  
 # Includes: MariaDB, FreeRADIUS, DHCP server
