@@ -638,6 +638,9 @@ class ConfigurationTest(unittest.TestCase):
             fields = {'package': 'packetfence-perl', 'version': '1.2.5', 'architecture': 'all'}
             self.assertEqual(module.published(client, 'deb', 'packetfence-15-0-deb', fields), expected)
             self.assertEqual(client.params, {**fields, 'repository_version': 'v9', 'limit': 1})
+        unpublished = FakePulp(1)
+        unpublished.find = lambda kind, name: {}  # a distribution that serves nothing yet
+        self.assertFalse(module.published(unpublished, 'deb', 'r', fields))
         if shutil.which('dpkg-deb'):
             with tempfile.TemporaryDirectory() as folder:
                 tree = Path(folder)/'pkg'
