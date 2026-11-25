@@ -43,6 +43,7 @@ jobs:
       - name: Publish the package to the package origin
         shell: bash
         env:
+          BRANCH_NAME: ${{ inputs._BRANCH_NAME }}
           IMAGE_TYPE: ${{ inputs._IMAGE_TYPE }}
           PACKAGE_NAME: ${{ inputs._PACKAGE_NAME }}
           PACKAGE_SUFFIX: ${{ inputs._IMAGE_TYPE == 'rhel8' && 'rpm' || 'deb' }}
