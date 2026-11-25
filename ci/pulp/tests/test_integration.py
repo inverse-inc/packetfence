@@ -578,6 +578,9 @@ class ConfigurationTest(unittest.TestCase):
         self.assertIn('%{!?pf_package_origin:%global pf_package_origin https://packages.packetfence.com}', spec)
         self.assertIn('$(if $(PF_PACKAGE_ORIGIN),echo "%pf_package_origin $(PF_PACKAGE_ORIGIN)"', makefile)
         self.assertEqual(spec.count('[packetfence-branches]'), 1)
+        # Every repository of packetfence-release on the origin CI publishes to, none on inverse.ca.
+        self.assertEqual(spec.count('baseurl=%{pf_package_origin}/downloads/PacketFence/RHEL'), 3)
+        self.assertNotIn('inverse.ca/downloads', spec)
         config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
         self.assertEqual(config['build_artifacts_pkg_branches_centos_8']['variables']['PF_BRANCHES_PIPELINE'], '$CI_PIPELINE_ID')
         self.assertEqual([name for name, job in config.items() if isinstance(job, dict) and 'PF_BRANCHES_PIPELINE' in
