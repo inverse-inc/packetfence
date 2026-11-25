@@ -22,12 +22,10 @@ func TestMain(m *testing.M) {
 	pfconfigdriver.AddType[pfconfigdriver.PfConfCaptivePortal](ctx)
 	pfconfigdriver.AddType[pfconfigdriver.PfConfParking](ctx)
 	passThrough = newProxyPassthrough(ctx)
-	rgx, _ := regexp.Compile("captive.apple.com")
-	passThrough.proxypassthrough = append(passThrough.proxypassthrough, rgx)
-	rgx, _ = regexp.Compile("www.gstatic.com/generate_204")
-	passThrough.detectionmechanisms = append(passThrough.detectionmechanisms, rgx)
+	passThrough.addFqdnToList(ctx, "captive.apple.com")
+	passThrough.addDetectionMechanismsToList(ctx, "http://www.gstatic.com/generate_204")
 	passThrough.DetectionMecanismBypass = true
-	rgx, _ = regexp.Compile("CaptiveNetworkSupport")
+	rgx, _ := regexp.Compile("CaptiveNetworkSupport")
 	passThrough.URIException = rgx
 
 	var portalURL url.URL

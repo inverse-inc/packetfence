@@ -15,6 +15,7 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/inverse-inc/go-utils/log"
@@ -39,12 +40,12 @@ type Proxy struct {
 }
 
 type passthrough struct {
-	proxypassthrough        []*regexp.Regexp
-	detectionmechanisms     []*regexp.Regexp
+	proxypassthrough        *hostMatcher
+	detectionmechanisms     []detectionMechanism
 	mutex                   sync.Mutex
 	PortalURL               map[int]map[*net.IPNet]*url.URL
 	URIException            *regexp.Regexp
-	OtherDomains            []*regexp.Regexp
+	OtherDomains            *hostMatcher
 	DetectionMecanismBypass bool
 	SecureRedirect          bool
 	Wispr                   bool
@@ -171,7 +172,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !(passThrough.checkProxyPassthrough(ctx, host) || ((passThrough.checkDetectionMechanisms(ctx, fqdn.String()) || passThrough.URIException.MatchString(r.RequestURI)) && passThrough.DetectionMecanismBypass)) {
+	if !(passThrough.checkProxyPassthrough(ctx, host) || (passThrough.DetectionMecanismBypass && passThrough.checkDetectionRequest(ctx, host, r.URL.Path))) {
 		if r.Method != "GET" && r.Method != "HEAD" {
 			log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "FORBIDDEN"))
 			w.WriteHeader(http.StatusNotImplemented)
@@ -262,7 +263,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "REVERSE"))
 
-	p.reverse(ctx, w, r, host)
+	p.reversePassthrough(ctx, w, r, host)
 }
 
 // Configure add default target in the deny list
@@ -352,17 +353,17 @@ func (p *passthrough) readConfig(ctx context.Context) {
 
 	var scheme string
 
-	p.proxypassthrough = make([]*regexp.Regexp, 0)
+	p.proxypassthrough = newHostMatcher()
 	for _, v := range fencing.ProxyPassthroughs {
 		p.addFqdnToList(ctx, v)
 	}
 
-	p.detectionmechanisms = make([]*regexp.Regexp, 0)
+	p.detectionmechanisms = make([]detectionMechanism, 0)
 	for _, v := range portal.DetectionMecanismUrls {
 		p.addDetectionMechanismsToList(ctx, v)
 	}
 
-	p.OtherDomains = make([]*regexp.Regexp, 0)
+	p.OtherDomains = newHostMatcher()
 	for _, v := range portal.OtherDomainNames {
 		p.addOtherDomainsToList(ctx, v)
 	}
@@ -440,79 +441,77 @@ func newProxyPassthrough(ctx context.Context) *passthrough {
 	return &p
 }
 
-// addFqdnToList add all the passthrough fqdn in a list
+// addFqdnToList add a passthrough host name (or *.domain) to the passthroughs
 func (p *passthrough) addFqdnToList(ctx context.Context, r string) error {
-	rgx, err := regexp.Compile(r)
-	if err == nil {
-		p.mutex.Lock()
-		p.proxypassthrough = append(p.proxypassthrough, rgx)
-		p.mutex.Unlock()
-	}
-	return err
-}
-
-// addDetectionMechanismsToList add all detection mechanisms in a list
-func (p *passthrough) addDetectionMechanismsToList(ctx context.Context, r string) error {
-	rgx, err := regexp.Compile(r)
-	if err == nil {
-		p.mutex.Lock()
-		p.detectionmechanisms = append(p.detectionmechanisms, rgx)
-		p.mutex.Unlock()
-	}
-	return err
-}
-
-// addOtherDomainsToList add all detection mechanisms in a list
-func (p *passthrough) addOtherDomainsToList(ctx context.Context, r string) error {
-	rgx, err := regexp.Compile(r)
-	if err == nil {
-		p.mutex.Lock()
-		p.OtherDomains = append(p.OtherDomains, rgx)
-		p.mutex.Unlock()
-	}
-	return err
-}
-
-// checkProxyPassthrough compare the host to the list of regex
-func (p *passthrough) checkProxyPassthrough(ctx context.Context, e string) bool {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
 	if p.proxypassthrough == nil {
-		return false
+		p.proxypassthrough = newHostMatcher()
 	}
-
-	for _, rgx := range p.proxypassthrough {
-		if rgx.MatchString(e) {
-			return true
-		}
-	}
-	return false
+	p.proxypassthrough.add(r)
+	return nil
 }
 
-// checkDetectionMechanisms compare the url to the detection mechanisms regex
-func (p *passthrough) checkDetectionMechanisms(ctx context.Context, e string) bool {
-	if p.detectionmechanisms == nil {
-		return false
+// addDetectionMechanismsToList add a detection mechanism URL to the detection mechanisms
+func (p *passthrough) addDetectionMechanismsToList(ctx context.Context, r string) error {
+	d, err := newDetectionMechanism(r)
+	if err != nil {
+		log.LoggerWContext(ctx).Warn(fmt.Sprintf("Ignoring the detection mechanism URL %q: %s", r, err))
+		return err
 	}
-
-	for _, rgx := range p.detectionmechanisms {
-		if rgx.MatchString(e) {
-			return true
-		}
-	}
-	return false
+	p.mutex.Lock()
+	p.detectionmechanisms = append(p.detectionmechanisms, d)
+	p.mutex.Unlock()
+	return nil
 }
 
-// checkOtherDomains compare the url to the detection mechanisms regex
-func (p *passthrough) checkOtherDomains(ctx context.Context, e string) bool {
+// addOtherDomainsToList add a domain name (or *.domain) to the other domain names of the portal
+func (p *passthrough) addOtherDomainsToList(ctx context.Context, r string) error {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
 	if p.OtherDomains == nil {
-		return false
+		p.OtherDomains = newHostMatcher()
 	}
+	p.OtherDomains.add(r)
+	return nil
+}
 
-	for _, rgx := range p.OtherDomains {
-		if rgx.MatchString(e) {
+// checkProxyPassthrough returns whether the host is a passthrough
+func (p *passthrough) checkProxyPassthrough(ctx context.Context, host string) bool {
+	return p.proxypassthrough.match(host)
+}
+
+// checkDetectionMechanisms returns whether the request (host and path) is for a detection mechanism
+func (p *passthrough) checkDetectionMechanisms(ctx context.Context, host, path string) bool {
+	for _, d := range p.detectionmechanisms {
+		if d.match(host, path) {
 			return true
 		}
 	}
 	return false
+}
+
+// checkDetectionRequest returns whether the request is for a detection
+// mechanism, or for a host of a detection mechanism with a path matching the
+// URIException
+func (p *passthrough) checkDetectionRequest(ctx context.Context, host, path string) bool {
+	if p.checkDetectionMechanisms(ctx, host, path) {
+		return true
+	}
+	if p.URIException == nil || !p.URIException.MatchString(path) {
+		return false
+	}
+	for _, d := range p.detectionmechanisms {
+		if normHost(host) == d.host {
+			return true
+		}
+	}
+	return false
+}
+
+// checkOtherDomains returns whether the host is one of the other domain names of the portal
+func (p *passthrough) checkOtherDomains(ctx context.Context, host string) bool {
+	return p.OtherDomains.match(host)
 }
 
 // HasSecurityEvents search for parking security event
@@ -621,9 +620,9 @@ func (p *Proxy) handleDetectionMechanismRegister(ctx context.Context, w http.Res
 	MAC, err := p.IP2Mac(ctx, ipAddress)
 
 	if err == nil {
-		if p.nodeIsReg(ctx, MAC) && passThrough.checkDetectionMechanisms(ctx, fqdn) {
+		if p.nodeIsReg(ctx, MAC) && passThrough.checkDetectionRequest(ctx, r.Host, r.URL.Path) {
 			log.LoggerWContext(ctx).Info("Device register and match the portal detection mechanism for " + MAC)
-			p.reverse(ctx, w, r, r.Host)
+			p.reversePassthrough(ctx, w, r, r.Host)
 		}
 	}
 }
@@ -660,7 +659,19 @@ func (p *Proxy) getIP(ctx context.Context, r *http.Request) string {
 	return ipAddress
 }
 
+// reversePassthrough proxies a passthrough (or detection mechanism) request:
+// the passthroughs are http, so to port 80 of the host, and only to the
+// allowed destinations
+func (p *Proxy) reversePassthrough(ctx context.Context, w http.ResponseWriter, r *http.Request, host string) {
+	p.reverseWithControl(ctx, w, r, net.JoinHostPort(normHost(host), "80"), proxiedDestinationControl)
+}
+
+// reverse proxies a request to a service of PacketFence (host:port)
 func (p *Proxy) reverse(ctx context.Context, w http.ResponseWriter, r *http.Request, host string) {
+	p.reverseWithControl(ctx, w, r, host, nil)
+}
+
+func (p *Proxy) reverseWithControl(ctx context.Context, w http.ResponseWriter, r *http.Request, host string, control func(network, address string, c syscall.RawConn) error) {
 
 	rp := httputil.NewSingleHostReverseProxy(&url.URL{
 		Scheme: "http",
@@ -674,6 +685,7 @@ func (p *Proxy) reverse(ctx context.Context, w http.ResponseWriter, r *http.Requ
 			Timeout:   2 * time.Second,
 			KeepAlive: 2 * time.Second,
 			DualStack: true,
+			Control:   control,
 		}).DialContext,
 		MaxIdleConns:          100,
 		IdleConnTimeout:       90 * time.Second,
