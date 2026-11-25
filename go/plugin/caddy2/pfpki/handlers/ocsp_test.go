@@ -2,11 +2,17 @@ package handlers_test
 
 import (
 	"bytes"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
 	"crypto/x509"
+	"crypto/x509/pkix"
 	"encoding/base64"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"io"
+	"math/big"
 	"net/http"
 	"strconv"
 	"strings"
@@ -148,13 +154,10 @@ func TestOCSP_GET(t *testing.T) {
 		t.Fatalf("post-revoke GET: status=%v err=%v, want Revoked", parsed, err)
 	}
 
-	// Not an OCSP request in the path: 400, not a signed answer.
+	// Not an OCSP request in the path: a malformedRequest answer, not a
+	// signed one (RFC 6960 section 2.3), and nothing to cache.
 	for _, path := range []string{"/api/v1/pki/ocsp", "/api/v1/pki/ocsp/", "/api/v1/pki/ocsp/not-base64!", "/api/v1/pki/ocsp/" + base64.StdEncoding.EncodeToString([]byte("junk"))} {
-		resp := getOCSP(t, env, path)
-		resp.Body.Close()
-		if resp.StatusCode != http.StatusBadRequest {
-			t.Errorf("GET %s -> %d, want 400", path, resp.StatusCode)
-		}
+		assertOCSPError(t, getOCSP(t, env, path), xocsp.Malformed)
 	}
 
 	// A POST still needs its Content-Type; a GET answer carries no cache
@@ -178,6 +181,144 @@ func TestOCSP_GET(t *testing.T) {
 	if resp.StatusCode != http.StatusOK || resp.Header.Get("ETag") != "" {
 		t.Errorf("POST -> %d, ETag=%q; want 200 without cache headers", resp.StatusCode, resp.Header.Get("ETag"))
 	}
+}
+
+// TestOCSP_ErrorResponses: a request the responder can't answer gets the
+// unsigned OCSP response of its error status (RFC 6960 section 2.3, RFC
+// 5019 section 2.2.3) with HTTP 200, through POST and GET.
+func TestOCSP_ErrorResponses(t *testing.T) {
+	env := testutil.NewEnv(t)
+
+	caKT := certutils.KEY_RSA
+	caRow := mustCreateCAFromHTTP(t, env, "ocsp-err-ca", caKT, 2048, x509.SHA256WithRSA)
+	prof := mustCreateProfileFromHTTP(t, env, "ocsp-err-prof", caRow, caKT, 2048, x509.SHA256WithRSA)
+	_, leafID := mustIssueLeafFromHTTP(t, env, prof, "ocsp-err-leaf")
+	caCert := parsePEMCert(t, caRow.Cert)
+	leafCert := loadLeafFromDB(t, env, leafID)
+
+	both := func(name string, reqDER []byte, want xocsp.ResponseStatus) {
+		t.Helper()
+		t.Run(name+"/POST", func(t *testing.T) {
+			req, _ := http.NewRequest("POST", env.Server.URL+"/api/v1/pki/ocsp/", bytes.NewReader(reqDER))
+			req.Header.Set("Content-Type", "application/ocsp-request")
+			resp, err := http.DefaultClient.Do(req)
+			if err != nil {
+				t.Fatal(err)
+			}
+			assertOCSPError(t, resp, want)
+		})
+		t.Run(name+"/GET", func(t *testing.T) {
+			assertOCSPError(t, getOCSP(t, env, "/api/v1/pki/ocsp/"+base64.StdEncoding.EncodeToString(reqDER)), want)
+		})
+	}
+
+	// Not an OCSP request: an empty body and junk DER.
+	both("empty", nil, xocsp.Malformed)
+	both("junk", []byte{0x30, 0x03, 0x02, 0x01, 0x01}, xocsp.Malformed)
+
+	// A certificate of a CA this PKI doesn't hold.
+	foreignCA, foreignLeaf := foreignPair(t)
+	foreignReq, err := xocsp.CreateRequest(foreignLeaf, foreignCA, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	both("foreign-ca", foreignReq, xocsp.Unauthorized)
+
+	// A CA with the DN of ours but another key, and our key under another
+	// DN: both hashes of the CertID must match (RFC 6960 section 4.1.1).
+	sameDN, sameDNLeaf := foreignPairNamed(t, caCert.Subject)
+	sameDNReq, err := xocsp.CreateRequest(sameDNLeaf, sameDN, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	both("same-dn-other-key", sameDNReq, xocsp.Unauthorized)
+	renamed := *caCert
+	renamed.RawSubject = append([]byte(nil), foreignCA.RawSubject...)
+	otherDNReq, err := xocsp.CreateRequest(leafCert, &renamed, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	both("same-key-other-dn", otherDNReq, xocsp.Unauthorized)
+
+	// The CA key can't be loaded: internalError, and the next request for
+	// it still gets one.
+	goodReq, err := xocsp.CreateRequest(leafCert, caCert, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := env.DB.Model(&models.CA{}).Where("id = ?", caRow.ID).Updates(map[string]interface{}{
+		"key": "-----BEGIN PRIVATE KEY-----\nYnJva2Vu\n-----END PRIVATE KEY-----\n", "updated_at": time.Now().Add(time.Hour),
+	}).Error; err != nil {
+		t.Fatal(err)
+	}
+	both("broken-ca-key", goodReq, xocsp.InternalError)
+}
+
+// assertOCSPError checks that resp is an unsigned OCSP error response with
+// the status want, which caches must not keep.
+func assertOCSPError(t *testing.T, resp *http.Response, want xocsp.ResponseStatus) {
+	t.Helper()
+	defer resp.Body.Close()
+	path := resp.Request.URL.Path
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("%s %s -> HTTP %d, want 200 with an OCSP error status", resp.Request.Method, path, resp.StatusCode)
+	}
+	if ct := resp.Header.Get("Content-Type"); ct != "application/ocsp-response" {
+		t.Errorf("%s: Content-Type=%q", path, ct)
+	}
+	for _, h := range []string{"ETag", "Expires", "Last-Modified"} {
+		if v := resp.Header.Get(h); v != "" {
+			t.Errorf("%s: error response with %s=%q", path, h, v)
+		}
+	}
+	if cc := resp.Header.Get("Cache-Control"); strings.Contains(cc, "max-age") {
+		t.Errorf("%s: error response with Cache-Control=%q", path, cc)
+	}
+	der, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = xocsp.ParseResponse(der, nil)
+	var re xocsp.ResponseError
+	if !errors.As(err, &re) || re.Status != want {
+		t.Errorf("%s %s: ParseResponse error %v, want ResponseError %s", resp.Request.Method, path, err, want)
+	}
+}
+
+// foreignPair returns a CA and a leaf it signed, neither of them known to
+// the PKI.
+func foreignPair(t *testing.T) (ca, leaf *x509.Certificate) {
+	t.Helper()
+	return foreignPairNamed(t, pkix.Name{CommonName: "foreign-ca"})
+}
+
+// foreignPairNamed is foreignPair with a CA of subject name.
+func foreignPairNamed(t *testing.T, name pkix.Name) (ca, leaf *x509.Certificate) {
+	t.Helper()
+	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	caTmpl := &x509.Certificate{
+		SerialNumber: big.NewInt(1), Subject: name,
+		NotBefore: time.Now().Add(-time.Hour), NotAfter: time.Now().Add(time.Hour),
+		IsCA: true, BasicConstraintsValid: true, KeyUsage: x509.KeyUsageCertSign,
+	}
+	caDER, err := x509.CreateCertificate(rand.Reader, caTmpl, caTmpl, &key.PublicKey, key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ca, _ = x509.ParseCertificate(caDER)
+	leafTmpl := &x509.Certificate{
+		SerialNumber: big.NewInt(2), Subject: pkix.Name{CommonName: "foreign-leaf"},
+		NotBefore: time.Now().Add(-time.Hour), NotAfter: time.Now().Add(time.Hour),
+	}
+	leafDER, err := x509.CreateCertificate(rand.Reader, leafTmpl, ca, &key.PublicKey, key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	leaf, _ = x509.ParseCertificate(leafDER)
+	return ca, leaf
 }
 
 func getOCSP(t *testing.T, env *testutil.Env, path string) *http.Response {

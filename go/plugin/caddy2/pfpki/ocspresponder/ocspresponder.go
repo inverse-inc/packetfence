@@ -1,6 +1,7 @@
 package ocspresponder
 
 import (
+	"bytes"
 	"crypto"
 	"crypto/x509"
 	"crypto/x509/pkix"
@@ -189,17 +190,79 @@ func checkForNonceExtension(exts []pkix.Extension) *pkix.Extension {
 	return nil
 }
 
+// Error is a request the responder can't answer with a signed response;
+// Status is the OCSP response status to send back instead (RFC 6960
+// section 2.3).
+type Error struct {
+	Status ocsp.ResponseStatus
+	Err    error
+}
+
+func (e *Error) Error() string {
+	if e.Err == nil {
+		return e.Status.String()
+	}
+	return e.Status.String() + ": " + e.Err.Error()
+}
+
+func (e *Error) Unwrap() error { return e.Err }
+
+func responderError(status ocsp.ResponseStatus, err error) *Error {
+	return &Error{Status: status, Err: err}
+}
+
+// ErrorResponse returns the unsigned DER OCSP response that carries the
+// error status of err: internalError when err is not an *Error.
+func ErrorResponse(err error) (ocsp.ResponseStatus, []byte) {
+	status := ocsp.InternalError
+	var e *Error
+	if errors.As(err, &e) {
+		status = e.Status
+	}
+	switch status {
+	case ocsp.Malformed:
+		return status, ocsp.MalformedRequestErrorResponse
+	case ocsp.TryLater:
+		return status, ocsp.TryLaterErrorResponse
+	case ocsp.Unauthorized:
+		return status, ocsp.UnauthorizedErrorResponse
+	default:
+		return ocsp.InternalError, ocsp.InternalErrorErrorResponse
+	}
+}
+
+// errUnknownIssuer is a request for a CA this PKI doesn't hold.
+var errUnknownIssuer = errors.New("ocsp: the issuer of the request is not a CA of this PKI")
+
+// verifyIssuer returns the CA of the request: the one whose key has the
+// issuer key hash of the request. Its issuer name hash is checked against
+// the CA certificate once loaded (see issuerNameMatches): the name hash
+// stored in pki_cas is the hash of the CA's issuer, not of its subject,
+// which only agree for a root CA.
 func (ocspr *OCSPResponder) verifyIssuer(req *ocsp.Request) (models.CA, error) {
 	var ca models.CA
-	if CaDB := ocspr.Handler.DB.Where(&models.CA{IssuerNameHash: hex.EncodeToString(req.IssuerNameHash)}).Find(&ca); CaDB.Error != nil {
-		return ca, errors.New("Unable to find Issuer name")
+	if len(req.IssuerKeyHash) == 0 || len(req.IssuerNameHash) == 0 {
+		return ca, errUnknownIssuer
 	}
-
-	if CaDB := ocspr.Handler.DB.Where(&models.CA{IssuerKeyHash: hex.EncodeToString(req.IssuerKeyHash)}).Find(&ca); CaDB.Error != nil {
-		return ca, errors.New("Unable to find Key name")
+	res := ocspr.Handler.DB.Where("issuer_key_hash = ?", hex.EncodeToString(req.IssuerKeyHash)).Limit(1).Find(&ca)
+	if res.Error != nil {
+		return ca, res.Error
 	}
-
+	if res.RowsAffected == 0 {
+		return ca, errUnknownIssuer
+	}
 	return ca, nil
+}
+
+// issuerNameMatches tells whether the issuer name hash of req is the hash
+// of the subject of cacert (RFC 6960 section 4.1.1).
+func issuerNameMatches(req *ocsp.Request, cacert *x509.Certificate) bool {
+	if !req.HashAlgorithm.Available() {
+		return false
+	}
+	h := req.HashAlgorithm.New()
+	h.Write(cacert.RawSubject)
+	return bytes.Equal(h.Sum(nil), req.IssuerNameHash)
 }
 
 // Verify answers the DER OCSP request rawreq with a signed DER response.
@@ -211,7 +274,11 @@ func (ocspr *OCSPResponder) Verify(rawreq []byte) ([]byte, error) {
 	return a.DER, nil
 }
 
-// Respond answers the DER OCSP request rawreq.
+// Respond answers the DER OCSP request rawreq. When it can't, the error is
+// an *Error with the OCSP status to answer (see ErrorResponse):
+// malformedRequest for a request that doesn't parse, unauthorized for a
+// CA this PKI doesn't hold, tryLater when the HSM of the CA fails and
+// internalError for the rest.
 func (ocspr *OCSPResponder) Respond(rawreq []byte) (*Answer, error) {
 	var status int
 	var revokedAt time.Time
@@ -220,12 +287,22 @@ func (ocspr *OCSPResponder) Respond(rawreq []byte) (*Answer, error) {
 
 	req, exts, err := ocsp.ParseRequest(rawreq)
 	if err != nil {
-		return nil, err
+		return nil, responderError(ocsp.Malformed, err)
 	}
 
 	ca, err := ocspr.verifyIssuer(req)
+	if errors.Is(err, errUnknownIssuer) {
+		return nil, responderError(ocsp.Unauthorized, err)
+	}
 	if err != nil {
-		return nil, err
+		return nil, responderError(ocsp.InternalError, err)
+	}
+	// A failure of the HSM holding the CA key is most likely transient
+	// (token session, network): tryLater. A software key that doesn't
+	// load won't come back by itself.
+	failStatus := ocsp.InternalError
+	if ca.InHSM() {
+		failStatus = ocsp.TryLater
 	}
 
 	ent, err := ocspr.getCertificateStatus(req.SerialNumber, ca)
@@ -246,7 +323,10 @@ func (ocspr *OCSPResponder) Respond(rawreq []byte) (*Answer, error) {
 	// and 2 key parses per OCSP request on the previous code path.
 	cacert, key, err := loadCAMaterial(ca, ocspr.Handler.DB)
 	if err != nil {
-		return nil, err
+		return nil, responderError(failStatus, err)
+	}
+	if !issuerNameMatches(req, cacert) {
+		return nil, responderError(ocsp.Unauthorized, errUnknownIssuer)
 	}
 	ocspr.CaCert = cacert
 
@@ -287,7 +367,7 @@ func (ocspr *OCSPResponder) Respond(rawreq []byte) (*Answer, error) {
 		}
 	}
 	if err != nil {
-		return nil, err
+		return nil, responderError(failStatus, err)
 	}
 
 	return &Answer{DER: resp, ThisUpdate: thisUpdate, NextUpdate: nextUpdate}, nil
