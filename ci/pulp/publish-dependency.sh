@@ -1,7 +1,7 @@
 #!/bin/bash
 # A dependency package built by GitHub Actions (packetfence-perl, fingerbank perl-client) -> the native
 # repository of this branch's release (conf/pf-release) on the package origin, next to the PacketFence
-# packages that depend on it. A version the repository already holds is left as it is (a rebuild never
+# packages that depend on it. A version the repository already serves is left as it is (a rebuild never
 # replaces a released package). Usage: publish-dependency.sh debian11|debian12|rhel8 <package files...>
 set -euo pipefail
 ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
@@ -53,7 +53,7 @@ for package in "$@"; do
     status=0
     version=$(python3 ci/pulp/published.py "$kind" "$native" "$package") || status=$?
     case $status in
-        0) echo "::warning::$version is already in $native: left as it is (bump the version to publish a change)" ;;
+        0) echo "::warning::$native already serves $version: left as it is (bump the version to publish a change)" ;;
         1) packages+=("$package") ;;
         *) exit 1 ;;
     esac
