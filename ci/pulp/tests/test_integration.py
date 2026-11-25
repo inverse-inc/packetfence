@@ -60,8 +60,10 @@ class ConfigurationTest(unittest.TestCase):
             self.assertEqual(config[name]['variables']['BUILDER_TAG'], '${CI_COMMIT_REF_SLUG}', name)
         job = config['deploy_containers']
         self.assertEqual(job['stage'], 'deploy')
-        # No needs: the deploy stage waits for the tests when a pipeline runs them.
-        self.assertNotIn('needs', job)
+        # Needs only the package deploys, which have none: the deploy stage still waits for the tests.
+        self.assertEqual({n['job'] for n in job['needs']}, {'deploy_maintenance_pulp', 'deploy_branches_pulp'})
+        self.assertTrue(all(n['optional'] and n['artifacts'] is False for n in job['needs']))
+        self.assertFalse([n for n in job['needs'] if 'needs' in config[n['job']]])
         never = [r['if'] for r in job['rules'] if r.get('when') == 'never']
         self.assertEqual(never, ['$BUILD_IMG_CONTAINER == "no" || $CI_COMMIT_MESSAGE =~ /build_img_container=no/',
                                  '$DEPLOY_PKG == "no" || $DEPLOY_PKG == "false"'])
