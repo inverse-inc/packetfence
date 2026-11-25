@@ -98,14 +98,21 @@ case "$1" in
         echo "Disabling emergency error logging to the console"
         /bin/sed -i 's/^\*.emerg/#*.emerg/g' /etc/rsyslog.conf
 
-        # Create server local RADIUS secret
+        # Create server local RADIUS secret. The files are created after the
+        # chown of /usr/local/pf above and read by pf (packetfence-config,
+        # pfcmd generatemariadbconfig) before pfcmd fixpermissions runs, so
+        # they get their owner and mode here, as pf.conf does below.
         if [ ! -f /usr/local/pf/conf/local_secret ]; then
             (umask 0077; head -c 512 /dev/urandom | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret)
+            chown pf:pf /usr/local/pf/conf/local_secret
+            chmod 0640 /usr/local/pf/conf/local_secret
         fi
 
         # Create server API system user password
         if [ ! -f /usr/local/pf/conf/unified_api_system_pass ]; then
             (umask 0077; head -c 512 /dev/urandom | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/unified_api_system_pass)
+            chown pf:pf /usr/local/pf/conf/unified_api_system_pass
+            chmod 0640 /usr/local/pf/conf/unified_api_system_pass
         fi
 
         if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
