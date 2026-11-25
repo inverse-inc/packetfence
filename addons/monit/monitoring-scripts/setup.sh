@@ -8,7 +8,7 @@ fi
 
 export packetfence_monit_dir="$monit_dir/packetfence"
 
-export script_registry_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/monit-script-registry.txt"
+export script_registry_url="http://packages.packetfence.com/downloads/PacketFence/monitoring-scripts/v1/monit-script-registry.txt"
 export script_registry_file="$packetfence_monit_dir/checks-script-registry"
 export script_dir="/usr/local/pf/var/monitoring-scripts"
 
@@ -21,18 +21,18 @@ if ! [ -f "$uuid_file" ]; then
 fi
 
 export uuid=$(cat $uuid_file)
-export uuid_vars_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/vars/$uuid.txt"
+export uuid_vars_url="http://packages.packetfence.com/downloads/PacketFence/monitoring-scripts/v1/vars/$uuid.txt"
 export uuid_vars_file="$packetfence_monit_dir/uuid-vars"
 
-export global_vars_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/vars.txt"
+export global_vars_url="http://packages.packetfence.com/downloads/PacketFence/monitoring-scripts/v1/vars.txt"
 export global_vars_file="$packetfence_monit_dir/global-vars"
 
 export local_vars_file="$packetfence_monit_dir/local-vars"
 
-export uuid_ignores_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/ignores/$uuid.txt"
+export uuid_ignores_url="http://packages.packetfence.com/downloads/PacketFence/monitoring-scripts/v1/ignores/$uuid.txt"
 export uuid_ignores_file="$packetfence_monit_dir/uuid-ignores"
 
-export global_ignores_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/ignores.txt"
+export global_ignores_url="http://packages.packetfence.com/downloads/PacketFence/monitoring-scripts/v1/ignores.txt"
 export global_ignores_file="$packetfence_monit_dir/global-ignores"
 
 export local_ignores_file="$packetfence_monit_dir/local-ignores"

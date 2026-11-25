@@ -248,10 +248,9 @@ sed -i 's/#PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config
 # (they will be added properly when network is available)
 sed -i 's/.*inverse\.ca.*//g' /etc/apt/sources.list
 
-# Configure PacketFence repository for future updates (will be used when network is available)
-# Using debian-branches for now - change to debian/${PF_RELEASE_VERSION} when stable packages are published
+# PacketFence repository for future updates (used when network is available): the release's, on the package origin.
 cat > /etc/apt/sources.list.d/packetfence.list << EOF
-deb [signed-by=/etc/apt/keyrings/packetfence.gpg] https://inverse.ca/downloads/PacketFence/debian-branches/${PF_RELEASE_VERSION} bookworm bookworm
+deb [signed-by=/etc/apt/keyrings/packetfence.gpg] https://packages.packetfence.com/downloads/PacketFence/debian/${PF_RELEASE_VERSION} bookworm bookworm
 EOF
 
 # Step 7: Create first-boot service
