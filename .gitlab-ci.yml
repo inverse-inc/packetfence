@@ -222,6 +222,9 @@ variables:
   rules:
     - if: '$DEPLOY_PKG == "no" || $DEPLOY_PKG == "false"'
       when: never
+    # BUILD_ARTIFACTS_PKG=no publishes nothing, even when requested tests built the packages.
+    - if: '$BUILD_ARTIFACTS_PKG == "no"'
+      when: never
 
 # === SHARED CONTAINER-BUILD RULES ===
 # Container-build jobs (kaniko, pfdebian, pfdebian_related, radiusd,
