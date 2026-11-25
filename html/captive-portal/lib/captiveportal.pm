@@ -211,7 +211,16 @@ sub renew_browser_session_id {
     my $backend = $c->_user_session_backend;
     my $old_id = $c->browser_session_id;
     my $user_session = $c->user_session;
-    my $new_id = $c->generate_session_id;
+    my $new_id;
+    my $sessionid = $c->sessionid;
+    if (defined($sessionid) && $sessionid eq $old_id) {
+        # The Catalyst session is keyed on the browser session ID (the MAC of the
+        # client is unknown): it moves to the new ID with the user session
+        $new_id = $c->change_session_id;
+    }
+    else {
+        $new_id = $c->generate_session_id;
+    }
 
     $c->stash->{browser_session_id} = $new_id;
     delete $c->stash->{browser_session_id_from_relay_state};

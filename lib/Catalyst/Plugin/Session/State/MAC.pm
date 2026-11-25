@@ -60,8 +60,10 @@ sub update_session_cookie {
     my ( $c, $updated ) = @_;
 
     unless ( $c->cookie_is_rejecting( $updated ) ) {
-        my $browser_session_id = $c->browser_session_id();
+        # a browser session ID restored from a RelayState is not written
         return if $c->stash->{browser_session_id_from_relay_state};
+        return if !$c->stash->{browser_session_id} && defined($c->relay_state_session_id());
+        my $browser_session_id = $c->browser_session_id();
         my $cookie_name = $c->_session_plugin_config->{cookie_name};
         # We create the cookie using the browser_session_id which will contain a previously created session ID
         $c->response->cookies->{$cookie_name} = $c->make_session_cookie($browser_session_id);
