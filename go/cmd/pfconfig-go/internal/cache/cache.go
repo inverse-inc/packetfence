@@ -18,15 +18,14 @@ const (
 )
 
 type cacheItem[V any] struct {
-	value     V
-	expiresAt int64
+	value      V
+	insertedAt int64
 }
 
 type writeRequest[K comparable, V any] struct {
 	value V
 	key   K
 	op    opType
-	ttl   int64
 }
 
 type shard[K comparable, V any] struct {
@@ -72,10 +71,10 @@ func NewShardedCache[K comparable, V any](numShards, bufferSize int, hashFunc Ha
 	} else { // use only power of 2
 		numShards = int(nextPowerOfTwo(uint32(numShards)))
 	}
-	if bufferSize < 128 {
-		bufferSize = 128
-	} else if bufferSize > 1024 {
-		bufferSize = 1024
+	if bufferSize < 32 {
+		bufferSize = 32
+	} else if bufferSize > 4096 {
+		bufferSize = 4096
 	} else {
 		bufferSize = int(nextPowerOfTwo(uint32(bufferSize)))
 	}
@@ -88,7 +87,7 @@ func NewShardedCache[K comparable, V any](numShards, bufferSize int, hashFunc Ha
 	cache.wg.Add(numShards)
 	for i := 0; i < numShards; i++ {
 		s := &shard[K, V]{
-			items:   make(map[K]cacheItem[V], 64),
+			items:   make(map[K]cacheItem[V], 32),
 			writeCh: make(chan writeRequest[K, V], bufferSize),
 		}
 		cache.shards[i] = s
@@ -102,8 +101,8 @@ func (c *ShardedCache[K, V]) getShardIndex(key K) uint64 {
 	return c.hashFunc(key) & uint64(c.numShards-1)
 }
 
-func (c *ShardedCache[K, V]) SetAsync(ctx context.Context, key K, value V, ttlSeconds int64) error {
-	req := writeRequest[K, V]{op: opSet, key: key, value: value, ttl: ttlSeconds}
+func (c *ShardedCache[K, V]) SetAsync(ctx context.Context, key K, value V) error {
+	req := writeRequest[K, V]{op: opSet, key: key, value: value}
 	select {
 	case c.shards[c.getShardIndex(key)].writeCh <- req:
 		return nil
@@ -112,12 +111,11 @@ func (c *ShardedCache[K, V]) SetAsync(ctx context.Context, key K, value V, ttlSe
 	}
 }
 
-func (c *ShardedCache[K, V]) Set(ctx context.Context, key K, value V, ttlSeconds int64) error {
+func (c *ShardedCache[K, V]) Set(ctx context.Context, key K, value V) error {
 	s := c.shards[c.getShardIndex(key)]
 	s.Lock()
 	defer s.Unlock()
-	exp := time.Now().Unix() + ttlSeconds
-	s.items[key] = cacheItem[V]{value: value, expiresAt: exp}
+	s.items[key] = cacheItem[V]{value: value, insertedAt: time.Now().Unix()}
 	return nil
 }
 
@@ -145,7 +143,7 @@ func (c *ShardedCache[K, V]) Get(key K) (V, bool) {
 	defer s.RUnlock()
 	var zero V
 	item, exists := s.items[key]
-	if !exists || time.Now().Unix() > item.expiresAt {
+	if !exists {
 		atomic.AddUint64(&c.Misses, 1)
 		return zero, false
 	}
@@ -159,34 +157,11 @@ func (c *ShardedCache[K, V]) worker(s *shard[K, V]) {
 		s.Lock()
 		switch req.op {
 		case opSet:
-			exp := time.Now().Unix() + req.ttl
-			s.items[req.key] = cacheItem[V]{value: req.value, expiresAt: exp}
+			s.items[req.key] = cacheItem[V]{value: req.value, insertedAt: time.Now().Unix()}
 		case opDelete:
 			delete(s.items, req.key)
 		}
 		s.Unlock()
-	}
-}
-
-func (c *ShardedCache[K, V]) janitor() {
-	defer c.wg.Done()
-	var currentShard uint32 = 0
-	for {
-		select {
-		case <-time.After(30 * time.Second):
-			s := c.shards[currentShard]
-			now := time.Now().Unix()
-			s.Lock()
-			for k, v := range s.items {
-				if now > v.expiresAt {
-					delete(s.items, k)
-				}
-			}
-			s.Unlock()
-			currentShard = (currentShard + 1) % c.numShards
-		case <-c.stopCh:
-			return
-		}
 	}
 }
 

@@ -99,16 +99,7 @@ func keys(request Request, data any) (any, error) {
 }
 
 // element returns the scalar requested
-// proxy to hashElement since it's the same thing, but we return an error if a key is in the request
 func element(request Request, data any) (any, error) {
-	query, err := ExtractQuery(request.Key)
-	if err != nil {
-		return nil, err
-	}
-	if len(query.Key) != 0 {
-		return nil, errors.New("scalar request contains a key")
-	}
-	request.Key = query.Namespace + "(" + query.Overlay + ")"
 	conf := data.(*ns.ScalarData)
 	return map[string]any{"element": conf.Value}, nil
 }

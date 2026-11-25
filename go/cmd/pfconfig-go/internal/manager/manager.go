@@ -42,6 +42,7 @@ type Query struct {
 	Namespace string // NAME::SPACE, never empty
 	Overlay   string //(OVERLAY), can be empty
 	Key       string // ;KEY, can be empty
+	CacheKey  string // Namespace + (Overlay)
 }
 
 func ExtractQuery(s string) (Query, error) {
@@ -53,6 +54,7 @@ func ExtractQuery(s string) (Query, error) {
 		Namespace: data[1],
 		Overlay:   data[2],
 		Key:       data[3],
+		CacheKey:  data[1] + "(" + data[2] + ")",
 	}, nil
 }
 
@@ -123,7 +125,7 @@ func (m *Manager) LoadConfigs(ctx context.Context) error {
 				return err
 			}
 		}
-		if err := m.cache.Set(ctx, key, data, 1000); err != nil {
+		if err := m.cache.Set(ctx, key, data); err != nil {
 			return err
 		}
 	}
@@ -135,7 +137,7 @@ func (m *Manager) Process(ctx context.Context, request Request) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	namespace, ok := m.getCache(query.Namespace)
+	namespace, ok := m.getCache(query.CacheKey)
 	if !ok {
 		// not in cache or expired, build it
 		m.logger.InfoContext(ctx, "unsupported", "ns", query.Namespace)
