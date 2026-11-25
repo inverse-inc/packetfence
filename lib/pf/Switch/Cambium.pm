@@ -169,7 +169,8 @@ sub getAcceptForm {
     my $client_ip = $portalSession->param("ecwp-original-param-ga_cip");
     my $qv = $portalSession->param("ecwp-original-param-ga_Qv");
     my $orig_url = $portalSession->param("ecwp-original-param-ga_orig_url");
-    my $action = html_attr(http_url("http://" . url_host($srvr) . ":880/cgi-bin/hotspot_login.cgi"));
+    my $host = url_host($srvr);
+    my $action = length($host) ? html_attr(http_url("http://$host:880/cgi-bin/hotspot_login.cgi")) : '';
     ($mac, $ssid, $ap_mac, $nas_id, $srvr, $client_mac, $client_ip, $qv, $orig_url) =
         map { html_attr($_) } ($mac, $ssid, $ap_mac, $nas_id, $srvr, $client_mac, $client_ip, $qv, $orig_url);
 

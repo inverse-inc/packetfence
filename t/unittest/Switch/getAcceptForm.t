@@ -21,7 +21,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 39;
+use Test::More tests => 44;
 use Test::NoWarnings;
 
 use pf::web::release_form qw(html_attr js_string http_url url_host url_port url_param);
@@ -72,6 +72,9 @@ is(http_url('https://fw.example.org:1000/fgtauth?abc'), 'https://fw.example.org:
 is(http_url('http://192.0.2.1/login'), 'http://192.0.2.1/login', 'http_url keeps an http URL');
 is(http_url('javascript:void(0)'), '', 'http_url refuses javascript:');
 is(http_url('//example.org/x'), '', 'http_url refuses a URL without scheme');
+is(http_url('http://:/logon'), '', 'http_url refuses a URL without host');
+is(http_url('http://[2001:db8::1]:8080/x'), 'http://[2001:db8::1]:8080/x', 'http_url keeps an IPv6 URL');
+is(url_host('[2001:db8::1]'), '[2001:db8::1]', 'url_host keeps an IPv6 address in brackets');
 is(url_host('192.0.2.1'), '192.0.2.1', 'url_host keeps an IP address');
 is(url_host('ap.example.org'), 'ap.example.org', 'url_host keeps a host name');
 is(url_host('evil.example.org/x?'), '', 'url_host refuses a path');
@@ -85,6 +88,14 @@ is(url_param('a b&c=d'), 'a%20b%26c%3Dd', 'url_param');
     my $form = pf::Switch::Fortinet::FortiGate->new({ id => '192.0.2.1' })->getAcceptForm($mac, '', $session);
     like($form, qr{action="https://fw\.example\.org:1000/fgtauth"}, 'FortiGate: the form action');
     like($form, qr{name="magic" value="0123abcd"}, 'FortiGate: the magic');
+}
+
+{
+    my $form = pf::Switch::Xirrus->new({ id => '192.0.2.1' })->getAcceptForm($mac, 'http://example.org/', test_session->new);
+    like($form, qr{window\.location = ""}, 'Xirrus: no logon URL without a valid host');
+    my $session = test_session->new('ecwp-original-param-uamip' => '10.0.0.1', 'ecwp-original-param-uamport' => '3990', 'ecwp-original-param-challenge' => '00112233445566778899aabbccddeeff');
+    $form = pf::Switch::Xirrus->new({ id => '192.0.2.1' })->getAcceptForm($mac, 'http://example.org/?a=1&b=2', $session);
+    like($form, qr{window\.location = "http://10\.0\.0\.1:3990/logon\?username=00-11-22-33-44-55&password=[0-9a-f]{32}&userurl=http%3A%2F%2Fexample\.org%2F%3Fa%3D1%26b%3D2"}, 'Xirrus: the logon URL with its parameters encoded');
 }
 
 {

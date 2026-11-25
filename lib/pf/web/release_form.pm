@@ -64,7 +64,7 @@ sub http_url {
     return '' if !defined($url) || !length($url);
     my $uri = URI->new($url);
     my $scheme = $uri->scheme // '';
-    if (($scheme eq 'http' || $scheme eq 'https') && length($uri->host // '')) {
+    if (($scheme eq 'http' || $scheme eq 'https') && _is_host($uri->host)) {
         return $uri->as_string;
     }
 
@@ -81,10 +81,23 @@ The host name or IP address if it is one, else ''
 sub url_host {
     my ($host) = @_;
     return '' if !defined($host);
-    return $host if $host =~ /\A[A-Za-z0-9](?:[A-Za-z0-9.\-]*[A-Za-z0-9])?\z/;
-    return $host if $host =~ /\A\[[0-9A-Fa-f:.]+\]\z/;
+    return $host if _is_host($host);
+    return $host if $host =~ /\A\[(.+)\]\z/ && _is_ipv6($1);
     get_logger->warn("Ignoring the host '$host' of the web release form");
     return '';
+}
+
+# a host name, an IPv4 address or an IPv6 address (without brackets)
+sub _is_host {
+    my ($host) = @_;
+    return 0 if !defined($host);
+    return 1 if $host =~ /\A[A-Za-z0-9](?:[A-Za-z0-9.\-]*[A-Za-z0-9])?\z/;
+    return _is_ipv6($host);
+}
+
+sub _is_ipv6 {
+    my ($host) = @_;
+    return ($host =~ /\A[0-9A-Fa-f:.]+\z/ && $host =~ /:.*:/ && $host =~ /[0-9A-Fa-f]/) ? 1 : 0;
 }
 
 =head2 url_port

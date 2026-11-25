@@ -415,7 +415,6 @@ sub getAcceptForm {
 
     my $uamip = $portalSession->param("ecwp-original-param-uamip");
     my $uamport = $portalSession->param("ecwp-original-param-uamport");
-    my $userurl = $portalSession->param("ecwp-original-param-userurl");
     my $challenge = $portalSession->param("ecwp-original-param-challenge");
     my $newchal  = pack "H32", $challenge;
 
@@ -424,12 +423,12 @@ sub getAcceptForm {
     $mac =~ s/:/-/g;
 
     my $success_url = js_string(http_url($destination_url));
-    my $logon_url = js_string(
+    my $logon_url = js_string(http_url(
         "http://" . url_host($uamip) . ":" . url_port($uamport) . "/logon"
         . "?username=" . url_param($mac)
         . "&password=" . url_param($passvar)
         . "&userurl=" . url_param($destination_url)
-    );
+    ));
 
     my $html_form = qq[
         <script>
