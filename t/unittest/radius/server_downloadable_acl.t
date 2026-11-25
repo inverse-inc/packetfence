@@ -23,7 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 16;
+use Test::More tests => 17;
 use pf::radius;
 use pf::radius::constants;
 use pf::config qw(%Config);
@@ -33,7 +33,7 @@ use pf::access_filter::radius;
 use pf::dal::node;
 use Test::NoWarnings;
 
-my (@advanced, @filter_tests, $rule_to_return);
+my (@advanced, @filter_tests, $rule_to_return, $answer_to_return);
 {
     no warnings qw(redefine once);
     *pf::SwitchFactory::instantiate = sub {
@@ -53,7 +53,7 @@ my (@advanced, @filter_tests, $rule_to_return);
         return $rule_to_return;
     };
     *pf::access_filter::radius::handleAnswerInRule = sub {
-        return ({ 'control:Proxy-To-Realm' => 'ise.lab' }, $RADIUS::RLM_MODULE_UPDATED);
+        return ({ %$answer_to_return }, $RADIUS::RLM_MODULE_UPDATED);
     };
 }
 
@@ -75,6 +75,7 @@ my $radius = pf::radius->new;
 
 # authorize: matching rule → proxy to realm
 $rule_to_return = { _rule => 'proxy_dacl' };
+$answer_to_return = { 'control:Proxy-To-Realm' => 'ise.lab' };
 @advanced = (); @filter_tests = ();
 my $reply = $radius->radius_filter('packetfence.authorize', acl_download('#ACSACL#-IP-PERMIT_ALL-5f7e1a0b'));
 is_deeply(\@filter_tests, ['#ACSACL#-IP-PERMIT_ALL-5f7e1a0b'], 'authorize: the filters are tested for a downloadable ACL of a RADIUS server');
@@ -86,6 +87,14 @@ $rule_to_return = undef;
 @advanced = (); @filter_tests = ();
 $reply = $radius->radius_filter('packetfence.authorize', acl_download('#ACSACL#-IP-PERMIT_ALL-5f7e1a0b'));
 is($reply->[0], $RADIUS::RLM_MODULE_REJECT, 'authorize: no matching rule rejects instead of crashing in advancedAccess');
+
+# authorize: a matching rule that doesn't proxy → reject (post-auth would send an empty Accept)
+$rule_to_return = { _rule => 'broad_rule' };
+$answer_to_return = { 'Reply-Message' => 'Request processed by PacketFence' };
+@advanced = (); @filter_tests = ();
+$reply = $radius->radius_filter('packetfence.authorize', acl_download('#ACSACL#-IP-PERMIT_ALL-5f7e1a0b'));
+is($reply->[0], $RADIUS::RLM_MODULE_REJECT, 'authorize: a matching rule that does not set control:Proxy-To-Realm is rejected');
+$answer_to_return = { 'control:Proxy-To-Realm' => 'ise.lab' };
 
 # authorize: PF-named ACL goes to the switch module, filters not tested
 $rule_to_return = { _rule => 'proxy_dacl' };

@@ -1575,6 +1575,13 @@ sub radius_filter {
                 my $rule = $filter->test($scope, $args);
                 if (defined $rule) {
                     my ($reply, $status) = $filter->handleAnswerInRule($rule,$args,\%RAD_REPLY_REF);
+                    # switch_access sends the answer of the server as is for these ACLs: a rule
+                    # that neither proxies nor rejects the request would end in an empty Access-Accept
+                    if ($status != $RADIUS::RLM_MODULE_REJECT && !defined $reply->{'control:Proxy-To-Realm'}) {
+                        $logger->warn("packetfence.authorize rule $rule->{_rule} matched downloadable ACL $user_name "
+                            . "without setting control:Proxy-To-Realm: rejected");
+                        return [ $RADIUS::RLM_MODULE_REJECT ];
+                    }
                     return [$status, %$reply];
                 }
                 $logger->warn("No packetfence.authorize rule matched downloadable ACL $user_name. "

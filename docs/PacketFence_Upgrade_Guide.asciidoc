@@ -1553,7 +1553,9 @@ Once `filter_in_packetfence_authorize` is enabled, all existing
 connection-type, switch-based) will now match these requests. Before enabling
 the filter, review your `packetfence.authorize` rules in
 [filename]`conf/radius_filters.conf` and add `user_name !~ "^#ACSACL#-IP"` as a
-condition where needed.
+condition where needed: a rule that matches one of these requests without
+setting `control:Proxy-To-Realm` to the realm of the server that assigned the
+ACL rejects the request.
 
 
 == Troubleshooting Upgrades
