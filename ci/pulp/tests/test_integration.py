@@ -788,6 +788,16 @@ class ConfigurationTest(unittest.TestCase):
         for path, version in pins.items():
             self.assertGreaterEqual(tuple(int(x) for x in version.split('.')), (1, 3, 0), path)
 
+    def test_devel_rebuilds_the_toolchain_when_its_sources_change(self):
+        # publish-ppa:latest and the builders carry the Pulp tools: a devel push that changes them rebuilds them first.
+        config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
+        rules = [r for r in config['build_toolchain_images']['rules'] if 'changes' in r]
+        self.assertEqual(len(rules), 1)
+        for source in ('containers/publish-ppa/**/*', 'containers/pfbuild-bookworm/**/*', 'containers/pfbuild-centos-8/**/*',
+                       'containers/signing-packages/**/*', 'ci/scripts/generate-pages.sh'):
+            self.assertIn(source, rules[0]['changes'])
+        self.assertEqual(rules[0]['variables']['IMAGE_TAG'], 'latest')
+
     def test_a_pulp_error_is_not_a_missing_native_repository(self):
         # Unreachable Pulp: exit 2, which every caller turns into a failure (never the devel skip or the file tree).
         env = {'PATH': os.environ['PATH'], 'PULP_URL': 'http://127.0.0.1:9', 'PULP_USERNAME': 'u', 'PULP_PASSWORD': 'p'}

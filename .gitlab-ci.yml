@@ -915,6 +915,18 @@ build_toolchain_images:
         IMAGE_TAG: latest
         IMAGE_TAGS: "latest,devel,maintenance-99-9"
     - !reference [.gated_by_build_img_docker, rules]
+    # Their own sources changed (a merge, for example): the later jobs of this pipeline already use the new tools.
+    - if: '$CI_COMMIT_REF_NAME == "devel" && $CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - containers/pfbuild-bookworm/**/*
+        - containers/pfbuild-centos-8/**/*
+        - containers/signing-packages/**/*
+        - containers/publish-ppa/**/*
+        - containers/pfconfig-material-builder/**/*
+        - ci/scripts/generate-pages.sh
+      variables:
+        IMAGE_TAG: latest
+        IMAGE_TAGS: "latest,devel,maintenance-99-9"
     - !reference [.build_img_docker_rules, rules]
 
 # Builder image consumed by build_pf_img_zen via ZEN_BUILDER_IMAGE.
