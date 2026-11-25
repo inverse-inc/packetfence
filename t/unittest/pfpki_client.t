@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 15;
+use Test::More tests => 19;
 use Test::NoWarnings;
 use File::Temp qw(tempdir);
 use File::Slurp qw(read_file);
@@ -79,6 +79,27 @@ sub make_p12 {
     my ($res, $msg) = pf::pfpki_client::cert_bundle(1);
     is($res, $FALSE, "Certificate signed from a CSR cannot be exported");
     like($msg, qr/private key is not stored/, "CSR signed certificate error message");
+}
+
+{
+    no warnings 'redefine';
+    local *pf::pfpki_client::api_call = sub { return ($TRUE, { cn => "scep-device", scep => \1 }) };
+    my ($res, $msg) = pf::pfpki_client::cert_bundle(2);
+    is($res, $FALSE, "Certificate enrolled through SCEP cannot be exported");
+    like($msg, qr/enrolled through SCEP/, "SCEP certificate error message");
+}
+
+{
+    # a certificate with neither flag but no stored key: pfpki refuses the download
+    no warnings 'redefine';
+    local *pf::pfpki_client::api_call = sub {
+        my ($method, $path) = @_;
+        return ($TRUE, { cn => "keyless" }) if $path eq "cert/30";
+        return ($FALSE, "Unable to contact the PacketFence PKI: 404 tls: failed to find any PEM data in key input");
+    };
+    my ($res, $msg) = pf::pfpki_client::cert_bundle(30);
+    is($res, $FALSE, "Certificate without a stored key cannot be exported");
+    like($msg, qr/private key of the certificate keyless is not stored/, "Missing key error message");
 }
 
 is(pf::pfpki_client::profile_allows_server_auth({ extended_key_usage => "1|2" }), $TRUE, "serverAuth allowed");

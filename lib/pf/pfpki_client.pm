@@ -137,9 +137,18 @@ sub cert_bundle {
     if ($cert->{csr}) {
         return ($FALSE, "The certificate $cert->{cn} was signed from a CSR, its private key is not stored in the PacketFence PKI");
     }
+    if ($cert->{scep}) {
+        return ($FALSE, "The certificate $cert->{cn} was enrolled through SCEP, its private key is on the device, not in the PacketFence PKI");
+    }
 
     my $password = unpack("H*", join('', map { chr(int(rand(256))) } 1..16));
     ($status, my $p12) = api_call("GET", "cert/$cert_id/download/$password");
+    # The csr and scep flags are not always set for a certificate whose key was
+    # never stored (seen in the lab): pfpki then answers 404 "failed to find any
+    # PEM data in key input" to the download
+    if (!$status && $p12 =~ /failed to find any PEM data in key input/) {
+        return ($FALSE, "The private key of the certificate $cert->{cn} is not stored in the PacketFence PKI");
+    }
     return ($status, $p12) unless $status;
     if (ref($p12) || !defined($p12) || length($p12) == 0) {
         return ($FALSE, "The PacketFence PKI did not return a PKCS#12 bundle for the certificate $cert_id");

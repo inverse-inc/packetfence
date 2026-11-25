@@ -208,11 +208,11 @@ const setup = (props, context) => {
         { field: 'cn', op: 'contains', value },
         { field: 'profile_name', op: 'contains', value }
       ] }]
-    if (requireKey) // only the certificates whose key is stored in pfpki
-      values.push({ field: 'csr', op: 'equals', value: false })
+    if (requireKey) // only the certificates whose key may be stored in pfpki: not signed from a CSR, not enrolled through SCEP
+      values.push({ field: 'csr', op: 'equals', value: false }, { field: 'scep', op: 'equals', value: false })
     return certsApi.search({
       query: { op: 'and', values },
-      fields: ['id', 'cn', 'profile_name', 'csr'],
+      fields: ['id', 'cn', 'profile_name', 'csr', 'scep'],
       sort: ['cn'],
       cursor: 0,
       limit: (isKey) ? 1 : 100
