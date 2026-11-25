@@ -17,7 +17,8 @@ tags=${2:?comma-separated destination tags}
 if [[ $CI_COMMIT_BRANCH == devel || $CI_COMMIT_BRANCH =~ ^maintenance/[0-9]+\.[0-9]+$ ]]; then
     [[ ${CI_COMMIT_REF_PROTECTED:-false} == true ]] || { echo 'Container push requires a protected ref' >&2; exit 1; }
     [[ $CI_COMMIT_BRANCH != maintenance/99.9 ]] || { echo 'Container push requires a real maintenance/X.Y branch' >&2; exit 1; }
-    allowed='devel|latest|maintenance-[0-9]+-[0-9]+'
+    # Only this branch's own tags: a pipeline variable cannot move another branch's images.
+    if [[ $CI_COMMIT_BRANCH == devel ]]; then allowed='devel|latest'; else allowed=${CI_COMMIT_REF_SLUG:?}; fi
     case ${CI_PIPELINE_SOURCE:-} in
         web|api|schedule) ;;
         push) [[ $CI_COMMIT_BRANCH == devel ]] || { echo 'Maintenance push requires web/API/schedule' >&2; exit 1; } ;;
