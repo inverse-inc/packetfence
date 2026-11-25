@@ -627,6 +627,42 @@ class ConfigurationTest(unittest.TestCase):
                 continue
             self.assertIn('$CI_COMMIT_REF_SLUG', environment['name'], name)
 
+    def test_a_released_dependency_version_is_never_replaced(self):
+        spec = importlib.util.spec_from_file_location('published', ROOT/'ci/pulp/published.py')
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+        class FakePulp:
+            def __init__(self, count):
+                self.count, self.params = count, None
+            def find(self, kind, name):
+                return {'latest_version_href': 'v9'}
+            def request(self, method, href, params=None):
+                self.params = params
+                return {'count': self.count}
+
+        for count, expected in ((1, True), (0, False)):
+            client = FakePulp(count)
+            fields = {'package': 'packetfence-perl', 'version': '1.2.5', 'architecture': 'all'}
+            self.assertEqual(module.published(client, 'deb', 'packetfence-15-0-deb', fields), expected)
+            self.assertEqual(client.params, {**fields, 'repository_version': 'v9', 'limit': 1})
+        if shutil.which('dpkg-deb'):
+            with tempfile.TemporaryDirectory() as folder:
+                tree = Path(folder)/'pkg'
+                (tree/'DEBIAN').mkdir(parents=True)
+                (tree/'DEBIAN/control').write_text('Package: packetfence-perl\nVersion: 1.2.5\nArchitecture: all\n'
+                                                   'Maintainer: x <x@example.org>\nDescription: x\n')
+                deb = Path(folder)/'p.deb'
+                subprocess.run(['dpkg-deb', '--build', str(tree), str(deb)], check=True, capture_output=True)
+                self.assertEqual(module.identity('deb', deb), fields)
+        # A lookup that cannot be made is an error (2), never "not published" (1).
+        env = {'PATH': os.environ['PATH'], 'PULP_URL': 'http://127.0.0.1:9', 'PULP_USERNAME': 'u', 'PULP_PASSWORD': 'p'}
+        result = subprocess.run([sys.executable, str(ROOT/'ci/pulp/published.py'), 'deb', 'r', '/nonexistent.deb'],
+                                env=env, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 2, result.stderr)
+        script = (ROOT/'ci/pulp/publish-dependency.sh').read_text()
+        self.assertLess(script.index('ci/pulp/published.py'), script.index('pulp_publish.py deb'))
+
     def test_a_pulp_error_is_not_a_missing_native_repository(self):
         # Unreachable Pulp: exit 2, which every caller turns into a failure (never the devel skip or the file tree).
         env = {'PATH': os.environ['PATH'], 'PULP_URL': 'http://127.0.0.1:9', 'PULP_USERNAME': 'u', 'PULP_PASSWORD': 'p'}
