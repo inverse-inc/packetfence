@@ -1079,6 +1079,11 @@ class ConfigurationTest(unittest.TestCase):
             from_deployed = {'build_pf_img_zen', 'build_pf_img_cd_iso', 'build_pf_img_dvd_usb_iso'}
             for name in from_deployed & jobs if off and not env.get('CI_COMMIT_TAG') else ():
                 problems.setdefault((name, 'built from an earlier deploy'), context)
+            feature = env['CI_COMMIT_REF_NAME'] != 'devel' and not env['CI_COMMIT_REF_NAME'].startswith('maintenance/') \
+                and not env.get('CI_COMMIT_TAG')
+            asked = env.get('DEPLOY_PKG') in ('yes', 'true') or re.search('deploy_pkg=(yes|true)', env['CI_COMMIT_MESSAGE'])
+            for name in from_deployed & jobs if feature and not asked else ():
+                problems.setdefault((name, 'feature branch image without its deploy'), context)
         self.assertGreater(count, 1000)
         self.assertEqual([f'{job}: {what} ({problems[(job, what)]})' for job, what in sorted(problems)], [])
 
