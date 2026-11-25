@@ -899,7 +899,7 @@ class ConfigurationTest(unittest.TestCase):
                           (ROOT/path).read_text())
         self.assertIn('-e PF_PACKAGE_ORIGIN \\', (ROOT/'ci/dvd-usb-iso/step2-create-local-repo.sh').read_text())
         self.assertIn('-e PF_BRANCHES_PIPELINE \\', (ROOT/'ci/dvd-usb-iso/step2-create-local-repo.sh').read_text())
-        self.assertIn('-e PF_APT_SOURCES -e PF_KEY_URL', (ROOT/'ci/cd-iso/build-and-upload.sh').read_text())
+        self.assertIn('-e PF_APT_SOURCES -e PF_APT_PREFERENCES -e PF_KEY_URL', (ROOT/'ci/cd-iso/build-and-upload.sh').read_text())
         for path in ('ci/dvd-usb-iso', 'ci/cd-iso'):
             for script in (ROOT/path).iterdir():
                 if script.is_file():
