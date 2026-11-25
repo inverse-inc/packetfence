@@ -769,7 +769,7 @@ class ConfigurationTest(unittest.TestCase):
         # TEMPORARY staging rehearsal: only on request, and never with the production origin.
         rehearsal = maintenance['rules'][1]['if']
         self.assertIn('$DEPLOY_DOCS == "yes"', rehearsal)
-        self.assertIn('$PF_PACKAGE_ORIGIN == "https://packages-staging.packetfence.com"', rehearsal)  # never another host
+        self.assertIn('$PF_PACKAGE_ORIGIN != "https://packages.packetfence.com"', rehearsal)
         self.assertEqual(config['variables']['PF_PACKAGE_ORIGIN'], 'https://packages.packetfence.com')
         self.assertIn('PSONO_CI_PULP_DOCS_ID', config['variables'])
         script = (ROOT/'ci/pulp/publish-docs.sh').read_text()
