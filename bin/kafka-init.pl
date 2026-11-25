@@ -2,11 +2,19 @@
 
 =head1 NAME
 
-kafka-init -
+kafka-init - Initialize kafka.conf
 
 =head1 DESCRIPTION
 
-kafka-init
+Generates the passwords and the cluster ID of kafka.conf. In a cluster, it
+writes the configuration of every server of the cluster, all the zones of a
+multi-zone cluster included: Kafka runs on every server. The servers listed in
+broker_only_hosts of the general section run Kafka without being part of the
+controller quorum.
+
+The controller quorum is fixed when the Kafka cluster is created: after
+changing the servers or the broker only ones, the Kafka data of every server
+must be removed before restarting Kafka.
 
 =cut
 
@@ -16,7 +24,8 @@ use lib qw(/usr/local/pf/lib);
 use lib qw(/usr/local/pf/lib_perl/lib/perl5);
 use pf::file_paths qw($kafka_config_file);
 use pf::IniFiles;
-use pf::cluster qw($cluster_enabled @cluster_hosts %ConfigCluster);
+use pf::cluster qw($cluster_enabled @db_cluster_servers);
+use pf::kafka::cluster;
 use pfconfig::manager;
 use Crypt::OpenSSL::Random;
 use MIME::Base64;
@@ -55,10 +64,6 @@ my @setup_values = (
 
 );
 
-sub get_kafka_config() {
-    return {%ConfigCluster{@cluster_hosts}}
-}
-
 for my $setup (@setup_values) {
     my $val = $ini->val($setup->{section}, $setup->{param});
     if ($val eq $setup->{default_val}) {
@@ -67,68 +72,53 @@ for my $setup (@setup_values) {
     }
 }
 
-my %keep = map { $_ => 1 } ('cluster', 'admin', 'auth client', 'iptables') ;
-
 if ($cluster_enabled) {
-    for my $section ($ini->Sections) {
-        next if exists $keep{$section} || $section =~ /^auth /;
+    # Every server of the cluster, all the zones included
+    my @servers = map { +{ host => $_->{host}, management_ip => $_->{management_ip} } } @db_cluster_servers;
+    my %servers = map { $_->{host} => 1 } @servers;
+
+    # The host sections are rebuilt from the plan, the node IDs already assigned
+    # are kept. The other sections (cluster, iptables, general, ...) are left as is.
+    my ($host_sections, $node_ids) = pf::kafka::cluster::host_sections($ini, \%servers);
+
+    my $plan = eval {
+        pf::kafka::cluster::plan(
+            servers => \@servers,
+            node_ids => $node_ids,
+            broker_only_hosts => [ split /\s*,\s*/, ($ini->val('general', 'broker_only_hosts') // '') ],
+            listeners => scalar($ini->val('cluster', 'KAFKA_LISTENERS')),
+            controller_listener_names => scalar($ini->val('cluster', 'KAFKA_CONTROLLER_LISTENER_NAMES')),
+        )
+    };
+    if ($@) {
+        chomp(my $err = $@);
+        # Nothing of the cluster was changed yet: keep the secrets generated above, nothing else
+        save();
+        print STDERR "kafka-init: $err\n";
+        exit 1;
+    }
+    print STDERR "$_\n" for @{$plan->{warnings}};
+
+    for my $section (@$host_sections) {
         $changed |= 1;
         $ini->DeleteSection($section);
     }
 
-    my @cluster_members = get_cluster_member_for_kafka();
-    my $quorum_voters = make_quorum_voters(\@cluster_members);
-    my $factor = int((scalar @cluster_members )/ 2) + 1;
-    set_or_create($ini, 'cluster', 'KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR', $factor);
-    set_or_create($ini, 'cluster', 'KAFKA_CONTROLLER_QUORUM_VOTERS', $quorum_voters);
+    set_or_create($ini, 'cluster', 'KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR', $plan->{replication_factor});
+    set_or_create($ini, 'cluster', 'KAFKA_CONTROLLER_QUORUM_VOTERS', $plan->{quorum_voters});
     my @ips;
-    for my $cluster_member (@cluster_members) {
-        push @ips, $cluster_member->{mgmtip};
-        my $id = $cluster_member->{host};
-        set_or_create($ini, $id, 'KAFKA_NODE_ID', $cluster_member->{node_id});
-        set_or_create($ini, $id, 'KAFKA_ADVERTISED_LISTENERS', $cluster_member->{advertised_listeners});
+    for my $member (@{$plan->{members}}) {
+        push @ips, $member->{mgmtip};
+        my $id = $member->{host};
+        set_or_create($ini, $id, 'KAFKA_NODE_ID', $member->{node_id});
+        set_or_create($ini, $id, 'KAFKA_ADVERTISED_LISTENERS', $member->{advertised_listeners});
+        next if $member->{controller};
+        set_or_create($ini, $id, 'KAFKA_PROCESS_ROLES', $member->{process_roles});
+        set_or_create($ini, $id, 'KAFKA_LISTENERS', $member->{listeners});
     }
 
     set_or_create($ini, 'iptables', 'cluster_ips', join(",", @ips));
     set_or_create($ini, 'iptables', 'clients', join(",", @ips));
-}
-
-sub get_cluster_member_for_kafka {
-    my @members;
-    my $config = get_kafka_config();
-    my $i = 0;
-    for my $k (sort keys %$config) {
-        $i++;
-        my $val = $config->{$k};
-        push @members, make_member(
-            $val->{host},
-            $val->{management_ip}, $i
-        );
-    }
-
-    return @members;
-}
-
-sub make_member {
-    my ($host, $ip, $node_id) = @_;
-    # In a cluster, every broker must advertise a unique, cross-node routable
-    # address for the PF listener. Using containers-gateway.internal here makes
-    # all brokers advertise the same hostname, which resolves to each node's own
-    # local broker -- so clients can never reach a partition leader / group
-    # coordinator that lives on another node (Not Leader / Not Coordinator
-    # errors). Advertise the node's management IP, like INTERNAL/EXTERNAL do.
-    my $advertised_listeners = qq{INTERNAL://${ip}:29092,EXTERNAL://${ip}:9092,PF://${ip}:9095,PFCONNECTOR://127.0.0.1:9096};
-    return {
-        host => $host,
-        node_id => $node_id,
-        mgmtip => $ip,
-        advertised_listeners => $advertised_listeners,
-    };
-}
-
-sub make_quorum_voters {
-    my ($members) = @_;
-    return join(",", map { "$_->{node_id}\@$_->{mgmtip}:9093" } @$members);
 }
 
 sub set_or_create {
@@ -141,7 +131,10 @@ sub set_or_create {
     }
 }
 
-if ($changed) {
+save();
+
+sub save {
+    return if !$changed;
     $ini->RewriteConfig();
     # We edited kafka.conf directly on disk, so the pfconfig cache for this
     # namespace is now stale. Expire it so that downstream consumers

@@ -83,7 +83,36 @@ KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
 
 ==== Setting the configuration of the Kafka cluster
 
-To setup a Kafka cluster you need the following information.
+In a PacketFence cluster, the script below writes the configuration of the
+Kafka cluster from [filename]`cluster.conf`: every server of the cluster, all
+the zones of a multi-zone cluster included, runs Kafka, since the PacketFence
+services of a server use its local broker. It also generates the passwords and
+the cluster ID when they are not set yet.
+
+[source,bash]
+----
+/usr/local/pf/bin/kafka-init.pl
+/usr/local/pf/bin/cluster/sync --as-master --file=/usr/local/pf/conf/kafka.conf
+----
+
+By default every server is part of the controller quorum. In a multi-zone
+cluster, the quorum needs a majority of the controllers: list the servers that
+must run Kafka without being part of the quorum (e.g. the servers of a
+secondary zone) in *Configuration -> System Configuration -> Kafka -> Broker Only
+Servers* (`broker_only_hosts` in the `general` section of
+[filename]`/usr/local/pf/conf/kafka.conf`), then run the script again. A broker
+only server stores data and serves the clients like the other brokers, but it
+needs to reach the controllers: when it can't, its local clients get errors
+until the connection is back. Keep an odd number of controllers in the zone
+that must keep running.
+
+CAUTION: The controller quorum is fixed when the Kafka cluster is created.
+After adding a server to the cluster or changing the broker only servers, stop
+Kafka on every server, move away the content of
+[filename]`/usr/local/pf/var/kafka` on every server and start Kafka again: the
+Kafka topics are created again, empty.
+
+To setup a Kafka cluster by hand you need the following information.
 
 Node ID, Hostname and IP address, of each member.
 

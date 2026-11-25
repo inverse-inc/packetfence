@@ -127,6 +127,31 @@ $t->options_ok($base_url)
                     "required"    => 0,
                     "type"        => "array"
                 },
+                "general" => {
+                    "default"     => undef,
+                    "implied"     => undef,
+                    "placeholder" => undef,
+                    "properties"  => {
+                        "broker_only_hosts" => {
+                            "default" => [],
+                            "implied" => undef,
+                            "item"    => {
+                                "allow_custom" => 0,
+                                "allowed"      => [],
+                                "default"      => undef,
+                                "implied"      => undef,
+                                "placeholder"  => undef,
+                                "required"     => 0,
+                                "type"         => "string"
+                            },
+                            "placeholder" => undef,
+                            "required"    => 0,
+                            "type"        => "array"
+                        }
+                    },
+                    "required" => 0,
+                    "type"     => "object"
+                },
                 "host_configs" => {
                     "default" => [],
                     "implied" => undef,
@@ -231,6 +256,9 @@ my $config = {
      "user" =>  "admin",
      "pass" =>  "admin-pass"
    },
+   "general" =>  {
+     "broker_only_hosts" =>  [ "pf4", "pf5" ]
+   },
    "auths" =>  [
      {
        "user" =>  "guardicore",
@@ -265,6 +293,7 @@ Test2::Tools::Compare::is(
     bag {
         item {section => "iptables", params => {clients => "", cluster_ips => ''} };
         item {section => "admin", params => {user => "admin", pass => 'admin-pass'} };
+        item {section => "general", params => {broker_only_hosts => 'pf4,pf5'} };
         item {section => "auth guardicore", params => { pass => 'guardicore-pass'} };
         item {section => "cluster", params => { CLUSTER_ID => ''} };
         item {section => "172-105-101-170.ip.linodeusercontent.com", params => { KAFKA_NODE_ID => '1', KAFKA_ADVERTISED_LISTENERS => 'INTERNAL://172.105.101.170:29092,EXTERNAL://172.105.101.170:9092'} };
