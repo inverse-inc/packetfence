@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 71;
+use Test::More tests => 74;
 use Test::NoWarnings;
 
 use pf::SwitchFactory;
@@ -271,6 +271,19 @@ use Utils;
     is(scalar @voice, 1, 'one open voice entry on the port');
     ok($sync->($mac6, 'default', $NO_VOIP), "synchronized $mac6 back on the port");
     is_deeply($open_data->(), [$mac6], 'the returning endpoint replaces the other one in turn');
+
+    # a DB error in the switchport lookup: _db_item returns 0 (defined), which must be
+    # taken as "no entry" and lead to an insert, not die on a hash dereference
+    my $mac8 = Utils::test_mac();
+    {
+        no warnings 'redefine';
+        local *pf::locationlog::_db_item = sub { 0 };
+        is(pf::locationlog::locationlog_view_latest_open_switchport($switch, $ifIndex, $NO_VOIP), undef,
+            'the latest open switchport entry is undef when the lookup fails');
+        ok(eval { $sync->($mac8, 'default', $NO_VOIP); 1 }, 'locationlog_synchronize survives a failed switchport lookup') or diag($@);
+    }
+    is_deeply($open_data->(), [sort $mac6, $mac8],
+        'and the endpoint still gets its open entry (the previous occupant is left for the next authentication)');
 
     # an endpoint moving from another port: the per-MAC handling moves its entry to this
     # port first, so the newest entry of the port is its own, and the previous occupant

@@ -187,7 +187,9 @@ sub locationlog_history_switchport {
 =item locationlog_view_latest_open_switchport
 
 Returns the newest open locationlog entry of the given VoIP status on a
-switchport, or undef when the port has none.
+switchport, or undef when the port has none or the lookup failed (a DB error
+is logged by the DAL; the caller then inserts, as it does for a port without
+entries).
 
 This is the lookup of the authorization path: C<locationlog_synchronize> only
 needs the entry that currently describes the port, and the ORDER BY ... LIMIT 1
@@ -199,7 +201,7 @@ are ordered by MAC, so the pick is stable from one request to the next.
 
 sub locationlog_view_latest_open_switchport {
     my ( $switch, $ifIndex, $voip ) = @_;
-    return _db_item({
+    my $entry = _db_item({
         -where => {
             switch => $switch,
             port => $ifIndex,
@@ -209,6 +211,8 @@ sub locationlog_view_latest_open_switchport {
         -limit => 1,
         -order_by => [{ -desc => 'start_time' }, { -desc => 'mac' }],
     });
+    # _db_item returns 0 on a DB error
+    return ref($entry) eq 'HASH' ? $entry : undef;
 }
 
 sub locationlog_view_open_switchport_no_VoIP {
@@ -474,8 +478,8 @@ sub locationlog_synchronize {
             # Only the newest entry describes the port: one endpoint of each type (data, voice)
             # is connected at a time
             my $locationlog_switchport = locationlog_view_latest_open_switchport($switch, $ifIndex, $voip_status);
-            if (!defined($locationlog_switchport)) {
-                # there was no locationlog open we must insert a new one
+            if (ref($locationlog_switchport) ne 'HASH') {
+                # there was no locationlog open (or the lookup failed) we must insert a new one
                 $mustInsert = 1;
 
             } elsif ( (defined($vlan) && ($locationlog_switchport->{vlan} ne $vlan)) # vlan changed
