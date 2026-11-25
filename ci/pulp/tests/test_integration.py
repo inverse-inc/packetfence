@@ -292,6 +292,8 @@ class ConfigurationTest(unittest.TestCase):
         # kanikobuild passes only the DOCKFILE_VARS as build arguments: without it, BUILDER_TAG is empty.
         passed = re.search(r"^DOCKFILE_VARS='([^']*)'", (ROOT/'containers/kaniko_vars').read_text(), re.M).group(1).split()
         self.assertIn('BUILDER_TAG', passed)
+        for script in ('containers/systemd-service', 'addons/dev-helpers/build-local-container.sh'):  # local builds
+            self.assertIn('--build-arg=BUILDER_TAG=', (ROOT/script).read_text(), script)
         # pfdebian takes the dependencies from the package origin, not from the old inverse.ca host.
         self.assertIn('PF_PACKAGE_ORIGIN', passed)
         self.assertNotIn('inverse.ca', (ROOT/'containers/pfdebian/Dockerfile').read_text())
