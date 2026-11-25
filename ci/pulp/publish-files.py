@@ -74,8 +74,9 @@ def listing_labels(labels, files, now):
 def publish(client, snapshot, items):
     repo = client.find('repositories/file/file', snapshot)
     dist = client.find('distributions/file/file', snapshot)
-    current = {entry['relative_path']: entry['sha256'] for entry in client.request(
-        'GET', API + 'content/file/files/', params={'repository_version': repo['latest_version_href'], 'limit': 1000})['results']}
+    entries = client.request('GET', API + 'content/file/files/',
+                             params={'repository_version': repo['latest_version_href'], 'limit': 1000})['results']
+    current = {entry['relative_path']: entry['sha256'] for entry in entries}
     # Behind: an earlier run uploaded files but its publication or distribution update failed.
     served = dist.get('publication')
     behind = not served or client.request('GET', served)['repository_version'] != repo['latest_version_href']
@@ -92,6 +93,11 @@ def publish(client, snapshot, items):
         return
     if behind:  # publish them now, and list every file (the earlier run listed none)
         changed = {name: path.stat().st_size for _, path, name in items}
+        # Including those another context (other *_DEST_NAME) uploaded to this snapshot without publishing.
+        listed = set(json.loads((dist.get('pulp_labels') or {}).get(LABEL + 'index_files', '[]')))
+        for entry in entries:
+            if entry['relative_path'] not in changed and entry['relative_path'] not in listed:
+                changed[entry['relative_path']] = client.request('GET', entry['artifact'])['size']
     repo = client.request('GET', repo['pulp_href'])
     task = client.wait(client.request('POST', API + 'publications/file/file/',
                                       json={'repository_version': repo['latest_version_href'], 'manifest': 'PULP_MANIFEST'}))
