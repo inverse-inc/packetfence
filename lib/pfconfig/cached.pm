@@ -133,7 +133,7 @@ sub get_from_subcache {
     return undef;
 }
 
-=head2 get_from_subcache
+=head2 set_in_subcache
 
 Sets an element in the subcache so it can be reused across accesses
 
