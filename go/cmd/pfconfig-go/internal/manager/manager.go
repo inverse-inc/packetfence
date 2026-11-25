@@ -18,12 +18,12 @@ import (
 
 type Request struct {
 	Method           string `json:"method,omitempty"`
-	Key              string `json:"key,omitempty"` // NAME::SPACE[::SUBNAMESPACE][(overlay)][;KEY]
-	NoLastTouchCache string `json:"no_last_touch_cache,omitempty"`
+	Key              string `json:"key,omitempty"`      // NAME::SPACE[::SUBNAMESPACE][(overlay)][;KEY]
 	Encoding         string `json:"encoding,omitempty"` // "sereal" or "json"
 	LastKey          string `json:"last_key,omitempty"`
-	Search           string `json:"search,omitempty"`
 	Namespace        string `json:"namespace,omitempty"`
+	NoLastTouchCache string `json:"no_last_touch_cache,omitempty"`
+	Search           string `json:"search,omitempty"`
 	Light            string `json:"light,omitempty"`
 	Index            int    `json:"index,omitempty"`
 }
@@ -36,8 +36,6 @@ type Manager struct {
 	confFolder string // folder path of pf conf files (usually /usr/local/pf/conf)
 }
 
-var queryRegex = regexp.MustCompile(`(\w+(?:\:\:\w+)*)(?:\((.*)\))?(?:;([:\w]+))?`)
-
 type Query struct {
 	Namespace string // NAME::SPACE, never empty
 	Overlay   string //(OVERLAY), can be empty
@@ -45,16 +43,22 @@ type Query struct {
 	CacheKey  string // Namespace + (Overlay)
 }
 
+var queryRegex = regexp.MustCompile(`(\w+(?:\:\:\w+)*)(?:\((.*)\))?(?:;([:\w]+))?`)
+
 func ExtractQuery(s string) (Query, error) {
 	data := queryRegex.FindStringSubmatch(s)
 	if data == nil {
-		return Query{}, errors.New("bad key format")
+		return Query{}, fmt.Errorf("bad query key format '%s'", s)
+	}
+	cacheKey := data[1]
+	if len(data[2]) > 0 {
+		cacheKey += "(" + data[2] + ")"
 	}
 	return Query{
 		Namespace: data[1],
 		Overlay:   data[2],
 		Key:       data[3],
-		CacheKey:  data[1] + "(" + data[2] + ")",
+		CacheKey:  cacheKey,
 	}, nil
 }
 
@@ -66,7 +70,7 @@ func NewManager(logger *slog.Logger, confFolder string, cache *cache.ShardedCach
 		logger:     logger,
 	}
 	for _, ns := range ns.NamespaceDefinitions {
-		if ns.Path != nil { // not a conf::
+		if ns.Path != nil { // a conf file
 			ns.Path = new(filepath.Clean(filepath.Join(confFolder, *ns.Path)))
 		}
 		m.namespaces[ns.Name] = &ns
@@ -98,12 +102,18 @@ func (m *Manager) LoadConfigs(ctx context.Context) error {
 		return err
 	}
 	m.nsGraph = graph
-	for _, key := range graph.GetNodes() {
+	return m.reloadAllConfs(ctx)
+}
+
+func (m *Manager) reloadAllConfs(ctx context.Context) error {
+	if m.nsGraph == nil {
+		return errors.New("preload namespaces first")
+	}
+	for _, key := range m.nsGraph.GetNodes() {
 		tmp, _ := m.namespaces[key] // key exists at this point
 		conf, err := loadBaseConf(tmp)
 		if err != nil {
-			m.logger.ErrorContext(ctx, "Manager.Load", "err", err.Error())
-			continue
+			return err
 		}
 		var data any
 		if tmp.Build != nil {
@@ -114,8 +124,9 @@ func (m *Manager) LoadConfigs(ctx context.Context) error {
 				bd.Deps = make(map[string]any, len(tmp.DepResources))
 				for _, dep := range tmp.DepResources {
 					c, ok := m.cache.Get(dep)
-					if !ok { // shouldn't happen at first full build, since graph is checked already
-						return fmt.Errorf("not dep %s in cache", dep)
+					if !ok { // topological order ensure we have the dependencies
+						// error here means bad namespace definition or cyclic dep, already check before
+						return fmt.Errorf("no dependency %s in cache", dep)
 					}
 					bd.Deps[dep] = c
 				}
@@ -137,15 +148,18 @@ func (m *Manager) Process(ctx context.Context, request Request) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	namespace, ok := m.getCache(query.CacheKey)
-	if !ok {
-		// not in cache or expired, build it
-		m.logger.InfoContext(ctx, "unsupported", "ns", query.Namespace)
+	if _, supported := m.namespaces[query.Namespace]; !supported {
+		// if namespace not supported, proxy to Perl pfconfig
 		return nil, errors.ErrUnsupported
 	}
+	namespace, ok := m.getCache(query.CacheKey)
+	if !ok {
+		// new overlay
+		return nil, fmt.Errorf("no %s in cache", query.CacheKey)
+	}
+	// check for validity
 	data, err := m.dispatchMethod(ctx, request, namespace)
 	if err != nil {
-		m.logger.InfoContext(ctx, "unsupported", request.Key, request.Method)
 		return nil, err
 	}
 	return data, nil

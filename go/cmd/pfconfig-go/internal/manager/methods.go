@@ -2,7 +2,6 @@ package manager
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	ns "github.com/inverse-inc/packetfence/go/cmd/pfconfig-go/internal/namespace"
@@ -25,7 +24,7 @@ var methodsFuncs = map[string]MethodFunc{
 func (m *Manager) dispatchMethod(ctx context.Context, request Request, namespace any) (any, error) {
 	fun, ok := methodsFuncs[request.Method]
 	if !ok {
-		return nil, errors.ErrUnsupported
+		return nil, fmt.Errorf("requested method '%s' not supported", request.Method)
 	}
 	return fun(request, namespace)
 }
@@ -106,10 +105,7 @@ func element(request Request, data any) (any, error) {
 
 // hashElement returns the hash requested as a map[string]any
 func hashElement(request Request, data any) (any, error) {
-	query, err := ExtractQuery(request.Key)
-	if err != nil {
-		return nil, err
-	}
+	query, _ := ExtractQuery(request.Key) // already checked
 	conf := data.(*ns.HashData)
 	tmp := map[string]any{
 		"element": nil,
@@ -124,7 +120,7 @@ func hashElement(request Request, data any) (any, error) {
 	} else { // section
 		section, ok := conf.Sections[query.Key]
 		if !ok {
-			return nil, fmt.Errorf("section %s does not exists", query.Key)
+			return nil, fmt.Errorf("requested section %s does not exist", query.Key)
 		}
 		tmp["element"] = section
 	}
