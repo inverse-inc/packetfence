@@ -3,7 +3,7 @@
 
 A Debian suite is either a repository's own distribution or one of its extra ones (a newer Debian
 added to the same URL); EL<N> has its own packetfence-X-Y-el<N>. Usage: native.py deb 16.0 trixie,
-native.py rpm 16.0 8. Prints nothing (exit 1) when there is none.
+native.py rpm 16.0 8. Prints nothing (exit 1) when there is none; exit 2 when Pulp does not answer.
 """
 import os
 import sys
@@ -30,7 +30,11 @@ def find(client, kind, release, target):
 
 if __name__ == '__main__':
     kind, release, target = sys.argv[1:4]
-    name = find(Pulp(os.environ['PULP_URL'], os.environ['PULP_USERNAME'], os.environ['PULP_PASSWORD']), kind, release, target)
+    try:
+        name = find(Pulp(os.environ['PULP_URL'], os.environ['PULP_USERNAME'], os.environ['PULP_PASSWORD']), kind, release, target)
+    except Exception as error:  # an unanswered lookup is not "no repository": exit 2, the caller fails
+        print(f'native.py: Pulp lookup failed: {error}', file=sys.stderr)
+        sys.exit(2)
     if not name:
         sys.exit(1)
     print(name)
