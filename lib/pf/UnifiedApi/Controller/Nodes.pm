@@ -890,10 +890,33 @@ sub build_network_graph_info {
 
     my $fields = $search_info_or_error->{fields};
     my ($switch_fields, $db_fields) = part { /^switch\./ ? 0 : 1 } @$fields;
+    $switch_fields //= [];
+    my @invalid_switch_fields = grep { !is_network_graph_switch_field($_) } @$switch_fields;
+    if (@invalid_switch_fields) {
+        return 422, {
+            message => 'Invalid field(s)',
+            errors => [ map { { field => $_, message => "$_ is not a switch property of the network graph" } } @invalid_switch_fields ],
+        };
+    }
     s/^node\.// for @$db_fields;
     $search_info_or_error->{fields} = $db_fields;
     $search_info_or_error->{switch_fields} = $switch_fields;
     return $status, $search_info_or_error;
+}
+
+=head2 is_network_graph_switch_field
+
+Whether a switch.* field can be requested for the network graph: only the
+display properties of the switches
+
+=cut
+
+my %NETWORK_GRAPH_SWITCH_FIELDS = map { $_ => 1 } qw(id description type group mode);
+
+sub is_network_graph_switch_field {
+    my ($field) = @_;
+    return 0 unless defined($field) && $field =~ /^switch\.(.+)\z/s;
+    return exists $NETWORK_GRAPH_SWITCH_FIELDS{$1} ? 1 : 0;
 }
 
 =head2 network_graph_search_builder
@@ -1015,9 +1038,10 @@ sub pf_network_graph_switch_info {
     if (defined $cfg) {
         my %properties;
         $switch{properties} = \%properties;
-        for my $field ( @{ $search_info->{switch_fields} } ) {
-            $field =~ s/^switch\.//;
-            $properties{$field} = exists $cfg->{$field} ? $cfg->{$field} : undef;
+        for my $field ( @{ $search_info->{switch_fields} // [] } ) {
+            next unless is_network_graph_switch_field($field);
+            my $name = $field =~ s/^switch\.//r;
+            $properties{$name} = exists $cfg->{$name} ? $cfg->{$name} : undef;
         }
         my $group_id = ($cfg->{group} // "default" ) . "-group";
         $link{source} = $group_id;
