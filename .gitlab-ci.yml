@@ -1038,6 +1038,14 @@ build_artifacts_pkg_debian_bookworm:
 build_artifacts_material:
   extends:
     - .build_artifacts_material_job
+  # It runs this pipeline's pfconfig image when the pipeline built one (generate-material.sh).
+  needs:
+    - !reference [.needs_all_build_images, needs]
+    - job: pfdebian_related
+      parallel:
+        matrix:
+          - IMAGE_NAME: pfconfig
+      optional: true
   rules:
     - if: '$CI_COMMIT_TAG'
       variables:
