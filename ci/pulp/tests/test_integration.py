@@ -359,6 +359,38 @@ class ConfigurationTest(unittest.TestCase):
             # No feature branch file lands in the debian/ and RHEL<N>/ roots any more.
             self.assertNotIn('deploy_branches_pkg_friendly_names', config)
 
+    def test_a_retry_publishes_files_an_earlier_run_only_uploaded(self):
+        spec = importlib.util.spec_from_file_location('publish_files', ROOT/'ci/pulp/publish-files.py')
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+        class FakePulp:
+            def __init__(self, served):
+                self.served, self.calls = served, []
+            def find(self, kind, name):
+                return {'pulp_href': kind, 'latest_version_href': 'v2', 'publication': 'pub', 'pulp_labels': {}}
+            def request(self, method, href, params=None, json=None):
+                self.calls.append((method, href))
+                if href.endswith('content/file/files/'):
+                    return {'results': [{'relative_path': 'a.deb', 'sha256': digest}]}
+                if href == 'pub':
+                    return {'repository_version': self.served}
+                return {'latest_version_href': 'v2', 'pulp_href': href}
+            def wait(self, task):
+                return {'created_resources': ['new-pub']}
+            def upload(self, *args):
+                self.calls.append(('UPLOAD',))
+
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder)/'a.deb'
+            path.write_bytes(b'x')
+            digest = hashlib.sha256(b'x').hexdigest()
+            for served, published in (('v2', False), ('v1', True)):
+                client = FakePulp(served)
+                module.publish(client, 'debian', [('debian', path, 'a.deb')])
+                self.assertNotIn(('UPLOAD',), client.calls)
+                self.assertEqual(('POST', module.API + 'publications/file/file/') in client.calls, published, served)
+
     def test_published_files_join_the_listing(self):
         spec = importlib.util.spec_from_file_location('publish_files', ROOT/'ci/pulp/publish-files.py')
         module = importlib.util.module_from_spec(spec)
