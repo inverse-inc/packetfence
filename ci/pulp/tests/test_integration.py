@@ -25,6 +25,25 @@ class GitLabLoader(yaml.SafeLoader):
 GitLabLoader.add_constructor('!reference', lambda loader, node: {'reference': loader.construct_sequence(node)})
 
 
+def resolved_rules(config, name):
+    """A job's rules as GitLab sees them: inherited through extends, !reference expanded."""
+    job = config[name]
+    rules = job.get('rules')
+    if rules is None:
+        for parent in reversed(job.get('extends', [])):
+            rules = resolved_rules(config, parent)
+            if rules:
+                break
+    out = []
+    for rule in rules or []:
+        if 'reference' in rule:
+            target, key = rule['reference']
+            out.extend(config[target][key])
+        else:
+            out.append(rule)
+    return out
+
+
 def push_tree(work):
     """container-push.sh in a copy of the repository whose Psono returns ci-docker / secret-value and logs the call."""
     root = work/'repo'
@@ -72,7 +91,7 @@ class ConfigurationTest(unittest.TestCase):
         self.assertFalse([n for n in job['needs'] if 'needs' in config[n['job']]])
         never = [r['if'] for r in job['rules'] if r.get('when') == 'never']
         self.assertEqual(never, ['$BUILD_IMG_CONTAINER == "no" || $CI_COMMIT_MESSAGE =~ /build_img_container=no/',
-                                 '$DEPLOY_PKG == "no" || $DEPLOY_PKG == "false"'])
+                                 '$BUILD_ARTIFACTS_PKG == "no"', '$DEPLOY_PKG == "no" || $DEPLOY_PKG == "false"'])
         arms = [r for r in job['rules'] if r.get('when') != 'never']
         self.assertEqual(len(arms), 2)
         maintenance, feature = arms
@@ -600,13 +619,14 @@ class ConfigurationTest(unittest.TestCase):
     def test_requested_tests_build_images_and_packages_but_publish_nothing(self):
         text = (ROOT/'.gitlab-ci.yml').read_text()
         config = yaml.load(text, Loader=GitLabLoader)
-        # The deploys' gate (where they share one) never lets tests through: BUILD_IMG_CONTAINER=no publishes nothing.
-        deploy_gate = {r['if'] for r in config.get('.gated_by_build_img_container', {}).get('rules', [])}
+        # The deploys' gates never let tests through: BUILD_IMG_CONTAINER=no or BUILD_ARTIFACTS_PKG=no publishes nothing.
+        deploys = [n for n in config if n.startswith('deploy_') and not n.startswith('deploy_docs')]
+        deploy_gate = {r['if'] for n in deploys for r in resolved_rules(config, n) if 'if' in r}
         builds = [line.split("if: '", 1)[1].rstrip("'") for line in text.splitlines()
                   if re.match(r"\s*- if: '\$(BUILD_IMG_CONTAINER == \"no\"|CI_COMMIT_MESSAGE =~ /build_img_container=no/|BUILD_ARTIFACTS_PKG == \"no\")", line)]
         self.assertTrue(builds)
         for condition in builds:
-            if condition in deploy_gate or ' || ' in condition:  # a deploy's gate (one-line form in the older layout)
+            if condition in deploy_gate:
                 self.assertNotIn('TEST', condition)
             else:  # a build: tests requested build this pipeline's images and packages
                 self.assertIn('$TEST != "yes"', condition)
@@ -617,6 +637,11 @@ class ConfigurationTest(unittest.TestCase):
             for rule in config[name].get('rules', []):
                 if 'BUILD_IMG_CONTAINER' in rule.get('if', ''):
                     self.assertNotIn('TEST', rule['if'], name)
+        gate = {'if': '$BUILD_ARTIFACTS_PKG == "no"', 'when': 'never'}
+        for name in deploys:
+            rules = resolved_rules(config, name)
+            self.assertIn(gate, rules, name)
+            self.assertTrue(all(r.get('when') == 'never' for r in rules[:rules.index(gate)]), name)
         helper = ROOT/'ci/lib/common/pipeline-image-tag.sh'
         base = {'PATH': os.environ['PATH'], 'CI_PIPELINE_ID': '42', 'CI_COMMIT_REF_NAME': 'feature/x',
                 'CI_COMMIT_REF_SLUG': 'feature-x', 'CI_PIPELINE_SOURCE': 'web'}

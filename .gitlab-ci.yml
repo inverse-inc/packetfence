@@ -247,6 +247,9 @@ variables:
 
 .deploy_branches_rules:
   rules:
+    # BUILD_ARTIFACTS_PKG=no publishes nothing, even when requested tests built the packages.
+    - if: '$BUILD_ARTIFACTS_PKG == "no"'
+      when: never
     - if: '$DEPLOY_PKG == "no" || $DEPLOY_PKG == "false"'
       when: never
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ($DEPLOY_PKG == "yes" || $DEPLOY_PKG == "true" || $CI_COMMIT_MESSAGE =~ /deploy_pkg=(yes|true)/)'
@@ -256,6 +259,9 @@ variables:
 # run only on maintenance jobs (schedule and web, not on push)
 .deploy_maintenance_rules:
   rules:
+    # BUILD_ARTIFACTS_PKG=no publishes nothing, even when requested tests built the packages.
+    - if: '$BUILD_ARTIFACTS_PKG == "no"'
+      when: never
     - if: '$DEPLOY_PKG == "no" || $DEPLOY_PKG == "false"'
       when: never
     - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && $CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/'
@@ -1734,6 +1740,9 @@ deploy_containers:
     - docker
   rules:
     - if: '$BUILD_IMG_CONTAINER == "no" || $CI_COMMIT_MESSAGE =~ /build_img_container=no/'
+      when: never
+    # BUILD_ARTIFACTS_PKG=no publishes nothing, even when requested tests built the packages.
+    - if: '$BUILD_ARTIFACTS_PKG == "no"'
       when: never
     - if: '$DEPLOY_PKG == "no" || $DEPLOY_PKG == "false"'
       when: never
