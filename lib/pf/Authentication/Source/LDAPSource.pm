@@ -372,14 +372,16 @@ sub _LDAPArgs {
 =head2 _connectorTLSArgs
 
 The TLS session goes to the connector's local endpoint, whose name is not
-the one in the server's certificate: with "SSL Verify Mode: Required",
-verify the certificate against the configured server instead
+the one in the server's certificate: with "SSL Verify Mode" Optional or
+Required, verify the certificate against the configured server instead.
+Optional is verified too: Net::LDAP maps it to SSL_verify_mode 1, for which
+IO::Socket::SSL checks the name on a client just as it does for Required
 
 =cut
 
 sub _connectorTLSArgs {
     my ($self, $server, %args) = @_;
-    return %args if ($self->{'verify'} // '') ne 'require';
+    return %args if ($self->{'verify'} // 'none') eq 'none';
     my $encryption = $self->{'encryption'} // '';
     if ($encryption eq SSL) {
         $args{sslserver} = $server;

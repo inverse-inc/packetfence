@@ -112,7 +112,7 @@ BEGIN {
 
 }
 
-use Test::More tests => 27 + 2 * ( scalar @CACHEABLE_RULES + scalar @NON_CACHEABLE_RULES);
+use Test::More tests => 35 + 2 * ( scalar @CACHEABLE_RULES + scalar @NON_CACHEABLE_RULES);
 
 #This test will running last
 use Test::NoWarnings;
@@ -244,6 +244,34 @@ ok(!$source->is_rule_cacheable(undef), "undef is always uncacheable");
           'clientkey' => '/usr/local/pf/t/server.key',
         }
     )
+}
+
+{
+    # Through a connector the TLS session goes to the connector's endpoint: the
+    # certificate is verified against the configured server for Optional and
+    # Required (both make IO::Socket::SSL check the name on a client), and the
+    # arguments are left untouched for none
+    my $source = getAuthenticationSource('SSL_ARGS');
+    ok($source, "Got source id SSL_ARGS for the connector TLS arguments");
+    my %args = (port => 636, verify => 'none');
+    my $server = 'ldap.example.com';
+
+    local $source->{verify} = 'none';
+    local $source->{encryption} = 'ssl';
+    is_deeply({ $source->_connectorTLSArgs($server, %args) }, \%args, 'verify none: arguments untouched');
+
+    for my $verify (qw(optional require)) {
+        local $source->{verify} = $verify;
+        local $source->{encryption} = 'ssl';
+        is_deeply({ $source->_connectorTLSArgs($server, %args) }, { %args, sslserver => $server }, "verify $verify, ssl: the configured server is the certificate name");
+        local $source->{encryption} = 'starttls';
+        is_deeply(
+            { $source->_connectorTLSArgs($server, %args, start_tls_options => { verify => $verify }) },
+            { %args, start_tls_options => { verify => $verify, sslserver => $server } },
+            "verify $verify, starttls: the configured server goes in the start_tls options"
+        );
+        is_deeply({ $source->_connectorTLSArgs($server, %args) }, { %args, start_tls_options => { sslserver => $server } }, "verify $verify, starttls without options");
+    }
 }
 
 {
