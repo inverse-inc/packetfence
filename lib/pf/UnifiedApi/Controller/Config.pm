@@ -290,6 +290,8 @@ sub reset_form {
     my ($self, $form, $item, @args) = @_;
     $form->clear_fields;
     $form->_repeatable_fields([]);
+    # index is read-only: empty it in place so field() cannot return fields from a previous build
+    %{$form->index} = ();
     my %all_args = (
         @{$self->form_parameters($item)},
         @args,

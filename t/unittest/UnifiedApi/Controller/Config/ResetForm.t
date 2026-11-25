@@ -109,4 +109,39 @@ subtest 'forms without repeatable fields still reset' => sub {
     }
 };
 
+subtest 'fields removed between resets leave the index' => sub {
+    my $cached = Form::Test::PlainReset->new;
+    my @with_extra = (field_list => [extra => { type => 'Text' }]);
+    my @without_extra = (field_list => []);
+
+    $controller->reset_form($cached, {}, @with_extra);
+    $cached->process(params => { description => 'With extra', extra => 'x' }, posted => 1);
+    ok(defined $cached->field('extra'), 'extra field exists while it is in the field list');
+    is_deeply($cached->value, { description => 'With extra', extra => 'x' }, 'extra field is processed');
+
+    my $old_extra = $cached->field('extra');
+    weaken($old_extra);
+
+    $controller->reset_form($cached, {}, @without_extra);
+    $cached->process(params => { description => 'Without extra', extra => 'x' }, posted => 1);
+    ok(!defined $cached->field('extra'), 'removed field name no longer resolves');
+    ok(!exists $cached->index->{extra}, 'removed field is not left in the index');
+    ok(!defined $old_extra, 'removed field object is released');
+    is_deeply([sort keys %{$cached->index}], ['description'], 'index holds only current fields');
+    is_deeply($cached->value, { description => 'Without extra' }, 'removed field is not processed');
+
+    $controller->reset_form($cached, {}, @with_extra);
+    $cached->process(params => { description => 'Extra again', extra => 'y' }, posted => 1);
+    ok(defined $cached->field('extra'), 'field resolves again once it is back in the field list');
+    is_deeply($cached->value, { description => 'Extra again', extra => 'y' }, 'restored field is processed');
+};
+
+subtest 'nested fields are indexed by full name after a reset' => sub {
+    $controller->reset_form($form, {});
+    $form->process(params => dclone($params), posted => 1);
+    my %index = %{$form->index};
+    ok(exists $index{$_}, "$_ is indexed") for qw(description triggers triggers.contains triggers.contains.type triggers.contains.value);
+    is(refaddr($index{triggers}), refaddr($form->field('triggers')), 'index points at the current triggers field');
+};
+
 done_testing;
