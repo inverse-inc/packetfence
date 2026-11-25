@@ -97,6 +97,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - CoA and Disconnect use the switch's `coaPort` and `disconnectPort` on every switch module (#9378)
   - Dell N1500 and Cisco ASA now send role ACLs in the Access-Accept (#9347)
   - PacketFence PKI — revoking a certificate deregisters the devices that last used it, OCSP answers "unknown" instead of 500 for an unknown serial, the most recent certificate is returned by CN, and the Renewal Email switch of PKI templates works (#9367, #9436, #9520, #9536)
+  - PacketFence PKI — the OCSP responder answers GET requests, with the request base64 and URL-encoded in the path (RFC 6960 appendix A.1) as the OS and browser validators send them, and adds the RFC 5019 cache headers to the answer; they were refused with a 404
+  - PacketFence PKI — the OCSP responder answers a request it can't answer (malformed, for a CA it doesn't hold, CA key unavailable) with an OCSP error status (RFC 6960 section 2.3) instead of an HTTP 400 (#9765)
   - RADIUS: a per-profile certificate no longer overwrites the default RADIUS certificate — see the Upgrade Guide (#9450)
   - Cluster: an interface not defined for a server in cluster.conf is ignored on that server (#9506)
   - pfconfig — restarts even when a client grabbed its port (now reserved), the git pull child no longer restarts packetfence-config, and log signal handlers survive (#9510, #9335, #9340)

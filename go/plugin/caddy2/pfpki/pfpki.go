@@ -207,7 +207,8 @@ func (h *Handler) buildPfpkiHandler(ctx context.Context) error {
 		r.Post("/pki/process_cloud_revocations", handlers.ProcessCloudRevocations(PFPki))
 		// OCSP api endpoint
 		r.Route("/pki/ocsp", func(r chi.Router) {
-			r.Get("/", handlers.ManageOcsp(PFPki))
+			// GET carries the request in the path (RFC 6960 appendix A.1)
+			r.Get("/*", handlers.ManageOcsp(PFPki))
 			r.Post("/", handlers.ManageOcsp(PFPki))
 		})
 		// ACME (RFC 8555). Per-profile sub-routes at
