@@ -106,6 +106,8 @@ for n in "${el_versions[@]}"; do
         echo "No native EL$n repository for $release yet (devel); RHEL$n/$release unchanged"
         continue
     fi
+    [[ -n $(find "$PUBLIC_DIR/centos/$n/x86_64" -type f -name '*.rpm' ! -name '*.src.rpm') ]] \
+        || { echo "No .rpm in the generated EL$n tree" >&2; exit 1; }
     native_rpm[$n]=$repo
 done
 merge_suites=()
@@ -120,6 +122,8 @@ for suite in "${suites[@]}"; do
         merge_suites+=("$suite")
         continue
     fi
+    [[ -n $(find "$PUBLIC_DIR/debian/dists/$suite" -name Packages -path '*/binary-*' -exec sed -n 's/^Filename: //p' {} +) ]] \
+        || { echo "No .deb listed for $suite in the generated tree" >&2; exit 1; }
     native_deb[$suite]=$repo
 done
 for n in "${!native_rpm[@]}"; do
