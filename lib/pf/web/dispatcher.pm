@@ -39,6 +39,7 @@ use pf::web::constants;
 use pf::web::util;
 use pf::proxypassthrough::constants;
 use pf::Portal::Session;
+use pf::web::client_ip;
 use pf::web::externalportal;
 use pf::inline;
 use pf::db;
@@ -151,7 +152,9 @@ sub _handler {
     #Keep backward compatibilities for external portal
 
     my $captive_portal_domain = $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
-    my $ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
+    # The X-Forwarded-For header (all its lines) is only used when the request comes from a trusted proxy
+    my @forwarded_for = $r->headers_in->get('X-Forwarded-For');
+    my $ip = pf::web::client_ip::client_ip($r->connection->remote_ip, join(',', grep { defined } @forwarded_for));
     $ip = new NetAddr::IP::Lite clean_ip($ip);
     my $user_agent = $r->headers_in->{'User-Agent'};
 

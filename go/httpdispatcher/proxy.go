@@ -134,7 +134,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	parking := p.handleParking(ctx, w, r)
 
 	if r.URL.Path == "/rfc7710" {
-		_, PortalURL := p.detectPortalURL(r)
+		_, PortalURL := p.detectPortalURL(ctx, r)
 
 		answer := RFC7710bis{}
 
@@ -178,7 +178,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		_, PortalURL := p.detectPortalURL(r)
+		_, PortalURL := p.detectPortalURL(ctx, r)
 		if passThrough.checkOtherDomains(ctx, fqdn.Host) {
 			PortalURL.Host = fqdn.Host
 		}
@@ -557,7 +557,7 @@ func (p *Proxy) IP2Mac(ctx context.Context, ip string) (string, error) {
 
 func (p *Proxy) handleParking(ctx context.Context, w http.ResponseWriter, r *http.Request) bool {
 
-	found, PortalURL := p.detectPortalURL(r)
+	found, PortalURL := p.detectPortalURL(ctx, r)
 
 	var ipAddress string
 	reverseHost := "127.0.0.1:5252"
@@ -594,11 +594,11 @@ func (p *Proxy) handleParking(ctx context.Context, w http.ResponseWriter, r *htt
 	return false
 }
 
-func (p *Proxy) detectPortalURL(r *http.Request) (bool, url.URL) {
+func (p *Proxy) detectPortalURL(ctx context.Context, r *http.Request) (bool, url.URL) {
 	var PortalURL url.URL
 	var found bool
 	found = false
-	srcIP := net.ParseIP(r.Header.Get("X-Forwarded-For"))
+	srcIP := net.ParseIP(p.getIP(ctx, r))
 	for i := 0; i <= len(passThrough.PortalURL); i++ {
 		if found {
 			break
@@ -642,22 +642,60 @@ func (p *Proxy) nodeIsReg(ctx context.Context, mac string) bool {
 	return status
 }
 
-func (p *Proxy) getIP(ctx context.Context, r *http.Request) string {
+// localProxies are the addresses haproxy-portal reaches the dispatcher from
+var localProxies = []string{"127.0.0.1", "::1", "100.64.0.1"}
 
-	var ipAddress string
-	ipAddress = "0.0.0.0"
-	fwdAddress := r.Header.Get("X-Forwarded-For")
-	if fwdAddress != "" {
-
-		ipAddress = fwdAddress
-
-		// If we got an array... grab the first IP
-		ips := strings.Split(fwdAddress, ", ")
-		if len(ips) > 1 {
-			ipAddress = ips[0]
+// trustedProxies returns whether an address is a proxy whose X-Forwarded-For
+// header is used: haproxy-portal on this server or a load balancer
+// (captive_portal.loadbalancers_ip)
+func trustedProxies(loadbalancersIP string) func(string) bool {
+	trusted := make(map[string]bool)
+	for _, ip := range localProxies {
+		trusted[ip] = true
+	}
+	for _, ip := range strings.Split(loadbalancersIP, ",") {
+		if ip = strings.TrimSpace(ip); ip != "" {
+			trusted[ip] = true
 		}
 	}
-	return ipAddress
+	return func(ip string) bool {
+		return trusted[ip]
+	}
+}
+
+// clientIP returns the IP address of the client from the address of the peer
+// and the X-Forwarded-For header lines: the peer when it isn't a trusted proxy,
+// else the right-most address of the header that isn't a trusted proxy, else
+// "0.0.0.0"
+func clientIP(remoteAddr string, forwardedFor []string, trusted func(string) bool) string {
+	peer := remoteAddr
+	if host, _, err := net.SplitHostPort(remoteAddr); err == nil {
+		peer = host
+	}
+	if !trusted(peer) {
+		return peer
+	}
+
+	var hops []string
+	for _, line := range forwardedFor {
+		for _, hop := range strings.Split(line, ",") {
+			if hop = strings.TrimSpace(hop); hop != "" {
+				hops = append(hops, hop)
+			}
+		}
+	}
+	for i := len(hops) - 1; i >= 0; i-- {
+		if !trusted(hops[i]) {
+			return hops[i]
+		}
+	}
+
+	return "0.0.0.0"
+}
+
+func (p *Proxy) getIP(ctx context.Context, r *http.Request) string {
+	portal := pfconfigdriver.GetType[pfconfigdriver.PfConfCaptivePortal](ctx)
+	return clientIP(r.RemoteAddr, r.Header.Values("X-Forwarded-For"), trustedProxies(portal.LoadbalancersIP))
 }
 
 func (p *Proxy) reverse(ctx context.Context, w http.ResponseWriter, r *http.Request, host string) {

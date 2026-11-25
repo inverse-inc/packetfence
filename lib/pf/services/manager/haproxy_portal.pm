@@ -46,6 +46,28 @@ my $host_id = $pf::config::cluster::host_id;
 
 tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config($host_id)";
 
+=head2 forwarded_headers_rules
+
+The rules of the portal frontends for the forwarding headers sent by the
+clients: X-Forwarded-For-Packetfence is always removed (haproxy-admin sets it
+for the portal preview), X-Forwarded-For is removed unless the request comes
+from one of the load balancers (captive_portal.loadbalancers_ip). The
+backends then add the client IP address (option forwardfor).
+
+=cut
+
+sub forwarded_headers_rules {
+    my ($loadbalancers_ip) = @_;
+    my @loadbalancers = grep { length } split(/\s*,\s*/, $loadbalancers_ip // '');
+    my $rules = "        http-request del-header X-Forwarded-For-Packetfence\n";
+    if (@loadbalancers) {
+        $rules .= "        http-request del-header X-Forwarded-For unless { src @loadbalancers }";
+    } else {
+        $rules .= "        http-request del-header X-Forwarded-For";
+    }
+    return $rules;
+}
+
 sub generateConfig {
     my ($self,$quick) = @_;
     my $logger = get_logger();
@@ -76,6 +98,7 @@ sub generateConfig {
     my @portal_ip;
     my $rate_limiting = isenabled($Config{captive_portal}{rate_limiting});
     my $rate_limiting_threshold = $Config{captive_portal}{rate_limiting_threshold};
+    my $forwarded_headers = forwarded_headers_rules($Config{captive_portal}{loadbalancers_ip});
 
     my $i = 0;
     foreach my $interface ( @ints ) {
@@ -110,6 +133,7 @@ frontend portal-http-$cluster_ip
         capture request header Host len 40
         stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
         tcp-request connection track-sc1 src
+$forwarded_headers
         http-request lua.change_host
         acl host_exist var(req.host) -m found
         http-request set-header Host %[var(req.host)] if host_exist
@@ -133,6 +157,7 @@ frontend portal-https-$cluster_ip
         capture request header Host len 40
         stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
         tcp-request connection track-sc1 src
+$forwarded_headers
         http-request lua.change_host
         acl host_exist var(req.host) -m found
         http-request set-header Host %[var(req.host)] if host_exist
@@ -183,6 +208,7 @@ frontend portal-http-$cluster_ipv6
         capture request header Host len 40
         stick-table type ipv6 size 1m expire 10s store gpc0,http_req_rate(10s)
         tcp-request connection track-sc1 src
+$forwarded_headers
         http-request lua.change_host
         acl host_exist var(req.host) -m found
         http-request set-header Host %[var(req.host)] if host_exist
@@ -200,6 +226,7 @@ frontend portal-https-$cluster_ipv6
         capture request header Host len 40
         stick-table type ipv6 size 1m expire 10s store gpc0,http_req_rate(10s)
         tcp-request connection track-sc1 src
+$forwarded_headers
         http-request lua.change_host
         acl host_exist var(req.host) -m found
         http-request set-header Host %[var(req.host)] if host_exist

@@ -44,6 +44,7 @@ use pf::web::util;
 use pf::web::constants;
 use pf::activation qw(view_by_code);
 use pf::constants::Portal::Session qw($DUMMY_MAC);
+use pf::web::client_ip;
 
 =head1 CONSTANTS
 
@@ -236,29 +237,10 @@ sub _resolveIp {
     # if user is behind a proxy it's not sufficient since we'll get the proxy's IP
     my $directly_connected_ip = $self->cgi->remote_addr();
 
-    # every source IP in this table are considered to be from a proxied source
-    my %proxied_lookup = %{$CAPTIVE_PORTAL{'loadbalancers_ip'}}; #load balancers first
-    $proxied_lookup{$LOOPBACK_IPV4} = 1; # loopback (proxy-bypass)
-    # adding virtual IP if one is present (proxy-bypass w/ high-avail.)
-    $proxied_lookup{$management_network->tag('vip')} = 1 if ($management_network && $management_network->tag('vip'));
-
-    # if this is NOT from one of the expected proxy IPs return the IP
-    if ( (!$proxied_lookup{$directly_connected_ip}) && !($directly_connected_ip ne '127.0.0.1') ) {
-        return $directly_connected_ip;
-    }
-
-    # behind a proxy?
-    if (defined($ENV{'HTTP_X_FORWARDED_FOR'})) {
-        my @proxied_ip = split(',',$ENV{'HTTP_X_FORWARDED_FOR'});
-        $logger->debug(
-            "Remote Address is $directly_connected_ip. Client is behind proxy? "
-            . "Returning: $proxied_ip[0] according to HTTP Headers"
-        );
-        return $proxied_ip[0];
-    }
-
-    $logger->debug("Remote Address is $directly_connected_ip but no further hints of client IP in HTTP Headers");
-    return $directly_connected_ip;
+    # The X-Forwarded-For header is only used when the request comes from a trusted proxy
+    my $ip = pf::web::client_ip::client_ip($directly_connected_ip, $ENV{'HTTP_X_FORWARDED_FOR'});
+    $logger->debug("Remote Address is $directly_connected_ip. Using the client IP $ip");
+    return $ip;
 }
 
 =item stash
