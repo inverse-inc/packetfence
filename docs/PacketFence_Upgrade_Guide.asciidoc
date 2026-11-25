@@ -941,6 +941,15 @@ Internet Explorer 11 on Windows 7 when an RSA certificate is in use.
 
 == Upgrading from a version prior to X.Y.Z
 
+=== Person fields of the captive portal modules
+
+The `psk`, `potd`, `otp` and `sponsored_date` person fields can no longer be
+asked on the captive portal: they are no longer in the choices of the custom
+fields of the portal modules. A portal module that has one of them in its
+custom fields ignores it. Remove it from the custom fields of the module
+(*Configuration -> Advanced Access Configuration -> Portal Modules*) to save
+the module again from the admin interface.
+
 === PKI API admin roles and certificate download
 
 The PKI API (`/api/v1/pki/...`: certificate authorities, templates,

@@ -17,7 +17,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 6;
+use Test::More tests => 7;
 use Test::NoWarnings;
 use pf::person;
 
@@ -75,6 +75,33 @@ ok(
 ok(
     (scalar grep { exists $pf::person::ALLOWED_PROMPTABLE_FIELDS{$_} } qw(firstname email telephone custom_field_1 notes)) == 5,
     'the other person fields can still be prompted for'
+);
+
+# A module whose configuration still has fields that can't be prompted for in its custom fields
+{
+    package test_profile;
+    sub reuseDot1xCredentials { 'disabled' }
+
+    package test_app;
+    sub new { bless { session => {} }, shift }
+    sub profile { 'test_profile' }
+    sub session { $_[0]{session} }
+
+    package test_module_custom_fields;
+    our @ISA = ('captiveportal::PacketFence::DynamicRouting::Module::Authentication');
+    sub new { bless {}, shift }
+    sub app { test_app->new }
+    sub source { undef }
+    sub pid_field { 'email' }
+    sub with_aup { 0 }
+    sub required_fields_child { [] }
+    sub custom_fields { [qw(firstname psk otp potd sponsored_date)] }
+}
+
+is_deeply(
+    test_module_custom_fields->new->_build_required_fields,
+    [qw(email firstname)],
+    'the custom fields that cannot be prompted for are ignored'
 );
 
 =head1 AUTHOR

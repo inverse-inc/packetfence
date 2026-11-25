@@ -254,7 +254,10 @@ sub _build_required_fields {
     push @fields, 'aup' if($self->with_aup);
     push @fields, $self->pid_field if(defined($self->pid_field));
     push @fields, 'email' if(defined($self->source) && isenabled($self->source->{create_local_account}));
-    push @fields, (defined($self->source) ? $self->source->mandatoryFields() : (), @{$self->required_fields_child}, @{$self->custom_fields});
+    # A custom field that can't be prompted for (e.g. kept in the configuration of a module) is ignored
+    my %non_promptable = map { $_ => 1 } @pf::person::NON_PROMPTABLE_FIELDS;
+    my @custom_fields = grep { !$non_promptable{$_} } @{$self->custom_fields};
+    push @fields, (defined($self->source) ? $self->source->mandatoryFields() : (), @{$self->required_fields_child}, @custom_fields);
 
     @fields = uniq(@fields);
 
