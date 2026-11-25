@@ -29,7 +29,8 @@ Readonly our $RATE_LIMIT => 60;
 
 =head2 $RETRY_DELAY
 
-The amount of milliseconds to wait before processing a device again after a failed Fingerbank lookup
+The amount of milliseconds to wait before processing a device again after a failed Fingerbank lookup.
+The delay doubles with each retry and gets a random part of up to the same amount (see pf::fingerbank::_retry_delay)
 
 =cut
 
@@ -46,7 +47,7 @@ Readonly our $MAX_RETRIES => 3;
 =head2 $RETRY_PERIOD
 
 The amount of seconds the retries of a device are counted for: after $MAX_RETRIES
-failed retries, no retry is scheduled for this device during that period
+failed retries, the next retry of this device is scheduled for when that period is over
 
 =cut
 

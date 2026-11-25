@@ -156,6 +156,8 @@ sub process {
 
     unless(defined($query_args)) {
         $logger->error("Unable to fetch query arguments for Fingerbank query. Aborting.");
+        # The process timestamp is kept so regular RADIUS/DHCP calls go through the
+        # freshness check as usual; only the queued retry (retry=>1) is forced.
         _retry_later($mac, $overrides, $options{retry});
         return $FALSE;
     }
@@ -214,6 +216,9 @@ sub process {
         unless(defined($query_result)) {
             $logger->warn("Unable to perform a Fingerbank lookup for device with MAC address '$mac'");
             $query_success = $FALSE;
+            # The process timestamp is kept: regular RADIUS/DHCP calls go through the
+            # freshness check as usual and don't block a worker on a collector call during
+            # an outage. The queued retry (retry=>1) forces a re-lookup.
             _retry_later($mac, $overrides, $options{retry});
         }
 
@@ -269,12 +274,35 @@ After a failed lookup, process the device again later instead of waiting for
 new data from the collector (which may never come for a device that sent a
 single DHCP request)
 
-At most $MAX_RETRIES retries are scheduled for a device: the count is kept for
-an hour after giving up and is cleared by a successful lookup. A device has at
+At most $MAX_RETRIES retries are scheduled for a device per retry period
+($RETRY_PERIOD): the count is cleared by a successful lookup. A device has at
 most one retry queued: the other failures in the meantime don't queue one, and
 a failed retry queues the next one
 
+The delay doubles with each retry and has a random part, so that the devices
+that failed together (many devices plugged at the same time) are not retried
+all at once, and the retries cover an outage of a few minutes
+
+When the last retry fails too, one more is queued for when the retry period is
+over. The count has expired by then, so if that one fails a new cycle of retries
+starts: a device whose lookup keeps failing is looked up again about every hour
+instead of waiting for new data from the collector, which may never come, and
+the regular RADIUS and DHCP calls still go through the freshness check
+
 =cut
+
+=head2 _retry_delay
+
+The delay in milliseconds before the retry following $retries retries:
+between 1 and 2 times $RETRY_DELAY * 2^$retries
+
+=cut
+
+sub _retry_delay {
+    my ($retries) = @_;
+    my $base = $RETRY_DELAY * (2 ** $retries);
+    return $base + int(rand($base));
+}
 
 sub _retry_later {
     my ($mac, $overrides, $from_retry) = @_;
@@ -293,19 +321,23 @@ sub _retry_later {
 
     my $retry_key = _retry_cache_key($mac);
     my $retries = $cache->get($retry_key) // 0;
-    if ($retries >= $MAX_RETRIES) {
-        if ($retries == $MAX_RETRIES) {
-            $logger->warn("Fingerbank lookup for $mac failed after $MAX_RETRIES retries, not retrying for the next hour");
-            $cache->set($retry_key, $retries + 1, {expires_in => $RETRY_PERIOD});
-        }
-        return;
+    # Gave up for this period: the retry queued then looks the device up again when it is over
+    return if $retries > $MAX_RETRIES;
+
+    my $delay;
+    if ($retries == $MAX_RETRIES) {
+        # Once the period is over the count has expired: if this retry fails, a new cycle starts
+        $delay = $RETRY_PERIOD * 1000 + _retry_delay($MAX_RETRIES);
+        $logger->warn("Fingerbank lookup for $mac failed after $MAX_RETRIES retries, retrying in " . int($delay / 60_000) . " minutes");
+    } else {
+        $delay = _retry_delay($retries);
+        $logger->info("Will retry the Fingerbank lookup for $mac in " . int($delay / 1000) . " seconds");
     }
     $cache->set($retry_key, $retries + 1, {expires_in => $RETRY_PERIOD});
     # Expires a minute after the retry is due, in case the queued task is lost
-    $cache->set($pending_key, 1, {expires_in => int($RETRY_DELAY / 1000) + 60});
-    $logger->info("Will retry the Fingerbank lookup for $mac in " . ($RETRY_DELAY / 1000) . " seconds");
+    $cache->set($pending_key, 1, {expires_in => int($delay / 1000) + 60});
     eval {
-        pf::api::queue->new(queue => 'general')->notify_delayed($RETRY_DELAY, 'fingerbank_process_retry', $mac, $overrides);
+        pf::api::queue->new(queue => 'general')->notify_delayed($delay, 'fingerbank_process_retry', $mac, $overrides);
     };
     if ($@) {
         $logger->error("Error submitting the Fingerbank retry to the queue: $@");
