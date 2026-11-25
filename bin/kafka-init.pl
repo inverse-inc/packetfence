@@ -77,24 +77,14 @@ if ($cluster_enabled) {
     my @servers = map { +{ host => $_->{host}, management_ip => $_->{management_ip} } } @db_cluster_servers;
     my %servers = map { $_->{host} => 1 } @servers;
 
-    # The host sections are rebuilt, the node IDs already assigned are kept.
-    # The other sections (cluster, iptables, general, ...) are left as is.
-    my %node_ids;
-    for my $section ($ini->Sections) {
-        # Never delete the core sections: they hold settings kafka-init doesn't regenerate
-        next if $section eq 'cluster' || $section eq 'admin' || $section eq 'iptables'
-             || $section eq 'general' || $section =~ /^auth /;
-        my $node_id = $ini->val($section, 'KAFKA_NODE_ID');
-        next if !defined $node_id && !$servers{$section};
-        $node_ids{$section} = $node_id if defined $node_id;
-        $changed |= 1;
-        $ini->DeleteSection($section);
-    }
+    # The host sections are rebuilt from the plan, the node IDs already assigned
+    # are kept. The other sections (cluster, iptables, general, ...) are left as is.
+    my ($host_sections, $node_ids) = pf::kafka::cluster::host_sections($ini, \%servers);
 
     my $plan = eval {
         pf::kafka::cluster::plan(
             servers => \@servers,
-            node_ids => \%node_ids,
+            node_ids => $node_ids,
             broker_only_hosts => [ split /\s*,\s*/, ($ini->val('general', 'broker_only_hosts') // '') ],
             listeners => scalar($ini->val('cluster', 'KAFKA_LISTENERS')),
             controller_listener_names => scalar($ini->val('cluster', 'KAFKA_CONTROLLER_LISTENER_NAMES')),
@@ -102,11 +92,17 @@ if ($cluster_enabled) {
     };
     if ($@) {
         chomp(my $err = $@);
-        $ini->RewriteConfig() if $changed;
+        # Nothing of the cluster was changed yet: keep the secrets generated above, nothing else
+        save();
         print STDERR "kafka-init: $err\n";
         exit 1;
     }
     print STDERR "$_\n" for @{$plan->{warnings}};
+
+    for my $section (@$host_sections) {
+        $changed |= 1;
+        $ini->DeleteSection($section);
+    }
 
     set_or_create($ini, 'cluster', 'KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR', $plan->{replication_factor});
     set_or_create($ini, 'cluster', 'KAFKA_CONTROLLER_QUORUM_VOTERS', $plan->{quorum_voters});
@@ -135,7 +131,10 @@ sub set_or_create {
     }
 }
 
-if ($changed) {
+save();
+
+sub save {
+    return if !$changed;
     $ini->RewriteConfig();
     # We edited kafka.conf directly on disk, so the pfconfig cache for this
     # namespace is now stale. Expire it so that downstream consumers

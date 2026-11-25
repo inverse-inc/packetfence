@@ -21,9 +21,11 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 21;
+use Test::More tests => 25;
 use Test::Exception;
 use pf::kafka::cluster;
+use pf::IniFiles;
+use pf::file_paths qw($install_dir);
 
 #This test will running last
 use Test::NoWarnings;
@@ -106,6 +108,42 @@ is(
     'every controller listener is removed'
 );
 is(pf::kafka::cluster::broker_listeners($listeners, undef), 'INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092,PF://0.0.0.0:9095,PFCONNECTOR://0.0.0.0:9096', 'CONTROLLER by default');
+
+# The sections kafka-init rebuilds: the servers of the cluster and the former
+# members, never the core sections; the template section of kafka.conf.example
+# reserves no node ID
+my $conf = <<'INI';
+[general]
+broker_only_hosts=pf2
+[cluster]
+CLUSTER_ID=x
+[auth client]
+user=client
+[admin]
+user=admin
+[iptables]
+cluster_ips=
+[ssl]
+enabled=false
+[[% ENV.env_or_default("KAFKA_HOSTNAME", '%hostname%') %]]
+KAFKA_NODE_ID=1
+[pf1]
+KAFKA_NODE_ID=1
+[pf9]
+KAFKA_NODE_ID=7
+INI
+my $ini = pf::IniFiles->new(-file => \$conf);
+my ($sections, $node_ids) = pf::kafka::cluster::host_sections($ini, { pf1 => 1, pf2 => 1 });
+is_deeply($sections, [q{[% ENV.env_or_default("KAFKA_HOSTNAME", '%hostname%') %]}, 'pf1', 'pf9'], 'the template, server and former member sections are rebuilt, the core sections are kept');
+is_deeply($node_ids, { pf1 => 1, pf9 => 7 }, 'the template section of kafka.conf.example reserves no node ID');
+$plan = pf::kafka::cluster::plan(servers => [ @servers[1, 2] ], node_ids => $node_ids, listeners => $listeners);
+is_deeply([map { $_->{node_id} } @{$plan->{members}}], [1, 8], 'pf1 keeps its ID, the new server gets one above the former member');
+
+# A fresh cluster from kafka.conf.example starts at node ID 1
+my $example = pf::IniFiles->new(-file => "$install_dir/conf/kafka.conf.example");
+($sections, $node_ids) = pf::kafka::cluster::host_sections($example, { pf1 => 1, pf2 => 1, pf3 => 1 });
+$plan = pf::kafka::cluster::plan(servers => [ @servers[1 .. 3] ], node_ids => $node_ids, listeners => $listeners);
+is($plan->{quorum_voters}, '1@192.0.2.1:9093,2@192.0.2.2:9093,3@192.0.2.3:9093', 'a fresh cluster from kafka.conf.example starts at node ID 1');
 
 # Standalone
 $plan = pf::kafka::cluster::plan(servers => [], listeners => $listeners);

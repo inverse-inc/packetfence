@@ -97,6 +97,33 @@ sub plan {
     };
 }
 
+=head2 host_sections
+
+    my ($sections, $node_ids) = pf::kafka::cluster::host_sections($ini, \%servers);
+
+The sections of kafka.conf that kafka-init rebuilds: the ones of the servers
+of the cluster and the ones holding a KAFKA_NODE_ID (former members). The core
+sections (cluster, admin, iptables, general and auth *) are never among them.
+Also returns the node IDs these sections hold, except the one of the template
+section of kafka.conf.example ([% ... %]), which is not a server: its ID is
+free.
+
+=cut
+
+sub host_sections {
+    my ($ini, $servers) = @_;
+    my (@sections, %node_ids);
+    for my $section ($ini->Sections) {
+        next if $section eq 'cluster' || $section eq 'admin' || $section eq 'iptables'
+             || $section eq 'general' || $section =~ /^auth /;
+        my $node_id = $ini->val($section, 'KAFKA_NODE_ID');
+        next if !defined $node_id && !$servers->{$section};
+        push @sections, $section;
+        $node_ids{$section} = $node_id if defined $node_id && $section !~ /%/;
+    }
+    return (\@sections, \%node_ids);
+}
+
 =head2 broker_listeners
 
 The listeners without the controller listeners
