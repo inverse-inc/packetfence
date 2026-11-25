@@ -382,7 +382,7 @@ def publish_tree(client, name, pipeline, tree, *, dependencies=False, apply=Fals
     if any(not (tree / path).is_file() for path in required):
         raise ValueError('Repository tree must include its signing public key'
                          + (' and dependency lock' if require_lock else ''))
-    inventory, additions = [], []
+    inventory, additions, replaced = [], [], []
     for path in paths:
         if not path.is_file():
             continue
@@ -395,14 +395,16 @@ def publish_tree(client, name, pipeline, tree, *, dependencies=False, apply=Fals
         sha = digest(path)
         row = {'path': full, 'sha256': sha, 'size': path.stat().st_size}
         inventory.append(row)
-        if full in current_files:
-            if current_files[full]['sha256'] != sha:
-                raise ValueError('Existing pipeline path has a different hash: ' + full)
-        else:
+        # The pipeline's own CI-only folder: a retry replaces what a failed attempt sent (re-signed Release,
+        # InRelease, repomd); Pulp keeps one file per path. Unchanged files are not sent again.
+        if full not in current_files:
             additions.append((path, row))
+        elif current_files[full]['sha256'] != sha:
+            additions.append((path, row))
+            replaced.append(full)
     result = {'repository': name, 'pipeline': str(pipeline), 'prefix': prefix,
               'previous_publication': dist.get('publication'), 'files': inventory,
-              'new_files': len(additions), 'applied': False}
+              'new_files': len(additions) - len(replaced), 'replaced': replaced, 'applied': False}
     if not apply:
         return result
     # Other pipelines may append concurrently: verify only this pipeline's paths.
