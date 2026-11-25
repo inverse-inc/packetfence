@@ -476,6 +476,14 @@ class ConfigurationTest(unittest.TestCase):
                     calls = [' '.join(line.split()[:3]).replace('ci/pulp/vendor/', '') for line in log.read_text().splitlines()]
                     self.assertEqual(sorted(calls), sorted(published), result.stderr)
                     self.assertNotIn('secret', result.stdout + result.stderr)
+            # A package the index lists but the tree lacks stops the publish before any upload.
+            (public/'debian/pool/p.deb').unlink()
+            log.write_text('')
+            result = subprocess.run(['bash', str(repo/'ci/pulp/publish-packages.sh'), 'release'], capture_output=True, text=True,
+                                    env={**base, 'CI_COMMIT_REF_NAME': 'maintenance/1.0', 'FAKE_RPM': 'el', 'FAKE_DEB': 'deb'})
+            self.assertEqual(result.returncode, 1)
+            self.assertIn('lists pool/p.deb, missing from the generated tree', result.stderr)
+            self.assertEqual(log.read_text(), '')
 
     def test_every_ansible_requirement_installs_from_the_package_origin(self):
         # inverse_inc.packetfence before 1.3.0 hard-codes inverse.ca in its repository line.
