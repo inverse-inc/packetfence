@@ -451,6 +451,8 @@ class ConfigurationTest(unittest.TestCase):
             public = work/'public'
             (public/'debian/dists/bookworm/bookworm/binary-amd64').mkdir(parents=True)
             (public/'debian/dists/bookworm/bookworm/binary-amd64/Packages').write_text('Filename: pool/p.deb\n')
+            (public/'debian/pool').mkdir()
+            (public/'debian/pool/p.deb').write_text('x')
             (public/'centos/8/x86_64/repodata').mkdir(parents=True)
             (public/'centos/8/x86_64/p.rpm').write_text('x')
             (public/'GPG_PUBLIC_KEY').write_text('key')

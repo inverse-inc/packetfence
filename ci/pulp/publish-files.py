@@ -97,7 +97,10 @@ def publish(client, snapshot, items):
         listed = set(json.loads((dist.get('pulp_labels') or {}).get(LABEL + 'index_files', '[]')))
         for entry in entries:
             if entry['relative_path'] not in changed and entry['relative_path'] not in listed:
-                changed[entry['relative_path']] = client.request('GET', entry['artifact'])['size']
+                try:  # artifacts may be admin-only: then the packaging side's listing picks the file up later
+                    changed[entry['relative_path']] = client.request('GET', entry['artifact'])['size']
+                except Exception as error:
+                    print(f'{snapshot}/{entry["relative_path"]}: published, not listed ({error})')
     repo = client.request('GET', repo['pulp_href'])
     task = client.wait(client.request('POST', API + 'publications/file/file/',
                                       json={'repository_version': repo['latest_version_href'], 'manifest': 'PULP_MANIFEST'}))
