@@ -54,9 +54,11 @@ its packages gets the newer ones. The `vX.Y.Z` images the tag pipeline builds ar
 `BUILD_ARTIFACTS_PKG=no` and `BUILD_IMG_CONTAINER=no` (or `build_img_container=no` in the commit message)
 stop every deploy too, even when requested tests build the packages and images anyway.
 
-The deploy jobs have GitLab environments so that the project setting *Prevent outdated deployment jobs*
-(Settings > CI/CD > General pipelines) applies: it must stay on, or an older pipeline that finishes last puts
-its older packages and images back.
+Every deploy job has an environment of its own branch (`<name>/$CI_COMMIT_REF_SLUG`), so that the project
+setting *Prevent outdated deployment jobs* (Settings > CI/CD > General pipelines, without *Allow job retries for
+rollback deployments*) only compares pipelines of the same branch: an older pipeline that finishes last cannot
+put its older packages and images back. `publish_ppa` only prepares (`action: prepare`): each pipeline has its
+own tree. A CI/CD variable scoped to one of these environments needs a wildcard scope (`maintenance/*`).
 
 `publish_ppa` (the pipeline's `gitlab/<pipeline>/` tree) runs whenever the pipeline builds packages,
 since the tests install from it.

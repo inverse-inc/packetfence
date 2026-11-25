@@ -988,6 +988,7 @@ publish_ppa:
     - job: sign_packages
   environment:
     name: PPA
+    action: prepare
     url: ${PF_PACKAGE_ORIGIN}/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}
   script:
     - PAGES_HTML=no generate-pages
@@ -1322,7 +1323,7 @@ deploy_debian_pulp:
   dependencies:
     - sign_packages
   environment:
-    name: $DEPLOY_ENV_NAME
+    name: $DEPLOY_ENV_NAME/$CI_COMMIT_REF_SLUG
   before_script:
     - |
       set -euo pipefail
@@ -1409,7 +1410,7 @@ deploy_files_pulp:
     - job: deploy_debian_pulp
       artifacts: false
   environment:
-    name: $DEPLOY_ENV_NAME
+    name: $DEPLOY_ENV_NAME/$CI_COMMIT_REF_SLUG
   script:
     - bash ci/pulp/publish-packages.sh files
   tags:
@@ -1430,7 +1431,7 @@ deploy_branches_pulp:
   dependencies:
     - sign_packages
   environment:
-    name: $DEPLOY_ENV_NAME
+    name: $DEPLOY_ENV_NAME/$CI_COMMIT_REF_SLUG
   before_script:
     - |
       set -euo pipefail
@@ -1508,7 +1509,7 @@ build_pf_img_zen:
   extends:
     - .build_pf_img_job
   environment:
-    name: linode
+    name: linode/$CI_COMMIT_REF_SLUG
     url: ${RCLONE_LINODE_URL}/packetfence-zen/${CI_COMMIT_REF_SLUG}
   variables:
     BUILD_DIR: ci/zen
@@ -1533,7 +1534,7 @@ build_pf_img_cd_iso:
   extends:
     - .build_pf_img_job
   environment:
-    name: linode
+    name: linode/$CI_COMMIT_REF_SLUG
     url: ${RCLONE_LINODE_URL}/packetfence-iso/${CI_COMMIT_REF_SLUG}
   variables:
     BUILD_DIR: ci/cd-iso
@@ -1554,7 +1555,7 @@ build_pf_img_dvd_usb_iso:
     - .build_pf_img_job
   # No needs: it waits by stage order for this pipeline's PPA and service images (predownload-docker-images.sh).
   environment:
-    name: linode
+    name: linode/$CI_COMMIT_REF_SLUG
     url: ${RCLONE_LINODE_URL}/packetfence-iso/${CI_COMMIT_REF_SLUG}
   variables:
     PF_VERSION: ${CI_COMMIT_REF_NAME}
