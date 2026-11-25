@@ -124,8 +124,7 @@ def main():
     except (RuntimeError, requests.RequestException) as exc:
         print(f'Promotion failed: {exc}', file=sys.stderr)
         return 1
-    promoted = found
-    print(f'{"Promoted" if args.apply else "Would promote"} {len(promoted)} images to {",".join(targets)}')
+    print(f'{"Promoted" if args.apply else "Would promote"} {len(found)} images to {",".join(targets)}')
     return 0
 
 
