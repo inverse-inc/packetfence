@@ -302,6 +302,7 @@ class ConfigurationTest(unittest.TestCase):
             for path in ROOT.glob(pattern):
                 if path.is_file():
                     self.assertNotIn('inverse.ca/downloads', path.read_text(errors='replace'), path)
+        self.assertNotIn('packetfence.org/downloads', (ROOT/'addons/full-upgrade/run-upgrade.sh').read_text())
 
     def test_pipeline_image_tag_contexts(self):
         helper = ROOT/'ci/lib/common/pipeline-image-tag.sh'
