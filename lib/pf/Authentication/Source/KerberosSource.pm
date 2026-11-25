@@ -48,15 +48,46 @@ sub authenticate {
 
   my ( $self, $username, $password ) = @_;
 
+  my $principal = $self->principal($username);
+  if (!defined($principal) || !length($password // '')) {
+    return ($FALSE, $AUTH_FAIL_MSG);
+  }
+
   my $kerberos = Authen::Krb5::Simple->new( realm => $self->{'authenticate_realm'} );
 
-  if ($kerberos->authenticate($username, $password)) {
+  if ($kerberos->authenticate($principal, $password)) {
     return ($TRUE, $AUTH_SUCCESS_MSG);
   } else {
     return ($FALSE, $AUTH_FAIL_MSG);
   }
 
   return ($FALSE, $COMMUNICATION_ERROR_MSG);
+}
+
+=head2 principal
+
+The Kerberos principal of a username in the realm of the source
+(authenticate_realm): user@REALM. A username with a realm is accepted only
+for the realm of the source (case insensitive). Returns undef for an empty
+name, a name with an instance (/) or another '@' or '\', or when the
+source has no realm.
+
+=cut
+
+sub principal {
+    my ($self, $username) = @_;
+    my $realm = $self->{'authenticate_realm'};
+    return undef if !defined($realm) || !length($realm) || !defined($username);
+
+    my $name = $username;
+    if ($name =~ /\A(.*)\@([^\@]*)\z/s) {
+        my ($user, $user_realm) = ($1, $2);
+        return undef if lc($user_realm) ne lc($realm);
+        $name = $user;
+    }
+
+    return undef if !length($name) || $name =~ m{[\@/\\]};
+    return "$name\@$realm";
 }
 
 =head2 match_in_subclass
