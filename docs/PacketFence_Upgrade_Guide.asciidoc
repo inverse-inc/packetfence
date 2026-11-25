@@ -1253,6 +1253,16 @@ If the SSO login of the admin interface is enabled
 
 See the <<PacketFence_Installation_Guide.asciidoc#_advanced_access_control_for_admin_login,Advanced Access Control For Admin Login>> section.
 
+=== SMS PIN retry limit of the connection profiles
+
+The default *SMS Pin Retry Limit* (`sms_pin_retry_limit`) of the connection
+profiles is now 5 instead of 0 (unlimited). Whether a deployment gets it
+depends on the `[default]` profile of [filename]`/usr/local/pf/conf/profiles.conf`:
+saving the default connection profile from the admin interface writes all its
+values there, including `sms_pin_retry_limit=0`, and the other profiles inherit
+it. Such a deployment keeps unlimited retries on every profile until
+`sms_pin_retry_limit` is changed or removed from `[default]`; the others get 5.
+
 === Date conditions in filters and connection profiles
 
 The `date_is_before`, `date_is_after`, `not_date_is_before` and
