@@ -32,10 +32,10 @@ type CmdArgs struct {
 }
 
 func processArgs() (*CmdArgs, error) {
-	proto := flag.String("proto", "udp", "Protocol for the socket")
+	proto := flag.String("proto", "unix", "Protocol for the socket")
 	port := flag.String("port", "44444", "Port for TCP socket")
 	flag.Parse()
-	if *proto != "udp" && *proto != "tcp" {
+	if *proto != "unix" && *proto != "tcp" {
 		return nil, fmt.Errorf("invalid proto %s", *proto)
 	}
 	return &CmdArgs{Proto: *proto, Port: *port}, nil
