@@ -24,6 +24,7 @@ use pf::error qw(is_error);
 use Mojo::Base qw(pf::UnifiedApi::Controller::RestRoute);
 use pf::log;
 use pf::constants;
+use pf::admin_roles qw(admin_can);
 
 my $CERT_DELIMITER = "-----END CERTIFICATE-----";
 
@@ -119,6 +120,26 @@ sub get {
     $files_data->{has_private_key} = (defined($private_key) && $private_key =~ /\S/) ? $self->json_true : $self->json_false;
     $files_data->{lets_encrypt} = isenabled(pf::ssl::lets_encrypt::resource_state($self->stash->{certificate_id})) ? $self->json_true : $self->json_false;
     $self->render(json => $files_data, status => 200);
+}
+
+=head2 private_key
+
+Get the private key of a certificate resource. It requires
+CONFIGURATION_MAIN_UPDATE (the internal requests have no admin roles): it is
+used by the services that install the certificate elsewhere (e.g. the RADIUS
+certificate of the remote connectors).
+
+=cut
+
+sub private_key {
+    my ($self) = @_;
+    my $roles = $self->stash->{admin_roles} // [];
+    if (@$roles && !admin_can($roles, 'CONFIGURATION_MAIN_UPDATE')) {
+        return $self->render_error(403, "CONFIGURATION_MAIN_UPDATE is required");
+    }
+
+    my $key = read_file($self->resource_config()->{key_file});
+    return $self->render(json => { private_key => $key }, status => 200);
 }
 
 =head2 resource_info
@@ -293,7 +314,10 @@ sub replace {
     # Without a private key, keep the current one (it must still match the certificate)
     if (ref($data) eq 'HASH' && !(defined($data->{private_key}) && $data->{private_key} =~ /\S/)) {
         my $key_file = $self->resource_config()->{key_file};
-        $data->{private_key} = -e $key_file ? read_file($key_file) : undef;
+        if (!-e $key_file) {
+            return $self->render_error(422, "No private key installed, one must be provided");
+        }
+        $data->{private_key} = read_file($key_file);
     }
 
     # Explicitely disable Let's Encrypt if manually managing certs

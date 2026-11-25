@@ -56,7 +56,7 @@ my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Pf");
 
 #insert known data
 #run tests
-use Test::More tests => 65;
+use Test::More tests => 74;
 use Test::Mojo;
 use Mojo::JSON;
 use Test::NoWarnings;
@@ -86,6 +86,25 @@ $t->get_ok('/api/v1/config/certificate/http')
   ->status_is(200)
   ->json_hasnt('/private_key')
   ->json_is('/has_private_key', Mojo::JSON->true);
+
+# The private key has its own endpoint, which requires CONFIGURATION_MAIN_UPDATE
+$t->get_ok('/api/v1/config/certificate/http/private_key')
+  ->status_is(200)
+  ->json_is('/private_key', $key);
+
+$t->get_ok('/api/v1/config/certificate/http/private_key' => { 'X-PacketFence-Admin-Roles' => 'UsersRead' })
+  ->status_is(403)
+  ->json_hasnt('/private_key');
+
+# Without a private key installed, one must be provided
+{
+    my $installed_key = read_file($server_key);
+    unlink($server_key);
+    $t->put_ok("/api/v1/config/certificate/http" => json => { certificate => $cert })
+      ->status_is(422)
+      ->json_is('/message', 'No private key installed, one must be provided');
+    write_file($server_key, $installed_key);
+}
 
 # Replacing without a private key keeps the current one
 $t->put_ok("/api/v1/config/certificate/http" => json => { certificate => $cert })

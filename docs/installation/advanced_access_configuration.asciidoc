@@ -405,6 +405,10 @@ curl -X PUT -H "Authorization: <token>" \
   -d '{"certificate": "<certificate PEM>", "private_key": "<private key PEM>", "intermediate_cas": ["<intermediate CA PEM>"]}'
 ----
 
+Without `private_key` (or with an empty one), the installed private key is
+kept: it must match the new certificate. The API doesn't return the installed
+private key.
+
 The private key must be an RSA key: PacketFence doesn't load EC keys, which
 acme.sh and recent versions of certbot generate by default. Ask the ACME
 client for an RSA key (`--keylength 2048` with acme.sh, `--key-type rsa` with

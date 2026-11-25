@@ -1725,6 +1725,7 @@ sub setup_api_v1_config_certificates_routes {
     $resource_route->any(['GET'] => '')->to(action => "get")->name("${resource_name}.get");
     $resource_route->any(['PUT'])->to(action => "replace")->name("${resource_name}.replace");
     $resource_route->any(['GET'] => "/info")->to(action => "info")->name("${resource_name}.info");
+    $resource_route->any(['GET'] => "/private_key")->to(action => "private_key")->name("${resource_name}.private_key");
     $resource_route->any(['POST'] => "/generate_csr")->to(action => "generate_csr")->name("${resource_name}.generate_csr");
     $resource_route->any(['PUT'] => "/lets_encrypt")->to(action => "lets_encrypt_replace")->name("${resource_name}.lets_encrypt_replace");
 
