@@ -3,7 +3,7 @@ package httpdispatcher
 import "testing"
 
 func TestClientIP(t *testing.T) {
-	trusted := trustedProxies("192.0.2.10, 192.0.2.11")
+	trusted := trustedProxies("192.0.2.10, 192.0.2.11", "10.0.0.2", "")
 
 	for _, test := range []struct {
 		name         string
@@ -24,6 +24,7 @@ func TestClientIP(t *testing.T) {
 		{"remote address without port", "10.0.0.7", []string{"10.0.0.5"}, "10.0.0.7"},
 		{"IPv6 local proxy", "[::1]:51000", []string{"2001:db8::5"}, "2001:db8::5"},
 		{"IPv6 untrusted peer", "[2001:db8::7]:51000", []string{"2001:db8::5"}, "2001:db8::7"},
+		{"management IP as proxy", "10.0.0.2:51000", []string{"10.0.0.5"}, "10.0.0.5"},
 	} {
 		if got := clientIP(test.remoteAddr, test.forwardedFor, trusted); got != test.expected {
 			t.Errorf("%s: got %q, expected %q", test.name, got, test.expected)

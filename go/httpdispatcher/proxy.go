@@ -646,12 +646,18 @@ func (p *Proxy) nodeIsReg(ctx context.Context, mac string) bool {
 var localProxies = []string{"127.0.0.1", "::1", "100.64.0.1"}
 
 // trustedProxies returns whether an address is a proxy whose X-Forwarded-For
-// header is used: haproxy-portal on this server or a load balancer
+// header is used: haproxy-portal on this server (the local addresses and the
+// other given addresses, e.g. the management IP and VIP) or a load balancer
 // (captive_portal.loadbalancers_ip)
-func trustedProxies(loadbalancersIP string) func(string) bool {
+func trustedProxies(loadbalancersIP string, others ...string) func(string) bool {
 	trusted := make(map[string]bool)
 	for _, ip := range localProxies {
 		trusted[ip] = true
+	}
+	for _, ip := range others {
+		if ip = strings.TrimSpace(ip); ip != "" {
+			trusted[ip] = true
+		}
 	}
 	for _, ip := range strings.Split(loadbalancersIP, ",") {
 		if ip = strings.TrimSpace(ip); ip != "" {
@@ -695,7 +701,8 @@ func clientIP(remoteAddr string, forwardedFor []string, trusted func(string) boo
 
 func (p *Proxy) getIP(ctx context.Context, r *http.Request) string {
 	portal := pfconfigdriver.GetType[pfconfigdriver.PfConfCaptivePortal](ctx)
-	return clientIP(r.RemoteAddr, r.Header.Values("X-Forwarded-For"), trustedProxies(portal.LoadbalancersIP))
+	management := pfconfigdriver.GetType[pfconfigdriver.ManagementNetwork](ctx)
+	return clientIP(r.RemoteAddr, r.Header.Values("X-Forwarded-For"), trustedProxies(portal.LoadbalancersIP, management.Ip, management.Vip))
 }
 
 func (p *Proxy) reverse(ctx context.Context, w http.ResponseWriter, r *http.Request, host string) {

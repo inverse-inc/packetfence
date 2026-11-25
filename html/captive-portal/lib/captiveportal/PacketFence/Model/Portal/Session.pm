@@ -107,7 +107,7 @@ has dispatcherSession => (
     lazy => 1,
 );
 
-has [qw(forwardedFor guestNodeMac internalPreview)] => ( is => 'rw', );
+has [qw(forwardedFor guestNodeMac internalPreview trustedProxies)] => ( is => 'rw', );
 
 sub ACCEPT_CONTEXT {
     my ( $self, $c, @args ) = @_;
@@ -121,7 +121,9 @@ sub ACCEPT_CONTEXT {
     my $remoteAddress = $request->address;
     my $forwardedFor  = $request->{'env'}->{'HTTP_X_FORWARDED_FOR'};
     # The portal preview of the admin interface (through haproxy-admin)
-    my $internalPreview = pf::web::client_ip::is_internal_preview($remoteAddress, $request->{'env'}->{'HTTP_X_FORWARDED_FOR_PACKETFENCE'});
+    # The trusted proxies are computed once for the request
+    my $trustedProxies = pf::web::client_ip::trusted_proxies();
+    my $internalPreview = pf::web::client_ip::is_internal_preview($remoteAddress, $request->{'env'}->{'HTTP_X_FORWARDED_FOR_PACKETFENCE'}, $trustedProxies);
     my $redirectURL;
     my $uri = $request->uri;
     my $options;
@@ -155,6 +157,7 @@ sub ACCEPT_CONTEXT {
         remoteAddress => $remoteAddress,
         forwardedFor  => $forwardedFor,
         internalPreview => $internalPreview,
+        trustedProxies => $trustedProxies,
         options       => $options,
         sessionID     => $session_id,
         @args,
@@ -191,7 +194,7 @@ sub _build_clientIP {
     }
 
     # The X-Forwarded-For header is only used when the request comes from a trusted proxy
-    my $ip = pf::web::client_ip::client_ip( $directly_connected_ip, $self->forwardedFor );
+    my $ip = pf::web::client_ip::client_ip( $directly_connected_ip, $self->forwardedFor, $self->trustedProxies );
     $logger->debug( "Remote Address is $directly_connected_ip. Using the client IP $ip" );
     Log::Log4perl::MDC->put( 'ip', $ip );
     return pf::util::IP::detect($ip);
