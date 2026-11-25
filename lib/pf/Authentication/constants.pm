@@ -156,9 +156,14 @@ Constants related to actions rules.
 
 package Actions;
 
-=item MARK_AS_SPONSOR, SET_ACCESS_LEVEL, SET_ROLE, SET_ACCESS_DURATION, SET_ACCESS_DURATIONS, SET_UNREG_DATE SET_TIME_BALANCE, SET_BANDWIDTH_BALANCE, SET_ROLE_FROM_SOURCE, TRIGGER_RADIUS_MFA, TRIGGER_PORTAL_MFA
+=item MARK_AS_SPONSOR, SET_ACCESS_LEVEL, SET_ROLE, SET_ACCESS_DURATION, SET_ACCESS_DURATIONS, SET_UNREG_DATE SET_TIME_BALANCE, SET_BANDWIDTH_BALANCE, SET_ROLE_FROM_SOURCE, TRIGGER_RADIUS_MFA, TRIGGER_PORTAL_MFA, SET_BYPASS_VLAN
 
 Available actions
+
+SET_BYPASS_VLAN is not in ACTIONS: it cannot be selected in the rules of a
+source. It is only returned by the sources that build their actions at match
+time (HTTP source), to set (or, with an empty value, remove) the bypass VLAN
+of the device.
 
 =cut
 
@@ -174,6 +179,7 @@ Readonly::Scalar our $SET_TIME_BALANCE => "set_time_balance";
 Readonly::Scalar our $SET_BANDWIDTH_BALANCE => "set_bandwidth_balance";
 Readonly::Scalar our $TRIGGER_RADIUS_MFA => "trigger_radius_mfa";
 Readonly::Scalar our $TRIGGER_PORTAL_MFA => "trigger_portal_mfa";
+Readonly::Scalar our $SET_BYPASS_VLAN => "set_bypass_vlan";
 
 =item ACTIONS
 
@@ -196,6 +202,7 @@ Readonly::Hash our %ACTION_CLASS_TO_TYPE => (
     $SET_ROLE_FROM_SOURCE   => $Rules::AUTH,
     $TRIGGER_RADIUS_MFA     => $Rules::AUTH,
     $TRIGGER_PORTAL_MFA     => $Rules::AUTH,
+    $SET_BYPASS_VLAN        => $Rules::AUTH,
 
     $SET_ACCESS_LEVEL       => $Rules::ADMIN,
     $MARK_AS_SPONSOR        => $Rules::ADMIN,
