@@ -1865,8 +1865,7 @@ build_pf_img_dvd_usb_iso:
   extends:
     - .build_pf_img_dvd_usb_iso_job
     - .build_pf_img_dvd_usb_iso_any_branch_rules
-  needs:
-    - job: "publish_ppa_devel_release_branches_and_maintenance:"
+  # No needs: it waits by stage order for this pipeline's PPA and service images (predownload-docker-images.sh).
   variables:
     PF_VERSION: ${CI_COMMIT_REF_NAME}
     PF_REPO_TYPE: gitlab/${CI_PIPELINE_ID}
