@@ -32,27 +32,26 @@ fi
 
 # PacketFence repository URL configuration
 # Available options:
-#   - debian-branches: Branch builds (default, for devel/feature branches)
-#   - debian-lastrelease: Last release builds (for maintenance releases)
-#   - gitlab/PIPELINE_ID: Specific CI pipeline builds
-PF_REPO_TYPE=${PF_REPO_TYPE:-debian-branches}
+#   - debian: the release's deployed repository debian/VERSION (default)
+#   - gitlab/PIPELINE_ID: a CI pipeline's PPA (what CI uses)
+PF_REPO_TYPE=${PF_REPO_TYPE:-debian}
+PF_PACKAGE_ORIGIN=${PF_PACKAGE_ORIGIN:-https://packages.packetfence.com}
 
 # Build URL based on repo type
-# gitlab pipelines use: https://packages.packetfence.com/downloads/PacketFence/gitlab/PIPELINE_ID/debian bookworm main
-# branches use: https://packages.packetfence.com/downloads/PacketFence/debian-branches/VERSION bookworm bookworm
-# Note: packetfence packages are in debian-branches repo, fingerbank/docker are in debian repo
+# gitlab pipelines use: $PF_PACKAGE_ORIGIN/downloads/PacketFence/gitlab/PIPELINE_ID/debian bookworm main
+# a release uses: $PF_PACKAGE_ORIGIN/downloads/PacketFence/debian/VERSION bookworm bookworm
 if [[ "${PF_REPO_TYPE}" == gitlab/* ]]; then
-    PF_REPO_BASE_URL="https://packages.packetfence.com/downloads/PacketFence/${PF_REPO_TYPE}/debian"
+    PF_REPO_BASE_URL="${PF_PACKAGE_ORIGIN}/downloads/PacketFence/${PF_REPO_TYPE}/debian"
     PF_REPO_COMPONENT="main"
 else
-    # Use the PF_REPO_TYPE in the URL (e.g., debian-branches or debian)
-    PF_REPO_BASE_URL="https://packages.packetfence.com/downloads/PacketFence/${PF_REPO_TYPE}/${PF_RELEASE_VERSION}"
+    # Use the PF_REPO_TYPE in the URL (e.g. debian)
+    PF_REPO_BASE_URL="${PF_PACKAGE_ORIGIN}/downloads/PacketFence/${PF_REPO_TYPE}/${PF_RELEASE_VERSION}"
     PF_REPO_COMPONENT="bookworm"
 fi
 
 # URL for dependency packages (fingerbank, docker, freeradius are in debian/VERSION repo)
-PF_DEPS_BASE_URL="https://packages.packetfence.com/downloads/PacketFence/debian/${PF_RELEASE_VERSION}"
-PF_SIGNING_KEY_URL=https://packages.packetfence.com/downloads/GPG_PUBLIC_KEY
+PF_DEPS_BASE_URL="${PF_PACKAGE_ORIGIN}/downloads/PacketFence/debian/${PF_RELEASE_VERSION}"
+PF_SIGNING_KEY_URL=${PF_PACKAGE_ORIGIN}/downloads/GPG_PUBLIC_KEY
 
 echo "=============================================="
 echo "Creating PacketFence Package Repository"
@@ -103,7 +102,7 @@ echo "Configured PacketFence repo: ${PF_REPO_BASE_URL}"
 
 # Add dependencies repo for fingerbank, freeradius, docker packages
 # These are always in debian/VERSION repo, separate from packetfence packages
-# (packetfence packages are in debian-branches/VERSION or gitlab/PIPELINE_ID repos)
+# (packetfence packages are in debian/VERSION or gitlab/PIPELINE_ID repos)
 if [[ "${PF_REPO_BASE_URL}" != "${PF_DEPS_BASE_URL}" ]]; then
     echo "===> Adding dependencies repository (fingerbank, freeradius, etc.)"
     ${SUDO} tee ${CHROOT_DIR}/etc/apt/sources.list.d/packetfence_deps.list > /dev/null << EOF

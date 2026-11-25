@@ -7,8 +7,8 @@ sed -i '/^deb cdrom:/s/^/#/' /etc/apt/sources.list
 sed -i 's/#PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config
 sed -i 's/#PasswordAuthentication.*/PasswordAuthentication yes/g' /etc/ssh/sshd_config
 systemctl restart sshd.service
-curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
-echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/${PF_VERSION} bookworm bookworm" > \
+curl -fsSL https://packages.packetfence.com/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
+echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://packages.packetfence.com/downloads/PacketFence/debian/${PF_VERSION} bookworm bookworm" > \
 	/etc/apt/sources.list.d/packetfence.list
 echo "SET PASSWORD FOR root@'localhost' = PASSWORD('');" > /tmp/reset-root.sql
 apt-get update
