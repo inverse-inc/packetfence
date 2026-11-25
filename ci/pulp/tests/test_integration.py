@@ -44,6 +44,184 @@ def resolved_rules(config, name):
     return out
 
 
+# --- A small model of GitLab rules, to check every pipeline this file can create. ---
+RESERVED = {'variables', 'stages', 'default', 'workflow', 'include', 'image', 'services', 'cache',
+            'before_script', 'after_script'}
+TOKEN = re.compile(r'\s*(?:(\$[A-Za-z_][A-Za-z0-9_]*)|"((?:[^"\\]|\\.)*)"|\'((?:[^\'\\]|\\.)*)\'|'
+                   r'(/(?:[^/\\]|\\.)+/)|(==|!=|=~|!~|&&|\|\||\(|\))|(null))')
+
+
+def compile_condition(text):
+    """A rules:if expression as a function of the variables (None: undefined)."""
+    tokens, pos = [], 0
+    while pos < len(text.rstrip()):
+        match = TOKEN.match(text, pos)
+        if not match:
+            raise ValueError(f'cannot parse {text!r} at {pos}')
+        var, dq, sq, regex, op, null = match.groups()
+        if var:
+            tokens.append(('var', var[1:]))
+        elif dq is not None or sq is not None:
+            tokens.append(('str', dq if dq is not None else sq))
+        elif regex:
+            tokens.append(('re', re.compile(regex[1:-1].replace('[[:digit:]]', '[0-9]'))))
+        elif null:
+            tokens.append(('null', None))
+        else:
+            tokens.append(('op', op))
+        pos = match.end()
+    position = [0]
+
+    def peek():
+        return tokens[position[0]] if position[0] < len(tokens) else (None, None)
+
+    def take():
+        token = peek()
+        position[0] += 1
+        return token
+
+    def operand():
+        kind, value = take()
+        if kind == 'var':
+            return lambda env: env.get(value)
+        if kind in ('str', 're'):
+            return lambda env: value
+        if kind == 'null':
+            return lambda env: None
+        raise ValueError(f'unexpected {value!r} in {text!r}')
+
+    def comparison():
+        if peek() == ('op', '('):
+            take()
+            inner = disjunction()
+            assert take() == ('op', ')'), text
+            return inner
+        left = operand()
+        kind, op = peek()
+        if kind != 'op' or op not in ('==', '!=', '=~', '!~'):
+            return lambda env: bool(left(env))
+        take()
+        right = operand()
+        if op == '==':
+            return lambda env: left(env) == right(env)
+        if op == '!=':
+            return lambda env: left(env) != right(env)
+        matches = lambda env: left(env) is not None and bool(right(env).search(left(env)))  # noqa: E731
+        return matches if op == '=~' else (lambda env: not matches(env))
+
+    def conjunction():
+        parts = [comparison()]
+        while peek() == ('op', '&&'):
+            take()
+            parts.append(comparison())
+        return lambda env: all(part(env) for part in parts)
+
+    def disjunction():
+        parts = [conjunction()]
+        while peek() == ('op', '||'):
+            take()
+            parts.append(conjunction())
+        return lambda env: any(part(env) for part in parts)
+
+    result = disjunction()
+    assert position[0] == len(tokens), text
+    return result
+
+
+def expand(config, value):
+    """!reference resolved (recursively) in a list or value."""
+    if isinstance(value, dict) and set(value) == {'reference'}:
+        target = config
+        for key in value['reference']:
+            target = target[key]
+        return expand(config, target)
+    if isinstance(value, list):
+        out = []
+        for item in value:
+            if isinstance(item, dict) and set(item) == {'reference'}:
+                resolved = expand(config, item)
+                out.extend(resolved if isinstance(resolved, list) else [resolved])
+            else:
+                out.append(item)
+        return out
+    return value
+
+
+def merged(config, name):
+    """A job with its extends applied (hashes merged, other values replaced)."""
+    def merge(base, top):
+        out = dict(base)
+        for key, value in top.items():
+            out[key] = merge(out[key], value) if isinstance(out.get(key), dict) and isinstance(value, dict) \
+                and set(value) != {'reference'} else value
+        return out
+    job = config[name]
+    parents = job.get('extends', [])
+    result = {}
+    for parent in [parents] if isinstance(parents, str) else parents:
+        result = merge(result, merged(config, parent))
+    return merge(result, {k: v for k, v in job.items() if k != 'extends'})
+
+
+class Pipelines:
+    """Which jobs a pipeline holds, for any context (variables), from .gitlab-ci.yml."""
+    def __init__(self, config):
+        self.jobs = {}
+        for name, job in config.items():
+            if name.startswith('.') or name in RESERVED or not isinstance(job, dict):
+                continue
+            full = merged(config, name)
+            rules = []
+            for rule in expand(config, full.get('rules')) or []:
+                condition = compile_condition(rule['if']) if 'if' in rule else (lambda env: True)
+                if 'changes' in rule or 'exists' in rule:
+                    condition = lambda env: False  # noqa: E731 (a file change is not part of the context)
+                rules.append((condition, rule.get('when', 'on_success')))
+            needs = expand(config, full.get('needs'))
+            self.jobs[name] = (rules if 'rules' in full else None,
+                               [n if isinstance(n, dict) else {'job': n} for n in needs or []
+                                if not (isinstance(n, dict) and ('pipeline' in n or 'project' in n))],
+                               full.get('stage'))
+
+    def included(self, env):
+        out = set()
+        for name, (rules, _, _) in self.jobs.items():
+            if rules is None:
+                out.add(name)
+                continue
+            for condition, when in rules:
+                if condition(env):
+                    if when != 'never':
+                        out.add(name)
+                    break
+        return out
+
+
+def contexts(release):
+    """Pipelines worth checking: every ref and source, one or two switches, a few commit messages."""
+    refs = [{'CI_COMMIT_REF_NAME': 'devel'}, {'CI_COMMIT_REF_NAME': f'maintenance/{release}'},
+            {'CI_COMMIT_REF_NAME': 'feature/x'},
+            {'CI_COMMIT_REF_NAME': f'v{release}.1', 'CI_COMMIT_TAG': f'v{release}.1'}]
+    switches = [('TEST', 'yes'), ('TEST_ONLY', 'dot1x'), ('TEST_CLUSTER', 'yes'), ('BUILD_IMG_CONTAINER', 'no'),
+                ('BUILD_ARTIFACTS_PKG', 'no'), ('DEPLOY_PKG', 'no'), ('DEPLOY_PKG', 'false'), ('DEPLOY_PKG', 'yes'),
+                ('DEPLOY_PKG', 'true'), ('BUILD_IMG_DOCKER', 'yes'), ('BUILD_IMG_DOCKER', 'no'),
+                ('BUILD_PF_IMG_VAGRANT', 'yes'), ('BUILD_PF_IMG_ZEN', 'yes'), ('BUILD_PF_IMG_CD_ISO', 'yes'),
+                ('BUILD_PF_IMG_DVD_USB_ISO', 'yes'), ('BUILD_PF_IMG_ISO', 'yes'), ('BUILD_ARTIFACTS_DOC', 'yes'),
+                ('BUILD_ARTIFACTS_MATERIAL', 'yes'), ('BUILD_IMG_VAGRANT', 'yes'), ('GO_CHECK', 'yes')]
+    sets = [{}] + [{k: v} for k, v in switches]
+    sets += [{a[0]: a[1], b[0]: b[1]} for i, a in enumerate(switches) for b in switches[i + 1:] if a[0] != b[0]]
+    messages = ['build_img_container=no', 'test=yes', 'build_img_container=no test=yes', 'deploy_pkg=yes',
+                'build_pf_img_vagrant=yes', 'test_cluster=yes']
+    for ref in refs:
+        for source in ('push', 'web', 'schedule', 'api'):
+            base = {**ref, 'CI_PIPELINE_SOURCE': source, 'CI_COMMIT_MESSAGE': 'fix'}
+            for switch in sets:
+                yield {**base, **switch}
+            for message in messages:
+                for switch in [{}] + [{k: v} for k, v in switches]:
+                    yield {**base, **switch, 'CI_COMMIT_MESSAGE': 'fix\n\n' + message}
+
+
 def push_tree(work):
     """container-push.sh in a copy of the repository whose Psono returns ci-docker / secret-value and logs the call."""
     root = work/'repo'
@@ -252,6 +430,34 @@ class ConfigurationTest(unittest.TestCase):
         self.assertTrue(pins)
         for path, version in pins.items():
             self.assertGreaterEqual(tuple(int(x) for x in version.split('.')), (1, 3, 0), path)
+
+    def test_every_pipeline_is_created_and_publishes_only_when_asked(self):
+        # Every ref, source, one or two switches and a few commit messages: no required need on an absent job
+        # (GitLab refuses such a pipeline), no deploy job left waiting on nothing, and no deploy when switched off.
+        config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
+        pipelines = Pipelines(config)
+        release = re.search(r'[0-9]+[.][0-9]+', (ROOT/'conf/pf-release').read_text()).group(0)
+        defaults = {k: (v.get('value') if isinstance(v, dict) else v) for k, v in config.get('variables', {}).items()}
+        deploys = {n for n in pipelines.jobs if n.startswith('deploy_') and not n.startswith('deploy_docs')}
+        problems = {}
+        count = 0
+        for context in contexts(release):
+            env = {**{k: str(v) for k, v in defaults.items()}, **context}
+            jobs = pipelines.included(env)
+            count += 1
+            for name in jobs:
+                _, needs, stage = pipelines.jobs[name]
+                for need in needs:
+                    if need['job'] in pipelines.jobs and need['job'] not in jobs and not need.get('optional'):
+                        problems.setdefault((name, 'needs ' + need['job']), context)
+                if needs and stage and stage.startswith('deploy') and not any(n['job'] in jobs for n in needs):
+                    problems.setdefault((name, 'starts before every earlier stage'), context)
+            off = (env.get('BUILD_IMG_CONTAINER') == 'no' or env.get('BUILD_ARTIFACTS_PKG') == 'no'
+                   or env.get('DEPLOY_PKG') in ('no', 'false') or 'build_img_container=no' in env['CI_COMMIT_MESSAGE'])
+            for name in deploys & jobs if off else ():
+                problems.setdefault((name, 'publishes while switched off'), context)
+        self.assertGreater(count, 1000)
+        self.assertEqual([f'{job}: {what} ({problems[(job, what)]})' for job, what in sorted(problems)], [])
 
     def test_a_pulp_error_is_not_a_missing_native_repository(self):
         # Unreachable Pulp: exit 2, which every caller turns into a failure (never the devel skip or the file tree).
