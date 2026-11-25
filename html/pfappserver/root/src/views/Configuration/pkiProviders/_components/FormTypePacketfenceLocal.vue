@@ -28,11 +28,27 @@
       :text="$i18n.t('CA certificate used to generate client certificate/key combination.')"
     />
 
+    <b-form-group label-cols="3">
+      <div class="d-flex align-items-center">
+        <button-pki-import :modes="['ca']"
+                           :modal-title="$i18n.t('Import CA certificate from PacketFence PKI')"
+                           @import="onPkiImportCa"
+        />
+      </div>
+    </b-form-group>
+
     <form-group-server-cert-path namespace="server_cert_path"
       :column-label="$i18n.t('Server certificate file')"
       :title="$i18n.t('Upload server certificate file')"
       :text="$i18n.t('RADIUS server authentication certificate.')"
     />
+
+    <b-form-group label-cols="3">
+      <button-pki-import :modes="['public']"
+                         :modal-title="$i18n.t('Import RADIUS server certificate from PacketFence PKI')"
+                         @import="onPkiImportServerCertificate"
+      />
+    </b-form-group>
   </base-form>
 </template>
 <script>
@@ -44,9 +60,11 @@ import {
   FormGroupIdentifier,
   FormGroupServerCertPath
 } from './'
+import ButtonPkiImport from '../../pki/_components/ButtonPkiImport'
 
 const components = {
   BaseForm,
+  ButtonPkiImport,
 
   FormGroupCaCertPath,
   FormGroupClientCertPath,

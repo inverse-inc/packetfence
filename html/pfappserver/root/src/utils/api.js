@@ -1,4 +1,5 @@
 import axios from 'axios'
+import escape from 'lodash/escape'
 import store from '@/store'
 import i18n from '@/utils/locale'
 import { v4 as uuidv4 } from 'uuid'
@@ -180,14 +181,15 @@ apiCall.interceptors.request.use(request => {
 apiCall.interceptors.response.use((response) => {
   /* Intercept successful API call */
   const { config: { url } = {}, data: { message, warnings, quiet } = {} } = response
+  // the messages of the API are text, the notifications are rendered as HTML
   if (message && !quiet) {
 
-    store.dispatch('notification/info', { message, url: decodeURIComponent(url) })
+    store.dispatch('notification/info', { message: escape(message), url: decodeURIComponent(url) })
   }
   if (warnings && !quiet) {
     warnings.forEach(warning => {
       const { message } = warning
-      store.dispatch('notification/warning', { message, url: decodeURIComponent(url) })
+      store.dispatch('notification/warning', { message: escape(message), url: decodeURIComponent(url) })
     })
   }
   store.commit('session/API_OK')
@@ -233,7 +235,7 @@ apiCall.interceptors.response.use((response) => {
             let message = `${error['field']}: ${error['message']}`
             // eslint-disable-next-line
             console.warn(message)
-            store.dispatch('notification/danger', { icon, url: decodeURIComponent(config.url), message })
+            store.dispatch('notification/danger', { icon, url: decodeURIComponent(config.url), message: escape(message) })
           })
         }
         // eslint-disable-next-line
@@ -242,16 +244,17 @@ apiCall.interceptors.response.use((response) => {
       if (['patch', 'post', 'put', 'delete'].includes(config.method) && error.response.data.errors) {
         let apiErrors = {}
         error.response.data.errors.forEach((err) => {
-          apiErrors[err['field']] = err['message']
+          // shown as the feedback of the fields (HTML)
+          apiErrors[err['field']] = escape(err['message'])
         })
         if (Object.keys(apiErrors).length > 0) {
           store.commit('session/API_ERRORS', apiErrors)
         }
       }
       if (typeof error.response.data === 'string') {
-        store.dispatch('notification/danger', { icon, url: decodeURIComponent(config.url), message: error.message })
+        store.dispatch('notification/danger', { icon, url: decodeURIComponent(config.url), message: escape(error.message) })
       } else if (error.response.data.message && !error.response.data.quiet) {
-        store.dispatch('notification/danger', { icon, url: decodeURIComponent(config.url), message: error.response.data.message })
+        store.dispatch('notification/danger', { icon, url: decodeURIComponent(config.url), message: escape(error.response.data.message) })
       }
     }
   } else if (error.request) {

@@ -299,6 +299,49 @@ NOTE: If the previous certificate was signed by the same **PF-PKI**, you do **no
       *  Restart **haproxy-admin** and **haproxy-portal** if it’s the HTTP certificate.  
       *  Restart **radiusd-auth** if it’s the Radius certificate.
 
+=== Import a RADIUS certificate from the PF_PKI
+
+Instead of copying and pasting certificates out of the **PF-PKI**, the RADIUS
+certificate and the Certification Authorities can be imported directly. The
+`pfpki` service must be running for the import buttons to be displayed.
+
+Go to **Configuration → System Configuration → SSL Certificates → RADIUS → Edit
+RADIUS Certificates**, disable **Use Let's Encrypt** and click **Import from
+PacketFence PKI** under the **RADIUS Server Certificate** field. Two sources are
+available:
+
+- *Existing certificate with its private key*: select a certificate issued by
+  the PF-PKI. The certificate, its private key and the issuing CA are filled in.
+  Certificates signed from a CSR are not listed since their private key is not
+  stored in the PF-PKI. Only RSA keys are supported.
+- *Sign the current private key with a template*: select a PF-PKI template and
+  fill in the subject. A CSR is generated from the current RADIUS private key
+  and signed by the template. The private key is kept and only the certificate
+  is replaced. The template should allow the *Server Authentication* extended
+  key usage.
+
+In both cases the issuing CA is appended to the **Certification Authority
+certificate(s)** field if it is not already present. Additional trusted CAs (for
+example the CA issuing the EAP-TLS client certificates) can be appended with
+**Add a Certificate Authority from PacketFence PKI**.
+
+The import only fills the form: review it, click **Save** and restart the
+**radiusd** services.
+
+The same import is available in:
+
+- **Configuration → System Configuration → RADIUS → PKI SSL Certificates**
+  for the certificates used by the TLS profiles.
+- the PEAP settings of the **Apple Devices**, **Android** and **Windows**
+  provisioners, for the RADIUS server certificate and CA embedded in the
+  wireless profile.
+- the **PacketFence PKI** and **PacketFence Local** PKI providers, for the CA
+  and RADIUS server certificate. The **PacketFence PKI** provider can also use
+  the CA of its selected template.
+
+NOTE: The imported certificates are a copy. When a certificate is renewed in the
+PF-PKI, import it again.
+
 
 === Useful commands
 

@@ -56,7 +56,7 @@ my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Pf");
 
 #insert known data
 #run tests
-use Test::More tests => 74;
+use Test::More tests => 92;
 use Test::Mojo;
 use Mojo::JSON;
 use Test::NoWarnings;
@@ -317,6 +317,26 @@ $t->post_ok("/api/v1/config/certificate/radius/generate_csr" => json => {
         "subject_alt_names" => "csrtest1.inverse.ca,csrtest2.inverse.ca",
     })
   ->status_is(200);
+
+# pki_import: the admin needs the role a direct pfpki call would need, the
+# call to pfpki being made with the system API user (PKI_READ for cert,
+# PKI_CREATE for csr); the parameters are checked only once past that gate
+my $roles_header = 'X-PacketFence-Admin-Roles';
+for my $mode (qw(cert csr)) {
+    $t->post_ok('/api/v1/config/certificates/pki/import' => { $roles_header => 'Node Manager' } => json => { mode => $mode })
+      ->status_is(403)
+      ->json_like('/message' => qr/PKI_(READ|CREATE) role is required/);
+    $t->post_ok('/api/v1/config/certificates/pki/import' => { $roles_header => 'SystemRead' } => json => { mode => $mode })
+      ->status_is(403);
+}
+$t->post_ok('/api/v1/config/certificates/pki/import' => { $roles_header => 'ALL' } => json => { mode => 'cert' })
+  ->status_is(422)
+  ->json_is('/message' => 'Missing cert_id parameter');
+$t->post_ok('/api/v1/config/certificates/pki/import' => { $roles_header => 'ALL' } => json => { mode => 'csr' })
+  ->status_is(422)
+  ->json_is('/message' => 'Missing profile_id parameter');
+$t->post_ok('/api/v1/config/certificates/pki/import' => { $roles_header => 'Node Manager' } => json => { mode => 'bogus' })
+  ->status_is(422);
 
 =head1 AUTHOR
 
