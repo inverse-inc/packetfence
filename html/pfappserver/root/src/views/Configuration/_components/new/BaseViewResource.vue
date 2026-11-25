@@ -1,7 +1,7 @@
  <template>
   <b-card no-body>
     <b-card-header>
-      <h4 class="d-inline mb-0" v-html="title" />
+      <h4 class="d-inline mb-0" v-html="$sanitizeHtml(title)" />
       <base-button-help v-if="titleHelp"
         class="ml-1" :url="titleHelp" />
       <slot name="headerAppend" v-if="$scopedSlots.headerAppend" v-bind="scopedSlotProps" />
