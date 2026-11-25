@@ -95,8 +95,9 @@ func TestOCSP_GET(t *testing.T) {
 
 	// The base64 as is, and with every byte percent-encoded: both are
 	// valid URL encodings, and the second one has the '/', '+' and '='
-	// escaped whatever the request looks like.
-	for name, tail := range map[string]string{"raw": b64, "escaped": percentEncodeAll(b64)} {
+	// escaped whatever the request looks like. An OCSP URL configured
+	// with a trailing slash makes the client send /pki/ocsp//<base64>.
+	for name, tail := range map[string]string{"raw": b64, "escaped": percentEncodeAll(b64), "double slash": "/" + b64, "escaped slash": "%2F" + b64} {
 		t.Run(name, func(t *testing.T) {
 			resp := getOCSP(t, env, "/api/v1/pki/ocsp/"+tail)
 			defer resp.Body.Close()

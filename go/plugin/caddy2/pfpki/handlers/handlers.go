@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -1095,12 +1096,16 @@ func ManageOcsp(pfpki *types.Handler) http.HandlerFunc {
 // base64 encoded, then URL encoded, as the rest of the path after
 // /pki/ocsp/. chi hands the tail of the path as the client sent it, so the
 // '/', '+' and '=' of the base64 may still be percent-encoded; a decoded
-// tail is left as is, since base64 has no '%'.
+// tail is left as is, since base64 has no '%'. An OCSP URL configured
+// with a trailing slash makes the client send /pki/ocsp//<base64>: the
+// leading slashes are dropped, since a DER OCSPRequest starts with a
+// SEQUENCE (0x30), which is 'M' in base64, never '/'.
 func ocspRequestFromPath(tail string) ([]byte, error) {
 	b64, err := url.PathUnescape(tail)
 	if err != nil {
 		return nil, err
 	}
+	b64 = strings.TrimLeft(b64, "/")
 	if b64 == "" {
 		return nil, errors.New("no OCSP request in the path")
 	}
