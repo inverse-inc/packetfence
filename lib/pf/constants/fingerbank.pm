@@ -47,7 +47,7 @@ Readonly our $MAX_RETRIES => 3;
 =head2 $RETRY_PERIOD
 
 The amount of seconds the retries of a device are counted for: after $MAX_RETRIES
-failed retries, no retry is scheduled for this device during that period
+failed retries, the next retry of this device is scheduled for when that period is over
 
 =cut
 
