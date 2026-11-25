@@ -112,6 +112,12 @@ for n in "${el_versions[@]}"; do
 done
 merge_suites=()
 for suite in "${suites[@]}"; do
+    # Every package this suite's index lists must be in the tree (native upload or file-tree merge alike).
+    mapfile -t listed < <(find "$PUBLIC_DIR/debian/dists/$suite" -name Packages -path '*/binary-*' -exec sed -n 's/^Filename: //p' {} + | sort -u)
+    (( ${#listed[@]} )) || { echo "No .deb listed for $suite in the generated tree" >&2; exit 1; }
+    for file in "${listed[@]}"; do
+        [[ -f "$PUBLIC_DIR/debian/$file" ]] || { echo "$suite lists $file, missing from the generated tree" >&2; exit 1; }
+    done
     status=0; repo=$(python3 ci/pulp/native.py deb "$release" "$suite") || status=$?
     (( status < 2 )) || exit 1
     if (( status )); then
@@ -122,8 +128,6 @@ for suite in "${suites[@]}"; do
         merge_suites+=("$suite")
         continue
     fi
-    [[ -n $(find "$PUBLIC_DIR/debian/dists/$suite" -name Packages -path '*/binary-*' -exec sed -n 's/^Filename: //p' {} +) ]] \
-        || { echo "No .deb listed for $suite in the generated tree" >&2; exit 1; }
     native_deb[$suite]=$repo
 done
 for n in "${!native_rpm[@]}"; do
