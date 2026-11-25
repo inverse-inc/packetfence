@@ -660,11 +660,13 @@ class ConfigurationTest(unittest.TestCase):
 
         class FakePulp:
             def __init__(self, served):
-                self.served, self.calls = served, []
+                self.served, self.calls, self.labels = served, [], None
             def find(self, kind, name):
                 return {'pulp_href': kind, 'latest_version_href': 'v2', 'publication': 'pub', 'pulp_labels': {}}
             def request(self, method, href, params=None, json=None):
                 self.calls.append((method, href))
+                if method == 'PATCH':
+                    self.labels = json['pulp_labels']
                 if href.endswith('content/file/files/'):
                     return {'results': [{'relative_path': 'a.deb', 'sha256': digest}]}
                 if href == 'pub':
@@ -676,14 +678,19 @@ class ConfigurationTest(unittest.TestCase):
                 self.calls.append(('UPLOAD',))
 
         with tempfile.TemporaryDirectory() as folder:
-            path = Path(folder)/'a.deb'
+            path, other = Path(folder)/'a.deb', Path(folder)/'b.deb'
             path.write_bytes(b'x')
+            other.write_bytes(b'new')
             digest = hashlib.sha256(b'x').hexdigest()
             for served, published in (('v2', False), ('v1', True)):
                 client = FakePulp(served)
                 module.publish(client, 'debian', [('debian', path, 'a.deb')])
                 self.assertNotIn(('UPLOAD',), client.calls)
                 self.assertEqual(('POST', module.API + 'publications/file/file/') in client.calls, published, served)
+            # Behind, with one more changed file: both are listed, not only the new one.
+            client = FakePulp('v1')
+            module.publish(client, 'debian', [('debian', path, 'a.deb'), ('debian', other, 'b.deb')])
+            self.assertEqual(json.loads(client.labels['akainverse_index_files']), ['a.deb', 'b.deb'])
 
     def test_published_files_join_the_listing(self):
         spec = importlib.util.spec_from_file_location('publish_files', ROOT/'ci/pulp/publish-files.py')
