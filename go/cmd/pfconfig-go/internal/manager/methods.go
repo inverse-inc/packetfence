@@ -3,6 +3,8 @@ package manager
 import (
 	"context"
 	"fmt"
+	"slices"
+	"strconv"
 
 	ns "github.com/inverse-inc/packetfence/go/cmd/pfconfig-go/internal/namespace"
 )
@@ -37,16 +39,54 @@ func expire(request Request, data any) (any, error) {
 	return map[string]string{"status": "OK."}, nil
 }
 
-func arrayElement(request Request, data any) (any, error) {
-	conf := data.(*ns.ArrayData)
-	if request.Index < 0 || request.Index >= len(conf.Values) {
-		return map[string]any{"element": nil}, fmt.Errorf("out of bound index %d", request.Index)
+func asHash(data any) (*ns.HashData, error) {
+	conf, ok := data.(*ns.HashData)
+	if !ok {
+		return nil, fmt.Errorf("namespace is not a hash (%T)", data)
 	}
-	return map[string]any{"element": conf.Values[request.Index]}, nil
+	return conf, nil
+}
+
+func asArray(data any) (*ns.ArrayData, error) {
+	conf, ok := data.(*ns.ArrayData)
+	if !ok {
+		return nil, fmt.Errorf("namespace is not an array (%T)", data)
+	}
+	return conf, nil
+}
+
+func asScalar(data any) (*ns.ScalarData, error) {
+	conf, ok := data.(*ns.ScalarData)
+	if !ok {
+		return nil, fmt.Errorf("namespace is not a scalar (%T)", data)
+	}
+	return conf, nil
+}
+
+// arrayElement returns the element at the index given in the key (NAME::SPACE;INDEX),
+// or the whole array when there is no index, like the Perl server.
+// An unknown index has no element (undef for the client).
+func arrayElement(request Request, data any) (any, error) {
+	conf, err := asArray(data)
+	if err != nil {
+		return nil, err
+	}
+	query, _ := ExtractQuery(request.Key) // already checked
+	if query.Key == "" {
+		return map[string]any{"element": conf.Values}, nil
+	}
+	index, err := strconv.Atoi(query.Key)
+	if err != nil || index < 0 || index >= len(conf.Values) {
+		return map[string]any{}, nil
+	}
+	return map[string]any{"element": conf.Values[index]}, nil
 }
 
 func arrayIndexExists(request Request, data any) (any, error) {
-	conf := data.(*ns.ArrayData)
+	conf, err := asArray(data)
+	if err != nil {
+		return nil, err
+	}
 	result := 1
 	if request.Index < 0 || request.Index >= len(conf.Values) {
 		result = 0
@@ -55,36 +95,39 @@ func arrayIndexExists(request Request, data any) (any, error) {
 }
 
 func arraySize(request Request, data any) (any, error) {
-	conf := data.(*ns.ArrayData)
+	conf, err := asArray(data)
+	if err != nil {
+		return nil, err
+	}
 	return map[string]any{"size": len(conf.Values)}, nil
 }
 
+// nextKey returns the key following last_key, the first key when last_key is empty,
+// and nil at the end of the hash (or when last_key is unknown).
 func nextKey(request Request, data any) (any, error) {
-	var nextKey any
-	conf := data.(*ns.HashData)
-	i := 0
-	if len(request.LastKey) == 0 {
-		nextKey = conf.SectionsOrdered[0]
-	} else {
-		for _, k := range conf.SectionsOrdered {
-			i += 1
-			if k == request.Key {
-				break
-			}
-		}
-		if i >= len(conf.SectionsOrdered) {
-			nextKey = nil
-		} else {
-			nextKey = conf.SectionsOrdered[i]
-		}
+	conf, err := asHash(data)
+	if err != nil {
+		return nil, err
 	}
-	return map[string]any{"next_key": nextKey}, nil
+	var next any
+	if request.LastKey == "" {
+		if len(conf.SectionsOrdered) > 0 {
+			next = conf.SectionsOrdered[0]
+		}
+	} else if i := slices.Index(conf.SectionsOrdered, request.LastKey); i != -1 && i+1 < len(conf.SectionsOrdered) {
+		next = conf.SectionsOrdered[i+1]
+	}
+	return map[string]any{"next_key": next}, nil
 }
 
+// keyExists checks the key sent in "search" (the "key" field holds the namespace)
 func keyExists(request Request, data any) (any, error) {
-	conf := data.(*ns.HashData)
+	conf, err := asHash(data)
+	if err != nil {
+		return nil, err
+	}
 	tmp := 0
-	if _, ok := conf.Sections[request.Key]; ok {
+	if _, ok := conf.Sections[request.Search]; ok {
 		tmp = 1
 	}
 	return map[string]int{
@@ -93,36 +136,40 @@ func keyExists(request Request, data any) (any, error) {
 }
 
 func keys(request Request, data any) (any, error) {
-	conf := data.(*ns.HashData)
+	conf, err := asHash(data)
+	if err != nil {
+		return nil, err
+	}
 	return map[string][]string{"keys": conf.SectionsOrdered}, nil
 }
 
 // element returns the scalar requested
 func element(request Request, data any) (any, error) {
-	conf := data.(*ns.ScalarData)
+	conf, err := asScalar(data)
+	if err != nil {
+		return nil, err
+	}
 	return map[string]any{"element": conf.Value}, nil
 }
 
-// hashElement returns the hash requested as a map[string]any
+// hashElement returns the hash requested as a map[string]any.
+// An unknown section has no element (undef for the client), like the Perl server.
 func hashElement(request Request, data any) (any, error) {
-	query, _ := ExtractQuery(request.Key) // already checked
-	conf := data.(*ns.HashData)
-	tmp := map[string]any{
-		"element": nil,
+	conf, err := asHash(data)
+	if err != nil {
+		return nil, err
 	}
-	if len(query.Key) == 0 { // whole conf
+	query, _ := ExtractQuery(request.Key) // already checked
+	if len(query.Key) == 0 {              // whole conf
 		sections := make(map[string]map[string]string, len(conf.SectionsOrdered))
 		for _, section := range conf.SectionsOrdered {
-			v := conf.Sections[section]
-			sections[section] = v
+			sections[section] = conf.Sections[section]
 		}
-		tmp["element"] = sections
-	} else { // section
-		section, ok := conf.Sections[query.Key]
-		if !ok {
-			return nil, fmt.Errorf("requested section %s does not exist", query.Key)
-		}
-		tmp["element"] = section
+		return map[string]any{"element": sections}, nil
 	}
-	return tmp, nil
+	section, ok := conf.Sections[query.Key]
+	if !ok {
+		return map[string]any{}, nil
+	}
+	return map[string]any{"element": section}, nil
 }

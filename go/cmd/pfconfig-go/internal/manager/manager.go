@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"slices"
+	"strings"
 
 	"github.com/inverse-inc/packetfence/go/cmd/pfconfig-go/internal/cache"
 	"github.com/inverse-inc/packetfence/go/cmd/pfconfig-go/internal/loader"
@@ -43,10 +44,15 @@ type Query struct {
 	CacheKey  string // Namespace + (Overlay)
 }
 
-var queryRegex = regexp.MustCompile(`(\w+(?:\:\:\w+)*)(?:\((.*)\))?(?:;([:\w]+))?`)
+// namespaceRegex matches NAME::SPACE[(OVERLAY)], the part of the query key before the first ';'
+var namespaceRegex = regexp.MustCompile(`^(\w+(?:::\w+)*)(?:\(([^()]*)\))?$`)
 
+// ExtractQuery splits a query key NAME::SPACE[(OVERLAY)][;KEY].
+// Like the Perl server, everything after the first ';' is the key: section names
+// can contain any character ('.', '-', ' ', '/', ...).
 func ExtractQuery(s string) (Query, error) {
-	data := queryRegex.FindStringSubmatch(s)
+	nsPart, key, _ := strings.Cut(s, ";")
+	data := namespaceRegex.FindStringSubmatch(nsPart)
 	if data == nil {
 		return Query{}, fmt.Errorf("bad query key format '%s'", s)
 	}
@@ -57,7 +63,7 @@ func ExtractQuery(s string) (Query, error) {
 	return Query{
 		Namespace: data[1],
 		Overlay:   data[2],
-		Key:       data[3],
+		Key:       key,
 		CacheKey:  cacheKey,
 	}, nil
 }

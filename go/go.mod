@@ -254,7 +254,7 @@ require (
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.5.0 // indirect
 	github.com/Masterminds/sprig/v3 v3.3.0 // indirect
-	github.com/Sereal/Sereal/Go/sereal v0.0.0-20261115132720-e76cfd6b83a3 // indirect
+	github.com/Sereal/Sereal/Go/sereal v0.0.0-20261115132720-e76cfd6b83a3
 	github.com/alecthomas/chroma/v2 v2.27.0 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/aryann/difflib v0.0.0-20210328193216-ff5ff6dc229b // indirect
@@ -427,7 +427,7 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260921155816-b14227669459 // indirect
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.6.2 // indirect
 	gopkg.in/evanphx/json-patch.v4 v4.13.0 // indirect
-	gopkg.in/ini.v1 v1.67.1 // indirect
+	gopkg.in/ini.v1 v1.67.1
 	howett.net/plist v1.0.1 // indirect
 	sigs.k8s.io/mcs-api v0.5.2 // indirect
 	sigs.k8s.io/randfill v1.0.0 // indirect
