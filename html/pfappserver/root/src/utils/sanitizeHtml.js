@@ -2,12 +2,18 @@
  * HTML of the texts built with values (names, IDs, messages) that are
  * rendered with v-html: only the formatting elements and attributes are kept.
  *
- * The HTML is parsed with DOMParser (the scripts of the parsed document are not
- * run, its resources are not loaded). Then:
+ * The HTML is parsed in a <template> element (its content is inert: the
+ * scripts are not run, the resources are not loaded). Then:
  * - the elements of DROPPED_TAGS are removed with their content;
  * - the elements not in ALLOWED_TAGS are replaced with their content;
  * - only the attributes of ALLOWED_ATTRIBUTES are kept, href only with an
  *   http, https or mailto URL or a relative URL.
+ *
+ * The nodes are walked with the methods and getters of the Node and Element
+ * prototypes: a form exposes its controls as properties (ex: an
+ * <input name="childNodes"> replaces form.childNodes), a parsed document its
+ * named elements (ex: <img name="body">), these must not change what is
+ * walked or removed.
  */
 
 const ALLOWED_TAGS = new Set([
@@ -42,36 +48,51 @@ const isAllowedAttribute = (tag, name, value) => {
   return (name === 'href') ? isAllowedUrl(value) : true
 }
 
-const sanitizeChildren = (parent, document) => {
-  Array.from(parent.childNodes).forEach(node => {
-    if (node.nodeType === 3) { // text
+const getter = (proto, name) => Object.getOwnPropertyDescriptor(proto, name).get
+const getChildNodes = getter(Node.prototype, 'childNodes')
+const getFirstChild = getter(Node.prototype, 'firstChild')
+const getNodeName = getter(Node.prototype, 'nodeName')
+const getNodeType = getter(Node.prototype, 'nodeType')
+const getAttributes = getter(Element.prototype, 'attributes')
+const { insertBefore, removeChild } = Node.prototype
+const { getAttribute, removeAttribute, setAttribute } = Element.prototype
+
+// replaces a node with its children
+const unwrap = (parent, node) => {
+  let child
+  while ((child = getFirstChild.call(node))) {
+    insertBefore.call(parent, child, node)
+  }
+  removeChild.call(parent, node)
+}
+
+const sanitizeChildren = (parent) => {
+  Array.from(getChildNodes.call(parent)).forEach(node => {
+    const type = getNodeType.call(node)
+    if (type === Node.TEXT_NODE) {
       return
     }
-    if (node.nodeType !== 1) { // comments, processing instructions...
-      parent.removeChild(node)
+    if (type !== Node.ELEMENT_NODE) { // comments, processing instructions...
+      removeChild.call(parent, node)
       return
     }
-    const tag = node.tagName.toLowerCase()
+    const tag = getNodeName.call(node).toLowerCase()
     if (DROPPED_TAGS.has(tag)) {
-      parent.removeChild(node)
+      removeChild.call(parent, node)
       return
     }
-    sanitizeChildren(node, document)
+    sanitizeChildren(node)
     if (!ALLOWED_TAGS.has(tag)) {
-      const fragment = document.createDocumentFragment()
-      while (node.firstChild) {
-        fragment.appendChild(node.firstChild)
-      }
-      parent.replaceChild(fragment, node)
+      unwrap(parent, node)
       return
     }
-    Array.from(node.attributes).forEach(({ name, value }) => {
+    Array.from(getAttributes.call(node)).forEach(({ name, value }) => {
       if (!isAllowedAttribute(tag, name.toLowerCase(), value)) {
-        node.removeAttribute(name)
+        removeAttribute.call(node, name)
       }
     })
-    if (tag === 'a' && node.getAttribute('target') === '_blank') {
-      node.setAttribute('rel', 'noopener noreferrer')
+    if (tag === 'a' && getAttribute.call(node, 'target') === '_blank') {
+      setAttribute.call(node, 'rel', 'noopener noreferrer')
     }
   })
 }
@@ -80,9 +101,10 @@ export const sanitizeHtml = (html) => {
   if (html === undefined || html === null || html === '') {
     return ''
   }
-  const document = new DOMParser().parseFromString(`<!DOCTYPE html><html><body>${html}</body></html>`, 'text/html')
-  sanitizeChildren(document.body, document)
-  return document.body.innerHTML
+  const template = document.createElement('template')
+  template.innerHTML = String(html)
+  sanitizeChildren(template.content)
+  return template.innerHTML
 }
 
 export const pfSanitizeHtmlPlugin = {
