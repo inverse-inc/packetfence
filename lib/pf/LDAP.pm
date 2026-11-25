@@ -127,6 +127,15 @@ sub compute_connection {
     my $encryption = delete $args->{encryption};
     my $start_tls_options = delete $args->{start_tls_options} // {};
     my $logger = get_logger();
+    # Net::LDAP has no option for SNI and IO::Socket::SSL takes it from the
+    # host connected to: through a connector that is the connector endpoint.
+    # Send the server name we verify against instead.
+    my $sni = $args->{sslserver} // $start_tls_options->{sslserver};
+    my $init_args = \&Net::LDAP::_SSL_context_init_args;
+    no warnings 'redefine';
+    local *Net::LDAP::_SSL_context_init_args = sub { ($init_args->(@_), SSL_hostname => $sni) }
+      if defined $sni && $sni !~ /^[\d.]+$|:/;
+    use warnings 'redefine';
     my $ldap;
     my $ldap_err;
     if ( $encryption eq SSL ) {
