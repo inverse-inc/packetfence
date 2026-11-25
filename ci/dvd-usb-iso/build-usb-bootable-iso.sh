@@ -59,7 +59,11 @@ if [[ "${ISO_OUT}" != /* ]]; then ISO_OUT="${SCRIPT_DIR}/${ISO_OUT}"; fi
 
 # Export so step scripts inherit
 export WORK_DIR ISOFILES_DIR REPO_DIR DOCKER_IMAGES_DIR
-export PF_VERSION PF_RELEASE PF_RELEASE_VERSION TAG_OR_BRANCH_NAME
+# The service images this pipeline built, if any (predownload-docker-images.sh saves them as TAG_OR_BRANCH_NAME).
+if [ -n "${CI_COMMIT_REF_SLUG:-}" ] && [ -z "${PIPELINE_IMAGE_TAG:-}" ]; then
+    PIPELINE_IMAGE_TAG=$(sh "${PF_ROOT}/ci/lib/common/pipeline-image-tag.sh")
+fi
+export PF_VERSION PF_RELEASE PF_RELEASE_VERSION TAG_OR_BRANCH_NAME PIPELINE_IMAGE_TAG
 export ISO_IN ISO_OUT BUILDER_IMAGE
 
 if ! command -v docker >/dev/null 2>&1; then

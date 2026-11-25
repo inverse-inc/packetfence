@@ -9,6 +9,8 @@ PF_ROOT=$(cd "${SCRIPT_DIR}/../.." && pwd)
 source <(grep 'KNK_REGISTRY_URL' "${PF_ROOT}/config.mk" | tr -d ' ') 2>/dev/null || true
 KNK_REGISTRY_URL=${KNK_REGISTRY_URL:-ghcr.io/inverse-inc/packetfence}
 TAG_OR_BRANCH_NAME=${TAG_OR_BRANCH_NAME:-devel}
+# This pipeline's own images (<slug>-p<pipeline>) when it built them, saved under the tag its packages pull.
+SOURCE_TAG=${PIPELINE_IMAGE_TAG:-$TAG_OR_BRANCH_NAME}
 
 echo "=============================================="
 echo "Pre-downloading Docker Images"
@@ -16,6 +18,7 @@ echo "=============================================="
 echo "DOCKER_IMAGES_DIR: ${DOCKER_IMAGES_DIR}"
 echo "KNK_REGISTRY_URL: ${KNK_REGISTRY_URL}"
 echo "TAG_OR_BRANCH_NAME: ${TAG_OR_BRANCH_NAME}"
+echo "SOURCE_TAG: ${SOURCE_TAG}"
 echo "=============================================="
 
 mkdir -p "${DOCKER_IMAGES_DIR}"
@@ -48,6 +51,7 @@ else
         [ -z "$img" ] && continue
 
         TOTAL_COUNT=$((TOTAL_COUNT + 1))
+        SOURCE_IMAGE="${KNK_REGISTRY_URL}/${img}:${SOURCE_TAG}"
         FULL_IMAGE="${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME}"
 
         echo "===> [$TOTAL_COUNT] Pulling: ${img}"
@@ -56,7 +60,7 @@ else
         PULLED=false
         for attempt in $(seq 1 $RETRY_LIMIT); do
             echo "    Attempt ${attempt}/${RETRY_LIMIT}..."
-            if docker pull -q ${FULL_IMAGE} 2>/dev/null; then
+            if docker pull -q "${SOURCE_IMAGE}" >/dev/null && docker tag "${SOURCE_IMAGE}" "${FULL_IMAGE}"; then
                 PULLED=true
                 break
             else

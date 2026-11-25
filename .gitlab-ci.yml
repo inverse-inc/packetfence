@@ -1552,9 +1552,7 @@ build_pf_img_cd_iso:
 build_pf_img_dvd_usb_iso:
   extends:
     - .build_pf_img_job
-  needs:
-    - job: publish_ppa
-      optional: true
+  # No needs: it waits by stage order for this pipeline's PPA and service images (predownload-docker-images.sh).
   environment:
     name: linode
     url: ${RCLONE_LINODE_URL}/packetfence-iso/${CI_COMMIT_REF_SLUG}

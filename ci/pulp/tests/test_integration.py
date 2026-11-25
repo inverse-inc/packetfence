@@ -461,6 +461,26 @@ class ConfigurationTest(unittest.TestCase):
         self.assertGreater(count, 1000)
         self.assertEqual([f'{job}: {what} ({problems[(job, what)]})' for job, what in sorted(problems)], [])
 
+    def test_the_dvd_iso_ships_this_pipelines_images(self):
+        # Pulled by the pipeline tag, saved under the tag the packages pull (not the previous promoted images).
+        with tempfile.TemporaryDirectory() as folder:
+            work = Path(folder)
+            log = work/'docker.log'
+            fake = work/'docker'
+            fake.write_text('#!/bin/sh\necho "$*" >> ' + str(log) + '\n[ "$1" != save ] || echo archive\n')
+            fake.chmod(0o700)
+            env = dict(os.environ, PATH=str(work)+os.pathsep+os.environ['PATH'], TAG_OR_BRANCH_NAME='maintenance-15-2',
+                       PIPELINE_IMAGE_TAG='maintenance-15-2-p42')
+            subprocess.run(['bash', str(ROOT/'ci/dvd-usb-iso/predownload-docker-images.sh'), str(work/'images')],
+                           env=env, check=True, capture_output=True, text=True)
+            calls = log.read_text().splitlines()
+            self.assertIn('pull -q ghcr.io/inverse-inc/packetfence/pfcmd:maintenance-15-2-p42', calls)
+            self.assertIn('tag ghcr.io/inverse-inc/packetfence/pfcmd:maintenance-15-2-p42 ghcr.io/inverse-inc/packetfence/pfcmd:maintenance-15-2', calls)
+            save = next(c for c in calls if c.startswith('save '))
+            self.assertIn('ghcr.io/inverse-inc/packetfence/pfcmd:maintenance-15-2', save.split())
+            self.assertNotIn('-p42', save)
+            self.assertEqual((work/'images'/'image-tag.txt').read_text().strip(), 'maintenance-15-2')
+
     def test_a_pulp_error_is_not_a_missing_native_repository(self):
         # Unreachable Pulp: exit 2, which every caller turns into a failure (never the devel skip or the file tree).
         env = {'PATH': os.environ['PATH'], 'PULP_URL': 'http://127.0.0.1:9', 'PULP_USERNAME': 'u', 'PULP_PASSWORD': 'p'}
