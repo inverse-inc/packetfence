@@ -6,6 +6,7 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 from unittest import mock
@@ -14,6 +15,11 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[3]
+# The scripts under test call python3 from PATH: make it the interpreter running the tests (EL8's is 3.6).
+_PYTHON_DIR = tempfile.mkdtemp(prefix='python3-')
+os.symlink(sys.executable, os.path.join(_PYTHON_DIR, 'python3'))
+os.environ['PATH'] = _PYTHON_DIR + os.pathsep + os.environ['PATH']
+
 class GitLabLoader(yaml.SafeLoader):
     pass
 GitLabLoader.add_constructor('!reference', lambda loader, node: {'reference': loader.construct_sequence(node)})
@@ -422,7 +428,7 @@ class ConfigurationTest(unittest.TestCase):
             calls.write_text('')
             refused = subprocess.run(['bash', str(script), 'feature-x-p7', 'feature-x-p7'],
                                      env=dict(env, PSONO_CI_PULP_DOCKER_ID=''), capture_output=True, text=True)
-            self.assertIn('protected branches only', refused.stderr)
+            self.assertIn('not protected (feature branches publish too)', refused.stderr)
             self.assertEqual(calls.read_text(), '')
             for source in ('push', 'merge_request_event'):
                 calls.write_text('')
@@ -526,12 +532,12 @@ class ConfigurationTest(unittest.TestCase):
                                             'x86_64/RPMS/packetfence-16.0.0.el8.noarch.rpm',
                                             'x86_64/RPMS/packetfence-release-2.4.1.el8.noarch.rpm', 'x86_64/repodata/repomd.xml'])
             self.assertIn('debian/branches/16.0/42/', run.stdout)
-            # A feature branch GitLab gives no Pulp credentials (unprotected) is told why.
+            # An empty Pulp variable is named, with how to set it.
             calls.write_text('')
             refused = subprocess.run(['bash', str(root/'ci/pulp/publish-packages.sh'), 'branches'], cwd=root, capture_output=True,
                                      text=True, env=dict(env, PSONO_CI_PULP_PACKAGES_ID=''))
             self.assertNotEqual(refused.returncode, 0)
-            self.assertIn('protected branches only', refused.stderr)
+            self.assertIn('not protected (feature branches publish too)', refused.stderr)
             self.assertEqual(calls.read_text(), '')
 
     def test_a_branch_deploy_without_pulp_credentials_says_why_before_the_key_import(self):
@@ -551,7 +557,7 @@ class ConfigurationTest(unittest.TestCase):
                 result = subprocess.run(['bash', '-c', script], cwd=work, env={**full, empty: ''}, capture_output=True, text=True)
                 self.assertNotEqual(result.returncode, 0, empty)
                 self.assertIn(empty + ' is empty', result.stderr)
-                self.assertIn('protected branches only', result.stderr)
+                self.assertIn('not protected (feature branches publish too)', result.stderr)
                 self.assertFalse(calls.exists(), empty)
             result = subprocess.run(['bash', '-c', script], cwd=work, env=full, capture_output=True, text=True)
             self.assertEqual((result.returncode, calls.read_text()), (0, 'imported\n'), result.stderr)
