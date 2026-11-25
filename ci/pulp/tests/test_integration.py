@@ -828,7 +828,7 @@ class ConfigurationTest(unittest.TestCase):
             self.assertIn(f'"{name}=${{var.{name.lower()}}}"', (zen/'packer/build.pkr.hcl').read_text())
             self.assertIn(f'-e PKR_VAR_{name.lower()} \\', (zen/'zen-in-docker.sh').read_text())
         config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
-        arms = [r.get('variables', {}).get('PF_BRANCHES_PIPELINE') for r in config['build_pf_img_zen']['rules']]
+        arms = [r.get('variables', {}).get('PF_BRANCHES_PIPELINE') for r in config['build_pf_img_zen']['rules'] if 'reference' not in r]
         self.assertEqual(arms, [None, None, None, '$CI_PIPELINE_ID'])  # tag, devel, maintenance, feature
         if shutil.which('make'):
             for pipeline in ('', '42'):
@@ -870,7 +870,7 @@ class ConfigurationTest(unittest.TestCase):
                           ('build_pf_img_cd_iso', [None, None, None, '$CI_PIPELINE_ID'])):
             self.assertNotIn('needs', config[job])
             self.assertNotIn('PF_REPO_TYPE', config[job].get('variables', {}))
-            self.assertEqual([r.get('variables', {}).get('PF_BRANCHES_PIPELINE') for r in config[job]['rules']], arms)
+            self.assertEqual([r.get('variables', {}).get('PF_BRANCHES_PIPELINE') for r in config[job]['rules'] if 'reference' not in r], arms)
         self.assertFalse([r for r in config['.gated_by_publish_ppa']['rules'] if 'dvd_usb_iso' in r['if'].lower()])
         for path in ('ci/dvd-usb-iso/create-local-repo.sh', 'ci/dvd-usb-iso/build-usb-bootable-iso.sh', 'ci/cd-iso/build-and-upload.sh'):
             self.assertIn('lib/common/deployed-repo.sh" --check' if 'dvd' in path else 'lib/common/deployed-repo.sh --check',
@@ -1001,8 +1001,31 @@ class ConfigurationTest(unittest.TestCase):
                    or env.get('DEPLOY_PKG') in ('no', 'false') or 'build_img_container=no' in env['CI_COMMIT_MESSAGE'])
             for name in deploys & jobs if off else ():
                 problems.setdefault((name, 'publishes while switched off'), context)
+            from_deployed = {'build_pf_img_zen', 'build_pf_img_cd_iso', 'build_pf_img_dvd_usb_iso'}
+            for name in from_deployed & jobs if off and not env.get('CI_COMMIT_TAG') else ():
+                problems.setdefault((name, 'built from an earlier deploy'), context)
         self.assertGreater(count, 1000)
         self.assertEqual([f'{job}: {what} ({problems[(job, what)]})' for job, what in sorted(problems)], [])
+
+    def test_the_dvd_iso_ships_this_pipelines_images(self):
+        # Pulled by the pipeline tag, saved under the tag the packages pull (not the previous promoted images).
+        with tempfile.TemporaryDirectory() as folder:
+            work = Path(folder)
+            log = work/'docker.log'
+            fake = work/'docker'
+            fake.write_text('#!/bin/sh\necho "$*" >> ' + str(log) + '\n[ "$1" != save ] || echo archive\n')
+            fake.chmod(0o700)
+            env = dict(os.environ, PATH=str(work)+os.pathsep+os.environ['PATH'], TAG_OR_BRANCH_NAME='maintenance-15-2',
+                       PIPELINE_IMAGE_TAG='maintenance-15-2-p42')
+            subprocess.run(['bash', str(ROOT/'ci/dvd-usb-iso/predownload-docker-images.sh'), str(work/'images')],
+                           env=env, check=True, capture_output=True, text=True)
+            calls = log.read_text().splitlines()
+            self.assertIn('pull -q ghcr.io/inverse-inc/packetfence/pfcmd:maintenance-15-2-p42', calls)
+            self.assertIn('tag ghcr.io/inverse-inc/packetfence/pfcmd:maintenance-15-2-p42 ghcr.io/inverse-inc/packetfence/pfcmd:maintenance-15-2', calls)
+            save = next(c for c in calls if c.startswith('save '))
+            self.assertIn('ghcr.io/inverse-inc/packetfence/pfcmd:maintenance-15-2', save.split())
+            self.assertNotIn('-p42', save)
+            self.assertEqual((work/'images'/'image-tag.txt').read_text().strip(), 'maintenance-15-2')
 
     def test_a_pulp_error_is_not_a_missing_native_repository(self):
         # Unreachable Pulp: exit 2, which every caller turns into a failure (never the devel skip or the file tree).
