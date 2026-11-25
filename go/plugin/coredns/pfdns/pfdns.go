@@ -765,7 +765,11 @@ func detectionMechanismHost(rawURL string) (string, error) {
 // Active Directory services of a domain: the names under _msdcs.<domain> and
 // _sites.<domain>
 func domainServicesRegexp(domain string) (*regexp.Regexp, error) {
-	quoted := regexp.QuoteMeta(strings.TrimSuffix(domain, "."))
+	domain = strings.TrimSuffix(strings.TrimSpace(domain), ".")
+	if domain == "" {
+		return nil, errors.New("empty domain name")
+	}
+	quoted := regexp.QuoteMeta(domain)
 	return regexp.Compile(`(?i)^(?:.+\.)?(?:_msdcs|_sites)\.` + quoted + `\.?$`)
 }
 

@@ -49,7 +49,11 @@ func newPfconfigRefreshableConfig(ctx context.Context) *pfdnsRefreshableConfig {
 // when withSubdomains is true, any of its subdomains. The domain is matched
 // literally and on label boundaries.
 func domainRegexp(domain string, withSubdomains bool) (*regexp.Regexp, error) {
-	quoted := regexp.QuoteMeta(strings.TrimSuffix(domain, "."))
+	domain = strings.TrimSuffix(strings.TrimSpace(domain), ".")
+	if domain == "" {
+		return nil, errors.New("empty name")
+	}
+	quoted := regexp.QuoteMeta(domain)
 	if withSubdomains {
 		return regexp.Compile(`(?i)^(?:.+\.)?` + quoted + `\.?$`)
 	}

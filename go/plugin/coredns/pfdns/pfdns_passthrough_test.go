@@ -53,6 +53,18 @@ func TestPassthroughs(t *testing.T) {
 	}
 }
 
+func TestEmptyNames(t *testing.T) {
+	if _, err := domainRegexp(" ", true); err == nil {
+		t.Errorf("an empty passthrough is refused")
+	}
+	if _, err := domainServicesRegexp(""); err == nil {
+		t.Errorf("an empty domain is refused")
+	}
+	if _, err := domainRegexp(".", false); err == nil {
+		t.Errorf("a passthrough of the root only is refused")
+	}
+}
+
 func TestDomainServicesRegexp(t *testing.T) {
 	rgx, err := domainServicesRegexp("corp.local")
 	if err != nil {
