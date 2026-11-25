@@ -112,7 +112,7 @@ BEGIN {
 
 }
 
-use Test::More tests => 27 + 2 * ( scalar @CACHEABLE_RULES + scalar @NON_CACHEABLE_RULES);
+use Test::More tests => 35 + 2 * ( scalar @CACHEABLE_RULES + scalar @NON_CACHEABLE_RULES);
 
 #This test will running last
 use Test::NoWarnings;
@@ -333,6 +333,50 @@ ok(!$source->is_rule_cacheable(undef), "undef is always uncacheable");
     $source->_connect();
     is($resolves, 1, "the next bind only resolves it in the pass that ignores the dead servers");
     $source->cache->remove($dead_key);
+}
+
+# Through a connector the TLS session goes to the dynreverse endpoint: whenever
+# the certificate is verified, it must be verified against the configured server
+{
+    require pf::factory::connector;
+    my @calls;
+    no warnings qw(redefine once);
+    local *pf::factory::connector::resolve = sub { '192.0.2.10' };
+    local *pf::factory::connector::for_ip = sub { bless {}, 'LDAPSourceTest::Connector' };
+    local *LDAPSourceTest::Connector::dynreverse = sub { { host => 'containers-gateway.internal', port => 40389 } };
+    local *pf::LDAP::new = sub { my ($class, $server, %args) = @_; push @calls, [$server, \%args]; undef };
+    my $connect = sub {
+        my (%attrs) = @_;
+        @calls = ();
+        my $source = pf::Authentication::Source::LDAPSource->new(
+            id => 'ldap_connector_tls', host => ['ldap.example.com'], port => 636,
+            use_connector => 1, dead_duration => 0, basedn => 'dc=example,dc=com',
+            binddn => '', password => '', scope => 'sub', usernameattribute => 'uid',
+            %attrs,
+        );
+        $source->_connect();
+        return $calls[0];
+    };
+
+    my $call = $connect->(encryption => 'ssl', verify => 'require');
+    is($call->[0], 'containers-gateway.internal', "ssl/require connects to the connector endpoint");
+    is($call->[1]{sslserver}, 'ldap.example.com', "ssl/require verifies the configured server");
+
+    $call = $connect->(encryption => 'ssl', verify => 'optional');
+    is($call->[1]{sslserver}, 'ldap.example.com', "ssl/optional verifies the configured server");
+
+    $call = $connect->(encryption => 'starttls', verify => 'require');
+    is($call->[1]{start_tls_options}{sslserver}, 'ldap.example.com', "starttls/require verifies the configured server");
+    is($call->[1]{start_tls_options}{verify}, 'require', "starttls/require keeps the other start_tls options");
+
+    $call = $connect->(encryption => 'starttls', verify => 'optional');
+    is($call->[1]{start_tls_options}{sslserver}, 'ldap.example.com', "starttls/optional verifies the configured server");
+
+    $call = $connect->(encryption => 'ssl', verify => 'none');
+    ok(!exists $call->[1]{sslserver}, "ssl/none adds no server name");
+
+    $call = $connect->(encryption => 'none', verify => 'require');
+    ok(!exists $call->[1]{sslserver} && !exists $call->[1]{start_tls_options}, "no encryption adds no server name");
 }
 
 =head1 AUTHOR

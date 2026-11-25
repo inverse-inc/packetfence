@@ -372,14 +372,16 @@ sub _LDAPArgs {
 =head2 _connectorTLSArgs
 
 The TLS session goes to the connector's local endpoint, whose name is not
-the one in the server's certificate: with "SSL Verify Mode: Required",
-verify the certificate against the configured server instead
+the one in the server's certificate: whenever the certificate is verified
+("SSL Verify Mode" Optional or Required), verify it against the configured
+server instead
 
 =cut
 
 sub _connectorTLSArgs {
     my ($self, $server, %args) = @_;
-    return %args if ($self->{'verify'} // '') ne 'require';
+    my $verify = $self->{'verify'} // 'none';
+    return %args if $verify eq '' || $verify eq 'none';
     my $encryption = $self->{'encryption'} // '';
     if ($encryption eq SSL) {
         $args{sslserver} = $server;
