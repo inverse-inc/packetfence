@@ -178,6 +178,35 @@ class ConfigurationTest(unittest.TestCase):
                     self.assertFalse(any('secret-value' in row for row in recorded))
                     self.assertNotIn('secret-value', result.stdout + result.stderr)
 
+    def test_container_push_fails_on_unexpected_registry_errors(self):
+        # Only a missing tag or a private image is skipped; a GHCR error or a missing core image fails the push.
+        with tempfile.TemporaryDirectory() as folder:
+            work = Path(folder)
+            script = push_tree(work)
+            for broken, message in (('*pfcron:*) echo "received unexpected HTTP status: 503" >&2; exit 1;;',
+                                     'pfcron: cannot read'),
+                                    ('*radiusd:*) echo "manifest unknown" >&2; exit 1;;', 'radiusd lacks the pipeline tag')):
+                with self.subTest(message=message):
+                    fake = work/'skopeo'
+                    fake.write_text('#!/bin/sh\ncase "$*" in "inspect "*) case "$*" in ' + broken + ' '
+                                    '*pfcmd:p-7*|*radiusd:p-7*) exit 0;; *) echo "manifest unknown" >&2; exit 1;; esac;; '
+                                    '"login "*) cat > /dev/null;; esac\n')
+                    fake.chmod(0o700)
+                    env = dict(os.environ, **PSONO_ENV, PATH=str(work)+os.pathsep+os.environ['PATH'],
+                               TEST_PSONO=str(work/'psono'), CI_COMMIT_BRANCH='devel', CI_PIPELINE_SOURCE='web',
+                               CI_COMMIT_REF_PROTECTED='true', CI_COMMIT_TAG='')
+                    result = subprocess.run(['bash', str(script), 'p-7', 'devel,latest'], env=env,
+                                            capture_output=True, text=True)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn(message, result.stderr)
+
+    def test_a_release_publish_requires_every_native_el_repository(self):
+        script = (ROOT/'ci/pulp/publish-packages.sh').read_text()
+        block = script[script.index('native_rpm=$(python3 ci/pulp/native.py rpm'):]
+        block = block[:block.index('\ndone\n')]
+        self.assertIn('if [[ "${CI_COMMIT_REF_NAME:-}" != devel ]]; then', block)
+        self.assertLess(block.index('exit 1'), block.index('continue'))
+
     def test_every_service_image_is_in_the_push_list(self):
         # A service image missing from container-images.json would never reach the registry.
         config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
@@ -377,7 +406,7 @@ class ConfigurationTest(unittest.TestCase):
             work = Path(folder)
             fake = work/'skopeo'
             fake.write_text('#!/bin/sh\nprintf "%s\\n" "$*" >> "$TEST_CALLS"\n'
-                            'case "$*" in "inspect "*) case "$*" in *pfcmd:feature-x-p7*) exit 0;; '
+                            'case "$*" in "inspect "*) case "$*" in *pfcmd:feature-x-p7*|*radiusd:feature-x-p7*) exit 0;; '
                             '*) echo "manifest unknown" >&2; exit 1;; esac;; "login "*) python3 -c \'import json, sys; json.load(open(sys.argv[1]))\' "$3" || exit 1; cat > /dev/null;; esac\n')
             fake.chmod(0o700)
             script, calls = push_tree(work), work/'calls'
@@ -388,7 +417,7 @@ class ConfigurationTest(unittest.TestCase):
             result = subprocess.run(['bash', str(script), 'feature-x-p7', 'feature-x-p7'], env=env, capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stderr)
             copies = [row for row in calls.read_text().splitlines() if row.startswith('copy ')]
-            self.assertEqual(len(copies), 1)
+            self.assertEqual(len(copies), 2)  # pfcmd, radiusd
             self.assertIn('docker://ghcr.io/inverse-inc/packetfence/pfcmd:feature-x-p7 '
                           'docker://registry.example/inverse-inc/packetfence/pfcmd:feature-x-p7', copies[0])
             calls.write_text('')
@@ -582,6 +611,10 @@ class ConfigurationTest(unittest.TestCase):
                               ({'CI_COMMIT_MESSAGE': 'fix\n\nbuild_img_container=no test=yes'}, 'feature-x-p42')):
             result = subprocess.run(['sh', str(helper)], env={**base, **env}, capture_output=True, text=True)
             self.assertEqual(result.stdout.strip(), expected, env)
+
+    def test_servers_never_pull_the_publish_ppa_image(self):
+        # publish-ppa is a CI tool image without the pipeline tag: a server pull of it would fail.
+        self.assertIn('-not -path "*/publish-ppa/*"', (ROOT/'containers/manage-images.sh').read_text())
 
     def test_shell_syntax(self):
         for script in (ROOT/'ci/pulp').rglob('*.sh'):
