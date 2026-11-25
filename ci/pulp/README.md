@@ -151,13 +151,26 @@ version's docs never moves them.
 
 The `ci-packages`, `ci-docker` and `ci-docs` usernames and passwords are read from Psono at run time
 (`ci/pulp/psono-field.sh`, with the pipeline's `PSONO_CI_API_*`), like the signing key;
-their entry IDs are the protected GitLab variables `PSONO_CI_PULP_PACKAGES_ID`,
-`PSONO_CI_PULP_DOCKER_ID` and `PSONO_CI_PULP_DOCS_ID` (empty by default in `.gitlab-ci.yml`): a feature
-branch deploys only where GitLab gives it those variables (a protected branch). The infrastructure provisions the accounts from the same entries, so a
+their entry IDs are the GitLab variables `PSONO_CI_PULP_PACKAGES_ID`, `PSONO_CI_PULP_DOCKER_ID` and
+`PSONO_CI_PULP_DOCS_ID` (empty by default in `.gitlab-ci.yml`). They are **not protected**: feature branches
+publish their PPA (tests) and, with `DEPLOY_PKG=yes`, their `branches/X.Y/<pipeline>/` folder and images, and a
+protected variable is empty on an unprotected branch. The IDs are not secrets; `PSONO_CI_API_SECRET_KEY_HEX` is,
+so it is masked. The infrastructure provisions the accounts from the same entries, so a
 password changed in Psono applies to both after the next packaging deploy. Disable debug tracing
 (`CI_DEBUG_TRACE`, `CI_DEBUG_SERVICES`) for these jobs, and never collect environment dumps,
 signing homes or credential files as artifacts. Publishing artifacts require Developer
 access (`artifacts:access: developer`).
+
+Variables the Pulp jobs need (GitLab CI/CD settings, not protected):
+
+| Variable | Used by |
+|---|---|
+| `PSONO_CI_API_KEY_ID`, `PSONO_CI_API_SECRET_KEY_HEX` (masked) | every Psono read |
+| `PSONO_GPG_PRIVATE_KEY_SECRET_ID` | package signing and the signed PPA tree |
+| `GPG_USER_ID`, `GPG_KEY_FINGERPRINT` | package signing; `GPG_KEY_FINGERPRINT` also re-signs a merged Debian tree |
+| `PSONO_CI_PULP_PACKAGES_ID` | PPA, branch folders, release packages, published files |
+| `PSONO_CI_PULP_DOCKER_ID` | `deploy_containers` |
+| `PSONO_CI_PULP_DOCS_ID` | docs publishing |
 
 ## Local checks
 
