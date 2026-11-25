@@ -80,7 +80,7 @@ All default to off and need the value `yes` (or the message word):
 | `BUILD_IMG_VAGRANT` | `build_img_vagrant=yes` | the Vagrant box used by the tests |
 | `BUILD_PF_IMG_ZEN` | `build_pf_img_zen=yes` | the ZEN appliance image |
 | `BUILD_PF_IMG_CD_ISO` | `build_pf_img_cd_iso=yes` | the CD ISO |
-| `BUILD_PF_IMG_DVD_USB_ISO` | `build_pf_img_dvd_usb_iso=yes` | the offline DVD/USB ISO; also forces `publish_ppa` |
+| `BUILD_PF_IMG_DVD_USB_ISO` | `build_pf_img_dvd_usb_iso=yes` | the offline DVD/USB ISO |
 | `BUILD_PF_IMG_VAGRANT` | `build_pf_img_vagrant=yes` | the released Vagrant box |
 | `BUILD_ARTIFACTS_DOC` | `build_artifacts_doc=yes` | the guides, and lets `deploy_docs_pulp` publish them |
 | `BUILD_ARTIFACTS_MATERIAL` | `build_artifacts_material=yes` | the pfconfig material |
@@ -92,7 +92,7 @@ All default to off and need the value `yes` (or the message word):
 | Variable | Default | Notes |
 |---|---|---|
 | `PF_PACKAGE_ORIGIN` | `https://packages.packetfence.com` | Pulp origin for packages, images and docs. Must be a bare HTTPS origin. |
-| `PSONO_CI_PULP_PACKAGES_ID` / `_DOCKER_ID` / `_DOCS_ID` | `""` | Psono entries for the `ci-packages`, `ci-docker`, `ci-docs` accounts. Set them as **protected** variables; the Pulp jobs fail while they are empty. |
+| `PSONO_CI_PULP_PACKAGES_ID` / `_DOCKER_ID` / `_DOCS_ID` | `""` | Psono entries for the `ci-packages`, `ci-docker`, `ci-docs` accounts. Set them as variables that are **not protected** (feature branches publish too) and masked; the Pulp jobs fail while they are empty. |
 | `IMAGE_TAG` | `$CI_COMMIT_REF_SLUG` | Overridden per context; `latest` on `devel`. |
 | `CLUSTER_RUNNER_TAG` | `test-cluster-shell-v7` | Runner tag for the cluster tests. |
 

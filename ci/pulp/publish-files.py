@@ -86,7 +86,11 @@ def publish(client, snapshot, items):
         changed[name] = path.stat().st_size
         print(f'{snapshot}/{name}: published')
     if not changed:
-        return
+        served = dist.get('publication')
+        if served and client.request('GET', served)['repository_version'] == repo['latest_version_href']:
+            return
+        # Uploaded by an earlier run whose publication or distribution update failed: publish them now.
+        changed = {name: path.stat().st_size for _, path, name in items}
     repo = client.request('GET', repo['pulp_href'])
     task = client.wait(client.request('POST', API + 'publications/file/file/',
                                       json={'repository_version': repo['latest_version_href'], 'manifest': 'PULP_MANIFEST'}))
