@@ -818,6 +818,12 @@ func packetToMap(ctx context.Context, p *radius.Packet) map[string]interface{} {
 
 	attributes := make(map[string]interface{})
 	for i, attr := range p.Attributes {
+		// Proxy-State is opaque per-hop data added by RADIUS proxies (RFC 2865 5.33);
+		// it carries nothing useful for accounting, so drop it without logging.
+		if rfc2865.ProxyState_Type == i {
+			continue
+		}
+
 		if rfc2865.VendorSpecific_Type == i {
 			for _, vattrs := range attr {
 				id, vsa, err := radius.VendorSpecific(vattrs)
@@ -903,7 +909,7 @@ func addAttributeToMap(ctx context.Context, attributes map[string]interface{}, d
 			attributes[da.Name] = item
 		}
 	} else {
-		logDebug(ctx, fmt.Sprintf("Serialization of data type %s for %s not handled\n", da.Type, da.Name))
+		logDebug(ctx, fmt.Sprintf("Serialization of data type %s for %s not handled", da.Type, da.Name))
 	}
 }
 
