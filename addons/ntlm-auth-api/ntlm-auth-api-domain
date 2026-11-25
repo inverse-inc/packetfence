@@ -29,7 +29,9 @@ args="$args -v /usr/local/ntlm-auth-api/logs:/usr/local/pf/logs"
 args="$args -v /usr/local/ntlm-auth-api/var/conf:/usr/local/pf/var/conf"
 args="$args -v /usr/local/ntlm-auth-api/sbin:/usr/local/pf/sbin"
 args="$args -v /var/log:/var/log:ro"
-args="$args -p $LISTEN:$LISTEN"
+# Only the local clients use the API: the connector through 127.0.0.1 and
+# containers-gateway.internal
+args="$args -p 127.0.0.1:$LISTEN:$LISTEN -p 100.64.0.1:$LISTEN:$LISTEN"
 args="$args -e LISTEN=$LISTEN"
 args="$args -e IDENTIFIER=$IDENTIFIER"
 args="$args -e CREDCACHE_URL=${CREDCACHE_URL}"
