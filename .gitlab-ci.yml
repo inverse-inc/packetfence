@@ -1767,7 +1767,15 @@ deploy_maintenance_pulp:
 deploy_maintenance_pkg_friendly_names:
   extends:
     - .deploy_pkg_friendly_names
-    - .deploy_maintenance_rules
+  # These files name this build's packages: published only once those are.
+  needs:
+    - job: sign_devel_release_branches_and_maintenance
+    - job: deploy_maintenance_pulp
+      artifacts: false
+  rules:
+    - if: '$BUILD_IMG_CONTAINER == "no" || $CI_COMMIT_MESSAGE =~ /build_img_container=no/'
+      when: never
+    - !reference [.deploy_maintenance_rules, rules]
 
 # The built guides -> doc/X.Y.0 in the packaging Pulp (X.Y from conf/pf-release), after the tests: release tags
 # and maintenance/X.Y pipelines that build the docs; see ci/pulp/publish-docs.sh.
