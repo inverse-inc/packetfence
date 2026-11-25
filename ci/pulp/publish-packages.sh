@@ -59,10 +59,13 @@ if [[ "$MODE" == branches ]]; then
     python3 -I - "$work/pipeline.json" "$release" <<'EOF'
 import json, os, sys
 from datetime import datetime, timezone
+# The pipeline's creation time, not now: a retried publish must write the same bytes.
+created = datetime.fromisoformat(os.environ['CI_PIPELINE_CREATED_AT'].replace('Z', '+00:00'))
+created = created.astimezone(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
 with open(sys.argv[1], 'w') as out:
     json.dump({'branch': os.environ['CI_COMMIT_REF_NAME'], 'slug': os.environ['CI_COMMIT_REF_SLUG'],
                'pipeline': int(os.environ['CI_PIPELINE_ID']), 'commit': os.environ.get('CI_COMMIT_SHA', ''),
-               'release': sys.argv[2], 'created': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')},
+               'release': sys.argv[2], 'created': created},
               out, indent=1, sort_keys=True)
 EOF
     # <folder> <built tree to copy> <staged files>. Debian copies the contents of debian/ (dists/, pool/ at the
