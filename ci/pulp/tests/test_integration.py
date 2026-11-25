@@ -595,7 +595,11 @@ class ConfigurationTest(unittest.TestCase):
         self.assertNotIn('${{', run['run'])
         self.assertIn('publish-ppa', job['container']['image'])
         script = ROOT/'ci/pulp/publish-dependency.sh'
-        env = {'PATH': os.environ['PATH']}
+        env = {'PATH': os.environ['PATH'], 'BRANCH_NAME': 'maintenance/1.0'}
+        feature = subprocess.run(['bash', str(script), 'debian12', '/nonexistent.pkg'], env={**env, 'BRANCH_NAME': 'feature/x'},
+                                 capture_output=True, text=True)
+        self.assertEqual(feature.returncode, 0, feature.stderr)
+        self.assertIn('feature/x is not published', feature.stdout)
         os_list = re.search(r"^OS_SUPPORTED='(.*)'$", (ROOT/'ci/lib/common/functions.sh').read_text(), re.M).group(1).split()
         for image, os_name in (('debian11', 'Debian-11'), ('debian12', 'Debian-12'), ('rhel8', 'RHEL-8')):
             result = subprocess.run(['bash', str(script), image, '/nonexistent.pkg'], env=env, capture_output=True, text=True)
