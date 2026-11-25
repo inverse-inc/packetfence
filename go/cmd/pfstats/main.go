@@ -5,6 +5,7 @@ import (
 	"crypto/hmac"
 	"crypto/md5"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"net"
 	"os"
@@ -279,6 +280,7 @@ func main() {
 	ln, err := net.Listen("unix", "/usr/local/pf/var/run/collectd-unixsock")
 	if err != nil {
 		log.LoggerWContext(ctx).Crit("Listen error: " + err.Error())
+		os.Exit(1)
 	}
 
 	sigc := make(chan os.Signal, 1)
@@ -406,7 +408,12 @@ func main() {
 	for {
 		fd, err := ln.Accept()
 		if err != nil {
+			if errors.Is(err, net.ErrClosed) {
+				return
+			}
 			log.LoggerWContext(ctx).Crit("Accept error: " + err.Error())
+			// Back off so a persistent error (e.g. EMFILE) doesn't spin the loop
+			time.Sleep(time.Second)
 			continue
 		}
 
