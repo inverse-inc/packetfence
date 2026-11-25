@@ -60,7 +60,7 @@
           <node-dropdown :id="value" variant="link" class="px-0" toggle-class="p-0" dropup />
         </template>
         <template #cell(answer)="{ value }">
-          <div v-html="value"></div>
+          <div style="white-space: pre-line">{{ value }}</div>
         </template>
       </b-table>
       <b-container fluid v-if="selected.length"
