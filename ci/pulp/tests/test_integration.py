@@ -1146,6 +1146,20 @@ class ConfigurationTest(unittest.TestCase):
                         self.assertEqual(module.main(), code)
                     self.assertEqual(len(session.puts), puts)
 
+    def test_feature_branch_images_prefer_their_own_packages(self):
+        # Both repositories carry packetfence*: without a pin, a newer devel build in debian/X.Y would win.
+        helper = ROOT/'ci/lib/common/deployed-repo.sh'
+        env = {'PATH': os.environ['PATH']}
+        pin = subprocess.run(['sh', str(helper), '--preferences'], env={**env, 'PF_BRANCHES_PIPELINE': '42'},
+                             capture_output=True, text=True, check=True).stdout
+        self.assertEqual(pin, 'Package: packetfence*\nPin: release a=bookworm-gitlab\nPin-Priority: 900\n')
+        self.assertEqual(subprocess.run(['sh', str(helper), '--preferences'], env=env, capture_output=True,
+                                        text=True, check=True).stdout, '')
+        for path in ('ci/cd-iso/postinst-debian-installer.sh', 'ci/dvd-usb-iso/postinst-offline.sh',
+                     'ci/dvd-usb-iso/create-local-repo.sh', 'ci/zen/packer/provisioners/playbooks/install_pf.yml'):
+            self.assertIn('/etc/apt/preferences.d/packetfence.pref', (ROOT/path).read_text(), path)
+        self.assertIn('Pin: release a=bookworm-gitlab', (ROOT/'ci/zen/packer/provisioners/playbooks/install_pf.yml').read_text())
+
     def test_a_pulp_error_is_not_a_missing_native_repository(self):
         # Unreachable Pulp: exit 2, which every caller turns into a failure (never the devel skip or the file tree).
         env = {'PATH': os.environ['PATH'], 'PULP_URL': 'http://127.0.0.1:9', 'PULP_USERNAME': 'u', 'PULP_PASSWORD': 'p'}

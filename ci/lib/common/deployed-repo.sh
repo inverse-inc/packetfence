@@ -4,6 +4,12 @@
 # --check: fail unless the first one is published.
 set -eu
 
+# --preferences: the apt pin that keeps a feature branch's packetfence* packages ahead of debian/X.Y's (a newer
+# devel build would otherwise win on version); nothing without PF_BRANCHES_PIPELINE.
+if [ "${1:-}" = --preferences ]; then
+    [ -z "${PF_BRANCHES_PIPELINE:-}" ] || printf 'Package: packetfence*\nPin: release a=bookworm-gitlab\nPin-Priority: 900\n'
+    exit 0
+fi
 check=
 if [ "${1:-}" = --check ]; then check=1; shift; fi
 release=${1:?usage: deployed-repo.sh [--check] X.Y}

@@ -79,6 +79,11 @@ sed 's|^|deb [signed-by=/etc/apt/keyrings/packetfence.gpg] |' <<< "${PF_APT_SOUR
     ${SUDO} tee ${CHROOT_DIR}/etc/apt/sources.list.d/packetfence.list
 # The installed system keeps the same repositories for its updates (postinst-offline.sh).
 ${SUDO} cp ${CHROOT_DIR}/etc/apt/sources.list.d/packetfence.list ${REPO_DIR}/packetfence-online.list
+PF_APT_PREFERENCES=$("${PF_ROOT}/ci/lib/common/deployed-repo.sh" --preferences)
+if [ -n "${PF_APT_PREFERENCES}" ]; then
+    printf '%s\n' "${PF_APT_PREFERENCES}" | ${SUDO} tee ${CHROOT_DIR}/etc/apt/preferences.d/packetfence.pref > /dev/null
+    ${SUDO} cp ${CHROOT_DIR}/etc/apt/preferences.d/packetfence.pref ${REPO_DIR}/packetfence-online.pref
+fi
 
 # Copy GPG key to repo for later use
 ${SUDO} cp ${CHROOT_DIR}/etc/apt/keyrings/packetfence.gpg ${REPO_DIR}/packetfence.gpg

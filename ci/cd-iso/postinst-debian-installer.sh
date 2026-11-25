@@ -10,6 +10,7 @@ systemctl restart sshd.service
 curl -fsSL "$PF_KEY_URL" | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
 # The deployed repositories the ISO was built for (create-debian-installer.sh).
 cp /media/cdrom/packetfence.list /etc/apt/sources.list.d/packetfence.list
+[ ! -f /media/cdrom/packetfence.pref ] || cp /media/cdrom/packetfence.pref /etc/apt/preferences.d/packetfence.pref
 echo "SET PASSWORD FOR root@'localhost' = PASSWORD('');" > /tmp/reset-root.sql
 apt-get update
 apt-get install packetfence -y
