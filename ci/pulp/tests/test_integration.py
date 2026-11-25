@@ -586,6 +586,30 @@ class ConfigurationTest(unittest.TestCase):
                         self.assertEqual(module.main(), code)
                     self.assertEqual(len(session.puts), puts)
 
+    def test_github_dependency_packages_go_to_the_package_origin(self):
+        # packetfence-perl and perl-client: no rsync to web.inverse.ca any more, and no secret on a command line.
+        workflow = (ROOT/'.github/workflows/reusable_upload_packages.yml').read_text()
+        for gone in ('rsync', 'inverse.ca', 'WEB_INVERSE_IP_ADDRESS', 'ssh-add'):
+            self.assertNotIn(gone, workflow)
+        job = yaml.safe_load(workflow)['jobs']['upload-package']
+        run = job['steps'][-1]
+        self.assertIn('bash ci/pulp/publish-dependency.sh', run['run'])
+        self.assertNotIn('${{', run['run'])
+        self.assertIn('publish-ppa', job['container']['image'])
+        script = ROOT/'ci/pulp/publish-dependency.sh'
+        env = {'PATH': os.environ['PATH']}
+        os_list = re.search(r"^OS_SUPPORTED='(.*)'$", (ROOT/'ci/lib/common/functions.sh').read_text(), re.M).group(1).split()
+        for image, os_name in (('debian11', 'Debian-11'), ('debian12', 'Debian-12'), ('rhel8', 'RHEL-8')):
+            result = subprocess.run(['bash', str(script), image, '/nonexistent.pkg'], env=env, capture_output=True, text=True)
+            if os_name in os_list:  # supported: needs the Pulp account, refused here before any network access
+                self.assertEqual(result.returncode, 1, image)
+                self.assertIn('PSONO_CI_PULP_PACKAGES_ID is empty', result.stderr)
+            else:  # an OS this release does not serve is skipped, not an error
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn('does not support', result.stdout)
+        for args in (['debian12'], ['windows', 'x.msi']):
+            self.assertNotEqual(subprocess.run(['bash', str(script), *args], env=env, capture_output=True).returncode, 0)
+
     def test_a_pulp_error_is_not_a_missing_native_repository(self):
         # Unreachable Pulp: exit 2, which every caller turns into a failure (never the devel skip or the file tree).
         env = {'PATH': os.environ['PATH'], 'PULP_URL': 'http://127.0.0.1:9', 'PULP_USERNAME': 'u', 'PULP_PASSWORD': 'p'}
