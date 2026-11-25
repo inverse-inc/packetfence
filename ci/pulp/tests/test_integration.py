@@ -287,7 +287,7 @@ class ConfigurationTest(unittest.TestCase):
         self.assertIn({'reference': ['.deploy_branches_rules', 'rules']}, rules)
         # Never into the debian/ and RHEL<N>/ roots: only maintenance publishes the friendly names.
         self.assertNotIn('deploy_branches_pkg_friendly_names', config)
-        self.assertIn('.deploy_maintenance_rules', config['deploy_maintenance_pkg_friendly_names']['extends'])
+        self.assertIn({'reference': ['.deploy_maintenance_rules', 'rules']}, config['deploy_maintenance_pkg_friendly_names']['rules'])
 
     def test_files_keep_their_published_names_for_every_os(self):
         spec = importlib.util.spec_from_file_location('publish_files', ROOT/'ci/pulp/publish-files.py')
@@ -643,6 +643,12 @@ class ConfigurationTest(unittest.TestCase):
             rules = resolved_rules(config, name)
             self.assertIn(gate, rules, name)
             self.assertTrue(all(r.get('when') == 'never' for r in rules[:rules.index(gate)]), name)
+            images = [r for r in rules if r.get('when') == 'never' and 'BUILD_IMG_CONTAINER == "no"' in r['if']]
+            self.assertTrue(images and all('TEST' not in r['if'] for r in images), name)
+        # The published file names point at this build's packages: never before (or without) them.
+        files, packages = (('deploy_files_pulp', 'deploy_debian_pulp') if 'deploy_files_pulp' in config
+                           else ('deploy_maintenance_pkg_friendly_names', 'deploy_maintenance_pulp'))
+        self.assertIn({'job': packages, 'artifacts': False}, config[files]['needs'])
         helper = ROOT/'ci/lib/common/pipeline-image-tag.sh'
         base = {'PATH': os.environ['PATH'], 'CI_PIPELINE_ID': '42', 'CI_COMMIT_REF_NAME': 'feature/x',
                 'CI_COMMIT_REF_SLUG': 'feature-x', 'CI_PIPELINE_SOURCE': 'web'}
