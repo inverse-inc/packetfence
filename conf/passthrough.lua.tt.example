@@ -18,7 +18,10 @@ local string = require("string");
 local pki_paths = {
     '^/pki/ocsp/?$',
     -- GET: the base64 request, maybe URL-encoded, in the path (RFC 6960 A.1)
-    '^/pki/ocsp/[%w%+/=%%]+$',
+    -- This file is a Template Toolkit template: a set must not start with
+    -- a % class (such as %w), TT would read the bracket and the % as the
+    -- start of a directive.
+    '^/pki/ocsp/[A-Za-z0-9+/=%%]+$',
     '^/pki/scep/?$',
     '^/pki/scep/[^/]+/?$',
     '^/pki/scep/[^/]+/pkiclient%.exe$',
