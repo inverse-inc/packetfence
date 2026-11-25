@@ -1134,6 +1134,33 @@ sign_packages:
       variables:
         IMAGE_TAG: $CI_COMMIT_REF_SLUG
 
+# The signed APT/YUM tree (public/), generated once per pipeline and kept: publish_ppa and deploy_branches_pulp
+# send it as is, so retrying them after a partial upload sends the same Release/InRelease/repomd files.
+ppa_tree:
+  stage: sign
+  image: $PF_PPA_IMAGE
+  needs:
+    - job: sign_packages
+  artifacts:
+    access: developer
+    expire_in: 7 days
+    paths: [public/]
+  script:
+    - PAGES_HTML=no generate-pages
+  tags:
+    - docker
+  before_script:
+    - |
+      set -euo pipefail
+      python3 addons/packetfence-perl/psono.py \
+        --api_key_id="$PSONO_CI_API_KEY_ID" \
+        --api_key_secret_key="$PSONO_CI_API_SECRET_KEY_HEX" \
+        --secret_id="$PSONO_GPG_PRIVATE_KEY_SECRET_ID" \
+        --return_value=password_notes \
+      | gpg --batch --pinentry-mode loopback --import
+  rules:
+    - !reference [sign_packages, rules]
+
 ########################################
 # PUBLISH JOBS
 ########################################
@@ -1146,28 +1173,17 @@ publish_ppa:
     when: always
     expire_in: 7 days
     paths: [pulp-publication.json]
+  # The tree ppa_tree signed once: a retry sends the same bytes as the failed attempt.
   needs:
-    - job: sign_packages
+    - job: ppa_tree
   environment:
     name: PPA
     url: ${PF_PACKAGE_ORIGIN}/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}
   script:
-    - PAGES_HTML=no generate-pages
     # Only gitlab/<pipeline> here; branch trees are published after the tests (deploy_branches_pulp).
     - bash ci/pulp/publish-packages.sh ppa
   tags:
     - docker
-  before_script:
-    - |
-      set -euo pipefail
-      echo "=== Import GPG key for repo signing ==="
-      python3 addons/packetfence-perl/psono.py \
-        --api_key_id="$PSONO_CI_API_KEY_ID" \
-        --api_key_secret_key="$PSONO_CI_API_SECRET_KEY_HEX" \
-        --secret_id="$PSONO_GPG_PRIVATE_KEY_SECRET_ID" \
-        --return_value=password_notes \
-      | gpg --batch --pinentry-mode loopback --import
-      gpg --list-keys
   rules:
     - !reference [.gated_by_build_artifacts_pkg, rules]
     - if: '$CI_COMMIT_REF_NAME == "devel"'
@@ -1631,26 +1647,21 @@ deploy_branches_pulp:
   stage: deploy
   image: $PF_PPA_IMAGE
   resource_group: pulp-packetfence-pipelines
+  # ppa_tree's signed tree as is (a retry sends the same bytes); result/ for the files it stages.
   dependencies:
     - sign_packages
+    - ppa_tree
   environment:
     name: $DEPLOY_ENV_NAME
   before_script:
     - |
       set -euo pipefail
       # Protected variables: an unprotected feature branch gets them empty; say so before the key import fails.
-      for name in PSONO_CI_API_KEY_ID PSONO_CI_API_SECRET_KEY_HEX PSONO_GPG_PRIVATE_KEY_SECRET_ID PSONO_CI_PULP_PACKAGES_ID; do
+      for name in PSONO_CI_API_KEY_ID PSONO_CI_API_SECRET_KEY_HEX PSONO_CI_PULP_PACKAGES_ID; do
         eval "value=\${$name:-}"
         [ -n "$value" ] || { echo "$name is empty. GitLab gives the Pulp credentials to protected branches only: protect this branch, or deploy from one that is" >&2; exit 1; }
       done
-      python3 addons/packetfence-perl/psono.py \
-        --api_key_id="$PSONO_CI_API_KEY_ID" \
-        --api_key_secret_key="$PSONO_CI_API_SECRET_KEY_HEX" \
-        --secret_id="$PSONO_GPG_PRIVATE_KEY_SECRET_ID" \
-        --return_value=password_notes \
-      | gpg --batch --pinentry-mode loopback --import
   script:
-    - PAGES_HTML=no generate-pages
     - bash ci/pulp/publish-packages.sh branches
   artifacts:
     access: developer
