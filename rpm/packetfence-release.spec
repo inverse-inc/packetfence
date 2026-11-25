@@ -1,7 +1,7 @@
 # Where CI publishes (PF_PACKAGE_ORIGIN, Makefile): every repository below is served there.
 %{!?pf_package_origin:%global pf_package_origin https://packages.packetfence.com}
 Name:       packetfence-release
-Version:    2.4.1
+Version:    2.5.0
 Release:    1%{?dist}
 BuildArch:  noarch
 Summary:    PacketFence release file and RPM repository configuration
@@ -137,6 +137,9 @@ cp %{_builddir}/RPM-GPG-KEY-PACKETFENCE-MONITORING %{buildroot}%{_sysconfdir}/pk
 
 
 %changelog
+* Wed Nov 25 2026 Inverse inc. <support@inverse.ca> - 2.5.0-1
+- Repositories on the package origin (packages.packetfence.com); a new version so installed servers update
+
 * Mon Oct 04 2021 Nicolas Quiniou-Briand <nquiniou@akamai.com> - 2.4.0-1
 - Add GPG key used to sign monitoring scripts
 
