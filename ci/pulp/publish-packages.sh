@@ -78,7 +78,7 @@ EOF
         --tree "$work/deb" --no-lock --apply --output pulp-branches-deb.json
     echo "Published to $PF_PACKAGE_ORIGIN/downloads/PacketFence/debian/branches/$release/$CI_PIPELINE_ID/"
     for n in "${el_versions[@]}"; do
-        [[ -d "$PUBLIC_DIR/centos/$n/x86_64/repodata" ]] || continue
+        [[ -d "$PUBLIC_DIR/centos/$n/x86_64/repodata" ]] || { echo "No repodata in the generated EL$n tree" >&2; exit 1; }
         branch_tree "$work/rpm$n" "$PUBLIC_DIR/centos/$n/x86_64" "$work/files/rhel$n"
         python3 "$helper" publish --repository "rhel$n-branches-$dashed" --pipeline "$CI_PIPELINE_ID" \
             --tree "$work/rpm$n" --no-lock --apply --output "pulp-branches-rpm-el$n.json"
