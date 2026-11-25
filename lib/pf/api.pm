@@ -1785,7 +1785,7 @@ sub firewallsso_accounting : Public :Queue {
             }
         }
 
-        $logger->warn("Firewall SSO Notify");
+        $logger->info("Sending a firewall SSO '$firewallsso_method' request for $mac ($ip, role " . ($role // 'none') . ") from the accounting");
         $client->notify( 'firewallsso', (method => $firewallsso_method, mac => $mac, ip => $ip, timeout => $timeout, username => $username, role => $role, source => $ACCOUNTING) );
     }
 }
