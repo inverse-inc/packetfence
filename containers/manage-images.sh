@@ -105,6 +105,7 @@ configure_and_check() {
                            -not -path "*/pfconnector-*/*" \
                            -not -path "*/kaniko-build/*" \
                            -not -path "*/packetfence-perl/*" \
+                           -not -path "*/publish-ppa/*" \
                            -printf "%P\n")
 
     for file in ${DOCKERFILE_DIRS}; do
