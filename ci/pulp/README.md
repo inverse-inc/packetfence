@@ -70,8 +70,7 @@ packages and images alike. To install one by hand: `addons/vagrant/extra_vars_br
 ## Container images
 
 On `maintenance/X.Y` and feature branches, the service images (`pfdeb_br_maint`, `pfdeb_based_br_maint`,
-`img_br_maint`, `rad_*_br_maint`) are pushed to GHCR only as `<slug>-p<pipeline>` (a `cloud-nac/X.Y` branch keeps
-its own image jobs and tag)
+`img_br_maint`, `rad_*_br_maint`) are pushed to GHCR only as `<slug>-p<pipeline>`
 (`ci/lib/common/pipeline-image-tag.sh`). The test VMs pull that tag: provisioning writes
 `/etc/packetfence-ci-image-tag` and `manage-images.sh` retags the images locally with the
 package's `TAG_OR_BRANCH_NAME`. On `maintenance/X.Y` the packages keep their branch tag:

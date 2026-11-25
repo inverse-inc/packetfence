@@ -79,9 +79,8 @@ class ConfigurationTest(unittest.TestCase):
         sources = lambda text: set(re.findall(r'\$CI_PIPELINE_SOURCE == "(\w+)"', text))  # noqa: E731
         packages = config['.deploy_maintenance_rules']['rules']
         self.assertEqual(sources(maintenance['if']), set().union(*(sources(r['if']) for r in packages if 'when' not in r)))
-        # A feature branch keeps its pipeline tag (not cloud-nac/X.Y, whose images keep the slug).
+        # A feature branch keeps its pipeline tag.
         self.assertEqual(feature['variables']['PROMOTE_TAGS'], '')
-        self.assertIn('$CI_COMMIT_REF_NAME !~ /^cloud-nac\\//', feature['if'])
 
     def test_service_images_build_from_the_builder_branch_tag(self):
         # Service images get a pipeline tag (IMAGE_TAG); pfbuild-* builders only have their branch tag.
