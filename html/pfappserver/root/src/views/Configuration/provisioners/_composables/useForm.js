@@ -1,6 +1,7 @@
 import { computed, ref, toRefs, watch } from '@vue/composition-api'
 import { useFormMetaSchema } from '@/composables/useMeta'
 import schemaFn from '../schema'
+import { setUploadPem } from '../../pki/_composables/usePkiImport'
 
 const useFormProps = {
   form: {
@@ -55,6 +56,16 @@ const useForm = (props) => {
     wantsPkiProvider.value = (security_type === 'WPA2' && +eap_type === 13) // EAP-TLS
   }, { immediate: true, deep: true })
 
+  const onPkiImportServerCertificate = ({ certificate, ca }) => {
+    setUploadPem(form.value, 'server_certificate_path', certificate)
+    // also provide the CA which signed the server certificate unless one is already set
+    const { ca_cert_path, ca_cert_path_upload } = form.value
+    if (!ca_cert_path && !ca_cert_path_upload)
+      setUploadPem(form.value, 'ca_cert_path', ca)
+  }
+
+  const onPkiImportCa = ({ ca }) => setUploadPem(form.value, 'ca_cert_path', ca)
+
   return {
     schema: metaSchema,
 
@@ -63,7 +74,9 @@ const useForm = (props) => {
     wantsPasscode,
     wantsServerCertificatePath,
     wantsServerRadiusCaPath,
-    wantsPkiProvider
+    wantsPkiProvider,
+    onPkiImportServerCertificate,
+    onPkiImportCa
   }
 }
 
