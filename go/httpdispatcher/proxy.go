@@ -27,8 +27,6 @@ import (
 
 // Proxy structure
 type Proxy struct {
-	endpointWhiteList    []*regexp.Regexp
-	endpointBlackList    []*regexp.Regexp
 	mutex                sync.Mutex
 	ParkingSecurityEvent *sql.Stmt // prepared statement for security_event
 	IP4log               *sql.Stmt // prepared statement for ip4log queries
@@ -83,35 +81,6 @@ func NewProxy(ctx context.Context) *Proxy {
 // Refresh the configuration
 func (p *Proxy) Refresh(ctx context.Context) {
 	passThrough.readConfig(ctx)
-}
-
-// addToEndpointList compiles regex and adds it to an endpointList
-// if regex is valid
-// use t to choose list type: true for whitelist false for blacklist
-func (p *Proxy) addToEndpointList(ctx context.Context, r string) error {
-	rgx, err := regexp.Compile(r)
-	if err == nil {
-		p.mutex.Lock()
-		p.endpointBlackList = append(p.endpointBlackList, rgx)
-		p.mutex.Unlock()
-	}
-	return err
-}
-
-// checkEndpointList looks if r is in whitelist or blackllist
-// returns true if endpoint is allowed
-func (p *Proxy) checkEndpointList(ctx context.Context, e string) bool {
-	if p.endpointBlackList == nil && p.endpointWhiteList == nil {
-		return true
-	}
-
-	for _, rgx := range p.endpointBlackList {
-		if rgx.MatchString(e) {
-			return false
-		}
-	}
-
-	return true
 }
 
 // ServeHTTP satisfy HandlerFunc interface and
@@ -256,34 +225,14 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "REDIRECT"))
 		return
 	}
-	if !p.checkEndpointList(ctx, host) {
-		log.LoggerWContext(ctx).Info(fmt.Sprintln(host, "FORBIDDEN host in blacklist"))
-		w.WriteHeader(http.StatusForbidden)
-		return
-	}
 	log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "REVERSE"))
 
 	p.reversePassthrough(ctx, w, r, host)
 }
 
-// Configure add default target in the deny list
+// Configure connects the proxy to the database and the API
+// (the passthrough destinations are restricted by proxiedDestinationControl)
 func (p *Proxy) Configure(ctx context.Context) {
-	p.addToEndpointList(ctx, "localhost")
-	p.addToEndpointList(ctx, "127.0.0.1")
-	p.addToEndpointList(ctx, "127.1")
-	p.addToEndpointList(ctx, "127.0.1")
-	p.addToEndpointList(ctx, "0177.1")
-	p.addToEndpointList(ctx, "0177.0.1")
-	p.addToEndpointList(ctx, "0x7f.1")
-	p.addToEndpointList(ctx, "0x7f.0.1")
-	p.addToEndpointList(ctx, "7f.00.00.01")
-	p.addToEndpointList(ctx, "0x7f.0x0.0x0.0x1")
-	p.addToEndpointList(ctx, "0177.0.0.01")
-	p.addToEndpointList(ctx, "2130706433")
-	p.addToEndpointList(ctx, "0x7f.0.0.0x1")
-	p.addToEndpointList(ctx, "7f.00.00.01")
-	p.addToEndpointList(ctx, "0x7f000001")
-	// protection against SSRF obfuscation in order to trigger the localhost vhost.
 
 	Database, err := db.DbFromConfig(ctx)
 	for err != nil {
