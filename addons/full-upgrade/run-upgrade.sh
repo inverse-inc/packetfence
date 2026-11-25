@@ -128,8 +128,9 @@ function apt_upgrade_packetfence_package() {
 
 function yum_upgrade_packetfence_package() {
   set_upgrade_to
-  # --force: the target's release file replaces the installed one even when its build date makes it look older.
-  rpm -Uvh --force https://packages.packetfence.com/downloads/PacketFence/RHEL8/packetfence-release-$UPGRADE_TO.el8.noarch.rpm
+  # Through yum (its proxy settings apply); downgrade too: a target built earlier has a lower release number.
+  local release_rpm=https://packages.packetfence.com/downloads/PacketFence/RHEL8/packetfence-release-$UPGRADE_TO.el8.noarch.rpm
+  yum install -y "$release_rpm" || yum downgrade -y "$release_rpm" || yum reinstall -y "$release_rpm"
   yum clean all --enablerepo=packetfence
   yum_upgrade_mariadb_server
   if is_enabled $1; then
