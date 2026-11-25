@@ -78,9 +78,17 @@ TAG_OR_BRANCH_NAME=`git rev-parse --abbrev-ref HEAD | sed 's#[/|.]#-#g'`
 echo -n TAG_OR_BRANCH_NAME=$TAG_OR_BRANCH_NAME > conf/build_id
 echo LOCAL_DEV=true > containers/.local_env
 
+# A feature branch's service images only carry <slug>-p<pipeline>: fall back to its release's, then devel's.
+base_tag=maintenance-$(grep -oE '[0-9]+\.[0-9]+' conf/pf-release | head -n1 | tr . -)
 for img in pfbuild-debian-bookworm pfdebian radiusd; do
-  docker pull ghcr.io/inverse-inc/packetfence/$img:$TAG_OR_BRANCH_NAME
-  docker tag ghcr.io/inverse-inc/packetfence/$img:$TAG_OR_BRANCH_NAME packetfence/$img:$TAG_OR_BRANCH_NAME
+  for tag in $TAG_OR_BRANCH_NAME $base_tag devel; do
+    if docker pull ghcr.io/inverse-inc/packetfence/$img:$tag; then
+      docker tag ghcr.io/inverse-inc/packetfence/$img:$tag packetfence/$img:$TAG_OR_BRANCH_NAME
+      continue 2
+    fi
+  done
+  echo "No $img image under $TAG_OR_BRANCH_NAME, $base_tag or devel" >&2
+  exit 1
 done
 
 log_section "Fix permissions and start unmanaged services"
