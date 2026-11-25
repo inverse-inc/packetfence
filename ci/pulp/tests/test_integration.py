@@ -349,8 +349,12 @@ class ConfigurationTest(unittest.TestCase):
             script = push_tree(work)
             calls, login, psono = work/'calls', work/'login', work/'psono'
             branch_args = ('p-7', 'devel,latest')
+            maint_args = ('p-7', 'maintenance-15-2')
             cases = [('devel', source, 'true', '', branch_args, True) for source in ('push', 'web', 'api', 'schedule')]
-            cases += [('maintenance/15.2', source, 'true', '', branch_args, True) for source in ('web', 'api', 'schedule')]
+            cases += [('maintenance/15.2', source, 'true', '', maint_args, True) for source in ('web', 'api', 'schedule')]
+            # Only its own branch tag, whatever PROMOTE_TAGS says.
+            cases += [('maintenance/15.2', 'web', 'true', '', branch_args, False),
+                      ('maintenance/15.2', 'web', 'true', '', ('p-7', 'maintenance-14-0'), False)]
             cases += [('', 'push', 'true', 'v16.0.0', ('v16.0.0', 'v16.0.0'), False),  # a release tag stays on GitHub
                       ('maintenance/15.2', 'push', 'true', '', branch_args, False),
                       ('maintenance/99.9', 'schedule', 'true', '', branch_args, False),
@@ -369,7 +373,8 @@ class ConfigurationTest(unittest.TestCase):
                     env = dict(os.environ, **PSONO_ENV, PATH=str(work)+os.pathsep+os.environ['PATH'],
                                TEST_CALLS=str(calls), TEST_LOGIN=str(login), TEST_PSONO=str(psono),
                                CI_COMMIT_BRANCH=branch, CI_PIPELINE_SOURCE=source,
-                               CI_COMMIT_REF_PROTECTED=protected, CI_COMMIT_TAG=tag)
+                               CI_COMMIT_REF_PROTECTED=protected, CI_COMMIT_TAG=tag,
+                               CI_COMMIT_REF_SLUG=re.sub('[^a-z0-9]', '-', branch))
                     result = subprocess.run(['bash', str(script), *args], env=env, capture_output=True, text=True)
                     self.assertEqual(result.returncode == 0, allowed, result.stderr)
                     recorded = calls.read_text().splitlines()
@@ -383,9 +388,10 @@ class ConfigurationTest(unittest.TestCase):
                     self.assertIn('--username ci-docker --password-stdin registry.example', recorded[0])
                     copies = [row for row in recorded if row.startswith('copy ')]
                     self.assertTrue(all('--all --preserve-digests' in row for row in copies))
-                    self.assertEqual(len(copies), 4)  # 2 images x 2 tags
+                    self.assertEqual(len(copies), 2 * len(args[1].split(',')))  # 2 images x the tags
                     self.assertIn('docker://ghcr.io/inverse-inc/packetfence/pfcmd:p-7 '
-                                  'docker://registry.example/inverse-inc/packetfence/pfcmd:latest', copies[1])
+                                  'docker://registry.example/inverse-inc/packetfence/pfcmd:' + args[1].split(',')[-1],
+                                  '\n'.join(copies))
                     self.assertIn('pfqueue: not public on GHCR (private or not created yet), skipped', result.stdout)
                     self.assertNotIn('pfcron:', result.stdout)  # only lacks this pipeline's tag: silent
                     self.assertFalse(any('secret-value' in row for row in recorded))
@@ -502,6 +508,45 @@ class ConfigurationTest(unittest.TestCase):
                 problems.setdefault((name, 'publishes while switched off'), context)
         self.assertGreater(count, 1000)
         self.assertEqual([f'{job}: {what} ({problems[(job, what)]})' for job, what in sorted(problems)], [])
+
+    def test_promotion_moves_no_tag_until_every_image_is_read(self):
+        spec = importlib.util.spec_from_file_location('promote_images', ROOT/'ci/lib/upload/promote-images.py')
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+        class Response:
+            def __init__(self, status, content=b'm'):
+                self.status_code, self.content = status, content
+                self.headers = {'Content-Type': 'application/vnd.oci.image.index.v1+json', 'Docker-Content-Digest': 'sha256:x'}
+            def json(self):
+                return {'token': 't'}
+
+        class Session:
+            def __init__(self, failing):
+                self.failing, self.puts = failing, []
+            def get(self, url, **kwargs):
+                if url.endswith('/token'):
+                    return Response(200)
+                return Response(500 if f'/{self.failing}/' in url else 200)
+            def put(self, url, **kwargs):
+                self.puts.append(url)
+                return Response(201)
+
+        with tempfile.TemporaryDirectory() as folder:
+            for name in ('api-frontend', 'pfcmd', 'pfdebian', 'radiusd', 'zz-last'):
+                (Path(folder)/name).mkdir()
+                (Path(folder)/name/'Dockerfile').write_text('FROM x')
+            env = {'KNK_REGISTRY_URL': 'ghcr.io/inverse-inc/packetfence', 'KNK_REGISTRY_USER': 'u', 'KNK_REGISTRY_PASSWORD': 'p',
+                   'CI_COMMIT_BRANCH': 'maintenance/15.2', 'CI_COMMIT_REF_SLUG': 'maintenance-15-2'}
+            for failing, tags, code, puts in (('zz-last', 'maintenance-15-2', 1, 0), ('none', 'maintenance-15-2', 0, 5),
+                                              ('none', 'devel,latest', 2, 0), ('none', 'maintenance-14-0', 2, 0)):
+                with self.subTest(failing=failing, tags=tags):
+                    session = Session(failing)
+                    with mock.patch.dict(os.environ, env), mock.patch.object(module.requests, 'Session', lambda: session), \
+                            mock.patch.object(sys, 'argv', ['promote', '--source', 'maintenance-15-2-p7', '--tags', tags,
+                                                            '--containers', folder, '--apply']):
+                        self.assertEqual(module.main(), code)
+                    self.assertEqual(len(session.puts), puts)
 
     def test_a_pulp_error_is_not_a_missing_native_repository(self):
         # Unreachable Pulp: exit 2, which every caller turns into a failure (never the devel skip or the file tree).
