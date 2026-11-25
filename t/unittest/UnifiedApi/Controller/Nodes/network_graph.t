@@ -42,13 +42,13 @@ ok(!pf::UnifiedApi::Controller::Nodes::is_network_graph_switch_field('descriptio
 
 # 192.168.0.1 of the test switches.conf
 my ($switch) = pf::UnifiedApi::Controller::Nodes->pf_network_graph_switch_info(
-    { switch_fields => [qw(switch.radiusSecret switch.description switch.type)] },
+    { switch_fields => [qw(switch.radiusSecret switch.type switch.mode)] },
     {},
     '192.168.0.1',
 );
 ok(!exists $switch->{properties}{radiusSecret}, 'radiusSecret is not a display property');
-ok(exists $switch->{properties}{description}, 'the description is returned');
-ok(exists $switch->{properties}{type}, 'the type is returned');
+is($switch->{properties}{type}, 'Cisco::Catalyst_3500XL', 'the type is returned');
+is($switch->{properties}{mode}, 'production', 'the mode is returned');
 
 =head1 AUTHOR
 
