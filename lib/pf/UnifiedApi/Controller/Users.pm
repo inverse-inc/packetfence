@@ -656,10 +656,10 @@ sub import_item_check_for_errors {
     if (ref($actions) ne 'ARRAY' || grep { ref($_) ne 'HASH' } @$actions) {
         push @errors, { field => "actions", message => 'must be a list of actions' };
     } else {
-        push @errors, pf::UnifiedApi::Controller::Users::Password::validate_fields(
-            $roles,
-            _password_fields_from_actions($actions),
-        );
+        # every action is checked, as pf::password::generate applies all of them
+        push @errors, map {
+            pf::UnifiedApi::Controller::Users::Password::validate_fields($roles, $_)
+        } _password_fields_from_actions($actions);
     }
 
     if ($pid && !pf::UnifiedApi::Controller::Users::Password::can_manage_user($roles, $self->stash->{current_user}, $pid)) {
@@ -671,30 +671,30 @@ sub import_item_check_for_errors {
 
 =head2 _password_fields_from_actions
 
-Returns the password fields that the import actions set, to check them like
-the fields of a password update
+Returns the password field that each import action sets (one hash per
+action), to check them like the fields of a password update
 
 =cut
 
 sub _password_fields_from_actions {
     my ($actions) = @_;
-    my %fields;
     my %field_of_action = (
         $Actions::SET_ACCESS_LEVEL    => 'access_level',
         $Actions::SET_ACCESS_DURATION => 'access_duration',
         $Actions::SET_UNREG_DATE      => 'unregdate',
     );
+    my @fields;
     for my $action (@$actions) {
         my $type = $action->{type} // '';
         my $value = $action->{value};
         if (my $field = $field_of_action{$type}) {
-            $fields{$field} //= $value;
-        } elsif ($type eq $Actions::SET_ROLE && !exists $fields{category}) {
-            $fields{category} = pf::nodecategory::nodecategory_lookup($value) // $value;
+            push @fields, { $field => $value };
+        } elsif ($type eq $Actions::SET_ROLE) {
+            push @fields, { category => pf::nodecategory::nodecategory_lookup($value) // $value };
         }
     }
 
-    return \%fields;
+    return @fields;
 }
 
 sub can_remove {

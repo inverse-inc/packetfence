@@ -23,7 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 53;
+use Test::More tests => 57;
 use Test::Mojo;
 
 #This test will running last
@@ -80,6 +80,13 @@ $t->post_ok("/api/v1/users/bulk_import" => \%user_manager => json => {
   ->status_is(200)
   ->json_is('/items/0/status', 422)
   ->json_is('/items/0/errors/0/field', 'actions');
+
+$t->post_ok("/api/v1/users/bulk_import" => \%user_manager => json => {
+    items => [ { pid => $new_pid, actions => [ { type => 'set_access_level', value => 'User Manager' }, { type => 'set_access_level', value => 'ALL' } ] } ]
+  })
+  ->status_is(200)
+  ->json_is('/items/0/status', 422)
+  ->json_is('/items/0/errors/0/field', 'access_level');
 
 $t->post_ok("/api/v1/users/bulk_import" => \%user_manager => json => {
     items => [ { pid => $new_pid, actions => [ { type => 'set_access_level', value => 'User Manager' } ] } ]
