@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Whether a repository already holds this package version (name, version, architecture; release for RPM).
+"""Whether a repository already serves this package version (name, version, architecture; release for RPM).
 
 A released version is never replaced by a rebuild. Usage: published.py deb|rpm <repository> <package file>.
 Exit 0: already there; 1: not there; 2: the lookup or the package could not be read.
@@ -30,9 +30,14 @@ def identity(kind, path):
 
 def published(client, kind, repository, fields):
     model = 'apt' if kind == 'deb' else 'rpm'
-    repo = client.find(f'repositories/{kind}/{model}', repository)
+    # What the distribution serves, not the latest version: a package uploaded by a publish that then failed
+    # ("Distribution changed during publish") is published again by a re-run.
+    served = client.find(f'distributions/{kind}/{model}', repository).get('publication')
+    if not served:
+        return False
+    version = client.request('GET', served)['repository_version']
     found = client.request('GET', API + f'content/{kind}/packages/',
-                           params={**fields, 'repository_version': repo['latest_version_href'], 'limit': 1})
+                           params={**fields, 'repository_version': version, 'limit': 1})
     return found['count'] > 0
 
 

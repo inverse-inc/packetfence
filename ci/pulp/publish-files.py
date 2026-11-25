@@ -99,7 +99,7 @@ def publish(client, snapshot, items):
             if entry['relative_path'] not in changed and entry['relative_path'] not in listed:
                 try:  # artifacts may be admin-only: then the packaging side's listing picks the file up later
                     changed[entry['relative_path']] = client.request('GET', entry['artifact'])['size']
-                except Exception as error:
+                except RuntimeError as error:  # an HTTP refusal; a network error fails the run (retried)
                     print(f'{snapshot}/{entry["relative_path"]}: published, not listed ({error})')
     repo = client.request('GET', repo['pulp_href'])
     task = client.wait(client.request('POST', API + 'publications/file/file/',
