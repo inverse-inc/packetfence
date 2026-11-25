@@ -22,10 +22,10 @@ on:
 jobs:
   upload-package:
     runs-on: packetfence-perl-package-build
-    # One publish per package and repository at a time; packetfence-perl and perl-client meeting in the same
-    # repository make one of them fail ("Distribution changed during publish"): re-run it.
+    # One publish per repository at a time (packetfence-perl and perl-client share it); GitHub keeps one pending run
+    # per group, so a run cancelled while it waited is re-run.
     concurrency:
-      group: pulp-dependency-${{ inputs._BRANCH_NAME }}-${{ inputs._IMAGE_TYPE }}-${{ inputs._PACKAGE_NAME }}
+      group: pulp-dependency-${{ inputs._BRANCH_NAME }}-${{ inputs._IMAGE_TYPE }}
       cancel-in-progress: false
     container:
       # python3-requests-toolbelt and python3-nacl: the Pulp upload and the Psono lookup.
