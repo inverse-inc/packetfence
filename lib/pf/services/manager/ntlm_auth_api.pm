@@ -31,6 +31,10 @@ use pf::file_paths qw(
 );
 use pf::util qw(isenabled isdisabled safe_pf_run);
 use pf::constants qw($TRUE $FALSE);
+use pf::log;
+
+# The addresses the NTLM auth API containers are published on
+our %LOCAL_NTLM_AUTH_HOSTS = map { $_ => 1 } qw(127.0.0.1 100.64.0.1 containers-gateway.internal);
 
 extends 'pf::services::manager';
 
@@ -77,6 +81,10 @@ sub generateConfig {
         if (exists($conf{ntlm_auth_host}) && exists($conf{ntlm_auth_port}) && exists($conf{machine_account_password})) {
             my $ntlm_auth_host = $conf{ntlm_auth_host};
             my $ntlm_auth_port = $conf{ntlm_auth_port};
+            # The API is only published on the local addresses
+            if (!exists $LOCAL_NTLM_AUTH_HOSTS{$ntlm_auth_host // ''}) {
+                get_logger->warn("The NTLM auth API host of the domain $identifier is $ntlm_auth_host: the NTLM auth API only listens on " . join(', ', sort keys %LOCAL_NTLM_AUTH_HOSTS) . ", use one of them");
+            }
 
             $identifier =~ s/$host_id //i;
             my $env_file = "$generated_conf_dir/" . $self->name . '.d/' . "$identifier.env";
