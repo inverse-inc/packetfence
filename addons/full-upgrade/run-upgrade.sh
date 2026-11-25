@@ -128,7 +128,8 @@ function apt_upgrade_packetfence_package() {
 
 function yum_upgrade_packetfence_package() {
   set_upgrade_to
-  yum localinstall -y https://packages.packetfence.com/downloads/PacketFence/RHEL8/packetfence-release-$UPGRADE_TO.el8.noarch.rpm
+  # --force: the target's release file replaces the installed one even when its build date makes it look older.
+  rpm -Uvh --force https://packages.packetfence.com/downloads/PacketFence/RHEL8/packetfence-release-$UPGRADE_TO.el8.noarch.rpm
   yum clean all --enablerepo=packetfence
   if is_enabled $1; then
     yum update -y --enablerepo=packetfence --exclude=packetfence-upgrade --allowerasing
