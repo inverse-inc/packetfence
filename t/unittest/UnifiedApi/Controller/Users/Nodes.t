@@ -22,9 +22,10 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 33;
+use Test::More tests => 47;
 use Test::Mojo;
 use pf::node;
+use pf::nodecategory;
 use List::MoreUtils qw(all);
 use Utils;
 
@@ -95,6 +96,35 @@ for my $pid ('default', $test_user) {
       ->status_is(200);
 
     $t->get_ok("/api/v1/user/$id/nodes")
+      ->status_is(200);
+}
+
+{
+    # The nodes of the users are changed with the nodes permissions and role restrictions
+    my $roles_header = 'X-PacketFence-Admin-Roles';
+    my %user_manager = ($roles_header => 'User Manager');
+    my %node_manager = ($roles_header => 'Node Manager Allowed Roles');
+
+    $t->post_ok("/api/v1/user/$test_user/nodes" => \%user_manager => json => {mac => Utils::test_mac()})
+      ->status_is(403);
+
+    $t->patch_ok($location => \%user_manager => json => { notes => 'not allowed' })
+      ->status_is(403);
+
+    $t->delete_ok($location => \%user_manager)
+      ->status_is(403);
+
+    $t->post_ok("/api/v1/users/bulk_apply_role" => \%user_manager => json => { items => [$test_user], category_id => pf::nodecategory::nodecategory_lookup('guest') })
+      ->status_is(403);
+
+    my $gaming = pf::nodecategory::nodecategory_lookup('gaming');
+    $t->patch_ok($location => \%node_manager => json => { category_id => $gaming })
+      ->status_is(422);
+
+    $t->post_ok("/api/v1/users/bulk_apply_role" => \%node_manager => json => { items => [$test_user], category_id => $gaming })
+      ->status_is(422);
+
+    $t->patch_ok($location => \%node_manager => json => { category_id => pf::nodecategory::nodecategory_lookup('guest') })
       ->status_is(200);
 }
 

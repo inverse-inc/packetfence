@@ -31,6 +31,8 @@ use pf::UnifiedApi::Search::Builder::Users;
 use pf::lookup::person qw();
 use pf::activation;
 use pf::constants::Connection::Profile qw($DEFAULT_PROFILE);
+use pf::admin_roles;
+use pf::UnifiedApi::Controller::Nodes ();
 
 has 'search_builder_class' => 'pf::UnifiedApi::Search::Builder::Users';
 
@@ -443,14 +445,27 @@ do_bulk_update_field
 =cut
 
 sub do_bulk_update_field {
-    my ($self, $field) = @_;
+    my ($self, $field, $validator) = @_;
     my ($status, $data) = $self->parse_json;
     if (is_error($status)) {
         return $self->render(json => $data, status => $status);
     }
 
+    # Changing the nodes of the users requires NODES_UPDATE (without admin
+    # roles, the request doesn't come from the admin API frontend)
+    my $roles = $self->stash->{admin_roles} // [];
+    if (@$roles && !admin_can($roles, 'NODES_UPDATE')) {
+        return $self->render_error(403, "NODES_UPDATE is required");
+    }
+
     my $items = $data->{items} // [];
     my $value = $data->{$field};
+    if ($validator) {
+        ($status, my $msg) = $validator->($self, $value);
+        if (is_error($status)) {
+            return $self->render_error($status, $msg);
+        }
+    }
     ($status, my $iter) = pf::dal::node->search(
         -columns => [qw(mac pid)],
         -where => {
@@ -491,7 +506,7 @@ bulk_apply_role
 
 sub bulk_apply_role {
     my ($self) = @_;
-    return $self->do_bulk_update_field('category_id');
+    return $self->do_bulk_update_field('category_id', \&pf::UnifiedApi::Controller::Nodes::validate_bulk_category_id);
 }
 
 =head2 bulk_apply_bypass_role
@@ -502,7 +517,7 @@ bulk_apply_bypass_role
 
 sub bulk_apply_bypass_role {
     my ($self) = @_;
-    return $self->do_bulk_update_field('bypass_role_id');
+    return $self->do_bulk_update_field('bypass_role_id', \&pf::UnifiedApi::Controller::Nodes::validate_bulk_bypass_role_id);
 }
 
 =head2 bulk_delete
