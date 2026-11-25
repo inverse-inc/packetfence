@@ -12,6 +12,7 @@ use pf::constants qw($TRUE $FALSE);
 use pf::Authentication::constants;
 use pf::constants::authentication::messages;
 use pf::Authentication::Source;
+use pf::log;
 
 use Authen::Krb5::Simple;
 
@@ -49,7 +50,12 @@ sub authenticate {
   my ( $self, $username, $password ) = @_;
 
   my $principal = $self->principal($username);
-  if (!defined($principal) || !length($password // '')) {
+  if (!defined($principal)) {
+    get_logger->debug(sub { "Refusing the username '" . ($username // '') . "' for the realm '" . ($self->{'authenticate_realm'} // '') . "' of the source " . $self->id });
+    return ($FALSE, $AUTH_FAIL_MSG);
+  }
+  if (!length($password // '')) {
+    get_logger->debug(sub { "Refusing an empty password for '$principal'" });
     return ($FALSE, $AUTH_FAIL_MSG);
   }
 
