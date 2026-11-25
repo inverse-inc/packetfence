@@ -93,7 +93,7 @@ function find_latest_stable() {
   elif is_deb_based; then
     OS="Debian-12"
   fi
-  curl https://www.packetfence.org/downloads/PacketFence/latest-stable-$OS.txt
+  curl -fsS https://packages.packetfence.com/downloads/PacketFence/latest-stable-$OS.txt
 }
 
 UPGRADE_TO="${UPGRADE_TO:-}"
