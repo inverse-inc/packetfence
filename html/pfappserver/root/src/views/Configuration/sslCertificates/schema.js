@@ -22,9 +22,10 @@ export const schema = (props = {}) => {
         then: yup.string().nullable().required(i18n.t('Certificate required.')),
         otherwise: yup.string().nullable(),
       }),
+    // without a private key, the current one is kept
     private_key: yup.string()
-      .when('lets_encrypt', {
-        is: false,
+      .when(['lets_encrypt', 'has_private_key'], {
+        is: (lets_encrypt, has_private_key) => !lets_encrypt && !has_private_key,
         then: yup.string().nullable().required(i18n.t('Private key required.')),
         otherwise: yup.string().nullable(),
       }),

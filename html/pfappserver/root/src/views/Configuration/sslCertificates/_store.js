@@ -149,7 +149,8 @@ const mutations = {
   },
   ITEM_REPLACED: (state, data) => {
     state.itemStatus = types.SUCCESS
-    if (data.private_key) {
+    // a certificate has the certificate in PEM, the info has the certificate details
+    if (typeof data.certificate === 'string') {
       Vue.set(state.cache.certificate, data.id, JSON.parse(JSON.stringify(data)))
       Vue.set(state.cache.info, data.id, false)
     } else {

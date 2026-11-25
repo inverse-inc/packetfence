@@ -114,6 +114,9 @@ Get a certificate resource
 sub get {
     my ($self) = @_;
     my $files_data = $self->read_from_files();
+    # The private key is not returned: a replace without a private key keeps the current one
+    my $private_key = delete $files_data->{private_key};
+    $files_data->{has_private_key} = (defined($private_key) && $private_key =~ /\S/) ? $self->json_true : $self->json_false;
     $files_data->{lets_encrypt} = isenabled(pf::ssl::lets_encrypt::resource_state($self->stash->{certificate_id})) ? $self->json_true : $self->json_false;
     $self->render(json => $files_data, status => 200);
 }
@@ -287,6 +290,12 @@ sub replace {
     my $data = $self->parse_json;
     my $params = $self->req->query_params->to_hash;
     
+    # Without a private key, keep the current one (it must still match the certificate)
+    if (ref($data) eq 'HASH' && !(defined($data->{private_key}) && $data->{private_key} =~ /\S/)) {
+        my $key_file = $self->resource_config()->{key_file};
+        $data->{private_key} = -e $key_file ? read_file($key_file) : undef;
+    }
+
     # Explicitely disable Let's Encrypt if manually managing certs
     pf::ssl::lets_encrypt::resource_state($self->stash->{certificate_id}, "disabled");
 

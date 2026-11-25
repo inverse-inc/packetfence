@@ -56,8 +56,9 @@ my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Pf");
 
 #insert known data
 #run tests
-use Test::More tests => 55;
+use Test::More tests => 65;
 use Test::Mojo;
+use Mojo::JSON;
 use Test::NoWarnings;
 
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -78,6 +79,19 @@ my $key = read_file($server_key);
 
 # Replacing by the valid existing ones should work fine
 $t->put_ok("/api/v1/config/certificate/http" => json => { certificate => $cert, private_key => $key })
+  ->status_is(200);
+
+# The private key is not returned, only whether there is one
+$t->get_ok('/api/v1/config/certificate/http')
+  ->status_is(200)
+  ->json_hasnt('/private_key')
+  ->json_is('/has_private_key', Mojo::JSON->true);
+
+# Replacing without a private key keeps the current one
+$t->put_ok("/api/v1/config/certificate/http" => json => { certificate => $cert })
+  ->status_is(200);
+
+$t->put_ok("/api/v1/config/certificate/http" => json => { certificate => $cert, private_key => '' })
   ->status_is(200);
 
 my $new_cert = <<EOT;
@@ -143,6 +157,10 @@ EOT
 
 # Replacing by a new cert for a different key shouldn't be valid
 $t->put_ok("/api/v1/config/certificate/http" => json => { certificate => $new_cert, private_key => $key })
+    ->status_is(422);
+
+# Same when the current key is kept
+$t->put_ok("/api/v1/config/certificate/http" => json => { certificate => $new_cert })
     ->status_is(422);
 
 # Replacing by a new key that doesn't match the cert shouldn't be valid

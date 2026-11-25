@@ -167,6 +167,7 @@
 
               <form-group-private-key namespace="private_key"
                                       :column-label="$i18n.t('{name} Server Private Key', { name })"
+                                      :text="form.certificate && form.certificate.has_private_key ? $i18n.t('Leave empty to keep the current private key.') : ''"
                                       rows="6" auto-fit
               />
 
