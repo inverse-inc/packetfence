@@ -455,7 +455,7 @@ has_field 'sms_pin_retry_limit' =>
   (
     type => 'PosInteger',
     label => 'SMS Pin Retry Limit',
-    default => 0,
+    default => 5,
     tags => { after_element => \&help,
              help => 'Maximum number of times a user can retry a SMS PIN before having to request another PIN. A value of 0 disables the limit.' },
 

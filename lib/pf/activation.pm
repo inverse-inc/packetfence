@@ -28,7 +28,7 @@ Remove this note when it will be no longer relevant. ;)
 use strict;
 use warnings;
 
-use Digest::MD5 qw(md5_hex);
+use Crypt::PRNG qw(random_bytes_hex random_string_from);
 use POSIX;
 use Readonly;
 use Time::HiRes qw(time);
@@ -66,6 +66,12 @@ Readonly::Scalar our $INVALIDATED => 'invalidated'; # for example if a new code 
 =cut
 
 Readonly::Scalar our $EXPIRATION => 31*24*60*60; # defaults to 31 days
+
+=head2 Length of the 'digits' style codes when no code_length is given
+
+=cut
+
+Readonly::Scalar our $DIGITS_CODE_LENGTH => 10;
 
 =head2 Hashing formats related
 
@@ -431,10 +437,9 @@ sub _generate_activation_code {
     my $no_unique = $data{'no_unique'};
     my $type = $data{'type'};
     my $style = $data{'style'} // 'md5';
-    my $generator = $style eq 'digits' ? \&digits_generator : \&md5_generator;
+    my $generator = $style eq 'digits' ? \&digits_generator : \&hex_generator;
     my $mac = $data{mac};
     do {
-        # generating something not so easy to guess (and hopefully not in rainbowtables)
         $code = $generator->(\%data);
         if ($code_length > 0) {
             $code = substr($code, 0, $code_length);
@@ -448,27 +453,29 @@ sub _generate_activation_code {
 
 =head2 digits_generator
 
-digits_generator
+Returns a string of random digits from a cryptographically secure generator.
+Every digit is uniform, so the code can start with 0.
+The length is code_length, or $DIGITS_CODE_LENGTH when it is not set.
 
 =cut
 
 sub digits_generator {
-    return int(rand(9999999999)) + 1;;
+    my ($data) = @_;
+    my $length = $data->{code_length};
+    $length = $DIGITS_CODE_LENGTH unless defined $length && $length > 0;
+    return random_string_from('0123456789', $length);
 }
 
-=head2 md5_generator
+=head2 hex_generator
 
-md5_generator
+Returns 32 random hexadecimal characters (128 bits) from a cryptographically
+secure generator. It is used for the 'md5' style codes, which keep the same
+format.
 
 =cut
 
-sub md5_generator {
-    my ($data) = @_;
-    return md5_hex(
-        join( "|",
-            time + int( rand(10) ),
-            grep { defined $_ } @{$data}{qw(expiration mac pid contact_info)} )
-    );
+sub hex_generator {
+    return random_bytes_hex(16);
 }
 
 =head2 send_email
