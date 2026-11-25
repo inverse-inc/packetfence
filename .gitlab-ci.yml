@@ -392,6 +392,7 @@ variables:
   resource_group: pulp-packetfence-pipelines
   environment:
     name: PPA
+    action: prepare
     url: ${PF_PACKAGE_ORIGIN}/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}
   artifacts:
     access: developer
@@ -509,7 +510,7 @@ variables:
 .build_pf_img_zen_job:
   stage: build_pf_img
   environment:
-    name: sourceforge
+    name: sourceforge/$CI_COMMIT_REF_SLUG
     url: ${SF_ZEN_REPO_URL}/${CI_COMMIT_REF_NAME}
   # implicit timeout = 5 minutes, see https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2716
   after_script:
@@ -521,7 +522,7 @@ variables:
 .build_pf_img_cd_iso_job:
   stage: build_pf_img
   environment:
-    name: sourceforge
+    name: sourceforge/$CI_COMMIT_REF_SLUG
   # implicit timeout = 5 minutes, see https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2716
   after_script:
     - make -e -C ${ISODIR} clean
@@ -532,7 +533,7 @@ variables:
 .build_pf_img_dvd_usb_iso_job:
   stage: build_pf_img
   environment:
-    name: sourceforge
+    name: sourceforge/$CI_COMMIT_REF_SLUG
   # implicit timeout = 5 minutes, see https://gitlab.com/gitlab-runner/-/issues/2716
   after_script:
     - make -e -C ${DVD_USB_ISODIR} clean
@@ -1707,7 +1708,7 @@ deploy_branches_pulp:
       when: never
     - !reference [.deploy_branches_rules, rules]
   environment:
-    name: pf-branches
+    name: pf-branches/$CI_COMMIT_REF_SLUG
 
 # Service images are pushed only as <slug>-p<pipeline>. maintenance/X.Y: give them maintenance-X-Y on GitHub
 # (manifests copied, nothing rebuilt, ci/lib/upload/promote-images.py), then push them to packages.packetfence.com
@@ -1759,7 +1760,7 @@ deploy_maintenance_pulp:
   extends:
     - .deploy_pulp_job
   environment:
-    name: maintenance
+    name: maintenance/$CI_COMMIT_REF_SLUG
   rules:
     # No images built, no packages: a server would install them against the previous build's containers.
     - if: '$BUILD_IMG_CONTAINER == "no" || $CI_COMMIT_MESSAGE =~ /build_img_container=no/'
