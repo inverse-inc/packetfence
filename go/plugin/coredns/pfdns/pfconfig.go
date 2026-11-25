@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/inverse-inc/go-utils/log"
@@ -43,35 +44,50 @@ func newPfconfigRefreshableConfig(ctx context.Context) *pfdnsRefreshableConfig {
 	return rc
 }
 
+// domainRegexp returns the regexp matching a DNS query name for a domain name:
+// the name itself (with or without the trailing dot of a DNS query name) and,
+// when withSubdomains is true, any of its subdomains. The domain is matched
+// literally and on label boundaries.
+func domainRegexp(domain string, withSubdomains bool) (*regexp.Regexp, error) {
+	quoted := regexp.QuoteMeta(strings.TrimSuffix(domain, "."))
+	if withSubdomains {
+		return regexp.Compile(`(?i)^(?:.+\.)?` + quoted + `\.?$`)
+	}
+	return regexp.Compile(`(?i)^` + quoted + `\.?$`)
+}
+
+// addPassthroughs adds the passthroughs to fqdnPort: a wildcard passthrough
+// (*.example.com, stored as example.com) matches example.com and its
+// subdomains, a normal passthrough matches its name only
+func addPassthroughs(ctx context.Context, fqdnPort map[*regexp.Regexp][]string, wildcard map[string][]string, normal map[string][]string) {
+	for k, v := range wildcard {
+		rgx, err := domainRegexp(k, true)
+		if err != nil {
+			log.LoggerWContext(ctx).Error("Ignoring the passthrough *." + k + ": " + err.Error())
+			continue
+		}
+		fqdnPort[rgx] = v
+	}
+
+	for k, v := range normal {
+		rgx, err := domainRegexp(k, false)
+		if err != nil {
+			log.LoggerWContext(ctx).Error("Ignoring the passthrough " + k + ": " + err.Error())
+			continue
+		}
+		fqdnPort[rgx] = v
+	}
+}
+
 func (rc *pfdnsRefreshableConfig) PassthroughsInit(ctx context.Context) error {
 	rc.FqdnPort = make(map[*regexp.Regexp][]string)
-
-	for k, v := range rc.registration.Wildcard {
-		rgx, _ := regexp.Compile(".*" + k)
-		rc.FqdnPort[rgx] = v
-	}
-
-	for k, v := range rc.registration.Normal {
-		rgx, _ := regexp.Compile("^" + k + ".$")
-		rc.FqdnPort[rgx] = v
-	}
-
+	addPassthroughs(ctx, rc.FqdnPort, rc.registration.Wildcard, rc.registration.Normal)
 	return nil
 }
 
 func (rc *pfdnsRefreshableConfig) PassthroughsIsolationInit(ctx context.Context) error {
 	rc.FqdnIsolationPort = make(map[*regexp.Regexp][]string)
-
-	for k, v := range rc.isolation.Wildcard {
-		rgx, _ := regexp.Compile(".*" + k)
-		rc.FqdnIsolationPort[rgx] = v
-	}
-
-	for k, v := range rc.isolation.Normal {
-		rgx, _ := regexp.Compile("^" + k + ".$")
-		rc.FqdnIsolationPort[rgx] = v
-	}
-
+	addPassthroughs(ctx, rc.FqdnIsolationPort, rc.isolation.Wildcard, rc.isolation.Normal)
 	return nil
 }
 

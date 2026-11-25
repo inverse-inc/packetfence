@@ -452,7 +452,11 @@ func (pf *pfdns) DomainPassthroughInit(ctx context.Context) error {
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfDNS)
 
 	for _, v := range keyConfDNS.Keys {
-		rgx, _ := regexp.Compile(".*(_msdcs|_sites)." + v)
+		rgx, err := domainServicesRegexp(v)
+		if err != nil {
+			log.LoggerWContext(ctx).Error(fmt.Sprintf("Ignoring the domain %s: %s", v, err))
+			continue
+		}
 		pf.FqdnDomainPort[rgx] = []string{
 			"tcp:88",
 			"udp:88",
@@ -697,7 +701,11 @@ func (pf *pfdns) PortalFQDNInit(ctx context.Context) error {
 		NetIndex.Mask = net.IPMask(net.ParseIP(ConfNet.Netmask))
 		NetIndex.IP = net.ParseIP(key)
 
-		rgx, _ := regexp.Compile(".*" + fqdn)
+		rgx, err := domainRegexp(fqdn, true)
+		if err != nil {
+			log.LoggerWContext(ctx).Error(fmt.Sprintf("Ignoring the portal FQDN %s: %s", fqdn, err))
+			continue
+		}
 
 		pf.PortalFQDN[index] = make(map[*net.IPNet]*regexp.Regexp)
 		pf.PortalFQDN[index][NetIndex] = rgx
@@ -706,8 +714,11 @@ func (pf *pfdns) PortalFQDNInit(ctx context.Context) error {
 	NetIndex := &net.IPNet{}
 	NetIndex.Mask = net.IPMask(net.IPv4zero)
 	NetIndex.IP = net.IPv4zero
+	rgx, err := domainRegexp(general.Hostname+"."+general.Domain, true)
+	if err != nil {
+		return err
+	}
 	pf.PortalFQDN[index] = make(map[*net.IPNet]*regexp.Regexp)
-	rgx, _ := regexp.Compile(".*" + general.Hostname + "." + general.Domain)
 	pf.PortalFQDN[index][NetIndex] = rgx
 
 	return nil
@@ -748,6 +759,14 @@ func detectionMechanismHost(rawURL string) (string, error) {
 		return "", fmt.Errorf("no host name, the URL must start with http:// or https://")
 	}
 	return host, nil
+}
+
+// domainServicesRegexp returns the regexp matching the DNS query names of the
+// Active Directory services of a domain: the names under _msdcs.<domain> and
+// _sites.<domain>
+func domainServicesRegexp(domain string) (*regexp.Regexp, error) {
+	quoted := regexp.QuoteMeta(strings.TrimSuffix(domain, "."))
+	return regexp.Compile(`(?i)^(?:.+\.)?(?:_msdcs|_sites)\.` + quoted + `\.?$`)
 }
 
 // addDetectionMechanismsToList add all detection mechanisms in a list
