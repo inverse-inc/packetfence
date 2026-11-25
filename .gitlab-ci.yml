@@ -1607,7 +1607,14 @@ deploy_containers:
   image: $PF_PPA_IMAGE
   # One Pulp container writer at a time, across branches.
   resource_group: pulp-packetfence-containers
-  dependencies: []
+  # Right after its packages (same rules), whatever another deploy job does.
+  needs:
+    - job: deploy_debian_pulp
+      optional: true
+      artifacts: false
+    - job: deploy_branches_pulp
+      optional: true
+      artifacts: false
   environment:
     name: containers/$CI_COMMIT_REF_SLUG
   script:
