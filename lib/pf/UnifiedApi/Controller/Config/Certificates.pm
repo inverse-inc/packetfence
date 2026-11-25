@@ -19,6 +19,7 @@ use warnings;
 use pf::ssl;
 use pf::ssl::lets_encrypt;
 use pf::pfpki_client;
+use pf::admin_roles qw(admin_can);
 use pf::util;
 use File::Slurp qw(read_file);
 use pf::error qw(is_error);
@@ -368,12 +369,29 @@ With mode 'cert' an existing pfpki certificate is exported.
 With mode 'csr' a CSR is built from the provided private key and signed by a pfpki profile.
 Nothing is installed, the result is meant to be saved through the regular certificate APIs.
 
+The call to pfpki is made with the system API user, so pfpki's own ACL does
+not see the admin: the admin must hold the role a direct pfpki call needs,
+PKI_READ to export a certificate with its key, PKI_CREATE to have a CSR
+signed. Otherwise an admin with CONFIGURATION_MAIN_CREATE (the role of this
+route) could export the key of any certificate, including end-user ones.
+
 =cut
+
+our %PKI_IMPORT_ROLES = (
+    cert => 'PKI_READ',
+    csr  => 'PKI_CREATE',
+);
 
 sub pki_import {
     my ($self) = @_;
     my $data = $self->parse_json() // {};
     my $mode = $data->{mode} // '';
+
+    if (my $role = $PKI_IMPORT_ROLES{$mode}) {
+        unless (admin_can($self->stash->{admin_roles}, $role)) {
+            return $self->render_error(403, "The $role role is required to import from the PacketFence PKI");
+        }
+    }
 
     if ($mode eq 'cert') {
         return $self->render_error(422, "Missing cert_id parameter") unless $data->{cert_id};

@@ -25,9 +25,10 @@
           />
 
           <template v-if="form.mode === 'cert' || form.mode === 'public'">
-            <base-form-group-chosen-one namespace="cert_id"
+            <base-form-group-chosen-one-searchable namespace="cert_id"
               :column-label="$t('Certificate')"
-              :options="certOptions"
+              :lookup="certLookup"
+              :placeholder="$t('Type to search by common name or template')"
               :text="(form.mode === 'cert') ? $t('Only certificates with their private key stored in the PKI are listed.') : undefined"
             />
           </template>
@@ -79,6 +80,7 @@ import {
   BaseForm,
   BaseFormGroupChosenCountry,
   BaseFormGroupChosenOne,
+  BaseFormGroupChosenOneSearchable,
   BaseFormGroupInput
 } from '@/components/new/'
 import BaseFormGroupChosenOneCa from '../cas/_components/BaseFormGroupChosenOneCa'
@@ -88,6 +90,7 @@ const components = {
   BaseForm,
   BaseFormGroupChosenCountry,
   BaseFormGroupChosenOne,
+  BaseFormGroupChosenOneSearchable,
   BaseFormGroupChosenOneCa,
   BaseFormGroupChosenOneProfile,
   BaseFormGroupInput
@@ -125,6 +128,7 @@ import apiCall from '@/utils/api'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
 import StoreModule from '../_store'
+import certsApi from '../certs/_api'
 
 const modeLabels = {
   cert: i18n.t('Existing certificate with its private key'),
@@ -191,25 +195,40 @@ const setup = (props, context) => {
     form.value = { mode }
   }
 
-  const certOptions = computed(() => {
+  // Certificates are searched in pfpki as the user types: the list is not
+  // loaded whole (pfpki pages it, 100 by default) nor cached, so a
+  // certificate issued after the modal was first opened is found too.
+  // Called with isKey for the chosen value (by id) and without for a query.
+  const certNames = {} // id => cn, for the label once imported
+  const certLookup = (value, isKey) => {
     const requireKey = form.value.mode === 'cert'
-    // re-evaluate when the modal is shown to pick up new certificates
-    return (show.value)
-      ? $store.dispatch('$_pkis/allCerts').then(certs => certs
-        .filter(cert => !requireKey || !cert.csr)
-        .map(cert => ({ value: cert.id, text: `${cert.cn} (${cert.profile_name})` }))
-      )
-      : Promise.resolve([])
-  })
+    const values = (isKey)
+      ? [{ field: 'id', op: 'equals', value }]
+      : [{ op: 'or', values: [
+        { field: 'cn', op: 'contains', value },
+        { field: 'profile_name', op: 'contains', value }
+      ] }]
+    if (requireKey) // only the certificates whose key is stored in pfpki
+      values.push({ field: 'csr', op: 'equals', value: false })
+    return certsApi.search({
+      query: { op: 'and', values },
+      fields: ['id', 'cn', 'profile_name', 'csr'],
+      sort: ['cn'],
+      cursor: 0,
+      limit: (isKey) ? 1 : 100
+    }).then(({ items = [] }) => items.map(cert => {
+      certNames[cert.id] = cert.cn
+      return { value: cert.id, text: `${cert.cn} (${cert.profile_name})` }
+    }))
+  }
 
   const onImport = () => {
     const { mode, cert_id, ca_id, ...csr } = form.value
     let promise
     switch (mode) {
       case 'cert': {
-        const { cn } = ($store.state.$_pkis.certListCache || []).find(cert => cert.id === cert_id) || {}
         promise = apiCall.post('config/certificates/pki/import', { mode, cert_id })
-          .then(({ data }) => ({ data, label: cn || cert_id }))
+          .then(({ data }) => ({ data, label: certNames[cert_id] || cert_id }))
         break
       }
       case 'csr':
@@ -253,7 +272,7 @@ const setup = (props, context) => {
     schema,
     isValid,
     reset,
-    certOptions,
+    certLookup,
     onImport
   }
 }
