@@ -1,6 +1,6 @@
 #!/bin/bash
 # Publish CI packages to the packaging Pulp through its API.
-#   ppa       public/                 -> gitlab/<pipeline>/                every pipeline, for the CI tests
+#   ppa       public/                 -> gitlab/<pipeline>/                every pipeline that builds packages, for the CI tests
 #   branches  public/debian           -> debian/branches/<X.Y>/<pipeline>/          feature branches with DEPLOY_PKG=yes
 #             public/centos/<N>       -> RHEL<N>/branches/<X.Y>/<pipeline>/x86_64/  (rhel<N>-branches-X-Y)
 #   release   public/debian, suite S  -> the native X.Y repository serving S   devel, maintenance/X.Y
