@@ -105,6 +105,7 @@ configure_and_check() {
                            -not -path "*/pfconnector-*/*" \
                            -not -path "*/kaniko-build/*" \
                            -not -path "*/packetfence-perl/*" \
+                           -not -path "*/publish-ppa/*" \
                            -not -path "*/git-sync/*" \
                            -not -path "*/caddy-l4/*" \
                            -not -path "*/github-apps-token/*" \
