@@ -36,10 +36,11 @@ place CI publishes packages.
 GitHub Actions publish the two dependency packages they build, packetfence-perl and fingerbank (perl-client),
 with `ci/pulp/publish-dependency.sh` (`.github/workflows/reusable_upload_packages.yml`): from `devel` and
 `maintenance/X.Y` only, into the native repository of the branch's release (`conf/pf-release`), for the OS that
-release supports. A version the repository already holds is left as it is; devel waits while its X.Y has no
+release supports. A version the repository already serves is left as it is; devel waits while its X.Y has no
 repository. The workflow needs the repository variable `PSONO_CI_PULP_PACKAGES_ID` (the `ci-packages` entry,
-readable by the Psono API key in the GitHub secrets). GitHub runs are serialized among themselves, not with the
-GitLab deploys: a GitLab deploy that fails with "Distribution changed during publish" is retried.
+readable by the Psono API key in the GitHub secrets). GitHub runs are serialized per repository (a run GitHub
+cancelled while it waited is re-run), not with the GitLab deploys: a deploy or run that fails with "Distribution
+changed during publish" is retried.
 
 ### When packages are deployed
 
