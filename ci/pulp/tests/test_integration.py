@@ -491,7 +491,7 @@ class ConfigurationTest(unittest.TestCase):
             config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
             env = dict(os.environ, **PSONO_ENV, **config['deploy_branches_pulp']['variables'], TEST_CALLS=str(calls),
                        PSONO_CI_PULP_PACKAGES_ID='packages-entry', CI_PIPELINE_ID='42', CI_COMMIT_REF_NAME='feature/x',
-                       CI_COMMIT_REF_SLUG='feature-x', CI_COMMIT_SHA='abc', CI_PIPELINE_CREATED_AT='2026-11-24T20:30:13Z')
+                       CI_COMMIT_REF_SLUG='feature-x', CI_COMMIT_SHA='abc')
             run = subprocess.run(['bash', str(root/'ci/pulp/publish-packages.sh'), 'branches'], cwd=root, env=env,
                                  capture_output=True, text=True)
             self.assertEqual(run.returncode, 0, run.stderr)
@@ -501,7 +501,6 @@ class ConfigurationTest(unittest.TestCase):
                 self.assertIn('--no-lock', call['args'])
                 self.assertEqual({k: call['marker'][k] for k in ('branch', 'slug', 'pipeline', 'release')},
                                  {'branch': 'feature/x', 'slug': 'feature-x', 'pipeline': 42, 'release': '16.0'})
-                self.assertEqual(call['marker']['created'], '2026-11-24T20:30:13Z')  # the same bytes on a retry
             self.assertEqual(deb['files'], ['GPG_PUBLIC_KEY', 'dists/bookworm/InRelease', 'packetfence-ci-lib_branches.deb',
                                             'packetfence-export_branches.deb', 'packetfence-upgrade_branches.deb',
                                             'pipeline.json', 'pool/main/p/packetfence_16.0.0_all.deb'])
@@ -519,42 +518,27 @@ class ConfigurationTest(unittest.TestCase):
             self.assertIn('protected branches only', refused.stderr)
             self.assertEqual(calls.read_text(), '')
 
-    def test_a_branch_deploy_without_pulp_credentials_says_why(self):
+    def test_a_branch_deploy_without_pulp_credentials_says_why_before_the_key_import(self):
         config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
         script = '\n'.join(config['deploy_branches_pulp']['before_script'])
         with tempfile.TemporaryDirectory() as folder:
             work = Path(folder)
             (work/'addons/packetfence-perl').mkdir(parents=True)
             (work/'addons/packetfence-perl/psono.py').write_text('print("key")\n')
-            full = {'PATH': os.environ['PATH'], 'PSONO_CI_API_KEY_ID': 'k', 'PSONO_CI_API_SECRET_KEY_HEX': 's',
+            (work/'gpg').write_text('#!/bin/sh\necho imported >> "$TEST_CALLS"\ncat > /dev/null\n')
+            (work/'gpg').chmod(0o700)
+            calls = work/'calls'
+            full = {'PATH': str(work) + os.pathsep + os.environ['PATH'], 'TEST_CALLS': str(calls),
+                    'PSONO_CI_API_KEY_ID': 'k', 'PSONO_CI_API_SECRET_KEY_HEX': 's', 'PSONO_GPG_PRIVATE_KEY_SECRET_ID': 'g',
                     'PSONO_CI_PULP_PACKAGES_ID': 'p'}
-            for empty in ('PSONO_CI_API_KEY_ID', 'PSONO_CI_API_SECRET_KEY_HEX', 'PSONO_CI_PULP_PACKAGES_ID'):
+            for empty in ('PSONO_CI_API_KEY_ID', 'PSONO_GPG_PRIVATE_KEY_SECRET_ID', 'PSONO_CI_PULP_PACKAGES_ID'):
                 result = subprocess.run(['bash', '-c', script], cwd=work, env={**full, empty: ''}, capture_output=True, text=True)
                 self.assertNotEqual(result.returncode, 0, empty)
                 self.assertIn(empty + ' is empty', result.stderr)
                 self.assertIn('protected branches only', result.stderr)
+                self.assertFalse(calls.exists(), empty)
             result = subprocess.run(['bash', '-c', script], cwd=work, env=full, capture_output=True, text=True)
-            self.assertEqual(result.returncode, 0, result.stderr)
-            # The tree comes signed from ppa_tree: this job never holds the signing key.
-            self.assertNotIn('PSONO_GPG_PRIVATE_KEY_SECRET_ID', script)
-
-    def test_a_retried_publish_sends_the_tree_signed_once(self):
-        # ppa_tree signs public/ once and keeps it; the publishers send it as is, so a retry after a partial
-        # upload sends the same Release/InRelease/repomd files the failed attempt already put in Pulp.
-        config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
-        tree = config['ppa_tree']
-        self.assertEqual(tree['script'], ['PAGES_HTML=no generate-pages'])
-        self.assertEqual(tree['artifacts']['paths'], ['public/'])
-        self.assertEqual(tree['needs'], [{'job': 'sign_packages'}])
-        self.assertEqual(tree['rules'], [{'reference': ['sign_packages', 'rules']}])
-        stages = config['stages']
-        self.assertLess(stages.index(tree['stage']), stages.index(config['publish_ppa']['stage']))
-        self.assertEqual(config['publish_ppa']['needs'], [{'job': 'ppa_tree'}])
-        self.assertEqual(config['deploy_branches_pulp']['dependencies'], ['sign_packages', 'ppa_tree'])
-        for job in ('publish_ppa', 'deploy_branches_pulp'):
-            text = yaml.safe_dump({k: v for k, v in config[job].items() if k in ('script', 'before_script')})
-            self.assertNotIn('generate-pages', text, job)
-            self.assertNotIn('gpg', text, job)
+            self.assertEqual((result.returncode, calls.read_text()), (0, 'imported\n'), result.stderr)
 
     def test_only_a_feature_build_ships_the_packetfence_branches_repository(self):
         # The Makefile names the pipeline only when CI sets it (feature branches, .context_rules), and the spec
