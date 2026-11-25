@@ -593,6 +593,21 @@ class ConfigurationTest(unittest.TestCase):
         for args in (['debian12'], ['windows', 'x.msi']):
             self.assertNotEqual(subprocess.run(['bash', str(script), *args], env=env, capture_output=True).returncode, 0)
 
+    def test_deployments_compare_only_pipelines_of_the_same_branch(self):
+        # Prevent outdated deployment jobs works per environment: a shared name would let one branch's newer
+        # deploy reject another branch's. The PPA only prepares: every pipeline has its own tree.
+        config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
+        for name in config:
+            if name.startswith('.') or name in RESERVED or not isinstance(config[name], dict):
+                continue
+            environment = merged(config, name).get('environment')
+            if not environment:
+                continue
+            environment = environment if isinstance(environment, dict) else {'name': environment}
+            if environment.get('action') == 'prepare':
+                continue
+            self.assertIn('$CI_COMMIT_REF_SLUG', environment['name'], name)
+
     def test_a_pulp_error_is_not_a_missing_native_repository(self):
         # Unreachable Pulp: exit 2, which every caller turns into a failure (never the devel skip or the file tree).
         env = {'PATH': os.environ['PATH'], 'PULP_URL': 'http://127.0.0.1:9', 'PULP_USERNAME': 'u', 'PULP_PASSWORD': 'p'}
