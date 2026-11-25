@@ -22,6 +22,8 @@ stages:
   - test
   - test_cluster
   - deploy
+  # After the package deploys: a failed one keeps the previous images; a push can be retried.
+  - deploy_images
   - build_pf_img
 
 ################################################################################
@@ -1357,7 +1359,7 @@ deploy_debian_pulp:
 # expect; when tests run, the deploy stage keeps both behind them. A release tag keeps its vX.Y.Z images
 # on GitHub. The environment lets GitLab skip an older pipeline that finishes after a newer one.
 deploy_containers:
-  stage: deploy
+  stage: deploy_images
   image: $PF_PPA_IMAGE
   # One Pulp container writer at a time, across branches.
   resource_group: pulp-packetfence-containers

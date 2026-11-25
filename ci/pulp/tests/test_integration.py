@@ -62,8 +62,11 @@ class ConfigurationTest(unittest.TestCase):
                 self.assertEqual(rule['variables']['IMAGE_TAGS'], '${CI_COMMIT_REF_SLUG}-p${CI_PIPELINE_ID}')
                 self.assertEqual(rule['variables']['BUILDER_TAG'], '${CI_COMMIT_REF_SLUG}')
         job = config['deploy_containers']
-        self.assertEqual(job['stage'], 'deploy')
-        # No needs: the deploy stage waits for the tests when a pipeline runs them.
+        # Its own stage right after deploy, no needs: it waits for the tests and for the package deploys,
+        # and runs only if they succeeded; the gates below keep it out of pipelines that built no images.
+        stages = config['stages']
+        self.assertEqual(job['stage'], 'deploy_images')
+        self.assertEqual(stages.index('deploy_images'), stages.index('deploy') + 1)
         self.assertNotIn('needs', job)
         self.assertEqual(job['rules'][:2], [{'reference': ['.gated_by_build_img_container', 'rules']},
                                             {'reference': ['.gated_by_deploy_pkg', 'rules']}])
