@@ -448,11 +448,26 @@ sub is_table_field {
     }
 
     my $table = $dal->table;
-    if ($f =~ /\Q$table\E\.(.*)$/ ) {
+    if ($f =~ /\A\Q$table\E\.(.+)\z/s ) {
         return exists $dal->get_meta->{$1};
     }
 
     return 0;
+}
+
+=head2 $self->table_column($search_info, $table_field)
+
+Returns the column name of a table field, without the table prefix
+
+    my $column = $self->table_column($search_info, 'node.mac'); # mac
+
+=cut
+
+sub table_column {
+    my ($self, $s, $f) = @_;
+    my $table = $s->{dal}->table;
+    $f =~ s/\A\Q$table\E\.//;
+    return $f;
 }
 
 =head2 $self->verify_query($search_info, $query)
@@ -700,20 +715,49 @@ sub normalize_order_by {
        $direction = "-" . lc($2);
     }
 
-    if (!$self->is_valid_field($s, $order_by)) {
+    my $column = $self->order_by_column($s, $order_by);
+    if (!defined $column) {
         return undef;
     }
 
-    if ($order_by =~ /\./) {
-        $order_by = \"`$order_by`";
+    return { $direction => $column }
+}
+
+=head2 $self->order_by_column($search_info, $field)
+
+Returns the column to sort on for a valid field, built from the table and
+column names or the allowed join field, or undef if the field is not valid
+
+=cut
+
+sub order_by_column {
+    my ($self, $s, $f) = @_;
+    if ($self->is_table_field($s, $f)) {
+        return $s->{dal}->table . "." . $self->table_column($s, $f);
     }
 
-    if ($self->is_table_field($s, $order_by)) {
-        my $t = $s->{dal}->table;
-        $order_by = "${t}.${order_by}";
+    if ($self->is_join_field($s, $f)) {
+        return $self->join_field_order_by($f);
     }
 
-    return { $direction => $order_by }
+    return undef;
+}
+
+=head2 $self->join_field_order_by($join_field)
+
+Returns the column to sort on for an allowed join field: its column alias,
+quoted when it contains a dot
+
+=cut
+
+sub join_field_order_by {
+    my ($self, $f) = @_;
+    if ($f !~ /\./) {
+        return $f;
+    }
+
+    (my $quoted = $f) =~ s/`/``/g;
+    return \"`$quoted`";
 }
 
 =head2 make_group_by
