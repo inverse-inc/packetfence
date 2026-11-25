@@ -18,6 +18,7 @@ with coova-chilli 1.3.0+20141128-2
 
 use strict;
 use warnings;
+use pf::web::release_form qw(html_attr js_string http_url url_host url_port url_param);
 
 use base ('pf::Switch');
 
@@ -89,13 +90,16 @@ sub getAcceptForm {
 
     my $uamip = $portalSession->param("ecwp-original-param-uamip");
     my $uamport = $portalSession->param("ecwp-original-param-uamport");
+    my $host = js_string(url_host($uamip));
+    my $port = js_string(url_port($uamport));
+    my $username = js_string($mac);
     my $html_form = qq[
         <script type="text/javascript" src="/content/ChilliLibrary.js"></script>
         <script type="text/javascript">
-            chilliController.host = "$uamip";
-            chilliController.port = "$uamport";
+            chilliController.host = $host;
+            chilliController.port = $port;
             function logon() {
-                chilliController.logon("$mac", "$mac");
+                chilliController.logon($username, $username);
             }
         </script>
         <script type="text/javascript">

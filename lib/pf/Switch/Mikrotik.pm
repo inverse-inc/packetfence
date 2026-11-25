@@ -17,6 +17,7 @@ Should work on CAPsMAN enabled APs, tested on v6.18
 
 use strict;
 use warnings;
+use pf::web::release_form qw(html_attr js_string http_url url_host url_port url_param);
 
 use POSIX;
 use Try::Tiny;
@@ -104,6 +105,9 @@ sub getAcceptForm {
     use Digest::MD5 qw(md5_hex);
     $mac =~ s/:/-/g;
     my $pass = md5_hex($cgi_session->param("ecwp-original-param-chap-id").$mac.$cgi_session->param("ecwp-original-param-chap-challenge"));
+    $linkLoginOnly = html_attr(http_url($linkLoginOnly));
+    $linkOrig = html_attr($linkOrig);
+    $mac = html_attr($mac);
     my $html_form = qq[
         <form name="weblogin_form" data-autosubmit="1000" method="POST" action="$linkLoginOnly">
             <input type="hidden" name="dst" value="$linkOrig" />
