@@ -39,7 +39,8 @@ with `ci/pulp/publish-dependency.sh` (`.github/workflows/reusable_upload_package
 `maintenance/X.Y` only, into the native repository of the branch's release (`conf/pf-release`), for the OS that
 release supports. A version the repository already serves is left as it is; devel waits while its X.Y has no
 repository. The workflow needs the repository variable `PSONO_CI_PULP_PACKAGES_ID` (the `ci-packages` entry,
-readable by the Psono API key in the GitHub secrets). GitHub runs are serialized per repository (a run GitHub
+readable by the Psono API key in the GitHub secrets), and its runner (`packetfence-perl-package-build`) at an
+address allowed on the Pulp API (`api_cidrs` on the packaging side; the API refuses any other). GitHub runs are serialized per repository (a run GitHub
 cancelled while it waited is re-run), not with the GitLab deploys: a deploy or run that fails with "Distribution
 changed during publish" is retried.
 
