@@ -91,7 +91,12 @@ fi
 # another suite's repository (a newer Debian added to the same URL).
 for n in "${el_versions[@]}"; do
     if ! native_rpm=$(python3 ci/pulp/native.py rpm "$release" "$n"); then
-        echo "No native EL$n repository for $release; RHEL$n/$release unchanged"
+        # Only devel may run ahead of the packaging side (an unreleased X.Y); a release must reach every OS it built.
+        if [[ "${CI_COMMIT_REF_NAME:-}" != devel ]]; then
+            echo "No native EL$n repository for $release: create packetfence-$dashed-el$n on the packaging side" >&2
+            exit 1
+        fi
+        echo "No native EL$n repository for $release yet (devel); RHEL$n/$release unchanged"
         continue
     fi
     mapfile -t rpms < <(find "$PUBLIC_DIR/centos/$n/x86_64" -type f -name '*.rpm' ! -name '*.src.rpm' | sort)
