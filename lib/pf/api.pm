@@ -94,7 +94,7 @@ use pf::config::crypt::object::freeze;
 
 my $logger = pf::log::get_logger();
 
-sub event_add : Public {
+sub event_add : Public :Queue {
     my ($class, %postdata) = @_;
     my $events = $postdata{'events'};
     my $srcip = pf::util::clean_ip($postdata{'srcip'});
@@ -150,7 +150,7 @@ sub echo : Public {
     return @args;
 }
 
-sub switch_freeradius_populate_nas_config : Public {
+sub switch_freeradius_populate_nas_config : Public :Queue {
     my ($class, $switches, $timestamp) = @_;
     if (ref($switches) eq 'HASH') {
         # Config supplied by the producer (normal path). It is authoritative, so
@@ -217,7 +217,7 @@ sub radius_accounting : Public {
     return $return;
 }
 
-sub radius_update_locationlog : Public {
+sub radius_update_locationlog : Public :Queue {
     my ($class, %radius_request) = @_;
 
     my $radius = new pf::radius::custom();
@@ -353,7 +353,7 @@ sub ipset_node_update : Public {
     return(pf::ipset->update_node($oldip, $srcip, $srcmac));
 }
 
-sub firewallsso : Public {
+sub firewallsso : Public :Queue {
     my ( $class, %postdata ) = @_;
     my @require = qw(method mac ip timeout);
     my @found = grep {exists $postdata{$_}} @require;
@@ -362,7 +362,7 @@ sub firewallsso : Public {
     return pf::firewallsso::do_sso(%postdata);
 }
 
-sub ReAssignVlan : Public : Fork {
+sub ReAssignVlan : Public : Fork :Queue {
     my ($class, $postdata )  = @_;
     my @require = qw(connection_type switch mac ifIndex);
     my @found = grep {exists $postdata->{$_}} @require;
@@ -423,13 +423,13 @@ ReAssignVlan_in_queue is use to localy use ReAssignVlan function in pfqueue to g
 
 =cut
 
-sub ReAssignVlan_in_queue : Public {
+sub ReAssignVlan_in_queue : Public :Queue {
     my ($class, $postdata )  = @_;
     my $client = pf::api::queue->new(queue => 'priority');
     $client->notify( 'ReAssignVlan', $postdata );
 }
 
-sub desAssociate : Public : Fork {
+sub desAssociate : Public : Fork :Queue {
     my ($class, $postdata )  = @_;
     my @require = qw(switch mac connection_type ifIndex);
     my @found = grep {exists $postdata->{$_}} @require;
@@ -460,14 +460,14 @@ desAssociate is use to localy use desAssociate function in pfqueue to get rid of
 
 =cut
 
-sub desAssociate_in_queue : Public {
+sub desAssociate_in_queue : Public :Queue {
     my ($class, $postdata )  = @_;
     my $client = pf::api::queue->new(queue => 'priority');
     $client->notify( 'desAssociate', $postdata );
 }
 
 
-sub firewall : Public {
+sub firewall : Public :Queue {
     my ($class, %postdata )  = @_;
     my @require = qw(mac);
     my @found = grep {exists $postdata{$_}} @require;
@@ -653,7 +653,7 @@ Deregister a node
 
 =cut
 
-sub deregister_node : Public {
+sub deregister_node : Public :Queue {
     my ($class, %postdata )  = @_;
     my @require = qw(mac);
     my @found = grep {exists $postdata{$_}} @require;
@@ -1231,7 +1231,7 @@ sub fingerbank_lookup : Public :AllowedAsAction(mac, $mac) {
 
 =cut
 
-sub fingerbank_process : Public {
+sub fingerbank_process : Public :Queue {
     my ( $class, $mac, $overrides ) = @_;
     pf::fingerbank::process($mac, undef, $overrides);
 }
@@ -1242,7 +1242,7 @@ Process a device again after a failed Fingerbank lookup, scheduled by pf::finger
 
 =cut
 
-sub fingerbank_process_retry : Public {
+sub fingerbank_process_retry : Public :Queue {
     my ( $class, $mac, $overrides ) = @_;
     pf::fingerbank::process($mac, undef, $overrides, retry => 1);
 }
@@ -1251,7 +1251,7 @@ sub fingerbank_process_retry : Public {
 
 =cut
 
-sub fingerbank_update_component : Public : Fork {
+sub fingerbank_update_component : Public : Fork :Queue {
     my ( $class, %postdata ) = @_;
     my @require = qw(action);
     my @found = grep {exists $postdata{$_}} @require;
@@ -1324,7 +1324,7 @@ Will try to trigger a security_event with the trigger internal::connection_type_
 
 =cut
 
-sub detect_connection_type_transport_change : Public {
+sub detect_connection_type_transport_change : Public :Queue {
     my ($class, $mac, $current_connection) = @_;
 
     my $locationlog = pf::locationlog::locationlog_view_open_mac($mac);
@@ -1369,7 +1369,7 @@ The UDP payload must be base 64 encoded.
 
 =cut
 
-sub process_dhcpv4 : Public {
+sub process_dhcpv4 : Public :Queue {
     my ($class, %postdata) = @_;
     my @require = qw(src_mac src_ip dest_mac dest_ip is_inline_vlan interface interface_ip interface_vlan net_type);
     my @found = grep {exists $postdata{$_}} @require;
@@ -1390,7 +1390,7 @@ The UDP payload must be base 64 encoded.
 
 =cut
 
-sub process_dhcpv6 : Public {
+sub process_dhcpv6 : Public :Queue {
     my ( $class, $udp_payload ) = @_;
 
     my $dhcpv6Processor = pf::dhcp::processor_v6->new();
@@ -1732,7 +1732,7 @@ Update the firewall sso based on radius accounting
 
 =cut
 
-sub firewallsso_accounting : Public {
+sub firewallsso_accounting : Public :Queue {
     my ($class, %RAD_REQUEST) = @_;
     if ($RAD_REQUEST{'Calling-Station-Id'} && $RAD_REQUEST{'Framed-IP-Address'} && (any { pf::util::isenabled($_->{'sso_on_accounting'}) } values %pf::config::ConfigFirewallSSO) ) {
         my $mac = pf::util::clean_mac($RAD_REQUEST{'Calling-Station-Id'});
@@ -1980,7 +1980,7 @@ Enable the MAB floating device mode on a switch port
 
 =cut
 
-sub enableMABFloating : Public {
+sub enableMABFloating : Public :Queue {
     my ( $class, %postdata ) = @_;
 
     my $switch = pf::SwitchFactory->instantiate( $postdata{'switch'} );
@@ -1997,7 +1997,7 @@ Disable the MAB floating device mode on a switch port
 
 =cut
 
-sub disableMABFloating : Public {
+sub disableMABFloating : Public :Queue {
     my ( $class, %postdata ) = @_;
 
     my $switch = pf::SwitchFactory->instantiate( $postdata{'switch'} );
@@ -2026,7 +2026,7 @@ Called in order to populate the NTLM authentication cache with a single user
 
 =cut
 
-sub cache_user_ntlm {
+sub cache_user_ntlm : Queue {
     my ($class, $domain, $username) = @_;
 
     my ($result, $msg) = pf::domain::ntlm_cache::cache_user($domain, $username);
@@ -2143,7 +2143,7 @@ insert_user_in_redis_cache
 
 =cut
 
-sub insert_user_in_redis_cache :Public {
+sub insert_user_in_redis_cache :Public :Queue {
     my ($class ,$domain, $user, $nthash) = @_;
 
     my $logger = pf::log::get_logger();
@@ -2164,7 +2164,7 @@ Update a user/NT hash combination inside redis for a given domain
 
 =cut
 
-sub update_user_in_redis_cache {
+sub update_user_in_redis_cache : Queue {
     my ($class, $domain, $username) = @_;
     my $logger = pf::log::get_logger();
     my $config = $pf::config::ConfigDomain{$domain};
@@ -2221,7 +2221,7 @@ Contact the Semaphore api to launch the upload of the acls on the equipment.
 
 =cut
 
-sub push_acls : Public {
+sub push_acls : Public :Queue {
     my ($class, %postdata) = @_;
     my @require = qw(switch_id);
     my @found = grep {exists $postdata{$_}} @require;
@@ -2240,7 +2240,7 @@ This is called after role configuration changes to avoid blocking the API.
 
 =cut
 
-sub generate_ansible_configuration_all_switches : Public : Fork {
+sub generate_ansible_configuration_all_switches : Public : Fork :Queue {
     my ($class, %postdata) = @_;
 
     $logger->info("Starting Ansible configuration generation for all switches");

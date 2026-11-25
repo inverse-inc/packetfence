@@ -18,9 +18,8 @@ use pf::Redis;
 use Time::HiRes qw(usleep);
 use pf::dal;
 use pf::log;
-use pf::Sereal qw(sereal_decode_safe);
 use Moo;
-use pf::util::pfqueue qw(task_counter_id);
+use pf::util::pfqueue qw(task_counter_id decode_task);
 use pf::constants::pfqueue qw(
     $PFQUEUE_COUNTER 
     $PFQUEUE_EXPIRED_COUNTER
@@ -121,9 +120,14 @@ sub process_next_job {
         local $@;
         eval {
             local $@;
-            my $item = sereal_decode_safe($data);
-            if (ref($item) ne 'ARRAY') {
-                die "Invalid object stored in queue";
+            my ($item, $error) = decode_task($data);
+            unless ($item) {
+                $redis->del($task_id);
+                if ($task_data{status_update}) {
+                    $self->get_status_updater($task_id)->failed({message => $error, status => 500});
+                }
+
+                die $error;
             }
 
             my $type = $item->[0];
