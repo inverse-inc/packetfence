@@ -618,8 +618,10 @@ class ConfigurationTest(unittest.TestCase):
             def __init__(self, count):
                 self.count, self.params = count, None
             def find(self, kind, name):
-                return {'latest_version_href': 'v9'}
+                return {'publication': 'pub'}
             def request(self, method, href, params=None):
+                if href == 'pub':
+                    return {'repository_version': 'v9'}  # the served version, not the latest
                 self.params = params
                 return {'count': self.count}
 
