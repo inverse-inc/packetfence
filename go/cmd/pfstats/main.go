@@ -407,6 +407,7 @@ func main() {
 		fd, err := ln.Accept()
 		if err != nil {
 			log.LoggerWContext(ctx).Crit("Accept error: " + err.Error())
+			continue
 		}
 
 		go forward(fd)
