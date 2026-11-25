@@ -19,6 +19,7 @@ import (
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/admin_api_audit_log"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/models"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/ocsp"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/ocspresponder"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/scep"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/sql"
@@ -1042,7 +1043,10 @@ func manageAnswer(Information types.Info, Error types.Errors, pfpki *types.Handl
 // request is the body of a POST, or, for a GET, the rest of the path after
 // /pki/ocsp/, base64 then URL encoded. A GET answer carries the cache
 // headers of RFC 5019 section 6.2, so proxies and clients can keep it
-// until nextUpdate.
+// until nextUpdate. A request it can't answer gets the unsigned OCSP
+// response of its error status (malformedRequest, unauthorized,
+// internalError, tryLater); HTTP errors are left for what isn't an OCSP
+// request: a POST of another Content-Type (400) or another method (405).
 func ManageOcsp(pfpki *types.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		logger := log.LoggerWContext(*pfpki.Ctx)
@@ -1065,8 +1069,9 @@ func ManageOcsp(pfpki *types.Handler) http.HandlerFunc {
 		case http.MethodGet:
 			var err error
 			if rawreq, err = ocspRequestFromPath(chi.URLParam(req, "*")); err != nil {
-				logger.Info("OCSP GET: " + err.Error())
-				res.WriteHeader(http.StatusBadRequest)
+				// A GET to the OCSP URL is an OCSP request: answer it
+				// as one that doesn't parse.
+				writeOCSPError(res, pfpki, &ocspresponder.Error{Status: ocsp.Malformed, Err: fmt.Errorf("OCSP GET: %w", err)})
 				return
 			}
 		default:
@@ -1078,9 +1083,7 @@ func ManageOcsp(pfpki *types.Handler) http.HandlerFunc {
 		// parse request, verify, create response
 		answer, err := Responder(pfpki).Respond(rawreq)
 		if err != nil {
-			logger.Info(err.Error())
-			// technically we should return an ocsp error response. but this is probably fine
-			res.WriteHeader(http.StatusBadRequest)
+			writeOCSPError(res, pfpki, err)
 			return
 		}
 		res.Header().Set("Content-Type", "application/ocsp-response")
@@ -1090,6 +1093,23 @@ func ManageOcsp(pfpki *types.Handler) http.HandlerFunc {
 		logger.Info("Writing response")
 		res.Write(answer.DER)
 	})
+}
+
+// writeOCSPError answers an OCSP request the responder can't answer with
+// the unsigned OCSP response of its error status (RFC 6960 section 2.3),
+// with HTTP 200 and no cache headers: validators act on the OCSP status,
+// and caches mustn't keep it.
+func writeOCSPError(res http.ResponseWriter, pfpki *types.Handler, err error) {
+	logger := log.LoggerWContext(*pfpki.Ctx)
+	status, der := ocspresponder.ErrorResponse(err)
+	if status == ocsp.Malformed || status == ocsp.Unauthorized {
+		logger.Info("OCSP request refused: " + err.Error())
+	} else {
+		logger.Error("OCSP request failed: " + err.Error())
+	}
+	res.Header().Set("Content-Type", "application/ocsp-response")
+	res.Header().Set("Cache-Control", "no-store")
+	res.Write(der)
 }
 
 // ocspRequestFromPath decodes the request of an OCSP GET: the DER request,

@@ -128,3 +128,45 @@ func TestOCSP_HSMKeyCached(t *testing.T) {
 		t.Fatalf("%d HSM key lookups, want the new key cached", n)
 	}
 }
+
+// When the HSM of a CA can't give its key, the responder answers
+// tryLater: the token may be back for the next request.
+func TestOCSP_HSMUnavailableTryLater(t *testing.T) {
+	env := testutil.NewEnv(t)
+
+	kt := certutils.KEY_ECDSA
+	keyUsage, extKeyUsage := "32|64", "1|2"
+	caInfo, err := models.CA{Cn: "ocsp-hsm-down-ca", KeyType: &kt, KeySize: 256, Digest: x509.ECDSAWithSHA256,
+		KeyUsage: &keyUsage, ExtendedKeyUsage: &extKeyUsage, Days: 365, DB: env.DB, Ctx: env.Ctx}.New()
+	if err != nil {
+		t.Fatalf("CA.New: %v", err)
+	}
+	ca := caInfo.Entries.([]models.CA)[0]
+	pair, err := tls.X509KeyPair([]byte(ca.Cert), []byte(ca.Key))
+	if err != nil {
+		t.Fatal(err)
+	}
+	caCert, _ := x509.ParseCertificate(pair.Certificate[0])
+	if err := env.DB.Model(&models.CA{}).Where("id = ?", ca.ID).Updates(map[string]interface{}{"hsm_id": 1, "hsm_key_id": "01"}).Error; err != nil {
+		t.Fatal(err)
+	}
+	defer ocspresponder.SetHSMKeyPair(func(models.CA, *gorm.DB) (*x509.Certificate, crypto.Signer, error) {
+		return nil, nil, errors.New("pkcs11: 0xE0: CKR_TOKEN_NOT_PRESENT")
+	})()
+
+	// Any serial of the CA will do: the key is needed to sign the answer.
+	req, err := xocsp.CreateRequest(caCert, caCert, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = (&ocspresponder.OCSPResponder{Handler: env.Handler}).Respond(req)
+	var rerr *ocspresponder.Error
+	if !errors.As(err, &rerr) || int(rerr.Status) != int(xocsp.TryLater) {
+		t.Fatalf("Respond error %v, want an *ocspresponder.Error with tryLater", err)
+	}
+	_, der := ocspresponder.ErrorResponse(err)
+	var re xocsp.ResponseError
+	if _, perr := xocsp.ParseResponse(der, nil); !errors.As(perr, &re) || re.Status != xocsp.TryLater {
+		t.Fatalf("ErrorResponse parses to %v, want tryLater", perr)
+	}
+}
