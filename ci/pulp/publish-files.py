@@ -76,6 +76,9 @@ def publish(client, snapshot, items):
     dist = client.find('distributions/file/file', snapshot)
     current = {entry['relative_path']: entry['sha256'] for entry in client.request(
         'GET', API + 'content/file/files/', params={'repository_version': repo['latest_version_href'], 'limit': 1000})['results']}
+    # Behind: an earlier run uploaded files but its publication or distribution update failed.
+    served = dist.get('publication')
+    behind = not served or client.request('GET', served)['repository_version'] != repo['latest_version_href']
     changed = {}
     for _, path, name in items:
         digest = hashlib.sha256(path.read_bytes()).hexdigest()
@@ -85,11 +88,9 @@ def publish(client, snapshot, items):
         client.upload(API + 'content/file/files/', path, {'relative_path': name, 'repository': repo['pulp_href']})
         changed[name] = path.stat().st_size
         print(f'{snapshot}/{name}: published')
-    if not changed:
-        served = dist.get('publication')
-        if served and client.request('GET', served)['repository_version'] == repo['latest_version_href']:
-            return
-        # Uploaded by an earlier run whose publication or distribution update failed: publish them now.
+    if not changed and not behind:
+        return
+    if behind:  # publish them now, and list every file (the earlier run listed none)
         changed = {name: path.stat().st_size for _, path, name in items}
     repo = client.request('GET', repo['pulp_href'])
     task = client.wait(client.request('POST', API + 'publications/file/file/',
