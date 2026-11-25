@@ -8,6 +8,12 @@ cd "$ROOT"
 image=${1:?debian11, debian12 or rhel8}
 shift
 (( $# )) || { echo 'No package to publish' >&2; exit 1; }
+# A feature branch's build (a [perl] commit) stays out of the release repositories.
+branch=${BRANCH_NAME:?the branch the package was built from}
+if [[ ! $branch =~ ^(devel|maintenance/[0-9]+\.[0-9]+)$ ]]; then
+    echo "Only devel and maintenance/X.Y publish dependency packages: $branch is not published"
+    exit 0
+fi
 case $image in
     debian11) kind=deb target=bullseye os=Debian-11 ;;
     debian12) kind=deb target=bookworm os=Debian-12 ;;
