@@ -1402,8 +1402,11 @@ deploy_files_pulp:
   stage: deploy
   image: $PF_PPA_IMAGE
   resource_group: pulp-packetfence-pipelines
-  dependencies:
-    - sign_packages
+  # These files name this build's packages: published only once those are.
+  needs:
+    - job: sign_packages
+    - job: deploy_debian_pulp
+      artifacts: false
   environment:
     name: $DEPLOY_ENV_NAME
   script:
@@ -1411,6 +1414,7 @@ deploy_files_pulp:
   tags:
     - docker
   rules:
+    - !reference [.gated_by_build_img_container, rules]
     - !reference [.gated_by_deploy_pkg, rules]
     - !reference [.deploy_pkg_rules, rules]
 

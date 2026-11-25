@@ -643,6 +643,12 @@ class ConfigurationTest(unittest.TestCase):
             rules = resolved_rules(config, name)
             self.assertIn(gate, rules, name)
             self.assertTrue(all(r.get('when') == 'never' for r in rules[:rules.index(gate)]), name)
+            images = [r for r in rules if r.get('when') == 'never' and 'BUILD_IMG_CONTAINER == "no"' in r['if']]
+            self.assertTrue(images and all('TEST' not in r['if'] for r in images), name)
+        # The published file names point at this build's packages: never before (or without) them.
+        files, packages = (('deploy_files_pulp', 'deploy_debian_pulp') if 'deploy_files_pulp' in config
+                           else ('deploy_maintenance_pkg_friendly_names', 'deploy_maintenance_pulp'))
+        self.assertIn({'job': packages, 'artifacts': False}, config[files]['needs'])
         helper = ROOT/'ci/lib/common/pipeline-image-tag.sh'
         base = {'PATH': os.environ['PATH'], 'CI_PIPELINE_ID': '42', 'CI_COMMIT_REF_NAME': 'feature/x',
                 'CI_COMMIT_REF_SLUG': 'feature-x', 'CI_PIPELINE_SOURCE': 'web'}
