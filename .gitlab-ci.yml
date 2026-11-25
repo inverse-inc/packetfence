@@ -88,7 +88,7 @@ variables:
 # run only on maintenance jobs (schedule and web, not on push)
 .maintenance_only_rules:
   rules:
-    - if: '$BUILD_ARTIFACTS_PKG == "no" && $TEST != "yes" && $CI_COMMIT_MESSAGE !~ /test=yes/'
+    - if: '$BUILD_ARTIFACTS_PKG == "no" && $CI_COMMIT_TAG == null && $TEST != "yes" && $CI_COMMIT_MESSAGE !~ /test=yes/'
       when: never
     - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && $CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/'
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/'
@@ -100,7 +100,7 @@ variables:
 # we used same kind of rules below but we add variable checks to add jobs to pipeline
 .build_artifacts_pkg_devel_rules:
   rules:
-    - if: '$BUILD_ARTIFACTS_PKG == "no" && $TEST != "yes" && $CI_COMMIT_MESSAGE !~ /test=yes/'
+    - if: '$BUILD_ARTIFACTS_PKG == "no" && $CI_COMMIT_TAG == null && $TEST != "yes" && $CI_COMMIT_MESSAGE !~ /test=yes/'
       when: never
     - if: '$CI_COMMIT_REF_NAME == "devel"'
 
@@ -110,7 +110,7 @@ variables:
 # don't run on tag
 .build_artifacts_pkg_branches_rules:
   rules:
-    - if: '$BUILD_ARTIFACTS_PKG == "no" && $TEST != "yes" && $CI_COMMIT_MESSAGE !~ /test=yes/'
+    - if: '$BUILD_ARTIFACTS_PKG == "no" && $CI_COMMIT_TAG == null && $TEST != "yes" && $CI_COMMIT_MESSAGE !~ /test=yes/'
       when: never
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
 
@@ -119,7 +119,7 @@ variables:
 # run jobs on any branches/tags (web,schedule)
 .devel_release_branches_and_maintenance_rules:
   rules:
-    - if: '$BUILD_ARTIFACTS_PKG == "no" && $TEST != "yes" && $CI_COMMIT_MESSAGE !~ /test=yes/'
+    - if: '$BUILD_ARTIFACTS_PKG == "no" && $CI_COMMIT_TAG == null && $TEST != "yes" && $CI_COMMIT_MESSAGE !~ /test=yes/'
       when: never
     - if: '$CI_COMMIT_REF_NAME == "devel"'
     - if: '$CI_COMMIT_TAG'
@@ -172,7 +172,8 @@ variables:
     - if: '$CI_COMMIT_TAG'
     - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
     - if: '$CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
-    - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ($BUILD_PF_IMG_DVD_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_dvd_usb_iso=yes/)'
+    # The ISO installs this pipeline's packages: not when none are built.
+    - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && $BUILD_ARTIFACTS_PKG != "no" && ($BUILD_PF_IMG_DVD_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_dvd_usb_iso=yes/)'
 
 # run jobs only when:
 # - on devel branch (push, web, *not* schedule) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
@@ -229,7 +230,8 @@ variables:
 # run this job on any branch (web/api only) with BUILD_PF_IMG_DVD_USB_ISO variable defined or build_pf_img_dvd_usb_iso=yes in commit message
 .build_pf_img_dvd_usb_iso_any_branch_rules:
   rules:
-    - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ($BUILD_PF_IMG_DVD_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_dvd_usb_iso=yes/)'
+    # The ISO installs this pipeline's packages: not when none are built.
+    - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && $BUILD_ARTIFACTS_PKG != "no" && ($BUILD_PF_IMG_DVD_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_dvd_usb_iso=yes/)'
 
 .build_artifacts_material_devel_and_branches_rules:
   rules:
