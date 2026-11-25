@@ -763,8 +763,11 @@ class ConfigurationTest(unittest.TestCase):
                 self.calls.append((method, href))
                 if method == 'PATCH':
                     self.labels = json['pulp_labels']
-                if href.endswith('content/file/files/'):
-                    return {'results': [{'relative_path': 'a.deb', 'sha256': digest}]}
+                if href.endswith('content/file/files/'):  # c.deb: uploaded by another context, never published
+                    return {'results': [{'relative_path': 'a.deb', 'sha256': digest, 'artifact': 'art-a'},
+                                        {'relative_path': 'c.deb', 'sha256': 'c', 'artifact': 'art-c'}]}
+                if href.startswith('art-'):
+                    return {'size': 3}
                 if href == 'pub':
                     return {'repository_version': self.served}
                 return {'latest_version_href': 'v2', 'pulp_href': href}
@@ -783,10 +786,11 @@ class ConfigurationTest(unittest.TestCase):
                 module.publish(client, 'debian', [('debian', path, 'a.deb')])
                 self.assertNotIn(('UPLOAD',), client.calls)
                 self.assertEqual(('POST', module.API + 'publications/file/file/') in client.calls, published, served)
-            # Behind, with one more changed file: both are listed, not only the new one.
+            # Behind, with one more changed file: every file is listed, not only the new one.
             client = FakePulp('v1')
             module.publish(client, 'debian', [('debian', path, 'a.deb'), ('debian', other, 'b.deb')])
-            self.assertEqual(json.loads(client.labels['akainverse_index_files']), ['a.deb', 'b.deb'])
+            self.assertEqual(json.loads(client.labels['akainverse_index_files']), ['a.deb', 'b.deb', 'c.deb'])
+            self.assertEqual(json.loads(client.labels['akainverse_index_file_sizes'])['c.deb'], 3)
 
     def test_published_files_join_the_listing(self):
         spec = importlib.util.spec_from_file_location('publish_files', ROOT/'ci/pulp/publish-files.py')
