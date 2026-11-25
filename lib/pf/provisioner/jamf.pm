@@ -170,7 +170,7 @@ sub get_access_token {
     my $logger = get_logger;
 
     my $ua = LWP::UserAgent->new();
-    my $request = POST $self->protocol . "://" . $self->host . "/api/v1/auth/token";
+    my $request = POST $self->protocol . "://" . $self->host . ":" . $self->port . "/api/v1/auth/token";
     $request->authorization_basic($self->api_username, $self->api_password);
     $request->header( 'Accept' => 'application/json' );
 
@@ -375,7 +375,7 @@ sub build_request_uri {
     my $logger = get_logger;
 
     my $escaped_mac_address = uri_escape($mac);
-    my $uri = $self->protocol . "://" . $self->host . "/JSSResource/" . $realm . "/macaddress/" . $escaped_mac_address;
+    my $uri = $self->protocol . "://" . $self->host . ":" . $self->port . "/JSSResource/" . $realm . "/macaddress/" . $escaped_mac_address;
 
     $logger->debug("Request to query: '$uri'");
 

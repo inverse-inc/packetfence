@@ -18,7 +18,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 16;
+use Test::More tests => 18;
 use Test::NoWarnings;
 use HTTP::Response;
 use POSIX qw(strftime);
@@ -82,6 +82,16 @@ $pf::provisioner::jamf::CHI_CACHE->remove('jamf9626');
 @answers = ([200, qq({"token":"E","expires":") . iso(5) . '"}']);
 is($p->access_token, 'E', 'short-lived token returned');
 ok(!defined $pf::provisioner::jamf::CHI_CACHE->get('jamf9626'), 'but not cached (ttl <= jitter)');
+
+# the configured port is used for both the token and the JSSResource requests (GitHub #9740)
+my $p8443 = pf::provisioner::jamf->new(id => 'jamf9740', type => 'jamf', api_username => 'u', api_password => 'p', host => 'jamf.example.com', port => 8443, sync_pid => 0);
+is($p8443->build_request_uri('00:11:22:33:44:55', 'computers'), 'https://jamf.example.com:8443/JSSResource/computers/macaddress/00%3A11%3A22%3A33%3A44%3A55', 'JSSResource URI uses the port');
+my @ports;
+{
+    local *LWP::UserAgent::request = sub { push @ports, $_[1]->uri->port; my $r = HTTP::Response->new(200, 'x'); $r->content('{"token":"P"}'); return $r };
+    $p8443->get_access_token;
+}
+is_deeply(\@ports, [8443], 'token request uses the port');
 
 =head1 COPYRIGHT
 

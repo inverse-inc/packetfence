@@ -332,7 +332,7 @@ sub build_request_uri {
     my $logger = get_logger;
 
     my $escaped_mac_address = uri_escape($mac);
-    my $uri = $self->protocol . "://" . $self->host . "/JSSResource/" . $realm . "/macaddress/" . $escaped_mac_address;
+    my $uri = $self->protocol . "://" . $self->host . ":" . $self->port . "/JSSResource/" . $realm . "/macaddress/" . $escaped_mac_address;
 
     $logger->debug("Request to query: '$uri'");
 
