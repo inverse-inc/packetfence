@@ -22,8 +22,8 @@ on:
 jobs:
   upload-package:
     runs-on: packetfence-perl-package-build
-    # One publish per repository at a time (packetfence-perl and perl-client share it); GitHub keeps one pending run
-    # per group, so a run cancelled while it waited is re-run.
+    # One publish per branch and OS at a time (packetfence-perl and perl-client share the repository); GitHub keeps
+    # one pending run per group, so a run cancelled while it waited is re-run, as is one that met another publish.
     concurrency:
       group: pulp-dependency-${{ inputs._BRANCH_NAME }}-${{ inputs._IMAGE_TYPE }}
       cancel-in-progress: false
