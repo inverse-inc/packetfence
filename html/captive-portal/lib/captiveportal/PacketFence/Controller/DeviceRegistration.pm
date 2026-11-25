@@ -71,10 +71,11 @@ sub index : Path : Args(0) {
     # See if user is trying to login and if is not already authenticated
     if ( ( !$pid ) ) {
         # Verify if user is authenticated
-        $c->forward('userNotLoggedIn');
+        $c->detach('userNotLoggedIn');
     } elsif ( $request->param('cancel') ) {
         $c->user_session({});
         $c->response->redirect('/status');
+        $c->detach;
     }
     if ( $request->method eq 'POST' && $request->param('device_mac') ) {
         # User is authenticated and requesting to register a device
@@ -127,6 +128,9 @@ sub landing : Local : Args(0) {
 sub registerNode : Private {
     my ( $self, $c, $pid, $mac, $type, $role ) = @_;
     my $logger = $c->log;
+    if ( !defined($pid) || $pid eq '' ) {
+        $c->detach('userNotLoggedIn');
+    }
     my $device_reg_profile = $c->profile->{'_self_service'};
     if ( is_allowed($mac, $device_reg_profile) && valid_mac($mac) ) {
         my ($node) = node_view($mac);
@@ -140,16 +144,14 @@ sub registerNode : Private {
             my $params = { username => $pid, 'context' => $pf::constants::realm::PORTAL_CONTEXT};
             $c->stash->{device_mac} = $mac;
             # Get role for device registration
-            if (!(defined($role))) {
-                $role = $ConfigSelfService{$device_reg_profile}{'device_registration_roles'};
-                if ($role) {
-                    $logger->debug("Device registration role is $role (from self_service.conf)");
-                } else {
-                    # Use role of user
-                    $role = pf::authentication::match( $source_id, $params , $Actions::SET_ROLE, undef, $c->user_session->{extra});
-                    $logger->debug("Gaming devices role is $role (from username $pid)");
-                }
-	    }
+            $role = registration_role($ConfigSelfService{$device_reg_profile}{'device_registration_roles'}, $role);
+            if (defined($role)) {
+                $logger->debug("Device registration role is $role (from self_service.conf)");
+            } else {
+                # Use role of user
+                $role = pf::authentication::match( $source_id, $params , $Actions::SET_ROLE, undef, $c->user_session->{extra});
+                $logger->debug("Device registration role is " . ($role // 'undef') . " (from username $pid)");
+            }
 
             my $duration = $ConfigSelfService{$device_reg_profile}{'device_registration_access_duration'};
             if($duration > 0) {
@@ -190,6 +192,27 @@ sub registerNode : Private {
         $c->stash( status_msg_error => [ "The provided MAC address %s is not allowed to be registered using this self-service page.", $mac ]);
         $c->detach('landing');
     }
+}
+
+=head2 registration_role
+
+Returns the role of a device registration from the device_registration_roles
+of the self service policy (a comma separated list) and the requested role:
+the requested role if it is in the list, else the first role of the list.
+Returns undef when the list is empty: the role then comes from the
+authentication source.
+
+=cut
+
+sub registration_role {
+    my ($roles, $requested) = @_;
+    my @allowed = grep { $_ ne '' } map { s/^\s+|\s+$//gr } split(/,/, $roles // '');
+    return undef if !@allowed;
+    if (defined($requested) && grep { $_ eq $requested } @allowed) {
+        return $requested;
+    }
+
+    return $allowed[0];
 }
 
 =item device_from_mac_vendor
