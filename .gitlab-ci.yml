@@ -28,7 +28,8 @@ variables:
   PIPELINE_TIMEOUT_SCRIPT: 160m
   PF_PACKAGE_ORIGIN: "https://packages.packetfence.com"
   # Psono entry IDs of the Pulp CI accounts ci-packages, ci-docker and ci-docs (read with PSONO_CI_API_*).
-  # Set them as protected GitLab variables; the Pulp jobs fail while they are empty.
+  # Set them in GitLab, not protected: feature branches publish their PPA and branch folders too. The IDs are not
+  # secrets; PSONO_CI_API_SECRET_KEY_HEX is (masked). The Pulp jobs fail while they are empty.
   PSONO_CI_PULP_PACKAGES_ID: ""
   PSONO_CI_PULP_DOCKER_ID: ""
   PSONO_CI_PULP_DOCS_ID: ""
@@ -454,10 +455,10 @@ variables:
   before_script:
     - |
       set -euo pipefail
-      # Protected variables: an unprotected feature branch gets them empty; say so before the key import fails.
+      # Say which variable is missing before anything reads Psono.
       for name in PSONO_CI_API_KEY_ID PSONO_CI_API_SECRET_KEY_HEX PSONO_GPG_PRIVATE_KEY_SECRET_ID PSONO_CI_PULP_PACKAGES_ID; do
         eval "value=\${$name:-}"
-        [ -n "$value" ] || { echo "$name is empty. GitLab gives the Pulp credentials to protected branches only: protect this branch, or deploy from one that is" >&2; exit 1; }
+        [ -n "$value" ] || { echo "$name is empty: set it in the GitLab CI/CD variables, not protected (feature branches publish too)" >&2; exit 1; }
       done
       python3 addons/packetfence-perl/psono.py \
         --api_key_id="$PSONO_CI_API_KEY_ID" \

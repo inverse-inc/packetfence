@@ -19,7 +19,7 @@ MODE=${1:?ppa, branches, release or files}
 [[ "$PF_PACKAGE_ORIGIN" =~ ^https://[a-zA-Z0-9.-]+(:[0-9]+)?$ ]] || { echo 'PF_PACKAGE_ORIGIN must be an HTTPS origin' >&2; exit 1; }
 [[ "$CI_PIPELINE_ID" =~ ^[1-9][0-9]*$ ]] || exit 2
 # The ci-packages account: username and password read from Psono.
-[[ -n ${PSONO_CI_PULP_PACKAGES_ID:-} ]] || { echo 'PSONO_CI_PULP_PACKAGES_ID is empty. GitLab gives the Pulp credentials to protected branches only: protect this branch, or deploy from one that is' >&2; exit 1; }
+[[ -n ${PSONO_CI_PULP_PACKAGES_ID:-} ]] || { echo 'PSONO_CI_PULP_PACKAGES_ID is empty: set it in the GitLab CI/CD variables, not protected (feature branches publish too)' >&2; exit 1; }
 PULP_USERNAME=$(bash ci/pulp/psono-field.sh "$PSONO_CI_PULP_PACKAGES_ID" username)
 PULP_PASSWORD=$(bash ci/pulp/psono-field.sh "$PSONO_CI_PULP_PACKAGES_ID" password)
 export PULP_URL=$PF_PACKAGE_ORIGIN PULP_USERNAME PULP_PASSWORD
