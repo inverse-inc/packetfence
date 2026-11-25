@@ -784,7 +784,7 @@ Please follow these command line BEFORE starting the full automation upgrade.
 .RHEL / CentOS based systems **only**
 [source,bash]
 ----
-yum localinstall https://www.packetfence.org/downloads/PacketFence/RHEL8/packetfence-upgrade-14.1.el8.noarch.rpm
+yum localinstall https://packages.packetfence.com/downloads/PacketFence/RHEL8/packetfence-upgrade-14.1.el8.noarch.rpm
 ----
 
 Then follow the standard <<PacketFence_Upgrade_Guide.asciidoc#_full_upgrade_for_packetfence_versions_11_1_0_and_later,Full upgrade>>.

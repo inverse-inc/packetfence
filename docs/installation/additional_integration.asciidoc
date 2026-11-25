@@ -28,7 +28,7 @@ These sensors capture low-level packets on the DHCP server and forwards them to 
 
 The PacketFence-Forwarder is an optimized version of the udp-reflector, which installs easily and only forwards DHCPREQUESTS and DHCPACK packets from the source to the destination as well optionally mirroring DNS traffic for integration with the Fingerbank Collector
 
-Download the http://inverse.ca/downloads/PacketFence/windows-packetfence-forwarder/PacketFence-Forwarder-Installer.exe[DHCP Forwarder installer].
+Download the http://packages.packetfence.com/downloads/PacketFence/windows-packetfence-forwarder/PacketFence-Forwarder-Installer.exe[DHCP Forwarder installer].
 
 This installs `nPCAP`, `nssm`, launches a configurator for the interface, IP and port, saves the configuration, and finally installs and launches the DHCP-Forwarder service.
 
@@ -391,7 +391,7 @@ systemctl restart monit
 
 ==== Monitoring scripts
 
-Digitally signed scripts are included in the monit configuration which are fetched from http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/. These scripts will be updated and run at regular intervals to ensure the environment follows the best practices defined by Inverse and to email alerts of any important changes that may need to be performed.
+Digitally signed scripts are included in the monit configuration which are fetched from http://packages.packetfence.com/downloads/PacketFence/monitoring-scripts/v1/. These scripts will be updated and run at regular intervals to ensure the environment follows the best practices defined by Inverse and to email alerts of any important changes that may need to be performed.
 
 Run manually to help with troubleshooting:
 

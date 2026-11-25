@@ -163,14 +163,14 @@ NOTE: Make sure you are actually running the latest kernel prior to installing t
 
 ===== RHEL-based systems
 
-NOTE: On RHEL 8.x systems, as a preliminary step, you need to run: `rpm --import http://inverse.ca/downloads/GPG_PUBLIC_KEY` before installing `packetfence-release` package.
+NOTE: On RHEL 8.x systems, as a preliminary step, you need to run: `rpm --import http://packages.packetfence.com/downloads/GPG_PUBLIC_KEY` before installing `packetfence-release` package.
 
 In order to use the PacketFence repository:
 
 // subs=attributes allow to substitute {release_minor} in code block
 [source,bash,subs="attributes"]
 ----
-yum localinstall http://packetfence.org/downloads/PacketFence/RHEL8/packetfence-release-{release_minor}.el8.noarch.rpm
+yum localinstall http://packages.packetfence.com/downloads/PacketFence/RHEL8/packetfence-release-{release_minor}.el8.noarch.rpm
 ----
 
 Once the repository is defined, you can install PacketFence with all its dependencies, and the required external services (database server, DHCP server, RADIUS server) using:
@@ -188,7 +188,7 @@ In order to use the repository, you have to install the GPG key of the PacketFen
 ----
 apt-get update
 apt install gnupg sudo curl
-curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
+curl -fsSL https://packages.packetfence.com/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
 ----
 
 Create a file named [filename]`/etc/apt/sources.list.d/packetfence.list`:
@@ -196,7 +196,7 @@ Create a file named [filename]`/etc/apt/sources.list.d/packetfence.list`:
 // subs=attributes allow to substitute {release_minor} in code block
 [source,bash,subs="attributes"]
 ----
-echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/{release_minor} bookworm bookworm" > \
+echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://packages.packetfence.com/downloads/PacketFence/debian/{release_minor} bookworm bookworm" > \
 /etc/apt/sources.list.d/packetfence.list
 ----
 
