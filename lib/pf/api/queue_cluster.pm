@@ -22,7 +22,6 @@ use Moo;
 use List::Util qw(shuffle);
 use CHI;
 use pf::pfqueue::producer::redis;
-use pf::api::queue;
 use pf::api::jsonrpcclient;
 our $CHI_CACHE = CHI->new(driver => 'RawMemory', datastore => {});
 
@@ -91,13 +90,6 @@ sub call {
 
 sub notify {
     my ($self, $method, @args) = @_;
-    pf::api::queue::check_method($method);
-    return $self->_notify($method, @args);
-}
-
-# notify without checking the method, for the callers that already checked it
-sub _notify {
-    my ($self, $method, @args) = @_;
     if ($cluster_enabled) {
         $self->cluster_notify($method, @args);
     } else {
@@ -114,7 +106,6 @@ Send to the all available members of the cluster or locally (standalone)
 
 sub notify_all {
     my ($self, $method, @args) = @_;
-    pf::api::queue::check_method($method);
     if ($cluster_enabled) {
         $self->cluster_notify_all($method, @args);
     } else {
@@ -151,12 +142,11 @@ callers can use the same API regardless of queue configuration.
 
 sub notify_hashed {
     my ($self, $hash_key, $method, @args) = @_;
-    pf::api::queue::check_method($method);
     my $queue_conf = $ConfigPfqueue{queue_config}{$self->queue};
     if ($queue_conf && isenabled($queue_conf->{hashed})) {
         $self->local_notify_hashed($hash_key, $method, @args);
     } else {
-        $self->_notify($method, @args);
+        $self->notify($method, @args);
     }
     return;
 }
@@ -259,7 +249,6 @@ Send to the delayed queue
 
 sub notify_delayed {
     my ($self, $delay, $method, @args) = @_;
-    pf::api::queue::check_method($method);
     if ($cluster_enabled) {
         $self->cluster_notify_delayed($delay, $method, @args);
     } else {

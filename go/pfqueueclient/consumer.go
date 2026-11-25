@@ -2,7 +2,6 @@ package pfqueueclient
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -95,28 +94,32 @@ func (c *Consumer) ProcessNextQueueItem(ctx context.Context, queues []string) er
 			}
 
 			if statusUpdater != nil {
-				data, _ := json.Marshal(out)
-				statusUpdater.Failed(ctx, data)
+				statusUpdater.Failed(ctx, map[string]interface{}{"message": err.Error(), "status": 500})
 			}
 
 			return err
 		}
 
 		if statusUpdater != nil {
-			results, failed := taskReply(out)
-			if failed {
-				data, _ := json.Marshal(results)
-				statusUpdater.Failed(ctx, data)
-			} else if results != nil {
-				data, _ := json.Marshal(results)
-				statusUpdater.Complete(ctx, data)
-			}
+			reportTaskReply(ctx, statusUpdater, out)
 		}
 
 		break
 	}
 
 	return nil
+}
+
+// reportTaskReply marks the task failed on an error reply and completed on any
+// other reply, including a task that returned nothing. The status updater
+// encodes the results itself.
+func reportTaskReply(ctx context.Context, statusUpdater *StatusUpdater, out interface{}) {
+	results, failed := taskReply(out)
+	if failed {
+		statusUpdater.Failed(ctx, results)
+	} else {
+		statusUpdater.Complete(ctx, results)
+	}
 }
 
 // taskReply reads the reply of pfqueue-backend: {"error": ...} when the task

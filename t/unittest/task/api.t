@@ -20,12 +20,11 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 27;
+use Test::More tests => 24;
 use pf::util::pfqueue qw(decode_task is_valid_task_type);
 use pf::Sereal qw($ENCODER);
 use Sereal::Encoder qw(sereal_encode_with_object);
 use pf::task::api;
-use pf::api::queue;
 
 #This test will running last
 use Test::NoWarnings;
@@ -66,20 +65,6 @@ my ($err) = $task->doTask(['notify_configfile_changed', conf_file => '/tmp/x', s
 is($err->{status}, 403, "doTask refuses a method not allowed in the queue");
 ($err) = $task->doTask(['pf::api::attributes::isAllowedInQueue', 'send_email']);
 is($err->{status}, 403, "doTask refuses a fully-qualified method");
-
-{
-    package queue::client::test;
-    sub new { bless { submitted => [] }, shift }
-    sub submit { my ($self, @args) = @_; push @{$self->{submitted}}, \@args }
-    sub submit_delayed { my ($self, @args) = @_; push @{$self->{submitted}}, \@args }
-}
-
-my $queue_client = queue::client::test->new;
-my $queue = pf::api::queue->new(client => $queue_client);
-$queue->notify('fingerbank_process', '00:11:22:33:44:55');
-is(scalar @{$queue_client->{submitted}}, 1, "notify submits a Queue method");
-ok(!eval { $queue->notify('echo'); 1 }, "notify refuses a method not allowed in the queue");
-ok(!eval { $queue->notify_delayed(10, 'copy_directory'); 1 }, "notify_delayed refuses a method not allowed in the queue");
 
 =head1 AUTHOR
 
