@@ -512,12 +512,12 @@ class ConfigurationTest(unittest.TestCase):
                 dependencies = pipelines.dependencies[name]
                 if dependencies and not set(dependencies) & jobs:
                     problems.setdefault((name, 'depends only on absent ' + ','.join(dependencies)), context)
+                if needs and stage and stage.startswith('deploy') and not any(n['job'] in jobs for n in needs):
+                    problems.setdefault((name, 'starts before every earlier stage'), context)
             ppa = {n for n in pipelines.jobs if n.startswith('publish_ppa') and '_img' not in n}
             tests = {n for n in jobs if (pipelines.jobs[n][2] or '').startswith('test')}
             if tests and not ppa & jobs:
                 problems.setdefault((sorted(tests)[0], 'tests without the pipeline PPA'), context)
-                if needs and stage and stage.startswith('deploy') and not any(n['job'] in jobs for n in needs):
-                    problems.setdefault((name, 'starts before every earlier stage'), context)
             off = (env.get('BUILD_IMG_CONTAINER') == 'no' or env.get('BUILD_ARTIFACTS_PKG') == 'no'
                    or env.get('DEPLOY_PKG') in ('no', 'false') or 'build_img_container=no' in env['CI_COMMIT_MESSAGE'])
             for name in deploys & jobs if off else ():
