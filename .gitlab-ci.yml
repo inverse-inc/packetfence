@@ -173,7 +173,7 @@ variables:
     - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
     - if: '$CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
     # The ISO installs this pipeline's packages: not when none are built.
-    - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && $BUILD_ARTIFACTS_PKG != "no" && ($BUILD_PF_IMG_DVD_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_dvd_usb_iso=yes/)'
+    - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ($BUILD_ARTIFACTS_PKG != "no" || $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/) && ($BUILD_PF_IMG_DVD_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_dvd_usb_iso=yes/)'
 
 # run jobs only when:
 # - on devel branch (push, web, *not* schedule) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
@@ -231,7 +231,7 @@ variables:
 .build_pf_img_dvd_usb_iso_any_branch_rules:
   rules:
     # The ISO installs this pipeline's packages: not when none are built.
-    - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && $BUILD_ARTIFACTS_PKG != "no" && ($BUILD_PF_IMG_DVD_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_dvd_usb_iso=yes/)'
+    - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ($BUILD_ARTIFACTS_PKG != "no" || $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/) && ($BUILD_PF_IMG_DVD_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_dvd_usb_iso=yes/)'
 
 .build_artifacts_material_devel_and_branches_rules:
   rules:
