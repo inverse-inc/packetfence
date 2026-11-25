@@ -237,6 +237,18 @@ class ConfigurationTest(unittest.TestCase):
         self.assertIn('if [[ "${CI_COMMIT_REF_NAME:-}" != devel ]]; then', block)
         self.assertLess(block.index('exit 1'), block.index('continue'))
 
+    def test_every_ansible_requirement_installs_from_the_package_origin(self):
+        # inverse_inc.packetfence before 1.3.0 hard-codes inverse.ca in its repository line.
+        pins = {}
+        for path in ROOT.glob('**/requirements.yml'):
+            data = yaml.safe_load(path.read_text()) or {}
+            for item in data.get('collections', []) if isinstance(data, dict) else []:
+                if isinstance(item, dict) and item.get('name') == 'inverse_inc.packetfence':
+                    pins[str(path.relative_to(ROOT))] = str(item.get('version'))
+        self.assertTrue(pins)
+        for path, version in pins.items():
+            self.assertGreaterEqual(tuple(int(x) for x in version.split('.')), (1, 3, 0), path)
+
     def test_a_pulp_error_is_not_a_missing_native_repository(self):
         # Unreachable Pulp: exit 2, which every caller turns into a failure (never the devel skip or the file tree).
         env = {'PATH': os.environ['PATH'], 'PULP_URL': 'http://127.0.0.1:9', 'PULP_USERNAME': 'u', 'PULP_PASSWORD': 'p'}
