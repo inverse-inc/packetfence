@@ -32,6 +32,7 @@ PF_PACKAGE_ORIGIN=${PF_PACKAGE_ORIGIN:-https://packages.packetfence.com}
 [[ $PF_PACKAGE_ORIGIN =~ ^https://[a-zA-Z0-9.-]+(:[0-9]+)?$ ]] || { echo 'PF_PACKAGE_ORIGIN must be an HTTPS origin' >&2; exit 1; }
 [[ -n ${PSONO_CI_PULP_PACKAGES_ID:-} ]] || { echo 'PSONO_CI_PULP_PACKAGES_ID is empty: set it in the repository variables' >&2; exit 1; }
 python3 -c 'import requests_toolbelt' 2>/dev/null || { echo 'python3-requests-toolbelt is missing from the job image' >&2; exit 1; }
+[[ $kind != rpm ]] || python3 -c 'import rpm' 2>/dev/null || { echo 'python3-rpm is missing from the job image' >&2; exit 1; }
 PULP_USERNAME=$(bash ci/pulp/psono-field.sh "$PSONO_CI_PULP_PACKAGES_ID" username)
 PULP_PASSWORD=$(bash ci/pulp/psono-field.sh "$PSONO_CI_PULP_PACKAGES_ID" password)
 export PULP_URL=$PF_PACKAGE_ORIGIN PULP_USERNAME PULP_PASSWORD
@@ -41,7 +42,7 @@ native=$(python3 ci/pulp/native.py "$kind" "$release" "$target") || status=$?
 if (( status )); then
     # As publish-packages.sh: only devel may run ahead of the packaging side (an unreleased X.Y).
     if [[ $branch == devel ]]; then
-        echo "No native $os repository for $release yet (devel): the $image packages are not published"
+        echo "::warning::No native $os repository for $release yet (devel): the $image packages are not published; re-run this workflow once it exists"
         exit 0
     fi
     echo "No native $os repository for $release on $PF_PACKAGE_ORIGIN: create or grant it on the packaging side" >&2
@@ -52,7 +53,7 @@ for package in "$@"; do
     status=0
     version=$(python3 ci/pulp/published.py "$kind" "$native" "$package") || status=$?
     case $status in
-        0) echo "$version is already in $native: left as it is" ;;
+        0) echo "::warning::$version is already in $native: left as it is (bump the version to publish a change)" ;;
         1) packages+=("$package") ;;
         *) exit 1 ;;
     esac
