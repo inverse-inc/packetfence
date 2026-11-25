@@ -198,6 +198,31 @@ sub _save_user_session {
     $c->_user_session_backend->set("user_session:".$c->browser_session_id, $c->user_session);
 }
 
+=head2 renew_browser_session_id
+
+Move the user session to a new browser session ID, and send it in the session
+cookie. Called after a successful login, so the browser session ID used before
+the login doesn't give access to the user session.
+
+=cut
+
+sub renew_browser_session_id {
+    my ($c) = @_;
+    my $backend = $c->_user_session_backend;
+    my $old_id = $c->browser_session_id;
+    my $user_session = $c->user_session;
+    my $new_id = $c->generate_session_id;
+
+    $c->stash->{browser_session_id} = $new_id;
+    delete $c->stash->{browser_session_id_from_relay_state};
+    $backend->set("user_session:".$new_id, $user_session);
+    $backend->remove("user_session:".$old_id) if defined($old_id) && $old_id ne $new_id;
+
+    my $cookie_name = $c->_session_plugin_config->{cookie_name};
+    $c->response->cookies->{$cookie_name} = $c->make_session_cookie($new_id);
+    return $new_id;
+}
+
 =head2 user_session
 
 A secure user session based on the session ID and not only the MAC
