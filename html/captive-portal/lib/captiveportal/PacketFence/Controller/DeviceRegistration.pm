@@ -91,7 +91,7 @@ sub index : Path : Args(0) {
     }
 
     my $device_reg_profile = $c->profile->{'_self_service'};
-    my @registration_roles = map { { value => $_, label => $_ } } split(',', $ConfigSelfService{$device_reg_profile}{'device_registration_roles'});
+    my @registration_roles = map { { value => $_, label => $_ } } registration_roles($ConfigSelfService{$device_reg_profile}{'device_registration_roles'});
     $c->stash->{device_registration_list_roles} = \@registration_roles;
     # User is authenticated so display registration page
     $c->stash(title => "Registration", template => 'device-registration/registration.html');
@@ -194,6 +194,18 @@ sub registerNode : Private {
     }
 }
 
+=head2 registration_roles
+
+The roles of device_registration_roles (a comma separated list), without the
+spaces around them: the roles shown on the page and accepted
+
+=cut
+
+sub registration_roles {
+    my ($roles) = @_;
+    return grep { $_ ne '' } map { s/^\s+|\s+$//gr } split(/,/, $roles // '');
+}
+
 =head2 registration_role
 
 Returns the role of a device registration from the device_registration_roles
@@ -206,7 +218,7 @@ authentication source.
 
 sub registration_role {
     my ($roles, $requested) = @_;
-    my @allowed = grep { $_ ne '' } map { s/^\s+|\s+$//gr } split(/,/, $roles // '');
+    my @allowed = registration_roles($roles);
     return undef if !@allowed;
     if (defined($requested) && grep { $_ eq $requested } @allowed) {
         return $requested;

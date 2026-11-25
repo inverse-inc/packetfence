@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 9;
+use Test::More tests => 11;
 use Test::NoWarnings;
 
 use_ok('captiveportal::PacketFence::Controller::DeviceRegistration');
@@ -34,6 +34,8 @@ is($registration_role->(' guest , default ', 'default'), 'default', 'spaces arou
 is($registration_role->('guest', 'guest '), 'guest', 'requested role with a space is not in the list');
 is($registration_role->('', 'gaming'), undef, 'requested role is ignored without a list');
 is($registration_role->(undef, 'gaming'), undef, 'requested role is ignored without a list (undef)');
+is_deeply([captiveportal::PacketFence::Controller::DeviceRegistration::registration_roles(' guest , default,')], ['guest', 'default'], 'the roles shown are the trimmed roles of the list');
+is_deeply([captiveportal::PacketFence::Controller::DeviceRegistration::registration_roles(undef)], [], 'no roles without a list');
 
 =head1 AUTHOR
 
