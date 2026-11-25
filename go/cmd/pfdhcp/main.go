@@ -861,7 +861,7 @@ func (I *Interface) findHandlerAndNetwork(p dhcp.Packet, mac net.HardwareAddr, d
 				if x, found := NodeCache.Get(p.CHAddr().String()); found {
 					node = x.(NodeInfo)
 				} else {
-					node = NodeInformation(ctx, p.CHAddr(), db)
+					node = nodeInformation(ctx, p.CHAddr(), db)
 					NodeCache.Set(p.CHAddr().String(), node, 3*time.Second)
 				}
 
@@ -877,6 +877,7 @@ func (I *Interface) findHandlerAndNetwork(p dhcp.Packet, mac net.HardwareAddr, d
 				if v.dhcpHandler.role == category {
 					handler = *v.dhcpHandler
 					NetScope = v.network
+					found = true
 					break
 				}
 				continue

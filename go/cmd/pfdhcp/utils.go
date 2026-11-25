@@ -181,6 +181,9 @@ func (d *Interfaces) detectVIP(ctx context.Context, Interfaces []*net.Interface,
 	}
 }
 
+// nodeInformation is NodeInformation, replaced in tests that have no database.
+var nodeInformation = NodeInformation
+
 // NodeInformation return the node information
 func NodeInformation(ctx context.Context, target net.HardwareAddr, db *sql.DB) (r NodeInfo) {
 
