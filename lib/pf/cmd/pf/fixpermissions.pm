@@ -236,7 +236,11 @@ sub _removeOthersPermissions {
     return unless defined $pf_uid && defined $pf_gid;
     my $plugins_dir = _canonical_path($ui_plugins_conf_dir);
     find({no_chdir => 1, untaint => 1, wanted => sub {
-        my $file = $File::Find::name;
+        # $File::Find::name comes from readdir, so it is tainted under -T
+        # (pfcmd), and so is everything lstat returns for it: the path is
+        # untainted before the lstat, or chmod dies on the tainted mode.
+        my $file = untaint_chain($File::Find::name);
+        return unless defined $file;
         if (-d $file && _canonical_path($file) eq $plugins_dir) {
             $File::Find::prune = 1;
             return;
@@ -246,7 +250,7 @@ sub _removeOthersPermissions {
         return unless defined $mode && -f _;
         return unless $mode & 07;
         return unless $uid == $pf_uid || $gid == $pf_gid;
-        chmod($mode & 07770, untaint_chain($file))
+        chmod($mode & 07770, $file)
             or warn qq(Couldn't change the mode of "$file"\n);
     }}, @paths);
 }
