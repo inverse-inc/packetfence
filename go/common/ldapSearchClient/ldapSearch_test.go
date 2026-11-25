@@ -106,6 +106,20 @@ var _ = Describe("LdapSearch", func() {
 				Expect(ldapClientSpy.DialTLSCallCount).To(Equal(0))
 			})
 
+			It("should ignore the CA file when verify is none", func() {
+				ldapServer.Encryption = "ssl"
+				ldapServer.Verify = "none"
+				ldapServer.CAFile = "/nonexistent/ca.pem"
+				serverCount := len(ldapServer.AuthenticationSourceLdap.Host)
+
+				searchClientInstance.SearchLdap(searchQuery)
+
+				// every server is tried, none is skipped for the CA file
+				Expect(ldapClientSpy.DialTLSCallCount).To(Equal(serverCount))
+				Expect(ldapClientSpy.LastTLSConfig.InsecureSkipVerify).To(BeTrue())
+				Expect(ldapClientSpy.LastTLSConfig.RootCAs).To(BeNil())
+			})
+
 			It("should call ldap client factory", func() {
 				ldapServer.Host = []string{"fakeHostname"}
 				ldapServer.Port = "389"

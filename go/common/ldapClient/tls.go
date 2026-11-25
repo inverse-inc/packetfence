@@ -13,14 +13,13 @@ import (
 // serverName, the configured host. The server certificate is verified against
 // that name unless the source's verify is "none", also when the session goes
 // through a connector (the socket then points to the connector, not to the
-// server). The CA file and the client certificate and key of the source are
-// used when they are set.
+// server). The CA file of the source is used when it is set and the server is
+// verified (as the Perl clients, which ignore it when verify is none); the
+// client certificate and key are used whenever they are set.
 func TLSConfig(source pfconfigdriver.AuthenticationSourceLdap, serverName string) (*tls.Config, error) {
-	config := &tls.Config{ServerName: serverName}
-	if source.Verify == "" || source.Verify == "none" {
-		config.InsecureSkipVerify = true
-	}
-	if source.CAFile != "" {
+	verify := source.Verify != "" && source.Verify != "none"
+	config := &tls.Config{ServerName: serverName, InsecureSkipVerify: !verify}
+	if verify && source.CAFile != "" {
 		pem, err := os.ReadFile(source.CAFile)
 		if err != nil {
 			return nil, fmt.Errorf("unable to read the CA file %s: %w", source.CAFile, err)
