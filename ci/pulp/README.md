@@ -12,7 +12,7 @@ DNS points at it; until then they still serve the older hosts.
 | Job | When | Destination |
 |---|---|---|
 | `check_pulp_release` | release tags, first | stops the pipeline unless the tag matches `conf/pf-release`, Pulp has this version's repositories (prepared by the release on the packaging side) and, for `vX.Y.0`, the new devel carries every package of X.Y (a later `vX.Y.Z` only warns); it publishes nothing |
-| `publish_ppa_devel_release_branches_and_maintenance` | pipelines that build packages | `gitlab/<pipeline>/`, used by the CI tests (pruned after 3 days) |
+| `publish_ppa_devel_release_branches_and_maintenance` | release tags, requested tests | `gitlab/<pipeline>/`, used by the CI tests (pruned after 3 days) |
 | `deploy_maintenance_pulp` | `maintenance/X.Y`, after the tests | `debian/X.Y/`, `RHEL<N>/X.Y/x86_64/` |
 | `deploy_branches_pulp` | feature branches with `DEPLOY_PKG=yes` (or `true`), after the tests | `debian/branches/X.Y/<pipeline>/`, `RHEL<N>/branches/X.Y/<pipeline>/x86_64/` |
 | `deploy_maintenance_pkg_friendly_names` | `maintenance/X.Y` | `packetfence-release/-export/-upgrade/-ci-lib` in `debian/`, `RHEL<N>/` |
@@ -36,7 +36,7 @@ place CI publishes packages.
 ### When packages are deployed
 
 The deploy jobs run in the `deploy` stage: after the tests when the pipeline runs some
-(`TEST=yes`, `TEST_ONLY=…`, `TEST_CLUSTER=yes`) and only if they pass; without tests, as soon as the build,
+(`TEST=yes`) and only if they pass; without tests, as soon as the build,
 signing, publish and image steps succeed. `DEPLOY_PKG` decides whether a pipeline deploys
 (`yes`/`true`, `no`/`false`):
 
@@ -46,8 +46,20 @@ signing, publish and image steps succeed. `DEPLOY_PKG` decides whether a pipelin
 | release tag `vX.Y.Z` | never: its packages are already there from `maintenance/X.Y`; the tag runs the tests (configurator included), and ISO, ZEN and Vagrant stay manual jobs | — |
 | feature branch (web, API, schedule) | only when asked, to `debian/branches/X.Y/<pipeline>/` and `RHEL<N>/branches/X.Y/<pipeline>/`, its images under their pipeline tag | `DEPLOY_PKG=yes`, or `deploy_pkg=yes` in the commit message |
 
-The publish job (the pipeline's `gitlab/<pipeline>/` tree) runs whenever the pipeline builds packages,
-since the tests install from it.
+Images of a release: the packages in `debian/X.Y` and `RHEL<N>/X.Y` are `maintenance/X.Y` builds, so a server
+pulls the branch tag `maintenance-X-Y` (`conf/build_id`), not `vX.Y.Z`. Every later `maintenance/X.Y` deploy
+moves that tag, after the packages that go with it; a server that pulls its images again without upgrading
+its packages gets the newer ones. The `vX.Y.Z` images the tag pipeline builds are not referenced by any package.
+
+`BUILD_ARTIFACTS_PKG=no` and `BUILD_IMG_CONTAINER=no` (or `build_img_container=no` in the commit message)
+stop every deploy too, even when requested tests build the packages and images anyway.
+
+The deploy jobs have GitLab environments so that the project setting *Prevent outdated deployment jobs*
+(Settings > CI/CD > General pipelines) applies: it must stay on, or an older pipeline that finishes last puts
+its older packages and images back.
+
+The publish job (the pipeline's `gitlab/<pipeline>/` tree) runs on release tags and when tests are
+requested, since those install from it; a deploy builds its own tree from the signed packages.
 
 ### Feature branches
 
