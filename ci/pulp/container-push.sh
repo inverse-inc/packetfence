@@ -49,7 +49,8 @@ trap 'rm -f "$auth"' EXIT
 printf '{}' > "$auth"  # skopeo reads the auth file as JSON before writing the login
 printf '%s' "$password" | skopeo login --authfile "$auth" --username "$username" --password-stdin "$registry" >/dev/null
 
-pushed=0
+# First every image is checked, then copied: a refusal leaves the registry untouched.
+ready=()
 untagged=()
 for image in $(python3 -c 'import json; print(" ".join(json.load(open("ci/pulp/container-images.json"))["images"]))'); do
     # Read anonymously: an image that is not public on GHCR never reaches the registry. Images
@@ -66,6 +67,17 @@ for image in $(python3 -c 'import json; print(" ".join(json.load(open("ci/pulp/c
         fi
         continue
     fi
+    ready+=("$image")
+done
+(( ${#untagged[@]} == 0 )) || echo "Without the $source_tag tag (not built by this pipeline), skipped: ${untagged[*]}"
+(( ${#ready[@]} )) || { echo "No image carries the pipeline tag $source_tag" >&2; exit 1; }
+# Every pipeline builds these: without them the tag would name a partial release.
+for core in pfcmd radiusd; do
+    [[ " ${ready[*]} " == *" $core "* ]] || { echo "$core lacks the pipeline tag $source_tag: partial build" >&2; exit 1; }
+done
+
+pushed=0
+for image in "${ready[@]}"; do
     for tag in ${tags//,/ }; do
         # Same manifests and digests as on GitHub, every architecture.
         skopeo copy --all --preserve-digests --retry-times 3 --dest-authfile "$auth" \
@@ -73,11 +85,5 @@ for image in $(python3 -c 'import json; print(" ".join(json.load(open("ci/pulp/c
         echo "pushed $destination/$image:$tag"
         pushed=$((pushed + 1))
     done
-done
-(( ${#untagged[@]} == 0 )) || echo "Without the $source_tag tag (not built by this pipeline), skipped: ${untagged[*]}"
-[ "$pushed" -gt 0 ] || { echo "No image carries the pipeline tag $source_tag" >&2; exit 1; }
-# Every pipeline builds these: without them the tag would name a partial release.
-for core in pfcmd radiusd; do
-    [[ " ${untagged[*]} " != *" $core "* ]] || { echo "$core lacks the pipeline tag $source_tag: partial build" >&2; exit 1; }
 done
 echo "$pushed image tags pushed to $registry"

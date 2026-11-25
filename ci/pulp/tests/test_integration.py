@@ -225,7 +225,7 @@ class ConfigurationTest(unittest.TestCase):
                     fake = work/'skopeo'
                     fake.write_text('#!/bin/sh\ncase "$*" in "inspect "*) case "$*" in ' + broken + ' '
                                     '*pfcmd:p-7*|*radiusd:p-7*) exit 0;; *) echo "manifest unknown" >&2; exit 1;; esac;; '
-                                    '"login "*) cat > /dev/null;; esac\n')
+                                    '"login "*) cat > /dev/null;; "copy "*) echo "$*" >> ' + str(work/'copies') + ';; esac\n')
                     fake.chmod(0o700)
                     env = dict(os.environ, **PSONO_ENV, PATH=str(work)+os.pathsep+os.environ['PATH'],
                                TEST_PSONO=str(work/'psono'), CI_COMMIT_BRANCH='devel', CI_PIPELINE_SOURCE='web',
@@ -234,6 +234,7 @@ class ConfigurationTest(unittest.TestCase):
                                             capture_output=True, text=True)
                     self.assertNotEqual(result.returncode, 0)
                     self.assertIn(message, result.stderr)
+                    self.assertFalse((work/'copies').exists(), 'nothing is pushed before every image is checked')
 
     def test_a_release_publish_requires_every_native_el_repository(self):
         script = (ROOT/'ci/pulp/publish-packages.sh').read_text()
