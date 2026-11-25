@@ -1579,6 +1579,31 @@ has local IDs, a security event whose triggers all use a local entry, or a
 `device_is_not` trigger on a local entry, which matches every device. Replace or
 remove them.
 
+=== Downloadable ACLs from a proxied RADIUS server
+
+The `ProxyServerDownloadableACL` filter in
+[filename]`conf/radius_filters.conf.defaults` (disabled by default) forwards
+`acl-download` requests from Cisco switches to the proxied RADIUS server (e.g.
+Cisco ISE or ACS) that assigned the downloadable ACL. Enabling it requires
+`filter_in_packetfence_authorize=enabled` in [filename]`pf.conf` (Configuration
+> RADIUS > General). Restart all RADIUS instances after enabling it:
+
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service radiusd restart
+----
+
+Once `filter_in_packetfence_authorize` is enabled, all existing
+`packetfence.authorize` rules also evaluate against `acl-download` requests
+(User-Name `#ACSACL#-IP-<name>-<version>`). An existing broad rule (catch-all,
+connection-type, switch-based) will now match these requests. Before enabling
+the filter, review your `packetfence.authorize` rules in
+[filename]`conf/radius_filters.conf` and add `user_name !~ "^#ACSACL#-IP"` as a
+condition where needed: a rule that matches one of these requests without
+setting `control:Proxy-To-Realm` to the realm of the server that assigned the
+ACL rejects the request.
+
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]

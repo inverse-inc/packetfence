@@ -125,6 +125,24 @@
 #merge_answer=yes
 #condition=radius_request.username =~ "^bobacme.*"
 #
+# When the RADIUS server of a proxied realm (e.g. Cisco ISE) answers with a
+# downloadable ACL (Cisco-AVPair ACS:CiscoSecure-Defined-ACL=#ACSACL#-IP-...),
+# the Cisco switch asks PacketFence for its content. The ProxyServerDownloadableACL
+# filter (radius_filters.conf.defaults, disabled) sends these requests to the
+# realm of that server, which answers with as many Access-Challenge as the ACL
+# needs: enable it and set the realm in its answer.
+#
+# PREREQUISITE: filter_in_packetfence_authorize must be set to enabled in pf.conf
+# (Configuration > RADIUS > General). Restart all RADIUS instances afterwards:
+#   /usr/local/pf/bin/pfcmd service radiusd restart
+#
+# UPGRADE NOTE: once filter_in_packetfence_authorize is enabled, every existing
+# packetfence.authorize rule also applies to acl-download requests. Review your
+# rules (and add a condition excluding user_name =~ "^#ACSACL#-IP" where needed)
+# so they don't match server ACL downloads unintentionally: a rule that matches
+# one of these requests without setting control:Proxy-To-Realm rejects it, and
+# the realm must be the one of the server that assigned the ACL (not LOCAL).
+#
 #### preacct example ####
 #
 # There is some cases where you want to override the radius flow, like changing the value of Proxy-To-Realm to force the request to be sent to a specific Realm bases on the username (for accounting).
