@@ -303,11 +303,12 @@ func (fw *FirewallSSO) getDst(ctx context.Context, proto string, toIP string, to
 }
 
 // noRoleWarningInterval is how often the warning about a firewall without any
-// role is logged: roles are optional in the form, and the check runs for every
-// SSO event (every DHCP update on a busy server).
+// role is logged, and how often a skipped SSO is logged at INFO for a firewall
+// and a reason: the checks run for every SSO event (every DHCP update on a busy
+// server), so they can't all be logged above DEBUG.
 const noRoleWarningInterval = 5 * time.Minute
 
-// warningLimiter remembers when a warning was last logged for each firewall
+// warningLimiter remembers when a message was last logged for each key
 type warningLimiter struct {
 	mu   sync.Mutex
 	last map[string]time.Time
@@ -315,7 +316,11 @@ type warningLimiter struct {
 
 var noRoleWarnings = &warningLimiter{last: map[string]time.Time{}}
 
-// shouldWarn tells whether the warning of a firewall is due, and records it
+// skippedSSOLogs limits the INFO lines about SSO events skipped by a firewall,
+// one per firewall and reason per interval
+var skippedSSOLogs = &warningLimiter{last: map[string]time.Time{}}
+
+// shouldWarn tells whether the warning of a key is due, and records it
 func (l *warningLimiter) shouldWarn(id string, now time.Time) bool {
 	l.mu.Lock()
 	defer l.mu.Unlock()
@@ -324,6 +329,24 @@ func (l *warningLimiter) shouldWarn(id string, now time.Time) bool {
 	}
 	l.last[id] = now
 	return true
+}
+
+// skippedSSOLogged tells whether the skip of an SSO event by a firewall, for a
+// reason ("status", "role", "network"), is due for an INFO line, and records it
+func skippedSSOLogged(firewallID, reason string, now time.Time) bool {
+	return skippedSSOLogs.shouldWarn(firewallID+"|"+reason, now)
+}
+
+// logSkippedSSO logs why a firewall skips an SSO event. The first skip of a
+// firewall for a reason is logged at INFO, then once per interval, so an
+// operator can see from packetfence.log why a device gets no SSO (#9059)
+// without a debug log; the other skips are logged at DEBUG.
+func logSkippedSSO(ctx context.Context, fw FirewallSSOInt, reason, msg string) {
+	if skippedSSOLogged(fw.GetFirewallSSO(ctx).PfconfigHashNS, reason, time.Now()) {
+		log.LoggerWContext(ctx).Info(fmt.Sprintf("%s (logged once every %s for this firewall and reason, the others at debug level)", msg, noRoleWarningInterval))
+	} else {
+		log.LoggerWContext(ctx).Debug(msg)
+	}
 }
 
 // Execute an SSO Start request on the specified firewall
@@ -346,11 +369,13 @@ func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string
 		return false, nil
 	}
 
-	// Expected filtering (status, role, network) is logged at DEBUG: it happens for
-	// every SSO event of every firewall that does not apply. A firewall without any
-	// role applies to no device at all, a misconfiguration worth a warning.
+	// Expected filtering (status, role, network) happens for every SSO event of
+	// every firewall that does not apply: it is logged at INFO once per interval
+	// for each firewall and reason (see logSkippedSSO), at DEBUG otherwise. A
+	// firewall without any role applies to no device at all, a misconfiguration
+	// worth a warning.
 	if !fw.CheckStatus(ctx, info) {
-		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO Start since the device is not registered (status '%s')", info["status"]))
+		logSkippedSSO(ctx, fw, "status", fmt.Sprintf("Not sending SSO Start for %s (%s) since the device is not registered (status '%s')", info["mac"], info["ip"], info["status"]))
 		return false, nil
 	}
 
@@ -363,13 +388,13 @@ func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string
 				log.LoggerWContext(ctx).Debug(msg)
 			}
 		} else {
-			log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO Start since the role '%s' is not one of the roles of this firewall (%s)", info["role"], strings.Join(roles, ", ")))
+			logSkippedSSO(ctx, fw, "role", fmt.Sprintf("Not sending SSO Start for %s (%s) since the role '%s' is not one of the roles of this firewall (%s)", info["mac"], info["ip"], info["role"], strings.Join(roles, ", ")))
 		}
 		return false, nil
 	}
 
 	if !fw.MatchesNetwork(ctx, info) {
-		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO Start for IP %s since it doesn't match any configured network", info["ip"]))
+		logSkippedSSO(ctx, fw, "network", fmt.Sprintf("Not sending SSO Start for %s (%s) since the IP doesn't match any configured network", info["mac"], info["ip"]))
 		return false, nil
 	}
 	log.LoggerWContext(ctx).Info("Processing SSO Start")
@@ -413,7 +438,7 @@ func ExecuteStop(ctx context.Context, fw FirewallSSOInt, info map[string]string)
 	}
 
 	if !fw.MatchesNetwork(ctx, info) {
-		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO Stop for IP %s since it doesn't match any configured network", info["ip"]))
+		logSkippedSSO(ctx, fw, "network", fmt.Sprintf("Not sending SSO Stop for %s (%s) since the IP doesn't match any configured network", info["mac"], info["ip"]))
 		return false, nil
 	}
 	log.LoggerWContext(ctx).Info("Processing SSO Stop")

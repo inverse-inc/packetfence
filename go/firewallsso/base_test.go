@@ -305,6 +305,29 @@ func TestFormatUsername(t *testing.T) {
 	}
 }
 
+// A skipped SSO is logged at INFO once per interval for each firewall and
+// reason: the first device refused for a reason is visible in packetfence.log,
+// the following ones within the interval go to the debug log
+func TestSkippedSSOLogLimiter(t *testing.T) {
+	skippedSSOLogs = &warningLimiter{last: map[string]time.Time{}}
+	start := time.Now()
+	if !skippedSSOLogged("fw1", "status", start) {
+		t.Error("the first skip of a firewall for a reason is logged")
+	}
+	if skippedSSOLogged("fw1", "status", start.Add(time.Minute)) {
+		t.Error("the same reason within the interval is not logged again")
+	}
+	if !skippedSSOLogged("fw1", "role", start.Add(time.Minute)) {
+		t.Error("another reason of the same firewall is logged")
+	}
+	if !skippedSSOLogged("fw2", "status", start.Add(time.Minute)) {
+		t.Error("the same reason of another firewall is logged")
+	}
+	if !skippedSSOLogged("fw1", "status", start.Add(noRoleWarningInterval)) {
+		t.Error("the reason is logged again once the interval is over")
+	}
+}
+
 // The warning about a firewall without any role is logged once per interval
 // and per firewall, not for every SSO event
 func TestNoRoleWarningLimiter(t *testing.T) {
