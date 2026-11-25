@@ -37,7 +37,7 @@ done
 : "${PF_PACKAGE_ORIGIN:?}"
 [[ $PF_PACKAGE_ORIGIN =~ ^https://([a-zA-Z0-9.-]+(:[0-9]+)?)$ ]] || { echo 'PF_PACKAGE_ORIGIN must be an HTTPS origin' >&2; exit 1; }
 registry=${BASH_REMATCH[1]}
-[[ -n ${PSONO_CI_PULP_DOCKER_ID:-} ]] || { echo 'PSONO_CI_PULP_DOCKER_ID is empty. GitLab gives the Pulp credentials to protected branches only: protect this branch, or deploy from one that is' >&2; exit 1; }
+[[ -n ${PSONO_CI_PULP_DOCKER_ID:-} ]] || { echo 'PSONO_CI_PULP_DOCKER_ID is empty: set it in the GitLab CI/CD variables, not protected (feature branches publish too)' >&2; exit 1; }
 username=$(bash ci/pulp/psono-field.sh "$PSONO_CI_PULP_DOCKER_ID" username)
 password=$(bash ci/pulp/psono-field.sh "$PSONO_CI_PULP_DOCKER_ID" password)
 source=ghcr.io/inverse-inc/packetfence
@@ -50,12 +50,19 @@ printf '{}' > "$auth"  # skopeo reads the auth file as JSON before writing the l
 printf '%s' "$password" | skopeo login --authfile "$auth" --username "$username" --password-stdin "$registry" >/dev/null
 
 pushed=0
+untagged=()
 for image in $(python3 -c 'import json; print(" ".join(json.load(open("ci/pulp/container-images.json"))["images"]))'); do
     # Read anonymously: an image that is not public on GHCR never reaches the registry. Images
     # without this pipeline's tag (builders, tools) are not part of this release.
-    if ! error=$(skopeo inspect --raw "docker://$source/$image:$source_tag" 2>&1 >/dev/null); then
-        if grep -qiE 'denied|unauthorized|authentication required' <<<"$error"; then
+    # Anything else (5xx, rate limit, network) fails: a skipped image would mix releases on the registry.
+    if ! error=$(skopeo inspect --retry-times 3 --raw "docker://$source/$image:$source_tag" 2>&1 >/dev/null); then
+        if grep -qiE 'manifest unknown|not found' <<<"$error"; then
+            untagged+=("$image")
+        elif grep -qiE 'denied|unauthorized|authentication required' <<<"$error"; then
             echo "$image: not public on GHCR (private or not created yet), skipped"
+        else
+            echo "$image: cannot read $source/$image:$source_tag on GHCR: $error" >&2
+            exit 1
         fi
         continue
     fi
@@ -67,5 +74,10 @@ for image in $(python3 -c 'import json; print(" ".join(json.load(open("ci/pulp/c
         pushed=$((pushed + 1))
     done
 done
+(( ${#untagged[@]} == 0 )) || echo "Without the $source_tag tag (not built by this pipeline), skipped: ${untagged[*]}"
 [ "$pushed" -gt 0 ] || { echo "No image carries the pipeline tag $source_tag" >&2; exit 1; }
+# Every pipeline builds these: without them the tag would name a partial release.
+for core in pfcmd radiusd; do
+    [[ " ${untagged[*]} " != *" $core "* ]] || { echo "$core lacks the pipeline tag $source_tag: partial build" >&2; exit 1; }
+done
 echo "$pushed image tags pushed to $registry"

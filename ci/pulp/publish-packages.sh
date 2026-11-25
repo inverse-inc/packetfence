@@ -19,7 +19,7 @@ MODE=${1:?ppa, branches, release or files}
 [[ "$PF_PACKAGE_ORIGIN" =~ ^https://[a-zA-Z0-9.-]+(:[0-9]+)?$ ]] || { echo 'PF_PACKAGE_ORIGIN must be an HTTPS origin' >&2; exit 1; }
 [[ "$CI_PIPELINE_ID" =~ ^[1-9][0-9]*$ ]] || exit 2
 # The ci-packages account: username and password read from Psono.
-[[ -n ${PSONO_CI_PULP_PACKAGES_ID:-} ]] || { echo 'PSONO_CI_PULP_PACKAGES_ID is empty. GitLab gives the Pulp credentials to protected branches only: protect this branch, or deploy from one that is' >&2; exit 1; }
+[[ -n ${PSONO_CI_PULP_PACKAGES_ID:-} ]] || { echo 'PSONO_CI_PULP_PACKAGES_ID is empty: set it in the GitLab CI/CD variables, not protected (feature branches publish too)' >&2; exit 1; }
 PULP_USERNAME=$(bash ci/pulp/psono-field.sh "$PSONO_CI_PULP_PACKAGES_ID" username)
 PULP_PASSWORD=$(bash ci/pulp/psono-field.sh "$PSONO_CI_PULP_PACKAGES_ID" password)
 export PULP_URL=$PF_PACKAGE_ORIGIN PULP_USERNAME PULP_PASSWORD
@@ -91,7 +91,12 @@ fi
 # another suite's repository (a newer Debian added to the same URL).
 for n in "${el_versions[@]}"; do
     if ! native_rpm=$(python3 ci/pulp/native.py rpm "$release" "$n"); then
-        echo "No native EL$n repository for $release; RHEL$n/$release unchanged"
+        # Only devel may run ahead of the packaging side (an unreleased X.Y); a release must reach every OS it built.
+        if [[ "${CI_COMMIT_REF_NAME:-}" != devel ]]; then
+            echo "No native EL$n repository for $release: create packetfence-$dashed-el$n on the packaging side" >&2
+            exit 1
+        fi
+        echo "No native EL$n repository for $release yet (devel); RHEL$n/$release unchanged"
         continue
     fi
     mapfile -t rpms < <(find "$PUBLIC_DIR/centos/$n/x86_64" -type f -name '*.rpm' ! -name '*.src.rpm' | sort)

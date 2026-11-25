@@ -6,6 +6,7 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 from unittest import mock
@@ -14,6 +15,11 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[3]
+# The scripts under test call python3 from PATH: make it the interpreter running the tests (EL8's is 3.6).
+_PYTHON_DIR = tempfile.mkdtemp(prefix='python3-')
+os.symlink(sys.executable, os.path.join(_PYTHON_DIR, 'python3'))
+os.environ['PATH'] = _PYTHON_DIR + os.pathsep + os.environ['PATH']
+
 class GitLabLoader(yaml.SafeLoader):
     pass
 GitLabLoader.add_constructor('!reference', lambda loader, node: {'reference': loader.construct_sequence(node)})
@@ -60,8 +66,9 @@ class ConfigurationTest(unittest.TestCase):
             self.assertEqual(config[name]['variables']['BUILDER_TAG'], '${CI_COMMIT_REF_SLUG}', name)
         job = config['deploy_containers']
         self.assertEqual(job['stage'], 'deploy')
-        # No needs: the deploy stage waits for the tests when a pipeline runs them.
-        self.assertNotIn('needs', job)
+        # Needs only the package deploys, which have none: the deploy stage still waits for the tests.
+        self.assertEqual({n['job'] for n in job['needs']}, {'deploy_maintenance_pulp', 'deploy_branches_pulp'})
+        self.assertFalse([n for n in job['needs'] if 'needs' in config[n['job']]])
         never = [r['if'] for r in job['rules'] if r.get('when') == 'never']
         self.assertEqual(never, ['$BUILD_IMG_CONTAINER == "no" || $CI_COMMIT_MESSAGE =~ /build_img_container=no/',
                                  '$DEPLOY_PKG == "no" || $DEPLOY_PKG == "false"'])
@@ -76,9 +83,8 @@ class ConfigurationTest(unittest.TestCase):
         sources = lambda text: set(re.findall(r'\$CI_PIPELINE_SOURCE == "(\w+)"', text))  # noqa: E731
         packages = config['.deploy_maintenance_rules']['rules']
         self.assertEqual(sources(maintenance['if']), set().union(*(sources(r['if']) for r in packages if 'when' not in r)))
-        # A feature branch keeps its pipeline tag (not cloud-nac/X.Y, whose images keep the slug).
+        # A feature branch keeps its pipeline tag.
         self.assertEqual(feature['variables']['PROMOTE_TAGS'], '')
-        self.assertIn('$CI_COMMIT_REF_NAME !~ /^cloud-nac\\//', feature['if'])
 
     def test_service_images_build_from_the_builder_branch_tag(self):
         # Service images get a pipeline tag (IMAGE_TAG); pfbuild-* builders only have their branch tag.
@@ -175,6 +181,35 @@ class ConfigurationTest(unittest.TestCase):
                     self.assertNotIn('pfcron:', result.stdout)  # only lacks this pipeline's tag: silent
                     self.assertFalse(any('secret-value' in row for row in recorded))
                     self.assertNotIn('secret-value', result.stdout + result.stderr)
+
+    def test_container_push_fails_on_unexpected_registry_errors(self):
+        # Only a missing tag or a private image is skipped; a GHCR error or a missing core image fails the push.
+        with tempfile.TemporaryDirectory() as folder:
+            work = Path(folder)
+            script = push_tree(work)
+            for broken, message in (('*pfcron:*) echo "received unexpected HTTP status: 503" >&2; exit 1;;',
+                                     'pfcron: cannot read'),
+                                    ('*radiusd:*) echo "manifest unknown" >&2; exit 1;;', 'radiusd lacks the pipeline tag')):
+                with self.subTest(message=message):
+                    fake = work/'skopeo'
+                    fake.write_text('#!/bin/sh\ncase "$*" in "inspect "*) case "$*" in ' + broken + ' '
+                                    '*pfcmd:p-7*|*radiusd:p-7*) exit 0;; *) echo "manifest unknown" >&2; exit 1;; esac;; '
+                                    '"login "*) cat > /dev/null;; esac\n')
+                    fake.chmod(0o700)
+                    env = dict(os.environ, **PSONO_ENV, PATH=str(work)+os.pathsep+os.environ['PATH'],
+                               TEST_PSONO=str(work/'psono'), CI_COMMIT_BRANCH='devel', CI_PIPELINE_SOURCE='web',
+                               CI_COMMIT_REF_PROTECTED='true', CI_COMMIT_TAG='')
+                    result = subprocess.run(['bash', str(script), 'p-7', 'devel,latest'], env=env,
+                                            capture_output=True, text=True)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn(message, result.stderr)
+
+    def test_a_release_publish_requires_every_native_el_repository(self):
+        script = (ROOT/'ci/pulp/publish-packages.sh').read_text()
+        block = script[script.index('native_rpm=$(python3 ci/pulp/native.py rpm'):]
+        block = block[:block.index('\ndone\n')]
+        self.assertIn('if [[ "${CI_COMMIT_REF_NAME:-}" != devel ]]; then', block)
+        self.assertLess(block.index('exit 1'), block.index('continue'))
 
     def test_every_service_image_is_in_the_push_list(self):
         # A service image missing from container-images.json would never reach the registry.
@@ -375,7 +410,7 @@ class ConfigurationTest(unittest.TestCase):
             work = Path(folder)
             fake = work/'skopeo'
             fake.write_text('#!/bin/sh\nprintf "%s\\n" "$*" >> "$TEST_CALLS"\n'
-                            'case "$*" in "inspect "*) case "$*" in *pfcmd:feature-x-p7*) exit 0;; '
+                            'case "$*" in "inspect "*) case "$*" in *pfcmd:feature-x-p7*|*radiusd:feature-x-p7*) exit 0;; '
                             '*) echo "manifest unknown" >&2; exit 1;; esac;; "login "*) python3 -c \'import json, sys; json.load(open(sys.argv[1]))\' "$3" || exit 1; cat > /dev/null;; esac\n')
             fake.chmod(0o700)
             script, calls = push_tree(work), work/'calls'
@@ -386,13 +421,13 @@ class ConfigurationTest(unittest.TestCase):
             result = subprocess.run(['bash', str(script), 'feature-x-p7', 'feature-x-p7'], env=env, capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stderr)
             copies = [row for row in calls.read_text().splitlines() if row.startswith('copy ')]
-            self.assertEqual(len(copies), 1)
+            self.assertEqual(len(copies), 2)  # pfcmd, radiusd
             self.assertIn('docker://ghcr.io/inverse-inc/packetfence/pfcmd:feature-x-p7 '
                           'docker://registry.example/inverse-inc/packetfence/pfcmd:feature-x-p7', copies[0])
             calls.write_text('')
             refused = subprocess.run(['bash', str(script), 'feature-x-p7', 'feature-x-p7'],
                                      env=dict(env, PSONO_CI_PULP_DOCKER_ID=''), capture_output=True, text=True)
-            self.assertIn('protected branches only', refused.stderr)
+            self.assertIn('not protected (feature branches publish too)', refused.stderr)
             self.assertEqual(calls.read_text(), '')
             for source in ('push', 'merge_request_event'):
                 calls.write_text('')
@@ -496,12 +531,12 @@ class ConfigurationTest(unittest.TestCase):
                                             'x86_64/RPMS/packetfence-16.0.0.el8.noarch.rpm',
                                             'x86_64/RPMS/packetfence-release-2.4.1.el8.noarch.rpm', 'x86_64/repodata/repomd.xml'])
             self.assertIn('debian/branches/16.0/42/', run.stdout)
-            # A feature branch GitLab gives no Pulp credentials (unprotected) is told why.
+            # An empty Pulp variable is named, with how to set it.
             calls.write_text('')
             refused = subprocess.run(['bash', str(root/'ci/pulp/publish-packages.sh'), 'branches'], cwd=root, capture_output=True,
                                      text=True, env=dict(env, PSONO_CI_PULP_PACKAGES_ID=''))
             self.assertNotEqual(refused.returncode, 0)
-            self.assertIn('protected branches only', refused.stderr)
+            self.assertIn('not protected (feature branches publish too)', refused.stderr)
             self.assertEqual(calls.read_text(), '')
 
     def test_a_branch_deploy_without_pulp_credentials_says_why_before_the_key_import(self):
@@ -521,7 +556,7 @@ class ConfigurationTest(unittest.TestCase):
                 result = subprocess.run(['bash', '-c', script], cwd=work, env={**full, empty: ''}, capture_output=True, text=True)
                 self.assertNotEqual(result.returncode, 0, empty)
                 self.assertIn(empty + ' is empty', result.stderr)
-                self.assertIn('protected branches only', result.stderr)
+                self.assertIn('not protected (feature branches publish too)', result.stderr)
                 self.assertFalse(calls.exists(), empty)
             result = subprocess.run(['bash', '-c', script], cwd=work, env=full, capture_output=True, text=True)
             self.assertEqual((result.returncode, calls.read_text()), (0, 'imported\n'), result.stderr)
@@ -542,6 +577,9 @@ class ConfigurationTest(unittest.TestCase):
         self.assertIn('%{!?pf_package_origin:%global pf_package_origin https://packages.packetfence.com}', spec)
         self.assertIn('$(if $(PF_PACKAGE_ORIGIN),echo "%pf_package_origin $(PF_PACKAGE_ORIGIN)"', makefile)
         self.assertEqual(spec.count('[packetfence-branches]'), 1)
+        # Every repository of packetfence-release on the origin CI publishes to, none on inverse.ca.
+        self.assertEqual(spec.count('baseurl=%{pf_package_origin}/downloads/PacketFence/RHEL'), 3)
+        self.assertNotIn('inverse.ca/downloads', spec)
         config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
         self.assertEqual(config['build_artifacts_pkg_branches_centos_8']['variables']['PF_BRANCHES_PIPELINE'], '$CI_PIPELINE_ID')
         self.assertEqual([name for name, job in config.items() if isinstance(job, dict) and 'PF_BRANCHES_PIPELINE' in
@@ -580,6 +618,15 @@ class ConfigurationTest(unittest.TestCase):
                               ({'CI_COMMIT_MESSAGE': 'fix\n\nbuild_img_container=no test=yes'}, 'feature-x-p42')):
             result = subprocess.run(['sh', str(helper)], env={**base, **env}, capture_output=True, text=True)
             self.assertEqual(result.stdout.strip(), expected, env)
+
+    def test_images_follow_their_packages(self):
+        # deploy_containers runs only once the package deploy of the same pipeline succeeded.
+        config = yaml.load((ROOT/'.gitlab-ci.yml').read_text(), Loader=GitLabLoader)
+        needs = {n['job']: n for n in config['deploy_containers']['needs']}
+        self.assertEqual(set(needs), {'deploy_maintenance_pulp', 'deploy_branches_pulp'})
+        self.assertTrue(all(n['optional'] and n['artifacts'] is False for n in needs.values()))
+        # publish-ppa is a CI tool image: a server never pulls it (it has no pipeline tag).
+        self.assertIn('-not -path "*/publish-ppa/*"', (ROOT/'containers/manage-images.sh').read_text())
 
     def test_shell_syntax(self):
         for script in (ROOT/'ci/pulp').rglob('*.sh'):

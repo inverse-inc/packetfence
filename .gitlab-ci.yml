@@ -28,7 +28,8 @@ variables:
   PIPELINE_TIMEOUT_SCRIPT: 160m
   PF_PACKAGE_ORIGIN: "https://packages.packetfence.com"
   # Psono entry IDs of the Pulp CI accounts ci-packages, ci-docker and ci-docs (read with PSONO_CI_API_*).
-  # Set them as protected GitLab variables; the Pulp jobs fail while they are empty.
+  # Set them in GitLab, not protected: feature branches publish their PPA and branch folders too. The IDs are not
+  # secrets; PSONO_CI_API_SECRET_KEY_HEX is (masked). The Pulp jobs fail while they are empty.
   PSONO_CI_PULP_PACKAGES_ID: ""
   PSONO_CI_PULP_DOCKER_ID: ""
   PSONO_CI_PULP_DOCS_ID: ""
@@ -61,7 +62,6 @@ variables:
   ANSIBLE_FORCE_COLOR: 1
   ANSIBLE_STDOUT_CALLBACK: yaml
   VAGRANT_FORCE_COLOR: "true"
-
 
 ################################################################################
 # TEMPLATES
@@ -139,16 +139,7 @@ variables:
     - if: '$CI_COMMIT_MESSAGE =~ /build_img_container=no/ && $TEST != "yes" && $CI_COMMIT_MESSAGE !~ /test=yes/'
       when: never
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^cloud-nac\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
-
-# run this job on cloud nac branches if not canceled by BUILD_IMG_CONTAINER=no or commit message build_img_container=no
-.build_img_container_cloud_nac_rules:
-  rules:
-    - if: '$BUILD_IMG_CONTAINER == "no" && $TEST != "yes" && $CI_COMMIT_MESSAGE !~ /test=yes/'
-      when: never
-    - if: '$CI_COMMIT_MESSAGE =~ /build_img_container=no/ && $TEST != "yes" && $CI_COMMIT_MESSAGE !~ /test=yes/'
-      when: never
-    - if: '$CI_COMMIT_REF_NAME =~ /^cloud-nac\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
 
 # only run this job on devel branch with BUILD_IMG_DOCKER variable defined or build_img_docker in commit message
 .build_img_docker_devel_rules:
@@ -161,14 +152,7 @@ variables:
     - if: '$BUILD_IMG_DOCKER == "no"'
       when: never
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^cloud-nac\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
-
-# run this job on cloud nac branches if not canceled by BUILD_IMG_DOCKER=no
-.build_img_docker_cloud_nac_rules:
-  rules:
-    - if: '$BUILD_IMG_DOCKER == "no"'
-      when: never
-    - if: '$CI_COMMIT_REF_NAME =~ /^cloud-nac\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
 
 # run jobs only when:
 # - on devel branch (push,web,schedule) if variable BUILD_IMG_VAGRANT sets to yes or if CI_COMMIT_MESSAGE contains "build_img_vagrant=yes".
@@ -234,7 +218,6 @@ variables:
     - if: '$CI_COMMIT_REF_NAME == "devel" && ( $BUILD_ARTIFACTS_MATERIAL == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_material=yes/ )'
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_ARTIFACTS_MATERIAL == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_material=yes/ )'
 
-
 # run this job on:
 # - devel branch with BUILD_ARTIFACTS_DOC variable defined or build_artifacts_doc=yes in commit message
 # - all branches, except devel (web) if variable BUILD_ARTIFACTS_DOC sets to yes or if CI_COMMIT_MESSAGE contains "build_artifacts_doc=yes".
@@ -291,15 +274,6 @@ variables:
   stage: build_img_container
   dependencies: []
   image: ${KANIKOBUILD_IMG}:${CI_COMMIT_REF_SLUG}
-  script:
-    - /bin/kanikobuild
-  tags:
-    - docker
-
-.build_img_container_job_cloud_nac:
-  stage: build_img_container
-  dependencies: []
-  image: ${KANIKOBUILD_IMG}:${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
   script:
     - /bin/kanikobuild
   tags:
@@ -461,10 +435,10 @@ variables:
   before_script:
     - |
       set -euo pipefail
-      # Protected variables: an unprotected feature branch gets them empty; say so before the key import fails.
+      # Say which variable is missing before anything reads Psono.
       for name in PSONO_CI_API_KEY_ID PSONO_CI_API_SECRET_KEY_HEX PSONO_GPG_PRIVATE_KEY_SECRET_ID PSONO_CI_PULP_PACKAGES_ID; do
         eval "value=\${$name:-}"
-        [ -n "$value" ] || { echo "$name is empty. GitLab gives the Pulp credentials to protected branches only: protect this branch, or deploy from one that is" >&2; exit 1; }
+        [ -n "$value" ] || { echo "$name is empty: set it in the GitLab CI/CD variables, not protected (feature branches publish too)" >&2; exit 1; }
       done
       python3 addons/packetfence-perl/psono.py \
         --api_key_id="$PSONO_CI_API_KEY_ID" \
@@ -799,102 +773,6 @@ rad_extend_br_maint:
           - "radiusd-load-balancer"
           - "radiusd-eduroam"
 
-# cloud nac
-kaniko_cloud_nac:
-  extends:
-    - .build_img_container_kanikobuild_job
-    - .build_img_container_cloud_nac_rules
-  variables:
-    IMAGE_NAME: "kaniko-build"
-    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
-
-pfdeb_cloud_nac:
-  extends:
-    - .build_img_container_job_cloud_nac
-    - .build_img_container_cloud_nac_rules
-  needs: ["kaniko_cloud_nac"]
-  variables:
-    IMAGE_NAME: "pfdebian"
-    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
-
-pfdeb_based_cloud_nac:
-  extends:
-    - .build_img_container_job_cloud_nac
-    - .build_img_container_cloud_nac_rules
-  needs: ["pfdeb_cloud_nac"]
-  variables:
-    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
-  parallel:
-    # /!\ Be sure to update this list in all other matrix /!\
-    matrix:
-      - IMAGE_NAME:
-          - "pfconfig"
-          - "httpd.dispatcher"
-          - "httpd.portal"
-          - "api-frontend"
-          - "pfacct"
-          - "pfcmd"
-          - "pfqueue"
-          - "httpd.aaa"
-          - "httpd.admin_dispatcher"
-          - "httpd.webservices"
-          - "pfsetacls"
-          - "pfsso"
-          - "pfperl-api"
-          - "pfconnector"
-          - "pfpki"
-          - "pfcron"
-          - "haproxy-portal"
-          - "haproxy-admin"
-          - "proxysql"
-          - "pfldapexplorer"
-          - "kafka"
-          - "ntlm-auth-api"
-          - "netdata"
-
-img_cloud_nac:
-  extends:
-    - .build_img_container_job_cloud_nac
-    - .build_img_container_cloud_nac_rules
-  needs: ["pfdeb_cloud_nac"]
-  variables:
-    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
-  parallel:
-    # /!\ Be sure to update this list in all other matrix /!\
-    matrix:
-      - IMAGE_NAME:
-          - "fingerbank-db"
-
-rad_based_cloud_nac:
-  extends:
-    - .build_img_container_job_cloud_nac
-    - .build_img_container_cloud_nac_rules
-  needs: ["pfdeb_cloud_nac"]
-  variables:
-    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
-  parallel:
-    # /!\ Be sure to update this list in all other matrix /!\
-    matrix:
-      - IMAGE_NAME:
-          - "radiusd"
-
-rad_extend_cloud_nac:
-  extends:
-    - .build_img_container_job_cloud_nac
-    - .build_img_container_cloud_nac_rules
-  needs: ["rad_based_cloud_nac"]
-  variables:
-    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
-  parallel:
-    # /!\ Be sure to update this list in all other matrix /!\
-    matrix:
-      - IMAGE_NAME:
-          - "radiusd-auth"
-          - "radiusd-acct"
-          - "radiusd-cli"
-          - "radiusd-load-balancer"
-          - "radiusd-eduroam"
-
 # release
 kaniko_rel:
   extends:
@@ -1065,23 +943,6 @@ build_img_docker_deb12_release:
     ANSIBLE_CENTOS8_GROUP: stable_centos8
     ANSIBLE_DEBIAN_GROUP: common_debian
     ANSIBLE_RUBYGEMS_GROUP: stable_rubygems
-    ACTIVE_BUILDS: 'pfbuild-bookworm'
-
-### build Docker images on cloud nac branches
-build_img_docker_el8_cloud_nac:
-  extends:
-    - .build_img_docker_job
-    - .build_img_docker_cloud_nac_rules
-  variables:
-    DOCKER_TAGS: ${CI_COMMIT_REF_SLUG},${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
-    ACTIVE_BUILDS: 'pfbuild-centos-8'
-
-build_img_docker_deb12_cloud_nac:
-  extends:
-    - .build_img_docker_job
-    - .build_img_docker_cloud_nac_rules
-  variables:
-    DOCKER_TAGS: ${CI_COMMIT_REF_SLUG},${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
     ACTIVE_BUILDS: 'pfbuild-bookworm'
 
 ### build_img_vagrant jobs
@@ -1594,7 +1455,6 @@ configurator_deb12_pristine:
     - .test_script_job
     - .release_only_rules
 
-
 ########################################
 # DEPLOY JOBS
 ########################################
@@ -1620,7 +1480,14 @@ deploy_containers:
   image: $PF_PPA_IMAGE
   # One Pulp container writer at a time, across branches.
   resource_group: pulp-packetfence-containers
-  dependencies: []
+  # After its packages (same rules): a failed package deploy keeps the previous images; a push can be retried.
+  needs:
+    - job: deploy_maintenance_pulp
+      optional: true
+      artifacts: false
+    - job: deploy_branches_pulp
+      optional: true
+      artifacts: false
   environment:
     name: containers/$CI_COMMIT_REF_SLUG
   script:
@@ -1641,7 +1508,7 @@ deploy_containers:
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "schedule")'
       variables:
         PROMOTE_TAGS: $CI_COMMIT_REF_SLUG
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_REF_NAME !~ /^cloud-nac\// && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "schedule") && ($DEPLOY_PKG == "yes" || $DEPLOY_PKG == "true" || $CI_COMMIT_MESSAGE =~ /deploy_pkg=(yes|true)/)'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "schedule") && ($DEPLOY_PKG == "yes" || $DEPLOY_PKG == "true" || $CI_COMMIT_MESSAGE =~ /deploy_pkg=(yes|true)/)'
       variables:
         PROMOTE_TAGS: ''
 
@@ -1660,7 +1527,6 @@ deploy_maintenance_pkg_friendly_names:
   extends:
     - .deploy_pkg_friendly_names
     - .deploy_maintenance_rules
-
 
 # The built guides -> doc/X.Y.0 in the packaging Pulp (X.Y from conf/pf-release), after the tests: release tags
 # and maintenance/X.Y pipelines that build the docs; see ci/pulp/publish-docs.sh.
