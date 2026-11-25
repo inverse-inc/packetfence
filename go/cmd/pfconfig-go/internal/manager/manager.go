@@ -24,7 +24,7 @@ type Request struct {
 	Namespace        string `json:"namespace,omitempty"`
 	NoLastTouchCache string `json:"no_last_touch_cache,omitempty"`
 	Search           string `json:"search,omitempty"`
-	Light            string `json:"light,omitempty"`
+	Light            int    `json:"light,omitempty"`
 	Index            int    `json:"index,omitempty"`
 }
 
@@ -102,14 +102,11 @@ func (m *Manager) LoadConfigs(ctx context.Context) error {
 		return err
 	}
 	m.nsGraph = graph
-	return m.reloadAllConfs(ctx)
+	return m.reloadConfs(ctx, m.nsGraph.GetNodesKeys())
 }
 
-func (m *Manager) reloadAllConfs(ctx context.Context) error {
-	if m.nsGraph == nil {
-		return errors.New("preload namespaces first")
-	}
-	for _, key := range m.nsGraph.GetNodes() {
+func (m *Manager) reloadConfs(ctx context.Context, namespaces []string) error {
+	for _, key := range namespaces {
 		tmp, _ := m.namespaces[key] // key exists at this point
 		conf, err := loadBaseConf(tmp)
 		if err != nil {
@@ -143,24 +140,47 @@ func (m *Manager) reloadAllConfs(ctx context.Context) error {
 	return nil
 }
 
+func (m *Manager) expire(ctx context.Context, request Request) (any, error) {
+	var nodes []string
+	if request.Namespace == "__all__" {
+		nodes = m.nsGraph.GetNodesKeys()
+	} else {
+		nodes = m.nsGraph.GetNodesFrom(request.Namespace)
+	}
+	if err := m.reloadConfs(ctx, nodes); err != nil {
+		return nil, err
+	}
+	return map[string]string{"status": "OK."}, nil
+}
+
 func (m *Manager) Process(ctx context.Context, request Request) (any, error) {
-	query, err := ExtractQuery(request.Key)
-	if err != nil {
-		return nil, err
-	}
-	if _, supported := m.namespaces[query.Namespace]; !supported {
-		// if namespace not supported, proxy to Perl pfconfig
-		return nil, errors.ErrUnsupported
-	}
-	namespace, ok := m.getCache(query.CacheKey)
-	if !ok {
-		// new overlay
-		return nil, fmt.Errorf("no %s in cache", query.CacheKey)
-	}
-	// check for validity
-	data, err := m.dispatchMethod(ctx, request, namespace)
-	if err != nil {
-		return nil, err
+	var err error
+	var data any
+	// special treatment for expire and pull_expire
+	if request.Method == "expire" {
+		data, err = m.expire(ctx, request)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		query, err := ExtractQuery(request.Key)
+		if err != nil {
+			return nil, err
+		}
+		if _, supported := m.namespaces[query.Namespace]; !supported {
+			// if namespace not supported, proxy to Perl pfconfig
+			return nil, errors.ErrUnsupported
+		}
+		namespace, ok := m.getCache(query.CacheKey)
+		if !ok {
+			// new overlay
+			return nil, fmt.Errorf("no %s in cache", query.CacheKey)
+		}
+		// check for validity
+		data, err = m.dispatchMethod(request, namespace)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return data, nil
 }

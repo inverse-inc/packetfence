@@ -9,7 +9,8 @@ BEGIN {
   use pfconfig::constants;
   $pfconfig::constants::SOCKET_PATH      = "/usr/local/pf/var/run/pfconfig-go.sock";
 }
-
+use JSON;
+use pfconfig::util;
 use pfconfig::cached_hash;
 use pfconfig::cached_scalar;
 use pfconfig::cached_array;
@@ -39,3 +40,12 @@ print $config{"11:22:33:44:55:66"}{"ip"}, "\n";
 # print "$fqdn\n";
 #print $config2->{database}{db},"\n";
 #print Dumper($array[0]);
+#
+my $payload = {
+        method => "expire",
+        namespace => 'config::FloatingDevices',
+        light => 1,
+    };
+    pfconfig::util::fetch_decode_socket(encode_json($payload));
+
+    print $test, "\n";

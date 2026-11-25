@@ -23,7 +23,8 @@ type (
 
 // GetNodes return the list of nodes key in topological order
 // item 0 must be built before item 1, etc
-func (g *Graph) GetNodes() []string {
+// TODO: no alloc?
+func (g *Graph) GetNodesKeys() []string {
 	nodes := make([]string, 0, len(g.Nodes))
 	for _, node := range g.Nodes {
 		nodes = append(nodes, node.Key)
@@ -32,13 +33,33 @@ func (g *Graph) GetNodes() []string {
 }
 
 func (g *Graph) GetNodesFrom(key string) []string {
-	nodes := make([]string, 0)
-	_, ok := g.ValueToID[key]
-	if !ok {
+	tmp, ok := g.ValueToID[key]
+	if !ok { // should not happends
 		return nil
 	}
-
-	return nodes
+	nodes := make([]*Node, 0, 8)
+	seen := make([]bool, len(g.Nodes))
+	toVisit := make([]*Node, 0, 8)
+	toVisit = append(toVisit, tmp)
+	var tmpNode *Node
+	for len(toVisit) > 0 {
+		tmpNode, toVisit = toVisit[len(toVisit)-1], toVisit[:len(toVisit)-1] // pop
+		seen[tmpNode.ID] = true
+		nodes = append(nodes, tmpNode)
+		for _, parent := range tmpNode.Parents {
+			if !seen[parent.ID] {
+				toVisit = append(toVisit, parent)
+			}
+		}
+	}
+	slices.SortStableFunc(nodes, func(a, b *Node) int {
+		return a.ID - b.ID
+	})
+	nodesKeys := make([]string, 0, len(nodes))
+	for _, node := range nodes {
+		nodesKeys = append(nodesKeys, node.Key)
+	}
+	return nodesKeys
 }
 
 // TopologicalOrder execute the topoloical order in place

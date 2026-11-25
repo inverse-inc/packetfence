@@ -1,7 +1,6 @@
 package manager
 
 import (
-	"context"
 	"fmt"
 
 	ns "github.com/inverse-inc/packetfence/go/cmd/pfconfig-go/internal/namespace"
@@ -18,23 +17,16 @@ var methodsFuncs = map[string]MethodFunc{
 	"array_element":      arrayElement,
 	"array_size":         arraySize,
 	"array_index_exists": arrayIndexExists,
-	"expire":             expire,
+	//"expire":             expire,
+	// "pull_expire":             pullExpire,
 }
 
-func (m *Manager) dispatchMethod(ctx context.Context, request Request, namespace any) (any, error) {
+func (m *Manager) dispatchMethod(request Request, namespace any) (any, error) {
 	fun, ok := methodsFuncs[request.Method]
 	if !ok {
 		return nil, fmt.Errorf("requested method '%s' not supported", request.Method)
 	}
 	return fun(request, namespace)
-}
-
-func expire(request Request, data any) (any, error) {
-	if request.Namespace == "__all__" {
-		// expire all
-	} else {
-	}
-	return map[string]string{"status": "OK."}, nil
 }
 
 func arrayElement(request Request, data any) (any, error) {

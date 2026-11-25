@@ -11,12 +11,28 @@ import (
 var ns1 = []*namespace.NamespaceInfos{
 	{Name: "root", DepResources: []string{"child1", "child2"}},
 	{Name: "child1", DepResources: []string{"child1.1"}},
-	{Name: "child2", DepResources: []string{}},
+	{Name: "child2", DepResources: []string{"child1.1.1"}},
 	{Name: "child1.1", DepResources: []string{}},
+	{Name: "child1.1.1", DepResources: []string{}},
+	{Name: "child3", DepResources: []string{"child1.1", "child1.1.1"}},
+	{Name: "child4", DepResources: []string{}}, // alone, root + no children
 }
 
 var topoNs1Expected = []string{
-	"child1.1", "child1", "child2", "root",
+	"child1.1", "child1", "child1.1.1", "child2", "root", "child3", "child4",
+}
+
+var nodesFromExpected = []struct {
+	child    string
+	expected []string
+}{
+	{"child1.1.1", []string{"child1.1.1", "child2", "root", "child3"}},
+	{"child1.1", []string{"child1.1", "child1", "root", "child3"}},
+	{"child2", []string{"child2", "root"}},
+	{"root", []string{"root"}},
+	{"child4", []string{"child4"}},
+	{"child3", []string{"child3"}},
+	{"INVALID", nil},
 }
 
 func TestNsToGraph(t *testing.T) {
@@ -55,7 +71,7 @@ func TestTopo(t *testing.T) {
 	if len(g.Nodes) != len(ns1) {
 		t.Fatalf("topo graph differs in node size, expected %d got %d", len(ns1), len(g.Nodes))
 	}
-	topo := g.GetNodes()
+	topo := g.GetNodesKeys()
 	if len(topo) == 0 {
 		t.Fatal("topo nodes should not be empty")
 	}
@@ -84,11 +100,20 @@ func TestTopoNodes(t *testing.T) {
 	if err = g.TopologicalOrder(); err != nil {
 		t.Fatalf("topo err %s", err.Error())
 	}
-	nodes := g.GetNodes()
+	nodes := g.GetNodesKeys()
 	if nodes == nil {
 		t.Fatal("GetNodes should not be nil")
 	}
 	if slices.Compare(topoNs1Expected, nodes) != 0 {
 		t.Fatalf("GetNodes differ in expected result: \nExpected: \t%v\nGot:\t\t%v", topoNs1Expected, nodes)
 	}
+	t.Run("GetNodesFrom", func(t *testing.T) {
+		for i, test := range nodesFromExpected {
+			tmp := g.GetNodesFrom(test.child)
+			if slices.Compare(test.expected, tmp) != 0 {
+				t.Errorf("GetNodesFrom %d differ in expected result: \nExpected: \t%v\nGot:\t\t%v", i, test.expected, tmp)
+			}
+
+		}
+	})
 }
