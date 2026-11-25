@@ -117,6 +117,11 @@ class ConfigurationTest(unittest.TestCase):
         # kanikobuild passes only the DOCKFILE_VARS as build arguments: without it, BUILDER_TAG is empty.
         passed = re.search(r"^DOCKFILE_VARS='([^']*)'", (ROOT/'containers/kaniko_vars').read_text(), re.M).group(1).split()
         self.assertIn('BUILDER_TAG', passed)
+        # pfdebian takes the dependencies from the package origin, not from the old inverse.ca host.
+        self.assertIn('PF_PACKAGE_ORIGIN', passed)
+        self.assertNotIn('inverse.ca', (ROOT/'containers/pfdebian/Dockerfile').read_text())
+        for path in (ROOT/'ci').glob('*installer*/*'):
+            self.assertNotIn('inverse.ca/downloads', path.read_text(errors='replace'), path)
 
     def test_pipeline_image_tag_contexts(self):
         helper = ROOT/'ci/lib/common/pipeline-image-tag.sh'
