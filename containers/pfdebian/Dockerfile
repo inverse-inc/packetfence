@@ -7,14 +7,15 @@ RUN /bin/bash -c "echo 'exit 0' > /bin/systemctl"
 
 ARG DOCKER_BUILD=yes
 ARG PF_VERSION
+ARG PF_PACKAGE_ORIGIN=https://packages.packetfence.com
 ARG PKGS_TO_EXCLUDE
 
 # This is to ensure a cache miss when there is a change in the dependencies
 COPY debian/control /tmp/
 COPY rpm/packetfence.spec /tmp/
 
-RUN /bin/bash -c "echo 'deb http://inverse.ca/downloads/PacketFence/debian/${PF_VERSION} bookworm bookworm' > /etc/apt/sources.list.d/packetfence_deps.list"  && \
-    wget -q -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | apt-key add -
+RUN /bin/bash -c "echo 'deb ${PF_PACKAGE_ORIGIN}/downloads/PacketFence/debian/${PF_VERSION} bookworm bookworm' > /etc/apt/sources.list.d/packetfence_deps.list"  && \
+    wget -q -O - ${PF_PACKAGE_ORIGIN}/downloads/GPG_PUBLIC_KEY | apt-key add -
 
 RUN /bin/bash -c "echo 'deb https://deb.nodesource.com/node_20.x nodistro main' > /etc/apt/sources.list.d/nodejs.list" && \
     wget -q -O - https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | apt-key add -
