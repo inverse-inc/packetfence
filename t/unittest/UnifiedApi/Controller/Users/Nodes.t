@@ -22,10 +22,12 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 47;
+use Test::More tests => 54;
 use Test::Mojo;
 use pf::node;
 use pf::nodecategory;
+use pf::locationlog;
+use pf::constants::config qw($WIRELESS_802_1X);
 use List::MoreUtils qw(all);
 use Utils;
 
@@ -126,6 +128,23 @@ for my $pid ('default', $test_user) {
 
     $t->patch_ok($location => \%node_manager => json => { category_id => pf::nodecategory::nodecategory_lookup('guest') })
       ->status_is(200);
+}
+
+{
+    # A node with an open locationlog is removed like with the nodes API
+    my $mac = Utils::test_mac();
+    $t->post_ok("/api/v1/user/$test_user/nodes" => json => {mac => $mac})
+      ->status_is(201);
+    locationlog_synchronize(
+        "192.168.0.1", "192.168.0.1", "00:22:33:44:55:66", "12", "12", $mac, "yes",
+        $WIRELESS_802_1X, "", "bob", "BOBBY", "bob", "NULL", "default", "", "192.168.0.1",
+    );
+    my ($can_delete) = pf::node::_can_delete($mac);
+    ok(!$can_delete, "$mac has an open locationlog");
+    $t->delete_ok("/api/v1/user/$test_user/node/$mac")
+      ->status_is(200);
+    $t->get_ok("/api/v1/user/$test_user/node/$mac")
+      ->status_is(404);
 }
 
 

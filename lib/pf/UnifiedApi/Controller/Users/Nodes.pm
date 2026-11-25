@@ -16,8 +16,7 @@ use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::person;
-use pf::node;
-use pf::enforcement;
+use pf::node ();
 use pf::admin_roles;
 use pf::UnifiedApi::Controller::Nodes ();
 
@@ -74,17 +73,31 @@ sub can_update {
 
 =head2 can_remove
 
-Removing a node of a user requires NODES_DELETE, and the node must be
-removable like with the nodes API
+Removing a node of a user requires NODES_DELETE
 
 =cut
 
 sub can_remove {
     my ($self) = @_;
-    my ($status, $msg) = $self->_can_manage_nodes('NODES_DELETE');
-    return ($status, $msg) if $status != 200;
-    my ($result, $error) = pf::node::_can_delete($self->id);
-    return $result ? (200, '') : (422, $error);
+    return $self->_can_manage_nodes('NODES_DELETE');
+}
+
+=head2 do_remove
+
+A node of a user is removed like with the nodes API: a node with an open
+locationlog is deregistered, its access reevaluated and its locationlog
+closed before it is removed
+
+=cut
+
+sub do_remove {
+    my ($self) = @_;
+    my ($status, $msg) = $self->can_remove();
+    if ($status != 200) {
+        return ($status, $msg);
+    }
+
+    return pf::UnifiedApi::Controller::Nodes::_do_remove($self, $self->build_item_lookup);
 }
 
 sub _can_manage_nodes {
@@ -100,17 +113,14 @@ sub _can_manage_nodes {
 
 =head2 post_update
 
-Reevaluate the access of the node when its role or status changes
+Reevaluate the access of the node when its role or status changes, like the
+nodes API
 
 =cut
 
 sub post_update {
     my ($self, $updated_data) = @_;
-    if (exists $updated_data->{category_id} || exists $updated_data->{status}) {
-        pf::enforcement::reevaluate_access($self->id, "admin_modify");
-    }
-
-    return;
+    return pf::UnifiedApi::Controller::Nodes::post_update($self, $updated_data);
 }
 
 =head1 AUTHOR
