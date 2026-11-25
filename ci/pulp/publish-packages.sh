@@ -73,12 +73,15 @@ EOF
         cp "$PUBLIC_DIR/GPG_PUBLIC_KEY" "$work/pipeline.json" "$1/"
         [[ ! -d "$3" ]] || cp -R "$3/." "$1/"
     }
+    # Every tree is checked before the first publish: a broken one leaves no partial folder behind.
+    for n in "${el_versions[@]}"; do
+        [[ -d "$PUBLIC_DIR/centos/$n/x86_64/repodata" ]] || { echo "No repodata in the generated EL$n tree" >&2; exit 1; }
+    done
     branch_tree "$work/deb" "$PUBLIC_DIR/debian/." "$work/files/debian"
     python3 "$helper" publish --repository "debian-branches-$dashed" --pipeline "$CI_PIPELINE_ID" \
         --tree "$work/deb" --no-lock --apply --output pulp-branches-deb.json
     echo "Published to $PF_PACKAGE_ORIGIN/downloads/PacketFence/debian/branches/$release/$CI_PIPELINE_ID/"
     for n in "${el_versions[@]}"; do
-        [[ -d "$PUBLIC_DIR/centos/$n/x86_64/repodata" ]] || { echo "No repodata in the generated EL$n tree" >&2; exit 1; }
         branch_tree "$work/rpm$n" "$PUBLIC_DIR/centos/$n/x86_64" "$work/files/rhel$n"
         python3 "$helper" publish --repository "rhel$n-branches-$dashed" --pipeline "$CI_PIPELINE_ID" \
             --tree "$work/rpm$n" --no-lock --apply --output "pulp-branches-rpm-el$n.json"
@@ -88,12 +91,14 @@ EOF
 fi
 
 # release: the native repository serving each OS (Pulp signs its own index); a Debian suite may live in
-# another suite's repository (a newer Debian added to the same URL).
+# another suite's repository (a newer Debian added to the same URL). Every target is resolved before the
+# first upload, so a missing repository leaves every OS as it was. Only devel may run ahead of the packaging
+# side (an unreleased X.Y: EL skipped, Debian merged into its file tree); a release must reach every OS it built.
+declare -A native_rpm=() native_deb=()
 for n in "${el_versions[@]}"; do
-    status=0; native_rpm=$(python3 ci/pulp/native.py rpm "$release" "$n") || status=$?
+    status=0; repo=$(python3 ci/pulp/native.py rpm "$release" "$n") || status=$?
     (( status < 2 )) || exit 1
     if (( status )); then
-        # Only devel may run ahead of the packaging side (an unreleased X.Y); a release must reach every OS it built.
         if [[ "${CI_COMMIT_REF_NAME:-}" != devel ]]; then
             echo "No native EL$n repository for $release: create packetfence-$dashed-el$n on the packaging side" >&2
             exit 1
@@ -101,24 +106,34 @@ for n in "${el_versions[@]}"; do
         echo "No native EL$n repository for $release yet (devel); RHEL$n/$release unchanged"
         continue
     fi
-    mapfile -t rpms < <(find "$PUBLIC_DIR/centos/$n/x86_64" -type f -name '*.rpm' ! -name '*.src.rpm' | sort)
-    (( ${#rpms[@]} )) || { echo "No .rpm in the generated EL$n tree" >&2; exit 1; }
-    python3 ci/pulp/vendor/pulp_publish.py rpm "$native_rpm" "${rpms[@]}" --release "$release" > "pulp-release-rpm-el$n.json"
-    echo "Published ${#rpms[@]} packages to $PF_PACKAGE_ORIGIN/downloads/PacketFence/RHEL$n/$release/x86_64 (native)"
+    native_rpm[$n]=$repo
 done
 merge_suites=()
 for suite in "${suites[@]}"; do
-    status=0; native=$(python3 ci/pulp/native.py deb "$release" "$suite") || status=$?
+    status=0; repo=$(python3 ci/pulp/native.py deb "$release" "$suite") || status=$?
     (( status < 2 )) || exit 1
     if (( status )); then
+        if [[ "${CI_COMMIT_REF_NAME:-}" != devel ]]; then
+            echo "No native Debian repository serving $suite for $release: create or grant it on the packaging side" >&2
+            exit 1
+        fi
         merge_suites+=("$suite")
         continue
     fi
+    native_deb[$suite]=$repo
+done
+for n in "${!native_rpm[@]}"; do
+    mapfile -t rpms < <(find "$PUBLIC_DIR/centos/$n/x86_64" -type f -name '*.rpm' ! -name '*.src.rpm' | sort)
+    (( ${#rpms[@]} )) || { echo "No .rpm in the generated EL$n tree" >&2; exit 1; }
+    python3 ci/pulp/vendor/pulp_publish.py rpm "${native_rpm[$n]}" "${rpms[@]}" --release "$release" > "pulp-release-rpm-el$n.json"
+    echo "Published ${#rpms[@]} packages to $PF_PACKAGE_ORIGIN/downloads/PacketFence/RHEL$n/$release/x86_64 (native)"
+done
+for suite in "${!native_deb[@]}"; do
     # Exactly the packages this suite's index lists (a pool can hold several suites).
     mapfile -t debs < <(find "$PUBLIC_DIR/debian/dists/$suite" -name Packages -path '*/binary-*' -exec sed -n 's/^Filename: //p' {} + \
         | sort -u | sed "s#^#$PUBLIC_DIR/debian/#")
     (( ${#debs[@]} )) || { echo "No .deb listed for $suite in the generated tree" >&2; exit 1; }
-    python3 ci/pulp/vendor/pulp_publish.py deb "$native" "${debs[@]}" \
+    python3 ci/pulp/vendor/pulp_publish.py deb "${native_deb[$suite]}" "${debs[@]}" \
         --codename "$suite" --component "$suite" --release "$release" > "pulp-release-$suite.json"
     echo "Published ${#debs[@]} packages to $PF_PACKAGE_ORIGIN/downloads/PacketFence/debian/$release ($suite, native)"
 done
