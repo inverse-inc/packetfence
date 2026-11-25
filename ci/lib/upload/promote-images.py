@@ -52,22 +52,33 @@ class Registry:
             raise RuntimeError(f'GET {image}:{tag} failed with HTTP {response.status_code}')
         return response.content, response.headers['Content-Type'], response.headers.get('Docker-Content-Digest')
 
-    def promote(self, image, source, targets, apply):
+    def read(self, image, source, apply):
+        """(headers, (bytes, media type, digest)) of image:source, or None when there is no such tag."""
         headers = self._token(image, 'pull,push' if apply else 'pull')
         if headers is None:
             return None
         found = self.manifest(image, source, headers)
-        if found is None:
-            return None
-        body, media_type, digest = found
-        for tag in targets if apply else []:
+        return None if found is None else (headers, found)
+
+    def write(self, image, source, targets, read):
+        headers, (body, media_type, digest) = read
+        for tag in targets:
             response = self.session.put(self._url(image, tag), data=body, timeout=60,
                                         headers={**headers, 'Content-Type': media_type})
             if response.status_code not in (200, 201):
                 raise RuntimeError(f'PUT {image}:{tag} failed with HTTP {response.status_code}')
             if digest and response.headers.get('Docker-Content-Digest') not in (None, digest):
                 raise RuntimeError(f'{image}:{tag} digest differs from {source}')
-        return digest
+
+
+def allowed_targets(env):
+    """The tags this branch may move: devel its own and latest, maintenance/X.Y only maintenance-X-Y."""
+    branch = env.get('CI_COMMIT_BRANCH', '')
+    if branch == 'devel':
+        return {'devel', 'latest'}
+    if re.fullmatch(r'maintenance/[0-9]+\.[0-9]+', branch):
+        return {env.get('CI_COMMIT_REF_SLUG', '')}
+    return set()
 
 
 def image_names(containers):
@@ -86,25 +97,34 @@ def main():
     if not TAG.fullmatch(args.source) or not targets or not all(TAG.fullmatch(t) for t in targets):
         print('Invalid --source or --tags', file=sys.stderr)
         return 2
+    if args.apply and not set(targets) <= allowed_targets(os.environ):
+        print(f'Refusing tags {",".join(targets)} on {os.environ.get("CI_COMMIT_BRANCH", "?")}', file=sys.stderr)
+        return 2
     registry, _, namespace = os.environ['KNK_REGISTRY_URL'].partition('/')
     auth = None
     if args.apply:
         auth = (os.environ['KNK_REGISTRY_USER'], os.environ['KNK_REGISTRY_PASSWORD'])
     client = Registry(registry, namespace, auth)
-    promoted = {}
+    # Every manifest is read and the required images checked before any tag moves: a failure part-way
+    # leaves the branch tags on the previous build instead of a mix.
+    found = {}
     try:
         for image in image_names(args.containers):
-            digest = client.promote(image, args.source, targets, args.apply)
-            if digest is not None:
-                promoted[image] = digest
-                print(f'{image}:{args.source} -> {",".join(targets)} {digest or ""}'.rstrip())
+            read = client.read(image, args.source, args.apply)
+            if read is not None:
+                found[image] = read
+        missing = [i for i in args.require.split(',') if i and i not in found]
+        if missing:
+            print(f'No {args.source} tag for required images: {", ".join(missing)}', file=sys.stderr)
+            return 1
+        for image, read in found.items():
+            if args.apply:
+                client.write(image, args.source, targets, read)
+            print(f'{image}:{args.source} -> {",".join(targets)} {read[1][2] or ""}'.rstrip())
     except (RuntimeError, requests.RequestException) as exc:
         print(f'Promotion failed: {exc}', file=sys.stderr)
         return 1
-    missing = [i for i in args.require.split(',') if i and i not in promoted]
-    if missing:
-        print(f'No {args.source} tag for required images: {", ".join(missing)}', file=sys.stderr)
-        return 1
+    promoted = found
     print(f'{"Promoted" if args.apply else "Would promote"} {len(promoted)} images to {",".join(targets)}')
     return 0
 
