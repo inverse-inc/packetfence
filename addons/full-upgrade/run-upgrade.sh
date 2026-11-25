@@ -107,7 +107,7 @@ function set_upgrade_to() {
 
 function apt_upgrade_packetfence_package() {
   set_upgrade_to
-  echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/$UPGRADE_TO bookworm bookworm" > /etc/apt/sources.list.d/packetfence.list
+  echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://packages.packetfence.com/downloads/PacketFence/debian/$UPGRADE_TO bookworm bookworm" > /etc/apt/sources.list.d/packetfence.list
   apt update
   if is_enabled $1; then
     apt-mark hold packetfence-upgrade
@@ -128,7 +128,7 @@ function apt_upgrade_packetfence_package() {
 
 function yum_upgrade_packetfence_package() {
   set_upgrade_to
-  yum localinstall -y https://www.inverse.ca/downloads/PacketFence/RHEL8/packetfence-release-$UPGRADE_TO.el8.noarch.rpm
+  yum localinstall -y https://packages.packetfence.com/downloads/PacketFence/RHEL8/packetfence-release-$UPGRADE_TO.el8.noarch.rpm
   yum clean all --enablerepo=packetfence
   if is_enabled $1; then
     yum update -y --enablerepo=packetfence --exclude=packetfence-upgrade --allowerasing

@@ -119,8 +119,12 @@ class ConfigurationTest(unittest.TestCase):
         # pfdebian takes the dependencies from the package origin, not from the old inverse.ca host.
         self.assertIn('PF_PACKAGE_ORIGIN', passed)
         self.assertNotIn('inverse.ca', (ROOT/'containers/pfdebian/Dockerfile').read_text())
-        for path in (ROOT/'ci').glob('*installer*/*'):
-            self.assertNotIn('inverse.ca/downloads', path.read_text(errors='replace'), path)
+        # Installers and shipped scripts read the package origin; nothing updates inverse.ca after this change.
+        for pattern in ('ci/*installer*/*', 'ci/cd-iso/*', 'ci/dvd-usb-iso/*', 'addons/full-upgrade/*',
+                        'addons/monit/monitoring-scripts/setup.sh'):
+            for path in ROOT.glob(pattern):
+                if path.is_file():
+                    self.assertNotIn('inverse.ca/downloads', path.read_text(errors='replace'), path)
 
     def test_pipeline_image_tag_contexts(self):
         helper = ROOT/'ci/lib/common/pipeline-image-tag.sh'
