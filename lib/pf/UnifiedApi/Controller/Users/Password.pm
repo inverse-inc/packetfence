@@ -96,7 +96,25 @@ validate
 
 sub validate {
     my ($self, $json) = @_;
-    my $roles = $self->stash->{admin_roles};
+    my @errors = validate_fields($self->stash->{admin_roles}, $json);
+    if (@errors) {
+        return 422, {message => "Invalid input", errors => \@errors};
+    }
+
+    return 200, undef;
+}
+
+=head2 validate_fields
+
+Returns the errors for the password fields (role, access level, access
+duration, unregistration date) that the admin roles do not allow
+
+    my @errors = validate_fields($roles, $fields);
+
+=cut
+
+sub validate_fields {
+    my ($roles, $json) = @_;
     my @errors;
     if (exists $json->{category} && defined $json->{category}) {
         my $nc = nodecategory_view($json->{category});
@@ -129,11 +147,75 @@ sub validate {
         }
     }
 
-    if (@errors) {
-        return 422, {message => "Invalid input", errors => \@errors};
+    return @errors;
+}
+
+=head2 can_create
+
+can_create
+
+=cut
+
+sub can_create {
+    my ($self) = @_;
+    return $self->_can_manage_password;
+}
+
+=head2 can_update
+
+can_update
+
+=cut
+
+sub can_update {
+    my ($self) = @_;
+    return $self->_can_manage_password;
+}
+
+=head2 can_remove
+
+can_remove
+
+=cut
+
+sub can_remove {
+    my ($self) = @_;
+    return $self->_can_manage_password;
+}
+
+sub _can_manage_password {
+    my ($self) = @_;
+    my $pid = $self->id;
+    if (!can_manage_user($self->stash->{admin_roles}, $self->stash->{current_user}, $pid)) {
+        return (403, "Not allowed to change the password of $pid");
     }
 
-    return 200, undef;
+    return (200, '');
+}
+
+=head2 can_manage_user
+
+Returns true if the admin roles can change the password of a user: the user
+is the current user, has no password, or has only access levels the admin
+roles are allowed to give (allowed_access_levels)
+
+    my $bool = can_manage_user($roles, $current_user, $pid);
+
+=cut
+
+sub can_manage_user {
+    my ($roles, $current_user, $pid) = @_;
+    if (defined $current_user && defined $pid && $current_user eq $pid) {
+        return 1;
+    }
+
+    my $password = pf::password::view($pid);
+    if (!$password) {
+        return 1;
+    }
+
+    my @access_levels = grep { $_ ne '' && $_ ne 'NONE' } split(/\s*,\s*/, $password->{access_level} // '');
+    return check_allowed_options($roles, 'allowed_access_levels', @access_levels) ? 1 : 0;
 }
 
 

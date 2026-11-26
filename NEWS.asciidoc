@@ -97,6 +97,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - RADIUS: a failed post-auth call to httpd.aaa leaves MAB/PAP requests unanswered instead of rejecting them, and authorize answers 503 instead of 401 when the request can't be evaluated (#9288)
   - CoA and Disconnect use the switch's `coaPort` and `disconnectPort` on every switch module (#9378)
   - Dell N1500 and Cisco ASA now send role ACLs in the Access-Accept (#9347)
+  - Users API — an admin role with allowed access levels can only change the password of, update, delete, reset the password of or import over users whose access levels are within them (#9784)
   - PacketFence PKI — revoking a certificate deregisters the devices that last used it, OCSP answers "unknown" instead of 500 for an unknown serial, the most recent certificate is returned by CN, and the Renewal Email switch of PKI templates works (#9367, #9436, #9520, #9536)
   - PacketFence PKI — the OCSP responder answers GET requests, with the request base64 and URL-encoded in the path (RFC 6960 appendix A.1) as the OS and browser validators send them, and adds the RFC 5019 cache headers to the answer; they were refused with a 404
   - PacketFence PKI — the OCSP responder answers a request it can't answer (malformed, for a CA it doesn't hold, CA key unavailable) with an OCSP error status (RFC 6960 section 2.3) instead of an HTTP 400 (#9765)

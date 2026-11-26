@@ -31,6 +31,9 @@ use pf::UnifiedApi::Search::Builder::Users;
 use pf::lookup::person qw();
 use pf::activation;
 use pf::constants::Connection::Profile qw($DEFAULT_PROFILE);
+use pf::Authentication::constants ();
+use pf::nodecategory ();
+use pf::UnifiedApi::Controller::Users::Password ();
 
 has 'search_builder_class' => 'pf::UnifiedApi::Search::Builder::Users';
 
@@ -522,6 +525,9 @@ sub bulk_delete {
     my ($indexes, $results) = bulk_init_results($items);
     for my $pid ( @$items ) {
         my ($status, $msg) = _can_remove($pid);
+        if (is_success($status)) {
+            ($status, $msg) = $self->_can_manage_user($pid);
+        }
         if(is_success($status)) {
             person_unassign_nodes($pid);
             person_delete($pid);
@@ -610,7 +616,7 @@ sub import_item {
     my @actions = (
         { type => 'valid_from', value => $item->{valid_from} },
         { type => 'expiration', value => $item->{expiration} },
-        @{$item->{actions}}
+        @{$item->{actions} // []}
     );
     $result = pf::password::generate($pid, \@actions, $item->{password});
 
@@ -645,12 +651,80 @@ sub import_item_check_for_errors {
         push @errors, { field => "email", message => 'invalid format' };
     }
 
+    my $roles = $self->stash->{admin_roles};
+    my $actions = $item->{actions} // [];
+    if (ref($actions) ne 'ARRAY' || grep { ref($_) ne 'HASH' } @$actions) {
+        push @errors, { field => "actions", message => 'must be a list of actions' };
+    } else {
+        # every action is checked, as pf::password::generate applies all of them
+        push @errors, map {
+            pf::UnifiedApi::Controller::Users::Password::validate_fields($roles, $_)
+        } _password_fields_from_actions($actions);
+    }
+
+    if ($pid && !pf::UnifiedApi::Controller::Users::Password::can_manage_user($roles, $self->stash->{current_user}, $pid)) {
+        push @errors, { field => "pid", message => "Not allowed to change the password of $pid" };
+    }
+
     return @errors;
+}
+
+=head2 _password_fields_from_actions
+
+Returns the password field that each import action sets (one hash per
+action), to check them like the fields of a password update
+
+=cut
+
+sub _password_fields_from_actions {
+    my ($actions) = @_;
+    my %field_of_action = (
+        $Actions::SET_ACCESS_LEVEL    => 'access_level',
+        $Actions::SET_ACCESS_DURATION => 'access_duration',
+        $Actions::SET_UNREG_DATE      => 'unregdate',
+    );
+    my @fields;
+    for my $action (@$actions) {
+        my $type = $action->{type} // '';
+        my $value = $action->{value};
+        if (my $field = $field_of_action{$type}) {
+            push @fields, { $field => $value };
+        } elsif ($type eq $Actions::SET_ROLE) {
+            push @fields, { category => pf::nodecategory::nodecategory_lookup($value) // $value };
+        }
+    }
+
+    return @fields;
 }
 
 sub can_remove {
     my ($self) = @_;
-    return _can_remove($self->id);
+    my ($status, $msg) = _can_remove($self->id);
+    if (is_error($status)) {
+        return ($status, $msg);
+    }
+
+    return $self->_can_manage_user($self->id);
+}
+
+=head2 can_update
+
+can_update
+
+=cut
+
+sub can_update {
+    my ($self) = @_;
+    return $self->_can_manage_user($self->id);
+}
+
+sub _can_manage_user {
+    my ($self, $pid) = @_;
+    if (!pf::UnifiedApi::Controller::Users::Password::can_manage_user($self->stash->{admin_roles}, $self->stash->{current_user}, $pid)) {
+        return (403, "Not allowed to change the user $pid");
+    }
+
+    return (200, '');
 }
 
 sub _can_remove {
@@ -698,6 +772,10 @@ sub password_reset {
     my $user = $iter->next;
     if (!$user) {
         return $self->render_error(404, "User not found");
+    }
+
+    if (!pf::UnifiedApi::Controller::Users::Password::can_manage_user($self->stash->{admin_roles}, $self->stash->{current_user}, $pid)) {
+        return $self->render_error(403, "Not allowed to change the password of $pid");
     }
 
     my $email = $user->{email};
@@ -763,6 +841,12 @@ sub bulk_password_reset {
         if (!exists $users{$pid}) {
             $result->{status} = 404;
             $result->{message} = "User not found";
+            next;
+        }
+
+        if (!pf::UnifiedApi::Controller::Users::Password::can_manage_user($self->stash->{admin_roles}, $self->stash->{current_user}, $pid)) {
+            $result->{status} = 403;
+            $result->{message} = "Not allowed to change the password of $pid";
             next;
         }
 
