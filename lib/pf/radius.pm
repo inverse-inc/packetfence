@@ -509,6 +509,14 @@ sub authorize {
         ];
     }
 
+    # Record, from the assembled reply, the ACLs that actually reached the switch
+    # (what is on the wire, not the role ACLs computed). Never let observability
+    # bookkeeping break the RADIUS answer.
+    eval { $switch->recordReplyObservabilityAcls($args, $RAD_REPLY_REF) };
+    if ($@) {
+        $logger->warn("Could not record switch ACL observability for $mac: $@");
+    }
+
 CLEANUP:
     # If the device is lost or stolen, then ensure we execute the actions of the violation so the emails can be sent on connection
     $self->check_lost_stolen($mac);
