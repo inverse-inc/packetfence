@@ -5,7 +5,7 @@
     size="lg"
   >
     <template v-slot:modal-title>
-      <span v-html="title"></span>
+      <span v-html="$sanitizeHtml(title)"></span>
     </template>
     <template v-slot:default>
       <b-form v-if="!csr"

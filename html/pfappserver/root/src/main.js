@@ -166,6 +166,7 @@ import store from './store'
 import router from './router'
 import filters from './utils/filters'
 import { pfTemplatePlugin } from './utils/plugins'
+import { pfSanitizeHtmlPlugin } from './utils/sanitizeHtml'
 import App from './App'
 
 import 'bootstrap-vue/dist/bootstrap-vue.css'
@@ -189,6 +190,7 @@ Vue.component('icon', Icon)
 Vue.use(BootstrapVue)
 Vue.use(CompositionApi)
 Vue.use(pfTemplatePlugin)
+Vue.use(pfSanitizeHtmlPlugin)
 Vue.use(PiniaVuePlugin)
 const pinia = createPinia()
 

@@ -14,7 +14,7 @@
                 <b-col>
                   <div class="notification-message" :class="{'text-secondary': !notification.unread}">
                     <b-badge pill v-if="notification.value" class="mr-2" :variant="notification.variant">{{notification.value}}</b-badge>
-                    <icon v-else :name="notification.icon" class="mr-1" :class="'text-'+notification.variant" /> <span :class="{ 'font-weight-bold': notification.unread }" v-html="notification.message" />
+                    <icon v-else :name="notification.icon" class="mr-1" :class="'text-'+notification.variant" /> <span :class="{ 'font-weight-bold': notification.unread }" v-html="$sanitizeHtml(notification.message)" />
                   </div>
                   <small class="notification-url text-secondary">{{notification.url}}</small>
                   <b-progress v-if="notification.persistent" :value="notification.progress" :max="100" height="4px" class="mt-1" />

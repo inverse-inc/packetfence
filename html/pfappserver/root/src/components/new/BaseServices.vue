@@ -2,7 +2,7 @@
   <b-alert :show="show" :variant="variant" dismissible fade>
     <h4 v-if="title"
       class="alert-heading" v-t="title"/>
-    <p v-html="message" />
+    <p v-html="$sanitizeHtml(message)" />
     <template v-if="isSaas">
       <base-button-service-saas v-for="service in k8sServicesSorted" :key="`k8s-service-${service}`"
         :service="service" restart
