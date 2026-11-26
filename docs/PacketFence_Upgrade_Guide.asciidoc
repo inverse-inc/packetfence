@@ -1244,6 +1244,24 @@ zone have them, and about the interfaces defined for no server:
 /usr/local/pf/bin/pfcmd checkup
 ----
 
+=== Client IP address behind a proxy or load balancer
+
+The captive portal and httpd.dispatcher now use the `X-Forwarded-For` header
+only when the request comes from a trusted proxy: haproxy-portal on the
+PacketFence servers (and the other servers of a cluster), or one of the load
+balancers listed in *Load balancers IP* (`captive_portal.loadbalancers_ip`).
+haproxy-portal removes the `X-Forwarded-For` header sent by the clients unless
+the request comes from one of these load balancers. If a load balancer or
+another HTTP proxy sends the portal requests to PacketFence, add its IP
+addresses to *Load balancers IP*, otherwise the portal sees its address
+instead of the address of the client. Restart haproxy-portal to apply its new
+configuration:
+
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service haproxy-portal restart
+----
+
 === Admin SSO login
 
 If the SSO login of the admin interface is enabled

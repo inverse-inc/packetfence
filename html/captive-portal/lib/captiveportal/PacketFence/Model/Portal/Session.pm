@@ -28,6 +28,7 @@ use URI::Escape::XS qw(uri_escape uri_unescape);
 use HTML::Entities;
 use List::MoreUtils qw(any);
 use pf::constants::Portal::Session qw($DUMMY_MAC);
+use pf::web::client_ip;
 
 =head1 NAME
 
@@ -106,7 +107,7 @@ has dispatcherSession => (
     lazy => 1,
 );
 
-has [qw(forwardedFor guestNodeMac)] => ( is => 'rw', );
+has [qw(forwardedFor guestNodeMac internalPreview trustedProxies)] => ( is => 'rw', );
 
 sub ACCEPT_CONTEXT {
     my ( $self, $c, @args ) = @_;
@@ -118,7 +119,11 @@ sub ACCEPT_CONTEXT {
     return $previous_model if(defined($previous_model) && $previous_model->{options}->{in_uri_portal} && !($r->can('pnotes') && defined ($r->pnotes('last_uri') ) ) );
     my $model;
     my $remoteAddress = $request->address;
-    my $forwardedFor  = $request->{'env'}->{'HTTP_X_FORWARDED_FOR_PACKETFENCE'} ||  $request->{'env'}->{'HTTP_X_FORWARDED_FOR'};
+    my $forwardedFor  = $request->{'env'}->{'HTTP_X_FORWARDED_FOR'};
+    # The portal preview of the admin interface (through haproxy-admin)
+    # The trusted proxies are computed once for the request
+    my $trustedProxies = pf::web::client_ip::trusted_proxies();
+    my $internalPreview = pf::web::client_ip::is_internal_preview($remoteAddress, $request->{'env'}->{'HTTP_X_FORWARDED_FOR_PACKETFENCE'}, $trustedProxies);
     my $redirectURL;
     my $uri = $request->uri;
     my $options;
@@ -135,7 +140,7 @@ sub ACCEPT_CONTEXT {
         $options = {
             'portal' => $data->{portal},
         };
-    } elsif ( $forwardedFor && ( $forwardedFor =~  '127.0.0.1') ) {
+    } elsif ( $internalPreview ) {
         if (defined($request->param('PORTAL'))) {
             $options = {
                 'portal' => $request->param('PORTAL'),
@@ -151,6 +156,8 @@ sub ACCEPT_CONTEXT {
     $model =  $self->new(
         remoteAddress => $remoteAddress,
         forwardedFor  => $forwardedFor,
+        internalPreview => $internalPreview,
+        trustedProxies => $trustedProxies,
         options       => $options,
         sessionID     => $session_id,
         @args,
@@ -180,40 +187,17 @@ sub _build_clientIP {
         }
     }
 
-    # every source IP in this table are considered to be from a proxied source
-    my %proxied_lookup =
-      %{ $CAPTIVE_PORTAL{'loadbalancers_ip'} };    #load balancers first
-    $proxied_lookup{LOOPBACK_IPV4} = 1;            # loopback (proxy-bypass)
-         # adding virtual IP if one is present (proxy-bypass w/ high-avail.)
-    $proxied_lookup{ $management_network->tag('vip') } = 1
-      if ( $management_network && $management_network->tag('vip') );
-
-    # if this is NOT from one of the expected proxy IPs return the IP
-    if ( ( !$proxied_lookup{$directly_connected_ip} )
-        && !( $directly_connected_ip ne '127.0.0.1' ) ) {
-        Log::Log4perl::MDC->put( 'ip', $directly_connected_ip );
-        return pf::util::IP::detect($directly_connected_ip);
+    # The portal preview of the admin interface is local
+    if ( $self->internalPreview ) {
+        Log::Log4perl::MDC->put( 'ip', LOOPBACK_IPV4 );
+        return pf::util::IP::detect(LOOPBACK_IPV4);
     }
 
-    my $forwarded_for = $self->forwardedFor;
-
-    # behind a proxy?
-    if ( defined($forwarded_for) ) {
-        my @proxied_ip = split( ',', $forwarded_for );
-        my $ip = $proxied_ip[0];
-        $logger->debug(
-            "Remote Address is $directly_connected_ip. Client is behind proxy? "
-              . "Returning: $ip according to HTTP Headers" );
-        Log::Log4perl::MDC->put( 'ip', $ip);
-        return pf::util::IP::detect($ip);
-    }
-
-    $logger->debug(
-        "Remote Address is $directly_connected_ip but no further hints of client IP in HTTP Headers"
-
-     );
-    Log::Log4perl::MDC->put( 'ip', $directly_connected_ip );
-    return pf::util::IP::detect($directly_connected_ip);
+    # The X-Forwarded-For header is only used when the request comes from a trusted proxy
+    my $ip = pf::web::client_ip::client_ip( $directly_connected_ip, $self->forwardedFor, $self->trustedProxies );
+    $logger->debug( "Remote Address is $directly_connected_ip. Using the client IP $ip" );
+    Log::Log4perl::MDC->put( 'ip', $ip );
+    return pf::util::IP::detect($ip);
 }
 
 sub _build_clientMac {
