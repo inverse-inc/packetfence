@@ -653,6 +653,8 @@ const actions = {
   },
 
 
+  completeConfigurator: () => apiCall.postQuiet('complete'),
+
   updateSystemd: ({ state, commit }, { id, server = store.state.system.hostname }) => {
     commit('SYSTEMD_REQUEST', { server, id })
     return api(state, server).updateSystemd(id).then(response => {

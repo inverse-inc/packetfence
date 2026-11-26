@@ -67,10 +67,10 @@ sub generateConfig {
          $tags{'os_path'} = '/usr/share/haproxy/';
     }
     
-    $tags{'management_ip'}
-        = defined( $management_network->tag('vip') )
-        ? $management_network->tag('vip')
-        : $management_network->tag('ip');
+    # Before the wizard, management_network is '' rather than an interface object.
+    $tags{'management_ip'} = ref($management_network)
+        ? ($management_network->tag('vip') // $management_network->tag('ip') // '')
+        : '';
 
     my $i = 0;
     my @mysql_backend;

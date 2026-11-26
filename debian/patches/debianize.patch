@@ -1,5 +1,5 @@
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index 7735164bfe..be3978df0a 100644
+index e72cc3a69f..c04f81bbb1 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
 @@ -489,7 +489,7 @@ radiusd=enabled
@@ -30,7 +30,7 @@ index 7735164bfe..be3978df0a 100644
  # services.netdata
  #
 diff --git a/conf/systemd/packetfence-api-frontend.service b/conf/systemd/packetfence-api-frontend.service
-index 61b0f64dce..fc68803028 100644
+index b7269298a7..da26f47660 100644
 --- a/conf/systemd/packetfence-api-frontend.service
 +++ b/conf/systemd/packetfence-api-frontend.service
 @@ -11,15 +11,15 @@ TimeoutStopSec=60
@@ -51,7 +51,7 @@ index 61b0f64dce..fc68803028 100644
 +ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_api_frontend_rules("REMOVE")'
  
  [Install]
- WantedBy=packetfence.target
+ WantedBy=packetfence-base.target
 diff --git a/conf/systemd/packetfence-galera-autofix.service b/conf/systemd/packetfence-galera-autofix.service
 index 83845dd15b..1e940135ac 100644
 --- a/conf/systemd/packetfence-galera-autofix.service
@@ -68,7 +68,7 @@ index 83845dd15b..1e940135ac 100644
  [Install]
  WantedBy=packetfence-base.target
 diff --git a/conf/systemd/packetfence-haproxy-admin.service b/conf/systemd/packetfence-haproxy-admin.service
-index 185d2a0661..689b489833 100644
+index 2012a46256..ddb85fecc4 100644
 --- a/conf/systemd/packetfence-haproxy-admin.service
 +++ b/conf/systemd/packetfence-haproxy-admin.service
 @@ -9,7 +9,7 @@ Type=notify
@@ -90,7 +90,7 @@ index 185d2a0661..689b489833 100644
 +ExecStopPost=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_haproxy_admin_rules("REMOVE")'
  
  [Install]
- WantedBy=packetfence.target
+ WantedBy=packetfence-base.target
 diff --git a/conf/systemd/packetfence-haproxy-db.service b/conf/systemd/packetfence-haproxy-db.service
 index dac2e493ec..5f831702bc 100644
 --- a/conf/systemd/packetfence-haproxy-db.service
@@ -168,7 +168,7 @@ index 1cecf351cf..ce14457019 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-httpd.admin_dispatcher.service b/conf/systemd/packetfence-httpd.admin_dispatcher.service
-index 44cfbbdc44..5441803638 100644
+index d6a53511c8..28bf678862 100644
 --- a/conf/systemd/packetfence-httpd.admin_dispatcher.service
 +++ b/conf/systemd/packetfence-httpd.admin_dispatcher.service
 @@ -12,7 +12,7 @@ TimeoutStopSec=60
@@ -272,10 +272,10 @@ index ef9c7c9e03..7fad187f97 100644
  [Install]
  WantedBy=packetfence.target
 diff --git a/conf/systemd/packetfence-iptables.service b/conf/systemd/packetfence-iptables.service
-index 3096a086ab..49e84602c0 100644
+index 0fe261e7fc..affa054440 100644
 --- a/conf/systemd/packetfence-iptables.service
 +++ b/conf/systemd/packetfence-iptables.service
-@@ -8,13 +8,13 @@ After=packetfence-base.target packetfence-config.service
+@@ -8,7 +8,7 @@ After=packetfence-base.target packetfence-config.service
  Type=simple
  ExecStart=/usr/local/pf/sbin/iptables_monitor.pl
  ExecStop=-/usr/bin/kill -TERM $MAINPID
@@ -284,6 +284,8 @@ index 3096a086ab..49e84602c0 100644
  KillSignal=TERM
  Restart=always
  RestartSec=5
+@@ -17,7 +17,7 @@ SuccessExitStatus=78
+ RestartPreventExitStatus=78
  Slice=packetfence.slice
  # iptables rules
 -ExecStartPost=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5/ -Mpf::iptables -Mpf::config -e 'pf::iptables::iptables_services_rules("add")'

@@ -15,7 +15,9 @@ use warnings;
 use Mojo::UserAgent;
 use Mojo::Transaction::HTTP;
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
-use pf::config qw(%Config);
+use pf::config qw(%Config $management_network);
+use pf::ConfigStore::Pf;
+use pf::services;
 use pf::util;
 use pf::constants;
 use pf::api::unifiedapiclient;
@@ -27,6 +29,62 @@ sub allowed {
         return $TRUE;
     }
     return $self->render_error(401, "The configurator is turned off");
+}
+
+sub complete {
+    my ($self) = @_;
+    my $result = eval { $self->do_complete() };
+    if (my $error = $@) {
+        return $self->render_error(500, "$error");
+    }
+    return $self->render(json => $result);
+}
+
+sub do_complete {
+    my ($self) = @_;
+    die "A management interface must be configured before completing setup\n"
+        unless ref($management_network) && $management_network->tag('ip');
+
+    my @services = grep { $_ ne 'pf' } @pf::services::ALL_SERVICES;
+    my @stopped = map { $_->name }
+        grep { $_->isManaged && !$_->optional && !$_->isAlive }
+        pf::services::getManagers(\@services);
+    die "Services must be running before completing setup: " . join(', ', @stopped) . "\n"
+        if @stopped;
+
+    my $cs = pf::ConfigStore::Pf->new;
+    my $advanced = $cs->read('advanced');
+    die "The configurator is turned off\n"
+        unless $advanced && isenabled($advanced->{configurator});
+    my $previous = $advanced->{configurator};
+    my $completed = eval {
+        $self->_save_configurator($cs, 'disabled');
+        # The worker's cached configuration can still contain the old setting.
+        # Only this completion operation may bypass it, after the save succeeds.
+        pf::services::promote_default_systemd_target(configurator_finishing => 1);
+        1;
+    };
+    unless ($completed) {
+        my $error = $@;
+        # A failed commit may already have written pf.conf. Restore the setting
+        # on either save or promotion failure so the wizard remains retryable.
+        eval { $self->_save_configurator(pf::ConfigStore::Pf->new, $previous) };
+        $error .= "Unable to restore the configurator: $@" if $@;
+        die $error;
+    }
+    return { message => 'Configuration completed' };
+}
+
+sub _save_configurator {
+    my ($self, $cs, $value) = @_;
+    die "Unable to update the configurator setting\n"
+        unless $cs->update('advanced', { configurator => $value });
+    my ($saved, $error) = $cs->commit();
+    die "Unable to save the configurator setting: " . ($error // 'unknown error') . "\n"
+        unless $saved;
+    if ($ENV{PF_UID} && $ENV{PF_GID}) {
+        chown($ENV{PF_UID}, $ENV{PF_GID}, $cs->configFile);
+    }
 }
 
 sub proxy_api_frontend {
