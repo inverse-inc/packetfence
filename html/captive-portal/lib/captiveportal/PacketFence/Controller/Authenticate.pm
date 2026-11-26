@@ -152,6 +152,8 @@ sub authenticationLogin : Private {
         $c->user_session->{source_id} = $source_id;
         $c->user_session->{source_match} = $source_id;
         $c->user_session->{extra} = $extra;
+        # A new browser session ID for the logged in user session
+        $c->renew_browser_session_id;
         if(!person_exist($username)){
             # A status page login records where the person comes from, as a registration does
             person_add($username, ($status_login ? (portal => $profile->getName, source => $source_id) : ()));
