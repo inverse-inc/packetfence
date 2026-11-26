@@ -106,6 +106,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - `www.gstatic.com` is no longer a portal detection URL, which broke Google sign-in (#9511)
   - Isolation passthroughs go to the isolation passthrough set instead of the registration one (#9504)
   - Google Workspace LDAP sources: uploading the client certificate and key no longer fails with a required-field error on the path (#7392)
+  - Users API — the nodes of a user (`/api/v1/user/{id}/node`) and the role bulk actions require the nodes permissions and apply the node role restrictions of the admin role (#9798)
   - Container images: the pfdebian base image upgrades its Debian packages at build time, so the images carry the current Debian security revisions (#9585)
   - SNMP port bounce: a failed ifAdminStatus SET is logged with the SNMP error and `bouncePortSNMP` returns false instead of always true (#9605)
   - Password Of The Day: the pfcron task only rotates the password of the person it created for the source, not of a local user that shares the source's id (#9549)
