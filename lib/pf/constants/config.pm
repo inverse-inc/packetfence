@@ -33,6 +33,8 @@ our @EXPORT_OK = qw(
 
   $TIME_MODIFIER_RE
   $ACCT_TIME_MODIFIER_RE
+  $SAAS_BILLING_MIN_WINDOW
+  %SAAS_BILLING_MIN_WINDOW_TASKS
   $DEADLINE_UNIT
 
   $SELFREG_MODE_EMAIL
@@ -111,6 +113,16 @@ Readonly our $NET_TYPE_OTHER => 'other';
 
 Readonly our $TIME_MODIFIER_RE => qr/[smhDWMY]/;
 Readonly our $ACCT_TIME_MODIFIER_RE => qr/[DWMY]/;
+
+# SaaS (PF_SAAS): node_meta billing rows carry monthly MARD / guest aggregates
+# (names 'mard-YYYYMM' and 'guest-YYYYMM') co-written at RADIUS audit + guest
+# completion ingest. Pruning them below the current billing cycle would destroy
+# the live billing record; enforce a floor of 60 days (2 months, covers current
+# month + the most recent completed month).
+Readonly our $SAAS_BILLING_MIN_WINDOW => '60D';
+Readonly our %SAAS_BILLING_MIN_WINDOW_TASKS => (
+    node_meta_billing_retention => 1,
+);
 Readonly our $DEADLINE_UNIT => qr/[RF]/;
 
 # Guest related

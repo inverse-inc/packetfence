@@ -60,7 +60,16 @@ var builders = map[string]func(map[string]interface{}) JobSetupConfig{
 		`DELETE FROM pki_acme_orders WHERE expires_at < DATE_SUB(?, INTERVAL ? SECOND) AND NOT EXISTS (SELECT 1 FROM pki_acme_authzs a WHERE a.order_id = pki_acme_orders.id) LIMIT ?`,
 		`DELETE FROM pki_acme_nonces WHERE expires_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`,
 	),
-	"auth_log_cleanup":             MakeWindowSqlJobSetupConfig(`DELETE FROM auth_log WHERE attempted_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
+	"auth_log_cleanup": MakeWindowSqlJobSetupConfig(`DELETE FROM auth_log WHERE attempted_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
+	// node_meta carries monthly billing aggregates with names of the form
+	// 'mard-YYYYMM' and 'guest-YYYYMM'. SUBSTRING_INDEX(name, '-', -1) peels
+	// the trailing YYYYMM; lexical comparison against DATE_FORMAT(cutoff,
+	// '%Y%m') is correct because YYYYMM strings sort chronologically. The
+	// prefix LIKE filter leaves every other node_meta row (notably the
+	// existing 'gc_agent' marker) untouched.
+	"node_meta_billing_retention": MakeWindowSqlJobSetupConfig(
+		`DELETE FROM node_meta WHERE (name LIKE 'mard-%' OR name LIKE 'guest-%') AND SUBSTRING_INDEX(name, '-', -1) < DATE_FORMAT(DATE_SUB(?, INTERVAL ? SECOND), '%Y%m') LIMIT ?`,
+	),
 	"dns_audit_log_cleanup":        MakeWindowSqlJobSetupConfig(`DELETE FROM dns_audit_log WHERE created_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
 	"radius_audit_log_cleanup":     MakeWindowSqlJobSetupConfig(`DELETE FROM radius_audit_log WHERE created_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
 	"node_current_session_cleanup": MakeWindowSqlJobSetupConfig(`DELETE FROM node_current_session WHERE updated < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),

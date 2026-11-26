@@ -21,6 +21,8 @@ use pfconfig::namespaces::config;
 use pf::file_paths qw($cron_config_file $cron_default_config_file);
 use pf::util qw(normalize_time isenabled);
 use pf::IniFiles;
+use pf::log;
+use pf::constants::config qw($SAAS_BILLING_MIN_WINDOW %SAAS_BILLING_MIN_WINDOW_TASKS);
 use Clone qw(clone);
 
 use base 'pfconfig::namespaces::config';
@@ -52,7 +54,8 @@ sub golangDurationToSeconds {
 sub build_child {
     my ($self) = @_;
     my $tmp_cfg = clone($self->{cfg});
-    foreach my $task_data (values %$tmp_cfg) {
+    my $saas_billing_min_window = isenabled($ENV{PF_SAAS}) ? normalize_time($SAAS_BILLING_MIN_WINDOW) : 0;
+    while (my ($task_id, $task_data) = each %$tmp_cfg) {
         foreach my $key (keys %$task_data) {
             if ($key =~ /(window|timeout)$/ ) {
                 $task_data->{$key} = normalize_time($task_data->{$key});
@@ -76,6 +79,12 @@ sub build_child {
         }
 
         $task_data->{interval} = $interval;
+        # SaaS: a window under the minimum would delete node_meta billing
+        # rows for the current billing cycle. Raise it; log the override.
+        if ($saas_billing_min_window && exists $SAAS_BILLING_MIN_WINDOW_TASKS{$task_id} && ($task_data->{window} // 0) < $saas_billing_min_window) {
+            get_logger->warn("$task_id: window raised to the SaaS minimum of $SAAS_BILLING_MIN_WINDOW");
+            $task_data->{window} = $saas_billing_min_window;
+        }
         for my $f (qw(fingerprint_networks kafka_brokers)) {
             if (exists $task_data->{$f}) {
                 $task_data->{$f} = [split(/\s*,\s*/, $task_data->{$f})];
