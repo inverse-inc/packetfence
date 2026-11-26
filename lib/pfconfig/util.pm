@@ -55,32 +55,57 @@ sub fetch_socket {
     return $1;
 }
 
+=head2 fetch_decode_socket
+
+Send a request to pfconfig and decode its reply.
+
+A connection can be accepted and then closed without a reply, e.g. by the
+proxy in front of a pfconfig that isn't accepting connections at that moment.
+The request is then sent again, up to $pfconfig::constants::MAX_EMPTY_REPLY_TIMES
+times, like pfconfig::cached does for the configuration reads. The requests
+sent through here (expire, pull_expire) can safely be sent more than once.
+
+=cut
+
 sub fetch_decode_socket {
     my ($payload, %opts) = @_;
 
     my $config = $pfconfig::config::INI_CONFIG;
     my $proto = $config->get_proto();
-
-    my ($socket, $error);
     my $socket_path = $pfconfig::constants::SOCKET_PATH;
-    if(${proto} eq "tcp") {
-        ($socket, $error) = connect_tcp(
-            host => ($opts{tcp_host} // $config->section('general')->{tcp_host}),
-            port => ($opts{tcp_port} // $config->section('general')->{tcp_port}),
-            timeout => ($opts{tcp_timeout} // 5),
-        );
-    }
-    else {
-        $socket = IO::Socket::UNIX->new(
-            Type => SOCK_STREAM,
-            Peer => $socket_path,
-        );
-        $error = "$!";
-    }
-    die "cannot connect to the server: $error\n" unless $socket;
+    my $max_times = $pfconfig::constants::MAX_EMPTY_REPLY_TIMES;
+    my $logger = get_logger;
 
-    my $response = fetch_socket($socket, $payload);
-    return sereal_decode_safe($response);
+    for my $times (1 .. $max_times) {
+        my ($socket, $error);
+        if(${proto} eq "tcp") {
+            ($socket, $error) = connect_tcp(
+                host => ($opts{tcp_host} // $config->section('general')->{tcp_host}),
+                port => ($opts{tcp_port} // $config->section('general')->{tcp_port}),
+                timeout => ($opts{tcp_timeout} // 5),
+            );
+        }
+        else {
+            $socket = IO::Socket::UNIX->new(
+                Type => SOCK_STREAM,
+                Peer => $socket_path,
+            );
+            $error = "$!";
+        }
+        die "cannot connect to the server: $error\n" unless $socket;
+
+        my $response = fetch_socket($socket, $payload);
+        close($socket);
+        if (defined($response) && length($response)) {
+            $logger->info("pfconfig replied after $times tries") if $times > 1;
+            return sereal_decode_safe($response);
+        }
+
+        $logger->warn("pfconfig closed the connection without replying, retrying") if $times == 1;
+        select( undef, undef, undef, 0.1 ) if $times < $max_times;
+    }
+
+    die "pfconfig closed the connection without replying ($max_times tries)\n";
 }
 
 sub socket_expire {
