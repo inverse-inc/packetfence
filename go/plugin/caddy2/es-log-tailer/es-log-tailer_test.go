@@ -846,11 +846,34 @@ func TestBuildHandler_K8SNamespaceFromPath(t *testing.T) {
 		t.Fatalf("buildHandler returned error: %v", err)
 	}
 
-	if m.indexPattern != "*pfk8s-abc123-*" {
-		t.Errorf("expected indexPattern '*pfk8s-abc123-*', got '%s'", m.indexPattern)
+	if m.indexPattern != "prod-pfk8s-abc123-*" {
+		t.Errorf("expected indexPattern 'prod-pfk8s-abc123-*', got '%s'", m.indexPattern)
 	}
 	if m.router == nil {
 		t.Error("expected router to be initialized")
+	}
+}
+
+func TestBuildHandler_IndexPrefixFromEnv(t *testing.T) {
+	dir := t.TempDir()
+	nsFile := filepath.Join(dir, "namespace")
+	os.WriteFile(nsFile, []byte("pfk8s-abc123\n"), 0644)
+
+	t.Setenv("K8S_NAMESPACE_PATH", nsFile)
+	t.Setenv("KIBANA_HOST", "localhost")
+
+	for _, tc := range []struct{ prefix, want string }{
+		{"staging-", "staging-pfk8s-abc123-*"},
+		{"", "pfk8s-abc123-*"},
+	} {
+		t.Setenv("ES_INDEX_PREFIX", tc.prefix)
+		m := &ESLogTailerHandler{}
+		if err := m.buildHandler(log.LoggerNewContext(context.Background())); err != nil {
+			t.Fatalf("buildHandler returned error: %v", err)
+		}
+		if m.indexPattern != tc.want {
+			t.Errorf("ES_INDEX_PREFIX=%q: expected indexPattern %q, got %q", tc.prefix, tc.want, m.indexPattern)
+		}
 	}
 }
 

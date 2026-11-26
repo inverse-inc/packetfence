@@ -80,7 +80,15 @@ func (m *ESLogTailerHandler) buildHandler(ctx context.Context) error {
 
 	m.esClient = NewESClient()
 	m.fieldMapping = NewESFieldMappingFromEnv()
-	m.indexPattern = "*" + k8sNamespace + "-*"
+	// The index prefix encodes the deployment environment (e.g. "prod-", "staging-").
+	// It must stay explicit: a leading wildcard would also match other
+	// environments' and tenants' indices whose names end with this namespace.
+	// An explicitly empty ES_INDEX_PREFIX means no prefix.
+	indexPrefix, ok := os.LookupEnv("ES_INDEX_PREFIX")
+	if !ok {
+		indexPrefix = "prod-"
+	}
+	m.indexPattern = indexPrefix + k8sNamespace + "-*"
 
 	m.aggField = os.Getenv("ES_AGG_FIELD")
 	if m.aggField == "" {
