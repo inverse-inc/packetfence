@@ -18,10 +18,9 @@ set -euo pipefail
 #     GPG_PUBLIC_KEY                      armored repo signing key
 #     debian/
 #       dists/<codename>/...              signed Release/Packages   (reprepro)
-#       pool/...                          .deb / .dsc / source files
+#       pool/...                          binary .deb only (no sources, no -dbgsym)
 #     centos/<release>/
-#       x86_64/{*.rpm,repodata/}          signed yum repo           (createrepo_c)
-#       Source/{*.src.rpm,repodata/}
+#       x86_64/{*.rpm,repodata/}          signed yum repo           (createrepo_c, no sqlite)
 #     index.html                          install instructions      (home page)
 #     <every-subdir>/index.html           directory listing         (tree pages)
 #
@@ -50,7 +49,7 @@ CI_PROJECT_URL="${CI_PROJECT_URL:-https://github.com/inverse-inc/packetfence}"
 
 # Public base URL where this PPA will be reachable. Used only to render the
 # copy/paste install instructions on the home page.
-PPA_URL="${PPA_URL:-https://www.packetfence.org/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}}"
+PPA_URL="${PPA_URL:-https://packages.packetfence.com/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}}"
 # normalise: strip trailing slashes
 PPA_URL="${PPA_URL%/}"
 
@@ -59,8 +58,10 @@ PPA_SLUG="$(tr '/[:upper:]' '-[:lower:]' <<< "$PPA_NAME")"
 
 # APT suite suffix kept identical to the historical devel layout.
 APT_SUITE_SUFFIX="${APT_SUITE_SUFFIX:--gitlab}"
-APT_ARCHITECTURES="${APT_ARCHITECTURES:-amd64 source}"
+APT_ARCHITECTURES="${APT_ARCHITECTURES:-amd64}"
 APT_COMPONENTS="${APT_COMPONENTS:-main}"
+# no: skip the HTML pages (Pulp renders its own directory listings).
+PAGES_HTML="${PAGES_HTML:-yes}"
 
 # --- helpers ----------------------------------------------------------------
 
@@ -124,9 +125,11 @@ export_public_key() {
 # Emits "<id>/<name>" for every depth-2 directory under RESULT_DIR,
 # e.g. "debian/bookworm", "centos/8". Hidden dirs are ignored.
 find_releases() {
-    [ -d "$RESULT_DIR" ] || return 0
-    (cd "$RESULT_DIR" && find . -mindepth 2 -maxdepth 2 -type d \
-        | sed 's,^\./,,' | grep -v '^\.' | sort -u)
+    for base in "$RESULT_DIR" "${PPA_DEPENDENCIES_DIR:-}"; do
+        [ -d "$base" ] || continue
+        (cd "$base" && find . -mindepth 2 -maxdepth 2 -type d \
+            | sed 's,^\./,,' | grep -v '^\.')
+    done | sort -u
 }
 
 # --- APT repository (reprepro) ----------------------------------------------
@@ -161,28 +164,36 @@ EOF
         fi
     done
 
-    # 2. Include every .changes (skipping internal build-deps packages) into the
-    #    matching codename. reprepro copies the referenced files into pool/ and
-    #    regenerates+signs dists/<codename>/{Release,InRelease,Release.gpg}.
+    # 2. Include the built binary .debs (no sources, no -dbgsym, no build-deps).
+    #    reprepro copies them into pool/ and regenerates+signs dists/<codename>/.
     for release in "$@"; do
         release_id="${release%%/*}"
         codename="${release##*/}"
         log_subsection "include $RESULT_DIR/$release -> $PUBLIC_DIR/$release_id"
 
-        local changes found=0
-        while IFS= read -r changes; do
+        # The Pulp path supplies a verified, filtered dependency snapshot.
+        # Add these before the freshly built packages.
+        local dependency
+        if [ -n "${PPA_DEPENDENCIES_DIR:-}" ] && [ -d "$PPA_DEPENDENCIES_DIR/$release" ]; then
+            while IFS= read -r -d '' dependency; do
+                reprepro --basedir "$apt_db/$release_id" --outdir "$pub_dir/$release_id" \
+                         includedeb "$codename" "$dependency" \
+                    || die "dependency inclusion failed: $dependency"
+            done < <(find "$PPA_DEPENDENCIES_DIR/$release" -name '*.deb' -print0 | sort -z)
+        fi
+        mkdir -p "$RESULT_DIR/$release"
+        local deb found=0
+        while IFS= read -r deb; do
             found=1
-            echo "+ $changes"
+            echo "+ $deb"
             reprepro --basedir "$apt_db/$release_id" \
                      --outdir "$pub_dir/$release_id" \
-                     --ignore=wrongdistribution \
-                     --ignore=surprisingbinary \
                      --verbose \
-                     include "$codename" "$changes" \
-                || die "reprepro include failed: $changes"
-        done < <(find "$RESULT_DIR/$release/" -name '*.changes' -not -ipath '*build-deps*' | sort)
+                     includedeb "$codename" "$deb" \
+                || die "reprepro includedeb failed: $deb"
+        done < <(find "$RESULT_DIR/$release/" -name '*.deb' -not -name '*-dbgsym_*' -not -ipath '*build-deps*' | sort)
 
-        [ "$found" -eq 1 ] || echo "WARNING: no .changes found under $RESULT_DIR/$release"
+        [ "$found" -eq 1 ] || echo "WARNING: no .deb found under $RESULT_DIR/$release"
         reprepro --basedir "$apt_db/$release_id" list "$codename" || true
     done
 }
@@ -205,28 +216,28 @@ yum_repo() {
 
     local release src arch repo_dir
     for release in "$@"; do
-        # Split binary (noarch/x86_64) and source rpms into arch subtrees.
-        mkdir -p "$PUBLIC_DIR/$release/x86_64" "$PUBLIC_DIR/$release/Source"
+        # Binary rpms only (noarch/x86_64); source rpms are not published.
+        mkdir -p "$PUBLIC_DIR/$release/x86_64"
 
+        mkdir -p "$RESULT_DIR/$release"
+        if [ -n "${PPA_DEPENDENCIES_DIR:-}" ] && [ -d "$PPA_DEPENDENCIES_DIR/$release" ]; then
+            find "$PPA_DEPENDENCIES_DIR/$release" -name '*.rpm' -print0 \
+                | xargs -0 --no-run-if-empty cp --target-directory "$PUBLIC_DIR/$release/x86_64"
+        fi
         find "$RESULT_DIR/$release" \( -name '*.noarch.rpm' -o -name '*.x86_64.rpm' \) -print0 \
             | xargs -0 --no-run-if-empty cp -fv --target-directory "$PUBLIC_DIR/$release/x86_64" \
             || die "cp of binary rpms failed: $release"
 
-        find "$RESULT_DIR/$release" -name '*.src.rpm' -print0 \
-            | xargs -0 --no-run-if-empty cp -fv --target-directory "$PUBLIC_DIR/$release/Source" \
-            || die "cp of source rpms failed: $release"
-
-        for arch in x86_64 Source; do
-            repo_dir="$PUBLIC_DIR/$release/$arch"
-            log_subsection "createrepo $repo_dir"
-            "$CREATEREPO_BIN" --update --verbose --outputdir "$repo_dir" "$repo_dir" \
-                || die "createrepo failed: $repo_dir"
-            # Sign the repo metadata so yum/dnf can verify repo_gpgcheck.
-            rm -f "$repo_dir/repodata/repomd.xml.asc"
-            gpg --batch --no-tty --yes --detach-sign --armor -u "$GPG_KEY_ID" \
-                "$repo_dir/repodata/repomd.xml" \
-                || die "gpg sign of repomd.xml failed: $repo_dir"
-        done
+        repo_dir="$PUBLIC_DIR/$release/x86_64"
+        log_subsection "createrepo $repo_dir"
+        # dnf reads only the XML metadata; skip the legacy sqlite copies.
+        "$CREATEREPO_BIN" --update --no-database --verbose --outputdir "$repo_dir" "$repo_dir" \
+            || die "createrepo failed: $repo_dir"
+        # Sign the repo metadata so yum/dnf can verify repo_gpgcheck.
+        rm -f "$repo_dir/repodata/repomd.xml.asc"
+        gpg --batch --no-tty --yes --detach-sign --armor -u "$GPG_KEY_ID" \
+            "$repo_dir/repodata/repomd.xml" \
+            || die "gpg sign of repomd.xml failed: $repo_dir"
     done
 }
 
@@ -475,8 +486,10 @@ printf 'UNKNOWN: %s\n' "${UNKNOWN_RELEASES[*]:-(none)}"
 (( ${#APT_RELEASES[@]} > 0 )) && apt_repo "${APT_RELEASES[@]}"
 (( ${#YUM_RELEASES[@]} > 0 )) && yum_repo "${YUM_RELEASES[@]}"
 
-generate_home
-generate_tree
+if [ "$PAGES_HTML" != no ]; then
+    generate_home
+    generate_tree
+fi
 
 log_section "Published tree"
 show_tree -L 4 "$PUBLIC_DIR"

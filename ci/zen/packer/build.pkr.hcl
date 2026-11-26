@@ -26,7 +26,9 @@ build {
       "${var.ansible_pfservers_group}",
     ]
     ansible_env_vars = [
-      "PF_MINOR_RELEASE=${var.pf_version}"
+      "PF_MINOR_RELEASE=${var.pf_version}",
+      "PF_PACKAGE_ORIGIN=${var.pf_package_origin}",
+      "PF_BRANCHES_PIPELINE=${var.pf_branches_pipeline}"
     ]
     inventory_directory = "${var.provisioner_dir}/inventory"
     # temp

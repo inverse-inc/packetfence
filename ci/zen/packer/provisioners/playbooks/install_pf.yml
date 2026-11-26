@@ -3,7 +3,16 @@
   become: True
   gather_facts: True
   collections:
-    - inverse_inc.packetfence  
+    - inverse_inc.packetfence
+
+  pre_tasks:
+    # A feature branch's packages stay ahead of debian/X.Y's (a newer devel build would win on version).
+    - name: Prefer the feature branch's packetfence packages
+      ansible.builtin.copy:
+        dest: /etc/apt/preferences.d/packetfence.pref
+        content: "Package: packetfence*\nPin: release a=bookworm-gitlab\nPin-Priority: 900\n"
+        mode: '0644'
+      when: pf_branches_pipeline | default('') | length > 0
 
   roles:
 

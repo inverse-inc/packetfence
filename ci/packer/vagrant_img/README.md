@@ -44,7 +44,7 @@ runs don't refetch it.
   build host joins groups `["nodes","wireless"]`. CI jobs
   `build_pf_img_vagrant_node_{devel,maintenance,branch}_debian_bullseye` produce
   `pfnode11dev` / `pfnode11stable` / `pfnode11branch`. Unlike the PF/AD boxes
-  they need **neither `deploy_packages` nor `publish_ppa`**.
+  they need **neither `deploy_files_pulp` nor `publish_ppa`**.
 
 ### Bootstrap (first use)
 

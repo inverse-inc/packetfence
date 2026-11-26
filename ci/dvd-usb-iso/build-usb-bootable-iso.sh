@@ -32,10 +32,10 @@ PF_RELEASE_VERSION="${PF_RELEASE_VERSION:-$(sed -r 's/.*\b([0-9]+\.[0-9]+)\.[0-9
 
 # Docker image tag for PacketFence containers
 if [ -z "${TAG_OR_BRANCH_NAME:-}" ]; then
-    if [ -n "${CI_COMMIT_TAG:-}" ]; then
-        export TAG_OR_BRANCH_NAME="${CI_COMMIT_TAG}"
-    elif [ -n "${CI_COMMIT_REF_SLUG:-}" ]; then
-        export TAG_OR_BRANCH_NAME="${CI_COMMIT_REF_SLUG}"
+    if [ -n "${CI_COMMIT_REF_SLUG:-}${CI_COMMIT_TAG:-}" ]; then
+        # release tag, feature branch pipeline tag, or branch slug: the tag the packages pull
+        TAG_OR_BRANCH_NAME=$(sh "${PF_ROOT}/ci/lib/common/image-tag.sh")
+        export TAG_OR_BRANCH_NAME
     elif [ -f "${PF_ROOT}/conf/build_id" ]; then
         # shellcheck disable=SC1091
         source "${PF_ROOT}/conf/build_id"
@@ -53,13 +53,20 @@ if [ -z "${TAG_OR_BRANCH_NAME:-}" ]; then
     fi
 fi
 
+# Fail before the downloads when the packages this ISO installs are not deployed.
+"${PF_ROOT}/ci/lib/common/deployed-repo.sh" --check "${PF_RELEASE_VERSION}" >/dev/null
+
 # Resolve absolute paths used as ISO_IN/ISO_OUT for stage 3
 if [[ "${ISO_IN}" != /* ]]; then ISO_IN="${SCRIPT_DIR}/${ISO_IN}"; fi
 if [[ "${ISO_OUT}" != /* ]]; then ISO_OUT="${SCRIPT_DIR}/${ISO_OUT}"; fi
 
 # Export so step scripts inherit
 export WORK_DIR ISOFILES_DIR REPO_DIR DOCKER_IMAGES_DIR
-export PF_VERSION PF_RELEASE PF_RELEASE_VERSION TAG_OR_BRANCH_NAME
+# The service images this pipeline built, if any (predownload-docker-images.sh saves them as TAG_OR_BRANCH_NAME).
+if [ -n "${CI_COMMIT_REF_SLUG:-}" ] && [ -z "${PIPELINE_IMAGE_TAG:-}" ]; then
+    PIPELINE_IMAGE_TAG=$(sh "${PF_ROOT}/ci/lib/common/pipeline-image-tag.sh")
+fi
+export PF_VERSION PF_RELEASE PF_RELEASE_VERSION TAG_OR_BRANCH_NAME PIPELINE_IMAGE_TAG
 export ISO_IN ISO_OUT BUILDER_IMAGE
 
 if ! command -v docker >/dev/null 2>&1; then

@@ -9,7 +9,6 @@ WORK_DIR="${WORK_DIR:-${SCRIPT_DIR}/work}"
 REPO_DIR="${REPO_DIR:-${WORK_DIR}/repo}"
 
 export PF_RELEASE_VERSION="${PF_RELEASE_VERSION:-15.1}"
-export PF_REPO_TYPE="${PF_REPO_TYPE:-debian-branches}"
 BUILDER_IMAGE="${BUILDER_IMAGE:-debian:bookworm}"
 
 mkdir -p "${REPO_DIR}"
@@ -25,7 +24,6 @@ echo "=============================================="
 echo "PF_ROOT:             ${PF_ROOT}"
 echo "REPO_DIR:            ${REPO_DIR}"
 echo "PF_RELEASE_VERSION:  ${PF_RELEASE_VERSION}"
-echo "PF_REPO_TYPE:        ${PF_REPO_TYPE}"
 echo "=============================================="
 
 # Run create-local-repo.sh as root inside the container.
@@ -35,7 +33,8 @@ echo "=============================================="
 docker run --rm \
     -v "${PF_ROOT}:/pf-root:ro" \
     -v "${REPO_DIR}:/repo" \
-    -e PF_REPO_TYPE \
+    -e PF_PACKAGE_ORIGIN \
+    -e PF_BRANCHES_PIPELINE \
     -e PF_RELEASE_VERSION \
     -w /pf-root/ci/dvd-usb-iso \
     "${BUILDER_IMAGE}" \

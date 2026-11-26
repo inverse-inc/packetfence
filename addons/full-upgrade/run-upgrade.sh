@@ -93,7 +93,7 @@ function find_latest_stable() {
   elif is_deb_based; then
     OS="Debian-12"
   fi
-  curl https://www.packetfence.org/downloads/PacketFence/latest-stable-$OS.txt
+  curl -fsS https://packages.packetfence.com/downloads/PacketFence/latest-stable-$OS.txt
 }
 
 UPGRADE_TO="${UPGRADE_TO:-}"
@@ -112,16 +112,16 @@ function set_upgrade_to() {
 function install_gpg_key(){
   if is_deb_based; then
     apt install gnupg sudo curl
-    curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
+    curl -fsSL https://packages.packetfence.com/downloads/GPG_PUBLIC_KEY | gpg --dearmor --yes -o /etc/apt/keyrings/packetfence.gpg
   elif is_rpm_based; then
-    rpm --import https://inverse.ca/downloads/GPG_PUBLIC_KEY
+    rpm --import https://packages.packetfence.com/downloads/GPG_PUBLIC_KEY
   fi
 }
 
 function apt_upgrade_packetfence_package() {
   set_upgrade_to
   install_gpg_key
-  echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/$UPGRADE_TO bookworm bookworm" > /etc/apt/sources.list.d/packetfence.list
+  echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://packages.packetfence.com/downloads/PacketFence/debian/$UPGRADE_TO bookworm bookworm" > /etc/apt/sources.list.d/packetfence.list
   apt update
   if is_enabled $1; then
     apt-mark hold packetfence-upgrade
@@ -143,7 +143,9 @@ function apt_upgrade_packetfence_package() {
 function yum_upgrade_packetfence_package() {
   set_upgrade_to
   install_gpg_key
-  yum localinstall -y https://www.inverse.ca/downloads/PacketFence/RHEL8/packetfence-release-$UPGRADE_TO.el8.noarch.rpm
+  # Through yum (its proxy settings apply); downgrade too: a target built earlier has a lower release number.
+  local release_rpm=https://packages.packetfence.com/downloads/PacketFence/RHEL8/packetfence-release-$UPGRADE_TO.el8.noarch.rpm
+  yum install -y "$release_rpm" || yum downgrade -y "$release_rpm" || yum reinstall -y "$release_rpm"
   yum clean all --enablerepo=packetfence
   yum_upgrade_mariadb_server
   if is_enabled $1; then

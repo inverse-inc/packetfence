@@ -23,15 +23,11 @@ configure_and_check() {
     DST_FILE=${DST_FILE:-}
     CONTAINER_NAME=pfconfig_material
 
-    if [ -n "${CI_COMMIT_TAG}" ]; then
-        # release
-        IMAGE_TAG=${CI_COMMIT_TAG}
-    elif [ -n "${CI_COMMIT_REF_SLUG}" ]; then
-        # all branches (maintenance included and devel)
-        IMAGE_TAG=${CI_COMMIT_REF_SLUG}
-    else
-        IMAGE_TAG=localdev
-    fi
+    # This pipeline's own pfconfig when it built one (devel: the branch tag is still the previous build's),
+    # else the release tag or branch slug.
+    IMAGE_TAG=$(sh "${PF_SRC_DIR}/ci/lib/common/pipeline-image-tag.sh")
+    IMAGE_TAG=${IMAGE_TAG:-$(sh "${PF_SRC_DIR}/ci/lib/common/image-tag.sh")}
+    IMAGE_TAG=${IMAGE_TAG:-localdev}
 
     declare -p CI_COMMIT_TAG CI_COMMIT_REF_SLUG
     declare -p IMAGE_TAG

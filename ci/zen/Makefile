@@ -18,10 +18,17 @@ PKR_ON_ERROR=cleanup
 #==============================================================================
 # The build runs inside the zen-builder image, not on the runner; the
 # packer configuration lives under packer/. See zen-in-docker.sh.
+# Built from the deployed packages: debian/X.Y, or a feature branch's branches/X.Y/<pipeline>/ (DEPLOY_PKG=yes).
+PF_PACKAGE_ORIGIN ?= https://packages.packetfence.com
+
 .PHONY: zen-deb12
 zen-deb12:
+	@PF_PACKAGE_ORIGIN="$(PF_PACKAGE_ORIGIN)" PF_BRANCHES_PIPELINE="$(PF_BRANCHES_PIPELINE)" \
+	  ../lib/common/deployed-repo.sh --check $(PF_MINOR_RELEASE) >/dev/null
 	PF_VERSION="$(PF_VERSION)" \
 	PKR_VAR_pf_version="$(PKR_VAR_pf_version)" \
+	PKR_VAR_pf_package_origin="$(PF_PACKAGE_ORIGIN)" \
+	PKR_VAR_pf_branches_pipeline="$(PF_BRANCHES_PIPELINE)" \
 	PKR_VAR_vm_name="$(PKR_VAR_vm_name)" \
 	VM_NAME="$(VM_NAME)" \
 	ANSIBLE_FORCE_COLOR="$(ANSIBLE_FORCE_COLOR)" \

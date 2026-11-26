@@ -248,11 +248,9 @@ sed -i 's/#PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config
 # (they will be added properly when network is available)
 sed -i 's/.*inverse\.ca.*//g' /etc/apt/sources.list
 
-# Configure PacketFence repository for future updates (will be used when network is available)
-# Using debian-branches for now - change to debian/${PF_RELEASE_VERSION} when stable packages are published
-cat > /etc/apt/sources.list.d/packetfence.list << EOF
-deb [signed-by=/etc/apt/keyrings/packetfence.gpg] https://inverse.ca/downloads/PacketFence/debian-branches/${PF_RELEASE_VERSION} bookworm bookworm
-EOF
+# PacketFence repositories for future updates (used when network is available): the ones the ISO was built from.
+cp /media/cdrom/pf-repo/packetfence-online.list /etc/apt/sources.list.d/packetfence.list
+[ ! -f /media/cdrom/pf-repo/packetfence-online.pref ] || cp /media/cdrom/pf-repo/packetfence-online.pref /etc/apt/preferences.d/packetfence.pref
 
 # Step 7: Create first-boot service
 echo "===> Step 7: Creating first-boot service"

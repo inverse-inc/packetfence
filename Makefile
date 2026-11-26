@@ -251,6 +251,8 @@ conf/build_id:
 rpm/.rpmmacros:
 	echo "%systemddir /usr/lib/systemd" > $(SRC_RPMDIR)/.rpmmacros
 	echo "%pf_minor_release $(PF_MINOR_RELEASE)" >> $(SRC_RPMDIR)/.rpmmacros
+	$(if $(PF_BRANCHES_PIPELINE),echo "%pf_branches_pipeline $(PF_BRANCHES_PIPELINE)" >> $(SRC_RPMDIR)/.rpmmacros)
+	$(if $(PF_PACKAGE_ORIGIN),echo "%pf_package_origin $(PF_PACKAGE_ORIGIN)" >> $(SRC_RPMDIR)/.rpmmacros)
 
 .PHONY: build_rpm
 build_rpm: conf/git_commit_id conf/build_id rpm/.rpmmacros dist-packetfence-test dist-packetfence-export dist-packetfence-upgrade dist
@@ -476,10 +478,6 @@ dist-packetfence-upgrade: distclean-packetfence-upgrade
 	tar c --exclude-from=$(SRC_ROOT_DIR)/dist_ignore \
 	-f packetfence-upgrade-$(PF_PATCH_RELEASE).tar packetfence-upgrade-$(PF_PATCH_RELEASE)
 	rm -rf packetfence-upgrade-$(PF_PATCH_RELEASE)
-
-.PHONY: website
-website:
-	$(SRC_CIDIR)/lib/release/publish-to-website.sh
 
 .PHONY: material
 material: DESTDIR=result

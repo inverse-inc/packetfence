@@ -10,11 +10,11 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends ca-certificates curl gnupg devscripts equivs make git tree \
         python3 python3-nacl python3-requests && \
     install -d -m 0755 /etc/apt/keyrings && \
-    curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY \
+    curl -fsSL https://packages.packetfence.com/downloads/GPG_PUBLIC_KEY \
         | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg && \
     curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key \
         | gpg --dearmor -o /etc/apt/keyrings/nodesource-repo.gpg && \
-    echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/${PF_MINOR_RELEASE} bookworm bookworm" \
+    echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] https://packages.packetfence.com/downloads/PacketFence/debian/${PF_MINOR_RELEASE} bookworm bookworm" \
         > /etc/apt/sources.list.d/packetfence.list && \
     echo "deb [signed-by=/etc/apt/keyrings/nodesource-repo.gpg] https://deb.nodesource.com/node_20.x nodistro main" \
         > /etc/apt/sources.list.d/nodejs.list && \

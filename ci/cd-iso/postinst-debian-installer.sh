@@ -1,15 +1,16 @@
 #!/bin/bash
 set -o nounset -o pipefail -o errexit
 
-PF_VERSION=${1:-}
+PF_KEY_URL=${1:?}
 
 sed -i '/^deb cdrom:/s/^/#/' /etc/apt/sources.list
 sed -i 's/#PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config
 sed -i 's/#PasswordAuthentication.*/PasswordAuthentication yes/g' /etc/ssh/sshd_config
 systemctl restart sshd.service
-curl -fsSL https://inverse.ca/downloads/GPG_PUBLIC_KEY | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
-echo "deb [signed-by=/etc/apt/keyrings/packetfence.gpg] http://inverse.ca/downloads/PacketFence/debian/${PF_VERSION} bookworm bookworm" > \
-	/etc/apt/sources.list.d/packetfence.list
+curl -fsSL "$PF_KEY_URL" | gpg --dearmor -o /etc/apt/keyrings/packetfence.gpg
+# The deployed repositories the ISO was built for (create-debian-installer.sh).
+cp /media/cdrom/packetfence.list /etc/apt/sources.list.d/packetfence.list
+[ ! -f /media/cdrom/packetfence.pref ] || cp /media/cdrom/packetfence.pref /etc/apt/preferences.d/packetfence.pref
 echo "SET PASSWORD FOR root@'localhost' = PASSWORD('');" > /tmp/reset-root.sql
 apt-get update
 apt-get install packetfence -y
