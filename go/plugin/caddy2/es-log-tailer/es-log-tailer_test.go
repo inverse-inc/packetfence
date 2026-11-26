@@ -846,8 +846,8 @@ func TestBuildHandler_K8SNamespaceFromPath(t *testing.T) {
 		t.Fatalf("buildHandler returned error: %v", err)
 	}
 
-	if m.indexPattern != "prod-pfk8s-abc123-*" {
-		t.Errorf("expected indexPattern 'prod-pfk8s-abc123-*', got '%s'", m.indexPattern)
+	if m.indexPattern != "*pfk8s-abc123-*" {
+		t.Errorf("expected indexPattern '*pfk8s-abc123-*', got '%s'", m.indexPattern)
 	}
 	if m.router == nil {
 		t.Error("expected router to be initialized")
