@@ -22,6 +22,8 @@ stages:
   - test
   - test_cluster
   - deploy
+  # After the package deploys: a failed one keeps the previous images; a push can be retried.
+  - deploy_images
   - build_pf_img
 
 ################################################################################
@@ -30,6 +32,14 @@ stages:
 variables:
   # synced with Pipeline timeout in GitLab UI
   PIPELINE_TIMEOUT_SCRIPT: 160m
+  PF_PACKAGE_ORIGIN: "https://packages.packetfence.com"
+  # Psono entry IDs of the Pulp CI accounts ci-packages, ci-docker and ci-docs (read with PSONO_CI_API_*).
+  # Set them in GitLab, not protected: feature branches publish their PPA and branch folders too. The IDs are not
+  # secrets; PSONO_CI_API_SECRET_KEY_HEX is (masked). The Pulp jobs fail while they are empty.
+  PSONO_CI_PULP_PACKAGES_ID: ""
+  PSONO_CI_PULP_DOCKER_ID: ""
+  PSONO_CI_PULP_DOCS_ID: ""
+  PF_PPA_IMAGE: "ghcr.io/inverse-inc/packetfence/publish-ppa:${IMAGE_TAG}"
   PIPELINE_TIMEOUT_CLEANUP: 10m
   # sub-budgets of PIPELINE_TIMEOUT_CLEANUP; sum must stay below it
   PIPELINE_TIMEOUT_TEARDOWN: 6m
@@ -60,7 +70,6 @@ variables:
   VAGRANT_LIB_DIR: ${CI_PROJECT_DIR}/$CIDIR/lib/vagrant
   TESTDIR: t/venom
   CONTAINER_DIR: containers
-  UPLOAD_DIR: $CILIBDIR/upload
   # env variables
   ANSIBLE_FORCE_COLOR: 1
   ANSIBLE_STDOUT_CALLBACK: yaml
@@ -103,13 +112,11 @@ variables:
         ANSIBLE_DEBIAN_GROUP: common_debian
         ANSIBLE_RUBYGEMS_GROUP: stable_rubygems
         DEPLOY_ENV_NAME: pf-stable
-        DEB_DEPLOY_DIR: debian
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/'
       variables:
         CONTEXT: maintenance
         IMAGE_TAG: $CI_COMMIT_REF_SLUG
         DEPLOY_ENV_NAME: maintenance
-        DEB_DEPLOY_DIR: debian
     - if: '$CI_COMMIT_REF_NAME == "devel"'
       variables:
         CONTEXT: devel
@@ -118,19 +125,14 @@ variables:
         IMAGE_TAGS_DEVEL: "${CI_COMMIT_REF_SLUG},latest"
         DOCKER_TAGS_DEVEL: "latest,devel,maintenance-99-9"
         DEPLOY_ENV_NAME: pf-devel
-        DEB_DEPLOY_DIR: debian
         PF_CI_LIB_DEB_DEST_NAME: packetfence-ci-lib_devel.deb
     - when: always
       variables:
         CONTEXT: branches
         IMAGE_TAG: $CI_COMMIT_REF_SLUG
         DEPLOY_ENV_NAME: pf-branches
-        DEB_DEPLOY_DIR: debian-branches
-        RPM_DEPLOY_DIR: branches/x86_64
-        PKG_DEST_NAME: packetfence-release-branches.el8.noarch.rpm
-        PF_EXPORT_RPM_DEST_NAME: packetfence-export-branches.el8.noarch.rpm
-        PF_EXPORT_DEB_DEST_NAME: packetfence-export_branches.deb
-        PF_CI_LIB_DEB_DEST_NAME: packetfence-ci-lib_branches.deb
+        # packetfence-release's packetfence-branches repository: branches/X.Y/<pipeline> (Makefile).
+        PF_BRANCHES_PIPELINE: $CI_PIPELINE_ID
 
 # === RELEASE-ONLY RULES (used by _pristine test jobs) ===
 # run only jobs on release tag (vX.Y.Z) (push and web)
@@ -143,9 +145,10 @@ variables:
 # short-circuit. Concrete jobs compose them via `!reference [.gated_by_X, rules]`
 # together with `!reference [.context_rules, rules]`.
 
+# Requested tests need this pipeline's packages: they override BUILD_ARTIFACTS_PKG=no.
 .gated_by_build_artifacts_pkg:
   rules:
-    - if: '$BUILD_ARTIFACTS_PKG == "no"'
+    - if: '$BUILD_ARTIFACTS_PKG == "no" && $CI_COMMIT_TAG == null && $TEST != "yes" && $CI_COMMIT_MESSAGE !~ /test=yes/ && $TEST_ONLY == "" && $TEST_CLUSTER != "yes" && $CI_COMMIT_MESSAGE !~ /test_cluster=yes/'
       when: never
 
 .gated_by_build_img_container:
@@ -153,6 +156,15 @@ variables:
     - if: '$BUILD_IMG_CONTAINER == "no"'
       when: never
     - if: '$CI_COMMIT_MESSAGE =~ /build_img_container=no/'
+      when: never
+
+# Image builds: skipped by BUILD_IMG_CONTAINER=no unless tests are requested (they need this pipeline's
+# images); the deploys keep .gated_by_build_img_container, so such a pipeline still publishes nothing.
+.gated_by_build_img_container_unless_tested:
+  rules:
+    - if: '$BUILD_IMG_CONTAINER == "no" && $TEST != "yes" && $CI_COMMIT_MESSAGE !~ /test=yes/ && $TEST_ONLY == "" && $TEST_CLUSTER != "yes" && $CI_COMMIT_MESSAGE !~ /test_cluster=yes/'
+      when: never
+    - if: '$CI_COMMIT_MESSAGE =~ /build_img_container=no/ && $TEST != "yes" && $CI_COMMIT_MESSAGE !~ /test=yes/ && $TEST_ONLY == "" && $TEST_CLUSTER != "yes" && $CI_COMMIT_MESSAGE !~ /test_cluster=yes/'
       when: never
 
 .gated_by_build_img_docker:
@@ -163,12 +175,12 @@ variables:
 
 .gated_by_publish_ppa:
   rules:
-    - if: '$PUBLISH_PPA == "yes" || $CI_COMMIT_MESSAGE =~ /publish_ppa=yes/'
     - if: '$CI_COMMIT_TAG'
-    - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" )'
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" )'
+    - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" || $TEST_CLUSTER == "yes" || $CI_COMMIT_MESSAGE =~ /test_cluster=yes/ )'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ || $TEST_ONLY != "" || $TEST_CLUSTER == "yes" || $CI_COMMIT_MESSAGE =~ /test_cluster=yes/ )'
     - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ($BUILD_PF_IMG_DVD_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_dvd_usb_iso=yes/)'
-    - if: '$BUILD_PF_IMG_VAGRANT == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_vagrant=yes/'
+    # The sources that build packages outside devel (sign_packages is a need).
+    - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule") && ($BUILD_PF_IMG_VAGRANT == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_vagrant=yes/)'
 
 .gated_by_test_yes:
   rules:
@@ -190,11 +202,6 @@ variables:
     - if: '$BUILD_PF_IMG_ZEN != "yes" && $CI_COMMIT_MESSAGE !~ /build_pf_img_zen=yes/'
       when: never
 
-.gated_by_build_artifacts_website:
-  rules:
-    - if: '$BUILD_ARTIFACTS_WEBSITE != "yes" && $CI_COMMIT_MESSAGE !~ /build_artifacts_website=yes/'
-      when: never
-
 .gated_by_build_artifacts_material:
   rules:
     - if: '$BUILD_ARTIFACTS_MATERIAL != "yes" && $CI_COMMIT_MESSAGE !~ /build_artifacts_material=yes/'
@@ -207,7 +214,10 @@ variables:
 
 .gated_by_deploy_pkg:
   rules:
-    - if: '$DEPLOY_PKG == "no"'
+    - if: '$DEPLOY_PKG == "no" || $DEPLOY_PKG == "false"'
+      when: never
+    # BUILD_ARTIFACTS_PKG=no publishes nothing, even when requested tests built the packages.
+    - if: '$BUILD_ARTIFACTS_PKG == "no"'
       when: never
 
 # === SHARED CONTAINER-BUILD RULES ===
@@ -235,6 +245,33 @@ variables:
         IMAGE_TAG: latest
         IMAGE_TAGS: "${CI_COMMIT_REF_SLUG},latest"
 
+# Service images (pfdebian, radiusd and their *_related matrices). Every branch pushes them only
+# as <slug>-p<pipeline>: devel and maintenance/X.Y get their branch tags from deploy_containers
+# after the tests, a feature branch keeps the pipeline tag (its packages name it, see
+# ci/lib/common/image-tag.sh). IMAGE_TAG stays the branch tag (kaniko-build job image) and
+# BUILDER_TAG pins the pfbuild-* builder. Keep in step with ci/lib/common/pipeline-image-tag.sh.
+.build_img_service_rules:
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
+      variables:
+        IMAGE_TAG: ${CI_COMMIT_REF_SLUG}
+        BUILDER_TAG: ${CI_COMMIT_REF_SLUG}
+        IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}-p${CI_PIPELINE_ID}
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
+      variables:
+        IMAGE_TAG: ${CI_COMMIT_REF_SLUG}
+        BUILDER_TAG: ${CI_COMMIT_REF_SLUG}
+        IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}-p${CI_PIPELINE_ID}
+    - if: '$CI_COMMIT_TAG'
+      variables:
+        IMAGE_TAG: ${CI_COMMIT_TAG}
+        IMAGE_TAGS: ${CI_COMMIT_TAG}
+    - if: '$CI_COMMIT_REF_NAME == "devel"'
+      variables:
+        IMAGE_TAG: latest
+        BUILDER_TAG: ${CI_COMMIT_REF_SLUG}
+        IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}-p${CI_PIPELINE_ID}
+
 # Rules for ci_related image builds (pfbuild, signing, publish-ppa).
 # Devel arm lives in each job's inline rules (opt-in via BUILD_IMG_DOCKER).
 # IMAGE_TAG is set alongside IMAGE_TAGS so jobs using .build_img_container_job
@@ -255,7 +292,7 @@ variables:
         IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
 
 # Shared rules for devel-or-branches-or-release jobs (no maintenance):
-# build_artifacts_website, build_artifacts_material, deploy_website_artifacts.
+# build_artifacts_material.
 # Each arm mirrors the IMAGE_TAG value from .context_rules so that
 # `image: …:${IMAGE_TAG}` resolves correctly in consuming jobs.
 .devel_or_branches_or_release_rules:
@@ -270,53 +307,24 @@ variables:
       variables:
         IMAGE_TAG: $CI_COMMIT_REF_SLUG
 
-# Shared rules for deploy_* (rpm, deb, pkg_friendly_names) — runs on
-# devel push/web/schedule, release tag, branches via web/api/schedule,
-# maintenance via web/api/schedule. Used together with .gated_by_deploy_pkg.
-# Mirror DEPLOY_ENV_NAME and the deploy-dir vars (DEB_DEPLOY_DIR / RPM_DEPLOY_DIR)
-# from .context_rules — .deploy_pkg_rules is the only rule path the deploy_* jobs
-# traverse, and .context_rules' when:always fallback can't be composed in without
-# breaking branch/source filtering. Without DEB_DEPLOY_DIR set here, deploy-artifacts.sh
-# falls back to its :-foo default and publishes under .../PacketFence/foo/<version>/.
-# (Pre-matrix maintenance branches set these per explicit deploy job; this block is
-# the single-matrix equivalent.) RPM_DEPLOY_DIR is only overridden for feature
-# branches; devel/maintenance/release rely on the script default
-# (${PF_MINOR_RELEASE}/x86_64), and PF_MINOR_RELEASE (from conf/pf-release) is not
-# available at YAML rule-evaluation time.
+# Rules for deploy_files_pulp: devel push/web/schedule, maintenance via web/api/schedule (with
+# .gated_by_deploy_pkg). Each arm sets DEPLOY_ENV_NAME and the per-context published names that
+# ci/pulp/publish-files.py reads. Feature branches put these files in their own
+# branches/X.Y/<pipeline>/ folder (deploy_branches_pulp), never in the debian/ and RHEL<N>/ roots.
 .deploy_pkg_rules:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "devel"'
       variables:
         DEPLOY_ENV_NAME: pf-devel
         IMAGE_TAG: latest
-        DEB_DEPLOY_DIR: debian
         # packetfence-release/export/upgrade deploy into the shared debian/ + RHEL*
         # dirs regardless of context, so the context is encoded in the filename.
         # Only ci-lib gets a devel-specific name; the rest use versioned defaults.
         PF_CI_LIB_DEB_DEST_NAME: packetfence-ci-lib_devel.deb
-    - if: '$CI_COMMIT_TAG'
-      variables:
-        DEPLOY_ENV_NAME: pf-stable
-        IMAGE_TAG: $CI_COMMIT_TAG
-        DEB_DEPLOY_DIR: debian
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule")'
       variables:
         DEPLOY_ENV_NAME: maintenance
         IMAGE_TAG: $CI_COMMIT_REF_SLUG
-        DEB_DEPLOY_DIR: debian
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule") && $DEPLOY_PKG == "yes"'
-      variables:
-        DEPLOY_ENV_NAME: pf-branches
-        IMAGE_TAG: $CI_COMMIT_REF_SLUG
-        DEB_DEPLOY_DIR: debian-branches
-        RPM_DEPLOY_DIR: branches/x86_64
-        # release/export/ci-lib deploy into the shared debian/ + RHEL* dirs; the
-        # *-branches filenames keep feature-branch builds from overwriting the
-        # versioned release artifacts that live alongside them.
-        PKG_DEST_NAME: packetfence-release-branches.el8.noarch.rpm
-        PF_EXPORT_RPM_DEST_NAME: packetfence-export-branches.el8.noarch.rpm
-        PF_EXPORT_DEB_DEST_NAME: packetfence-export_branches.deb
-        PF_CI_LIB_DEB_DEST_NAME: packetfence-ci-lib_branches.deb
 
 # === TEST-STAGE RULES ===
 # .test_rules merges the former .test_devel_and_maintenance_rules and
@@ -426,6 +434,8 @@ variables:
 # block — only jobs that actually ran and failed will skip the dependents.
 .needs_all_build_images:
   needs:
+    - job: check_pulp_release
+      optional: true
     - job: pre_ci_lint_yaml
     - job: kaniko
       optional: true
@@ -449,19 +459,6 @@ variables:
     expire_in: 1 day
     paths:
       - result/*
-  tags:
-    - docker
-
-.build_artifacts_website_job:
-  stage: build_artifacts
-  needs: !reference [.needs_all_build_images, needs]
-  dependencies: []
-  script:
-    - make -e website
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - website/*
   tags:
     - docker
 
@@ -522,63 +519,6 @@ variables:
 .test_cluster_job:
   extends: .test_job
   stage: test_cluster
-
-.deploy_packages_job:
-  stage: deploy
-  image: ghcr.io/inverse-inc/packetfence/publish-ppa:${IMAGE_TAG}
-  dependencies:
-    - sign_packages
-  variables:
-    DEPLOY_USER: reposync
-    DEPLOY_HOST: web.inverse.ca
-    DEPLOY_SRPMS: "no"
-    DEPLOY_PORT: 444
-    PSONO_SSH_DEPLOY_KEY_SECRET_ID: ed9a0533-4da0-4cdb-ab5f-ac7e061c281c
-  before_script:
-    - |
-      set -euo pipefail
-      echo "=== Import SSH deploy key from Psono ==="
-      mkdir -p ~/.ssh && chmod 700 ~/.ssh
-      python3 addons/packetfence-perl/psono.py \
-        --api_key_id="$PSONO_API_KEY_ID" \
-        --api_key_secret_key="$PSONO_API_KEY_SECRET_KEY" \
-        --secret_id="$PSONO_SSH_DEPLOY_KEY_SECRET_ID" \
-        --return_value=password_notes \
-      > ~/.ssh/id_rsa
-      chmod 600 ~/.ssh/id_rsa
-      echo "SSH deploy key imported successfully"
-  script:
-    - ./${UPLOAD_DIR}/deploy-artifacts.sh ${DEPLOY_TYPE}
-  tags:
-    - docker
-
-.deploy_website_artifacts_job:
-  stage: deploy
-  image: ghcr.io/inverse-inc/packetfence/publish-ppa:${IMAGE_TAG}
-  dependencies:
-    - build_artifacts_website
-  variables:
-    DEPLOY_USER: reposync
-    DEPLOY_HOST: web.inverse.ca
-    DEPLOY_PORT: 444
-    PSONO_SSH_DEPLOY_KEY_SECRET_ID: ed9a0533-4da0-4cdb-ab5f-ac7e061c281c
-  before_script:
-    - |
-      set -euo pipefail
-      echo "=== Import SSH deploy key from Psono ==="
-      mkdir -p ~/.ssh && chmod 700 ~/.ssh
-      python3 addons/packetfence-perl/psono.py \
-        --api_key_id="$PSONO_API_KEY_ID" \
-        --api_key_secret_key="$PSONO_API_KEY_SECRET_KEY" \
-        --secret_id="$PSONO_SSH_DEPLOY_KEY_SECRET_ID" \
-        --return_value=password_notes \
-      > ~/.ssh/id_rsa
-      chmod 600 ~/.ssh/id_rsa
-      echo "SSH deploy key imported successfully"
-  script:
-    - ./${UPLOAD_DIR}/deploy-artifacts.sh website
-  tags:
-    - docker
 
 .build_pf_img_job:
   stage: build_pf_img
@@ -695,6 +635,18 @@ run_pipeline_if_necessary:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_TAG == null'
 
+# Release tags: stop before any build unless the packaging side prepared Pulp for this version.
+check_pulp_release:
+  extends:
+    - .check_job
+  image: python:3-alpine
+  script:
+    - apk add --no-cache bash >/dev/null
+    - pip install --quiet requests pynacl
+    - bash ci/pulp/check-release.sh
+  rules:
+    - if: '$CI_COMMIT_TAG'
+
 # Catches YAML regressions before any other stage runs. allow_failure: false
 # because lint errors here break every downstream job — fail fast is the point.
 # TODO: upgrade to `glab ci lint --strict` once the auth path is decided.
@@ -756,8 +708,8 @@ pfdebian:
     IMAGE_NAME: "pfdebian"
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   rules:
-    - !reference [.gated_by_build_img_container, rules]
-    - !reference [.build_img_container_rules, rules]
+    - !reference [.gated_by_build_img_container_unless_tested, rules]
+    - !reference [.build_img_service_rules, rules]
 
 pfdebian_related:
   extends:
@@ -774,8 +726,8 @@ pfdebian_related:
       - IMAGE_NAME:
           - "fingerbank-db"
   rules:
-    - !reference [.gated_by_build_img_container, rules]
-    - !reference [.build_img_container_rules, rules]
+    - !reference [.gated_by_build_img_container_unless_tested, rules]
+    - !reference [.build_img_service_rules, rules]
 
 radiusd:
   extends:
@@ -788,8 +740,8 @@ radiusd:
       - IMAGE_NAME:
           - "radiusd"
   rules:
-    - !reference [.gated_by_build_img_container, rules]
-    - !reference [.build_img_container_rules, rules]
+    - !reference [.gated_by_build_img_container_unless_tested, rules]
+    - !reference [.build_img_service_rules, rules]
 
 radiusd_related:
   extends:
@@ -807,8 +759,8 @@ radiusd_related:
           - "radiusd-eduroam"
           - "pfconnector-remote"
   rules:
-    - !reference [.gated_by_build_img_container, rules]
-    - !reference [.build_img_container_rules, rules]
+    - !reference [.gated_by_build_img_container_unless_tested, rules]
+    - !reference [.build_img_service_rules, rules]
 
 ########################################
 # ci_related image build jobs
@@ -856,7 +808,7 @@ zen_builder:
     IMAGE_NAME: "zen-builder"
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   rules:
-    - !reference [.gated_by_build_img_container, rules]
+    - !reference [.gated_by_build_img_container_unless_tested, rules]
     - if: '$CI_COMMIT_TAG'
       variables:
         IMAGE_TAG: ${CI_COMMIT_TAG}
@@ -896,18 +848,6 @@ build_artifacts_pkg_debian_bookworm:
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE != "web" && $CI_PIPELINE_SOURCE != "api" && $CI_PIPELINE_SOURCE != "schedule")'
       when: never
     - !reference [.context_rules, rules]
-
-# build_artifacts_website (devel/branches/release)
-build_artifacts_website:
-  image: ${PFBUILD_DEB_IMG}:${IMAGE_TAG}
-  extends:
-    - .build_artifacts_website_job
-  rules:
-    - if: '$CI_COMMIT_TAG'
-      variables:
-        IMAGE_TAG: $CI_COMMIT_TAG
-    - !reference [.gated_by_build_artifacts_website, rules]
-    - !reference [.devel_or_branches_or_release_rules, rules]
 
 # build_artifacts_material (devel/branches/release; no maintenance)
 build_artifacts_material:
@@ -952,8 +892,8 @@ sign_packages:
     - job: build_artifacts_pkg_centos_8
     - job: build_artifacts_pkg_debian_bookworm
   variables:
-    # GPG_KEY_FINGERPRINT, GPG_USER_ID, PSONO_API_KEY_ID,
-    # PSONO_API_KEY_SECRET_KEY, PSONO_GPG_PRIVATE_KEY_SECRET_ID:
+    # GPG_KEY_FINGERPRINT, GPG_USER_ID, PSONO_CI_API_KEY_ID,
+    # PSONO_CI_API_SECRET_KEY_HEX, PSONO_GPG_PRIVATE_KEY_SECRET_ID:
     # set via GitLab CI/CD variables.
     RESULT_DIR: result
   script:
@@ -962,8 +902,8 @@ sign_packages:
 
       echo "=== Import GPG private key from Psono ==="
       python3 addons/packetfence-perl/psono.py \
-        --api_key_id="$PSONO_API_KEY_ID" \
-        --api_key_secret_key="$PSONO_API_KEY_SECRET_KEY" \
+        --api_key_id="$PSONO_CI_API_KEY_ID" \
+        --api_key_secret_key="$PSONO_CI_API_SECRET_KEY_HEX" \
         --secret_id="$PSONO_GPG_PRIVATE_KEY_SECRET_ID" \
         --return_value=password_notes \
       | gpg --batch --pinentry-mode loopback --import
@@ -1037,45 +977,36 @@ sign_packages:
 ########################################
 publish_ppa:
   stage: publish
-  image: ghcr.io/inverse-inc/packetfence/publish-ppa:${IMAGE_TAG}
+  image: $PF_PPA_IMAGE
+  resource_group: pulp-packetfence-pipelines
+  artifacts:
+    access: developer
+    when: always
+    expire_in: 7 days
+    paths: [pulp-publication.json]
   needs:
     - job: sign_packages
   environment:
     name: PPA
-    url: http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}
+    action: prepare
+    url: ${PF_PACKAGE_ORIGIN}/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}
   script:
-    - generate-pages
-    - ./${UPLOAD_DIR}/deploy-artifacts.sh ppa
+    - PAGES_HTML=no generate-pages
+    # Only gitlab/<pipeline> here; branch trees are published after the tests (deploy_branches_pulp).
+    - bash ci/pulp/publish-packages.sh ppa
   tags:
     - docker
-  variables:
-    DEPLOY_USER: reposync
-    DEPLOY_HOST: web.inverse.ca
-    DEPLOY_PORT: 444
-    PPA_ID: ${CI_PIPELINE_ID}
-    PSONO_SSH_DEPLOY_KEY_SECRET_ID: ed9a0533-4da0-4cdb-ab5f-ac7e061c281c
   before_script:
     - |
       set -euo pipefail
       echo "=== Import GPG key for repo signing ==="
       python3 addons/packetfence-perl/psono.py \
-        --api_key_id="$PSONO_API_KEY_ID" \
-        --api_key_secret_key="$PSONO_API_KEY_SECRET_KEY" \
+        --api_key_id="$PSONO_CI_API_KEY_ID" \
+        --api_key_secret_key="$PSONO_CI_API_SECRET_KEY_HEX" \
         --secret_id="$PSONO_GPG_PRIVATE_KEY_SECRET_ID" \
         --return_value=password_notes \
       | gpg --batch --pinentry-mode loopback --import
       gpg --list-keys
-
-      echo "=== Import SSH deploy key from Psono ==="
-      mkdir -p ~/.ssh && chmod 700 ~/.ssh
-      python3 addons/packetfence-perl/psono.py \
-        --api_key_id="$PSONO_API_KEY_ID" \
-        --api_key_secret_key="$PSONO_API_KEY_SECRET_KEY" \
-        --secret_id="$PSONO_SSH_DEPLOY_KEY_SECRET_ID" \
-        --return_value=password_notes \
-      > ~/.ssh/id_rsa
-      chmod 600 ~/.ssh/id_rsa
-      echo "SSH deploy key imported successfully"
   rules:
     - !reference [.gated_by_build_artifacts_pkg, rules]
     - if: '$CI_COMMIT_REF_NAME == "devel"'
@@ -1383,34 +1314,193 @@ configurator_deb12_pristine:
 ########################################
 # DEPLOY JOBS
 ########################################
-deploy_packages:
-  extends:
-    - .deploy_packages_job
+# maintenance/X.Y and devel: after the tests, publish this build's Debian and EL8 packages to
+# debian/X.Y and RHEL8/X.Y/x86_64 in the packaging Pulp (X.Y from conf/pf-release); see ci/pulp/publish-packages.sh.
+deploy_debian_pulp:
+  stage: deploy
+  image: $PF_PPA_IMAGE
+  resource_group: pulp-packetfence-pipelines
+  dependencies:
+    - sign_packages
   environment:
-    name: $DEPLOY_ENV_NAME
-  parallel:
-    matrix:
-      - DEPLOY_TYPE:
-          - rpm
-          - deb
-          - packetfence-release
-          - packetfence-export
-          - packetfence-upgrade
-          - packetfence-ci-lib
+    name: $DEPLOY_ENV_NAME/$CI_COMMIT_REF_SLUG
+  before_script:
+    - |
+      set -euo pipefail
+      python3 addons/packetfence-perl/psono.py \
+        --api_key_id="$PSONO_CI_API_KEY_ID" \
+        --api_key_secret_key="$PSONO_CI_API_SECRET_KEY_HEX" \
+        --secret_id="$PSONO_GPG_PRIVATE_KEY_SECRET_ID" \
+        --return_value=password_notes \
+      | gpg --batch --pinentry-mode loopback --import
+  script:
+    - PAGES_HTML=no generate-pages
+    - bash ci/pulp/publish-packages.sh release
+  artifacts:
+    access: developer
+    when: always
+    expire_in: 7 days
+    paths: [pulp-release*.json]
+  tags:
+    - docker
   rules:
+    # No images built, no packages: a server would install them against the previous build's containers.
+    - !reference [.gated_by_build_img_container, rules]
+    - !reference [.gated_by_deploy_pkg, rules]
+    - if: '$CI_COMMIT_REF_NAME == "devel"'
+      variables:
+        DEPLOY_ENV_NAME: pf-devel
+        IMAGE_TAG: latest
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule")'
+      variables:
+        DEPLOY_ENV_NAME: maintenance
+        IMAGE_TAG: $CI_COMMIT_REF_SLUG
+
+# Service images are pushed only as <slug>-p<pipeline>. devel and maintenance/X.Y: give them their
+# branch tags on GitHub (devel,latest / maintenance-X-Y; manifests are copied, nothing is rebuilt),
+# then push them to packages.packetfence.com under the same tags as ci-docker (ci/pulp/container-push.sh).
+# A feature branch with DEPLOY_PKG=yes keeps the pipeline tag its branches/X.Y/<pipeline>/ packages pull,
+# and pushes it there too; the packaging side prunes them with those packages.
+# Same conditions as the package deploys, so a pipeline never publishes packages without the images they
+# expect; when tests run, the deploy stage keeps both behind them. A release tag keeps its vX.Y.Z images
+# on GitHub. The environment lets GitLab skip an older pipeline that finishes after a newer one.
+deploy_containers:
+  stage: deploy_images
+  image: $PF_PPA_IMAGE
+  # One Pulp container writer at a time, across branches.
+  resource_group: pulp-packetfence-containers
+  dependencies: []
+  environment:
+    name: containers/$CI_COMMIT_REF_SLUG
+  script:
+    - |
+      pipeline_tag=$(sh ci/lib/common/pipeline-image-tag.sh)
+      test -n "$pipeline_tag" || { echo 'This pipeline has no pipeline-tagged images' >&2; exit 1; }
+      if [ -n "$PROMOTE_TAGS" ]; then
+        python3 ci/lib/upload/promote-images.py --source "$pipeline_tag" --tags "$PROMOTE_TAGS" --apply
+      fi
+      bash ci/pulp/container-push.sh "$pipeline_tag" "${PROMOTE_TAGS:-$pipeline_tag}"
+  tags:
+    - docker
+  rules:
+    - !reference [.gated_by_build_img_container, rules]
+    - !reference [.gated_by_deploy_pkg, rules]
+    - if: '$CI_COMMIT_REF_NAME == "devel" && $CI_COMMIT_TAG == null'
+      variables:
+        IMAGE_TAG: latest
+        PROMOTE_TAGS: "${CI_COMMIT_REF_SLUG},latest"
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule")'
+      variables:
+        IMAGE_TAG: $CI_COMMIT_REF_SLUG
+        PROMOTE_TAGS: $CI_COMMIT_REF_SLUG
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule") && ($DEPLOY_PKG == "yes" || $DEPLOY_PKG == "true" || $CI_COMMIT_MESSAGE =~ /deploy_pkg=(yes|true)/)'
+      variables:
+        IMAGE_TAG: $CI_COMMIT_REF_SLUG
+        PROMOTE_TAGS: ''
+
+# packetfence-release/-export/-upgrade/-ci-lib into Pulp's debian/ and RHEL<N>/ file snapshots, under their
+# published names (.deploy_pkg_rules sets the per-context names).
+deploy_files_pulp:
+  stage: deploy
+  image: $PF_PPA_IMAGE
+  resource_group: pulp-packetfence-pipelines
+  # These files name this build's packages: published only once those are.
+  needs:
+    - job: sign_packages
+    - job: deploy_debian_pulp
+      artifacts: false
+  environment:
+    name: $DEPLOY_ENV_NAME/$CI_COMMIT_REF_SLUG
+  script:
+    - bash ci/pulp/publish-packages.sh files
+  tags:
+    - docker
+  rules:
+    - !reference [.gated_by_build_img_container, rules]
     - !reference [.gated_by_deploy_pkg, rules]
     - !reference [.deploy_pkg_rules, rules]
 
-# website artifacts
-deploy_website_artifacts:
-  extends:
-    - .deploy_website_artifacts_job
+# Feature branches started from the web UI/API/schedule with DEPLOY_PKG=yes|true: after the tests, keep
+# this pipeline's PPA in debian/branches/X.Y/<pipeline>/ and RHEL<N>/branches/X.Y/<pipeline>/, with its
+# packetfence-*_branches / -branches files; the packaging side keeps the newest pipelines of each branch.
+# Its images (pipeline tag) go to the registry with deploy_containers; see ci/pulp/publish-packages.sh.
+deploy_branches_pulp:
+  stage: deploy
+  image: $PF_PPA_IMAGE
+  resource_group: pulp-packetfence-pipelines
+  dependencies:
+    - sign_packages
+  environment:
+    name: $DEPLOY_ENV_NAME/$CI_COMMIT_REF_SLUG
+  before_script:
+    - |
+      set -euo pipefail
+      # Say which variable is missing before anything reads Psono.
+      for name in PSONO_CI_API_KEY_ID PSONO_CI_API_SECRET_KEY_HEX PSONO_GPG_PRIVATE_KEY_SECRET_ID PSONO_CI_PULP_PACKAGES_ID; do
+        eval "value=\${$name:-}"
+        [ -n "$value" ] || { echo "$name is empty: set it in the GitLab CI/CD variables, not protected (feature branches publish too)" >&2; exit 1; }
+      done
+      python3 addons/packetfence-perl/psono.py \
+        --api_key_id="$PSONO_CI_API_KEY_ID" \
+        --api_key_secret_key="$PSONO_CI_API_SECRET_KEY_HEX" \
+        --secret_id="$PSONO_GPG_PRIVATE_KEY_SECRET_ID" \
+        --return_value=password_notes \
+      | gpg --batch --pinentry-mode loopback --import
+  script:
+    - PAGES_HTML=no generate-pages
+    - bash ci/pulp/publish-packages.sh branches
+  artifacts:
+    access: developer
+    when: always
+    expire_in: 7 days
+    paths: [pulp-branches-*.json]
+  tags:
+    - docker
+  variables:
+    # Names inside branches/X.Y/<pipeline>/ (ci/pulp/publish-files.py --stage).
+    PKG_DEST_NAME: packetfence-release-branches.el{n}.noarch.rpm
+    PF_UPGRADE_RPM_DEST_NAME: packetfence-upgrade-branches.el{n}.noarch.rpm
+    PF_EXPORT_RPM_DEST_NAME: packetfence-export-branches.el{n}.noarch.rpm
+    PF_UPGRADE_DEB_DEST_NAME: packetfence-upgrade_branches.deb
+    PF_EXPORT_DEB_DEST_NAME: packetfence-export_branches.deb
+    PF_CI_LIB_DEB_DEST_NAME: packetfence-ci-lib_branches.deb
   rules:
-    - if: '$CI_COMMIT_TAG'
+    # Its packages pull this pipeline's images: none built, nothing kept.
+    - !reference [.gated_by_build_img_container, rules]
+    - !reference [.gated_by_deploy_pkg, rules]
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "schedule") && ($DEPLOY_PKG == "yes" || $DEPLOY_PKG == "true" || $CI_COMMIT_MESSAGE =~ /deploy_pkg=(yes|true)/)'
+      variables:
+        DEPLOY_ENV_NAME: pf-branches
+        IMAGE_TAG: $CI_COMMIT_REF_SLUG
+
+
+# The built guides -> doc/X.Y.0 in the packaging Pulp (X.Y from conf/pf-release), after the tests: release tags
+# and maintenance/X.Y pipelines that build the docs. Never devel (no doc for a devel version); see ci/pulp/publish-docs.sh.
+deploy_docs_pulp:
+  stage: deploy
+  image: $PF_PPA_IMAGE
+  resource_group: pulp-packetfence-docs
+  dependencies:
+    - build_artifacts_doc
+  script:
+    - bash ci/pulp/publish-docs.sh
+  artifacts:
+    access: developer
+    when: always
+    expire_in: 7 days
+    paths: [pulp-docs.json]
+  tags:
+    - docker
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/'
       variables:
         IMAGE_TAG: $CI_COMMIT_TAG
-    - !reference [.gated_by_build_artifacts_website, rules]
-    - !reference [.devel_or_branches_or_release_rules, rules]
+    - if: '$CI_COMMIT_TAG'
+      when: never
+    - !reference [.gated_by_build_artifacts_doc, rules]
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
+      variables:
+        IMAGE_TAG: $CI_COMMIT_REF_SLUG
 
 ########################################
 # BUILD_PF_IMG JOBS
@@ -1419,7 +1509,7 @@ build_pf_img_zen:
   extends:
     - .build_pf_img_job
   environment:
-    name: linode
+    name: linode/$CI_COMMIT_REF_SLUG
     url: ${RCLONE_LINODE_URL}/packetfence-zen/${CI_COMMIT_REF_SLUG}
   variables:
     BUILD_DIR: ci/zen
@@ -1444,7 +1534,7 @@ build_pf_img_cd_iso:
   extends:
     - .build_pf_img_job
   environment:
-    name: linode
+    name: linode/$CI_COMMIT_REF_SLUG
     url: ${RCLONE_LINODE_URL}/packetfence-iso/${CI_COMMIT_REF_SLUG}
   variables:
     BUILD_DIR: ci/cd-iso
@@ -1463,11 +1553,9 @@ build_pf_img_cd_iso:
 build_pf_img_dvd_usb_iso:
   extends:
     - .build_pf_img_job
-  needs:
-    - job: publish_ppa
-      optional: true
+  # No needs: it waits by stage order for this pipeline's PPA and service images (predownload-docker-images.sh).
   environment:
-    name: linode
+    name: linode/$CI_COMMIT_REF_SLUG
     url: ${RCLONE_LINODE_URL}/packetfence-iso/${CI_COMMIT_REF_SLUG}
   variables:
     PF_VERSION: ${CI_COMMIT_REF_NAME}
@@ -1479,17 +1567,14 @@ build_pf_img_dvd_usb_iso:
     - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api") && ($BUILD_PF_IMG_DVD_USB_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_dvd_usb_iso=yes/)'
 
 ### build_pf_img_vagrant jobs
-# Devel box: packages already deployed to the public inverse.ca repo.
+# Devel box: packages already deployed to the package origin.
 build_pf_img_vagrant_devel_debian_bookworm:
   extends:
     - .build_pf_img_vagrant_job
   variables:
     BOX_NAME: pfdeb12dev
   needs:
-    - job: deploy_packages
-      parallel:
-        matrix:
-          - DEPLOY_TYPE: deb
+    - job: deploy_debian_pulp
       artifacts: false
     - job: ci_related
       parallel:
@@ -1499,6 +1584,9 @@ build_pf_img_vagrant_devel_debian_bookworm:
       optional: true
   rules:
     - !reference [.gated_by_build_pf_img_vagrant, rules]
+    # Built from the deployed packages: never when the deploy is gated off (it is a need).
+    - !reference [.gated_by_build_img_container, rules]
+    - !reference [.gated_by_deploy_pkg, rules]
     - if: '$CI_COMMIT_REF_NAME == "devel"'
 
 # Maintenance branches: dependencies only, using the stable box namespace.
@@ -1509,11 +1597,10 @@ build_pf_img_vagrant_maintenance_debian_bookworm:
     BOX_NAME: pfdeb12stable
     VAGRANT_BUILD_TARGET: pfdebian12_dependencies
   needs:
-    - job: deploy_packages
-      parallel:
-        matrix:
-          - DEPLOY_TYPE: deb
+    # Dependencies only: after this pipeline's deploy when it has one, from the deployed release otherwise.
+    - job: deploy_debian_pulp
       artifacts: false
+      optional: true
     - job: ci_related
       parallel:
         matrix:
@@ -1535,7 +1622,7 @@ build_pf_img_vagrant_branch_debian_bookworm:
     - export BOX_VERSION="${PF_MINOR_RELEASE}-ci-${CI_PIPELINE_ID}"
     - export BOX_NAME="pfdeb12branch"
     - export BOX_DESC="PacketFence ${PF_MINOR_RELEASE} - ${CI_COMMIT_REF_SLUG} - ${BOX_VERSION}"
-    - export CI_PAGES_URL="http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}"
+    - export CI_PAGES_URL="${PF_PACKAGE_ORIGIN}/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}"
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR}
         BOX_NAME="${BOX_NAME}" BOX_VERSION="${BOX_VERSION}"
         pfdebian12_dependencies
@@ -1550,19 +1637,18 @@ build_pf_img_vagrant_branch_debian_bookworm:
       optional: true
   rules:
     - !reference [.gated_by_build_pf_img_vagrant, rules]
+    # Built from this pipeline's PPA (publish_ppa, a need): only when packages are built.
+    - !reference [.gated_by_build_artifacts_pkg, rules]
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
 
-# AD (Samba4) devel box: packages already deployed to the public inverse.ca repo.
+# AD (Samba4) devel box: packages already deployed to the package origin.
 build_pf_img_vagrant_ad_devel_debian_bullseye:
   extends:
     - .build_pf_img_vagrant_job
   variables:
     BOX_NAME: pfad11dev
   needs:
-    - job: deploy_packages
-      parallel:
-        matrix:
-          - DEPLOY_TYPE: deb
+    - job: deploy_debian_pulp
       artifacts: false
     - job: ci_related
       parallel:
@@ -1572,6 +1658,9 @@ build_pf_img_vagrant_ad_devel_debian_bullseye:
       optional: true
   rules:
     - !reference [.gated_by_build_pf_img_vagrant, rules]
+    # Built from the deployed packages: never when the deploy is gated off (it is a need).
+    - !reference [.gated_by_build_img_container, rules]
+    - !reference [.gated_by_deploy_pkg, rules]
     - if: '$CI_COMMIT_REF_NAME == "devel"'
 
 # AD (Samba4) maintenance branches: stable namespace.
@@ -1582,11 +1671,10 @@ build_pf_img_vagrant_ad_maintenance_debian_bullseye:
     BOX_NAME: pfad11stable
     VAGRANT_BUILD_TARGET: pfad11dev_generic
   needs:
-    - job: deploy_packages
-      parallel:
-        matrix:
-          - DEPLOY_TYPE: deb
+    # Dependencies only: after this pipeline's deploy when it has one, from the deployed release otherwise.
+    - job: deploy_debian_pulp
       artifacts: false
+      optional: true
     - job: ci_related
       parallel:
         matrix:
@@ -1606,7 +1694,7 @@ build_pf_img_vagrant_ad_branch_debian_bullseye:
     - export BOX_VERSION="${PF_MINOR_RELEASE}-ci-${CI_PIPELINE_ID}"
     - export BOX_NAME="pfad11branch"
     - export BOX_DESC="PacketFence AD ${PF_MINOR_RELEASE} - ${CI_COMMIT_REF_SLUG} - ${BOX_VERSION}"
-    - export CI_PAGES_URL="http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}"
+    - export CI_PAGES_URL="${PF_PACKAGE_ORIGIN}/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}"
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR}
         BOX_NAME="${BOX_NAME}" BOX_VERSION="${BOX_VERSION}"
         pfad11dev_generic
@@ -1621,10 +1709,12 @@ build_pf_img_vagrant_ad_branch_debian_bullseye:
       optional: true
   rules:
     - !reference [.gated_by_build_pf_img_vagrant, rules]
+    # Built from this pipeline's PPA (publish_ppa, a need): only when packages are built.
+    - !reference [.gated_by_build_artifacts_pkg, rules]
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
 
 # Shared node+wireless box (bullseye). Bakes only stock packages, so unlike the
-# PF/AD boxes these need neither deploy_packages nor publish_ppa.
+# PF/AD boxes these need neither deploy_debian_pulp nor publish_ppa.
 build_pf_img_vagrant_node_devel_debian_bullseye:
   extends:
     - .build_pf_img_vagrant_job
@@ -1692,11 +1782,6 @@ build_pf_img_vagrant_release_debian_bookworm:
   variables:
     BOX_NAME: pfdeb12stable
   needs:
-    - job: deploy_packages
-      parallel:
-        matrix:
-          - DEPLOY_TYPE: deb
-      artifacts: false
     - job: ci_related
       parallel:
         matrix:
@@ -1709,17 +1794,14 @@ build_pf_img_vagrant_release_debian_bookworm:
       when: manual
       allow_failure: true
 
-# EL 8 devel box: packages already deployed to the public inverse.ca repo.
+# EL 8 devel box: packages already deployed to the package origin.
 build_pf_img_vagrant_devel_el8:
   extends:
     - .build_pf_img_vagrant_job
   variables:
     BOX_NAME: pfel8dev
   needs:
-    - job: deploy_packages
-      parallel:
-        matrix:
-          - DEPLOY_TYPE: rpm
+    - job: deploy_debian_pulp
       artifacts: false
     - job: ci_related
       parallel:
@@ -1729,6 +1811,9 @@ build_pf_img_vagrant_devel_el8:
       optional: true
   rules:
     - !reference [.gated_by_build_pf_img_vagrant, rules]
+    # Built from the deployed packages: never when the deploy is gated off (it is a need).
+    - !reference [.gated_by_build_img_container, rules]
+    - !reference [.gated_by_deploy_pkg, rules]
     - if: '$CI_COMMIT_REF_NAME == "devel"'
 
 # EL 8 maintenance branches: dependencies only, using the stable box namespace.
@@ -1739,11 +1824,10 @@ build_pf_img_vagrant_maintenance_el8:
     BOX_NAME: pfel8stable
     VAGRANT_BUILD_TARGET: pfel8_dependencies
   needs:
-    - job: deploy_packages
-      parallel:
-        matrix:
-          - DEPLOY_TYPE: rpm
+    # Dependencies only: after this pipeline's deploy when it has one, from the deployed release otherwise.
+    - job: deploy_debian_pulp
       artifacts: false
+      optional: true
     - job: ci_related
       parallel:
         matrix:
@@ -1765,7 +1849,7 @@ build_pf_img_vagrant_branch_el8:
     - export BOX_VERSION="${PF_MINOR_RELEASE}-ci-${CI_PIPELINE_ID}"
     - export BOX_NAME="pfel8branch"
     - export BOX_DESC="PacketFence ${PF_MINOR_RELEASE} - ${CI_COMMIT_REF_SLUG} - ${BOX_VERSION}"
-    - export CI_PAGES_URL="http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}"
+    - export CI_PAGES_URL="${PF_PACKAGE_ORIGIN}/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}"
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR}
         BOX_NAME="${BOX_NAME}" BOX_VERSION="${BOX_VERSION}"
         pfel8_dependencies
@@ -1780,6 +1864,8 @@ build_pf_img_vagrant_branch_el8:
       optional: true
   rules:
     - !reference [.gated_by_build_pf_img_vagrant, rules]
+    # Built from this pipeline's PPA (publish_ppa, a need): only when packages are built.
+    - !reference [.gated_by_build_artifacts_pkg, rules]
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "api")'
 
 # EL 8 release (tag): stable box with PacketFence installed, manual trigger.
@@ -1789,11 +1875,6 @@ build_pf_img_vagrant_release_el8:
   variables:
     BOX_NAME: pfel8stable
   needs:
-    - job: deploy_packages
-      parallel:
-        matrix:
-          - DEPLOY_TYPE: rpm
-      artifacts: false
     - job: ci_related
       parallel:
         matrix:

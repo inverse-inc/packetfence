@@ -4,8 +4,8 @@ FROM debian:bookworm
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Runtime deps:
-#   deploy-artifacts.sh: rsync, openssh-client
 #   psono.py (GPG key fetch): python3, python3-nacl, python3-requests
+#   ci/pulp (Pulp API, container push): python3-requests-toolbelt, python3-rpm, skopeo, curl
 #   generate-pages.sh APT repo build: reprepro
 #   generate-pages.sh YUM repo build: createrepo-c
 #   generate-pages.sh: tree (optional, for directory visualization)
@@ -13,17 +13,15 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -qq \
     && apt-get install -yq --no-install-recommends \
         tree \
-        rsync \
-        openssh-client \
         gnupg \
         reprepro \
         createrepo-c \
-        python3 python3-nacl python3-requests \
+        python3 python3-nacl python3-requests python3-requests-toolbelt python3-rpm \
+        rpm curl ca-certificates skopeo \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy our internal scripts
-COPY ci/configs/ssh_config /etc/ssh/ssh_deploy_config
 COPY ci/scripts/generate-pages.sh /usr/local/bin/generate-pages
 
 LABEL maintainer="Inverse Inc <info@inverse.ca>"

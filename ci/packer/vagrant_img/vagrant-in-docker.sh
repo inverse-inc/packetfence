@@ -35,6 +35,7 @@ docker run --rm \
   --group-add "${KVM_GID}" \
   -e BOX_NAME \
   -e BOX_VERSION \
+  -e PF_PACKAGE_ORIGIN \
   -e BOX_DESC \
   -e ANSIBLE_GROUP \
   -e BUILD_NAME \
