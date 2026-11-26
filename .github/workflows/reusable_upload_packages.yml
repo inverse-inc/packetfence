@@ -1,4 +1,4 @@
-name: Reusable upload package to web.inverse.ca
+name: Reusable publish of a dependency package to the package origin
 on:
   workflow_call:
     inputs:
@@ -14,18 +14,29 @@ on:
       _PACKAGE_NAME:
         required: True
         type: string
-      
 
+# Into the native repository of this branch's release on the packaging Pulp (ci/pulp/publish-dependency.sh),
+# with the ci-packages account like the GitLab deploys. Repository settings it needs: the variable
+# PSONO_CI_PULP_PACKAGES_ID (the ci-packages Psono entry, readable by the PSONO_API_KEY_ID key) and,
+# optionally, PF_PACKAGE_ORIGIN.
 jobs:
-  upload-package: 
+  upload-package:
     runs-on: packetfence-perl-package-build
-    env:
-      PACKAGE_DEST_PATH: "~/packages/${{ inputs._PACKAGE_NAME }}/${{ inputs._BRANCH_NAME }}/${{ inputs._IMAGE_TYPE }}/"
+    # One publish per branch and OS at a time (packetfence-perl and perl-client share the repository); GitHub keeps
+    # one pending run per group, so a run cancelled while it waited is re-run, as is one that met another publish.
+    concurrency:
+      group: pulp-dependency-${{ inputs._BRANCH_NAME }}-${{ inputs._IMAGE_TYPE }}
+      cancel-in-progress: false
     container:
-      image: debian:11.0
-      volumes:
-        - ${{ github.workspace }}/addons/packetfence-perl/:/root/packetfence-perl
+      # python3-requests-toolbelt and python3-nacl: the Pulp upload and the Psono lookup.
+      image: ghcr.io/inverse-inc/packetfence/publish-ppa:latest
+      credentials:
+        username: ${{ vars.USER_GITHUB }}
+        password: ${{ secrets.TOKEN_GITHUB }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Download artifactory ${{ inputs._IMAGE_TYPE }}
         uses: actions/download-artifact@v3
         with:
@@ -34,17 +45,23 @@ jobs:
         env:
           ARTIFACTORY_NAME: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  'package-rpm8' || inputs._IMAGE_TYPE == 'debian11' && 'package-deb11' || inputs._IMAGE_TYPE == 'debian12' && 'package-deb12' }}
 
-      - name: Install dependencies ${{ inputs._IMAGE_TYPE }}
-        run:  apt -qq update && apt -qq -y install openssh-client rsync python3 python3-pip && python3 -m pip install -q  -U pip && pip install -q pynacl requests
-
-      - name: Upload the package to web server
+      # An image built before the Pulp tools were added lacks the upload and RPM header libraries.
+      - name: Pulp client libraries
         shell: bash
-        run: |
-          echo "The package will be uploaded to the web server, directory: ${{ env.PACKAGE_DEST_PATH }}"
-          set -e && \
-          export private_key=$(/usr/bin/python3 /root/packetfence-perl/psono.py --api_key_id=${{ secrets.PSONO_API_KEY_ID }} --api_key_secret_key=${{ secrets.PSONO_API_KEY_SECRET_KEY }} --secret_id=${{ vars.PSONO_SSH_RUNNER_GH_PRIVATE }} --return_value=password_notes) && \
-          eval `ssh-agent -s` && ssh-add - <<< ${private_key}
-          rsync -avzr --delete --rsync-path='mkdir -p  ${{ env.PACKAGE_DEST_PATH }} &&  rm -rf ${{ env.PACKAGE_DEST_PATH }}/* && rsync' -e "ssh -o StrictHostKeyChecking=no -p 22"   /mnt/${{inputs._PACKAGE_NAME}}${{ env.PACKAGE_TYPE }} reposync@${{ vars.WEB_INVERSE_IP_ADDRESS }}:${{ env.PACKAGE_DEST_PATH }}
-          ssh-add -D
+        run: python3 -c 'import requests_toolbelt, rpm' 2>/dev/null || { apt-get update -qq && apt-get install -yq python3-requests-toolbelt python3-rpm; }
+
+      - name: Publish the package to the package origin
+        shell: bash
         env:
-          PACKAGE_TYPE: ${{ inputs._IMAGE_TYPE == 'rhel8' &&  '*.rpm' || '*.deb' }}
+          BRANCH_NAME: ${{ inputs._BRANCH_NAME }}
+          IMAGE_TYPE: ${{ inputs._IMAGE_TYPE }}
+          PACKAGE_NAME: ${{ inputs._PACKAGE_NAME }}
+          PACKAGE_SUFFIX: ${{ inputs._IMAGE_TYPE == 'rhel8' && 'rpm' || 'deb' }}
+          PF_PACKAGE_ORIGIN: ${{ vars.PF_PACKAGE_ORIGIN || 'https://packages.packetfence.com' }}
+          PSONO_CI_API_KEY_ID: ${{ secrets.PSONO_API_KEY_ID }}
+          PSONO_CI_API_SECRET_KEY_HEX: ${{ secrets.PSONO_API_KEY_SECRET_KEY }}
+          PSONO_CI_PULP_PACKAGES_ID: ${{ vars.PSONO_CI_PULP_PACKAGES_ID }}
+        run: |
+          shopt -s nullglob
+          packages=(/mnt/"$PACKAGE_NAME"*."$PACKAGE_SUFFIX")
+          bash ci/pulp/publish-dependency.sh "$IMAGE_TYPE" "${packages[@]}"

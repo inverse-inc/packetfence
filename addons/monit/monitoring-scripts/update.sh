@@ -62,6 +62,8 @@ download_and_check $uuid_vars_url $uuid_vars_file 1
 download_and_check $uuid_ignores_url $uuid_ignores_file 1
 
 while read u; do
+  # The registry may still name the old download host: fetch from the origin the registry came from.
+  u=$(sed -E "s#^https?://(www\.)?inverse\.ca/downloads/#${script_registry_url%%/downloads/*}/downloads/#" <<< "$u")
   tmp=`mktemp`
   echo "Downloading to $u"
   if ! download_and_check $u $tmp; then

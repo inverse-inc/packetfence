@@ -74,13 +74,13 @@ On PacketFence version 10.3.0, you need to install `packetfence-export` package 
 // subs=attributes allow to substitute {release_minor} in code block
 [source,bash,subs="attributes"]
 ----
-yum localinstall http://packetfence.org/downloads/PacketFence/RHEL8/packetfence-export-{release_minor}.el8.noarch.rpm
+yum localinstall http://packages.packetfence.com/downloads/PacketFence/RHEL8/packetfence-export-{release_minor}.el8.noarch.rpm
 ----
 
 .Debian 9 systems **only**
 [source,bash,subs="attributes"]
 ----
-wget http://packetfence.org/downloads/PacketFence/debian/packetfence-export_{release_minor}.deb
+wget http://packages.packetfence.com/downloads/PacketFence/debian/packetfence-export_{release_minor}.deb
 dpkg -i packetfence-export_{release_minor}.deb
 ----
 
