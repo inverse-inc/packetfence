@@ -23,7 +23,9 @@ args="$args -v /usr/local/pf/conf:/usr/local/pf/conf"
 args="$args -v /usr/local/pf/logs:/usr/local/pf/logs"
 args="$args -v /usr/local/pf/var/conf:/usr/local/pf/var/conf"
 args="$args -v /var/log:/var/log:ro"
-args="$args -p $LISTEN:$LISTEN"
+# Only the local clients use the API: radiusd and the API frontend through
+# containers-gateway.internal, the connectors through 127.0.0.1
+args="$args -p 127.0.0.1:$LISTEN:$LISTEN -p 100.64.0.1:$LISTEN:$LISTEN"
 args="$args -e LISTEN=$LISTEN"
 args="$args -e IDENTIFIER=$IDENTIFIER"
 

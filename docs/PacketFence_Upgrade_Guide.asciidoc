@@ -1162,6 +1162,16 @@ Then restart the API to load the catalogs again:
 /usr/local/pf/bin/pfcmd service pfperl-api restart
 ----
 
+=== NTLM auth API only listens on the local addresses
+
+The NTLM auth API containers (one per domain) are now published on
+`127.0.0.1` and `100.64.0.1` only, instead of every address of the server.
+The *NTLM auth API host* (`ntlm_auth_host`) of each domain must be
+`containers-gateway.internal` (the default for the domains joined since 15.1),
+`100.64.0.1` or `127.0.0.1`: with another address (e.g. the management IP),
+the MS-CHAPv2 authentications against the domain fail. pfcmd logs a warning
+for such a domain when it generates the configuration.
+
 === NTLM auth API host of domains joined before 15.1
 
 Domains joined before 15.1 are saved with `ntlm_auth_host=127.0.0.1` in
