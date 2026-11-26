@@ -7,13 +7,11 @@
     # put your test suites to try here
     test_suites:
       - configurator
-      - proxysql_tiers_ci  # CI-ONLY (revert before merge)
 
       - fingerbank_proxy/setup_proxy
       - fingerbank_proxy/fingerbank_connectivity
       - fingerbank_proxy/setup_proxy/teardown
       - fingerbank_proxy/fingerbank_connectivity
-      - proxysql_tiers_ci_report  # CI-ONLY (revert before merge)
 
   tasks:
     - name: Run Venom testsuites
