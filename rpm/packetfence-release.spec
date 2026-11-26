@@ -1,5 +1,7 @@
+# Where CI publishes (PF_PACKAGE_ORIGIN, Makefile): every repository below is served there.
+%{!?pf_package_origin:%global pf_package_origin https://packages.packetfence.com}
 Name:       packetfence-release
-Version:    2.4.1
+Version:    2.5.0
 Release:    1%{?dist}
 BuildArch:  noarch
 Summary:    PacketFence release file and RPM repository configuration
@@ -23,7 +25,7 @@ for the PacketFence RPM repository.
 ## PacketFence RPM Repository for RHEL/Centos
 [packetfence]
 name=PacketFence Repository
-baseurl=http://inverse.ca/downloads/PacketFence/RHEL\$releasever/%{pf_minor_release}/\$basearch
+baseurl=%{pf_package_origin}/downloads/PacketFence/RHEL\$releasever/%{pf_minor_release}/\$basearch
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS
 gpgcheck=1
 enabled=0
@@ -31,18 +33,20 @@ module_hotfixes=1
 
 [packetfence-extra]
 name=PacketFence Extra Repository
-baseurl=http://inverse.ca/downloads/PacketFence/RHEL\$releasever/extra/\$basearch
+baseurl=%{pf_package_origin}/downloads/PacketFence/RHEL\$releasever/extra/\$basearch
 gpgcheck=0
 enabled=0
 module_hotfixes=1
 
+%if 0%{?pf_branches_pipeline:1}
 [packetfence-branches]
 name=PacketFence Branches Repository
-baseurl=http://inverse.ca/downloads/PacketFence/RHEL\$releasever/branches/\$basearch
+baseurl=%{pf_package_origin}/downloads/PacketFence/RHEL\$releasever/branches/%{pf_minor_release}/%{pf_branches_pipeline}/\$basearch
 gpgcheck=0
 enabled=0
 module_hotfixes=1
 
+%endif
 EOF
 
 %{__cat} <<EOF > %{_builddir}/RPM-GPG-KEY-PACKETFENCE-CENTOS
@@ -133,6 +137,9 @@ cp %{_builddir}/RPM-GPG-KEY-PACKETFENCE-MONITORING %{buildroot}%{_sysconfdir}/pk
 
 
 %changelog
+* Wed Nov 25 2026 Inverse inc. <support@inverse.ca> - 2.5.0-1
+- Repositories on the package origin (packages.packetfence.com); a new version so installed servers update
+
 * Mon Oct 04 2021 Nicolas Quiniou-Briand <nquiniou@akamai.com> - 2.4.0-1
 - Add GPG key used to sign monitoring scripts
 
