@@ -11,7 +11,8 @@ PKGS_TO_EXCLUDE=${PKGS_TO_EXCLUDE:-packetfence}
 # https://askubuntu.com/a/791865
 apt-install-depends() {
     local pkg="$1"
-    apt-get install -s "$pkg" | egrep -v "$PKGS_TO_EXCLUDE" \
+    # Match the package name only: the rest of the Inst line holds the repo host
+    apt-get install -s "$pkg" | egrep -v "^Inst [^ ]*($PKGS_TO_EXCLUDE)" \
         | sed -n \
           -e "/^Inst $pkg /d" \
           -e 's/^Inst \([^ ]\+\) .*$/\1/p' \
