@@ -20,6 +20,7 @@ Nothing documented at this point.
 
 use strict;
 use warnings;
+use pf::web::release_form qw(html_attr js_string http_url url_host url_port url_param);
 
 use base ('pf::Switch');
 
@@ -168,9 +169,13 @@ sub getAcceptForm {
     my $client_ip = $portalSession->param("ecwp-original-param-ga_cip");
     my $qv = $portalSession->param("ecwp-original-param-ga_Qv");
     my $orig_url = $portalSession->param("ecwp-original-param-ga_orig_url");
+    my $host = url_host($srvr);
+    my $action = length($host) ? html_attr(http_url("http://$host:880/cgi-bin/hotspot_login.cgi")) : '';
+    ($mac, $ssid, $ap_mac, $nas_id, $srvr, $client_mac, $client_ip, $qv, $orig_url) =
+        map { html_attr($_) } ($mac, $ssid, $ap_mac, $nas_id, $srvr, $client_mac, $client_ip, $qv, $orig_url);
 
     my $html_form = qq[
-        <form name="weblogin_form" data-autosubmit="1000" method="POST" action="http://$srvr:880/cgi-bin/hotspot_login.cgi">
+        <form name="weblogin_form" data-autosubmit="1000" method="POST" action="$action">
             <input type="hidden" name="Submit2" value="Submit">
             <input type="hidden" name="autherr" value="0">
             <input type="hidden" name="ga_user" value="$mac">

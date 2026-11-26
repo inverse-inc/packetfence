@@ -32,6 +32,7 @@ This module uses the remote IP in the HTTP request to determine the IP of the cl
 
 use strict;
 use warnings;
+use pf::web::release_form qw(html_attr js_string http_url url_host url_port url_param);
 
 use POSIX;
 use Try::Tiny;
@@ -414,7 +415,6 @@ sub getAcceptForm {
 
     my $uamip = $portalSession->param("ecwp-original-param-uamip");
     my $uamport = $portalSession->param("ecwp-original-param-uamport");
-    my $userurl = $portalSession->param("ecwp-original-param-userurl");
     my $challenge = $portalSession->param("ecwp-original-param-challenge");
     my $newchal  = pack "H32", $challenge;
 
@@ -422,15 +422,23 @@ sub getAcceptForm {
 
     $mac =~ s/:/-/g;
 
+    my $success_url = js_string(http_url($destination_url));
+    my $logon_url = js_string(http_url(
+        "http://" . url_host($uamip) . ":" . url_port($uamport) . "/logon"
+        . "?username=" . url_param($mac)
+        . "&password=" . url_param($passvar)
+        . "&userurl=" . url_param($destination_url)
+    ));
+
     my $html_form = qq[
         <script>
         if (document.URL.match(/res=success/)){
             //http requests are too fast for the ap
             //we leave him time to understand what is happening
-            setTimeout(function(){window.location = "$destination_url"}, 2000)
+            setTimeout(function(){window.location = $success_url}, 2000)
         }
         else{
-            window.location = "http://$uamip:$uamport/logon?username=$mac&password=$passvar&userurl=$destination_url"
+            window.location = $logon_url
         }
         </script>
     ];

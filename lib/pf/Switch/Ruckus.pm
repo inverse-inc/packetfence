@@ -37,6 +37,7 @@ No Dynamic VLAN assigments using Mac Authentication.  The module support for mac
 
 use strict;
 use warnings;
+use pf::web::release_form qw(html_attr js_string http_url url_host url_port url_param);
 
 use base ('pf::Switch');
 
@@ -219,8 +220,9 @@ sub getAcceptForm {
     my $logger = $self->logger;
     $logger->debug("Creating web release form");
 
-    my $client_ip = $portalSession->param("ecwp-original-param-uip");
-    my $controller_ip = $self->{_ip};
+    my $client_ip = html_attr($portalSession->param("ecwp-original-param-uip"));
+    my $controller_ip = html_attr($self->{_ip});
+    $mac = html_attr($mac);
 
     my $html_form = qq[
         <form name="weblogin_form" data-autosubmit="1000" method="POST" action="http://$controller_ip:9997/login" style="display:none">

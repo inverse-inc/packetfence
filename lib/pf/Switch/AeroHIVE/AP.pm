@@ -29,6 +29,7 @@ Using the default success page of AeroHIVE works.
 
 use strict;
 use warnings;
+use pf::web::release_form qw(html_attr js_string http_url url_host url_port url_param);
 
 use pf::config qw(
     $WIRELESS_MAC_AUTH
@@ -147,8 +148,10 @@ sub getAcceptForm {
     $logger->debug("Creating web release form");
 
     my $node = node_view($mac);
-    my $last_ssid = $node->{last_ssid};
+    my $last_ssid = html_attr($node->{last_ssid});
     $mac =~ s/:/-/g;
+    $mac = html_attr($mac);
+    $destination_url = html_attr($destination_url);
     my $html_form = qq[
         <form name="weblogin_form" data-autosubmit="1000" method="POST" action="http://1.1.1.1/reg.php">
             <input type="hidden" name="Submit2" value="Submit">

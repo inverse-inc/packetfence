@@ -36,6 +36,7 @@ This module supports 802.1X and web authentication. MAC authentication is not su
 
 use strict;
 use warnings;
+use pf::web::release_form qw(html_attr js_string http_url url_host url_port url_param);
 
 use base ('pf::Switch');
 
@@ -266,6 +267,10 @@ sub getAcceptForm {
     # transforming MAC to the expected format 00-11-22-33-CA-FE
     $mac = uc($mac);
     $mac =~ s/:/-/g;
+    $mac = html_attr($mac);
+    $challenge = html_attr($challenge);
+    $login_url = html_attr(http_url($login_url));
+    $destination_url = html_attr($destination_url);
 
     my $html_form = qq[
         <form name="weblogin_form" data-autosubmit="1000" method="GET" action="$login_url">

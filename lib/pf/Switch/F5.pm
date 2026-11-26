@@ -22,6 +22,7 @@ Not doing deauthentication in web auth
 
 use strict;
 use warnings;
+use pf::web::release_form qw(html_attr js_string http_url url_host url_port url_param);
 use pf::node;
 use pf::util;
 use pf::log;
@@ -110,7 +111,9 @@ sub getAcceptForm {
     my $logger = $self->logger;
     $logger->debug("Creating web release form");
 
-    my $post = $cgi_session->param("ecwp-original-param-post_url");
+    my $post = html_attr(http_url($cgi_session->param("ecwp-original-param-post_url")));
+    $username = html_attr($username);
+    $mac = html_attr($mac);
 
     my $html_form = qq[
         <form name="weblogin_form" data-autosubmit="1000" method="POST" action="$post">

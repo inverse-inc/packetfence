@@ -28,6 +28,7 @@ The only workaround is to have the DHCP traffic forwarded to PacketFence.
 
 use strict;
 use warnings;
+use pf::web::release_form qw(html_attr js_string http_url url_host url_port url_param);
 
 use base ('pf::Switch');
 
@@ -139,7 +140,9 @@ sub getAcceptForm {
     my $logger = $self->logger;
     $logger->debug("Creating web release form");
 
-    my $login_url = $portalSession->param("ecwp-original-param-login_url");
+    my $login_url = html_attr(http_url($portalSession->param("ecwp-original-param-login_url")));
+    $mac = html_attr($mac);
+    $destination_url = html_attr($destination_url);
     my $html_form = qq[
         <form name="weblogin_form" data-autosubmit="1000" method="POST" action="$login_url">
             <input type="hidden" name="Submit2" value="Submit">
