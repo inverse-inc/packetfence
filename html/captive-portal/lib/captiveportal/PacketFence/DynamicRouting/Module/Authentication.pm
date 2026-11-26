@@ -120,13 +120,37 @@ Builder for the request fields
 
 sub _build_request_fields {
     my ($self) = @_;
-    my $fields = [keys(%{$self->app->hashed_params()->{fields}})];
+    my $fields = [keys(%{$self->app->hashed_params()->{fields} // {}})];
+    my $form = $self->form;
     my %request_fields;
     foreach my $field (@$fields) {
         # grab the value from the form to apply any transformations that are done in it.
-        $request_fields{$field} = $self->form->field("fields[$field]")->value;
+        my $form_field = $form->field("fields[$field]");
+        # ignore the fields the form doesn't have
+        next unless defined($form_field);
+        $request_fields{$field} = $form_field->value;
     }
     return \%request_fields;
+}
+
+=head2 person_fields
+
+The fields that a person can be prompted for. With $only_collected, only the
+ones this module collects: its required fields, custom fields and fields to
+save.
+
+    my $fields = $self->person_fields($self->request_fields, 1);
+
+=cut
+
+sub person_fields {
+    my ($self, $fields, $only_collected) = @_;
+    my %collected = map { $_ => 1 } @{$self->required_fields}, @{$self->custom_fields}, @{$self->fields_to_save};
+    return {
+        map { $_ => $fields->{$_} }
+        grep { exists $pf::person::ALLOWED_PROMPTABLE_FIELDS{$_} && (!$only_collected || $collected{$_}) }
+        keys %{$fields // {}}
+    };
 }
 
 =head2 _rebuild_source
@@ -230,7 +254,10 @@ sub _build_required_fields {
     push @fields, 'aup' if($self->with_aup);
     push @fields, $self->pid_field if(defined($self->pid_field));
     push @fields, 'email' if(defined($self->source) && isenabled($self->source->{create_local_account}));
-    push @fields, (defined($self->source) ? $self->source->mandatoryFields() : (), @{$self->required_fields_child}, @{$self->custom_fields});
+    # A custom field that can't be prompted for (e.g. kept in the configuration of a module) is ignored
+    my %non_promptable = map { $_ => 1 } @pf::person::NON_PROMPTABLE_FIELDS;
+    my @custom_fields = grep { !$non_promptable{$_} } @{$self->custom_fields};
+    push @fields, (defined($self->source) ? $self->source->mandatoryFields() : (), @{$self->required_fields_child}, @custom_fields);
 
     @fields = uniq(@fields);
 
@@ -454,7 +481,15 @@ sub update_person_from_fields {
     }
 
     # not sure we should set the portal + source here...
-    person_modify($options{pid}, %{$self->app->session->{saved_fields}}, %{ $self->request_fields }, portal => $self->app->profile->getName, source => $self->source->id, lang => $lang, %{$options{additionnal_fields}});
+    person_modify(
+        $options{pid},
+        %{$self->person_fields($self->app->session->{saved_fields})},
+        %{$self->person_fields($self->request_fields, 1)},
+        portal => $self->app->profile->getName,
+        source => $self->source->id,
+        lang => $lang,
+        %{$options{additionnal_fields}},
+    );
 }
 
 =head1 AUTHOR

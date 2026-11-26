@@ -257,13 +257,8 @@ sub do_sponsor_registration {
     $self->app->session->{email} = $email;
     $self->username($pid);
 
-    # update sponsor field with forced_sponsor value
-    if (!defined($self->request_fields->{sponsor})) {
-        $self->update_person_from_fields(additionnal_fields => {sponsored_date => $sponsored_date, sponsor => $sponsor});
-    }
-    else {
-        $self->update_person_from_fields(additionnal_fields => {sponsored_date => $sponsored_date});
-    }
+    # the sponsor is the forced_sponsor or the validated sponsor of the request
+    $self->update_person_from_fields(additionnal_fields => {sponsored_date => $sponsored_date, sponsor => $sponsor});
 
     $self->waiting_room();
 }
