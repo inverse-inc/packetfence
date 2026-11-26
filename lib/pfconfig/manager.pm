@@ -40,7 +40,7 @@ use pf::util;
 use Fcntl;
 use Time::HiRes qw(stat time);
 use File::Find;
-use pfconfig::util qw(normalize_namespace_query);
+use pfconfig::util qw(normalize_namespace_query is_valid_namespace);
 use POSIX;
 use POSIX::2008;
 use List::MoreUtils qw(first_index);
@@ -113,6 +113,11 @@ sub get_namespace {
 
     my $full_name = $name;
 
+    unless (is_valid_namespace($name)) {
+        $logger->warn("Invalid namespace name " . ($name // 'undef'));
+        return undef;
+    }
+
     my @args;
     ($name, @args) = pfconfig::util::parse_namespace($name);
 
@@ -121,7 +126,7 @@ sub get_namespace {
     $type = untaint_chain($type);
 
     # load the module to instantiate
-    if ( !( eval "$type->require()" ) ) {
+    if ( !$type->require() ) {
         $logger->error( "Can not load namespace $name " . "Read the following message for details: $@" );
         return undef;
     }
@@ -279,9 +284,14 @@ It should not have to build the L3 since that's the slowest. The L3 should be bu
 sub get_cache {
     my ( $self, $what ) = @_;
 
+    my $logger = get_logger;
+    unless (is_valid_namespace($what)) {
+        $logger->warn("Invalid namespace name " . ($what // 'undef'));
+        return undef;
+    }
+
     $what = normalize_namespace_query($what);
 
-    my $logger = get_logger;
     # we look in raw memory and make sure that it's not expired
     my $memory = $self->{memory}{$what};
     unless (defined($memory) && $self->is_valid($what)) {
@@ -309,7 +319,12 @@ Same as get_cache but it will order all the keys when the resource is a hash
 
 sub get_cache_ordered {
     my ($self, $what) = @_;
-    
+
+    unless (is_valid_namespace($what)) {
+        get_logger->warn("Invalid namespace name " . ($what // 'undef'));
+        return undef;
+    }
+
     $what = normalize_namespace_query($what);
     
     my $memory = $self->{memory}{"$ordered_prefix$what"};
@@ -484,7 +499,13 @@ sub expire_namespaces {
             $visit->($derived);
         }
     };
-    $visit->( normalize_namespace_query($_) ) for @$namespaces;
+    for my $what (@$namespaces) {
+        unless (is_valid_namespace($what)) {
+            get_logger->warn("Invalid namespace name " . ($what // 'undef'));
+            next;
+        }
+        $visit->( normalize_namespace_query($what) );
+    }
     undef $visit;
 
     # Topological order (Kahn), discovery order among the ready namespaces

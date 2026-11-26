@@ -34,6 +34,7 @@ our @EXPORT_OK = qw(
     is_type_inline
     $undef_element
     normalize_namespace_query
+    is_valid_namespace
 );
 
 Readonly our $undef_element => pfconfig::undef_element->new;
@@ -126,6 +127,21 @@ sub parse_namespace {
     }
 
     return ($namespace, @args_list);
+}
+
+=head2 is_valid_namespace
+
+Returns true if the name of a namespace query (without its arguments) is a
+Perl package name relative to pfconfig::namespaces, e.g. config::Pf or
+config::Pf(CLUSTER,host)
+
+=cut
+
+sub is_valid_namespace {
+    my ($query) = @_;
+    return 0 unless defined $query;
+    my ($name) = parse_namespace($query);
+    return $name =~ /\A[A-Za-z_][A-Za-z0-9_]*(?:::[A-Za-z_][A-Za-z0-9_]*)*\z/ ? 1 : 0;
 }
 
 =head2 control_file_path
