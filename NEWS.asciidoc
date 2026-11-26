@@ -112,6 +112,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - pfstats no longer logs "Unhandled type: tail_file" and "Could not parse duration" for the log tailing metrics (#7104)
   - Jamf provisioner: the Classic API is queried with a bearer token (/api/v1/auth/token) instead of basic authentication, which Jamf Pro 10.42 and later reject (#8442)
   - packetfence-tracking-config works on installs that initialized conf/.git before the git safe.directory was added (#7600)
+  - LDAP sources with "SSL Verify Mode: Required" reached through a connector verify the certificate against the configured server name instead of the connector endpoint (#8084)
   - Inline: pfipset starts again on layer 2 networks with registered or isolated nodes (#9350)
   - iptables — `services.iptables` / `services.ip6tables` disabled is now honoured, and the admin UI shows the right ip6tables status (#9466, #9322)
   - pfconnector — switches defined by subnet reach the remote connectors, LDAP sources with a hostname work through the connector, and in Kubernetes dynreverse dials the right instance and connector env vars reach mod_perl (#9409, #9394, #9301, #9334)
