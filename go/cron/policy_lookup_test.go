@@ -879,8 +879,13 @@ func TestPolicyLoad(t *testing.T) {
 		},
 	}
 
+	ei, found := lookup.LookupByRoles("IoT-Lighting", &ne)
+	if !found {
+		t.Fatalf("LookupByRoles found no policies for IoT-Lighting")
+	}
+
 	if diff := cmp.Diff(
-		lookup.LookupByRoles("IoT-Lighting", &ne),
+		ei,
 		&EnforcementInfo{
 			RuleID:              "d2cdcbd9-5acd-4021-ba96-fdecbbf77473/",
 			Verdict:             "allow",
@@ -926,3 +931,232 @@ func TestPolicyLookup(t *testing.T) {
 
 }
 */
+
+func TestMacKeyIsCaseInsensitive(t *testing.T) {
+	// node.mac is compared case-insensitively by MariaDB but a Go map is not;
+	// MACs filled in from ip4log keep whatever case the writer used.
+	if macKey("AA:BB:CC:DD:EE:FF") != macKey("aa:bb:cc:dd:ee:ff") {
+		t.Fatal("macKey must normalize case")
+	}
+	if macKey("aa:bb:cc:dd:ee:ff") != "aa:bb:cc:dd:ee:ff" {
+		t.Fatal("macKey must leave a lower-case MAC unchanged")
+	}
+}
+
+// TestLookupOrder covers the order Lookup checks policies in once the node
+// roles are resolved: implicit first (when the event has a source MAC), then
+// MAC, then role.
+func TestLookupOrder(t *testing.T) {
+	policy := func(ruleID, acl string) Policy {
+		return Policy{
+			EnforcementInfo: []EnforcementInfo{{RuleID: ruleID, Verdict: "allow"}},
+			Acls:            []string{acl},
+		}
+	}
+	const (
+		macSrc  = "aa:bb:cc:dd:ee:01" // has MAC policies
+		macRole = "aa:bb:cc:dd:ee:02" // has the IoT role only
+		macNone = "aa:bb:cc:dd:ee:03" // has neither
+	)
+	lookup := &PolicyLookup{
+		ByRoles:        map[string][]Policy{"IoT": {policy("role", "permit tcp any any")}},
+		NodesPolicies:  map[string][]Policy{macSrc: {policy("mac", "permit tcp any any")}},
+		ImplictPolices: []Policy{policy("implicit", "permit udp any any eq 53")},
+	}
+	lookup.UpdateMatchers()
+	roles := map[string]string{macRole: "IoT"}
+
+	event := func(srcMac string, proto IpProtocol, port int) *NetworkEvent {
+		ne := &NetworkEvent{
+			SourceIp:   netip.AddrFrom4([4]byte{10, 0, 0, 1}),
+			DestIp:     netip.AddrFrom4([4]byte{10, 0, 0, 2}),
+			IpProtocol: proto,
+			DestPort:   port,
+		}
+		if srcMac != "" {
+			ne.SourceInventoryItem = &InventoryItem{ExternalIDS: []string{srcMac}}
+		}
+		return ne
+	}
+
+	tests := []struct {
+		name   string
+		srcMac string
+		proto  IpProtocol
+		port   int
+		want   string // RuleID, "" for no enforcement info
+	}{
+		{"implicit beats MAC policies", macSrc, IpProtocolUdp, 53, "implicit"},
+		{"implicit beats role policies", macRole, IpProtocolUdp, 53, "implicit"},
+		{"implicit applies without MAC or role policies", macNone, IpProtocolUdp, 53, "implicit"},
+		{"no implicit without a source MAC", "", IpProtocolUdp, 53, ""},
+		{"MAC policies when implicit does not match", macSrc, IpProtocolTcp, 80, "mac"},
+		{"role policies when implicit does not match", macRole, IpProtocolTcp, 80, "role"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ne := event(tt.srcMac, tt.proto, tt.port)
+			ei := lookup.lookupResolved(ne, tt.srcMac, roles[tt.srcMac], "", "")
+			got := ""
+			if ei != nil {
+				got = ei.RuleID
+			}
+			if got != tt.want {
+				t.Fatalf("Lookup: got rule %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+// TestLookupWithRolesLevels checks the MAC then role order of LookupWithRoles,
+// and that MAC policies are authoritative per side: when a node's MAC has
+// policies but none match the event, that node's role policies are not
+// checked, while the other node's role policies still are.
+func TestLookupWithRolesLevels(t *testing.T) {
+	policy := func(ruleID, acl string) Policy {
+		return Policy{
+			EnforcementInfo: []EnforcementInfo{{RuleID: ruleID, Verdict: "allow"}},
+			Acls:            []string{acl},
+		}
+	}
+	const (
+		matching    = "permit tcp any any"
+		notMatching = "permit udp any any"
+	)
+	lookup := &PolicyLookup{
+		ByRoles: map[string][]Policy{
+			"match":   {policy("role-match", matching)},
+			"match2":  {policy("role-match2", matching)},
+			"nomatch": {policy("role-nomatch", notMatching)},
+		},
+		NodesPolicies: map[string][]Policy{
+			"aa:bb:cc:dd:ee:01": {policy("mac-match", matching)},
+			"aa:bb:cc:dd:ee:02": {policy("mac-nomatch", notMatching)},
+			"aa:bb:cc:dd:ee:04": {policy("mac-match2", matching)},
+			"aa:bb:cc:dd:ee:05": {},
+		},
+		// LookupWithRoles must ignore implicit policies.
+		ImplictPolices: []Policy{policy("implicit", matching)},
+	}
+	lookup.UpdateMatchers()
+
+	const (
+		macMatch   = "aa:bb:cc:dd:ee:01"
+		macNoMatch = "aa:bb:cc:dd:ee:02"
+		macNone    = "aa:bb:cc:dd:ee:03"
+		macMatch2  = "aa:bb:cc:dd:ee:04"
+		macEmpty   = "aa:bb:cc:dd:ee:05" // empty policy list
+	)
+	tests := []struct {
+		name                             string
+		srcMac, srcRole, dstMac, dstRole string
+		want                             string // RuleID, "" for no enforcement info
+	}{
+		{"src MAC match wins over roles", macMatch, "match", macNone, "match", "mac-match"},
+		{"src MAC checked before dst MAC", macMatch, "", macMatch2, "", "mac-match"},
+		{"dst MAC match when src MAC has none", macNone, "match", macMatch, "match", "mac-match"},
+		{"dst MAC match after src MAC no match", macNoMatch, "match", macMatch, "match", "mac-match"},
+		{"src MAC no match skips src role", macNoMatch, "match", macNone, "", ""},
+		{"src MAC no match still checks dst role", macNoMatch, "match", macNone, "match2", "role-match2"},
+		{"dst MAC no match skips dst role", macNone, "", macNoMatch, "match", ""},
+		{"dst MAC no match still checks src role", macNone, "match", macNoMatch, "match2", "role-match"},
+		{"both MACs no match skip both roles", macNoMatch, "match", macNoMatch, "match2", ""},
+		{"src role match without MAC policies", macNone, "match", macNone, "", "role-match"},
+		{"empty src MAC policy list does not stop roles", macEmpty, "match", macNone, "", "role-match"},
+		{"empty dst MAC policy list does not stop roles", macNone, "match", macEmpty, "", "role-match"},
+		{"src role checked before dst role", macNone, "match", macNone, "match2", "role-match"},
+		{"dst role match when src role has none", macNone, "", macNone, "match", "role-match"},
+		{"dst role match after src role no match", macNone, "nomatch", macNone, "match", "role-match"},
+		{"role no match gives no enforcement", macNone, "nomatch", macNone, "nomatch", ""},
+		{"no MAC or role policies gives no enforcement", macNone, "", macNone, "", ""},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ne := &NetworkEvent{
+				SourceIp:   netip.AddrFrom4([4]byte{10, 0, 0, 1}),
+				DestIp:     netip.AddrFrom4([4]byte{10, 0, 0, 2}),
+				IpProtocol: IpProtocolTcp,
+			}
+			ei := lookup.LookupWithRoles(ne, tt.srcMac, tt.srcRole, tt.dstMac, tt.dstRole)
+			got := ""
+			if ei != nil {
+				got = ei.RuleID
+			}
+			if got != tt.want {
+				t.Fatalf("LookupWithRoles: got rule %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+// TestLookupByMacIgnoresCase checks that MAC policies are found whatever the
+// case of the event MAC or of the policy map key: MACs filled in from ip4log
+// keep the case their writer used, and a missed MAC policy would let the role
+// policies of that node apply instead.
+func TestLookupByMacIgnoresCase(t *testing.T) {
+	policy := func(ruleID string) Policy {
+		return Policy{
+			EnforcementInfo: []EnforcementInfo{{RuleID: ruleID, Verdict: "allow"}},
+			Acls:            []string{"permit tcp any any"},
+		}
+	}
+	lookup := &PolicyLookup{
+		ByRoles: map[string][]Policy{"IoT": {policy("role")}},
+		NodesPolicies: map[string][]Policy{
+			"aa:bb:cc:dd:ee:01": {policy("lower-key")},
+			"AA:BB:CC:DD:EE:02": {policy("upper-key")},
+		},
+	}
+	lookup.UpdateMatchers()
+	ne := &NetworkEvent{
+		SourceIp:   netip.AddrFrom4([4]byte{10, 0, 0, 1}),
+		DestIp:     netip.AddrFrom4([4]byte{10, 0, 0, 2}),
+		IpProtocol: IpProtocolTcp,
+	}
+
+	tests := []struct {
+		mac, want string
+	}{
+		{"aa:bb:cc:dd:ee:01", "lower-key"},
+		{"AA:BB:CC:DD:EE:01", "lower-key"},
+		{"aa:bb:cc:dd:ee:02", "upper-key"},
+		{"Aa:Bb:Cc:Dd:Ee:02", "upper-key"},
+	}
+	for _, tt := range tests {
+		ei, found := lookup.LookupByMac(tt.mac, ne)
+		if !found || ei == nil || ei.RuleID != tt.want {
+			t.Fatalf("LookupByMac(%q): got %+v found=%v, want rule %q", tt.mac, ei, found, tt.want)
+		}
+		if ei := lookup.LookupWithRoles(ne, tt.mac, "IoT", "", ""); ei == nil || ei.RuleID != tt.want {
+			t.Fatalf("LookupWithRoles(%q): got %+v, want MAC rule %q over the role policy", tt.mac, ei, tt.want)
+		}
+	}
+}
+
+// TestUpdateMatchersMergesMacKeysByCase checks that policy map keys that only
+// differ by case end up under one key, their policies appended in sorted key
+// order so the merge is deterministic.
+func TestUpdateMatchersMergesMacKeysByCase(t *testing.T) {
+	policy := func(ruleID string) Policy {
+		return Policy{
+			EnforcementInfo: []EnforcementInfo{{RuleID: ruleID, Verdict: "allow"}},
+			Acls:            []string{"permit tcp any any"},
+		}
+	}
+	lookup := &PolicyLookup{
+		NodesPolicies: map[string][]Policy{
+			"aa:bb:cc:dd:ee:01": {policy("lower")},
+			"AA:BB:CC:DD:EE:01": {policy("upper")},
+		},
+	}
+	lookup.UpdateMatchers()
+	if len(lookup.NodesPolicies) != 1 {
+		t.Fatalf("expected one normalized key, got %v", lookup.NodesPolicies)
+	}
+	got := lookup.NodesPolicies["aa:bb:cc:dd:ee:01"]
+	if len(got) != 2 || got[0].EnforcementInfo[0].RuleID != "upper" || got[1].EnforcementInfo[0].RuleID != "lower" {
+		t.Fatalf("unexpected merged policies: %+v", got)
+	}
+}
