@@ -2,9 +2,11 @@ package maint
 
 import (
 	"context"
+	"database/sql"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"net"
 	"sort"
 	"strconv"
 	"strings"
@@ -150,8 +152,133 @@ func (j *FlushRadiusAuditLogJob) flushLogs(entries [][]interface{}) error {
 		log.LogDebug(ctx, "Zero Args")
 	}
 
+	// Co-write monthly MARD billing rows to node_meta. pf-reporting-api
+	// reads these for the monthly count (COUNT DISTINCT value). ODKU on PK
+	// (name, mac) makes repeated auths of the same MAC in the same month
+	// a cheap refresh of value (last-write-wins on identity, so a MAC that
+	// becomes domain-joined mid-month gets its identity refreshed). Best-
+	// effort: any failure is logged WARN and the next flush retries — the
+	// main radius_audit_log INSERT already landed.
+	nmSql, nmArgs, nmRun := j.buildNodeMetaBillingQuery(ctx, db, entries)
+	if nmRun {
+		if _, nmErr := db.ExecContext(ctx, nmSql, nmArgs...); nmErr != nil {
+			log.LogErrorf(ctx, "node_meta billing co-write failed: %v", nmErr)
+		}
+	}
+
 	log.LogInfo(ctx, fmt.Sprintf("Flushed %d radius_audit_log", rows))
 	return nil
+}
+
+// buildNodeMetaBillingQuery assembles a bulk ODKU INSERT into node_meta for
+// every Accept entry in the flushed batch. One row per (mard-YYYYMM, mac)
+// with value = COALESCE(node.machine_account, host/<user_name>, mac), so a
+// subsequent COUNT(DISTINCT value) collapses two-NIC domain-joined devices
+// to one. A single SELECT to node fetches machine_account for the batch
+// (bounded by the distinct MACs in a flush batch, typically << batch size).
+// Returns ("", nil, false) when no eligible rows exist.
+func (j *FlushRadiusAuditLogJob) buildNodeMetaBillingQuery(ctx context.Context, db *sql.DB, entries [][]interface{}) (string, []interface{}, bool) {
+	now := time.Now().UTC()
+	monthName := fmt.Sprintf("mard-%04d%02d", now.Year(), int(now.Month()))
+
+	type eligibleRow struct {
+		mac      string
+		userName string
+	}
+
+	eligible := make([]eligibleRow, 0, len(entries))
+	macSet := make(map[string]struct{}, len(entries))
+	for _, e := range entries {
+		if len(e) < 4 {
+			continue
+		}
+		if formatRequestValue(e[0], "Accept") != "Accept" {
+			continue
+		}
+		request, ok := e[1].(map[string]interface{})
+		if !ok {
+			continue
+		}
+		control, _ := e[3].(map[string]interface{})
+		request = parseRequestArgs(request)
+
+		mac := canonicalMacForNodeMeta(formatRequestValue(request["Calling-Station-Id"], ""))
+		if mac == "" {
+			continue
+		}
+		// PacketFence-UserName (e.g. EAP-TLS identity) wins over request User-Name,
+		// matching the pfreporting-api COALESCE formula.
+		userName := formatRequestValue(control["PacketFence-UserName"], "")
+		if userName == "" {
+			userName = formatRequestValue(request["User-Name"], "")
+		}
+		eligible = append(eligible, eligibleRow{mac: mac, userName: userName})
+		macSet[mac] = struct{}{}
+	}
+	if len(eligible) == 0 {
+		return "", nil, false
+	}
+
+	// Batch-lookup node.machine_account for the eligible MACs. On lookup
+	// failure fall through with an empty map — identity defaults to
+	// host/<user_name> or MAC per the COALESCE formula.
+	machineAccounts := make(map[string]string, len(macSet))
+	if len(macSet) > 0 {
+		macList := make([]interface{}, 0, len(macSet))
+		for m := range macSet {
+			macList = append(macList, m)
+		}
+		selectSql := "SELECT mac, machine_account FROM node WHERE mac IN (?" + strings.Repeat(",?", len(macList)-1) + ")"
+		rows, err := db.QueryContext(ctx, selectSql, macList...)
+		if err != nil {
+			log.LogErrorf(ctx, "node_meta billing: machine_account lookup failed: %v", err)
+		} else {
+			for rows.Next() {
+				var mac, ma sql.NullString
+				if scanErr := rows.Scan(&mac, &ma); scanErr == nil && mac.Valid && ma.Valid && ma.String != "" {
+					machineAccounts[mac.String] = ma.String
+				}
+			}
+			rows.Close()
+		}
+	}
+
+	// Dedup within the batch so ODKU only sees one row per (month, mac).
+	dedup := make(map[string]string, len(eligible))
+	for _, r := range eligible {
+		identity := machineAccounts[r.mac]
+		if identity == "" {
+			if strings.HasPrefix(r.userName, "host/") {
+				identity = r.userName
+			} else {
+				identity = r.mac
+			}
+		}
+		dedup[r.mac] = identity
+	}
+	if len(dedup) == 0 {
+		return "", nil, false
+	}
+
+	bind := "(?,?,?)"
+	sqlStr := "INSERT INTO node_meta (name, mac, value) VALUES " + bind + strings.Repeat(","+bind, len(dedup)-1) + " ON DUPLICATE KEY UPDATE value = VALUES(value)"
+	args := make([]interface{}, 0, len(dedup)*3)
+	for mac, identity := range dedup {
+		args = append(args, monthName, mac, identity)
+	}
+	return sqlStr, args, true
+}
+
+// canonicalMacForNodeMeta normalises a RADIUS Calling-Station-Id to the
+// same format PF's audit tables use (lowercase, colon-separated). Returns
+// "" when the input doesn't parse — such rows get silently skipped by the
+// node_meta co-write; the raw radius_audit_log INSERT still records them.
+func canonicalMacForNodeMeta(raw string) string {
+	hw, err := net.ParseMAC(raw)
+	if err != nil {
+		return ""
+	}
+	return hw.String()
 }
 
 const RADIUS_AUDIT_LOG_COLUMN_COUNT = 37

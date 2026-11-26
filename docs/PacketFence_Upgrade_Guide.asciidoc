@@ -941,6 +941,37 @@ Internet Explorer 11 on Windows 7 when an RSA certificate is in use.
 
 == Upgrading from a version prior to X.Y.Z
 
+=== New `node_meta_billing_retention` pfcron task
+
+PacketFence now co-writes a `node_meta` row at every RADIUS audit flush and
+guest-completion ingest so `pf-reporting-api` can serve monthly MARD and
+guest counts from a tiny index-covered table instead of scanning the raw
+`radius_audit_log` and `auth_log` tables. Row conventions:
+
+- `name = 'mard-YYYYMM'`, `mac = <actual MAC>`, `value = <collapsed MARD identity>`
+- `name = 'guest-YYYYMM'`, `mac = <actual MAC>`, `value = NULL`
+
+The primary key `(name, mac)` makes repeated authentications of the same
+device in the same month a cheap PK collision + refresh (ODKU `value =
+VALUES(value)`), so the stored set is naturally distinct-per-device per
+month — a device seen 30 times in a month lands as one row.
+
+A new maintenance task `node_meta_billing_retention` prunes these rows
+past the configured window (default 60 days, keeps the current month
+plus the most recent completed month). SaaS deployments refuse a window
+shorter than 60 days — pruning below the live billing cycle would
+destroy the current cycle's record.
+
+Raw `radius_audit_log_cleanup` and `auth_log_cleanup` retention is
+unchanged — those tables are now forensic-only surfaces (incident
+investigation via the RADIUS logs admin UI). Operators are free to tune
+them to whatever window makes sense for their own forensic needs; the
+billing record is preserved independently in `node_meta`.
+
+Nothing to run manually on upgrade: the new task ships enabled and
+starts populating `node_meta` from the next RADIUS audit flush.
+`pf-reporting-api` ≥ 1.0.32 is the consumer side of this change.
+
 === PKI API admin roles and certificate download
 
 The PKI API (`/api/v1/pki/...`: certificate authorities, templates,

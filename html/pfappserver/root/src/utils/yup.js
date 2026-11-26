@@ -624,4 +624,26 @@ yup.addMethod(yup.string, 'mysql', function(columnSchema) {
   })
 })
 
+/**
+ * yup.object
+**/
+
+// seconds of a duration unit, as the backend counts them (pf::util::normalize_time)
+const durationUnitSeconds = { s: 1, m: 60, h: 3600, D: 86400, W: 7 * 86400, M: 30 * 86400, Y: 365 * 86400 }
+
+// duration ({ interval, unit }) of at least `minInterval` `minUnit`, the error is set on the interval
+yup.addMethod(yup.object, 'minDuration', function (minInterval, minUnit, message) {
+  return this.test({
+    name: 'minDuration',
+    message: message || i18n.t('Minimum {minValue}.', { minValue: `${minInterval}${minUnit}` }),
+    test: function (value) {
+      const { interval, unit } = value || {}
+      if (['', null, undefined].includes(interval) || !(unit in durationUnitSeconds))
+        return true
+      return +interval * durationUnitSeconds[unit] >= +minInterval * durationUnitSeconds[minUnit]
+        || this.createError({ path: `${this.path}.interval` })
+    }
+  })
+})
+
 export default yup

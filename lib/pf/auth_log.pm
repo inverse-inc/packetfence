@@ -30,6 +30,45 @@ use pf::dal::auth_log;
 use pf::constants qw($ZERO_DATE);
 use pf::error qw(is_error is_success);
 use pf::log;
+use POSIX qw(strftime);
+
+# Source types that qualify as guest-flow authentications for the monthly
+# billing roll-up. Must stay in sync with the pf-reporting-api default
+# GUEST_SOURCE_TYPES env (reporting-api README documents the coupling).
+# Operators who extend the reporting-api list must mirror additions here,
+# or those rows won't co-write to node_meta.
+Readonly our %GUEST_SOURCE_TYPES_FOR_BILLING => map { $_ => 1 } qw(
+    Email SMS SponsorEmail Null Potd Billing Twilio Clickatell Kickbox
+    Facebook Google Github LinkedIn WindowsLive OpenID
+);
+
+=head2 _node_meta_guest_billing_co_write
+
+Co-write a node_meta row (name 'guest-YYYYMM', mac, value NULL) for every
+guest-source-type completed auth. Idempotent via PK (name, mac) + ODKU —
+same MAC completing N times in a month lands as one row. Best-effort: any
+failure is logged and swallowed so it never blocks the primary auth_log
+write.
+
+The pf-reporting-api monthly guest count reads from this; see its README
+"monthly `registered` + `guests` read from `node_meta`" section.
+
+=cut
+
+sub _node_meta_guest_billing_co_write {
+    my ($source_type, $mac, $auth_status) = @_;
+    return unless defined $auth_status && $auth_status eq $COMPLETED;
+    return unless defined $source_type && exists $GUEST_SOURCE_TYPES_FOR_BILLING{$source_type};
+    return unless defined $mac && length $mac;
+    my $name = 'guest-' . strftime('%Y%m', gmtime);
+    my ($status) = pf::dal->db_execute(
+        "INSERT INTO node_meta (name, mac, value) VALUES (?, ?, NULL) ON DUPLICATE KEY UPDATE value = VALUES(value)",
+        $name, $mac,
+    );
+    if (is_error($status)) {
+        get_logger->warn("node_meta guest billing co-write failed for mac=$mac name=$name");
+    }
+}
 
 # The functions that write the source_type column take the authentication
 # source id and its type as their first two arguments, e.g.
@@ -115,6 +154,7 @@ sub record_completed_oauth {
         -limit => 1,
         -order_by => { -desc => 'attempted_at' },
     );
+    _node_meta_guest_billing_co_write($source_type, $mac, $auth_status);
     return $rows;
 }
 
@@ -155,6 +195,7 @@ sub record_completed_guest {
         -limit => 1,
         -order_by => { -desc => 'attempted_at' },
     );
+    _node_meta_guest_billing_co_write($source_type, $mac, $auth_status);
     return $rows;
 }
 
@@ -172,6 +213,7 @@ sub record_auth {
         status => $auth_status,
         profile => $profile,
     });
+    _node_meta_guest_billing_co_write($source_type, $mac, $auth_status);
     return (is_success($status));
 }
 

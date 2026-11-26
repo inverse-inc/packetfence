@@ -38,6 +38,7 @@ use pfappserver::Form::Config::Pfcron::ip4log_cleanup;
 use pfappserver::Form::Config::Pfcron::ip6log_cleanup;
 use pfappserver::Form::Config::Pfcron::locationlog_cleanup;
 use pfappserver::Form::Config::Pfcron::node_cleanup;
+use pfappserver::Form::Config::Pfcron::node_meta_billing_retention;
 use pfappserver::Form::Config::Pfcron::nodes_maintenance;
 use pfappserver::Form::Config::Pfcron::option82_query;
 use pfappserver::Form::Config::Pfcron::person_cleanup;
@@ -76,6 +77,7 @@ our %TYPES_TO_FORMS = (
       ip6log_cleanup
       locationlog_cleanup
       node_cleanup
+      node_meta_billing_retention
       nodes_maintenance
       option82_query
       person_cleanup

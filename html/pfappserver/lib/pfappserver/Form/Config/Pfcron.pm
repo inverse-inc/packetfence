@@ -18,9 +18,11 @@ with 'pfappserver::Base::Form::Role::Help';
 use pf::config::pfcron qw(%ConfigCronDefault);
 
 use Exporter qw(import);
-our @EXPORT_OK = qw(default_field_method batch_help_text timeout_help_text window_help_text);
+our @EXPORT_OK = qw(default_field_method batch_help_text timeout_help_text window_help_text validate_saas_billing_min_window);
 
 use pf::log;
+use pf::util qw(isenabled normalize_time);
+use pf::constants::config qw($SAAS_BILLING_MIN_WINDOW);
 
 ## Definition
 has_field 'id' =>
@@ -142,6 +144,27 @@ sub batch_help_text { "Amount of items that will be processed in each batch of t
 sub timeout_help_text { "Maximum amount of time this task can run." }
 
 sub window_help_text { "Window to apply the job to. In the case of a deletion, setting this to 7 days would delete affected data older than 7 days." }
+
+=head2 validate_saas_billing_min_window
+
+In SaaS (PF_SAAS), refuse a window under the minimum the node_meta billing
+rows need to survive the current billing cycle + dispute window.
+
+=cut
+
+sub validate_saas_billing_min_window {
+    my ($form, $field) = @_;
+    return if !isenabled($ENV{PF_SAAS});
+    my $value = $field->value;
+    return if !defined $value;
+    if (ref($value) eq 'HASH') {
+        return if !defined $value->{interval} || !defined $value->{unit};
+        $value = $value->{interval} . $value->{unit};
+    }
+    if ((normalize_time($value) // 0) < normalize_time($SAAS_BILLING_MIN_WINDOW)) {
+        $field->add_error("The window cannot be less than $SAAS_BILLING_MIN_WINDOW");
+    }
+}
 
 =head2 default_type
 

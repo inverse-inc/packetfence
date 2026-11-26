@@ -55,6 +55,8 @@ pfcmd pfcron <task> [options...]
 
 =item node_cleanup
 
+=item node_meta_billing_retention
+
 =item nodes_maintenance
 
 =item option82_query

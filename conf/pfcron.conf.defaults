@@ -484,6 +484,51 @@ schedule=@every 5m
 # Local task
 local=0
 
+[node_meta_billing_retention]
+#
+# type
+#
+# Task type
+type=node_meta_billing_retention
+#
+# status
+#
+# If the task is enabled
+status=enabled
+#
+# description
+#
+# The description of task
+description=Prunes node_meta rows older than the window that carry monthly MARD / guest-device billing aggregates (names 'mard-YYYYMM' and 'guest-YYYYMM'). PacketFence co-writes one row per (metric-month, MAC) at RADIUS audit + guest-completion ingest; pf-reporting-api reads these rows for monthly counts. The window must cover the billing dispute period — SaaS deployments enforce a minimum of 2 months.
+#
+# schedule
+#
+# The schedule of task
+schedule=@every 1m
+#
+# batch
+#
+# How many node_meta_billing_retention entries to clean up in one run
+batch=100
+#
+# timeout
+#
+# How long a node_meta_billing_retention job can run
+timeout=10s
+#
+# window
+#
+# How long to keep a node_meta billing entry before deleting it. Default
+# is 60 days (keeps the current month + the most recent completed month,
+# which is the billable + dispute window). SaaS deployments refuse a
+# shorter value.
+window=60D
+#
+# local
+#
+# Local task
+local=0
+
 [radius_audit_log_cleanup]
 #
 # type
