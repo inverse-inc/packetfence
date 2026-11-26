@@ -115,6 +115,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - Inline: pfipset starts again on layer 2 networks with registered or isolated nodes (#9350)
   - iptables — `services.iptables` / `services.ip6tables` disabled is now honoured, and the admin UI shows the right ip6tables status (#9466, #9322)
   - pfconnector — switches defined by subnet reach the remote connectors, LDAP sources with a hostname work through the connector, and in Kubernetes dynreverse dials the right instance and connector env vars reach mod_perl (#9409, #9394, #9301, #9334)
+  - Network graph API — only the display properties of the switches (`switch.id`, `description`, `type`, `group`, `mode`) can be requested, other `switch.*` fields give 422 (#9804)
   - Database and ProxySQL — `db_query_execute` runs prepared statements again, connection init statements run one at a time, ProxySQL is monitored only where it runs and processlist queries go to the writer, and the switch observability upsert works on MySQL (#9389, #9398, #9399, #9233, #9284)
   - RADIUS audit log — records the user name PacketFence used instead of the outer identity, readable CoA and Disconnect entries; audit log searches return an empty page instead of a 404, search request time by range, and no 500 without a query (#9382, #9379, #9498, #9565)
   - RADIUS and switch filters — the request is kept in the proxy sections, answers are no longer added twice on several switch types, and a switch module in a rule no longer breaks reevaluate and radius_authorize (#9348, #9354, #9380)
