@@ -15,5 +15,8 @@ packetfence_install__deb:
   repos:
     - "debian/{{ pf_minor_release }}"
 
+# Repository lines, keys and release RPM all come from the package origin CI publishes to.
+packetfence_install__package_origin: '{{ pf_repo_origin }}'
+
 # we used Venom to pass through configurator
 packetfence_install__configurator_status: 'enabled'

@@ -24,6 +24,8 @@ setup_vars() {
     # IMAGE_TAG is used inside DockerFile to reference other image
     # only one tag can be used in Dockerfile
     export IMAGE_TAG=$(echo $IMAGE_TAGS | cut -d ',' -f 1)
+    # pfbuild-* builder images keep their branch tag when service images get a pipeline tag
+    export BUILDER_TAG=${BUILDER_TAG:-$IMAGE_TAG}
 
     echo "Building ${IMAGE_NAME} using ${DOCKFILE_PATH}"
 }
