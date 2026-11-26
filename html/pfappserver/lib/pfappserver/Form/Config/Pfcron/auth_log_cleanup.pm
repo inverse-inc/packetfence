@@ -12,7 +12,7 @@ Web form for auth_log_cleanup pfcron task
 
 use HTML::FormHandler::Moose;
 
-use pfappserver::Form::Config::Pfcron qw(default_field_method batch_help_text timeout_help_text window_help_text);
+use pfappserver::Form::Config::Pfcron qw(default_field_method batch_help_text timeout_help_text window_help_text validate_saas_min_window);
 
 extends 'pfappserver::Form::Config::Pfcron';
 with 'pfappserver::Base::Form::Role::Help';
@@ -36,6 +36,14 @@ has_field 'window' => (
     default_method => \&default_field_method,
 );
 
+
+=head2 validate_window
+
+The window cannot go under the SaaS minimum
+
+=cut
+
+sub validate_window { validate_saas_min_window(@_) }
 
 =head2 default_type
 

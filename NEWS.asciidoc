@@ -73,6 +73,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - Users search shows local and remote users apart (#9427)
   - SaaS: ProxySQL splits the shared cloud database into per-service capacity tiers (RADIUS, web services and API, httpd.aaa/pfacct/pfconfig, catch-all), each with its own connection cap and query timeout; on-premises installs are unchanged (#9295)
   - Database indexes for guest and registered device counts, and the authentication source and source type are recorded on the node; captive portal logins no longer scan `auth_log` to complete an authentication (#9302)
+  - The RADIUS audit log and the authentication log (`auth_log`) are kept 32 days by default (`radius_audit_log_cleanup` was 1 day, `auth_log_cleanup` 45 days), so a full calendar month of registered device and guest counts can be read from them. In SaaS these windows cannot be reduced and the RADIUS accounting is always recorded in SQL, see the Upgrade Guide
   - pfconnector-server advertises the PacketFence version in an `X-PacketFence-Version` response header, documented in the OpenAPI specification (#9591, #9592)
   - Admin UI: the Kafka configuration page has a restart/start/stop button for the kafka service (#9336)
   - Admin UI: date pickers of the fields the backend validates (node unregistration date, user validity and expiration, `set_unreg_date` actions) are limited to 1970-01-01 to 2038-01-18 (#9333)

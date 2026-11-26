@@ -60,7 +60,7 @@ timeout=10s
 # window
 #
 # How long to keep a auth_log_cleanup entry before deleting it
-window=45D
+window=32D
 #
 # local
 #
@@ -519,7 +519,7 @@ timeout=10s
 # window
 #
 # How long to keep a radius_audit_log_cleanup entry before deleting it
-window=1D
+window=32D
 #
 # local
 #

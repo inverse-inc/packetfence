@@ -176,6 +176,11 @@ sub build_child {
         }
     }
 
+    # SaaS: the RADIUS accounting is always recorded in the SQL tables
+    if (isenabled($ENV{PF_SAAS})) {
+        $Config{radius_configuration}{record_accounting_in_sql} = 'enabled';
+    }
+
     $Config{network}{dhcp_filter_by_message_types}
         = [ split( /\s*,\s*/, $Config{network}{dhcp_filter_by_message_types} || '' ) ];
 

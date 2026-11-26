@@ -33,6 +33,8 @@ our @EXPORT_OK = qw(
 
   $TIME_MODIFIER_RE
   $ACCT_TIME_MODIFIER_RE
+  $SAAS_USAGE_MIN_WINDOW
+  %SAAS_USAGE_MIN_WINDOW_TASKS
   $DEADLINE_UNIT
 
   $SELFREG_MODE_EMAIL
@@ -111,6 +113,15 @@ Readonly our $NET_TYPE_OTHER => 'other';
 
 Readonly our $TIME_MODIFIER_RE => qr/[smhDWMY]/;
 Readonly our $ACCT_TIME_MODIFIER_RE => qr/[DWMY]/;
+
+# SaaS (PF_SAAS): the monthly device counts are read from radius_audit_log and
+# auth_log once the month is over, so the cleanup window of these tasks cannot
+# go under the longest month (31 days) plus a day to read it.
+Readonly our $SAAS_USAGE_MIN_WINDOW => '32D';
+Readonly our %SAAS_USAGE_MIN_WINDOW_TASKS => (
+    radius_audit_log_cleanup => 1,
+    auth_log_cleanup         => 1,
+);
 Readonly our $DEADLINE_UNIT => qr/[RF]/;
 
 # Guest related

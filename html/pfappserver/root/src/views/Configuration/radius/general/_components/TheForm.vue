@@ -7,9 +7,12 @@
   >
     <form-group-record-accounting-in-sql namespace="record_accounting_in_sql"
                                          :column-label="$i18n.t('Record accounting in SQL tables')"
-                                         :text="$i18n.t('Record the accounting data in the SQL tables. Requires a restart of radiusd to be effective.')"
+                                         :text="(isSaas)
+                                           ? $i18n.t('Record the accounting data in the SQL tables. Always enabled.')
+                                           : $i18n.t('Record the accounting data in the SQL tables. Requires a restart of radiusd to be effective.')"
                                          enabled-value="enabled"
                                          disabled-value="disabled"
+                                         :disabled="isSaas"
     />
 
     <form-group-filter-in-packetfence-authorize namespace="filter_in_packetfence_authorize"
@@ -228,11 +231,15 @@ export const props = {
   }
 }
 
-export const setup = (props) => {
+export const setup = (props, context) => {
 
   const {
     meta
   } = toRefs(props)
+
+  const { root: { $store } = {} } = context
+
+  const isSaas = computed(() => $store.getters['system/isSaas'])
 
   const impliedRadiusAtttributes = computed(() => {
     const csv = useNamespaceMetaImplied('radius_attributes', meta)
@@ -243,6 +250,7 @@ export const setup = (props) => {
 
   return {
     schema,
+    isSaas,
     impliedRadiusAtttributes
   }
 }

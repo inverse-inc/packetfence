@@ -26,6 +26,7 @@ use fingerbank::Model::Device;
 
 # For passthroughs validation
 use pf::util::dns;
+use pf::util qw(isenabled);
 use pfconfig::namespaces::resource::passthroughs;
 use pfconfig::namespaces::resource::isolation_passthroughs;
 
@@ -315,7 +316,23 @@ our %FIELD_VALIDATORS = (
     "inline.ports_redirect" => sub { validate_port_protocol_list(@_, 'commas') },
     "inline.interfaceSNAT" => sub { validate_interface_list(@_, 'lines') },
     "network.interfaceSNAT" => sub { validate_interface_list(@_, 'strict') },
+    "radius_configuration.record_accounting_in_sql" => sub { validate_enabled_in_saas(@_) },
 );
+
+=head2 validate_enabled_in_saas
+
+In SaaS (PF_SAAS), the parameter cannot be disabled
+
+=cut
+
+sub validate_enabled_in_saas {
+    my (undef, $field) = @_;
+    return if !isenabled($ENV{PF_SAAS});
+    my $value = $field->value;
+    if (defined $value && !isenabled($value)) {
+        $field->add_error($field->name . " cannot be disabled");
+    }
+}
 
 =head2 _list_items
 

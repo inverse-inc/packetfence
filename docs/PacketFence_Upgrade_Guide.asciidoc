@@ -1591,6 +1591,34 @@ has local IDs, a security event whose triggers all use a local entry, or a
 `device_is_not` trigger on a local entry, which matches every device. Replace or
 remove them.
 
+=== RADIUS audit log and authentication log retention
+
+The default window of two maintenance tasks changes:
+
+* `radius_audit_log_cleanup`: from 1 day to 32 days
+* `auth_log_cleanup`: from 45 days to 32 days
+
+32 days is the longest month plus a day, so the registered devices and the
+guests of a whole calendar month can still be counted when the month is over.
+
+A window set in `conf/pfcron.conf` is kept. Without one, the new default
+applies after the upgrade and the `radius_audit_log` table grows: it holds
+the request and the reply of every RADIUS authentication, for up to 32 times
+longer than before. Check the free space of the database, or set the window
+back in _Configuration -> System Configuration -> Maintenance Tasks ->
+radius_audit_log_cleanup_:
+
+.conf/pfcron.conf
+[source,ini]
+----
+[radius_audit_log_cleanup]
+window=1D
+----
+
+In SaaS deployments, these two windows cannot go under 32 days (a lower
+value in `pfcron.conf` is raised to 32 days) and
+`radius_configuration.record_accounting_in_sql` is always enabled.
+
 == Troubleshooting Upgrades
 
 include::troubleshooting/service_failures.asciidoc[]

@@ -44,7 +44,7 @@
     <form-group-window v-show="wants('window')"
                        namespace="window"
                        :column-label="$i18n.t('Window')"
-                       :text="$i18n.t('Window to apply the job to. In the case of a deletion, setting this to 7 days would delete affected data older than 7 days.')"
+                       :text="windowText"
     />
 
     <form-group-history-batch v-show="wants('history_batch')"
@@ -231,7 +231,8 @@
 import {computed, toRefs} from '@vue/composition-api'
 import {BaseForm} from '@/components/new/'
 import {pfSchedulesList as schedulesOptions} from '@/globals/pfSchedules'
-import schemaFn from '../schema'
+import i18n from '@/utils/locale'
+import schemaFn, { isSaasMinWindowTask, saasMinWindowDays } from '../schema'
 import {
   FormGroupBatch,
   FormGroupCertificates,
@@ -352,10 +353,18 @@ export const setup = (props) => {
     }
   })
 
+  const windowText = computed(() => {
+    const text = i18n.t('Window to apply the job to. In the case of a deletion, setting this to 7 days would delete affected data older than 7 days.')
+    return (isSaasMinWindowTask(id.value))
+      ? `${text} ${i18n.t('Cannot be less than {days} days, the monthly device counts are read from this table.', { days: saasMinWindowDays })}`
+      : text
+  })
+
   return {
     schema,
     wants,
     logName,
+    windowText,
     schedulesOptions
   }
 }
