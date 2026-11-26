@@ -1313,6 +1313,17 @@ rules yourself. When it is enabled again, the `packetfence-iptables` and
 `packetfence-ip6tables` services apply the rules within about 30 seconds,
 without a restart.
 
+=== Passthroughs of pfdns are host names
+
+pfdns matched the passthroughs (`fencing.passthroughs`,
+`fencing.isolation_passthroughs` and the domains of the OAuth, billing and
+provisioning sources) as regular expressions, without anchoring the end of the
+name. They are now host names: an entry matches that name only, and an entry
+`*.example.com` matches `example.com` and its subdomains. Replace the entries
+written as regular expressions with host names or `*.domain` entries. The
+Active Directory domains allowed on the registration network match the names
+under `_msdcs.<domain>` and `_sites.<domain>` only.
+
 === Customized OAuth and SAML landing templates
 
 Wrap the AUP part of a customized [filename]`oauth2/landing.html` or
