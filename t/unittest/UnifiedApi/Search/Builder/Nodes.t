@@ -23,7 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 37;
+use Test::More tests => 50;
 
 #This test will running last
 use Test::NoWarnings;
@@ -725,6 +725,35 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
         [ 200, ['node'] ],
         'Return the joined tables'
     );
+}
+
+{
+    my %search_info = ( dal => $dal );
+
+    is_deeply($sb->normalize_order_by(\%search_info, 'mac DESC'), { -desc => 'node.mac' }, 'Sort on a column');
+    is_deeply($sb->normalize_order_by(\%search_info, 'node.mac'), { -asc => 'node.mac' }, 'Sort on a column with the table prefix');
+    is_deeply(
+        $sb->normalize_order_by(\%search_info, 'locationlog.switch_ip desc'),
+        { -desc => \"`locationlog.switch_ip`" },
+        'Sort on a joined field'
+    );
+    is_deeply($sb->normalize_order_by(\%search_info, 'online'), { -asc => 'online' }, 'Sort on a joined field without a dot');
+
+    for my $sort (
+        'mac`x#node.mac',
+        'node.mac`x',
+        'mac,mac',
+        'x#node.mac',
+        'node.mac x',
+        'node.mac/x',
+        'node.node.mac',
+        'nodemac',
+    ) {
+        is($sb->normalize_order_by(\%search_info, $sort), undef, "Sort '$sort' is refused");
+    }
+
+    my ($status) = $sb->make_order_by({ %search_info, sort => ['mac', 'mac`x#node.mac'] });
+    is($status, 422, 'make_order_by refuses an invalid sort field');
 }
 
 =head1 AUTHOR

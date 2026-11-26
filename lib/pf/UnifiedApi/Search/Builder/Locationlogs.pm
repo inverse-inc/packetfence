@@ -41,31 +41,20 @@ sub make_search_args {
     return ($status, $search_args);
 }
 
-=head2 $self->normalize_order_by($order_by_field)
+=head2 $self->order_by_column($search_info, $field)
 
-Normalize a sort field to the SQL::Abstract::More order by spec
-
-    my $order_by_spec_or_undef = $self->normalize_order_by($order_by_field)
+The search is a union of locationlog and locationlog_history, so table fields
+are sorted on their column name, without the table prefix
 
 =cut
 
-sub normalize_order_by {
-    my ($self, $s, $order_by) = @_;
-    my $direction = '-asc';
-    if ($order_by =~ /^([^ ]+) (DESC|ASC)$/i ) {
-       $order_by = $1;
-       $direction = "-" . lc($2);
+sub order_by_column {
+    my ($self, $s, $f) = @_;
+    if ($self->is_table_field($s, $f)) {
+        return $self->table_column($s, $f);
     }
 
-    if (!$self->is_valid_field($s, $order_by)) {
-        return undef;
-    }
-
-    if ($order_by =~ /\./) {
-        $order_by = \"`$order_by`";
-    }
-
-    return { $direction => $order_by }
+    return $self->SUPER::order_by_column($s, $f);
 }
 
 =head2 default_columns
