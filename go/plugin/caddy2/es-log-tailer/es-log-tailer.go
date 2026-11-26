@@ -80,7 +80,7 @@ func (m *ESLogTailerHandler) buildHandler(ctx context.Context) error {
 
 	m.esClient = NewESClient()
 	m.fieldMapping = NewESFieldMappingFromEnv()
-	m.indexPattern = "prod-" + k8sNamespace + "-*"
+	m.indexPattern = "*" + k8sNamespace + "-*"
 
 	m.aggField = os.Getenv("ES_AGG_FIELD")
 	if m.aggField == "" {
