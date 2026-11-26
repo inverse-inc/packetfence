@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 6;
+use Test::More tests => 13;
 use Utils;
 
 #This test will running last
@@ -55,6 +55,29 @@ ok (!pf::activation::is_code_in_use('sms', "${code}_$$", $mac), "Is not code in 
 sleep(3);
 
 ok (!pf::activation::is_code_in_use('sms', $code, $mac), "Is not in use");
+
+like (pf::activation::digits_generator({ code_length => 6 }), qr/^[0-9]{6}\z/, "digits code has the requested length");
+like (pf::activation::digits_generator({}), qr/^[0-9]{10}\z/, "digits code has the default length without code_length");
+
+{
+    my %first_digits = map { substr(pf::activation::digits_generator({ code_length => 6 }), 0, 1) => 1 } 1 .. 500;
+    is (scalar(keys %first_digits), 10, "every digit, 0 included, can start a digits code");
+}
+
+like (pf::activation::hex_generator(\%data), qr/^[0-9a-f]{32}\z/, "hex code is 32 hexadecimal characters");
+isnt (pf::activation::hex_generator(\%data), pf::activation::hex_generator(\%data), "hex code does not depend on the request data");
+
+like (
+    pf::activation::_generate_activation_code(type => 'sms', style => 'digits', code_length => 6, no_unique => 1),
+    qr/^[0-9]{6}\z/,
+    "digits activation code has the requested length"
+);
+
+like (
+    pf::activation::_generate_activation_code(type => 'guest', style => 'md5', no_unique => 1),
+    qr/^[0-9a-f]{32}\z/,
+    "md5 style activation code keeps its format"
+);
 
 =head1 AUTHOR
 
