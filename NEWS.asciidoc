@@ -108,6 +108,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - Google Workspace LDAP sources: uploading the client certificate and key no longer fails with a required-field error on the path (#7392)
   - Container images: the pfdebian base image upgrades its Debian packages at build time, so the images carry the current Debian security revisions (#9585)
   - SNMP port bounce: a failed ifAdminStatus SET is logged with the SNMP error and `bouncePortSNMP` returns false instead of always true (#9605)
+  - Ubiquiti UniFi: the RADIUS Disconnect-Request of a client that roamed to another access point without re-authenticating is sent again to the access point and BSSID the controller reports, since the access point of the locationlog ignores it (#9834)
   - Password Of The Day: the pfcron task only rotates the password of the person it created for the source, not of a local user that shares the source's id (#9549)
   - pfstats no longer logs "Unhandled type: tail_file" and "Could not parse duration" for the log tailing metrics (#7104)
   - Jamf provisioner: the Classic API is queried with a bearer token (/api/v1/auth/token) instead of basic authentication, which Jamf Pro 10.42 and later reject (#8442)
