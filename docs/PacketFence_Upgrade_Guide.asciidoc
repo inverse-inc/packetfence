@@ -1214,6 +1214,23 @@ perl /tmp/to-16.0-ntlm-auth-host.pl
 ----
 ====
 
+=== Proxy passthroughs and other domain names are host names
+
+The entries of *Proxy Passthroughs* (`fencing.proxy_passthroughs`) and *Other
+domain names* (`captive_portal.other_domain_names`) were matched by
+httpd.dispatcher as regular expressions anywhere in the host name. They are now
+host names: an entry matches that host name only, and an entry
+`*.example.com` matches `example.com` and its subdomains. Replace the entries
+written as regular expressions with host names or `*.domain` entries.
+
+The detection mechanisms (`captive_portal.detection_mecanism_urls`) match the
+host of the URL and the start of its path.
+
+The passthrough requests are now proxied to port 80 of the host, and not to a
+loopback, link-local, multicast or `100.64.0.0/10` address: a passthrough host
+that resolves to the `100.64.0.0/10` network (used by the containers of
+PacketFence) is no longer reachable through httpd.dispatcher.
+
 === Kickbox source calls api.kickbox.com
 
 The Kickbox authentication source now calls `https://api.kickbox.com` (the host
