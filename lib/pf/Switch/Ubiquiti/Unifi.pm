@@ -639,6 +639,88 @@ sub populateAccessPointMACIP {
     }
 }
 
+=item _locate_client_on_controller
+
+Ask the UniFi controller where a wireless client is associated right now.
+
+Returns the IP address of the access point and the BSSID the client is on,
+without colons as the access points expect it in the NAS-Identifier, or an
+empty list when the controller can't be reached or doesn't know the client.
+
+=cut
+
+sub _locate_client_on_controller {
+    my ($self, $mac) = @_;
+    my $logger = $self->logger;
+
+    $mac = clean_mac($mac);
+    my ($ua, $base_url) = eval { $self->_connect() };
+    unless (defined($ua)) {
+        my $error = $@ // '';
+        chomp($error);
+        $logger->warn("Unable to reach the Unifi controller to locate $mac: $error");
+        return;
+    }
+
+    my $response = $ua->get("$base_url/api/self/sites");
+    if ($response->code == 404) {
+        $response = $ua->get("$base_url/proxy/network/api/self/sites");
+    }
+    unless ($response->is_success) {
+        $logger->warn("Can't have the site list from the Unifi controller: ".$response->status_line);
+        return;
+    }
+    my $sites = eval { decode_json($response->decoded_content()) };
+    unless (ref($sites) eq 'HASH') {
+        $logger->warn("Unable to parse the site list of the Unifi controller");
+        return;
+    }
+
+    foreach my $site (@{$sites->{'data'} // []}) {
+        my $station = _find_controller_entry($ua, "$base_url/api/s/$site->{'name'}/stat/sta", $mac) or next;
+        my ($ap_mac, $bssid) = ($station->{'ap_mac'}, $station->{'bssid'});
+        unless (valid_mac($ap_mac) && valid_mac($bssid)) {
+            $logger->debug("$mac is known on site $site->{'desc'} but is not associated to an access point");
+            next;
+        }
+        my $device = _find_controller_entry($ua, "$base_url/api/s/$site->{'name'}/stat/device", clean_mac($ap_mac));
+        my $ap_ip = $device ? $device->{'ip'} : undef;
+        unless (defined($ap_ip) && $ap_ip ne '') {
+            $logger->warn("$mac is associated to access point $ap_mac on site $site->{'desc'}, but the Unifi controller doesn't give its IP address");
+            return;
+        }
+        $bssid = clean_mac($bssid);
+        $bssid =~ s/://g;
+        $logger->info("The Unifi controller reports $mac on access point $ap_ip, BSSID $bssid");
+        return ($ap_ip, $bssid);
+    }
+
+    $logger->info("$mac is not associated to any access point of the Unifi controller");
+    return;
+}
+
+# Returns the entry of a stat collection of the controller for a MAC address.
+# The entry is asked for by MAC first, then looked for in the whole collection
+# since recent Network applications refuse the lookup by MAC of a client (#9260)
+sub _find_controller_entry {
+    my ($ua, $url, $mac) = @_;
+    foreach my $candidate ("$url/$mac", $url) {
+        my $response = $ua->get($candidate);
+        next unless $response->is_success;
+        my $json = eval { decode_json($response->decoded_content()) };
+        next unless ref($json) eq 'HASH' && ref($json->{'data'}) eq 'ARRAY';
+        foreach my $entry (@{$json->{'data'}}) {
+            return $entry if (ref($entry) eq 'HASH' && valid_mac($entry->{'mac'}) && clean_mac($entry->{'mac'}) eq $mac);
+        }
+    }
+    return;
+}
+
+sub _is_disconnect_ack {
+    my ($response) = @_;
+    return defined($response) && ($response->{'Code'} // '') =~ /^(?:Disconnect|CoA)-ACK$/;
+}
+
 =item deauthenticateMacDefault
 
 De-authenticate a MAC address from wireless network (including 802.1x).
@@ -692,7 +774,8 @@ sub radiusDisconnect {
     $send_disconnect_to = $add_attributes_ref->{'NAS-IP-Address'}
         if (defined($add_attributes_ref->{'NAS-IP-Address'}));
 
-    my $response;
+    my $original_mac = $mac;
+    my ($response, $attributes_ref);
     try {
         my $locationlog = locationlog_view_open_mac($mac);
         # The locationlog can already be closed (e.g. the node was deleted), use the last known AP
@@ -703,11 +786,10 @@ sub radiusDisconnect {
         my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
 
         # transforming MAC to the expected format 00-11-22-33-CA-FE
-        my $original_mac = $mac;
         $mac = uc($mac);
         $mac =~ s/:/-/g;
         # Standard Attributes
-        my $attributes_ref = {
+        $attributes_ref = {
             'Calling-Station-Id' => $mac,
         };
         my $nasID = $locationlog ? $locationlog->{'switch_mac'} : undef;
@@ -728,6 +810,30 @@ sub radiusDisconnect {
         $logger->warn("Unable to perform RADIUS Disconnect-Request: $_");
         $logger->error("Wrong RADIUS secret or unreachable network device...") if ($_ =~ /^Timeout/);
     };
+
+    # A client roams between the access points without re-authenticating, so
+    # the locationlog can still point to an access point it left. The access
+    # points only answer a Disconnect-Request for a client they serve, with
+    # their BSSID as the NAS-Identifier: ask the controller where the client is
+    # now and send the request again there.
+    if (!_is_disconnect_ack($response) && defined($attributes_ref)
+        && !defined($add_attributes_ref->{'NAS-IP-Address'})
+        && defined($self->{'_controllerIp'}) && $self->{'_controllerIp'} ne ''
+        && defined($self->{'_wsUser'}) && $self->{'_wsUser'} ne '') {
+        my ($ap_ip, $bssid) = $self->_locate_client_on_controller($original_mac);
+        if (defined($ap_ip)
+            && ($ap_ip ne $send_disconnect_to || ($attributes_ref->{'NAS-Identifier'} // '') ne $bssid)) {
+            $logger->info("Sending the Disconnect-Request for $original_mac again to access point $ap_ip with NAS-Identifier $bssid");
+            try {
+                my $connection_info = $self->radius_deauth_connection_info($ap_ip);
+                $response = $self->handleRadiusDisconnect($connection_info, { %$attributes_ref, 'NAS-Identifier' => $bssid });
+            } catch {
+                chomp;
+                $logger->warn("Unable to perform RADIUS Disconnect-Request on $ap_ip: $_");
+            };
+        }
+    }
+
     return if (!defined($response));
 
     return $TRUE if ( ($response->{'Code'} eq 'Disconnect-ACK') || ($response->{'Code'} eq 'CoA-ACK') );

@@ -94,6 +94,39 @@ get '/proxy/network/api/s/:site/stat/sta/*mac' => sub {
     $c->render(status => 400, json => { meta => { rc => 'error', msg => 'api.err.InvalidArgument' } });
 };
 
+# Associated clients and access points of the site, listed whole since the
+# lookup of a client by MAC answers 400 above
+my @STATIONS = (
+    { mac => '00:65:80:65:00:02', ap_mac => '47:11:f7:d7:d6:a6', bssid => '47:11:f7:d7:d6:a8' },
+    { mac => '00:65:80:65:00:04', ap_mac => '47:11:f7:d7:d6:a6', bssid => '47:11:f7:d7:d6:a8' },
+);
+my @DEVICES = (
+    { mac => '47:11:f7:d7:d6:a1', ip => '1.2.3.4', vap_table => [ { bssid => '47:11:f7:d7:d6:a2' } ] },
+    { mac => '47:11:f7:d7:d6:a6', ip => '1.2.3.5', vap_table => [ { bssid => '47:11:f7:d7:d6:a8' } ] },
+);
+
+get '/proxy/network/api/s/:site/stat/sta' => sub {
+    my ($c) = @_;
+    return $c->render(status => 404, json => {}) unless uos($c);
+    return $c->render(status => 401, json => {}) unless uos_cookie_ok($c);
+    $c->render(json => { meta => { rc => 'ok' }, data => \@STATIONS });
+};
+
+get '/proxy/network/api/s/:site/stat/device/*mac' => sub {
+    my ($c) = @_;
+    return $c->render(status => 404, json => {}) unless uos($c);
+    return $c->render(status => 401, json => {}) unless uos_cookie_ok($c);
+    my $mac = lc $c->stash('mac');
+    $c->render(json => { meta => { rc => 'ok' }, data => [ grep { $_->{mac} eq $mac } @DEVICES ] });
+};
+
+get '/proxy/network/api/s/:site/stat/device' => sub {
+    my ($c) = @_;
+    return $c->render(status => 404, json => {}) unless uos($c);
+    return $c->render(status => 401, json => {}) unless uos_cookie_ok($c);
+    $c->render(json => { meta => { rc => 'ok' }, data => \@DEVICES });
+};
+
 post '/proxy/network/api/s/:site/cmd/stamgr' => sub {
     my ($c) = @_;
     return $c->render(status => 404, json => {}) unless uos($c);

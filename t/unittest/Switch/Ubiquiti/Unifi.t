@@ -10,7 +10,9 @@ unit test for pf::Switch::Ubiquiti::Unifi against a UniFi OS controller
 (#9260 / #9107): the CSRF token of the session must be captured and sent on
 the commands, from the login response, from the session cookie when the
 controller sends no header, and refreshed when the controller rotates it
-together with the session cookie.
+together with the session cookie. The RADIUS Disconnect-Request of a client
+that roamed to another access point is sent again where the controller
+reports the client.
 
 =cut
 
@@ -24,7 +26,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 40;
+use Test::More tests => 49;
 
 #This test will running last
 use Test::NoWarnings;
@@ -321,6 +323,89 @@ ok($mock->post("$mock_url/mock/csrf-headers/on")->is_success, "Mock: CSRF header
     pf::dal::locationlog->remove_items(-where => { mac => $mac });
     pf::dal::locationlog_history->remove_items(-where => { mac => $mac });
     pf::dal::node->remove_items(-where => { mac => $mac });
+}
+
+# radiusDisconnect of a client that roamed to another access point without
+# re-authenticating: the access point of the locationlog doesn't answer, the
+# request is sent again to the access point and BSSID reported by the controller
+{
+    my %clients = (
+        roamed  => '00:65:80:65:00:02',
+        unknown => '00:65:80:65:00:03',
+        current => '00:65:80:65:00:04',
+    );
+    my %locationlog = (
+        roamed  => [ '1.2.3.4', '47:11:f7:d7:d6:a2' ],
+        unknown => [ '1.2.3.4', '47:11:f7:d7:d6:a2' ],
+        current => [ '1.2.3.5', '47:11:f7:d7:d6:a8' ],
+    );
+    my @macs = values %clients;
+    pf::dal::node->remove_items(-where => { mac => \@macs });
+    pf::dal::locationlog->remove_items(-where => { mac => \@macs });
+    pf::dal::locationlog_history->remove_items(-where => { mac => \@macs });
+    foreach my $client (keys %clients) {
+        my ($ip, $ap) = @{ $locationlog{$client} };
+        pf::dal::node->new({ mac => $clients{$client} })->insert;
+        pf::dal::locationlog->new({ mac => $clients{$client}, switch => $ip, switch_ip => $ip, switch_mac => $ap,
+            port => 0, vlan => 1, connection_type => 'Wireless-802.11-NoEAP', start_time => '2026-10-11 10:00:00',
+            end_time => $ZERO_DATE })->insert;
+    }
+
+    # Only the access point serving the client answers, the other one times out
+    my @sent;
+    my $mock = Test::MockModule->new('pf::Switch');
+    $mock->mock('handleRadiusDisconnect', sub {
+        my ($self, $connection_info, $attributes) = @_;
+        push @sent, [ $connection_info->{nas_ip}, $attributes->{'NAS-Identifier'} ];
+        die "Timeout waiting for a reply from $connection_info->{nas_ip}\n" unless $connection_info->{nas_ip} eq '1.2.3.5';
+        return { Code => 'Disconnect-ACK' };
+    });
+    $mock->mock('radius_deauth_connection_info', sub { return { nas_ip => $_[1] } });
+
+    my %ap = (
+        id           => '1.2.3.4',
+        ip           => '1.2.3.4',
+        radiusSecret => 'x',
+        controllerIp => '127.0.0.3',
+        wsTransport  => 'http',
+        wsUser       => 'admin',
+        wsPwd        => 'admin',
+        type         => 'Ubiquiti::Unifi',
+        group        => 'default',
+        SNMPUseConnector => 'N',
+        radiusDeauthUseConnector => 'N',
+    );
+    my $ap = pf::Switch::Ubiquiti::Unifi->new({ %ap });
+
+    @sent = ();
+    ok($ap->radiusDisconnect($clients{roamed}), "roamed client: disconnected from the access point it is on now");
+    is_deeply(\@sent, [ [ '1.2.3.4', '4711f7d7d6a2' ], [ '1.2.3.5', '4711f7d7d6a8' ] ],
+        "roamed client: sent to the access point of the locationlog, then to the access point and BSSID of the controller");
+
+    @sent = ();
+    ok(!$ap->radiusDisconnect($clients{unknown}), "client unknown to the controller: not disconnected");
+    is(scalar @sent, 1, "client unknown to the controller: the request is not sent again");
+
+    @sent = ();
+    my $current = pf::Switch::Ubiquiti::Unifi->new({ %ap, id => '1.2.3.5', ip => '1.2.3.5' });
+    ok($current->radiusDisconnect($clients{current}), "client on the access point of the locationlog: disconnected");
+    is(scalar @sent, 1, "client on the access point of the locationlog: no lookup needed");
+
+    my $lookups = 0;
+    my $unifi = Test::MockModule->new('pf::Switch::Ubiquiti::Unifi');
+    $unifi->mock('_locate_client_on_controller', sub { $lookups++; return ('1.2.3.5', '4711f7d7d6a8') });
+
+    @sent = ();
+    ok(!$ap->radiusDisconnect($clients{roamed}, { 'NAS-IP-Address' => '1.2.3.4' }), "NAS-IP-Address given by the caller: not disconnected");
+    is($lookups, 0, "NAS-IP-Address given by the caller: the request goes there only");
+
+    my $standalone = pf::Switch::Ubiquiti::Unifi->new({ id => '1.2.3.4', ip => '1.2.3.4', radiusSecret => 'x' });
+    $standalone->radiusDisconnect($clients{roamed});
+    is($lookups, 0, "no controller configured: the controller is not asked");
+
+    pf::dal::locationlog->remove_items(-where => { mac => \@macs });
+    pf::dal::locationlog_history->remove_items(-where => { mac => \@macs });
+    pf::dal::node->remove_items(-where => { mac => \@macs });
 }
 
 =head1 AUTHOR
