@@ -30,23 +30,44 @@ Select a new role for the device being registered
 
 sub execute_child {
     my ($self) = @_;
-    my @roles = split(' ',$self->admin_role);
+    my @roles = _split_roles($self->admin_role);
     if(any { $_ eq $self->new_node_info->{category}} @roles) {
-        if(my $new_role = $self->app->request->param('new_role')) {
-            $self->new_node_info->{category} = $new_role;
-            $self->done();
+        my @allowed_roles = $self->allowed_roles;
+        my $new_role = $self->app->request->param('new_role');
+        if (defined($new_role) && length($new_role)) {
+            if (any { $_ eq $new_role } @allowed_roles) {
+                $self->new_node_info->{category} = $new_role;
+                $self->done();
+                return;
+            }
+            $self->app->flash->{error} = "The selected role is not allowed.";
         }
-        else {
-            my @allowed_roles = split(' ',$self->list_role);
-            $self->render($self->template, {
-                title => $self->description,
-                roles => [ grep { $_ ne $self->admin_role } @allowed_roles ],
-            });
-        }
+        $self->render($self->template, {
+            title => $self->description,
+            roles => \@allowed_roles,
+        });
     }
     else {
         $self->done();
     }
+}
+
+=head2 allowed_roles
+
+The roles that can be selected: the roles of list_role that are not in
+admin_role
+
+=cut
+
+sub allowed_roles {
+    my ($self) = @_;
+    my %admin_roles = map { $_ => 1 } _split_roles($self->admin_role);
+    return grep { !$admin_roles{$_} } _split_roles($self->list_role);
+}
+
+sub _split_roles {
+    my ($roles) = @_;
+    return grep { length } split(/[\s,]+/, $roles // '');
 }
 
 =head1 AUTHOR
