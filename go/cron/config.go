@@ -2,6 +2,7 @@ package maint
 
 import (
 	"context"
+	"errors"
 	"reflect"
 
 	"github.com/inverse-inc/go-utils/sharedutils"
@@ -81,14 +82,40 @@ var builders = map[string]func(map[string]interface{}) JobSetupConfig{
 	),
 }
 
-func GetMaintenanceConfig(ctx context.Context) map[string]interface{} {
-	o, _ := CachedCronConfig.Value(ctx)
-	if o != nil {
-		tasks := o.(*pfconfigdriver.Cron)
-		return tasks.Element
+// ErrNoMaintenanceTasks is returned when pfconfig answers config::Cron without
+// any task.
+var ErrNoMaintenanceTasks = errors.New("pfconfig returned no task for config::Cron")
+
+// LoadMaintenanceConfig returns the tasks of config::Cron, or an error when
+// they cannot be read.
+//
+// pfconfig always has the tasks of pfcron.conf.defaults, so an answer without
+// any task is a failed fetch and not a configuration without tasks. When
+// pfconfig cannot serve a namespace it closes the connection without a reply,
+// and an empty reply decodes to an empty Cron without an error.
+func LoadMaintenanceConfig(ctx context.Context) (map[string]interface{}, error) {
+	o, err := CachedCronConfig.Value(ctx)
+	if o == nil && err != nil {
+		return nil, err
 	}
 
-	return nil
+	return maintenanceTasks(o)
+}
+
+func maintenanceTasks(o pfconfigdriver.PfconfigObject) (map[string]interface{}, error) {
+	tasks, ok := o.(*pfconfigdriver.Cron)
+	if !ok || tasks == nil || len(tasks.Element) == 0 {
+		return nil, ErrNoMaintenanceTasks
+	}
+
+	return tasks.Element, nil
+}
+
+// GetMaintenanceConfig returns the tasks of config::Cron, nil when they cannot
+// be read. Use LoadMaintenanceConfig to know why.
+func GetMaintenanceConfig(ctx context.Context) map[string]interface{} {
+	tasks, _ := LoadMaintenanceConfig(ctx)
+	return tasks
 }
 
 func MergeArgs(a, b map[string]interface{}) map[string]interface{} {
