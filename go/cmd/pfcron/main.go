@@ -116,7 +116,12 @@ func wrapJob(logger log.PfLogger, j string, l bool) cron.Job {
 }
 
 func runJobNow(name string, additionalArgs map[string]interface{}) int {
-	jobsConfig := maint.GetMaintenanceConfig(context.Background())
+	jobsConfig, err := maint.LoadMaintenanceConfig(context.Background())
+	if err != nil {
+		fmt.Printf("Cannot read the tasks from pfconfig: %s\n", err.Error())
+		return 1
+	}
+
 	if config, found := jobsConfig[name]; found {
 		job := maint.BuildJob(
 			name,
@@ -201,7 +206,24 @@ func main() {
 		cron.SecondOptional | cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow | cron.Descriptor,
 	)))
 
-	for _, job := range maint.GetConfiguredJobs(maint.GetMaintenanceConfig(ctx)) {
+	// Without the tasks pfcron would stay up and never run anything. Exit
+	// instead: systemd starts it again (Restart=on-failure) until pfconfig
+	// serves them.
+	jobsConfig, err := maint.LoadMaintenanceConfig(ctx)
+	if err != nil {
+		msg := "Cannot read the tasks from pfconfig, exiting: " + err.Error()
+		logger.Error(msg)
+		fmt.Fprintln(os.Stderr, msg)
+		NotifySystemd("STATUS=" + msg)
+		os.Exit(1)
+	}
+
+	jobs := maint.GetConfiguredJobs(jobsConfig)
+	if len(jobs) == 0 {
+		logger.Warn("No task is enabled, nothing will run")
+	}
+
+	for _, job := range jobs {
 		id := c.Schedule(job.Schedule(), wrapJob(logger, job.Name(), job.ForceLocal()))
 		logger.Info(fmt.Sprintf("task '%s' created with id %d with schedule of %s", job.Name(), int64(id), job.ScheduleSpec()))
 	}
