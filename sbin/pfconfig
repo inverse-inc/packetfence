@@ -427,7 +427,11 @@ sub encode_output {
         return sereal_encode_with_object($ENCODER_FREEZER, $data);
     }
     elsif($encoding eq "json") {
-        my $json = JSON->new;
+        # The configuration is decoded text (pf::IniFiles reads the files as
+        # UTF-8), and the reply is written to the socket as bytes: encode it as
+        # UTF-8. Without it a character above U+00FF makes syswrite die
+        # ("Wide character"), and the client gets no reply for the namespace.
+        my $json = JSON->new->utf8;
         $json->convert_blessed(1);
         my $result;
         if(!defined($data)) {

@@ -886,7 +886,7 @@ status=enabled
 # description
 #
 # The description of task
-description=Controls the cleanup of expired ACME state (nonces, authorizations, orders, and their challenges). Without this task running, the pki_acme_* tables grow without bound under enrollment churn. The window is grace beyond each row's natural ACME expiry; keep short — once a nonce/authz/order has expired, retaining the row gives no protocol benefit.
+description=Controls the cleanup of expired ACME state (nonces, authorizations, orders, and their challenges). Without this task running, the pki_acme_* tables grow without bound under enrollment churn. The window is grace beyond each row's natural ACME expiry. Keep it short: once a nonce/authz/order has expired, retaining the row gives no protocol benefit.
 #
 # schedule
 #
