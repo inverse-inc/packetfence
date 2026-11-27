@@ -172,6 +172,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
   - pfflow never joins its consumer group before the Kafka topic exists, and a reader left with no partition is recreated, so flows are consumed after a restart without restarting pfcron (#9638)
   - Azure AD / Entra ID source: users with more than 100 group memberships match their group rules (Graph pagination) (#9601)
   - pfcron: role ACLs with a `range` port operator are no longer skipped (#9595)
+  - pfcron: exits with an error when it cannot read its tasks from pfconfig, instead of staying up without running any task
   - HTTP authentication source — basic-auth credentials saved from the admin UI, objects no longer sent as `HASH(0x...)`, and an invalid authorization reply or an unknown MFA no longer crashes it (#9661)
   - Connectors: saving an existing DNS server with a pfconnector port no longer fails with "Port should be unique" (#9584)
 
