@@ -152,6 +152,8 @@
               <b-form-group v-if="id === 'radius'" label-cols="3">
                 <button-pki-import :modes="['cert', 'csr']"
                                    :private-key="(form.certificate || {}).private_key"
+                                   :certificate-id="id"
+                                   :has-private-key="!!(form.certificate || {}).has_private_key"
                                    :modal-title="$i18n.t('Import {name} Server Certificate from PacketFence PKI', { name })"
                                    @import="onPkiImportCertificate"
                 />
@@ -175,6 +177,7 @@
 
               <form-group-private-key namespace="private_key"
                                       :column-label="$i18n.t('{name} Server Private Key', { name })"
+                                      :text="form.certificate && form.certificate.has_private_key ? $i18n.t('Leave empty to keep the current private key.') : ''"
                                       rows="6" auto-fit
               />
 

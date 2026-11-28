@@ -206,3 +206,37 @@
         $ref: '#/components/responses/NotFound'
     tags:
       - Config/Certificates
+
+/api/v1/config/certificate/{certificate_id}/private_key:
+  description: pf::UnifiedApi::Controller::Config::Certificates
+  get:
+    description: Get the private key of a certificate resource. Requires the CONFIGURATION_MAIN_UPDATE admin role.
+    operationId: api.v1.Config::Certificates.private_key
+    parameters:
+    - in: path
+      name: certificate_id
+      required: true
+      schema:
+        type: string
+        enum:
+          - http
+          - radius
+    responses:
+      '200':
+        description: Request successful.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                private_key:
+                  description: The RSA server key for the resource in PEM encoded format
+                  type: string
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '403':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - Config/Certificates

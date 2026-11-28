@@ -10,8 +10,13 @@ ConfigCertificate:
       description: The server certficate for the resource in x509 PEM encoded format. It can be followed by its intermediate certificates (full chain), which are used when intermediate_cas is absent or empty.
       type: string
     private_key:
-      description: The RSA server key for the resource in PEM encoded format
+      description: The RSA server key for the resource in PEM encoded format. Never returned when getting the certificate resource (see /api/v1/config/certificate/{certificate_id}/private_key). When absent or empty on a replace, the current private key is kept (it must match the certificate).
       type: string
+      writeOnly: true
+    has_private_key:
+      description: Whether or not the certificate resource has a private key
+      type: boolean
+      readOnly: true
     ca:
       description: The CA certficate for the resource (if applicable)
       type: string

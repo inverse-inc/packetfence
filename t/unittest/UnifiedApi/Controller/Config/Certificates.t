@@ -56,8 +56,11 @@ my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Pf");
 
 #insert known data
 #run tests
-use Test::More tests => 73;
+use Test::More tests => 101;
 use Test::Mojo;
+use pf::pfpki_client;
+use Crypt::OpenSSL::PKCS10;
+use Mojo::JSON;
 use Test::NoWarnings;
 
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -78,6 +81,38 @@ my $key = read_file($server_key);
 
 # Replacing by the valid existing ones should work fine
 $t->put_ok("/api/v1/config/certificate/http" => json => { certificate => $cert, private_key => $key })
+  ->status_is(200);
+
+# The private key is not returned, only whether there is one
+$t->get_ok('/api/v1/config/certificate/http')
+  ->status_is(200)
+  ->json_hasnt('/private_key')
+  ->json_is('/has_private_key', Mojo::JSON->true);
+
+# The private key has its own endpoint, which requires CONFIGURATION_MAIN_UPDATE
+$t->get_ok('/api/v1/config/certificate/http/private_key')
+  ->status_is(200)
+  ->json_is('/private_key', $key);
+
+$t->get_ok('/api/v1/config/certificate/http/private_key' => { 'X-PacketFence-Admin-Roles' => 'UsersRead' })
+  ->status_is(403)
+  ->json_hasnt('/private_key');
+
+# Without a private key installed, one must be provided
+{
+    my $installed_key = read_file($server_key);
+    unlink($server_key);
+    $t->put_ok("/api/v1/config/certificate/http" => json => { certificate => $cert })
+      ->status_is(422)
+      ->json_is('/message', 'No private key installed, one must be provided');
+    write_file($server_key, $installed_key);
+}
+
+# Replacing without a private key keeps the current one
+$t->put_ok("/api/v1/config/certificate/http" => json => { certificate => $cert })
+  ->status_is(200);
+
+$t->put_ok("/api/v1/config/certificate/http" => json => { certificate => $cert, private_key => '' })
   ->status_is(200);
 
 my $new_cert = <<EOT;
@@ -143,6 +178,10 @@ EOT
 
 # Replacing by a new cert for a different key shouldn't be valid
 $t->put_ok("/api/v1/config/certificate/http" => json => { certificate => $new_cert, private_key => $key })
+    ->status_is(422);
+
+# Same when the current key is kept
+$t->put_ok("/api/v1/config/certificate/http" => json => { certificate => $new_cert })
     ->status_is(422);
 
 # Replacing by a new key that doesn't match the cert shouldn't be valid
@@ -300,6 +339,36 @@ $t->post_ok('/api/v1/config/certificates/pki/import' => { $roles_header => 'ALL'
   ->json_is('/message' => 'Missing profile_id parameter');
 $t->post_ok('/api/v1/config/certificates/pki/import' => { $roles_header => 'Node Manager' } => json => { mode => 'bogus' })
   ->status_is(422);
+
+# pki_import csr with the stored private key of a certificate resource: the
+# CSR is built from that key, and the key is not returned
+{
+    my $signed_csr;
+    no warnings 'redefine';
+    local *pf::pfpki_client::sign_csr = sub {
+        $signed_csr = $_[1];
+        return (1, { certificate => 'SIGNED', ca => 'PKI-CA', warnings => [] });
+    };
+    my %csr_info = (
+        mode => 'csr', profile_id => 1, country => 'CA', state => 'Quebec',
+        locality => 'Montreal', organization_name => 'Inverse Inc.', common_name => 'csrtest.inverse.ca',
+    );
+    $t->post_ok('/api/v1/config/certificates/pki/import' => { $roles_header => 'ALL' } => json => { %csr_info, certificate_id => 'bogus' })
+      ->status_is(422)
+      ->json_is('/message' => 'Invalid certificate_id parameter');
+    $t->post_ok('/api/v1/config/certificates/pki/import' => { $roles_header => 'ALL' } => json => { %csr_info, certificate_id => 'radius' })
+      ->status_is(200)
+      ->json_is('/certificate' => 'SIGNED')
+      ->json_is('/ca' => 'PKI-CA')
+      ->json_hasnt('/private_key');
+    my $key = pf::ssl::rsa_from_string(scalar read_file(pf::ssl::certs_map()->{radius}{key_file}));
+    my $csr_file = File::Temp->new(SUFFIX => '.csr');
+    print $csr_file $signed_csr;
+    close $csr_file;
+    my $req = Crypt::OpenSSL::PKCS10->new_from_file($csr_file->filename);
+    is($req->get_pem_pubkey, $key->get_public_key_x509_string,
+       'the CSR is built from the stored private key of the certificate');
+}
 
 =head1 AUTHOR
 

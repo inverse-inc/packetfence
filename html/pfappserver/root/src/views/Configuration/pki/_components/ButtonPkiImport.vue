@@ -106,6 +106,13 @@ const props = {
   privateKey: {
     type: String
   },
+  // or the certificate resource whose stored private key is signed (not returned)
+  certificateId: {
+    type: String
+  },
+  hasPrivateKey: {
+    type: Boolean
+  },
   buttonText: {
     type: String
   },
@@ -155,7 +162,9 @@ const setup = (props, context) => {
 
   const {
     modes,
-    privateKey
+    privateKey,
+    certificateId,
+    hasPrivateKey
   } = toRefs(props)
 
   const { emit, root: { $store } = {} } = context
@@ -178,7 +187,7 @@ const setup = (props, context) => {
     $store.dispatch('cluster/getServiceCluster', 'pfpki')
 
   const modeOptions = computed(() => modes.value
-    .filter(mode => mode !== 'csr' || privateKey.value)
+    .filter(mode => mode !== 'csr' || privateKey.value || (certificateId.value && hasPrivateKey.value))
     .map(mode => ({ value: mode, text: modeLabels[mode] }))
   )
 
@@ -232,7 +241,11 @@ const setup = (props, context) => {
         break
       }
       case 'csr':
-        promise = apiCall.post('config/certificates/pki/import', { mode, private_key: privateKey.value, ...csr })
+        promise = apiCall.post('config/certificates/pki/import', {
+          mode,
+          ...((privateKey.value) ? { private_key: privateKey.value } : { certificate_id: certificateId.value }),
+          ...csr
+        })
           .then(({ data }) => ({ data, label: csr.common_name }))
         break
       case 'public':

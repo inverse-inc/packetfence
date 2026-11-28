@@ -1269,6 +1269,17 @@ func (s *Server) handleRemoteRadiusConf(w http.ResponseWriter, req *http.Request
 		w.Write([]byte(errApi.Error()))
 		return
 	}
+	// The certificate resource doesn't return the private key, it has its own endpoint
+	var key struct {
+		PrivateKey string `json:"private_key"`
+	}
+	errApi = apiClient.Call(req.Context(), "GET", "/api/v1/config/certificate/radius/private_key", &key)
+	if errApi != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(errApi.Error()))
+		return
+	}
+	data.PrivateKey = key.PrivateKey
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	body, err := json.Marshal(&data)
 	if err != nil {
