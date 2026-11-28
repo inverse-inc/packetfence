@@ -22,8 +22,18 @@
     />
 
     <form-group-port namespace="port"
-                     :column-label="$i18n.t('Port of the service')"
-                     :text="$i18n.t('If you use an alternative port, please specify.')"
+                     :column-label="$i18n.t('SSH port of the GMP service')"
+                     :text="$i18n.t('Port of the SSH service giving access to the Greenbone Management Protocol (GMP).')"
+    />
+
+    <form-group-openvas-ssh-username namespace="openvas_ssh_username"
+                                     :column-label="$i18n.t('SSH username')"
+                                     :text="$i18n.t('SSH user giving access to the Greenbone Management Protocol (GMP) on the OpenVAS server.')"
+    />
+
+    <form-group-openvas-ssh-password namespace="openvas_ssh_password"
+                                     :column-label="$i18n.t('SSH password')"
+                                     :text="$i18n.t('Password of the SSH user.')"
     />
 
     <form-group-openvas-alert-identifier namespace="openvas_alertid"
@@ -34,9 +44,20 @@
                                           :column-label="$i18n.t('Scan config ID')"
                                           :text="$i18n.t('ID of the scanning configuration on the OpenVAS server.')"
     />
-    <form-group-openvas-report-format-identifier namespace="openvas_reportformatid"
-                                                 :column-label="$i18n.t('Report format ID')"
-                                                 :text="$i18n.t(`ID of the 'CSV Results' report format on the OpenVAS server.`)"
+    <form-group-openvas-scanner-identifier namespace="openvas_scannerid"
+                                           :column-label="$i18n.t('Scanner ID')"
+                                           :text="$i18n.t('ID of the scanner on the OpenVAS server.')"
+    />
+    <form-group-openvas-port-list-identifier namespace="openvas_portlistid"
+                                             :column-label="$i18n.t('Port list ID')"
+                                             :text="$i18n.t('ID of the port list on the OpenVAS server.')"
+    />
+
+    <form-group-openvas-delete-scans namespace="openvas_delete_scans"
+                                     :column-label="$i18n.t('Delete scans')"
+                                     :text="$i18n.t('Delete the task, its report and the target from the OpenVAS server once the report is processed.')"
+                                     enabled-value="1"
+                                     disabled-value="0"
     />
 
     <form-group-categories namespace="categories"
@@ -86,7 +107,11 @@ import {
   FormGroupOses,
   FormGroupOpenvasAlertIdentifier,
   FormGroupOpenvasConfigIdentifier,
-  FormGroupOpenvasReportFormatIdentifier,
+  FormGroupOpenvasDeleteScans,
+  FormGroupOpenvasPortListIdentifier,
+  FormGroupOpenvasScannerIdentifier,
+  FormGroupOpenvasSshPassword,
+  FormGroupOpenvasSshUsername,
   FormGroupPassword,
   FormGroupPreRegistration,
   FormGroupPort,
@@ -105,7 +130,11 @@ const components = {
   FormGroupOses,
   FormGroupOpenvasAlertIdentifier,
   FormGroupOpenvasConfigIdentifier,
-  FormGroupOpenvasReportFormatIdentifier,
+  FormGroupOpenvasDeleteScans,
+  FormGroupOpenvasPortListIdentifier,
+  FormGroupOpenvasScannerIdentifier,
+  FormGroupOpenvasSshPassword,
+  FormGroupOpenvasSshUsername,
   FormGroupPassword,
   FormGroupPreRegistration,
   FormGroupPort,

@@ -26,6 +26,10 @@ our @EXPORT_OK = qw(
   $STATUS_NEW
   $STATUS_STARTED
   $STATUS_CLOSED
+  $OPENVAS_DEFAULT_CONFIG_ID
+  $OPENVAS_DEFAULT_SCANNER_ID
+  $OPENVAS_DEFAULT_PORT_LIST_ID
+  $OPENVAS_DEFAULT_DELETE_SCANS
 );
 
 use Readonly;
@@ -39,6 +43,16 @@ Readonly our $SEVERITY_INFO     => 3;
 Readonly our $STATUS_NEW => 'new';
 Readonly our $STATUS_STARTED => 'started';
 Readonly our $STATUS_CLOSED => 'closed';
+
+# Defaults of the OpenVAS scan engine, built-in objects of the Greenbone feed
+# "Full and fast" scan config
+Readonly our $OPENVAS_DEFAULT_CONFIG_ID => 'daba56c8-73ec-11df-a475-002264764cea';
+# "OpenVAS Default" scanner
+Readonly our $OPENVAS_DEFAULT_SCANNER_ID => '08b69003-5fc2-4037-a479-93b440211c73';
+# "All IANA assigned TCP" port list
+Readonly our $OPENVAS_DEFAULT_PORT_LIST_ID => '33d0cd82-57c6-11e1-8ed1-406186ea4fc5';
+# Delete the task, report and target once the report is processed
+Readonly our $OPENVAS_DEFAULT_DELETE_SCANS => 1;
 
 =head1 AUTHOR
 

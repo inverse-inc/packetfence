@@ -159,7 +159,9 @@ storage=distributed
 # storage openvas_scans.expires_in
 #
 # Amount of time from the current time to expire an entry
-expires_in=2h
+# Longer than a scan can take, the scan info is needed when OpenVAS calls back
+# once the scan is done, and removed once the report is processed
+expires_in=7d
 
 [storage ntlm_cache_username_lookup]
 #

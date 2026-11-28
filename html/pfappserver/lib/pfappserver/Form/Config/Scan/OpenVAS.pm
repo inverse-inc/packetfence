@@ -16,6 +16,7 @@ with 'pfappserver::Base::Form::Role::Help';
 
 use pf::config;
 use pf::util;
+use pf::constants::scan qw($OPENVAS_DEFAULT_CONFIG_ID $OPENVAS_DEFAULT_SCANNER_ID $OPENVAS_DEFAULT_PORT_LIST_ID $OPENVAS_DEFAULT_DELETE_SCANS);
 use File::Find qw(find);
 
 has_field 'ip' =>
@@ -29,11 +30,12 @@ has_field 'ip' =>
 has_field 'port' =>
   (
    type => 'Port',
-   label => 'Port of the service',
+   label => 'SSH port of the GMP service',
    tags => { after_element => \&help,
-             help => 'If you use an alternative port, please specify' },
-   default => 9390,
+             help => 'Port of the SSH service giving access to the Greenbone Management Protocol (GMP)' },
+   default => 22,
   );
+
 has_field 'type' =>
   (
    type => 'Hidden',
@@ -42,7 +44,27 @@ has_field 'type' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id ip type username password port openvas_alertid openvas_configid openvas_reportformatid categories oses duration pre_registration registration post_registration) ],
+   render_list => [ qw(id ip type username password port openvas_ssh_username openvas_ssh_password openvas_alertid openvas_configid openvas_scannerid openvas_portlistid openvas_delete_scans categories oses duration pre_registration registration post_registration) ],
+  );
+
+has_field 'openvas_ssh_username' =>
+  (
+   type => 'Text',
+   label => 'SSH username',
+   required => 1,
+   messages => { required => 'Please specify the SSH username of the GMP service' },
+   tags => { after_element => \&help,
+             help => 'SSH user giving access to the Greenbone Management Protocol (GMP) on the OpenVAS server' },
+  );
+
+has_field 'openvas_ssh_password' =>
+  (
+   type => 'ObfuscatedText',
+   label => 'SSH password',
+   required => 1,
+   messages => { required => 'Please specify the SSH password of the GMP service' },
+   tags => { after_element => \&help,
+             help => 'Password of the SSH user' },
   );
 
 has_field 'openvas_alertid' =>
@@ -57,17 +79,36 @@ has_field 'openvas_configid' =>
   (
    type => 'Text',
    label => 'Scan config ID',
+   default => $OPENVAS_DEFAULT_CONFIG_ID,
    tags => { after_element => \&help,
              help => 'ID of the scanning configuration on the OpenVAS server' },
   );
 
-has_field 'openvas_reportformatid' =>
+has_field 'openvas_scannerid' =>
   (
    type => 'Text',
-   label => 'Report format ID',
-   default => '',
+   label => 'Scanner ID',
+   default => $OPENVAS_DEFAULT_SCANNER_ID,
    tags => { after_element => \&help,
-             help => 'ID of the "CSV Results" report format on the OpenVAS server' },
+             help => 'ID of the scanner on the OpenVAS server' },
+  );
+
+has_field 'openvas_portlistid' =>
+  (
+   type => 'Text',
+   label => 'Port list ID',
+   default => $OPENVAS_DEFAULT_PORT_LIST_ID,
+   tags => { after_element => \&help,
+             help => 'ID of the port list on the OpenVAS server' },
+  );
+
+has_field 'openvas_delete_scans' =>
+  (
+   type => 'Checkbox',
+   label => 'Delete scans',
+   default => $OPENVAS_DEFAULT_DELETE_SCANS,
+   tags => { after_element => \&help,
+             help => 'Delete the task, its report and the target from the OpenVAS server once the report is processed' },
   );
 
 =over
