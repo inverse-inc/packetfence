@@ -1344,6 +1344,14 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "Delete scans"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "Delete the task, its report and the target from the OpenVAS server once the report is processed"
+msgstr ""
+
 # conf/documentation.conf (interface.enforcement)
 msgid "Describes the technique PacketFence will use to enforce network access. VLAN is the out-of-band VLAN-based device isolation requiring integration in your network environment and inline is a DHCP-based mode where PacketFence acts as a filtering gateway."
 msgstr ""
@@ -2024,11 +2032,15 @@ msgid "ID"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
-msgid "ID of the \"CSV Results\" report format on the OpenVAS server"
+msgid "ID of the alert configuration on the OpenVAS server"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
-msgid "ID of the alert configuration on the OpenVAS server"
+msgid "ID of the port list on the OpenVAS server"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "ID of the scanner on the OpenVAS server"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
@@ -2163,7 +2175,6 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/JuniperSRX.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus6.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Rapid7.pm
 msgid "If you use an alternative port, please specify"
 msgstr ""
@@ -3212,6 +3223,10 @@ msgstr ""
 msgid "Password is NT Hash"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "Password of the SSH user"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "Password of the machine account to be added to Active Directory."
 msgstr ""
@@ -3423,6 +3438,14 @@ msgstr ""
 msgid "Please specify the MAC address of the floating device."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "Please specify the SSH password of the GMP service"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "Please specify the SSH username of the GMP service"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Cloud/Intune.pm
 msgid "Please specify the Tenant ID for the Intune Service"
 msgstr ""
@@ -3613,8 +3636,16 @@ msgstr ""
 msgid "Port"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "Port list ID"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Rapid7.pm
 msgid "Port of the API"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "Port of the SSH service giving access to the Greenbone Management Protocol (GMP)"
 msgstr ""
 
 # conf/documentation.conf (ports.collector)
@@ -3630,7 +3661,6 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/JuniperSRX.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus6.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
 msgid "Port of the service"
 msgstr ""
 
@@ -3982,10 +4012,6 @@ msgstr ""
 msgid "Reply"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
-msgid "Report format ID"
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Field/RadiusAnswer.pm
 msgid "Request"
 msgstr ""
@@ -4200,6 +4226,22 @@ msgstr ""
 msgid "SMSApi"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "SSH password"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "SSH port of the GMP service"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "SSH user giving access to the Greenbone Management Protocol (GMP) on the OpenVAS server"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "SSH username"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/dpsk.pm
 # pf::Authentication::Source (common_attributes)
 msgid "SSID"
@@ -4339,6 +4381,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Rapid7.pm
 msgid "Scan template"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "Scanner ID"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Facebook.pm

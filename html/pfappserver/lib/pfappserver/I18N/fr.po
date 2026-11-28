@@ -1484,6 +1484,14 @@ msgstr "Délai d’attente entre le shut / no-shut sur ​​un port. Certains O
 msgid "Delete"
 msgstr "Supprimer"
 
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "Delete scans"
+msgstr "Supprimer les analyses"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "Delete the task, its report and the target from the OpenVAS server once the report is processed"
+msgstr "Supprimer la tâche, son rapport et la cible du serveur OpenVAS une fois le rapport traité"
+
 # conf/documentation.conf (interface.enforcement)
 msgid ""
 "Describes the technique PacketFence will use to enforce network access. VLAN"
@@ -2249,12 +2257,16 @@ msgid "ID"
 msgstr "ID"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
-msgid "ID of the \"CSV Results\" report format on the OpenVAS server"
-msgstr "ID du rapport \"Résultats CSV\" sur le serveur OpenVAS."
-
-# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
 msgid "ID of the alert configuration on the OpenVAS server"
 msgstr "ID de la configuration d'alerte sur le serveur OpenVAS"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "ID of the port list on the OpenVAS server"
+msgstr "ID de la liste de ports sur le serveur OpenVAS"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "ID of the scanner on the OpenVAS server"
+msgstr "ID de l'analyseur sur le serveur OpenVAS"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
 msgid "ID of the scanning configuration on the OpenVAS server"
@@ -2426,7 +2438,6 @@ msgstr "Si le transport HTTP est sélectionné alors specifier le mot de passe p
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/JuniperSRX.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus6.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Rapid7.pm
 msgid "If you use an alternative port, please specify"
 msgstr "Si vous utilisez un port alternatif, veuillez le spécifier."
@@ -3572,6 +3583,10 @@ msgstr "Le mot de passe pour l’utilisateur rempli ci-dessus"
 msgid "Password is NT Hash"
 msgstr "Le mot de passe est NT Hash"
 
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "Password of the SSH user"
+msgstr "Mot de passe de l'utilisateur SSH"
+
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "Password of the machine account to be added to Active Directory."
 msgstr "Mot de passe du compte machine à ajouter à Active Directory."
@@ -3789,6 +3804,14 @@ msgstr "Veuillez spécifier l'IPv4 du serveur Active Directory."
 msgid "Please specify the MAC address of the floating device."
 msgstr "Veuillez spécifier l’adresse MAC pour cet appareil itinérant."
 
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "Please specify the SSH password of the GMP service"
+msgstr "Veuillez spécifier le mot de passe SSH du service GMP"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "Please specify the SSH username of the GMP service"
+msgstr "Veuillez spécifier le nom d'utilisateur SSH du service GMP"
+
 # html/pfappserver/lib/pfappserver/Form/Config/Cloud/Intune.pm
 msgid "Please specify the Tenant ID for the Intune Service"
 msgstr "Veuillez spécifier l'ID du Tenant pour le service Intune"
@@ -3980,9 +4003,17 @@ msgstr "Veuillez spécifier le \"Workgroup\""
 msgid "Port"
 msgstr "Port"
 
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "Port list ID"
+msgstr "ID de la liste de ports"
+
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Rapid7.pm
 msgid "Port of the API"
 msgstr "Port de l'API"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "Port of the SSH service giving access to the Greenbone Management Protocol (GMP)"
+msgstr "Port du service SSH donnant accès au Greenbone Management Protocol (GMP)"
 
 # conf/documentation.conf (ports.collector)
 msgid "Port of the collector webservice."
@@ -3997,7 +4028,6 @@ msgstr "Port du serveur DNS"
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/JuniperSRX.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus6.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
 msgid "Port of the service"
 msgstr "Port du service"
 
@@ -4374,10 +4404,6 @@ msgstr "Activer le paramètre ip_forward sur votre système pour utiliser le mod
 msgid "Reply"
 msgstr "Réponse"
 
-# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
-msgid "Report format ID"
-msgstr "ID format de rapport"
-
 # html/pfappserver/lib/pfappserver/Form/Field/RadiusAnswer.pm
 msgid "Request"
 msgstr "Requête"
@@ -4583,6 +4609,22 @@ msgstr "Limite la demande de nouvelle tentative de SMS"
 msgid "SMS text message ($pin will be replaced by the PIN number)"
 msgstr "Texte du message SMS ($pin sera remplacé par le numéro de téléphone)"
 
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "SSH password"
+msgstr "Mot de passe SSH"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "SSH port of the GMP service"
+msgstr "Port SSH du service GMP"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "SSH user giving access to the Greenbone Management Protocol (GMP) on the OpenVAS server"
+msgstr "Utilisateur SSH donnant accès au Greenbone Management Protocol (GMP) sur le serveur OpenVAS"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "SSH username"
+msgstr "Nom d'utilisateur SSH"
+
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/dpsk.pm
 # pf::Authentication::Source (common_attributes)
 msgid "SSID"
@@ -4723,6 +4765,10 @@ msgstr "Analyser lors de l’enregistrement"
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Rapid7.pm
 msgid "Scan template"
 msgstr "Modèle de Scan"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
+msgid "Scanner ID"
+msgstr "ID de l'analyseur"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Github.pm

@@ -18248,7 +18248,15 @@ components:
               $ref: '#/components/schemas/Meta'
             openvas_configid:
               $ref: '#/components/schemas/Meta'
-            openvas_reportformatid:
+            openvas_delete_scans:
+              $ref: '#/components/schemas/Meta'
+            openvas_portlistid:
+              $ref: '#/components/schemas/Meta'
+            openvas_scannerid:
+              $ref: '#/components/schemas/Meta'
+            openvas_ssh_password:
+              $ref: '#/components/schemas/Meta'
+            openvas_ssh_username:
               $ref: '#/components/schemas/Meta'
             oses:
               $ref: '#/components/schemas/Meta'
@@ -18478,8 +18486,22 @@ components:
         openvas_configid:
           description: ID of the scanning configuration on the OpenVAS server
           type: string
-        openvas_reportformatid:
-          description: ID of the "CSV Results" report format on the OpenVAS server
+        openvas_delete_scans:
+          description: Delete the task, its report and the target from the OpenVAS
+            server once the report is processed
+          type: string
+        openvas_portlistid:
+          description: ID of the port list on the OpenVAS server
+          type: string
+        openvas_scannerid:
+          description: ID of the scanner on the OpenVAS server
+          type: string
+        openvas_ssh_password:
+          description: Password of the SSH user
+          type: string
+        openvas_ssh_username:
+          description: SSH user giving access to the Greenbone Management Protocol (GMP)
+            on the OpenVAS server
           type: string
         oses:
           description: Nodes with the selected OS will be affected
@@ -18491,7 +18513,8 @@ components:
           description: Password
           type: string
         port:
-          description: If you use an alternative port, please specify
+          description: Port of the SSH service giving access to the Greenbone Management
+            Protocol (GMP)
           type: integer
         post_registration:
           description: If this option is enabled, the PF system will scan host after
@@ -18518,6 +18541,8 @@ components:
       - username
       - password
       - ip
+      - openvas_ssh_username
+      - openvas_ssh_password
       type: object
     ConfigScanSubTypePfappserverFormConfigScanRapid7:
       properties:
