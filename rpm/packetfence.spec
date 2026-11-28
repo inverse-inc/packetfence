@@ -283,9 +283,6 @@ Requires: perl(DateTime::TimeZone)
 Requires: libdrm >= 2.4.74
 Requires: python3-impacket >= 0.9.23
 Requires: fping, MySQL-python
-# OpenVAS
-Requires: openvas-cli
-Requires: openvas-libraries
 
 # pki
 Requires: perl(Crypt::SMIME)

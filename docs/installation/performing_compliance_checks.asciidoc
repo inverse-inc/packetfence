@@ -43,20 +43,52 @@ Please refer to the https://packetfence.org/bugs/view.php?id=1841[bug tracking s
 
 ===== Requirements
 
+PacketFence drives OpenVAS through the Greenbone Management Protocol (GMP) over
+SSH, the transport of the Greenbone appliances and of the Greenbone tools
+(`gvm-cli`).
 
-First install OpenVAS along with XYZ and ABC in order to manage
-OpenVAS remotely via the `omp` command line.
+Create a user for PacketFence in the Greenbone Security Assistant, with the
+_User_ role: it can create and start scans and read the scan configs, port
+lists and scanners of the feed.
 
-In order to validate proper connectivity from PacketFence to OpenVAS for remote
-management, execute the following command (replacing admin by the user to
-use for PacketFence to communicate with OpenVAS):
+*Greenbone appliances*
 
-  # omp -u admin -p 9390 -X "<get_version/>"
+Enable SSH, then GMP, in the GOS administration menu (_Setup -> Services_). Enter
+the SSH user and password giving access to GMP, as described in the GOS
+documentation of the appliance, in the scan engine: PacketFence has no default
+for them. GMP isn't available on all the models.
 
-The output of the above command should provide the version of OpenVAS.
-Otherwise, ensure all the necessary components are in place for management
-through the `omp` command line client and that PacketFence is able to
-communicate with OpenVAS on port 9390.
+*Greenbone Community Edition*
+
+gvmd only listens on a local unix socket (`/run/gvmd/gvmd.sock`, or the
+directory bind mounted on `/run/gvmd` with the container setup). Make it
+reachable over SSH with a dedicated user whose login is forwarded to the
+socket, for example in [filename]`/etc/ssh/sshd_config` of the OpenVAS server:
+
+----
+Match User gmp
+    ForceCommand socat - UNIX-CONNECT:/run/gvmd/gvmd.sock
+    PasswordAuthentication yes
+    AllowTcpForwarding no
+    X11Forwarding no
+    PermitTTY no
+----
+
+The user needs access to the socket, for example by being a member of the
+`gvm` group. Greenbone doesn't support the TLS listener of gvmd, which
+PacketFence doesn't use.
+
+*Validating the connectivity*
+
+From the PacketFence server, connect with the SSH user and send the
+`get_version` command:
+
+  # ssh gmp@OPENVAS_SERVER
+  <get_version/>
+
+The output should be a `get_version_response` with the GMP version. Otherwise,
+ensure GMP is enabled and that PacketFence can reach the SSH port of the
+OpenVAS server.
 
 ===== Configuring the alert
 
@@ -100,16 +132,15 @@ image::openvas/alert-id.png[alt="OpenVAS alert ID"]
 
 Navigate to _Configuration -> Scan Configs_ and then select the scan
 configuration to use to scan the hosts. In this scan config view,
-note down the ID.
+note down the ID. The scan engine defaults to _Full and fast_.
 
 image::openvas/scan-config-id.png[alt="OpenVAS scan config ID"]
 
-*Report format ID*
+*Scanner ID and port list ID*
 
-Navigate to _Configuration -> Report Formats_ and then select the `CSV Results`
-report format. In this view, note down the ID.
-
-image::openvas/report-format-id.png[alt="OpenVAS report format ID"]
+The scan engine defaults to the built-in _OpenVAS Default_ scanner and to the
+_All IANA assigned TCP_ port list. To use others, note down their IDs in
+_Configuration -> Scanners_ and _Configuration -> Port Lists_.
 
 === Configuration
 
@@ -150,12 +181,17 @@ Specific to Nessus:
 Specific to OpenVAS:
 
   Hostname or IP Address: Hostname or IP Address where OpenVAS is running
-  Username: Username to connect to OpenVAS scan
-  Password: Password to connect to OpenVAS scan
-  Port of the service: port to connect (default 9390)
+  Username: Username of the GMP user for PacketFence
+  Password: Password of the GMP user for PacketFence
+  SSH port of the GMP service: SSH port of the OpenVAS server (default 22)
+  SSH username: SSH user giving access to GMP (required)
+  SSH password: Password of the SSH user (required)
   Alert ID: the ID of the alert configuration on the OpenVAS server
   Scan config ID: the ID of the scanning configuration on the OpenVAS server
-  Report format ID: the ID of the report format for the "CSV Results"
+  Scanner ID: the ID of the scanner on the OpenVAS server
+  Port list ID: the ID of the port list on the OpenVAS server
+  Delete scans: delete the task, its report and the target from the OpenVAS
+  server once PacketFence processed the report
 
 
 ===== Rules syntax

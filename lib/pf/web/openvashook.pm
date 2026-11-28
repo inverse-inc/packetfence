@@ -19,16 +19,15 @@ use Apache2::RequestIO();
 use Apache2::RequestRec();
 use pf::log;
 use HTTP::Status qw(:constants);
+use URI::Escape qw(uri_unescape);
 use pf::scan::openvas;
 use pf::factory::scan;
 
-my $logger = get_logger();
-
 sub handler {
     my ($r) = @_;
-    my $args = $r->args();
-    if($args =~ /task=(.+)/) {
-        my $task = $1;
+    my $args = $r->args() // '';
+    if($args =~ /(?:^|&)task=([^&]+)/) {
+        my $task = uri_unescape($1);
         get_logger->info("Will analyze OpenVAS report for task $task");
         my $info = pf::scan::openvas->getScanInfo($task);
         
@@ -39,9 +38,12 @@ sub handler {
         }
 
         my $scan = pf::factory::scan->new($info->{scan_id});
-        $scan->processReport($task);
-
-        $r->status(HTTP_OK);
+        unless($scan) {
+            get_logger->error("Cannot find the scan engine $info->{scan_id} of task $task");
+            $r->status(HTTP_INTERNAL_SERVER_ERROR);
+            return Apache2::Const::OK;
+        }
+        $r->status($scan->processReport($task) ? HTTP_OK : HTTP_INTERNAL_SERVER_ERROR);
         return Apache2::Const::OK;
     }
     else {

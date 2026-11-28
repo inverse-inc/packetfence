@@ -1189,7 +1189,7 @@ msgstr "Akamai"
 msgid "Alert Email To"
 msgstr "Email d'alerte à"
 
-#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:30
+#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:40
 msgid "Alert ID"
 msgstr "Identifiant de l'alerte"
 
@@ -1749,7 +1749,7 @@ msgstr "Approuvé"
 
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus.vue:46
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus6.vue:58
-#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:54
+#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:75
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeRapid7.vue:64
 msgid ""
 "Approximate duration of a scan. User being scanned on registration are "
@@ -5856,6 +5856,10 @@ msgstr "Supprimer la fenêtre"
 msgid "Delete file?"
 msgstr "Supprimer le fichier?"
 
+#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:57
+msgid "Delete scans"
+msgstr "Supprimer les analyses"
+
 #: html/pfappserver/root/src/views/Preferences/_components/TabSettings.vue:110
 msgid "Delete selected preferences?"
 msgstr "Supprimer les préférences sélectionnées ?"
@@ -5867,6 +5871,10 @@ msgstr "Supprimer l'instruction"
 #: html/pfappserver/root/src/components/new/BaseCsvImport.vue:142
 msgid "Delete static field"
 msgstr "Supprimer un champ statique"
+
+#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:58
+msgid "Delete the task, its report and the target from the OpenVAS server once the report is processed."
+msgstr "Supprimer la tâche, son rapport et la cible du serveur OpenVAS une fois le rapport traité."
 
 #: html/pfappserver/root/src/components/new/BaseFormButtonBar.vue:40
 #: html/pfappserver/root/src/views/Configuration/connectionProfiles/_components/TheFilesList.vue:61
@@ -6698,7 +6706,7 @@ msgstr "Dupliquer le nom d'utilisateur"
 
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus.vue:45
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus6.vue:57
-#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:53
+#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:74
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeRapid7.vue:63
 msgid "Duration"
 msgstr "Durée"
@@ -8810,15 +8818,19 @@ msgstr "Identifiant"
 msgid "ID exists."
 msgstr "L'identifiant existe."
 
-#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:39
-msgid "ID of the 'CSV Results' report format on the OpenVAS server."
-msgstr "ID du format de rapport de résultats CSV sur le serveur OpenVAS."
-
-#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:31
+#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:41
 msgid "ID of the alert configuration on the OpenVAS server."
 msgstr "ID de la configuration d'alerte sur le serveur OpenVAS."
 
-#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:35
+#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:53
+msgid "ID of the port list on the OpenVAS server."
+msgstr "ID de la liste de ports sur le serveur OpenVAS."
+
+#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:49
+msgid "ID of the scanner on the OpenVAS server."
+msgstr "ID de l'analyseur sur le serveur OpenVAS."
+
+#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:45
 msgid "ID of the scanning configuration on the OpenVAS server."
 msgstr "ID de la configuration de balayage sur le serveur OpenVAS."
 
@@ -9336,7 +9348,7 @@ msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus.vue:58
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus6.vue:70
-#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:66
+#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:87
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeRapid7.vue:76
 msgid ""
 "If this option is enabled, the PF system will scan each host after "
@@ -9347,7 +9359,7 @@ msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus.vue:65
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus6.vue:77
-#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:73
+#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:94
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeRapid7.vue:83
 msgid ""
 "If this option is enabled, the PF system will scan host after on the "
@@ -9358,7 +9370,7 @@ msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus.vue:51
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus6.vue:63
-#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:59
+#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:80
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeRapid7.vue:69
 msgid ""
 "If this option is enabled, the PF system will scan host before the "
@@ -9394,7 +9406,6 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/firewalls/_components/FormTypeWatchGuard.vue:18
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus.vue:26
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus6.vue:26
-#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:26
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeRapid7.vue:26
 msgid "If you use an alternative port, please specify."
 msgstr "Si vous utilisez un port alternatif, veuillez le spécifier."
@@ -12910,7 +12921,7 @@ msgstr "Appareils"
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSentinelone.vue:49
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus.vue:41
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus6.vue:53
-#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:49
+#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:70
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeRapid7.vue:59
 msgid "Nodes with the selected OS will be affected."
 msgstr "Les appareils avec ces OS seront impactés."
@@ -13185,7 +13196,7 @@ msgstr "OU"
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSentinelone.vue:48
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus.vue:40
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus6.vue:52
-#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:48
+#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:69
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeRapid7.vue:58
 msgid "OS"
 msgstr "OS"
@@ -14012,6 +14023,10 @@ msgstr "Le mote de passe doit être au moins de 6 caractères."
 msgid "Password must be at least 8 characters."
 msgstr "Mot de passe doit être d'au moins 8 caractères."
 
+#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:36
+msgid "Password of the SSH user."
+msgstr "Mot de passe de l'utilisateur SSH."
+
 #: html/pfappserver/root/src/views/Configuration/domains/schema.js:80
 #: html/pfappserver/root/src/views/Configuration/pki/certs/_components/ButtonCertificateDownload.vue:72
 #: html/pfappserver/root/src/views/Users/schema.js:77
@@ -14339,9 +14354,17 @@ msgstr "Port"
 msgid "Port exists."
 msgstr "Le port existe."
 
+#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:52
+msgid "Port list ID"
+msgstr "ID de la liste de ports"
+
 #: html/pfappserver/root/src/views/Configuration/connectors/dns/_components/TheForm.vue:20
 msgid "Port of the DNS server."
 msgstr "Port du serveur DNS."
+
+#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:26
+msgid "Port of the SSH service giving access to the Greenbone Management Protocol (GMP)."
+msgstr "Port du service SSH donnant accès au Greenbone Management Protocol (GMP)."
 
 #: html/pfappserver/root/src/views/Configuration/firewalls/_components/FormTypeBarracudaNg.vue:21
 #: html/pfappserver/root/src/views/Configuration/firewalls/_components/FormTypeCheckpoint.vue:17
@@ -14357,7 +14380,6 @@ msgstr "Port du serveur DNS."
 #: html/pfappserver/root/src/views/Configuration/firewalls/_components/FormTypeWatchGuard.vue:17
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus.vue:25
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus6.vue:25
-#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:25
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeRapid7.vue:25
 msgid "Port of the service"
 msgstr "Port du service"
@@ -15616,10 +15638,6 @@ msgstr "Remplacer"
 msgid "Replicas"
 msgstr "Répliques"
 
-#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:38
-msgid "Report format ID"
-msgstr "Identifiant du format de rapport"
-
 #: html/pfappserver/root/src/App.vue:11
 #: html/pfappserver/root/src/views/Status/about/_components/TheView.vue:262
 msgid "Reports"
@@ -16072,7 +16090,7 @@ msgstr "Rôle quand isolé"
 #: html/pfappserver/root/src/views/Configuration/roles/_components/TheSearch.vue:5
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus.vue:35
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus6.vue:47
-#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:43
+#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:64
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeRapid7.vue:53
 #: html/pfappserver/root/src/views/Configuration/selfServices/schema.js:22
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheForm.vue:94
@@ -16371,6 +16389,22 @@ msgstr "SNMP Version"
 msgid "SNMP:"
 msgstr "SNMP:"
 
+#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:35
+msgid "SSH password"
+msgstr "Mot de passe SSH"
+
+#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:25
+msgid "SSH port of the GMP service"
+msgstr "Port SSH du service GMP"
+
+#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:31
+msgid "SSH user giving access to the Greenbone Management Protocol (GMP) on the OpenVAS server."
+msgstr "Utilisateur SSH donnant accès au Greenbone Management Protocol (GMP) sur le serveur OpenVAS."
+
+#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:30
+msgid "SSH username"
+msgstr "Nom d'utilisateur SSH"
+
 #: html/pfappserver/root/src/globals/pfFilters.js:42
 #: html/pfappserver/root/src/views/Auditing/radiusLogs/_search.js:235
 #: html/pfappserver/root/src/views/Configuration/connectionProfiles/config.js:41
@@ -16584,19 +16618,19 @@ msgstr "Gabarit d'analyse"
 
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus.vue:64
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus6.vue:76
-#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:72
+#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:93
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeRapid7.vue:82
 msgid "Scan after registration"
 msgstr "Analyser après l’enregistrement"
 
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus.vue:50
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus6.vue:62
-#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:58
+#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:79
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeRapid7.vue:68
 msgid "Scan before registration"
 msgstr "Analyser avant l’enregistrement"
 
-#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:34
+#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:44
 msgid "Scan config ID"
 msgstr "Identifiant de configuration d'analyseur"
 
@@ -16606,7 +16640,7 @@ msgstr "Déclencher une analyse au moment de la comptabilisation"
 
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus.vue:57
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus6.vue:69
-#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:65
+#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:86
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeRapid7.vue:75
 msgid "Scan on registration"
 msgstr "Analyser lors de l’enregistrement"
@@ -16619,6 +16653,10 @@ msgstr ""
 "Analysez votre réseau à l'aide de SNMP pour découvrir les commutateurs et "
 "les routeurs. Les appareils découverts peuvent être ajoutés à la "
 "configuration de votre commutateur."
+
+#: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeOpenvas.vue:48
+msgid "Scanner ID"
+msgstr "ID de l'analyseur"
 
 #: html/pfappserver/root/src/views/Configuration/connectionProfiles/_components/TheForm.vue:139
 msgid "Scanners"
